@@ -71,16 +71,21 @@ interface G {
   tVelX: number;
   tVelY: number;
   jailing: boolean;
+  tJumping: boolean;
+  tApproach: boolean;
   // Shooter
   spPhrase: string; spTimer: number;
   // Arrays
   projectiles: Projectile[];
   explosions: Explosion[];
   confetti: Confetti[];
+  particles: { x: number, y: number, r: number, vx: number, vy: number, age: number, type: 'dust'|'spark'|'laser' }[];
   // Terrain
   heights: Float32Array;
   // Drag
   drag: boolean; dragEnd: { x: number; y: number };
+  // Visual FX
+  shake: number;
 }
 
 // ─── Statics ─────────────────────────────────────────────────────────────────
@@ -403,166 +408,208 @@ function drawCatapult(
     ctx.beginPath(); ctx.moveTo(CATAPULT_X + 22, bY - 62); ctx.lineTo(CATAPULT_X, bY - 46); ctx.stroke();
   }
 
-  // Mexican character
+  // Mexican character - Modern Polish
   const cx = CATAPULT_X; const cy = bY - 62;
+  const breathe = Math.sin(Date.now() * 0.005) * 2;
 
-  // Serape (body)
-  const stripes = ['#CC3300','#FFD700','#006600','#CC3300','#FFD700','#FFFFFF'];
-  for (let i = 0; i < 6; i++) { ctx.fillStyle = stripes[i]; ctx.fillRect(cx - 18 + i * 6, cy - 55, 6, 45); }
+  ctx.save();
+  ctx.translate(cx, cy + breathe);
+
+  // Shoes
+  ctx.fillStyle = '#3e2723';
+  ctx.beginPath(); ctx.ellipse(-8, 0, 10, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(8, 0, 10, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Serape (body) - Rounded & Gradient
+  const bodyGrad = ctx.createLinearGradient(-25, -55, 25, -10);
+  bodyGrad.addColorStop(0, '#CC3300');
+  bodyGrad.addColorStop(0.3, '#FFD700');
+  bodyGrad.addColorStop(0.6, '#006600');
+  bodyGrad.addColorStop(1, '#CC3300');
+  
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath();
+  (ctx as any).roundRect(-22, -58, 44, 48, [12, 12, 5, 5]);
+  ctx.fill();
+  
+  // Mexican Flag Stripe (middle)
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.fillRect(-6, -58, 12, 48);
+  ctx.fillStyle = '#0a5d00';
+  ctx.beginPath(); ctx.arc(0, -34, 3, 0, Math.PI * 2); ctx.fill();
 
   // Head
-  ctx.fillStyle = '#C68642'; ctx.beginPath(); ctx.arc(cx, cy - 65, 17, 0, Math.PI * 2); ctx.fill();
+  const headGrad = ctx.createRadialGradient(0, -70, 5, 0, -70, 20);
+  headGrad.addColorStop(0, '#e0ac69');
+  headGrad.addColorStop(1, '#8d5524');
+  ctx.fillStyle = headGrad; 
+  ctx.beginPath(); ctx.arc(0, -70, 18, 0, Math.PI * 2); ctx.fill();
 
-  // Eyes
+  // Eyes (Blinking)
+  const isBlinking = (Math.floor(Date.now() / 200) % 15 === 0);
   ctx.fillStyle = '#111';
-  ctx.beginPath(); ctx.arc(cx - 5, cy - 68, 2.5, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(cx + 5, cy - 68, 2.5, 0, Math.PI * 2); ctx.fill();
-
-  // Smile
-  ctx.strokeStyle = '#7a3a00'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(cx, cy - 60, 7, 0.2, Math.PI - 0.2); ctx.stroke();
+  if (isBlinking) {
+    ctx.fillRect(-8, -74, 6, 2);
+    ctx.fillRect(2, -74, 6, 2);
+  } else {
+    ctx.beginPath(); ctx.arc(-5, -73, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(5, -73, 3, 0, Math.PI * 2); ctx.fill();
+    // Eye shines
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-6, -74.5, 1, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(4, -74.5, 1, 0, Math.PI * 2); ctx.fill();
+  }
 
   // Mustache
-  ctx.fillStyle = '#111';
-  ctx.beginPath(); ctx.arc(cx - 5, cy - 60, 6, Math.PI, 2 * Math.PI); ctx.fill();
-  ctx.beginPath(); ctx.arc(cx + 5, cy - 60, 6, Math.PI, 2 * Math.PI); ctx.fill();
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.moveTo(-15, -60);
+  ctx.quadraticCurveTo(-15, -68, 0, -68);
+  ctx.quadraticCurveTo(15, -68, 15, -60);
+  ctx.quadraticCurveTo(0, -55, -15, -60);
+  ctx.fill();
 
-  // Sombrero brim
+  // Sombrero (High Detail)
   ctx.fillStyle = '#DEB887';
-  ctx.beginPath(); ctx.ellipse(cx, cy - 82, 34, 7, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, -88, 42, 10, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 1.5; ctx.stroke();
+  
   // Crown
-  ctx.fillStyle = '#C8A060';
-  ctx.beginPath(); ctx.ellipse(cx, cy - 94, 17, 15, 0, 0, Math.PI * 2); ctx.fill();
-  // Band
-  ctx.fillStyle = '#CC3300'; ctx.fillRect(cx - 17, cy - 87, 34, 6);
-  // Pompoms
+  const crownGrad = ctx.createLinearGradient(-20, -115, 20, -90);
+  crownGrad.addColorStop(0, '#DEB887');
+  crownGrad.addColorStop(0.5, '#f5deb3');
+  crownGrad.addColorStop(1, '#cd853f');
+  ctx.fillStyle = crownGrad;
+  ctx.beginPath(); ctx.ellipse(0, -100, 22, 18, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.stroke();
+
+  // Band & Pompoms
+  ctx.fillStyle = '#CC3300'; ctx.fillRect(-21, -94, 42, 6);
   ctx.fillStyle = '#FFD700';
-  for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.arc(cx - 13 + i * 9, cy - 84, 2.5, 0, Math.PI * 2); ctx.fill(); }
+  for (let i = 0; i < 5; i++) {
+    ctx.beginPath(); ctx.arc(-16 + i * 8, -91, 2.5, 0, Math.PI * 2); ctx.fill();
+  }
+
+  ctx.restore();
 }
 
 function drawTrump(ctx: CanvasRenderingContext2D, g: G, _frame: number) {
-  const { tx, ty, tw, th, tHit, tHitF, tHairOff, tDancing, tDanceF, tPhrase, tPhraseT } = g;
+  const { tx, ty, tw, th, tHit, tHitF, tHairOff, tDancing, tDanceF, tPhrase, tPhraseT, tVelY } = g;
 
   let ox = 0, oy = 0, rot = 0;
   if (tDancing) { const df = tDanceF % 40; ox = Math.sin(df * 0.4) * 14; oy = -Math.abs(Math.sin(df * 0.8)) * 9; rot = Math.sin(df * 0.4) * 0.14; }
   if (tHit && tHitF < 30) { rot = (tHitF / 30) * Math.PI * 0.28; ox -= tHitF * 1.8; oy -= Math.sin((tHitF / 30) * Math.PI) * 28; }
 
   const cx = tx + tw / 2 + ox; const cy = ty + th / 2 + oy;
-  ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot); ctx.translate(-cx, -cy);
+  const isJumping = tVelY < -2 || tVelY > 2;
+  const breathe = Math.sin(Date.now() * 0.006) * 1.5;
 
-  const dx = tx + ox; const dy = ty + oy;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rot);
 
-  // Shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath();
-  ctx.ellipse(cx, ty + th + oy + 4, tw * 0.38, 9, 0, 0, Math.PI * 2); ctx.fill();
-
-  // Legs
-  ctx.fillStyle = '#1565C0';
-  ctx.fillRect(dx + tw * 0.25, dy + th * 0.7, tw * 0.19, th * 0.3);
-  ctx.fillRect(dx + tw * 0.56, dy + th * 0.7, tw * 0.19, th * 0.3);
-  // Shoes
-  ctx.fillStyle = '#111';
-  ctx.fillRect(dx + tw * 0.19, dy + th * 0.91, tw * 0.27, th * 0.09);
-  ctx.fillRect(dx + tw * 0.52, dy + th * 0.91, tw * 0.27, th * 0.09);
-
-  // Body (suit)
-  ctx.fillStyle = '#1565C0';
-  ctx.beginPath(); (ctx as any).roundRect(dx + tw * 0.1, dy + th * 0.35, tw * 0.8, th * 0.39, 4); ctx.fill();
-
-  // White shirt
-  ctx.fillStyle = '#FFFFFF'; ctx.fillRect(dx + tw * 0.37, dy + th * 0.35, tw * 0.26, th * 0.28);
-
-  // Red tie
-  ctx.fillStyle = '#CC0000';
+  // Suit (Body)
+  const suitGrad = ctx.createLinearGradient(-25, -20, 25, 30);
+  suitGrad.addColorStop(0, '#1a237e'); // Navy Blue
+  suitGrad.addColorStop(1, '#0d1137');
+  ctx.fillStyle = suitGrad;
   ctx.beginPath();
-  ctx.moveTo(dx + tw * 0.44, dy + th * 0.35);
-  ctx.lineTo(dx + tw * 0.56, dy + th * 0.35);
-  ctx.lineTo(dx + tw * 0.53, dy + th * 0.62);
-  ctx.lineTo(dx + tw * 0.5,  dy + th * 0.7);
-  ctx.lineTo(dx + tw * 0.47, dy + th * 0.62);
-  ctx.closePath(); ctx.fill();
-  ctx.fillStyle = '#AA0000'; ctx.beginPath(); ctx.arc(dx + tw * 0.5, dy + th * 0.37, tw * 0.045, 0, Math.PI * 2); ctx.fill();
+  (ctx as any).roundRect(-24, -20 + breathe, 48, 55, [15, 15, 5, 5]);
+  ctx.fill();
 
-  // Arms
-  ctx.fillStyle = '#1565C0';
-  ctx.fillRect(dx, dy + th * 0.37, tw * 0.11, tw * 0.28);
-  ctx.fillRect(dx + tw * 0.89, dy + th * 0.37, tw * 0.11, tw * 0.28);
-  // Tiny hands
-  ctx.fillStyle = '#FF8C69';
-  ctx.beginPath(); ctx.arc(dx + tw * 0.055, dy + th * 0.56, tw * 0.068, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(dx + tw * 0.945, dy + th * 0.56, tw * 0.068, 0, Math.PI * 2); ctx.fill();
+  // White Shirt
+  ctx.fillStyle = '#FFFFFF';
+  ctx.beginPath();
+  ctx.moveTo(0, -20 + breathe);
+  ctx.lineTo(-12, -20 + breathe);
+  ctx.lineTo(0, 10 + breathe);
+  ctx.lineTo(12, -20 + breathe);
+  ctx.closePath();
+  ctx.fill();
+
+  // Red Tie
+  ctx.fillStyle = '#d32f2f';
+  ctx.beginPath();
+  ctx.moveTo(-3, -20 + breathe);
+  ctx.lineTo(3, -20 + breathe);
+  ctx.lineTo(5, 18 + breathe);
+  ctx.lineTo(0, 24 + breathe);
+  ctx.lineTo(-5, 18 + breathe);
+  ctx.closePath();
+  ctx.fill();
+
+  // Hands
+  ctx.fillStyle = '#ffcc99';
+  const handY = isJumping ? -15 : 5;
+  ctx.beginPath(); ctx.arc(-28, handY + breathe, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(28, handY + breathe, 7, 0, Math.PI * 2); ctx.fill();
 
   // Head
-  ctx.fillStyle = '#FF8C69';
-  ctx.beginPath(); ctx.ellipse(dx + tw / 2, dy + th * 0.22, tw * 0.31, th * 0.21, 0, 0, Math.PI * 2); ctx.fill();
+  const skinGrad = ctx.createRadialGradient(0, -45, 2, 0, -45, 20);
+  skinGrad.addColorStop(0, '#ffcc99');
+  skinGrad.addColorStop(1, '#e68a00');
+  ctx.fillStyle = skinGrad;
+  ctx.beginPath(); ctx.arc(0, -45, 22, 0, Math.PI * 2); ctx.fill();
+
+  // Face
+  ctx.strokeStyle = '#8d5524'; ctx.lineWidth = 1;
+  ctx.beginPath(); // Eyebrows
+  ctx.moveTo(-12, -54); ctx.lineTo(-4, -50); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(12, -54); ctx.lineTo(4, -50); ctx.stroke();
+  ctx.fillStyle = '#333';
+  ctx.beginPath(); ctx.arc(-7, -48, 2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(7, -48, 2, 0, Math.PI * 2); ctx.fill();
+
+  if (tPhraseT > 0 || isJumping) {
+    ctx.fillStyle = '#441111';
+    ctx.beginPath(); ctx.ellipse(0, -36, 8, 5, 0, 0, Math.PI * 2); ctx.fill();
+  } else {
+    ctx.strokeStyle = '#8d5524'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(-6, -37); ctx.quadraticCurveTo(0, -35, 6, -37); ctx.stroke();
+  }
 
   // Hair
   if (!tHairOff) {
-    ctx.fillStyle = '#FFD700';
-    ctx.beginPath(); ctx.ellipse(dx + tw / 2, dy + th * 0.08, tw * 0.34, th * 0.11, -0.15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffd54f';
+    const hOff = isJumping ? -5 : 0;
     ctx.beginPath();
-    ctx.moveTo(dx + tw * 0.1, dy + th * 0.07);
-    ctx.quadraticCurveTo(dx + tw * 0.5, dy - th * 0.04, dx + tw * 0.86, dy + th * 0.09);
-    ctx.quadraticCurveTo(dx + tw * 0.72, dy + th * 0.15, dx + tw * 0.1, dy + th * 0.13);
-    ctx.closePath(); ctx.fill();
+    ctx.moveTo(-24, -55 + hOff);
+    ctx.quadraticCurveTo(-20, -78 + hOff, 15, -74 + hOff);
+    ctx.quadraticCurveTo(32, -68 + hOff, 28, -45 + hOff);
+    ctx.quadraticCurveTo(24, -58 + hOff, 0, -58 + hOff);
+    ctx.quadraticCurveTo(-15, -58 + hOff, -24, -55 + hOff);
+    ctx.fill();
   } else {
-    ctx.fillStyle = '#FFD700'; ctx.beginPath();
-    ctx.ellipse(dx + tw / 2 + Math.cos(tHitF * 0.28) * 38, dy - tHitF * 2.8, 24, 9, tHitF * 0.1, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#e68a00'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(0, -62, 10, Math.PI, 2 * Math.PI); ctx.stroke();
   }
 
-  // Eyes
-  ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.arc(dx + tw * 0.39, dy + th * 0.18, tw * 0.055, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(dx + tw * 0.61, dy + th * 0.18, tw * 0.055, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#1a1a2e';
-  ctx.beginPath(); ctx.arc(dx + tw * 0.395, dy + th * 0.18, tw * 0.028, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(dx + tw * 0.615, dy + th * 0.18, tw * 0.028, 0, Math.PI * 2); ctx.fill();
-
-  // Mouth
-  ctx.strokeStyle = '#CC4400'; ctx.lineWidth = 3;
-  ctx.beginPath();
-  if (tHit && tHitF < 18) ctx.arc(dx + tw * 0.5, dy + th * 0.28, tw * 0.09, 0, Math.PI);
-  else if (tDancing)       ctx.arc(dx + tw * 0.5, dy + th * 0.25, tw * 0.11, 0.1, Math.PI - 0.1);
-  else                     ctx.arc(dx + tw * 0.5, dy + th * 0.29, tw * 0.09, 0.15, Math.PI - 0.15);
-  ctx.stroke();
-
-  // OOF
-  if (tHit && tHitF < 24) {
-    ctx.font = `bold ${22 + (1 - tHitF / 24) * 18 | 0}px Arial`;
-    ctx.fillStyle = '#FF3333'; ctx.textAlign = 'center';
-    ctx.fillText('OOF! 💥', cx, dy - 22 - tHitF * 1.8);
-    ctx.textAlign = 'left';
-  }
-
-  // Speech bubble (Cartoon Cloud)
+  // Speech Bubble
   if (tPhraseT > 0 && tPhrase) {
+    ctx.save();
+    ctx.translate(-cx, -cy);
     ctx.globalAlpha = Math.min(1, tPhraseT / 18);
-    const bx = dx + tw / 2; const by = dy - 55;
-    const bw = tPhrase.length * 8.5 + 40;
-    const bh = 45;
+    const bx = cx; const by = cy - 100;
+    const bw = tPhrase.length * 9 + 45;
+    const bh = 50;
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.strokeStyle = '#333333';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 2.5;
     ctx.beginPath();
-    // Cloud bubble shape
-    ctx.arc(bx - bw * 0.35, by, bh * 0.4, Math.PI * 0.5, Math.PI * 1.5, false);
-    ctx.arc(bx - bw * 0.1, by - bh * 0.35, bh * 0.5, Math.PI, Math.PI * 2, false);
-    ctx.arc(bx + bw * 0.2, by - bh * 0.25, bh * 0.45, Math.PI * 1.25, Math.PI * 0.25, false);
-    ctx.arc(bx + bw * 0.4, by + bh * 0.1, bh * 0.35, Math.PI * 1.5, Math.PI * 0.5, false);
-    ctx.arc(bx + bw * 0.1, by + bh * 0.3, bh * 0.35, 0, Math.PI, false);
+    ctx.arc(bx - bw * 0.3, by, bh * 0.45, Math.PI * 0.5, Math.PI * 1.5, false);
+    ctx.arc(bx, by - bh * 0.4, bh * 0.55, Math.PI, Math.PI * 2, false);
+    ctx.arc(bx + bw * 0.3, by, bh * 0.45, Math.PI * 1.5, Math.PI * 0.5, false);
+    ctx.arc(bx, by + bh * 0.35, bh * 0.4, 0, Math.PI, false);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
 
-    // Little tail to mouth
-    ctx.beginPath();
-    ctx.arc(bx - 10, by + bh * 0.7, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(bx - 18, by + bh * 1.1, 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(bx - 12, by + bh * 0.8, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(bx - 22, by + bh * 1.2, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     
-    ctx.fillStyle = '#111111'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center';
-    ctx.fillText(tPhrase, bx + 5, by + 4);
-    ctx.textAlign = 'left'; ctx.globalAlpha = 1;
+    ctx.fillStyle = '#1a1a1b'; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'center';
+    ctx.fillText(tPhrase, bx, by + 5);
+    ctx.restore();
   }
 
   ctx.restore();
@@ -793,10 +840,14 @@ export default function TrumpsBadDay() {
       tPhrase: '', tPhraseT: 0,
       tVelX: 0, tVelY: 0,
       jailing: false,
+      tJumping: false,
+      tApproach: true,
       spPhrase: '', spTimer: 0,
       projectiles: [], explosions: [], confetti: [],
+      particles: [],
       heights,
       drag: false, dragEnd: { x: CATAPULT_X, y: 400 },
+      shake: 0,
     };
   }, []);
 
@@ -841,6 +892,7 @@ export default function TrumpsBadDay() {
       g.combo++; g.hits++;
       g.score += 100 * g.combo;
       g.misses = 0;
+      g.shake = 15;
       g.tPhrase = pick(HIT_PHRASES); g.tPhraseT = 90;
       beep(400, 0.15);
       if (g.combo >= 3) g.confetti.push(...spawnConfetti(hx, hy));
@@ -878,8 +930,26 @@ export default function TrumpsBadDay() {
         ctx.clearRect(0, 0, CW, CH);
         drawBg(ctx, BACKGROUNDS[g.bgIndex].key);
         drawSLogo(ctx);
-        drawTerrain(ctx, g.heights);
-        drawTrump(ctx, g, F);
+        // Particles Drawing
+      g.particles.forEach(p => {
+        ctx.save();
+        const alpha = 1 - (p.age / 40);
+        if (p.type === 'dust') {
+          ctx.fillStyle = `rgba(180, 180, 180, ${alpha * 0.5})`;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        } else if (p.type === 'spark') {
+          ctx.fillStyle = `rgba(255, 200, 50, ${alpha})`;
+          ctx.shadowBlur = 10; ctx.shadowColor = 'orange';
+          ctx.fillRect(p.x, p.y, p.r, p.r);
+        } else if (p.type === 'laser') {
+            ctx.strokeStyle = `rgba(0, 255, 255, ${alpha})`;
+            ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(p.x - 5, p.y); ctx.lineTo(p.x + 5, p.y); ctx.stroke();
+        }
+        ctx.restore();
+      });
+
+      drawCatapult(ctx, g.heights, g.drag, g.dragEnd.x, g.dragEnd.y);
+      drawTrump(ctx, g, F);
         drawConfetti(ctx, g.confetti);
         g.confetti = g.confetti.map(c => ({ ...c, x: c.x + c.vx, y: c.y + c.vy, vy: c.vy + 0.22, life: c.life - 1 })).filter(c => c.life > 0 && c.y < CH);
         drawGameOver(ctx, g);
@@ -888,6 +958,16 @@ export default function TrumpsBadDay() {
 
       // Wind cycle
       if (F % 310 === 0) g.wind = rand(-5, 5);
+
+      // Screen Shake & Context setup
+      if (g.shake > 0) {
+        ctx.save();
+        const sx = (Math.random() - 0.5) * g.shake;
+        const sy = (Math.random() - 0.5) * g.shake;
+        ctx.translate(sx, sy);
+        g.shake *= 0.92;
+        if (g.shake < 0.5) g.shake = 0;
+      }
 
       // Trump
       if (g.tHit) {
@@ -901,50 +981,56 @@ export default function TrumpsBadDay() {
 
       // Speed ramp & Approaching logic
       const lvl = Math.floor(g.hits / 5);
-      if (!g.tHit && !g.jailing) {
-        // Trump slowly walks left to catch the Mexican guy
-        const advanceSpeed = 0.5 + Math.min(lvl * 0.3, 3);
-        const groundY = terrainY(g.heights, g.tx + g.tw / 2) - g.th;
-        
-        g.tx -= advanceSpeed;
-        
-        // Random Jumps like Mario Bros to dodge and attack
-        if (g.ty >= groundY - 2) {
-          // On ground
-          if (Math.random() < 0.015 + (lvl * 0.005)) {
-            g.tVelY = -14 - Math.random() * 6; // Big Mario jump!
-            if (Math.random() > 0.5) {
-              g.tPhrase = pick(["I'm coming!", "Tremendous jump!", "MEXICO WILL PAY!", "You can't hide!", "I'm the best jumper!"]);
-              g.tPhraseT = 80;
-            }
-          } else {
-            g.tVelY = 0;
-            g.ty = groundY;
-          }
+      const approachSpeed = 0.5; // Base speed
+      const speedRamp = Math.min(lvl * 0.3, 3); // Speed increase based on level
+      if (g.tApproach) {
+        g.tVelX = approachSpeed * (1 + speedRamp);
+        // Modern Platformer AI: Jump randomly or when feeling aggressive
+        if (Math.random() < 0.015 && g.ty >= 440) {
+          g.tVelY = -24;
+          g.tPhrase = "I JUMP HIGH!"; g.tPhraseT = 80;
+          // Spawn Dust Particles
+          for(let i=0; i<6; i++) g.particles.push({ x: g.tx+g.tw/2, y: g.ty+g.th, r: 4+Math.random()*4, vx: (Math.random()-0.5)*6, vy: -Math.random()*3, age: 0, type: 'dust' });
         }
-        
-        // Apply Gravity to Trump
-        g.tVelY += 0.85; // Gravity pull
-        g.ty += g.tVelY;
-        if (g.ty > groundY) {
-          g.ty = groundY;
-          g.tVelY = 0;
+      } else {
+        g.tVelX *= 0.85;
+      }
+      g.tx += g.tVelX;
+      g.ty += g.tVelY;
+      
+      // Gravity & Ground Logic
+      if (g.ty < 440) {
+        g.tVelY += 1.2; // Gravity
+        g.tJumping = true;
+      } else {
+        g.ty = 440; g.tVelY = 0;
+        if (g.tJumping) {
+            g.tJumping = false;
+            // Land Particles
+            for(let i=0; i<8; i++) g.particles.push({ x: g.tx+g.tw/2, y: g.ty+g.th, r: 5+Math.random()*5, vx: (Math.random()-0.5)*12, vy: -Math.random()*4, age: 0, type: 'dust' });
         }
+      }
 
-        // Check if Trump reached the catapult (JAILED condition)
-        if (g.tx <= CATAPULT_X + 22) {
-          g.jailing = true;
-          g.tPhrase = "GOT YOU! TO JAIL!";
-          g.tPhraseT = 150;
-          g.spPhrase = "¡Ay caramba!";
-          g.spTimer = 150;
-          beep(200, 1.0, 'sawtooth');
-          g.phase = 'gameover';
-          saveScore(g);
-          setTimeout(() => {
-            setPhase('gameover'); setUiScore(g.score); setUiHighScore(g.highScore); setIsNewHS(g.isNewHighScore);
-          }, 1500); // 1.5 second delay to let the user see Trump's victory
-        }
+      // Update Particles
+      g.particles = g.particles.filter(p => {
+        p.x += p.vx; p.y += p.vy; p.age++;
+        return p.age < 40;
+      });
+
+      // Hit Logic & Jailing
+      if (g.tHit) {
+        g.tHitF++;
+        if (g.tHitF > 60) { g.tHit = false; g.tHitF = 0; }
+      }
+      if (g.tx > 550 && !g.jailing) { // Changed from !gameOver to !g.jailing
+        g.jailing = true; // Set jailing state
+        g.tPhrase = "GOT YOU! TO JAIL!"; g.tPhraseT = 200;
+        g.shake = 35; // Jailing Screen Shake
+        g.phase = 'gameover'; // Set game over phase
+        saveScore(g); // Save score
+        setTimeout(() => {
+          setPhase('gameover'); setUiScore(g.score); setUiHighScore(g.highScore); setIsNewHS(g.isNewHighScore);
+        }, 1500);
       }
 
       // Projectiles
@@ -1041,8 +1127,27 @@ export default function TrumpsBadDay() {
       drawTrump(ctx, g, F);
       for (const p of g.projectiles) drawProjectile(ctx, p);
       for (const e of g.explosions)  drawExplosion(ctx, e);
+      // Particles Drawing
+      g.particles.forEach(p => {
+        ctx.save();
+        const alpha = 1 - (p.age / 40);
+        if (p.type === 'dust') {
+          ctx.fillStyle = `rgba(180, 180, 180, ${alpha * 0.5})`;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        } else if (p.type === 'spark') {
+          ctx.fillStyle = `rgba(255, 200, 50, ${alpha})`;
+          ctx.shadowBlur = 10; ctx.shadowColor = 'orange';
+          ctx.fillRect(p.x, p.y, p.r, p.r);
+        } else if (p.type === 'laser') {
+            ctx.strokeStyle = `rgba(0, 255, 255, ${alpha})`;
+            ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(p.x - 5, p.y); ctx.lineTo(p.x + 5, p.y); ctx.stroke();
+        }
+        ctx.restore();
+      });
       drawConfetti(ctx, g.confetti);
       drawHUD(ctx, g, F);
+
+      if (g.shake > 0) ctx.restore();
 
       rafRef.current = requestAnimationFrame(loop);
     };

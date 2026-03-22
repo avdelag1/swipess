@@ -319,20 +319,19 @@ const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
 }) => {
   const photos = FAN_CARD_PHOTOS[card.id];
   const activePhoto = photoIdx % photos.length;
+  
+  // Use independent motion values for the drag tilt effect
+  const dragX = useMotionValue(0);
+  const rotateTilt = useTransform(dragX, [-150, 150], [-12, 12]);
+  const scaleEffect = useTransform(dragX, [-150, 0, 150], [1.05, 1, 1.05]);
 
   return (
     <motion.button
       onClick={onTap}
       data-testid={`fan-filter-${card.id}`}
-      initial={{ opacity: 0, scale: 0.78, rotate: card.rotate, x: card.tx, y: card.ty + 50 }}
-      animate={isPreviewing ? {
-        opacity: 1, scale: 1.06, rotate: 0, x: 0, y: -24, zIndex: 30,
-      } : {
-        opacity: 1, scale: 1, rotate: card.rotate, x: card.tx, y: card.ty, zIndex: index + 1,
-      }}
-      transition={{ type: 'spring', stiffness: 380, damping: 34, mass: 0.7, delay: isPreviewing ? 0 : index * 0.18 }}
-      whileTap={{ scale: 0.97 }}
-      className="absolute pointer-events-auto"
+      drag={!isPreviewing}
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+      dragElastic={0.5}
       style={{
         width: CARD_W,
         height: CARD_H,
@@ -340,70 +339,131 @@ const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
         top: '50%',
         marginLeft: -(CARD_W / 2),
         marginTop: -(CARD_H / 2),
-        borderRadius: 22,
+        borderRadius: 24,
         overflow: 'hidden',
+        x: isPreviewing ? 0 : dragX,
+        rotate: isPreviewing ? 0 : rotateTilt,
+        scale: isPreviewing ? 1.06 : scaleEffect,
         boxShadow: isPreviewing
-          ? `0 30px 60px rgba(${card.accentRgb},0.5), 0 10px 30px rgba(0,0,0,0.55)`
-          : `0 14px 36px rgba(0,0,0,0.45), 0 4px 10px rgba(0,0,0,0.25)`,
+          ? `0 35px 70px rgba(${card.accentRgb},0.6), 0 15px 40px rgba(0,0,0,0.6)`
+          : `0 18px 45px rgba(0,0,0,0.4), 0 5px 15px rgba(0,0,0,0.2)`,
+        zIndex: isPreviewing ? 100 : index + 1,
         transformOrigin: 'bottom center',
         WebkitTapHighlightColor: 'transparent',
-        border: `1.5px solid rgba(${card.accentRgb},${isPreviewing ? 0.75 : 0.22})`,
+        border: `2px solid rgba(${card.accentRgb},${isPreviewing ? 0.8 : 0.25})`,
       }}
+      initial={{ opacity: 0, scale: 0.75, rotate: card.rotate, x: card.tx, y: card.ty + 60 }}
+      animate={isPreviewing ? {
+        opacity: 1, scale: 1.06, rotate: 0, x: 0, y: -24,
+      } : {
+        opacity: 1, rotate: card.rotate, x: card.tx, y: card.ty,
+      }}
+      transition={{ 
+        type: 'spring', 
+        stiffness: 400, 
+        damping: 38, 
+        mass: 0.8, 
+        delay: isPreviewing ? 0 : index * 0.15 
+      }}
+      whileTap={{ scale: 0.96 }}
+      whileDrag={{ cursor: 'grabbing', zIndex: 110 }}
+      className="absolute pointer-events-auto bg-zinc-950 group h-full"
     >
-      <div className="absolute inset-0 bg-zinc-900 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden">
         {photos.map((src, i) => (
-          <img
+          <motion.img
             key={src}
             src={src}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
             loading="eager"
+            initial={false}
+            animate={i === activePhoto ? {
+              scale: [1, 1.12, 1.04, 1.15, 1],
+              opacity: 1
+            } : {
+              scale: 1.2,
+              opacity: 0
+            }}
+            transition={{
+              scale: i === activePhoto ? {
+                duration: 10,
+                repeat: Infinity,
+                ease: "easeInOut"
+              } : { duration: 1.5 },
+              opacity: { duration: 1.5, ease: "easeInOut" }
+            }}
             style={{
-              opacity: i === activePhoto ? 1 : 0,
-              transform: i === activePhoto ? 'scale(1.0)' : 'scale(1.07)',
-              transition: 'opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1), transform 2.4s cubic-bezier(0.4, 0, 0.2, 1)',
               willChange: 'opacity, transform',
             }}
           />
         ))}
       </div>
 
-      <div className="absolute top-3 left-0 right-0 flex justify-center gap-[3px] px-4">
+      {/* Premium Content Overlay */}
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/40 to-transparent pt-32 pb-8 px-5 flex flex-col gap-1.5 transition-transform duration-500 group-hover:translate-y-[-4px]">
+        <h3 className="text-white text-2xl font-black tracking-tighter leading-none uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+          {card.label}
+        </h3>
+        <p className="text-white/80 text-[11px] font-black uppercase tracking-[0.15em] leading-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]">
+          {card.description}
+        </p>
+      </div>
+
+      {/* Progress indicators */}
+      <div className="absolute top-4 left-0 right-0 flex justify-center gap-1 px-5">
         {photos.map((_, i) => (
           <div
             key={i}
-            className="flex-1 rounded-full"
+            className="flex-1 rounded-full overflow-hidden"
             style={{
-              height: 2.5,
-              background: i === activePhoto
-                ? `rgba(${card.accentRgb},1)`
-                : 'rgba(255,255,255,0.25)',
-              transition: 'background 1s ease',
+              height: 3,
+              background: 'rgba(255,255,255,0.2)',
             }}
-          />
+          >
+            {i === activePhoto && (
+              <motion.div 
+                className="h-full bg-white"
+                initial={{ width: '0%' }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 5, ease: "linear" }}
+                style={{ background: `rgba(${card.accentRgb}, 1)` }}
+              />
+            )}
+            {i < activePhoto && (
+              <div className="w-full h-full" style={{ background: `rgba(${card.accentRgb}, 0.5)` }} />
+            )}
+          </div>
         ))}
       </div>
 
-      <div
-        className="absolute bottom-3 left-3 flex items-center justify-center rounded-xl"
+      {/* Dynamic Icon Badge */}
+      <motion.div
+        className="absolute top-4 right-4 flex items-center justify-center rounded-2xl shadow-2xl"
+        animate={isPreviewing ? { scale: 1.1, rotate: [0, 5, -5, 0] } : { scale: 1 }}
+        transition={{ rotate: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
         style={{
-          width: 38, height: 38,
-          background: `rgba(${card.accentRgb}, 0.2)`,
-          border: `1px solid rgba(${card.accentRgb}, 0.4)`,
-          color: `rgba(${card.accentRgb}, 1)`,
-          backdropFilter: 'blur(8px)',
+          width: 44, height: 44,
+          background: `rgba(${card.accentRgb}, 0.25)`,
+          border: `1.5px solid rgba(${card.accentRgb}, 0.5)`,
+          color: `#fff`,
+          backdropFilter: 'blur(12px)',
         }}
       >
         <card.Icon />
-      </div>
+      </motion.div>
 
+      {/* Scanline / Glow effect when previewing */}
       {isPreviewing && (
         <motion.div
           className="absolute inset-0 pointer-events-none"
           initial={{ opacity: 0 }}
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ boxShadow: `inset 0 0 0 2.5px rgba(${card.accentRgb},0.85)`, borderRadius: 20 }}
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ 
+            boxShadow: `inset 0 0 60px rgba(${card.accentRgb},0.3), inset 0 0 0 3px rgba(${card.accentRgb},0.6)`, 
+            borderRadius: 22 
+          }}
         />
       )}
     </motion.button>
