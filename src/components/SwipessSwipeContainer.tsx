@@ -353,24 +353,16 @@ const ReorderableCategoryCard = memo(({
   const dragY = useMotionValue(0);
   const rotateTilt = useTransform(dragX, [-200, 200], [-15, 15]);
 
-  // Circular clock-face fan: 10:00 (Property) → 11:00 (Workers) → 12:00 (Bicycle) → 1:00 (Motorcycle) → 3:00 (All)
-  // Cards spread like a rainbow arc from top-left to top-right
-  const isTop = index === 0;  // Property is the frontmost
+  // Simple vertical stack on left side: Properties (front) → Workers → Bicycles → Motorcycles → All (back)
+  // Each card peeks out slightly from behind the one in front (straight vertical, no rotation)
+  const isTop = index === 0;  // Properties is frontmost
   const depthIndex = index;
   
-  // Clock angles in degrees (12:00 = 0°, clockwise positive)
-  // 10:00 = -60°, 11:00 = -30°, 12:00 = 0°, 1:00 = 30°, 3:00 = 90°
-  const clockAngles = [-60, -30, 0, 30, 90];
-  const angleRad = (clockAngles[depthIndex] || 0) * (Math.PI / 180);
-  
-  // Radial distance from center (all cards same distance to form arc)
-  const radius = 200;
-  const stackX = Math.cos(angleRad) * radius;
-  const stackY = Math.sin(angleRad) * radius;
-  
-  // Each card rotates outward to point toward its angle (top of card faces outward)
-  const stackRotate = clockAngles[depthIndex] || 0;
-  const stackScale = 1 - (depthIndex * 0.006);
+  // Vertical stack offset: cards positioned straight down, slightly overlapped to show peek
+  const stackX = 0;              // All cards on left (centered in container, but positioned left on screen)
+  const stackY = depthIndex * 65; // Each card offset 65px down to show peek of card behind
+  const stackRotate = 0;          // No rotation - straight vertical stack
+  const stackScale = 1 - (depthIndex * 0.01);
   const stackOpacity = depthIndex > 4 ? 0 : 1;
 
   // Drag-and-release cycle logic
