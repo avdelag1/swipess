@@ -343,14 +343,13 @@ const ReorderableCategoryCard = memo(({
   const reverseIndex = total - 1 - index;
   const isTop = reverseIndex === 0;
   
-  // Bottom-pivot fan: cards pivot from bottom corners together, tops spread apart
-  // Like poker cards in hand - bottoms touch, tops fan outward
-  const fanAngle = reverseIndex * 10;  // Rotation angle from bottom pivot
-  // For bottom-pivot, reduce X offset since rotation handles the spread
-  const stackX = -reverseIndex * 20;  // Minimal horizontal offset
-  const stackY = reverseIndex * 3;    // Minimal vertical stagger
-  const stackScale = 1 - (reverseIndex * 0.01);
-  const stackRotate = fanAngle;  // Rotate around bottom center
+  // Rainbow arc fan: Property (back) → Workers → Bicycles → Motorcycles (front)
+  // Cards fan left-to-right with rotation creating an arc effect
+  const fanAngle = reverseIndex * -12;  // Rotation angle (negative for left-to-right arc)
+  const stackX = reverseIndex * 50;     // Progressive right offset for each card back
+  const stackY = -Math.abs(reverseIndex - 1.5) * 30;  // Arc height - creates rainbow curve
+  const stackScale = 1 - (reverseIndex * 0.015);
+  const stackRotate = fanAngle;
   const stackOpacity = reverseIndex > 3 ? 0 : 1;
 
   // Drag-and-release cycle logic
@@ -363,7 +362,6 @@ const ReorderableCategoryCard = memo(({
 
   return (
     <motion.div
-      layout
       drag={isTop ? true : false}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.4}
