@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
+import { motion } from "framer-motion";
+import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 
 const Index = () => {
   const { user, loading, initialized } = useAuth();
@@ -281,57 +283,32 @@ const Index = () => {
   }, [user, initialized]);
 
   if (!initialized || loading) {
-    return (
-      <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
-        <div className="w-12 h-12 rounded-full border-2 border-foreground/20 border-t-foreground/80 animate-spin" />
-      </div>
-    );
+    return <SuspenseFallback />;
   }
 
-  // User exists but still loading role - show transparent screen
-  if (user && (isLoadingRole || (isNewUser && !userRole))) {
-    // If user is too old and still no role, something went wrong
-    if (userAgeMs > 30000 && !userRole && !isLoadingRole) {
-      return (
-        <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
-          <div className="text-center space-y-4 p-4 max-w-md">
-            <div className="text-orange-500 text-4xl">⚠️</div>
-            <h2 className="text-foreground text-lg font-semibold">Setup Taking Longer Than Expected</h2>
-            <p className="text-muted-foreground text-sm">
-              Your account setup is taking longer than usual. Please refresh the page to continue.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
-            >
-              Refresh Page
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    if (showEscapeHatch) {
-      return (
-        <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
-          <div className="text-center space-y-4 p-4 max-w-sm">
-            <div className="text-orange-500 text-3xl">⏳</div>
-            <h2 className="text-foreground text-base font-semibold">Taking longer than expected…</h2>
-            <p className="text-muted-foreground text-sm">Your session may need a refresh to continue.</p>
-            <button
-              onClick={() => { window.location.href = '/?clear-cache=1'; }}
-              className="mt-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm transition-colors"
-            >
-              Refresh & Continue
-            </button>
-          </div>
-        </div>
-      );
-    }
-
+  // User exists but still loading role/redirection
+  if (user && (isLoadingRole || (isNewUser && !userRole) || !hasNavigated.current)) {
     return (
-      <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
-        <div className="w-12 h-12 rounded-full border-2 border-foreground/20 border-t-foreground/80 animate-spin" />
+      <div className="min-h-screen min-h-dvh bg-[#000000] flex flex-col items-center justify-center p-4">
+        <SuspenseFallback />
+        
+        {showEscapeHatch && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="fixed bottom-12 left-0 right-0 z-[10000] flex justify-center px-6"
+          >
+            <div className="bg-card/80 backdrop-blur-xl border border-border p-5 rounded-2xl shadow-2xl max-w-sm text-center">
+              <p className="text-foreground font-medium text-sm mb-3">Taking longer than usual...</p>
+              <button
+                onClick={() => { window.location.href = '/?clear-cache=1'; }}
+                className="w-full py-2.5 bg-brand-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-brand-primary/20 transition-transform active:scale-95"
+              >
+                Refresh Session
+              </button>
+            </div>
+          </motion.div>
+        )}
       </div>
     );
   }
@@ -344,26 +321,8 @@ const Index = () => {
     );
   }
 
-  // Caso final (redirigiendo)
-  return (
-    <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
-      {showEscapeHatch ? (
-        <div className="text-center space-y-4 p-4 max-w-sm">
-          <div className="text-orange-500 text-3xl">⏳</div>
-          <h2 className="text-foreground text-base font-semibold">Taking longer than expected…</h2>
-          <p className="text-muted-foreground text-sm">Your session may need a refresh to continue.</p>
-          <button
-            onClick={() => { window.location.href = '/?clear-cache=1'; }}
-            className="mt-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm transition-colors"
-          >
-            Refresh & Continue
-          </button>
-        </div>
-      ) : (
-        <div className="w-12 h-12 rounded-full border-2 border-foreground/20 border-t-foreground/80 animate-spin" />
-      )}
-    </div>
-  );
+  // Final fallback while navigating
+  return <SuspenseFallback />;
 };
 
 export default Index;

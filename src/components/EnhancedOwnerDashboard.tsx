@@ -85,7 +85,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   // FIX: Pass filters to query so fetched profiles match what container displays
   // Extract category from filters if available
   const filterCategory = mergedFilters?.categories?.[0] || undefined;
-  if (import.meta.env.DEV) console.log('[EnhancedOwnerDashboard] Rendering with clientFilters:', mergedFilters);
+  if (import.meta.env.DEV) 
   const { data: clientProfiles = [], isLoading, error } = useSmartClientMatching(
     user?.id,
     filterCategory,
@@ -99,7 +99,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     if (error) {
       console.error('[EnhancedOwnerDashboard] Profile fetch error:', error);
     } else {
-      console.log('[EnhancedOwnerDashboard] Fetched profiles count:', clientProfiles.length);
+      
     }
   }
 
