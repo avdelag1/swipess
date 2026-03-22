@@ -301,8 +301,8 @@ const FAN_CARDS = [
   { id: 'services' as const, label: 'Workers', Icon: IconWorker, accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
 ];
 
-const CARD_W = 200;
-const CARD_H = 380;
+const CARD_W = 280;
+const CARD_H = 420;
 
 const STACK_OFFSETS = [
   { rotate: 0, tx: 0, ty: 0, scale: 1 },
@@ -339,14 +339,16 @@ const ReorderableCategoryCard = memo(({
   const dragY = useMotionValue(0);
   const rotateTilt = useTransform(dragX, [-200, 200], [-15, 15]);
 
-  // Calculate stack position based on index from top
+  // Calculate stack position based on index from left (poker fan layout)
   const reverseIndex = total - 1 - index;
   const isTop = reverseIndex === 0;
   
-  // Stacking logic: depth affects scale, y-offset, and rotation
-  const stackY = -reverseIndex * 20; 
-  const stackScale = 1 - (reverseIndex * 0.05);
-  const stackRotate = isTop ? 0 : (index % 2 === 0 ? 2 : -2);
+  // Poker fan stacking: horizontal left-to-right with rotation
+  // Each card offset to the right and rotated slightly
+  const stackX = reverseIndex * 60;  // Horizontal offset: left to right
+  const stackY = reverseIndex * 8;   // Subtle vertical stagger
+  const stackScale = 1 - (reverseIndex * 0.03);
+  const stackRotate = reverseIndex * -8;  // Fan rotation (clockwise from left)
   const stackOpacity = reverseIndex > 3 ? 0 : 1;
 
   // Drag-and-release cycle logic
@@ -373,16 +375,15 @@ const ReorderableCategoryCard = memo(({
         marginLeft: -(CARD_W / 2),
         marginTop: -(CARD_H / 2),
         zIndex: index + 10,
-        x: dragX,
+        x: isTop ? dragX : stackX,
         y: isTop ? dragY : stackY,
-        rotate: rotateTilt,
+        rotate: isTop ? rotateTilt : stackRotate,
         cursor: isTop ? 'grab' : 'default',
         pointerEvents: isTop ? 'auto' : 'none',
       }}
       animate={{
         scale: stackScale,
         opacity: stackOpacity,
-        rotate: isTop ? 0 : stackRotate,
       }}
       transition={{ 
         type: 'spring', 
@@ -548,7 +549,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
 
         <div 
           className="relative pointer-events-none" 
-          style={{ width: '100%', maxWidth: 420, height: 480, zIndex: 10 }}
+          style={{ width: '100%', maxWidth: 1000, height: 500, zIndex: 10 }}
         >
           {items.map((card, i) => {
             return (
