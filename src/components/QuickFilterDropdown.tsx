@@ -168,7 +168,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // ── OWNER PANEL ──────────────────────────────────────────────────────────
   const renderOwnerFilters = () => {
     return (
-      <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]">
+      <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),360px)]">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2">
@@ -187,6 +187,46 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         </div>
 
         <div className="py-3 px-4 space-y-4 max-h-[65vh] overflow-y-auto">
+          {/* Categories */}
+          <div>
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Category</p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {/* ALL option for owner */}
+              <button
+                onClick={handleClearFilters}
+                className={cn(
+                  'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-150 touch-manipulation border',
+                  categories.length === 0
+                    ? 'bg-slate-700 text-white border-transparent ring-2 ring-slate-500/20'
+                    : isDark ? 'bg-white/5 border-border text-foreground hover:bg-white/10' : 'bg-black/[0.03] border-border text-gray-700 hover:bg-black/[0.05]'
+                )}
+              >
+                <Search className="w-4 h-4" />
+                <span>All</span>
+              </button>
+              
+              {categoryOptionBase.map((option) => {
+                const isActive = categories.includes(option.id);
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => handleCategoryClick(option.id)}
+                    className={cn(
+                      'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-150 touch-manipulation border',
+                      isActive
+                        ? cn('bg-gradient-to-br text-white border-transparent ring-2 ring-offset-1', option.color,
+                            isDark ? 'ring-white/20' : 'ring-black/10')
+                        : cn('border-border hover:border-border/80 transition-all duration-200', option.inactiveColor, option.bgTint)
+                    )}
+                  >
+                    {option.icon}
+                    <span>{option.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Gender */}
           <div>
             <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Gender</p>
