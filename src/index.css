@@ -36,6 +36,11 @@ body::-webkit-scrollbar {
   z-index: 2;
 }
 
+@keyframes progress-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
 @keyframes theme-circle-reveal {
   from {
     clip-path: circle(0% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%));

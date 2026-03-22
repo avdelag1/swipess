@@ -8,12 +8,12 @@ import { QuickFilterCategory } from '@/types/filters';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useTheme } from '@/hooks/useTheme';
 
-const CATEGORIES: { id: QuickFilterCategory | null; label: string; icon: any; color: string; description: string }[] = [
-    { id: 'property', label: 'Property', icon: Home, color: 'from-rose-500 to-rose-400', description: 'Find your next home' },
-    { id: 'motorcycle', label: 'Moto', icon: MotorcycleIcon, color: 'from-orange-500 to-orange-400', description: 'Ride in style' },
-    { id: 'bicycle', label: 'Bicycle', icon: Bike, color: 'from-violet-500 to-violet-400', description: 'Eco-friendly travel' },
-    { id: 'services', label: 'Services', icon: Briefcase, color: 'from-amber-500 to-amber-400', description: 'Hire professionals' },
-    { id: null, label: 'All', icon: Search, color: 'from-slate-500 to-slate-400', description: 'Explore everything' },
+const CATEGORIES: { id: QuickFilterCategory | null; label: string; icon: any; color: string; description: string; image: string }[] = [
+    { id: 'property', label: 'Property', icon: Home, color: 'from-rose-500 to-rose-400', description: 'Find your next home', image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=400' },
+    { id: 'motorcycle', label: 'Moto', icon: MotorcycleIcon, color: 'from-orange-500 to-orange-400', description: 'Ride in style', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&q=80&w=400' },
+    { id: 'bicycle', label: 'Bicycle', icon: Bike, color: 'from-violet-500 to-violet-400', description: 'Eco-friendly travel', image: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&q=80&w=400' },
+    { id: 'services', label: 'Services', icon: Briefcase, color: 'from-amber-500 to-amber-400', description: 'Hire professionals', image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&q=80&w=400' },
+    { id: null, label: 'All', icon: Search, color: 'from-slate-500 to-slate-400', description: 'Explore everything', image: 'https://images.unsplash.com/photo-1504893524553-b855bce32c67?auto=format&fit=crop&q=80&w=400' },
 ];
 
 export function CategorySwipeStack() {
@@ -199,9 +199,7 @@ function CategoryCard({
                 "absolute flex flex-col items-center justify-center rounded-[28px] p-6 select-none overflow-hidden",
                 "transition-shadow duration-300",
                 isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
-                isDark 
-                    ? "bg-[#1A1A1A] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]" 
-                    : "bg-white border border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.1)]",
+                "bg-black border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]",
                 isActive && "ring-2 ring-brand-accent-2 ring-offset-4 ring-offset-background"
             )}
             style={{
@@ -213,21 +211,13 @@ function CategoryCard({
                 ...({ x: springX, y: springY, zIndex } as any)
             }}
         >
-            {/* Glossy Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
-            
-            {/* Animated Background Pattern */}
-            <motion.div
-                className={cn(
-                    "absolute inset-0 opacity-[0.08] pointer-events-none",
-                    `bg-gradient-to-br ${category.color}`
-                )}
-                animate={isTop ? { 
-                    opacity: [0.08, 0.15, 0.08],
-                    scale: [1, 1.1, 1]
-                } : {}}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            {/* Background Photo */}
+            <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${category.image})` }}
             />
+            {/* Dark overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20" />
 
             {/* Icon Container — Ken Burns breathing zoom on top card */}
             <motion.div
@@ -253,13 +243,10 @@ function CategoryCard({
 
             {/* Labels */}
             <div className="mt-6 text-center z-10">
-                <h3 className={cn(
-                    "text-lg font-black tracking-tight leading-none",
-                    isDark ? "text-white" : "text-black"
-                )}>
+                <h3 className="text-lg font-black tracking-tight leading-none text-white drop-shadow-lg">
                     {category.label}
                 </h3>
-                <p className="mt-2 text-[10px] font-medium text-muted-foreground uppercase tracking-widest opacity-60">
+                <p className="mt-2 text-[10px] font-medium text-white/70 uppercase tracking-widest">
                     {category.description}
                 </p>
             </div>
