@@ -389,7 +389,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 style={{
                   position: 'absolute', inset: 0, width: '100%', height: '100%',
                   objectFit: 'cover', transformOrigin: 'center',
-                  animation: 'breathing-zoom 4s ease-in-out infinite',
+                  animation: 'breathing-zoom 8s ease-out infinite alternate',
                 }}
               />
               {/* Gradient overlay */}
@@ -432,7 +432,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                       style={{
                         position: 'absolute', inset: 0, width: '100%', height: '100%',
                         objectFit: 'cover', transformOrigin: 'center',
-                        animation: 'breathing-zoom 4s ease-in-out infinite',
+                        animation: 'breathing-zoom 8s ease-out infinite alternate',
                       }}
                     />
                   )}
