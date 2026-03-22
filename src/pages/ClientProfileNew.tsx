@@ -8,11 +8,10 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, ThumbsUp, Settings, Radio, MessageSquare, Megaphone, CalendarDays
+  Flame, ThumbsUp, Settings, Radio, MessageSquare, Megaphone, CalendarDays, Building2
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
-import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
-import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
+import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
@@ -145,23 +144,40 @@ const ClientProfileNew = () => {
             Edit Profile
           </Button>
 
-          {/* Promote Button - Restore flagship promotional feature */}
-          <Button
-            variant="outline"
-            size="lg"
-            elastic
-            onClick={() => { haptics.success(); navigate('/client/advertise'); }}
-            className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-orange-500/20 hover:border-orange-500/40 bg-white/5 shadow-sm transition-all"
-            style={{
-              background: 'linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(168,85,247,0.08) 100%)'
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Megaphone className="w-5 h-5 text-orange-500 mr-2 shrink-0" />
-            <span className="bg-gradient-to-r from-orange-500 to-purple-500 bg-clip-text text-transparent font-black uppercase tracking-tight">
-              Promote Your Event or Service
-            </span>
-          </Button>
+          {/* Promote/Advertise Buttons */}
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="outline"
+              size="lg"
+              elastic
+              onClick={() => { haptics.success(); navigate('/explore/eventos/promote'); }}
+              className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-primary/20 hover:border-primary/40 bg-white/5 shadow-sm transition-all"
+              style={{
+                background: 'linear-gradient(135deg, rgba(228,0,124,0.08) 0%, rgba(249,115,22,0.08) 100%)'
+              }}
+            >
+              <Megaphone className="w-5 h-5 text-primary mr-2 shrink-0" />
+              <span className="bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent font-black uppercase tracking-tight">
+                Promote Your Event
+              </span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="lg"
+              elastic
+              onClick={() => { haptics.success(); navigate('/client/advertise'); }}
+              className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-orange-500/20 hover:border-orange-500/40 bg-white/5 shadow-sm transition-all"
+              style={{
+                background: 'linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(168,85,247,0.08) 100%)'
+              }}
+            >
+              <Building2 className="w-5 h-5 text-orange-500 mr-2 shrink-0" />
+              <span className="bg-gradient-to-r from-orange-500 to-purple-500 bg-clip-text text-transparent font-black uppercase tracking-tight">
+                Advertise Your Brand
+              </span>
+            </Button>
+          </div>
         </div>
 
         {/* Profile Completion */}
@@ -272,7 +288,7 @@ const ClientProfileNew = () => {
           <h3 className="text-xs font-medium text-muted-foreground mb-3 px-1">
             Recent Activity
           </h3>
-          <MyHubActivityFeed />
+          <ActivityFeed />
         </div>
 
         {/* Share Profile */}

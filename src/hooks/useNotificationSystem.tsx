@@ -230,19 +230,43 @@ export function useNotificationSystem() {
 
   const dismissNotification = (id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
+    if (user?.id) {
+      supabase
+        .from('notifications')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .then(({ error }) => {
+          if (error) logger.error('[Notifications] Failed to delete notification:', error);
+        });
+    }
+  };
+
+  const clearAllNotifications = () => {
+    setNotifications([]);
+    if (user?.id) {
+      supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', user.id)
+        .then(({ error }) => {
+          if (error) logger.error('[Notifications] Failed to clear all notifications:', error);
+        });
+    }
   };
 
   const markAllAsRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     // Persist to DB so the bell badge (useUnreadNotifications) clears via realtime
     if (user?.id) {
-      Promise.resolve(
-        supabase
-          .from('notifications')
-          .update({ is_read: true })
-          .eq('user_id', user.id)
-          .eq('is_read', false)
-      ).catch(err => logger.error('[Notifications] Failed to mark all as read:', err));
+      supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false)
+        .then(({ error }) => {
+          if (error) logger.error('[Notifications] Failed to mark all as read:', error);
+        });
     }
   };
 
@@ -254,27 +278,29 @@ export function useNotificationSystem() {
 
     // Persist to database to maintain state consistency
     if (user?.id && !notification.read) {
-      Promise.resolve(
-        supabase
-          .from('notifications')
-          .update({ is_read: true })
-          .eq('id', notification.id)
-      ).catch((err) => logger.error('[Notifications] Failed to mark as read', err));
+      supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notification.id)
+        .eq('user_id', user.id)
+        .then(({ error }) => {
+          if (error) logger.error('[Notifications] Failed to mark as read', error);
+        });
     }
 
     // Navigate to appropriate page
     if (notification.actionUrl) {
-      if (notification.type === 'message' && notification.conversationId) {
-        navigate(`/messages?conversationId=${notification.conversationId}`);
-      } else {
-        navigate(notification.actionUrl);
-      }
+      navigate(notification.actionUrl);
+    } else if (notification.type === 'message' && (notification.conversationId || notification.metadata?.conversationId)) {
+      const convId = notification.conversationId || notification.metadata?.conversationId;
+      navigate(`/messages?id=${convId}`);
     }
   };
 
   return {
     notifications,
     dismissNotification,
+    clearAllNotifications,
     markAllAsRead,
     handleNotificationClick,
     unreadCount: notifications.filter(n => !n.read).length

@@ -202,7 +202,7 @@ export default function PublicProfilePreview() {
 
         <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full shadow-lg">
           <Sparkles className="w-3.5 h-3.5 text-orange-400" />
-          <span className="text-white font-bold text-sm tracking-tight">Zwipes</span>
+          <span className="text-white font-bold text-sm tracking-tight">Swipess</span>
         </div>
 
         {!user ? (
@@ -389,7 +389,7 @@ export default function PublicProfilePreview() {
             </div>
 
             <p className="text-center text-[11px] text-muted-foreground/60 pb-1">
-              Zwipes · Find Your Perfect Match
+              Swipess · Find Your Perfect Match
             </p>
           </div>
         </motion.div>

@@ -272,7 +272,7 @@ export default function PriceTracker() {
                     'flex items-center gap-1 px-3 py-1.5 rounded-2xl text-[10px] font-bold shadow-sm',
                     isUp 
                       ? 'bg-rose-50 text-rose-500 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20' 
-                      : 'bg-rose-50 text-rose-500 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20'
+                      : 'bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20'
                   )}>
                     {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                     {Math.abs(change).toFixed(1)}%

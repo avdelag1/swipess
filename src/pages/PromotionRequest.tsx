@@ -263,7 +263,7 @@ export default function PromotionRequest() {
               <ChevronLeft className="w-5 h-5" />
             </motion.button>
             <div>
-              <h1 className="text-base font-black tracking-tight">Promote Your Brand</h1>
+              <h1 className="text-base font-black tracking-tight">Post an Event</h1>
               <p className={cn(
                 "text-[10px] font-bold uppercase tracking-widest",
                 isLight ? "text-slate-400" : "text-white/30"

@@ -28,11 +28,11 @@ type CategoryOption = {
   hasSubOptions: boolean;
 };
 
-const categoryOptionBase: (CategoryOption & { color: string; inactiveColor: string; bgTint: string })[] = [
-  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-blue-600 to-cyan-500', inactiveColor: 'text-blue-500', bgTint: 'bg-blue-500/10' },
-  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, hasSubOptions: true, color: 'from-orange-600 to-amber-500', inactiveColor: 'text-orange-500', bgTint: 'bg-orange-500/10' },
-  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-rose-600 to-rose-500', inactiveColor: 'text-rose-500', bgTint: 'bg-rose-500/10' },
-  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-purple-600 to-violet-500', inactiveColor: 'text-purple-500', bgTint: 'bg-purple-500/10' },
+const categoryOptionBase: (CategoryOption & { color: string; inactiveColor: string; bgTint: string; border: string })[] = [
+  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-blue-600 to-cyan-500', inactiveColor: 'text-blue-500', bgTint: 'bg-blue-500/15', border: 'border-blue-500/30' },
+  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, hasSubOptions: true, color: 'from-orange-600 to-amber-500', inactiveColor: 'text-orange-500', bgTint: 'bg-orange-500/15', border: 'border-orange-500/30' },
+  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-rose-600 to-rose-500', inactiveColor: 'text-rose-500', bgTint: 'bg-rose-500/15', border: 'border-rose-500/30' },
+  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-purple-600 to-violet-500', inactiveColor: 'text-purple-500', bgTint: 'bg-purple-500/15', border: 'border-purple-500/30' },
 ];
 
 const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
@@ -41,17 +41,17 @@ const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
   { id: 'sale', label: 'Buy' },
 ];
 
-const genderOptions: { id: OwnerClientGender; label: string; icon: React.ReactNode; color: string; inactiveColor: string; bgTint: string }[] = [
-  { id: 'any', label: 'All Genders', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500', inactiveColor: 'text-gray-500', bgTint: 'bg-gray-500/10' },
-  { id: 'female', label: 'Women', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500', inactiveColor: 'text-pink-500', bgTint: 'bg-pink-500/10' },
-  { id: 'male', label: 'Men', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-blue-500 to-indigo-500', inactiveColor: 'text-blue-500', bgTint: 'bg-blue-500/10' },
+const genderOptions: { id: OwnerClientGender; label: string; icon: React.ReactNode; color: string; inactiveColor: string; bgTint: string; border: string }[] = [
+  { id: 'any', label: 'All Genders', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500', inactiveColor: 'text-gray-500', bgTint: 'bg-gray-500/10', border: 'border-gray-500/20' },
+  { id: 'female', label: 'Women', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500', inactiveColor: 'text-pink-500', bgTint: 'bg-pink-500/15', border: 'border-pink-500/30' },
+  { id: 'male', label: 'Men', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-blue-500 to-indigo-500', inactiveColor: 'text-blue-500', bgTint: 'bg-blue-500/15', border: 'border-blue-500/30' },
 ];
 
-const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.ReactNode; color: string; inactiveColor: string; bgTint: string }[] = [
-  { id: 'all', label: 'All Types', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500', inactiveColor: 'text-gray-500', bgTint: 'bg-gray-500/10' },
-  { id: 'hire', label: 'Hiring', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-purple-500 to-violet-500', inactiveColor: 'text-purple-500', bgTint: 'bg-purple-500/10' },
-  { id: 'rent', label: 'Renting', icon: <Home strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500', inactiveColor: 'text-orange-500', bgTint: 'bg-orange-500/10' },
-  { id: 'buy', label: 'Buying', icon: <Search strokeWidth={4} className="w-4 h-4" />, color: 'from-rose-500 to-rose-500', inactiveColor: 'text-rose-500', bgTint: 'bg-rose-500/10' },
+const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.ReactNode; color: string; inactiveColor: string; bgTint: string; border: string }[] = [
+  { id: 'all', label: 'All Types', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500', inactiveColor: 'text-gray-500', bgTint: 'bg-gray-500/10', border: 'border-gray-500/20' },
+  { id: 'hire', label: 'Hiring', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-purple-500 to-violet-500', inactiveColor: 'text-purple-500', bgTint: 'bg-purple-500/15', border: 'border-purple-500/30' },
+  { id: 'rent', label: 'Renting', icon: <Home strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500', inactiveColor: 'text-orange-500', bgTint: 'bg-orange-500/15', border: 'border-orange-500/30' },
+  { id: 'buy', label: 'Buying', icon: <Search strokeWidth={4} className="w-4 h-4" />, color: 'from-rose-500 to-rose-500', inactiveColor: 'text-rose-500', bgTint: 'bg-rose-500/15', border: 'border-rose-500/30' },
 ];
 
 const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boolean; isDark: boolean }) => (
@@ -216,7 +216,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                       isActive
                         ? cn('bg-gradient-to-br text-white border-transparent ring-2 ring-offset-1', option.color,
                             isDark ? 'ring-white/20' : 'ring-black/10')
-                        : cn('border-border hover:border-border/80 transition-all duration-200', option.inactiveColor, option.bgTint)
+                        : cn('transition-all duration-200', option.inactiveColor, option.bgTint, option.border, 'hover:border-border/80')
                     )}
                   >
                     {option.icon}
@@ -242,7 +242,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                       isActive
                         ? cn('bg-gradient-to-br text-white border-transparent ring-2 ring-offset-1', option.color,
                             isDark ? 'ring-white/20' : 'ring-black/10')
-                        : cn('border-border hover:border-border/80 transition-all duration-200', option.inactiveColor, option.bgTint)
+                        : cn('transition-all duration-200', option.inactiveColor, option.bgTint, option.border, 'hover:border-border/80')
                     )}
                   >
                     {option.icon}
@@ -268,7 +268,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                       isActive
                         ? cn('bg-gradient-to-br text-white border-transparent ring-2 ring-offset-1', option.color,
                             isDark ? 'ring-white/20' : 'ring-black/10')
-                        : cn('border-border hover:border-border/80 transition-all duration-200', option.inactiveColor, option.bgTint)
+                        : cn('transition-all duration-200', option.inactiveColor, option.bgTint, option.border, 'hover:border-border/80')
                     )}
                   >
                     {option.icon}
@@ -360,10 +360,10 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 >
                   <div className="flex items-center gap-2 sm:gap-3">
                     <span className={cn(
-                      'p-1.5 sm:p-2 rounded-lg',
+                      'p-1.5 sm:p-2 rounded-lg border transition-all duration-300',
                       isActive
-                        ? cn('bg-gradient-to-br text-white shadow-md', category.color)
-                        : cn(category.bgTint, category.inactiveColor)
+                        ? cn('bg-gradient-to-br text-white shadow-md border-transparent', category.color)
+                        : cn(category.bgTint, category.inactiveColor, category.border)
                     )}>
                       {category.icon}
                     </span>
