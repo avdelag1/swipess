@@ -77,8 +77,6 @@ export function CategorySwipeStack() {
                             index={index}
                             itemCount={stack.length}
                             isActive={isActive}
-                            itemCount={stack.length}
-                            isActive={isActive}
                             isDark={isDark}
                             onSwipeRight={() => handleSwipeRight(cat.id)}
                             onSwipeLeft={() => handleSwipeLeft(cat.id)}

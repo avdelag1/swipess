@@ -94,12 +94,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     mergedFilters as ClientFilters
   );
 
-  if (import.meta.env.DEV) {
-    if (error) {
-      console.error('[EnhancedOwnerDashboard] Profile fetch error:', error);
-    } else {
-      
-    }
+  if (import.meta.env.DEV && error) {
+    console.error('[EnhancedOwnerDashboard] Profile fetch error:', error);
   }
 
   const handleClientTap = (clientId: string) => {
