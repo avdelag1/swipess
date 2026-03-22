@@ -197,7 +197,12 @@ export function BottomNavigation({
         return;
       }
       isDraggingRef.current = false;
-      haptics.select();
+
+      if (item.path === location.pathname) {
+        haptics.tap();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
 
       // Trigger ripple at click position
       if (event && scrollRef.current) {
@@ -207,13 +212,14 @@ export function BottomNavigation({
         setTimeout(() => setRipple(null), 800);
       }
 
+      // Haptics already triggered on PointerDown if applicable
       if (item.onClick) {
         item.onClick();
       } else if (item.path) {
         navigate(item.path);
       }
     },
-    [navigate],
+    [navigate, location.pathname],
   );
 
   const handleNavKeyDown = useCallback(
@@ -301,8 +307,8 @@ export function BottomNavigation({
               style={{
                 left: ripple.x - 48,
                 bottom: -10,
-                background: isLight 
-                  ? 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)' 
+                background: isLight
+                  ? 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)'
                   : 'radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)',
                 zIndex: 1.5,
               }}
@@ -336,7 +342,10 @@ export function BottomNavigation({
               <motion.button
                 key={item.id}
                 id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
-                onPointerDown={(e) => handlePointerDown(e, item)}
+                onPointerDown={() => {
+                  haptics.select();
+                  if (item.path) prefetchRoute(item.path);
+                }}
                 onPointerUp={(e) => handlePointerUp(e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
                 onTouchStart={(e) => e.stopPropagation()}

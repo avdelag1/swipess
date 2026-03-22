@@ -20,15 +20,20 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
         ? '0 10px 30px -10px rgba(0,0,0,0.5)'
         : '0 10px 30px -10px rgba(0,0,0,0.1)';
 
+    const handlePointerDown = (e: React.PointerEvent) => {
+        e.stopPropagation();
+        triggerHaptic('light');
+    };
+
     const handleToggle = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        triggerHaptic('light');
         setTheme(nextTheme, { x: e.clientX, y: e.clientY });
     };
 
     return (
         <button
+            onPointerDown={handlePointerDown}
             onClick={handleToggle}
             className={cn(
                 'relative flex items-center justify-center rounded-xl',

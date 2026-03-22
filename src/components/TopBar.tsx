@@ -211,10 +211,15 @@ function TopBarComponent({
             {user ? (
               <motion.button
                 whileTap={{ scale: 0.92 }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  haptics.select(); // Higher urgency than tap
+                  const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
+                  prefetchRoute(profilePath);
+                }}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  haptics.tap();
                   const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
                   navigate(profilePath);
                 }}
@@ -235,7 +240,11 @@ function TopBarComponent({
                 </Avatar>
               </motion.button>
             ) : (
-              !showBack && !title && <SwipessLogo size="sm" className="flex-shrink-0" />
+              !showBack && !title && (
+                <div onPointerDown={() => prefetchRoute('/')} className="cursor-pointer">
+                  <SwipessLogo size="sm" className="flex-shrink-0" />
+                </div>
+              )
             )}
 
 

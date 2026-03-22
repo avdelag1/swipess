@@ -4,6 +4,8 @@ import { User, UserCog, ArrowLeftRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useActiveMode, ActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
+import { prefetchRoute } from '@/utils/routePrefetcher';
+
 import { useTheme } from '@/hooks/useTheme';
 import { useFilterStore } from '@/state/filterStore';
 
@@ -28,25 +30,31 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
     : 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)';
 
   const handleModeSwitch = useCallback(async (newMode: ActiveMode) => {
-    const now = Date.now();
-    if (now - lastClickTime.current < 300) return;
-    lastClickTime.current = now;
-
     if (isSwitching || newMode === activeMode || !canSwitchMode) return;
+    
+    // Immediate physical feedback
     triggerHaptic('medium');
+    
     // Reset filters for the side you are leaving so they never bleed across
     if (newMode === 'owner') resetClientFilters();
     else resetOwnerFilters();
+    
     await switchMode(newMode);
   }, [isSwitching, activeMode, canSwitchMode, switchMode, resetClientFilters, resetOwnerFilters]);
 
-  const handleToggle = useCallback((event: React.MouseEvent) => {
+  const handleToggle = useCallback((event: React.MouseEvent | React.PointerEvent) => {
     event.stopPropagation();
     event.preventDefault();
 
     const newMode = activeMode === 'client' ? 'owner' : 'client';
     handleModeSwitch(newMode);
   }, [activeMode, handleModeSwitch]);
+
+  const onPointerDown = useCallback(() => {
+    // Prefetch destination on first touch/hover for speed of light navigation
+    const targetMode = activeMode === 'client' ? 'owner' : 'client';
+    prefetchRoute(targetMode === 'owner' ? '/owner/dashboard' : '/client/dashboard');
+  }, [activeMode]);
 
   const sizeClasses = {
     sm: 'h-7 text-[10px]',
@@ -60,6 +68,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
 
     return (
       <button
+        onPointerDown={onPointerDown}
         onClick={(e) => handleToggle(e)}
         disabled={isSwitching || !canSwitchMode}
         className={cn(
@@ -140,6 +149,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   if (variant === 'toggle') {
     return (
       <button
+        onPointerDown={onPointerDown}
         onClick={(e) => handleToggle(e)}
         disabled={isSwitching || !canSwitchMode}
         className={cn(
@@ -204,6 +214,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
 
   return (
     <button
+      onPointerDown={onPointerDown}
       onClick={(e) => handleToggle(e)}
       disabled={isSwitching || !canSwitchMode}
       className={cn(
@@ -254,13 +265,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   );
 }
 
-export const ModeSwitcher = memo(ModeSwitcherComponent, (prevProps, nextProps) => {
-  return (
-    prevProps.className === nextProps.className &&
-    prevProps.size === nextProps.size &&
-    prevProps.variant === nextProps.variant
-  );
-});
+export const ModeSwitcher = memo(ModeSwitcherComponent);
 
 export const ModeSwitcherCompact = memo(function ModeSwitcherCompact({ className }: { className?: string }) {
   return <ModeSwitcher variant="icon" size="sm" className={className} />;
