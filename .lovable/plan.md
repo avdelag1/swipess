@@ -1,80 +1,72 @@
 
 
-## Plan: Fix All Build Errors
+# Fix Build Errors & Ensure Full Feature Connectivity
 
-There are ~40+ TypeScript build errors across multiple files. Here's the fix plan grouped by file.
+## Summary
+There are 12 build errors preventing the app from running, plus the user wants assurance that all features (listing uploads, profile management, swipe actions, events, promotions, roommate matching) are properly connected. The plan addresses build errors first, then audits key user flows.
 
-### 1. `src/pages/EventosFeed.tsx` (Most errors — ~25)
+---
 
-**Root causes:**
-- `EventItem` interface missing `is_promo` field (used in mock data and `StoryCard`)
-- `StoriesView` component (lines 819-1108) contains duplicate inline filter/liked sheet code (lines 927-1108) that references parent-scoped variables (`showFilters`, `isLight`, `freeOnly`, etc.). This code is already extracted into `FilterSheet` and `LikedSheet` components used by the parent. **Fix: delete lines 927-1108** (the duplicate inline sheets inside `StoriesView`)
-- `StoryCard` uses `baseEventId` which is never declared. **Fix: add `const baseEventId = event.id;`**
-- `event.is_promo` used but not on `EventItem`. **Fix: add `is_promo?: boolean` to `EventItem` interface**
+## Step 1: Fix Build Errors (12 errors across 5 files)
 
-### 2. `src/pages/EventoDetail.tsx` (3 errors)
+### 1a. `src/components/CategorySwipeStack.tsx` (line 39)
+- `haptics.light()` does not exist. The `haptics` object from `microPolish.ts` has `tap`, `select`, `success`, etc. but no `light`.
+- **Fix**: Change `haptics.light()` → `haptics.tap()`.
 
-- Line 39: `useNavigate` used but not imported (only `useAppNavigate` is imported). **Fix: import `useNavigate` from react-router-dom** or use the existing `useAppNavigate`
-- Line 73: `Users` not imported. **Fix: add `Users` to the lucide import**
-- Line 91: `ArrowUpRight` not imported. **Fix: add `ArrowUpRight` to the lucide import**
+### 1b. `src/components/ui/sonner.tsx` (line 17)
+- `swipeDirections={['up']}` — `'up'` is not a valid `SwipeDirection` in the current sonner version.
+- **Fix**: Remove the `swipeDirections` prop entirely (use default behavior).
 
-### 3. `src/components/LikeNotificationPreview.tsx` (4 errors)
+### 1c. `src/contexts/RadioContext.tsx` (line 223)
+- `.values().next().value` can be `undefined`, but `delete()` expects `string`.
+- **Fix**: Add a null check: `const first = failedStationsRef.current.values().next().value; if (first) failedStationsRef.current.delete(first);`
 
-- Lines 101-104: `null` values from Supabase queries assigned to `string | undefined` typed fields. **Fix: use `?? undefined` to convert nulls**
-- Line 105: `firstListing?.images?.[0]` — images column returns `Json` type. **Fix: cast with `(firstListing?.images as string[] | null)?.[0]`**
+### 1d. `src/pages/ClientLikedProperties.tsx` (lines 91, 94)
+- `property.target_type` does not exist on the `Listing` type.
+- **Fix**: Remove references to `target_type`, use only `property.category` for filtering.
 
-### 4. `src/components/LikedClients.tsx` (2 errors)
+### 1e. `src/pages/PromotionRequest.tsx` (7 errors — missing icon imports)
+- Missing imports: `Clock`, `DollarSign`, `Tag`, `X`, `MessageCircle`, `ArrowUpRight`.
+- **Fix**: Add all missing icons to the lucide-react import statement at the top of the file.
 
-- Line 345: `selectedClientForView` is `Record<string, unknown> | null` but modal expects `LikedClient | null`. **Fix: change state type to `LikedClient | null`** (line 54)
-- Line 360: `clientToDelete?.full_name` but state is typed as `{ user_id: string }`. **Fix: expand type to `{ user_id: string; full_name?: string }`**
+---
 
-### 5. `src/components/MarketingSlide.tsx` (1 error)
+## Step 2: Verify Listing Upload Flow
+- Audit `UnifiedListingForm` → ensure it calls the correct upload handler and writes to the `listings` table with `user_id` and `owner_id`.
+- Confirm `PhotoUploadManager` correctly uploads to the `listing-images` storage bucket.
+- Confirm profile photo uploads work for both client and owner via `PhotoCamera` / `usePhotoCamera`.
 
-- Line 169: `strokeWidth` prop passed to an icon component whose type only allows `className`. The icon comes from `slideData` which types icons as `React.ComponentType<{ className?: string }>`. **Fix: widen the icon type to include `strokeWidth`**, or remove `strokeWidth` from the JSX
+## Step 3: Verify Profile Flows
+- Client profile: ensure `ClientProfileNew` saves to `client_profiles` table with all fields (bio, age, interests, etc.).
+- Owner profile: ensure `OwnerProfileNew` saves to `owner_profiles` table with business fields.
+- Confirm avatar/photo persistence via `profile-images` bucket.
 
-### 6. `src/components/PropertyManagement.tsx` (2 errors)
+## Step 4: Verify Events & Promotion Pages
+- `EventosFeed.tsx`: Confirm it queries real data from backend (currently has mock fallback) and all buttons (WhatsApp, share, like) function.
+- `PromotionRequest.tsx`: Confirm the form submits to the backend, image uploads to `event-images` bucket, and the review/submit flow works end-to-end.
 
-- Line 107: `data.formData.mode || 'rent'` — `mode` is `unknown`, assigned to a string field. **Fix: cast `(data.formData.mode as string) || 'rent'`**
-- Line 616: `editingProperty` is `Partial<Listing> | null` but prop expects `EditingListing | undefined`. **Fix: change to `editingProperty ?? undefined`**
+## Step 5: Verify Roommate Matching
+- `RoommateMatching.tsx`: Currently uses mock data with real data fallback via `useSmartClientMatching`. Confirm the `roommate_available` toggle in client profile works and filters candidates correctly.
+- Ensure current user is excluded from their own roommate discovery deck.
+- Verify swipe actions (like/dislike/undo/message) call the correct backend mutations.
 
-### 7. `src/components/SwipessSwipeContainer.tsx` (1 error)
+## Step 6: Verify Swipe Card Actions
+- Confirm all 5 action buttons (Undo, Dislike, Share, Like, Message) in `SwipeActionButtonBar` trigger the correct handlers.
+- Verify likes are persisted to the `likes` table.
+- Verify swipes are recorded in the `swipes` table.
+- Confirm match detection works (mutual likes trigger `MatchCelebration`).
+- Confirm messaging flow: like → message confirmation → conversation creation.
 
-- Line 1240: `setCategories` from store is `(cats: QuickFilterCategory[]) => void` but `SwipeAllDashboardProps` types it as `(ids: string[]) => void`. **Fix: change `SwipeAllDashboardProps` to use `QuickFilterCategory[]`**
+---
 
-### 8. `src/hooks/useAnonymousDrafts.ts` (1 error)
+## Technical Details
 
-- Line 166: `id` doesn't exist on the profiles insert type (profiles table uses `user_id` not `id` as the column for upsert matching). **Fix: change `id: user.id` to `user_id: user.id`**
+**Files to modify:**
+1. `src/components/CategorySwipeStack.tsx` — fix `haptics.light()` → `haptics.tap()`
+2. `src/components/ui/sonner.tsx` — remove `swipeDirections` prop
+3. `src/contexts/RadioContext.tsx` — add null check for Set iterator
+4. `src/pages/ClientLikedProperties.tsx` — remove `target_type` references
+5. `src/pages/PromotionRequest.tsx` — add missing lucide icon imports
 
-### 9. `src/hooks/useContracts.tsx` (1 error)
-
-- Line 108: `title` doesn't exist on the insert type for `digital_contracts`. The table schema likely uses different column names. **Fix: check the actual table schema and use `.insert({...} as any)` or correct column names**
-
-### 10. `src/hooks/useConversations.tsx` (6 errors)
-
-- Lines 227-234: Properties like `client_id`, `owner_id`, `listing_id`, `last_message_at`, `status` return `string | null` from DB but are typed as `string`. **Fix: add null coalescing `?? ''`** for required string fields, `?? undefined` for optional ones
-
-### 11. `src/hooks/useRadioPlaylists.ts` (2 errors)
-
-- Lines 40, 73: DB returns `station_ids` as `Json` (could be null) but `UserPlaylist` expects `string[]`. **Fix: cast the data: `setPlaylists((data || []).map(d => ({ ...d, description: d.description ?? undefined, station_ids: (d.station_ids as string[]) || [] })))`**
-
-### 12. `src/hooks/useSwipeWithMatch.tsx` (1 error)
-
-- Line 561: `match.client_id` doesn't exist on the match type which only has `user_id`. **Fix: use `match.user_id` directly instead of `match.client_id ?? match.user_id`**
-
-### Summary
-
-| File | Error Count | Fix Type |
-|------|------------|----------|
-| EventosFeed.tsx | ~25 | Delete dead code, add missing type field, add variable |
-| EventoDetail.tsx | 3 | Add missing imports |
-| LikeNotificationPreview.tsx | 4 | Null coalescing |
-| LikedClients.tsx | 2 | Fix state types |
-| MarketingSlide.tsx | 1 | Fix icon type |
-| PropertyManagement.tsx | 2 | Type casting |
-| SwipessSwipeContainer.tsx | 1 | Fix prop type |
-| useAnonymousDrafts.ts | 1 | Fix column name |
-| useContracts.tsx | 1 | Type casting |
-| useConversations.tsx | 6 | Null coalescing |
-| useRadioPlaylists.ts | 2 | Type casting |
-| useSwipeWithMatch.tsx | 1 | Use correct field |
+**No database changes required** — all tables and RLS policies are already in place.
 
