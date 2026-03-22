@@ -8,7 +8,7 @@ function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
-const CROSSFADE_MS = 650;
+const CROSSFADE_MS = 200;
 const CROSSFADE_EASE = [0.4, 0, 0.2, 1]; // Smooth soft-start cubic bezier
 
 const CardImage = memo(({ 
@@ -150,6 +150,9 @@ const CardImage = memo(({
         key={src}
         src={optimizedSrc || src}
         alt={alt ?? ''}
+        loading="eager"
+        decoding="async"
+        fetchPriority="high"
         style={{
           position: 'absolute',
           inset: 0,

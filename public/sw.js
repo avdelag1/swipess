@@ -181,7 +181,7 @@ self.addEventListener('fetch', (event) => {
       caches.open(DYNAMIC_CACHE).then(cache => {
         return cache.match(request).then(cachedResponse => {
           // Always fetch fresh version in background
-          const fetchPromise = fetch(request, {
+          const bgFetch = fetch(request, {
             cache: 'no-store' // Bypass browser cache but populate our SW cache
           }).then(networkResponse => {
             if (networkResponse.ok) {
@@ -190,9 +190,13 @@ self.addEventListener('fetch', (event) => {
             return networkResponse;
           }).catch(() => cachedResponse);
 
-          // Return cached immediately for instant launch, otherwise wait for network
-          // If no cache, wait for network (first launch)
-          return cachedResponse || fetchPromise;
+          if (cachedResponse) {
+            // Return cached immediately for instant launch, update in background
+            event.waitUntil(bgFetch); // keep SW alive to complete cache update
+            return cachedResponse;
+          }
+          // First launch: wait for network
+          return bgFetch;
         });
       })
     );
@@ -226,16 +230,18 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.open(DYNAMIC_CACHE).then(cache => {
         return cache.match(request).then(cachedResponse => {
-          // Always fetch fresh version in background
-          const fetchPromise = fetch(request).then(networkResponse => {
+          const bgFetch = fetch(request).then(networkResponse => {
             if (networkResponse.ok) {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
           }).catch(() => cachedResponse); // Fallback to cache on network error
 
-          // Return cached immediately if available, otherwise wait for network
-          return cachedResponse || fetchPromise;
+          if (cachedResponse) {
+            event.waitUntil(bgFetch); // keep SW alive to complete cache update
+            return cachedResponse;
+          }
+          return bgFetch;
         });
       })
     );
@@ -247,14 +253,18 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.open(IMAGE_CACHE).then(cache => {
         return cache.match(request).then(cachedResponse => {
-          const fetchPromise = fetch(request).then(networkResponse => {
+          const bgFetch = fetch(request).then(networkResponse => {
             if (networkResponse.ok) {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
           }).catch(() => cachedResponse);
 
-          return cachedResponse || fetchPromise;
+          if (cachedResponse) {
+            event.waitUntil(bgFetch); // keep SW alive to complete cache update
+            return cachedResponse;
+          }
+          return bgFetch;
         });
       })
     );
@@ -303,16 +313,14 @@ self.addEventListener('activate', (event) => {
 
       // Clean up ALL old caches from previous versions - be aggressive
       caches.keys().then((cacheNames) => {
-        console.log('[SW] Cleaning old caches. Current version:', CACHE_VERSION);
         return Promise.all(
           cacheNames.map((cacheName) => {
             // Delete any cache that doesn't match current version
-            const isCurrentCache = cacheName === STATIC_CACHE || 
-                                   cacheName === DYNAMIC_CACHE || 
+            const isCurrentCache = cacheName === STATIC_CACHE ||
+                                   cacheName === DYNAMIC_CACHE ||
                                    cacheName === IMAGE_CACHE;
-            
+
             if (!isCurrentCache) {
-              console.log('[SW] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
@@ -361,9 +369,8 @@ async function enforceImageCacheLimit() {
     const toDelete = entries.slice(MAX_IMAGE_CACHE_SIZE);
 
     await Promise.all(toDelete.map(entry => cache.delete(entry.request)));
-    console.log(`[SW] Evicted ${toDelete.length} old images (LRU)`);
-  } catch (e) {
-    console.error('[SW] Image cache eviction failed:', e);
+  } catch (_e) {
+    // Eviction error is non-critical — continue serving from cache
   }
 }
 
@@ -406,9 +413,8 @@ async function enforceDynamicCacheLimit() {
       validEntries.sort((a, b) => b.age - a.age);
       const toDelete = validEntries.slice(MAX_DYNAMIC_CACHE_SIZE);
       await Promise.all(toDelete.map(entry => cache.delete(entry.request)));
-      console.log(`[SW] Evicted ${toDelete.length} old dynamic items (LRU)`);
     }
-  } catch (e) {
-    console.error('[SW] Dynamic cache eviction failed:', e);
+  } catch (_e) {
+    // Eviction error is non-critical — continue serving from cache
   }
 }
