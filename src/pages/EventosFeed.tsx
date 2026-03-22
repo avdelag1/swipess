@@ -115,6 +115,41 @@ const MOCK_EVENTS: EventItem[] = [
     event_date: '2026-04-14T06:00:00', location: 'Playa Paraíso, Tulum', location_detail: 'South Beach',
     organizer_name: 'Tulum Dive', organizer_whatsapp: '+529843332211', promo_text: 'Small group', discount_tag: 'EXCLUSIVE', is_free: false, price_text: '$200 MXN',
   },
+  {
+    id: 'm11', title: 'Jungle Bike Tour', category: 'jungle',
+    image_url: '/images/event-bike-teal.jpg',
+    description: 'Explore Tulum on a classic beach cruiser through jungle paths, cenote roads, and sandy trails. Bikes provided, all levels welcome.',
+    event_date: '2026-04-15T08:00:00', location: 'Tulum Pueblo', location_detail: 'Jungle trails',
+    organizer_name: 'Tulum Rides', organizer_whatsapp: '+529847771234', promo_text: 'Bikes included', discount_tag: null, is_free: false, price_text: '$250 MXN',
+  },
+  {
+    id: 'm12', title: 'Sunset DJ Set: Beach Club', category: 'music',
+    image_url: '/images/event-dj-beach.jpg',
+    description: 'Two world-class DJs behind the decks at sunset. Afro house, melodic techno, and tropical beats with the Caribbean as your backdrop.',
+    event_date: '2026-04-15T17:00:00', location: 'Zona Hotelera, Tulum', location_detail: 'Beach Club Stage',
+    organizer_name: 'Papaya Playa', organizer_whatsapp: '+529848887766', promo_text: 'Open air', discount_tag: 'SUNSET SET', is_free: false, price_text: '$600 MXN',
+  },
+  {
+    id: 'm13', title: 'Group Dog Walk', category: 'jungle',
+    image_url: '/images/event-dog-walk.jpg',
+    description: 'Morning pack walk through shaded jungle streets with your furry friend. Meet other pet owners and let the dogs run free together.',
+    event_date: '2026-04-16T07:30:00', location: 'La Veleta, Tulum', location_detail: 'Tree-lined streets',
+    organizer_name: 'Tulum Pets', organizer_whatsapp: '+529843339988', promo_text: 'All dogs welcome', discount_tag: 'FREE ENTRY', is_free: true, price_text: null,
+  },
+  {
+    id: 'm14', title: 'Jungle Architecture Walk', category: 'jungle',
+    image_url: '/images/event-jungle-architecture.jpg',
+    description: 'Guided tour of Tulum\'s most iconic brutalist and organic architecture hidden deep in the jungle. Art, design, and nature converge.',
+    event_date: '2026-04-16T16:00:00', location: 'Aldea Zamá, Tulum', location_detail: 'Jungle district',
+    organizer_name: 'Tulum Design', organizer_whatsapp: '+529841234000', promo_text: 'Small group tour', discount_tag: null, is_free: false, price_text: '$300 MXN',
+  },
+  {
+    id: 'm15', title: 'Bike Rental Promo', category: 'promo',
+    image_url: '/images/event-bike-pink.jpg',
+    description: 'Rent a colorful beach cruiser and explore Tulum at your own pace. Daily and weekly rates available. Helmets and baskets included.',
+    event_date: '2026-04-17T09:00:00', location: 'Centro, Tulum', location_detail: 'Main strip',
+    organizer_name: 'Tulum Cruisers', organizer_whatsapp: '+529849990011', promo_text: 'Daily & weekly rates', discount_tag: '20% OFF', is_free: false, price_text: 'From $150 MXN',
+  },
 ];
 
 function formatDate(str: string | null): string {
