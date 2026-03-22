@@ -343,13 +343,12 @@ const ReorderableCategoryCard = memo(({
   const reverseIndex = total - 1 - index;
   const isTop = reverseIndex === 0;
   
-  // Rainbow arc fan: Property (back) → Workers → Bicycles → Motorcycles (front)
-  // Cards fan left-to-right with rotation creating an arc effect
-  const fanAngle = reverseIndex * -12;  // Rotation angle (negative for left-to-right arc)
-  const stackX = reverseIndex * 50;     // Progressive right offset for each card back
-  const stackY = -Math.abs(reverseIndex - 1.5) * 30;  // Arc height - creates rainbow curve
-  const stackScale = 1 - (reverseIndex * 0.015);
-  const stackRotate = fanAngle;
+  // Vertical stack: Property (back) → Workers → Bicycles → Motorcycles (front)
+  // Each card peeks slightly from behind the one in front
+  const stackX = 0;  // No horizontal offset - straight vertical
+  const stackY = reverseIndex * 85;  // Vertical offset to show peek of each card (85px per card)
+  const stackScale = 1 - (reverseIndex * 0.01);
+  const stackRotate = 0;  // No rotation - straight stack
   const stackOpacity = reverseIndex > 3 ? 0 : 1;
 
   // Drag-and-release cycle logic
