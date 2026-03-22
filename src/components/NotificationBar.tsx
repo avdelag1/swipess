@@ -139,36 +139,30 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMa
   const unreadCount = unread.length;
 
   return (
-    <AnimatePresence onExitComplete={handleExitComplete}>
-      {visible && (
-        <motion.div
-          key={current.id}
-          className="fixed top-14 left-0 right-0 z-[100] px-4 flex justify-center pointer-events-none"
-          // Enter: slide in from left — fast "boom" entry
-          initial={{ x: -100, opacity: 0 }}
-          animate={{ x: 0,   opacity: 1 }}
-          // Exit: slide out to the right — keep going further
-          exit={{ x: '100vw', opacity: 0 }}
-          transition={{
-            x:       { type: 'spring', stiffness: 500, damping: 35, mass: 1 },
-            opacity: { type: 'tween', duration: 0.2, ease: 'easeOut' },
-          }}
-        >
+    // Fixed container: always mounted, provides centering — not animated itself
+    <div className="fixed top-14 left-0 right-0 z-[100] px-4 flex justify-center pointer-events-none">
+      <AnimatePresence onExitComplete={handleExitComplete}>
+        {visible && (
           <motion.div
-            // ── SWIPE-RIGHT-TO-DISMISS ─────────────────────────────────────
-            // Following user's request: notification appears from left,
-            // stays in middle, then disappears going further to the right.
+            key={current.id}
+            // Slides in from fully off-screen left, rests in center, exits to fully off-screen right
+            initial={{ x: '-110%', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '110%', opacity: 0 }}
+            transition={{
+              x:       { type: 'spring', stiffness: 420, damping: 38, mass: 1 },
+              opacity: { type: 'tween', duration: 0.18, ease: 'easeOut' },
+            }}
+            // ── SWIPE-RIGHT-TO-DISMISS ──────────────────────────────────────
             drag="x"
             dragDirectionLock
-            dragConstraints={{ left: -10, right: 400 }}
-            dragElastic={{ left: 0.05, right: 0.3 }}
+            dragConstraints={{ left: -10, right: 300 }}
+            dragElastic={{ left: 0.05, right: 0.25 }}
             onDrag={(_, info) => {
-              // Swipe right trigger (positive offset)
               if (info.offset.x > 60 && !isExiting.current) {
                 startDismiss();
               }
             }}
-            // If released mid-swipe but passed threshold
             onDragEnd={(_, info) => {
               if (info.offset.x > 30 && !isExiting.current) startDismiss();
             }}
@@ -224,8 +218,8 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMa
               </button>
             </div>
           </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

@@ -623,19 +623,16 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 
 @keyframes breathing-zoom {
   0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.02);
+    transform: scale(1.06);
   }
   100% {
-    transform: scale(1);
+    transform: scale(1.0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   @keyframes breathing-zoom {
-    0%, 50%, 100% {
+    0%, 100% {
       transform: scale(1);
     }
   }

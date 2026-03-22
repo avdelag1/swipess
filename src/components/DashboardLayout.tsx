@@ -21,8 +21,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { TopBar } from '@/components/TopBar'
 import { BottomNavigation } from '@/components/BottomNavigation'
 import { AdvancedFilters } from '@/components/AdvancedFilters'
-import { AISearchDialog } from './AISearchDialog';
-
 // Lazy-loaded Dialogs (improves bundle size and initial load)
 const SubscriptionPackages = lazy(() => import("@/components/SubscriptionPackages").then(m => ({ default: m.SubscriptionPackages })))
 const LegalDocumentsDialog = lazy(() => import("@/components/LegalDocumentsDialog").then(m => ({ default: m.LegalDocumentsDialog })))
@@ -42,6 +40,7 @@ const SavedSearchesDialog = lazy(() => import('@/components/SavedSearchesDialog'
 const MessageActivationPackages = lazy(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })))
 const PushNotificationPrompt = lazy(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })))
 const WelcomeNotification = lazy(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })))
+const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })))
 
 // Hooks
 import { useListings } from "@/hooks/useListings"
@@ -569,45 +568,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // Get the original UI category (before mapping) for display purposes
   const activeUiCategory = categories.length === 1 ? categories[0] : null;
 
-  // Combine quick filters with applied filters - MEMOIZED to prevent identity changes
-  // Now reads directly from Zustand store values instead of local state
-  const _combinedFilters = useMemo(() => {
-    const base = appliedFilters || {};
-
-    // Check if any quick filters are active (from store)
-    const hasClientQuickFilters = categories.length > 0 || listingType !== 'both';
-    const hasOwnerQuickFilters = clientGender !== 'any' || clientType !== 'all';
-
-    // If no quick filters active, return base filters
-    if (!hasClientQuickFilters && !hasOwnerQuickFilters) {
-      return base;
-    }
-
-    // Check if services category is selected
-    const hasServicesCategory = categories.includes('services');
-
-    // Map quick filter categories to database categories
-    const mappedCategories = categories.length > 0
-      ? categories.map(mapCategoryToDatabase)
-      : undefined;
-
-    return {
-      ...base,
-      // Client quick filter categories take precedence if set
-      category: categories.length === 0 ? base.category : undefined,
-      categories: mappedCategories,
-      // Original UI category for display (empty states, titles, etc.)
-      activeUiCategory: activeUiCategory,
-      // Quick filter listing type takes precedence if not 'both'
-      listingType: listingType !== 'both' ? listingType : base.listingType,
-      // Services filter - derived from categories
-      showHireServices: hasServicesCategory || undefined,
-      // Owner quick filters
-      clientGender: clientGender !== 'any' ? clientGender : undefined,
-      clientType: clientType !== 'all' ? clientType : undefined,
-    };
-  }, [appliedFilters, categories, listingType, clientGender, clientType, mapCategoryToDatabase, activeUiCategory]);
-
   // Check if we're on a discovery page where filters should be shown
   // MUST be declared BEFORE enhancedChildren useMemo that references it
   const isOnDiscoveryPage = (userRole === 'client' && location.pathname === '/client/dashboard') ||
@@ -900,11 +860,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       </Suspense>
 
       {/* AI Search Dialog */}
-      <AISearchDialog
-        isOpen={isAISearchOpen}
-        onClose={() => setIsAISearchOpen(false)}
-        userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'}
-      />
+      <Suspense fallback={null}>
+        <AISearchDialog
+          isOpen={isAISearchOpen}
+          onClose={() => setIsAISearchOpen(false)}
+          userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'}
+        />
+      </Suspense>
 
       {/* Push Notification Permission Prompt */}
       <Suspense fallback={null}>

@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, Check, Megaphone, Sparkles, Star, Zap, Calendar,
   Music, Utensils, Dumbbell, Palette, ShoppingBag, Globe, Camera,
-  Users, Eye, TrendingUp, Instagram, Phone, Flame, Crown
+  Users, Eye, TrendingUp, Instagram, Phone, Flame, Crown,
+  Info, Shield, ClipboardList, MessageCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,8 +22,10 @@ const PACKAGES = [
     emoji: "⚡",
     color: "#ef4444",
     colorRgb: "239,68,68",
-    prices: { week: 50, month: 150, quarter: 350 },
-    perks: ["Basic listing", "1 photo", "Standard placement", "Email support"],
+    price: 4.99,
+    duration: "week",
+    durationLabel: "/ week",
+    perks: ["Basic listing promotion", "1 photo upload", "Standard feed placement", "Email support"],
     tagline: "Perfect to get started",
   },
   {
@@ -32,10 +35,12 @@ const PACKAGES = [
     emoji: "🔥",
     color: "#f97316",
     colorRgb: "249,115,22",
-    prices: { week: 99, month: 250, quarter: 580 },
-    perks: ["Featured badge", "Up to 5 photos", "Priority placement", "Chat support"],
+    price: 6.99,
+    duration: "3months",
+    durationLabel: "/ 3 months",
+    perks: ["Featured badge on listing", "Up to 5 photos", "Priority feed placement", "Category highlight", "Chat support", "Performance stats"],
     popular: true,
-    tagline: "Most chosen by Tulum brands",
+    tagline: "Best value for growing brands",
   },
   {
     id: "premium",
@@ -44,28 +49,23 @@ const PACKAGES = [
     emoji: "👑",
     color: "#a855f7",
     colorRgb: "168,85,247",
-    prices: { week: 199, month: 499, quarter: 1150 },
-    perks: ["Top of feed", "Unlimited photos", "Push notification blast", "Dedicated manager"],
+    price: 9.99,
+    duration: "6months",
+    durationLabel: "/ 6 months",
+    perks: ["Top of feed placement", "Unlimited photos", "Push notification blast", "Dedicated account manager", "Social media cross-promotion", "Custom branded card"],
     tagline: "Maximum reach & visibility",
   },
 ];
 
-const MXN_TO_USD = 0.052;
-
 const EVENT_TYPES = [
-  { id: "music", label: "Music / DJ Night", icon: <Music className="w-5 h-5" />, emoji: "🎶" },
-  { id: "food", label: "Food & Drinks", icon: <Utensils className="w-5 h-5" />, emoji: "🍷" },
-  { id: "fitness", label: "Fitness / Wellness", icon: <Dumbbell className="w-5 h-5" />, emoji: "🧘" },
-  { id: "art", label: "Art / Culture", icon: <Palette className="w-5 h-5" />, emoji: "🎨" },
-  { id: "market", label: "Market / Pop-up", icon: <ShoppingBag className="w-5 h-5" />, emoji: "🛍️" },
-  { id: "other", label: "Other / Service", icon: <Globe className="w-5 h-5" />, emoji: "✨" },
+  { id: "music",   label: "Music / DJ Night",    icon: <Music      className="w-6 h-6" />, color: "#f43f5e", colorRgb: "244,63,94"   },
+  { id: "food",    label: "Food & Drinks",        icon: <Utensils   className="w-6 h-6" />, color: "#f97316", colorRgb: "249,115,22"  },
+  { id: "fitness", label: "Fitness / Wellness",   icon: <Dumbbell   className="w-6 h-6" />, color: "#22c55e", colorRgb: "34,197,94"   },
+  { id: "art",     label: "Art / Culture",        icon: <Palette    className="w-6 h-6" />, color: "#a855f7", colorRgb: "168,85,247"  },
+  { id: "market",  label: "Market / Pop-up",      icon: <ShoppingBag className="w-6 h-6" />, color: "#3b82f6", colorRgb: "59,130,246"  },
+  { id: "other",   label: "Other / Service",      icon: <Globe      className="w-6 h-6" />, color: "#eab308", colorRgb: "234,179,8"   },
 ];
 
-const DURATIONS = [
-  { id: "week", label: "1 Week", sublabel: "Try it out" },
-  { id: "month", label: "1 Month", sublabel: "Best value" },
-  { id: "quarter", label: "3 Months", sublabel: "Maximum ROI" },
-];
 
 const STATS = [
   { icon: Users, value: "15k+", label: "Monthly Users", color: "#ef4444" },
@@ -87,7 +87,6 @@ interface FormData {
   contactPhone: string;
   website: string;
   packageId: string;
-  duration: "week" | "month" | "quarter";
   photoUrl: string;
 }
 
@@ -101,7 +100,6 @@ const INITIAL: FormData = {
   contactPhone: "",
   website: "",
   packageId: "growth",
-  duration: "month",
   photoUrl: "",
 };
 
@@ -111,7 +109,7 @@ const SAMPLE_CARDS = [
     tag: "TONIGHT",
     title: "Cenote Rave",
     venue: "Zamna Tulum",
-    price: "$800 MXN",
+    price: "$42",
     color: "#a855f7",
   },
   {
@@ -127,7 +125,7 @@ const SAMPLE_CARDS = [
     tag: "EARLY BIRD",
     title: "Cacao Ceremony",
     venue: "Playa Paraíso",
-    price: "$350 MXN",
+    price: "$18",
     color: "#f97316",
   },
 ];
@@ -214,8 +212,7 @@ export default function AdvertisePage() {
   const set = (field: keyof FormData, val: string) => setForm(f => ({ ...f, [field]: val }));
 
   const selectedPkg = PACKAGES.find(p => p.id === form.packageId)!;
-  const price = selectedPkg?.prices[form.duration];
-  const priceUsd = (price * MXN_TO_USD).toFixed(0);
+  const price = selectedPkg?.price;
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -241,8 +238,8 @@ export default function AdvertisePage() {
         contact_phone: form.contactPhone,
         website: form.website || null,
         package_id: form.packageId,
-        duration: form.duration,
-        price_mxn: price,
+        duration: selectedPkg?.duration,
+        price_mxn: price, // stores USD value
         status: "pending",
       });
       if (error) throw error;
@@ -418,7 +415,7 @@ export default function AdvertisePage() {
             style={{ background: "linear-gradient(135deg,#f97316,#a855f7)", boxShadow: "0 16px 50px rgba(249,115,22,0.4)" }}
           >
             <Megaphone className="w-5 h-5" />
-            Start Promoting — From $50 MXN
+            Start Promoting — From $4.99 USD
           </motion.button>
 
           <p className="text-[11px] mt-4" style={{ color: th.textFaint }}>No upfront payment · We contact you to confirm</p>
@@ -454,8 +451,8 @@ export default function AdvertisePage() {
               <div key={pkg.id} className="relative p-4 rounded-2xl overflow-hidden group transition-all"
                 style={{ background: `rgba(${pkg.colorRgb},0.10)`, border: `1px solid rgba(${pkg.colorRgb},0.2)` }}>
                 {pkg.popular && (
-                  <div className="absolute top-0 right-0">
-                    <div className="bg-gradient-to-l from-orange-500 to-rose-500 text-[9px] font-black uppercase tracking-[0.15em] px-3 py-1 rounded-bl-xl text-white shadow-lg">
+                  <div className="absolute top-2 right-2 z-10">
+                    <div className="bg-gradient-to-r from-orange-500 to-rose-500 text-[8px] font-black uppercase tracking-[0.15em] px-2.5 py-1 rounded-full text-white shadow-lg">
                       POPULAR
                     </div>
                   </div>
@@ -469,10 +466,19 @@ export default function AdvertisePage() {
                     <div className="font-black text-sm" style={{ color: th.text }}>{pkg.name}</div>
                     <div className="text-[10px] truncate" style={{ color: th.textDim }}>{pkg.tagline}</div>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="font-black text-sm" style={{ color: pkg.color }}>From ${pkg.prices.week}</div>
-                    <div className="text-[10px]" style={{ color: th.textDim }}>MXN / week</div>
+                  <div className={`text-right flex-shrink-0 ${pkg.popular ? "mt-5" : ""}`}>
+                    <div className="font-black text-sm" style={{ color: pkg.color }}>${pkg.price.toFixed(2)}</div>
+                    <div className="text-[10px]" style={{ color: th.textDim }}>USD {pkg.durationLabel}</div>
                   </div>
+                </div>
+                <div className="mt-3 pt-3 grid grid-cols-2 gap-x-3 gap-y-1.5"
+                  style={{ borderTop: `1px solid rgba(${pkg.colorRgb},0.15)` }}>
+                  {pkg.perks.slice(0, 4).map(perk => (
+                    <div key={perk} className="flex items-center gap-1.5 text-[11px]" style={{ color: th.textMuted }}>
+                      <Check className="w-3 h-3 flex-shrink-0" style={{ color: pkg.color }} />
+                      {perk}
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
@@ -550,25 +556,101 @@ export default function AdvertisePage() {
                   <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>What are you<br />promoting?</h2>
                   <p className="text-sm" style={{ color: th.textMuted }}>Choose the category that fits your business</p>
                 </div>
+
+                {/* How it works */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.08 }}
+                  className="rounded-2xl p-4"
+                  style={{ background: th.card, border: `1px solid ${th.cardBorder}` }}
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-5 h-5 rounded-md flex items-center justify-center"
+                      style={{ background: "linear-gradient(135deg,rgba(249,115,22,0.25),rgba(168,85,247,0.25))" }}>
+                      <Info className="w-3 h-3 text-orange-400" />
+                    </div>
+                    <span className="text-xs font-black uppercase tracking-widest" style={{ color: th.text }}>How it works</span>
+                  </div>
+                  <div className="space-y-3">
+                    {[
+                      { icon: ClipboardList, color: "#f97316", colorRgb: "249,115,22", title: "Submit your event", desc: "Fill out this form with your event or business details" },
+                      { icon: Shield,        color: "#3b82f6", colorRgb: "59,130,246",  title: "We review it",      desc: "Our team verifies submissions are appropriate & legal within 24 h" },
+                      { icon: MessageCircle, color: "#22c55e", colorRgb: "34,197,94",   title: "Get promoted",      desc: "Approved? We contact you on WhatsApp to finalize & publish" },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                          style={{
+                            background: `linear-gradient(135deg, rgba(${item.colorRgb},0.20), rgba(${item.colorRgb},0.08))`,
+                            boxShadow: `0 2px 12px rgba(${item.colorRgb},0.18)`,
+                          }}>
+                          <item.icon className="w-4 h-4" style={{ color: item.color }} />
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold" style={{ color: th.text }}>{item.title}</div>
+                          <div className="text-xs leading-relaxed" style={{ color: th.textMuted }}>{item.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+
+                {/* Review/guidelines notice */}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.14 }}
+                  className="rounded-xl px-4 py-3 flex items-start gap-3"
+                  style={{
+                    background: isLight ? "rgba(234,179,8,0.07)" : "rgba(234,179,8,0.06)",
+                    border: `1px solid ${isLight ? "rgba(234,179,8,0.18)" : "rgba(234,179,8,0.13)"}`,
+                  }}
+                >
+                  <Shield className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#eab308" }} />
+                  <p className="text-xs leading-relaxed" style={{ color: th.textMuted }}>
+                    All submissions are reviewed to ensure events are <span style={{ color: th.text, fontWeight: 700 }}>appropriate, legal, and relevant to the Tulum area</span>. We reserve the right to decline submissions that don't meet our guidelines — no payment is charged until approval.
+                  </p>
+                </motion.div>
+
+                {/* Category grid */}
                 <div className="grid grid-cols-2 gap-3">
-                  {EVENT_TYPES.map(et => {
+                  {EVENT_TYPES.map((et, index) => {
                     const selected = form.eventType === et.id;
                     return (
-                      <button
+                      <motion.button
                         key={et.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.28, delay: 0.18 + index * 0.05 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => { haptics.tap(); set("eventType", et.id); }}
-                        className="flex flex-col items-start gap-2 p-4 rounded-2xl text-left transition-all active:scale-95"
+                        className="flex flex-col items-start gap-3 p-4 rounded-2xl text-left transition-colors"
                         style={{
-                          background: selected ? "rgba(249,115,22,0.15)" : th.card,
-                          border: `1.5px solid ${selected ? "rgba(249,115,22,0.6)" : th.cardBorder}`,
+                          background: selected ? `rgba(${et.colorRgb},0.13)` : th.card,
+                          border: `1.5px solid ${selected ? et.color : th.cardBorder}`,
+                          boxShadow: selected ? `0 0 0 1px rgba(${et.colorRgb},0.15), 0 4px 20px rgba(${et.colorRgb},0.18)` : undefined,
                         }}
                       >
-                        <span className="text-2xl">{et.emoji}</span>
-                        <span className="text-sm font-bold" style={{ color: th.text }}>{et.label}</span>
-                      </button>
+                        <div
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all"
+                          style={{
+                            background: selected
+                              ? `linear-gradient(135deg, rgba(${et.colorRgb},0.35), rgba(${et.colorRgb},0.18))`
+                              : `linear-gradient(135deg, rgba(${et.colorRgb},0.18), rgba(${et.colorRgb},0.07))`,
+                            boxShadow: selected
+                              ? `0 4px 24px rgba(${et.colorRgb},0.40)`
+                              : `0 2px 12px rgba(${et.colorRgb},0.12)`,
+                            color: et.color,
+                          }}
+                        >
+                          {et.icon}
+                        </div>
+                        <span className="text-sm font-bold leading-tight" style={{ color: th.text }}>{et.label}</span>
+                      </motion.button>
                     );
                   })}
                 </div>
+
                 <button
                   onClick={next}
                   disabled={!form.eventType}
@@ -680,32 +762,12 @@ export default function AdvertisePage() {
               <div className="space-y-4">
                 <div>
                   <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>Choose your package</h2>
-                  <p className="text-sm" style={{ color: th.textMuted }}>All prices in MXN. Cancel anytime.</p>
-                </div>
-
-                {/* Duration selector */}
-                <div className="flex gap-1 p-1 rounded-xl" style={{ background: th.card, border: `1px solid ${th.cardBorder}` }}>
-                  {DURATIONS.map(d => (
-                    <button
-                      key={d.id}
-                      onClick={() => { haptics.tap(); set("duration", d.id as any); }}
-                      className="flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex flex-col items-center gap-0.5"
-                      style={{
-                        background: form.duration === d.id ? "linear-gradient(135deg,#f97316,#a855f7)" : "transparent",
-                        color: form.duration === d.id ? "white" : th.textDim,
-                      }}
-                    >
-                      <span>{d.label}</span>
-                      <span style={{ fontSize: "9px", opacity: 0.7 }}>{d.sublabel}</span>
-                    </button>
-                  ))}
+                  <p className="text-sm" style={{ color: th.textMuted }}>All prices in USD. Cancel anytime.</p>
                 </div>
 
                 {/* Package cards */}
                 <div className="space-y-3">
                   {PACKAGES.map(pkg => {
-                    const p = pkg.prices[form.duration];
-                    const usd = (p * MXN_TO_USD).toFixed(0);
                     const selected = form.packageId === pkg.id;
                     return (
                       <button
@@ -720,8 +782,8 @@ export default function AdvertisePage() {
                         }}
                       >
                         {pkg.popular && (
-                          <div className="absolute top-0 right-0">
-                            <div className="bg-gradient-to-l from-orange-500 to-rose-500 text-[8px] font-black uppercase tracking-[0.15em] px-2.5 py-1 rounded-bl-xl text-white shadow-glow-sm">
+                          <div className="absolute top-2 right-2 z-10">
+                            <div className="bg-gradient-to-r from-orange-500 to-rose-500 text-[8px] font-black uppercase tracking-[0.15em] px-2.5 py-1 rounded-full text-white shadow-lg">
                               POPULAR
                             </div>
                           </div>
@@ -735,9 +797,9 @@ export default function AdvertisePage() {
                             <div className="font-black" style={{ color: th.text }}>{pkg.name}</div>
                             <div className="text-[10px] truncate" style={{ color: th.textDim }}>{pkg.tagline}</div>
                           </div>
-                          <div className="ml-auto text-right flex-shrink-0">
-                            <div className="font-black" style={{ color: pkg.color }}>${p.toLocaleString()}</div>
-                            <div className="text-[10px]" style={{ color: th.textDim }}>MXN · ≈${usd} USD</div>
+                          <div className={`ml-auto text-right flex-shrink-0 ${pkg.popular ? "mt-5" : ""}`}>
+                            <div className="font-black" style={{ color: pkg.color }}>${pkg.price.toFixed(2)}</div>
+                            <div className="text-[10px]" style={{ color: th.textDim }}>USD {pkg.durationLabel}</div>
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-x-3 gap-y-1.5">
@@ -802,10 +864,9 @@ export default function AdvertisePage() {
                   <div className="pt-3 flex justify-between items-center mt-1"
                     style={{ borderTop: `1px solid ${th.divider}` }}>
                     <div>
-                      <div className="text-xs" style={{ color: th.textDim }}>{selectedPkg?.name} · {DURATIONS.find(d => d.id === form.duration)?.label}</div>
+                      <div className="text-xs" style={{ color: th.textDim }}>{selectedPkg?.name} · {selectedPkg?.durationLabel}</div>
                       <div className="font-black text-lg" style={{ color: th.text }}>
-                        ${price?.toLocaleString()} <span className="text-sm" style={{ color: th.textDim }}>MXN</span>
-                        <span className="text-sm ml-2" style={{ color: th.textFaint }}>≈${priceUsd} USD</span>
+                        ${price?.toFixed(2)} <span className="text-sm" style={{ color: th.textDim }}>USD {selectedPkg?.durationLabel}</span>
                       </div>
                     </div>
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center"

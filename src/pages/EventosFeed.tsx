@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart, MapPin, Calendar, Sparkles, Waves, Trees, Music,
   Utensils, Ticket, ArrowLeft, MessageCircle, Share2,
-  Megaphone, ChevronUp, ExternalLink, Info, Play, Pause
+  Megaphone, ChevronUp, ExternalLink, Info, Play, Pause, ChevronRight, ChevronLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -47,52 +47,122 @@ const AUTOPLAY_DURATION = 6000; // 6 seconds per card
 const MOCK_EVENTS: EventItem[] = [
   {
     id: 'm1', title: 'Sunset Cacao Ceremony', category: 'beach',
-    image_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80&auto=format',
-    description: 'Sacred cacao ceremony at sunset on the Caribbean shore. Meditation, sound healing, and connection.',
+    image_url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=800',
+    description: 'Sacred cacao ceremony at sunset on the Caribbean shore. Meditation, sound healing, and deep connection with yourself.',
     event_date: '2026-04-05T18:00:00', location: 'Playa Paraíso, Tulum', location_detail: 'Beach Club',
     organizer_name: 'Casa Luna', organizer_whatsapp: '+529841234567', promo_text: 'Limited spots', discount_tag: 'EARLY BIRD', is_free: false, price_text: '$350 MXN',
   },
   {
-    id: 'm2', title: 'Cenote Rave: Underground', category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=600&q=80&auto=format',
-    description: 'Deep underground techno rave inside a secret cenote. International DJs, crystal clear water.',
-    event_date: '2026-04-06T22:00:00', location: 'Cenote Cristal, Tulum', location_detail: 'Underground',
-    organizer_name: 'Zamna Tulum', organizer_whatsapp: '+529847654321', promo_text: 'Sell-out show', discount_tag: 'TONIGHT', is_free: false, price_text: '$800 MXN',
+    id: 'm2', title: 'Full Moon Beach Party', category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80&w=800',
+    description: 'Full moon jungle party on the beach. International DJs, laser lights, fire torches, and dancing under the stars all night long.',
+    event_date: '2026-04-06T22:00:00', location: 'Playa Ruinas, Tulum', location_detail: 'Beach Stage',
+    organizer_name: 'Zamna Tulum', organizer_whatsapp: '+529847654321', promo_text: 'Full moon night', discount_tag: 'TONIGHT', is_free: false, price_text: '$800 MXN',
   },
   {
-    id: 'm3', title: 'Jungle Yoga & Brunch', category: 'jungle',
-    image_url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80&auto=format',
-    description: 'Immersive yoga flow surrounded by ancient jungle. Followed by organic vegan brunch.',
-    event_date: '2026-04-07T08:00:00', location: "Sian Ka'an Reserve", location_detail: 'Jungle clearing',
+    id: 'm3', title: 'Beachfront Yoga Flow', category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=800',
+    description: 'Ocean-view yoga class in an open palapa studio. Expert-led flow for all levels with the sound of the waves as your backdrop.',
+    event_date: '2026-04-07T08:00:00', location: 'Aldea Zamá, Tulum', location_detail: 'Palapa Studio',
     organizer_name: 'Ahau Tulum', organizer_whatsapp: '+529841112233', promo_text: 'All levels welcome', discount_tag: null, is_free: false, price_text: '$450 MXN',
   },
   {
-    id: 'm4', title: 'Tulum Food Market', category: 'food',
-    image_url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80&auto=format',
-    description: 'Open-air market with 40+ vendors. Local cuisine, artisan products, live cooking, mezcal.',
-    event_date: '2026-04-08T12:00:00', location: 'La Veleta, Tulum', location_detail: 'Mercado 5ta',
-    organizer_name: 'Tulum Sabor', organizer_whatsapp: null, promo_text: '40+ vendors', discount_tag: 'FREE ENTRY', is_free: true, price_text: null,
+    id: 'm4', title: 'Reiki & Energy Healing', category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1600618528240-fb9fc964b853?auto=format&fit=crop&q=80&w=800',
+    description: 'Private and group reiki sessions in an open-air jungle setting. Release blockages, restore balance, and leave feeling renewed.',
+    event_date: '2026-04-08T10:00:00', location: 'Holistika, Tulum', location_detail: 'Healing Hut',
+    organizer_name: 'Tulum Wellness', organizer_whatsapp: '+529841119900', promo_text: 'Private & group sessions', discount_tag: null, is_free: false, price_text: '$550 MXN',
   },
   {
-    id: 'm5', title: 'Rooftop Salsa Night', category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=600&q=80&auto=format',
-    description: 'Latin beats, salsa, cumbia & reggaeton under the stars. All levels, free dance class at 9pm.',
-    event_date: '2026-04-09T21:00:00', location: 'Holistika, Tulum', location_detail: 'Rooftop terrace',
-    organizer_name: 'Viva Tulum', organizer_whatsapp: '+529849998877', promo_text: 'Dance class included', discount_tag: null, is_free: false, price_text: '$200 MXN',
+    id: 'm5', title: "Chef's Table: Tulum Kitchen", category: 'food',
+    image_url: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=800',
+    description: 'Intimate cooking experience with a local chef. Fresh ceviche, avocado dishes, and regional flavors made from scratch in a rustic kitchen.',
+    event_date: '2026-04-09T13:00:00', location: 'La Veleta, Tulum', location_detail: 'Rustic Kitchen',
+    organizer_name: 'Tulum Sabor', organizer_whatsapp: '+529841557788', promo_text: 'Max 8 guests', discount_tag: 'EXCLUSIVE', is_free: false, price_text: '$650 MXN',
   },
   {
-    id: 'm6', title: '2x1 Mezcal Thursdays', category: 'promo',
-    image_url: 'https://images.unsplash.com/photo-1436076863939-06870fe779c2?w=600&q=80&auto=format',
-    description: 'Every Thursday — all mezcal drinks 2x1 until midnight. Live DJ from 10pm.',
+    id: 'm6', title: 'Seafood & Bubbles Promo', category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80&w=800',
+    description: 'Celebrate with fresh calamari, oysters, and champagne by the sea. Special prix-fixe menu every evening until midnight.',
     event_date: '2026-04-10T20:00:00', location: 'Zona Hotelera, Tulum', location_detail: 'El Arco Bar',
-    organizer_name: 'El Arco', organizer_whatsapp: '+529845556644', promo_text: '2x1 all night', discount_tag: '2×1 MEZCAL', is_free: false, price_text: 'From $120 MXN',
+    organizer_name: 'El Arco', organizer_whatsapp: '+529845556644', promo_text: 'Prix-fixe menu', discount_tag: '20% OFF', is_free: false, price_text: 'From $350 MXN',
   },
   {
-    id: 'm7', title: 'Cenote Swim at Dawn', category: 'beach',
-    image_url: 'https://images.unsplash.com/photo-1518182170546-07661fd94144?w=600&q=80&auto=format',
-    description: 'Guided sunrise swim in a private cenote. Crystal clear turquoise water, no crowds.',
-    event_date: '2026-04-12T06:00:00', location: 'Secret Cenote, Tulum', location_detail: 'Private access',
-    organizer_name: 'Tulum Dive', organizer_whatsapp: '+529843332211', promo_text: 'Max 8 people', discount_tag: 'EXCLUSIVE', is_free: false, price_text: '$600 MXN',
+    id: 'm7', title: 'Mexican Cooking Class', category: 'food',
+    image_url: 'https://images.unsplash.com/photo-1507048331197-7d4ac70811cf?auto=format&fit=crop&q=80&w=800',
+    description: 'Learn authentic Mexican recipes with a local abuela. Tamales, handmade salsas, and traditional techniques passed down for generations.',
+    event_date: '2026-04-11T10:00:00', location: 'Holistika, Tulum', location_detail: 'Open-air kitchen',
+    organizer_name: 'Viva Tulum', organizer_whatsapp: '+529849998877', promo_text: 'Hands-on experience', discount_tag: null, is_free: false, price_text: '$500 MXN',
+  },
+  {
+    id: 'm8', title: 'Kids Storytime & Play', category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1587654780291-39c9404d7dd0?auto=format&fit=crop&q=80&w=800',
+    description: 'A fun morning of interactive storytelling and guided play for toddlers and young children. Bilingual, creative, and full of laughter.',
+    event_date: '2026-04-12T09:00:00', location: 'La Veleta, Tulum', location_detail: 'Family Space',
+    organizer_name: 'Tulum Families', organizer_whatsapp: '+529843334455', promo_text: 'Kids 1–6 years', discount_tag: 'FREE ENTRY', is_free: true, price_text: null,
+  },
+  {
+    id: 'm9', title: 'Vespa Tour: Hidden Tulum', category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&q=80&w=800',
+    description: 'Rent a classic red Vespa and explore Tulum\'s hidden corners with a local guide. Cenotes, jungle roads, and secret spots.',
+    event_date: '2026-04-13T09:00:00', location: 'Centro, Tulum', location_detail: 'Scooter Shop',
+    organizer_name: 'Tulum Rides', organizer_whatsapp: '+529847771234', promo_text: 'All experience levels', discount_tag: null, is_free: false, price_text: '$400 MXN',
+  },
+  {
+    id: 'm10', title: 'Sunrise Beach Walk', category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&q=80&w=800',
+    description: 'Guided sunrise walk along pristine Caribbean shores. Warm sand, gentle breeze, and golden light — the best way to start your day.',
+    event_date: '2026-04-14T06:00:00', location: 'Playa Paraíso, Tulum', location_detail: 'South Beach',
+    organizer_name: 'Tulum Dive', organizer_whatsapp: '+529843332211', promo_text: 'Small group', discount_tag: 'EXCLUSIVE', is_free: false, price_text: '$200 MXN',
+  },
+  {
+    id: 'm11', title: 'Jungle Bike Tour', category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?auto=format&fit=crop&q=80&w=800',
+    description: 'Explore Tulum on a classic beach cruiser through jungle paths, cenote roads, and sandy trails. Bikes provided, all levels welcome.',
+    event_date: '2026-04-15T08:00:00', location: 'Tulum Pueblo', location_detail: 'Jungle trails',
+    organizer_name: 'Tulum Rides', organizer_whatsapp: '+529847771234', promo_text: 'Bikes included', discount_tag: null, is_free: false, price_text: '$250 MXN',
+  },
+  {
+    id: 'm12', title: 'Sunset DJ Set: Beach Club', category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800',
+    description: 'Two world-class DJs behind the decks at sunset. Afro house, melodic techno, and tropical beats with the Caribbean as your backdrop.',
+    event_date: '2026-04-15T17:00:00', location: 'Zona Hotelera, Tulum', location_detail: 'Beach Club Stage',
+    organizer_name: 'Papaya Playa', organizer_whatsapp: '+529848887766', promo_text: 'Open air', discount_tag: 'SUNSET SET', is_free: false, price_text: '$600 MXN',
+  },
+  {
+    id: 'm13', title: 'Group Dog Walk', category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=800',
+    description: 'Morning pack walk through shaded jungle streets with your furry friend. Meet other pet owners and let the dogs run free together.',
+    event_date: '2026-04-16T07:30:00', location: 'La Veleta, Tulum', location_detail: 'Tree-lined streets',
+    organizer_name: 'Tulum Pets', organizer_whatsapp: '+529843339988', promo_text: 'All dogs welcome', discount_tag: 'FREE ENTRY', is_free: true, price_text: null,
+  },
+  {
+    id: 'm14', title: 'Jungle Architecture Walk', category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800',
+    description: 'Guided tour of Tulum\'s most iconic brutalist and organic architecture hidden deep in the jungle. Art, design, and nature converge.',
+    event_date: '2026-04-16T16:00:00', location: 'Aldea Zamá, Tulum', location_detail: 'Jungle district',
+    organizer_name: 'Tulum Design', organizer_whatsapp: '+529841234000', promo_text: 'Small group tour', discount_tag: null, is_free: false, price_text: '$300 MXN',
+  },
+  {
+    id: 'm15', title: 'Bike Rental Promo', category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&q=80&w=800',
+    description: 'Rent a colorful beach cruiser and explore Tulum at your own pace. Daily and weekly rates available. Helmets and baskets included.',
+    event_date: '2026-04-17T09:00:00', location: 'Centro, Tulum', location_detail: 'Main strip',
+    organizer_name: 'Tulum Cruisers', organizer_whatsapp: '+529849990011', promo_text: 'Daily & weekly rates', discount_tag: '20% OFF', is_free: false, price_text: 'From $150 MXN',
+  },
+  {
+    id: 'm16', title: 'Jungle Villa Open House', category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=800',
+    description: 'Exclusive open house tour of a stunning jungle villa. Brutalist architecture, cascading plants, private pool, and golden-hour lighting.',
+    event_date: '2026-04-18T17:00:00', location: 'Aldea Zamá, Tulum', location_detail: 'Private Villa',
+    organizer_name: 'Tulum Estates', organizer_whatsapp: '+529841230000', promo_text: 'By appointment', discount_tag: 'OPEN HOUSE', is_free: true, price_text: null,
+  },
+  {
+    id: 'm17', title: 'Luxury Villa Weekend Promo', category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=800',
+    description: 'Unwind in a private jungle villa with a plunge pool, terrace, and lush garden views. Special weekly rates for SwipesS members.',
+    event_date: '2026-04-19T12:00:00', location: 'Aldea Zamá, Tulum', location_detail: 'Jungle Villa',
+    organizer_name: 'Tulum Stays', organizer_whatsapp: '+529847770099', promo_text: 'Members-only rate', discount_tag: '15% OFF', is_free: false, price_text: 'From $2,800 MXN/night',
   },
 ];
 
@@ -223,10 +293,11 @@ function ShareModal({
 
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 function EventCard({
-  event, isActive, onLike, liked, onChat, onShare, onMiddleTap,
+  event, isActive, onLike, liked, onChat, onShare, onMiddleTap, onNextEvent, onPrevEvent,
 }: {
   event: EventItem; isActive: boolean; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
+  onNextEvent: () => void; onPrevEvent: () => void;
 }) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -246,12 +317,11 @@ function EventCard({
       style={{ height: '100dvh', scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
       data-testid={`event-card-${event.id}`}
     >
-      {/* Background photo with Ken Burns zoom */}
+      {/* Background photo with slow zoom-out on ALL cards */}
       <motion.div
         className="absolute inset-0"
-        initial={{ scale: 1 }}
-        animate={isActive ? { scale: 1.12, filter: 'brightness(1.05)' } : { scale: 1, filter: 'brightness(1)' }}
-        transition={{ duration: AUTOPLAY_DURATION / 1000, ease: 'linear' }}
+        animate={{ scale: [1.06, 1.0], filter: isActive ? 'brightness(1.05)' : 'brightness(1)' }}
+        transition={{ scale: { duration: 8, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }, filter: { duration: 0.4 } }}
       >
         <img
           src={event.image_url || ''}
@@ -267,12 +337,40 @@ function EventCard({
       {/* Gradient overlays */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-black/40 pointer-events-none" />
 
-      {/* Middle-tap zone for insights */}
+      {/* LEFT tap zone — previous event */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onPrevEvent(); }}
+        className="absolute left-0 top-[8%] bottom-[40%] w-[30%] z-10 flex items-center justify-start pl-3"
+        aria-label="Previous event"
+      >
+        <div
+          className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity"
+          style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
+        >
+          <ChevronLeft className="w-4 h-4 text-white" />
+        </div>
+      </button>
+
+      {/* MIDDLE tap zone — view details */}
       <button
         onClick={(e) => { e.stopPropagation(); onMiddleTap(); }}
-        className="absolute inset-x-0 top-[30%] bottom-[40%] z-10"
+        className="absolute inset-x-[30%] top-[8%] bottom-[40%] z-10"
         aria-label="View event details"
       />
+
+      {/* RIGHT tap zone — next event */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onNextEvent(); }}
+        className="absolute right-0 top-[8%] bottom-[40%] w-[30%] z-10 flex items-center justify-end pr-3"
+        aria-label="Next event"
+      >
+        <div
+          className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity"
+          style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
+        >
+          <ChevronRight className="w-4 h-4 text-white" />
+        </div>
+      </button>
 
       {/* Double-tap to like overlay */}
       <AnimatePresence>
@@ -321,7 +419,7 @@ function EventCard({
               </div>
 
               {/* Title */}
-              <h2 className="text-3xl font-black text-white leading-[1.05] tracking-tight drop-shadow-lg">
+              <h2 className="text-3xl font-black font-brand text-white leading-[1.05] tracking-tight drop-shadow-lg">
                 {event.title}
               </h2>
 
@@ -615,10 +713,10 @@ export default function EventosFeed() {
 
   // Auto-play state
   const [autoPlay, setAutoPlay] = useState(true);
-  const [progress, setProgress] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [animKey, setAnimKey] = useState(0);
   const autoPlayRef = useRef(autoPlay);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastInteractionRef = useRef(0);
 
   useEffect(() => { autoPlayRef.current = autoPlay; }, [autoPlay]);
 
@@ -722,16 +820,18 @@ export default function EventosFeed() {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: 0, behavior: 'instant' as any });
       setActiveIdx(0);
-      setProgress(0);
+      setAnimKey(k => k + 1);
     }
   }, [activeCategory]);
 
   // Pause auto-play on user interaction, resume after 3s
   const pauseAutoPlay = useCallback(() => {
-    lastInteractionRef.current = Date.now();
-    setProgress(0);
+    setIsPaused(true);
     if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
-    // Temporarily stop; will auto-resume via the progress effect checking autoPlay
+    pauseTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false);
+      setAnimKey(k => k + 1);
+    }, 3000);
   }, []);
 
   useEffect(() => {
@@ -746,34 +846,21 @@ export default function EventosFeed() {
     };
   }, [pauseAutoPlay]);
 
-  // Auto-play progress timer
+  // Auto-play: single timeout to advance after AUTOPLAY_DURATION (CSS handles the visual)
   useEffect(() => {
-    if (!autoPlay || filteredEvents.length <= 1) return;
-    
-    const TICK_MS = 50;
-    const increment = (TICK_MS / AUTOPLAY_DURATION) * 100;
-    
-    const interval = setInterval(() => {
-      // Don't advance if user recently interacted (3s grace)
-      if (Date.now() - lastInteractionRef.current < 3000) return;
+    if (!autoPlay || isPaused || filteredEvents.length <= 1) return;
 
-      setProgress(prev => {
-        const next = prev + increment;
-        if (next >= 100) {
-          // Advance to next card
-          const el = scrollRef.current;
-          if (el) {
-            const nextIdx = activeIdx + 1 >= filteredEvents.length ? 0 : activeIdx + 1;
-            el.scrollTo({ top: nextIdx * el.clientHeight, behavior: 'smooth' });
-          }
-          return 0;
-        }
-        return next;
-      });
-    }, TICK_MS);
+    const timeout = setTimeout(() => {
+      const el = scrollRef.current;
+      if (el) {
+        const nextIdx = activeIdx + 1 >= filteredEvents.length ? 0 : activeIdx + 1;
+        el.scrollTo({ top: nextIdx * el.clientHeight, behavior: 'smooth' });
+      }
+      setAnimKey(k => k + 1);
+    }, AUTOPLAY_DURATION);
 
-    return () => clearInterval(interval);
-  }, [autoPlay, activeIdx, filteredEvents.length]);
+    return () => clearTimeout(timeout);
+  }, [autoPlay, isPaused, activeIdx, filteredEvents.length, animKey]);
 
   const handleOpenChat = useCallback((event: EventItem) => {
     triggerHaptic('light');
@@ -791,6 +878,29 @@ export default function EventosFeed() {
     navigate(`/explore/eventos/${event.id}`, { state: { eventData: event } });
   }, [navigate]);
 
+  // Tap navigation: left zone = previous, right zone = next
+  const handleTapNext = useCallback(() => {
+    if (activeIdx < filteredEvents.length - 1) {
+      const el = scrollRef.current;
+      if (el) {
+        el.scrollTo({ top: (activeIdx + 1) * el.clientHeight, behavior: 'smooth' });
+        triggerHaptic('light');
+        setAnimKey(k => k + 1); // reset progress bar
+      }
+    }
+  }, [activeIdx, filteredEvents.length]);
+
+  const handleTapPrev = useCallback(() => {
+    if (activeIdx > 0) {
+      const el = scrollRef.current;
+      if (el) {
+        el.scrollTo({ top: (activeIdx - 1) * el.clientHeight, behavior: 'smooth' });
+        triggerHaptic('light');
+        setAnimKey(k => k + 1); // reset progress bar
+      }
+    }
+  }, [activeIdx]);
+
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col">
 
@@ -806,7 +916,7 @@ export default function EventosFeed() {
             <ArrowLeft className="w-4 h-4 text-white" />
           </button>
           <div className="flex-1">
-            <h1 className="text-white font-black text-lg tracking-tight">Tulum Events</h1>
+            <h1 className="text-white font-black font-brand text-lg tracking-tight">Tulum Events</h1>
             <p className="text-white/50 text-[10px]">{filteredEvents.length} events near you</p>
           </div>
           <div className="flex items-center gap-2">
@@ -832,7 +942,7 @@ export default function EventosFeed() {
           </div>
         </div>
 
-        {/* Instagram-style progress bars */}
+        {/* Instagram-style progress bars — pure CSS animation, no React re-renders */}
         <div className="flex gap-1 px-4 pb-2">
           {filteredEvents.slice(0, 12).map((_, i) => (
             <div
@@ -840,7 +950,8 @@ export default function EventosFeed() {
               className="flex-1 h-[3px] rounded-full overflow-hidden"
               style={{ background: 'rgba(255,255,255,0.15)' }}
             >
-              <motion.div
+              <div
+                key={i === activeIdx ? `active-${animKey}` : `bar-${i}`}
                 className="h-full rounded-full"
                 style={{
                   background: i < activeIdx
@@ -848,9 +959,12 @@ export default function EventosFeed() {
                     : i === activeIdx
                       ? 'linear-gradient(90deg, rgba(255,255,255,0.9), rgba(249,115,22,0.8))'
                       : 'transparent',
-                  width: i < activeIdx ? '100%' : i === activeIdx ? `${progress}%` : '0%',
+                  width: i < activeIdx ? '100%' : i === activeIdx ? '100%' : '0%',
+                  animation: i === activeIdx
+                    ? `progress-fill ${AUTOPLAY_DURATION}ms linear forwards`
+                    : 'none',
+                  animationPlayState: (!autoPlay || isPaused) ? 'paused' : 'running',
                 }}
-                transition={{ duration: 0.05, ease: 'linear' }}
               />
             </div>
           ))}
@@ -865,7 +979,7 @@ export default function EventosFeed() {
               <button
                 key={cat.key}
                 onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
-                className="flex items-center gap-1.5 px-3 h-7 rounded-full shrink-0 text-[11px] font-black uppercase tracking-wide transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-3 h-7 rounded-full shrink-0 text-[11px] font-black font-brand uppercase tracking-wide transition-all active:scale-95"
                 style={{
                   background: active ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.4)',
                   color: active ? '#000' : 'rgba(255,255,255,0.8)',
@@ -908,6 +1022,8 @@ export default function EventosFeed() {
                 onChat={() => handleOpenChat(event)}
                 onShare={() => handleShare(event)}
                 onMiddleTap={() => handleMiddleTap(event)}
+                onNextEvent={handleTapNext}
+                onPrevEvent={handleTapPrev}
               />
             ))}
             {/* Promote CTA card at the end */}
@@ -915,6 +1031,33 @@ export default function EventosFeed() {
           </>
         )}
       </div>
+
+      {/* ── SWIPE HINT OVERLAYS ── */}
+      {/* Left swipe hint - show when not on first event */}
+      {activeIdx > 0 && (
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 0.3, x: 0 }}
+          exit={{ opacity: 0, x: -10 }}
+          transition={{ duration: 0.3 }}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 pointer-events-none"
+        >
+          <ChevronLeft className="w-8 h-8 text-white/40" />
+        </motion.div>
+      )}
+
+      {/* Right swipe hint - show when not on last event */}
+      {activeIdx < filteredEvents.length - 1 && (
+        <motion.div
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 0.3, x: 0 }}
+          exit={{ opacity: 0, x: 10 }}
+          transition={{ duration: 0.3 }}
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 pointer-events-none"
+        >
+          <ChevronRight className="w-8 h-8 text-white/40" />
+        </motion.div>
+      )}
 
       {/* ── SHARE OVERLAY ── */}
       {showShareModal && shareEventData && (

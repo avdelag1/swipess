@@ -238,11 +238,11 @@ export function BottomNavigation({
 
   const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
 
-  const iconColorInactive = isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.65)';
+  const iconColorInactive = isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.65)';
   const activeColor = 'var(--color-brand-primary)';
 
   const barShadow = isLight
-    ? 'var(--shadow-cinematic-md)'
+    ? '0 -1px 0 rgba(0,0,0,0.06), 0 -4px 12px rgba(0,0,0,0.08)'
     : 'var(--shadow-cinematic-lg)';
 
 
@@ -255,7 +255,7 @@ export function BottomNavigation({
         className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
           // LAYER 1: Solid glass base (no blur - massive GPU savings)
-          backgroundColor: isLight ? 'rgba(255,115,22,0.98)' : 'rgba(12,12,14,0.92)',
+          backgroundColor: isLight ? 'rgba(255,255,255,0.96)' : 'rgba(12,12,14,0.92)',
           // No hard borders — defined by shadows
           border: 'none',
           borderRadius: '24px',
@@ -300,7 +300,7 @@ export function BottomNavigation({
                 left: ripple.x - 48,
                 bottom: -10,
                 background: isLight
-                  ? 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)'
+                  ? 'radial-gradient(circle, rgba(0,0,0,0.06) 0%, transparent 70%)'
                   : 'radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)',
                 zIndex: 1.5,
               }}
@@ -443,7 +443,7 @@ export function BottomNavigation({
                     )}
                     style={{
                       color: (active || item.isSpecial) ? activeColor : iconColorInactive,
-                      opacity: (active || item.isSpecial) ? 1 : (isLight ? 0.75 : 0.65),
+                      opacity: (active || item.isSpecial) ? 1 : (isLight ? 0.6 : 0.65),
                       zIndex: 1,
                     }}
                   >
@@ -482,7 +482,7 @@ export function BottomNavigation({
             zIndex: 10,
             borderRadius: 'inherit',
             opacity: canScrollLeft ? 1 : 0,
-            background: `linear-gradient(to right, ${isLight ? 'rgba(255,255,255,0.95)' : 'rgba(12,12,14,0.92)'} 0%, transparent 100%)`,
+            background: `linear-gradient(to right, ${isLight ? 'rgba(255,255,255,0.96)' : 'rgba(12,12,14,0.92)'} 0%, transparent 100%)`,
           }}
         />
         <div
@@ -493,7 +493,7 @@ export function BottomNavigation({
             zIndex: 10,
             borderRadius: 'inherit',
             opacity: canScrollRight ? 1 : 0,
-            background: `linear-gradient(to left, ${isLight ? 'rgba(255,255,255,0.95)' : 'rgba(12,12,14,0.92)'} 0%, transparent 100%)`,
+            background: `linear-gradient(to left, ${isLight ? 'rgba(255,255,255,0.96)' : 'rgba(12,12,14,0.92)'} 0%, transparent 100%)`,
           }}
         />
       </div>
