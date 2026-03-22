@@ -220,7 +220,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     if (failedStationsRef.current.has(targetStation.id)) {
       logger.info(`[RadioPlayer] Skipping recently failed station: ${targetStation.id}`);
       setTimeout(() => failedStationsRef.current.delete(targetStation.id), 60000);
-      if (failedStationsRef.current.size > 20) failedStationsRef.current.delete(failedStationsRef.current.values().next().value);
+      if (failedStationsRef.current.size > 20) { const first = failedStationsRef.current.values().next().value; if (first) failedStationsRef.current.delete(first); }
       changeStation('next');
       return;
     }

@@ -88,10 +88,10 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
 
   const filteredProperties = likedProperties.filter((property) => {
     if (selectedCategory === "all") return true;
-    const propertyCategory = (property.category || property.target_type || "").toLowerCase();
+    const propertyCategory = (property.category || "").toLowerCase();
     const selectedCat = selectedCategory.toLowerCase();
     if (selectedCat === "property") return propertyCategory === "property" || !property.category;
-    if (selectedCat === "event") return property.target_type === "event" || propertyCategory === "event";
+    if (selectedCat === "event") return propertyCategory === "event";
     return propertyCategory === selectedCat;
   });
 
