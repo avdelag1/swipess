@@ -349,7 +349,7 @@ export function useForceUpdateOnVersionChange() {
     }
 
     if (checkHtmlVersionMismatch()) {
-      if (import.meta.env.DEV) console.log('[AutoUpdate] HTML version differs from JS — stale JS detected, forcing update');
+      if (import.meta.env.DEV) 
       sessionStorage.setItem('swipes_reload_triggered', '1');
       forceAppUpdate();
       return;

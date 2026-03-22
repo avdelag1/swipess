@@ -3,7 +3,11 @@
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const initialLoader = document.getElementById("initial-loader");
 if (initialLoader) {
-  initialLoader.remove(); // Instant removal — no fade delay
+  initialLoader.remove();
+  document.documentElement.style.overflow = '';
+  document.documentElement.style.position = '';
+  document.body.style.overflow = '';
+  document.body.style.position = '';
 }
 
 import React from "react";
