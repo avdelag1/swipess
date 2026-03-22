@@ -6,11 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart, MapPin, Calendar, Sparkles, Waves, Trees, Music,
   Utensils, Ticket, ArrowLeft, MessageCircle, Share2,
-  Megaphone, ChevronUp, ExternalLink, Info
+  Megaphone, ChevronUp, ExternalLink, Info, Play, Pause
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
-import { EventGroupChat } from '@/components/EventGroupChat';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -26,6 +25,7 @@ interface EventItem {
   location: string | null;
   location_detail: string | null;
   organizer_name: string | null;
+  organizer_whatsapp: string | null;
   promo_text: string | null;
   discount_tag: string | null;
   is_free: boolean;
@@ -41,6 +41,8 @@ const CATEGORIES = [
   { key: 'promo', label: 'Promos', icon: Ticket },
 ];
 
+const AUTOPLAY_DURATION = 6000; // 6 seconds per card
+
 // ── MOCK DATA ─────────────────────────────────────────────────────────────────
 const MOCK_EVENTS: EventItem[] = [
   {
@@ -48,59 +50,51 @@ const MOCK_EVENTS: EventItem[] = [
     image_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80&auto=format',
     description: 'Sacred cacao ceremony at sunset on the Caribbean shore. Meditation, sound healing, and connection.',
     event_date: '2026-04-05T18:00:00', location: 'Playa Paraíso, Tulum', location_detail: 'Beach Club',
-    organizer_name: 'Casa Luna', promo_text: 'Limited spots', discount_tag: 'EARLY BIRD', is_free: false, price_text: '$350 MXN',
+    organizer_name: 'Casa Luna', organizer_whatsapp: '+529841234567', promo_text: 'Limited spots', discount_tag: 'EARLY BIRD', is_free: false, price_text: '$350 MXN',
   },
   {
     id: 'm2', title: 'Cenote Rave: Underground', category: 'music',
     image_url: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=600&q=80&auto=format',
     description: 'Deep underground techno rave inside a secret cenote. International DJs, crystal clear water.',
     event_date: '2026-04-06T22:00:00', location: 'Cenote Cristal, Tulum', location_detail: 'Underground',
-    organizer_name: 'Zamna Tulum', promo_text: 'Sell-out show', discount_tag: 'TONIGHT', is_free: false, price_text: '$800 MXN',
+    organizer_name: 'Zamna Tulum', organizer_whatsapp: '+529847654321', promo_text: 'Sell-out show', discount_tag: 'TONIGHT', is_free: false, price_text: '$800 MXN',
   },
   {
     id: 'm3', title: 'Jungle Yoga & Brunch', category: 'jungle',
     image_url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80&auto=format',
     description: 'Immersive yoga flow surrounded by ancient jungle. Followed by organic vegan brunch.',
     event_date: '2026-04-07T08:00:00', location: "Sian Ka'an Reserve", location_detail: 'Jungle clearing',
-    organizer_name: 'Ahau Tulum', promo_text: 'All levels welcome', discount_tag: null, is_free: false, price_text: '$450 MXN',
+    organizer_name: 'Ahau Tulum', organizer_whatsapp: '+529841112233', promo_text: 'All levels welcome', discount_tag: null, is_free: false, price_text: '$450 MXN',
   },
   {
     id: 'm4', title: 'Tulum Food Market', category: 'food',
     image_url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80&auto=format',
     description: 'Open-air market with 40+ vendors. Local cuisine, artisan products, live cooking, mezcal.',
     event_date: '2026-04-08T12:00:00', location: 'La Veleta, Tulum', location_detail: 'Mercado 5ta',
-    organizer_name: 'Tulum Sabor', promo_text: '40+ vendors', discount_tag: 'FREE ENTRY', is_free: true, price_text: null,
+    organizer_name: 'Tulum Sabor', organizer_whatsapp: null, promo_text: '40+ vendors', discount_tag: 'FREE ENTRY', is_free: true, price_text: null,
   },
   {
     id: 'm5', title: 'Rooftop Salsa Night', category: 'music',
     image_url: 'https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=600&q=80&auto=format',
     description: 'Latin beats, salsa, cumbia & reggaeton under the stars. All levels, free dance class at 9pm.',
     event_date: '2026-04-09T21:00:00', location: 'Holistika, Tulum', location_detail: 'Rooftop terrace',
-    organizer_name: 'Viva Tulum', promo_text: 'Dance class included', discount_tag: null, is_free: false, price_text: '$200 MXN',
+    organizer_name: 'Viva Tulum', organizer_whatsapp: '+529849998877', promo_text: 'Dance class included', discount_tag: null, is_free: false, price_text: '$200 MXN',
   },
   {
     id: 'm6', title: '2x1 Mezcal Thursdays', category: 'promo',
     image_url: 'https://images.unsplash.com/photo-1436076863939-06870fe779c2?w=600&q=80&auto=format',
     description: 'Every Thursday — all mezcal drinks 2x1 until midnight. Live DJ from 10pm.',
     event_date: '2026-04-10T20:00:00', location: 'Zona Hotelera, Tulum', location_detail: 'El Arco Bar',
-    organizer_name: 'El Arco', promo_text: '2x1 all night', discount_tag: '2×1 MEZCAL', is_free: false, price_text: 'From $120 MXN',
+    organizer_name: 'El Arco', organizer_whatsapp: '+529845556644', promo_text: '2x1 all night', discount_tag: '2×1 MEZCAL', is_free: false, price_text: 'From $120 MXN',
   },
   {
     id: 'm7', title: 'Cenote Swim at Dawn', category: 'beach',
     image_url: 'https://images.unsplash.com/photo-1518182170546-07661fd94144?w=600&q=80&auto=format',
     description: 'Guided sunrise swim in a private cenote. Crystal clear turquoise water, no crowds.',
     event_date: '2026-04-12T06:00:00', location: 'Secret Cenote, Tulum', location_detail: 'Private access',
-    organizer_name: 'Tulum Dive', promo_text: 'Max 8 people', discount_tag: 'EXCLUSIVE', is_free: false, price_text: '$600 MXN',
+    organizer_name: 'Tulum Dive', organizer_whatsapp: '+529843332211', promo_text: 'Max 8 people', discount_tag: 'EXCLUSIVE', is_free: false, price_text: '$600 MXN',
   },
 ];
-
-const LIKED_KEY = 'eventos_liked_ids';
-function loadLiked(): Set<string> {
-  try { return new Set(JSON.parse(localStorage.getItem(LIKED_KEY) || '[]')); } catch { return new Set(); }
-}
-function saveLiked(ids: Set<string>) {
-  try { localStorage.setItem(LIKED_KEY, JSON.stringify([...ids])); } catch {}
-}
 
 function formatDate(str: string | null): string {
   if (!str) return '';
@@ -110,6 +104,16 @@ function formatDate(str: string | null): string {
   if (diff === 1) return 'Tomorrow';
   if (diff < 0) return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   return `In ${diff} days`;
+}
+
+function openWhatsApp(phone: string | null, eventTitle: string) {
+  if (!phone) {
+    toast.info("No contact info available for this organizer");
+    return;
+  }
+  const clean = phone.replace(/[^+\d]/g, '');
+  const msg = encodeURIComponent(`Hi! I'm interested in "${eventTitle}" — I found it on SwipesS 🎉`);
+  window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
 }
 
 // ── SHARE MODAL ──────────────────────────────────────────────────────────────
@@ -131,7 +135,7 @@ function ShareModal({
       try {
         await navigator.share({
           title: event.title,
-          text: `Check out ${event.title} in Tulum!`,
+          text: `Check out ${event.title} in Tulum! Sign up on SwipesS to get connected 🎉`,
           url: url
         });
         onClose();
@@ -141,6 +145,12 @@ function ShareModal({
     } else {
       handleCopy();
     }
+  };
+
+  const handleWhatsAppShare = () => {
+    const msg = encodeURIComponent(`🎉 Check out "${event.title}" in Tulum!\n\n${url}`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+    onClose();
   };
 
   return (
@@ -166,26 +176,35 @@ function ShareModal({
               <img src={event.image_url || ''} className="w-full h-full object-cover" alt="" />
             </div>
             <h3 className="text-xl font-black text-white mb-2">Share this Event</h3>
-            <p className="text-white/50 text-sm mb-8">Let your friends know what's happening in Tulum.</p>
+            <p className="text-white/50 text-sm mb-8">Invite friends — they'll need to sign up to see the full event.</p>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-3">
               <button
                 onClick={handleNativeShare}
-                className="flex flex-col items-center gap-3 p-5 rounded-3xl bg-white/5 border border-white/10 active:scale-95 transition-all"
+                className="flex flex-col items-center gap-3 p-4 rounded-3xl bg-white/5 border border-white/10 active:scale-95 transition-all"
               >
                 <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
                   <Share2 className="w-6 h-6 text-orange-400" />
                 </div>
-                <span className="text-xs font-black text-white uppercase tracking-widest">Send To...</span>
+                <span className="text-[10px] font-black text-white uppercase tracking-widest">Send</span>
+              </button>
+              <button
+                onClick={handleWhatsAppShare}
+                className="flex flex-col items-center gap-3 p-4 rounded-3xl bg-white/5 border border-white/10 active:scale-95 transition-all"
+              >
+                <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                  <MessageCircle className="w-6 h-6 text-green-400" />
+                </div>
+                <span className="text-[10px] font-black text-white uppercase tracking-widest">WhatsApp</span>
               </button>
               <button
                 onClick={handleCopy}
-                className="flex flex-col items-center gap-3 p-5 rounded-3xl bg-white/5 border border-white/10 active:scale-95 transition-all"
+                className="flex flex-col items-center gap-3 p-4 rounded-3xl bg-white/5 border border-white/10 active:scale-95 transition-all"
               >
                 <div className="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center">
                   <ExternalLink className="w-6 h-6 text-rose-400" />
                 </div>
-                <span className="text-xs font-black text-white uppercase tracking-widest">Copy Link</span>
+                <span className="text-[10px] font-black text-white uppercase tracking-widest">Copy</span>
               </button>
             </div>
             
@@ -204,10 +223,10 @@ function ShareModal({
 
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 function EventCard({
-  event, isActive, onLike, liked, onChat, onShare,
+  event, isActive, onLike, liked, onChat, onShare, onMiddleTap,
 }: {
   event: EventItem; isActive: boolean; onLike: () => void; liked: boolean;
-  onChat: () => void; onShare: () => void;
+  onChat: () => void; onShare: () => void; onMiddleTap: () => void;
 }) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -227,11 +246,12 @@ function EventCard({
       style={{ height: '100dvh', scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
       data-testid={`event-card-${event.id}`}
     >
-      {/* Background photo */}
+      {/* Background photo with Ken Burns zoom */}
       <motion.div
         className="absolute inset-0"
-        animate={isActive ? { scale: 1.06 } : { scale: 1 }}
-        transition={{ duration: 8, ease: 'linear' }}
+        initial={{ scale: 1 }}
+        animate={isActive ? { scale: 1.12, filter: 'brightness(1.05)' } : { scale: 1, filter: 'brightness(1)' }}
+        transition={{ duration: AUTOPLAY_DURATION / 1000, ease: 'linear' }}
       >
         <img
           src={event.image_url || ''}
@@ -246,6 +266,13 @@ function EventCard({
 
       {/* Gradient overlays */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-black/40 pointer-events-none" />
+
+      {/* Middle-tap zone for insights */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onMiddleTap(); }}
+        className="absolute inset-x-0 top-[30%] bottom-[40%] z-10"
+        aria-label="View event details"
+      />
 
       {/* Double-tap to like overlay */}
       <AnimatePresence>
@@ -375,7 +402,7 @@ function EventCard({
           <span className="text-[10px] text-white/60 font-bold">Like</span>
         </button>
 
-        {/* Chat */}
+        {/* Chat → WhatsApp */}
         <button
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }}
           className="flex flex-col items-center gap-1"
@@ -489,7 +516,7 @@ function EventCard({
                   className="flex-1 py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
                   style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
                 >
-                  <MessageCircle className="w-4 h-4" /> Join Chat
+                  <MessageCircle className="w-4 h-4" /> Chat on WhatsApp
                 </button>
                 <button
                   onClick={() => { triggerHaptic('medium'); onShare(); }}
@@ -583,10 +610,17 @@ export default function EventosFeed() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const [activeCategory, setActiveCategory] = useState('all');
-  const [showGroupChat, setShowGroupChat] = useState(false);
-  const [chatEvent, setChatEvent] = useState<EventItem | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareEventData, setShareEventData] = useState<EventItem | null>(null);
+
+  // Auto-play state
+  const [autoPlay, setAutoPlay] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const autoPlayRef = useRef(autoPlay);
+  const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastInteractionRef = useRef(0);
+
+  useEffect(() => { autoPlayRef.current = autoPlay; }, [autoPlay]);
 
   const { data: likedIds = new Set<string>() } = useQuery({
     queryKey: ['event-likes', user?.id],
@@ -621,7 +655,7 @@ export default function EventosFeed() {
       });
       return { previous };
     },
-    onError: (err, variables, context) => {
+    onError: (_err, _variables, context) => {
       if (context?.previous) queryClient.setQueryData(['event-likes', user?.id], context.previous);
       toast.error("Could not update like");
     },
@@ -649,6 +683,7 @@ export default function EventosFeed() {
           location: ev.location || null,
           location_detail: ev.location_detail || null,
           organizer_name: ev.organizer_name || null,
+          organizer_whatsapp: ev.organizer_whatsapp || null,
           promo_text: ev.promo_text || null,
           discount_tag: ev.discount_tag || null,
           is_free: !!ev.is_free,
@@ -687,13 +722,62 @@ export default function EventosFeed() {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: 0, behavior: 'instant' as any });
       setActiveIdx(0);
+      setProgress(0);
     }
   }, [activeCategory]);
 
+  // Pause auto-play on user interaction, resume after 3s
+  const pauseAutoPlay = useCallback(() => {
+    lastInteractionRef.current = Date.now();
+    setProgress(0);
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    // Temporarily stop; will auto-resume via the progress effect checking autoPlay
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onTouch = () => pauseAutoPlay();
+    el.addEventListener('touchstart', onTouch, { passive: true });
+    el.addEventListener('mousedown', onTouch, { passive: true });
+    return () => {
+      el.removeEventListener('touchstart', onTouch);
+      el.removeEventListener('mousedown', onTouch);
+    };
+  }, [pauseAutoPlay]);
+
+  // Auto-play progress timer
+  useEffect(() => {
+    if (!autoPlay || filteredEvents.length <= 1) return;
+    
+    const TICK_MS = 50;
+    const increment = (TICK_MS / AUTOPLAY_DURATION) * 100;
+    
+    const interval = setInterval(() => {
+      // Don't advance if user recently interacted (3s grace)
+      if (Date.now() - lastInteractionRef.current < 3000) return;
+
+      setProgress(prev => {
+        const next = prev + increment;
+        if (next >= 100) {
+          // Advance to next card
+          const el = scrollRef.current;
+          if (el) {
+            const nextIdx = activeIdx + 1 >= filteredEvents.length ? 0 : activeIdx + 1;
+            el.scrollTo({ top: nextIdx * el.clientHeight, behavior: 'smooth' });
+          }
+          return 0;
+        }
+        return next;
+      });
+    }, TICK_MS);
+
+    return () => clearInterval(interval);
+  }, [autoPlay, activeIdx, filteredEvents.length]);
+
   const handleOpenChat = useCallback((event: EventItem) => {
     triggerHaptic('light');
-    setChatEvent(event);
-    setShowGroupChat(true);
+    openWhatsApp(event.organizer_whatsapp, event.title);
   }, []);
 
   const handleShare = useCallback((event: EventItem) => {
@@ -702,7 +786,10 @@ export default function EventosFeed() {
     setShowShareModal(true);
   }, []);
 
-  const totalCards = filteredEvents.length + 1; // +1 for promote CTA
+  const handleMiddleTap = useCallback((event: EventItem) => {
+    triggerHaptic('light');
+    navigate(`/explore/eventos/${event.id}`, { state: { eventData: event } });
+  }, [navigate]);
 
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col">
@@ -723,6 +810,15 @@ export default function EventosFeed() {
             <p className="text-white/50 text-[10px]">{filteredEvents.length} events near you</p>
           </div>
           <div className="flex items-center gap-2">
+            {/* Auto-play toggle */}
+            <button
+              onClick={() => { setAutoPlay(p => !p); triggerHaptic('light'); }}
+              className="w-8 h-8 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}
+              aria-label={autoPlay ? 'Pause auto-play' : 'Start auto-play'}
+            >
+              {autoPlay ? <Pause className="w-3.5 h-3.5 text-white" /> : <Play className="w-3.5 h-3.5 text-white" />}
+            </button>
             <span className="text-[11px] text-white/50 font-bold">{Math.min(activeIdx + 1, filteredEvents.length)}/{filteredEvents.length}</span>
             <button
               onClick={() => navigate('/client/advertise')}
@@ -736,21 +832,27 @@ export default function EventosFeed() {
           </div>
         </div>
 
-        {/* Progress dots */}
+        {/* Instagram-style progress bars */}
         <div className="flex gap-1 px-4 pb-2">
-          {filteredEvents.slice(0, 10).map((_, i) => (
+          {filteredEvents.slice(0, 12).map((_, i) => (
             <div
               key={i}
-              className="flex-1 rounded-full transition-all duration-500"
-              style={{
-                height: 2.5,
-                background: i === activeIdx
-                  ? 'rgba(255,255,255,0.95)'
-                  : i < activeIdx
-                    ? 'rgba(255,255,255,0.4)'
-                    : 'rgba(255,255,255,0.15)',
-              }}
-            />
+              className="flex-1 h-[3px] rounded-full overflow-hidden"
+              style={{ background: 'rgba(255,255,255,0.15)' }}
+            >
+              <motion.div
+                className="h-full rounded-full"
+                style={{
+                  background: i < activeIdx
+                    ? 'rgba(255,255,255,0.7)'
+                    : i === activeIdx
+                      ? 'linear-gradient(90deg, rgba(255,255,255,0.9), rgba(249,115,22,0.8))'
+                      : 'transparent',
+                  width: i < activeIdx ? '100%' : i === activeIdx ? `${progress}%` : '0%',
+                }}
+                transition={{ duration: 0.05, ease: 'linear' }}
+              />
+            </div>
           ))}
         </div>
 
@@ -805,6 +907,7 @@ export default function EventosFeed() {
                 onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
                 onChat={() => handleOpenChat(event)}
                 onShare={() => handleShare(event)}
+                onMiddleTap={() => handleMiddleTap(event)}
               />
             ))}
             {/* Promote CTA card at the end */}
@@ -819,15 +922,6 @@ export default function EventosFeed() {
           event={shareEventData}
           open={showShareModal}
           onClose={() => setShowShareModal(false)}
-        />
-      )}
-
-      {/* ── GROUP CHAT OVERLAY ── */}
-      {showGroupChat && chatEvent && (
-        <EventGroupChat
-          eventId={chatEvent.id}
-          eventTitle={chatEvent.title}
-          onClose={() => setShowGroupChat(false)}
         />
       )}
     </div>
