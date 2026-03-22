@@ -13,8 +13,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       position="top-center"
       // Only show 1 toast at a time — no stack-up
       visibleToasts={1}
-      // Swipe direction matches our custom banner (up to dismiss)
-      swipeDirections={['up']}
+      // Default swipe to dismiss
       // Close immediately on swipe — no threshold delay
       closeButton={false}
       toastOptions={{

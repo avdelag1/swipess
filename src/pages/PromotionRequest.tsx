@@ -7,7 +7,8 @@ import {
   ChevronLeft, Sparkles, Zap, Calendar, MapPin, 
   Image as ImageIcon, Send, CheckCircle2, Upload, Star, 
   Users, TrendingUp, Eye, FileText, Phone, Building,
-  Rocket, Crown, ShieldCheck, HeartHandshake
+  Rocket, Crown, ShieldCheck, HeartHandshake,
+  Clock, DollarSign, Tag, X, MessageCircle, ArrowUpRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';

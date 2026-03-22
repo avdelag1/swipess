@@ -36,7 +36,7 @@ export function CategorySwipeStack() {
     };
 
     const handleSwipeLeft = (id: QuickFilterCategory | null) => {
-        haptics.light();
+        haptics.tap();
         // Just move to the back without activating
         setStack(prev => {
             const index = prev.findIndex(c => c.id === id);
