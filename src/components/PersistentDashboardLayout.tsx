@@ -1,33 +1,20 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { AnimatedOutlet } from '@/components/AnimatedOutlet';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { useFilterPersistence } from '@/hooks/useFilterPersistence';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, lazy, Suspense } from 'react';
+import { createPortal } from 'react-dom';
+import { useMatchRealtime } from '@/hooks/useMatchRealtime';
+
+// Global match celebration modal
+const MatchCelebration = lazy(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
 
 /**
  * SPEED OF LIGHT: Persistent Dashboard Layout
- *
- * This component wraps DashboardLayout and is mounted ONCE at the route level.
- * Child pages render inside via <Outlet>, so DashboardLayout never remounts
- * during navigation OR mode switches. This eliminates flicker and repeated effect execution.
- *
- * CRITICAL: This is now a UNIFIED layout for both client and owner routes.
- * The role is derived from the current path, NOT from props or async DB calls.
- * This ensures INSTANT role resolution with zero loading states.
- *
- * Benefits:
- * - No flicker when navigating between dashboard pages
- * - No remount when switching between client/owner modes
- * - TopBar and BottomNavigation stay mounted
- * - Dialogs/modals maintain state across navigation AND mode switches
- * - Effects (welcome, onboarding, prefetch) run only once
+ * ... (existing doc)
  */
 
-/**
- * INSTANT role derivation from path
- * No async calls, no loading states, no flicker
- */
 function getRoleFromPath(pathname: string, activeMode: 'client' | 'owner'): 'client' | 'owner' | 'admin' {
   if (pathname.startsWith('/admin/')) {
     return 'admin';
@@ -38,38 +25,29 @@ function getRoleFromPath(pathname: string, activeMode: 'client' | 'owner'): 'cli
   if (pathname.startsWith('/client/')) {
     return 'client';
   }
-  // For other shared routes (messages, notifications, etc.), the activeMode is our source of truth
   return activeMode;
 }
 
 export function PersistentDashboardLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { activeMode, syncMode } = useActiveMode();
 
   // FILTER PERSISTENCE: Auto-restore and auto-save filters from/to database
   useFilterPersistence();
 
+  // GLOBAL MATCH CELEBRATION: Real-time listener for match events across the entire dashboard
+  const { matchCelebration, closeCelebration } = useMatchRealtime();
+
   // SPEED OF LIGHT: Derive role from path INSTANTLY
-  // No async calls, no loading states, no skeleton
   const userRole = useMemo(() => {
     const pathRole = getRoleFromPath(location.pathname, activeMode);
-
-    // Admin routes always return 'admin' — no mixing with client/owner
-    if (location.pathname.startsWith('/admin/')) {
-      return 'admin' as const;
-    }
-
-    // For explicit client/owner routes, use the path
-    if (location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')) {
-      return pathRole;
-    }
-
-    // For shared routes (messages, notifications, subscription), use activeMode
+    if (location.pathname.startsWith('/admin/')) return 'admin' as const;
+    if (location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')) return pathRole;
     return activeMode;
   }, [location.pathname, activeMode]);
 
-  // Auto-sync activeMode when navigating to explicit client/owner routes
-  // This ensures that shared routes (messages, notifications) use the correct mode
+  // Auto-sync activeMode
   useEffect(() => {
     if (location.pathname.startsWith('/client/') && activeMode !== 'client') {
       syncMode('client');
@@ -78,10 +56,30 @@ export function PersistentDashboardLayout() {
     }
   }, [location.pathname, activeMode, syncMode]);
 
-
   return (
     <DashboardLayout userRole={userRole}>
       <AnimatedOutlet />
+
+      {/* GLOBAL MODALS PORTAL */}
+      {createPortal(
+        <Suspense fallback={null}>
+          <MatchCelebration
+            isOpen={matchCelebration.isOpen}
+            onClose={closeCelebration}
+            matchedUser={{
+              name: matchCelebration.matchedUser?.name || 'Someone',
+              avatar: matchCelebration.matchedUser?.avatar,
+              role: matchCelebration.matchedUser?.role || 'client'
+            }}
+            onMessage={() => {
+              // Redirect to messages upon match interaction
+              closeCelebration();
+              navigate('/messages');
+            }}
+          />
+        </Suspense>,
+        document.body
+      )}
     </DashboardLayout>
   );
 }

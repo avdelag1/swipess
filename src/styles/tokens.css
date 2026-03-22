@@ -42,6 +42,31 @@
   --shadow-soft-lg: 0 4px 8px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.08), 0 16px 48px rgba(0, 0, 0, 0.06);
   --shadow-glow-accent: 0 0 20px rgba(255, 77, 0, 0.2), 0 0 40px rgba(255, 77, 0, 0.1);
 
+  /* ✨ CINEMATIC SHADES (2026 Global Design) ✨ */
+  /* These replace borders with shadow-defined surfaces */
+  --shadow-cinematic-sm: 
+    0 4px 12px rgba(0,0,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  
+  --shadow-cinematic-md: 
+    0 12px 32px rgba(0,0,0,0.18),
+    0 4px 10px rgba(0,0,0,0.12),
+    inset 0 1px 1px rgba(255,255,255,0.08);
+
+  --shadow-cinematic-lg: 
+    0 24px 64px rgba(0,0,0,0.24),
+    0 12px 24px rgba(0,0,0,0.16),
+    inset 0 1px 2px rgba(255,255,255,0.06);
+
+  --shadow-cinematic-pressed:
+    inset 4px 4px 10px rgba(0,0,0,0.3),
+    inset -2px -2px 6px rgba(255,255,255,0.05);
+
+  --shadow-cinematic-primary:
+    0 8px 32px rgba(255, 77, 0, 0.25),
+    0 4px 12px rgba(255, 77, 0, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+
   /* ── Motion Tokens ── */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -92,6 +117,21 @@
   --glass-bg: rgba(255, 255, 255, 0.04);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-highlight: rgba(255, 255, 255, 0.03);
+
+  /* Cinematic light shifts */
+  --shadow-cinematic-sm: 
+    0 4px 12px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  
+  --shadow-cinematic-md: 
+    0 12px 32px rgba(0,0,0,0.4),
+    0 4px 10px rgba(0,0,0,0.2),
+    inset 0 1px 1px rgba(255,255,255,0.06);
+
+  --shadow-cinematic-lg: 
+    0 24px 64px rgba(0,0,0,0.5),
+    0 12px 24px rgba(0,0,0,0.25),
+    inset 0 1px 2px rgba(255,255,255,0.05);
 }
 
 /* Light theme gets soft, clean glass tokens */

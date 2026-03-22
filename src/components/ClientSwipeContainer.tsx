@@ -10,7 +10,7 @@ import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 
 // FIX: Lazy-load modals via portal to prevent re-renders from bleeding into swipe tree
-const MatchCelebration = lazy(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
+// Modals lazy-loaded via portal
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
 const MessageConfirmationDialog = lazy(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
 
@@ -189,11 +189,6 @@ const ClientSwipeContainerComponent = ({
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
-  const [matchCelebration, setMatchCelebration] = useState<{
-    isOpen: boolean;
-    clientProfile?: any;
-    ownerProfile?: any;
-  }>({ isOpen: false });
 
   // PERF: Use selective subscriptions to prevent re-renders on unrelated store changes
   // Only subscribe to actions (stable references) - NOT to ownerDecks object
@@ -967,16 +962,6 @@ const ClientSwipeContainerComponent = ({
           matching the "Tinder-level" fluidity of the client side */}
       {createPortal(
         <Suspense fallback={null}>
-          <MatchCelebration
-            isOpen={matchCelebration.isOpen}
-            onClose={() => setMatchCelebration({ isOpen: false })}
-            matchedUser={{
-              name: String(matchCelebration.clientProfile?.name || 'User'),
-              avatar: matchCelebration.clientProfile?.images?.[0],
-              role: 'client'
-            }}
-            onMessage={() => topCard.user_id && handleConnect(topCard.user_id)}
-          />
 
           <MessageConfirmationDialog
             open={messageDialogOpen}

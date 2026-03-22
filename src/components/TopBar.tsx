@@ -91,13 +91,8 @@ function TopBarComponent({
   const isLight = theme === 'light';
   const { t } = useTranslation();
 
-  const glassBg = isLight ? '#ffffff' : 'var(--glass-bg)';
-  const glassBorder = isLight ? '1px solid #e5e7eb' : '1px solid var(--glass-border)';
-  const floatingShadow = isLight
-    ? '0 2px 4px rgba(0,0,0,0.05)'
-    : '0 10px 30px -10px rgba(0,0,0,0.5)';
-  // Removed backdropFilter blur for performance - using solid backgrounds instead
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
+  const cinematicShadow = isLight ? 'var(--shadow-cinematic-sm)' : 'var(--shadow-cinematic-md)';
 
   // Fetch the three token packages
   const { data: packages } = useQuery({
@@ -195,11 +190,10 @@ function TopBarComponent({
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={handleBack}
-                className="flex-shrink-0 w-9 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation rounded-xl"
+                className="flex-shrink-0 w-9 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation rounded-xl bg-card transition-all"
                 style={{
-                  backgroundColor: glassBg,
-                  border: glassBorder,
-                  boxShadow: floatingShadow,
+                  boxShadow: cinematicShadow,
+                  border: 'none',
                 }}
                 aria-label="Go back"
               >
@@ -296,13 +290,12 @@ function TopBarComponent({
                   variant="ghost"
                   className={cn(
                     "relative h-9 w-9 px-0 rounded-xl transition-all duration-200 ease-out",
-                    "hover:scale-105 active:scale-95 group",
+                    "hover:scale-105 active:scale-95 group bg-card",
                     "touch-manipulation flex items-center gap-1 flex-shrink-0",
                   )}
                   style={{
-                    backgroundColor: glassBg,
-                    border: glassBorder,
-                    boxShadow: floatingShadow,
+                    boxShadow: cinematicShadow,
+                    border: 'none',
                   }}
                   onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
                   onClick={(e) => e.preventDefault()}
@@ -433,14 +426,13 @@ function TopBarComponent({
               size="icon"
               className={cn(
                 "relative h-9 w-9 rounded-xl transition-all duration-200 ease-out",
-                "hover:scale-105 active:scale-95 group",
+                "hover:scale-105 active:scale-95 group bg-card",
                 "flex-shrink-0 flex items-center gap-1",
                 "touch-manipulation",
               )}
               style={{
-                backgroundColor: glassBg,
-                border: glassBorder,
-                boxShadow: floatingShadow,
+                boxShadow: cinematicShadow,
+                border: 'none',
               }}
               onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
               onClick={(e) => e.preventDefault()}

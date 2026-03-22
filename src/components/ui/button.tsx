@@ -28,61 +28,27 @@ import { triggerHaptic } from '@/utils/haptics';
 
 // ── CVA VARIANTS ──────────────────────────────────────────────────────────────
 const buttonVariants = cva(
-  // Base: always applied — layout, text, focus, GPU acc., touch optimisation
   'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-semibold ' +
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ' +
   'disabled:pointer-events-none disabled:opacity-50 ' +
   '[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 ' +
   'select-none touch-manipulation will-change-transform transform-gpu ' +
-  'relative overflow-hidden',   // ← overflow-hidden + relative needed for ripple
+  'relative overflow-hidden',
   {
     variants: {
       variant: {
-        default:
-          'bg-primary text-primary-foreground shadow-[6px_6px_14px_rgba(0,0,0,0.3),-6px_-6px_14px_rgba(255,255,255,0.2)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.15)] transition-shadow duration-300',
-        destructive:
-          'bg-destructive text-destructive-foreground shadow-[6px_6px_14px_rgba(220,38,38,0.4),-6px_-6px_14px_rgba(255,255,255,0.2)] hover:shadow-[inset_4px_4px_8px_rgba(220,38,38,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.15)] transition-shadow duration-300',
-        outline:
-          'border border-input bg-background text-foreground opacity-90 hover:opacity-100 shadow-[4px_4px_10px_rgba(0,0,0,0.3),-4px_-4px_10px_rgba(255,255,255,0.2)] hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.4),inset_-3px_-3px_6px_rgba(255,255,255,0.15)] transition-all duration-300',
-        secondary:
-          'bg-secondary text-secondary-foreground opacity-95 hover:opacity-100 shadow-[5px_5px_12px_rgba(0,0,0,0.3),-5px_-5px_12px_rgba(255,255,255,0.2)] hover:shadow-[inset_3px_3px_8px_rgba(0,0,0,0.4),inset_-3px_-3px_8px_rgba(255,255,255,0.15)] transition-all duration-300',
-        ghost: 'hover:bg-accent/50 hover:text-accent-foreground rounded-2xl',
+        default: 'bg-primary text-primary-foreground',
+        destructive: 'bg-destructive text-destructive-foreground',
+        outline: 'border border-input bg-background/50 text-foreground opacity-90 hover:opacity-100',
+        secondary: 'bg-secondary text-secondary-foreground opacity-95 hover:opacity-100',
+        ghost: 'hover:bg-accent/50 hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline shadow-none',
-        premium:
-          'bg-primary text-primary-foreground shadow-[0_8px_20px_rgba(0,0,0,0.5),inset_0_2px_4px_rgba(255,255,255,0.4)] hover:shadow-[0_4px_10px_rgba(0,0,0,0.6),inset_0_1px_2px_rgba(255,255,255,0.3)] hover:scale-[0.98] transition-all duration-300',
-        tinder:
-          'bg-primary text-primary-foreground shadow-[8px_8px_16px_rgba(0,0,0,0.4),-8px_-8px_16px_rgba(255,255,255,0.15)] hover:shadow-[inset_5px_5px_10px_rgba(0,0,0,0.5),inset_-5px_-5px_10px_rgba(255,255,255,0.15)] transition-shadow duration-300',
-        /**
-         * LIQUID GLASS variants — 2026 flagship buttons
-         *
-         * 'glass': medium-strength liquid glass. Works on dark backgrounds.
-         *   Shows the blurred content behind it through the frosted surface.
-         *
-         * 'glassStrong': heavier frosting + brighter rim. Use for CTAs.
-         */
-        glass:
-          // Neumorphic Glass hybrid: No hard borders.
-          'text-white bg-white/10 backdrop-blur-2xl ' +
-          'shadow-[4px_4px_12px_rgba(0,0,0,0.15),-2px_-2px_8px_rgba(255,255,255,0.08),inset_1px_1px_2px_rgba(255,255,255,0.15)] ' +
-          'hover:shadow-[inset_3px_3px_8px_rgba(0,0,0,0.15),inset_-2px_-2px_6px_rgba(255,255,255,0.1)] transition-shadow duration-300' +
-          // Inner top rim highlight (the glass edge catch-light)
-          ' shadow-[inset_0_1px_0_rgba(255,255,255,0.20),0_4px_16px_rgba(0,0,0,0.25)]',
-        glassStrong:
-          'text-white bg-white/15 backdrop-blur-[32px] ' +
-          'shadow-[6px_6px_16px_rgba(0,0,0,0.2),-4px_-4px_12px_rgba(255,255,255,0.12),inset_1px_1px_3px_rgba(255,255,255,0.25)] ' +
-          'hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.2),inset_-3px_-3px_8px_rgba(255,255,255,0.15)] transition-shadow duration-300',
-        glassLight:
-          // For light / white-matte themes
-          'text-foreground bg-white/70 backdrop-blur-2xl ' +
-          'shadow-[5px_5px_15px_rgba(0,0,0,0.05),-5px_-5px_15px_rgba(255,255,255,0.8),inset_1px_1px_2px_rgba(255,255,255,0.4)] ' +
-          'hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.05),inset_-4px_-4px_10px_rgba(255,255,255,0.6)] transition-shadow duration-300',
-        /**
-         * PUSH BUTTON variant — dynamic neon gradient
-         */
-        gradient:
-          'bg-primary text-primary-foreground ' +
-          'shadow-[6px_6px_14px_rgba(0,0,0,0.4),-4px_-4px_10px_rgba(255,255,255,0.2),inset_2px_2px_4px_rgba(255,255,255,0.3)] ' +
-          'hover:shadow-[inset_6px_6px_12px_rgba(0,0,0,0.5),inset_-4px_-4px_10px_rgba(255,255,255,0.1)] transition-shadow duration-300',
+        premium: 'bg-primary text-primary-foreground',
+        tinder: 'bg-primary text-primary-foreground',
+        glass: 'text-white bg-white/10 backdrop-blur-2xl',
+        glassStrong: 'text-white bg-white/15 backdrop-blur-[32px]',
+        glassLight: 'text-foreground bg-white/70 backdrop-blur-2xl',
+        gradient: 'bg-primary text-primary-foreground',
       },
       size: {
         default: 'h-12 px-6 py-3',

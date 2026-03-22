@@ -79,8 +79,15 @@ body::-webkit-scrollbar {
 }
 
 .liquid-glass-card {
-  @apply bg-card backdrop-blur-xl border border-border shadow-2xl transition-all duration-300 overflow-hidden relative;
+  @apply bg-card backdrop-blur-xl transition-all duration-300 overflow-hidden relative;
+  border: none !important;
+  box-shadow: var(--shadow-cinematic-md);
   contain: layout style paint;
+}
+
+.liquid-glass-card:hover {
+  box-shadow: var(--shadow-cinematic-lg);
+  transform: translateY(-2px);
 }
 
 /* Hide ALL scrollbars — physical app feeling */
