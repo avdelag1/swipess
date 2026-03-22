@@ -204,13 +204,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [userRole]);
 
-  // PERF: Prefetch secondary page data in the background after dashboard mounts
-  // so navigating to liked-properties, matches, or eventos is instant on first visit
+  // PERF: Prefetch secondary page data and critical lazy components
+  // ensuring that when user taps a button, the bundle is already there.
   useEffect(() => {
     if (!userId) return;
-
+    
     const prefetch = () => {
-      // Prefetch eventos feed (10-min stale, shared queryKey with EventosFeed)
+      // 1. DATA PREFETCH
       queryClient.prefetchQuery({
         queryKey: ['eventos'],
         queryFn: async () => {
@@ -220,7 +220,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         staleTime: 1000 * 60 * 10,
       });
 
-      // Prefetch liked properties (matches queryKey in useLikedProperties)
       queryClient.prefetchQuery({
         queryKey: ['liked-properties'],
         queryFn: async () => {
@@ -236,18 +235,30 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           const { data: listings } = await supabase.from('listings').select('*').in('id', ids).eq('status', 'active');
           return listings || [];
         },
-        staleTime: Infinity,
+        staleTime: 1000 * 60 * 60, // 1 hour
       });
+
+      // 2. COMPONENT PREFETCH
+      const componentsToPreload = [
+        () => import("@/components/SubscriptionPackages"),
+        () => import("@/components/NotificationsDialog"),
+        () => import("@/components/AISearchDialog"),
+        () => import("@/components/PropertyDetails"),
+        userRole === 'owner' ? () => import("@/components/OwnerClientSwipeDialog") : null,
+        userRole === 'client' ? () => import("@/components/ClientProfileDialog") : null,
+      ].filter(Boolean) as (() => Promise<any>)[];
+
+      componentsToPreload.forEach(p => p());
     };
 
     if ('requestIdleCallback' in window) {
-      const idleId = (window as any).requestIdleCallback(prefetch, { timeout: 4000 });
+      const idleId = (window as any).requestIdleCallback(prefetch, { timeout: 2000 });
       return () => (window as any).cancelIdleCallback(idleId);
     } else {
-      const t = setTimeout(prefetch, 2000);
+      const t = setTimeout(prefetch, 1000);
       return () => clearTimeout(t);
     }
-  }, [userId, queryClient]);
+  }, [userId, userRole, queryClient]);
 
   // Lazy load listings and profiles only when insights dialogs are opened
   // This prevents unnecessary API calls on every page load

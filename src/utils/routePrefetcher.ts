@@ -116,37 +116,49 @@ function prefetchRoutesSequentially(routes: string[]): void {
  */
 export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
   // SPEED: Prefetch nav-bar routes immediately (no idle wait) — these are the most tapped
+  const sharedRoutes = ['/messages', '/notifications', '/explore/eventos'];
+  
   if (role === 'client') {
-    prefetchRoute('/client/profile');
-    prefetchRoute('/client/liked-properties');
-    prefetchRoute('/messages');
+    const critical = ['/client/profile', '/client/liked-properties', ...sharedRoutes];
+    critical.forEach(p => prefetchRoute(p));
     
-    // Secondary routes — idle-scheduled
+    // Everything else — sequential background prefetch
     scheduleIdle(() => {
-      prefetchRoutesSequentially([
-        '/notifications',
+      const remaining = [
         '/client/filters',
-        '/explore/eventos',
         '/client/advertise',
         '/explore/roommates',
         '/client/settings',
-      ]);
-    }, 1500);
+        '/client/services',
+        '/client/contracts',
+        '/client/saved-searches',
+        '/client/security',
+        '/explore/prices',
+        '/explore/intel',
+        '/explore/tours'
+      ];
+      prefetchRoutesSequentially(remaining);
+    }, 1000);
   } else {
-    prefetchRoute('/owner/profile');
-    prefetchRoute('/owner/properties');
-    prefetchRoute('/messages');
+    const critical = ['/owner/profile', '/owner/properties', ...sharedRoutes];
+    critical.forEach(p => prefetchRoute(p));
     
-    // Secondary routes — idle-scheduled
+    // Everything else — sequential background prefetch
     scheduleIdle(() => {
-      prefetchRoutesSequentially([
+      const remaining = [
         '/owner/liked-clients',
-        '/notifications',
+        '/owner/filters',
         '/owner/clients/property',
-        '/explore/eventos',
         '/owner/settings',
-      ]);
-    }, 1500);
+        '/owner/listings/new',
+        '/owner/contracts',
+        '/owner/saved-searches',
+        '/owner/security',
+        '/owner/clients/moto',
+        '/owner/clients/bicycle'
+      ];
+      prefetchRoutesSequentially(remaining);
+    }, 1000);
   }
 }
 

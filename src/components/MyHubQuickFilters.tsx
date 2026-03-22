@@ -28,18 +28,10 @@ export function MyHubQuickFilters() {
 
     return (
         <div className="relative mb-8 px-4">
-            {/* Label */}
-            <div className="flex flex-col mb-12 px-1 text-center">
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground mb-2">
-                    Discover Categories
-                </h3>
-                <p className="text-2xl font-black text-foreground drop-shadow-sm italic">
-                    Swipe right to filter your deck
-                </p>
-            </div>
-
             {/* Swipeable Stack */}
-            <CategorySwipeStack />
+            <div className="pt-8">
+                <CategorySwipeStack />
+            </div>
 
             {/* Explore Feature Links */}
             <div className="mt-8">

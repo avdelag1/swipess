@@ -46,18 +46,26 @@ export function CategorySwipeStack() {
         });
     };
 
+    const handleSelect = (id: QuickFilterCategory | null) => {
+        haptics.tap();
+        setStack(prev => {
+            const index = prev.findIndex(c => c.id === id);
+            if (index === 0) return prev;
+            const newStack = [...prev];
+            const [removed] = newStack.splice(index, 1);
+            return [removed, ...newStack];
+        });
+    };
+
     return (
-        <div className="relative w-full aspect-[4/3] max-w-sm mx-auto mb-12 flex items-center justify-center">
-            {/* Background stack visualization */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute top-4 left-4 right-4 bottom-[-10px] rounded-[32px] bg-muted/20 border border-border/50 scale-[0.9] -z-10" />
-                <div className="absolute top-2 left-2 right-2 bottom-[-5px] rounded-[32px] bg-muted/30 border border-border/80 scale-[0.95] -z-10" />
+        <div className="relative w-full aspect-video max-w-sm mx-auto mb-16 flex items-center justify-center">
+            {/* Background stack visualization - subtler for fanned look */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-primary/5 blur-3xl animate-pulse" />
             </div>
 
             <AnimatePresence mode="popLayout">
                 {stack.map((cat, index) => {
-                    // Only render top 3 for performance
-                    if (index > 2) return null;
                     const isTop = index === 0;
                     const isActive = activeCategory === cat.id;
 
@@ -67,40 +75,63 @@ export function CategorySwipeStack() {
                             category={cat}
                             isTop={isTop}
                             index={index}
+                            itemCount={stack.length}
+                            isActive={isActive}
+                            itemCount={stack.length}
                             isActive={isActive}
                             isDark={isDark}
                             onSwipeRight={() => handleSwipeRight(cat.id)}
                             onSwipeLeft={() => handleSwipeLeft(cat.id)}
+                            onSelect={() => handleSelect(cat.id)}
                         />
                     );
                 }).reverse()}
             </AnimatePresence>
-
-            {/* Hint icons */}
-            <div className="absolute -bottom-10 left-0 right-0 flex justify-between px-8 pointer-events-none">
-                <div className="flex flex-col items-center opacity-40">
-                    <div className="w-8 h-8 rounded-full border border-border flex items-center justify-center mb-1">
-                        <Search className="w-4 h-4" />
-                    </div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest italic">Skip</span>
-                </div>
-                <div className="flex flex-col items-center opacity-80 text-brand-accent-2">
-                    <div className="w-8 h-8 rounded-full border-2 border-brand-accent-2 flex items-center justify-center mb-1 shadow-glow-sm">
-                        <Check className="w-4 h-4" />
-                    </div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest italic">Filter</span>
-                </div>
-            </div>
         </div>
     );
 }
 
-function CategoryCard({ category, isTop, index, isActive, isDark, onSwipeRight, onSwipeLeft }: any) {
+interface CategoryCardProps {
+    category: any;
+    isTop: boolean;
+    index: number;
+    itemCount: number;
+    isActive: boolean;
+    isDark: boolean;
+    onSwipeRight: () => void;
+    onSwipeLeft: () => void;
+    onSelect: () => void;
+}
+
+function CategoryCard({ 
+    category, isTop, index, itemCount, isActive, isDark, onSwipeRight, onSwipeLeft, onSelect 
+}: CategoryCardProps) {
     const x = useMotionValue(0);
-    const rotate = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
+    
+    // Spread cards like a poker hand (fanned)
+    // index is current position in the stack (0 is top/front)
+    // To maintain fanned look, we use a fixed offset based on category identity, 
+    // BUT we want the top card to always be "active" or "front".
+    // Alternatively, we use the visual index for the fan position.
+    
+    // Calculate fan position (from -2 to 2 for 5 cards)
+    const midPoint = (itemCount - 1) / 2;
+    const fanIndex = index - midPoint;
+    
+    // We want the cards to look like a hand. 
+    // Front card (index 0) is central? No, it's usually fanned from center.
+    // Let's use the constant list order for the fan position so it doesn't jump around?
+    // User: "I can tap the other one". 
+    // So the fan should be stable.
+    
+    const fanRotation = fanIndex * 8; 
+    const fanX = fanIndex * 30; // Spacing between cards
+    const fanY = Math.abs(fanIndex) * 8; // Subtle arc
+
+    const dragRotate = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
     const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0.5, 1, 1, 1, 0.5]);
-    const scale = isTop ? 1 : 1 - (index * 0.05);
-    const yOffset = index * 12;
+    
+    const scale = isTop ? 1 : 0.95 - (index * 0.02);
 
     const handleDragEnd = (_: any, info: PanInfo) => {
         if (info.offset.x > 100) {
@@ -115,22 +146,32 @@ function CategoryCard({ category, isTop, index, isActive, isDark, onSwipeRight, 
             drag={isTop ? "x" : false}
             dragConstraints={{ left: 0, right: 0 }}
             onDragEnd={handleDragEnd}
-            initial={{ scale: 0.8, opacity: 0, y: 20 }}
+            onClick={() => !isTop && onSelect()}
+            initial={{ scale: 0.8, opacity: 0, y: 50, rotate: 0 }}
             animate={{ 
                 scale, 
                 opacity: 1, 
-                y: yOffset,
+                x: x.get() === 0 ? fanX : x.get(), // If not dragging, stay fanned
+                y: fanY + (index * 4), // Stack them slightly downwards too
+                rotate: fanRotation,
                 zIndex: 10 - index,
             }}
+            whileHover={!isTop ? { y: fanY - 20, transition: { duration: 0.2 } } : {}}
             exit={{ x: x.get() > 0 ? 600 : -600, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
-            style={{ x, rotate, opacity }}
             className={cn(
                 "absolute inset-0 flex flex-col items-center justify-center rounded-[32px] p-8 select-none transition-shadow duration-300",
-                isTop ? "cursor-grab active:cursor-grabbing shadow-2xl" : "shadow-md pointer-events-none",
+                isTop ? "cursor-grab active:cursor-grabbing shadow-2xl" : "shadow-md cursor-pointer",
                 isActive 
                     ? "border-2 border-brand-accent-2 ring-4 ring-brand-accent-2/10" 
                     : isDark ? "border border-white/10 bg-[#121212]" : "border border-black/5 bg-white"
             )}
+            style={{
+                width: '160px',
+                height: '220px',
+                left: 'calc(50% - 80px)', // Centers them first
+                top: 'calc(50% - 110px)',
+                ...({ x, rotate: isTop ? dragRotate : fanRotation, opacity } as any)
+            }}
         >
             {/* Visual background pattern with breathing zoom */}
             <motion.div
@@ -144,7 +185,7 @@ function CategoryCard({ category, isTop, index, isActive, isDark, onSwipeRight, 
 
             <motion.div
                 className={cn(
-                    "w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-xl relative",
+                    "w-20 h-20 rounded-3xl flex items-center justify-center shadow-xl relative",
                     `bg-gradient-to-br ${category.color} text-white`
                 )}
                 animate={isTop ? { scale: [1, 1.06, 1] } : { scale: 1 }}
@@ -158,26 +199,16 @@ function CategoryCard({ category, isTop, index, isActive, isDark, onSwipeRight, 
                 )}
             </motion.div>
 
-            <h3 className={cn(
-                "text-2xl font-black uppercase tracking-tighter mb-2",
-                isDark ? "text-white" : "text-slate-900"
-            )}>
-                {category.label}
-            </h3>
-            <p className="text-muted-foreground text-sm font-medium text-center max-w-[160px]">
-                {category.description}
-            </p>
-
             {/* Like/Nope visual feedback labels */}
             <motion.div
                 style={{ opacity: useTransform(x, [20, 80], [0, 1]) }}
-                className="absolute top-6 left-6 border-4 border-emerald-500 text-emerald-500 font-black px-3 py-1 rounded-xl rotate-[-12deg] uppercase text-xl pointer-events-none"
+                className="absolute top-2 left-2 border-2 border-emerald-500 text-emerald-500 font-black px-2 py-0.5 rounded-lg rotate-[-12deg] uppercase text-[10px] pointer-events-none"
             >
                 Filter!
             </motion.div>
             <motion.div
                 style={{ opacity: useTransform(x, [-20, -80], [0, 1]) }}
-                className="absolute top-6 right-6 border-4 border-rose-500 text-rose-500 font-black px-3 py-1 rounded-xl rotate-[12deg] uppercase text-xl pointer-events-none"
+                className="absolute top-2 right-2 border-2 border-rose-500 text-rose-500 font-black px-2 py-0.5 rounded-lg rotate-[12deg] uppercase text-[10px] pointer-events-none"
             >
                 Skip
             </motion.div>
