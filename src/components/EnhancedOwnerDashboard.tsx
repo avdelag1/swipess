@@ -28,9 +28,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   const _navigate = useNavigate();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
-  const { user } = useAuth();
-  // useAuth in this codebase might not have isLoading, so let's check profile loading instead or just use user
-  const isAuthLoading = false; 
+  const { user, loading: isAuthLoading } = useAuth();
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs, isLoading: isPrefsLoading } = useOwnerClientPreferences();
@@ -85,7 +83,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   // FIX: Pass filters to query so fetched profiles match what container displays
   // Extract category from filters if available
   const filterCategory = mergedFilters?.categories?.[0] || undefined;
-  if (import.meta.env.DEV) 
+
   const { data: clientProfiles = [], isLoading, error } = useSmartClientMatching(
     user?.id,
     filterCategory,
