@@ -7,7 +7,19 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Ultra-Smooth View Transitions ─── */
+/* ─── Hide Scrollbars ─── */
+html, body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  overflow-x: hidden;
+}
+
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* ─── View Transitions: circular ripple reveal from toggle button ─── */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 0.3s;
