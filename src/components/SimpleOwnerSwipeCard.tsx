@@ -595,8 +595,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           WebkitTouchCallout: 'none',
           transform: 'translateZ(0)', // Force compositor layer
           borderRadius: fullScreen ? '0px' : '32px',
-          boxShadow: fullScreen ? 'none' : '0 10px 40px -10px rgba(0,0,0,0.5)',
-          border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.05)',
+          boxShadow: fullScreen ? 'none' : 'var(--shadow-cinematic-lg)',
+          border: 'none',
         } as any}
         className={cn(
           "flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden",
@@ -693,10 +693,17 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
              Dynamic bottom positioning: scales with viewport height */}
         <div
           className={cn(
-            "absolute left-0 right-0 z-20 pointer-events-none p-6 flex flex-col justify-end",
+            "absolute left-4 right-4 z-20 pointer-events-none p-5 rounded-[24px] flex flex-col justify-end",
             fullScreen ? "bottom-0 pb-[calc(100px+var(--safe-bottom))] min-h-[45%]" : "pb-6"
           )}
-          style={!fullScreen ? { bottom: 'clamp(120px, 20vh, 180px)' } : undefined}
+          style={{ 
+            bottom: !fullScreen ? 'clamp(120px, 20vh, 180px)' : undefined,
+            background: 'rgba(0,0,0,0.4)',
+            boxShadow: 'var(--shadow-cinematic-md)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+          }}
         >
           {/* Match Meter + Rating badges row */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">

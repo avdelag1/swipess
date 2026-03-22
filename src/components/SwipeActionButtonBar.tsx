@@ -56,51 +56,51 @@ interface VariantCfg {
 const VARIANTS: Record<Variant, VariantCfg> = {
   like: {
     iconColor: '#ff6b35',
-    glow: '0 0 15px rgba(255, 107, 53, 0.3)',
-    glowIntense: '0 0 30px rgba(255, 107, 53, 0.4)',
-    dropShadow: '0px 2px 10px rgba(255, 107, 53, 0.5)',
-    circleBg: 'rgba(255, 107, 53, 0.12)',
-    circleBorder: 'rgba(255, 107, 53, 0.25)',
+    glow: '0 0 20px rgba(255, 107, 53, 0.4)',
+    glowIntense: '0 0 40px rgba(255, 107, 53, 0.5)',
+    dropShadow: 'var(--shadow-cinematic-primary)',
+    circleBg: 'rgba(255, 107, 53, 0.15)',
+    circleBorder: 'none',
   },
   dislike: {
     iconColor: '#ef4444',
-    glow: '0 0 15px rgba(239, 68, 68, 0.3)',
-    glowIntense: '0 0 30px rgba(239, 68, 68, 0.4)',
-    dropShadow: '0px 2px 10px rgba(239, 68, 68, 0.5)',
-    circleBg: 'rgba(239, 68, 68, 0.12)',
-    circleBorder: 'rgba(239, 68, 68, 0.25)',
+    glow: '0 0 20px rgba(239, 68, 68, 0.4)',
+    glowIntense: '0 0 40px rgba(239, 68, 68, 0.5)',
+    dropShadow: '0 12px 24px -6px rgba(239, 68, 68, 0.45)',
+    circleBg: 'rgba(239, 68, 68, 0.15)',
+    circleBorder: 'none',
   },
   amber: {
     iconColor: '#f59e0b',
-    glow: '0 0 12px rgba(245, 158, 11, 0.25)',
-    glowIntense: '0 0 24px rgba(245, 158, 11, 0.35)',
-    dropShadow: '0px 2px 8px rgba(245, 158, 11, 0.45)',
-    circleBg: 'rgba(245, 158, 11, 0.12)',
-    circleBorder: 'rgba(245, 158, 11, 0.25)',
+    glow: '0 0 16px rgba(245, 158, 11, 0.35)',
+    glowIntense: '0 0 32px rgba(245, 158, 11, 0.45)',
+    dropShadow: '0 8px 16px -4px rgba(245, 158, 11, 0.4)',
+    circleBg: 'rgba(245, 158, 11, 0.15)',
+    circleBorder: 'none',
   },
   cyan: {
     iconColor: '#06b6d4',
-    glow: '0 0 12px rgba(6, 182, 212, 0.25)',
-    glowIntense: '0 0 24px rgba(6, 182, 212, 0.35)',
-    dropShadow: '0px 2px 8px rgba(6, 182, 212, 0.45)',
-    circleBg: 'rgba(6, 182, 212, 0.12)',
-    circleBorder: 'rgba(6, 182, 212, 0.25)',
+    glow: '0 0 16px rgba(6, 182, 212, 0.35)',
+    glowIntense: '0 0 32px rgba(6, 182, 212, 0.45)',
+    dropShadow: '0 8px 16px -4px rgba(6, 182, 212, 0.4)',
+    circleBg: 'rgba(6, 182, 212, 0.15)',
+    circleBorder: 'none',
   },
   purple: {
     iconColor: '#a855f7',
-    glow: '0 0 12px rgba(168, 85, 247, 0.25)',
-    glowIntense: '0 0 24px rgba(168, 85, 247, 0.35)',
-    dropShadow: '0px 2px 8px rgba(168, 85, 247, 0.45)',
-    circleBg: 'rgba(168, 85, 247, 0.12)',
-    circleBorder: 'rgba(168, 85, 247, 0.25)',
+    glow: '0 0 16px rgba(168, 85, 247, 0.35)',
+    glowIntense: '0 0 32px rgba(168, 85, 247, 0.45)',
+    dropShadow: '0 8px 16px -4px rgba(168, 85, 247, 0.4)',
+    circleBg: 'rgba(168, 85, 247, 0.15)',
+    circleBorder: 'none',
   },
   default: {
     iconColor: '#ffffff',
-    glow: '0 0 10px rgba(255,255,255,0.1)',
-    glowIntense: '0 0 20px rgba(255,255,255,0.2)',
-    dropShadow: '0px 2px 6px rgba(255, 255, 255, 0.25)',
-    circleBg: 'rgba(255, 255, 255, 0.12)',
-    circleBorder: 'rgba(255, 255, 255, 0.25)',
+    glow: '0 0 14px rgba(255,255,255,0.2)',
+    glowIntense: '0 0 28px rgba(255,255,255,0.3)',
+    dropShadow: '0 8px 16px -4px rgba(255, 255, 255, 0.3)',
+    circleBg: 'rgba(255, 255, 255, 0.15)',
+    circleBorder: 'none',
   },
 };
 
@@ -175,27 +175,25 @@ const ActionButton = memo(({
       }}
       className="flex items-center justify-center touch-manipulation select-none"
     >
-      {/* Glow burst on tap — radial light bloom */}
-      <AnimatePresence>
-        {glowBursts.map(({ id }) => (
-          <motion.span
-            key={id}
-            aria-hidden="true"
-            initial={{ scale: 0.3, opacity: 0.7 }}
-            animate={{ scale: 2.2, opacity: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0, 0.55, 0.45, 1] }}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              borderRadius: '50%',
-              background: `radial-gradient(circle, ${cfg.iconColor}44 0%, transparent 70%)`,
-              pointerEvents: 'none',
-            }}
-          />
-        ))}
-      </AnimatePresence>
+      {/* Cinematic Shade — The atmospheric background halo */}
+      <div
+        className="absolute inset-0 rounded-full transition-all duration-300 pointer-events-none"
+        style={{
+          background: isPressed ? cfg.glowIntense : cfg.glow,
+          filter: 'blur(8px)',
+          transform: isPressed ? 'scale(1.15)' : 'scale(1)',
+          opacity: isPressed ? 0.8 : 0.4,
+        }}
+      />
 
+      <div
+        className="absolute inset-0 rounded-full pointer-events-none"
+        style={{
+          background: cfg.circleBg,
+          transform: isPressed ? 'scale(0.95)' : 'scale(1)',
+          transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        }}
+      />
       {/* Icon with deep colored drop-shadow */}
       <motion.span
         animate={{ scale: isPressed ? 0.85 : 1 }}

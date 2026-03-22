@@ -331,7 +331,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     if (stations.length === 0) return;
 
     const currentIndex = state.currentStation ? stations.findIndex(s => s.id === state.currentStation?.id) : -1;
-    let nextIndex = direction === 'next'
+    const nextIndex = direction === 'next'
       ? (currentIndex + 1) % stations.length
       : (currentIndex - 1 + stations.length) % stations.length;
 

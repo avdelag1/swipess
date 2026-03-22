@@ -238,17 +238,12 @@ export function BottomNavigation({
 
   const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
 
-  // ── Colour tokens ────────────────────────────────────────────────────────
-  const iconColorInactive = isLight ? '#1a1a1a' : 'rgba(255,255,255,0.65)';
-  const activeColor = isLight ? 'hsl(var(--primary))' : '#f97316';
+  const iconColorInactive = isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.65)';
+  const activeColor = 'var(--color-brand-primary)';
 
-  // ── Nav bar glass surface ────────────────────────────────────────────────
-  // Heavy blur shows the swipe card and content behind the navigation bar.
-  const _barBg = isLight ? '#ffffff' : 'rgba(12,12,14,0.68)';
-  const barBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.10)';
   const barShadow = isLight
-    ? '0 -2px 12px rgba(0,0,0,0.06)'
-    : 'inset 0 1px 0 rgba(255,255,255,0.12), 0 -4px 20px rgba(0,0,0,0.35)';
+    ? 'var(--shadow-cinematic-md)'
+    : 'var(--shadow-cinematic-lg)';
 
 
   return (
@@ -260,13 +255,10 @@ export function BottomNavigation({
         className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
           // LAYER 1: Solid glass base (no blur - massive GPU savings)
-          backgroundColor: isLight ? '#ffffff' : 'rgba(12,12,14,0.92)',
-          // LAYER 2: Top rim catch-light (bright edge = physical glass rim)
-          borderTop: `1px solid ${isLight ? '#e5e7eb' : 'rgba(255,255,255,0.14)'}`,
-          borderLeft: `1px solid ${barBorder}`,
-          borderRight: `1px solid ${barBorder}`,
-          borderBottom: `1px solid ${isLight ? '#e5e7eb' : 'rgba(255,255,255,0.07)'}`,
-          borderRadius: '22px',
+          backgroundColor: isLight ? 'rgba(255,115,22,0.98)' : 'rgba(12,12,14,0.92)',
+          // No hard borders — defined by shadows
+          border: 'none',
+          borderRadius: '24px',
           boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',

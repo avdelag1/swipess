@@ -298,6 +298,9 @@
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
@@ -478,30 +481,38 @@
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  GLOBAL BUTTON 3D POLISH                                                */
-/*  Consistent neumorphic shadow on action buttons across ALL pages.       */
-/*  Excludes: nav bars, tabs, tiny icon-only utility buttons, filter pills */
+/*  GLOBAL CINEMATIC SHADE SYSTEM (2026)                                  */
+/*  Replaces "frames" with atmospheric depth defined by shadows.           */
+/*  Buttons and cards feel like they are part of a continuous surface.      */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-.scroll-area-momentum button:not([data-no-3d]):not([role="tab"]):not([data-radix-collection-item]) {
-  transition: box-shadow 280ms ease, transform 180ms ease,
-              background-color 280ms ease, color 220ms ease,
-              border-color 220ms ease, opacity 200ms ease;
+.cinematic-frame {
+  border: none !important;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--shadow-cinematic-md);
+  transition: box-shadow 400ms var(--ease-out-expo), transform 400ms var(--ease-out-expo);
+  will-change: transform, box-shadow;
 }
 
-.scroll-area-momentum button:not([data-no-3d]):not([role="tab"]):not([data-radix-collection-item])[class*="rounded-2xl"],
-.scroll-area-momentum button:not([data-no-3d]):not([role="tab"]):not([data-radix-collection-item])[class*="rounded-xl"] {
-  box-shadow:
-    4px 4px 10px rgba(0,0,0,0.18),
-    -3px -3px 8px rgba(255,255,255,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.12);
+button:not([data-no-cinematic]):not([role="tab"]):not([data-radix-collection-item])[class*="rounded"] {
+  border: none !important;
+  transition: all 400ms var(--ease-spring);
+  will-change: transform, box-shadow, background-color;
+  transform: translateZ(0); 
+  box-shadow: var(--shadow-cinematic-sm);
+  background-color: var(--glass-bg);
 }
 
-.scroll-area-momentum button:not([data-no-3d]):not([role="tab"]):not([data-radix-collection-item])[class*="rounded-2xl"]:active,
-.scroll-area-momentum button:not([data-no-3d]):not([role="tab"]):not([data-radix-collection-item])[class*="rounded-xl"]:active {
-  box-shadow:
-    inset 3px 3px 8px rgba(0,0,0,0.25),
-    inset -2px -2px 6px rgba(255,255,255,0.06);
+button:not([data-no-cinematic]):not([role="tab"]):hover {
+  box-shadow: var(--shadow-cinematic-md);
+  transform: translateY(-1px) scale(1.02);
+}
+
+button:not([data-no-cinematic]):not([role="tab"]):active {
+  box-shadow: var(--shadow-cinematic-pressed);
+  transform: scale(0.96);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */

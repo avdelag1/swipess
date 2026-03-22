@@ -107,7 +107,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const cardOpacity = useTransform(
     x,
     [-300, -150, 0, 150, 300],
-    [0.85, 1, 1, 1, 0.85]
+    [0.7, 1, 1, 1, 0.7]
   );
 
   // Like/Pass overlay opacity based on X position
@@ -458,7 +458,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           touchAction: 'none',
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
-          border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.05)',
+          boxShadow: 'var(--shadow-cinematic-lg)',
+          border: 'none',
         } as any}
       >
         {/* Image area - FULL VIEWPORT with magnifier support */}
@@ -547,8 +548,15 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
              Dynamic bottom positioning: scales with viewport height so info
              stays above action buttons on all devices (SE → Pro Max → tablets) */}
         <div
-          className="absolute left-0 right-0 p-4 z-20 pointer-events-none"
-          style={{ bottom: 'clamp(130px, 22vh, 180px)' }}
+          className="absolute left-4 right-4 z-20 pointer-events-none p-5 rounded-[24px]"
+          style={{ 
+            bottom: 'clamp(130px, 22vh, 180px)',
+            background: 'rgba(0,0,0,0.4)',
+            boxShadow: 'var(--shadow-cinematic-md)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+          }}
         >
           {/* Match Meter + Rating badges row */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">

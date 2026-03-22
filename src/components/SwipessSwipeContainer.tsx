@@ -233,14 +233,14 @@ const deckFadeVariants = {
 
 const FAN_CARD_PHOTOS: Record<string, string[]> = {
   property: [
-    'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=640&q=85&auto=format',
+    '/images/properties/property_1.png',
+    '/images/properties/property_2.png',
+    '/images/properties/property_3.png',
+    '/images/properties/property_4.png',
     'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=640&q=85&auto=format',
   ],
   motorcycle: [
-    'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=640&q=85&auto=format',
+    '/images/motorcycles/vespa_1.png',
     'https://images.unsplash.com/photo-1568772585407-9f217f7b5f5e?w=640&q=85&auto=format',
     'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=640&q=85&auto=format',
     'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=640&q=85&auto=format',
@@ -301,18 +301,8 @@ const FAN_CARDS = [
   { id: 'services' as const, label: 'Workers', Icon: IconWorker, accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
 ];
 
-const CARD_W = 200;
-const CARD_H = 500;
-
-const STACK_OFFSETS = [
-  { rotate: 0, tx: 0, ty: 0, scale: 1 },
-];
 
 // ── FLUID REORDERABLE CATEGORY DECK ───────────────────
-// Cards feel "alive" as physical objects that can be grabbed and moved.
-// Shifting neighbors creates a tactile sorting experience.
-
-import { Reorder } from 'framer-motion';
 
 // ── FLUID REORDERABLE CATEGORY DECK ───────────────────
 // Cards feel "alive" as physical objects that can be grabbed and moved.
@@ -365,13 +355,13 @@ const ReorderableCategoryCard = memo(({
       dragElastic={0.4}
       onDragEnd={handleDragEndInCard}
       style={{
-        width: CARD_W,
-        height: CARD_H,
+        width: 200,
+        height: 500,
         position: 'absolute',
         left: '50%',
         top: '50%',
-        marginLeft: -(CARD_W / 2),
-        marginTop: -(CARD_H / 2),
+        marginLeft: -100,
+        marginTop: -250,
         zIndex: index + 10,
         x: dragX,
         y: isTop ? dragY : stackY,
@@ -503,7 +493,6 @@ interface SwipeAllDashboardProps {
 
 const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
   const [items, setItems] = useState<typeof FAN_CARDS>(FAN_CARDS);
-  const [floatingCards, setFloatingCards] = useState<string[]>([]);
   const [previewCard, setPreviewCard] = useState<string | null>(null);
   const [photoIndices, setPhotoIndices] = useState([0, 0, 0, 0]);
   const cyclingCardRef = useRef(0);
