@@ -260,6 +260,13 @@ const FAN_CARD_PHOTOS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=640&q=85&auto=format',
     'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=640&q=85&auto=format',
   ],
+  all: [
+    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=640&q=85&auto=format',
+  ],
 };
 
 // Minimal single-weight SVG line icons — no color, no fill, no cartoonish detail
@@ -294,11 +301,18 @@ const IconWorker = () => (
   </svg>
 );
 
+const IconAll = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2v20M2 12h20M6.22 6.22l14.14 14.14M17.78 6.22L3.64 20.36"/>
+  </svg>
+);
+
 const FAN_CARDS = [
   { id: 'property' as const, label: 'Properties', Icon: IconProperty, accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -11, tx: -56, ty: 14 },
   { id: 'services' as const, label: 'Workers', Icon: IconWorker, accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
   { id: 'bicycle' as const, label: 'Bicycles', Icon: IconBicycle, accent: '#f43f5e', accentRgb: '244,63,94', description: 'City & mountain', rotate: 3.5, tx: 19, ty: 3 },
   { id: 'motorcycle' as const, label: 'Motorcycles', Icon: IconMoto, accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -3.5, tx: -19, ty: 3 },
+  { id: 'all' as const, label: 'All', Icon: IconAll, accent: '#06b6d4', accentRgb: '6,182,212', description: 'Browse all', rotate: 0, tx: 0, ty: 0 },
 ];
 
 const CARD_W = 240;
@@ -339,17 +353,25 @@ const ReorderableCategoryCard = memo(({
   const dragY = useMotionValue(0);
   const rotateTilt = useTransform(dragX, [-200, 200], [-15, 15]);
 
-  // Fanned poker card stack: Properties (front) → Workers → Bicycles → Motorcycles (back)
-  // Each card progressively shifted right and rotated, like playing cards spread on a table
-  const isTop = index === 0;  // Properties is the frontmost (topmost) card
-  const depthIndex = index;   // Depth from front: 0 = Properties (front), 3 = Motorcycles (back)
+  // Circular clock-face fan: 10:00 (Property) → 11:00 (Workers) → 12:00 (Bicycle) → 1:00 (Motorcycle) → 3:00 (All)
+  // Cards spread like a rainbow arc from top-left to top-right
+  const isTop = index === 0;  // Property is the frontmost
+  const depthIndex = index;
   
-  // Fan effect: cards shift right and down, with increasing rotation
-  const stackX = depthIndex * 70;      // Shift progressively to the right (70px per card back)
-  const stackY = depthIndex * 40;      // Shift progressively down (40px per card back)
-  const stackScale = 1 - (depthIndex * 0.008);
-  const stackRotate = depthIndex * 6;  // Rotate 6° per card back (right-leaning fan)
-  const stackOpacity = depthIndex > 3 ? 0 : 1;
+  // Clock angles in degrees (12:00 = 0°, clockwise positive)
+  // 10:00 = -60°, 11:00 = -30°, 12:00 = 0°, 1:00 = 30°, 3:00 = 90°
+  const clockAngles = [-60, -30, 0, 30, 90];
+  const angleRad = (clockAngles[depthIndex] || 0) * (Math.PI / 180);
+  
+  // Radial distance from center (all cards same distance to form arc)
+  const radius = 200;
+  const stackX = Math.cos(angleRad) * radius;
+  const stackY = Math.sin(angleRad) * radius;
+  
+  // Each card rotates outward to point toward its angle (top of card faces outward)
+  const stackRotate = clockAngles[depthIndex] || 0;
+  const stackScale = 1 - (depthIndex * 0.006);
+  const stackOpacity = depthIndex > 4 ? 0 : 1;
 
   // Drag-and-release cycle logic
   const handleDragEndInCard = (_e: any, info: any) => {
@@ -361,8 +383,8 @@ const ReorderableCategoryCard = memo(({
 
   return (
     <motion.div
-      drag={isTop ? true : false}
-      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+      drag={true}
+      dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
       dragElastic={0.4}
       onDragEnd={handleDragEndInCard}
       style={{
@@ -378,8 +400,8 @@ const ReorderableCategoryCard = memo(({
         x: isTop ? dragX : stackX,
         y: isTop ? dragY : stackY,
         rotate: isTop ? rotateTilt : stackRotate,
-        cursor: isTop ? 'grab' : 'default',
-        pointerEvents: isTop ? 'auto' : 'none',
+        cursor: 'grab',
+        pointerEvents: 'auto',
       }}
       animate={{
         scale: stackScale,
@@ -555,7 +577,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
 
         <div 
           className="relative pointer-events-none" 
-          style={{ width: '100%', maxWidth: 900, height: 580, zIndex: 10 }}
+          style={{ width: '100%', maxWidth: 1000, height: 650, zIndex: 10 }}
         >
           {items.map((card, i) => {
             return (
