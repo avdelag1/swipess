@@ -605,6 +605,31 @@
  * Duration: 10–12s feels water-like without being distracting.
  * We also slightly pulse the opacity so the highlight breathes.
  */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  BREATHING ZOOM - Card Photo Animation                            */
+/*  Subtle continuous zoom effect on swipe card images                */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@keyframes breathing-zoom {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes breathing-zoom {
+    0%, 50%, 100% {
+      transform: scale(1);
+    }
+  }
+}
+
 @keyframes liquid-flow {
 
   0%,

@@ -1633,7 +1633,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   const _ActiveCategoryIcon = activeCategoryInfo?.icon || Home;
   const _activeCategoryColor = activeCategoryInfo?.color || 'text-primary';
 
-  // Main swipe view - FULL-BLEED edge-to-edge cards (no max-width constraint)
+  // Main swipe view - CENTERED STACKED CARD PRESENTATION
   return (
     <AnimatePresence mode="wait">
     <motion.div
@@ -1642,16 +1642,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       initial="initial"
       animate="animate"
       exit="exit"
-      className="relative w-full flex flex-col"
-      style={{ height: '100%', minHeight: '100%' }}
+      className="relative w-full flex flex-col items-center justify-center"
+      style={{ height: '100%', minHeight: '100%', perspective: '1200px' }}
       onMouseEnter={handleDeckHover}
     >
-      {/* Category title removed - clean immersive card experience */}
-
-      <div className="relative flex-1 w-full">
+      {/* Centered card stack container with perspective */}
+      <div className="relative flex-1 w-full max-w-md flex items-center justify-center" style={{ perspective: '1200px' }}>
         {/* NEXT CARD - Visible behind current card (Tinder-style anticipation)
             - Scale slightly smaller to create depth
-            - Lower z-index so it sits behind
+            - Translated down slightly for stacked effect
             - Already preloaded so transition is instant */}
         {(() => {
           const nextCard = deckQueueRef.current[currentIndexRef.current + 1];
@@ -1659,13 +1658,16 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
           return (
             <motion.div
               key={`next-${nextCard.id}`}
-              className="w-full h-full absolute inset-0 gpu-layer"
+              className="absolute w-full h-full gpu-layer rounded-3xl overflow-hidden"
               style={{
                 zIndex: 5,
                 scale: nextCardScale,
                 opacity: nextCardOpacity,
                 translateZ: 0,
                 pointerEvents: 'none',
+                y: 12,
+                perspective: '1200px',
+                willChange: 'transform',
               }}
             >
               <SimpleSwipeCard
@@ -1677,17 +1679,21 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
           );
         })()}
 
-        {/* CURRENT CARD - Top of stack, fully interactive */}
+        {/* CURRENT CARD - Top of stack, fully interactive, centered */}
         {topCard && (
           <motion.div
             key={topCard.id}
-            className="w-full h-full absolute inset-0"
+            className="absolute w-full h-full rounded-3xl overflow-hidden"
             // Spring-forward entrance: card pops from "peeked" position to full size.
             // Skipped on first card (hasSwipedRef.current=false) to avoid jarring load animation.
-            initial={hasSwipedRef.current ? { scale: 0.97, opacity: 0.72 } : false}
-            animate={{ scale: 1, opacity: 1 }}
+            initial={hasSwipedRef.current ? { scale: 0.97, opacity: 0.72, y: 8 } : false}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 420, damping: 28, mass: 0.85 }}
-            style={{ zIndex: 10 }}
+            style={{ 
+              zIndex: 10,
+              perspective: '1200px',
+              willChange: 'transform',
+            }}
           >
             <SimpleSwipeCard
               ref={cardRef}
@@ -1701,9 +1707,20 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
           </motion.div>
         )}
 
-        {/* Action buttons INSIDE card area - Tinder style overlay */}
+        {/* Action buttons - positioned below card stack */}
         {topCard && !insightsModalOpen && (
-          <div className="absolute left-0 right-0 flex justify-center z-[1100]" style={{ bottom: 'calc(var(--safe-bottom, 0px) + 100px)' }}>
+          <motion.div 
+            className="absolute flex justify-center z-[1100]" 
+            style={{ 
+              bottom: 'calc(-140px - var(--safe-bottom, 0px))',
+              left: 0,
+              right: 0,
+              pointerEvents: 'auto',
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+          >
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}
@@ -1712,7 +1729,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
               onMessage={handleMessage}
               canUndo={canUndo}
             />
-          </div>
+          </motion.div>
         )}
       </div>
 

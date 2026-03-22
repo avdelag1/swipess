@@ -160,9 +160,10 @@ const CardImage = memo(({
           transition: wasInCache ? 'none' : `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
           borderRadius: br,
           animation: wasInCache
-            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards`
-            : 'none',
+            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards, breathing-zoom 4s ease-in-out infinite`
+            : 'breathing-zoom 4s ease-in-out infinite',
           zIndex: 3,
+          transformOrigin: 'center',
         }}
         onLoad={() => {
           if (src) imageCache.set(src, true);
