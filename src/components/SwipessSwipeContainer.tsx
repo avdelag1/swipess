@@ -35,7 +35,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
@@ -228,380 +228,305 @@ const deckFadeVariants = {
   exit:    { opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } },
 };
 
-// ── FAN POKER CARD QUICK FILTER ───────────────────────────────────────────────
-// 5 carousel photos per category, glassmorphic cards fanned like a poker hand
+// ── POKER HAND CATEGORY DECK ──────────────────────────────────────────────────
+// Cards fan from a shared bottom-left anchor like a real poker hand.
+// Only the top strip of each card behind is visible.
+// Strict swipe rules: weak drag snaps back, strong swipe applies the filter.
 
-const FAN_CARD_PHOTOS: Record<string, string[]> = {
-  property: [
-    'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=640&q=85&auto=format',
-  ],
-  motorcycle: [
-    'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1568772585407-9f217f7b5f5e?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=640&q=85&auto=format',
-  ],
-  bicycle: [
-    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1502744688674-c619d1586c9e?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1511994298241-608e28f14fde?w=640&q=85&auto=format',
-  ],
-  services: [
-    'https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=640&q=85&auto=format',
-    'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=640&q=85&auto=format',
-  ],
+const POKER_CARD_PHOTOS: Record<string, string> = {
+  property:   'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=480&q=80&auto=format',
+  motorcycle: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=480&q=80&auto=format',
+  bicycle:    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=480&q=80&auto=format',
+  services:   'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=480&q=80&auto=format',
+  all:        'https://images.unsplash.com/photo-1552664730-d307ca884978?w=480&q=80&auto=format',
 };
 
-// Minimal single-weight SVG line icons — no color, no fill, no cartoonish detail
-const IconProperty = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10.5z"/>
-    <path d="M9 21V13h6v8"/>
-  </svg>
-);
-const IconMoto = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="5.5" cy="17" r="2.5"/>
-    <circle cx="18.5" cy="17" r="2.5"/>
-    <path d="M8 17h7"/>
-    <path d="M18.5 17 16 9h-4.5L10 13 5.5 17"/>
-    <path d="M15 9l1-3h3"/>
-  </svg>
-);
-const IconBicycle = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="5.5" cy="17" r="3"/>
-    <circle cx="18.5" cy="17" r="3"/>
-    <path d="M5.5 17 10 9h5l3.5 8"/>
-    <path d="M5.5 17 9 11"/>
-    <circle cx="12" cy="7" r="1"/>
-    <path d="M12 8v1"/>
-  </svg>
-);
-const IconWorker = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-  </svg>
-);
-
-const FAN_CARDS = [
-  { id: 'property' as const, label: 'Properties', Icon: IconProperty, accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -11, tx: -56, ty: 14 },
-  { id: 'motorcycle' as const, label: 'Motorcycles', Icon: IconMoto, accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -3.5, tx: -19, ty: 3 },
-  { id: 'bicycle' as const, label: 'Bicycles', Icon: IconBicycle, accent: '#f43f5e', accentRgb: '244,63,94', description: 'City & mountain', rotate: 3.5, tx: 19, ty: 3 },
-  { id: 'services' as const, label: 'Workers', Icon: IconWorker, accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
+const POKER_CARDS = [
+  { id: 'property'   as const, label: 'Properties',  description: 'Houses & apts',       accent: '#3b82f6', accentRgb: '59,130,246'  },
+  { id: 'motorcycle' as const, label: 'Motorcycles', description: 'Bikes & scooters',     accent: '#f97316', accentRgb: '249,115,22'  },
+  { id: 'bicycle'    as const, label: 'Bicycles',    description: 'City & mountain',      accent: '#f43f5e', accentRgb: '244,63,94'   },
+  { id: 'services'   as const, label: 'Workers',     description: 'Skilled freelancers',  accent: '#a855f7', accentRgb: '168,85,247'  },
+  { id: 'all'        as const, label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212'   },
 ];
 
-const CARD_W = 200;
-const CARD_H = 500;
+// Card dimensions — larger playing-card proportions
+const PK_W = 270;
+const PK_H = 420;
+// Horizontal flow: cards peek purely to the right, no vertical offset
+const FOLDER_OFFSET_X = 28;  // px right per card behind
+const FOLDER_OFFSET_Y = 0;   // no vertical offset — pure horizontal flow
+// Swipe physics thresholds
+const PK_DIST_THRESHOLD = 110;  // px — strong swipe
+const PK_VEL_THRESHOLD  = 480;  // px/s — fast flick
+// Spring config for snap-back
+const PK_SPRING = { type: 'spring' as const, stiffness: 520, damping: 34, mass: 0.9 };
 
-const STACK_OFFSETS = [
-  { rotate: 0, tx: 0, ty: 0, scale: 1 },
-];
-
-// ── FLUID REORDERABLE CATEGORY DECK ───────────────────
-// Cards feel "alive" as physical objects that can be grabbed and moved.
-// Shifting neighbors creates a tactile sorting experience.
-
-import { Reorder } from 'framer-motion';
-
-// ── FLUID REORDERABLE CATEGORY DECK ───────────────────
-// Cards feel "alive" as physical objects that can be grabbed and moved.
-// Shifting neighbors creates a tactile sorting experience.
-
-const ReorderableCategoryCard = memo(({ 
-  card, 
-  index,
-  total,
-  onTap, 
-  photoIdx,
-}: {
-  card: typeof FAN_CARDS[0];
+interface PokerCardProps {
+  card: typeof POKER_CARDS[0];
   index: number;
   total: number;
-  onTap: (activated?: boolean) => void;
-  photoIdx: number;
-}) => {
-  const photos = FAN_CARD_PHOTOS[card.id] || FAN_CARD_PHOTOS.property;
-  const activePhoto = photoIdx % photos.length;
-  
-  // Dynamic scale and rotation for dragging "living" feel
-  const dragX = useMotionValue(0);
-  const dragY = useMotionValue(0);
-  const rotateTilt = useTransform(dragX, [-200, 200], [-15, 15]);
+  isTop: boolean;
+  onSwipeOut: (id: string) => void;
+  onBringToFront: (index: number) => void;
+}
 
-  // Calculate stack position based on index from top
-  const reverseIndex = total - 1 - index;
-  const isTop = reverseIndex === 0;
-  
-  // Stacking logic: depth affects scale, y-offset, and rotation
-  const stackY = -reverseIndex * 14; 
-  const stackScale = 1 - (reverseIndex * 0.05);
-  const stackRotate = isTop ? 0 : (index % 2 === 0 ? 2 : -2);
-  const stackOpacity = reverseIndex > 3 ? 0 : 1;
+const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBringToFront }: PokerCardProps) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const isExiting = useRef(false);
 
-  // Drag-and-release cycle logic
-  const handleDragEndInCard = (_e: any, info: any) => {
-    const threshold = 100;
-    if (Math.abs(info.offset.x) > threshold || Math.abs(info.offset.y) > threshold) {
-        onTap(); // Trigger cycle
+  // Front card tilts slightly while dragging — back cards stay perfectly straight
+  const dragTilt = useTransform(x, [-180, 0, 180], [-12, 0, 12]);
+
+  // Folder-stack position: each card behind shifts right and down
+  const folderX = index * FOLDER_OFFSET_X;
+  const folderY = index * FOLDER_OFFSET_Y;
+
+  // Like/nope overlays fade in as the front card is dragged
+  const likeOpacity = useTransform(x, [20, PK_DIST_THRESHOLD], [0, 1]);
+  const nopeOpacity = useTransform(x, [-PK_DIST_THRESHOLD, -20], [1, 0]);
+
+  const handleDragEnd = useCallback((_: any, info: any) => {
+    if (isExiting.current) return;
+    const dist = Math.sqrt(info.offset.x ** 2 + info.offset.y ** 2);
+    const vel  = Math.sqrt(info.velocity.x ** 2 + info.velocity.y ** 2);
+
+    if (dist > PK_DIST_THRESHOLD || vel > PK_VEL_THRESHOLD) {
+      isExiting.current = true;
+      triggerHaptic('medium');
+      // Fly in direction of swipe then notify parent
+      const angle  = Math.atan2(info.offset.y, info.offset.x);
+      const exitX  = Math.cos(angle) * 900;
+      const exitY  = Math.sin(angle) * 900;
+      animate(x, exitX, { type: 'tween', duration: 0.28, ease: [0.32, 0, 0.67, 0], onComplete: () => onSwipeOut(card.id) });
+      animate(y, exitY, { type: 'tween', duration: 0.28, ease: [0.32, 0, 0.67, 0] });
+    } else {
+      // Snap back
+      triggerHaptic('light');
+      animate(x, 0, PK_SPRING);
+      animate(y, 0, PK_SPRING);
     }
-  };
+  }, [card.id, onSwipeOut, x, y]);
+
+  // Back card: short drag brings it to front; bigger drag also activates filter
+  const handleBackDragEnd = useCallback((_: any, info: any) => {
+    const dist = Math.sqrt(info.offset.x ** 2 + info.offset.y ** 2);
+    const vel  = Math.sqrt(info.velocity.x ** 2 + info.velocity.y ** 2);
+    animate(x, 0, PK_SPRING);
+    animate(y, 0, PK_SPRING);
+    if (dist > 55 || vel > 300) {
+      triggerHaptic('medium');
+      if (dist > PK_DIST_THRESHOLD || vel > PK_VEL_THRESHOLD) {
+        // Big swipe from a back card: bring to front AND apply filter
+        onSwipeOut(card.id);
+      } else {
+        // Short grab: just bring to front
+        onBringToFront(index);
+      }
+    }
+  }, [card.id, index, onSwipeOut, onBringToFront, x, y]);
+
+  const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
 
   return (
     <motion.div
-      layout
-      drag={isTop ? true : false}
-      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-      dragElastic={0.4}
-      onDragEnd={handleDragEndInCard}
-      style={{
-        width: CARD_W,
-        height: CARD_H,
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        marginLeft: -(CARD_W / 2),
-        marginTop: -(CARD_H / 2),
-        zIndex: index + 10,
-        x: dragX,
-        y: isTop ? dragY : stackY,
-        rotate: rotateTilt,
-        cursor: isTop ? 'grab' : 'default',
-        pointerEvents: isTop ? 'auto' : 'none',
-      }}
+      drag={true}
+      dragMomentum={false}
+      dragElastic={isTop ? 0.55 : 0.22}
+      dragConstraints={isTop
+        ? { left: -220, right: 220, top: -220, bottom: 220 }
+        : { left: -70,  right: 70,  top: -70,  bottom: 70  }
+      }
+      onDragEnd={isTop ? handleDragEnd : handleBackDragEnd}
+      onClick={() => !isTop && onBringToFront(index)}
+      initial={false}
       animate={{
-        scale: stackScale,
-        opacity: stackOpacity,
-        rotate: isTop ? 0 : stackRotate,
+        x: isTop ? 0 : folderX,
+        y: isTop ? 0 : folderY,
+        scale:   isTop ? 1 : 1 - index * 0.015,
+        opacity: index > 4 ? 0 : 1,
       }}
-      transition={{ 
-        type: 'spring', 
-        stiffness: 400, 
-        damping: 30, 
-        mass: 0.8 
-      }}
-      className="touch-manipulation"
-      whileDrag={{ scale: 1.05, cursor: 'grabbing' }}
+      transition={PK_SPRING}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: PK_W,
+        height: PK_H,
+        zIndex: 50 - index,
+        x: isTop ? x : folderX,
+        y: isTop ? y : folderY,
+        rotate: isTop ? dragTilt : 0,
+        cursor: isTop ? 'grab' : 'pointer',
+        touchAction: 'none',
+        WebkitTapHighlightColor: 'transparent',
+      } as any}
+      whileDrag={{ scale: isTop ? 1.04 : 1.07, cursor: 'grabbing' }}
+      className="touch-manipulation select-none"
     >
-      <motion.div
-        onClick={(e) => {
-          e.stopPropagation();
-          onTap();
-        }}
-        className={cn(
-          "w-full h-full relative rounded-[40px] overflow-hidden border-2 transition-all duration-500",
-          isTop ? "border-white/20 shadow-2xl" : "border-white/5 shadow-lg"
-        )}
+      {/* Card face */}
+      <div
+        className="w-full h-full relative overflow-hidden"
         style={{
-          background: isTop 
-            ? `linear-gradient(135deg, rgba(${card.accentRgb}, 0.2), #060606)` 
-            : '#0a0a0a',
+          borderRadius: 24,
+          border: isTop ? '1.5px solid rgba(255,255,255,0.18)' : '1px solid rgba(255,255,255,0.07)',
           boxShadow: isTop
-            ? `0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(${card.accentRgb},0.15)`
-            : `none`,
+            ? `0 24px 56px rgba(0,0,0,0.6), 0 0 48px rgba(${card.accentRgb},0.18)`
+            : '0 8px 20px rgba(0,0,0,0.35)',
+          background: '#0a0a0a',
         }}
       >
-        <div className="absolute inset-0">
-          {photos.map((src, i) => (
-            <motion.img
-              key={src}
-              src={src}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-              loading="eager"
-              initial={false}
-              animate={i === activePhoto ? { 
-                scale: [1.05, 1.15, 1.1, 1.2, 1.05], 
-                opacity: 1 
-              } : { 
-                scale: 1.3, 
-                opacity: 0 
-              }}
-              transition={{ 
-                scale: { duration: 12, repeat: Infinity, ease: "easeInOut" },
-                opacity: { duration: 1, ease: "easeInOut" } 
-              }}
-            />
-          ))}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-        </div>
+        {/* Background photo — ken-burns only on front card */}
+        <motion.img
+          src={photo}
+          alt={card.label}
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          animate={isTop ? { scale: [1.05, 1.14, 1.05] } : { scale: 1.08 }}
+          transition={isTop ? { duration: 10, repeat: Infinity, ease: 'easeInOut' } : {}}
+        />
 
-        {/* Card Content Overlay */}
-        <div className="absolute inset-x-0 bottom-0 p-8 flex flex-col gap-2 translate-z-0">
-          <div className="flex items-center gap-3 mb-1">
-             <div 
-              className="w-10 h-10 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10"
-              style={{ background: `rgba(${card.accentRgb}, 0.3)`, color: '#fff' }}
-            >
-              <card.Icon />
-            </div>
-            <motion.p 
-              layout
-              className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50"
-            >
-              {card.description}
-            </motion.p>
-          </div>
-          <motion.h3 
-            layout
-            className="text-white text-3xl font-black tracking-tighter uppercase drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
-          >
-            {card.label}
-          </motion.h3>
-          
-          {isTop && (
-            <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-2"
-            >
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        // Trigger activation
-                        onTap(true);
-                    }}
-                    className="w-full py-3 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest shadow-xl hover:bg-white/90 active:scale-95 transition-all"
-                >
-                    Explore Sector
-                </button>
-            </motion.div>
-          )}
-        </div>
+        {/* Gradient overlay */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.28) 55%, rgba(0,0,0,0.05) 100%)' }}
+        />
 
-        {/* Dynamic Glow for Top Card */}
+        {/* Accent glow pulse on front card */}
         {isTop && (
           <motion.div
             className="absolute inset-0 pointer-events-none"
-            animate={{ opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 3, repeat: Infinity }}
-            style={{ 
-              boxShadow: `inset 0 0 80px rgba(${card.accentRgb}, 0.2)` 
-            }}
+            animate={{ opacity: [0.15, 0.32, 0.15] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ boxShadow: `inset 0 0 70px rgba(${card.accentRgb},0.22)` }}
           />
         )}
-      </motion.div>
+
+        {/* Like label */}
+        {isTop && (
+          <motion.div
+            style={{ opacity: likeOpacity, rotate: -12 }}
+            className="absolute top-5 left-5 pointer-events-none border-2 border-emerald-400 text-emerald-400 font-black text-sm px-3 py-1 rounded-xl"
+          >
+            YES!
+          </motion.div>
+        )}
+
+        {/* Nope label */}
+        {isTop && (
+          <motion.div
+            style={{ opacity: nopeOpacity, rotate: 12 }}
+            className="absolute top-5 right-5 pointer-events-none border-2 border-rose-400 text-rose-400 font-black text-sm px-3 py-1 rounded-xl"
+          >
+            NOPE
+          </motion.div>
+        )}
+
+        {/* Card info — bottom */}
+        <div className="absolute inset-x-0 bottom-0 px-6 pb-6 pt-14">
+          <p className="text-[10px] font-black uppercase tracking-[0.28em] text-white/45 mb-1">
+            {card.description}
+          </p>
+          <h3 className="text-white text-3xl font-black tracking-tight uppercase leading-none">
+            {card.label}
+          </h3>
+
+          {/* CTA only on front card */}
+          {isTop && (
+            <motion.button
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              onClick={(e) => { e.stopPropagation(); onSwipeOut(card.id); }}
+              className="mt-4 w-full py-3 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+            >
+              Explore
+            </motion.button>
+          )}
+        </div>
+
+        {/* Accent corner dot — subtle identity marker for back cards */}
+        {!isTop && (
+          <div
+            className="absolute top-4 left-4 w-3 h-3 rounded-full"
+            style={{ background: card.accent, opacity: 0.75 }}
+          />
+        )}
+      </div>
     </motion.div>
   );
 });
 
-ReorderableCategoryCard.displayName = 'ReorderableCategoryCard';
+PokerCategoryCard.displayName = 'PokerCategoryCard';
 
 interface SwipeAllDashboardProps {
   setCategories: (ids: any[]) => void;
 }
 
 const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
-  const [items, setItems] = useState<typeof FAN_CARDS>(FAN_CARDS);
-  const [floatingCards, setFloatingCards] = useState<string[]>([]);
-  const [previewCard, setPreviewCard] = useState<string | null>(null);
-  const [photoIndices, setPhotoIndices] = useState([0, 0, 0, 0]);
-  const cyclingCardRef = useRef(0);
+  const [cards, setCards] = useState([...POKER_CARDS]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const cardTurn = cyclingCardRef.current;
-      setPhotoIndices(prev => {
-        const next = [...prev];
-        next[cardTurn] = (next[cardTurn] + 1) % 5;
-        return next;
-      });
-      cyclingCardRef.current = (cardTurn + 1) % items.length;
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [items.length]);
-
-  const handleTap = useCallback((id: string, activated: boolean = false) => {
-    // Immediate haptics for responsiveness
-    triggerHaptic(activated ? 'medium' : 'light');
-    
-    if (activated) {
-        setCategories([id]);
-        return;
-    }
-
-    // Stack Cycling: Push the current top card to the bottom
-    setItems(prev => {
-        const index = prev.findIndex(item => item.id === id);
-        if (index === -1 || index !== prev.length - 1) return prev; // Only cycle if it's the top card
-        
-        const newItems = [...prev];
-        const topCard = newItems.pop()!;
-        return [topCard, ...newItems];
-    });
+  // Swipe out front card: apply filter
+  const handleSwipeOut = useCallback((id: string) => {
+    triggerHaptic('medium');
+    setCategories([id]);
   }, [setCategories]);
+
+  // Bring a back card to the front (tap or short drag)
+  const handleBringToFront = useCallback((index: number) => {
+    triggerHaptic('light');
+    setCards(prev => {
+      const next = [...prev];
+      const [pulled] = next.splice(index, 1);
+      return [pulled, ...next];
+    });
+  }, []);
+
+  const N = cards.length;
+  // Container is sized to show the full front card plus the peeking strips of back cards
+  const containerW = PK_W + (N - 1) * FOLDER_OFFSET_X;
+  const containerH = PK_H + (N - 1) * FOLDER_OFFSET_Y;
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key="reorderable-dashboard"
+        key="folder-dashboard"
         variants={deckFadeVariants}
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative w-full flex-1 flex flex-col items-center justify-center pt-8 bg-background overflow-hidden"
+        className="relative w-full flex-1 flex flex-col items-center justify-center bg-background overflow-hidden"
         style={{ minHeight: 'calc(100dvh - 148px)' }}
-        onClick={() => previewCard && setPreviewCard(null)}
       >
-        <div className="text-center mb-10 space-y-3 z-20">
-          <motion.h2 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-xs font-black uppercase tracking-[0.4em] text-primary drop-shadow-glow"
-          >
-            Elite Discovery
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl font-black tracking-tight text-foreground"
-          >
-            Your Stack, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500 italic">Your Rules</span>
-          </motion.p>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.5 }}
-            transition={{ delay: 0.3 }}
-            className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
-          >
-            Tap or Swipe card to cycle stack
-          </motion.p>
-        </div>
-
-        <div 
-          className="relative pointer-events-none" 
-          style={{ width: '100%', maxWidth: 480, height: 600, zIndex: 10 }}
+        {/* Folder card stack — straight horizontal flow, no rotation */}
+        <div
+          style={{
+            position: 'relative',
+            width: containerW,
+            height: containerH,
+          }}
         >
-          {items.map((card, i) => {
+          {/* Render back-to-front so the front card sits on top */}
+          {[...cards].reverse().map((card, reversedIdx) => {
+            const index = cards.length - 1 - reversedIdx;
+            const isTop = index === 0;
             return (
-              <ReorderableCategoryCard
+              <PokerCategoryCard
                 key={card.id}
                 card={card}
-                index={i}
-                total={items.length}
-                onTap={(activated) => handleTap(card.id, activated)}
-                photoIdx={photoIndices[i]}
+                index={index}
+                total={cards.length}
+                isTop={isTop}
+                onSwipeOut={handleSwipeOut}
+                onBringToFront={handleBringToFront}
               />
             );
           })}
         </div>
 
-        {/* Advanced Ambient Background */}
+        {/* Subtle ambient glow */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-[0.03] blur-[120px] bg-primary animate-pulse-slow" />
-          <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] rounded-full opacity-[0.02] blur-[100px] bg-purple-500 animate-float" />
-          <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full opacity-[0.02] blur-[100px] bg-orange-500 animate-float-delayed" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.03] blur-[90px] bg-primary animate-pulse-slow" />
         </div>
       </motion.div>
     </AnimatePresence>
