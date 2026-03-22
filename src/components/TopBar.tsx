@@ -248,13 +248,13 @@ function TopBarComponent({
             )}
 
 
-            <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
-              
+            <div className="flex items-center gap-1.5 flex-shrink-0 ml-1 relative z-10">
+
               <ModeSwitcher variant="icon" size="sm" />
             </div>
 
             {showFilters && userRole && (
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 relative z-10">
                 <QuickFilterDropdown userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'} />
               </div>
             )}
