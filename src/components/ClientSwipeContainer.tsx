@@ -38,7 +38,7 @@ import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, Reorder } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
@@ -880,7 +880,7 @@ const ClientSwipeContainerComponent = ({
     );
   }
 
-import { Reorder } from 'framer-motion';
+
 
 // ── OWNER REORDERABLE DISCOVERY DECK ───────────────────
 // Specialized for owners to discover client leads in various categories.
