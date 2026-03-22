@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart, MapPin, Calendar, Sparkles, Waves, Trees, Music,
   Utensils, Ticket, ArrowLeft, MessageCircle, Share2,
-  Megaphone, ChevronUp, ExternalLink, Info, Play, Pause
+  Megaphone, ChevronUp, ExternalLink, Info, Play, Pause, ChevronRight, ChevronLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -849,6 +849,65 @@ export default function EventosFeed() {
     navigate(`/explore/eventos/${event.id}`, { state: { eventData: event } });
   }, [navigate]);
 
+  // Swipe navigation: left = next, right = previous
+  const touchStartX = useRef<number | null>(null);
+  const touchStartTime = useRef<number | null>(null);
+  const SWIPE_THRESHOLD = 50;
+  const VELOCITY_THRESHOLD = 300;
+
+  const handleSwipeLeft = useCallback(() => {
+    if (activeIdx < filteredEvents.length - 1) {
+      const el = scrollRef.current;
+      if (el) {
+        const nextIdx = activeIdx + 1;
+        el.scrollTo({ top: nextIdx * el.clientHeight, behavior: 'smooth' });
+        triggerHaptic('light');
+        pauseAutoPlay();
+      }
+    }
+  }, [activeIdx, filteredEvents.length, pauseAutoPlay]);
+
+  const handleSwipeRight = useCallback(() => {
+    if (activeIdx > 0) {
+      const el = scrollRef.current;
+      if (el) {
+        const prevIdx = activeIdx - 1;
+        el.scrollTo({ top: prevIdx * el.clientHeight, behavior: 'smooth' });
+        triggerHaptic('light');
+        pauseAutoPlay();
+      }
+    }
+  }, [activeIdx, pauseAutoPlay]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartTime.current = Date.now();
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartTime.current === null) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const distance = touchStartX.current - touchEndX;
+    const duration = Date.now() - touchStartTime.current;
+    const velocity = Math.abs(distance) / duration;
+
+    touchStartX.current = null;
+    touchStartTime.current = null;
+
+    // Check if swipe meets threshold
+    const isSwipe = Math.abs(distance) > SWIPE_THRESHOLD || velocity > VELOCITY_THRESHOLD;
+    if (!isSwipe) return;
+
+    if (distance > 0) {
+      // Swiped left → next event
+      handleSwipeLeft();
+    } else {
+      // Swiped right → previous event
+      handleSwipeRight();
+    }
+  }, [handleSwipeLeft, handleSwipeRight]);
+
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col">
 
@@ -947,6 +1006,8 @@ export default function EventosFeed() {
       <div
         ref={scrollRef}
         className="w-full h-full overflow-y-scroll"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         style={{
           scrollSnapType: 'y mandatory',
           WebkitOverflowScrolling: 'touch',
@@ -977,6 +1038,33 @@ export default function EventosFeed() {
           </>
         )}
       </div>
+
+      {/* ── SWIPE HINT OVERLAYS ── */}
+      {/* Left swipe hint - show when not on first event */}
+      {activeIdx > 0 && (
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 0.3, x: 0 }}
+          exit={{ opacity: 0, x: -10 }}
+          transition={{ duration: 0.3 }}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 pointer-events-none"
+        >
+          <ChevronLeft className="w-8 h-8 text-white/40" />
+        </motion.div>
+      )}
+
+      {/* Right swipe hint - show when not on last event */}
+      {activeIdx < filteredEvents.length - 1 && (
+        <motion.div
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 0.3, x: 0 }}
+          exit={{ opacity: 0, x: 10 }}
+          transition={{ duration: 0.3 }}
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 pointer-events-none"
+        >
+          <ChevronRight className="w-8 h-8 text-white/40" />
+        </motion.div>
+      )}
 
       {/* ── SHARE OVERLAY ── */}
       {showShareModal && shareEventData && (
