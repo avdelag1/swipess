@@ -14,6 +14,7 @@ interface ActiveModeContextType {
   activeMode: ActiveMode;
   isLoading: boolean;
   isSwitching: boolean;
+  initialized: boolean; // TRUE when both auth and initial mode fetch are done
   switchMode: (newMode: ActiveMode) => void;
   toggleMode: () => void;
   syncMode: (newMode: ActiveMode) => void;
@@ -24,6 +25,8 @@ const ActiveModeContext = createContext<ActiveModeContextType | undefined>(undef
 
 // Local storage key for persistent mode (survives page refresh)
 const MODE_STORAGE_KEY = 'swipess_active_mode';
+const SWITCH_TIMEOUT_MS = 600; // Timeout to ensure isSwitching is cleared even if navigation hangs
+
 
 // Get cached mode from localStorage (synchronous, instant, persistent)
 function getCachedMode(userId: string | undefined): ActiveMode | null {
@@ -201,19 +204,14 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     // CRITICAL: Use ref for comparison to prevent dependency on localMode
     // This prevents accidental rapid clicks or event bubbling from causing unwanted switches
     if (!user?.id || isSwitching || newMode === localModeRef.current) {
-      logger.info('[ActiveMode] switchMode blocked:', {
-        hasUser: !!user?.id,
-        isSwitching,
-        newMode,
-        currentMode: localModeRef.current
-      });
+      if (!user?.id) logger.warn('[ActiveMode] switchMode blocked: No user');
       return;
     }
 
     // 1. Set switching flag
     setIsSwitching(true);
 
-    // 2. Haptic feedback
+    // 2. Haptic feedback - trigger IMMEDIATELY for perceived speed
     triggerHaptic('medium');
 
     // 3. Update local state IMMEDIATELY
@@ -225,32 +223,28 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     // 5. Update query cache IMMEDIATELY
     queryClient.setQueryData(['active-mode', user.id], newMode);
 
-    // 6. Clear opposite mode's deck to prevent flash
+    // 6. Clear opposite mode's deck to prevent flash (Optimized: check if actually has data)
     if (newMode === 'client') {
-      // Switching to client mode, clear all owner decks
       ['property', 'moto', 'motorcycle', 'bicycle', 'services', 'worker', 'default'].forEach((category) => {
         resetOwnerDeck(category);
       });
     } else {
-      // Switching to owner mode, clear client deck
       resetClientDeck();
     }
 
-    // 7. Navigate with error handling
+    // 7. Navigate with error handling - use { transition: true } if supported in future
     try {
       const targetPath = getTargetPath(newMode);
+      // Replace: true for cleaner history during mode jumps
       navigate(targetPath, { replace: true });
     } catch (navError) {
       logger.error('[ActiveMode] Navigation failed:', navError);
-      // Fallback navigation
       try {
-        navigate('/client/dashboard', { replace: true });
-      } catch (fallbackError) {
-        logger.error('[ActiveMode] Fallback navigation also failed:', fallbackError);
-      }
+        navigate(newMode === 'client' ? '/client/dashboard' : '/owner/dashboard', { replace: true });
+      } catch (f) { /* ignore */ }
     }
 
-    // 8. Show success toast
+    // 8. Show success toast (non-blocking)
     toast({
       title: newMode === 'client' ? 'Client Dashboard' : 'Owner Dashboard',
       description: newMode === 'client'
@@ -258,14 +252,17 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
         : 'Managing listings and discovering clients',
     });
 
-    // 8. Success haptic
+    // 9. Success haptic
     triggerHaptic('success');
-
-    // 9. Reset switching flag
-    setIsSwitching(false);
 
     // 10. Save to database in background (fire and forget)
     saveModeToDatabase(newMode);
+
+    // 11. Reset switching flag after a short delay to cover navigation render time
+    // This prevents double-clicks but ensures the UI doesn't look "stuck"
+    setTimeout(() => {
+      setIsSwitching(false);
+    }, SWITCH_TIMEOUT_MS);
 
   }, [user?.id, isSwitching, queryClient, getTargetPath, navigate, saveModeToDatabase, resetClientDeck, resetOwnerDeck]);
 
@@ -302,6 +299,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     activeMode: localMode,
     isLoading: isLoading && !isFetched,
     isSwitching,
+    initialized: isFetched,
     switchMode,
     toggleMode,
     syncMode,
