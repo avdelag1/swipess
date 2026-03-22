@@ -353,15 +353,16 @@ const ReorderableCategoryCard = memo(({
   const dragY = useMotionValue(0);
   const rotateTilt = useTransform(dragX, [-200, 200], [-15, 15]);
 
-  // Simple vertical stack on left side: Properties (front) → Workers → Bicycles → Motorcycles → All (back)
-  // Each card peeks out slightly from behind the one in front (straight vertical, no rotation)
+  // Cascading staircase from left to right: Properties (top-left) → Workers → Bicycles → Motorcycles → All (bottom-right)
+  // Each card shifted right AND down, creating diagonal cascade from top-left to bottom-right
   const isTop = index === 0;  // Properties is frontmost
   const depthIndex = index;
   
-  // Vertical stack offset: cards positioned straight down, slightly overlapped to show peek
-  const stackX = 0;              // All cards on left (centered in container, but positioned left on screen)
-  const stackY = depthIndex * 65; // Each card offset 65px down to show peek of card behind
-  const stackRotate = 0;          // No rotation - straight vertical stack
+  // Cascading offset: each card positioned right and down from the previous one
+  // Like a staircase from top-left to bottom-right
+  const stackX = depthIndex * 40;   // Each card shifted 40px to the right
+  const stackY = depthIndex * 50;   // Each card shifted 50px down
+  const stackRotate = 0;            // No rotation - straight cards
   const stackScale = 1 - (depthIndex * 0.01);
   const stackOpacity = depthIndex > 4 ? 0 : 1;
 
