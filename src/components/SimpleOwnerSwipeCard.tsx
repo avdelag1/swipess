@@ -683,8 +683,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         <div
           className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none"
           style={{
-            height: '55%',
-            background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, transparent 100%)',
+            height: '45%',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 40%, transparent 100%)',
           }}
           aria-hidden="true"
         />
@@ -698,11 +698,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           )}
           style={{ 
             bottom: !fullScreen ? 'clamp(120px, 20vh, 180px)' : undefined,
-            background: 'rgba(0,0,0,0.4)',
+            background: 'rgba(0,0,0,0.55)',
             boxShadow: 'var(--shadow-cinematic-md)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+            border: '1px solid rgba(255,255,255,0.08)',
           }}
         >
           {/* Match Meter + Rating badges row */}

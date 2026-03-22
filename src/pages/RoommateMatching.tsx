@@ -253,7 +253,7 @@ export default function RoommateMatching() {
                 }
               }}
               className={cn(
-                "w-11 h-11 rounded-[1.2rem] flex items-center justify-center border backdrop-blur-3xl transition-all",
+                "w-11 h-11 rounded-[1.2rem] flex items-center justify-center border backdrop-blur-md transition-all",
                 isLight ? "bg-white/80 border-slate-200 text-slate-900 shadow-sm" : "bg-black/30 border-white/10 text-white"
               )}
             >
@@ -271,7 +271,7 @@ export default function RoommateMatching() {
                whileTap={{ scale: 0.95 }}
                onClick={() => { triggerHaptic('light'); setRoommateVisible(!roommateVisible); }}
                className={cn(
-                 "px-3.5 h-11 rounded-[1.2rem] border backdrop-blur-3xl flex items-center gap-2 transition-all shadow-sm",
+                 "px-3.5 h-11 rounded-[1.2rem] border backdrop-blur-md flex items-center gap-2 transition-all shadow-sm",
                  roommateVisible
                    ? isLight ? "bg-rose-50/90 border-rose-300 text-rose-700" : "bg-rose-500/10 border-rose-500/30 text-rose-400"
                    : isLight ? "bg-white/80 border-slate-200 text-slate-400" : "bg-white/5 border-white/10 text-white/40"
@@ -361,7 +361,7 @@ export default function RoommateMatching() {
                        <motion.div 
                          initial={{ opacity: 0, x: 20 }}
                          animate={{ opacity: 1, x: 0 }}
-                         className="px-4 py-2 rounded-2xl bg-black/50 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center gap-2"
+                         className="px-4 py-2 rounded-2xl bg-black/60 backdrop-blur-md border border-white/15 shadow-lg flex items-center gap-2"
                        >
                          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                          <span className="text-[11px] font-black text-white uppercase tracking-[0.15em]">{(topCard as any).compatibility ?? 85}%</span>
@@ -453,7 +453,7 @@ export default function RoommateMatching() {
 
                {/* BIO */}
                <div className="space-y-4">
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Manifesto</h3>
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">About</h3>
                   <p className={cn("text-lg font-bold leading-snug", isLight ? "text-slate-900" : "text-white/90")}>
                     {(topCard as any).bio}
                   </p>
@@ -461,10 +461,10 @@ export default function RoommateMatching() {
 
                {/* TAGS */}
                <div className="space-y-6">
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Frequency Alignment</h3>
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Personality & Interests</h3>
                   <div className="flex flex-wrap gap-2.5">
                     {((topCard as any).personality_traits || []).map((tag: string) => (
-                      <span key={tag} className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/5 text-[11px] font-black uppercase tracking-widest text-white/70">
+                      <span key={tag} className={cn("px-5 py-2.5 rounded-2xl border text-[11px] font-black uppercase tracking-widest", isLight ? "bg-secondary border-border/40 text-foreground/70" : "bg-white/5 border-white/5 text-white/70")}>
                         {tag}
                       </span>
                     ))}
@@ -482,8 +482,8 @@ export default function RoommateMatching() {
                   <div className="flex items-center gap-4">
                     {(topCard.languages || []).map((lang: string) => (
                       <div key={lang} className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
-                        <span className="text-sm font-bold text-white/80">{lang}</span>
+                        <div className={cn("w-1.5 h-1.5 rounded-full", isLight ? "bg-foreground/30" : "bg-white/40")} />
+                        <span className={cn("text-sm font-bold", isLight ? "text-foreground/80" : "text-white/80")}>{lang}</span>
                       </div>
                     ))}
                   </div>
@@ -517,7 +517,7 @@ export default function RoommateMatching() {
       <AnimatePresence>
         {showFilters && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilters(false)} className="fixed inset-0 bg-black/60 backdrop-blur-xl z-[300]" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilters(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[300]" />
             <motion.div 
               initial={{ y: '100%' }} 
               animate={{ y: 0 }} 
@@ -525,10 +525,10 @@ export default function RoommateMatching() {
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
               className={cn("fixed bottom-0 left-0 right-0 z-[301] rounded-t-[3.5rem] border-t p-8 pb-[calc(2.5rem+var(--safe-bottom))]", isLight ? "bg-white border-slate-200" : "bg-zinc-900 border-white/10")}
             >
-              <div className="w-14 h-1.5 bg-white/10 rounded-full mx-auto mb-10" />
+              <div className={cn("w-14 h-1.5 rounded-full mx-auto mb-10", isLight ? "bg-border" : "bg-white/10")} />
               <div className="flex items-center justify-between mb-10">
-                <h3 className="text-3xl font-black italic tracking-tighter uppercase leading-none">Vibe Filter</h3>
-                <button onClick={() => setShowFilters(false)} className="w-12 h-12 rounded-[1.25rem] bg-white/5 flex items-center justify-center border border-white/10"><X className="w-5 h-5 text-white" /></button>
+                <h3 className="text-3xl font-black italic tracking-tighter uppercase leading-none text-foreground">Filters</h3>
+                <button onClick={() => setShowFilters(false)} className={cn("w-12 h-12 rounded-[1.25rem] flex items-center justify-center border", isLight ? "bg-secondary border-border/40 text-foreground" : "bg-white/5 border-white/10 text-white")}><X className="w-5 h-5" /></button>
               </div>
               
               <div className="space-y-12 mb-12">
@@ -570,12 +570,12 @@ export default function RoommateMatching() {
 
 function InfoPill({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
   return (
-    <div className="p-5 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/[0.08] transition-colors group">
+    <div className="p-5 rounded-3xl bg-foreground/5 border border-foreground/5 hover:bg-foreground/[0.08] transition-colors group">
       <div className="flex items-center gap-2.5 mb-2">
         <Icon className="w-3.5 h-3.5 text-primary group-hover:scale-110 transition-transform" />
-        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/40">{label}</span>
+        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground">{label}</span>
       </div>
-      <p className="text-sm font-black text-white italic tracking-tight">{value}</p>
+      <p className="text-sm font-black text-foreground italic tracking-tight">{value}</p>
     </div>
   );
 }
@@ -583,18 +583,18 @@ function InfoPill({ icon: Icon, label, value }: { icon: any; label: string; valu
 function FilterGroup({ label, options, selected, setSelected }: { label: string; options: string[]; selected: string; setSelected: (v: string) => void; }) {
   return (
     <div>
-      <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] mb-6">{label}</p>
+      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] mb-6">{label}</p>
       <div className="flex flex-wrap gap-3">
         {options.map(opt => (
-          <motion.button 
-            key={opt} 
-            whileTap={{ scale: 0.95 }} 
-            onClick={() => { triggerHaptic('light'); setSelected(opt); }} 
+          <motion.button
+            key={opt}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => { triggerHaptic('light'); setSelected(opt); }}
             className={cn(
-              "px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] border transition-all", 
-              selected === opt 
-                ? "bg-primary text-white border-primary shadow-[0_10px_20px_rgba(var(--primary-rgb),0.2)] scale-105" 
-                : "bg-white/5 border-white/10 text-white/50 hover:bg-white/10"
+              "px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] border transition-all",
+              selected === opt
+                ? "bg-primary text-white border-primary shadow-[0_10px_20px_rgba(var(--primary-rgb),0.2)] scale-105"
+                : "bg-foreground/5 border-foreground/10 text-foreground/50 hover:bg-foreground/10"
             )}
           >
             {opt}
