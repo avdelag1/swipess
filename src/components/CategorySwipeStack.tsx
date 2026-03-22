@@ -132,23 +132,31 @@ function CategoryCard({ category, isTop, index, isActive, isDark, onSwipeRight, 
                     : isDark ? "border border-white/10 bg-[#121212]" : "border border-black/5 bg-white"
             )}
         >
-            {/* Visual background pattern */}
-            <div className={cn(
-                "absolute inset-0 rounded-[32px] opacity-[0.03] pointer-events-none",
-                `bg-gradient-to-br ${category.color}`
-            )} />
+            {/* Visual background pattern with breathing zoom */}
+            <motion.div
+                className={cn(
+                    "absolute inset-0 rounded-[32px] opacity-[0.03] pointer-events-none",
+                    `bg-gradient-to-br ${category.color}`
+                )}
+                animate={isTop ? { scale: [1, 1.04, 1] } : { scale: 1 }}
+                transition={isTop ? { duration: 4, ease: 'easeInOut', repeat: Infinity } : {}}
+            />
 
-            <div className={cn(
-                "w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-xl relative",
-                `bg-gradient-to-br ${category.color} text-white`
-            )}>
+            <motion.div
+                className={cn(
+                    "w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-xl relative",
+                    `bg-gradient-to-br ${category.color} text-white`
+                )}
+                animate={isTop ? { scale: [1, 1.06, 1] } : { scale: 1 }}
+                transition={isTop ? { duration: 4, ease: 'easeInOut', repeat: Infinity } : {}}
+            >
                 <category.icon className="w-10 h-10" strokeWidth={2.5} />
                 {isActive && (
                     <div className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-lg">
                         <Check className="w-4 h-4 text-brand-accent-2" strokeWidth={4} />
                     </div>
                 )}
-            </div>
+            </motion.div>
 
             <h3 className={cn(
                 "text-2xl font-black uppercase tracking-tighter mb-2",
