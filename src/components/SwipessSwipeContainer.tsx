@@ -339,17 +339,17 @@ const ReorderableCategoryCard = memo(({
   const dragY = useMotionValue(0);
   const rotateTilt = useTransform(dragX, [-200, 200], [-15, 15]);
 
-  // Calculate stack position based on index from left (poker fan layout)
-  const reverseIndex = total - 1 - index;
-  const isTop = reverseIndex === 0;
+  // Fanned poker card stack: Properties (front) → Workers → Bicycles → Motorcycles (back)
+  // Each card progressively shifted right and rotated, like playing cards spread on a table
+  const isTop = index === 0;  // Properties is the frontmost (topmost) card
+  const depthIndex = index;   // Depth from front: 0 = Properties (front), 3 = Motorcycles (back)
   
-  // Vertical stack: Property (back) → Workers → Bicycles → Motorcycles (front)
-  // Each card peeks slightly from behind the one in front
-  const stackX = 0;  // No horizontal offset - straight vertical
-  const stackY = reverseIndex * 85;  // Vertical offset to show peek of each card (85px per card)
-  const stackScale = 1 - (reverseIndex * 0.01);
-  const stackRotate = 0;  // No rotation - straight stack
-  const stackOpacity = reverseIndex > 3 ? 0 : 1;
+  // Fan effect: cards shift right and down, with increasing rotation
+  const stackX = depthIndex * 70;      // Shift progressively to the right (70px per card back)
+  const stackY = depthIndex * 40;      // Shift progressively down (40px per card back)
+  const stackScale = 1 - (depthIndex * 0.008);
+  const stackRotate = depthIndex * 6;  // Rotate 6° per card back (right-leaning fan)
+  const stackOpacity = depthIndex > 3 ? 0 : 1;
 
   // Drag-and-release cycle logic
   const handleDragEndInCard = (_e: any, info: any) => {
@@ -373,8 +373,8 @@ const ReorderableCategoryCard = memo(({
         top: '50%',
         marginLeft: -(CARD_W / 2),
         marginTop: -(CARD_H / 2),
-        transformOrigin: 'center bottom',
-        zIndex: index + 10,
+        transformOrigin: 'center center',
+        zIndex: 30 - index,  // Properties (index 0) = z-index 30 (frontmost)
         x: isTop ? dragX : stackX,
         y: isTop ? dragY : stackY,
         rotate: isTop ? rotateTilt : stackRotate,
@@ -555,7 +555,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
 
         <div 
           className="relative pointer-events-none" 
-          style={{ width: '100%', maxWidth: 950, height: 520, zIndex: 10 }}
+          style={{ width: '100%', maxWidth: 900, height: 580, zIndex: 10 }}
         >
           {items.map((card, i) => {
             return (
