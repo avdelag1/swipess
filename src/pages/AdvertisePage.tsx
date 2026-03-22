@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, Check, Megaphone, Sparkles, Star, Zap, Calendar,
   Music, Utensils, Dumbbell, Palette, ShoppingBag, Globe, Camera,
-  Users, Eye, TrendingUp, Instagram, Phone, Flame, Crown
+  Users, Eye, TrendingUp, Instagram, Phone, Flame, Crown,
+  Info, Shield, ClipboardList, MessageCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -57,12 +58,12 @@ const PACKAGES = [
 ];
 
 const EVENT_TYPES = [
-  { id: "music", label: "Music / DJ Night", icon: <Music className="w-5 h-5" />, emoji: "🎶" },
-  { id: "food", label: "Food & Drinks", icon: <Utensils className="w-5 h-5" />, emoji: "🍷" },
-  { id: "fitness", label: "Fitness / Wellness", icon: <Dumbbell className="w-5 h-5" />, emoji: "🧘" },
-  { id: "art", label: "Art / Culture", icon: <Palette className="w-5 h-5" />, emoji: "🎨" },
-  { id: "market", label: "Market / Pop-up", icon: <ShoppingBag className="w-5 h-5" />, emoji: "🛍️" },
-  { id: "other", label: "Other / Service", icon: <Globe className="w-5 h-5" />, emoji: "✨" },
+  { id: "music",   label: "Music / DJ Night",    icon: <Music      className="w-6 h-6" />, color: "#f43f5e", colorRgb: "244,63,94"   },
+  { id: "food",    label: "Food & Drinks",        icon: <Utensils   className="w-6 h-6" />, color: "#f97316", colorRgb: "249,115,22"  },
+  { id: "fitness", label: "Fitness / Wellness",   icon: <Dumbbell   className="w-6 h-6" />, color: "#22c55e", colorRgb: "34,197,94"   },
+  { id: "art",     label: "Art / Culture",        icon: <Palette    className="w-6 h-6" />, color: "#a855f7", colorRgb: "168,85,247"  },
+  { id: "market",  label: "Market / Pop-up",      icon: <ShoppingBag className="w-6 h-6" />, color: "#3b82f6", colorRgb: "59,130,246"  },
+  { id: "other",   label: "Other / Service",      icon: <Globe      className="w-6 h-6" />, color: "#eab308", colorRgb: "234,179,8"   },
 ];
 
 
@@ -555,25 +556,101 @@ export default function AdvertisePage() {
                   <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>What are you<br />promoting?</h2>
                   <p className="text-sm" style={{ color: th.textMuted }}>Choose the category that fits your business</p>
                 </div>
+
+                {/* How it works */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.08 }}
+                  className="rounded-2xl p-4"
+                  style={{ background: th.card, border: `1px solid ${th.cardBorder}` }}
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-5 h-5 rounded-md flex items-center justify-center"
+                      style={{ background: "linear-gradient(135deg,rgba(249,115,22,0.25),rgba(168,85,247,0.25))" }}>
+                      <Info className="w-3 h-3 text-orange-400" />
+                    </div>
+                    <span className="text-xs font-black uppercase tracking-widest" style={{ color: th.text }}>How it works</span>
+                  </div>
+                  <div className="space-y-3">
+                    {[
+                      { icon: ClipboardList, color: "#f97316", colorRgb: "249,115,22", title: "Submit your event", desc: "Fill out this form with your event or business details" },
+                      { icon: Shield,        color: "#3b82f6", colorRgb: "59,130,246",  title: "We review it",      desc: "Our team verifies submissions are appropriate & legal within 24 h" },
+                      { icon: MessageCircle, color: "#22c55e", colorRgb: "34,197,94",   title: "Get promoted",      desc: "Approved? We contact you on WhatsApp to finalize & publish" },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                          style={{
+                            background: `linear-gradient(135deg, rgba(${item.colorRgb},0.20), rgba(${item.colorRgb},0.08))`,
+                            boxShadow: `0 2px 12px rgba(${item.colorRgb},0.18)`,
+                          }}>
+                          <item.icon className="w-4 h-4" style={{ color: item.color }} />
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold" style={{ color: th.text }}>{item.title}</div>
+                          <div className="text-xs leading-relaxed" style={{ color: th.textMuted }}>{item.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+
+                {/* Review/guidelines notice */}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.14 }}
+                  className="rounded-xl px-4 py-3 flex items-start gap-3"
+                  style={{
+                    background: isLight ? "rgba(234,179,8,0.07)" : "rgba(234,179,8,0.06)",
+                    border: `1px solid ${isLight ? "rgba(234,179,8,0.18)" : "rgba(234,179,8,0.13)"}`,
+                  }}
+                >
+                  <Shield className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#eab308" }} />
+                  <p className="text-xs leading-relaxed" style={{ color: th.textMuted }}>
+                    All submissions are reviewed to ensure events are <span style={{ color: th.text, fontWeight: 700 }}>appropriate, legal, and relevant to the Tulum area</span>. We reserve the right to decline submissions that don't meet our guidelines — no payment is charged until approval.
+                  </p>
+                </motion.div>
+
+                {/* Category grid */}
                 <div className="grid grid-cols-2 gap-3">
-                  {EVENT_TYPES.map(et => {
+                  {EVENT_TYPES.map((et, index) => {
                     const selected = form.eventType === et.id;
                     return (
-                      <button
+                      <motion.button
                         key={et.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.28, delay: 0.18 + index * 0.05 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => { haptics.tap(); set("eventType", et.id); }}
-                        className="flex flex-col items-start gap-2 p-4 rounded-2xl text-left transition-all active:scale-95"
+                        className="flex flex-col items-start gap-3 p-4 rounded-2xl text-left transition-colors"
                         style={{
-                          background: selected ? "rgba(249,115,22,0.15)" : th.card,
-                          border: `1.5px solid ${selected ? "rgba(249,115,22,0.6)" : th.cardBorder}`,
+                          background: selected ? `rgba(${et.colorRgb},0.13)` : th.card,
+                          border: `1.5px solid ${selected ? et.color : th.cardBorder}`,
+                          boxShadow: selected ? `0 0 0 1px rgba(${et.colorRgb},0.15), 0 4px 20px rgba(${et.colorRgb},0.18)` : undefined,
                         }}
                       >
-                        <span className="text-2xl">{et.emoji}</span>
-                        <span className="text-sm font-bold" style={{ color: th.text }}>{et.label}</span>
-                      </button>
+                        <div
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all"
+                          style={{
+                            background: selected
+                              ? `linear-gradient(135deg, rgba(${et.colorRgb},0.35), rgba(${et.colorRgb},0.18))`
+                              : `linear-gradient(135deg, rgba(${et.colorRgb},0.18), rgba(${et.colorRgb},0.07))`,
+                            boxShadow: selected
+                              ? `0 4px 24px rgba(${et.colorRgb},0.40)`
+                              : `0 2px 12px rgba(${et.colorRgb},0.12)`,
+                            color: et.color,
+                          }}
+                        >
+                          {et.icon}
+                        </div>
+                        <span className="text-sm font-bold leading-tight" style={{ color: th.text }}>{et.label}</span>
+                      </motion.button>
                     );
                   })}
                 </div>
+
                 <button
                   onClick={next}
                   disabled={!form.eventType}
