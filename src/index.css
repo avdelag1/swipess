@@ -280,12 +280,13 @@ html.cheers #root {
   transform: translateZ(0) translateY(0);
   backface-visibility: hidden;
   opacity: 1;
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.3s ease;
+  will-change: transform, opacity;
 }
 
 .app-header.header-hidden {
-  transform: translateZ(0) translateY(-100%);
+  transform: translate3d(0, -102%, 0);
   opacity: 0;
   pointer-events: none;
 }
@@ -318,13 +319,13 @@ html.cheers #root {
   border-top: none;
   transform: translateZ(0) translateY(0);
   opacity: 1;
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  backface-visibility: hidden;
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.3s ease;
+  will-change: transform, opacity;
 }
 
 .app-bottom-bar.nav-hidden {
-  transform: translateZ(0) translateY(100%);
+  transform: translate3d(0, 102%, 0);
   opacity: 0;
   pointer-events: none;
 }

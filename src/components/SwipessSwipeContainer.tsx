@@ -304,11 +304,8 @@ const FAN_CARDS = [
 const CARD_W = 200;
 const CARD_H = 500;
 
-const FAN_CARDS_WITH_POS = [
-  { ...FAN_CARDS[0], rotate: -6,  tx: -72, ty: 10 },
-  { ...FAN_CARDS[1], rotate: -2, tx: -24, ty: 2  },
-  { ...FAN_CARDS[2], rotate: 2,  tx: 24,  ty: 2  },
-  { ...FAN_CARDS[3], rotate: 6,   tx: 72,  ty: 10 },
+const STACK_OFFSETS = [
+  { rotate: 0, tx: 0, ty: 0, scale: 1 },
 ];
 
 // ── FLUID REORDERABLE CATEGORY DECK ───────────────────
@@ -323,36 +320,78 @@ import { Reorder } from 'framer-motion';
 
 const ReorderableCategoryCard = memo(({ 
   card, 
-  value,
-  isPreviewing, 
+  index,
+  total,
   onTap, 
-  photoIdx 
+  photoIdx,
 }: {
   card: typeof FAN_CARDS[0];
-  value: typeof FAN_CARDS[0];
-  isPreviewing: boolean;
-  onTap: () => void;
+  index: number;
+  total: number;
+  onTap: (activated?: boolean) => void;
   photoIdx: number;
 }) => {
   const photos = FAN_CARD_PHOTOS[card.id] || FAN_CARD_PHOTOS.property;
   const activePhoto = photoIdx % photos.length;
   
+  // Dynamic scale and rotation for dragging "living" feel
+  const dragX = useMotionValue(0);
+  const dragY = useMotionValue(0);
+  const rotateTilt = useTransform(dragX, [-200, 200], [-15, 15]);
+
+  // Calculate stack position based on index from top
+  const reverseIndex = total - 1 - index;
+  const isTop = reverseIndex === 0;
+  
+  // Stacking logic: depth affects scale, y-offset, and rotation
+  const stackY = -reverseIndex * 14; 
+  const stackScale = 1 - (reverseIndex * 0.05);
+  const stackRotate = isTop ? 0 : (index % 2 === 0 ? 2 : -2);
+  const stackOpacity = reverseIndex > 3 ? 0 : 1;
+
+  // Drag-and-release cycle logic
+  const handleDragEndInCard = (_e: any, info: any) => {
+    const threshold = 100;
+    if (Math.abs(info.offset.x) > threshold || Math.abs(info.offset.y) > threshold) {
+        onTap(); // Trigger cycle
+    }
+  };
+
   return (
-    <Reorder.Item
-      value={value}
-      id={card.id}
-      whileDrag={{ 
-        scale: 1.1, 
-        zIndex: 100,
-        rotate: [0, -1, 1, 0],
-      }}
-      className="relative flex-shrink-0 cursor-grab active:cursor-grabbing pb-12"
+    <motion.div
+      layout
+      drag={isTop ? true : false}
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+      dragElastic={0.4}
+      onDragEnd={handleDragEndInCard}
       style={{
-        width: 200,
-        height: 420,
-        borderRadius: 32,
-        WebkitTapHighlightColor: 'transparent',
+        width: CARD_W,
+        height: CARD_H,
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        marginLeft: -(CARD_W / 2),
+        marginTop: -(CARD_H / 2),
+        zIndex: index + 10,
+        x: dragX,
+        y: isTop ? dragY : stackY,
+        rotate: rotateTilt,
+        cursor: isTop ? 'grab' : 'default',
+        pointerEvents: isTop ? 'auto' : 'none',
       }}
+      animate={{
+        scale: stackScale,
+        opacity: stackOpacity,
+        rotate: isTop ? 0 : stackRotate,
+      }}
+      transition={{ 
+        type: 'spring', 
+        stiffness: 400, 
+        damping: 30, 
+        mass: 0.8 
+      }}
+      className="touch-manipulation"
+      whileDrag={{ scale: 1.05, cursor: 'grabbing' }}
     >
       <motion.div
         onClick={(e) => {
@@ -360,16 +399,16 @@ const ReorderableCategoryCard = memo(({
           onTap();
         }}
         className={cn(
-          "w-full h-full relative rounded-[32px] overflow-hidden border-2 transition-all duration-500",
-          isPreviewing ? "border-white/60 scale-[1.02] shadow-2xl" : "border-white/10 shadow-xl"
+          "w-full h-full relative rounded-[40px] overflow-hidden border-2 transition-all duration-500",
+          isTop ? "border-white/20 shadow-2xl" : "border-white/5 shadow-lg"
         )}
         style={{
-          background: isPreviewing 
-            ? `linear-gradient(135deg, rgba(${card.accentRgb}, 0.2), #000)` 
-            : '#09090b',
-          boxShadow: isPreviewing
-            ? `0 40px 80px rgba(${card.accentRgb},0.4), 0 20px 40px rgba(0,0,0,0.4)`
-            : `0 20px 40px rgba(0,0,0,0.3)`,
+          background: isTop 
+            ? `linear-gradient(135deg, rgba(${card.accentRgb}, 0.2), #060606)` 
+            : '#0a0a0a',
+          boxShadow: isTop
+            ? `0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(${card.accentRgb},0.15)`
+            : `none`,
         }}
       >
         <div className="absolute inset-0">
@@ -381,57 +420,78 @@ const ReorderableCategoryCard = memo(({
               className="absolute inset-0 w-full h-full object-cover"
               loading="eager"
               initial={false}
-              animate={i === activePhoto ? { scale: [1, 1.1, 1], opacity: 1 } : { scale: 1.2, opacity: 0 }}
+              animate={i === activePhoto ? { 
+                scale: [1.05, 1.15, 1.1, 1.2, 1.05], 
+                opacity: 1 
+              } : { 
+                scale: 1.3, 
+                opacity: 0 
+              }}
               transition={{ 
-                scale: { duration: 15, repeat: Infinity, ease: "linear" },
-                opacity: { duration: 1.5, ease: "easeInOut" } 
+                scale: { duration: 12, repeat: Infinity, ease: "easeInOut" },
+                opacity: { duration: 1, ease: "easeInOut" } 
               }}
             />
           ))}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
         </div>
 
-        {/* Card Content */}
-        <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col gap-1.5 translate-z-0">
+        {/* Card Content Overlay */}
+        <div className="absolute inset-x-0 bottom-0 p-8 flex flex-col gap-2 translate-z-0">
+          <div className="flex items-center gap-3 mb-1">
+             <div 
+              className="w-10 h-10 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10"
+              style={{ background: `rgba(${card.accentRgb}, 0.3)`, color: '#fff' }}
+            >
+              <card.Icon />
+            </div>
+            <motion.p 
+              layout
+              className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50"
+            >
+              {card.description}
+            </motion.p>
+          </div>
           <motion.h3 
             layout
-            className="text-white text-2xl font-black tracking-tighter uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+            className="text-white text-3xl font-black tracking-tighter uppercase drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
           >
             {card.label}
           </motion.h3>
-          <motion.p 
-            layout
-            className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em] leading-tight"
-          >
-            {card.description}
-          </motion.p>
+          
+          {isTop && (
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-2"
+            >
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        // Trigger activation
+                        onTap(true);
+                    }}
+                    className="w-full py-3 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest shadow-xl hover:bg-white/90 active:scale-95 transition-all"
+                >
+                    Explore Sector
+                </button>
+            </motion.div>
+          )}
         </div>
 
-        {/* Floating Glass Icon */}
-        <div 
-          className="absolute top-5 right-5 w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/20 shadow-2xl"
-          style={{ 
-            background: `rgba(${card.accentRgb}, 0.25)`, 
-            color: '#fff',
-            boxShadow: `0 0 20px rgba(${card.accentRgb}, 0.3)`
-          }}
-        >
-          <card.Icon />
-        </div>
-
-        {/* Animated Selection Border */}
-        {isPreviewing && (
+        {/* Dynamic Glow for Top Card */}
+        {isTop && (
           <motion.div
             className="absolute inset-0 pointer-events-none"
-            animate={{ opacity: [0.4, 0.8, 0.4] }}
-            transition={{ duration: 2, repeat: Infinity }}
+            animate={{ opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 3, repeat: Infinity }}
             style={{ 
-              boxShadow: `inset 0 0 0 3px rgba(${card.accentRgb}, 0.6), inset 0 0 60px rgba(${card.accentRgb}, 0.3)` 
+              boxShadow: `inset 0 0 80px rgba(${card.accentRgb}, 0.2)` 
             }}
           />
         )}
       </motion.div>
-    </Reorder.Item>
+    </motion.div>
   );
 });
 
@@ -443,6 +503,7 @@ interface SwipeAllDashboardProps {
 
 const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
   const [items, setItems] = useState<typeof FAN_CARDS>(FAN_CARDS);
+  const [floatingCards, setFloatingCards] = useState<string[]>([]);
   const [previewCard, setPreviewCard] = useState<string | null>(null);
   const [photoIndices, setPhotoIndices] = useState([0, 0, 0, 0]);
   const cyclingCardRef = useRef(0);
@@ -460,15 +521,25 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
     return () => clearInterval(interval);
   }, [items.length]);
 
-  const handleTap = useCallback((id: string) => {
-    triggerHaptic('light');
-    if (previewCard === id) {
-      triggerHaptic('medium');
-      setCategories([id]);
-    } else {
-      setPreviewCard(id);
+  const handleTap = useCallback((id: string, activated: boolean = false) => {
+    // Immediate haptics for responsiveness
+    triggerHaptic(activated ? 'medium' : 'light');
+    
+    if (activated) {
+        setCategories([id]);
+        return;
     }
-  }, [previewCard, setCategories]);
+
+    // Stack Cycling: Push the current top card to the bottom
+    setItems(prev => {
+        const index = prev.findIndex(item => item.id === id);
+        if (index === -1 || index !== prev.length - 1) return prev; // Only cycle if it's the top card
+        
+        const newItems = [...prev];
+        const topCard = newItems.pop()!;
+        return [topCard, ...newItems];
+    });
+  }, [setCategories]);
 
   return (
     <AnimatePresence mode="wait">
@@ -504,31 +575,26 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
             transition={{ delay: 0.3 }}
             className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
           >
-            Drag to sort • Tap to filter
+            Tap or Swipe card to cycle stack
           </motion.p>
         </div>
 
-        <div className="w-full overflow-x-auto no-scrollbar pb-20">
-          <Reorder.Group 
-            axis="x" 
-            values={items} 
-            onReorder={(newOrder) => {
-              setItems(newOrder);
-              triggerHaptic('light');
-            }}
-            className="flex gap-6 px-12 min-w-max"
-          >
-            {items.map((card, i) => (
+        <div 
+          className="relative pointer-events-none" 
+          style={{ width: '100%', maxWidth: 480, height: 600, zIndex: 10 }}
+        >
+          {items.map((card, i) => {
+            return (
               <ReorderableCategoryCard
                 key={card.id}
                 card={card}
-                value={card}
-                isPreviewing={previewCard === card.id}
-                onTap={() => handleTap(card.id)}
+                index={i}
+                total={items.length}
+                onTap={(activated) => handleTap(card.id, activated)}
                 photoIdx={photoIndices[i]}
               />
-            ))}
-          </Reorder.Group>
+            );
+          })}
         </div>
 
         {/* Advanced Ambient Background */}

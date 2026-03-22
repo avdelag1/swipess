@@ -144,6 +144,24 @@ const ClientProfileNew = () => {
             <User className="w-5 h-5" />
             Edit Profile
           </Button>
+
+          {/* Promote Button - Restore flagship promotional feature */}
+          <Button
+            variant="outline"
+            size="lg"
+            elastic
+            onClick={() => { haptics.success(); navigate('/client/advertise'); }}
+            className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-orange-500/20 hover:border-orange-500/40 bg-white/5 shadow-sm transition-all"
+            style={{
+              background: 'linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(168,85,247,0.08) 100%)'
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Megaphone className="w-5 h-5 text-orange-500 mr-2 shrink-0" />
+            <span className="bg-gradient-to-r from-orange-500 to-purple-500 bg-clip-text text-transparent font-black uppercase tracking-tight">
+              Promote Your Event or Service
+            </span>
+          </Button>
         </div>
 
         {/* Profile Completion */}
