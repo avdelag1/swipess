@@ -235,7 +235,7 @@ export default function EventoDetail() {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center gap-4">
         <Info className="w-12 h-12 text-slate-300" strokeWidth={1} />
         <p className="text-xs font-black uppercase tracking-widest text-slate-400">{t('common.noResults')}</p>
-        <button onClick={() => navigate('/explore/eventos')} className="text-primary font-black uppercase tracking-widest text-[10px]">Go Back</button>
+        <button onClick={() => navigate(-1)} className="text-primary font-black uppercase tracking-widest text-[10px]">Go Back</button>
       </div>
     );
   }
@@ -271,7 +271,29 @@ export default function EventoDetail() {
             </div>
           )}
         </AnimatePresence>
-        
+
+        {/* Story-style tap zones: tap left half → previous image, tap right half → next image */}
+        {imageGallery.length > 1 && (
+          <>
+            <button
+              aria-label="Previous image"
+              className="absolute left-0 top-0 w-[40%] h-full z-10 cursor-pointer"
+              onClick={() => {
+                triggerHaptic('light');
+                setActiveImageIndex(i => (i - 1 + imageGallery.length) % imageGallery.length);
+              }}
+            />
+            <button
+              aria-label="Next image"
+              className="absolute right-0 top-0 w-[40%] h-full z-10 cursor-pointer"
+              onClick={() => {
+                triggerHaptic('light');
+                setActiveImageIndex(i => (i + 1) % imageGallery.length);
+              }}
+            />
+          </>
+        )}
+
         {/* Gradients */}
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-slate-50 dark:from-black via-slate-50/40 dark:via-black/40 to-transparent" />
@@ -280,7 +302,7 @@ export default function EventoDetail() {
         <div className="absolute top-[var(--safe-top)] left-4 right-4 flex justify-between items-center z-50 py-4">
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={() => navigate('/explore/eventos')}
+            onClick={() => navigate(-1)}
             aria-label="Go back"
             className="w-11 h-11 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
           >

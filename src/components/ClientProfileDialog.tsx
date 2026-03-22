@@ -1,5 +1,5 @@
 
-import { useEffect, useState, memo } from 'react';
+import { useEffect, useState, useMemo, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -89,8 +89,8 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   // Client intentions - what they're looking for
   const [intentions, setIntentions] = useState<string[]>([]);
 
-  // Get all unique countries across all regions
-  const allCountries = (() => {
+  // Get all unique countries across all regions (static data — computed once)
+  const allCountries = useMemo(() => {
     const countries = new Set<string>();
     const regions = getRegions();
     for (const region of regions) {
@@ -98,30 +98,32 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
       regionCountries.forEach(c => countries.add(c));
     }
     return Array.from(countries).sort();
-  })();
+  }, []);
 
   // Filtered countries based on search
-  const filteredCountries = allCountries.filter(c =>
-    c.toLowerCase().includes(countrySearch.toLowerCase())
+  const filteredCountries = useMemo(() =>
+    allCountries.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase())),
+    [allCountries, countrySearch]
   );
 
   // Get cities for the selected country
-  const availableCities = (() => {
+  const availableCities = useMemo(() => {
     if (!country || !selectedRegion) return [];
     return getCitiesInCountry(selectedRegion, country);
-  })();
+  }, [country, selectedRegion]);
 
   // Filtered cities based on search
-  const filteredCities = availableCities.filter(c =>
-    c.name.toLowerCase().includes(citySearch.toLowerCase())
+  const filteredCities = useMemo(() =>
+    availableCities.filter(c => c.name.toLowerCase().includes(citySearch.toLowerCase())),
+    [availableCities, citySearch]
   );
 
   // Get neighborhoods for the selected city
-  const availableNeighborhoods = (() => {
+  const availableNeighborhoods = useMemo(() => {
     if (!city) return [];
     const cityData = getCityByName(city);
     return cityData?.city.neighborhoods || [];
-  })();
+  }, [city]);
 
   // Find region for a country
   const findRegionForCountry = (countryName: string): string => {
