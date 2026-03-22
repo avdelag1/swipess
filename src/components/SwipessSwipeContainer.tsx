@@ -250,10 +250,11 @@ const POKER_CARDS = [
 ];
 
 // Card dimensions — playing-card proportions
-const PK_W = 190;
-const PK_H = 290;
-// Degrees between each card in the fan (spread from bottom-left pivot)
-const FAN_STEP = 11;
+const PK_W = 200;
+const PK_H = 300;
+// Folder-stack offset per card depth (straight, no rotation)
+const FOLDER_OFFSET_X = 14;  // px right per card behind
+const FOLDER_OFFSET_Y = 10;  // px down per card behind
 // Swipe physics thresholds
 const PK_DIST_THRESHOLD = 110;  // px — strong swipe
 const PK_VEL_THRESHOLD  = 480;  // px/s — fast flick
@@ -274,9 +275,12 @@ const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBringToFront
   const y = useMotionValue(0);
   const isExiting = useRef(false);
 
-  // Only the front card tilts while dragging; back cards keep their fan angle
-  const dragTilt   = useTransform(x, [-180, 0, 180], [-18, 0, 18]);
-  const fanRotation = index * FAN_STEP; // 0, 11, 22, 33, 44 degrees
+  // Front card tilts slightly while dragging — back cards stay perfectly straight
+  const dragTilt = useTransform(x, [-180, 0, 180], [-12, 0, 12]);
+
+  // Folder-stack position: each card behind shifts right and down
+  const folderX = index * FOLDER_OFFSET_X;
+  const folderY = index * FOLDER_OFFSET_Y;
 
   // Like/nope overlays fade in as the front card is dragged
   const likeOpacity = useTransform(x, [20, PK_DIST_THRESHOLD], [0, 1]);
@@ -337,27 +341,27 @@ const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBringToFront
       onClick={() => !isTop && onBringToFront(index)}
       initial={false}
       animate={{
-        rotate: isTop ? 0 : fanRotation,
-        scale:  isTop ? 1 : 1 - index * 0.012,
+        x: isTop ? 0 : folderX,
+        y: isTop ? 0 : folderY,
+        scale:   isTop ? 1 : 1 - index * 0.015,
         opacity: index > 4 ? 0 : 1,
       }}
       transition={PK_SPRING}
       style={{
         position: 'absolute',
-        bottom: 0,
+        top: 0,
         left: 0,
         width: PK_W,
         height: PK_H,
-        transformOrigin: 'bottom left',
         zIndex: 50 - index,
-        x: isTop ? x : 0,
-        y: isTop ? y : 0,
-        rotate: isTop ? dragTilt : fanRotation,
+        x: isTop ? x : folderX,
+        y: isTop ? y : folderY,
+        rotate: isTop ? dragTilt : 0,
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
         WebkitTapHighlightColor: 'transparent',
       } as any}
-      whileDrag={{ scale: isTop ? 1.06 : 1.09, cursor: 'grabbing' }}
+      whileDrag={{ scale: isTop ? 1.04 : 1.07, cursor: 'grabbing' }}
       className="touch-manipulation select-none"
     >
       {/* Card face */}
@@ -478,14 +482,15 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
     });
   }, []);
 
-  // Fan container: anchored at bottom-left, occupies center of screen
-  // The container is 380px wide and 320px tall to accommodate the fan spread
-  // Cards fan from their bottom-left corner upward-right
+  const N = cards.length;
+  // Container is sized to show the full front card plus the peeking strips of back cards
+  const containerW = PK_W + (N - 1) * FOLDER_OFFSET_X;
+  const containerH = PK_H + (N - 1) * FOLDER_OFFSET_Y;
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key="poker-dashboard"
+        key="folder-dashboard"
         variants={deckFadeVariants}
         initial="initial"
         animate="animate"
@@ -493,33 +498,18 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         className="relative w-full flex-1 flex flex-col items-center justify-center bg-background overflow-hidden"
         style={{ minHeight: 'calc(100dvh - 148px)' }}
       >
-        {/* Header hint */}
-        <motion.div
-          className="absolute top-8 left-0 right-0 flex flex-col items-center gap-1 pointer-events-none px-8"
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">
-            Pick a category
-          </p>
-          <p className="text-[11px] text-muted-foreground/60 text-center max-w-[220px]">
-            Swipe the front card or grab any card from behind
-          </p>
-        </motion.div>
-
-        {/* Card fan — anchored to bottom-left of a centered 420×300 container */}
+        {/* Folder card stack — straight, no rotation */}
         <div
           style={{
             position: 'relative',
-            width: 420,
-            height: 310,
-            maxWidth: '92vw',
+            width: containerW,
+            height: containerH,
+            maxWidth: '90vw',
           }}
         >
-          {/* Render back-to-front so highest z-index (front card) is on top */}
+          {/* Render back-to-front so the front card sits on top */}
           {[...cards].reverse().map((card, reversedIdx) => {
-            const index = cards.length - 1 - reversedIdx; // real index in cards array
+            const index = cards.length - 1 - reversedIdx;
             const isTop = index === 0;
             return (
               <PokerCategoryCard
@@ -535,33 +525,9 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
           })}
         </div>
 
-        {/* Category label row at bottom */}
-        <motion.div
-          className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 px-6 pointer-events-none"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-        >
-          {cards.slice(0, 5).map((c, i) => (
-            <div
-              key={c.id}
-              className={cn(
-                "flex flex-col items-center gap-0.5 transition-all duration-300",
-                i === 0 ? "opacity-100" : "opacity-35"
-              )}
-            >
-              <div
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ background: c.accent }}
-              />
-              <span className="text-[9px] font-black uppercase tracking-wider text-foreground/60">{c.label}</span>
-            </div>
-          ))}
-        </motion.div>
-
-        {/* Ambient background glow */}
+        {/* Subtle ambient glow */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.035] blur-[100px] bg-primary animate-pulse-slow" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.03] blur-[90px] bg-primary animate-pulse-slow" />
         </div>
       </motion.div>
     </AnimatePresence>
