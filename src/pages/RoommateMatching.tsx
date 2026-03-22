@@ -17,6 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
 import { MessageConfirmationDialog } from '@/components/MessageConfirmationDialog';
+import { useStartConversation, useConversationStats } from '@/hooks/useConversations';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -170,6 +171,10 @@ export default function RoommateMatching() {
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [messageSending, setMessageSending] = useState(false);
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
+
+  const startConversation = useStartConversation();
+  const { data: stats } = useConversationStats();
+  const canStartNewConversation = stats?.conversationsLeft ? stats.conversationsLeft > 0 : true;
 
   const { isVisible: uiVisible, onScroll: handleScroll } = useHideOnScroll();
 
@@ -553,13 +558,22 @@ export default function RoommateMatching() {
         onOpenChange={setMessageDialogOpen}
         recipientName={topCard?.name ?? 'this person'}
         isLoading={messageSending}
-        onConfirm={(message) => {
+        onConfirm={async (message) => {
+          if (!topCard) return;
           setMessageSending(true);
-          setTimeout(() => {
-            setMessageSending(false);
+          try {
+            await startConversation.mutateAsync({
+              otherUserId: topCard.user_id,
+              initialMessage: message,
+              canStartNewConversation
+            });
             setMessageDialogOpen(false);
             navigate('/messages');
-          }, 800);
+          } catch (error) {
+            console.error('Failed to start conversation:', error);
+          } finally {
+            setMessageSending(false);
+          }
         }}
       />
     </div>

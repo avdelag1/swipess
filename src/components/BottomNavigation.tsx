@@ -113,7 +113,7 @@ export function BottomNavigation({
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'ai-search', icon: Sparkles, label: 'Listing AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-    { id: 'promote', icon: Megaphone, label: t('nav.events'), path: '/client/advertise', isSpecial: true },
+    { id: 'advertise', icon: Megaphone, label: t('nav.advertise'), path: '/client/advertise', isSpecial: true },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
 

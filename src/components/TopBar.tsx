@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
 import { haptics } from '@/utils/microPolish';
+import { prefetchRoute } from '@/utils/routePrefetcher';
 
 import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
@@ -434,7 +435,11 @@ function TopBarComponent({
                 boxShadow: cinematicShadow,
                 border: 'none',
               }}
-              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
+              onPointerDown={(e) => { 
+                e.preventDefault(); 
+                haptics.tap(); 
+                navigate('/notifications');
+              }}
               onClick={(e) => e.preventDefault()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
             >

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -165,17 +166,58 @@ export function useConversations() {
         if (err?.message?.includes('JWT') || err?.message?.includes('auth')) {
           return [];
         }
-
         throw error;
       }
     },
     enabled: !!user?.id,
-    // Add staleTime for better caching
-    staleTime: 30000, // 30 seconds
-    // Add retry logic for temporary failures
+    staleTime: 30000,
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
   });
+
+  const { refetch } = query;
+
+  // REAL-TIME: Listen for conversation updates (last message, status, etc.)
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel(`conversations-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'conversations',
+          filter: `client_id=eq.${user.id}`,
+        },
+        () => refetch()
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'conversations',
+          filter: `owner_id=eq.${user.id}`,
+        },
+        () => refetch()
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversation_messages',
+        },
+        () => refetch() // Message insert updates the 'last_message' in the list
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, refetch]);
 
   // Helper to ensure a conversation is loaded in cache after creation
   const ensureConversationInCache = async (conversationId: string, maxAttempts = 3): Promise<Conversation | null> => {
@@ -256,7 +298,7 @@ export function useConversations() {
 }
 
 export function useConversationMessages(conversationId: string) {
-  return useQuery({
+  const query = useQuery({
     queryKey: ['conversation-messages', conversationId],
     queryFn: async () => {
       const { data: messages, error } = await supabase
@@ -291,6 +333,33 @@ export function useConversationMessages(conversationId: string) {
     },
     enabled: !!conversationId,
   });
+
+  const { refetch } = query;
+
+  // REAL-TIME: Listen for new messages in this conversation
+  useEffect(() => {
+    if (!conversationId) return;
+
+    const channel = supabase
+      .channel(`messages-${conversationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversation_messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        () => refetch()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [conversationId, refetch]);
+
+  return query;
 }
 
 export function useStartConversation() {

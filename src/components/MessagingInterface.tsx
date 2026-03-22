@@ -21,6 +21,7 @@ import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { RatingSubmissionDialog } from '@/components/RatingSubmissionDialog';
 import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
+import { usePresence } from '@/hooks/usePresence';
 
 interface MessagingInterfaceProps {
   conversationId: string;
@@ -140,7 +141,10 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const connectingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check monthly message limits
-  const { canSendMessage: _canSendMessage, messagesRemaining, isAtLimit, hasMonthlyLimit } = useMonthlyMessageLimits();
+  const { isAtLimit, hasMonthlyLimit, messagesRemaining } = useMonthlyMessageLimits(user?.id);
+
+  // Real-time presence indicator
+  const { isOnline } = usePresence(otherUser.id);
 
   // Enable realtime chat for live message updates
   const { startTyping, stopTyping, typingUsers, isConnected } = useRealtimeChat(conversationId);
@@ -299,6 +303,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             {/* Visible glass-pill back button */}
             <button
               onClick={onBack}
+              aria-label="Go back to conversations"
               className="shrink-0 flex items-center justify-center w-9 h-9 rounded-xl transition-all active:scale-90"
               style={{
                 background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.09)',
@@ -330,13 +335,21 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                     </AvatarFallback>
                   </Avatar>
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-background" />
+                <div className={cn(
+                  "absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background transition-colors duration-500",
+                  isOnline ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-slate-500"
+                )} />
               </div>
               <div className="flex flex-col items-start min-w-0">
                 <h3 className="font-semibold text-[14px] text-foreground truncate max-w-[160px] sm:max-w-[220px]">
                   {otherUser.full_name}
                 </h3>
-                <span className="text-[10px] text-rose-500 font-medium">Online</span>
+                <span className={cn(
+                  "text-[10px] font-bold transition-colors duration-500",
+                  isOnline ? "text-green-500" : "text-muted-foreground/60"
+                )}>
+                  {isOnline ? 'Online' : 'Recently active'}
+                </span>
               </div>
             </button>
 
@@ -464,6 +477,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               <button
                 type="button"
                 onClick={() => setShowEmojiPicker(p => !p)}
+                aria-label={showEmojiPicker ? "Close emoji picker" : "Open emoji picker"}
                 className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
                 style={{
                   background: showEmojiPicker ? 'linear-gradient(135deg, #ec4899, #f97316)' : 'hsl(var(--muted))',
@@ -506,6 +520,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               <motion.button
                 type="submit"
                 disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
+                aria-label="Send message"
                 className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
                 whileTap={{ scale: 0.82, rotate: -8, transition: { type: "spring", stiffness: 400, damping: 10, mass: 0.7 } }}
                 whileHover={{ scale: 1.08, transition: { type: "spring", stiffness: 300, damping: 15 } }}
