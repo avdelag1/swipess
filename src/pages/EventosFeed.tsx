@@ -150,6 +150,20 @@ const MOCK_EVENTS: EventItem[] = [
     event_date: '2026-04-17T09:00:00', location: 'Centro, Tulum', location_detail: 'Main strip',
     organizer_name: 'Tulum Cruisers', organizer_whatsapp: '+529849990011', promo_text: 'Daily & weekly rates', discount_tag: '20% OFF', is_free: false, price_text: 'From $150 MXN',
   },
+  {
+    id: 'm16', title: 'Jungle Villa Open House', category: 'jungle',
+    image_url: '/images/event-jungle-villa.jpg',
+    description: 'Exclusive open house tour of a stunning jungle villa. Brutalist architecture, cascading plants, private pool, and golden-hour lighting.',
+    event_date: '2026-04-18T17:00:00', location: 'Aldea Zamá, Tulum', location_detail: 'Private Villa',
+    organizer_name: 'Tulum Estates', organizer_whatsapp: '+529841230000', promo_text: 'By appointment', discount_tag: 'OPEN HOUSE', is_free: true, price_text: null,
+  },
+  {
+    id: 'm17', title: 'Luxury Villa Weekend Promo', category: 'promo',
+    image_url: '/images/event-villa-terrace.jpg',
+    description: 'Unwind in a private jungle villa with a plunge pool, terrace, and lush garden views. Special weekly rates for SwipesS members.',
+    event_date: '2026-04-19T12:00:00', location: 'Aldea Zamá, Tulum', location_detail: 'Jungle Villa',
+    organizer_name: 'Tulum Stays', organizer_whatsapp: '+529847770099', promo_text: 'Members-only rate', discount_tag: '15% OFF', is_free: false, price_text: 'From $2,800 MXN/night',
+  },
 ];
 
 function formatDate(str: string | null): string {
