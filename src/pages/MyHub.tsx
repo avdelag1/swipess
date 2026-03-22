@@ -17,7 +17,6 @@ export default function MyHub() {
             <div className="relative w-full max-w-lg mx-auto px-4 pt-6 sm:px-6">
 
                 <MyHubProfileHeader />
-                <MyHubQuickFilters />
 
                 {/* Activity Feed */}
                 <div className="flex items-center justify-between mb-4 px-1">
