@@ -32,9 +32,8 @@ const OwnerSettingsDialog = lazy(() => import('@/components/OwnerSettingsDialog'
 const OwnerProfileDialog = lazy(() => import('@/components/OwnerProfileDialog').then(m => ({ default: m.OwnerProfileDialog })))
 const OwnerClientSwipeDialog = lazy(() => import('@/components/OwnerClientSwipeDialog'))
 const SupportDialog = lazy(() => import('@/components/SupportDialog').then(m => ({ default: m.SupportDialog })))
-// REMOVED: NotificationSystem was causing duplicate subscriptions with useNotifications in App.tsx
-// Global notification handling is now done exclusively by NotificationWrapper in App.tsx
-const NotificationsDialog = lazy(() => import('@/components/NotificationsDialog').then(m => ({ default: m.NotificationsDialog })))
+// REMOVED: NotificationsDialog and NotificationSystem removed to reduce redundancy and duplicate subscriptions.
+// Global notification handling is now done by NotificationWrapper in App.tsx and /notifications page.
 const OnboardingFlow = lazy(() => import('@/components/OnboardingFlow').then(m => ({ default: m.OnboardingFlow })))
 const CategorySelectionDialog = lazy(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })))
 const SavedSearchesDialog = lazy(() => import('@/components/SavedSearchesDialog').then(m => ({ default: m.SavedSearchesDialog })))
@@ -128,12 +127,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showLegalDocuments, setShowLegalDocuments] = useState(false)
   const [showSupport, setShowSupport] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
-  const [showNotifications, setShowNotifications] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingChecked, setOnboardingChecked] = useState(false)
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
-  const [showMessageActivations, setShowMessageActivations] = useState(false)
+
   const [isAISearchOpen, setIsAISearchOpen] = useState(false);
 
   const [appliedFilters, setAppliedFilters] = useState<Record<string, unknown> | null>(null);
@@ -455,13 +453,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     navigate('/owner/properties');
   }, [navigate])
 
-  const handleNotificationsClick = useCallback(() => {
-    setShowNotifications(true)
-  }, [])
+  // REMOVED: handleNotificationsClick removed in favor of direct navigation in TopBar
 
   const handleMessageActivationsClick = useCallback(() => {
-    setShowMessageActivations(true)
-  }, [])
+    navigate('/subscription-packages');
+  }, [navigate]);
 
   const _handleMenuItemClick = useCallback((action: string) => {
     switch (action) {
@@ -652,7 +648,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
       {!isFullScreenRoute && (
         <TopBar
-          onNotificationsClick={handleNotificationsClick}
+          onNotificationsClick={() => {}} // Now handled internally by TopBar navigating to /notifications
           onMessageActivationsClick={handleMessageActivationsClick}
           showFilters={isOnDiscoveryPage}
           userRole={userRole}
@@ -826,12 +822,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         />
       </Suspense>
 
-      <Suspense fallback={null}>
-        <NotificationsDialog
-          isOpen={showNotifications}
-          onClose={() => setShowNotifications(false)}
-        />
-      </Suspense>
+      {/* REMOVED: NotificationsDialog removed in favor of /notifications page */}
 
       <Suspense fallback={null}>
         <OnboardingFlow

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
+
 import { logger } from '@/utils/prodLogger';
 
 export function useNotifications() {
@@ -58,12 +58,7 @@ export function useNotifications() {
 
                 const senderName = senderProfile?.full_name || 'Someone';
 
-                // Show toast notification
-                toast({
-                  title: "New Message",
-                  description: `${senderName}: ${newMessage.message_text?.slice(0, 50)}${(newMessage.message_text?.length || 0) > 50 ? '...' : ''}`,
-                  duration: 4000,
-                });
+
 
                 // Show browser notification when app is not in the foreground
                 if (

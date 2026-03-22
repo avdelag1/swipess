@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Megaphone } from 'lucide-react';
+import { Megaphone, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 
@@ -17,23 +17,37 @@ export function ExploreFeatureLinks({ isClient: _isClient = true }: ExploreFeatu
         Explore Tulum
       </h3>
 
-      {/* Promote Your Event — redesigned to match bold gradient pill style */}
+      {/* Promote Your Event */}
+      <motion.button
+        whileTap={{ scale: 0.97 }}
+        onClick={() => { haptics.select(); navigate('/explore/eventos/promote'); }}
+        className={cn(
+          "relative w-full flex items-center justify-center gap-3 h-14 rounded-2xl transition-all duration-300",
+          "text-white shadow-[0_8px_16px_rgba(236,72,153,0.25)]"
+        )}
+        style={{
+          background: 'linear-gradient(135deg, #ec4899 0%, #f97316 100%)',
+        }}
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,rgba(255,255,255,0.2),transparent_60%)] rounded-2xl pointer-events-none" />
+        <Megaphone className="w-4 h-4 text-white relative z-10" strokeWidth={2.5} />
+        <span className="text-[11px] font-black uppercase tracking-widest relative z-10">Promote Your Event</span>
+      </motion.button>
+
+      {/* Advertise Your Brand */}
       <motion.button
         whileTap={{ scale: 0.97 }}
         onClick={() => { haptics.select(); navigate('/client/advertise'); }}
         className={cn(
-          "relative w-full flex items-center justify-center gap-3 h-16 rounded-2xl transition-all duration-300",
-          "text-white shadow-[0_8px_24px_rgba(249,115,22,0.35)]"
+          "relative w-full flex items-center justify-center gap-3 h-14 rounded-2xl transition-all duration-300",
+          "text-white shadow-[0_8px_16px_rgba(168,85,247,0.25)] border border-white/10"
         )}
         style={{
-          background: 'linear-gradient(135deg, #f97316 0%, #a855f7 100%)',
+          background: 'linear-gradient(135deg, #a855f7 0%, #8b5cf6 100%)',
         }}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,rgba(255,255,255,0.25),transparent_60%)] rounded-2xl pointer-events-none" />
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 shadow-inner relative z-10">
-          <Megaphone className="w-5 h-5 text-white" strokeWidth={2.5} />
-        </div>
-        <span className="text-sm font-black uppercase tracking-widest relative z-10">Promote Your Event</span>
+        <Building2 className="w-4 h-4 text-white relative z-10" />
+        <span className="text-[11px] font-black uppercase tracking-widest relative z-10">Advertise Your Brand</span>
       </motion.button>
     </div>
   );

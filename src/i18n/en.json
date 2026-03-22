@@ -8,7 +8,9 @@
     "settings": "Settings",
     "liked": "Liked",
     "listings": "Listings",
-    "roommates": "Roommates"
+    "roommates": "Roommates",
+    "advertise": "Advertise Brand",
+    "promote": "Promote Event"
   },
   "actions": {
     "save": "Save",

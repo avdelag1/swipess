@@ -8,9 +8,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, User, Camera, Flame, ThumbsUp, Settings, Radio
+  LogOut, Building2, User, Camera, Flame, ThumbsUp, Settings, Radio, Megaphone
 } from "lucide-react";
-import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
+import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
@@ -121,17 +121,38 @@ const OwnerProfileNew = () => {
           ))}
         </motion.div>
 
-        {/* Edit Profile Button */}
-        <motion.div variants={childVariant}>
+        {/* Promote/Advertise Buttons */}
+        <motion.div variants={childVariant} className="flex flex-col gap-2">
           <Button
-            variant="gradient"
+            variant="outline"
             size="lg"
             elastic
-            onClick={() => { haptics.select(); setShowEditDialog(true); }}
-            className="w-full h-14 font-black text-base mexican-pink-premium"
+            onClick={() => { haptics.success(); navigate('/explore/eventos/promote'); }}
+            className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-primary/20 hover:border-primary/40 bg-white/5 shadow-sm transition-all"
+            style={{
+              background: 'linear-gradient(135deg, rgba(228,0,124,0.08) 0%, rgba(249,115,22,0.08) 100%)'
+            }}
           >
-            <User className="w-5 h-5" />
-            Edit Business Profile
+            <Megaphone className="w-5 h-5 text-primary mr-2 shrink-0" />
+            <span className="bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent font-black uppercase tracking-tight">
+              Promote Your Event
+            </span>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="lg"
+            elastic
+            onClick={() => { haptics.success(); navigate('/client/advertise'); }}
+            className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-orange-500/20 hover:border-orange-500/40 bg-white/5 shadow-sm transition-all"
+            style={{
+              background: 'linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(168,85,247,0.08) 100%)'
+            }}
+          >
+            <Building2 className="w-5 h-5 text-orange-500 mr-2 shrink-0" />
+            <span className="bg-gradient-to-r from-orange-500 to-purple-500 bg-clip-text text-transparent font-black uppercase tracking-tight">
+              Advertise Your Brand
+            </span>
           </Button>
         </motion.div>
 
@@ -185,7 +206,7 @@ const OwnerProfileNew = () => {
           <h3 className="text-xs font-medium text-muted-foreground mb-3 px-1">
             Recent Activity
           </h3>
-          <MyHubActivityFeed />
+          <ActivityFeed />
         </motion.div>
 
         {/* Share Profile */}
