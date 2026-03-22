@@ -32,6 +32,7 @@ const PACKAGES = [
       "Email support to help you get set up",
     ],
     tagline: "Try it for a week — no commitment",
+    paypalUrl: "https://www.paypal.com/ncp/payment/ZXQC96VYV7JLL",
   },
   {
     id: "growth",
@@ -53,6 +54,7 @@ const PACKAGES = [
     ],
     popular: true,
     tagline: "Best value — 3 months of organic reach",
+    paypalUrl: "https://www.paypal.com/ncp/payment/ATKD4TR7KFTJU",
   },
   {
     id: "premium",
@@ -74,6 +76,7 @@ const PACKAGES = [
       "Direct access to an audience of renters, buyers & service seekers",
     ],
     tagline: "6 months of maximum visibility & VIP support",
+    paypalUrl: "https://www.paypal.com/ncp/payment/LK7XWSMDHH8AW",
   },
 ];
 
@@ -510,6 +513,15 @@ export default function AdvertisePage() {
                     </div>
                   ))}
                 </div>
+                <a
+                  href={pkg.paypalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 w-full py-3 rounded-xl font-black text-sm text-white text-center block"
+                  style={{ background: pkg.color, boxShadow: `0 4px 16px rgba(${pkg.colorRgb},0.35)` }}
+                >
+                  Pay Now — ${pkg.price.toFixed(2)} USD
+                </a>
               </div>
             ))}
           </div>
