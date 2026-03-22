@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls, PanInfo } from 'framer-motion';
-import { Home, Bike, Briefcase, Search, Check } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, PanInfo } from 'framer-motion';
+import { Home, Bike, Briefcase, Search, Check, Sparkles } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
@@ -47,7 +47,7 @@ export function CategorySwipeStack() {
     };
 
     const handleSelect = (id: QuickFilterCategory | null) => {
-        haptics.tap();
+        haptics.select();
         setStack(prev => {
             const index = prev.findIndex(c => c.id === id);
             if (index === 0) return prev;
@@ -58,10 +58,14 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full aspect-video max-w-sm mx-auto mb-16 flex items-center justify-center">
-            {/* Background stack visualization - subtler for fanned look */}
-            <div className="absolute inset-0 z-0 pointer-events-none">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-primary/5 blur-3xl animate-pulse" />
+        <div className="relative w-full aspect-[4/3] max-w-sm mx-auto mb-16 flex items-center justify-center perspective-[1000px]">
+            {/* Background Atmosphere */}
+            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-brand-accent-1/5 to-brand-accent-2/10 blur-3xl" 
+                />
             </div>
 
             <AnimatePresence mode="popLayout">
@@ -85,6 +89,18 @@ export function CategorySwipeStack() {
                     );
                 }).reverse()}
             </AnimatePresence>
+            
+            {/* Instruction text with better styling */}
+            <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute -bottom-12 left-0 right-0 text-center"
+            >
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[10px] font-bold text-muted-foreground tracking-[0.1em] uppercase">
+                    <Sparkles className="w-3 h-3 text-brand-accent-2" />
+                    Swipe to Filter • Tap to Stack
+                </div>
+            </motion.div>
         </div>
     );
 }
@@ -105,36 +121,44 @@ function CategoryCard({
     category, isTop, index, itemCount, isActive, isDark, onSwipeRight, onSwipeLeft, onSelect 
 }: CategoryCardProps) {
     const x = useMotionValue(0);
+    const y = useMotionValue(0);
     
-    // Spread cards like a poker hand (fanned)
-    // index is current position in the stack (0 is top/front)
-    // To maintain fanned look, we use a fixed offset based on category identity, 
-    // BUT we want the top card to always be "active" or "front".
-    // Alternatively, we use the visual index for the fan position.
-    
-    // Calculate fan position (from -2 to 2 for 5 cards)
-    const midPoint = (itemCount - 1) / 2;
-    const fanIndex = index - midPoint;
-    
-    // We want the cards to look like a hand. 
-    // Front card (index 0) is central? No, it's usually fanned from center.
-    // Let's use the constant list order for the fan position so it doesn't jump around?
-    // User: "I can tap the other one". 
-    // So the fan should be stable.
-    
-    const fanRotation = fanIndex * 8; 
-    const fanX = fanIndex * 30; // Spacing between cards
-    const fanY = Math.abs(fanIndex) * 8; // Subtle arc
+    // Physics-based spring for smooth fan movement
+    const springX = useSpring(x, { stiffness: 300, damping: 30 });
+    const springY = useSpring(y, { stiffness: 300, damping: 30 });
 
-    const dragRotate = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
-    const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0.5, 1, 1, 1, 0.5]);
+    // Pivot Calculation for "Poker Hand"
+    // User wants "left corners applied together" -> transform-origin: "bottom left" 
+    const fanRotation = index * 12; // Increases for cards buried deeper
+    const fanX = index * 18; // Horizontal spread
+    const fanY = index * 6; // Slight downward slide
     
-    const scale = isTop ? 1 : 0.95 - (index * 0.02);
+    // Drag transformations
+    // "if I move it left or right it is going to show the effect of being hide behind the other one"
+    // We drop z-index as it moves away from center.
+    // The base z-indices are: Card 0: 10, Card 1: 9, Card 2: 8...
+    // So dropping to < 9 makes it hide behind Card 1.
+    const tilt = useTransform(x, [-150, 0, 150], [-15, 0, 15]);
+    const zIndex = useTransform(x, 
+        [-120, -40, 0, 40, 120], 
+        [1, 15, 20, 15, 1] // Start high, drop low at edges
+    );
+    
+    const zIndexBase = 10 - index;
+    const scale = isTop ? 1 : 1 - (index * 0.04);
+
+    const [isDragging, setIsDragging] = useState(false);
+
+    const handleDragStart = () => {
+        setIsDragging(true);
+        haptics.tap();
+    };
 
     const handleDragEnd = (_: any, info: PanInfo) => {
-        if (info.offset.x > 100) {
+        setIsDragging(false);
+        if (info.offset.x > 80) {
             onSwipeRight();
-        } else if (info.offset.x < -100) {
+        } else if (info.offset.x < -80) {
             onSwipeLeft();
         }
     };
@@ -142,74 +166,132 @@ function CategoryCard({
     return (
         <motion.div
             drag={isTop ? "x" : false}
-            dragConstraints={{ left: 0, right: 0 }}
+            dragConstraints={{ left: -150, right: 150 }} 
+            dragElastic={0.1}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onClick={() => !isTop && onSelect()}
-            initial={{ scale: 0.8, opacity: 0, y: 50, rotate: 0 }}
+            layoutId={category.id || 'all'}
+            initial={{ scale: 0.8, opacity: 0, rotate: 45, x: 100 }}
             animate={{ 
                 scale, 
                 opacity: 1, 
-                x: x.get() === 0 ? fanX : x.get(), // If not dragging, stay fanned
-                y: fanY + (index * 4), // Stack them slightly downwards too
-                rotate: fanRotation,
-                zIndex: 10 - index,
+                x: isDragging ? x.get() : fanX,
+                y: isDragging ? y.get() : fanY,
+                rotate: isDragging ? tilt.get() : fanRotation,
+                // If it's the top card, use the dynamic z-index to allow "hiding"
+                // If not, use the base stack order
+                zIndex: isTop ? zIndex.get() : zIndexBase,
             }}
-            whileHover={!isTop ? { y: fanY - 20, transition: { duration: 0.2 } } : {}}
-            exit={{ x: x.get() > 0 ? 600 : -600, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
+            whileHover={!isTop ? { 
+                y: fanY - 30, 
+                scale: scale * 1.08,
+                rotate: fanRotation - 4,
+                transition: { duration: 0.2, ease: "easeOut" } 
+            } : {}}
+            exit={{ 
+                x: x.get() > 0 ? 500 : -500, 
+                rotate: x.get() > 0 ? 45 : -45, 
+                opacity: 0, 
+                transition: { duration: 0.3 } 
+            }}
             className={cn(
-                "absolute inset-0 flex flex-col items-center justify-center rounded-[32px] p-8 select-none transition-shadow duration-300",
-                isTop ? "cursor-grab active:cursor-grabbing shadow-2xl" : "shadow-md cursor-pointer",
-                isActive 
-                    ? "border-2 border-brand-accent-2 ring-4 ring-brand-accent-2/10" 
-                    : isDark ? "border border-white/10 bg-[#121212]" : "border border-black/5 bg-white"
+                "absolute flex flex-col items-center justify-center rounded-[28px] p-6 select-none overflow-hidden",
+                "transition-shadow duration-300",
+                isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
+                isDark 
+                    ? "bg-[#1A1A1A] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]" 
+                    : "bg-white border border-black/5 shadow-[0_8px_32px_rgba(0,0,0,0.1)]",
+                isActive && "ring-2 ring-brand-accent-2 ring-offset-4 ring-offset-background"
             )}
             style={{
-                width: '160px',
-                height: '220px',
-                left: 'calc(50% - 80px)', // Centers them first
-                top: 'calc(50% - 110px)',
-                ...({ x, rotate: isTop ? dragRotate : fanRotation, opacity } as any)
+                width: '180px',
+                height: '240px',
+                left: 'calc(50% - 130px)', // Offset to the left slightly to center the fan
+                top: 'calc(50% - 120px)',
+                transformOrigin: 'bottom left',
+                ...({ x: springX, y: springY, zIndex } as any)
             }}
         >
-            {/* Visual background pattern with breathing zoom */}
+            {/* Glossy Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
+            
+            {/* Animated Background Pattern */}
             <motion.div
                 className={cn(
-                    "absolute inset-0 rounded-[32px] opacity-[0.03] pointer-events-none",
+                    "absolute inset-0 opacity-[0.08] pointer-events-none",
                     `bg-gradient-to-br ${category.color}`
                 )}
-                animate={isTop ? { scale: [1, 1.04, 1] } : { scale: 1 }}
-                transition={isTop ? { duration: 4, ease: 'easeInOut', repeat: Infinity } : {}}
+                animate={isTop ? { 
+                    opacity: [0.08, 0.15, 0.08],
+                    scale: [1, 1.1, 1]
+                } : {}}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             />
 
+            {/* Icon Container */}
             <motion.div
                 className={cn(
-                    "w-20 h-20 rounded-3xl flex items-center justify-center shadow-xl relative",
+                    "w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl relative z-10",
                     `bg-gradient-to-br ${category.color} text-white`
                 )}
-                animate={isTop ? { scale: [1, 1.06, 1] } : { scale: 1 }}
-                transition={isTop ? { duration: 4, ease: 'easeInOut', repeat: Infinity } : {}}
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                animate={isTop ? { y: [0, -5, 0] } : {}}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             >
                 <category.icon className="w-10 h-10" strokeWidth={2.5} />
                 {isActive && (
-                    <div className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-lg">
-                        <Check className="w-4 h-4 text-brand-accent-2" strokeWidth={4} />
-                    </div>
+                    <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-3 -right-3 bg-brand-accent-2 rounded-full p-1.5 shadow-lg border-2 border-white dark:border-black"
+                    >
+                        <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />
+                    </motion.div>
                 )}
             </motion.div>
 
-            {/* Like/Nope visual feedback labels */}
-            <motion.div
-                style={{ opacity: useTransform(x, [20, 80], [0, 1]) }}
-                className="absolute top-2 left-2 border-2 border-emerald-500 text-emerald-500 font-black px-2 py-0.5 rounded-lg rotate-[-12deg] uppercase text-[10px] pointer-events-none"
-            >
-                Filter!
-            </motion.div>
-            <motion.div
-                style={{ opacity: useTransform(x, [-20, -80], [0, 1]) }}
-                className="absolute top-2 right-2 border-2 border-rose-500 text-rose-500 font-black px-2 py-0.5 rounded-lg rotate-[12deg] uppercase text-[10px] pointer-events-none"
-            >
-                Skip
-            </motion.div>
+            {/* Labels */}
+            <div className="mt-6 text-center z-10">
+                <h3 className={cn(
+                    "text-lg font-black tracking-tight leading-none",
+                    isDark ? "text-white" : "text-black"
+                )}>
+                    {category.label}
+                </h3>
+                <p className="mt-2 text-[10px] font-medium text-muted-foreground uppercase tracking-widest opacity-60">
+                    {category.description}
+                </p>
+            </div>
+
+            {/* Drag Feedback */}
+            <AnimatePresence>
+                {isDragging && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.5 }}
+                            style={{ opacity: useTransform(x, [20, 60], [0, 1]) }}
+                            className="absolute top-4 left-4 border-2 border-emerald-500 text-emerald-500 font-black px-2 py-0.5 rounded-lg -rotate-12 uppercase text-[10px]"
+                        >
+                            Select!
+                        </motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.5 }}
+                            style={{ opacity: useTransform(x, [-20, -60], [0, 1]) }}
+                            className="absolute top-4 right-4 border-2 border-rose-500 text-rose-500 font-black px-2 py-0.5 rounded-lg rotate-12 uppercase text-[10px]"
+                        >
+                            Skip
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* Bottom Glass Indicator (for that premium feel) */}
+            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50" />
         </motion.div>
     );
 }
