@@ -85,7 +85,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   // FIX: Pass filters to query so fetched profiles match what container displays
   // Extract category from filters if available
   const filterCategory = mergedFilters?.categories?.[0] || undefined;
-  if (import.meta.env.DEV) 
   const { data: clientProfiles = [], isLoading, error } = useSmartClientMatching(
     user?.id,
     filterCategory,
