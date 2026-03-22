@@ -249,12 +249,12 @@ const POKER_CARDS = [
   { id: 'all'        as const, label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212'   },
 ];
 
-// Card dimensions — playing-card proportions
-const PK_W = 200;
-const PK_H = 300;
-// Folder-stack offset per card depth (straight, no rotation)
-const FOLDER_OFFSET_X = 14;  // px right per card behind
-const FOLDER_OFFSET_Y = 10;  // px down per card behind
+// Card dimensions — larger playing-card proportions
+const PK_W = 270;
+const PK_H = 420;
+// Horizontal flow: cards peek purely to the right, no vertical offset
+const FOLDER_OFFSET_X = 28;  // px right per card behind
+const FOLDER_OFFSET_Y = 0;   // no vertical offset — pure horizontal flow
 // Swipe physics thresholds
 const PK_DIST_THRESHOLD = 110;  // px — strong swipe
 const PK_VEL_THRESHOLD  = 480;  // px/s — fast flick
@@ -423,11 +423,11 @@ const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBringToFront
         )}
 
         {/* Card info — bottom */}
-        <div className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-10">
-          <p className="text-[9px] font-black uppercase tracking-[0.28em] text-white/45 mb-0.5">
+        <div className="absolute inset-x-0 bottom-0 px-6 pb-6 pt-14">
+          <p className="text-[10px] font-black uppercase tracking-[0.28em] text-white/45 mb-1">
             {card.description}
           </p>
-          <h3 className="text-white text-2xl font-black tracking-tight uppercase leading-none">
+          <h3 className="text-white text-3xl font-black tracking-tight uppercase leading-none">
             {card.label}
           </h3>
 
@@ -438,7 +438,7 @@ const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBringToFront
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
               onClick={(e) => { e.stopPropagation(); onSwipeOut(card.id); }}
-              className="mt-3 w-full py-2.5 rounded-2xl bg-white text-black font-black text-[11px] uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+              className="mt-4 w-full py-3 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
             >
               Explore
             </motion.button>
@@ -448,8 +448,8 @@ const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBringToFront
         {/* Accent corner dot — subtle identity marker for back cards */}
         {!isTop && (
           <div
-            className="absolute top-3 left-3 w-2.5 h-2.5 rounded-full"
-            style={{ background: card.accent, opacity: 0.7 }}
+            className="absolute top-4 left-4 w-3 h-3 rounded-full"
+            style={{ background: card.accent, opacity: 0.75 }}
           />
         )}
       </div>
@@ -498,13 +498,12 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         className="relative w-full flex-1 flex flex-col items-center justify-center bg-background overflow-hidden"
         style={{ minHeight: 'calc(100dvh - 148px)' }}
       >
-        {/* Folder card stack — straight, no rotation */}
+        {/* Folder card stack — straight horizontal flow, no rotation */}
         <div
           style={{
             position: 'relative',
             width: containerW,
             height: containerH,
-            maxWidth: '90vw',
           }}
         >
           {/* Render back-to-front so the front card sits on top */}
