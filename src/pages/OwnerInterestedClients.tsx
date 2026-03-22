@@ -193,11 +193,11 @@ const OwnerInterestedClients = () => {
         {/* Search */}
         <div className="relative mb-8">
           <input
-            placeholder="Filter interested clients..."
+            placeholder="Search liked clients..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={cn(
-              "w-full h-16 rounded-3xl pl-6 font-bold focus:border-[var(--color-brand-accent-2)] transition-all outline-none border",
+              "w-full h-14 rounded-2xl pl-6 font-bold focus:border-[var(--color-brand-accent-2)] transition-all outline-none border",
               isLight
                 ? "bg-background border-border/40 text-foreground placeholder-muted-foreground shadow-sm"
                 : "bg-muted border-border text-foreground placeholder-muted-foreground"
@@ -209,7 +209,7 @@ const OwnerInterestedClients = () => {
         <div className="flex items-center gap-3 mb-8 px-2">
           <div className="w-2 h-2 rounded-full bg-[var(--color-brand-accent-2)] shadow-[0_0_10px_var(--color-brand-accent-2)]" />
           <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
-            {filteredClients.length} Interested Clients
+            {filteredClients.length} Potential Professionals
           </span>
           {filteredClients.length > 1 && (
             <span className="ml-auto flex items-center gap-1 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">

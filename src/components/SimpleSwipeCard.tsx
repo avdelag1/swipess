@@ -551,11 +551,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           className="absolute left-4 right-4 z-20 pointer-events-none p-5 rounded-[24px]"
           style={{ 
             bottom: 'clamp(130px, 22vh, 180px)',
-            background: 'rgba(0,0,0,0.4)',
+            background: 'rgba(0,0,0,0.55)',
             boxShadow: 'var(--shadow-cinematic-md)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+            border: '1px solid rgba(255,255,255,0.08)',
           }}
         >
           {/* Match Meter + Rating badges row */}
