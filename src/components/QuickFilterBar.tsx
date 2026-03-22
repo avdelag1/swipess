@@ -337,19 +337,23 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
   const activeCategoryLabel = categories.find(c => filters.categories[0] === c.id)?.label ?? '';
 
   // Per-category accent colors (active state) - Ultra Premium Gradients
-  const categoryColors: Record<string, { bg: string; shadow: string; border: string }> = {
-    property:   { bg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',   shadow: '0 4px 16px rgba(16,185,129,0.5)',   border: 'rgba(16,185,129,0.8)' },
-    motorcycle: { bg: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',   shadow: '0 4px 16px rgba(249,115,22,0.5)',   border: 'rgba(249,115,22,0.8)' },
-    bicycle:    { bg: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',   shadow: '0 4px 16px rgba(168,85,247,0.5)',   border: 'rgba(168,85,247,0.8)' },
-    services:   { bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',   shadow: '0 4px 16px rgba(245,158,11,0.5)',   border: 'rgba(245,158,11,0.8)' },
+  const categoryColors: Record<string, { bg: string; shadow: string; border: string; overlay: string }> = {
+    property:   { bg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',   shadow: '0 4px 16px rgba(16,185,129,0.5)',   border: 'rgba(16,185,129,0.8)',  overlay: 'linear-gradient(135deg, rgba(16,185,129,0.72) 0%, rgba(5,150,105,0.72) 100%)' },
+    motorcycle: { bg: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',   shadow: '0 4px 16px rgba(249,115,22,0.5)',   border: 'rgba(249,115,22,0.8)',  overlay: 'linear-gradient(135deg, rgba(249,115,22,0.72) 0%, rgba(234,88,12,0.72) 100%)' },
+    bicycle:    { bg: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',   shadow: '0 4px 16px rgba(168,85,247,0.5)',   border: 'rgba(168,85,247,0.8)', overlay: 'linear-gradient(135deg, rgba(168,85,247,0.72) 0%, rgba(147,51,234,0.72) 100%)' },
+    services:   { bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',   shadow: '0 4px 16px rgba(245,158,11,0.5)',   border: 'rgba(245,158,11,0.8)',  overlay: 'linear-gradient(135deg, rgba(245,158,11,0.72) 0%, rgba(217,119,6,0.72) 100%)' },
   };
 
-  const allSelectedBg = 'linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%)';
-  const allSelectedShadow = '0 4px 16px rgba(236,72,153,0.45)';
+  const allSelectedShadow = '0 4px 20px rgba(236,72,153,0.55)';
 
-  const inactiveBg    = isDark ? 'rgba(20,20,30,0.5)' : 'rgba(255,255,255,0.7)';
-  const inactiveBorder = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)';
-  const inactiveText  = isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.75)';
+  // Category preview photos for breathing effect (from mock data + curated)
+  const categoryPhotos: Record<string, string> = {
+    property:   'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=300&h=150&fit=crop&crop=center',
+    motorcycle: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=300&h=150&fit=crop&crop=center',
+    bicycle:    'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=300&h=150&fit=crop&crop=center',
+    services:   'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=300&h=150&fit=crop&crop=center',
+  };
+  const allPhoto = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&h=150&fit=crop&crop=center';
 
   return (
     <div
@@ -361,55 +365,88 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
       )}
     >
       <div className="max-w-screen-xl mx-auto">
-        {/* Main filter row — scrollable pill buttons */}
+        {/* Main filter row — scrollable photo cards */}
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
-          {/* ALL button */}
+          {/* ALL button — photo card with breathing zoom */}
           <button
             onClick={() => {
               saveQuickFilter([]);
               onChange({ ...filters, categories: [], listingType: 'both' });
             }}
-            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-5 rounded-full text-[13px] font-black tracking-wide flex-shrink-0 min-h-[44px] overflow-hidden relative')}
+            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-5 rounded-2xl text-[13px] font-black tracking-wide flex-shrink-0 h-[62px] overflow-hidden relative')}
             style={{
-              background: clientIsAllSelected ? allSelectedBg : inactiveBg,
-              color: clientIsAllSelected ? '#fff' : inactiveText,
-              border: clientIsAllSelected ? '1px solid transparent' : inactiveBorder,
+              border: clientIsAllSelected ? '2px solid rgba(236,72,153,0.8)' : isDark ? '1.5px solid rgba(255,255,255,0.10)' : '1.5px solid rgba(0,0,0,0.08)',
               boxShadow: clientIsAllSelected ? allSelectedShadow : 'none',
               transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
-            {clientIsAllSelected && (
-              <div className="absolute inset-0 bg-white/20 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-            )}
-            <Globe className="w-4 h-4" />
-            <span>ALL</span>
-            {clientIsAllSelected && <Check className="w-3.5 h-3.5 ml-0.5 text-white/90" />}
+            {/* Breathing background photo */}
+            <div className="absolute inset-0 overflow-hidden rounded-2xl">
+              <img
+                src={allPhoto}
+                alt=""
+                aria-hidden="true"
+                style={{
+                  position: 'absolute', inset: 0, width: '100%', height: '100%',
+                  objectFit: 'cover', transformOrigin: 'center',
+                  animation: 'breathing-zoom 4s ease-in-out infinite',
+                }}
+              />
+              {/* Gradient overlay */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: clientIsAllSelected
+                  ? 'linear-gradient(135deg, rgba(249,115,22,0.75) 0%, rgba(236,72,153,0.75) 50%, rgba(139,92,246,0.75) 100%)'
+                  : isDark ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.38)',
+              }} />
+            </div>
+            {/* Content */}
+            <Globe className="w-4 h-4 relative z-10 text-white" />
+            <span className="relative z-10 text-white">ALL</span>
+            {clientIsAllSelected && <Check className="w-3.5 h-3.5 ml-0.5 text-white/90 relative z-10" />}
           </button>
 
-          {/* Category chips — each with its own accent color */}
+          {/* Category chips — photo cards with breathing zoom */}
           {categories.map((category) => {
             const isActive = filters.categories.includes(category.id);
             const accent = categoryColors[category.id];
+            const photo = categoryPhotos[category.id];
             return (
               <button
                 key={category.id}
                 onClick={() => handleCategorySelect(category.id)}
-                className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 rounded-full text-xs font-bold flex-shrink-0 min-h-[44px] overflow-hidden relative')}
+                className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 rounded-2xl text-xs font-bold flex-shrink-0 h-[62px] overflow-hidden relative')}
                 style={{
-                  background: isActive && accent ? accent.bg : inactiveBg,
-                  color: isActive ? '#fff' : inactiveText,
-                  border: isActive && accent ? `1px solid ${accent.border}` : inactiveBorder,
+                  border: isActive && accent ? `2px solid ${accent.border}` : isDark ? '1.5px solid rgba(255,255,255,0.10)' : '1.5px solid rgba(0,0,0,0.08)',
                   boxShadow: isActive && accent ? accent.shadow : 'none',
                   transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               >
-                {isActive && (
-                  <div className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                )}
-                <div className={cn("transition-transform duration-300", isActive && "scale-110")}>
+                {/* Breathing background photo */}
+                <div className="absolute inset-0 overflow-hidden rounded-2xl">
+                  {photo && (
+                    <img
+                      src={photo}
+                      alt=""
+                      aria-hidden="true"
+                      style={{
+                        position: 'absolute', inset: 0, width: '100%', height: '100%',
+                        objectFit: 'cover', transformOrigin: 'center',
+                        animation: 'breathing-zoom 4s ease-in-out infinite',
+                      }}
+                    />
+                  )}
+                  {/* Gradient overlay */}
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    background: isActive && accent ? accent.overlay : isDark ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.40)',
+                  }} />
+                </div>
+                {/* Content */}
+                <div className={cn("transition-transform duration-300 relative z-10 text-white", isActive && "scale-110")}>
                   {category.icon}
                 </div>
-                <span className="tracking-tight">{category.label}</span>
+                <span className="tracking-tight relative z-10 text-white">{category.label}</span>
               </button>
             );
           })}
