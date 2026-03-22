@@ -229,15 +229,15 @@ function CategoryCard({
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             />
 
-            {/* Icon Container */}
+            {/* Icon Container — Ken Burns breathing zoom on top card */}
             <motion.div
                 className={cn(
                     "w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl relative z-10",
                     `bg-gradient-to-br ${category.color} text-white`
                 )}
                 whileHover={{ scale: 1.1, rotate: 5 }}
-                animate={isTop ? { y: [0, -5, 0] } : {}}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                animate={isTop ? { y: [0, -5, 0], scale: [1, 1.04, 1] } : { scale: 1 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             >
                 <category.icon className="w-10 h-10" strokeWidth={2.5} />
                 {isActive && (
