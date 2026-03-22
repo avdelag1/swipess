@@ -296,13 +296,13 @@ const IconWorker = () => (
 
 const FAN_CARDS = [
   { id: 'property' as const, label: 'Properties', Icon: IconProperty, accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -11, tx: -56, ty: 14 },
-  { id: 'motorcycle' as const, label: 'Motorcycles', Icon: IconMoto, accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -3.5, tx: -19, ty: 3 },
-  { id: 'bicycle' as const, label: 'Bicycles', Icon: IconBicycle, accent: '#f43f5e', accentRgb: '244,63,94', description: 'City & mountain', rotate: 3.5, tx: 19, ty: 3 },
   { id: 'services' as const, label: 'Workers', Icon: IconWorker, accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
+  { id: 'bicycle' as const, label: 'Bicycles', Icon: IconBicycle, accent: '#f43f5e', accentRgb: '244,63,94', description: 'City & mountain', rotate: 3.5, tx: 19, ty: 3 },
+  { id: 'motorcycle' as const, label: 'Motorcycles', Icon: IconMoto, accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -3.5, tx: -19, ty: 3 },
 ];
 
-const CARD_W = 280;
-const CARD_H = 420;
+const CARD_W = 240;
+const CARD_H = 460;
 
 const STACK_OFFSETS = [
   { rotate: 0, tx: 0, ty: 0, scale: 1 },
@@ -344,11 +344,11 @@ const ReorderableCategoryCard = memo(({
   const isTop = reverseIndex === 0;
   
   // Poker fan stacking: horizontal left-to-right with rotation
-  // Each card offset to the right and rotated slightly
-  const stackX = reverseIndex * 60;  // Horizontal offset: left to right
-  const stackY = reverseIndex * 8;   // Subtle vertical stagger
-  const stackScale = 1 - (reverseIndex * 0.03);
-  const stackRotate = reverseIndex * -8;  // Fan rotation (clockwise from left)
+  // Cards fanned from left (first card) to right (last card)
+  const stackX = -reverseIndex * 55;  // Horizontal offset: right to left (fanned left)
+  const stackY = reverseIndex * 6;    // Subtle vertical stagger
+  const stackScale = 1 - (reverseIndex * 0.02);
+  const stackRotate = reverseIndex * 7;  // Fan rotation (counter-clockwise from left)
   const stackOpacity = reverseIndex > 3 ? 0 : 1;
 
   // Drag-and-release cycle logic
@@ -385,11 +385,17 @@ const ReorderableCategoryCard = memo(({
         scale: stackScale,
         opacity: stackOpacity,
       }}
-      transition={{ 
+      transition={isTop ? { 
         type: 'spring', 
         stiffness: 400, 
         damping: 30, 
         mass: 0.8 
+      } : {
+        type: 'spring',
+        stiffness: 200,
+        damping: 20,
+        mass: 0.5,
+        duration: 0.3
       }}
       className="touch-manipulation"
       whileDrag={{ scale: 1.05, cursor: 'grabbing' }}
@@ -549,7 +555,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
 
         <div 
           className="relative pointer-events-none" 
-          style={{ width: '100%', maxWidth: 1000, height: 500, zIndex: 10 }}
+          style={{ width: '100%', maxWidth: 950, height: 520, zIndex: 10 }}
         >
           {items.map((card, i) => {
             return (
