@@ -131,6 +131,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [onboardingChecked, setOnboardingChecked] = useState(false)
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
+  const [showMessageActivations, setShowMessageActivations] = useState(false)
 
   const [isAISearchOpen, setIsAISearchOpen] = useState(false);
 

@@ -35,6 +35,7 @@ export interface MatchedClientProfile {
     nationality?: string;
     languages?: string[];
     neighborhood?: string;
+    roommate_available?: boolean;
 
     // Category-specific preferences
     moto_types?: string[];

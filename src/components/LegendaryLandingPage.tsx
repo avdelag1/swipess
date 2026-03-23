@@ -148,6 +148,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [_showResendConfirmation, setShowResendConfirmation] = useState(false);
   const [showErrorDetails, setShowErrorDetails] = useState(false);
+  const [errorDetails, setErrorDetails] = useState<{ message: string; fullError: string } | null>(null);
   const [role, setRole] = useState<'client' | 'owner'>('client');
 
   const { signIn, signUp, signInWithOAuth: _signInWithOAuth } = useAuth();
@@ -226,6 +227,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         action: isLogin ? 'Sign In' : 'Sign Up',
       };
       setErrorDetails(errorInfo);
+      setShowErrorDetails(true);
 
       if (error.message?.toLowerCase().includes('email not confirmed')) {
         setShowResendConfirmation(true);
