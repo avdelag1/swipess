@@ -20,7 +20,7 @@ import { useQueryClient } from '@tanstack/react-query'
 // New Mobile Navigation Components
 import { TopBar } from '@/components/TopBar'
 import { BottomNavigation } from '@/components/BottomNavigation'
-import { AdvancedFilters } from '@/components/AdvancedFilters'
+const AdvancedFilters = lazy(() => import('@/components/AdvancedFilters').then(m => ({ default: m.AdvancedFilters })))
 // Lazy-loaded Dialogs (improves bundle size and initial load)
 const SubscriptionPackages = lazy(() => import("@/components/SubscriptionPackages").then(m => ({ default: m.SubscriptionPackages })))
 const LegalDocumentsDialog = lazy(() => import("@/components/LegalDocumentsDialog").then(m => ({ default: m.LegalDocumentsDialog })))
