@@ -8,8 +8,38 @@
  * - Uses requestIdleCallback for background loading
  * - Pre-loads common paths for both modes once the app settles
  */
+import React from 'react';
 
-type RouteImport = () => Promise<{ default: React.ComponentType }>;
+type RouteImport = () => Promise<{ default: React.ComponentType<any> }>;
+
+/**
+ * SPEED: Aggressive network-aware prefetching
+ * Skips prefetching on slow connections or data saver mode
+ */
+function shouldSkipPrefetch(): boolean {
+  if (typeof navigator === 'undefined') return true;
+  
+  // Skip if data saver is on
+  if ((navigator as any).connection?.saveData) return true;
+  
+  // Skip if on 2G or slow 3G
+  const connection = (navigator as any).connection;
+  if (connection && (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g')) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Calculate optimized timeout based on network
+ */
+const optimizedTimeout = (function() {
+  if (typeof navigator === 'undefined') return 2000;
+  const connection = (navigator as any).connection;
+  if (connection?.effectiveType === '4g') return 1000; // Be 2x faster on 4G
+  return 2000;
+})();
 
 // Route mapping for prefetching - ALL app routes
 const routeImports: Record<string, RouteImport> = {
@@ -56,7 +86,7 @@ const prefetchedRoutes = new Set<string>();
 /**
  * Safe requestIdleCallback with fallback — shorter timeout for speed
  */
-const scheduleIdle = (callback: () => void, timeout = 2000): void => {
+const scheduleIdle = (callback: () => void): void => {
   if (typeof requestIdleCallback !== 'undefined') {
     requestIdleCallback(callback, { timeout: optimizedTimeout });
   } else {
@@ -101,7 +131,7 @@ function prefetchRoutesSequentially(routes: string[]): void {
     prefetchRoute(route).finally(() => {
       // Schedule next prefetch only after current one completes
       if (index < routes.length) {
-        scheduleIdle(prefetchNext, 400); // Accelerated from 500ms
+        scheduleIdle(prefetchNext);
       }
     });
   };
@@ -141,7 +171,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
         '/explore/tours'
       ];
       prefetchRoutesSequentially(remaining);
-    }, 300);
+    });
   } else {
     const critical = ['/owner/profile', '/owner/properties', ...sharedRoutes];
     critical.forEach(p => prefetchRoute(p));
@@ -161,7 +191,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
         '/owner/clients/bicycle'
       ];
       prefetchRoutesSequentially(remaining);
-    }, 300);
+    });
   }
 }
 
@@ -199,7 +229,7 @@ export function createLinkObserver(): IntersectionObserver | null {
           const link = entry.target as HTMLAnchorElement;
           const href = link.getAttribute('href');
           if (href && href.startsWith('/') && !prefetchedRoutes.has(href)) {
-            scheduleIdle(() => prefetchRoute(href), 1500);
+            scheduleIdle(() => prefetchRoute(href));
           }
         }
       });
@@ -225,11 +255,10 @@ export function prefetchNextLikelyRoute(currentPath: string): void {
   if (nextRoutes) {
     scheduleIdle(() => {
       nextRoutes.forEach(p => prefetchRoute(p));
-    }, 600);
+    });
   }
 }
 
 export function isRoutePrefetched(path: string): boolean {
   return prefetchedRoutes.has(path);
 }
-

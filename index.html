@@ -147,7 +147,19 @@
             { "href_matches": "/owner/dashboard/*" },
             { "href_matches": "/radio/*" },
             { "href_matches": "/notifications/*" },
-            { "href_matches": "/events/*" }
+            { "href_matches": "/explore/eventos/*" }
+          ]
+        },
+        "eagerness": "moderate"
+      }
+    ],
+    "prefetch": [
+      {
+        "where": {
+          "and": [
+            { "not": { "href_matches": "/api/*" } },
+            { "not": { "href_matches": "/*\\.*" } },
+            { "href_matches": "/*" }
           ]
         },
         "eagerness": "moderate"
