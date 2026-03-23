@@ -425,19 +425,25 @@ export function BottomNavigation({
                       size={isNarrow ? ICON_SIZE_COMPACT + 4 : ICON_SIZE + 6}
                       className="transition-all duration-250 ease-out"
                       inactiveIcon={
-                        <Icon
-                          className="transition-all duration-250 ease-out"
-                          style={{
-                            width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                            height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                            // Solid white for maximum visibility on dark background
-                            color: '#ffffff',
-                            fill: '#ffffff',
-                            stroke: '#ffffff',
-                            filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
-                          }}
-                          strokeWidth={2}
-                        />
+                        <div style={{
+                          width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                          height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                          <Icon
+                            className="transition-all duration-250 ease-out"
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              color: '#ffffff',
+                              stroke: '#ffffff',
+                              strokeWidth: 2,
+                              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.8))',
+                            }}
+                          />
+                        </div>
                       }
                     />
                   </div>
