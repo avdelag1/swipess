@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OUTAGE_BYPASS_KEY } from '@/config/outage';
-const swipessLogo = '/icons/fire-s-logo.png';
+import { SwipessLogo } from './SwipessLogo';
 
 interface AppOutagePageProps {
   onBypass: () => void;
@@ -48,11 +48,9 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
         className="cursor-default select-none mb-10"
         aria-label="Swipess logo"
       >
-        <img
-          src={swipessLogo}
-          alt="Swipess"
-          className="w-20 h-20 object-contain"
-          draggable={false}
+        <SwipessLogo
+          size="xl"
+          className="mx-auto"
         />
       </motion.div>
 

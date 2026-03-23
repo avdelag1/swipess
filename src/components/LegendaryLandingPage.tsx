@@ -22,25 +22,22 @@ import { haptics } from '@/utils/microPolish';
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
 // Optimized logo with modern format support + fallback
-// AVIF: ~13KB (99% smaller), WebP: ~61KB (97% smaller), PNG: 1.9MB fallback
-const swipessLogoAvif = '/icons/fire-s-logo.avif';
-const swipessLogoWebp = '/icons/fire-s-logo.webp';
+const swipessLogoVideo = '/icons/swipess-logo-video.mp4';
 const swipessLogoPng = '/icons/fire-s-logo.png';
 
 function LogoImage({ className }: { className?: string }) {
   return (
-    <picture>
-      <source srcSet={swipessLogoAvif} type="image/avif" />
-      <source srcSet={swipessLogoWebp} type="image/webp" />
-      <img
-        src={swipessLogoPng}
-        alt="Swipess"
-        className={className}
-        loading="eager"
-        width={600}
-        height={600}
+    <div className={cn("relative overflow-hidden", className)}>
+      <video
+        src={swipessLogoVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{ mixBlendMode: 'screen', transform: 'scale(1.1)' }}
+        className="w-full h-full object-contain select-none pointer-events-none"
       />
-    </picture>
+    </div>
   );
 }
 
@@ -122,7 +119,7 @@ const LandingView = memo(({
       >
         <div className="relative">
           <LogoImage
-            className="w-[70vw] max-w-[420px] sm:max-w-[520px] md:max-w-[600px] h-auto object-contain mx-auto"
+            className="w-[85vw] max-w-[480px] sm:max-w-[580px] md:max-w-[680px] aspect-video border border-white/5 mx-auto"
           />
         </div>
       </motion.div>
