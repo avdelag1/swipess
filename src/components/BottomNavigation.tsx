@@ -30,6 +30,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { AnimatedLottieIcon } from '@/components/ui/AnimatedLottieIcon';
 
 const ICON_SIZE = 22;
 const ICON_SIZE_COMPACT = 20;
@@ -402,35 +403,44 @@ export function BottomNavigation({
                 )}
 
                 {/* Icon */}
-                <div className="relative" style={{ zIndex: 1 }}>
-                  {/* Notification badge — anchored to the icon, not the full tap target */}
-                  <AnimatePresence>
-                    {item.badge && item.badge > 0 && (
-                      <motion.span
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                        className="absolute -top-1 -right-1 rounded-full w-[9px] h-[9px] z-20 shadow-md border border-background"
-                        style={{ background: 'linear-gradient(135deg,#ef4444,#dc2626)' }}
-                      />
-                    )}
-                  </AnimatePresence>
-                  <Icon
-                    className="transition-all duration-250 ease-out"
-                    style={{
-                      width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                      height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                      color: (active || item.isSpecial) ? 'transparent' : iconColorInactive,
-                      stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
-                      fill: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'none',
-                      filter: (active || item.isSpecial) && !isLight
-                        ? 'drop-shadow(0 2px 8px rgba(249,115,22,0.5))'
-                        : 'none',
-                    }}
-                    strokeWidth={(active || item.isSpecial) ? 3.5 : 2.8}
-                  />
-                </div>
+                  <div className="relative" style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}>
+                    {/* Notification badge — anchored to the icon, not the full tap target */}
+                    <AnimatePresence>
+                      {item.badge && item.badge > 0 && (
+                        <motion.span
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                          transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                          className="absolute -top-1 -right-1 rounded-full w-[9px] h-[9px] z-20 shadow-md border border-background"
+                          style={{ background: 'linear-gradient(135deg,#ef4444,#dc2626)' }}
+                        />
+                      )}
+                    </AnimatePresence>
+                    
+                    <AnimatedLottieIcon 
+                      iconId={item.id}
+                      active={active}
+                      size={isNarrow ? ICON_SIZE_COMPACT + 4 : ICON_SIZE + 6}
+                      className="transition-all duration-250 ease-out"
+                      inactiveIcon={
+                        <Icon
+                          className="transition-all duration-250 ease-out"
+                          style={{
+                            width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                            height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                            color: (active || item.isSpecial) ? 'transparent' : iconColorInactive,
+                            stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
+                            fill: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'none',
+                            filter: (active || item.isSpecial) && !isLight
+                              ? 'drop-shadow(0 2px 8px rgba(249,115,22,0.5))'
+                              : 'none',
+                          }}
+                          strokeWidth={(active || item.isSpecial) ? 3.5 : 2.8}
+                        />
+                      }
+                    />
+                  </div>
 
                 {/* Label — hidden on very narrow screens (<360px) for icon-only mode */}
                 {!isNarrow && (
