@@ -8,8 +8,10 @@ import aiAnim from '@/assets/animations/ai-sparkle.json';
 import messageAnim from '@/assets/animations/message-pop.json';
 import compassAnim from '@/assets/animations/compass-elastic.json';
 import genericAnim from '@/assets/animations/generic-pop.json';
+import heartAnim from '@/assets/animations/heart-elastic.json';
+import dislikeAnim from '@/assets/animations/dislike-elastic.json';
 
-type IconType = 'profile' | 'likes' | 'ai-search' | 'messages' | 'browse' | string;
+type IconType = 'profile' | 'likes' | 'ai-search' | 'messages' | 'browse' | 'heart' | 'dislike' | string;
 
 interface AnimatedLottieIconProps {
   iconId: IconType;
@@ -25,6 +27,8 @@ const ANIMATION_MAP: Record<string, any> = {
   'ai-search': aiAnim,
   messages: messageAnim,
   browse: compassAnim,
+  heart: heartAnim,
+  dislike: dislikeAnim,
 };
 
 export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({

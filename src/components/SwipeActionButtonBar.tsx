@@ -16,6 +16,7 @@ import { memo, useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, RotateCcw, MessageCircle, Flame, ThumbsDown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
+import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 
 interface SwipeActionButtonBarProps {
   onLike: () => void;
@@ -195,23 +196,13 @@ const ActionButton = memo(({
         }}
       />
       {/* Icon with deep colored drop-shadow */}
-      <motion.span
-        animate={{ scale: isPressed ? 0.85 : 1 }}
-        transition={ICON_SPRING}
-        style={{
-          width: iconSize,
-          height: iconSize,
-          color: cfg.iconColor,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          filter: `drop-shadow(${cfg.dropShadow})`,
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
-        {children}
-      </motion.span>
+        <AnimatedLottieIcon
+          iconId={variant === 'like' ? 'heart' : variant === 'dislike' ? 'dislike' : variant}
+          active={isPressed}
+          size={iconSize}
+          className="relative z-10"
+          inactiveIcon={children}
+        />
     </motion.button>
   );
 });
