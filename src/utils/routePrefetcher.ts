@@ -54,14 +54,14 @@ const routeImports: Record<string, RouteImport> = {
 const prefetchedRoutes = new Set<string>();
 
 /**
- * Safe requestIdleCallback with fallback - LONG delay to avoid blocking
+ * Safe requestIdleCallback with fallback — shorter timeout for speed
  */
-const scheduleIdle = (callback: () => void, timeout = 5000): void => {
+const scheduleIdle = (callback: () => void, timeout = 2000): void => {
   if (typeof requestIdleCallback !== 'undefined') {
     requestIdleCallback(callback, { timeout });
   } else {
-    // Fallback for Safari - use longer delay to not block main thread
-    setTimeout(callback, 300);
+    // Fallback for Safari - use shorter delay for snappier navigation
+    setTimeout(callback, 150);
   }
 };
 
@@ -122,7 +122,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
     const critical = ['/client/profile', '/client/liked-properties', ...sharedRoutes];
     critical.forEach(p => prefetchRoute(p));
     
-    // Everything else — sequential background prefetch
+    // Everything else — sequential background prefetch (start fast)
     scheduleIdle(() => {
       const remaining = [
         '/client/filters',
@@ -138,12 +138,12 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
         '/explore/tours'
       ];
       prefetchRoutesSequentially(remaining);
-    }, 1000);
+    }, 300);
   } else {
     const critical = ['/owner/profile', '/owner/properties', ...sharedRoutes];
     critical.forEach(p => prefetchRoute(p));
-    
-    // Everything else — sequential background prefetch
+
+    // Everything else — sequential background prefetch (start fast)
     scheduleIdle(() => {
       const remaining = [
         '/owner/liked-clients',
@@ -158,7 +158,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
         '/owner/clients/bicycle'
       ];
       prefetchRoutesSequentially(remaining);
-    }, 1000);
+    }, 300);
   }
 }
 

@@ -6,14 +6,14 @@
 /* CSS class-based PWA mode (set by JavaScript detection) */
 html.pwa-mode {
     /* Additional PWA optimizations applied via JS class */
-    --animation-speed-multiplier: 0.8; /* Faster but still fluid */
+    --animation-speed-multiplier: 0.5; /* Near-instant — native app feel */
     overscroll-behavior-y: none;
     height: 100dvh;
     overflow: hidden;
     position: fixed;
     width: 100%;
     /* Smooth theme transitions in PWA */
-    transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html.pwa-mode body {
@@ -35,9 +35,9 @@ html.pwa-mode .animate-ping {
 
 html.pwa-ios {
     /* iOS-specific PWA optimizations */
-    --animation-speed-multiplier: 0.75;
+    --animation-speed-multiplier: 0.5;
     /* Smooth theme transitions on iOS PWA */
-    transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html.pwa-ios .swipe-card {
@@ -67,10 +67,29 @@ html.pwa-mode .swipe-action-btn {
 }
 
 
-/* PWA: Simplify animations during interaction */
+/* PWA: Near-instant animations — native app speed */
 html.pwa-mode .animate-in,
 html.pwa-mode .animate-out {
+    animation-duration: 60ms !important;
+}
+
+/* PWA: Kill framer-motion page transitions entirely — crossfade is handled by opacity only */
+html.pwa-mode [data-framer-portal],
+html.pwa-mode .framer-motion-overlay {
+    transition-duration: 0.08s !important;
+}
+
+/* PWA: Faster dialog/sheet open-close */
+html.pwa-mode [data-radix-dialog-content],
+html.pwa-mode [data-state="open"],
+html.pwa-mode [data-state="closed"] {
     animation-duration: 100ms !important;
+    transition-duration: 100ms !important;
+}
+
+/* PWA: Faster toasts */
+html.pwa-mode [data-sonner-toast] {
+    transition-duration: 100ms !important;
 }
 
 /* PWA: Reduce motion for better performance */
@@ -202,15 +221,13 @@ button:disabled,
 /* FIX #9: Optimize Animations for Mobile */
 @media (max-width: 767px) {
 
-    /* PERF: Only speed up CSS-driven animations on mobile, not framer-motion.
-       The old `*` selector broke spring physics and made transitions feel janky.
-       Target specific CSS animation classes instead. */
+    /* PERF: Speed up CSS-driven animations on mobile for native feel */
     .view-enter-premium,
     .stagger-enter > *,
     .prism-transition-in,
     .prism-transition-out,
     .modal-enter-premium {
-        animation-duration: 0.25s !important;
+        animation-duration: 0.15s !important;
     }
 
     /* Disable complex animations during active scroll for jank-free scrolling */
@@ -283,12 +300,12 @@ button:active,
 
 /* ===== PREMIUM MICRO-INTERACTIONS ===== */
 
-/* Tactile press effect for all interactive cards and buttons */
+/* Tactile press effect for all interactive cards and buttons — INSTANT feedback */
 .app-content button,
 .app-content [role="button"] {
-    transition: transform 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-        box-shadow 0.15s ease,
-        background-color 0.15s ease;
+    transition: transform 0.06s cubic-bezier(0, 0, 0.2, 1),
+        box-shadow 0.1s ease,
+        background-color 0.1s ease;
 }
 
 .app-content button:active,

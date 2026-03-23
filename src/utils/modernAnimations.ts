@@ -21,27 +21,18 @@ export const easings = {
   bounce: [0.68, -0.55, 0.265, 1.55],
 };
 
-// Page transition variants
+// Page transition variants — blur REMOVED (GPU-expensive, causes jank on mobile)
 export const pageVariants: Variants = {
-  initial: { 
-    opacity: 0, 
-    y: 20,
-    scale: 0.98,
-    filter: 'blur(4px)',
+  initial: {
+    opacity: 0,
   },
-  animate: { 
-    opacity: 1, 
-    y: 0,
-    scale: 1,
-    filter: 'blur(0px)',
-    transition: springConfigs.smooth
+  animate: {
+    opacity: 1,
+    transition: { duration: 0.12, ease: [0.25, 0.1, 0.25, 1] }
   },
-  exit: { 
-    opacity: 0, 
-    y: -15,
-    scale: 0.98,
-    filter: 'blur(2px)',
-    transition: { duration: 0.2, ease: "easeOut" }
+  exit: {
+    opacity: 0,
+    transition: { duration: 0.08, ease: "easeOut" }
   },
 };
 
@@ -264,24 +255,21 @@ export const notificationVariants: Variants = {
   }
 };
 
-// Modal/Dialog variants
+// Modal/Dialog variants — fast open, instant close
 export const modalVariants: Variants = {
   hidden: {
     opacity: 0,
-    scale: 0.95,
-    y: 10,
+    scale: 0.97,
   },
   visible: {
     opacity: 1,
     scale: 1,
-    y: 0,
-    transition: springConfigs.snappy
+    transition: { duration: 0.12, ease: [0.25, 0.1, 0.25, 1] }
   },
   exit: {
     opacity: 0,
-    scale: 0.97,
-    y: 5,
-    transition: { duration: 0.15 }
+    scale: 0.98,
+    transition: { duration: 0.08 }
   }
 };
 
