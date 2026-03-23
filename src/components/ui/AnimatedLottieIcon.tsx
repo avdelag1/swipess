@@ -57,6 +57,27 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
 
   const animationData = ANIMATION_MAP[iconId] || genericAnim;
 
+  // When inactive, render the fallback icon instead of the animation
+  if (!active) {
+    return (
+      <div 
+        className={className} 
+        style={{ 
+          width: size, 
+          height: size, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+        }}
+      >
+        {inactiveIcon || (
+          <span style={{ color: '#ffffff', fontSize: size * 0.8 }}>●</span>
+        )}
+      </div>
+    );
+  }
+
+  // When active, render the Lottie animation
   return (
     <div 
       className={className} 
@@ -66,48 +87,15 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        opacity: active ? 1 : 0.8,
-        transition: 'opacity 0.2s ease',
-        position: 'relative'
       }}
     >
-      <div 
-        style={{ 
-          position: 'absolute', 
-          inset: 0, 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          opacity: active ? 1 : 0,
-          pointerEvents: active ? 'auto' : 'none',
-          transition: 'opacity 0.2s ease-out',
-          zIndex: 2
-        }}
-      >
-        <Lottie
-          lottieRef={lottieRef}
-          animationData={animationData}
-          loop={active && (iconId === 'likes' || iconId === 'ai-search' || iconId === 'browse')} 
-          autoplay={active}
-          style={{ width: '100%', height: '100%' }}
-        />
-      </div>
-      
-      <div 
-        style={{ 
-          position: 'absolute', 
-          inset: 0, 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          opacity: active ? 0 : 1,
-          pointerEvents: active ? 'none' : 'auto',
-          transition: 'opacity 0.2s ease-in',
-          zIndex: 1
-        }}
-      >
-        {inactiveIcon}
-      </div>
+      <Lottie
+        lottieRef={lottieRef}
+        animationData={animationData}
+        loop={iconId !== 'profile'} // Loop mostly for flame/sparkles
+        autoplay={active}
+        style={{ width: '100%', height: '100%' }}
+      />
     </div>
   );
 };
