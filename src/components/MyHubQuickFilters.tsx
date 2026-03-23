@@ -1,21 +1,16 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import {
     Home,
     Bike,
     Briefcase,
-    Search,
-    Check,
 } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import { cn } from '@/lib/utils';
-import { haptics } from '@/utils/microPolish';
 import { QuickFilterCategory } from '@/types/filters';
 import { CategorySwipeStack } from './CategorySwipeStack';
 import { ExploreFeatureLinks } from './ExploreFeatureLinks';
 
-const categories: { id: QuickFilterCategory; label: string; icon: any; color: string }[] = [
+const _categories: { id: QuickFilterCategory; label: string; icon: any; color: string }[] = [
     { id: 'property', label: 'Property', icon: Home, color: 'from-rose-500 to-rose-400' },
     { id: 'motorcycle', label: 'Moto', icon: MotorcycleIcon, color: 'from-orange-500 to-orange-400' },
     { id: 'bicycle', label: 'Bicycle', icon: Bike, color: 'from-violet-500 to-violet-400' },
@@ -23,8 +18,8 @@ const categories: { id: QuickFilterCategory; label: string; icon: any; color: st
 ];
 
 export function MyHubQuickFilters() {
-    const activeCategory = useFilterStore(s => s.activeCategory);
-    const { setActiveCategory } = useFilterActions();
+    const _activeCategory = useFilterStore(s => s.activeCategory);
+    const { setActiveCategory: _setActiveCategory } = useFilterActions();
 
     return (
         <div className="relative mb-8 px-4">

@@ -47,7 +47,7 @@ function SwipeMatchMeterComponent({ percentage, reasons, compact = false }: Swip
     };
   }, [percentage]);
 
-  // Conic gradient for the ring
+  // Conic gradient for the ring — computed unconditionally before any early return
   const ringStyle = useMemo(() => ({
     background: `conic-gradient(${color} ${percentage * 3.6}deg, rgba(255,255,255,0.08) ${percentage * 3.6}deg)`,
   }), [percentage, color]);

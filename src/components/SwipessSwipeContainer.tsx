@@ -28,11 +28,8 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { RotateCcw, RefreshCw, Home, Bike, Briefcase, MapPin, Navigation } from 'lucide-react';
+import { Home, Bike, Briefcase, MapPin, Navigation } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
-import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
@@ -42,7 +39,6 @@ import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import { cn } from '@/lib/utils';
 
 // Category configuration for dynamic empty states
 const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>; label: string; plural: string; color: string }> = {
@@ -157,8 +153,9 @@ interface DistanceSliderProps {
   detected: boolean;
 }
 
-const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
+const _DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
   const maxKm = 100;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { theme } = useTheme();
   const isLight = theme === 'light';
   return (
