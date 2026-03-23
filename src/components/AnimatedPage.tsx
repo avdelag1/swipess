@@ -13,18 +13,18 @@ const pageVariants = {
   animate: {
     opacity: 1,
     transition: {
-      duration: 0.12,
-      ease: [0.25, 0.1, 0.25, 1],
+      duration: 0.08,
+      ease: "easeOut",
     }
   },
   exit: {
     opacity: 0,
     transition: {
-      duration: 0.08,
-      ease: [0.4, 0, 1, 1],
+      duration: 0.06,
+      ease: "easeIn",
     }
   },
-};
+} as const;
 
 export function AnimatedPage({ children }: { children: ReactNode }) {
   return (

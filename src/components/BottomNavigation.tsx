@@ -20,10 +20,11 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
   Flame, MessageCircle, User, Building2,
   Search, Users, Sparkles, ShieldCheck,
-  Megaphone, Compass
+  Megaphone, Compass, Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
@@ -74,6 +75,7 @@ export function BottomNavigation({
   const { navigate } = useAppNavigate();
   const location = useLocation();
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
+  const { unreadCount } = useUnreadNotifications();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { t } = useTranslation();
@@ -98,6 +100,7 @@ export function BottomNavigation({
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
+    { id: 'notifications', icon: Bell, label: 'Updates', path: '/notifications', badge: unreadCount },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
@@ -110,6 +113,7 @@ export function BottomNavigation({
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
+    { id: 'notifications', icon: Bell, label: 'Updates', path: '/notifications', badge: unreadCount },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'ai-search', icon: Sparkles, label: 'Listing AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
@@ -482,7 +486,7 @@ export function BottomNavigation({
                       background: 'linear-gradient(90deg, #ec4899, #f97316)',
                       boxShadow: '0 0 8px rgba(249,115,22,0.65), 0 0 16px rgba(249,115,22,0.3)',
                     }}
-                    transition={{ type: 'spring', stiffness: 480, damping: 30, mass: 0.5 }}
+                    transition={{ type: 'spring', stiffness: 620, damping: 32, mass: 0.4 }}
                   />
                 )}
               </motion.button>

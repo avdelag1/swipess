@@ -16,14 +16,14 @@ const pageTransition = {
   animate: {
     opacity: 1,
     transition: {
-      duration: 0.12,
+      duration: 0.08,
       ease: "easeOut",
     }
   },
   exit: {
     opacity: 0,
     transition: {
-      duration: 0.08,
+      duration: 0.06,
       ease: "easeIn",
     }
   },

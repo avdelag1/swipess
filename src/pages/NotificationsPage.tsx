@@ -3,7 +3,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Bell, MessageSquare, Flame,
-  Sparkles, Star, Crown, MessageCircle, X
+  Sparkles, Star, Crown, MessageCircle, X,
+  CheckCircle2, Trash2, ArrowLeft
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,8 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
+import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@/hooks/useTheme';
 
 const NotificationIconBg = ({ type, role = 'neutral' }: { type: string; role?: 'client' | 'owner' | 'neutral' }) => {
   const getConfig = () => {
@@ -49,7 +52,7 @@ const NotificationIconBg = ({ type, role = 'neutral' }: { type: string; role?: '
     }
   };
   const config = getConfig();
-  return <div className={cn("p-2.5 rounded-xl", config.bg)}>{config.icon}</div>;
+  return <div className={cn("p-2.5 rounded-xl transition-colors duration-300", config.bg)}>{config.icon}</div>;
 };
 
 export default function NotificationsPage() {
@@ -59,78 +62,138 @@ export default function NotificationsPage() {
     clearAllNotifications,
     markAllAsRead, 
     handleNotificationClick,
-    unreadCount: _unreadCount
+    unreadCount
   } = useNotificationSystem();
   
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
+  const handleBack = () => {
+    haptics.tap();
+    if (window.history.length > 2) {
+      window.history.back();
+    } else {
+      navigate(-1);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-32">
-      <div className="max-w-2xl mx-auto px-4 pt-4">
-        <header className="flex items-center justify-between mb-8">
-          <div>
-            <p className="text-xs font-black text-brand-accent-2/60 uppercase tracking-widest mb-1">
-              Activity History
-            </p>
-            <h1 className="text-2xl font-black tracking-tight text-foreground">Updates</h1>
+      {/* ── STICKY GLASS HEADER ────────────────────────────────────────── */}
+      <header className="sticky top-0 z-40 w-full">
+        <div className="absolute inset-0 bg-background/60 backdrop-blur-3xl" />
+        <div className="relative max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-2xl hover:bg-muted/10 active:scale-95 transition-all"
+              onClick={handleBack}
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
+                Updates
+                {unreadCount > 0 && (
+                   <span className="flex h-2 w-2 rounded-full bg-brand-accent-2 animate-pulse" />
+                )}
+              </h1>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">
+                Activity History
+              </p>
+            </div>
           </div>
+
           {notifications.length > 0 && (
             <div className="flex gap-2">
-              <Button 
+               <Button 
                 variant="ghost" 
-                size="sm" 
-                className="rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground"
-                onClick={markAllAsRead}
+                size="icon"
+                className="w-10 h-10 rounded-2xl hover:bg-brand-accent-2/10 text-brand-accent-2 transition-all active:scale-90"
+                onClick={() => {
+                  haptics.success();
+                  markAllAsRead();
+                }}
+                title="Mark all as read"
               >
-                Mark all read
+                <CheckCircle2 className="w-5 h-5" />
               </Button>
               <Button 
                 variant="ghost" 
-                size="sm" 
-                className="rounded-xl text-[10px] font-black uppercase tracking-widest text-destructive hover:bg-destructive/10"
+                size="icon"
+                className="w-10 h-10 rounded-2xl hover:bg-destructive/10 text-destructive transition-all active:scale-90"
                 onClick={() => setDeleteDialogOpen(true)}
+                title="Clear history"
               >
-                Clear all
+                <Trash2 className="w-5 h-5" />
               </Button>
             </div>
           )}
-        </header>
+        </div>
+      </header>
 
-        <div className="space-y-3">
+      <div className="max-w-2xl mx-auto px-4 pt-6">
+        <div className="space-y-4">
           {notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center bg-muted/20 border border-dashed border-border rounded-[2.5rem]">
-              <div className="w-20 h-20 rounded-3xl bg-muted/50 flex items-center justify-center mb-6 border border-border">
-                <Bell className="w-10 h-10 text-muted-foreground/30" />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center justify-center py-24 text-center glass-card-cinematic rounded-[3rem] border-dashed"
+            >
+              <div className="w-24 h-24 rounded-[2rem] bg-muted/20 flex items-center justify-center mb-8 border border-border/40 relative">
+                <Bell className="w-10 h-10 text-muted-foreground/20" strokeWidth={1.5} />
+                <motion.div 
+                  className="absolute inset-0 rounded-[2rem] border-2 border-brand-accent-2/10"
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0, 0.3] }}
+                  transition={{ duration: 4, repeat: Infinity }}
+                />
               </div>
-              <h3 className="text-sm font-black text-muted-foreground uppercase tracking-widest">Pure Stillness</h3>
-              <p className="text-xs text-muted-foreground/60 mt-1">New activity will manifest here</p>
-            </div>
+              <h3 className="text-xl font-black text-foreground mb-2">Pure Stillness</h3>
+              <p className="text-sm text-muted-foreground/60 max-w-[240px]">
+                Your activity history is pristine. New manifestations will appear here.
+              </p>
+            </motion.div>
           ) : (
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence mode="popLayout" initial={false}>
               {notifications.map((n, i) => (
                 <motion.div
                   key={n.id}
-                  initial={{ opacity: 0, y: 12 }}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ delay: i * 0.04 }}
+                  exit={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
+                  transition={{ 
+                    type: 'spring',
+                    stiffness: 400,
+                    damping: 30,
+                    delay: Math.min(i * 0.03, 0.3)
+                  }}
                 >
                   <Card
                     className={cn(
-                      "group relative overflow-hidden rounded-[1.5rem] border transition-all hover:bg-muted/10 active:scale-[0.99] cursor-pointer",
-                      !n.read ? "bg-card border-brand-accent-2/20 border-l-4 border-l-brand-accent-2Shadow shadow-lg shadow-brand-accent-2/5" : "bg-card/50 border-border/40 opacity-80"
+                      "group relative overflow-hidden rounded-[2rem] border-0 transition-all cursor-pointer active:scale-[0.98]",
+                      !n.read 
+                        ? (isLight ? "bg-white shadow-xl shadow-black/5" : "bg-card/80 shadow-2xl shadow-brand-accent-2/5 border border-brand-accent-2/10")
+                        : "bg-muted/30 border border-transparent opacity-70 grayscale-[0.5]"
                     )}
                     onClick={() => {
                         haptics.tap();
                         handleNotificationClick(n);
                     }}
                   >
-                    <CardContent className="p-4 flex items-center gap-4">
+                    {!n.read && (
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-brand-accent-2 to-brand-primary" />
+                    )}
+                    
+                    <CardContent className="p-5 flex items-center gap-5">
                       <div className="shrink-0 relative">
                         {n.avatar ? (
                           <div className="relative">
-                            <img src={n.avatar} alt="" className="w-12 h-12 rounded-2xl object-cover border border-border" />
-                            <div className="absolute -bottom-1 -right-1 scale-50">
+                            <img src={n.avatar} alt="" className="w-14 h-14 rounded-2xl object-cover border border-border shadow-sm" />
+                            <div className="absolute -bottom-1 -right-1 scale-75 origin-bottom-right">
                                 <NotificationIconBg type={n.type} role={n.metadata?.role} />
                             </div>
                           </div>
@@ -140,15 +203,21 @@ export default function NotificationsPage() {
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-0.5">
-                          <h4 className="font-black text-[13px] text-foreground leading-tight truncate">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className={cn(
+                            "font-black text-sm tracking-tight truncate",
+                            !n.read ? "text-foreground" : "text-muted-foreground"
+                          )}>
                             {n.title}
                           </h4>
-                          <span className="text-[10px] font-bold text-muted-foreground/50 shrink-0 ml-2">
+                          <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter shrink-0 ml-3">
                             {formatDistanceToNow(n.timestamp, { addSuffix: true }).replace('about ', '')}
                           </span>
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-1">
+                        <p className={cn(
+                          "text-xs leading-relaxed",
+                          !n.read ? "text-muted-foreground font-medium" : "text-muted-foreground/60"
+                        )}>
                           {n.message}
                         </p>
                       </div>
@@ -156,14 +225,14 @@ export default function NotificationsPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="w-8 h-8 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive/10 hover:text-destructive"
+                        className="w-10 h-10 rounded-2xl opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive/10 hover:text-destructive active:scale-90"
                         onClick={(e) => {
                           e.stopPropagation();
-                          haptics.tap();
+                          haptics.light();
                           dismissNotification(n.id);
                         }}
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-5 h-5" />
                       </Button>
                     </CardContent>
                   </Card>
@@ -175,21 +244,24 @@ export default function NotificationsPage() {
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="rounded-3xl border-border bg-card/90 backdrop-blur-2xl">
+        <AlertDialogContent className="rounded-[2.5rem] border-border bg-card/90 backdrop-blur-3xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-black text-xl">Clear Activity?</AlertDialogTitle>
-            <AlertDialogDescription className="font-bold">
-              This will remove all visible notifications from your history permanently.
+            <div className="w-16 h-16 rounded-3xl bg-destructive/10 flex items-center justify-center mb-4 mx-auto">
+              <Trash2 className="w-8 h-8 text-destructive" />
+            </div>
+            <AlertDialogTitle className="font-black text-2xl text-center">Clear Everything?</AlertDialogTitle>
+            <AlertDialogDescription className="text-center font-bold text-muted-foreground px-4">
+              Your activity history will be completely purged. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-xl font-bold">Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 mt-4 sm:gap-2">
+            <AlertDialogCancel className="w-full sm:flex-1 rounded-2xl font-black h-12 border-muted hover:bg-muted/50">CANCEL</AlertDialogCancel>
             <AlertDialogAction 
               onClick={() => {
-                haptics.success();
+                haptics.notification('warning');
                 clearAllNotifications?.();
               }}
-              className="bg-destructive text-destructive-foreground rounded-xl font-black"
+              className="w-full sm:flex-1 bg-destructive text-destructive-foreground rounded-2xl font-black h-12 hover:bg-destructive/90 active:scale-95 transition-all"
             >
               CLEAR ALL
             </AlertDialogAction>
