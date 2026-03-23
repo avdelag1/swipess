@@ -376,7 +376,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const id = setTimeout(() => {
       const el = document.getElementById('dashboard-scroll-container');
       el?.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-    }, 160);
+    }, 40);
     return () => clearTimeout(id);
   }, [location.pathname]);
 
@@ -387,7 +387,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/client/liked-properties',
     '/messages',
     '/explore/roommates',
-    '/client/filters',
   ];
   const ownerSwipePaths = [
     '/owner/dashboard',
@@ -395,13 +394,35 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/owner/liked-clients',
     '/owner/properties',
     '/messages',
-    '/owner/filters',
   ];
-  const isDashboardSwipePage = ['/client/dashboard', '/owner/dashboard'].includes(location.pathname.replace(/\/$/, ''));
+
+  // IMMERSIVE MODE: Detect swipe dashboard routes for full-bleed card experience
+  // On these routes, TopBar becomes transparent and content extends behind it
+  const isImmersiveDashboard = useMemo(() => {
+    const path = location.pathname;
+    // Core routes that should go full-bleed behind the header
+    const immersiveRoutes = [
+      '/client/dashboard',
+      '/owner/dashboard',
+      '/client/profile',
+      '/owner/profile',
+      '/client/liked-properties',
+      '/owner/liked-clients',
+      '/client/who-liked-you',
+      '/owner/interested-clients',
+    ];
+
+    const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
+      path.includes('discovery') ||
+      path.includes('view-client');
+    
+    return isMatch;
+  }, [location.pathname]);
+
   useSwipeNavigation({
     paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
     containerSelector: '#dashboard-scroll-container',
-    enabled: userRole !== 'admin' && !isDashboardSwipePage,
+    enabled: userRole !== 'admin' && !isImmersiveDashboard,
   });
 
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
@@ -584,34 +605,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isRoommatesPage = location.pathname.startsWith('/explore/roommates');
   const isImmersiveFeed = location.pathname.startsWith('/explore/eventos') || isRoommatesPage;
 
-  // IMMERSIVE MODE: Detect swipe dashboard routes for full-bleed card experience
-  // On these routes, TopBar becomes transparent and content extends behind it
-  const isImmersiveDashboard = useMemo(() => {
-    const path = location.pathname;
-    // Core routes that should go full-bleed behind the header
-    const immersiveRoutes = [
-      '/client/dashboard',
-      '/owner/dashboard',
-      '/client/profile',
-      '/owner/profile',
-      '/client/liked-properties',
-      '/owner/liked-clients',
-      '/client/who-liked-you',
-      '/owner/interested-clients',
-      '/client/filters',
-      '/owner/filters',
-      '/owner/properties',
-      '/client/services',
-      '/messages',
-      '/notifications',
-    ];
+  // IMMERSIVE MODE: Handled above for swipe navigation dependency
 
-    const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
-      path.includes('discovery') ||
-      path.includes('view-client');
-    
-    return isMatch;
-  }, [location.pathname]);
 
   // FULLSCREEN MODE: These routes hide the global TopBar and BottomNav entirely
   // and take over the full screen height with 0 padding.
@@ -647,13 +642,17 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     ].some(path => location.pathname === path || location.pathname === path + '/');
 
     return isCameraRoute || isRadioRoute || 
-           location.pathname.includes('/client/filters') || 
-           location.pathname.includes('/owner/filters') ||
            isEventoDetail || isEventsMain || isRoommatesPage || isSpecialSubPage;
   }, [isCameraRoute, isRadioRoute, location.pathname, isRoommatesPage]);
 
-  // Round 8: Page titles removed — bottom nav is sufficient indicator
-  const pageTitle = '';
+  // Dynamic page titles
+  const pageTitle = useMemo(() => {
+    if (location.pathname.includes('/client/filters')) return 'Mission Parameters';
+    if (location.pathname.includes('/owner/filters')) return 'Client Search';
+    if (location.pathname.includes('/messages')) return 'Secure Link';
+    if (location.pathname.includes('/notifications')) return 'Comm Center';
+    return '';
+  }, [location.pathname]);
 
   // Calculate responsive layout values
   const topBarHeight = responsive.isMobile ? 52 : 56;
@@ -690,7 +689,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           "w-full max-w-[100vw] box-border z-0 transform-gpu touch-pan-y"
         )}
         style={{
-          paddingTop: (isFullScreenRoute || isDashboardSwipePage)
+          paddingTop: (isFullScreenRoute || isImmersiveDashboard || isImmersiveFeed)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
           paddingBottom: (isFullScreenRoute) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,

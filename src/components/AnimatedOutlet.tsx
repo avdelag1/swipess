@@ -17,24 +17,24 @@ const pageTransition = {
     opacity: 1,
     transition: {
       duration: 0.12,
-      ease: [0.25, 0.1, 0.25, 1], // CSS ease equivalent — fast start, smooth end
+      ease: "easeOut",
     }
   },
   exit: {
     opacity: 0,
     transition: {
       duration: 0.08,
-      ease: [0.4, 0, 1, 1],
+      ease: "easeIn",
     }
   },
-};
+} as const;
 
 export function AnimatedOutlet() {
     const location = useLocation();
     const outlet = useOutlet();
 
     return (
-        <AnimatePresence mode="popLayout" initial={false}>
+        <AnimatePresence initial={false}>
             <motion.div
                 key={location.pathname}
                 {...pageTransition}
