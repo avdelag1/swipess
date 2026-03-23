@@ -236,7 +236,7 @@ const OwnerProfileNew = () => {
             )}
           >
             <Radio className="w-5 h-5 text-rose-400" />
-            Radio Station
+            Radio
           </button>
 
           {/* Settings */}

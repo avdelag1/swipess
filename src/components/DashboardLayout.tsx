@@ -651,6 +651,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (location.pathname.includes('/owner/filters')) return 'Client Search';
     if (location.pathname.includes('/messages')) return 'Secure Link';
     if (location.pathname.includes('/notifications')) return 'Comm Center';
+    if (location.pathname.includes('/radio')) return 'Radio';
     return '';
   }, [location.pathname]);
 
