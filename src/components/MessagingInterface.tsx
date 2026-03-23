@@ -141,7 +141,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const connectingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check monthly message limits
-  const { isAtLimit, hasMonthlyLimit, messagesRemaining } = useMonthlyMessageLimits(user?.id);
+  const { isAtLimit, hasMonthlyLimit, messagesRemaining } = useMonthlyMessageLimits();
 
   // Real-time presence indicator
   const { isOnline } = usePresence(otherUser.id);

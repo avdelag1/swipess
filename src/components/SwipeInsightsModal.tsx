@@ -167,8 +167,21 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
               <DialogHeader className="mb-2 sm:mb-3">
                 <DialogTitle className="text-sm sm:text-lg font-bold flex items-center gap-2">
                   <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                  {isClientProfile ? 'Renter Insights' : 'Property Insights'}
+                  {isClientProfile
+                    ? (profile?.roommate_available ? 'Roommate Profile' : 'Renter Profile')
+                    : (listing?.category === 'vehicle' || listing?.vehicle_type
+                      ? 'Vehicle Details'
+                      : listing?.category === 'worker' || listing?.category === 'services'
+                        ? 'Service Provider Details'
+                        : 'Property Details')}
                 </DialogTitle>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {isClientProfile
+                    ? (profile?.roommate_available
+                      ? 'Compatibility overview and lifestyle details'
+                      : 'Profile overview, readiness score, and preferences')
+                    : 'Key details, quality score, and availability'}
+                </p>
               </DialogHeader>
 
               {isClientProfile && profile ? (
@@ -184,7 +197,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                     >
                       <h4 className="font-semibold text-sm flex items-center gap-2">
                         <Eye className="w-4 h-4 text-primary" />
-                        Photos ({profile.profile_images.length})
+                        Profile Photos ({profile.profile_images.length})
                       </h4>
                       <div className="grid grid-cols-3 gap-2">
                         {profile.profile_images.slice(0, 6).map((image, index) => (
@@ -275,6 +288,47 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                     </div>
                   </motion.div>
 
+                  {/* Roommate Lifestyle Section - Only for roommate profiles */}
+                  {profile.roommate_available && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15 }}
+                      className="space-y-3"
+                    >
+                      <h4 className="font-semibold text-sm flex items-center gap-2">
+                        <Users className="w-4 h-4 text-primary" />
+                        Roommate Compatibility
+                      </h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {(profile as any).work_schedule && (
+                          <div className="p-3 bg-muted/30 rounded-xl border border-border/50">
+                            <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Schedule</div>
+                            <div className="text-sm font-semibold">{(profile as any).work_schedule}</div>
+                          </div>
+                        )}
+                        {(profile as any).cleanliness_level && (
+                          <div className="p-3 bg-muted/30 rounded-xl border border-border/50">
+                            <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Cleanliness</div>
+                            <div className="text-sm font-semibold">{(profile as any).cleanliness_level}</div>
+                          </div>
+                        )}
+                        {(profile as any).noise_tolerance && (
+                          <div className="p-3 bg-muted/30 rounded-xl border border-border/50">
+                            <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Noise Tolerance</div>
+                            <div className="text-sm font-semibold">{(profile as any).noise_tolerance}</div>
+                          </div>
+                        )}
+                        {(profile as any).languages_spoken?.length > 0 && (
+                          <div className="p-3 bg-muted/30 rounded-xl border border-border/50">
+                            <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Languages</div>
+                            <div className="text-sm font-semibold">{(profile as any).languages_spoken.slice(0, 3).join(', ')}</div>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+
                   {/* Readiness Score Bar */}
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
@@ -285,7 +339,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-semibold flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                        Renter Readiness
+                        {profile.roommate_available ? 'Profile Completeness' : 'Renter Readiness'}
                       </span>
                       <Badge className={`${
                         insights.readinessScore >= 80 ? 'bg-gradient-to-r from-rose-500/30 to-rose-500/20 text-rose-700 dark:text-rose-400 border-rose-500/40' :
@@ -368,7 +422,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                   <div className="space-y-3">
                     <h4 className="font-semibold text-xs sm:text-sm flex items-center gap-2">
                       <Home className="w-4 h-4 text-primary" />
-                      Looking For
+                      {profile?.roommate_available ? 'Lifestyle Preferences' : 'Looking For'}
                     </h4>
                     <div className="grid grid-cols-1 xs:grid-cols-2 gap-1.5 sm:gap-2">
                       {profile.interests?.some(i => i.toLowerCase().includes('long-term') || i.toLowerCase().includes('rent')) && (

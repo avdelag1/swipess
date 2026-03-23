@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { haptics } from '@/utils/microPolish';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 
 // Helper to check free messaging eligibility
 async function checkFreeMessagingCategory(userId: string): Promise<boolean> {
@@ -69,6 +70,8 @@ export function MessagingDashboard() {
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
   const { activeMode } = useActiveMode();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
   const deleteConversation = useDeleteConversation();
@@ -254,7 +257,11 @@ export function MessagingDashboard() {
             ].map((filter) => (
               <button key={filter.id} onClick={() => { setActiveFilter(filter.id as any); haptics.tap(); }}
                 className={cn("flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all",
-                  activeFilter === filter.id ? "bg-primary text-white shadow-lg" : "bg-white/5 text-muted-foreground")}>
+                  activeFilter === filter.id
+                    ? "bg-primary text-white shadow-lg"
+                    : isLight
+                      ? "bg-secondary border border-border/40 text-muted-foreground hover:bg-secondary/80"
+                      : "bg-white/5 text-muted-foreground hover:bg-white/10")}>
                 <filter.icon className="w-3.5 h-3.5" />
                 {filter.label}
               </button>
@@ -263,7 +270,7 @@ export function MessagingDashboard() {
 
           <div className="relative mb-5">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            <input placeholder="Search conversations..." className="w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] bg-white/[0.04] border border-white/10 outline-none" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            <input placeholder="Search conversations..." className={cn("w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] outline-none focus:ring-2 focus:ring-primary/30 transition-all", isLight ? "bg-secondary border border-border/40" : "bg-white/[0.04] border border-white/10")} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
 
           <div className="space-y-1.5">
@@ -277,7 +284,7 @@ export function MessagingDashboard() {
 
                 return (
                   <motion.div key={conversation.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }}>
-                    <button className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl hover:bg-white/[0.04] text-left" onClick={() => setSelectedConversationId(conversation.id)}>
+                    <button className={cn("w-full flex items-center gap-3.5 p-3.5 rounded-2xl text-left transition-colors", isLight ? "hover:bg-secondary" : "hover:bg-white/[0.04]")} onClick={() => setSelectedConversationId(conversation.id)}>
                       <div className="relative shrink-0">
                          <Avatar className="w-13 h-13 border-2 border-background shadow-xl">
                             <AvatarImage src={conversation.other_user?.avatar_url} />
@@ -294,12 +301,12 @@ export function MessagingDashboard() {
                             <span className="text-[10px] text-muted-foreground">{lastAt ? formatDistanceToNow(lastAt) : ''}</span>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={e => e.stopPropagation()}><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="bg-zinc-900 border-white/10 rounded-2xl shadow-2xl">
+                              <DropdownMenuContent align="end" className={cn("rounded-2xl shadow-2xl", isLight ? "bg-background border-border/50" : "bg-zinc-900 border-white/10")}>
                                 <DropdownMenuItem className="p-3" onClick={e => { e.stopPropagation(); markChatAsRead.mutate(conversation.id); }} disabled={!isUnread}><Check className="w-4 h-4 mr-2" /> Mark as read</DropdownMenuItem>
                                 <DropdownMenuItem className="p-3" onClick={e => { e.stopPropagation(); updateStatus.mutate({ conversationId: conversation.id, status: conversation.status === 'archived' ? 'active' : 'archived' }); }}>
                                   {conversation.status === 'archived' ? <Inbox className="w-4 h-4 mr-2" /> : <Archive className="w-4 h-4 mr-2" />} {conversation.status === 'archived' ? 'Unarchive' : 'Archive'}
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator className="bg-white/5" />
+                                <DropdownMenuSeparator className={isLight ? "bg-border" : "bg-white/5"} />
                                 <DropdownMenuItem className="p-3 text-red-500" onClick={e => { e.stopPropagation(); deleteConversation.mutate(conversation.id); }}><Trash className="w-4 h-4 mr-2" /> Delete</DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>

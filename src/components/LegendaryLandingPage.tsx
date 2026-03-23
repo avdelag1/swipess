@@ -21,7 +21,28 @@ import { haptics } from '@/utils/microPolish';
 // Lazy-load heavy deps that aren't needed for first paint
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
-const swipessLogo = '/icons/fire-s-logo.png';
+// Optimized logo with modern format support + fallback
+// AVIF: ~13KB (99% smaller), WebP: ~61KB (97% smaller), PNG: 1.9MB fallback
+const swipessLogoAvif = '/icons/fire-s-logo.avif';
+const swipessLogoWebp = '/icons/fire-s-logo.webp';
+const swipessLogoPng = '/icons/fire-s-logo.png';
+
+function LogoImage({ className }: { className?: string }) {
+  return (
+    <picture>
+      <source srcSet={swipessLogoAvif} type="image/avif" />
+      <source srcSet={swipessLogoWebp} type="image/webp" />
+      <img
+        src={swipessLogoPng}
+        alt="Swipess"
+        className={className}
+        loading="eager"
+        width={600}
+        height={600}
+      />
+    </picture>
+  );
+}
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
@@ -100,9 +121,7 @@ const LandingView = memo(({
         className="cursor-grab active:cursor-grabbing touch-none select-none"
       >
         <div className="relative">
-          <img
-            src={swipessLogo}
-            alt="Swipess"
+          <LogoImage
             className="w-[70vw] max-w-[420px] sm:max-w-[520px] md:max-w-[600px] h-auto object-contain mx-auto"
           />
         </div>
@@ -148,7 +167,8 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [_showResendConfirmation, setShowResendConfirmation] = useState(false);
   const [showErrorDetails, setShowErrorDetails] = useState(false);
-  const [errorDetails, setErrorDetails] = useState<any>(null);
+  const [errorDetails, setErrorDetails] = useState<{ message: string; fullError: string } | null>(null);
+  const [role, setRole] = useState<'client' | 'owner'>('client');
 
   const { signIn, signUp, signInWithOAuth: _signInWithOAuth } = useAuth();
   const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
@@ -226,6 +246,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         action: isLogin ? 'Sign In' : 'Sign Up',
       };
       setErrorDetails(errorInfo);
+      setShowErrorDetails(true);
 
       if (error.message?.toLowerCase().includes('email not confirmed')) {
         setShowResendConfirmation(true);

@@ -1,6 +1,47 @@
 import { useLocation, useOutlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
+/**
+ * PREMIUM PAGE TRANSITIONS
+ * 
+ * Spring physics for buttery-smooth, game-like feel:
+ * - Faster, snappier transitions (no sluggish ease curves)
+ * - Subtle slide + fade for depth
+ * - Optimized will-change for 60fps performance
+ */
+
+// Premium spring config - feels like a high-end mobile app
+const pageTransition = {
+  initial: { opacity: 0, x: 8, scale: 0.98 },
+  animate: { 
+    opacity: 1, 
+    x: 0, 
+    scale: 1,
+    transition: { 
+      type: 'spring',
+      stiffness: 400,
+      damping: 32,
+      mass: 0.8
+    }
+  },
+  exit: { 
+    opacity: 0, 
+    x: -8,
+    scale: 0.98,
+    transition: { 
+      type: 'spring',
+      stiffness: 500,
+      damping: 40,
+      mass: 0.6
+    }
+  },
+  // Performance optimizations
+  style: { 
+    willChange: 'transform, opacity',
+    backfaceVisibility: 'hidden' as const
+  }
+};
+
 export function AnimatedOutlet() {
     const location = useLocation();
     const outlet = useOutlet();
@@ -9,25 +50,8 @@ export function AnimatedOutlet() {
         <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
                 key={location.pathname}
-                initial={{ opacity: 0, scale: 0.985 }}
-                animate={{ 
-                    opacity: 1, 
-                    scale: 1,
-                    transition: { 
-                        duration: 0.16, 
-                        ease: [0.23, 1, 0.32, 1] // Snappy ease-out
-                    } 
-                }}
-                exit={{ 
-                    opacity: 0, 
-                    scale: 1.01,
-                    transition: { 
-                        duration: 0.08, 
-                        ease: [0.4, 0, 1, 1] 
-                    } 
-                }}
+                {...pageTransition}
                 className="h-full w-full flex flex-col flex-1"
-                style={{ willChange: 'opacity, transform' }}
             >
                 {outlet}
             </motion.div>

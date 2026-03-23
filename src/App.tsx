@@ -2,7 +2,7 @@ import { lazy, Suspense, useState } from "react";
 import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
 import { ActiveModeProvider } from "@/hooks/useActiveMode";
@@ -31,7 +31,7 @@ import { useForceUpdateOnVersionChange, UpdateNotification } from "@/hooks/useAu
 import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProfileAutoSync";
 
 // SPEED OF LIGHT: Persistent layout wrapper - mounted ONCE, never remounts
-import { PersistentDashboardLayout } from "@/components/PersistentDashboardLayout";
+const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDashboardLayout").then(m => ({ default: m.PersistentDashboardLayout })));
 
 
 // Import UI components directly (not lazy) to avoid useContext issues with ThemeProvider
