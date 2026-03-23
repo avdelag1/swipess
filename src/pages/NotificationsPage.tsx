@@ -151,9 +151,9 @@ export default function NotificationsPage() {
                   transition={{ duration: 4, repeat: Infinity }}
                 />
               </div>
-              <h3 className="text-xl font-black text-foreground mb-2">Pure Stillness</h3>
+              <h3 className="text-xl font-black text-foreground mb-2">No Activity Yet</h3>
               <p className="text-sm text-muted-foreground/60 max-w-[240px]">
-                Your activity history is pristine. New manifestations will appear here.
+                Your activity history is empty. New notifications will appear here.
               </p>
             </motion.div>
           ) : (
