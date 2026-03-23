@@ -131,8 +131,8 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
     <div className="w-full pb-32 bg-background">
       <div className="p-4 pt-4 sm:p-8 sm:pt-4 max-w-7xl mx-auto">
         {/* Category tabs and Sync button */}
-        <div className="flex items-center gap-3 mb-10 overflow-x-auto scrollbar-hide pb-2 pt-4">
-          <div className="flex gap-3 flex-1 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center justify-between gap-4 mb-8 pb-2 pt-6">
+          <div className="flex-1 flex gap-3 overflow-x-auto scrollbar-hide no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             {categories.map(({ id, label, icon: Icon }) => (
               <motion.button
                 key={id}
@@ -159,7 +159,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
               refreshLikedProperties();
             }}
             disabled={isLoading || isFetching}
-            className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary/80 border border-border/50 text-muted-foreground hover:text-foreground transition-all active:scale-95 disabled:opacity-50 ml-2"
+            className="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-secondary/80 border border-border/50 text-muted-foreground hover:text-foreground transition-all active:scale-95 disabled:opacity-50 flex-shrink-0 shadow-sm"
           >
             <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
             <span className="text-[10px] font-black uppercase tracking-widest text-[var(--color-brand-accent-2)]">Sync</span>

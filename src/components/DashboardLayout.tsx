@@ -132,6 +132,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [onboardingChecked, setOnboardingChecked] = useState(false)
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
+  const [showMessageActivations, setShowMessageActivations] = useState(false)
 
   const [isAISearchOpen, setIsAISearchOpen] = useState(false);
 
@@ -209,15 +210,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     
     const prefetch = () => {
       // 1. DATA PREFETCH
-      queryClient.prefetchQuery({
-        queryKey: ['eventos'],
-        queryFn: async () => {
-          const { data } = await supabase.from('events').select('*').order('event_date', { ascending: true });
-          return data || [];
-        },
-        staleTime: 1000 * 60 * 10,
-      });
-
       queryClient.prefetchQuery({
         queryKey: ['liked-properties'],
         queryFn: async () => {
@@ -640,6 +632,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/owner/profile',
       '/client/liked-properties',
       '/owner/liked-clients',
+      '/client/who-liked-you',
+      '/owner/interested-clients',
       '/client/filters',
       '/owner/filters',
       '/owner/properties',
@@ -731,7 +725,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           paddingTop: (isFullScreenRoute || isDashboardSwipePage)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isFullScreenRoute || isDashboardSwipePage) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingBottom: (isFullScreenRoute) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           width: '100%',
