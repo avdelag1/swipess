@@ -225,7 +225,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         timestamp: new Date().toISOString(),
         action: isLogin ? 'Sign In' : 'Sign Up',
       };
-      setErrorDetails(errorInfo);
+      setShowErrorDetails(true);
 
       if (error.message?.toLowerCase().includes('email not confirmed')) {
         setShowResendConfirmation(true);
