@@ -3,7 +3,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Zap, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
+import { Zap, MessageCircle, Crown, FileText, ArrowLeft, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -26,6 +26,7 @@ import { NotificationPopover } from './NotificationPopover';
 
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { SwipessLogo } from './SwipessLogo';
+import { CityExpertChat } from './CityExpertChat';
 
 // Tier styling for package cards
 const tierConfig = {
@@ -79,6 +80,7 @@ function TopBarComponent({
   const { unreadCount } = useUnreadNotifications();
   const { navigate } = useAppNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
+  const [cityExpertOpen, setCityExpertOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -422,47 +424,37 @@ function TopBarComponent({
             {/* Theme Toggle */}
             <ThemeToggle />
 
-            {/* Notifications Button - Navigates directly to page per user request */}
+            {/* City Expert AI Button */}
             <Button
               variant="ghost"
-              size="icon"
               className={cn(
-                "relative h-10 w-10 rounded-xl transition-all duration-200",
-                "hover:scale-105 active:scale-95 group bg-card border-0",
-                "touch-manipulation"
+                "relative h-10 w-10 px-0 rounded-xl transition-all duration-200 ease-out",
+                "hover:scale-105 active:scale-95 group bg-card",
+                "touch-manipulation flex items-center gap-1 flex-shrink-0",
               )}
-              onClick={() => {
-                haptics.tap();
-                navigate('/notifications');
+              style={{
+                boxShadow: cinematicShadow,
+                border: 'none',
               }}
-              aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setCityExpertOpen(true); }}
+              onClick={(e) => e.preventDefault()}
+              aria-label="City Expert AI Assistant"
             >
-              <div className="relative">
-                <Bell
-                  strokeWidth={3}
-                  className={cn(
-                    "h-5 w-5 transition-colors duration-150",
-                    isLight ? "text-foreground/80" : "text-white/80",
-                    "group-hover:text-foreground"
-                  )}
-                />
-                <AnimatePresence>
-                  {unreadCount > 0 && (
-                    <motion.span
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                      className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white px-1.5 shadow-lg"
-                    >
-                      {unreadCount > 99 ? '99+' : unreadCount}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </div>
+              <Sparkles strokeWidth={3} className={cn("h-4 w-4", isLight ? "text-cyan-600" : "text-cyan-400")} />
             </Button>
+
+            {/* Notifications Button */}
+            <NotificationPopover />
           </div>
         </div>
+
+        {/* City Expert AI Chat Dialog */}
+        <CityExpertChat 
+          open={cityExpertOpen} 
+          onOpenChange={setCityExpertOpen}
+          initialCity="Cancun"
+          userRole={userRole}
+        />
       </header>
     </>
   );
