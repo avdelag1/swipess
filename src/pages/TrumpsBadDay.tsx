@@ -40,15 +40,18 @@ const CH = 720;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type WeaponKey = 'rock' | 'arrow' | 'grenade' | 'bomb' | 'bazooka' | 'laser';
+type TrumpWeaponKey = 'twitter' | 'files' | 'burger' | 'fries';
+type CharacterKey = 'mexican' | 'obama' | 'putin' | 'bush' | 'alien' | 'maduro';
 type BgKey = 'whitehouse' | 'mexican' | 'epstein' | 'mara_lago' | 'prison';
 
 interface Projectile {
   x: number; y: number; vx: number; vy: number;
-  weapon: WeaponKey; active: boolean;
+  weapon: WeaponKey | TrumpWeaponKey; active: boolean;
   bounces: number; age: number;
   explodeTimer: number;
   trail: { x: number; y: number }[];
   smoke: { x: number; y: number; a: number }[];
+  fromTrump?: boolean;
 }
 interface Explosion {
   x: number; y: number;
@@ -77,11 +80,14 @@ interface G {
   spPhrase: string; spTimer: number;
   // Arrays
   projectiles: Projectile[];
+  trumpProjectiles: Projectile[];
   explosions: Explosion[];
   confetti: Confetti[];
   particles: { x: number, y: number, r: number, vx: number, vy: number, age: number, type: 'dust'|'spark'|'laser' }[];
   // Terrain
   heights: Float32Array;
+  // Character
+  character: CharacterKey;
   // Drag
   drag: boolean; dragEnd: { x: number; y: number };
   // Visual FX
@@ -106,8 +112,20 @@ const WEAPONS: { key: WeaponKey; icon: string; label: string }[] = [
   { key: 'laser',   icon: '🔫', label: 'Laser'   },
 ];
 
-const HIT_PHRASES   = ["You're FIRED!", "FAKE NEWS!", "WITCH HUNT!", "TREMENDOUS hit!", "Believe me!", "Nobody does it worse!", "I'm very stable!", "SAD!"];
-const MISS_PHRASES  = ["You're a DISGRACE!", "LOSER!", "You should be ASHAMED!", "Very Sad!", "Total DISASTER!", "WRONG!", "You can't hit me!"];
+const TRUMP_WEAPONS: TrumpWeaponKey[] = ['twitter', 'files', 'burger', 'fries'];
+
+const CHARACTERS: { key: CharacterKey; label: string; icon: string }[] = [
+  { key: 'mexican', label: 'Mexican Guy', icon: '🇲🇽' },
+  { key: 'obama',   label: 'Obama',       icon: '🇺🇸' },
+  { key: 'putin',   label: 'Putin',       icon: '🇷🇺' },
+  { key: 'bush',    label: 'Bush',        icon: '🤠' },
+  { key: 'alien',   label: 'Alien',       icon: '👽' },
+  { key: 'maduro',  label: 'Maduro',      icon: '🇻🇪' },
+];
+
+const HIT_PHRASES   = ["fake news", "I deserve the Nobel Prize", "millions and millions and millions and millions", "where is Jeffrey?", "You're FIRED!", "TREMENDOUS hit!", "Believe me!", "SAD!"];
+const MISS_PHRASES  = ["LOSER!", "Very Sad!", "Total DISASTER!", "WRONG!", "You can't hit me!", "¡Disgracia!", "SAD!"];
+const TRUMP_TALK_PHRASES = ["fake news", "I deserve the Nobel Prize", "millions and millions and millions and millions", "where is Jeffrey?", "TREMENDOUS!", "The best!", "Nobody knows more than me!"];
 const SHOOT_PHRASES = ["¡Ándale!", "¡Órale!", "¡Arriba!", "¡Híjole!", "¡Vámonos!"];
 
 const WEAPON_GRAVITY: Record<WeaponKey, number> = { rock: 0.4, arrow: 0.2, grenade: 0.35, bomb: 0.5, bazooka: 0.1, laser: 0.0 };
@@ -385,6 +403,7 @@ function drawCatapult(
   heights: Float32Array,
   drag: boolean,
   dragEndX: number, dragEndY: number,
+  character: CharacterKey = 'mexican'
 ) {
   const base = CH - 80;
   const th = heights[CATAPULT_X] ?? 120;
@@ -408,86 +427,100 @@ function drawCatapult(
     ctx.beginPath(); ctx.moveTo(CATAPULT_X + 22, bY - 62); ctx.lineTo(CATAPULT_X, bY - 46); ctx.stroke();
   }
 
-  // Mexican character - Modern Polish
+  // Character - Modern Polish
   const cx = CATAPULT_X; const cy = bY - 62;
   const breathe = Math.sin(Date.now() * 0.005) * 2;
 
   ctx.save();
   ctx.translate(cx, cy + breathe);
 
-  // Shoes
-  ctx.fillStyle = '#3e2723';
-  ctx.beginPath(); ctx.ellipse(-8, 0, 10, 5, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(8, 0, 10, 5, 0, 0, Math.PI * 2); ctx.fill();
+  if (character === 'mexican') {
+    // Shoes
+    ctx.fillStyle = '#3e2723';
+    ctx.beginPath(); ctx.ellipse(-8, 0, 10, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(8, 0, 10, 5, 0, 0, Math.PI * 2); ctx.fill();
 
-  // Serape (body) - Rounded & Gradient
-  const bodyGrad = ctx.createLinearGradient(-25, -55, 25, -10);
-  bodyGrad.addColorStop(0, '#CC3300');
-  bodyGrad.addColorStop(0.3, '#FFD700');
-  bodyGrad.addColorStop(0.6, '#006600');
-  bodyGrad.addColorStop(1, '#CC3300');
-  
-  ctx.fillStyle = bodyGrad;
-  ctx.beginPath();
-  (ctx as any).roundRect(-22, -58, 44, 48, [12, 12, 5, 5]);
-  ctx.fill();
-  
-  // Mexican Flag Stripe (middle)
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.fillRect(-6, -58, 12, 48);
-  ctx.fillStyle = '#0a5d00';
-  ctx.beginPath(); ctx.arc(0, -34, 3, 0, Math.PI * 2); ctx.fill();
+    // Serape (body)
+    const bodyGrad = ctx.createLinearGradient(-25, -55, 25, -10);
+    bodyGrad.addColorStop(0, '#CC3300'); bodyGrad.addColorStop(0.3, '#FFD700'); bodyGrad.addColorStop(0.6, '#006600'); bodyGrad.addColorStop(1, '#CC3300');
+    ctx.fillStyle = bodyGrad; ctx.beginPath(); (ctx as any).roundRect(-22, -58, 44, 48, [12, 12, 5, 5]); ctx.fill();
+    
+    // Mexican Flag Stripe (middle)
+    ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillRect(-6, -58, 12, 48);
+    ctx.fillStyle = '#0a5d00'; ctx.beginPath(); ctx.arc(0, -34, 3, 0, Math.PI * 2); ctx.fill();
 
-  // Head
-  const headGrad = ctx.createRadialGradient(0, -70, 5, 0, -70, 20);
-  headGrad.addColorStop(0, '#e0ac69');
-  headGrad.addColorStop(1, '#8d5524');
-  ctx.fillStyle = headGrad; 
-  ctx.beginPath(); ctx.arc(0, -70, 18, 0, Math.PI * 2); ctx.fill();
+    // Head
+    const headGrad = ctx.createRadialGradient(0, -70, 5, 0, -70, 20);
+    headGrad.addColorStop(0, '#e0ac69'); headGrad.addColorStop(1, '#8d5524');
+    ctx.fillStyle = headGrad; ctx.beginPath(); ctx.arc(0, -70, 18, 0, Math.PI * 2); ctx.fill();
 
-  // Eyes (Blinking)
-  const isBlinking = (Math.floor(Date.now() / 200) % 15 === 0);
-  ctx.fillStyle = '#111';
-  if (isBlinking) {
-    ctx.fillRect(-8, -74, 6, 2);
-    ctx.fillRect(2, -74, 6, 2);
-  } else {
-    ctx.beginPath(); ctx.arc(-5, -73, 3, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(5, -73, 3, 0, Math.PI * 2); ctx.fill();
-    // Eye shines
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(-6, -74.5, 1, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(4, -74.5, 1, 0, Math.PI * 2); ctx.fill();
-  }
+    // Eyes
+    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(-5, -73, 3, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(5, -73, 3, 0, Math.PI * 2); ctx.fill();
 
-  // Mustache
-  ctx.fillStyle = '#1a1a1a';
-  ctx.beginPath();
-  ctx.moveTo(-15, -60);
-  ctx.quadraticCurveTo(-15, -68, 0, -68);
-  ctx.quadraticCurveTo(15, -68, 15, -60);
-  ctx.quadraticCurveTo(0, -55, -15, -60);
-  ctx.fill();
+    // Mustache
+    ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.moveTo(-15, -60); ctx.quadraticCurveTo(-15, -68, 0, -68); ctx.quadraticCurveTo(15, -68, 15, -60); ctx.quadraticCurveTo(0, -55, -15, -60); ctx.fill();
 
-  // Sombrero (High Detail)
-  ctx.fillStyle = '#DEB887';
-  ctx.beginPath(); ctx.ellipse(0, -88, 42, 10, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 1.5; ctx.stroke();
-  
-  // Crown
-  const crownGrad = ctx.createLinearGradient(-20, -115, 20, -90);
-  crownGrad.addColorStop(0, '#DEB887');
-  crownGrad.addColorStop(0.5, '#f5deb3');
-  crownGrad.addColorStop(1, '#cd853f');
-  ctx.fillStyle = crownGrad;
-  ctx.beginPath(); ctx.ellipse(0, -100, 22, 18, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.stroke();
-
-  // Band & Pompoms
-  ctx.fillStyle = '#CC3300'; ctx.fillRect(-21, -94, 42, 6);
-  ctx.fillStyle = '#FFD700';
-  for (let i = 0; i < 5; i++) {
-    ctx.beginPath(); ctx.arc(-16 + i * 8, -91, 2.5, 0, Math.PI * 2); ctx.fill();
+    // Sombrero
+    ctx.fillStyle = '#DEB887'; ctx.beginPath(); ctx.ellipse(0, -88, 42, 10, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#8B4513'; ctx.lineWidth = 1.5; ctx.stroke();
+    // Crown
+    ctx.fillStyle = '#DEB887'; ctx.beginPath(); ctx.ellipse(0, -100, 22, 18, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    // Band
+    ctx.fillStyle = '#CC3300'; ctx.fillRect(-21, -94, 42, 6);
+  } else if (character === 'obama') {
+    // Body (Dark Suit)
+    ctx.fillStyle = '#1a237e'; ctx.beginPath(); (ctx as any).roundRect(-22, -58, 44, 48, [10, 10, 5, 5]); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(0, -58); ctx.lineTo(-10, -58); ctx.lineTo(0, -35); ctx.lineTo(10, -58); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#d32f2f'; ctx.fillRect(-2, -58, 4, 18);
+    // Head
+    ctx.fillStyle = '#4e342e'; ctx.beginPath(); ctx.arc(0, -72, 18, 0, Math.PI * 2); ctx.fill();
+    // Hair
+    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(0, -80, 19, Math.PI, 0); ctx.fill();
+    // Eyes
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-6, -75, 4, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(6, -75, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(-6, -75, 2, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(6, -75, 2, 0, Math.PI * 2); ctx.fill();
+  } else if (character === 'putin') {
+    // Body (Black Suit)
+    ctx.fillStyle = '#212121'; ctx.beginPath(); (ctx as any).roundRect(-22, -58, 44, 48, [8, 8, 4, 4]); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(0, -58); ctx.lineTo(-8, -58); ctx.lineTo(0, -35); ctx.lineTo(8, -58); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#1565c0'; ctx.fillRect(-2, -58, 4, 15);
+    // Head
+    ctx.fillStyle = '#ffe0b2'; ctx.beginPath(); ctx.arc(0, -72, 17, 0, Math.PI * 2); ctx.fill();
+    // Hair (Thin)
+    ctx.fillStyle = '#e0e0e0'; ctx.beginPath(); ctx.arc(0, -82, 10, Math.PI, 0); ctx.fill();
+    // Eyes (Serious)
+    ctx.fillStyle = '#111'; ctx.fillRect(-8, -78, 5, 2); ctx.fillRect(3, -78, 5, 2);
+  } else if (character === 'bush') {
+    // Body (Suit)
+    ctx.fillStyle = '#4e342e'; ctx.beginPath(); (ctx as any).roundRect(-22, -58, 44, 48, [10, 10, 5, 5]); ctx.fill();
+    // Cowboy Hat
+    ctx.fillStyle = '#a1887f'; ctx.beginPath(); ctx.ellipse(0, -90, 35, 8, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(0, -100, 20, 15, 0, 0, Math.PI * 2); ctx.fill();
+    // Head
+    ctx.fillStyle = '#ffccbc'; ctx.beginPath(); ctx.arc(0, -72, 17, 0, Math.PI * 2); ctx.fill();
+    // Eyes
+    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(-6, -74, 3, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(6, -74, 3, 0, Math.PI * 2); ctx.fill();
+  } else if (character === 'alien') {
+    // Body (Silver)
+    ctx.fillStyle = '#bdbdbd'; ctx.beginPath(); (ctx as any).roundRect(-20, -58, 40, 48, [15, 15, 10, 10]); ctx.fill();
+    // Head (Large/Green)
+    ctx.fillStyle = '#76ff03'; ctx.beginPath(); ctx.ellipse(0, -75, 22, 28, 0, 0, Math.PI * 2); ctx.fill();
+    // Huge Eyes
+    ctx.fillStyle = '#000'; 
+    ctx.beginPath(); ctx.ellipse(-8, -80, 8, 12, 0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(8, -80, 8, 12, -0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-6, -85, 2, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(10, -85, 2, 0, Math.PI * 2); ctx.fill();
+  } else if (character === 'maduro') {
+    // Body (Venezuelan tracksuit)
+    ctx.fillStyle = '#ffeb3b'; ctx.beginPath(); (ctx as any).roundRect(-22, -58, 44, 48, [12, 12, 5, 5]); ctx.fill();
+    ctx.fillStyle = '#1976d2'; ctx.fillRect(-22, -35, 44, 10);
+    ctx.fillStyle = '#d32f2f'; ctx.fillRect(-22, -25, 44, 15);
+    // Head
+    ctx.fillStyle = '#8d6e63'; ctx.beginPath(); ctx.arc(0, -72, 18, 0, Math.PI * 2); ctx.fill();
+    // Huge Mustache
+    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.moveTo(-18, -65); ctx.quadraticCurveTo(0, -60, 18, -65); ctx.lineTo(18, -62); ctx.quadraticCurveTo(0, -58, -18, -62); ctx.closePath(); ctx.fill();
+    // Hair
+    ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(0, -82, 18, Math.PI, 0); ctx.fill();
   }
 
   ctx.restore();
@@ -674,6 +707,46 @@ function drawProjectile(ctx: CanvasRenderingContext2D, p: Projectile) {
       ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-15, -1, 30, 2);
       ctx.shadowBlur = 0;
       break;
+    case 'twitter':
+      ctx.rotate(p.age * 0.1);
+      ctx.fillStyle = '#1DA1F2';
+      // Draw X or Twitter-like shape
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('𝕏', 0, 0);
+      break;
+    case 'files':
+      ctx.rotate(p.age * 0.05);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(-15, -20, 30, 40);
+      ctx.strokeStyle = '#ccc'; ctx.lineWidth = 1; ctx.strokeRect(-15, -20, 30, 40);
+      ctx.fillStyle = '#000'; ctx.font = 'bold 8px Arial';
+      ctx.fillText('EPSTEIN', -12, -10);
+      ctx.fillText('FILES', -12, 0);
+      break;
+    case 'burger':
+      ctx.rotate(p.age * 0.08);
+      // Bun
+      ctx.fillStyle = '#DEB887';
+      ctx.beginPath(); ctx.arc(0, -5, 12, Math.PI, 0); ctx.fill();
+      ctx.beginPath(); ctx.arc(0, 5, 12, 0, Math.PI); ctx.fill();
+      // Meat
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(-12, -2, 24, 4);
+      // Lettuce
+      ctx.fillStyle = '#32CD32';
+      ctx.fillRect(-13, -4, 26, 2);
+      break;
+    case 'fries':
+      ctx.rotate(p.age * 0.06);
+      ctx.fillStyle = '#f44336'; // Red packet
+      ctx.fillRect(-10, 0, 20, 15);
+      ctx.fillStyle = '#FFD700'; // Fries
+      for(let i=0; i<5; i++) {
+        ctx.fillRect(-8 + i*4, -12, 2, 12);
+      }
+      break;
   }
   ctx.restore();
 }
@@ -816,6 +889,7 @@ export default function TrumpsBadDay() {
   const [bgLabel,       setBgLabel]       = useState(BACKGROUNDS[0].label);
   const [leaderboard,   setLeaderboard]   = useState<{ score: number; created_at: string }[]>([]);
   const [showLB,        setShowLB]        = useState(false);
+  const [selectedChar,  setSelectedChar]  = useState<CharacterKey>('mexican');
 
   // ── Scale canvas coords
   const toCanvas = useCallback((cx: number, cy: number) => {
@@ -851,13 +925,16 @@ export default function TrumpsBadDay() {
       tJumping: false,
       tApproach: true,
       spPhrase: '', spTimer: 0,
-      projectiles: [], explosions: [], confetti: [],
+      projectiles: [], 
+      trumpProjectiles: [],
+      explosions: [], confetti: [],
       particles: [],
       heights,
+      character: selectedChar,
       drag: false, dragEnd: { x: CATAPULT_X, y: 400 },
       shake: 0,
     };
-  }, []);
+  }, [selectedChar]);
 
   // ── Save score
   const saveScore = useCallback(async (g: G) => {
@@ -940,7 +1017,7 @@ export default function TrumpsBadDay() {
         drawBg(ctx, BACKGROUNDS[g.bgIndex].key);
         drawSLogo(ctx);
         drawTerrain(ctx, g.heights);
-        drawCatapult(ctx, g.heights, false, 0, 0);
+        drawCatapult(ctx, g.heights, false, 0, 0, selectedChar);
         drawTrump(ctx, g, F);
         
         // Overlay blur for premium look
@@ -986,7 +1063,7 @@ export default function TrumpsBadDay() {
         ctx.restore();
       });
 
-      drawCatapult(ctx, g.heights, g.drag, g.dragEnd.x, g.dragEnd.y);
+      drawCatapult(ctx, g.heights, g.drag, g.dragEnd.x, g.dragEnd.y, g.character);
       drawTrump(ctx, g, F);
         drawConfetti(ctx, g.confetti);
         g.confetti = g.confetti.map(c => ({ ...c, x: c.x + c.vx, y: c.y + c.vy, vy: c.vy + 0.22, life: c.life - 1 })).filter(c => c.life > 0 && c.y < CH);
@@ -1005,6 +1082,27 @@ export default function TrumpsBadDay() {
         ctx.translate(sx, sy);
         g.shake *= 0.92;
         if (g.shake < 0.5) g.shake = 0;
+      }
+
+      // ── Trump Attacks
+      if (g.phase === 'playing' && !g.tHit && F % 180 === 0) {
+        // Trump fires every ~3 seconds
+        const tx = g.tx + g.tw / 2;
+        const ty = g.ty + g.th / 2;
+        const cp = catPos(g.heights);
+        const dx = cp.x - tx, dy = cp.y - ty;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const spd = 12 + Math.min(g.hits * 0.5, 8);
+        const ang = Math.atan2(dy, dx);
+        
+        const wkey = pick(TRUMP_WEAPONS);
+        g.projectiles.push({
+          x: tx, y: ty, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd - 2,
+          weapon: wkey, active: true, bounces: 0, age: 0,
+          explodeTimer: 0, trail: [], smoke: [], fromTrump: true
+        });
+        g.tPhrase = pick(TRUMP_TALK_PHRASES); g.tPhraseT = 80;
+        beep(150, 0.1, 'sawtooth', 0.15);
       }
 
       // Trump
@@ -1130,8 +1228,8 @@ export default function TrumpsBadDay() {
           if (!g.projectiles.some(q => q.active)) onMiss(g);
         }
 
-        // Trump hit (AABB)
-        if (p.x + r > g.tx && p.x - r < g.tx + g.tw && p.y + r > g.ty && p.y - r < g.ty + g.th) {
+        // ── Trump hit (AABB)
+        if (!p.fromTrump && p.x + r > g.tx && p.x - r < g.tx + g.tw && p.y + r > g.ty && p.y - r < g.ty + g.th) {
           onHit(g, p.x, p.y);
           p.active = false;
           if (p.weapon === 'bomb' || p.weapon === 'bazooka') {
@@ -1139,6 +1237,22 @@ export default function TrumpsBadDay() {
             boom();
           } else if (p.weapon === 'laser') {
             g.explosions.push({ x: p.x, y: p.y, radius: 20, frame: 0, maxFrame: 12, big: false });
+          }
+        }
+
+        // ── Player hit by Trump (AABB)
+        if (p.fromTrump) {
+          const cp = catPos(g.heights);
+          const px = cp.x;
+          const py = cp.y;
+          const pw = 60;
+          const ph = 100;
+          if (p.x + r > px - pw/2 && p.x - r < px + pw/2 && p.y + r > py - ph && p.y - r < py) {
+            onMiss(g); // Trump hits player = miss/life lost
+            p.active = false;
+            g.explosions.push({ x: p.x, y: p.y, radius: 40, frame: 0, maxFrame: 20, big: false });
+            boom();
+            g.shake = 20;
           }
         }
       }
@@ -1151,7 +1265,7 @@ export default function TrumpsBadDay() {
       drawBg(ctx, BACKGROUNDS[g.bgIndex].key);
       drawSLogo(ctx);
       drawTerrain(ctx, g.heights);
-      drawCatapult(ctx, g.heights, g.drag, g.dragEnd.x, g.dragEnd.y);
+      drawCatapult(ctx, g.heights, g.drag, g.dragEnd.x, g.dragEnd.y, g.character);
 
       if (g.drag) {
         const cp = catPos(g.heights);
@@ -1205,14 +1319,26 @@ export default function TrumpsBadDay() {
 
     const onStart = (e: Event) => {
       e.preventDefault();
+      const g = gRef.current; if (!g) return;
       if (g.phase === 'start') {
-        g.phase = 'playing';
-        setPhase('playing');
+        // We now force the user to click the specific "Start Game" button in React
+        // to ensure they have had a chance to choose their hero.
         return;
       }
       if (g.phase === 'gameover') return;
-      if (g.projectiles.some(p => p.active)) return;
       const pos = getPos(e as MouseEvent | TouchEvent);
+      
+      // Weapon Selection HUD area (bottom bar)
+      if (pos.y > CH - 58) {
+        const weaponIndex = Math.floor((pos.x - 28) / 78);
+        if (weaponIndex >= 0 && weaponIndex < WEAPONS.length) {
+          g.weapon = WEAPONS[weaponIndex].key;
+          beep(440, 0.05, 'sine', 0.1);
+          return;
+        }
+      }
+
+      if (g.projectiles.some(p => p.active)) return;
       if (pos.x < 340 && pos.y > CH * 0.28) { g.drag = true; g.dragEnd = pos; }
     };
     const onMove = (e: Event) => {
@@ -1245,14 +1371,8 @@ export default function TrumpsBadDay() {
       const wmap: Record<string, WeaponKey> = { '1': 'rock', '2': 'arrow', '3': 'grenade', '4': 'bomb', '5': 'bazooka' };
       if (wmap[e.key]) { g.weapon = wmap[e.key]; }
       if (e.key === 'r' || e.key === 'R') {
-        if (g.phase === 'gameover' || g.phase === 'start') {
-          const hs = g.highScore;
-          const bgIdx = g.bgIndex;
-          gRef.current = makeGame(); 
-          gRef.current.highScore = hs;
-          gRef.current.bgIndex = bgIdx;
-          gRef.current.phase = 'playing';
-          setPhase('playing'); setUiScore(0); setIsNewHS(false);
+        if (g.phase === 'gameover') {
+          handleRestart();
         }
       }
     };
@@ -1338,15 +1458,38 @@ export default function TrumpsBadDay() {
       {/* Start screen React overlay buttons */}
       {phase === 'start' && (
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-          <div className="pointer-events-auto flex flex-col gap-4 items-center scale-110">
+          <div className="pointer-events-auto flex flex-col gap-6 items-center scale-110">
+            <h2 className="text-white font-bold text-xl uppercase tracking-widest bg-black/40 px-6 py-2 rounded-full border border-white/10 backdrop-blur-md">Choose Your Hero</h2>
+            
+            <div className="flex gap-4 p-4 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-xl">
+              {CHARACTERS.map(char => (
+                <button
+                  key={char.key}
+                  onClick={() => setSelectedChar(char.key)}
+                  className={`flex flex-col items-center p-3 rounded-2xl transition-all duration-300 ${
+                    selectedChar === char.key 
+                    ? 'bg-yellow-500 scale-110 shadow-[0_0_20px_rgba(234,179,8,0.4)]' 
+                    : 'bg-white/10 hover:bg-white/20'
+                  }`}
+                >
+                  <span className="text-3xl mb-1">{char.icon}</span>
+                  <span className={`text-[10px] font-bold uppercase transition-colors ${selectedChar === char.key ? 'text-black' : 'text-white'}`}>
+                    {char.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+
             <button
               onClick={() => {
-                if (gRef.current) {
-                  gRef.current.phase = 'playing';
+                const g = gRef.current;
+                if (g) {
+                  g.character = selectedChar;
+                  g.phase = 'playing';
                   setPhase('playing');
                 }
               }}
-              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-black px-12 py-5 rounded-full text-3xl transition-all shadow-[0_0_30px_rgba(255,165,0,0.5)] active:scale-95 uppercase tracking-tighter"
+              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-black px-12 py-5 rounded-full text-3xl transition-all shadow-[0_0_30px_rgba(255,165,0,0.5)] active:scale-95 uppercase tracking-tighter mt-4"
             >
               Start Game 🎯
             </button>

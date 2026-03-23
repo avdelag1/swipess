@@ -17,19 +17,19 @@
   "dir": "ltr",
   "icons": [
     {
-      "src": "/icons/fire-s-logo.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-1024.png",
+      "src": "/icons/icon-512.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/fire-s-logo.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -43,7 +43,7 @@
       "url": "/client/dashboard?source=shortcut",
       "icons": [
         {
-          "src": "/icons/fire-s-logo.png",
+          "src": "/icons/icon-512.png",
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "any"
@@ -57,7 +57,7 @@
       "url": "/owner/properties?source=shortcut",
       "icons": [
         {
-          "src": "/icons/fire-s-logo.png",
+          "src": "/icons/icon-512.png",
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "any"
@@ -71,7 +71,7 @@
       "url": "/messages?source=shortcut",
       "icons": [
         {
-          "src": "/icons/fire-s-logo.png",
+          "src": "/icons/icon-512.png",
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "any"
