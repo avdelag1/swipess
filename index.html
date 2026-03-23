@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="format-detection" content="telephone=no">
 
   <!-- Google Consent Mode v2 — MUST run before any Google tags load -->
   <script>
@@ -135,6 +136,35 @@
         }
       } catch (e) { }
     })();
+  </script>
+
+  <!-- Speculation Rules API for intelligent prefetching -->
+  <!-- Prefetches likely navigation targets based on hover/scroll patterns -->
+  <script type="speculationrules">
+    {
+      "prefetch": [
+        {
+          "source": "list",
+          "urls": [
+            "/client/dashboard",
+            "/owner/dashboard",
+            "/messages",
+            "/notifications",
+            "/client/profile",
+            "/owner/profile",
+            "/client/settings",
+            "/owner/settings"
+          ],
+          "where": {
+            "and": [
+              { "href_matches": "/*" },
+              { "not": { "selector_matches": ".no-prefetch" } }
+            ]
+          },
+          "eagerness": "moderate"
+        }
+      ]
+    }
   </script>
 </head>
 
