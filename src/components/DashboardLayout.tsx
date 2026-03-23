@@ -729,13 +729,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       )}
 
       {/* Advanced Filters Dialog */}
-      <AdvancedFilters
-        isOpen={showFilters}
-        onClose={() => setShowFilters(false)}
-        onApplyFilters={handleApplyFilters}
-        userRole={userRole}
-        currentFilters={appliedFilters ?? {}}
-      />
+      <Suspense fallback={null}>
+        <AdvancedFilters
+          isOpen={showFilters}
+          onClose={() => setShowFilters(false)}
+          onApplyFilters={handleApplyFilters}
+          userRole={userRole}
+          currentFilters={appliedFilters ?? {}}
+        />
+      </Suspense>
 
       {/* All Dialogs/Modals */}
       <Suspense fallback={null}>
