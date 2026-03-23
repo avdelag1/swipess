@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +14,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import CardImage from '@/components/CardImage';
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
 interface EventItem {
@@ -300,7 +302,6 @@ function EventCard({
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
   onNextEvent: () => void; onPrevEvent: () => void;
 }) {
-  const [imgLoaded, setImgLoaded] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [likeAnim, setLikeAnim] = useState(false);
 
@@ -324,15 +325,11 @@ function EventCard({
         animate={{ scale: [1.06, 1.0], filter: isActive ? 'brightness(1.05)' : 'brightness(1)' }}
         transition={{ scale: { duration: 8, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }, filter: { duration: 0.4 } }}
       >
-        <img
-          src={event.image_url || ''}
+        <CardImage
+          src={event.image_url}
           alt={event.title}
-          className="w-full h-full object-cover"
-          onLoad={() => setImgLoaded(true)}
-          loading="lazy"
-          style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.5s ease' }}
+          fullScreen
         />
-        {!imgLoaded && <div className="absolute inset-0 bg-zinc-900 animate-pulse" />}
       </motion.div>
 
       {/* Gradient overlays */}
@@ -706,7 +703,7 @@ export default function EventosFeed() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const parentRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const [activeCategory, setActiveCategory] = useState('all');
   const [showShareModal, setShowShareModal] = useState(false);
@@ -800,7 +797,7 @@ export default function EventosFeed() {
   const allEvents = rawEvents?.length ? rawEvents : MOCK_EVENTS;
 
   const filteredEvents = useMemo(() => {
-    let list = activeCategory === 'all' 
+    const list = activeCategory === 'all' 
       ? allEvents 
       : activeCategory === 'likes'
         ? allEvents.filter(e => likedIds.has(e.id))
@@ -808,9 +805,16 @@ export default function EventosFeed() {
     return list;
   }, [allEvents, activeCategory, likedIds]);
 
+  const rowVirtualizer = useVirtualizer({
+    count: filteredEvents.length + 1, // +1 for the Promote card
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => window.innerHeight,
+    overscan: 2,
+  });
+
   // Track scroll position → active index
   useEffect(() => {
-    const el = scrollRef.current;
+    const el = parentRef.current;
     if (!el) return;
     const onScroll = () => {
       const idx = Math.round(el.scrollTop / el.clientHeight);
@@ -822,8 +826,8 @@ export default function EventosFeed() {
 
   // Reset scroll when category changes
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({ top: 0, behavior: 'instant' as any });
+    if (parentRef.current) {
+      parentRef.current.scrollTo({ top: 0, behavior: 'instant' as any });
       setActiveIdx(0);
       setAnimKey(k => k + 1);
     }
@@ -840,7 +844,7 @@ export default function EventosFeed() {
   }, []);
 
   useEffect(() => {
-    const el = scrollRef.current;
+    const el = parentRef.current;
     if (!el) return;
     const onTouch = () => pauseAutoPlay();
     el.addEventListener('touchstart', onTouch, { passive: true });
@@ -856,7 +860,7 @@ export default function EventosFeed() {
     if (!autoPlay || isPaused || filteredEvents.length <= 1) return;
 
     const timeout = setTimeout(() => {
-      const el = scrollRef.current;
+      const el = parentRef.current;
       if (el) {
         const nextIdx = activeIdx + 1 >= filteredEvents.length ? 0 : activeIdx + 1;
         el.scrollTo({ top: nextIdx * el.clientHeight, behavior: 'smooth' });
@@ -886,9 +890,8 @@ export default function EventosFeed() {
   // Tap navigation: left zone = previous, right zone = next
   const handleTapNext = useCallback(() => {
     if (activeIdx < filteredEvents.length - 1) {
-      const el = scrollRef.current;
-      if (el) {
-        el.scrollTo({ top: (activeIdx + 1) * el.clientHeight, behavior: 'smooth' });
+      if (parentRef.current) {
+        parentRef.current.scrollTo({ top: (activeIdx + 1) * parentRef.current.clientHeight, behavior: 'smooth' });
         triggerHaptic('light');
         setAnimKey(k => k + 1); // reset progress bar
       }
@@ -897,9 +900,8 @@ export default function EventosFeed() {
 
   const handleTapPrev = useCallback(() => {
     if (activeIdx > 0) {
-      const el = scrollRef.current;
-      if (el) {
-        el.scrollTo({ top: (activeIdx - 1) * el.clientHeight, behavior: 'smooth' });
+      if (parentRef.current) {
+        parentRef.current.scrollTo({ top: (activeIdx - 1) * parentRef.current.clientHeight, behavior: 'smooth' });
         triggerHaptic('light');
         setAnimKey(k => k + 1); // reset progress bar
       }
@@ -1008,40 +1010,65 @@ export default function EventosFeed() {
         </div>
       </div>
 
-      {/* ── VERTICAL SNAP SCROLL FEED ── */}
+      {/* ── VERTICAL SNAP SCROLL FEED (Virtualized) ── */}
       <div
-        ref={scrollRef}
-        className="w-full h-full overflow-y-scroll"
+        ref={parentRef}
+        className="w-full h-full overflow-y-scroll scroll-smooth no-scrollbar"
         style={{
           scrollSnapType: 'y mandatory',
           WebkitOverflowScrolling: 'touch',
           overscrollBehavior: 'contain',
         }}
       >
-        {filteredEvents.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-white/50 gap-3">
-            <Sparkles className="w-8 h-8 text-white/20" />
-            <span className="text-sm">No events in this category yet</span>
+        <div
+          style={{
+            height: `${rowVirtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            const isLast = virtualRow.index === filteredEvents.length;
+            const event = filteredEvents[virtualRow.index];
+
+            return (
+              <div
+                key={virtualRow.key}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100dvh',
+                  transform: `translateY(${virtualRow.start}px)`,
+                  scrollSnapAlign: 'start',
+                  scrollSnapStop: 'always',
+                }}
+              >
+                {isLast ? (
+                  <PromoteCTACard onPromote={() => navigate('/explore/eventos/promote')} />
+                ) : (
+                  <EventCard
+                    event={event}
+                    isActive={virtualRow.index === activeIdx}
+                    liked={likedIds.has(event.id)}
+                    onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
+                    onChat={() => handleOpenChat(event)}
+                    onShare={() => handleShare(event)}
+                    onMiddleTap={() => handleMiddleTap(event)}
+                    onNextEvent={handleTapNext}
+                    onPrevEvent={handleTapPrev}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {filteredEvents.length === 0 && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center text-white/50 gap-3">
+             <Sparkles className="w-8 h-8 text-white/20" />
+             <span className="text-sm font-bold">No events in this category yet</span>
           </div>
-        ) : (
-          <>
-            {filteredEvents.map((event, i) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                isActive={i === activeIdx}
-                liked={likedIds.has(event.id)}
-                onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
-                onChat={() => handleOpenChat(event)}
-                onShare={() => handleShare(event)}
-                onMiddleTap={() => handleMiddleTap(event)}
-                onNextEvent={handleTapNext}
-                onPrevEvent={handleTapPrev}
-              />
-            ))}
-            {/* Promote CTA card at the end */}
-            <PromoteCTACard onPromote={() => navigate('/explore/eventos/promote')} />
-          </>
         )}
       </div>
 
