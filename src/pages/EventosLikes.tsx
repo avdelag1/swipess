@@ -4,8 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Heart, ArrowLeft, MapPin, Calendar, ExternalLink, 
-  MessageCircle, Sparkles, Trash2, Search, Filter
+  Heart, ArrowLeft, Calendar, 
+  Sparkles, Trash2, Search
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
