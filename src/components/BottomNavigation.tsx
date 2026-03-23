@@ -30,7 +30,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { AnimatedLottieIcon } from '@/components/ui/AnimatedLottieIcon';
 
 const ICON_SIZE = 22;
 const ICON_SIZE_COMPACT = 20;
@@ -420,27 +419,37 @@ export function BottomNavigation({
                       )}
                     </AnimatePresence>
                     
-                    <AnimatedLottieIcon 
-                      iconId={item.id}
-                      active={active}
-                      size={isNarrow ? ICON_SIZE_COMPACT + 6 : ICON_SIZE + 10}
-                      className="transition-all duration-300 ease-out -mb-1"
-                      inactiveIcon={
-                        <Icon
-                          className="transition-all duration-300 ease-out"
+                    <div className="relative flex items-center justify-center" style={{ width: ICON_SIZE + 10, height: ICON_SIZE + 10 }}>
+                      <Icon
+                        className="transition-all duration-300 ease-out"
+                        style={{
+                          width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                          height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                          color: (active || item.isSpecial) ? '#f97316' : iconColorInactive,
+                          stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
+                          strokeWidth: (active || item.isSpecial) ? 2.5 : 2.2,
+                          filter: (active || item.isSpecial) && !isLight
+                            ? 'drop-shadow(0 0 10px rgba(249,115,22,0.5))'
+                            : 'none',
+                          zIndex: 2
+                        }}
+                      />
+                      
+                      {/* Suble glow behind active icon */}
+                      {active && (
+                        <motion.div
+                          layoutId={`glow-${item.id}`}
+                          className="absolute inset-0 rounded-full"
                           style={{
-                            width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                            height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                            color: item.isSpecial ? activeColor : iconColorInactive,
-                            stroke: item.isSpecial ? 'url(#nav-active-gradient)' : 'currentColor',
-                            strokeWidth: item.isSpecial ? 3.5 : 2.5,
-                            filter: item.isSpecial && !isLight
-                              ? 'drop-shadow(0 2px 8px rgba(249,115,22,0.4))'
-                              : 'none',
+                            background: isLight 
+                              ? 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)'
+                              : 'radial-gradient(circle, rgba(236,72,153,0.12) 0%, transparent 70%)',
+                            zIndex: 1
                           }}
                         />
-                      }
-                    />
+                      )}
+                    </div>
+
                   </div>
 
                 {/* Label — hidden on very narrow screens (<360px) for icon-only mode */}
