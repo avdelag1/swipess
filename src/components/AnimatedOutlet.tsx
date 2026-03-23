@@ -2,41 +2,40 @@ import { useLocation, useOutlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * PREMIUM PAGE TRANSITIONS
- * 
- * Spring physics for buttery-smooth, game-like feel:
- * - Faster, snappier transitions (no sluggish ease curves)
- * - Subtle slide + fade for depth
+ * UNIFIED PAGE TRANSITIONS
+ *
+ * Matches the premium landing↔auth transition style across the entire app:
+ * - Smooth vertical slide + fade (not horizontal spring)
+ * - Subtle scale for depth
+ * - Fast, elegant easing curves
  * - Optimized will-change for 60fps performance
  */
 
-// Premium spring config - feels like a high-end mobile app
+// Easing curves matching the landing/auth transition
+const enterEase = [0.25, 0.46, 0.45, 0.94] as const;
+const exitEase = [0.4, 0, 1, 1] as const;
+
 const pageTransition = {
-  initial: { opacity: 0, x: 8, scale: 0.98 },
-  animate: { 
-    opacity: 1, 
-    x: 0, 
+  initial: { opacity: 0, y: 20, scale: 0.98 },
+  animate: {
+    opacity: 1,
+    y: 0,
     scale: 1,
-    transition: { 
-      type: 'spring',
-      stiffness: 400,
-      damping: 32,
-      mass: 0.8
+    transition: {
+      duration: 0.28,
+      ease: enterEase,
     }
   },
-  exit: { 
-    opacity: 0, 
-    x: -8,
-    scale: 0.98,
-    transition: { 
-      type: 'spring',
-      stiffness: 500,
-      damping: 40,
-      mass: 0.6
+  exit: {
+    opacity: 0,
+    y: -12,
+    scale: 0.97,
+    transition: {
+      duration: 0.16,
+      ease: exitEase,
     }
   },
-  // Performance optimizations
-  style: { 
+  style: {
     willChange: 'transform, opacity',
     backfaceVisibility: 'hidden' as const
   }
@@ -47,7 +46,7 @@ export function AnimatedOutlet() {
     const outlet = useOutlet();
 
     return (
-        <AnimatePresence mode="popLayout" initial={false}>
+        <AnimatePresence mode="wait" initial={false}>
             <motion.div
                 key={location.pathname}
                 {...pageTransition}
