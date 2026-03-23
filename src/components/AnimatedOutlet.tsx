@@ -2,18 +2,14 @@ import { useLocation, useOutlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * UNIFIED PAGE TRANSITIONS
+ * TINDER-SPEED PAGE TRANSITIONS
  *
- * Matches the premium landing↔auth transition style across the entire app:
- * - Smooth vertical slide + fade (not horizontal spring)
- * - Subtle scale for depth
- * - Fast, elegant easing curves
- * - Optimized will-change for 60fps performance
+ * Key changes for native-app feel:
+ * - Crossfade (no "wait" mode) — new page fades in WHILE old fades out
+ * - Opacity-only for speed — no scale/translate which cause layout recalc
+ * - Ultra-short durations — 120ms enter, 80ms exit
+ * - GPU-only properties (opacity is composited, zero layout cost)
  */
-
-// Easing curves matching the landing/auth transition
-const enterEase = [0.22, 1, 0.36, 1] as const;
-const exitEase = [0.22, 1, 0.36, 1] as const;
 
 const pageTransition = {
   initial: { opacity: 0 },
@@ -21,20 +17,16 @@ const pageTransition = {
     opacity: 1,
     transition: {
       duration: 0.12,
-      ease: enterEase,
+      ease: [0.25, 0.1, 0.25, 1], // CSS ease equivalent — fast start, smooth end
     }
   },
   exit: {
     opacity: 0,
     transition: {
       duration: 0.08,
-      ease: exitEase,
+      ease: [0.4, 0, 1, 1],
     }
   },
-  style: {
-    willChange: 'opacity',
-    backfaceVisibility: 'hidden' as const
-  }
 };
 
 export function AnimatedOutlet() {
@@ -47,6 +39,7 @@ export function AnimatedOutlet() {
                 key={location.pathname}
                 {...pageTransition}
                 className="h-full w-full flex flex-col flex-1"
+                style={{ willChange: 'opacity' }}
             >
                 {outlet}
             </motion.div>

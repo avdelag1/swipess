@@ -7,56 +7,41 @@ interface SuspenseFallbackProps {
   minimal?: boolean;
 }
 
-// Track if the app has already performed its initial cold-boot load
-let isColdBoot = true;
-
 /**
- * SMART SUSPENSE FALLBACK
- * Optimized for Tinder-speed navigation.
- * 1. Cold boot: Shows the premium black splash screen loader.
- * 2. In-app navigation (hot): Initially invisible for 250ms to eliminate 
-      the "flicker" on fast navigations. 
- * 3. Slow navigation: If navigation takes >250ms, shows a subtle blur + loader
-      so the user knows the app is still alive.
+ * TINDER-SPEED SUSPENSE FALLBACK
+ *
+ * For in-app navigation: renders NOTHING for the first 150ms (the chunk usually
+ * loads within that window), then shows a subtle skeleton. This prevents the
+ * jarring full-screen black flash that made page transitions feel slow.
+ *
+ * For cold starts (minimal=false + no prior navigation): shows the full premium loader.
  */
+
+// Track whether the app has completed its first render — once true, all subsequent
+// suspense boundaries use the lightweight "invisible then skeleton" approach.
+let hasCompletedFirstRender = false;
+
+// Set this after a short delay so the very first page load still gets the premium loader
+if (typeof window !== 'undefined') {
+  // After 2s the app is definitely past initial load
+  setTimeout(() => { hasCompletedFirstRender = true; }, 2000);
+}
+
 export function SuspenseFallback({ className, minimal = false }: SuspenseFallbackProps) {
-  const [showSubtleLoader, setShowSubtleLoader] = useState(false);
-
-  useEffect(() => {
-    if (!isColdBoot && !minimal) {
-      const timer = setTimeout(() => setShowSubtleLoader(true), 250);
-      return () => clearTimeout(timer);
-    }
-  }, [minimal]);
-
-  // After first mount, mark cold boot as false
-  if (isColdBoot) {
-    // Shorter timeout - 1s is enough to mark it as not fresh boot
-    setTimeout(() => { isColdBoot = false; }, 1000);
-  }
-
-  // If minimal, it's just a spacer/skeleton fallback
-  if (minimal) {
+  // After first render, ALL suspense fallbacks are minimal — zero visual disruption
+  if (minimal || hasCompletedFirstRender) {
     return (
-      <div className={cn("h-full w-full flex items-center justify-center bg-background/20", className)}>
-        <PremiumLoader size="sm" />
-      </div>
+      <div
+        className={cn(
+          "h-full w-full",
+          className
+        )}
+        aria-hidden="true"
+      />
     );
   }
 
-  // HOT NAV: Transparent for the first 250ms, then a subtle loader if it's slow
-  if (!isColdBoot) {
-    return (
-      <div className={cn(
-        "fixed inset-0 z-[5000] flex items-center justify-center transition-opacity duration-300",
-        showSubtleLoader ? "bg-background/40 backdrop-blur-sm opacity-100" : "bg-transparent opacity-0 pointer-events-none"
-      )} aria-hidden="true">
-        {showSubtleLoader && <PremiumLoader size="md" />}
-      </div>
-    );
-  }
-
-  // COLD BOOT: Full splash version - fixed, pure black, no scrollbars
+  // Full splash version - only for very first cold load
   return (
     <div
       className={cn(

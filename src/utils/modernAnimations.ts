@@ -21,18 +21,18 @@ export const easings = {
   bounce: [0.68, -0.55, 0.265, 1.55],
 };
 
-// Page transition variants - no blur (blur animations are GPU-expensive and cause jank)
+// Page transition variants — blur REMOVED (GPU-expensive, causes jank on mobile)
 export const pageVariants: Variants = {
-  initial: { 
-    opacity: 0, 
+  initial: {
+    opacity: 0,
   },
-  animate: { 
-    opacity: 1, 
-    transition: { duration: 0.15, ease: [0.22, 1, 0.36, 1] }
+  animate: {
+    opacity: 1,
+    transition: { duration: 0.12, ease: [0.25, 0.1, 0.25, 1] }
   },
-  exit: { 
-    opacity: 0, 
-    transition: { duration: 0.1, ease: "easeOut" }
+  exit: {
+    opacity: 0,
+    transition: { duration: 0.08, ease: "easeOut" }
   },
 };
 
@@ -255,21 +255,21 @@ export const notificationVariants: Variants = {
   }
 };
 
-// Modal/Dialog variants - use fast tween instead of spring for consistent snappiness
+// Modal/Dialog variants — fast open, instant close
 export const modalVariants: Variants = {
   hidden: {
     opacity: 0,
-    scale: 0.96,
+    scale: 0.97,
   },
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.12, ease: [0.22, 1, 0.36, 1] }
+    transition: { duration: 0.12, ease: [0.25, 0.1, 0.25, 1] }
   },
   exit: {
     opacity: 0,
     scale: 0.98,
-    transition: { duration: 0.1 }
+    transition: { duration: 0.08 }
   }
 };
 

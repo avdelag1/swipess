@@ -23,6 +23,53 @@ const urlsToCache = [
   '/manifest.webmanifest'
 ];
 
+/**
+ * TINDER-SPEED: Precache all JS/CSS chunks after install
+ * Native apps have all code pre-downloaded. We simulate this by
+ * crawling /assets/ and caching every chunk in the background.
+ * This means second+ navigations load INSTANTLY from cache.
+ */
+async function precacheAppShell() {
+  try {
+    // Fetch the HTML page to discover all <script> and <link> tags
+    const htmlResponse = await fetch('/', { cache: 'no-store' });
+    const html = await htmlResponse.text();
+
+    // Extract all /assets/*.js and /assets/*.css URLs from the HTML
+    const assetUrls = [];
+    const regex = /\/assets\/[a-zA-Z0-9_\-]+\.[a-zA-Z0-9]+\.(js|css)/g;
+    let match;
+    while ((match = regex.exec(html)) !== null) {
+      assetUrls.push(match[0]);
+    }
+
+    // Also extract modulepreload links
+    const modulePreloadRegex = /href="(\/assets\/[^"]+)"/g;
+    while ((match = modulePreloadRegex.exec(html)) !== null) {
+      if (!assetUrls.includes(match[1])) {
+        assetUrls.push(match[1]);
+      }
+    }
+
+    if (assetUrls.length > 0) {
+      const cache = await caches.open(STATIC_CACHE);
+      // Cache them one at a time to avoid saturating the network
+      for (const url of assetUrls) {
+        try {
+          const existing = await cache.match(url);
+          if (!existing) {
+            await cache.add(url);
+          }
+        } catch (_e) {
+          // Individual asset failure is fine — skip and continue
+        }
+      }
+    }
+  } catch (_e) {
+    // Non-critical — app works fine without precache
+  }
+}
+
 // Cache TTL settings (in seconds)
 const CACHE_TTL = {
   immutable: 31536000, // 1 year - for hashed assets
@@ -346,6 +393,10 @@ self.addEventListener('activate', (event) => {
       });
     });
   });
+
+  // TINDER-SPEED: Precache all JS/CSS chunks in background after activation
+  // This makes ALL lazy-loaded routes instant on subsequent navigations
+  precacheAppShell();
 });
 
 /**

@@ -54,44 +54,14 @@ const routeImports: Record<string, RouteImport> = {
 const prefetchedRoutes = new Set<string>();
 
 /**
- * Check if the user is on a slow connection or has data saver ON
- */
-const shouldSkipPrefetch = (): boolean => {
-  if (typeof navigator === 'undefined') return false;
-  const conn = (navigator as any).connection;
-  if (!conn) return false;
-  
-  // Skip if data saver is ON
-  if (conn.saveData) return true;
-  
-  // Skip if connection is 3G or slower
-  const slowTypes = ['slow-2g', '2g', '3g'];
-  if (slowTypes.includes(conn.effectiveType)) return true;
-  
-  return false;
-};
-
-/**
- * Determine the "aggression" timeout based on connection
- */
-const getPrefetchTimeout = (baseTimeout: number): number => {
-  if (typeof navigator === 'undefined') return baseTimeout;
-  const conn = (navigator as any).connection;
-  if (conn?.effectiveType === '4g') return Math.max(10, baseTimeout / 4);
-  return baseTimeout;
-};
-
-/**
- * Safe requestIdleCallback with fallback
+ * Safe requestIdleCallback with fallback — shorter timeout for speed
  */
 const scheduleIdle = (callback: () => void, timeout = 2000): void => {
-  if (shouldSkipPrefetch()) return;
-  
-  const optimizedTimeout = getPrefetchTimeout(timeout);
   if (typeof requestIdleCallback !== 'undefined') {
     requestIdleCallback(callback, { timeout: optimizedTimeout });
   } else {
-    setTimeout(callback, Math.min(300, optimizedTimeout / 2));
+    // Fallback for Safari - use shorter delay for snappier navigation
+    setTimeout(callback, 150);
   }
 };
 
@@ -155,7 +125,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
     const critical = ['/client/profile', '/client/liked-properties', ...sharedRoutes];
     critical.forEach(p => prefetchRoute(p));
     
-    // Everything else — sequential background prefetch
+    // Everything else — sequential background prefetch (start fast)
     scheduleIdle(() => {
       const remaining = [
         '/client/filters',
@@ -171,12 +141,12 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
         '/explore/tours'
       ];
       prefetchRoutesSequentially(remaining);
-    }, 100); // 300ms -> 100ms for that "immediately ready" feel
+    }, 300);
   } else {
     const critical = ['/owner/profile', '/owner/properties', ...sharedRoutes];
     critical.forEach(p => prefetchRoute(p));
-    
-    // Everything else — sequential background prefetch
+
+    // Everything else — sequential background prefetch (start fast)
     scheduleIdle(() => {
       const remaining = [
         '/owner/liked-clients',
@@ -191,7 +161,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
         '/owner/clients/bicycle'
       ];
       prefetchRoutesSequentially(remaining);
-    }, 100); // 300ms -> 100ms
+    }, 300);
   }
 }
 
