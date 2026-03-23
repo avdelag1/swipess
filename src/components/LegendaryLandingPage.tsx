@@ -31,13 +31,10 @@ const swipessLogoPng = '/icons/swipess-logo.png';
 function LogoImage({ className }: { className?: string }) {
   return (
     <div className={cn("relative overflow-hidden", className)}>
-      <video
-        src={swipessLogoVideo}
-        autoPlay
-        loop
-        muted
-        playsInline
-        style={{ mixBlendMode: 'screen', transform: 'scale(1.1)' }}
+      <img
+        src={swipessLogoPng}
+        alt="Swipess Logo"
+        style={{ mixBlendMode: 'screen' }}
         className="w-full h-full object-contain select-none pointer-events-none"
       />
     </div>
