@@ -127,25 +127,25 @@ function playFromPool(pool: HTMLAudioElement[], index: number, volume?: number):
 
 /** Play next zen sound in sequence */
 export function playRandomZen(volume = 0.45): void {
-  playFromPool(preloadedZen, zenIndex, volume);
+  playFromPool(getZenPool(), zenIndex, volume);
   zenIndex++;
 }
 
 /** Play next jungle sound in sequence */
 export function playJungleSound(volume = 0.3): void {
-  playFromPool(preloadedJungle, jungleIndex, volume);
+  playFromPool(getJunglePool(), jungleIndex, volume);
   jungleIndex++;
 }
 
 /** Play next funny dislike sound in sequence */
 export function playFunnyDislike(volume = 0.6): void {
-  playFromPool(preloadedFunnyDislike, funnyDislikeIndex, volume);
+  playFromPool(getFunnyDislikePool(), funnyDislikeIndex, volume);
   funnyDislikeIndex++;
 }
 
 /** Play next funny like sound in sequence */
 export function playFunnyLike(volume = 0.6): void {
-  playFromPool(preloadedFunnyLike, funnyLikeIndex, volume);
+  playFromPool(getFunnyLikePool(), funnyLikeIndex, volume);
   funnyLikeIndex++;
 }
 
