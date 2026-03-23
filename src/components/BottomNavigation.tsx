@@ -239,8 +239,9 @@ export function BottomNavigation({
 
   const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
 
-  const iconColorInactive = isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.65)';
-  const activeColor = 'var(--color-brand-primary)';
+  const iconColorInactive = isLight ? 'rgba(0,0,0,0.75)' : 'rgba(255,255,255,0.9)';
+  const iconColorActive = '#ec4899'; // Pink-500 - bright and visible on both light/dark
+  const labelColorInactive = isLight ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
 
   const barShadow = isLight
     ? '0 -1px 0 rgba(0,0,0,0.06), 0 -4px 12px rgba(0,0,0,0.08)'
@@ -429,14 +430,14 @@ export function BottomNavigation({
                           style={{
                             width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
                             height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                            color: (active || item.isSpecial) ? 'transparent' : iconColorInactive,
-                            stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
-                            fill: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'none',
-                            filter: (active || item.isSpecial) && !isLight
-                              ? 'drop-shadow(0 2px 8px rgba(249,115,22,0.5))'
-                              : 'none',
+                            // BRIGHT colors: solid fill for visibility on both themes
+                            color: active || item.isSpecial ? iconColorActive : iconColorInactive,
+                            stroke: active || item.isSpecial ? 'none' : 'currentColor',
+                            fill: active || item.isSpecial ? iconColorActive : 'none',
+                            // Add drop shadow for better contrast on dark backgrounds
+                            filter: !isLight && active ? 'drop-shadow(0 0 6px rgba(236,72,153,0.6))' : 'none',
                           }}
-                          strokeWidth={(active || item.isSpecial) ? 3.5 : 2.8}
+                          strokeWidth={(active || item.isSpecial) ? 2.5 : 2}
                         />
                       }
                     />
@@ -450,8 +451,8 @@ export function BottomNavigation({
                       (active || item.isSpecial) ? 'font-black' : 'font-bold',
                     )}
                     style={{
-                      color: (active || item.isSpecial) ? activeColor : iconColorInactive,
-                      opacity: (active || item.isSpecial) ? 1 : (isLight ? 0.6 : 0.65),
+                      color: (active || item.isSpecial) ? iconColorActive : labelColorInactive,
+                      opacity: (active || item.isSpecial) ? 1 : (isLight ? 0.7 : 0.85),
                       zIndex: 1,
                     }}
                   >
