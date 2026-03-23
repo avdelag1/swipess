@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
 import { useStartConversation } from "@/hooks/useConversations";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Flame, Home, Bike, Briefcase, RefreshCw, Car, GripVertical } from "lucide-react";
+import { Flame, Home, Bike, Briefcase, RefreshCw, Car, GripVertical, Search } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/useTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -50,6 +50,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [selectedPropertyForModal, setSelectedPropertyForModal] = useState<Listing | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: likedProperties = [], isLoading, refetch: refreshLikedProperties, isFetching } = useLikedProperties();
   const startConversation = useStartConversation();
@@ -87,12 +88,19 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   };
 
   const filteredProperties = likedProperties.filter((property) => {
-    if (selectedCategory === "all") return true;
-    const propertyCategory = (property.category || "").toLowerCase();
-    const selectedCat = selectedCategory.toLowerCase();
-    if (selectedCat === "property") return propertyCategory === "property" || !property.category;
-    if (selectedCat === "event") return propertyCategory === "event";
-    return propertyCategory === selectedCat;
+    const matchesCategory = (() => {
+      if (selectedCategory === "all") return true;
+      const propertyCategory = (property.category || "").toLowerCase();
+      const selectedCat = selectedCategory.toLowerCase();
+      if (selectedCat === "property") return propertyCategory === "property" || !property.category;
+      if (selectedCat === "event") return propertyCategory === "event";
+      return propertyCategory === selectedCat;
+    })();
+
+    const matchesSearch = (property.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (property.location || "").toLowerCase().includes(searchTerm.toLowerCase());
+
+    return matchesCategory && matchesSearch;
   });
 
   const { orderedItems: orderedFilteredProperties, handleReorder } = usePersistentReorder(
@@ -164,6 +172,25 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
             <span className="text-[10px] font-black uppercase tracking-widest text-[var(--color-brand-accent-2)]">Sync</span>
           </button>
+        </div>
+
+        {/* Search Bar — New: matches Owner Side standard */}
+        <div className="relative mb-8">
+          <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search your favorites..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={cn(
+              "w-full h-16 rounded-3xl pl-14 pr-6 font-bold focus:border-[var(--color-brand-accent-2)] transition-all outline-none",
+              isLight
+                ? "bg-white border border-border/40 text-foreground placeholder-muted-foreground shadow-sm"
+                : "bg-white/[0.04] border border-white/[0.08] text-white placeholder-muted-foreground"
+            )}
+          />
         </div>
 
         {/* Count + drag hint */}
