@@ -74,7 +74,7 @@ export function BottomNavigation({
 }: BottomNavigationProps) {
   const { navigate } = useAppNavigate();
   const location = useLocation();
-  const { unreadCount } = useUnreadMessageCount();
+  const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { t } = useTranslation();
@@ -163,7 +163,7 @@ export function BottomNavigation({
     x: number; y: number;
   } | null>(null);
 
-  const handlePointerDown = useCallback(
+  const _handlePointerDown = useCallback(
     (e: React.PointerEvent, item: NavItem) => {
       e.stopPropagation();
       isDraggingRef.current = false;
