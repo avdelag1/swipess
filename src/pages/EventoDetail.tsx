@@ -139,10 +139,11 @@ export default function EventoDetail() {
     queryFn: async () => {
       if (!user) return false;
       const { data } = await supabase
-        .from('event_favorites')
+        .from('likes')
         .select('id')
         .eq('user_id', user.id)
-        .eq('event_id', id!)
+        .eq('target_id', id!)
+        .eq('target_type', 'event')
         .maybeSingle();
       return !!data;
     },
@@ -163,9 +164,9 @@ export default function EventoDetail() {
     mutationFn: async () => {
       if (!user) throw new Error('Sign in required');
       if (isFavorited) {
-        return supabase.from('event_favorites').delete().eq('user_id', user.id).eq('event_id', id!);
+        return supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', id!).eq('target_type', 'event');
       } else {
-        return supabase.from('event_favorites').insert({ user_id: user.id, event_id: id! });
+        return supabase.from('likes').insert({ user_id: user.id, target_id: id!, target_type: 'event' });
       }
     },
     onError: (err, vars, context) => {
