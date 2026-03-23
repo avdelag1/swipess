@@ -2,7 +2,7 @@ import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { formatDistanceToNow } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Bell, MessageSquare, Flame, Trash2, 
+  Bell, MessageSquare, Flame,
   Sparkles, Star, Crown, MessageCircle, X
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -59,7 +59,7 @@ export default function NotificationsPage() {
     clearAllNotifications,
     markAllAsRead, 
     handleNotificationClick,
-    unreadCount 
+    unreadCount: _unreadCount
   } = useNotificationSystem();
   
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);

@@ -8,7 +8,7 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, ThumbsUp, Settings, Radio, MessageSquare, Megaphone, CalendarDays, Building2
+  Flame, ThumbsUp, Settings, Radio, MessageSquare, Megaphone, Building2
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";

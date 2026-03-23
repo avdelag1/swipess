@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ChevronLeft, Sparkles, Zap, Calendar, MapPin, 
   Image as ImageIcon, Send, CheckCircle2, Upload, Star, 
-  Users, TrendingUp, Eye, FileText, Phone, Building,
-  Rocket, Crown, ShieldCheck, HeartHandshake,
+  Users, TrendingUp, Eye, FileText, Phone,
+  Rocket, Crown, ShieldCheck,
   Clock, DollarSign, Tag, X, MessageCircle, ArrowUpRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -238,7 +238,7 @@ export default function PromotionRequest() {
 
   // ── STEP VALIDATION ───────────────────────────────────────────────────────
   const canProceedToDetails = form.eventTitle.trim().length > 0 && form.category.length > 0;
-  const canProceedToReview = canProceedToDetails && (form.location.trim().length > 0 || form.description.trim().length > 0);
+  const _canProceedToReview = canProceedToDetails && (form.location.trim().length > 0 || form.description.trim().length > 0);
 
   return (
     <div className={cn(
