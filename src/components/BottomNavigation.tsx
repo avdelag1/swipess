@@ -239,9 +239,9 @@ export function BottomNavigation({
 
   const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
 
-  const iconColorInactive = isLight ? 'rgba(0,0,0,0.75)' : 'rgba(255,255,255,0.9)';
-  const iconColorActive = '#ec4899'; // Pink-500 - bright and visible on both light/dark
-  const labelColorInactive = isLight ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
+  const iconColorInactive = '#ffffff'; // Pure white - bright and visible on dark
+  const iconColorActive = '#ffffff'; // White for active too - high contrast
+  const labelColorInactive = '#ffffff'; // White labels
 
   const barShadow = isLight
     ? '0 -1px 0 rgba(0,0,0,0.06), 0 -4px 12px rgba(0,0,0,0.08)'
@@ -430,14 +430,13 @@ export function BottomNavigation({
                           style={{
                             width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
                             height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                            // BRIGHT colors: solid fill for visibility on both themes
-                            color: active || item.isSpecial ? iconColorActive : iconColorInactive,
-                            stroke: active || item.isSpecial ? 'none' : 'currentColor',
-                            fill: active || item.isSpecial ? iconColorActive : 'none',
-                            // Add drop shadow for better contrast on dark backgrounds
-                            filter: !isLight && active ? 'drop-shadow(0 0 6px rgba(236,72,153,0.6))' : 'none',
+                            // Solid white for maximum visibility on dark background
+                            color: '#ffffff',
+                            fill: '#ffffff',
+                            stroke: '#ffffff',
+                            filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
                           }}
-                          strokeWidth={(active || item.isSpecial) ? 2.5 : 2}
+                          strokeWidth={2}
                         />
                       }
                     />
@@ -447,13 +446,13 @@ export function BottomNavigation({
                 {!isNarrow && (
                   <span
                     className={cn(
-                      'text-[10px] tracking-wide transition-all duration-250 relative',
-                      (active || item.isSpecial) ? 'font-black' : 'font-bold',
+                      'text-[10px] tracking-wide transition-all duration-250 relative font-bold',
                     )}
                     style={{
-                      color: (active || item.isSpecial) ? iconColorActive : labelColorInactive,
-                      opacity: (active || item.isSpecial) ? 1 : (isLight ? 0.7 : 0.85),
+                      color: '#ffffff',
+                      opacity: 1,
                       zIndex: 1,
+                      textShadow: '0 1px 2px rgba(0,0,0,0.5)',
                     }}
                   >
                     {item.label}
