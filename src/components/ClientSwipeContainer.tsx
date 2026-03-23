@@ -366,6 +366,16 @@ const ClientSwipeContainerComponent = ({
   const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
   const error = externalError !== undefined ? externalError : internalError;
 
+  useEffect(() => {
+    logger.info('[ClientSwipeContainer] State Update:', {
+      externalProfilesCount: externalProfiles?.length,
+      internalProfilesCount: internalProfiles?.length,
+      isLoading,
+      hasError: !!error,
+      category
+    });
+  }, [externalProfiles, internalProfiles, isLoading, error, category]);
+
   const swipeMutation = useSwipe();
   const { canAccess: _hasPremiumMessaging, needsUpgrade: _needsUpgrade } = useCanAccessMessaging();
   const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();

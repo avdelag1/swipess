@@ -9,8 +9,8 @@
 
 // IMPORTANT: This version is auto-updated by vite.config.ts on each build
 // __BUILD_TIME__ is replaced with actual timestamp during production build
-const SW_VERSION = typeof '__BUILD_TIME__' !== 'undefined' ? '__BUILD_TIME__' : Date.now().toString();
-const CACHE_VERSION = `swipess-v${SW_VERSION}`;
+const SW_VERSION = typeof '__BUILD_TIME__' !== 'undefined' ? '__BUILD_TIME__' : 'v1.2.6';
+const CACHE_VERSION = `swipess-${SW_VERSION}`;
 const CACHE_NAME = CACHE_VERSION;
 const STATIC_CACHE = `${CACHE_NAME}-static`;
 const DYNAMIC_CACHE = `${CACHE_NAME}-dynamic`;

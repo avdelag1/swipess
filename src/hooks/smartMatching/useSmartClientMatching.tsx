@@ -131,6 +131,11 @@ export function useSmartClientMatching(
                 const start = page * pageSize;
                 const end = start + pageSize - 1;
                 const { data: profiles, error: profileError } = await profileQuery.range(start, end);
+                logger.info('[SmartMatching] Profile query result:', {
+                    count: profiles?.length || 0,
+                    error: profileError ? profileError.message : null
+                });
+
 
                 if (profileError) {
                     logger.error('[SmartMatching] Error fetching client profiles:', {
@@ -147,7 +152,7 @@ export function useSmartClientMatching(
                 }
 
                 // Fetch supplementary data from client_profiles scoped to returned profile user_ids
-                const profileUserIds = (profiles as any[]).map(p => p.user_id).filter(Boolean);
+                const profileUserIds = Array.isArray(profiles) ? profiles.map(p => (p as any).user_id).filter(Boolean) : [];
                 const { data: clientProfileData } = profileUserIds.length > 0
                     ? await supabase
                         .from('client_profiles')
@@ -384,11 +389,20 @@ export function useSmartClientMatching(
                     return sortedClients.filter(p => p.user_id !== userId);
                 }
 
+                logger.info('[SmartMatching] Successfully returned profiles:', {
+                    total: sortedClients.length,
+                    isRoommateSection
+                });
                 return sortedClients;
-            } catch (error) {
-                logger.error('[useSmartClientMatching] Error loading client profiles', error);
+            } catch (error: any) {
+                logger.error('[useSmartClientMatching] CRASH in queryFn:', {
+                    message: error?.message || 'Unknown error',
+                    stack: error?.stack,
+                    userId
+                });
                 return [] as MatchedClientProfile[];
             }
+
         },
         enabled: !!userId,
         refetchOnWindowFocus: false,

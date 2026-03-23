@@ -135,6 +135,7 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 // Test pages
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
 const AITestPage = lazy(() => import("./pages/AITestPage"));
+const TrumpsBadDayLazy = lazy(() => import("./pages/TrumpsBadDay"));
 const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 
 
@@ -331,6 +332,7 @@ const App = () => {
                                         <Route path="/explore/tours" element={<VideoTours />} />
                                         <Route path="/explore/intel" element={<LocalIntel />} />
                                         <Route path="/explore/roommates" element={<RoommateMatching />} />
+                                         <Route path="/game/trumps-bad-day" element={<Suspense fallback={<SuspenseFallback />}><TrumpsBadDayLazy /></Suspense>} />
                                         <Route path="/documents" element={<DocumentVault />} />
                                         <Route path="/escrow" element={<EscrowDashboard />} />
                                       </Route>
