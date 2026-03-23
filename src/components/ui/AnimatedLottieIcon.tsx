@@ -43,7 +43,7 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
   active,
   size = 24,
   className,
-  inactiveIcon: _inactiveIcon
+  inactiveIcon
 }) => {
   const lottieRef = useRef<LottieRefCurrentProps>(null);
 

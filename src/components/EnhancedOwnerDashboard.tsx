@@ -10,7 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
-import { User } from 'lucide-react';
+import { User, Megaphone } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { ClientFilters } from '@/hooks/useSmartMatching';
 
 interface EnhancedOwnerDashboardProps {
