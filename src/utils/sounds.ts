@@ -75,7 +75,7 @@ export const themeDisplayNames: Record<SwipeTheme, string> = {
   randomZen: 'Random Zen'
 };
 
-// --- Preloading & Sequential Playback ---
+// --- Lazy Preloading & Sequential Playback ---
 
 function preloadPool(paths: string[], vol: number): HTMLAudioElement[] {
   return paths.map(p => {
@@ -87,11 +87,29 @@ function preloadPool(paths: string[], vol: number): HTMLAudioElement[] {
   });
 }
 
-// Preloaded pools (created once at module load)
-const preloadedZen = preloadPool(soundMap.randomZen.sounds, 0.45);
-const preloadedJungle = preloadPool(jungleSoundPool, 0.3);
-const preloadedFunnyDislike = preloadPool(funnyDislikePool, 0.6);
-const preloadedFunnyLike = preloadPool(funnyLikePool, 0.6);
+// Lazy-loaded pools — only created on first use (NOT at module import)
+// This prevents 9.7MB of audio from loading on landing page
+let preloadedZen: HTMLAudioElement[] | null = null;
+let preloadedJungle: HTMLAudioElement[] | null = null;
+let preloadedFunnyDislike: HTMLAudioElement[] | null = null;
+let preloadedFunnyLike: HTMLAudioElement[] | null = null;
+
+function getZenPool(): HTMLAudioElement[] {
+  if (!preloadedZen) preloadedZen = preloadPool(soundMap.randomZen.sounds, 0.45);
+  return preloadedZen;
+}
+function getJunglePool(): HTMLAudioElement[] {
+  if (!preloadedJungle) preloadedJungle = preloadPool(jungleSoundPool, 0.3);
+  return preloadedJungle;
+}
+function getFunnyDislikePool(): HTMLAudioElement[] {
+  if (!preloadedFunnyDislike) preloadedFunnyDislike = preloadPool(funnyDislikePool, 0.6);
+  return preloadedFunnyDislike;
+}
+function getFunnyLikePool(): HTMLAudioElement[] {
+  if (!preloadedFunnyLike) preloadedFunnyLike = preloadPool(funnyLikePool, 0.6);
+  return preloadedFunnyLike;
+}
 
 // Sequential round-robin indices
 let zenIndex = 0;
