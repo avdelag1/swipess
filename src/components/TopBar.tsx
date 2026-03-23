@@ -76,7 +76,7 @@ function TopBarComponent({
   title,
   showBack = false,
 }: TopBarProps) {
-  const { unreadCount: _notificationCount } = useUnreadNotifications();
+  const { unreadCount } = useUnreadNotifications();
   const { navigate } = useAppNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
   const { user } = useAuth();
@@ -422,8 +422,45 @@ function TopBarComponent({
             {/* Theme Toggle */}
             <ThemeToggle />
 
-            {/* Notifications Button */}
-            <NotificationPopover />
+            {/* Notifications Button - Navigates directly to page per user request */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "relative h-10 w-10 rounded-xl transition-all duration-200",
+                "hover:scale-105 active:scale-95 group bg-card border-0",
+                "touch-manipulation"
+              )}
+              onClick={() => {
+                haptics.tap();
+                navigate('/notifications');
+              }}
+              aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+            >
+              <div className="relative">
+                <Bell
+                  strokeWidth={3}
+                  className={cn(
+                    "h-5 w-5 transition-colors duration-150",
+                    isLight ? "text-foreground/80" : "text-white/80",
+                    "group-hover:text-foreground"
+                  )}
+                />
+                <AnimatePresence>
+                  {unreadCount > 0 && (
+                    <motion.span
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white px-1.5 shadow-lg"
+                    >
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
+            </Button>
           </div>
         </div>
       </header>

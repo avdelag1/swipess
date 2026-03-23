@@ -401,15 +401,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
     // Core routes that should go full-bleed behind the header
+    // Only the discovery dashboard remains immersive for the 'hero' card effect
     const immersiveRoutes = [
       '/client/dashboard',
       '/owner/dashboard',
-      '/client/profile',
-      '/owner/profile',
-      '/client/liked-properties',
-      '/owner/liked-clients',
-      '/client/who-liked-you',
-      '/owner/interested-clients',
     ];
 
     const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
@@ -603,7 +598,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
   const isRoommatesPage = location.pathname.startsWith('/explore/roommates');
-  const isImmersiveFeed = location.pathname.startsWith('/explore/eventos') || isRoommatesPage;
+  const isImmersiveFeed = (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') || isRoommatesPage;
 
   // IMMERSIVE MODE: Handled above for swipe navigation dependency
 
@@ -616,7 +611,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     // HOWEVER, the Detail page for Eventos should be fullscreen to avoid "double access" X/Back issues
     const isEventoDetail = location.pathname.startsWith('/explore/eventos/') && 
                           location.pathname !== '/explore/eventos' && 
-                          location.pathname !== '/explore/eventos/';
+                          location.pathname !== '/explore/eventos/' &&
+                          location.pathname !== '/explore/eventos/likes'; // Likes should have the regular header padding
     
     // User wants header gone from Events to avoid interference
     const isEventsMain = location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/';

@@ -85,7 +85,7 @@ export default function EventosLikes() {
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white pb-24">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 pt-safe px-4 pb-4">
+      <div className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 pt-[var(--safe-top)] px-4 pb-4">
         <div className="flex items-center gap-4 py-4">
           <button 
             onClick={() => navigate(-1)}
