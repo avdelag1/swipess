@@ -222,7 +222,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     try {
       if (isLogin) {
         const validated = loginSchema.parse({ email, password });
-        const { error } = await signIn(validated.email, validated.password, role);
+        const { error } = await signIn(validated.email, validated.password);
         if (!error) {
           if (rememberMe) localStorage.setItem('auth_client_email', validated.email);
           else localStorage.removeItem('auth_client_email');
@@ -234,7 +234,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           return;
         }
         const validated = signupSchema.parse({ name, email, password });
-        const { error } = await signUp(validated.email, validated.password, role, validated.name);
+        const { error } = await signUp(validated.email, validated.password, 'client', validated.name);
         if (error) throw error;
       }
     } catch (error: any) {
@@ -324,33 +324,16 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 
       <div className="h-full flex flex-col justify-center p-4 sm:p-5 relative z-10">
         <motion.div className="w-full max-w-sm mx-auto" variants={containerVariants} initial="hidden" animate="visible">
-          {(isForgotPassword || !isLogin) && (
-            <motion.div variants={itemVariants} className="text-center mb-5"><h2 className="text-xl font-bold text-foreground">{isForgotPassword ? 'Reset Password' : 'Create account'}</h2></motion.div>
+          {isForgotPassword && (
+            <motion.div variants={itemVariants} className="text-center mb-5">
+              <h2 className="text-xl font-bold text-foreground">Reset Password</h2>
+            </motion.div>
           )}
 
-          <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5">
-            {/* Role Toggle */}
-            <div className="flex p-1 bg-muted rounded-xl mb-4 border border-border/50">
-              <button
-                type="button"
-                onClick={() => { setRole('client'); haptics.tap(); }}
-                className={cn(
-                  "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all",
-                  role === 'client' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Explorer
-              </button>
-              <button
-                type="button"
-                onClick={() => { setRole('owner'); haptics.tap(); }}
-                className={cn(
-                  "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all",
-                  role === 'owner' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Provider
-              </button>
+          <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
+            <div className="text-center mb-6">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-rose-400 bg-clip-text text-transparent">Welcome to Swipess</h1>
+              <p className="text-sm text-muted-foreground mt-2 font-medium">Step into a world of curated experiences. Your journey to fun and discovery starts here.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
