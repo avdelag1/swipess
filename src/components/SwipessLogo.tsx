@@ -32,7 +32,7 @@ function SwipessLogoComponent({
         loop
         muted
         playsInline
-        style={{ mixBlendMode: 'screen' }}
+        style={{ mixBlendMode: 'screen', transform: 'scale(1.1)' }}
         className={cn(
           'w-auto object-contain select-none pointer-events-none transition-all duration-300',
           heightMap[size]
