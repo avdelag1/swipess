@@ -270,6 +270,21 @@ export function useNotificationSystem() {
     }
   };
 
+  const markNotificationAsRead = (id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    // Persist to DB so the bell badge (useUnreadNotifications) clears via realtime
+    if (user?.id) {
+      supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .then(({ error }) => {
+          if (error) logger.error('[Notifications] Failed to mark notification as read:', error);
+        });
+    }
+  };
+
   const handleNotificationClick = (notification: Notification) => {
     // Mark as read locally
     setNotifications(prev =>
@@ -302,6 +317,7 @@ export function useNotificationSystem() {
     dismissNotification,
     clearAllNotifications,
     markAllAsRead,
+    markNotificationAsRead,
     handleNotificationClick,
     unreadCount: notifications.filter(n => !n.read).length
   };
