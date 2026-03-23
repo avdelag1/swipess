@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Users, SlidersHorizontal,
   Sparkles, X, MapPin,
-  Briefcase, MessageCircle,
-  ShieldCheck, Info, Clock,
+  Briefcase,
+  ShieldCheck, Clock,
   Eye, EyeOff
 } from 'lucide-react';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';

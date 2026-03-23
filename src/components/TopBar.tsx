@@ -65,7 +65,7 @@ interface TopBarProps {
 }
 
 function TopBarComponent({
-  onNotificationsClick,
+  onNotificationsClick: _onNotificationsClick,
   onMessageActivationsClick,
   className,
   showFilters,

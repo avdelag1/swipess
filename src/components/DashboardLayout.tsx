@@ -9,12 +9,9 @@ import { useLocation } from "react-router-dom";
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
 import { logger } from '@/utils/prodLogger'
-import { useFilterStore } from '@/state/filterStore'
-import { useShallow } from 'zustand/react/shallow'
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
 
 import { cn } from '@/lib/utils'
-import type { QuickFilterCategory } from '@/types/filters'
 import { useQueryClient } from '@tanstack/react-query'
 
 // New Mobile Navigation Components
@@ -109,7 +106,6 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showSubscriptionPackages, setShowSubscriptionPackages] = useState(false)
 
-  const [showPreferences, setShowPreferences] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null)
   const [showPropertyDetails, setShowPropertyDetails] = useState(false)
@@ -160,14 +156,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     };
   }, []);
 
-  const { categories, listingType, clientGender, clientType } = useFilterStore(
-    useShallow((state) => ({
-      categories: state.categories,
-      listingType: state.listingType,
-      clientGender: state.clientGender,
-      clientType: state.clientType,
-    }))
-  );
 
   const { navigate } = useAppNavigate();
   const location = useLocation()
@@ -407,12 +395,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const selectedListing = selectedListingId ? listings.find(l => l.id === selectedListingId) : null;
   const selectedProfile = selectedProfileId ? profiles.find(p => p.user_id === selectedProfileId) : null;
 
-  // FIX: Memoize all handler functions to prevent infinite re-renders
-  const handleLikedPropertySelect = useCallback((listingId: string) => {
-    setSelectedListingId(listingId)
-    setShowPropertyDetails(true)
-  }, [])
-
   const handleMessageClick = useCallback(() => {
     const roleText = userRole === 'owner' ? 'clients' : 'owners'
     setSubscriptionReason(`Unlock messaging to connect with ${roleText}!`)
@@ -547,19 +529,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // No more local handler needed - store is single source of truth
 
   // Map quick filter category names to database category names
-  const mapCategoryToDatabase = useCallback((category: QuickFilterCategory): string => {
-    const mapping: Record<QuickFilterCategory, string> = {
-      'motorcycle': 'motorcycle',
-      'property': 'property',
-      'bicycle': 'bicycle',
-      'services': 'worker',  // UI 'services' -> DB 'worker'
-    };
-    return mapping[category] || category;
-  }, []);
-
-  // Get the original UI category (before mapping) for display purposes
-  const activeUiCategory = categories.length === 1 ? categories[0] : null;
-
   // Check if we're on a discovery page where filters should be shown
   // MUST be declared BEFORE enhancedChildren useMemo that references it
   const isOnDiscoveryPage = (userRole === 'client' && location.pathname === '/client/dashboard') ||

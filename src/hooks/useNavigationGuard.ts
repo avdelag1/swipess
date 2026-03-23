@@ -1,8 +1,8 @@
 import { useRef, useCallback } from 'react';
 
 /**
- * Custom hook to provide guard logic for navigation events like double-taps.
- * It tracks an internal 'isNavigatingRef' state and ensures a minimum duration between calls.
+ * Prevents rapid double-navigations caused by fast taps or accidental double-clicks.
+ * Returns helpers to gate navigation attempts with a 300ms debounce.
  */
 export function useNavigationGuard() {
   const isNavigatingRef = useRef(false);
@@ -10,7 +10,6 @@ export function useNavigationGuard() {
 
   const canNavigate = useCallback(() => {
     const now = Date.now();
-    // Prevent navigation if already in progress or if last one was very recent (300ms)
     if (isNavigatingRef.current || now - lastNavigationRef.current < 300) {
       return false;
     }

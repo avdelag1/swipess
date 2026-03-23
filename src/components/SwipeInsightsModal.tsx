@@ -7,6 +7,7 @@ import { Eye, MapPin, DollarSign, Calendar, Shield, CheckCircle, Star, Bed, Bath
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useState, useMemo } from 'react';
 import { usePWAMode } from '@/hooks/usePWAMode';
+import { formatDistanceToNow } from '@/utils/timeFormatter';
 
 // Category icons for listings
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -634,7 +635,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                     </div>
                     {listing.created_at && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        Listed {getTimeAgo(new Date(listing.created_at))}
+                        Listed {formatDistanceToNow(new Date(listing.created_at), { addSuffix: true })}
                       </p>
                     )}
                   </div>
@@ -929,9 +930,9 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {listing.updated_at
-                              ? `Last updated ${getTimeAgo(new Date(listing.updated_at))}`
+                              ? `Last updated ${formatDistanceToNow(new Date(listing.updated_at), { addSuffix: true })}`
                               : listing.created_at
-                                ? `Listed ${getTimeAgo(new Date(listing.created_at))}`
+                                ? `Listed ${formatDistanceToNow(new Date(listing.created_at), { addSuffix: true })}`
                                 : 'Recently listed'}
                           </p>
                         </div>
@@ -997,27 +998,3 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
   );
 }
 
-function _StatCard({ label, value, icon }: { label: string; value: number; icon: string }) {
-  return (
-    <div className="p-3 bg-muted/50 rounded-xl text-center">
-      <div className="text-2xl mb-1">{icon}</div>
-      <div className="text-xl font-bold text-foreground">{value}</div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-    </div>
-  );
-}
-
-function getTimeAgo(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
-  if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-  if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) !== 1 ? 's' : ''} ago`;
-  return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) !== 1 ? 's' : ''} ago`;
-}

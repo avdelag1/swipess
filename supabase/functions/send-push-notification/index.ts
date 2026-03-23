@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * send-push-notification Edge Function
  *

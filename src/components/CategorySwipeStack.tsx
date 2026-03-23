@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, PanInfo } from 'framer-motion';
 import { Home, Bike, Briefcase, Search, Check, Sparkles } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
@@ -109,16 +109,16 @@ interface CategoryCardProps {
     category: any;
     isTop: boolean;
     index: number;
-    itemCount: number;
+    _itemCount: number;
     isActive: boolean;
-    isDark: boolean;
+    _isDark: boolean;
     onSwipeRight: () => void;
     onSwipeLeft: () => void;
     onSelect: () => void;
 }
 
-function CategoryCard({ 
-    category, isTop, index, itemCount, isActive, isDark, onSwipeRight, onSwipeLeft, onSelect 
+function CategoryCard({
+    category, isTop, index, _itemCount, isActive, _isDark, onSwipeRight, onSwipeLeft, onSelect
 }: CategoryCardProps) {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
@@ -139,10 +139,12 @@ function CategoryCard({
     // The base z-indices are: Card 0: 10, Card 1: 9, Card 2: 8...
     // So dropping to < 9 makes it hide behind Card 1.
     const tilt = useTransform(x, [-150, 0, 150], [-15, 0, 15]);
-    const zIndex = useTransform(x, 
-        [-120, -40, 0, 40, 120], 
+    const zIndex = useTransform(x,
+        [-120, -40, 0, 40, 120],
         [1, 15, 20, 15, 1] // Start high, drop low at edges
     );
+    const rightOpacity = useTransform(x, [20, 60], [0, 1]);
+    const leftOpacity = useTransform(x, [-20, -60], [0, 1]);
     
     const zIndexBase = 10 - index;
     const scale = isTop ? 1 : 1 - (index * 0.04);
@@ -259,7 +261,7 @@ function CategoryCard({
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.5 }}
-                            style={{ opacity: useTransform(x, [20, 60], [0, 1]) }}
+                            style={{ opacity: rightOpacity }}
                             className="absolute top-4 left-4 border-2 border-emerald-500 text-emerald-500 font-black px-2 py-0.5 rounded-lg -rotate-12 uppercase text-[10px]"
                         >
                             Select!
@@ -268,7 +270,7 @@ function CategoryCard({
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.5 }}
-                            style={{ opacity: useTransform(x, [-20, -60], [0, 1]) }}
+                            style={{ opacity: leftOpacity }}
                             className="absolute top-4 right-4 border-2 border-rose-500 text-rose-500 font-black px-2 py-0.5 rounded-lg rotate-12 uppercase text-[10px]"
                         >
                             Skip

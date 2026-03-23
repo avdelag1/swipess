@@ -20,9 +20,7 @@ interface SwipeMatchMeterProps {
 }
 
 function SwipeMatchMeterComponent({ percentage, reasons, compact = false }: SwipeMatchMeterProps) {
-  // Don't render for 0% or undefined
-  if (!percentage || percentage <= 0) return null;
-
+  // Hooks must be called unconditionally — compute values regardless of early return
   const { color, bgGlow, icon, label } = useMemo(() => {
     if (percentage >= 90) return {
       color: '#34d399', // emerald-400
@@ -54,6 +52,9 @@ function SwipeMatchMeterComponent({ percentage, reasons, compact = false }: Swip
   const ringStyle = useMemo(() => ({
     background: `conic-gradient(${color} ${percentage * 3.6}deg, rgba(255,255,255,0.08) ${percentage * 3.6}deg)`,
   }), [percentage, color]);
+
+  // Don't render for 0% or undefined — after all hooks
+  if (!percentage || percentage <= 0) return null;
 
   if (compact) {
     return (

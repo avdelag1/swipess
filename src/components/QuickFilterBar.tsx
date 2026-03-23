@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
-import { getCategoryColorClass } from '@/types/filters';
 
 // Re-export from CascadeFilterButton for backwards compatibility
 export { CascadeFilterButton } from './CascadeFilterButton';

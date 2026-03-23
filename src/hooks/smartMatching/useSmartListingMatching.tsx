@@ -263,13 +263,7 @@ export function useSmartListingMatching(
                 }
 
                 // Exclude own listings (defense in depth)
-                filteredListings = filteredListings.filter(listing => {
-                    if (listing.owner_id === userId) {
-                        logger.warn('[SmartMatching] CRITICAL: Own listing leaked through DB query:', listing.id);
-                        return false;
-                    }
-                    return true;
-                });
+                filteredListings = filteredListings.filter(listing => listing.owner_id !== userId);
 
                 if (!preferences) {
                     return filteredListings.map(listing => ({
@@ -354,13 +348,7 @@ export function useSmartListingMatching(
                     })));
                 }
 
-                const hasOwnListing = randomizedListings.some(l => l.owner_id === userId);
-                if (hasOwnListing) {
-                    logger.error('[SmartMatching] CRITICAL BUG: User\'s own listing in results!');
-                    return randomizedListings.filter(l => l.owner_id !== userId);
-                }
-
-                return randomizedListings;
+                return randomizedListings.filter(l => l.owner_id !== userId);
             } catch (error) {
                 logger.error('Error in smart listing matching:', error);
                 return [];

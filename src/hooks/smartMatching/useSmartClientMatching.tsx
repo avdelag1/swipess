@@ -164,13 +164,7 @@ export function useSmartClientMatching(
 
                 // Map profiles with enriched data
                 let filteredProfiles = (profiles as any[])
-                    .filter(profile => {
-                        if (profile.user_id === userId) {
-                            logger.warn('[SmartMatching] CRITICAL: Own profile leaked through DB query');
-                            return false;
-                        }
-                        return true;
-                    })
+                    .filter(profile => profile.user_id !== userId)
                     .map(profile => {
                         const cpData = clientProfileMap.get(profile.user_id);
                         const name = profile.full_name || cpData?.name || 'New User';
@@ -377,14 +371,7 @@ export function useSmartClientMatching(
                 // Sort by match percentage
                 const sortedClients = matchedClients.sort((a, b) => b.matchPercentage - a.matchPercentage);
 
-                // Verify none of the returned profiles are the user's own
-                const hasOwnProfile = sortedClients.some(p => p.user_id === userId);
-                if (hasOwnProfile) {
-                    logger.error('[SmartMatching] CRITICAL BUG: User\'s own profile in results!');
-                    return sortedClients.filter(p => p.user_id !== userId);
-                }
-
-                return sortedClients;
+                return sortedClients.filter(p => p.user_id !== userId);
             } catch (error) {
                 logger.error('[useSmartClientMatching] Error loading client profiles', error);
                 return [] as MatchedClientProfile[];

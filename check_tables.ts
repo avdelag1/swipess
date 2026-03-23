@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;

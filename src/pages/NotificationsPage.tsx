@@ -2,7 +2,7 @@ import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { formatDistanceToNow } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Bell, MessageSquare, Flame, Trash2, 
+  Bell, MessageSquare, Flame,
   Sparkles, Star, Crown, MessageCircle, X
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -55,11 +55,10 @@ const NotificationIconBg = ({ type, role = 'neutral' }: { type: string; role?: '
 export default function NotificationsPage() {
   const { 
     notifications, 
-    dismissNotification, 
+    dismissNotification,
     clearAllNotifications,
-    markAllAsRead, 
+    markAllAsRead,
     handleNotificationClick,
-    unreadCount 
   } = useNotificationSystem();
   
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);

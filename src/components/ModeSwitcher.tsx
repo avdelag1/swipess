@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef } from 'react';
+import { memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, UserCog, ArrowLeftRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -19,7 +19,6 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
   const { theme } = useTheme();
   const isLight = theme === 'light';
-  const lastClickTime = useRef(0);
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 

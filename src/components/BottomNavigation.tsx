@@ -73,7 +73,7 @@ export function BottomNavigation({
 }: BottomNavigationProps) {
   const { navigate } = useAppNavigate();
   const location = useLocation();
-  const { unreadCount } = useUnreadMessageCount();
+  useUnreadMessageCount();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { t } = useTranslation();
@@ -161,16 +161,6 @@ export function BottomNavigation({
   const touchState = useRef<{
     x: number; y: number;
   } | null>(null);
-
-  const handlePointerDown = useCallback(
-    (e: React.PointerEvent, item: NavItem) => {
-      e.stopPropagation();
-      isDraggingRef.current = false;
-      touchState.current = { x: e.clientX, y: e.clientY };
-      if (item.path) prefetchRoute(item.path);
-    },
-    [],
-  );
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!touchState.current) return;

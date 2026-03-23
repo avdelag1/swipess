@@ -5,6 +5,7 @@
 export function logBundleSize() {
   if (import.meta.env.DEV) {
     // In development, we can log performance metrics
+    /* eslint-disable no-console */
     console.log('[Performance] Bundle loaded');
 
     // Log performance timing if available
@@ -15,5 +16,6 @@ export function logBundleSize() {
         console.log('[Performance] Load Event:', timing.loadEventEnd - timing.startTime, 'ms');
       }
     }
+    /* eslint-enable no-console */
   }
 }

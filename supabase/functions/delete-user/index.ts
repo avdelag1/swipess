@@ -1,3 +1,4 @@
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any */
 /**
  * delete-user — Permanently deletes a user account and all associated data.
  *
