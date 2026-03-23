@@ -372,11 +372,11 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
               saveQuickFilter([]);
               onChange({ ...filters, categories: [], listingType: 'both' });
             }}
-            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-5 rounded-2xl text-[13px] font-black tracking-wide flex-shrink-0 h-[62px] overflow-hidden relative')}
+            className={cn(smoothButtonClass, 'flex items-center gap-2 px-6 rounded-[1.8rem] text-[15px] font-black tracking-wide flex-shrink-0 h-[82px] overflow-hidden relative')}
             style={{
-              border: clientIsAllSelected ? '2px solid rgba(236,72,153,0.8)' : isDark ? '1.5px solid rgba(255,255,255,0.10)' : '1.5px solid rgba(0,0,0,0.08)',
-              boxShadow: clientIsAllSelected ? allSelectedShadow : 'none',
-              transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+              border: clientIsAllSelected ? '2.5px solid rgba(236,72,153,0.9)' : isDark ? '1.5px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(0,0,0,0.10)',
+              boxShadow: clientIsAllSelected ? allSelectedShadow : '0 4px 12px rgba(0,0,0,0.05)',
+              transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
             {/* Breathing background photo */}
@@ -414,11 +414,11 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
               <button
                 key={category.id}
                 onClick={() => handleCategorySelect(category.id)}
-                className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 rounded-2xl text-xs font-bold flex-shrink-0 h-[62px] overflow-hidden relative')}
+                className={cn(smoothButtonClass, 'flex items-center gap-2 px-5 rounded-[1.8rem] text-sm font-bold flex-shrink-0 h-[82px] overflow-hidden relative')}
                 style={{
-                  border: isActive && accent ? `2px solid ${accent.border}` : isDark ? '1.5px solid rgba(255,255,255,0.10)' : '1.5px solid rgba(0,0,0,0.08)',
-                  boxShadow: isActive && accent ? accent.shadow : 'none',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  border: isActive && accent ? `2.5px solid ${accent.border}` : isDark ? '1.5px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(0,0,0,0.10)',
+                  boxShadow: isActive && accent ? accent.shadow : '0 4px 12px rgba(0,0,0,0.05)',
+                  transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               >
                 {/* Breathing background photo */}

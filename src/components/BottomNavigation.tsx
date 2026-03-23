@@ -424,6 +424,7 @@ export function BottomNavigation({
                     <div className="relative flex items-center justify-center" style={{ width: ICON_SIZE + 10, height: ICON_SIZE + 10 }}>
                       <Icon
                         className="transition-all duration-300 ease-out"
+                        fill={(active || item.isSpecial) ? 'currentColor' : 'none'}
                         style={{
                           width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
                           height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
