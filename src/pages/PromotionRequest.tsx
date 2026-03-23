@@ -81,7 +81,7 @@ export default function PromotionRequest() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [form, setForm] = useState<PromotionForm>(initialForm);
-  const [step, setStep] = useState<'info' | 'details' | 'review'>('info');
+  const [step, setStep] = useState<'overview' | 'info' | 'details' | 'review'>('overview');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -254,7 +254,12 @@ export default function PromotionRequest() {
           <div className="flex items-center gap-3">
             <motion.button
               whileTap={{ scale: 0.9 }}
-              onClick={() => step === 'info' ? navigate(-1) : setStep(step === 'review' ? 'details' : 'info')}
+              onClick={() => {
+                if (step === 'overview') navigate(-1);
+                else if (step === 'info') setStep('overview');
+                else if (step === 'details') setStep('info');
+                else if (step === 'review') setStep('details');
+              }}
               className={cn(
                 "w-10 h-10 rounded-2xl flex items-center justify-center",
                 isLight ? "bg-slate-100" : "bg-white/10"
@@ -268,20 +273,20 @@ export default function PromotionRequest() {
                 "text-[10px] font-bold uppercase tracking-widest",
                 isLight ? "text-slate-400" : "text-white/30"
               )}>
-                {step === 'info' ? 'Step 1 · Basics' : step === 'details' ? 'Step 2 · Details' : 'Step 3 · Review'}
+                {step === 'overview' ? 'Promotion Hub' : step === 'info' ? 'Step 1 · Basics' : step === 'details' ? 'Step 2 · Details' : 'Step 3 · Review'}
               </p>
             </div>
           </div>
 
           {/* Step indicators */}
           <div className="flex gap-1.5">
-            {['info', 'details', 'review'].map((s, i) => (
+            {['overview', 'info', 'details', 'review'].map((s, i) => (
               <div 
                 key={s}
                 className={cn(
                   "h-1 rounded-full transition-all duration-300",
                   s === step ? "w-6 bg-primary" : 
-                  i < ['info', 'details', 'review'].indexOf(step) ? "w-3 bg-primary/50" : 
+                  i < ['overview', 'info', 'details', 'review'].indexOf(step) ? "w-3 bg-primary/50" : 
                   "w-3 bg-slate-200 dark:bg-white/10"
                 )}
               />
@@ -295,6 +300,92 @@ export default function PromotionRequest() {
         <div className="px-4 py-6 space-y-8 pb-48">
           
           <AnimatePresence mode="wait">
+            {/* ═══════════════════════════════════════════════════════════════════ */}
+            {/* STEP 0: OVERVIEW / HOW IT WORKS                                   */}
+            {/* ═══════════════════════════════════════════════════════════════════ */}
+            {step === 'overview' && (
+              <motion.div 
+                key="overview"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-8"
+              >
+                <div className="text-center space-y-4">
+                  <div className="w-20 h-20 rounded-[2.5rem] bg-indigo-500/10 flex items-center justify-center mx-auto mb-4 border border-indigo-500/20 shadow-xl shadow-indigo-500/10">
+                    <Rocket className="w-10 h-10 text-indigo-500" />
+                  </div>
+                  <h2 className="text-3xl font-black italic uppercase tracking-tighter italic">Grow Your World.</h2>
+                  <p className="text-sm font-bold text-muted-foreground max-w-[280px] mx-auto">Promote your event or business to thousands of Tulum locals & visitors.</p>
+                </div>
+
+                {/* 3 Steps Guide */}
+                <div className="space-y-4">
+                  {[
+                    { step: 1, icon: FileText, title: "Tell us your vision", desc: "Fill out the campaign details and upload your best assets.", color: "bg-blue-500" },
+                    { step: 2, icon: ShieldCheck, title: "Review & Approval", desc: "Our team reviews within 24h to ensure the highest quality.", color: "bg-amber-500" },
+                    { step: 3, icon: Crown, title: "Launch & Pay", desc: "Once approved, you pay and your event goes LIVE instantly.", color: "bg-indigo-600" }
+                  ].map((s) => (
+                    <div key={s.step} className={cn(
+                      "flex gap-4 p-5 rounded-[2rem] border",
+                      isLight ? "bg-white border-slate-100 shadow-sm" : "bg-zinc-900 border-white/5"
+                    )}>
+                      <div className={cn("w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center text-white", s.color)}>
+                        <s.icon className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-sm uppercase tracking-wide flex items-center gap-2">
+                          <span className="opacity-30">0{s.step}</span> {s.title}
+                        </h3>
+                        <p className="text-xs font-medium text-muted-foreground mt-1">{s.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-4 space-y-4">
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => { setStep('info'); triggerHaptic('medium'); }}
+                    className="w-full py-5 rounded-[2rem] bg-indigo-600 text-white font-black uppercase tracking-[0.2em] text-sm shadow-xl shadow-indigo-500/30 flex items-center justify-center gap-3"
+                  >
+                    Get Started Now
+                    <ChevronRight className="w-5 h-5" />
+                  </motion.button>
+
+                  <button
+                    onClick={() => { setStep('info'); triggerHaptic('light'); }}
+                    className="w-full py-4 text-xs font-black uppercase tracking-widest text-muted-foreground/60 hover:text-primary transition-colors flex items-center justify-center gap-2"
+                  >
+                    I know how this works <ArrowUpRight className="w-3 link" />
+                  </button>
+                </div>
+
+                {/* Regrouped Stats/Packages section for 'risky' users */}
+                <div className={cn(
+                  "p-8 rounded-[3rem] border",
+                  isLight ? "bg-slate-100 border-slate-200" : "bg-white/[0.03] border-white/5"
+                )}>
+                  <div className="flex items-center gap-3 mb-6">
+                    <TrendingUp className="w-5 h-5 text-indigo-500" />
+                    <span className="text-xs font-black uppercase tracking-widest">Pricing & Impact</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {STATS.map(stat => (
+                      <div key={stat.label}>
+                        <div className="text-xl font-black">{stat.value}</div>
+                        <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{stat.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-8 pt-6 border-t border-white/5 space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Weekly Performance</p>
+                    <p className="text-xs font-medium text-muted-foreground">Campaigns start at <span className="text-foreground font-black font-brand">$50 MXN</span>. Higher visibility packages available upon request.</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {/* ═══════════════════════════════════════════════════════════════════ */}
             {/* STEP 1: BASICS                                                     */}
             {/* ═══════════════════════════════════════════════════════════════════ */}

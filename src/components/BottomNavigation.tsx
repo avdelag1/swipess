@@ -334,6 +334,7 @@ export function BottomNavigation({
               <motion.button
                 key={item.id}
                 id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
+                data-no-cinematic
                 onPointerDown={() => {
                   haptics.select();
                   if (item.path) prefetchRoute(item.path);
@@ -348,14 +349,14 @@ export function BottomNavigation({
                 className={cn(
                   'relative flex flex-col items-center justify-center rounded-xl gap-0.5 min-w-0 flex-1',
                   'touch-manipulation focus-visible:outline-none',
-                  // Removed focus ring to eliminate frame effect around nav buttons
                 )}
                 style={{
                   minWidth: 64,
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
                   padding: isNarrow ? '4px 2px' : '6px 4px',
-                  background: 'transparent',
+                  background: 'none',
                   border: 'none',
+                  boxShadow: 'none',
                   cursor: 'pointer',
                   flexShrink: 0,
                 }}
