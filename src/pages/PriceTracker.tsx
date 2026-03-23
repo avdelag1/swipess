@@ -142,13 +142,13 @@ export default function PriceTracker() {
       </div>
 
       {/* ── CHART SECTION ── */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         <motion.div
           key={selectedZone}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="bg-white dark:bg-zinc-900/50 rounded-[2.5rem] border border-slate-200 dark:border-white/10 p-6 shadow-2xl shadow-black/5 dark:shadow-none mb-8 backdrop-blur-xl"
+          className="bg-white dark:bg-zinc-900/50 rounded-[2.5rem] border border-slate-200 dark:border-white/10 p-6 shadow-2xl shadow-black/5 dark:shadow-none mb-8 backdrop-blur-xl relative"
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">

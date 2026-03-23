@@ -242,13 +242,13 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
         {/* Filter Content - More padding on mobile */}
         <ScrollArea className="flex-1 min-h-0">
           <div className={cn(isMobile ? "p-6 pb-8" : "p-4 sm:p-6")}>
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="popLayout">
               <motion.div
                 key={activeCategory}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
               >
                 {activeCategory === 'property' && (
                   <PropertyClientFilters

@@ -221,8 +221,8 @@ const _DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting
 // Module-level constant — no state dependencies, safe to share across sub-components
 const deckFadeVariants = {
   initial: { opacity: 0 },
-  animate: { opacity: 1, transition: { duration: 0.2, ease: 'easeOut' as const } },
-  exit:    { opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } },
+  animate: { opacity: 1, transition: { duration: 0.15, ease: 'easeOut' as const } },
+  exit:    { opacity: 0, transition: { duration: 0.1, ease: 'easeIn' as const } },
 };
 
 // ── POKER HAND CATEGORY DECK ──────────────────────────────────────────────────
@@ -485,7 +485,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
   const containerH = PK_H + (N - 1) * FOLDER_OFFSET_Y;
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="popLayout">
       <motion.div
         key="folder-dashboard"
         variants={deckFadeVariants}
@@ -533,7 +533,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
 // ── SwipeLoadingSkeleton ─────────────────────────────────────────────────────
 // GPU-accelerated skeleton shown on first load before data hydration.
 const SwipeLoadingSkeleton = () => (
-  <AnimatePresence mode="wait">
+  <AnimatePresence mode="popLayout">
     <motion.div key="skeleton" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3 bg-background">
       <div className="relative flex-1 w-full">
         <div className="absolute inset-0 overflow-hidden" style={{ transform: 'translateZ(0)', contain: 'paint' }}>
@@ -964,10 +964,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // Prefetch next batch of listings when approaching end of current batch
   // Uses requestIdleCallback internally for non-blocking prefetch
   useSwipePrefetch(
+    user?.id,
     currentIndexRef.current,
     page,
     deckQueueRef.current.length,
-    stableFilters as unknown
+    stableFilters
   );
 
   // PERFORMANCE: Prefetch next listing details when viewing current card
@@ -1557,7 +1558,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
   // Main swipe view - CENTERED STACKED CARD PRESENTATION
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="popLayout">
     <motion.div
       key="cards"
       variants={deckFadeVariants}

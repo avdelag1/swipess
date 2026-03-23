@@ -258,11 +258,11 @@ button:disabled,
 }
 
 /* FIX #12: Optimize Touch Feedback */
-button:active,
+button:active:not([disabled]),
 .touchable:active {
-    /* Instant feedback on touch */
-    transform: scale(0.98);
-    transition: transform 0.05s ease-out;
+    /* Instant feedback on touch - 60ms is the sweet spot for perceived speed */
+    transform: scale(0.96);
+    transition: transform 0.06s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* FIX #13: Prevent Scroll Jank on Filter Panels */
