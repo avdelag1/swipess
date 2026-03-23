@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
+import CardImage from '@/components/CardImage';
 
 interface EventItem {
   id: string;
@@ -163,9 +164,8 @@ export default function EventosLikes() {
                   onClick={() => navigate(`/explore/eventos/${ev.id}`, { state: { eventData: ev } })}
                 >
                   {/* Image */}
-                  <img 
+                  <CardImage 
                     src={ev.image_url || ''} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                     alt={ev.title} 
                   />
                   
@@ -185,6 +185,7 @@ export default function EventosLikes() {
                       e.stopPropagation();
                       removeLikeMutation.mutate(ev.id);
                     }}
+                    aria-label={`Remove ${ev.title} from favorites`}
                     className="absolute top-4 right-4 w-9 h-9 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity active:scale-90"
                   >
                     <Trash2 className="w-4 h-4 text-rose-500" />

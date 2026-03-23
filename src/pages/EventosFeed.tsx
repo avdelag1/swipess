@@ -609,6 +609,8 @@ function EventCard({
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => { triggerHaptic('light'); onChat(); setShowDetails(false); }}
+                  title="Chat with organizer on WhatsApp"
+                  aria-label="Chat with organizer on WhatsApp"
                   className="flex-1 py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
                   style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
                 >
@@ -616,6 +618,8 @@ function EventCard({
                 </button>
                 <button
                   onClick={() => { triggerHaptic('medium'); onShare(); }}
+                  title="Share this event"
+                  aria-label="Share this event"
                   className="flex-1 py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
                   style={{ background: 'linear-gradient(135deg,#f97316,#a855f7)' }}
                 >
@@ -993,6 +997,8 @@ export default function EventosFeed() {
             return (
               <button
                 key={cat.key}
+                title={`Filter by ${cat.label}`}
+                aria-label={`Filter events by ${cat.label}`}
                 onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
                 className="flex items-center gap-1.5 px-3 h-7 rounded-full shrink-0 text-[11px] font-black font-brand uppercase tracking-wide transition-all active:scale-95"
                 style={{
