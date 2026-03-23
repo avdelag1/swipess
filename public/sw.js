@@ -333,6 +333,9 @@ self.addEventListener('activate', (event) => {
     ])
   );
 
+  // Trigger app shell precaching in the background
+  event.waitUntil(precacheAppShell());
+
   // Notify ALL clients about the update with version info
   self.clients.matchAll({ type: 'window' }).then(clients => {
     clients.forEach(client => {
@@ -344,6 +347,46 @@ self.addEventListener('activate', (event) => {
     });
   });
 });
+
+/**
+ * PRECACHE APP SHELL: The "Tinder" secret.
+ * Fetches the main index.html, extracts JS/CSS asset links, and caches them all.
+ * This makes every single page in the app feel "already downloaded".
+ */
+async function precacheAppShell() {
+  try {
+    const cache = await caches.open(STATIC_CACHE);
+    const response = await fetch('/', { cache: 'no-cache' });
+    if (!response.ok) return;
+
+    const html = await response.text();
+    // Regex matches Vite's hashed assets: /assets/name-hash.js or .css
+    const assetRegex = /\/assets\/[a-zA-Z0-9\-_.]+\.(js|css)/g;
+    const assets = html.match(assetRegex) || [];
+    
+    // De-duplicate and filter out any non-relative assets if they exist
+    const uniqueAssets = [...new Set(assets)];
+    
+    console.log(`[SW] Precaching ${uniqueAssets.length} app shell assets for instant navigation`);
+    
+    // Use low-priority fetch for precaching to not block main interactions
+    await Promise.all(
+      uniqueAssets.map(async (url) => {
+        try {
+          const request = new Request(url, { mode: 'no-cors' });
+          const cached = await cache.match(request);
+          if (!cached) {
+            await cache.add(request);
+          }
+        } catch (_err) {
+          // Individual asset failure is non-critical
+        }
+      })
+    );
+  } catch (_e) {
+    // Precaching failure is non-critical
+  }
+}
 
 // IMPROVED: True LRU cache eviction using response headers and access time
 // Stores metadata in IndexedDB to track last access time

@@ -1,12 +1,12 @@
 /**
- * Speed of Light Route Prefetcher
+ * Speed of Light Route Prefetcher - v2 "Network Aware"
  * Optimized for instant navigation WITHOUT blocking first render
- *
+ * 
  * Key optimizations:
- * - Only preload 1-2 most likely routes initially  
- * - Use requestIdleCallback to never compete with first paint
- * - Batch prefetches one at a time to avoid main thread blocking
- * - NO automatic "prefetch all" on mobile
+ * - Detects connection speed (4G vs 3G vs Data Saver)
+ * - Becomes 3x MORE aggressive on high-speed networks
+ * - Uses requestIdleCallback for background loading
+ * - Pre-loads common paths for both modes once the app settles
  */
 
 type RouteImport = () => Promise<{ default: React.ComponentType }>;
@@ -54,14 +54,44 @@ const routeImports: Record<string, RouteImport> = {
 const prefetchedRoutes = new Set<string>();
 
 /**
- * Safe requestIdleCallback with fallback - LONG delay to avoid blocking
+ * Check if the user is on a slow connection or has data saver ON
  */
-const scheduleIdle = (callback: () => void, timeout = 5000): void => {
+const shouldSkipPrefetch = (): boolean => {
+  if (typeof navigator === 'undefined') return false;
+  const conn = (navigator as any).connection;
+  if (!conn) return false;
+  
+  // Skip if data saver is ON
+  if (conn.saveData) return true;
+  
+  // Skip if connection is 3G or slower
+  const slowTypes = ['slow-2g', '2g', '3g'];
+  if (slowTypes.includes(conn.effectiveType)) return true;
+  
+  return false;
+};
+
+/**
+ * Determine the "aggression" timeout based on connection
+ */
+const getPrefetchTimeout = (baseTimeout: number): number => {
+  if (typeof navigator === 'undefined') return baseTimeout;
+  const conn = (navigator as any).connection;
+  if (conn?.effectiveType === '4g') return Math.max(10, baseTimeout / 4);
+  return baseTimeout;
+};
+
+/**
+ * Safe requestIdleCallback with fallback
+ */
+const scheduleIdle = (callback: () => void, timeout = 2000): void => {
+  if (shouldSkipPrefetch()) return;
+  
+  const optimizedTimeout = getPrefetchTimeout(timeout);
   if (typeof requestIdleCallback !== 'undefined') {
-    requestIdleCallback(callback, { timeout });
+    requestIdleCallback(callback, { timeout: optimizedTimeout });
   } else {
-    // Fallback for Safari - use longer delay to not block main thread
-    setTimeout(callback, 300);
+    setTimeout(callback, Math.min(300, optimizedTimeout / 2));
   }
 };
 
@@ -69,6 +99,7 @@ const scheduleIdle = (callback: () => void, timeout = 5000): void => {
  * Prefetch a single route - always non-blocking
  */
 export function prefetchRoute(path: string): Promise<void> {
+  if (shouldSkipPrefetch()) return Promise.resolve();
   if (prefetchedRoutes.has(path)) return Promise.resolve();
 
   const routeImport = routeImports[path];
@@ -88,8 +119,9 @@ export function prefetchRoute(path: string): Promise<void> {
  * This prevents main thread blocking on mobile
  */
 function prefetchRoutesSequentially(routes: string[]): void {
-  let index = 0;
+  if (shouldSkipPrefetch()) return;
   
+  let index = 0;
   const prefetchNext = () => {
     if (index >= routes.length) return;
     
@@ -99,12 +131,11 @@ function prefetchRoutesSequentially(routes: string[]): void {
     prefetchRoute(route).finally(() => {
       // Schedule next prefetch only after current one completes
       if (index < routes.length) {
-        scheduleIdle(prefetchNext, 500);
+        scheduleIdle(prefetchNext, 400); // Accelerated from 500ms
       }
     });
   };
   
-  // Start the first one
   if (routes.length > 0) {
     prefetchNext();
   }
@@ -112,10 +143,12 @@ function prefetchRoutesSequentially(routes: string[]): void {
 
 /**
  * SPEED OF LIGHT: Prefetch routes based on user role
- * Only prefetch 1-2 critical routes, use long idle delays
+ * Accelerates to nearly instant prefetching on 4G/WiFi
  */
 export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
-  // SPEED: Prefetch nav-bar routes immediately (no idle wait) — these are the most tapped
+  if (shouldSkipPrefetch()) return;
+
+  // SPEED: Prefetch nav-bar routes immediately — these are the most tapped
   const sharedRoutes = ['/messages', '/notifications', '/explore/eventos'];
   
   if (role === 'client') {
@@ -138,7 +171,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
         '/explore/tours'
       ];
       prefetchRoutesSequentially(remaining);
-    }, 1000);
+    }, 100); // 300ms -> 100ms for that "immediately ready" feel
   } else {
     const critical = ['/owner/profile', '/owner/properties', ...sharedRoutes];
     critical.forEach(p => prefetchRoute(p));
@@ -158,14 +191,12 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
         '/owner/clients/bicycle'
       ];
       prefetchRoutesSequentially(remaining);
-    }, 1000);
+    }, 100); // 300ms -> 100ms
   }
 }
 
 /**
  * Create hover prefetch handler - DESKTOP ONLY
- * onTouchStart is REMOVED - mobile taps must be pure navigation
- * Prefetching on tap causes delay and blocks the main thread
  */
 export function createHoverPrefetch(path: string): {
   onMouseEnter: () => void;
@@ -174,24 +205,22 @@ export function createHoverPrefetch(path: string): {
   return {
     onMouseEnter: () => prefetchRoute(path),
     onFocus: () => prefetchRoute(path),
-    // NO onTouchStart - mobile navigation must be instant
   };
 }
 
 /**
- * Prefetch critical routes - DISABLED by default
- * Only call this explicitly when needed, not on app load
+ * Prefetch critical routes manually
  */
 export function prefetchCriticalRoutes(): void {
-  // Do nothing on app load - let role-based prefetching handle it
-  // This prevents blocking the main thread during initial render
+  // Only prefetch the absolute essentials if called explicitly
+  ['/messages', '/notifications'].forEach(p => prefetchRoute(p));
 }
 
 /**
  * Link prefetch observer - prefetches routes when links enter viewport
  */
 export function createLinkObserver(): IntersectionObserver | null {
-  if (typeof IntersectionObserver === 'undefined') return null;
+  if (typeof IntersectionObserver === 'undefined' || shouldSkipPrefetch()) return null;
 
   return new IntersectionObserver(
     (entries) => {
@@ -199,15 +228,14 @@ export function createLinkObserver(): IntersectionObserver | null {
         if (entry.isIntersecting) {
           const link = entry.target as HTMLAnchorElement;
           const href = link.getAttribute('href');
-          if (href && href.startsWith('/')) {
-            // Use idle callback for viewport prefetching too
-            scheduleIdle(() => prefetchRoute(href), 1000);
+          if (href && href.startsWith('/') && !prefetchedRoutes.has(href)) {
+            scheduleIdle(() => prefetchRoute(href), 1500);
           }
         }
       });
     },
     {
-      rootMargin: '100px', // Reduced from 200px
+      rootMargin: '150px', // Range increased for faster scrolling
       threshold: 0,
     }
   );
@@ -215,27 +243,23 @@ export function createLinkObserver(): IntersectionObserver | null {
 
 /**
  * Prefetch next likely route based on current location
- * Uses requestIdleCallback to never block
  */
 export function prefetchNextLikelyRoute(currentPath: string): void {
-  scheduleIdle(() => {
-    const nextRouteMap: Record<string, string[]> = {
-      '/client/dashboard': ['/messages'],
-      '/owner/dashboard': ['/messages'],
-      '/owner/properties': ['/owner/listings/new'],
-    };
+  const nextRouteMap: Record<string, string[]> = {
+    '/client/dashboard': ['/messages', '/explore/eventos'],
+    '/owner/dashboard': ['/messages', '/owner/properties'],
+    '/owner/properties': ['/owner/listings/new'],
+  };
 
-    const nextRoutes = nextRouteMap[currentPath];
-    if (nextRoutes && nextRoutes.length > 0) {
-      // Only prefetch one route at a time
-      prefetchRoute(nextRoutes[0]);
-    }
-  }, 1000);
+  const nextRoutes = nextRouteMap[currentPath];
+  if (nextRoutes) {
+    scheduleIdle(() => {
+      nextRoutes.forEach(p => prefetchRoute(p));
+    }, 600);
+  }
 }
 
-/**
- * Check if a route is already prefetched
- */
 export function isRoutePrefetched(path: string): boolean {
   return prefetchedRoutes.has(path);
 }
+

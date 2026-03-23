@@ -234,13 +234,13 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
       }}
       aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Business Side'} mode`}
     >
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         <motion.div
           key={activeMode}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.5 }}
           className="flex items-center gap-1.5"
         >
           {/* HIGH CONTRAST: Clear colors without glow effects */}

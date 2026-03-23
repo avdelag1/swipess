@@ -6,7 +6,7 @@
 /* CSS class-based PWA mode (set by JavaScript detection) */
 html.pwa-mode {
     /* Additional PWA optimizations applied via JS class */
-    --animation-speed-multiplier: 0.8; /* Faster but still fluid */
+    --animation-speed-multiplier: 0.5; /* Tinder-like snappiness */
     overscroll-behavior-y: none;
     height: 100dvh;
     overflow: hidden;
@@ -69,8 +69,17 @@ html.pwa-mode .swipe-action-btn {
 
 /* PWA: Simplify animations during interaction */
 html.pwa-mode .animate-in,
-html.pwa-mode .animate-out {
-    animation-duration: 100ms !important;
+html.pwa-mode .animate-out,
+html.pwa-mode [data-state="open"],
+html.pwa-mode [data-state="closed"] {
+    animation-duration: 80ms !important;
+    transition-duration: 80ms !important;
+}
+
+/* Button & Dialog speed in PWA */
+html.pwa-mode .dialog-content,
+html.pwa-mode .toast-root {
+    animation-duration: 120ms !important;
 }
 
 /* PWA: Reduce motion for better performance */
@@ -241,11 +250,11 @@ button:disabled,
 }
 
 /* FIX #12: Optimize Touch Feedback */
-button:active,
+button:active:not([disabled]),
 .touchable:active {
-    /* Instant feedback on touch */
-    transform: scale(0.98);
-    transition: transform 0.05s ease-out;
+    /* Instant feedback on touch - 60ms is the sweet spot for perceived speed */
+    transform: scale(0.96);
+    transition: transform 0.06s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* FIX #13: Prevent Scroll Jank on Filter Panels */

@@ -262,7 +262,7 @@ export default function DJTurntableRadio() {
 
         {/* ── Station info ─────────────────────────────────── */}
         <div className="mt-5 text-center w-full max-w-[340px]">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout">
             <motion.div
               key={state.currentStation?.id || 'none'}
               initial={{ opacity: 0, y: 6 }}
