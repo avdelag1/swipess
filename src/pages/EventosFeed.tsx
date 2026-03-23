@@ -39,6 +39,7 @@ const CATEGORIES = [
   { key: 'music', label: 'Music', icon: Music },
   { key: 'food', label: 'Food', icon: Utensils },
   { key: 'promo', label: 'Promos', icon: Ticket },
+  { key: 'likes', label: 'Saved', icon: Heart },
 ];
 
 const AUTOPLAY_DURATION = 6000; // 6 seconds per card
@@ -483,8 +484,8 @@ function EventCard({
       </div>
 
       {/* Right side action buttons */}
-      <div className="absolute right-4 flex flex-col gap-5 items-center"
-        style={{ bottom: 'calc(5.5rem + env(safe-area-inset-bottom,0px))' }}>
+      <div className="absolute right-4 flex flex-col gap-6 items-center z-30"
+        style={{ bottom: 'calc(6.5rem + env(safe-area-inset-bottom,0px))' }}>
         {/* Like */}
         <button
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}
@@ -798,10 +799,14 @@ export default function EventosFeed() {
 
   const allEvents = rawEvents?.length ? rawEvents : MOCK_EVENTS;
 
-  const filteredEvents = useMemo(() =>
-    activeCategory === 'all' ? allEvents : allEvents.filter(e => e.category === activeCategory),
-    [allEvents, activeCategory]
-  );
+  const filteredEvents = useMemo(() => {
+    let list = activeCategory === 'all' 
+      ? allEvents 
+      : activeCategory === 'likes'
+        ? allEvents.filter(e => likedIds.has(e.id))
+        : allEvents.filter(e => e.category === activeCategory);
+    return list;
+  }, [allEvents, activeCategory, likedIds]);
 
   // Track scroll position → active index
   useEffect(() => {
@@ -930,6 +935,14 @@ export default function EventosFeed() {
               {autoPlay ? <Pause className="w-3.5 h-3.5 text-white" /> : <Play className="w-3.5 h-3.5 text-white" />}
             </button>
             <span className="text-[11px] text-white/50 font-bold">{Math.min(activeIdx + 1, filteredEvents.length)}/{filteredEvents.length}</span>
+            <button
+              onClick={() => { triggerHaptic('light'); navigate('/explore/eventos/likes'); }}
+              className="w-8 h-8 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}
+              aria-label="View saved events"
+            >
+              <Heart className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
+            </button>
             <button
               onClick={() => navigate('/explore/eventos/promote')}
               className="flex items-center gap-1.5 px-3 h-8 rounded-full text-[11px] font-black uppercase tracking-wide text-white"

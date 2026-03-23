@@ -138,6 +138,7 @@ const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
 const AITestPage = lazy(() => import("./pages/AITestPage"));
 const TrumpsBadDayLazy = lazy(() => import("./pages/TrumpsBadDay"));
 const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
+const EventosLikes = lazy(() => import("./pages/EventosLikes"));
 
 
 // Route-deciding redirect for /dashboard
@@ -327,6 +328,7 @@ const App = () => {
                                         {/* New feature routes */}
                                         <Route path="/explore/eventos" element={<EventosFeed />} />
                                         <Route path="/explore/eventos/promote" element={<PromotionRequest />} />
+                                        <Route path="/explore/eventos/likes" element={<EventosLikes />} />
                                         <Route path="/explore/eventos/:id" element={<EventoDetail />} />
                                         <Route path="/admin/eventos" element={<AdminProtectedRoute><AdminEventos /></AdminProtectedRoute>} />
                                         <Route path="/explore/prices" element={<PriceTracker />} />
