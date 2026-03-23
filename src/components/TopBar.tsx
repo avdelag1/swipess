@@ -3,7 +3,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Bell, Zap, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
+import { Zap, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,7 @@ import { prefetchRoute } from '@/utils/routePrefetcher';
 import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
 import { ThemeToggle } from './ThemeToggle';
+import { NotificationPopover } from './NotificationPopover';
 
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { SwipessLogo } from './SwipessLogo';
@@ -422,52 +423,7 @@ function TopBarComponent({
             <ThemeToggle />
 
             {/* Notifications Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "relative h-9 w-9 rounded-xl transition-all duration-200 ease-out",
-                "hover:scale-105 active:scale-95 group bg-card",
-                "flex-shrink-0 flex items-center gap-1",
-                "touch-manipulation",
-              )}
-              style={{
-                boxShadow: cinematicShadow,
-                border: 'none',
-              }}
-              onPointerDown={(e) => { 
-                e.preventDefault(); 
-                haptics.tap(); 
-                navigate('/notifications');
-              }}
-              onClick={(e) => e.preventDefault()}
-              aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
-            >
-              <div className="relative">
-                <Bell
-                  strokeWidth={4}
-                  className={cn(
-                    "h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-150",
-                    notificationCount > 0
-                      ? (isLight ? "text-orange-500 group-hover:text-orange-700" : "text-orange-300 group-hover:text-orange-100")
-                      : (isLight ? "text-foreground group-hover:text-foreground" : "text-white group-hover:text-white")
-                  )}
-                />
-              </div>
-              {notificationCount > 0 ? (
-                <motion.span
-                  key="notification-badge"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                  className="text-white text-[10px] font-black rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1"
-                  style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
-                >
-                  {notificationCount > 99 ? '99+' : notificationCount}
-                </motion.span>
-              ) : null}
-            </Button>
+            <NotificationPopover />
           </div>
         </div>
       </header>
