@@ -328,9 +328,10 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           )}
 
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
-            <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-rose-400 bg-clip-text text-transparent">Welcome to Swipess</h1>
-              <p className="text-sm text-muted-foreground mt-2 font-medium">Step into a world of curated experiences. Your journey to fun and discovery starts here.</p>
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-black font-brand italic uppercase tracking-tight bg-gradient-to-r from-orange-400 to-rose-400 bg-clip-text text-transparent">
+                Welcome to Swipess
+              </h1>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
