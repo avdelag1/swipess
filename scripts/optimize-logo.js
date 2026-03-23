@@ -12,8 +12,8 @@ const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, '../public/icons');
 
 async function optimizeLogo() {
-  const inputPath = path.join(publicDir, 'fire-s-logo.png');
-  const outputPath = path.join(publicDir, 'fire-s-logo.webp');
+  const inputPath = path.join(publicDir, 'swipess-logo.png');
+  const outputPath = path.join(publicDir, 'swipess-logo.webp');
   
   // Get original size
   const originalStats = fs.statSync(inputPath);
@@ -29,7 +29,7 @@ async function optimizeLogo() {
   console.log(`Size reduction: ${((1 - optimizedStats.size / originalStats.size) * 100).toFixed(1)}%`);
   
   // Also create AVIF version (even smaller)
-  const avifPath = path.join(publicDir, 'fire-s-logo.avif');
+  const avifPath = path.join(publicDir, 'swipess-logo.avif');
   await sharp(inputPath)
     .avif({ quality: 65, effort: 6 })
     .toFile(avifPath);

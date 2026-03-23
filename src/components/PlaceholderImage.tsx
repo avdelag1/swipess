@@ -49,7 +49,7 @@ const PlaceholderImage: React.FC<PlaceholderImageProps> = ({ name }) => {
       {/* Logo */}
       <div style={{ position: 'relative', marginBottom: 20 }}>
         <img
-          src="/icons/fire-s-logo.png"
+          src="/icons/swipess-logo.png"
           alt="Swipess"
           style={{
             width: 88,

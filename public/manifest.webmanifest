@@ -17,7 +17,7 @@
   "dir": "ltr",
   "icons": [
     {
-      "src": "/icons/fire-s-logo.png",
+      "src": "/icons/swipess-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
@@ -29,7 +29,7 @@
       "purpose": "any"
     },
     {
-      "src": "/icons/fire-s-logo.png",
+      "src": "/icons/swipess-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -43,7 +43,7 @@
       "url": "/client/dashboard?source=shortcut",
       "icons": [
         {
-          "src": "/icons/fire-s-logo.png",
+          "src": "/icons/swipess-logo.png",
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "any"
@@ -57,7 +57,7 @@
       "url": "/owner/properties?source=shortcut",
       "icons": [
         {
-          "src": "/icons/fire-s-logo.png",
+          "src": "/icons/swipess-logo.png",
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "any"
@@ -71,7 +71,7 @@
       "url": "/messages?source=shortcut",
       "icons": [
         {
-          "src": "/icons/fire-s-logo.png",
+          "src": "/icons/swipess-logo.png",
           "sizes": "512x512",
           "type": "image/png",
           "purpose": "any"

@@ -22,10 +22,10 @@ import { haptics } from '@/utils/microPolish';
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
 // Optimized logo with modern format support + fallback
-// AVIF: ~13KB (99% smaller), WebP: ~61KB (97% smaller), PNG: 1.9MB fallback
-const swipessLogoAvif = '/icons/fire-s-logo.avif';
-const swipessLogoWebp = '/icons/fire-s-logo.webp';
-const swipessLogoPng = '/icons/fire-s-logo.png';
+// Using swipess-logo.png from the provided URL
+const swipessLogoAvif = '/icons/swipess-logo.png';
+const swipessLogoWebp = '/icons/swipess-logo.png';
+const swipessLogoPng = '/icons/swipess-logo.png';
 
 function LogoImage({ className }: { className?: string }) {
   return (
