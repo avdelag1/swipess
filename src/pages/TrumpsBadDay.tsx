@@ -62,7 +62,7 @@ interface G {
   score: number; combo: number; misses: number; hits: number;
   wind: number; bgIndex: number; weapon: WeaponKey;
   highScore: number; isNewHighScore: boolean;
-  phase: 'playing' | 'gameover';
+  phase: 'start' | 'playing' | 'gameover';
   // Trump
   tx: number; ty: number; tw: number; th: number;
   tHit: boolean; tHitF: number; tHairOff: boolean;
@@ -498,7 +498,7 @@ function drawTrump(ctx: CanvasRenderingContext2D, g: G, _frame: number) {
 
   let ox = 0, oy = 0, rot = 0;
   if (tDancing) { const df = tDanceF % 40; ox = Math.sin(df * 0.4) * 14; oy = -Math.abs(Math.sin(df * 0.8)) * 9; rot = Math.sin(df * 0.4) * 0.14; }
-  if (tHit && tHitF < 30) { rot = (tHitF / 30) * Math.PI * 0.28; ox -= tHitF * 1.8; oy -= Math.sin((tHitF / 30) * Math.PI) * 28; }
+  if (tHit && tHitF < 30) { rot = (tHitF / 30) * Math.PI * 0.28; ox += tHitF * 2.5; oy -= Math.sin((tHitF / 30) * Math.PI) * 28; }
 
   const cx = tx + tw / 2 + ox; const cy = ty + th / 2 + oy;
   const isJumping = tVelY < -2 || tVelY > 2;
@@ -774,12 +774,20 @@ function drawHUD(ctx: CanvasRenderingContext2D, g: G, _frame: number) {
 }
 
 function drawGameOver(ctx: CanvasRenderingContext2D, g: G) {
-  ctx.fillStyle = 'rgba(0,0,0,0.72)'; ctx.fillRect(0, 0, CW, CH);
+  ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(0, 0, CW, CH);
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#FFD700'; ctx.font = 'bold 72px Arial'; ctx.fillText('GAME OVER!', CW / 2, CH / 2 - 90);
-  if (g.isNewHighScore) { ctx.fillStyle = '#FF6600'; ctx.font = 'bold 38px Arial'; ctx.fillText('🏆 NEW HIGH SCORE! 🏆', CW / 2, CH / 2 - 28); }
-  ctx.fillStyle = '#FFF'; ctx.font = 'bold 46px Arial'; ctx.fillText(`Final Score: ${g.score}`, CW / 2, CH / 2 + 42);
-  ctx.fillStyle = '#AAA'; ctx.font = '26px Arial'; ctx.fillText('Press R  or tap  Play Again', CW / 2, CH / 2 + 100);
+  
+  ctx.shadowBlur = 30; ctx.shadowColor = 'rgba(255,0,0,0.5)';
+  ctx.fillStyle = '#FF4444'; ctx.font = 'bold 84px Arial'; ctx.fillText('BUSTED!', CW / 2, CH / 2 - 120);
+  ctx.shadowBlur = 0;
+
+  if (g.isNewHighScore) { 
+    ctx.fillStyle = '#FFD700'; ctx.font = 'bold 38px Arial'; 
+    ctx.fillText('🏆 NEW RECORD! 🏆', CW / 2, CH / 2 - 50); 
+  }
+  
+  ctx.fillStyle = '#FFF'; ctx.font = 'bold 52px Arial'; ctx.fillText(`Final Score: ${g.score.toLocaleString()}`, CW / 2, CH / 2 + 30);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '26px Arial'; ctx.fillText('Press R or tap the button below', CW / 2, CH / 2 + 90);
   ctx.textAlign = 'left';
 }
 
@@ -801,7 +809,7 @@ export default function TrumpsBadDay() {
   const gRef       = useRef<G | null>(null);
   const rafRef     = useRef<number>(0);
   const frameRef   = useRef(0);
-  const [phase,         setPhase]         = useState<'playing' | 'gameover'>('playing');
+  const [phase,         setPhase]         = useState<'start' | 'playing' | 'gameover'>('start');
   const [uiScore,       setUiScore]       = useState(0);
   const [_uiHighScore,  setUiHighScore]   = useState(0);
   const [_isNewHS,      setIsNewHS]       = useState(false);
@@ -833,7 +841,7 @@ export default function TrumpsBadDay() {
       bgIndex: 0, weapon: 'rock',
       highScore: gRef.current?.highScore ?? 0,
       isNewHighScore: false,
-      phase: 'playing',
+      phase: 'start',
       tx: tX0, ty: base - (heights[tX0] ?? 120) - 200, tw: 100, th: 200,
       tHit: false, tHitF: 0, tHairOff: false,
       tDancing: false, tDanceF: 0,
@@ -926,6 +934,36 @@ export default function TrumpsBadDay() {
       frameRef.current++;
       const F = frameRef.current;
 
+      // ── Start Screen
+      if (g.phase === 'start') {
+        ctx.clearRect(0, 0, CW, CH);
+        drawBg(ctx, BACKGROUNDS[g.bgIndex].key);
+        drawSLogo(ctx);
+        drawTerrain(ctx, g.heights);
+        drawCatapult(ctx, g.heights, false, 0, 0);
+        drawTrump(ctx, g, F);
+        
+        // Overlay blur for premium look
+        ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(0, 0, CW, CH);
+        
+        ctx.textAlign = 'center';
+        ctx.shadowBlur = 20; ctx.shadowColor = 'rgba(255,215,0,0.5)';
+        ctx.fillStyle = '#FFD700'; ctx.font = 'bold 84px Arial'; ctx.fillText("TRUMP'S BAD DAY", CW / 2, CH / 2 - 80);
+        ctx.shadowBlur = 0;
+        
+        ctx.fillStyle = '#FFF'; ctx.font = '24px Arial'; 
+        ctx.fillText("Stop him before he builds another wall!", CW / 2, CH / 2 - 20);
+        ctx.fillText("Drag the slingshot to fire. Use numbers 1-5 to switch weapons.", CW / 2, CH / 2 + 100);
+        
+        ctx.fillStyle = '#FFD700'; ctx.font = 'bold 32px Arial';
+        if (Math.floor(Date.now() / 500) % 2 === 0) {
+          ctx.fillText("TAP OR PRESS R TO START", CW / 2, CH / 2 + 40);
+        }
+        ctx.textAlign = 'left';
+        
+        rafRef.current = requestAnimationFrame(loop); return;
+      }
+
       if (g.phase === 'gameover') {
         ctx.clearRect(0, 0, CW, CH);
         drawBg(ctx, BACKGROUNDS[g.bgIndex].key);
@@ -984,7 +1022,7 @@ export default function TrumpsBadDay() {
       const approachSpeed = 0.5; // Base speed
       const speedRamp = Math.min(lvl * 0.3, 3); // Speed increase based on level
       if (g.tApproach) {
-        g.tVelX = approachSpeed * (1 + speedRamp);
+        g.tVelX = - (approachSpeed * (1 + speedRamp)); // Approach from RIGHT
         // Modern Platformer AI: Jump randomly or when feeling aggressive
         if (Math.random() < 0.015 && g.ty >= 440) {
           g.tVelY = -24;
@@ -1022,12 +1060,12 @@ export default function TrumpsBadDay() {
         g.tHitF++;
         if (g.tHitF > 60) { g.tHit = false; g.tHitF = 0; }
       }
-      if (g.tx > 550 && !g.jailing) { // Changed from !gameOver to !g.jailing
-        g.jailing = true; // Set jailing state
+      if (g.tx < 280 && !g.jailing) { 
+        g.jailing = true; 
         g.tPhrase = "GOT YOU! TO JAIL!"; g.tPhraseT = 200;
-        g.shake = 35; // Jailing Screen Shake
-        g.phase = 'gameover'; // Set game over phase
-        saveScore(g); // Save score
+        g.shake = 35;
+        g.phase = 'gameover';
+        saveScore(g);
         setTimeout(() => {
           setPhase('gameover'); setUiScore(g.score); setUiHighScore(g.highScore); setIsNewHS(g.isNewHighScore);
         }, 1500);
@@ -1167,7 +1205,12 @@ export default function TrumpsBadDay() {
 
     const onStart = (e: Event) => {
       e.preventDefault();
-      const g = gRef.current; if (!g || g.phase === 'gameover') return;
+      if (g.phase === 'start') {
+        g.phase = 'playing';
+        setPhase('playing');
+        return;
+      }
+      if (g.phase === 'gameover') return;
       if (g.projectiles.some(p => p.active)) return;
       const pos = getPos(e as MouseEvent | TouchEvent);
       if (pos.x < 340 && pos.y > CH * 0.28) { g.drag = true; g.dragEnd = pos; }
@@ -1201,9 +1244,16 @@ export default function TrumpsBadDay() {
       const g = gRef.current; if (!g) return;
       const wmap: Record<string, WeaponKey> = { '1': 'rock', '2': 'arrow', '3': 'grenade', '4': 'bomb', '5': 'bazooka' };
       if (wmap[e.key]) { g.weapon = wmap[e.key]; }
-      if ((e.key === 'r' || e.key === 'R') && g.phase === 'gameover') {
-        const hs = g.highScore; gRef.current = makeGame(); gRef.current.highScore = hs;
-        setPhase('playing'); setUiScore(0); setIsNewHS(false);
+      if (e.key === 'r' || e.key === 'R') {
+        if (g.phase === 'gameover' || g.phase === 'start') {
+          const hs = g.highScore;
+          const bgIdx = g.bgIndex;
+          gRef.current = makeGame(); 
+          gRef.current.highScore = hs;
+          gRef.current.bgIndex = bgIdx;
+          gRef.current.phase = 'playing';
+          setPhase('playing'); setUiScore(0); setIsNewHS(false);
+        }
       }
     };
 
@@ -1285,21 +1335,42 @@ export default function TrumpsBadDay() {
         style={{ aspectRatio: '16/9', cursor: 'crosshair', touchAction: 'none' }}
       />
 
+      {/* Start screen React overlay buttons */}
+      {phase === 'start' && (
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+          <div className="pointer-events-auto flex flex-col gap-4 items-center scale-110">
+            <button
+              onClick={() => {
+                if (gRef.current) {
+                  gRef.current.phase = 'playing';
+                  setPhase('playing');
+                }
+              }}
+              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-black px-12 py-5 rounded-full text-3xl transition-all shadow-[0_0_30px_rgba(255,165,0,0.5)] active:scale-95 uppercase tracking-tighter"
+            >
+              Start Game 🎯
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Game over React overlay buttons */}
       {phase === 'gameover' && (
-        <div className="absolute inset-0 flex items-end justify-center z-10 pb-24 pointer-events-none">
-          <div className="pointer-events-auto flex flex-col gap-3 items-center">
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none bg-black/40 backdrop-blur-[2px]">
+          <div className="pointer-events-auto flex flex-col gap-4 items-center bg-black/60 p-10 rounded-[40px] border border-white/10 shadow-2xl">
+            <h2 className="text-white font-black text-5xl mb-2 uppercase tracking-tighter">Busted! 👮</h2>
+            <p className="text-yellow-500 font-bold text-2xl mb-4">Score: {uiScore.toLocaleString()}</p>
             <button
               onClick={handleRestart}
-              className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-12 py-3 rounded-full text-xl transition-colors shadow-lg"
+              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-black px-16 py-4 rounded-full text-2xl transition-all shadow-xl active:scale-95 uppercase tracking-tighter w-full"
             >
-              🔄 Play Again
+              Start New Game 🔄
             </button>
             <button
               onClick={handleShare}
-              className="bg-white/18 hover:bg-white/30 text-white px-8 py-2 rounded-full text-sm transition-colors"
+              className="bg-white/10 hover:bg-white/20 text-white px-10 py-3 rounded-full text-sm font-bold transition-all w-full border border-white/10"
             >
-              📤 Share Score: {uiScore.toLocaleString()}
+              📤 Share Results
             </button>
           </div>
         </div>

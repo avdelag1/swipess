@@ -210,15 +210,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const prefetch = () => {
       // 1. DATA PREFETCH
       queryClient.prefetchQuery({
-        queryKey: ['eventos'],
-        queryFn: async () => {
-          const { data } = await supabase.from('events').select('*').order('event_date', { ascending: true });
-          return data || [];
-        },
-        staleTime: 1000 * 60 * 10,
-      });
-
-      queryClient.prefetchQuery({
         queryKey: ['liked-properties'],
         queryFn: async () => {
           const { data: likes } = await supabase
@@ -402,7 +393,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/messages',
     '/owner/filters',
   ];
-  const isDashboardSwipePage = location.pathname === '/client/dashboard' || location.pathname === '/owner/dashboard';
+  const isDashboardSwipePage = ['/client/dashboard', '/owner/dashboard'].includes(location.pathname.replace(/\/$/, ''));
   useSwipeNavigation({
     paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
     containerSelector: '#dashboard-scroll-container',
@@ -601,6 +592,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/owner/profile',
       '/client/liked-properties',
       '/owner/liked-clients',
+      '/client/who-liked-you',
+      '/owner/interested-clients',
       '/client/filters',
       '/owner/filters',
       '/owner/properties',
@@ -692,7 +685,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           paddingTop: (isFullScreenRoute || isDashboardSwipePage)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isFullScreenRoute || isDashboardSwipePage) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingBottom: (isFullScreenRoute) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           width: '100%',

@@ -25,8 +25,15 @@ const PACKAGES = [
     price: 4.99,
     duration: "week",
     durationLabel: "/ week",
-    perks: ["Basic listing promotion", "1 photo upload", "Standard feed placement", "Email support"],
-    tagline: "Perfect to get started",
+    perks: [
+      "Your event shown to property owners, renters & digital nomads",
+      "1 photo with your listing card",
+      "Standard feed placement across all categories",
+      "Direct WhatsApp connection — leads contact you instantly",
+      "Email support to help you get set up",
+    ],
+    tagline: "Try it for a week — no commitment",
+    paypalUrl: "https://www.paypal.com/ncp/payment/ZXQC96VYV7JLL",
   },
   {
     id: "growth",
@@ -38,9 +45,17 @@ const PACKAGES = [
     price: 6.99,
     duration: "3months",
     durationLabel: "/ 3 months",
-    perks: ["Featured badge on listing", "Up to 5 photos", "Priority feed placement", "Category highlight", "Chat support", "Performance stats"],
+    perks: [
+      "Featured badge — stand out in a feed full of high-spending users",
+      "Up to 5 photos to showcase your event or service",
+      "Priority placement above standard listings",
+      "Highlighted in your category so the right audience finds you",
+      "Real-time performance stats — views, taps & leads",
+      "Chat support to optimize your promotion",
+    ],
     popular: true,
-    tagline: "Best value for growing brands",
+    tagline: "Best value — 3 months of organic reach",
+    paypalUrl: "https://www.paypal.com/ncp/payment/ATKD4TR7KFTJU",
   },
   {
     id: "premium",
@@ -52,8 +67,17 @@ const PACKAGES = [
     price: 9.99,
     duration: "6months",
     durationLabel: "/ 6 months",
-    perks: ["Top of feed placement", "Unlimited photos", "Push notification blast", "Dedicated account manager", "Social media cross-promotion", "Custom branded card"],
-    tagline: "Maximum reach & visibility",
+    perks: [
+      "Top of feed — first thing property owners & expats see",
+      "Unlimited photos & rich media for your listing",
+      "Push notification blast to thousands of active users",
+      "Dedicated account manager for hands-on support",
+      "Cross-promotion on our social channels",
+      "Custom branded card designed for maximum engagement",
+      "Direct access to an audience of renters, buyers & service seekers",
+    ],
+    tagline: "6 months of maximum visibility & VIP support",
+    paypalUrl: "https://www.paypal.com/ncp/payment/LK7XWSMDHH8AW",
   },
 ];
 
@@ -130,35 +154,42 @@ const SAMPLE_CARDS = [
   },
 ];
 
-// ── Feature items (WhatsApp Leads icon changed from green to red) ──────────────
+// ── Feature items ──────────────────────────────────────────────────────────────
 const FEATURES = [
   {
-    icon: <Eye className="w-5 h-5" />,
+    icon: <Users className="w-5 h-5" />,
     color: "#3b82f6",
     colorRgb: "59,130,246",
-    title: "Massive Reach",
-    desc: "Your event shown to 15,000+ active users browsing Tulum daily",
+    title: "High-Value Audience",
+    desc: "Property owners, motorcycle & bicycle renters, service providers, digital nomads and expats — people who actively spend money in Tulum every day",
+  },
+  {
+    icon: <Phone className="w-5 h-5" />,
+    color: "#ef4444",
+    colorRgb: "239,68,68",
+    title: "Direct Connection",
+    desc: "No middlemen. Users tap your listing and reach you instantly via WhatsApp — real leads, real conversations, real customers",
   },
   {
     icon: <Instagram className="w-5 h-5" />,
     color: "#f97316",
     colorRgb: "249,115,22",
     title: "TikTok-Style Feed",
-    desc: "Full-screen immersive cards that stop the scroll and drive action",
+    desc: "Full-screen immersive cards designed to stop the scroll. Your event gets the same attention as a viral post on Instagram or TikTok",
   },
   {
-    icon: <Phone className="w-5 h-5" />,
-    color: "#ef4444",
-    colorRgb: "239,68,68",
-    title: "Direct WhatsApp Leads",
-    desc: "Customers reach you directly through the app with one tap",
+    icon: <Eye className="w-5 h-5" />,
+    color: "#22c55e",
+    colorRgb: "34,197,94",
+    title: "Organic & Healthy Environment",
+    desc: "A trusted community of verified users — not random ads. Your promotion lives alongside real listings from property owners and local businesses",
   },
   {
     icon: <Crown className="w-5 h-5" />,
     color: "#a855f7",
     colorRgb: "168,85,247",
     title: "Priority Placement",
-    desc: "Featured at the top of category feeds for maximum visibility",
+    desc: "Get featured at the top of category feeds so thousands of active users see your event before anything else",
   },
 ];
 
@@ -345,7 +376,7 @@ export default function AdvertisePage() {
             className="text-base max-w-xs leading-relaxed mb-8"
             style={{ color: th.textMuted }}
           >
-            Reach thousands of expats, digital nomads & tourists actively looking for what you offer
+            Reach property owners, renters, digital nomads & tourists who are actively spending in Tulum — direct connection, zero middlemen
           </motion.p>
 
           {/* Sample cards stack */}
@@ -444,7 +475,10 @@ export default function AdvertisePage() {
 
           {/* Pricing preview */}
           <h2 className="text-2xl font-black text-center mt-12 mb-2" style={{ color: th.text }}>Simple pricing</h2>
-          <p className="text-sm text-center mb-6" style={{ color: th.textMuted }}>Choose what fits your budget</p>
+          <p className="text-sm text-center mb-2" style={{ color: th.textMuted }}>Choose what fits your budget</p>
+          <p className="text-xs text-center mb-6 max-w-xs mx-auto leading-relaxed" style={{ color: th.textDim }}>
+            Every plan gives you access to our community of property owners, renters, workers & tourists actively spending in Tulum
+          </p>
 
           <div className="space-y-3">
             {PACKAGES.map(pkg => (
@@ -471,15 +505,24 @@ export default function AdvertisePage() {
                     <div className="text-[10px]" style={{ color: th.textDim }}>USD {pkg.durationLabel}</div>
                   </div>
                 </div>
-                <div className="mt-3 pt-3 grid grid-cols-2 gap-x-3 gap-y-1.5"
+                <div className="mt-3 pt-3 flex flex-col gap-2"
                   style={{ borderTop: `1px solid rgba(${pkg.colorRgb},0.15)` }}>
-                  {pkg.perks.slice(0, 4).map(perk => (
-                    <div key={perk} className="flex items-center gap-1.5 text-[11px]" style={{ color: th.textMuted }}>
-                      <Check className="w-3 h-3 flex-shrink-0" style={{ color: pkg.color }} />
+                  {pkg.perks.map(perk => (
+                    <div key={perk} className="flex items-start gap-2 text-[11px] leading-snug" style={{ color: th.textMuted }}>
+                      <Check className="w-3 h-3 flex-shrink-0 mt-0.5" style={{ color: pkg.color }} />
                       {perk}
                     </div>
                   ))}
                 </div>
+                <a
+                  href={pkg.paypalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 w-full py-3 rounded-xl font-black text-sm text-white text-center block"
+                  style={{ background: pkg.color, boxShadow: `0 4px 16px rgba(${pkg.colorRgb},0.35)` }}
+                >
+                  Pay Now — ${pkg.price.toFixed(2)} USD
+                </a>
               </div>
             ))}
           </div>

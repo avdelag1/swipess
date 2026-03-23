@@ -14,9 +14,9 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   initialized: boolean; // TRUE after first auth check completes (regardless of user logged in or not)
-  signUp: (email: string, password: string, role: 'client' | 'owner', name?: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string, role: 'client' | 'owner') => Promise<{ error: any }>;
-  signInWithOAuth: (provider: 'google', role: 'client' | 'owner') => Promise<{ error: any }>;
+  signUp: (email: string, password: string, role?: 'client' | 'owner', name?: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string, role?: 'client' | 'owner') => Promise<{ error: any }>;
+  signInWithOAuth: (provider: 'google', role?: 'client' | 'owner') => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -227,7 +227,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, role: 'client' | 'owner', name?: string) => {
+  const signUp = async (email: string, password: string, role: 'client' | 'owner' = 'client', name?: string) => {
     try {
       // Check existing account (with timeout to prevent slow signup)
       let existingProfile = null;
@@ -346,7 +346,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signIn = async (email: string, password: string, role: 'client' | 'owner') => {
+  const signIn = async (email: string, password: string, role: 'client' | 'owner' = 'client') => {
     try {
       // Reset profile creation lock to prevent stale lockouts from previous sessions
       resetProfileCreationLock();
@@ -435,7 +435,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signInWithOAuth = async (provider: 'google', role: 'client' | 'owner') => {
+  const signInWithOAuth = async (provider: 'google', role: 'client' | 'owner' = 'client') => {
     try {
       if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
         throw new Error('Supabase configuration is missing. Please check your environment variables.');

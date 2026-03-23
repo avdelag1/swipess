@@ -1,7 +1,9 @@
 import { memo } from 'react';
 import { cn } from '@/lib/utils';
 
+// Both PNG and video logo support
 const flameSLogo = '/icons/swipess-logo.png';
+const swipessLogoVideo = '/icons/swipess-logo-video.mp4';
 
 interface SwipessLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
@@ -25,10 +27,14 @@ function SwipessLogoComponent({
   };
 
   return (
-    <div className={cn('relative inline-flex items-center justify-center overflow-visible', className)}>
-      <img
-        src={flameSLogo}
-        alt="Swipess"
+    <div className={cn('relative inline-flex items-center justify-center overflow-hidden', className)}>
+      <video
+        src={swipessLogoVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{ mixBlendMode: 'screen', transform: 'scale(1.1)' }}
         className={cn(
           'w-auto object-contain select-none pointer-events-none transition-all duration-300',
           heightMap[size]
