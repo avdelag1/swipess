@@ -50,6 +50,27 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
 
   const animationData = ANIMATION_MAP[iconId] || genericAnim;
 
+  // When inactive, render the fallback icon instead of the animation
+  if (!active) {
+    return (
+      <div 
+        className={className} 
+        style={{ 
+          width: size, 
+          height: size, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+        }}
+      >
+        {inactiveIcon || (
+          <span style={{ color: '#ffffff', fontSize: size * 0.8 }}>●</span>
+        )}
+      </div>
+    );
+  }
+
+  // When active, render the Lottie animation
   return (
     <div 
       className={className} 
@@ -59,14 +80,12 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        opacity: active ? 1 : 0.6,
-        transition: 'opacity 0.2s ease'
       }}
     >
       <Lottie
         lottieRef={lottieRef}
         animationData={animationData}
-        loop={active && iconId !== 'profile'} // Loop mostly for flame/sparkles
+        loop={iconId !== 'profile'} // Loop mostly for flame/sparkles
         autoplay={active}
         style={{ width: '100%', height: '100%' }}
       />
