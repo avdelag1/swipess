@@ -16,10 +16,10 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
-const stagger = { staggerChildren: 0.05, delayChildren: 0.02 };
+const stagger = { staggerChildren: 0.04 };
 const itemVariant = {
-  hidden: { opacity: 0, y: 12, scale: 0.97 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: fastSpring },
 };
 
 type SettingsItem = {
@@ -132,7 +132,7 @@ const OwnerSettingsNew = () => {
 
           <PageHeader title={t('settings.security')} subtitle={t('settings.securityDesc')} showBack={true} onBack={() => setActiveSection(null)} />
 
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6">
             <div className="rounded-2xl overflow-hidden bg-card border border-border">
               <CardContent className="p-6">
                 <AccountSecurity userRole="owner" />
@@ -156,7 +156,7 @@ const OwnerSettingsNew = () => {
       <div className="w-full min-h-full overflow-y-auto px-4 pt-4 pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
           <PageHeader title={t('settings.language')} subtitle={t('settings.languageDesc')} showBack={true} onBack={() => setActiveSection(null)} />
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6">
             <LanguageToggle />
           </motion.div>
         </div>
@@ -172,7 +172,7 @@ const OwnerSettingsNew = () => {
 
           <PageHeader title={t('settings.preferences')} subtitle={t('settings.preferencesDesc')} showBack={true} onBack={() => setActiveSection(null)} />
 
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6">
             <SwipeSoundSettings />
           </motion.div>
         </div>

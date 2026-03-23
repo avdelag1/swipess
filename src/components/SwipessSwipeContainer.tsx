@@ -4,6 +4,16 @@ import { triggerHaptic } from '@/utils/haptics';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
+import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
+import { PokerCategoryCard } from './swipe/PokerCategoryCard';
+import { DistanceSlider } from './swipe/DistanceSlider';
+import { 
+  categoryConfig, 
+  getActiveCategoryInfo, 
+  POKER_CARDS
+} from './swipe/SwipeConstants';
+import { deckFadeVariants } from '@/utils/modernAnimations';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
@@ -28,11 +38,8 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { RotateCcw, RefreshCw, Home, Bike, Briefcase, MapPin, Navigation } from 'lucide-react';
+import { Home, Bike, Briefcase, MapPin, Navigation } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
-import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
@@ -42,84 +49,6 @@ import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import { cn } from '@/lib/utils';
-
-// Category configuration for dynamic empty states
-const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>; label: string; plural: string; color: string }> = {
-  property: { icon: Home, label: 'Property', plural: 'Properties', color: 'text-primary' },
-  moto: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
-  motorcycle: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
-  bicycle: { icon: Bike, label: 'Bicycle', plural: 'Bicycles', color: 'text-rose-500' },
-  services: { icon: Briefcase, label: 'Service', plural: 'Services', color: 'text-purple-500' },
-  worker: { icon: Briefcase, label: 'Worker', plural: 'Workers', color: 'text-purple-500' },
-};
-
-// Helper to get the active category display info from filters
-// Accepts optional storeCategory (directly from Zustand) for guaranteed sync with quick filters
-const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: string | null) => {
-  try {
-    // PRIORITY 1: Direct store category (most reliable - always in sync with quick filter UI)
-    if (storeCategory && typeof storeCategory === 'string' && categoryConfig[storeCategory]) {
-      return categoryConfig[storeCategory];
-    }
-
-    // Safety: Handle null/undefined filters
-    if (!filters) return categoryConfig.property;
-
-    // Check for activeUiCategory first (original UI category before DB mapping)
-    const activeUiCategory = (filters as any).activeUiCategory;
-    if (activeUiCategory && typeof activeUiCategory === 'string' && categoryConfig[activeUiCategory]) {
-      return categoryConfig[activeUiCategory];
-    }
-
-    // Check for activeCategory string first (from AdvancedFilters)
-    const activeCategory = (filters as any).activeCategory;
-    if (activeCategory && typeof activeCategory === 'string' && categoryConfig[activeCategory]) {
-      return categoryConfig[activeCategory];
-    }
-
-    // Check for categories array (from quick filters) - may be DB-mapped names
-    const categories = filters?.categories;
-    if (Array.isArray(categories) && categories.length > 0) {
-      const cat = categories[0] as any;
-      if (typeof cat === 'string') {
-        // Direct match
-        if (categoryConfig[cat]) {
-          return categoryConfig[cat];
-        }
-        // Handle DB-mapped names back to UI names
-        if (cat === 'worker' && categoryConfig['services']) {
-          return categoryConfig['services'];
-        }
-        // Handle common variations/misspellings
-        const normalized = cat.toLowerCase().replace(/s$/, ''); // Remove trailing 's'
-        if (categoryConfig[normalized]) {
-          return categoryConfig[normalized];
-        }
-        // Map 'services' -> 'worker' (common mapping)
-        if (cat === 'services' && categoryConfig['worker']) {
-          return categoryConfig['worker'];
-        }
-        // Map 'moto' <-> 'motorcycle'
-        if ((cat === 'moto' || cat === 'motorcycle')) {
-          return categoryConfig['motorcycle'];
-        }
-      }
-    }
-
-    // Check for single category
-    const category = filters?.category;
-    if (category && typeof category === 'string' && categoryConfig[category]) {
-      return categoryConfig[category];
-    }
-
-    // Default to properties (no category filter selected)
-    return categoryConfig.property;
-  } catch (error) {
-    logger.error('[SwipessSwipeContainer] Error in getActiveCategoryInfo:', error);
-    return categoryConfig.property;
-  }
-};
 
 // Navigation guard to prevent double-taps
 function useNavigationGuard() {
@@ -148,446 +77,11 @@ function useNavigationGuard() {
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 
-// ── Distance Slider Component ─────────────────────────────────────────────────
-interface DistanceSliderProps {
-  radiusKm: number;
-  onRadiusChange: (km: number) => void;
-  onDetectLocation: () => void;
-  detecting: boolean;
-  detected: boolean;
-}
 
-const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
-  const maxKm = 100;
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
-  return (
-    <div className="w-full max-w-xs mx-auto mt-2 px-2">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5">
-          <MapPin className="w-3.5 h-3.5 text-primary" />
-          <span className="text-xs font-bold text-foreground uppercase tracking-wider">Distance</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs font-black text-primary">{radiusKm} km</span>
-          <button
-            onClick={onDetectLocation}
-            disabled={detecting}
-            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all"
-            style={{
-              background: detected ? 'rgba(249,115,22,0.12)' : 'transparent',
-              borderColor: detected ? 'rgba(249,115,22,0.4)' : isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)',
-              color: detected ? '#f97316' : isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.7)',
-            }}
-          >
-            <Navigation className="w-2.5 h-2.5" />
-            {detecting ? '...' : detected ? 'GPS' : 'Detect'}
-          </button>
-        </div>
-      </div>
-      <div className="relative h-6 flex items-center">
-        <div className="absolute w-full h-1.5 rounded-full overflow-hidden" style={{ background: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' }}>
-          <div
-            className="h-full rounded-full"
-            style={{
-              width: `${(radiusKm / maxKm) * 100}%`,
-              background: 'linear-gradient(90deg, #ec4899, #f97316)',
-            }}
-          />
-        </div>
-        <input
-          type="range"
-          min={1}
-          max={maxKm}
-          step={1}
-          value={radiusKm}
-          onChange={(e) => onRadiusChange(Number(e.target.value))}
-          className="absolute w-full opacity-0 h-6 cursor-pointer"
-          style={{ touchAction: 'none' }}
-        />
-        <div
-          className="absolute w-5 h-5 rounded-full border-2 border-white shadow-lg pointer-events-none"
-          style={{
-            left: `calc(${(radiusKm / maxKm) * 100}% - 10px)`,
-            background: 'linear-gradient(135deg, #ec4899, #f97316)',
-          }}
-        />
-      </div>
-      <div className="flex justify-between mt-1">
-        <span className="text-[10px] text-muted-foreground font-bold">1 km</span>
-        <span className="text-[10px] text-muted-foreground font-bold">100 km</span>
-      </div>
-    </div>
-  );
-};
 
-// Module-level constant — no state dependencies, safe to share across sub-components
-const deckFadeVariants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1, transition: { duration: 0.2, ease: 'easeOut' as const } },
-  exit:    { opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } },
-};
 
-// ── POKER HAND CATEGORY DECK ──────────────────────────────────────────────────
-// Cards fan from a shared bottom-left anchor like a real poker hand.
-// Only the top strip of each card behind is visible.
-// Strict swipe rules: weak drag snaps back, strong swipe applies the filter.
 
-const POKER_CARD_PHOTOS: Record<string, string> = {
-  property:   'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=480&q=80&auto=format',
-  motorcycle: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=480&q=80&auto=format',
-  bicycle:    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=480&q=80&auto=format',
-  services:   'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=480&q=80&auto=format',
-  all:        'https://images.unsplash.com/photo-1552664730-d307ca884978?w=480&q=80&auto=format',
-};
 
-const POKER_CARDS = [
-  { id: 'property'   as const, label: 'Properties',  description: 'Houses & apts',       accent: '#3b82f6', accentRgb: '59,130,246'  },
-  { id: 'motorcycle' as const, label: 'Motorcycles', description: 'Bikes & scooters',     accent: '#f97316', accentRgb: '249,115,22'  },
-  { id: 'bicycle'    as const, label: 'Bicycles',    description: 'City & mountain',      accent: '#f43f5e', accentRgb: '244,63,94'   },
-  { id: 'services'   as const, label: 'Workers',     description: 'Skilled freelancers',  accent: '#a855f7', accentRgb: '168,85,247'  },
-  { id: 'all'        as const, label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212'   },
-];
-
-// Card dimensions — larger playing-card proportions
-const PK_W = 270;
-const PK_H = 420;
-// Horizontal flow: cards peek purely to the right, no vertical offset
-const FOLDER_OFFSET_X = 28;  // px right per card behind
-const FOLDER_OFFSET_Y = 0;   // no vertical offset — pure horizontal flow
-// Swipe physics thresholds
-const PK_DIST_THRESHOLD = 110;  // px — strong swipe
-const PK_VEL_THRESHOLD  = 480;  // px/s — fast flick
-// Spring config for snap-back
-const PK_SPRING = { type: 'spring' as const, stiffness: 520, damping: 34, mass: 0.9 };
-
-interface PokerCardProps {
-  card: typeof POKER_CARDS[0];
-  index: number;
-  total: number;
-  isTop: boolean;
-  onSwipeOut: (id: string) => void;
-  onBringToFront: (index: number) => void;
-}
-
-const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBringToFront }: PokerCardProps) => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const isExiting = useRef(false);
-
-  // Front card tilts slightly while dragging — back cards stay perfectly straight
-  const dragTilt = useTransform(x, [-180, 0, 180], [-12, 0, 12]);
-
-  // Folder-stack position: each card behind shifts right and down
-  const folderX = index * FOLDER_OFFSET_X;
-  const folderY = index * FOLDER_OFFSET_Y;
-
-  // Like/nope overlays fade in as the front card is dragged
-  const likeOpacity = useTransform(x, [20, PK_DIST_THRESHOLD], [0, 1]);
-  const nopeOpacity = useTransform(x, [-PK_DIST_THRESHOLD, -20], [1, 0]);
-
-  const handleDragEnd = useCallback((_: any, info: any) => {
-    if (isExiting.current) return;
-    const dist = Math.sqrt(info.offset.x ** 2 + info.offset.y ** 2);
-    const vel  = Math.sqrt(info.velocity.x ** 2 + info.velocity.y ** 2);
-
-    if (dist > PK_DIST_THRESHOLD || vel > PK_VEL_THRESHOLD) {
-      isExiting.current = true;
-      triggerHaptic('medium');
-      // Fly in direction of swipe then notify parent
-      const angle  = Math.atan2(info.offset.y, info.offset.x);
-      const exitX  = Math.cos(angle) * 900;
-      const exitY  = Math.sin(angle) * 900;
-      animate(x, exitX, { type: 'tween', duration: 0.28, ease: [0.32, 0, 0.67, 0], onComplete: () => onSwipeOut(card.id) });
-      animate(y, exitY, { type: 'tween', duration: 0.28, ease: [0.32, 0, 0.67, 0] });
-    } else {
-      // Snap back
-      triggerHaptic('light');
-      animate(x, 0, PK_SPRING);
-      animate(y, 0, PK_SPRING);
-    }
-  }, [card.id, onSwipeOut, x, y]);
-
-  // Back card: short drag brings it to front; bigger drag also activates filter
-  const handleBackDragEnd = useCallback((_: any, info: any) => {
-    const dist = Math.sqrt(info.offset.x ** 2 + info.offset.y ** 2);
-    const vel  = Math.sqrt(info.velocity.x ** 2 + info.velocity.y ** 2);
-    animate(x, 0, PK_SPRING);
-    animate(y, 0, PK_SPRING);
-    if (dist > 55 || vel > 300) {
-      triggerHaptic('medium');
-      if (dist > PK_DIST_THRESHOLD || vel > PK_VEL_THRESHOLD) {
-        // Big swipe from a back card: bring to front AND apply filter
-        onSwipeOut(card.id);
-      } else {
-        // Short grab: just bring to front
-        onBringToFront(index);
-      }
-    }
-  }, [card.id, index, onSwipeOut, onBringToFront, x, y]);
-
-  const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
-
-  return (
-    <motion.div
-      drag={true}
-      dragMomentum={false}
-      dragElastic={isTop ? 0.55 : 0.22}
-      dragConstraints={isTop
-        ? { left: -220, right: 220, top: -220, bottom: 220 }
-        : { left: -70,  right: 70,  top: -70,  bottom: 70  }
-      }
-      onDragEnd={isTop ? handleDragEnd : handleBackDragEnd}
-      onClick={() => !isTop && onBringToFront(index)}
-      initial={false}
-      animate={{
-        x: isTop ? 0 : folderX,
-        y: isTop ? 0 : folderY,
-        scale:   isTop ? 1 : 1 - index * 0.015,
-        opacity: index > 4 ? 0 : 1,
-      }}
-      transition={PK_SPRING}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: PK_W,
-        height: PK_H,
-        zIndex: 50 - index,
-        x: isTop ? x : folderX,
-        y: isTop ? y : folderY,
-        rotate: isTop ? dragTilt : 0,
-        cursor: isTop ? 'grab' : 'pointer',
-        touchAction: 'none',
-        WebkitTapHighlightColor: 'transparent',
-      } as any}
-      whileDrag={{ scale: isTop ? 1.04 : 1.07, cursor: 'grabbing' }}
-      className="touch-manipulation select-none"
-    >
-      {/* Card face */}
-      <div
-        className="w-full h-full relative overflow-hidden"
-        style={{
-          borderRadius: 24,
-          border: isTop ? '1.5px solid rgba(255,255,255,0.18)' : '1px solid rgba(255,255,255,0.07)',
-          boxShadow: isTop
-            ? `0 24px 56px rgba(0,0,0,0.6), 0 0 48px rgba(${card.accentRgb},0.18)`
-            : '0 8px 20px rgba(0,0,0,0.35)',
-          background: '#0a0a0a',
-        }}
-      >
-        {/* Background photo — slow zoom-out on ALL cards */}
-        <motion.img
-          src={photo}
-          alt={card.label}
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="eager"
-          animate={{ scale: [1.06, 1.0] }}
-          transition={{ duration: 8, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }}
-        />
-
-        {/* Gradient overlay */}
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.28) 55%, rgba(0,0,0,0.05) 100%)' }}
-        />
-
-        {/* Accent glow pulse on front card */}
-        {isTop && (
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            animate={{ opacity: [0.15, 0.32, 0.15] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ boxShadow: `inset 0 0 70px rgba(${card.accentRgb},0.22)` }}
-          />
-        )}
-
-        {/* Like label */}
-        {isTop && (
-          <motion.div
-            style={{ opacity: likeOpacity, rotate: -12 }}
-            className="absolute top-5 left-5 pointer-events-none border-2 border-emerald-400 text-emerald-400 font-black text-sm px-3 py-1 rounded-xl"
-          >
-            YES!
-          </motion.div>
-        )}
-
-        {/* Nope label */}
-        {isTop && (
-          <motion.div
-            style={{ opacity: nopeOpacity, rotate: 12 }}
-            className="absolute top-5 right-5 pointer-events-none border-2 border-rose-400 text-rose-400 font-black text-sm px-3 py-1 rounded-xl"
-          >
-            NOPE
-          </motion.div>
-        )}
-
-        {/* Card info — bottom */}
-        <div className="absolute inset-x-0 bottom-0 px-6 pb-6 pt-14">
-          <p className="text-[10px] font-black uppercase tracking-[0.28em] text-white/45 mb-1">
-            {card.description}
-          </p>
-          <h3 className="text-white text-3xl font-black tracking-tight uppercase leading-none">
-            {card.label}
-          </h3>
-
-          {/* CTA only on front card */}
-          {isTop && (
-            <motion.button
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              onClick={(e) => { e.stopPropagation(); onSwipeOut(card.id); }}
-              className="mt-4 w-full py-3 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
-            >
-              Explore
-            </motion.button>
-          )}
-        </div>
-
-        {/* Accent corner dot — subtle identity marker for back cards */}
-        {!isTop && (
-          <div
-            className="absolute top-4 left-4 w-3 h-3 rounded-full"
-            style={{ background: card.accent, opacity: 0.75 }}
-          />
-        )}
-      </div>
-    </motion.div>
-  );
-});
-
-PokerCategoryCard.displayName = 'PokerCategoryCard';
-
-interface SwipeAllDashboardProps {
-  setCategories: (ids: any[]) => void;
-}
-
-const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
-  const [cards, setCards] = useState([...POKER_CARDS]);
-
-  // Swipe out front card: apply filter
-  const handleSwipeOut = useCallback((id: string) => {
-    triggerHaptic('medium');
-    setCategories([id]);
-  }, [setCategories]);
-
-  // Bring a back card to the front (tap or short drag)
-  const handleBringToFront = useCallback((index: number) => {
-    triggerHaptic('light');
-    setCards(prev => {
-      const next = [...prev];
-      const [pulled] = next.splice(index, 1);
-      return [pulled, ...next];
-    });
-  }, []);
-
-  const N = cards.length;
-  // Container is sized to show the full front card plus the peeking strips of back cards
-  const containerW = PK_W + (N - 1) * FOLDER_OFFSET_X;
-  const containerH = PK_H + (N - 1) * FOLDER_OFFSET_Y;
-
-  return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key="folder-dashboard"
-        variants={deckFadeVariants}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        className="relative w-full flex-1 flex flex-col items-center justify-center bg-background overflow-hidden"
-        style={{ minHeight: 'calc(100dvh - 148px)' }}
-      >
-        {/* Folder card stack — straight horizontal flow, no rotation */}
-        <div
-          style={{
-            position: 'relative',
-            width: containerW,
-            height: containerH,
-          }}
-        >
-          {/* Render back-to-front so the front card sits on top */}
-          {[...cards].reverse().map((card, reversedIdx) => {
-            const index = cards.length - 1 - reversedIdx;
-            const isTop = index === 0;
-            return (
-              <PokerCategoryCard
-                key={card.id}
-                card={card}
-                index={index}
-                total={cards.length}
-                isTop={isTop}
-                onSwipeOut={handleSwipeOut}
-                onBringToFront={handleBringToFront}
-              />
-            );
-          })}
-        </div>
-
-        {/* Subtle ambient glow */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.03] blur-[90px] bg-primary animate-pulse-slow" />
-        </div>
-      </motion.div>
-    </AnimatePresence>
-  );
-};
-
-// ── SwipeLoadingSkeleton ─────────────────────────────────────────────────────
-// GPU-accelerated skeleton shown on first load before data hydration.
-const SwipeLoadingSkeleton = () => (
-  <AnimatePresence mode="wait">
-    <motion.div key="skeleton" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3 bg-background">
-      <div className="relative flex-1 w-full">
-        <div className="absolute inset-0 overflow-hidden" style={{ transform: 'translateZ(0)', contain: 'paint' }}>
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 35%, #cbd5e1 65%, #94a3b8 100%)' }} />
-          <div
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 75%, transparent 100%)',
-              backgroundSize: '200% 100%',
-              animation: 'skeleton-shimmer 1.2s ease-in-out infinite',
-              transform: 'translateZ(0)',
-            }}
-          />
-          <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
-            {[1, 2, 3, 4].map((num) => (
-              <div key={`skeleton-dot-${num}`} className="flex-1 h-1 rounded-full bg-white/30" />
-            ))}
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 bg-black/70 rounded-t-[24px] p-4 pt-6">
-            <div className="flex justify-center mb-2">
-              <div className="w-10 h-1.5 bg-white/30 rounded-full" />
-            </div>
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex-1 space-y-2">
-                <div className="h-5 w-3/4 bg-white/20 rounded-lg" />
-                <div className="h-4 w-1/2 bg-white/15 rounded-lg" />
-              </div>
-              <div className="text-right space-y-1">
-                <div className="h-6 w-20 bg-white/20 rounded-lg" />
-                <div className="h-3 w-12 bg-white/15 rounded-lg ml-auto" />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <div className="h-4 w-12 bg-white/15 rounded-full" />
-              <div className="h-4 w-12 bg-white/15 rounded-full" />
-              <div className="h-4 w-16 bg-white/15 rounded-full" />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex-shrink-0 flex justify-center items-center py-3 px-4">
-        <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
-          <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
-          <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
-          <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
-        </div>
-      </div>
-    </motion.div>
-  </AnimatePresence>
-);
 
 interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
@@ -967,10 +461,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // Prefetch next batch of listings when approaching end of current batch
   // Uses requestIdleCallback internally for non-blocking prefetch
   useSwipePrefetch(
+    user?.id,
     currentIndexRef.current,
     page,
     deckQueueRef.current.length,
-    stableFilters as unknown
+    stableFilters
   );
 
   // PERFORMANCE: Prefetch next listing details when viewing current card
@@ -1560,7 +1055,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
   // Main swipe view - CENTERED STACKED CARD PRESENTATION
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="popLayout">
     <motion.div
       key="cards"
       variants={deckFadeVariants}

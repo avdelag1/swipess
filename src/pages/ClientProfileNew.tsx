@@ -8,7 +8,7 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, ThumbsUp, Settings, Radio, MessageSquare, Megaphone, CalendarDays, Building2
+  Flame, ThumbsUp, Settings, Radio, MessageSquare, Megaphone, Building2
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
@@ -72,7 +72,7 @@ const ClientProfileNew = () => {
 
   return (
     <>
-      <div className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full stagger-children">
+      <div className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -328,7 +328,7 @@ const ClientProfileNew = () => {
             )}
           >
             <Radio className="w-5 h-5 text-rose-400" />
-            Radio Station
+            Radio
           </button>
 
 

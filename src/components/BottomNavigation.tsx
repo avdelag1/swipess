@@ -20,17 +20,17 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
   Flame, MessageCircle, User, Building2,
   Search, Users, Sparkles, ShieldCheck,
-  Megaphone, Compass
+  Megaphone, Compass, Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { AnimatedLottieIcon } from '@/components/ui/AnimatedLottieIcon';
 
 const ICON_SIZE = 22;
 const ICON_SIZE_COMPACT = 20;
@@ -74,7 +74,8 @@ export function BottomNavigation({
 }: BottomNavigationProps) {
   const { navigate } = useAppNavigate();
   const location = useLocation();
-  const { unreadCount } = useUnreadMessageCount();
+  const { unreadCount: _unreadCount } = useUnreadMessageCount();
+  const { unreadCount } = useUnreadNotifications();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { t } = useTranslation();
@@ -163,7 +164,7 @@ export function BottomNavigation({
     x: number; y: number;
   } | null>(null);
 
-  const handlePointerDown = useCallback(
+  const _handlePointerDown = useCallback(
     (e: React.PointerEvent, item: NavItem) => {
       e.stopPropagation();
       isDraggingRef.current = false;
@@ -256,11 +257,13 @@ export function BottomNavigation({
       <div
         className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
-          // LAYER 1: Solid glass base (no blur - massive GPU savings)
-          backgroundColor: isLight ? 'rgba(255,255,255,0.96)' : 'rgba(12,12,14,0.92)',
-          // No hard borders — defined by shadows
-          border: 'none',
-          borderRadius: '24px',
+          // LAYER 1: Solid glass base with Heavy Backdrop Blur
+          backgroundColor: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(12,12,14,0.82)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          // No hard borders — defined by shadows and a subtle rim light
+          border: isLight ? '1px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '28px',
           boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',
@@ -478,7 +481,7 @@ export function BottomNavigation({
                       background: 'linear-gradient(90deg, #ec4899, #f97316)',
                       boxShadow: '0 0 8px rgba(249,115,22,0.65), 0 0 16px rgba(249,115,22,0.3)',
                     }}
-                    transition={{ type: 'spring', stiffness: 480, damping: 30, mass: 0.5 }}
+                    transition={{ type: 'spring', stiffness: 620, damping: 32, mass: 0.4 }}
                   />
                 )}
               </motion.button>

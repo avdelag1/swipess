@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RefreshCw, RotateCcw, Home } from 'lucide-react';
+import { RefreshCw, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { SwipeDistanceSlider } from './SwipeDistanceSlider';
+import { deckFadeVariants } from '@/utils/modernAnimations';
 
 interface SwipeExhaustedStateProps {
   categoryLabel: string;
@@ -20,12 +21,6 @@ interface SwipeExhaustedStateProps {
   error?: any;
   isInitialLoad?: boolean;
 }
-
-const deckFadeVariants = {
-  initial: { opacity: 0, scale: 0.98 },
-  animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.98 }
-};
 
 export const SwipeExhaustedState = ({
   categoryLabel,

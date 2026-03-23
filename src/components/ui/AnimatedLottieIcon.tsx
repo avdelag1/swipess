@@ -10,8 +10,11 @@ import compassAnim from '@/assets/animations/compass-elastic.json';
 import genericAnim from '@/assets/animations/generic-pop.json';
 import heartAnim from '@/assets/animations/heart-elastic.json';
 import dislikeAnim from '@/assets/animations/dislike-elastic.json';
+import usersAnim from '@/assets/animations/users-bounce.json';
+import megaphoneAnim from '@/assets/animations/megaphone-shout.json';
+import searchAnim from '@/assets/animations/search-scan.json';
 
-type IconType = 'profile' | 'likes' | 'ai-search' | 'messages' | 'browse' | 'heart' | 'dislike' | string;
+type IconType = 'profile' | 'likes' | 'ai-search' | 'messages' | 'browse' | 'heart' | 'dislike' | 'roommates' | 'eventos' | 'advertise' | 'filter' | string;
 
 interface AnimatedLottieIconProps {
   iconId: IconType;
@@ -29,6 +32,10 @@ const ANIMATION_MAP: Record<string, any> = {
   browse: compassAnim,
   heart: heartAnim,
   dislike: dislikeAnim,
+  roommates: usersAnim,
+  eventos: megaphoneAnim,
+  advertise: megaphoneAnim,
+  filter: searchAnim,
 };
 
 export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({

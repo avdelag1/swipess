@@ -117,6 +117,31 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }
 
   // Error/Auth state check
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center p-8 text-center bg-background/50 backdrop-blur-md">
+        <div className="max-w-xs space-y-6">
+          <div className="w-20 h-20 bg-red-500/20 rounded-3xl flex items-center justify-center mx-auto border border-red-500/30">
+            <Megaphone className="w-10 h-10 text-red-500 animate-pulse" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold tracking-tight">Sync Interrupted</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              We couldn't reach the matching engine. This usually fixes itself in a few seconds.
+            </p>
+          </div>
+          <Button 
+            onClick={() => window.location.reload()}
+            variant="outline" 
+            className="w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px]"
+          >
+            Reconnect
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="w-full h-full flex items-center justify-center p-8 text-center">

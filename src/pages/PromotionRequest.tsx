@@ -1,14 +1,15 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ChevronLeft, Sparkles, Zap, Calendar, MapPin, 
-  Image as ImageIcon, Send, CheckCircle2, Upload, Star, 
-  Users, TrendingUp, Eye, FileText, Phone, Building,
-  Rocket, Crown, ShieldCheck, HeartHandshake,
-  Clock, DollarSign, Tag, X, MessageCircle, ArrowUpRight
+  ChevronLeft, Sparkles, Zap, Calendar, MapPin,
+  Image as ImageIcon, Send, CheckCircle2, Upload, Star,
+  Users, TrendingUp, Eye, FileText, Phone,
+  Rocket, Crown, ShieldCheck,
+  Clock, DollarSign, Tag, X, MessageCircle, ArrowUpRight, ChevronRight,
+  CreditCard, ExternalLink
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
@@ -34,6 +35,37 @@ const STATS = [
   { icon: Eye, value: '120k+', label: 'Monthly Views', color: 'text-blue-400' },
   { icon: TrendingUp, value: '89%', label: 'Engagement Rate', color: 'text-amber-400' },
   { icon: Star, value: '4.9', label: 'Avg Rating', color: 'text-purple-400' },
+];
+
+const PROMOTION_PACKAGES = [
+  {
+    id: "event-starter",
+    name: "Starter Feed",
+    price: 4.99,
+    duration: "1 Week",
+    benefits: ["Standard feed placement", "1 Photo", "Direct WhatsApp link"],
+    paypalUrl: "https://www.paypal.com/ncp/payment/ZXQC96VYV7JLL",
+    color: "from-blue-600 to-indigo-600",
+  },
+  {
+    id: "event-growth",
+    name: "Growth Boost",
+    price: 6.99,
+    duration: "3 Months",
+    benefits: ["Featured Badge", "Up to 5 Photos", "Priority placement"],
+    paypalUrl: "https://www.paypal.com/ncp/payment/ATKD4TR7KFTJU",
+    color: "from-orange-500 to-rose-500",
+    popular: true,
+  },
+  {
+    id: "event-elite",
+    name: "Elite Reach",
+    price: 9.99,
+    duration: "6 Months",
+    benefits: ["Top of feed", "Push notification blast", "Dedicated support"],
+    paypalUrl: "https://www.paypal.com/ncp/payment/LK7XWSMDHH8AW",
+    color: "from-purple-600 to-fuchsia-600",
+  }
 ];
 
 // ── FORM STATE ──────────────────────────────────────────────────────────────
@@ -81,8 +113,9 @@ export default function PromotionRequest() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [form, setForm] = useState<PromotionForm>(initialForm);
-  const [step, setStep] = useState<'overview' | 'info' | 'details' | 'review'>('overview');
+  const [step, setStep] = useState<'welcome' | 'overview' | 'info' | 'details' | 'review' | 'payment'>('welcome');
   const [submitting, setSubmitting] = useState(false);
+  const [approvedEvent, setApprovedEvent] = useState<any>(null);
   const [submitted, setSubmitted] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -90,6 +123,31 @@ export default function PromotionRequest() {
   const updateField = useCallback(<K extends keyof PromotionForm>(field: K, value: PromotionForm[K]) => {
     setForm(prev => ({ ...prev, [field]: value }));
   }, []);
+
+  // ── CHECK FOR APPROVED EVENTS ──
+  useEffect(() => {
+    async function checkStatus() {
+      if (!user) return;
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .eq('created_by', user.id)
+          .eq('is_approved', true)
+          .eq('is_published', false)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        if (!error && data && data.length > 0) {
+          setApprovedEvent(data[0]);
+          setStep('payment');
+        }
+      } catch (err) {
+        console.error('Error checking event status:', err);
+      }
+    }
+    checkStatus();
+  }, [user]);
 
   // ── IMAGE UPLOAD ──────────────────────────────────────────────────────────
   const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -238,7 +296,7 @@ export default function PromotionRequest() {
 
   // ── STEP VALIDATION ───────────────────────────────────────────────────────
   const canProceedToDetails = form.eventTitle.trim().length > 0 && form.category.length > 0;
-  const canProceedToReview = canProceedToDetails && (form.location.trim().length > 0 || form.description.trim().length > 0);
+  const _canProceedToReview = canProceedToDetails && (form.location.trim().length > 0 || form.description.trim().length > 0);
 
   return (
     <div className={cn(
@@ -255,7 +313,8 @@ export default function PromotionRequest() {
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => {
-                if (step === 'overview') navigate(-1);
+                if (step === 'welcome') navigate(-1);
+                else if (step === 'overview') setStep('welcome');
                 else if (step === 'info') setStep('overview');
                 else if (step === 'details') setStep('info');
                 else if (step === 'review') setStep('details');
@@ -273,20 +332,20 @@ export default function PromotionRequest() {
                 "text-[10px] font-bold uppercase tracking-widest",
                 isLight ? "text-slate-400" : "text-white/30"
               )}>
-                {step === 'overview' ? 'Promotion Hub' : step === 'info' ? 'Step 1 · Basics' : step === 'details' ? 'Step 2 · Details' : 'Step 3 · Review'}
+                {step === 'welcome' ? 'Promote Hub' : step === 'overview' ? 'Instructions' : step === 'info' ? 'Step 1' : step === 'details' ? 'Step 2' : step === 'payment' ? 'Launch' : 'Step 3'}
               </p>
             </div>
           </div>
 
           {/* Step indicators */}
           <div className="flex gap-1.5">
-            {['overview', 'info', 'details', 'review'].map((s, i) => (
+            {['welcome', 'overview', 'info', 'details', 'review', 'payment'].map((s, i) => (
               <div 
                 key={s}
                 className={cn(
                   "h-1 rounded-full transition-all duration-300",
                   s === step ? "w-6 bg-primary" : 
-                  i < ['overview', 'info', 'details', 'review'].indexOf(step) ? "w-3 bg-primary/50" : 
+                  i < ['welcome', 'overview', 'info', 'details', 'review', 'payment'].indexOf(step) ? "w-3 bg-primary/50" : 
                   "w-3 bg-slate-200 dark:bg-white/10"
                 )}
               />
@@ -301,43 +360,104 @@ export default function PromotionRequest() {
           
           <AnimatePresence mode="wait">
             {/* ═══════════════════════════════════════════════════════════════════ */}
-            {/* STEP 0: OVERVIEW / HOW IT WORKS                                   */}
+            {/* STEP -1: WELCOME                                                  */}
+            {/* ═══════════════════════════════════════════════════════════════════ */}
+            {step === 'welcome' && (
+              <motion.div 
+                key="welcome"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-12 py-12"
+              >
+                <div className="text-center space-y-6">
+                  <div className="relative inline-block">
+                    <div className="absolute inset-0 bg-indigo-500/20 blur-[60px] rounded-full scale-150 animate-pulse" />
+                    <div className={cn(
+                      "w-32 h-32 rounded-[3.5rem] flex items-center justify-center relative z-10 border shadow-2xl transition-transform hover:scale-105 duration-500",
+                      isLight ? "bg-white border-slate-200" : "bg-zinc-900 border-white/5"
+                    )}>
+                      <Rocket className="w-16 h-16 text-indigo-500" />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3 px-4">
+                    <h2 className="text-4xl font-black italic uppercase tracking-tighter leading-none">
+                      Grow Your <span className="text-indigo-500">World</span>
+                    </h2>
+                    <p className="text-sm font-bold text-muted-foreground max-w-xs mx-auto leading-relaxed">
+                      This is the place where you promote your events, business or brand to the entire Tulum community.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-8 space-y-4 px-2">
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => { setStep('overview'); triggerHaptic('medium'); }}
+                    className="w-full py-6 rounded-[2.5rem] bg-indigo-600 text-white font-black uppercase tracking-[0.3em] text-sm shadow-[0_25px_50px_rgba(79,70,229,0.3)] flex items-center justify-center gap-3 relative overflow-hidden group"
+                  >
+                    <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                    <span className="relative z-10">Get Started Today</span>
+                    <ChevronRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+                  </motion.button>
+                  
+                  <div className="text-center">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50">
+                      No upfront payment required
+                    </p>
+                  </div>
+                </div>
+
+                {/* Impact Summary */}
+                <div className="grid grid-cols-2 gap-4 pt-12">
+                  {STATS.slice(0, 2).map(stat => (
+                    <div key={stat.label} className={cn(
+                      "p-6 rounded-[2.5rem] border text-center space-y-1",
+                      isLight ? "bg-white border-slate-100 shadow-sm" : "bg-white/[0.02] border-white/5"
+                    )}>
+                      <div className="text-2xl font-black">{stat.value}</div>
+                      <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══════════════════════════════════════════════════════════════════ */}
+            {/* STEP 0: INSTRUCTIONS                                              */}
             {/* ═══════════════════════════════════════════════════════════════════ */}
             {step === 'overview' && (
               <motion.div 
                 key="overview"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
                 className="space-y-8"
               >
-                <div className="text-center space-y-4">
-                  <div className="w-20 h-20 rounded-[2.5rem] bg-indigo-500/10 flex items-center justify-center mx-auto mb-4 border border-indigo-500/20 shadow-xl shadow-indigo-500/10">
-                    <Rocket className="w-10 h-10 text-indigo-500" />
-                  </div>
-                  <h2 className="text-3xl font-black italic uppercase tracking-tighter italic">Grow Your World.</h2>
-                  <p className="text-sm font-bold text-muted-foreground max-w-[280px] mx-auto">Promote your event or business to thousands of Tulum locals & visitors.</p>
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-black italic uppercase tracking-tighter">How it works</h2>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Follow these three simple steps</p>
                 </div>
 
-                {/* 3 Steps Guide */}
                 <div className="space-y-4">
                   {[
-                    { step: 1, icon: FileText, title: "Tell us your vision", desc: "Fill out the campaign details and upload your best assets.", color: "bg-blue-500" },
-                    { step: 2, icon: ShieldCheck, title: "Review & Approval", desc: "Our team reviews within 24h to ensure the highest quality.", color: "bg-amber-500" },
-                    { step: 3, icon: Crown, title: "Launch & Pay", desc: "Once approved, you pay and your event goes LIVE instantly.", color: "bg-indigo-600" }
+                    { step: 1, icon: FileText, title: "Tell us your vision", desc: "Upload your information and best assets for the campaign.", color: "bg-blue-500" },
+                    { step: 2, icon: ShieldCheck, title: "Quick Review", desc: "Our team reviews the content to ensure it fits our quality standards.", color: "bg-amber-500" },
+                    { step: 3, icon: Crown, title: "Approve & Pay", desc: "Once accepted, you receive a notification to choose a plan and launch.", color: "bg-indigo-600" }
                   ].map((s) => (
                     <div key={s.step} className={cn(
-                      "flex gap-4 p-5 rounded-[2rem] border",
+                      "flex gap-4 p-5 rounded-[2rem] border transition-colors hover:bg-indigo-50/10",
                       isLight ? "bg-white border-slate-100 shadow-sm" : "bg-zinc-900 border-white/5"
                     )}>
-                      <div className={cn("w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center text-white", s.color)}>
+                      <div className={cn("w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center text-white shadow-lg", s.color)}>
                         <s.icon className="w-6 h-6" />
                       </div>
                       <div>
                         <h3 className="font-black text-sm uppercase tracking-wide flex items-center gap-2">
                           <span className="opacity-30">0{s.step}</span> {s.title}
                         </h3>
-                        <p className="text-xs font-medium text-muted-foreground mt-1">{s.desc}</p>
+                        <p className="text-xs font-medium text-muted-foreground mt-1 leading-relaxed">{s.desc}</p>
                       </div>
                     </div>
                   ))}
@@ -347,41 +467,11 @@ export default function PromotionRequest() {
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => { setStep('info'); triggerHaptic('medium'); }}
-                    className="w-full py-5 rounded-[2rem] bg-indigo-600 text-white font-black uppercase tracking-[0.2em] text-sm shadow-xl shadow-indigo-500/30 flex items-center justify-center gap-3"
+                    className="w-full py-5 rounded-[2rem] bg-indigo-600 text-white font-black uppercase tracking-[0.2em] text-sm shadow-xl shadow-indigo-500/30 flex items-center justify-center gap-2"
                   >
-                    Get Started Now
+                    I Understand, Continue
                     <ChevronRight className="w-5 h-5" />
                   </motion.button>
-
-                  <button
-                    onClick={() => { setStep('info'); triggerHaptic('light'); }}
-                    className="w-full py-4 text-xs font-black uppercase tracking-widest text-muted-foreground/60 hover:text-primary transition-colors flex items-center justify-center gap-2"
-                  >
-                    I know how this works <ArrowUpRight className="w-3 link" />
-                  </button>
-                </div>
-
-                {/* Regrouped Stats/Packages section for 'risky' users */}
-                <div className={cn(
-                  "p-8 rounded-[3rem] border",
-                  isLight ? "bg-slate-100 border-slate-200" : "bg-white/[0.03] border-white/5"
-                )}>
-                  <div className="flex items-center gap-3 mb-6">
-                    <TrendingUp className="w-5 h-5 text-indigo-500" />
-                    <span className="text-xs font-black uppercase tracking-widest">Pricing & Impact</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    {STATS.map(stat => (
-                      <div key={stat.label}>
-                        <div className="text-xl font-black">{stat.value}</div>
-                        <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">{stat.label}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-8 pt-6 border-t border-white/5 space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Weekly Performance</p>
-                    <p className="text-xs font-medium text-muted-foreground">Campaigns start at <span className="text-foreground font-black font-brand">$50 MXN</span>. Higher visibility packages available upon request.</p>
-                  </div>
                 </div>
               </motion.div>
             )}
@@ -911,10 +1001,110 @@ export default function PromotionRequest() {
                   <div>
                     <p className="text-xs font-bold text-amber-600 dark:text-amber-400">Review Process</p>
                     <p className={cn("text-[11px] font-medium mt-1 leading-relaxed", isLight ? "text-amber-700/70" : "text-amber-300/50")}>
-                      Your promotion will be reviewed by our partnerships team within 24 hours. Once approved, it will appear in the Events feed and Stories carousel for maximum visibility.
+                      Your promotion will be reviewed by our partnerships team within 24 hours. No payment is required until your event is officially approved.
                     </p>
                   </div>
                 </div>
+              </motion.div>
+            )}
+
+            {/* ═══════════════════════════════════════════════════════════════════ */}
+            {/* STEP 4: PAYMENT (ONLY AFTER APPROVAL)                             */}
+            {/* ═══════════════════════════════════════════════════════════════════ */}
+            {step === 'payment' && approvedEvent && (
+              <motion.div 
+                key="payment"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="space-y-10"
+              >
+                <div className="text-center space-y-4">
+                  <div className="w-20 h-20 rounded-[2.5rem] bg-emerald-500/10 flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
+                    <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                  </div>
+                  <h2 className="text-3xl font-black italic uppercase tracking-tighter">Event Approved!</h2>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Select a package to launch your campaign</p>
+                </div>
+
+                {/* Approved Event Preview */}
+                <div className={cn(
+                  "p-4 rounded-[2rem] border flex items-center gap-4",
+                  isLight ? "bg-white border-slate-100" : "bg-white/[0.03] border-white/5"
+                )}>
+                  {approvedEvent.image_url ? (
+                    <img src={approvedEvent.image_url} className="w-16 h-16 rounded-2xl object-cover" alt="" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center">
+                      <Sparkles className="w-6 h-6 text-indigo-500" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-black truncate">{approvedEvent.title}</h4>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{approvedEvent.category}</p>
+                  </div>
+                </div>
+
+                {/* Package Options */}
+                <div className="space-y-4">
+                  {PROMOTION_PACKAGES.map((pkg) => (
+                    <motion.div
+                      key={pkg.id}
+                      whileTap={{ scale: 0.98 }}
+                      className={cn(
+                        "relative p-6 rounded-[2.5rem] border overflow-hidden transition-all group",
+                        isLight ? "bg-white border-slate-200 shadow-sm" : "bg-white/[0.03] border-white/10"
+                      )}
+                    >
+                      {pkg.popular && (
+                        <div className="absolute top-0 right-0">
+                          <div className="bg-primary text-[8px] font-black uppercase tracking-widest px-4 py-2 rounded-bl-3xl">
+                            Popular
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="flex justify-between items-start mb-6">
+                        <div>
+                          <h3 className="text-xl font-black uppercase tracking-tight">{pkg.name}</h3>
+                          <div className="flex items-baseline gap-1 mt-1">
+                            <span className="text-3xl font-black">${pkg.price}</span>
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase">USD / {pkg.duration}</span>
+                          </div>
+                        </div>
+                        <CreditCard className="w-6 h-6 text-indigo-500 opacity-30" />
+                      </div>
+
+                      <div className="space-y-3 mb-8">
+                        {pkg.benefits.map((benefit) => (
+                          <div key={benefit} className="flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                            <span className="text-[11px] font-bold text-muted-foreground uppercase">{benefit}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <motion.a
+                        href={pkg.paypalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => triggerHaptic('success')}
+                        className={cn(
+                          "w-full py-4 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-xl bg-gradient-to-r",
+                          pkg.color
+                        )}
+                      >
+                        Launch Now <ExternalLink className="w-4 h-4" />
+                      </motion.a>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => { setApprovedEvent(null); setStep('welcome'); }}
+                  className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-30"
+                >
+                  Clear Status and Start New Request
+                </button>
               </motion.div>
             )}
           </AnimatePresence>

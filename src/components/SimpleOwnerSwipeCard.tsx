@@ -256,7 +256,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const dragStartedRef = useRef(false);
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const _isDark = theme === 'dark';
 
   // Motion values for BOTH X and Y - enables diagonal movement
   const x = useMotionValue(0);

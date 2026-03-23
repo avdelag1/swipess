@@ -22,7 +22,7 @@ import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo } from '@/components
 import { VerifiedBadge } from '@/components/ui/TrustSignals';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
-import { useTheme } from '@/hooks/useTheme';
+import { cn } from '@/lib/utils';
 
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -61,7 +61,6 @@ const ACTIVE_SPRING = SPRING_CONFIGS.NATIVE; // Responsive iOS-like feel without
 interface SimpleSwipeCardProps {
   listing: Listing | MatchedListing;
   onSwipe: (direction: 'left' | 'right') => void;
-  onTap?: () => void;
   onInsights?: () => void;
   isTop?: boolean;
   /** Optional shared MotionValue from parent — lets container animate the card below in real-time */
@@ -72,7 +71,6 @@ interface SimpleSwipeCardProps {
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
   listing,
   onSwipe,
-  onTap: _onTap,
   onInsights,
   isTop = true,
   externalX,
@@ -85,8 +83,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const dragStartY = useRef(0);
   const dragControls = useDragControls();
   const dragStartedRef = useRef(false);
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
 
   // Motion values for BOTH X and Y - enables diagonal movement
@@ -114,12 +110,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
 
-  // No blur effect - clean swipe without filter overhead
-
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
-  const [_magnifierActive, setMagnifierActive] = useState(false);
 
   const images = useMemo(() => {
     let result: string[] = [];
@@ -172,18 +165,15 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     }
   }, [listing.id, x, y]);
 
-  // Magnifier hook for press-and-hold zoom - MUST be called before any callbacks that use it
-  // FULL-IMAGE ZOOM: Entire image zooms on press-and-hold, no lens/clipping
-  const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, isHoldPending } = useMagnifier({
+  // Magnifier hook for press-and-hold zoom
+  const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive } = useMagnifier({
     scale: 2.8, // Edge-to-edge zoom level
-    holdDelay: 450, // Zoom needs clearly more time than swipe (movement-based) to avoid accidental activation
+    holdDelay: 450,
     enabled: isTop,
-    onActiveChange: setMagnifierActive,
   });
 
   // Fetch rating aggregate for this listing
   const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, listing.category);
-
 
   // Unified pointer down handler: starts magnifier hold timer AND stores event for potential drag
   const handleUnifiedPointerDown = useCallback((e: React.PointerEvent) => {
@@ -196,107 +186,54 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Unified pointer move: decides between magnifier pan vs starting drag
   const handleUnifiedPointerMove = useCallback((e: React.PointerEvent) => {
-    // Check ref directly (not React state) — avoids stale closure / re-render lag
     if (isMagnifierActive()) {
       magnifierPointerHandlers.onPointerMove(e);
       return;
     }
-
-    // If hold timer is pending, check movement to decide drag vs zoom
-    if (isHoldPending() && storedPointerEventRef.current) {
-      const startX = storedPointerEventRef.current.clientX;
-      const startY = storedPointerEventRef.current.clientY;
-      const dx = Math.abs(e.clientX - startX);
-      const dy = Math.abs(e.clientY - startY);
-
-      if (dx > 15 || dy > 15) {
-        // Any meaningful movement: cancel hold timer, start drag
-        magnifierPointerHandlers.onPointerUp(e); // Force cancel magnifier completely
-        if (!dragStartedRef.current && storedPointerEventRef.current) {
-          dragStartedRef.current = true;
-          isDragging.current = true;
-          triggerHaptic('light');
-          // Start framer-motion drag manually
-          dragControls.start(e.nativeEvent);
-        }
+    
+    if (storedPointerEventRef.current && !dragStartedRef.current) {
+      const dx = Math.abs(e.clientX - (storedPointerEventRef.current as any).clientX);
+      const dy = Math.abs(e.clientY - (storedPointerEventRef.current as any).clientY);
+      
+      // Start drag only if we move more than a minor threshold
+      if (dx > 5 || dy > 5) {
+        dragStartedRef.current = true;
+        dragControls.start(storedPointerEventRef.current);
+        storedPointerEventRef.current = null;
       }
-      return;
     }
+  }, [isMagnifierActive, magnifierPointerHandlers, dragControls]);
 
-    // If drag already started, let framer-motion handle it
-  }, [isMagnifierActive, isHoldPending, magnifierPointerHandlers, dragControls]);
-
-  // Unified pointer up: deactivate magnifier and clean up
   const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {
-    magnifierPointerHandlers.onPointerUp(e);
     storedPointerEventRef.current = null;
-    dragStartedRef.current = false;
+    magnifierPointerHandlers.onPointerUp(e);
   }, [magnifierPointerHandlers]);
 
   const handleUnifiedPointerCancel = useCallback((e: React.PointerEvent) => {
-    magnifierPointerHandlers.onPointerCancel(e);
     storedPointerEventRef.current = null;
-    dragStartedRef.current = false;
+    magnifierPointerHandlers.onPointerUp(e);
   }, [magnifierPointerHandlers]);
 
-  const handleDragStart = useCallback((event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragStart = useCallback((_: any, info: PanInfo) => {
     isDragging.current = true;
     dragStartY.current = info.point.y;
+    triggerHaptic('light');
   }, []);
 
-  const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-
-
-    if (hasExited.current) return;
-
-    const offsetX = info.offset.x;
-    const offsetY = info.offset.y;
+  const handleDragEnd = useCallback((_: any, info: PanInfo) => {
+    const sweepX = info.offset.x;
     const velocityX = info.velocity.x;
-    const _velocityY = info.velocity.y;
 
-    // Swipe threshold based on X distance or velocity
-    const shouldSwipe = Math.abs(offsetX) > SWIPE_THRESHOLD || Math.abs(velocityX) > VELOCITY_THRESHOLD;
-
-    if (shouldSwipe) {
+    // Tinder-style threshold check (Distance OR Velocity)
+    if (Math.abs(sweepX) > SWIPE_THRESHOLD || Math.abs(velocityX) > VELOCITY_THRESHOLD) {
+      const direction = sweepX > 0 ? 'right' : 'left';
       hasExited.current = true;
       isExitingRef.current = true;
-      const direction = offsetX > 0 ? 'right' : 'left';
-
+      
       triggerHaptic(direction === 'right' ? 'success' : 'warning');
-
-      // Exit in the SAME direction of the swipe gesture (diagonal physics)
-      const exitDistance = getExitDistance();
-      const exitX = direction === 'right' ? exitDistance : -exitDistance;
-
-      // Calculate Y exit based on swipe angle - maintains diagonal trajectory
-      // For near-horizontal swipes (offsetY ≈ 0), add a subtle arc so the card
-      // floats upward on like (right) and drops slightly on dislike (left)
-      const swipeAngle = Math.atan2(offsetY, Math.abs(offsetX));
-      const rawExitY = Math.tan(swipeAngle) * exitDistance;
-      const clampedExitY = Math.min(Math.max(rawExitY, -300), 300);
-      const arcBias = direction === 'right' ? -70 : 40;
-      const exitY = Math.abs(clampedExitY) < 40 ? arcBias : clampedExitY;
-
-      // Tween-based exit — faster and lighter than spring for PWA
-      // Spring exit causes extra frames of oscillation; tween exits cleanly
-      animate(x, exitX, {
-        type: 'tween',
-        duration: 0.28,
-        ease: [0.32, 0, 0.67, 0],
-        onComplete: () => {
-          isExitingRef.current = false;
-          onSwipe(direction);
-        },
-      });
-
-      // Animate Y in parallel — tween for consistency
-      animate(y, Math.min(Math.max(exitY, -300), 300), {
-        type: 'tween',
-        duration: 0.28,
-        ease: [0.32, 0, 0.67, 0],
-      });
+      onSwipe(direction);
     } else {
-      // Spring snap-back to center - BOTH X and Y
+      // Snap back to center
       animate(x, 0, {
         type: 'spring',
         ...ACTIVE_SPRING,
@@ -313,12 +250,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }, [onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
-    // Card tap does nothing by default - image taps handle photo navigation
-    // This prevents conflict with handleImageTap
+    // Card tap does nothing by default
   }, []);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
-    // Don't handle tap if magnifier is active - allows zoom to work
     if (isMagnifierActive()) {
       return;
     }
@@ -328,25 +263,21 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     const width = rect.width;
 
     if (imageCount > 1) {
-      // Left third - previous image
       if (clickX < width * 0.33) {
         setPhotoDirection('left');
         setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
         triggerHaptic('light');
       }
-      // Right third - next image
       else if (clickX > width * 0.67) {
         setPhotoDirection('right');
         setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
         triggerHaptic('light');
       }
-      // Middle area - open inside page
       else if (onInsights) {
         triggerHaptic('light');
         onInsights();
       }
     } else if (onInsights) {
-      // Single image: any tap opens the inside page
       triggerHaptic('light');
       onInsights();
     }
@@ -361,7 +292,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
     const exitX = direction === 'right' ? getExitDistance() : -getExitDistance();
 
-    // Track if onSwipe was called to prevent double-fire
     let swipeFired = false;
     const fireSwipe = () => {
       if (swipeFired) return;
@@ -370,7 +300,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       onSwipe(direction);
     };
 
-    // Tween exit for button taps — fast, clean, no spring oscillation
     animate(x, exitX, {
       type: 'tween',
       duration: 0.26,
@@ -378,32 +307,20 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       onComplete: fireSwipe,
     });
 
-    // Arc: like floats up, dislike falls slightly — mirrors natural card-flick feel
     animate(y, direction === 'right' ? -60 : 32, {
       type: 'tween',
       duration: 0.26,
       ease: [0.32, 0, 0.67, 0],
     });
 
-    // SAFETY NET: tighter timeout matching tween duration
     setTimeout(fireSwipe, 300);
   }, [onSwipe, x, y]);
 
-  // Expose triggerSwipe method to parent via ref
   useImperativeHandle(ref, () => ({
     triggerSwipe: handleButtonSwipe,
   }), [handleButtonSwipe]);
 
-  // Format price
-  // Format price - moved before conditional render to avoid hook order issues
-  const rentalType = listing.rental_duration_type;
-  const _formattedPrice = listing.price
-    ? `$${listing.price.toLocaleString()}${rentalType === 'monthly' ? '/mo' : rentalType === 'daily' ? '/day' : ''}`
-    : null;
-
-  // Render based on position - all hooks called above regardless of render path
   if (!isTop) {
-    // Non-top card: simple static preview (no interaction, just visual)
     return (
       <div
         className="absolute inset-0 overflow-hidden"
@@ -424,15 +341,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         ) : (
           <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} direction={photoDirection} />
         )}
-        {/* No gradient - full-bleed cards */}
       </div>
     );
   }
 
-
   return (
     <div className="absolute inset-0 flex flex-col">
-      {/* Draggable Card - FREE XY MOVEMENT (Tinder-style diagonal) */}
       <motion.div
         drag
         dragControls={dragControls}
@@ -451,29 +365,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           y,
           rotate: cardRotate,
           opacity: cardOpacity,
-          transformOrigin: 'bottom center',
-          willChange: 'transform, opacity',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          touchAction: 'none',
-          WebkitTapHighlightColor: 'transparent',
-          WebkitTouchCallout: 'none',
-          boxShadow: 'var(--shadow-cinematic-lg)',
-          border: 'none',
-        } as any}
+        }}
       >
-        {/* Image area - FULL VIEWPORT with magnifier support */}
-        <div
-          ref={containerRef}
-          className="absolute inset-0 w-full h-full overflow-hidden rounded-[24px]"
+        <div 
+          ref={containerRef as any}
+          className="absolute inset-0 overflow-hidden" 
           onClick={handleImageTap}
-          style={{
-            touchAction: 'none',
-            WebkitUserSelect: 'none',
-            userSelect: 'none',
-          }}
         >
-          {/* PHOTO OR VIDEO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
           {currentImage === 'video_attachment' && listing.video_url ? (
             <video
               src={listing.video_url}
@@ -481,27 +379,36 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               muted
               loop
               playsInline
-              className="absolute inset-0 w-full h-full object-cover z-[1]"
-              style={{ pointerEvents: 'none', zIndex: 1 }}
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ zIndex: 1 }}
             />
           ) : (
-            <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} direction={photoDirection} />
+            <CardImage 
+              src={currentImage} 
+              alt={listing.title || 'Listing'} 
+              name={listing.title} 
+              direction={photoDirection} 
+            />
           )}
-
-          {/* Image dots - Positioned below header area */}
+          
           {imageCount > 1 && (
-            <div className="absolute top-16 left-4 right-4 z-25 flex gap-1" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
-              {images.map((_, idx) => (
+            <div className="absolute top-4 left-4 right-4 flex gap-1 z-20">
+              {Array.from({ length: imageCount }).map((_, idx) => (
                 <div
                   key={idx}
-                  className={`flex-1 h-1 rounded-full transition-all duration-200 ${idx === currentImageIndex ? 'bg-white shadow-sm' : 'bg-white/40'}`}
+                  className="h-1 flex-1 rounded-full transition-colors"
+                  style={{
+                    backgroundColor: idx === currentImageIndex 
+                      ? 'rgba(255, 255, 255, 0.9)' 
+                      : 'rgba(255, 255, 255, 0.3)',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                  }}
                 />
               ))}
             </div>
           )}
         </div>
 
-        {/* YES! overlay */}
         <motion.div
           className="absolute top-8 left-8 z-30 pointer-events-none"
           style={{
@@ -522,12 +429,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         </motion.div>
 
-        {/* NOPE overlay */}
         <motion.div
           className="absolute top-8 right-8 z-30 pointer-events-none"
           style={{
             opacity: passOpacity,
-
             backfaceVisibility: 'hidden',
             transform: 'translateZ(0)',
           }}
@@ -544,9 +449,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         </motion.div>
 
-        {/* Content overlay - Using CardInfoHierarchy for 2-second scanning
-             Dynamic bottom positioning: scales with viewport height so info
-             stays above action buttons on all devices (SE → Pro Max → tablets) */}
         <div
           className="absolute left-4 right-4 z-20 pointer-events-none p-5 rounded-[24px]"
           style={{ 
@@ -558,9 +460,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             border: '1px solid rgba(255,255,255,0.08)',
           }}
         >
-          {/* Match Meter + Rating badges row */}
           <div className="flex items-center gap-2 mb-3 flex-wrap">
-            {/* Match Percentage — only shown when smart matching has scored this listing */}
             {'matchPercentage' in listing && (listing as MatchedListing).matchPercentage > 0 && (
               <SwipeMatchMeter
                 percentage={(listing as MatchedListing).matchPercentage}
@@ -568,7 +468,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
                 compact
               />
             )}
-            {/* Rating Display - Glass-pill tactile badge */}
             <div
               className="inline-flex rounded-full px-3 py-1.5"
               style={{
@@ -584,7 +483,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               />
             </div>
           </div>
-          {/* Determine card type and render appropriate info hierarchy */}
           {listing.category === 'vehicle' || listing.vehicle_type ? (
             <VehicleCardInfo
               price={listing.price || 0}
@@ -620,7 +518,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           )}
         </div>
 
-        {/* Verified badge - now using TrustSignals component */}
         {listing.has_verified_documents && (
           <div className="absolute top-16 right-4 z-20">
             <div className="px-2.5 py-1.5 rounded-full flex items-center gap-1.5" style={{

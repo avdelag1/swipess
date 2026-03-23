@@ -19,7 +19,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
   const { theme } = useTheme();
   const isLight = theme === 'light';
-  const lastClickTime = useRef(0);
+  const _lastClickTime = useRef(0);
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 
@@ -102,7 +102,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
               ? '0 0 10px rgba(244,63,94,0.55), inset 0 1px 0 rgba(255,255,255,0.18)'
               : '0 0 10px rgba(249,115,22,0.55), inset 0 1px 0 rgba(255,255,255,0.18)',
           }}
-          transition={{ type: 'spring', stiffness: 480, damping: 34 }}
+          transition={{ type: 'spring', stiffness: 650, damping: 38 }}
         />
 
         {/* Client icon */}
@@ -175,7 +175,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             backgroundColor: activeMode === 'client' ? 'rgba(244, 63, 94, 0.2)' : 'rgba(251, 146, 60, 0.2)',
             boxShadow: 'none'
           }}
-          transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+          transition={{ type: 'spring', stiffness: 650, damping: 38 }}
           style={{ willChange: 'left, right, background-color' }}
         />
 
@@ -234,13 +234,13 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
       }}
       aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Business Side'} mode`}
     >
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         <motion.div
           key={activeMode}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.5 }}
           className="flex items-center gap-1.5"
         >
           {/* HIGH CONTRAST: Clear colors without glow effects */}

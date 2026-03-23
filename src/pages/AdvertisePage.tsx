@@ -1,8 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowLeft, ArrowRight, Check, Megaphone, Sparkles, Star, Zap, Calendar,
+  ArrowLeft, ArrowRight, Check, Megaphone, Star, Zap,
   Music, Utensils, Dumbbell, Palette, ShoppingBag, Globe, Camera,
   Users, Eye, TrendingUp, Instagram, Phone, Flame, Crown,
   Info, Shield, ClipboardList, MessageCircle
@@ -205,11 +205,41 @@ export default function AdvertisePage() {
   const [form, setForm] = useState<FormData>(INITIAL);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [approvedSubmission, setApprovedSubmission] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const steps: Step[] = ["type", "details", "package", "confirm"];
   const stepIdx = steps.indexOf(step);
   const progress = ((stepIdx + 1) / steps.length) * 100;
+
+  // ── CHECK FOR APPROVED SUBMISSIONS ──
+  useEffect(() => {
+    async function checkStatus() {
+      if (!user) return;
+      try {
+        const { data, error } = await supabase
+          .from("business_promo_submissions" as any)
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("status", "approved")
+          .order("created_at", { ascending: false })
+          .limit(1);
+        
+        if (!error && data && data.length > 0) {
+          setApprovedSubmission(data[0]);
+        }
+      } catch (err) {
+        console.error("Error checking submission status:", err);
+      }
+    }
+    checkStatus();
+  }, [user]);
+
+  const handleLaunchPayment = (pkg: typeof PACKAGES[0]) => {
+    haptics.tap();
+    window.open(pkg.paypalUrl, '_blank');
+    toast.success("Redirecting to PayPal", { description: `Launching ${pkg.name} package.` });
+  };
 
   // ── Theme-aware style helpers ─────────────────────────────────────────────
   const th = {
@@ -514,15 +544,11 @@ export default function AdvertisePage() {
                     </div>
                   ))}
                 </div>
-                <a
-                  href={pkg.paypalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 w-full py-3 rounded-xl font-black text-sm text-white text-center block"
-                  style={{ background: pkg.color, boxShadow: `0 4px 16px rgba(${pkg.colorRgb},0.35)` }}
-                >
-                  Pay Now — ${pkg.price.toFixed(2)} USD
-                </a>
+                <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-2">
+                  <div className="text-[10px] font-bold text-muted-foreground uppercase text-center italic">
+                    Pay only after review
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -530,11 +556,56 @@ export default function AdvertisePage() {
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); setView("form"); }}
-            className="w-full py-5 rounded-[2rem] font-black text-white mt-8 flex items-center justify-center gap-3"
-            style={{ background: "linear-gradient(135deg,#f97316,#a855f7)", boxShadow: "0 12px 40px rgba(249,115,22,0.35)" }}
+            className="w-full py-5 rounded-[2rem] font-black text-white mt-8 flex items-center justify-center gap-3 relative overflow-hidden group shadow-2xl"
+            style={{ background: "linear-gradient(135deg,#f97316,#a855f7)" }}
           >
-            Get Started Now <ArrowRight className="w-5 h-5" />
+            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+            <span className="relative z-10 flex items-center gap-2">Get Started Now <ArrowRight className="w-5 h-5" /></span>
           </motion.button>
+
+          {approvedSubmission && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-12 p-8 rounded-[3rem] border-2 border-primary/20 bg-primary/5 space-y-6"
+            >
+              <div className="text-center space-y-2">
+                <div className="w-16 h-16 rounded-[1.5rem] bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30 rotate-3">
+                  <CheckCircle2 className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">Approval Rocket! 🚀</h3>
+                <p className="text-sm font-bold text-white/60">Your brand promotion for <span className="text-white">"{approvedSubmission.title}"</span> has been approved! Ready to launch?</p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                {PACKAGES.map(pkg => (
+                  <button
+                    key={pkg.id}
+                    onClick={() => handleLaunchPayment(pkg)}
+                    className="flex items-center justify-between p-5 rounded-2xl bg-white/10 border border-white/10 hover:border-white/20 transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color }}>
+                        {pkg.icon}
+                      </div>
+                      <div className="text-left">
+                        <div className="font-black text-white text-sm uppercase tracking-tight">{pkg.name}</div>
+                        <div className="text-[10px] text-white/40 font-bold uppercase tracking-widest">${pkg.price} USD / {pkg.durationLabel}</div>
+                      </div>
+                    </div>
+                    <ArrowUpRight className="w-5 h-5 text-white/20 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                  </button>
+                ))}
+              </div>
+              
+              <button 
+                onClick={() => setApprovedSubmission(null)}
+                className="w-full text-[10px] font-black uppercase tracking-widest text-white/20 hover:text-white/40 transition-colors"
+              >
+                Create another submission
+              </button>
+            </motion.div>
+          )}
         </div>
       </div>
     );

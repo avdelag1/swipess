@@ -1,11 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const deckFadeVariants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 }
-};
+import { deckFadeVariants } from '@/utils/modernAnimations';
 
 export const SwipeSkeletonState = () => {
   return (

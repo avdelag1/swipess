@@ -13,7 +13,7 @@
  */
 
 import { memo, useCallback, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Share2, RotateCcw, MessageCircle, Flame, ThumbsDown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
@@ -31,7 +31,7 @@ interface SwipeActionButtonBarProps {
 
 // ── SPRING CONFIGS ────────────────────────────────────────────────────────────
 const _TAP_SPRING = { type: 'spring' as const, stiffness: 460, damping: 26, mass: 0.55 } as const;
-const ICON_SPRING = { type: 'spring' as const, stiffness: 520, damping: 28 } as const;
+const _ICON_SPRING = { type: 'spring' as const, stiffness: 520, damping: 28 } as const;
 const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mass: 0.7 } as const;
 
 // ── DIMENSIONS ────────────────────────────────────────────────────────────────
@@ -127,7 +127,7 @@ const ActionButton = memo(({
   index?: number;
 }) => {
   const [isPressed, setIsPressed] = useState(false);
-  const [glowBursts, setGlowBursts] = useState<GlowBurst[]>([]);
+  const [_glowBursts, setGlowBursts] = useState<GlowBurst[]>([]);
 
   const cfg = VARIANTS[variant];
   const btnSizeCss = size === 'large' ? LARGE_CSS : SMALL_CSS;

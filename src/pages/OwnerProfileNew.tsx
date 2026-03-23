@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, User, Camera, Flame, ThumbsUp, Settings, Radio, Megaphone
+  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Radio, Megaphone
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion } from "framer-motion";
@@ -19,11 +19,10 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { cn } from "@/lib/utils";
 
 const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
-const stagger = { visible: { transition: { staggerChildren: 0.06, delayChildren: 0.08 } } };
-// No blur — blur animations trigger expensive GPU re-compositing on every frame
+const stagger = { visible: { transition: { staggerChildren: 0.04 } } };
 const childVariant = {
-  hidden: { opacity: 0, y: 18, scale: 0.96 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: premiumSpring },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: premiumSpring },
 };
 
 const OwnerProfileNew = () => {
@@ -236,7 +235,7 @@ const OwnerProfileNew = () => {
             )}
           >
             <Radio className="w-5 h-5 text-rose-400" />
-            Radio Station
+            Radio
           </button>
 
           {/* Settings */}

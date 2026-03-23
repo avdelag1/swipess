@@ -139,10 +139,11 @@ export default function EventoDetail() {
     queryFn: async () => {
       if (!user) return false;
       const { data } = await supabase
-        .from('event_favorites')
+        .from('likes')
         .select('id')
         .eq('user_id', user.id)
-        .eq('event_id', id!)
+        .eq('target_id', id!)
+        .eq('target_type', 'event')
         .maybeSingle();
       return !!data;
     },
@@ -163,9 +164,9 @@ export default function EventoDetail() {
     mutationFn: async () => {
       if (!user) throw new Error('Sign in required');
       if (isFavorited) {
-        return supabase.from('event_favorites').delete().eq('user_id', user.id).eq('event_id', id!);
+        return supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', id!).eq('target_type', 'event');
       } else {
-        return supabase.from('event_favorites').insert({ user_id: user.id, event_id: id! });
+        return supabase.from('likes').insert({ user_id: user.id, target_id: id!, target_type: 'event' });
       }
     },
     onError: (err, vars, context) => {
@@ -253,17 +254,17 @@ export default function EventoDetail() {
     <div className="min-h-screen bg-slate-50 dark:bg-black pb-48">
       {/* ── HERO GALLERY ── */}
       <div className="relative h-[65dvh] overflow-hidden">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           {imageGallery.length > 0 ? (
             <motion.img
               key={activeImageIndex}
               src={imageGallery[activeImageIndex]}
               alt={event.title}
-              className="w-full h-full object-cover"
-              initial={{ scale: 1.1, opacity: 0 }}
+              className="absolute inset-0 w-full h-full object-cover"
+              initial={{ scale: 1.05, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1.05, opacity: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+              exit={{ scale: 1, opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center">

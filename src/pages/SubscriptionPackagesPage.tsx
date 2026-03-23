@@ -9,6 +9,8 @@ import { STORAGE } from "@/constants/app";
 import { haptics } from "@/utils/microPolish";
 import { cn } from "@/lib/utils";
 
+import { PaymentErrorBoundary } from "@/components/PaymentErrorBoundary";
+
 const clientPremiumPlans = [
   {
     id: 'client-unlimited-1-month',
@@ -104,20 +106,25 @@ export default function SubscriptionPackagesPage() {
   const userRole = activeMode;
 
   const handlePremiumPurchase = (plan: typeof clientPremiumPlans[0]) => {
-    haptics.tap();
-    if (!plan.paypalUrl) {
-      toast.error('Payment link unavailable', { description: 'Please contact support.' });
-      return;
+    try {
+      haptics.tap();
+      if (!plan.paypalUrl) {
+        toast.error('Payment link unavailable', { description: 'Please contact support.' });
+        return;
+      }
+      sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
+      sessionStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify({
+        role: userRole,
+        planId: plan.id,
+        name: plan.name,
+        at: new Date().toISOString()
+      }));
+      window.open(plan.paypalUrl, '_blank');
+      toast.success('Redirecting to PayPal', { description: `Selected: ${plan.name} ($${plan.price} USD)` });
+    } catch (error) {
+      console.error('Payment redirect failed:', error);
+      toast.error('Could not open payment window', { description: 'Please check your browser popup blocker.' });
     }
-    sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
-    sessionStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify({
-      role: userRole,
-      planId: plan.id,
-      name: plan.name,
-      at: new Date().toISOString()
-    }));
-    window.open(plan.paypalUrl, '_blank');
-    toast.success('Redirecting to PayPal', { description: `Selected: ${plan.name} ($${plan.price} USD)` });
   };
 
   if (roleLoading) {
@@ -129,7 +136,8 @@ export default function SubscriptionPackagesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col pb-32 overflow-x-hidden">
+    <PaymentErrorBoundary>
+      <div className="min-h-screen bg-background flex flex-col pb-32 overflow-x-hidden">
       {/* Background Polish */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-accent-2/5 blur-[120px] rounded-full" />
@@ -265,5 +273,6 @@ export default function SubscriptionPackagesPage() {
         </div>
       </div>
     </div>
+    </PaymentErrorBoundary>
   );
 }

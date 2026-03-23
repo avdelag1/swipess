@@ -784,18 +784,10 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 @keyframes stagger-item-enter {
   0% {
     opacity: 0;
-    transform: translateY(20px) scale(0.96) translateZ(0);
-    filter: blur(5px);
-  }
-
-  60% {
-    filter: blur(0);
   }
 
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1) translateZ(0);
-    filter: blur(0);
   }
 }
 

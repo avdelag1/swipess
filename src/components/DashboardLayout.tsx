@@ -42,6 +42,10 @@ const PushNotificationPrompt = lazy(() => import('@/components/PushNotificationP
 const WelcomeNotification = lazy(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })))
 const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })))
 
+// SPEED OF LIGHT COMPONENTS
+import { LoadingBar } from './ui/LoadingBar';
+import { SmartSuspense } from './SmartSuspense';
+
 // Hooks
 import { useListings } from "@/hooks/useListings"
 import { useClientProfiles } from "@/hooks/useClientProfiles"
@@ -109,7 +113,7 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showSubscriptionPackages, setShowSubscriptionPackages] = useState(false)
 
-  const [showPreferences, setShowPreferences] = useState(false)
+  const [_showPreferences, _setShowPreferences] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null)
   const [showPropertyDetails, setShowPropertyDetails] = useState(false)
@@ -160,7 +164,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     };
   }, []);
 
-  const { categories, listingType, clientGender, clientType } = useFilterStore(
+  const { categories, listingType: _listingType, clientGender: _clientGender, clientType: _clientType } = useFilterStore(
     useShallow((state) => ({
       categories: state.categories,
       listingType: state.listingType,
@@ -372,7 +376,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const id = setTimeout(() => {
       const el = document.getElementById('dashboard-scroll-container');
       el?.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-    }, 160);
+    }, 40);
     return () => clearTimeout(id);
   }, [location.pathname]);
 
@@ -383,7 +387,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/client/liked-properties',
     '/messages',
     '/explore/roommates',
-    '/client/filters',
   ];
   const ownerSwipePaths = [
     '/owner/dashboard',
@@ -391,13 +394,30 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/owner/liked-clients',
     '/owner/properties',
     '/messages',
-    '/owner/filters',
   ];
-  const isDashboardSwipePage = ['/client/dashboard', '/owner/dashboard'].includes(location.pathname.replace(/\/$/, ''));
+
+  // IMMERSIVE MODE: Detect swipe dashboard routes for full-bleed card experience
+  // On these routes, TopBar becomes transparent and content extends behind it
+  const isImmersiveDashboard = useMemo(() => {
+    const path = location.pathname;
+    // Core routes that should go full-bleed behind the header
+    // Only the discovery dashboard remains immersive for the 'hero' card effect
+    const immersiveRoutes = [
+      '/client/dashboard',
+      '/owner/dashboard',
+    ];
+
+    const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
+      path.includes('discovery') ||
+      path.includes('view-client');
+    
+    return isMatch;
+  }, [location.pathname]);
+
   useSwipeNavigation({
     paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
     containerSelector: '#dashboard-scroll-container',
-    enabled: userRole !== 'admin' && !isDashboardSwipePage,
+    enabled: userRole !== 'admin' && !isImmersiveDashboard,
   });
 
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
@@ -408,7 +428,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const selectedProfile = selectedProfileId ? profiles.find(p => p.user_id === selectedProfileId) : null;
 
   // FIX: Memoize all handler functions to prevent infinite re-renders
-  const handleLikedPropertySelect = useCallback((listingId: string) => {
+  const _handleLikedPropertySelect = useCallback((listingId: string) => {
     setSelectedListingId(listingId)
     setShowPropertyDetails(true)
   }, [])
@@ -547,7 +567,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // No more local handler needed - store is single source of truth
 
   // Map quick filter category names to database category names
-  const mapCategoryToDatabase = useCallback((category: QuickFilterCategory): string => {
+  const _mapCategoryToDatabase = useCallback((category: QuickFilterCategory): string => {
     const mapping: Record<QuickFilterCategory, string> = {
       'motorcycle': 'motorcycle',
       'property': 'property',
@@ -558,7 +578,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   }, []);
 
   // Get the original UI category (before mapping) for display purposes
-  const activeUiCategory = categories.length === 1 ? categories[0] : null;
+  const _activeUiCategory = categories.length === 1 ? categories[0] : null;
 
   // Check if we're on a discovery page where filters should be shown
   // MUST be declared BEFORE enhancedChildren useMemo that references it
@@ -578,36 +598,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
   const isRoommatesPage = location.pathname.startsWith('/explore/roommates');
-  const isImmersiveFeed = location.pathname.startsWith('/explore/eventos') || isRoommatesPage;
+  const isImmersiveFeed = (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') || isRoommatesPage;
 
-  // IMMERSIVE MODE: Detect swipe dashboard routes for full-bleed card experience
-  // On these routes, TopBar becomes transparent and content extends behind it
-  const isImmersiveDashboard = useMemo(() => {
-    const path = location.pathname;
-    // Core routes that should go full-bleed behind the header
-    const immersiveRoutes = [
-      '/client/dashboard',
-      '/owner/dashboard',
-      '/client/profile',
-      '/owner/profile',
-      '/client/liked-properties',
-      '/owner/liked-clients',
-      '/client/who-liked-you',
-      '/owner/interested-clients',
-      '/client/filters',
-      '/owner/filters',
-      '/owner/properties',
-      '/client/services',
-      '/messages',
-      '/notifications',
-    ];
+  // IMMERSIVE MODE: Handled above for swipe navigation dependency
 
-    const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
-      path.includes('discovery') ||
-      path.includes('view-client');
-    
-    return isMatch;
-  }, [location.pathname]);
 
   // FULLSCREEN MODE: These routes hide the global TopBar and BottomNav entirely
   // and take over the full screen height with 0 padding.
@@ -617,7 +611,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     // HOWEVER, the Detail page for Eventos should be fullscreen to avoid "double access" X/Back issues
     const isEventoDetail = location.pathname.startsWith('/explore/eventos/') && 
                           location.pathname !== '/explore/eventos' && 
-                          location.pathname !== '/explore/eventos/';
+                          location.pathname !== '/explore/eventos/' &&
+                          location.pathname !== '/explore/eventos/likes'; // Likes should have the regular header padding
     
     // User wants header gone from Events to avoid interference
     const isEventsMain = location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/';
@@ -643,13 +638,18 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     ].some(path => location.pathname === path || location.pathname === path + '/');
 
     return isCameraRoute || isRadioRoute || 
-           location.pathname.includes('/client/filters') || 
-           location.pathname.includes('/owner/filters') ||
            isEventoDetail || isEventsMain || isRoommatesPage || isSpecialSubPage;
   }, [isCameraRoute, isRadioRoute, location.pathname, isRoommatesPage]);
 
-  // Round 8: Page titles removed — bottom nav is sufficient indicator
-  const pageTitle = '';
+  // Dynamic page titles
+  const pageTitle = useMemo(() => {
+    if (location.pathname.includes('/client/filters')) return 'Mission Parameters';
+    if (location.pathname.includes('/owner/filters')) return 'Client Search';
+    if (location.pathname.includes('/messages')) return 'Secure Link';
+    if (location.pathname.includes('/notifications')) return 'Comm Center';
+    if (location.pathname.includes('/radio')) return 'Radio';
+    return '';
+  }, [location.pathname]);
 
   // Calculate responsive layout values
   const topBarHeight = responsive.isMobile ? 52 : 56;
@@ -657,6 +657,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className="app-root min-h-screen min-h-dvh overflow-hidden relative" style={{ width: '100%', maxWidth: '100vw' }}>
+
+      {/* Speed of Light Global Loading Bar */}
+      <LoadingBar />
 
       {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and immersive feeds for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
@@ -678,28 +681,23 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       <main
         id="dashboard-scroll-container"
         className={cn(
-          "absolute inset-0 overflow-x-hidden scroll-area-momentum bg-background scrollbar-hide",
-          isFullScreenRoute ? "overflow-y-hidden" : "overflow-y-auto"
+          "absolute inset-0 overflow-x-hidden scroll-area-momentum bg-background scrollbar-hide shadow-none",
+          isFullScreenRoute ? "overflow-y-hidden" : "overflow-y-auto",
+          "w-full max-w-[100vw] box-border z-0 transform-gpu touch-pan-y"
         )}
         style={{
-          paddingTop: (isFullScreenRoute || isDashboardSwipePage)
+          paddingTop: (isFullScreenRoute || isImmersiveDashboard || isImmersiveFeed)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
           paddingBottom: (isFullScreenRoute) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
-          width: '100%',
-          maxWidth: '100vw',
-          boxSizing: 'border-box',
-          zIndex: 0,
-          transform: 'translateZ(0)',
-          WebkitOverflowScrolling: 'touch',
         }}
       >
         {/* PERF FIX: Removed motion.div key={location.pathname} wrapper.
             AnimatedOutlet already handles page transitions with key={location.key}.
             The double wrapper was causing unnecessary unmount/remount cycles. */}
-        <div style={{ minHeight: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div className="min-h-full w-full flex flex-col">
           {enhancedChildren}
         </div>
       </main>
@@ -722,7 +720,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       )}
 
       {/* Advanced Filters Dialog */}
-      <Suspense fallback={null}>
+      <SmartSuspense fallback={null}>
         <AdvancedFilters
           isOpen={showFilters}
           onClose={() => setShowFilters(false)}
@@ -730,29 +728,29 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           userRole={userRole}
           currentFilters={appliedFilters ?? {}}
         />
-      </Suspense>
+      </SmartSuspense>
 
       {/* All Dialogs/Modals */}
-      <Suspense fallback={null}>
+      <SmartSuspense fallback={null}>
         <SubscriptionPackages
           isOpen={showSubscriptionPackages}
           onClose={() => setShowSubscriptionPackages(false)}
           reason={subscriptionReason}
           userRole={userRole}
         />
-      </Suspense>
+      </SmartSuspense>
 
       {/* Token Packages */}
-      <Suspense fallback={null}>
+      <SmartSuspense fallback={null}>
         <MessageActivationPackages
           isOpen={showMessageActivations}
           onClose={() => setShowMessageActivations(false)}
           userRole={userRole}
         />
-      </Suspense>
+      </SmartSuspense>
 
       {userRole === 'client' && (
-        <Suspense fallback={null}>
+        <SmartSuspense fallback={null}>
           <>
             <ClientProfileDialog
               open={showProfile}
@@ -783,11 +781,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
               onOpenChange={setShowSavedSearches}
             />
           </>
-        </Suspense>
+        </SmartSuspense>
       )}
 
       {userRole === 'owner' && (
-        <Suspense fallback={null}>
+        <SmartSuspense fallback={null}>
           <>
             <ClientInsightsDialog
               open={showClientInsights}
@@ -827,20 +825,20 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
               }}
             />
           </>
-        </Suspense>
+        </SmartSuspense>
       )}
 
-      <Suspense fallback={null}>
+      <SmartSuspense fallback={null}>
         <SupportDialog
           isOpen={showSupport}
           onClose={() => setShowSupport(false)}
           userRole={userRole}
         />
-      </Suspense>
+      </SmartSuspense>
 
       {/* REMOVED: NotificationsDialog removed in favor of /notifications page */}
 
-      <Suspense fallback={null}>
+      <SmartSuspense fallback={null}>
         <OnboardingFlow
           open={showOnboarding}
           onComplete={() => {
@@ -853,29 +851,29 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             });
           }}
         />
-      </Suspense>
+      </SmartSuspense>
 
       {/* AI Search Dialog */}
-      <Suspense fallback={null}>
+      <SmartSuspense fallback={null}>
         <AISearchDialog
           isOpen={isAISearchOpen}
           onClose={() => setIsAISearchOpen(false)}
           userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'}
         />
-      </Suspense>
+      </SmartSuspense>
 
       {/* Push Notification Permission Prompt */}
-      <Suspense fallback={null}>
+      <SmartSuspense fallback={null}>
         <PushNotificationPrompt />
-      </Suspense>
+      </SmartSuspense>
 
       {/* Welcome Notification Banner for First-Time Users */}
-      <Suspense fallback={null}>
+      <SmartSuspense fallback={null}>
         <WelcomeNotification
           isOpen={shouldShowWelcome}
           onClose={dismissWelcome}
         />
-      </Suspense>
+      </SmartSuspense>
     </div>
   )
 }

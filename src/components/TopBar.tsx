@@ -67,7 +67,7 @@ interface TopBarProps {
 }
 
 function TopBarComponent({
-  onNotificationsClick,
+  onNotificationsClick: _onNotificationsClick,
   onMessageActivationsClick,
   className,
   showFilters,
@@ -77,7 +77,7 @@ function TopBarComponent({
   title,
   showBack = false,
 }: TopBarProps) {
-  const { unreadCount: notificationCount } = useUnreadNotifications();
+  const { unreadCount } = useUnreadNotifications();
   const { navigate } = useAppNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
   const [cityExpertOpen, setCityExpertOpen] = useState(false);
