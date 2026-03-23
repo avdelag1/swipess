@@ -20,7 +20,7 @@ import { useQueryClient } from '@tanstack/react-query'
 // New Mobile Navigation Components
 import { TopBar } from '@/components/TopBar'
 import { BottomNavigation } from '@/components/BottomNavigation'
-import { AdvancedFilters } from '@/components/AdvancedFilters'
+const AdvancedFilters = lazy(() => import('@/components/AdvancedFilters').then(m => ({ default: m.AdvancedFilters })))
 // Lazy-loaded Dialogs (improves bundle size and initial load)
 const SubscriptionPackages = lazy(() => import("@/components/SubscriptionPackages").then(m => ({ default: m.SubscriptionPackages })))
 const LegalDocumentsDialog = lazy(() => import("@/components/LegalDocumentsDialog").then(m => ({ default: m.LegalDocumentsDialog })))
@@ -729,13 +729,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       )}
 
       {/* Advanced Filters Dialog */}
-      <AdvancedFilters
-        isOpen={showFilters}
-        onClose={() => setShowFilters(false)}
-        onApplyFilters={handleApplyFilters}
-        userRole={userRole}
-        currentFilters={appliedFilters ?? {}}
-      />
+      <Suspense fallback={null}>
+        <AdvancedFilters
+          isOpen={showFilters}
+          onClose={() => setShowFilters(false)}
+          onApplyFilters={handleApplyFilters}
+          userRole={userRole}
+          currentFilters={appliedFilters ?? {}}
+        />
+      </Suspense>
 
       {/* All Dialogs/Modals */}
       <Suspense fallback={null}>
