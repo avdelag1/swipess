@@ -130,6 +130,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   }, []);
 
   const handleCategoryClick = (categoryId: QuickFilterCategory) => {
+    haptics.tap();
     if (categoryId === 'services') {
       setCategories([categoryId]);
       setListingType('both');
@@ -141,6 +142,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   };
 
   const handleCategorySelect = (categoryId: QuickFilterCategory, selectedListingType: QuickFilterListingType) => {
+    haptics.success();
     setCategories([categoryId]);
     setListingType(selectedListingType);
     setIsOpen(false);
@@ -148,10 +150,12 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   };
 
   const handleGenderSelect = (gender: OwnerClientGender) => {
+    haptics.light();
     setClientGender(gender);
   };
 
   const handleClientTypeSelect = (type: OwnerClientType) => {
+    haptics.light();
     setClientType(type);
   };
 
@@ -192,10 +196,14 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
             <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Category</p>
             <div className="grid grid-cols-2 gap-1.5">
               {/* ALL option for owner */}
-              <button
-                onClick={handleClearFilters}
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  haptics.impact('light');
+                  handleClearFilters();
+                }}
                 className={cn(
-                  'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-150 touch-manipulation border',
+                  'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-75 touch-manipulation border',
                   categories.length === 0
                     ? 'bg-slate-700 text-white border-transparent ring-2 ring-slate-500/20'
                     : isDark ? 'bg-white/5 border-border text-foreground hover:bg-white/10' : 'bg-black/[0.03] border-border text-gray-700 hover:bg-black/[0.05]'
@@ -203,16 +211,17 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               >
                 <Search className="w-4 h-4" />
                 <span>All</span>
-              </button>
+              </motion.button>
               
               {categoryOptionBase.map((option) => {
                 const isActive = categories.includes(option.id);
                 return (
-                  <button
+                  <motion.button
                     key={option.id}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleCategoryClick(option.id)}
                     className={cn(
-                      'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-150 touch-manipulation border',
+                      'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-75 touch-manipulation border',
                       isActive
                         ? cn('bg-gradient-to-br text-white border-transparent ring-2 ring-offset-1', option.color,
                             isDark ? 'ring-white/20' : 'ring-black/10')
@@ -221,7 +230,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                   >
                     {option.icon}
                     <span>{option.label}</span>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -234,11 +243,12 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               {genderOptions.map((option) => {
                 const isActive = clientGender === option.id;
                 return (
-                  <button
+                  <motion.button
                     key={option.id}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleGenderSelect(option.id)}
                     className={cn(
-                      'flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-150 touch-manipulation border',
+                      'flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-75 touch-manipulation border',
                       isActive
                         ? cn('bg-gradient-to-br text-white border-transparent ring-2 ring-offset-1', option.color,
                             isDark ? 'ring-white/20' : 'ring-black/10')
@@ -247,7 +257,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                   >
                     {option.icon}
                     <span>{option.label}</span>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -260,11 +270,12 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               {clientTypeOptions.map((option) => {
                 const isActive = clientType === option.id;
                 return (
-                  <button
+                  <motion.button
                     key={option.id}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleClientTypeSelect(option.id)}
                     className={cn(
-                      'flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 touch-manipulation border',
+                      'flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-xl text-xs font-semibold transition-all duration-75 touch-manipulation border',
                       isActive
                         ? cn('bg-gradient-to-br text-white border-transparent ring-2 ring-offset-1', option.color,
                             isDark ? 'ring-white/20' : 'ring-black/10')
@@ -273,7 +284,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                   >
                     {option.icon}
                     <span>{option.label}</span>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -312,10 +323,11 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
             transition={{ delay: 0 }}
             className="relative"
           >
-            <button
-              onClick={() => { handleClearFilters(); }}
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => { haptics.tap(); handleClearFilters(); }}
               className={cn(
-                'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
+                'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-75 touch-manipulation min-h-[52px]',
                 isAllActive
                   ? 'bg-slate-700 text-white'
                   : isDark
@@ -332,7 +344,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 </span>
                 <span className="font-medium text-sm sm:text-base">All</span>
               </div>
-            </button>
+            </motion.button>
           </motion.div>
 
           {categoryOptionBase.map((category, index) => {
@@ -345,10 +357,11 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 transition={{ delay: (index + 1) * 0.05 }}
                 className="relative"
               >
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => handleCategoryClick(category.id)}
                   className={cn(
-                    'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
+                    'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-75 touch-manipulation min-h-[52px]',
                     isActive
                       ? isDark
                         ? 'bg-white/10 text-white border-l-2 border-white/40'
@@ -378,7 +391,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                       clickedCategory === category.id && "rotate-90"
                     )} />
                   )}
-                </button>
+                </motion.button>
 
                 {/* Accordion sub-menu for listing type */}
                 <AnimatePresence>
@@ -387,7 +400,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      transition={{ type: 'spring', stiffness: 600, damping: 30 }}
+                      transition={{ type: 'spring', stiffness: 700, damping: 35 }}
                       className="overflow-hidden"
                     >
                       <div className="pl-12 sm:pl-14 pr-4 pb-2">
@@ -396,12 +409,16 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                             key={ltOption.id}
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: ltIndex * 0.05 }}
-                            onClick={() => handleCategorySelect(category.id, ltOption.id)}
+                            whileTap={{ scale: 0.96 }}
+                            transition={{ delay: ltIndex * 0.04 }}
+                            onClick={() => {
+                              haptics.impact('light');
+                              handleCategorySelect(category.id, ltOption.id);
+                            }}
                             className={cn(
-                              'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
+                              'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-75 touch-manipulation min-h-[44px] mb-1',
                               categories.includes(category.id) && listingType === ltOption.id
-                                ? cn('bg-gradient-to-r', category.color, 'text-white')
+                                ? cn('bg-gradient-to-r', category.color, 'text-white shadow-lg')
                                 : isDark
                                   ? cn('hover:bg-white/10 bg-white/5', category.inactiveColor)
                                   : cn('hover:bg-black/5 bg-black/[0.03]', category.inactiveColor)
@@ -430,7 +447,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         ref={buttonRef}
         whileHover={{ scale: 1.04, y: -1 }}
         whileTap={{ scale: 0.94 }}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => { haptics.tap(); setIsOpen(!isOpen); }}
         className={cn(
           'relative flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 h-10 sm:h-11 rounded-2xl transition-all duration-300 touch-manipulation group overflow-hidden',
           hasActiveFilters && 'shadow-lg shadow-rose-500/20'
@@ -488,7 +505,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              transition={{ type: 'spring', stiffness: 700, damping: 42, mass: 0.4 }}
               className="fixed left-3 top-20 z-[10002] sm:left-1/2 sm:-translate-x-1/2"
             >
               {userRole === 'owner' ? renderOwnerFilters() : renderClientFilters()}
