@@ -52,7 +52,7 @@ function SwipeMatchMeterComponent({ percentage, reasons, compact = false }: Swip
     background: `conic-gradient(${color} ${percentage * 3.6}deg, rgba(255,255,255,0.08) ${percentage * 3.6}deg)`,
   }), [percentage, color]);
 
-  // Don't render for 0% or undefined
+  // Don't render for 0% or undefined (after all hooks)
   if (!percentage || percentage <= 0) return null;
 
   if (compact) {

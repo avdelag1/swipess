@@ -30,7 +30,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { AnimatedLottieIcon } from '@/components/ui/AnimatedLottieIcon';
 
 const ICON_SIZE = 22;
 const ICON_SIZE_COMPACT = 20;
@@ -255,11 +254,13 @@ export function BottomNavigation({
       <div
         className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
-          // LAYER 1: Solid glass base (no blur - massive GPU savings)
-          backgroundColor: isLight ? 'rgba(255,255,255,0.96)' : 'rgba(12,12,14,0.92)',
-          // No hard borders — defined by shadows
-          border: 'none',
-          borderRadius: '24px',
+          // LAYER 1: Solid glass base with Heavy Backdrop Blur
+          backgroundColor: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(12,12,14,0.82)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          // No hard borders — defined by shadows and a subtle rim light
+          border: isLight ? '1px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '28px',
           boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',
@@ -418,28 +419,37 @@ export function BottomNavigation({
                       )}
                     </AnimatePresence>
                     
-                    <AnimatedLottieIcon 
-                      iconId={item.id}
-                      active={active}
-                      size={isNarrow ? ICON_SIZE_COMPACT + 4 : ICON_SIZE + 6}
-                      className="transition-all duration-250 ease-out"
-                      inactiveIcon={
-                        <Icon
-                          className="transition-all duration-250 ease-out"
+                    <div className="relative flex items-center justify-center" style={{ width: ICON_SIZE + 10, height: ICON_SIZE + 10 }}>
+                      <Icon
+                        className="transition-all duration-300 ease-out"
+                        style={{
+                          width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                          height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                          color: (active || item.isSpecial) ? '#f97316' : iconColorInactive,
+                          stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
+                          strokeWidth: (active || item.isSpecial) ? 2.5 : 2.2,
+                          filter: (active || item.isSpecial) && !isLight
+                            ? 'drop-shadow(0 0 10px rgba(249,115,22,0.5))'
+                            : 'none',
+                          zIndex: 2
+                        }}
+                      />
+                      
+                      {/* Suble glow behind active icon */}
+                      {active && (
+                        <motion.div
+                          layoutId={`glow-${item.id}`}
+                          className="absolute inset-0 rounded-full"
                           style={{
-                            width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                            height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                            color: (active || item.isSpecial) ? 'transparent' : iconColorInactive,
-                            stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
-                            fill: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'none',
-                            filter: (active || item.isSpecial) && !isLight
-                              ? 'drop-shadow(0 2px 8px rgba(249,115,22,0.5))'
-                              : 'none',
+                            background: isLight 
+                              ? 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)'
+                              : 'radial-gradient(circle, rgba(236,72,153,0.12) 0%, transparent 70%)',
+                            zIndex: 1
                           }}
-                          strokeWidth={(active || item.isSpecial) ? 3.5 : 2.8}
                         />
-                      }
-                    />
+                      )}
+                    </div>
+
                   </div>
 
                 {/* Label — hidden on very narrow screens (<360px) for icon-only mode */}

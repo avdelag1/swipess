@@ -152,6 +152,10 @@ function CategoryCard({
 
     const [isDragging, setIsDragging] = useState(false);
 
+    // Pre-compute drag feedback opacities unconditionally (Rules of Hooks)
+    const selectOpacity = useTransform(x, [20, 60], [0, 1]);
+    const skipOpacity = useTransform(x, [-20, -60], [0, 1]);
+
     const handleDragStart = () => {
         setIsDragging(true);
         haptics.tap();
