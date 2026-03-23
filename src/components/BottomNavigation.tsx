@@ -348,10 +348,7 @@ export function BottomNavigation({
                 className={cn(
                   'relative flex flex-col items-center justify-center rounded-xl gap-0.5 min-w-0 flex-1',
                   'touch-manipulation focus-visible:outline-none',
-                  'focus-visible:ring-2 focus-visible:ring-offset-1',
-                  isLight
-                    ? 'focus-visible:ring-orange-500/70 focus-visible:ring-offset-white'
-                    : 'focus-visible:ring-orange-400/70 focus-visible:ring-offset-black',
+                  // Removed focus ring to eliminate frame effect around nav buttons
                 )}
                 style={{
                   minWidth: 64,
