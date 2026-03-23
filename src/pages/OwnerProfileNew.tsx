@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, User, Camera, Flame, ThumbsUp, Settings, Radio, Megaphone
+  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Radio, Megaphone
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion } from "framer-motion";

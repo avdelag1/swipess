@@ -20,6 +20,7 @@ import { AppOutagePage } from "@/components/AppOutagePage";
 import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
+import { AnimatedPage } from "@/components/AnimatedPage";
 import Index from "./pages/Index";
 import '@/i18n';
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -262,7 +263,7 @@ const App = () => {
                                           <Index />
                                         </SignupErrorBoundary>
                                       } />
-                                      <Route path="/reset-password" element={<ResetPassword />} />
+                                      <Route path="/reset-password" element={<AnimatedPage><ResetPassword /></AnimatedPage>} />
 
                                       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                                         SPEED OF LIGHT: UNIFIED layout for ALL protected routes
@@ -339,37 +340,37 @@ const App = () => {
  
 
                                       {/* Payment routes - outside layout */}
-                                      <Route path="/payment/success" element={<Suspense fallback={<SuspenseFallback />}><PaymentSuccess /></Suspense>} />
-                                      <Route path="/payment/cancel" element={<Suspense fallback={<SuspenseFallback />}><PaymentCancel /></Suspense>} />
+                                      <Route path="/payment/success" element={<Suspense fallback={<SuspenseFallback />}><AnimatedPage><PaymentSuccess /></AnimatedPage></Suspense>} />
+                                      <Route path="/payment/cancel" element={<Suspense fallback={<SuspenseFallback />}><AnimatedPage><PaymentCancel /></AnimatedPage></Suspense>} />
 
                                       {/* Legal Pages - Public Access */}
-                                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                                      <Route path="/terms-of-service" element={<TermsOfService />} />
-                                      <Route path="/agl" element={<AGLPage />} />
-                                      <Route path="/legal" element={<LegalPage />} />
+                                      <Route path="/privacy-policy" element={<AnimatedPage><PrivacyPolicy /></AnimatedPage>} />
+                                      <Route path="/terms-of-service" element={<AnimatedPage><TermsOfService /></AnimatedPage>} />
+                                      <Route path="/agl" element={<AnimatedPage><AGLPage /></AnimatedPage>} />
+                                      <Route path="/legal" element={<AnimatedPage><LegalPage /></AnimatedPage>} />
 
                                       {/* AI Test — public, no login required */}
-                                      <Route path="/ai-test" element={<AITestPage />} />
+                                      <Route path="/ai-test" element={<AnimatedPage><AITestPage /></AnimatedPage>} />
 
                                       {/* Legacy /dashboard redirect — smartly role-aware */}
                                       <Route path="/dashboard" element={<DashboardRedirect />} />
 
                                       {/* Info Pages - Public Access */}
-                                      <Route path="/about" element={<AboutPage />} />
-                                      <Route path="/faq/client" element={<FAQClientPage />} />
-                                      <Route path="/faq/owner" element={<FAQOwnerPage />} />
+                                      <Route path="/about" element={<AnimatedPage><AboutPage /></AnimatedPage>} />
+                                      <Route path="/faq/client" element={<AnimatedPage><FAQClientPage /></AnimatedPage>} />
+                                      <Route path="/faq/owner" element={<AnimatedPage><FAQOwnerPage /></AnimatedPage>} />
 
                                       {/* Public Preview Pages - Shareable Links */}
-                                      <Route path="/profile/:id" element={<PublicProfilePreview />} />
-                                      <Route path="/listing/:id" element={<PublicListingPreview />} />
+                                      <Route path="/profile/:id" element={<AnimatedPage><PublicProfilePreview /></AnimatedPage>} />
+                                      <Route path="/listing/:id" element={<AnimatedPage><PublicListingPreview /></AnimatedPage>} />
 
                                       {/* Test Pages — dev only */}
                                       {import.meta.env.DEV && (
-                                        <Route path="/test/mock-owners" element={<MockOwnersTestPage />} />
+                                        <Route path="/test/mock-owners" element={<AnimatedPage><MockOwnersTestPage /></AnimatedPage>} />
                                       )}
 
                                       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                                      <Route path="*" element={<NotFound />} />
+                                      <Route path="*" element={<AnimatedPage><NotFound /></AnimatedPage>} />
                                     </Routes>
                                   </Suspense>
                                 </AppLayout>

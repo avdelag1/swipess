@@ -29,16 +29,13 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, Users, MapPin, Bike, Wrench, Navigation } from 'lucide-react';
+import { Users, MapPin, Bike, Wrench, Navigation } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 
@@ -53,8 +50,9 @@ interface DistanceSliderProps {
   detected: boolean;
 }
 
-const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
+const _DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
   const maxKm = 100;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   return (
@@ -828,7 +826,7 @@ const ClientSwipeContainerComponent = ({
   const isDeckFinished = !showLoadingSkeleton && topCard === null && (hasHydratedData || !isLoading);
 
   // showInitialError: Only show if we have NO cards and a hard error occurred during initial load
-  const showInitialError = !hasHydratedData && error && deckQueue.length === 0;
+  const _showInitialError = !hasHydratedData && error && deckQueue.length === 0;
 
   // showEmptyState: Only show if loading is DONE and we still have no cards
   const showEmptyState = !isLoading && deckQueue.length === 0 && !error;

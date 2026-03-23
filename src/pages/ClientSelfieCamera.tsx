@@ -37,7 +37,7 @@ export default function ClientSelfieCamera() {
   }, [navigate, returnPath]);
 
   if (!user) {
-    navigate('/login');
+    navigate('/', { replace: true });
     return null;
   }
 

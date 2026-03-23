@@ -109,7 +109,7 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showSubscriptionPackages, setShowSubscriptionPackages] = useState(false)
 
-  const [showPreferences, setShowPreferences] = useState(false)
+  const [_showPreferences, _setShowPreferences] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null)
   const [showPropertyDetails, setShowPropertyDetails] = useState(false)
@@ -160,7 +160,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     };
   }, []);
 
-  const { categories, listingType, clientGender, clientType } = useFilterStore(
+  const { categories, listingType: _listingType, clientGender: _clientGender, clientType: _clientType } = useFilterStore(
     useShallow((state) => ({
       categories: state.categories,
       listingType: state.listingType,
@@ -408,7 +408,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const selectedProfile = selectedProfileId ? profiles.find(p => p.user_id === selectedProfileId) : null;
 
   // FIX: Memoize all handler functions to prevent infinite re-renders
-  const handleLikedPropertySelect = useCallback((listingId: string) => {
+  const _handleLikedPropertySelect = useCallback((listingId: string) => {
     setSelectedListingId(listingId)
     setShowPropertyDetails(true)
   }, [])
@@ -547,7 +547,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // No more local handler needed - store is single source of truth
 
   // Map quick filter category names to database category names
-  const mapCategoryToDatabase = useCallback((category: QuickFilterCategory): string => {
+  const _mapCategoryToDatabase = useCallback((category: QuickFilterCategory): string => {
     const mapping: Record<QuickFilterCategory, string> = {
       'motorcycle': 'motorcycle',
       'property': 'property',
@@ -558,7 +558,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   }, []);
 
   // Get the original UI category (before mapping) for display purposes
-  const activeUiCategory = categories.length === 1 ? categories[0] : null;
+  const _activeUiCategory = categories.length === 1 ? categories[0] : null;
 
   // Check if we're on a discovery page where filters should be shown
   // MUST be declared BEFORE enhancedChildren useMemo that references it

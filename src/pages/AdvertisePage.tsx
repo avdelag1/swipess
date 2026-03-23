@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowLeft, ArrowRight, Check, Megaphone, Sparkles, Star, Zap, Calendar,
+  ArrowLeft, ArrowRight, Check, Megaphone, Star, Zap,
   Music, Utensils, Dumbbell, Palette, ShoppingBag, Globe, Camera,
   Users, Eye, TrendingUp, Instagram, Phone, Flame, Crown,
   Info, Shield, ClipboardList, MessageCircle

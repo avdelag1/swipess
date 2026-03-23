@@ -1,27 +1,23 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Bell, 
-  MessageSquare, 
-  Flame, 
-  CheckCheck, 
-  Trash2, 
-  Star, 
-  Sparkles, 
-  Eye, 
-  Crown, 
-  MessageCircle,
+import {
+  Bell,
+  MessageSquare,
+  Flame,
+  CheckCheck,
+  Trash2,
+  Star,
+  Sparkles,
+  Eye,
+  Crown,
   X,
-  Heart,
   Zap,
-  UserPlus,
-  CheckCircle2,
-  AlertCircle
+  UserPlus
 } from 'lucide-react';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
@@ -309,7 +305,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
     markNotificationAsRead 
   } = useNotificationSystem();
   
-  const { unreadCount, refetch } = useUnreadNotifications();
+  const { unreadCount, refetch: _refetch } = useUnreadNotifications();
   
   // Mark all as read when popover opens
   useEffect(() => {
@@ -330,9 +326,9 @@ export function NotificationPopover({ className, children }: NotificationPopover
   });
 
   // Count notifications by type
-  const likesCount = notifications.filter(n => n.type === 'like' || n.type === 'super_like').length;
-  const messagesCount = notifications.filter(n => n.type === 'message').length;
-  const matchesCount = notifications.filter(n => n.type === 'match').length;
+  const _likesCount = notifications.filter(n => n.type === 'like' || n.type === 'super_like').length;
+  const _messagesCount = notifications.filter(n => n.type === 'message').length;
+  const _matchesCount = notifications.filter(n => n.type === 'match').length;
 
   const handleNotificationAction = useCallback((notification: any) => {
     // Mark as read if not already
