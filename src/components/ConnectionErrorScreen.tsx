@@ -10,7 +10,7 @@
  */
 
 import { WifiOff, RefreshCw, Loader2, Wifi, Zap } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ConnectionStatus } from '@/hooks/useConnectionHealth';
 import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
@@ -20,8 +20,6 @@ interface ConnectionErrorScreenProps {
   retryCount: number;
   onRetry: () => void;
 }
-
-const PULSE_RINGS = [0, 1, 2];
 
 export function ConnectionErrorScreen({ status, retryCount, onRetry }: ConnectionErrorScreenProps) {
   const isChecking = status === 'checking';
@@ -36,7 +34,7 @@ export function ConnectionErrorScreen({ status, retryCount, onRetry }: Connectio
     ? { icon: Zap, color: '#fbbf24', label: 'Reconnecting…', sub: 'Signal is weak. Attempting to restore full connection.' }
     : { icon: WifiOff, color: '#f87171', label: "Can't Connect", sub: 'Unable to reach the server. Check your connection.' };
 
-  const StatusIcon = statusConfig.icon;
+  const _StatusIcon = statusConfig.icon;
 
   return (
     <div className="min-h-screen min-h-dvh flex flex-col items-center justify-center px-6 text-center bg-background">

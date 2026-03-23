@@ -16,16 +16,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { nuclearReset } from '@/utils/cacheManager';
 import { cn } from '@/lib/utils';
-import { haptics } from '@/utils/microPolish';
 
 // Lazy-load heavy deps that aren't needed for first paint
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
-// Optimized logo with modern format support + fallback
-// Using swipess-logo.png from the provided URL (also supports video logo)
-const swipessLogoAvif = '/icons/swipess-logo.png';
-const swipessLogoWebp = '/icons/swipess-logo.png';
-const swipessLogoVideo = '/icons/swipess-logo-video.mp4';
+// Optimized logo with fallback
 const swipessLogoPng = '/icons/swipess-logo.png';
 
 function LogoImage({ className }: { className?: string }) {
@@ -165,7 +160,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [_showResendConfirmation, setShowResendConfirmation] = useState(false);
   const [showErrorDetails, setShowErrorDetails] = useState(false);
   const [errorDetails, setErrorDetails] = useState<{ message: string; fullError: string } | null>(null);
-  const [role, setRole] = useState<'client' | 'owner'>('client');
+  const [_role, _setRole] = useState<'client' | 'owner'>('client');
 
   const { signIn, signUp, signInWithOAuth: _signInWithOAuth } = useAuth();
   const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);

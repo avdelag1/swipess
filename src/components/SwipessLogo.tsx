@@ -1,8 +1,7 @@
 import { memo } from 'react';
 import { cn } from '@/lib/utils';
 
-// Both PNG and video logo support
-const flameSLogo = '/icons/swipess-logo.png';
+// Video logo support
 const swipessLogoVideo = '/icons/swipess-logo-video.mp4';
 
 interface SwipessLogoProps {
