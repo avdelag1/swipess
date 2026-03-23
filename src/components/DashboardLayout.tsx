@@ -393,7 +393,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/messages',
     '/owner/filters',
   ];
-  const isDashboardSwipePage = location.pathname === '/client/dashboard' || location.pathname === '/owner/dashboard';
+  const isDashboardSwipePage = ['/client/dashboard', '/owner/dashboard'].includes(location.pathname.replace(/\/$/, ''));
   useSwipeNavigation({
     paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
     containerSelector: '#dashboard-scroll-container',
