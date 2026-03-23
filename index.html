@@ -136,6 +136,25 @@
       } catch (e) { }
     })();
   </script>
+  <!-- Speculation Rules API — Instant Pre-rendering for 2026 browsers -->
+  <script type="speculationrules">
+  {
+    "prerender": [
+      {
+        "where": {
+          "and": [
+            { "href_matches": "/client/dashboard/*" },
+            { "href_matches": "/owner/dashboard/*" },
+            { "href_matches": "/radio/*" },
+            { "href_matches": "/notifications/*" },
+            { "href_matches": "/events/*" }
+          ]
+        },
+        "eagerness": "moderate"
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body>

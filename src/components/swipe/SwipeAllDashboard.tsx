@@ -2,8 +2,9 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { 
-  POKER_CARDS, PK_W, PK_H, FOLDER_OFFSET_X, FOLDER_OFFSET_Y, deckFadeVariants 
+  POKER_CARDS, PK_W, PK_H, FOLDER_OFFSET_X, FOLDER_OFFSET_Y 
 } from './SwipeConstants';
+import { deckFadeVariants } from '@/utils/modernAnimations';
 import { PokerCategoryCard } from './PokerCategoryCard';
 
 export interface SwipeAllDashboardProps {

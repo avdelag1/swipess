@@ -81,9 +81,3 @@ export const FOLDER_OFFSET_Y = 0;
 export const PK_DIST_THRESHOLD = 110;
 export const PK_VEL_THRESHOLD  = 480;
 export const PK_SPRING = { type: 'spring' as const, stiffness: 520, damping: 34, mass: 0.9 };
-
-export const deckFadeVariants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1, transition: { duration: 0.15, ease: 'easeOut' as const } },
-  exit:    { opacity: 0, transition: { duration: 0.1, ease: 'easeIn' as const } },
-};

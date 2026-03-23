@@ -11,9 +11,9 @@ import { DistanceSlider } from './swipe/DistanceSlider';
 import { 
   categoryConfig, 
   getActiveCategoryInfo, 
-  POKER_CARDS,
-  deckFadeVariants 
+  POKER_CARDS
 } from './swipe/SwipeConstants';
+import { deckFadeVariants } from '@/utils/modernAnimations';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
