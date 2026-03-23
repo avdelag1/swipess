@@ -2,43 +2,31 @@ import { useLocation, useOutlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * UNIFIED PAGE TRANSITIONS
+ * TINDER-SPEED PAGE TRANSITIONS
  *
- * Matches the premium landing↔auth transition style across the entire app:
- * - Smooth vertical slide + fade (not horizontal spring)
- * - Subtle scale for depth
- * - Fast, elegant easing curves
- * - Optimized will-change for 60fps performance
+ * Key changes for native-app feel:
+ * - Crossfade (no "wait" mode) — new page fades in WHILE old fades out
+ * - Opacity-only for speed — no scale/translate which cause layout recalc
+ * - Ultra-short durations — 120ms enter, 80ms exit
+ * - GPU-only properties (opacity is composited, zero layout cost)
  */
 
-// Easing curves matching the landing/auth transition
-const enterEase = [0.25, 0.46, 0.45, 0.94] as const;
-const exitEase = [0.4, 0, 1, 1] as const;
-
 const pageTransition = {
-  initial: { opacity: 0, y: 20, scale: 0.98 },
+  initial: { opacity: 0 },
   animate: {
     opacity: 1,
-    y: 0,
-    scale: 1,
     transition: {
-      duration: 0.28,
-      ease: enterEase,
+      duration: 0.12,
+      ease: [0.25, 0.1, 0.25, 1], // CSS ease equivalent — fast start, smooth end
     }
   },
   exit: {
     opacity: 0,
-    y: -12,
-    scale: 0.97,
     transition: {
-      duration: 0.16,
-      ease: exitEase,
+      duration: 0.08,
+      ease: [0.4, 0, 1, 1],
     }
   },
-  style: {
-    willChange: 'transform, opacity',
-    backfaceVisibility: 'hidden' as const
-  }
 };
 
 export function AnimatedOutlet() {
@@ -46,11 +34,12 @@ export function AnimatedOutlet() {
     const outlet = useOutlet();
 
     return (
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
                 key={location.pathname}
                 {...pageTransition}
                 className="h-full w-full flex flex-col flex-1"
+                style={{ willChange: 'opacity' }}
             >
                 {outlet}
             </motion.div>
