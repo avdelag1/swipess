@@ -4,8 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ChevronLeft, Sparkles, Zap, Calendar, MapPin, 
-  Image as ImageIcon, Send, CheckCircle2, Upload, Star, 
+  ChevronLeft, Sparkles, Zap, Calendar, MapPin,
+  Image as ImageIcon, Send, CheckCircle2, Upload, Star,
   Users, TrendingUp, Eye, FileText, Phone,
   Rocket, Crown, ShieldCheck,
   Clock, DollarSign, Tag, X, MessageCircle, ArrowUpRight

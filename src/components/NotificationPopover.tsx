@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
+import {
   Bell,
   MessageSquare,
   Flame,
@@ -17,7 +17,7 @@ import {
   Crown,
   X,
   Zap,
-  UserPlus,
+  UserPlus
 } from 'lucide-react';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';

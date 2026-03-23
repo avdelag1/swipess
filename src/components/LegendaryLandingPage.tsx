@@ -4,8 +4,9 @@ import {
 } from 'framer-motion';
 import {
   Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check
+  ArrowLeft, Loader, Check, Gamepad2
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -19,7 +20,11 @@ import { cn } from '@/lib/utils';
 // Lazy-load heavy deps that aren't needed for first paint
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
-// Optimized logo with fallback
+// Optimized logo with modern format support + fallback
+// Using swipess-logo.png from the provided URL (also supports video logo)
+const _swipessLogoAvif = '/icons/swipess-logo.png';
+const _swipessLogoWebp = '/icons/swipess-logo.png';
+const _swipessLogoVideo = '/icons/swipess-logo-video.mp4';
 const swipessLogoPng = '/icons/swipess-logo.png';
 
 function LogoImage({ className }: { className?: string }) {
@@ -60,6 +65,7 @@ const LandingView = memo(({
 }: {
   onEnterAuth: () => void;
 }) => {
+  const navigate = useNavigate();
   const x = useMotionValue(0);
   const logoOpacity = useTransform(x, [0, 100, 220], [1, 0.6, 0]);
   const logoScale = useTransform(x, [0, 120, 220], [1, 0.96, 0.86]);
@@ -117,6 +123,20 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
+      {/* Game button — bottom-left corner */}
+      <button
+        onClick={(e) => { e.stopPropagation(); navigate('/game/trumps-bad-day'); }}
+        data-testid="button-game"
+        className="absolute bottom-6 left-6 w-11 h-11 flex items-center justify-center rounded-full transition-all active:scale-90"
+        style={{
+          background: 'rgba(255,255,255,0.07)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(10px)',
+        }}
+        title="Mini Game"
+      >
+        <Gamepad2 className="w-5 h-5 text-white/50" />
+      </button>
 
     </motion.div>
   );
@@ -357,7 +377,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                     <div className="w-4 h-4 rounded border-2 border-border bg-muted peer-checked:bg-orange-500 peer-checked:border-transparent flex items-center justify-center">
                        {agreeToTerms && <Check className="w-2.5 h-2.5 text-white" />}
                     </div>
-                     <span className="text-xs text-muted-foreground">I agree to the <a href="/terms-of-service" className="text-orange-400">Terms</a></span>
+                     <span className="text-xs text-muted-foreground">I agree to the <a href="/terms" className="text-orange-400">Terms</a></span>
                   </label>
                 </motion.div>
               )}

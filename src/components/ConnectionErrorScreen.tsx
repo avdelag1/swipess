@@ -21,6 +21,8 @@ interface ConnectionErrorScreenProps {
   onRetry: () => void;
 }
 
+const _PULSE_RINGS = [0, 1, 2];
+
 export function ConnectionErrorScreen({ status, retryCount, onRetry }: ConnectionErrorScreenProps) {
   const isChecking = status === 'checking';
   const isDegraded = status === 'degraded';
