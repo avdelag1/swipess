@@ -255,11 +255,13 @@ export function BottomNavigation({
       <div
         className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
-          // LAYER 1: Solid glass base (no blur - massive GPU savings)
-          backgroundColor: isLight ? 'rgba(255,255,255,0.96)' : 'rgba(12,12,14,0.92)',
-          // No hard borders — defined by shadows
-          border: 'none',
-          borderRadius: '24px',
+          // LAYER 1: Solid glass base with Heavy Backdrop Blur
+          backgroundColor: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(12,12,14,0.82)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          // No hard borders — defined by shadows and a subtle rim light
+          border: isLight ? '1px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '28px',
           boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',
@@ -421,22 +423,21 @@ export function BottomNavigation({
                     <AnimatedLottieIcon 
                       iconId={item.id}
                       active={active}
-                      size={isNarrow ? ICON_SIZE_COMPACT + 4 : ICON_SIZE + 6}
-                      className="transition-all duration-250 ease-out"
+                      size={isNarrow ? ICON_SIZE_COMPACT + 6 : ICON_SIZE + 10}
+                      className="transition-all duration-300 ease-out -mb-1"
                       inactiveIcon={
                         <Icon
-                          className="transition-all duration-250 ease-out"
+                          className="transition-all duration-300 ease-out"
                           style={{
                             width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
                             height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                            color: (active || item.isSpecial) ? 'transparent' : iconColorInactive,
-                            stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
-                            fill: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'none',
-                            filter: (active || item.isSpecial) && !isLight
-                              ? 'drop-shadow(0 2px 8px rgba(249,115,22,0.5))'
+                            color: item.isSpecial ? activeColor : iconColorInactive,
+                            stroke: item.isSpecial ? 'url(#nav-active-gradient)' : 'currentColor',
+                            strokeWidth: item.isSpecial ? 3.5 : 2.5,
+                            filter: item.isSpecial && !isLight
+                              ? 'drop-shadow(0 2px 8px rgba(249,115,22,0.4))'
                               : 'none',
                           }}
-                          strokeWidth={(active || item.isSpecial) ? 3.5 : 2.8}
                         />
                       }
                     />
