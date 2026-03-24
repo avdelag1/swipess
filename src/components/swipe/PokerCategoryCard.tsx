@@ -1,10 +1,10 @@
 import { memo, useCallback, useRef } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
-import { 
-  PK_W, PK_H, FOLDER_OFFSET_X, FOLDER_OFFSET_Y, 
+import {
+  PK_W, PK_H, FOLDER_OFFSET_X, FOLDER_OFFSET_Y,
   PK_DIST_THRESHOLD, PK_VEL_THRESHOLD, PK_SPRING,
-  POKER_CARD_PHOTOS, POKER_CARDS
+  POKER_CARD_PHOTOS, POKER_CARDS, POKER_FAN_ROTATION
 } from './SwipeConstants';
 import { cn } from '@/lib/utils';
 
@@ -89,8 +89,9 @@ export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBring
       animate={{
         x: isTop ? 0 : folderX,
         y: isTop ? 0 : folderY,
-        scale:   isTop ? 1 : 1 - index * 0.015,
+        scale:   isTop ? 1 : 1 - index * 0.012,
         opacity: index > 4 ? 0 : 1,
+        rotate:  isTop ? 0 : index * POKER_FAN_ROTATION,
       }}
       transition={PK_SPRING}
       style={{
@@ -102,7 +103,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBring
         zIndex: 50 - index,
         x: isTop ? x : folderX,
         y: isTop ? y : folderY,
-        rotate: isTop ? dragTilt : 0,
+        rotate: isTop ? dragTilt : index * POKER_FAN_ROTATION,
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
       } as any}

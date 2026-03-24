@@ -373,9 +373,9 @@ export function BottomNavigation({
                     layoutId="nav-pill-background"
                     className="absolute inset-x-1.5 inset-y-1.5 rounded-2xl z-0"
                     style={{
-                      backgroundColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)',
+                      backgroundColor: isLight ? 'rgba(249,115,22,0.12)' : 'rgba(255,255,255,0.10)',
                       backdropFilter: 'blur(8px)',
-                      border: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.1)',
+                      border: isLight ? '1px solid rgba(249,115,22,0.2)' : '1px solid rgba(255,255,255,0.12)',
                     }}
                     transition={{ type: 'spring', stiffness: 500, damping: 38, mass: 0.8 }}
                   />
@@ -412,31 +412,39 @@ export function BottomNavigation({
                       )}
                     </AnimatePresence>
                     
-                    <AnimatedLottieIcon 
-                      iconId={item.id}
-                      active={active}
-                      size={isNarrow ? ICON_SIZE_COMPACT + 6 : ICON_SIZE + 8}
-                      className="transition-all duration-300 ease-out"
-                      inactiveIcon={
-                        <div style={{
-                          width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                          height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}>
-                          <Icon
-                            className="transition-all duration-300 ease-out"
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              color: isLight ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)',
-                              strokeWidth: 2,
-                            }}
-                          />
-                        </div>
-                      }
-                    />
+                    {/* On light theme the Lottie animations (which use white/bright colors) need a
+                        color filter so they remain visible on the near-white nav bar. */}
+                    <div style={{
+                      filter: active && isLight
+                        ? 'brightness(0) saturate(100%) invert(52%) sepia(90%) saturate(500%) hue-rotate(356deg) brightness(90%)'
+                        : 'none',
+                    }}>
+                      <AnimatedLottieIcon
+                        iconId={item.id}
+                        active={active}
+                        size={isNarrow ? ICON_SIZE_COMPACT + 6 : ICON_SIZE + 8}
+                        className="transition-all duration-300 ease-out"
+                        inactiveIcon={
+                          <div style={{
+                            width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                            height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}>
+                            <Icon
+                              className="transition-all duration-300 ease-out"
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                color: isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.5)',
+                                strokeWidth: 2,
+                              }}
+                            />
+                          </div>
+                        }
+                      />
+                    </div>
                   </div>
 
                 {/* Label */}
@@ -446,9 +454,9 @@ export function BottomNavigation({
                       'text-[10px] tracking-wide transition-all duration-300 relative font-black uppercase italic',
                     )}
                     style={{
-                      color: active 
-                        ? (isLight ? 'var(--color-brand-primary)' : '#ffffff') 
-                        : (isLight ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)'),
+                      color: active
+                        ? (isLight ? 'var(--color-brand-primary)' : '#ffffff')
+                        : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.5)'),
                       opacity: 1,
                       zIndex: 1,
                       textShadow: active ? '0 0 15px rgba(249,115,22,0.4)' : 'none',
