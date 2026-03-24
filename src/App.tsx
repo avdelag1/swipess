@@ -28,6 +28,9 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 // Automatic update system
 import { useForceUpdateOnVersionChange, UpdateNotification } from "@/hooks/useAutomaticUpdates";
 
+// PWA install prompt (shown after 45s for eligible users/devices)
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+
 // Profile auto-sync system - keeps profile data fresh for all users
 import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProfileAutoSync";
 
@@ -250,6 +253,9 @@ const App = () => {
 
                                 {/* Update notification banner */}
                                 <UpdateNotification />
+
+                                {/* PWA install prompt — shown after 45s, respects dismissal */}
+                                <PWAInstallPrompt />
 
                                 <AppLayout>
                                   <TooltipProvider>
