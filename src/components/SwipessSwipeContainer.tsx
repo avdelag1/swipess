@@ -139,12 +139,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // PERF: Use selective subscriptions to prevent re-renders on unrelated store changes
   // Only subscribe to actions (stable references) - NOT to clientDeck object
   // This is the key fix for "double render" feeling when navigating back to dashboard
-  const { setClientDeck, markClientSwiped, resetClientDeck, isClientHydrated, isClientReady, markClientReady } = useSwipeDeckStore(
+  const { setClientDeck, markClientSwiped, resetClientDeck, isClientReady, markClientReady } = useSwipeDeckStore(
     useShallow((state) => ({
       setClientDeck: state.setClientDeck,
       markClientSwiped: state.markClientSwiped,
       resetClientDeck: state.resetClientDeck,
-      isClientHydrated: state.isClientHydrated,
       isClientReady: state.isClientReady,
       markClientReady: state.markClientReady,
     }))
@@ -162,8 +161,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // Without this, appending to deckQueueRef doesn't trigger re-render and empty state persists
   const [_deckLength, setDeckLength] = useState(0);
 
-  // Prevents skeleton flash when filters change — holds back skeleton for one render frame
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  // (isTransitioning removed — it caused a 1-frame blank flash worse than the skeleton)
 
   // =============================================================================
   // FIX #1: SWIPE PHASE ISOLATION - DOM moves first, React cleans up after
@@ -398,9 +396,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     // Reset the filter changed flag
     filterChangedRef.current = false;
 
-    // Signal transition start — suppresses skeleton for one frame to avoid flash
-    setIsTransitioning(true);
-
     // Clear deck for fresh results with new filters
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
@@ -417,8 +412,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     setCurrentIndex(0);
     setDeckLength(0);
 
-    // Clear flag after one frame so skeleton can appear with a fade instead of a flash
-    requestAnimationFrame(() => setIsTransitioning(false));
   }, [filterSignature, resetClientDeck]);
 
   // Get listings with filters - PERF: pass userId to avoid getUser() inside queryFn
@@ -972,18 +965,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
   const _progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
 
-  // Check if we have hydrated data (from store/session) - prevents blank deck flash
-  // isReady means we've fully initialized at least once - skip loading UI on return
-  // CRITICAL FIX: When filters change, deck is reset, so check if we're actually loading new data
-  const hasHydratedData = (isClientHydrated() || isClientReady() || deckQueue.length > 0) && !isLoading;
-
   // ── "ALL" DASHBOARD: Shown when no category filter is selected ──────────────
   if (storeCategories.length === 0) {
     return <SwipeAllDashboard setCategories={setCategories} />;
   }
 
-  // STABLE LOADING SHELL: Only show full skeleton if NOT hydrated AND loading
-  if (!hasHydratedData && isLoading && !isTransitioning) {
+  // Show skeleton whenever deck is empty and a fetch is in progress.
+  // This covers both first load and filter changes cleanly — no blank flash.
+  if (deckQueue.length === 0 && isLoading) {
     return <SwipeLoadingSkeleton />;
   }
 
