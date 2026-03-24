@@ -26,7 +26,7 @@ import { NotificationPopover } from './NotificationPopover';
 
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { SwipessLogo } from './SwipessLogo';
-import { CityExpertChat } from './CityExpertChat';
+
 
 // Tier styling for package cards
 const tierConfig = {
