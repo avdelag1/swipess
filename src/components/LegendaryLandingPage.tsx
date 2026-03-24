@@ -148,10 +148,11 @@ const LandingView = memo(({
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none"
+        data-no-bg-sound="true"
       >
         <div className="relative">
           <LogoImage
-            className="w-[85vw] max-w-[480px] sm:max-w-[580px] md:max-w-[680px] aspect-video border border-white/5 mx-auto"
+            className="w-[85vw] max-w-[480px] sm:max-w-[580px] md:max-w-[680px] aspect-video mx-auto"
           />
           <motion.div
             className="absolute inset-0 pointer-events-none"
@@ -178,22 +179,28 @@ const LandingView = memo(({
           }
         }}
         data-testid="button-star-filter"
-        className="absolute bottom-6 left-6 w-11 h-11 flex items-center justify-center rounded-full transition-all active:scale-90"
+        className="absolute bottom-6 left-4 flex items-center gap-2 px-3 py-2 rounded-full transition-all active:scale-90"
         style={{
           background: bgMode === 'stars'
-            ? 'rgba(250,204,21,0.15)'
-            : 'rgba(255,255,255,0.07)',
+            ? 'rgba(250,204,21,0.18)'
+            : 'rgba(255,255,255,0.09)',
           border: bgMode === 'stars'
-            ? '1px solid rgba(250,204,21,0.35)'
-            : '1px solid rgba(255,255,255,0.12)',
-          backdropFilter: 'blur(10px)',
+            ? '1px solid rgba(250,204,21,0.45)'
+            : '1px solid rgba(255,255,255,0.18)',
+          backdropFilter: 'blur(12px)',
         }}
         title={bgMode === 'stars' ? "Play Trump's Game" : 'Star Filter'}
       >
         {bgMode === 'stars' ? (
-          <Gamepad2 className="w-5 h-5 text-yellow-300" />
+          <>
+            <Gamepad2 className="w-4 h-4 text-yellow-300 shrink-0" />
+            <span className="text-yellow-200 text-xs font-semibold whitespace-nowrap">Play Game</span>
+          </>
         ) : (
-          <Star className="w-5 h-5 text-white/50" />
+          <>
+            <Star className="w-4 h-4 text-white/60 shrink-0" />
+            <span className="text-white/60 text-xs font-semibold whitespace-nowrap">Stars</span>
+          </>
         )}
       </button>
 
@@ -323,10 +330,24 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       <div className="h-full flex flex-col justify-center p-4 sm:p-5 relative z-10">
         <motion.div className="w-full max-w-sm mx-auto" variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand">
-                 Welcome
+            <div className="text-center mb-6">
+              <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand mb-1">
+                {isLogin ? 'Welcome Back' : 'Join Swipess'}
               </h1>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {isLogin
+                  ? 'Your perfect property match is waiting.'
+                  : 'Swipe, match & find your dream property.'}
+              </p>
+              {!isLogin && (
+                <div className="flex justify-center gap-3 mt-3">
+                  {['🏠 Real Estate', '✨ Smart Match', '🔒 Secure'].map((feat) => (
+                    <span key={feat} className="text-[10px] text-orange-300/80 font-medium bg-orange-500/10 border border-orange-500/20 rounded-full px-2 py-0.5">
+                      {feat}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -369,11 +390,23 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               </motion.div>
             </form>
 
-            <motion.div variants={itemVariants} className="text-center mt-4">
+            <motion.div variants={itemVariants} className="mt-4 space-y-2 text-center">
+              {isLogin && !isForgotPassword && (
+                <p className="text-xs text-muted-foreground">
+                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-orange-400/80 hover:text-orange-400">
+                    Forgot password?
+                  </button>
+                </p>
+              )}
               <p className="text-xs text-muted-foreground">
-                {isLogin ? "Don't have an account? " : 'Have an account? '}
-                <button type="button" onClick={switchMode} className="text-orange-400 font-semibold">{isLogin ? 'Sign Up' : 'Sign In'}</button>
+                {isLogin ? "New here? " : 'Already have an account? '}
+                <button type="button" onClick={switchMode} className="text-orange-400 font-semibold">{isLogin ? 'Create a free account' : 'Sign In'}</button>
               </p>
+              {!isLogin && (
+                <p className="text-[10px] text-muted-foreground/60 mt-1">
+                  Join thousands finding their perfect property match
+                </p>
+              )}
             </motion.div>
           </motion.div>
         </motion.div>

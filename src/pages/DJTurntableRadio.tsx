@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
@@ -11,6 +11,77 @@ import {
   ArrowLeft, ListMusic, Heart, Shuffle,
   SkipBack, SkipForward, Play, Pause
 } from 'lucide-react';
+
+// ── Inline stars canvas ──────────────────────────────────────────────────────
+function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animRef = useRef<number>(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    interface Star { x: number; y: number; size: number; opacity: number; speed: number; phase: number; glow: boolean; }
+    const count = Math.min(Math.floor((w * h) / 900), 500);
+    const stars: Star[] = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      size: Math.random() * 1.4 + 0.4,
+      opacity: Math.random() * 0.5 + 0.4,
+      speed: Math.random() * 0.03 + 0.006,
+      phase: Math.random() * Math.PI * 2,
+      glow: Math.random() > 0.82,
+    }));
+
+    let t = 0;
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      t += 0.4;
+      for (const s of stars) {
+        const twinkle = Math.sin(t * s.speed + s.phase) * 0.5 + 0.5;
+        const alpha = Math.min(s.opacity * (twinkle * 0.35 + 0.65), 1);
+        if (alpha < 0.02) continue;
+        if (s.glow) { ctx.shadowBlur = s.size > 1.1 ? 5 : 2; ctx.shadowColor = 'rgba(255,255,255,0.85)'; }
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.fill();
+        if (s.glow) { ctx.shadowBlur = 0; ctx.shadowColor = 'transparent'; }
+      }
+      animRef.current = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 pointer-events-none z-0"
+      style={{ opacity: 0.65 }}
+    />
+  );
+}
 
 /**
  * DJTurntableRadio — Professional DJ turntable radio skin.
@@ -65,6 +136,9 @@ export default function DJTurntableRadio() {
         "bg-[radial-gradient(ellipse_at_50%_30%,#1a1a1a_0%,#0a0a0a_60%,#050505_100%)]"
       )}
     >
+      {/* Stars background */}
+      <RadioStarsCanvas accentColor={primaryColor} />
+
       {/* Floating top bar */}
       <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 pt-[env(safe-area-inset-top,12px)] pb-2 uppercase tracking-[0.2em]">
         <motion.button
