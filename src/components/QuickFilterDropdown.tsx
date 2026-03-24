@@ -6,6 +6,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useTheme } from '@/hooks/useTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+import { haptics } from '@/utils/microPolish';
 import type { QuickFilterCategory, ClientGender, ClientType } from '@/types/filters';
 
 // Re-export unified types
@@ -150,12 +151,12 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   };
 
   const handleGenderSelect = (gender: OwnerClientGender) => {
-    haptics.light();
+    haptics.tap();
     setClientGender(gender);
   };
 
   const handleClientTypeSelect = (type: OwnerClientType) => {
-    haptics.light();
+    haptics.tap();
     setClientType(type);
   };
 
@@ -199,7 +200,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
-                  haptics.impact('light');
+                  haptics.tap();
                   handleClearFilters();
                 }}
                 className={cn(
@@ -447,7 +448,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         whileTap={{ scale: 0.94 }}
         onClick={() => { haptics.tap(); setIsOpen(!isOpen); }}
         className={cn(
-          'relative flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 h-10 sm:h-11 rounded-2xl transition-all duration-300 touch-manipulation group overflow-hidden',
+          'relative flex items-center gap-1.5 sm:gap-2 px-5 sm:px-6 h-11 sm:h-12 rounded-2xl transition-all duration-300 touch-manipulation group overflow-hidden text-sm',
           hasActiveFilters && 'shadow-lg shadow-rose-500/20'
         )}
         style={{

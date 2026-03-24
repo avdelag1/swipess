@@ -152,9 +152,7 @@ function CategoryCard({
 
     const [isDragging, setIsDragging] = useState(false);
 
-    // Pre-compute drag feedback opacities unconditionally (Rules of Hooks)
-    const selectOpacity = useTransform(x, [20, 60], [0, 1]);
-    const skipOpacity = useTransform(x, [-20, -60], [0, 1]);
+    // selectOpacity/skipOpacity already declared above — reuse them
 
     const handleDragStart = () => {
         setIsDragging(true);

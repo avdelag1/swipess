@@ -98,7 +98,7 @@ interface NotificationItemProps {
 
 function NotificationItem({ notification, onClick, onDismiss, index }: NotificationItemProps) {
   const role = getNotificationRole(notification);
-  const config = typeConfigs[notification.type] || typeConfigs.like;
+  const config = typeConfigs[notification.type as keyof typeof typeConfigs] || typeConfigs.like;
   const Icon = config.icon;
   const [isHovered, setIsHovered] = useState(false);
   const [isSwiping, setIsSwiping] = useState(false);
@@ -213,7 +213,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                   )}
                   onClick={(e) => {
                     e.stopPropagation();
-                    haptics.light();
+                    haptics.tap();
                     onDismiss();
                   }}
                 >
@@ -305,7 +305,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
     markNotificationAsRead 
   } = useNotificationSystem();
   
-  const { unreadCount, refetch: _refetch } = useUnreadNotifications();
+  const { unreadCount } = useUnreadNotifications();
   
   // Mark all as read when popover opens
   useEffect(() => {
@@ -344,7 +344,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
   }, [handleNotificationClick, markNotificationAsRead]);
 
   const handleDismiss = useCallback((id: string) => {
-    haptics.light();
+    haptics.tap();
     dismissNotification(id);
   }, [dismissNotification]);
 
