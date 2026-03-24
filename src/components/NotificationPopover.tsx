@@ -213,7 +213,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                   )}
                   onClick={(e) => {
                     e.stopPropagation();
-                    haptics.light();
+                    haptics.tap();
                     onDismiss();
                   }}
                 >
