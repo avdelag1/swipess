@@ -424,37 +424,10 @@ function TopBarComponent({
             {/* Theme Toggle */}
             <ThemeToggle />
 
-            {/* City Expert AI Button */}
-            <Button
-              variant="ghost"
-              className={cn(
-                "relative h-10 w-10 px-0 rounded-xl transition-all duration-200 ease-out",
-                "hover:scale-105 active:scale-95 group bg-card",
-                "touch-manipulation flex items-center gap-1 flex-shrink-0",
-              )}
-              style={{
-                boxShadow: cinematicShadow,
-                border: 'none',
-              }}
-              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setCityExpertOpen(true); }}
-              onClick={(e) => e.preventDefault()}
-              aria-label="City Expert AI Assistant"
-            >
-              <Sparkles strokeWidth={3} className={cn("h-4 w-4", isLight ? "text-cyan-600" : "text-cyan-400")} />
-            </Button>
-
             {/* Notifications Button */}
             <NotificationPopover />
           </div>
         </div>
-
-        {/* City Expert AI Chat Dialog */}
-        <CityExpertChat 
-          open={cityExpertOpen} 
-          onOpenChange={setCityExpertOpen}
-          initialCity="Cancun"
-          userRole={userRole === 'admin' ? 'client' : userRole}
-        />
       </header>
     </>
   );
