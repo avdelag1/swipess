@@ -144,29 +144,29 @@ export const SwipeExhaustedState = ({
             </div>
           </div>
 
-          <div className="space-y-2.5">
-            <h3 className="text-lg font-black text-foreground tracking-tight">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
+          <div className="space-y-4">
+            <h3 className="text-xl font-black text-foreground tracking-tight leading-none">{title}</h3>
+            <p className="text-muted-foreground text-sm max-w-[280px] mx-auto leading-relaxed font-medium">
               {description}
             </p>
           </div>
           
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               onClick={onRefresh}
               disabled={isRefreshing}
-              className="gap-2.5 rounded-full px-8 py-5 bg-primary text-white hover:bg-primary/90 shadow-lg font-black uppercase tracking-widest text-xs"
+              className="gap-3 rounded-full px-10 py-6 bg-gradient-to-r from-primary to-orange-500 text-white hover:opacity-90 shadow-xl font-black uppercase tracking-[0.15em] text-[11px] border-none"
             >
               {isRefreshing ? (
-                <RadarSearchIcon size={18} isActive={true} />
+                <RadarSearchIcon size={20} isActive={true} />
               ) : (
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-5 h-5" />
               )}
               {isRefreshing ? 'Scanning...' : `Refresh ${categoryLabel}`}
             </Button>
           </motion.div>
 
-          <div className="w-full pt-4">
+          <div className="w-full pt-6">
             <SwipeDistanceSlider
               radiusKm={radiusKm}
               onRadiusChange={onRadiusChange}
@@ -174,7 +174,7 @@ export const SwipeExhaustedState = ({
               detecting={detecting}
               detected={detected}
             />
-            <p className="mt-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
+            <p className="mt-6 text-[11px] font-black uppercase tracking-[0.25em] text-foreground/60">
               New {categoryLower} are added daily
             </p>
           </div>

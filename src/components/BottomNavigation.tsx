@@ -32,8 +32,8 @@ import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 
-const ICON_SIZE = 22;
-const ICON_SIZE_COMPACT = 20;
+const ICON_SIZE = 24;
+const ICON_SIZE_COMPACT = 22;
 const TOUCH_TARGET = 48;
 const TOUCH_TARGET_COMPACT = 44;
 
@@ -240,7 +240,7 @@ export function BottomNavigation({
 
   const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
 
-  const iconColorInactive = isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.65)';
+  const iconColorInactive = isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.4)';
   const activeColor = 'var(--color-brand-primary)';
 
   const barShadow = isLight
@@ -257,12 +257,12 @@ export function BottomNavigation({
         className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
           // LAYER 1: Solid glass base with Heavy Backdrop Blur
-          backgroundColor: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(12,12,14,0.82)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
+          backgroundColor: isLight ? 'rgba(255,255,255,0.88)' : 'rgba(8, 8, 10, 0.85)',
+          backdropFilter: 'blur(32px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(180%)',
           // No hard borders — defined by shadows and a subtle rim light
-          border: isLight ? '1px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '28px',
+          border: isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.12)',
+          borderRadius: '32px',
           boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',
@@ -355,9 +355,9 @@ export function BottomNavigation({
                   'touch-manipulation focus-visible:outline-none',
                 )}
                 style={{
-                  minWidth: 64,
+                  minWidth: 72,
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
-                  padding: isNarrow ? '4px 2px' : '6px 4px',
+                  padding: isNarrow ? '6px 2px' : '8px 4px',
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
@@ -428,9 +428,9 @@ export function BottomNavigation({
                         style={{
                           width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
                           height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                          color: (active || item.isSpecial) ? '#f97316' : iconColorInactive,
+                          color: (active || item.isSpecial) ? 'var(--color-brand-primary)' : iconColorInactive,
                           stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
-                          strokeWidth: (active || item.isSpecial) ? 2.5 : 2.2,
+                          strokeWidth: (active || item.isSpecial) ? 2.5 : 2,
                           filter: (active || item.isSpecial) && !isLight
                             ? 'drop-shadow(0 0 10px rgba(249,115,22,0.5))'
                             : 'none',
@@ -464,7 +464,7 @@ export function BottomNavigation({
                     )}
                     style={{
                       color: (active || item.isSpecial) ? activeColor : iconColorInactive,
-                      opacity: (active || item.isSpecial) ? 1 : (isLight ? 0.6 : 0.65),
+                      opacity: (active || item.isSpecial) ? 1 : 0.8,
                       zIndex: 1,
                     }}
                   >
@@ -479,11 +479,11 @@ export function BottomNavigation({
                     aria-hidden="true"
                     className="absolute bottom-0 left-1/2 -translate-x-1/2"
                     style={{
-                      width: 20,
-                      height: 2.5,
-                      borderRadius: 2,
-                      background: 'linear-gradient(90deg, #ec4899, #f97316)',
-                      boxShadow: '0 0 8px rgba(249,115,22,0.65), 0 0 16px rgba(249,115,22,0.3)',
+                      width: 24,
+                      height: 3,
+                      borderRadius: 3,
+                      background: 'var(--color-brand-gradient)',
+                      boxShadow: '0 0 10px rgba(255, 77, 0, 0.5)',
                     }}
                     transition={{ type: 'spring', stiffness: 620, damping: 32, mass: 0.4 }}
                   />
@@ -523,8 +523,8 @@ export function BottomNavigation({
       <svg width="0" height="0" className="absolute" aria-hidden="true">
         <defs>
           <linearGradient id="nav-active-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop stopColor="#ec4899" offset="0%" />
-            <stop stopColor="#f97316" offset="100%" />
+            <stop stopColor="var(--color-brand-accent)" offset="0%" />
+            <stop stopColor="var(--color-brand-primary)" offset="100%" />
           </linearGradient>
         </defs>
       </svg>
