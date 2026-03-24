@@ -151,7 +151,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   };
 
   const handleGenderSelect = (gender: OwnerClientGender) => {
-    haptics.light();
+    haptics.tap();
     setClientGender(gender);
   };
 
