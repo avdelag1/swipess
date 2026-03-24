@@ -344,7 +344,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
   }, [handleNotificationClick, markNotificationAsRead]);
 
   const handleDismiss = useCallback((id: string) => {
-    haptics.light();
+    haptics.tap();
     dismissNotification(id);
   }, [dismissNotification]);
 

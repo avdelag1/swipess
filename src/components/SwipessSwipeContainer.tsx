@@ -1119,7 +1119,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
               ref={cardRef}
               listing={topCard}
               onSwipe={handleSwipe}
-              onTap={() => onListingTap(topCard.id)}
               onInsights={handleInsights}
               isTop={true}
               externalX={topCardX}

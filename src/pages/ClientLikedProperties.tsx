@@ -98,7 +98,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
     })();
 
     const matchesSearch = (property.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (property.location || "").toLowerCase().includes(searchTerm.toLowerCase());
+                         ((property as any).location || property.address || property.city || "").toLowerCase().includes(searchTerm.toLowerCase());
 
     return matchesCategory && matchesSearch;
   });

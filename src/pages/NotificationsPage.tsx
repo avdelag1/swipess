@@ -258,7 +258,7 @@ export default function NotificationsPage() {
             <AlertDialogCancel className="w-full sm:flex-1 rounded-2xl font-black h-12 border-muted hover:bg-muted/50">CANCEL</AlertDialogCancel>
             <AlertDialogAction 
               onClick={() => {
-                haptics.notification('warning');
+                haptics.warning();
                 clearAllNotifications?.();
               }}
               className="w-full sm:flex-1 bg-destructive text-destructive-foreground rounded-2xl font-black h-12 hover:bg-destructive/90 active:scale-95 transition-all"
