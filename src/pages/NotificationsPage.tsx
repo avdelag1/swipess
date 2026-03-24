@@ -228,7 +228,7 @@ export default function NotificationsPage() {
                         className="w-10 h-10 rounded-2xl opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive/10 hover:text-destructive active:scale-90"
                         onClick={(e) => {
                           e.stopPropagation();
-                          haptics.light();
+                          haptics.tap();
                           dismissNotification(n.id);
                         }}
                       >
