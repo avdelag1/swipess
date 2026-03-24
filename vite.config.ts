@@ -244,6 +244,18 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules/cmdk')) {
             return 'cmdk';
           }
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/victory-vendor') || id.includes('node_modules/d3-')) {
+            return 'charts';
+          }
+          if (id.includes('node_modules/lottie-react') || id.includes('node_modules/lottie-web')) {
+            return 'lottie';
+          }
+          if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next')) {
+            return 'i18n';
+          }
+          if (id.includes('node_modules/@octokit')) {
+            return 'octokit';
+          }
           if (id.includes('node_modules')) {
             return 'vendor';
           }
@@ -257,6 +269,6 @@ export default defineConfig(({ mode }) => ({
         warn(warning);
       },
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1500,
   },
 }));
