@@ -441,10 +441,10 @@ export function BottomNavigation({
                             style={{
                               width: '100%',
                               height: '100%',
-                              color: '#ffffff',
-                              stroke: '#ffffff',
-                              strokeWidth: 2,
-                              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.8))',
+                              color: 'rgba(255,255,255,0.45)',
+                              stroke: 'rgba(255,255,255,0.45)',
+                              strokeWidth: 1.8,
+                              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
                             }}
                           />
                         </div>
