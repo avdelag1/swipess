@@ -2,6 +2,8 @@ import { memo, useState, useRef, useMemo, useEffect, lazy, Suspense } from 'reac
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
+import { triggerHaptic } from '@/utils/haptics';
+import { playRandomZen } from '@/utils/sounds';
 import {
   Eye, EyeOff, Mail, Lock, User,
   ArrowLeft, Loader, Check, Star, Gamepad2
@@ -73,13 +75,39 @@ const LandingView = memo(({
 }) => {
   const navigate = useNavigate();
   const x = useMotionValue(0);
+  // Immediate torch boost on first touch — before any drag threshold
+  const torchBoost = useMotionValue(0);
+
   const logoOpacity = useTransform(x, [0, 100, 220], [1, 0.6, 0]);
   const logoScale = useTransform(x, [0, 120, 220], [1, 0.96, 0.86]);
   const logoBlur = useTransform(x, [0, 100, 220], [0, 2, 14]);
   const logoFilter = useTransform(logoBlur, (v) => `blur(${v}px)`);
 
+  // Torch opacity: always a subtle resting glow (0.18), instantly boosts on touch,
+  // then tracks drag position all the way to full brightness
+  const torchOpacity = useTransform(
+    [x, torchBoost] as const,
+    ([xVal, boost]: number[]) => {
+      const fromDrag = Math.min(1, Math.max(0, xVal / 160));
+      return Math.max(0.18, fromDrag + boost * 0.4);
+    }
+  );
+
   const isDragging = useRef(false);
   const triggered = useRef(false);
+
+  // Fire up the torch the instant a finger/pointer touches the logo
+  const handlePointerDown = () => {
+    animate(torchBoost, 1, { duration: 0.05 }); // ~50ms — essentially instant
+    triggerHaptic('light');
+  };
+
+  // Quietly cool the torch if the touch ended without a real swipe
+  const handlePointerRelease = () => {
+    if (!isDragging.current || x.get() < 50) {
+      animate(torchBoost, 0, { duration: 0.3 });
+    }
+  };
 
   const handleDragStart = () => { isDragging.current = true; };
 
@@ -88,9 +116,12 @@ const LandingView = memo(({
     if (shouldSwipe) {
       if (triggered.current) return;
       triggered.current = true;
+      playRandomZen(0.45);
+      triggerHaptic('success');
       onEnterAuth();
     } else {
       animate(x, 0, { type: 'spring', stiffness: 400, damping: 28, mass: 1 });
+      animate(torchBoost, 0, { duration: 0.3 });
     }
     setTimeout(() => { isDragging.current = false; }, 100);
   };
@@ -98,6 +129,8 @@ const LandingView = memo(({
   const handleTap = () => {
     if (isDragging.current || triggered.current) return;
     triggered.current = true;
+    playRandomZen(0.45);
+    triggerHaptic('light');
     onEnterAuth();
   };
 
@@ -113,8 +146,11 @@ const LandingView = memo(({
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.9}
+        dragElastic={{ left: 0.05, right: 0.82 }}
         dragMomentum={false}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerRelease}
+        onPointerCancel={handlePointerRelease}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onTap={handleTap}
@@ -126,6 +162,18 @@ const LandingView = memo(({
           <LogoImage
             className="w-[85vw] max-w-[480px] sm:max-w-[580px] md:max-w-[680px] aspect-video border border-white/5 mx-auto"
           />
+          {/* Torch fire overlay — subtly glows at rest, ignites instantly on touch */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            style={{ opacity: torchOpacity }}
+          >
+            <img
+              src="/icons/fire-s-logo.webp"
+              alt=""
+              className="w-full h-full object-contain"
+              style={{ mixBlendMode: 'screen' }}
+            />
+          </motion.div>
         </div>
       </motion.div>
 
