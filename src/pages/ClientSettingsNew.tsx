@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
+import { BackgroundThemeSettings } from "@/components/BackgroundThemeSettings";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ClientVerificationFlow } from "@/components/ClientVerificationFlow";
 import { useState } from "react";
@@ -194,6 +195,7 @@ const ClientSettingsNew = () => {
           <PageHeader title={t('settings.preferences')} subtitle={t('settings.preferencesDesc')} showBack={true} onBack={() => setActiveSection(null)} />
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6">
+            <BackgroundThemeSettings />
             <SwipeSoundSettings />
           </motion.div>
         </div>
