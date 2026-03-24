@@ -167,7 +167,6 @@ const CardImage = memo(({
       )}
 
       <img
-        key={src}
         src={optimizedSrc || src}
         alt={alt ?? ''}
         loading="eager"
