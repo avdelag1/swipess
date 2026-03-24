@@ -108,6 +108,24 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     onClientInsights?.(clientId);
   };
 
+  // ── Tinder-style top nav for owner ────────────────────────────────────────
+  const OWNER_TABS = [
+    { id: 'all', label: 'For You' },
+    { id: 'property', label: 'Renters' },
+    { id: 'motorcycle', label: 'Riders' },
+    { id: 'bicycle', label: 'Cyclists' },
+    { id: 'services', label: 'Freelancers' },
+  ];
+  const ownerActiveNavTab = storeCategories.length === 0 ? 'all' : (storeCategories[0] || 'all');
+
+  const handleOwnerNavTabChange = useCallback((id: string) => {
+    if (id === 'all') {
+      setCategories([]);
+    } else {
+      setCategories([id as any]);
+    }
+  }, [setCategories]);
+
   // Loading state handling
   if (isAuthLoading || isPrefsLoading) {
     return (
@@ -159,24 +177,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
       </div>
     );
   }
-
-  // ── Tinder-style top nav for owner ────────────────────────────────────────
-  const OWNER_TABS = [
-    { id: 'all', label: 'For You' },
-    { id: 'property', label: 'Renters' },
-    { id: 'motorcycle', label: 'Riders' },
-    { id: 'bicycle', label: 'Cyclists' },
-    { id: 'services', label: 'Freelancers' },
-  ];
-  const ownerActiveNavTab = storeCategories.length === 0 ? 'all' : (storeCategories[0] || 'all');
-
-  const handleOwnerNavTabChange = useCallback((id: string) => {
-    if (id === 'all') {
-      setCategories([]);
-    } else {
-      setCategories([id as any]);
-    }
-  }, [setCategories]);
 
   // NotificationBar is rendered globally in AppLayout — no duplicate here
   return (

@@ -208,7 +208,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [errorDetails, setErrorDetails] = useState<{ message: string; fullError: string } | null>(null);
 
   const { signIn, signUp } = useAuth();
-  const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
+  const _passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
 
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('auth_client_email') || '';

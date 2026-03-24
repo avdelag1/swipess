@@ -77,7 +77,7 @@ function TopBarComponent({
   title,
   showBack = false,
 }: TopBarProps) {
-  const { unreadCount } = useUnreadNotifications();
+  const { unreadCount: _unreadCount } = useUnreadNotifications();
   const { navigate } = useAppNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
   

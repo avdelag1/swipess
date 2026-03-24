@@ -22,7 +22,7 @@ export interface DistanceSliderProps {
 export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
   const maxKm = 100;
   const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const _isLight = theme === 'light';
 
   // Local value drives the visual (thumb, fill, label) instantly.
   const [localKm, setLocalKm] = useState(radiusKm);

@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 // ── Inline stars canvas ──────────────────────────────────────────────────────
-function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
+function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
 
