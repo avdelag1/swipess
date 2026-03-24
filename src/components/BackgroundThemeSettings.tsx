@@ -24,7 +24,7 @@ export function getStoredBgTheme(): EffectMode {
     const val = localStorage.getItem(STORAGE_KEY);
     if (val === 'stars' || val === 'sunset' || val === 'off') return val;
   } catch { /* ignore */ }
-  return 'stars';
+  return 'sunset';
 }
 
 export function BackgroundThemeSettings() {
