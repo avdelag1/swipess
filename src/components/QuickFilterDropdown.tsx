@@ -200,7 +200,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
-                  haptics.impact('light');
+                  haptics.tap();
                   handleClearFilters();
                 }}
                 className={cn(
