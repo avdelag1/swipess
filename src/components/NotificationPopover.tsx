@@ -305,7 +305,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
     markNotificationAsRead 
   } = useNotificationSystem();
   
-  const { unreadCount, refetch: _refetch } = useUnreadNotifications();
+  const { unreadCount } = useUnreadNotifications();
   
   // Mark all as read when popover opens
   useEffect(() => {
