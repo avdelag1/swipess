@@ -80,7 +80,7 @@ function TopBarComponent({
   const { unreadCount } = useUnreadNotifications();
   const { navigate } = useAppNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
-  const [cityExpertOpen, setCityExpertOpen] = useState(false);
+  
   const { user } = useAuth();
   const { toast } = useToast();
 
