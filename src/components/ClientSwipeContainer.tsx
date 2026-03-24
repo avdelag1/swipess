@@ -421,6 +421,7 @@ const ClientSwipeContainerComponent = ({
   // Prefetch next batch of client profiles when approaching end of current batch
   // Uses requestIdleCallback internally for non-blocking prefetch
   useSwipePrefetch(
+    user?.id,
     currentIndexRef.current,
     page,
     deckQueueRef.current.length

@@ -6,6 +6,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useTheme } from '@/hooks/useTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+import { haptics } from '@/utils/microPolish';
 import type { QuickFilterCategory, ClientGender, ClientType } from '@/types/filters';
 
 // Re-export unified types
@@ -150,12 +151,12 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   };
 
   const handleGenderSelect = (gender: OwnerClientGender) => {
-    haptics.light();
+    haptics.tap();
     setClientGender(gender);
   };
 
   const handleClientTypeSelect = (type: OwnerClientType) => {
-    haptics.light();
+    haptics.tap();
     setClientType(type);
   };
 
@@ -199,7 +200,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
-                  haptics.impact('light');
+                  haptics.tap();
                   handleClearFilters();
                 }}
                 className={cn(
