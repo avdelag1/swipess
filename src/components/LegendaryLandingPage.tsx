@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
+import { getStoredBgTheme } from './BackgroundThemeSettings';
+import type { EffectMode } from './LandingBackgroundEffects';
 import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { nuclearReset } from '@/utils/cacheManager';
@@ -447,11 +449,24 @@ function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const { theme } = useTheme();
   const isLightTheme = theme === 'light';
+  const [bgMode, setBgMode] = useState<EffectMode>(getStoredBgTheme);
+
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'swipess_bg_theme' && e.newValue) {
+        setBgMode(e.newValue as EffectMode);
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  const activeMode: EffectMode = view === 'auth' ? 'off' : bgMode;
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
       <Suspense fallback={null}>
-        <LandingBackgroundEffects mode={view === 'auth' ? 'off' : 'stars'} isLightTheme={isLightTheme} />
+        <LandingBackgroundEffects mode={activeMode} isLightTheme={isLightTheme} />
       </Suspense>
 
       <AnimatePresence mode="wait">
