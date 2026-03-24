@@ -6,18 +6,14 @@ import { triggerHaptic } from '@/utils/haptics';
 import { playRandomZen } from '@/utils/sounds';
 import {
   Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, Star, Gamepad2
+  ArrowLeft, Star
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from '@/hooks/useTheme';
-import { useVisualPreferences } from '@/hooks/useVisualPreferences';
 import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
-import { nuclearReset } from '@/utils/cacheManager';
 import { cn } from '@/lib/utils';
 import type { EffectMode } from './LandingBackgroundEffects';
 
@@ -62,14 +58,13 @@ const checkPasswordStrength = (password: string) => {
 /* ─── Landing view ───────────────────────────────────────── */
 const LandingView = memo(({
   onEnterAuth,
-  bgMode,
-  onStarClick,
+  isDark,
+  onToggleDark,
 }: {
   onEnterAuth: () => void;
-  bgMode: EffectMode;
-  onStarClick: () => void;
+  isDark: boolean;
+  onToggleDark: () => void;
 }) => {
-  const navigate = useNavigate();
   const x = useMotionValue(0);
   const torchBoost = useMotionValue(0);
 
@@ -82,7 +77,7 @@ const LandingView = memo(({
     [x, torchBoost] as const,
     ([xVal, boost]: number[]) => {
       const fromDrag = Math.min(1, Math.max(0, xVal / 160));
-      return Math.max(0.18, fromDrag + boost * 0.4);
+      return Math.max(0, fromDrag + boost * 0.4);
     }
   );
 
@@ -168,40 +163,22 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* Star filter / Game button — bottom-left corner */}
+      {/* Stars theme toggle — bottom-left corner */}
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          if (bgMode === 'stars') {
-            navigate('/game/trumps-bad-day');
-          } else {
-            onStarClick();
-          }
-        }}
+        onClick={(e) => { e.stopPropagation(); onToggleDark(); }}
         data-testid="button-star-filter"
         className="absolute bottom-6 left-4 flex items-center gap-2 px-3 py-2 rounded-full transition-all active:scale-90"
         style={{
-          background: bgMode === 'stars'
-            ? 'rgba(250,204,21,0.18)'
-            : 'rgba(255,255,255,0.09)',
-          border: bgMode === 'stars'
-            ? '1px solid rgba(250,204,21,0.45)'
-            : '1px solid rgba(255,255,255,0.18)',
+          background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+          border: isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.18)',
           backdropFilter: 'blur(12px)',
         }}
-        title={bgMode === 'stars' ? "Play Trump's Game" : 'Star Filter'}
+        title={isDark ? 'Switch to white stars' : 'Switch to black stars'}
       >
-        {bgMode === 'stars' ? (
-          <>
-            <Gamepad2 className="w-4 h-4 text-yellow-300 shrink-0" />
-            <span className="text-yellow-200 text-xs font-semibold whitespace-nowrap">Play Game</span>
-          </>
-        ) : (
-          <>
-            <Star className="w-4 h-4 text-white/60 shrink-0" />
-            <span className="text-white/60 text-xs font-semibold whitespace-nowrap">Stars</span>
-          </>
-        )}
+        <Star className={`w-4 h-4 shrink-0 ${isDark ? 'text-white/70' : 'text-black/50'}`} />
+        <span className={`text-xs font-semibold whitespace-nowrap ${isDark ? 'text-white/70' : 'text-black/50'}`}>
+          {isDark ? '⬜ White' : '⬛ Black'}
+        </span>
       </button>
 
     </motion.div>
@@ -427,22 +404,17 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
-  const { theme } = useTheme();
-  const isLightTheme = theme === 'light';
-  const { preferences, setBackgroundMode } = useVisualPreferences();
+  const [isDark, setIsDark] = useState(true);
 
-  const handleStarClick = () => {
-    setBackgroundMode('stars');
-  };
-
-  const activeMode: EffectMode = view === 'auth' ? 'off' : preferences.background_mode;
+  const activeMode: EffectMode = view === 'auth' ? 'off' : 'stars';
+  const bgColor = isDark ? '#050505' : '#f5f5f5';
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: theme === 'light' ? '#ffffff' : theme === 'cheers' ? '#0e0400' : '#050505' }}>
+    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: bgColor }}>
       <Suspense fallback={null}>
-        <LandingBackgroundEffects 
-          mode={activeMode} 
-          isLightTheme={isLightTheme} 
+        <LandingBackgroundEffects
+          mode={activeMode}
+          isLightTheme={!isDark}
         />
       </Suspense>
 
@@ -451,8 +423,8 @@ function LegendaryLandingPage() {
           <LandingView
             key="landing"
             onEnterAuth={() => setView('auth')}
-            bgMode={preferences.background_mode}
-            onStarClick={handleStarClick}
+            isDark={isDark}
+            onToggleDark={() => setIsDark(d => !d)}
           />
         ) : (
           <AuthView key="auth" onBack={() => setView('landing')} />
