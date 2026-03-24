@@ -164,7 +164,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBring
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
               onClick={(e) => { e.stopPropagation(); onSwipeOut(card.id); }}
-              className="mt-4 w-full py-3 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+              className="mt-4 w-full py-3 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-transform"
+              style={{
+                background: 'rgba(255,255,255,0.92)',
+                color: '#111',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
+                backdropFilter: 'none',
+              }}
             >
               Explore
             </motion.button>

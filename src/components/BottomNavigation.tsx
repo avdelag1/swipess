@@ -241,7 +241,7 @@ export function BottomNavigation({
 
   const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
 
-  const iconColorInactive = isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.4)';
+  const iconColorInactive = isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.55)';
   const activeColor = 'var(--color-brand-primary)';
 
   const barShadow = isLight
@@ -382,10 +382,27 @@ export function BottomNavigation({
                   </div>
                 )}
 
+                {/* Active background pill */}
+                {active && (
+                  <motion.div
+                    layoutId="nav-active-pill"
+                    className="absolute inset-x-1 rounded-2xl pointer-events-none"
+                    style={{
+                      top: 2,
+                      bottom: isNarrow ? 18 : 22,
+                      background: isLight
+                        ? 'rgba(249,115,22,0.13)'
+                        : 'rgba(249,115,22,0.22)',
+                      boxShadow: '0 0 12px rgba(249,115,22,0.25)',
+                    }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 35, mass: 0.5 }}
+                  />
+                )}
+
                 {/* Icon */}
                   <motion.div
                     className="relative"
-                    animate={{ scale: active ? 1.18 : 1 }}
+                    animate={{ scale: active ? 1.15 : 1 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
                     style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
                   >
@@ -428,7 +445,7 @@ export function BottomNavigation({
                               style={{
                                 width: '100%',
                                 height: '100%',
-                                color: isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.5)',
+                                color: isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.6)',
                                 strokeWidth: 2,
                               }}
                             />
@@ -446,11 +463,11 @@ export function BottomNavigation({
                     )}
                     style={{
                       color: active
-                        ? (isLight ? 'var(--color-brand-primary)' : '#ffffff')
-                        : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.5)'),
+                        ? 'var(--color-brand-primary)'
+                        : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.55)'),
                       opacity: 1,
                       zIndex: 1,
-                      textShadow: active ? '0 0 15px rgba(249,115,22,0.4)' : 'none',
+                      textShadow: active ? '0 0 10px rgba(249,115,22,0.5)' : 'none',
                     }}
                   >
                     {item.label}
