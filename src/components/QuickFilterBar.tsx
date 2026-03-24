@@ -364,48 +364,31 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
       )}
     >
       <div className="max-w-screen-xl mx-auto">
-        {/* Main filter row — scrollable photo cards */}
+        {/* Main filter row — compact ALL pill first, large photo cards at end */}
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
-          {/* ALL button — photo card with breathing zoom */}
+          {/* ALL button — compact pill, always visible at the start */}
           <button
             onClick={() => {
               saveQuickFilter([]);
               onChange({ ...filters, categories: [], listingType: 'both' });
             }}
-            className={cn(smoothButtonClass, 'flex items-center gap-2 px-6 rounded-[1.8rem] text-[15px] font-black tracking-wide flex-shrink-0 h-[82px] overflow-hidden relative')}
+            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-5 rounded-full text-[13px] font-black tracking-wide flex-shrink-0 min-h-[44px]')}
             style={{
-              border: clientIsAllSelected ? '2.5px solid rgba(236,72,153,0.9)' : isDark ? '1.5px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(0,0,0,0.10)',
-              boxShadow: clientIsAllSelected ? allSelectedShadow : '0 4px 12px rgba(0,0,0,0.05)',
-              transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
+              background: clientIsAllSelected
+                ? 'linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%)'
+                : isDark ? 'rgba(20,20,30,0.5)' : 'rgba(255,255,255,0.7)',
+              color: clientIsAllSelected ? '#fff' : isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.75)',
+              border: clientIsAllSelected ? '1px solid transparent' : isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)',
+              boxShadow: clientIsAllSelected ? '0 4px 16px rgba(236,72,153,0.45)' : 'none',
+              transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
-            {/* Breathing background photo */}
-            <div className="absolute inset-0 overflow-hidden rounded-2xl">
-              <img
-                src={allPhoto}
-                alt=""
-                aria-hidden="true"
-                style={{
-                  position: 'absolute', inset: 0, width: '100%', height: '100%',
-                  objectFit: 'cover', transformOrigin: 'center',
-                  animation: 'breathing-zoom 8s ease-out infinite alternate',
-                }}
-              />
-              {/* Gradient overlay */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: clientIsAllSelected
-                  ? 'linear-gradient(135deg, rgba(249,115,22,0.75) 0%, rgba(236,72,153,0.75) 50%, rgba(139,92,246,0.75) 100%)'
-                  : isDark ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.38)',
-              }} />
-            </div>
-            {/* Content */}
-            <Globe className="w-4 h-4 relative z-10 text-white" />
-            <span className="relative z-10 text-white">ALL</span>
-            {clientIsAllSelected && <Check className="w-3.5 h-3.5 ml-0.5 text-white/90 relative z-10" />}
+            <Globe className="w-4 h-4" />
+            <span>ALL</span>
+            {clientIsAllSelected && <Check className="w-3.5 h-3.5 ml-0.5 text-white/90" />}
           </button>
 
-          {/* Category chips — photo cards with breathing zoom */}
+          {/* Category chips — large photo cards, scrollable at the end */}
           {categories.map((category) => {
             const isActive = filters.categories.includes(category.id);
             const accent = categoryColors[category.id];
