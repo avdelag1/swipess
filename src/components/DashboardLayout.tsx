@@ -620,7 +620,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     // Rare sub-pages that manage their own navigation/back behavior
     const isSpecialSubPage = [
       '/client/advertise',
-      '/explore/eventos/promote',
       '/explore/prices',
       '/explore/intel',
       '/explore/tours',

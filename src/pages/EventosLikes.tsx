@@ -229,7 +229,7 @@ export default function EventosLikes() {
         <div className="p-4 pt-10">
           <motion.div 
             whileTap={{ scale: 0.98 }}
-            onClick={() => navigate('/explore/eventos/promote')}
+            onClick={() => navigate('/client/advertise')}
             className="p-6 rounded-[2.5rem] bg-indigo-600 relative overflow-hidden group shadow-2xl"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600" />
