@@ -913,7 +913,7 @@ export default function EventosFeed() {
   }, [activeIdx]);
 
   return (
-    <div className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col">
+    <div data-no-swipe-nav className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col">
 
       {/* ── TOP HUD ── */}
       <div className="absolute top-0 left-0 right-0 z-30 pt-safe">
