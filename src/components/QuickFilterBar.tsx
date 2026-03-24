@@ -223,6 +223,16 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
       (!filters.clientType || filters.clientType === 'all') &&
       filters.listingType === 'both';
     const ownerHasActiveFilters = !ownerIsAllSelected;
+
+    // Inline gradient styles per category — avoids Tailwind dynamic class purging
+    // and guarantees text stays visible on the gradient background
+    const catActiveStyles: Record<string, React.CSSProperties> = {
+      property:   { background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 4px 12px rgba(16,185,129,0.4)', color: '#ffffff', border: 'none' },
+      motorcycle: { background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', boxShadow: '0 4px 12px rgba(249,115,22,0.4)',  color: '#ffffff', border: 'none' },
+      bicycle:    { background: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)', boxShadow: '0 4px 12px rgba(168,85,247,0.4)', color: '#ffffff', border: 'none' },
+      services:   { background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', boxShadow: '0 4px 12px rgba(245,158,11,0.4)', color: '#ffffff', border: 'none' },
+    };
+
     return (
       <div
         data-no-swipe-nav
@@ -239,17 +249,21 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
               onClick={handleReset}
               className={cn(
                 smoothButtonClass,
-                'flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold flex-shrink-0 transition-all duration-300',
+                'flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold flex-shrink-0 transition-all duration-200',
                 ownerIsAllSelected
-                  ? isDark
-                    ? 'bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.5)] border-transparent'
-                    : 'bg-gradient-to-r from-orange-400 via-fuchsia-500 to-indigo-500 text-white shadow-[0_4px_12px_rgba(249,115,22,0.4)] border-transparent'
+                  ? ''
                   : 'bg-muted/50 text-foreground border border-border/50 hover:bg-muted/80 backdrop-blur-md'
               )}
+              style={ownerIsAllSelected ? {
+                background: 'linear-gradient(135deg, #f97316 0%, #ec4899 55%, #8b5cf6 100%)',
+                color: '#ffffff',
+                border: 'none',
+                boxShadow: '0 4px 14px rgba(249,115,22,0.45)',
+              } : undefined}
             >
               <Globe className="w-3.5 h-3.5" />
               <span>All</span>
-              {ownerIsAllSelected && <Check className="w-3 h-3 text-white" />}
+              {ownerIsAllSelected && <Check className="w-3 h-3" style={{ color: '#ffffff' }} />}
             </button>
 
             {/* Divider */}
@@ -282,15 +296,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             <div className="flex items-center gap-1.5 flex-shrink-0">
               {categories.map((category) => {
                 const isActive = filters.categories.includes(category.id);
-                
-                // Specific gradients per category
-                const catGradients: Record<string, { dark: string, light: string }> = {
-                  property: { dark: 'from-emerald-500 to-teal-600 shadow-[0_0_12px_rgba(16,185,129,0.4)]', light: 'from-emerald-400 to-teal-500 shadow-[0_4px_10px_rgba(16,185,129,0.3)]' },
-                  motorcycle: { dark: 'from-orange-500 to-red-600 shadow-[0_0_12px_rgba(249,115,22,0.4)]', light: 'from-orange-400 to-red-500 shadow-[0_4px_10px_rgba(249,115,22,0.3)]' },
-                  bicycle: { dark: 'from-purple-500 to-indigo-600 shadow-[0_0_12px_rgba(168,85,247,0.4)]', light: 'from-purple-400 to-indigo-500 shadow-[0_4px_10px_rgba(168,85,247,0.3)]' },
-                  services: { dark: 'from-amber-500 to-yellow-600 shadow-[0_0_12px_rgba(245,158,11,0.4)]', light: 'from-amber-400 to-yellow-500 shadow-[0_4px_10px_rgba(245,158,11,0.3)]' },
-                };
-                const gradStr = catGradients[category.id] ? catGradients[category.id][isDark ? 'dark' : 'light'] : 'from-gray-500 to-gray-600';
+                const activeStyle = catActiveStyles[category.id];
 
                 return (
                   <button
@@ -298,14 +304,20 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                     onClick={() => handleCategoryToggle(category.id)}
                     className={cn(
                       smoothButtonClass,
-                      'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300',
+                      'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200',
                       isActive
-                        ? `bg-gradient-to-r ${gradStr} text-white border-transparent`
+                        ? ''
                         : 'bg-muted/50 text-foreground border border-border/50 hover:bg-muted/80 backdrop-blur-md'
                     )}
+                    // Inline style guarantees gradient bg + white text always visible
+                    style={isActive ? activeStyle : undefined}
                   >
-                    {category.icon}
-                    <span className="hidden sm:inline">{category.label}</span>
+                    {/* Icon inherits white color from parent when active */}
+                    <span style={{ display: 'flex', alignItems: 'center', color: isActive ? '#ffffff' : undefined }}>
+                      {category.icon}
+                    </span>
+                    {/* Label always shown — no hidden sm:inline */}
+                    <span style={{ color: isActive ? '#ffffff' : undefined }}>{category.label}</span>
                   </button>
                 );
               })}
