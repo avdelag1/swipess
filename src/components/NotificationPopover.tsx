@@ -98,7 +98,7 @@ interface NotificationItemProps {
 
 function NotificationItem({ notification, onClick, onDismiss, index }: NotificationItemProps) {
   const role = getNotificationRole(notification);
-  const config = typeConfigs[notification.type] || typeConfigs.like;
+  const config = typeConfigs[notification.type as keyof typeof typeConfigs] || typeConfigs.like;
   const Icon = config.icon;
   const [isHovered, setIsHovered] = useState(false);
   const [isSwiping, setIsSwiping] = useState(false);
