@@ -40,7 +40,7 @@ export function AnimatedOutlet() {
   const outlet = useOutlet();
 
   return (
-    <AnimatePresence mode="popLayout" initial={false}>
+    <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={location.pathname}
         variants={pageVariants}
