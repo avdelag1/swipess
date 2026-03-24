@@ -225,17 +225,26 @@ function SwipeActionButtonBarComponent({
       initial={{ opacity: 0, y: 18, scale: 0.94 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ ...ENTRY_SPRING, delay: 0.05 }}
-      className={`relative flex items-center justify-center ${className}`}
+      className={`relative flex items-center w-full ${className}`}
       style={{
-        padding: '10px 20px',
+        padding: '10px 0',
         transform: 'translateZ(0)',
         zIndex: 100,
       }}
     >
-      {/* No glass tray — clean frameless layout */}
+      {/* Scrollable button row — swipe left/right to access all buttons */}
+      <style>{`.swipe-btn-scroll::-webkit-scrollbar { display: none; }`}</style>
       <div
-        className="relative flex items-center justify-center"
-        style={{ gap: GAP_CSS }}
+        className="swipe-btn-scroll relative flex items-center overflow-x-auto w-full"
+        style={{
+          gap: GAP_CSS,
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch',
+          paddingLeft: '20px',
+          paddingRight: '20px',
+          justifyContent: 'center',
+        }}
       >
         <ActionButton
           onClick={onUndo || (() => {})}
