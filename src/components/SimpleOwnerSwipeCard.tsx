@@ -625,11 +625,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
           {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (
-            <div className="absolute top-16 left-4 right-4 z-25 flex gap-1" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
+            <div className="absolute top-[60px] left-2 right-2 z-25 flex gap-[3px]" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
               {images.map((_, idx) => (
                 <div
                   key={idx}
-                  className={`flex-1 h-1 rounded-full transition-all duration-200 ${idx === currentImageIndex ? 'bg-white shadow-sm' : 'bg-white/40'}`}
+                  className={`flex-1 h-[3px] rounded-full transition-all duration-200 ${idx === currentImageIndex ? 'bg-white/95' : 'bg-white/35'}`}
                 />
               ))}
             </div>
