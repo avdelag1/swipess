@@ -18,12 +18,6 @@ import { haptics } from "@/utils/microPolish";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { cn } from "@/lib/utils";
 
-const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
-const stagger = { visible: { transition: { staggerChildren: 0.04 } } };
-const childVariant = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: premiumSpring },
-};
 
 const OwnerProfileNew = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -56,14 +50,9 @@ const OwnerProfileNew = () => {
 
   return (
     <>
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={stagger}
-        className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full"
-      >
+      <div className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full">
         {/* Profile Header */}
-        <motion.div className="flex items-center gap-4" variants={childVariant}>
+        <div className="flex items-center gap-4">
           <div className="relative">
             <div className="w-[84px] h-[84px] rounded-full p-[2.5px]" style={{ background: 'linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-accent-2))' }}>
               <div
@@ -92,10 +81,10 @@ const OwnerProfileNew = () => {
             </h1>
             <p className="text-sm font-normal text-muted-foreground mt-0.5">{user?.email}</p>
           </div>
-        </motion.div>
+        </div>
 
         {/* Quick Stats Grid */}
-        <motion.div variants={childVariant} className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {[
             { label: 'Liked', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-primary/70' },
             { label: 'Interested', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-amber-500/70' },
@@ -118,10 +107,10 @@ const OwnerProfileNew = () => {
               <div className="text-[10px] font-medium text-muted-foreground">{stat.label}</div>
             </div>
           ))}
-        </motion.div>
+        </div>
 
         {/* Promote/Advertise Buttons */}
-        <motion.div variants={childVariant} className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2">
           <Button
             variant="outline"
             size="lg"
@@ -153,10 +142,10 @@ const OwnerProfileNew = () => {
               Advertise Your Brand
             </span>
           </Button>
-        </motion.div>
+        </div>
 
         {/* Action Grid */}
-        <motion.div variants={childVariant} className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); navigate('/owner/liked-clients'); }}
@@ -198,32 +187,32 @@ const OwnerProfileNew = () => {
               </div>
             </div>
           </motion.button>
-        </motion.div>
+        </div>
 
         {/* Recent Activity */}
-        <motion.div variants={childVariant}>
+        <div>
           <h3 className="text-xs font-medium text-muted-foreground mb-3 px-1">
             Recent Activity
           </h3>
           <ActivityFeed />
-        </motion.div>
+        </div>
 
         {/* Share Profile */}
-        <motion.div variants={childVariant}>
+        <div>
           <SharedProfileSection
             profileId={user?.id}
             profileName={ownerProfile?.business_name || 'Your Business'}
             isClient={false}
           />
-        </motion.div>
+        </div>
 
         {/* Language Selection */}
-        <motion.div variants={childVariant}>
+        <div>
           <LanguageToggle />
-        </motion.div>
+        </div>
 
         {/* Action Buttons - unified compact stack */}
-        <motion.div variants={childVariant} className="space-y-2">
+        <div className="space-y-2">
           {/* Radio Station */}
           <button
             onClick={() => { haptics.tap(); navigate('/radio'); }}
@@ -260,10 +249,10 @@ const OwnerProfileNew = () => {
             <LogOut className="w-5 h-5" />
             Sign Out
           </button>
-        </motion.div>
+        </div>
 
         <div className="h-12" />
-      </motion.div>
+      </div>
 
       <OwnerProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
     </>
