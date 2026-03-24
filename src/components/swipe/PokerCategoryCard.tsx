@@ -26,8 +26,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBring
   const y = useMotionValue(0);
   const isExiting = useRef(false);
 
-  // Front card tilts slightly while dragging
-  const dragTilt = useTransform(x, [-180, 0, 180], [-12, 0, 12]);
+  // Front card tilts slightly while dragging; base offset of 3° at rest
+  const dragTilt = useTransform(x, [-180, 0, 180], [-9, 3, 15]);
 
   // Folder-stack position
   const folderX = index * FOLDER_OFFSET_X;
@@ -91,7 +91,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBring
         y: isTop ? 0 : folderY,
         scale:   isTop ? 1 : 1 - index * 0.012,
         opacity: index > 4 ? 0 : 1,
-        rotate:  isTop ? 0 : index * POKER_FAN_ROTATION,
+        rotate:  isTop ? 3 : index * POKER_FAN_ROTATION,
       }}
       transition={PK_SPRING}
       style={{
@@ -103,7 +103,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBring
         zIndex: 50 - index,
         x: isTop ? x : folderX,
         y: isTop ? y : folderY,
-        rotate: isTop ? dragTilt : index * POKER_FAN_ROTATION,
+        rotate: isTop ? dragTilt : (index * POKER_FAN_ROTATION),
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
       } as any}

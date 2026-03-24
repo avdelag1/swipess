@@ -31,7 +31,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 
 const ICON_SIZE = 24;
 const ICON_SIZE_COMPACT = 22;
@@ -419,40 +418,19 @@ export function BottomNavigation({
                         />
                       )}
                     </AnimatePresence>
-                    
-                    {/* On light theme the Lottie animations (which use white/bright colors) need a
-                        color filter so they remain visible on the near-white nav bar. */}
-                    <div style={{
-                      filter: active && isLight
-                        ? 'brightness(0) saturate(100%) invert(52%) sepia(90%) saturate(500%) hue-rotate(356deg) brightness(90%)'
-                        : 'none',
-                    }}>
-                      <AnimatedLottieIcon
-                        iconId={item.id}
-                        active={active}
-                        size={isNarrow ? ICON_SIZE_COMPACT + 6 : ICON_SIZE + 8}
-                        className="transition-all duration-300 ease-out"
-                        inactiveIcon={
-                          <div style={{
-                            width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                            height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}>
-                            <Icon
-                              className="transition-all duration-300 ease-out"
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                color: isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.6)',
-                                strokeWidth: 2,
-                              }}
-                            />
-                          </div>
-                        }
-                      />
-                    </div>
+
+                    {/* Icon: filled with brand color when active, outline when inactive */}
+                    <Icon
+                      className="transition-all duration-300 ease-out"
+                      style={{
+                        width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                        height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                        color: active ? activeColor : iconColorInactive,
+                        fill: active ? activeColor : 'none',
+                        strokeWidth: active ? 1.5 : 2,
+                        filter: active ? `drop-shadow(0 0 6px rgba(249,115,22,0.55))` : 'none',
+                      }}
+                    />
                   </motion.div>
 
                 {/* Label */}
