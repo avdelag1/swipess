@@ -449,7 +449,7 @@ function LegendaryLandingPage() {
   const isLightTheme = theme === 'light';
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
+    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: theme === 'light' ? '#ffffff' : theme === 'cheers' ? '#0e0400' : '#050505' }}>
       <Suspense fallback={null}>
         <LandingBackgroundEffects mode={view === 'auth' ? 'off' : 'stars'} isLightTheme={isLightTheme} />
       </Suspense>

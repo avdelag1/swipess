@@ -680,8 +680,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       <main
         id="dashboard-scroll-container"
         className={cn(
-          "absolute inset-0 overflow-x-hidden scroll-area-momentum bg-background scrollbar-hide shadow-none",
+          "absolute inset-0 overflow-x-hidden scroll-area-momentum scrollbar-hide shadow-none",
           isFullScreenRoute ? "overflow-y-hidden" : "overflow-y-auto",
+          // Events feed is always dark/immersive — match its bg to prevent white flash on transition
+          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background",
           "w-full max-w-[100vw] box-border z-0 transform-gpu touch-pan-y"
         )}
         style={{

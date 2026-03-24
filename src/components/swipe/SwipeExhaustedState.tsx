@@ -89,7 +89,7 @@ export const SwipeExhaustedState = ({
           initial="initial" 
           animate="animate" 
           exit="exit" 
-          className="relative w-full flex-1 flex items-center justify-center px-4" 
+          className="relative w-full flex-1 flex items-center justify-center px-4 bg-background"
           style={{ minHeight: 'calc(100dvh - 140px)' }}
         >
           <Card className="text-center bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20 p-8">
@@ -114,7 +114,7 @@ export const SwipeExhaustedState = ({
         initial="initial" 
         animate="animate" 
         exit="exit" 
-        className="relative w-full flex-1 flex flex-col items-center justify-center p-6 text-center" 
+        className="relative w-full flex-1 flex flex-col items-center justify-center p-6 text-center bg-background"
         style={{ minHeight: '100%' }}
       >
         <motion.div 
