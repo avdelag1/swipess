@@ -16,7 +16,7 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, MessageCircle, User, Building2,
   Search, Users, Sparkles, ShieldCheck,
@@ -314,7 +314,6 @@ export function BottomNavigation({
         </AnimatePresence>
 
         {/* Nav items row */}
-        <LayoutGroup id="bottom-nav">
         <div
           ref={scrollRef}
           data-no-swipe-nav
@@ -367,19 +366,6 @@ export function BottomNavigation({
                 }}
               >
 
-                {/* Floating glass pill background for active tab */}
-                {active && (
-                  <motion.div
-                    layoutId="nav-pill-background"
-                    className="absolute inset-x-1.5 inset-y-1.5 rounded-2xl z-0"
-                    style={{
-                      backgroundColor: isLight ? 'rgba(249,115,22,0.12)' : 'rgba(255,255,255,0.10)',
-                      backdropFilter: 'blur(8px)',
-                      border: isLight ? '1px solid rgba(249,115,22,0.2)' : '1px solid rgba(255,255,255,0.12)',
-                    }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 38, mass: 0.8 }}
-                  />
-                )}
 
                 {/* Activity Pulse Halo — radiates when badge is active */}
                 {item.badge && item.badge > 0 && (
@@ -397,7 +383,12 @@ export function BottomNavigation({
                 )}
 
                 {/* Icon */}
-                  <div className="relative" style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}>
+                  <motion.div
+                    className="relative"
+                    animate={{ scale: active ? 1.18 : 1 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
+                    style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
+                  >
                     {/* Notification badge */}
                     <AnimatePresence>
                       {item.badge && item.badge > 0 && (
@@ -445,7 +436,7 @@ export function BottomNavigation({
                         }
                       />
                     </div>
-                  </div>
+                  </motion.div>
 
                 {/* Label */}
                 {!isNarrow && (
@@ -466,27 +457,10 @@ export function BottomNavigation({
                   </span>
                 )}
 
-                {/* Active indicator bar */}
-                {active && (
-                  <motion.span
-                    layoutId="nav-active-bar"
-                    aria-hidden="true"
-                    className="absolute bottom-1.5 left-1/2 -translate-x-1/2"
-                    style={{
-                      width: 20,
-                      height: 2.5,
-                      borderRadius: 2,
-                      background: 'var(--color-brand-gradient)',
-                      boxShadow: '0 0 12px var(--color-brand-primary)',
-                    }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                  />
-                )}
               </motion.button>
             );
           })}
         </div>
-        </LayoutGroup>
 
         {/* ── Edge fade indicators ──────────────────────────────────────── */}
         <div
