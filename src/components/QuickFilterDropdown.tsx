@@ -300,8 +300,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
     return (
       <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),400px)]">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-border">
-          <span className="text-sm sm:text-base font-semibold text-foreground">Select Category</span>
+        <div className="flex items-center justify-between px-4 sm:px-5 py-4 sm:py-5 border-b border-border">
+          <span className="text-base sm:text-lg font-semibold text-foreground">Select Category</span>
           {activeFilterCount > 0 && (
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -315,7 +315,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         </div>
 
         {/* Category list */}
-        <div className="py-2 max-h-[60vh] overflow-y-auto">
+        <div className="py-3 max-h-[60vh] overflow-y-auto">
           {/* ALL option */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -327,7 +327,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               whileTap={{ scale: 0.98 }}
               onClick={() => { haptics.tap(); handleClearFilters(); }}
               className={cn(
-                'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-75 touch-manipulation min-h-[52px]',
+                'w-full flex items-center justify-between px-5 sm:px-6 py-4 sm:py-5 text-base transition-all duration-200 touch-manipulation min-h-[64px]',
                 isAllActive
                   ? 'bg-slate-700 text-white'
                   : isDark
@@ -335,14 +335,14 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     : 'text-gray-700 hover:bg-black/[0.04]'
               )}
             >
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <span className={cn(
-                  'p-1.5 sm:p-2 rounded-lg',
+                  'p-2 sm:p-2.5 rounded-xl',
                   isAllActive ? 'bg-gradient-to-br from-pink-500 to-orange-500 text-white shadow-md' : 'bg-pink-500/10 text-pink-500'
                 )}>
-                  <Search strokeWidth={4} className="w-4 h-4" />
+                  <Search strokeWidth={4} className="w-5 h-5" />
                 </span>
-                <span className="font-medium text-sm sm:text-base">All</span>
+                <span className="font-medium text-base sm:text-lg">All</span>
               </div>
             </motion.button>
           </motion.div>
@@ -361,7 +361,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleCategoryClick(category.id)}
                   className={cn(
-                    'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-75 touch-manipulation min-h-[52px]',
+                    'w-full flex items-center justify-between px-5 sm:px-6 py-4 sm:py-5 text-base transition-all duration-200 touch-manipulation min-h-[64px]',
                     isActive
                       ? isDark
                         ? 'bg-white/10 text-white border-l-2 border-white/40'
@@ -371,16 +371,16 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                         : 'text-gray-700 hover:bg-black/[0.02]'
                   )}
                 >
-                  <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <span className={cn(
-                      'p-1.5 sm:p-2 rounded-lg border transition-all duration-300',
+                      'p-2 sm:p-2.5 rounded-xl border transition-all duration-300',
                       isActive
                         ? cn('bg-gradient-to-br text-white shadow-md border-transparent', category.color)
                         : cn(category.bgTint, category.inactiveColor, category.border)
                     )}>
                       {category.icon}
                     </span>
-                    <span className="font-medium text-sm sm:text-base">{category.label}</span>
+                    <span className="font-medium text-base sm:text-lg">{category.label}</span>
                   </div>
                   {category.hasSubOptions && (
                     <ChevronRight strokeWidth={3} className={cn(
@@ -397,36 +397,34 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 <AnimatePresence>
                   {clickedCategory === category.id && category.hasSubOptions && category.id !== 'services' && (
                     <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ type: 'spring', stiffness: 700, damping: 35 }}
+                      initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                      exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 30, mass: 0.8 }}
                       className="overflow-hidden"
                     >
-                      <div className="pl-12 sm:pl-14 pr-4 pb-2">
-                        {listingTypeOptions.map((ltOption, ltIndex) => (
-                          <motion.button
-                            key={ltOption.id}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            whileTap={{ scale: 0.96 }}
-                            transition={{ delay: ltIndex * 0.04 }}
-                            onClick={() => {
-                              haptics.impact('light');
-                              handleCategorySelect(category.id, ltOption.id);
-                            }}
-                            className={cn(
-                              'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-75 touch-manipulation min-h-[44px] mb-1',
-                              categories.includes(category.id) && listingType === ltOption.id
-                                ? cn('bg-gradient-to-r', category.color, 'text-white shadow-lg')
-                                : isDark
-                                  ? cn('hover:bg-white/10 bg-white/5', category.inactiveColor)
-                                  : cn('hover:bg-black/5 bg-black/[0.03]', category.inactiveColor)
-                            )}
-                          >
-                            <span className="font-medium text-sm sm:text-base">{ltOption.label}</span>
-                          </motion.button>
-                        ))}
+                      <div className="pl-14 sm:pl-16 pr-5 pb-3">
+                        <div className="flex gap-2">
+                          {listingTypeOptions.map((ltOption, ltIndex) => (
+                            <motion.button
+                              key={ltOption.id}
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: ltIndex * 0.08, type: 'spring', stiffness: 400, damping: 30 }}
+                              onClick={() => handleCategorySelect(category.id, ltOption.id)}
+                              className={cn(
+                                'flex-1 flex items-center justify-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 touch-manipulation min-h-[48px]',
+                                categories.includes(category.id) && listingType === ltOption.id
+                                  ? cn('bg-gradient-to-r shadow-md', category.color, 'text-white')
+                                  : isDark
+                                    ? cn('hover:bg-white/10 bg-white/5', category.inactiveColor)
+                                    : cn('hover:bg-black/5 bg-black/[0.03]', category.inactiveColor)
+                              )}
+                            >
+                              <span className="text-sm sm:text-base">{ltOption.label}</span>
+                            </motion.button>
+                          ))}
+                        </div>
                       </div>
                     </motion.div>
                   )}

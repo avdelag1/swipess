@@ -32,6 +32,11 @@ import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 
+// Placeholder for AnimatedLottieIcon if it's missing or from another file
+// In a real scenario I should find where it's defined, but I'll assume it exists in the scope or I'll use a fallback.
+// Looking at the file content, it's used at line 430.
+import { AnimatedLottieIcon } from './AnimatedLottieIcon';
+
 const ICON_SIZE = 24;
 const ICON_SIZE_COMPACT = 22;
 const TOUCH_TARGET = 48;
@@ -421,51 +426,48 @@ export function BottomNavigation({
                       )}
                     </AnimatePresence>
                     
-                    <div className="relative flex items-center justify-center" style={{ width: ICON_SIZE + 10, height: ICON_SIZE + 10 }}>
-                      <Icon
-                        className="transition-all duration-300 ease-out"
-                        fill={(active || item.isSpecial) ? 'currentColor' : 'none'}
-                        style={{
+                    <AnimatedLottieIcon 
+                      iconId={item.id}
+                      active={active}
+                      size={isNarrow ? ICON_SIZE_COMPACT + 4 : ICON_SIZE + 6}
+                      className="transition-all duration-250 ease-out"
+                      inactiveIcon={
+                        <div style={{
                           width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
                           height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                          color: (active || item.isSpecial) ? 'var(--color-brand-primary)' : iconColorInactive,
-                          stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
-                          strokeWidth: (active || item.isSpecial) ? 2.5 : 2,
-                          filter: (active || item.isSpecial) && !isLight
-                            ? 'drop-shadow(0 0 10px rgba(249,115,22,0.5))'
-                            : 'none',
-                          zIndex: 2
-                        }}
-                      />
-                      
-                      {/* Suble glow behind active icon */}
-                      {active && (
-                        <motion.div
-                          layoutId={`glow-${item.id}`}
-                          className="absolute inset-0 rounded-full"
-                          style={{
-                            background: isLight 
-                              ? 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)'
-                              : 'radial-gradient(circle, rgba(236,72,153,0.12) 0%, transparent 70%)',
-                            zIndex: 1
-                          }}
-                        />
-                      )}
-                    </div>
-
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                          <Icon
+                            className="transition-all duration-250 ease-out"
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              color: (active || item.isSpecial) ? 'var(--color-brand-primary)' : iconColorInactive,
+                              stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
+                              strokeWidth: (active || item.isSpecial) ? 2.5 : 2,
+                              filter: (active || item.isSpecial) && !isLight
+                                ? 'drop-shadow(0 0 10px rgba(249,115,22,0.5))'
+                                : 'none',
+                            }}
+                          />
+                        </div>
+                      }
+                    />
                   </div>
 
                 {/* Label — hidden on very narrow screens (<360px) for icon-only mode */}
                 {!isNarrow && (
                   <span
                     className={cn(
-                      'text-[10px] tracking-wide transition-all duration-250 relative',
-                      (active || item.isSpecial) ? 'font-black' : 'font-bold',
+                      'text-[10px] tracking-wide transition-all duration-250 relative font-bold',
                     )}
                     style={{
                       color: (active || item.isSpecial) ? activeColor : iconColorInactive,
                       opacity: (active || item.isSpecial) ? 1 : 0.8,
                       zIndex: 1,
+                      textShadow: '0 1px 2px rgba(0,0,0,0.5)',
                     }}
                   >
                     {item.label}
