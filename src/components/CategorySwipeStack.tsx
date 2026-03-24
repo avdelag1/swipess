@@ -123,36 +123,30 @@ function CategoryCard({
     const x = useMotionValue(0);
     const y = useMotionValue(0);
     
-    // Physics-based spring for smooth fan movement
-    const springX = useSpring(x, { stiffness: 300, damping: 30 });
-    const springY = useSpring(y, { stiffness: 300, damping: 30 });
+    // Physics-based spring for smooth movement
+    const springX = useSpring(x, { stiffness: 450, damping: 32 }); // snappier
+    const springY = useSpring(y, { stiffness: 450, damping: 32 });
 
-    // Pivot Calculation for "Poker Hand"
-    // User wants "left corners applied together" -> transform-origin: "bottom left" 
-    const fanRotation = index * 12; // Increases for cards buried deeper
-    const fanX = index * 18; // Horizontal spread
-    const fanY = index * 6; // Slight downward slide
+    // VERTICAL STACK — Modern "Lovable" feel, larger and vertical
+    // No "Poker Hand" fan to avoid the "mess"
+    const fanRotation = 0; // Vertical stack, no rotation
+    const fanX = 0; 
+    const fanY = index * -10; // Stack vertically upwards
     
     // Drag transformations
-    // "if I move it left or right it is going to show the effect of being hide behind the other one"
-    // We drop z-index as it moves away from center.
-    // The base z-indices are: Card 0: 10, Card 1: 9, Card 2: 8...
-    // So dropping to < 9 makes it hide behind Card 1.
-    const tilt = useTransform(x, [-150, 0, 150], [-15, 0, 15]);
+    const tilt = useTransform(x, [-150, 0, 150], [-10, 0, 10]);
     const zIndex = useTransform(x,
         [-120, -40, 0, 40, 120],
-        [1, 15, 20, 15, 1] // Start high, drop low at edges
+        [1, 15, 20, 15, 1] // Dynamic z-index for swipe feeling
     );
-    // Drag feedback opacities — computed unconditionally to avoid conditional hook calls
+
     const selectOpacity = useTransform(x, [20, 60], [0, 1]);
     const skipOpacity = useTransform(x, [-20, -60], [0, 1]);
 
-    const zIndexBase = 10 - index;
-    const scale = isTop ? 1 : 1 - (index * 0.04);
+    const zIndexBase = 20 - index;
+    const scale = isTop ? 1 : 1 - (index * 0.05);
 
     const [isDragging, setIsDragging] = useState(false);
-
-    // selectOpacity/skipOpacity already declared above — reuse them
 
     const handleDragStart = () => {
         setIsDragging(true);
@@ -177,42 +171,39 @@ function CategoryCard({
             onDragEnd={handleDragEnd}
             onClick={() => !isTop && onSelect()}
             layoutId={category.id || 'all'}
-            initial={{ scale: 0.8, opacity: 0, rotate: 45, x: 100 }}
+            initial={{ scale: 0.9, opacity: 0, y: 100 }}
             animate={{ 
                 scale, 
                 opacity: 1, 
                 x: isDragging ? x.get() : fanX,
                 y: isDragging ? y.get() : fanY,
-                rotate: isDragging ? tilt.get() : fanRotation,
-                // If it's the top card, use the dynamic z-index to allow "hiding"
-                // If not, use the base stack order
+                rotate: isDragging ? tilt.get() : (isActive ? 0 : fanRotation),
                 zIndex: isTop ? zIndex.get() : zIndexBase,
             }}
             whileHover={!isTop ? { 
-                y: fanY - 30, 
-                scale: scale * 1.08,
-                rotate: fanRotation - 4,
+                y: fanY - 20, 
+                scale: scale * 1.05,
                 transition: { duration: 0.2, ease: "easeOut" } 
             } : {}}
             exit={{ 
                 x: x.get() > 0 ? 500 : -500, 
-                rotate: x.get() > 0 ? 45 : -45, 
+                rotate: x.get() > 0 ? 15 : -15, 
                 opacity: 0, 
                 transition: { duration: 0.3 } 
             }}
             className={cn(
-                "absolute flex flex-col items-center justify-center rounded-[28px] p-6 select-none overflow-hidden",
+                "absolute flex flex-col items-center justify-center rounded-[32px] p-6 select-none overflow-hidden",
                 "transition-shadow duration-300",
-                isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer",
-                "bg-black border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]",
-                isActive && "ring-2 ring-brand-accent-2 ring-offset-4 ring-offset-background"
+                isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer hover:shadow-2xl",
+                "bg-black border border-white/12 shadow-[0_20px_50px_rgba(0,0,0,0.4)]",
+                isActive && "ring-4 ring-brand-accent-2 ring-offset-4 ring-offset-background backdrop-blur-xl"
             )}
             style={{
-                width: '180px',
-                height: '240px',
-                left: 'calc(50% - 130px)', // Offset to the left slightly to center the fan
-                top: 'calc(50% - 120px)',
-                transformOrigin: 'bottom left',
+                width: '240px',
+                height: '320px',
+                left: 'calc(50% - 120px)',
+                top: 'calc(50% - 160px)',
+                transformOrigin: 'center center',
                 ...({ x: springX, y: springY, zIndex } as any)
             }}
         >
