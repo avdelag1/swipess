@@ -186,9 +186,9 @@ function TopBarComponent({
           style={{ transform: 'translateZ(0)' }}
         />
 
-        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 pl-2 pr-3">
+        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 pl-1.5 pr-2">
           {/* Left section: Avatar + Mode switcher + filters */}
-          <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0 relative z-20">
+          <div className="flex items-center gap-1 min-w-0 flex-shrink-0 relative z-20">
             {/* Unified Nav Group: [Back?] [Avatar] [Title] */}
             {showBack && (
               <motion.button
@@ -225,7 +225,7 @@ function TopBarComponent({
                 style={{ WebkitTapHighlightColor: 'transparent' }}
                 aria-label="Go to profile"
               >
-                <Avatar className="h-12 w-12 rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
+                <Avatar className="h-9 w-9 rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
                   <AvatarImage src={profile?.avatar_url || ''} className="object-cover w-full h-full rounded-full" />
                   <AvatarFallback className={cn(
                     "text-xs font-black uppercase rounded-full w-full h-full flex items-center justify-center",
@@ -246,8 +246,7 @@ function TopBarComponent({
             )}
 
 
-            <div className="flex items-center gap-1.5 flex-shrink-0 ml-1 relative z-10">
-
+            <div className="flex items-center flex-shrink-0 relative z-10">
               <ModeSwitcher variant="icon" size="sm" />
             </div>
 
@@ -286,7 +285,7 @@ function TopBarComponent({
           </div>
 
           {/* Right section: Actions */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end relative z-20">
+          <div className="flex items-center gap-0.5 sm:gap-1.5 flex-shrink-0 justify-end relative z-20">
             {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
               <PopoverTrigger asChild>
