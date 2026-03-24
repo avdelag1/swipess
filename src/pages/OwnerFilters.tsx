@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Users, Check, RotateCcw, UserCircle, Baby, Briefcase, ShoppingBag, Building2, Globe } from 'lucide-react';
+import { Users, Check, RotateCcw, UserCircle, Baby, Briefcase, ShoppingBag, Building2, Globe } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
 import { useFilterStore } from '@/state/filterStore';

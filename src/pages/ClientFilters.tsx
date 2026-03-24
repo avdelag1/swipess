@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Sparkles, Home, Bike, Briefcase, RotateCcw, Zap } from 'lucide-react';
+import { Sparkles, Home, Bike, Briefcase, RotateCcw, Zap } from 'lucide-react';
 import { AISearchDialog } from '@/components/AISearchDialog';
 import { Button } from '@/components/ui/button';
 import { useFilterStore } from '@/state/filterStore';

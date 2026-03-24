@@ -1,5 +1,5 @@
 
-import React, { ReactNode, useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react'
+import React, { ReactNode, useState, useEffect, useCallback, useMemo, lazy, useRef } from 'react'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'

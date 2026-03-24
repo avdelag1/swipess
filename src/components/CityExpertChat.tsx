@@ -4,15 +4,14 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { 
-  Bot, 
-  Send, 
-  X, 
-  Loader2, 
+  Bot,
+  Send,
+  X,
+  Loader2,
   Sparkles,
   MapPin,
   Building2,
   Car,
-  Briefcase,
   RefreshCw,
   User
 } from 'lucide-react';

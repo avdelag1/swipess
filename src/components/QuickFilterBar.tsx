@@ -355,7 +355,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     services:   { bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',   shadow: '0 4px 16px rgba(245,158,11,0.5)',   border: 'rgba(245,158,11,0.8)',  overlay: 'linear-gradient(135deg, rgba(245,158,11,0.72) 0%, rgba(217,119,6,0.72) 100%)' },
   };
 
-  const allSelectedShadow = '0 4px 20px rgba(236,72,153,0.55)';
+  const _allSelectedShadow = '0 4px 20px rgba(236,72,153,0.55)';
 
   // Category preview photos for breathing effect (from mock data + curated)
   const categoryPhotos: Record<string, string> = {
@@ -364,7 +364,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     bicycle:    'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=300&h=150&fit=crop&crop=center',
     services:   'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=300&h=150&fit=crop&crop=center',
   };
-  const allPhoto = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&h=150&fit=crop&crop=center';
+  const _allPhoto = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&h=150&fit=crop&crop=center';
 
   return (
     <div

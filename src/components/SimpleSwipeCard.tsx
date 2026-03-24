@@ -22,8 +22,6 @@ import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo } from '@/components
 import { VerifiedBadge } from '@/components/ui/TrustSignals';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
-import { cn } from '@/lib/utils';
-
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
