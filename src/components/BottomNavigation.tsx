@@ -381,22 +381,6 @@ export function BottomNavigation({
                   </div>
                 )}
 
-                {/* Active background pill */}
-                {active && (
-                  <motion.div
-                    layoutId="nav-active-pill"
-                    className="absolute inset-x-1 rounded-2xl pointer-events-none"
-                    style={{
-                      top: 2,
-                      bottom: isNarrow ? 18 : 22,
-                      background: isLight
-                        ? 'rgba(249,115,22,0.13)'
-                        : 'rgba(249,115,22,0.22)',
-                      boxShadow: '0 0 12px rgba(249,115,22,0.25)',
-                    }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 35, mass: 0.5 }}
-                  />
-                )}
 
                 {/* Icon */}
                   <motion.div
@@ -428,7 +412,7 @@ export function BottomNavigation({
                         color: active ? activeColor : iconColorInactive,
                         fill: active ? activeColor : 'none',
                         strokeWidth: active ? 1.5 : 2,
-                        filter: active ? `drop-shadow(0 0 6px rgba(249,115,22,0.55))` : 'none',
+                        filter: 'none',
                       }}
                     />
                   </motion.div>
@@ -445,7 +429,7 @@ export function BottomNavigation({
                         : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.55)'),
                       opacity: 1,
                       zIndex: 1,
-                      textShadow: active ? '0 0 10px rgba(249,115,22,0.5)' : 'none',
+                      textShadow: 'none',
                     }}
                   >
                     {item.label}
