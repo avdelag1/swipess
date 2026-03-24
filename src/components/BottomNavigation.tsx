@@ -16,7 +16,7 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, MessageCircle, User, Building2,
   Search, Users, Sparkles, ShieldCheck,
@@ -31,7 +31,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 
 const ICON_SIZE = 24;
 const ICON_SIZE_COMPACT = 22;
@@ -241,7 +240,7 @@ export function BottomNavigation({
 
   const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
 
-  const iconColorInactive = isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.4)';
+  const iconColorInactive = isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.55)';
   const activeColor = 'var(--color-brand-primary)';
 
   const barShadow = isLight
@@ -314,7 +313,6 @@ export function BottomNavigation({
         </AnimatePresence>
 
         {/* Nav items row */}
-        <LayoutGroup id="bottom-nav">
         <div
           ref={scrollRef}
           data-no-swipe-nav
@@ -367,19 +365,6 @@ export function BottomNavigation({
                 }}
               >
 
-                {/* Floating glass pill background for active tab */}
-                {active && (
-                  <motion.div
-                    layoutId="nav-pill-background"
-                    className="absolute inset-x-1.5 inset-y-1.5 rounded-2xl z-0"
-                    style={{
-                      backgroundColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)',
-                      backdropFilter: 'blur(8px)',
-                      border: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.1)',
-                    }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 38, mass: 0.8 }}
-                  />
-                )}
 
                 {/* Activity Pulse Halo — radiates when badge is active */}
                 {item.badge && item.badge > 0 && (
@@ -396,8 +381,14 @@ export function BottomNavigation({
                   </div>
                 )}
 
+
                 {/* Icon */}
-                  <div className="relative" style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}>
+                  <motion.div
+                    className="relative"
+                    animate={{ scale: active ? 1.15 : 1 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
+                    style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
+                  >
                     {/* Notification badge */}
                     <AnimatePresence>
                       {item.badge && item.badge > 0 && (
@@ -411,33 +402,20 @@ export function BottomNavigation({
                         />
                       )}
                     </AnimatePresence>
-                    
-                    <AnimatedLottieIcon 
-                      iconId={item.id}
-                      active={active}
-                      size={isNarrow ? ICON_SIZE_COMPACT + 6 : ICON_SIZE + 8}
+
+                    {/* Icon: filled with brand color when active, outline when inactive */}
+                    <Icon
                       className="transition-all duration-300 ease-out"
-                      inactiveIcon={
-                        <div style={{
-                          width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                          height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}>
-                          <Icon
-                            className="transition-all duration-300 ease-out"
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              color: isLight ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)',
-                              strokeWidth: 2,
-                            }}
-                          />
-                        </div>
-                      }
+                      style={{
+                        width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                        height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                        color: active ? activeColor : iconColorInactive,
+                        fill: active ? activeColor : 'none',
+                        strokeWidth: active ? 1.5 : 2,
+                        filter: 'none',
+                      }}
                     />
-                  </div>
+                  </motion.div>
 
                 {/* Label */}
                 {!isNarrow && (
@@ -446,39 +424,22 @@ export function BottomNavigation({
                       'text-[10px] tracking-wide transition-all duration-300 relative font-black uppercase italic',
                     )}
                     style={{
-                      color: active 
-                        ? (isLight ? 'var(--color-brand-primary)' : '#ffffff') 
-                        : (isLight ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)'),
+                      color: active
+                        ? 'var(--color-brand-primary)'
+                        : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.55)'),
                       opacity: 1,
                       zIndex: 1,
-                      textShadow: active ? '0 0 15px rgba(249,115,22,0.4)' : 'none',
+                      textShadow: 'none',
                     }}
                   >
                     {item.label}
                   </span>
                 )}
 
-                {/* Active indicator bar */}
-                {active && (
-                  <motion.span
-                    layoutId="nav-active-bar"
-                    aria-hidden="true"
-                    className="absolute bottom-1.5 left-1/2 -translate-x-1/2"
-                    style={{
-                      width: 20,
-                      height: 2.5,
-                      borderRadius: 2,
-                      background: 'var(--color-brand-gradient)',
-                      boxShadow: '0 0 12px var(--color-brand-primary)',
-                    }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                  />
-                )}
               </motion.button>
             );
           })}
         </div>
-        </LayoutGroup>
 
         {/* ── Edge fade indicators ──────────────────────────────────────── */}
         <div

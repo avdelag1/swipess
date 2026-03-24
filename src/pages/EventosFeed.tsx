@@ -913,7 +913,7 @@ export default function EventosFeed() {
   }, [activeIdx]);
 
   return (
-    <div className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col">
+    <div data-no-swipe-nav className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col">
 
       {/* ── TOP HUD ── */}
       <div className="absolute top-0 left-0 right-0 z-30 pt-safe">
@@ -950,7 +950,7 @@ export default function EventosFeed() {
               <Heart className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
             </button>
             <button
-              onClick={() => navigate('/explore/eventos/promote')}
+              onClick={() => navigate('/client/advertise')}
               className="flex items-center gap-1.5 px-3 h-8 rounded-full text-[11px] font-black uppercase tracking-wide text-white"
               style={{ background: 'linear-gradient(135deg,rgba(249,115,22,0.8),rgba(168,85,247,0.8))', backdropFilter: 'blur(8px)' }}
               data-testid="btn-promote-header"
@@ -1052,7 +1052,7 @@ export default function EventosFeed() {
                 }}
               >
                 {isLast ? (
-                  <PromoteCTACard onPromote={() => navigate('/explore/eventos/promote')} />
+                  <PromoteCTACard onPromote={() => navigate('/client/advertise')} />
                 ) : (
                   <EventCard
                     event={event}

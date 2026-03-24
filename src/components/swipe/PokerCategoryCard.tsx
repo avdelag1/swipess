@@ -1,10 +1,10 @@
 import { memo, useCallback, useRef } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
-import { 
-  PK_W, PK_H, FOLDER_OFFSET_X, FOLDER_OFFSET_Y, 
+import {
+  PK_W, PK_H, FOLDER_OFFSET_X, FOLDER_OFFSET_Y,
   PK_DIST_THRESHOLD, PK_VEL_THRESHOLD, PK_SPRING,
-  POKER_CARD_PHOTOS, POKER_CARDS
+  POKER_CARD_PHOTOS, POKER_CARDS, POKER_FAN_ROTATION
 } from './SwipeConstants';
 import { cn } from '@/lib/utils';
 
@@ -26,8 +26,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBring
   const y = useMotionValue(0);
   const isExiting = useRef(false);
 
-  // Front card tilts slightly while dragging
-  const dragTilt = useTransform(x, [-180, 0, 180], [-12, 0, 12]);
+  // Front card tilts slightly while dragging; base offset of 3° at rest
+  const dragTilt = useTransform(x, [-180, 0, 180], [-9, 3, 15]);
 
   // Folder-stack position
   const folderX = index * FOLDER_OFFSET_X;
@@ -89,8 +89,9 @@ export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBring
       animate={{
         x: isTop ? 0 : folderX,
         y: isTop ? 0 : folderY,
-        scale:   isTop ? 1 : 1 - index * 0.015,
+        scale:   isTop ? 1 : 1 - index * 0.012,
         opacity: index > 4 ? 0 : 1,
+        rotate:  isTop ? 3 : index * POKER_FAN_ROTATION,
       }}
       transition={PK_SPRING}
       style={{
@@ -102,7 +103,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBring
         zIndex: 50 - index,
         x: isTop ? x : folderX,
         y: isTop ? y : folderY,
-        rotate: isTop ? dragTilt : 0,
+        rotate: isTop ? dragTilt : (index * POKER_FAN_ROTATION),
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
       } as any}
@@ -163,7 +164,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBring
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
               onClick={(e) => { e.stopPropagation(); onSwipeOut(card.id); }}
-              className="mt-4 w-full py-3 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+              className="mt-4 w-full py-3 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-transform"
+              style={{
+                background: 'rgba(255,255,255,0.92)',
+                color: '#111',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
+                backdropFilter: 'none',
+              }}
             >
               Explore
             </motion.button>

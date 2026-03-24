@@ -20,7 +20,7 @@ export function ExploreFeatureLinks({ isClient: _isClient = true }: ExploreFeatu
       {/* Promote Your Event */}
       <motion.button
         whileTap={{ scale: 0.97 }}
-        onClick={() => { haptics.select(); navigate('/explore/eventos/promote'); }}
+        onClick={() => { haptics.select(); navigate('/client/advertise'); }}
         className={cn(
           "relative w-full flex items-center justify-center gap-3 h-14 rounded-2xl transition-all duration-300",
           "text-white shadow-[0_8px_16px_rgba(236,72,153,0.25)]"

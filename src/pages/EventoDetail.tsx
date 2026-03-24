@@ -85,7 +85,7 @@ function BrandBenefitsSection() {
                 className="w-full py-4.5 h-14 rounded-2xl bg-white text-indigo-600 text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl flex items-center justify-center gap-2 active:scale-95 transition-all"
                 onClick={() => {
                    triggerHaptic('medium');
-                   navigate('/explore/eventos/promote');
+                   navigate('/client/advertise');
                 }}
              >
                 Submit Your Brand <ArrowUpRight className="w-4 h-4" />

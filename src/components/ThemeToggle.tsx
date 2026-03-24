@@ -52,13 +52,13 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
             aria-label={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} mode`}
             title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} mode`}
         >
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="sync">
                 <motion.div
                     key={theme}
-                    initial={{ opacity: 0, scale: 0.8, rotate: -180 }}
-                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, rotate: 180 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    initial={{ opacity: 0, scale: 0.6 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.6 }}
+                    transition={{ duration: 0.1, ease: 'easeOut' }}
                 >
                     {theme === 'light' ? (
                         <Sun strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />

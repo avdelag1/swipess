@@ -8,7 +8,7 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, ThumbsUp, Settings, Radio, MessageSquare, Megaphone, Building2
+  Flame, ThumbsUp, Settings, Radio, MessageSquare, Megaphone
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
@@ -71,12 +71,7 @@ const ClientProfileNew = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className="w-full"
-    >
+    <div className="w-full">
       <div className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
@@ -155,7 +150,7 @@ const ClientProfileNew = () => {
               variant="outline"
               size="lg"
               elastic
-              onClick={() => { haptics.success(); navigate('/explore/eventos/promote'); }}
+              onClick={() => { haptics.success(); navigate('/client/advertise'); }}
               className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-primary/20 hover:border-primary/40 bg-white/5 shadow-sm transition-all"
               style={{
                 background: 'linear-gradient(135deg, rgba(228,0,124,0.08) 0%, rgba(249,115,22,0.08) 100%)'
@@ -167,21 +162,6 @@ const ClientProfileNew = () => {
               </span>
             </Button>
 
-            <Button
-              variant="outline"
-              size="lg"
-              elastic
-              onClick={() => { haptics.success(); navigate('/client/advertise'); }}
-              className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-orange-500/20 hover:border-orange-500/40 bg-white/5 shadow-sm transition-all"
-              style={{
-                background: 'linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(168,85,247,0.08) 100%)'
-              }}
-            >
-              <Building2 className="w-5 h-5 text-orange-500 mr-2 shrink-0" />
-              <span className="bg-gradient-to-r from-orange-500 to-purple-500 bg-clip-text text-transparent font-black uppercase tracking-tight">
-                Advertise Your Brand
-              </span>
-            </Button>
           </div>
         </div>
 
@@ -373,7 +353,7 @@ const ClientProfileNew = () => {
         onClose={() => setShowPhotoPreview(false)}
         initialIndex={selectedPhotoIndex}
       />
-    </motion.div>
+    </div>
   );
 };
 

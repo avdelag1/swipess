@@ -74,10 +74,11 @@ export const POKER_CARDS = [
   { id: 'all'        as const, label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212'   },
 ];
 
-export const PK_W = 270;
-export const PK_H = 420;
-export const FOLDER_OFFSET_X = 28;
+export const PK_W = 330;
+export const PK_H = 520;
+export const FOLDER_OFFSET_X = 30;
 export const FOLDER_OFFSET_Y = 0;
+export const POKER_FAN_ROTATION = 8; // degrees per card in the fan
 export const PK_DIST_THRESHOLD = 110;
 export const PK_VEL_THRESHOLD  = 480;
 export const PK_SPRING = { type: 'spring' as const, stiffness: 520, damping: 34, mass: 0.9 };

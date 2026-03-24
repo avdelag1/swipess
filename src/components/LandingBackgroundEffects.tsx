@@ -16,25 +16,19 @@ function unlockAudio() {
   audioUnlocked = true;
 }
 
+// ─── Stars types ────────────────────────────────────────────────────────────
 interface Star {
-  x: number;
-  y: number;
-  baseX: number;
-  baseY: number;
-  size: number;
-  opacity: number;
-  twinkleSpeed: number;
-  twinklePhase: number;
-  vx: number;
-  vy: number;
-  glow?: boolean;
+  x: number; y: number; baseX: number; baseY: number;
+  size: number; opacity: number;
+  twinkleSpeed: number; twinklePhase: number;
+  vx: number; vy: number; glow?: boolean;
 }
-
 interface ShootingStar {
   x: number; y: number; vx: number; vy: number;
   age: number; maxAge: number; length: number;
 }
 
+// ─── Sunset types ────────────────────────────────────────────────────────────
 interface Cloud {
   x: number;
   y: number;
@@ -411,6 +405,4 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
   );
 }
 
-
 export default memo(LandingBackgroundEffects);
-
