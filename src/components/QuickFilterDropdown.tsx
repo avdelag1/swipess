@@ -6,6 +6,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useTheme } from '@/hooks/useTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+import { haptics } from '@/utils/microPolish';
 import type { QuickFilterCategory, ClientGender, ClientType } from '@/types/filters';
 
 // Re-export unified types

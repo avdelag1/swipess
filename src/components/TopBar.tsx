@@ -453,7 +453,7 @@ function TopBarComponent({
           open={cityExpertOpen} 
           onOpenChange={setCityExpertOpen}
           initialCity="Cancun"
-          userRole={userRole}
+          userRole={userRole === 'admin' ? 'client' : userRole}
         />
       </header>
     </>

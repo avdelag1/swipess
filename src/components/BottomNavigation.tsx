@@ -31,6 +31,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 
 const ICON_SIZE = 22;
 const ICON_SIZE_COMPACT = 20;
