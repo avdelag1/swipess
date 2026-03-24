@@ -186,7 +186,7 @@ function TopBarComponent({
           style={{ transform: 'translateZ(0)' }}
         />
 
-        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 px-2">
+        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 pl-2 pr-3">
           {/* Left section: Avatar + Mode switcher + filters */}
           <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0 relative z-20">
             {/* Unified Nav Group: [Back?] [Avatar] [Title] */}

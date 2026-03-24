@@ -24,9 +24,10 @@ export const VisualEngine = () => {
         />
       )}
       
-      <LandingBackgroundEffects 
-        mode={preferences.background_mode || 'stars'} 
-        isLightTheme={isLight} 
+      <LandingBackgroundEffects
+        mode={preferences.background_mode || 'stars'}
+        isLightTheme={isLight}
+        disableSounds={true}
       />
     </div>
   );
