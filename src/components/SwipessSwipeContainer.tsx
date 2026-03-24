@@ -1068,9 +1068,37 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     >
       {/* Centered card stack container with perspective */}
       <div className="relative flex-1 w-full max-w-md flex items-center justify-center" style={{ perspective: '1200px' }}>
-        {/* NEXT CARD - Visible behind current card (Tinder-style anticipation)
+        {/* THIRD CARD - Deepest in stack for poker hand depth */}
+        {(() => {
+          const thirdCard = deckQueueRef.current[currentIndexRef.current + 2];
+          if (!thirdCard) return null;
+          return (
+            <motion.div
+              key={`third-${thirdCard.id}`}
+              className="absolute w-full h-full gpu-layer rounded-3xl overflow-hidden"
+              style={{
+                zIndex: 3,
+                scale: 0.9,
+                opacity: 0.35,
+                translateZ: 0,
+                pointerEvents: 'none',
+                y: 20,
+                rotate: 2.5,
+                willChange: 'transform',
+              }}
+            >
+              <SimpleSwipeCard
+                listing={thirdCard}
+                onSwipe={() => {}}
+                isTop={false}
+              />
+            </motion.div>
+          );
+        })()}
+
+        {/* NEXT CARD - Visible behind current card (poker hand style)
             - Scale slightly smaller to create depth
-            - Translated down slightly for stacked effect
+            - Slight rotation for fanned poker-hand effect
             - Already preloaded so transition is instant */}
         {(() => {
           const nextCard = deckQueueRef.current[currentIndexRef.current + 1];
@@ -1086,7 +1114,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
                 translateZ: 0,
                 pointerEvents: 'none',
                 y: 12,
-                perspective: '1200px',
+                rotate: -1.5,
                 willChange: 'transform',
               }}
             >
