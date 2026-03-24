@@ -4,7 +4,7 @@ import {
 } from 'framer-motion';
 import {
   Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, Gamepad2
+  ArrowLeft, Loader, Check, Star, Gamepad2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -64,8 +64,12 @@ const checkPasswordStrength = (password: string) => {
 /* ─── Landing view ───────────────────────────────────────── */
 const LandingView = memo(({
   onEnterAuth,
+  bgMode,
+  onStarClick,
 }: {
   onEnterAuth: () => void;
+  bgMode: EffectMode;
+  onStarClick: () => void;
 }) => {
   const navigate = useNavigate();
   const x = useMotionValue(0);
@@ -125,19 +129,36 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* Game button — bottom-left corner */}
+      {/* Star filter / Game button — bottom-left corner */}
       <button
-        onClick={(e) => { e.stopPropagation(); navigate('/game/trumps-bad-day'); }}
-        data-testid="button-game"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (bgMode === 'stars') {
+            // In stars mode → go to Trump game, reset bg to sunset on return
+            try { localStorage.setItem('swipess_bg_theme', 'sunset'); } catch { /* ignore */ }
+            navigate('/game/trumps-bad-day');
+          } else {
+            onStarClick();
+          }
+        }}
+        data-testid="button-star-filter"
         className="absolute bottom-6 left-6 w-11 h-11 flex items-center justify-center rounded-full transition-all active:scale-90"
         style={{
-          background: 'rgba(255,255,255,0.07)',
-          border: '1px solid rgba(255,255,255,0.12)',
+          background: bgMode === 'stars'
+            ? 'rgba(250,204,21,0.15)'
+            : 'rgba(255,255,255,0.07)',
+          border: bgMode === 'stars'
+            ? '1px solid rgba(250,204,21,0.35)'
+            : '1px solid rgba(255,255,255,0.12)',
           backdropFilter: 'blur(10px)',
         }}
-        title="Mini Game"
+        title={bgMode === 'stars' ? "Play Trump's Game" : 'Star Filter'}
       >
-        <Gamepad2 className="w-5 h-5 text-white/50" />
+        {bgMode === 'stars' ? (
+          <Gamepad2 className="w-5 h-5 text-yellow-300" />
+        ) : (
+          <Star className="w-5 h-5 text-white/50" />
+        )}
       </button>
 
     </motion.div>
@@ -322,17 +343,19 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 
       <div className="h-full flex flex-col justify-center p-4 sm:p-5 relative z-10">
         <motion.div className="w-full max-w-sm mx-auto" variants={containerVariants} initial="hidden" animate="visible">
-          {isForgotPassword && (
-            <motion.div variants={itemVariants} className="text-center mb-5">
-              <h2 className="text-xl font-bold text-foreground">Reset Password</h2>
-            </motion.div>
-          )}
-
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-black font-brand italic uppercase tracking-tight bg-gradient-to-r from-orange-400 to-rose-400 bg-clip-text text-transparent">
-                Welcome to Swipess
+              <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent"
+                style={{ fontFamily: "'Georgia', 'Times New Roman', serif", letterSpacing: '-0.02em' }}>
+                {isForgotPassword ? 'Reset' : isLogin ? 'Welcome back' : 'Welcome'}
               </h1>
+              <p className="text-sm text-muted-foreground/70 mt-2 font-light tracking-wide">
+                {isForgotPassword
+                  ? 'Enter your email to recover access'
+                  : isLogin
+                    ? 'Good to see you again'
+                    : 'Create your account to get started'}
+              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -451,6 +474,15 @@ function LegendaryLandingPage() {
   const isLightTheme = theme === 'light';
   const [bgMode, setBgMode] = useState<EffectMode>(getStoredBgTheme);
 
+  const saveBgMode = (mode: EffectMode) => {
+    try { localStorage.setItem('swipess_bg_theme', mode); } catch { /* ignore */ }
+    setBgMode(mode);
+  };
+
+  const handleStarClick = () => {
+    saveBgMode('stars');
+  };
+
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === 'swipess_bg_theme' && e.newValue) {
@@ -474,6 +506,8 @@ function LegendaryLandingPage() {
           <LandingView
             key="landing"
             onEnterAuth={() => setView('auth')}
+            bgMode={bgMode}
+            onStarClick={handleStarClick}
           />
         ) : (
           <AuthView key="auth" onBack={() => setView('landing')} />
