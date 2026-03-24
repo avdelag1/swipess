@@ -33,11 +33,6 @@ import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 
-// Placeholder for AnimatedLottieIcon if it's missing or from another file
-// In a real scenario I should find where it's defined, but I'll assume it exists in the scope or I'll use a fallback.
-// Looking at the file content, it's used at line 430.
-import { AnimatedLottieIcon } from './AnimatedLottieIcon';
-
 const ICON_SIZE = 24;
 const ICON_SIZE_COMPACT = 22;
 const TOUCH_TARGET = 48;
@@ -372,6 +367,20 @@ export function BottomNavigation({
                 }}
               >
 
+                {/* Floating glass pill background for active tab */}
+                {active && (
+                  <motion.div
+                    layoutId="nav-pill-background"
+                    className="absolute inset-x-1.5 inset-y-1.5 rounded-2xl z-0"
+                    style={{
+                      backgroundColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)',
+                      backdropFilter: 'blur(8px)',
+                      border: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.1)',
+                    }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 38, mass: 0.8 }}
+                  />
+                )}
+
                 {/* Activity Pulse Halo — radiates when badge is active */}
                 {item.badge && item.badge > 0 && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
@@ -379,41 +388,17 @@ export function BottomNavigation({
                       className="absolute rounded-full"
                       style={{
                         width: 32, height: 32,
-                        background: 'radial-gradient(circle, rgba(236,72,153,0.25) 0%, transparent 70%)',
+                        background: 'radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)',
                       }}
-                      animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
+                      animate={{ scale: [1, 2, 1], opacity: [0.6, 0, 0.6] }}
                       transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                    />
-                    <motion.div
-                      className="absolute rounded-full"
-                      style={{
-                        width: 28, height: 28,
-                        background: 'radial-gradient(circle, rgba(249,115,22,0.20) 0%, transparent 70%)',
-                      }}
-                      animate={{ scale: [1, 2.2, 1], opacity: [0.4, 0, 0.4] }}
-                      transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
-                    />
-                  </div>
-                )}
-
-                {/* Special item: animated glow halo */}
-                {item.isSpecial && !active && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
-                    <motion.div
-                      className="absolute rounded-full"
-                      style={{
-                        width: 30, height: 30,
-                        background: 'radial-gradient(circle, rgba(249,115,22,0.28) 0%, transparent 70%)',
-                      }}
-                      animate={{ scale: [1, 1.6, 1], opacity: [0.5, 0, 0.5] }}
-                      transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
                     />
                   </div>
                 )}
 
                 {/* Icon */}
                   <div className="relative" style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}>
-                    {/* Notification badge — anchored to the icon, not the full tap target */}
+                    {/* Notification badge */}
                     <AnimatePresence>
                       {item.badge && item.badge > 0 && (
                         <motion.span
@@ -421,8 +406,8 @@ export function BottomNavigation({
                           animate={{ scale: 1 }}
                           exit={{ scale: 0 }}
                           transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                          className="absolute -top-1 -right-1 rounded-full w-[9px] h-[9px] z-20 shadow-md border border-background"
-                          style={{ background: 'linear-gradient(135deg,#ef4444,#dc2626)' }}
+                          className="absolute -top-1 -right-1 rounded-full w-[10px] h-[10px] z-20 shadow-md border border-background"
+                          style={{ background: 'linear-gradient(135deg,#ff4d00,#ff8c00)' }}
                         />
                       )}
                     </AnimatePresence>
@@ -430,8 +415,8 @@ export function BottomNavigation({
                     <AnimatedLottieIcon 
                       iconId={item.id}
                       active={active}
-                      size={isNarrow ? ICON_SIZE_COMPACT + 4 : ICON_SIZE + 6}
-                      className="transition-all duration-250 ease-out"
+                      size={isNarrow ? ICON_SIZE_COMPACT + 6 : ICON_SIZE + 8}
+                      className="transition-all duration-300 ease-out"
                       inactiveIcon={
                         <div style={{
                           width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
@@ -441,14 +426,12 @@ export function BottomNavigation({
                           justifyContent: 'center',
                         }}>
                           <Icon
-                            className="transition-all duration-250 ease-out"
+                            className="transition-all duration-300 ease-out"
                             style={{
                               width: '100%',
                               height: '100%',
-                              color: 'rgba(255,255,255,0.45)',
-                              stroke: 'rgba(255,255,255,0.45)',
-                              strokeWidth: 1.8,
-                              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
+                              color: isLight ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)',
+                              strokeWidth: 2,
                             }}
                           />
                         </div>
@@ -456,37 +439,39 @@ export function BottomNavigation({
                     />
                   </div>
 
-                {/* Label — hidden on very narrow screens (<360px) for icon-only mode */}
+                {/* Label */}
                 {!isNarrow && (
                   <span
                     className={cn(
-                      'text-[10px] tracking-wide transition-all duration-250 relative font-bold',
+                      'text-[10px] tracking-wide transition-all duration-300 relative font-black uppercase italic',
                     )}
                     style={{
-                      color: active ? '#ffffff' : 'rgba(255,255,255,0.40)',
+                      color: active 
+                        ? (isLight ? 'var(--color-brand-primary)' : '#ffffff') 
+                        : (isLight ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)'),
                       opacity: 1,
                       zIndex: 1,
-                      textShadow: active ? '0 0 10px rgba(249,115,22,0.5), 0 1px 2px rgba(0,0,0,0.5)' : '0 1px 2px rgba(0,0,0,0.5)',
+                      textShadow: active ? '0 0 15px rgba(249,115,22,0.4)' : 'none',
                     }}
                   >
                     {item.label}
                   </span>
                 )}
 
-                {/* Sliding active pill — springs between tabs */}
+                {/* Active indicator bar */}
                 {active && (
                   <motion.span
-                    layoutId="nav-active-dot"
+                    layoutId="nav-active-bar"
                     aria-hidden="true"
-                    className="absolute bottom-0 left-1/2 -translate-x-1/2"
+                    className="absolute bottom-1.5 left-1/2 -translate-x-1/2"
                     style={{
-                      width: 24,
-                      height: 3,
-                      borderRadius: 3,
+                      width: 20,
+                      height: 2.5,
+                      borderRadius: 2,
                       background: 'var(--color-brand-gradient)',
-                      boxShadow: '0 0 10px rgba(255, 77, 0, 0.5)',
+                      boxShadow: '0 0 12px var(--color-brand-primary)',
                     }}
-                    transition={{ type: 'spring', stiffness: 620, damping: 32, mass: 0.4 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                   />
                 )}
               </motion.button>

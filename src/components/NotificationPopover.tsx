@@ -365,11 +365,10 @@ export function NotificationPopover({ className, children }: NotificationPopover
               "hover:scale-105 active:scale-95 group bg-card border-0",
               "touch-manipulation"
             )}
-            onPointerDown={(e) => { 
-              e.preventDefault(); 
-              haptics.tap(); 
+            onClick={(e) => {
+              // Ensure haptics fire but let click propagate to PopoverTrigger
+              haptics.tap();
             }}
-            onClick={(e) => e.preventDefault()}
             aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
           >
             <div className="relative">
