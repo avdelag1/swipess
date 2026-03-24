@@ -911,14 +911,38 @@ const ClientSwipeContainerComponent = ({
   return (
     <div className="relative w-full flex flex-col" style={{ minHeight: '100dvh' }}>
       <div className="relative flex-1 w-full">
-        {/* Next card visible behind - creates depth and anticipation */}
+        {/* Third card - deepest in poker hand stack */}
+        {(() => {
+          const thirdCard = deckQueueRef.current[currentIndexRef.current + 2];
+          if (!thirdCard) return null;
+          return (
+            <div
+              key={`third-${thirdCard.user_id}`}
+              className="w-full h-full absolute inset-0"
+              style={{
+                zIndex: 3,
+                transform: 'scale(0.9) rotate(2.5deg)',
+                opacity: 0.35,
+                pointerEvents: 'none',
+              }}
+            >
+              <SimpleOwnerSwipeCard
+                profile={thirdCard}
+                onSwipe={() => {}}
+                isTop={false}
+              />
+            </div>
+          );
+        })()}
+
+        {/* Next card visible behind - poker hand fanned effect */}
         {nextCard && (
           <div
-            key={`next - ${nextCard.user_id} `}
+            key={`next-${nextCard.user_id}`}
             className="w-full h-full absolute inset-0"
             style={{
               zIndex: 5,
-              transform: 'scale(0.95)',
+              transform: 'scale(0.95) rotate(-1.5deg)',
               opacity: 0.7,
               pointerEvents: 'none',
             }}
