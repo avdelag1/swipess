@@ -38,26 +38,26 @@ function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
     const h = window.innerHeight;
 
     interface Star { x: number; y: number; size: number; opacity: number; speed: number; phase: number; glow: boolean; }
-    const count = Math.min(Math.floor((w * h) / 900), 500);
+    const count = Math.min(Math.floor((w * h) / 700), 700);
     const stars: Star[] = Array.from({ length: count }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      size: Math.random() * 1.4 + 0.4,
-      opacity: Math.random() * 0.5 + 0.4,
-      speed: Math.random() * 0.03 + 0.006,
+      size: Math.random() * 0.75 + 0.15,
+      opacity: Math.random() * 0.55 + 0.35,
+      speed: Math.random() * 0.01 + 0.001,
       phase: Math.random() * Math.PI * 2,
-      glow: Math.random() > 0.82,
+      glow: Math.random() > 0.85,
     }));
 
     let t = 0;
     const draw = () => {
       ctx.clearRect(0, 0, w, h);
-      t += 0.4;
+      t += 0.12;
       for (const s of stars) {
         const twinkle = Math.sin(t * s.speed + s.phase) * 0.5 + 0.5;
-        const alpha = Math.min(s.opacity * (twinkle * 0.35 + 0.65), 1);
+        const alpha = Math.min(s.opacity * (twinkle * 0.65 + 0.35), 1);
         if (alpha < 0.02) continue;
-        if (s.glow) { ctx.shadowBlur = s.size > 1.1 ? 5 : 2; ctx.shadowColor = 'rgba(255,255,255,0.85)'; }
+        if (s.glow) { ctx.shadowBlur = 4; ctx.shadowColor = 'rgba(255,255,255,0.85)'; }
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255,255,255,${alpha})`;
