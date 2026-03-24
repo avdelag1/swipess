@@ -33,11 +33,6 @@ import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 
-// Placeholder for AnimatedLottieIcon if it's missing or from another file
-// In a real scenario I should find where it's defined, but I'll assume it exists in the scope or I'll use a fallback.
-// Looking at the file content, it's used at line 430.
-import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
-
 const ICON_SIZE = 24;
 const ICON_SIZE_COMPACT = 22;
 const TOUCH_TARGET = 48;
