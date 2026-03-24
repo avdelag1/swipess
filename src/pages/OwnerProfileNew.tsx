@@ -115,7 +115,7 @@ const OwnerProfileNew = () => {
             variant="outline"
             size="lg"
             elastic
-            onClick={() => { haptics.success(); navigate('/explore/eventos/promote'); }}
+            onClick={() => { haptics.success(); navigate('/client/advertise'); }}
             className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-primary/20 hover:border-primary/40 bg-white/5 shadow-sm transition-all"
             style={{
               background: 'linear-gradient(135deg, rgba(228,0,124,0.08) 0%, rgba(249,115,22,0.08) 100%)'
