@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -95,6 +96,9 @@ async function callGeminiDirect(messages: Message[], maxTokens: number): Promise
 
   const data = await res.json();
   const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  if (!content && data.error) {
+     throw new ProviderError(`Gemini returned error: ${data.error.message}`, 500);
+  }
   return { content, provider: "gemini-native" };
 }
 
@@ -419,13 +423,19 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+       console.error("[AI Orchestrator] Missing SUPABASE_URL or SUPABASE_ANON_KEY");
+       return new Response(JSON.stringify({ error: "Server configuration error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, { global: { headers: { Authorization: authHeader } } });
 
     const { data: userData, error: userError } = await supabaseClient.auth.getUser();
     if (userError || !userData?.user) {
+      console.warn("[AI Orchestrator] Auth failed:", userError);
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 

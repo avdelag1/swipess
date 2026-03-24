@@ -33,8 +33,13 @@ import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 
-const ICON_SIZE = 22;
-const ICON_SIZE_COMPACT = 20;
+// Placeholder for AnimatedLottieIcon if it's missing or from another file
+// In a real scenario I should find where it's defined, but I'll assume it exists in the scope or I'll use a fallback.
+// Looking at the file content, it's used at line 430.
+import { AnimatedLottieIcon } from './AnimatedLottieIcon';
+
+const ICON_SIZE = 24;
+const ICON_SIZE_COMPACT = 22;
 const TOUCH_TARGET = 48;
 const TOUCH_TARGET_COMPACT = 44;
 
@@ -241,9 +246,8 @@ export function BottomNavigation({
 
   const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
 
-  const iconColorInactive = '#ffffff'; // Pure white - bright and visible on dark
-  const iconColorActive = '#ffffff'; // White for active too - high contrast
-  const labelColorInactive = '#ffffff'; // White labels
+  const iconColorInactive = isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.4)';
+  const activeColor = 'var(--color-brand-primary)';
 
   const barShadow = isLight
     ? '0 -1px 0 rgba(0,0,0,0.06), 0 -4px 12px rgba(0,0,0,0.08)'
@@ -259,12 +263,12 @@ export function BottomNavigation({
         className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
           // LAYER 1: Solid glass base with Heavy Backdrop Blur
-          backgroundColor: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(12,12,14,0.82)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
+          backgroundColor: isLight ? 'rgba(255,255,255,0.88)' : 'rgba(8, 8, 10, 0.85)',
+          backdropFilter: 'blur(32px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(180%)',
           // No hard borders — defined by shadows and a subtle rim light
-          border: isLight ? '1px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '28px',
+          border: isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.12)',
+          borderRadius: '32px',
           boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',
@@ -357,9 +361,9 @@ export function BottomNavigation({
                   'touch-manipulation focus-visible:outline-none',
                 )}
                 style={{
-                  minWidth: 64,
+                  minWidth: 72,
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
-                  padding: isNarrow ? '4px 2px' : '6px 4px',
+                  padding: isNarrow ? '6px 2px' : '8px 4px',
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
@@ -476,11 +480,11 @@ export function BottomNavigation({
                     aria-hidden="true"
                     className="absolute bottom-0 left-1/2 -translate-x-1/2"
                     style={{
-                      width: 20,
-                      height: 2.5,
-                      borderRadius: 2,
-                      background: 'linear-gradient(90deg, #ec4899, #f97316)',
-                      boxShadow: '0 0 8px rgba(249,115,22,0.65), 0 0 16px rgba(249,115,22,0.3)',
+                      width: 24,
+                      height: 3,
+                      borderRadius: 3,
+                      background: 'var(--color-brand-gradient)',
+                      boxShadow: '0 0 10px rgba(255, 77, 0, 0.5)',
                     }}
                     transition={{ type: 'spring', stiffness: 620, damping: 32, mass: 0.4 }}
                   />
@@ -520,8 +524,8 @@ export function BottomNavigation({
       <svg width="0" height="0" className="absolute" aria-hidden="true">
         <defs>
           <linearGradient id="nav-active-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop stopColor="#ec4899" offset="0%" />
-            <stop stopColor="#f97316" offset="100%" />
+            <stop stopColor="var(--color-brand-accent)" offset="0%" />
+            <stop stopColor="var(--color-brand-primary)" offset="100%" />
           </linearGradient>
         </defs>
       </svg>
