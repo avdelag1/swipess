@@ -49,6 +49,8 @@ import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+import { TinderTopNav } from './TinderTopNav';
+import { QuickFilterDropdown } from './QuickFilterDropdown';
 
 // Navigation guard to prevent double-taps
 function useNavigationGuard() {
@@ -965,21 +967,34 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
   const _progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
 
-  // ── "ALL" DASHBOARD: Shown when no category filter is selected ──────────────
+  // ── Tinder-style top nav tabs ─────────────────────────────────────────────
+  const CLIENT_TABS = [
+    { id: 'all', label: 'For You' },
+    { id: 'property', label: 'Properties' },
+    { id: 'motorcycle', label: 'Motorcycles' },
+    { id: 'bicycle', label: 'Bicycles' },
+    { id: 'services', label: 'Workers' },
+  ];
+  const activeNavTab = storeCategories.length === 0 ? 'all' : (storeCategories[0] || 'all');
+
+  const handleNavTabChange = useCallback((id: string) => {
+    if (id === 'all') {
+      setCategories([]);
+    } else {
+      setCategories([id as any]);
+    }
+  }, [setCategories]);
+
+  // Compute body content based on state
+  let bodyContent: React.ReactNode;
+
   if (storeCategories.length === 0) {
-    return <SwipeAllDashboard setCategories={setCategories} />;
-  }
-
-  // Show skeleton whenever deck is empty and a fetch is in progress.
-  // This covers both first load and filter changes cleanly — no blank flash.
-  if (deckQueue.length === 0 && isLoading) {
-    return <SwipeLoadingSkeleton />;
-  }
-
-  // Exhausted/Empty state - dynamic based on category
-  if (currentIndex > 0 && currentIndex >= deckQueue.length) {
+    bodyContent = <SwipeAllDashboard setCategories={setCategories} />;
+  } else if (deckQueue.length === 0 && isLoading) {
+    bodyContent = <SwipeLoadingSkeleton />;
+  } else if (currentIndex > 0 && currentIndex >= deckQueue.length) {
     const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    return (
+    bodyContent = (
       <SwipeExhaustedState
         categoryLabel={String(categoryInfo?.plural || 'listings')}
         CategoryIcon={categoryInfo?.icon || Home}
@@ -993,13 +1008,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         detected={locationDetected}
       />
     );
-  }
-
-
-  // Error state - ONLY show if we have NO cards at all (not when deck is exhausted)
-  if (error && currentIndex === 0 && deckQueue.length === 0) {
+  } else if (error && currentIndex === 0 && deckQueue.length === 0) {
     const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    return (
+    bodyContent = (
       <SwipeExhaustedState
         categoryLabel={String(categoryInfo?.plural || 'listings')}
         CategoryIcon={categoryInfo?.icon || Home}
@@ -1015,12 +1026,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         isInitialLoad={true}
       />
     );
-  }
-
-  // Empty state - dynamic based on category (no cards fetched yet)
-  if (deckQueue.length === 0) {
+  } else if (deckQueue.length === 0) {
     const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    return (
+    bodyContent = (
       <SwipeExhaustedState
         categoryLabel={String(categoryInfo?.plural || 'listings')}
         CategoryIcon={categoryInfo?.icon || Home}
@@ -1034,6 +1042,23 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
         detected={locationDetected}
       />
     );
+  } else {
+    bodyContent = null; // will render card stack below
+  }
+
+  if (bodyContent !== null) {
+    return (
+      <div className="flex flex-col h-full w-full">
+        <TinderTopNav
+          tabs={CLIENT_TABS}
+          activeTab={activeNavTab}
+          onTabChange={handleNavTabChange}
+          filterSlot={<QuickFilterDropdown userRole="client" />}
+          onBoostClick={() => {}}
+        />
+        <div className="flex-1 min-h-0">{bodyContent}</div>
+      </div>
+    );
   }
 
   // Get current category info for the page title
@@ -1044,6 +1069,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
   // Main swipe view - CENTERED STACKED CARD PRESENTATION
   return (
+    <div className="flex flex-col h-full w-full">
+      <TinderTopNav
+        tabs={CLIENT_TABS}
+        activeTab={activeNavTab}
+        onTabChange={handleNavTabChange}
+        filterSlot={<QuickFilterDropdown userRole="client" />}
+        onBoostClick={() => {}}
+      />
     <AnimatePresence mode="popLayout">
     <motion.div
       key="cards"
@@ -1051,8 +1084,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       initial="initial"
       animate="animate"
       exit="exit"
-      className="relative w-full flex flex-col items-center justify-center"
-      style={{ height: '100%', minHeight: '100%', perspective: '1200px' }}
+      className="relative flex-1 flex flex-col items-center justify-center"
+      style={{ minHeight: 0, perspective: '1200px' }}
       onMouseEnter={handleDeckHover}
     >
       {/* Centered card stack container with perspective */}
@@ -1214,6 +1247,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       />
     </motion.div>
     </AnimatePresence>
+    </div>
   );
 };
 

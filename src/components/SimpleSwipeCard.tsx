@@ -392,16 +392,15 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           )}
           
           {imageCount > 1 && (
-            <div className="absolute top-4 left-4 right-4 flex gap-1 z-20">
+            <div className="absolute top-2 left-2 right-2 flex gap-[3px] z-20">
               {Array.from({ length: imageCount }).map((_, idx) => (
                 <div
                   key={idx}
-                  className="h-1 flex-1 rounded-full transition-colors"
+                  className="h-[3px] flex-1 rounded-full transition-all duration-200"
                   style={{
-                    backgroundColor: idx === currentImageIndex 
-                      ? 'rgba(255, 255, 255, 0.9)' 
-                      : 'rgba(255, 255, 255, 0.3)',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                    backgroundColor: idx === currentImageIndex
+                      ? 'rgba(255, 255, 255, 0.95)'
+                      : 'rgba(255, 255, 255, 0.35)',
                   }}
                 />
               ))}
