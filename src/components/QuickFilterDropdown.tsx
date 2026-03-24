@@ -156,7 +156,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   };
 
   const handleClientTypeSelect = (type: OwnerClientType) => {
-    haptics.light();
+    haptics.tap();
     setClientType(type);
   };
 
