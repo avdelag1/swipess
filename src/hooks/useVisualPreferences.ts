@@ -15,6 +15,7 @@ export interface VisualPreferences {
   reduce_motion: boolean;
   enable_background_effects: boolean;
   enable_haptics: boolean;
+  background_mode: "stars" | "sunset" | "off";
   created_at?: string;
   updated_at?: string;
 }
@@ -25,7 +26,9 @@ const DEFAULT_PREFERENCES: VisualPreferences = {
   reduce_motion: false,
   enable_background_effects: true,
   enable_haptics: true,
+  background_mode: "stars",
 };
+
 
 const STORAGE_KEY = "swipess_visual_preferences";
 
@@ -73,6 +76,7 @@ export function useVisualPreferences() {
   };
 
   const setAnimationLevel = (level: AnimationLevel) => updatePreferences({ animation_level: level });
+  const setBackgroundMode = (mode: "stars" | "sunset" | "off") => updatePreferences({ background_mode: mode });
   const setVisualMode = (mode: "minimal" | "premium" | "luxury" | "cinematic") => updatePreferences({ visual_mode: mode });
   const toggleReduceMotion = () => updatePreferences({ reduce_motion: !preferences.reduce_motion });
   const toggleBackgroundEffects = () => updatePreferences({ enable_background_effects: !preferences.enable_background_effects });
@@ -83,6 +87,7 @@ export function useVisualPreferences() {
     loading,
     updatePreferences,
     setAnimationLevel,
+    setBackgroundMode,
     setVisualMode,
     toggleReduceMotion,
     toggleBackgroundEffects,

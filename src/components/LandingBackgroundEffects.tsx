@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useCallback } from 'react';
 import { playRandomZen } from '@/utils/sounds';
 
-export type EffectMode = 'off' | 'stars';
+export type EffectMode = 'off' | 'stars' | 'sunset';
 
 // Audio unlock for mobile browsers
 let audioUnlocked = false;
@@ -35,15 +35,39 @@ interface ShootingStar {
   age: number; maxAge: number; length: number;
 }
 
- 
- 
+interface Cloud {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  speed: number;
+  id: number;
+}
 
+interface Ripple {
+  x: number;
+  y: number;
+  r: number;
+  maxR: number;
+  opacity: number;
+}
 
+interface Airplane {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  scale: number;
+}
 
 function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = false }: { mode: EffectMode; isLightTheme?: boolean; disableSounds?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const starsRef = useRef<Star[]>([]);
+  const cloudsRef = useRef<Cloud[]>([]);
+  const ripplesRef = useRef<Ripple[]>([]);
+  const airplanesRef = useRef<Airplane[]>([]);
+  
   const initializedRef = useRef<EffectMode | null>(null);
   const disableSoundsRef = useRef(disableSounds);
   disableSoundsRef.current = disableSounds;
@@ -71,8 +95,18 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     });
   }, []);
 
-  const shootingStarsRef = useRef<ShootingStar[]>([]);
+  const initClouds = useCallback((w: number, h: number) => {
+    cloudsRef.current = Array.from({ length: 5 }, (_, i) => ({
+      x: Math.random() * w,
+      y: (h * 0.1) + Math.random() * (h * 0.3),
+      w: 120 + Math.random() * 100,
+      h: 40 + Math.random() * 30,
+      speed: 0.15 + Math.random() * 0.25,
+      id: i
+    }));
+  }, []);
 
+  const shootingStarsRef = useRef<ShootingStar[]>([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -96,6 +130,11 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
     if (initializedRef.current !== mode) {
       if (mode === 'stars') initStars(w, h);
+      if (mode === 'sunset') {
+        initClouds(w, h);
+        ripplesRef.current = [];
+        airplanesRef.current = [];
+      }
       initializedRef.current = mode;
     }
 
@@ -114,7 +153,22 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       });
     };
 
+    const spawnAirplane = (x: number, y: number) => {
+      const direction = Math.random() > 0.5 ? 1 : -1;
+      airplanesRef.current.push({
+        x: direction === 1 ? -50 : window.innerWidth + 50,
+        y: y + (Math.random() - 0.5) * 40,
+        vx: direction * (4 + Math.random() * 2),
+        vy: (Math.random() - 0.5) * 0.4,
+        scale: 0.6 + Math.random() * 0.4
+      });
+    };
 
+    const spawnRipple = (x: number, y: number) => {
+      ripplesRef.current.push({
+        x, y, r: 0, maxR: 40 + Math.random() * 60, opacity: 0.6
+      });
+    };
 
     const handlePointerMove = (e: PointerEvent) => {
       pointerRef.current.x = e.clientX;
@@ -123,6 +177,23 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     };
 
     const handleCanvasPointerDown = (e: PointerEvent) => {
+      // Only trigger if we click on background (not buttons/links/interactive)
+      const target = e.target as HTMLElement;
+      if (
+        !target ||
+        target.tagName === 'BUTTON' ||
+        target.tagName === 'A' ||
+        target.tagName === 'INPUT' ||
+        target.tagName === 'SELECT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.closest('button') ||
+        target.closest('a') ||
+        target.closest('[role="button"]') ||
+        target.closest('.pointer-events-auto:not(.fixed.inset-0)')
+      ) {
+        return;
+      }
+
       unlockAudio();
       pointerRef.current.isDown = true;
       pointerRef.current.isActive = true;
@@ -130,13 +201,20 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       pointerRef.current.y = e.clientY;
 
       if (!disableSoundsRef.current) {
-        if (mode === 'stars') {
-          playRandomZen(0.3);
+        if (mode === 'stars' || mode === 'sunset') {
+          playRandomZen(0.2);
         }
       }
 
       if (mode === 'stars') {
         spawnShootingStar(e.clientX, e.clientY);
+      } else if (mode === 'sunset') {
+        const hh = window.innerHeight;
+        if (e.clientY > hh * 0.6) {
+          spawnRipple(e.clientX, e.clientY);
+        } else {
+          spawnAirplane(e.clientX, e.clientY);
+        }
       }
     };
 
@@ -209,12 +287,108 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         ctx.lineTo(ss.x, ss.y);
         ctx.stroke();
       }
+    };
 
+    const drawSunset = () => {
+      time += 0.005;
+      
+      // Sky Gradient
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.6);
+      const shift = Math.sin(time) * 0.05;
+      skyGrad.addColorStop(0, `hsl(${260 + shift * 50}, 40%, 15%)`);
+      skyGrad.addColorStop(0.5, `hsl(${340 + shift * 30}, 50%, 40%)`);
+      skyGrad.addColorStop(1, `hsl(${20 + shift * 20}, 80%, 65%)`);
+      
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, w, h * 0.6);
 
+      // Ocean Gradient (Zen smooth flow)
+      const oceanGrad = ctx.createLinearGradient(0, h * 0.6, 0, h);
+      oceanGrad.addColorStop(0, `hsl(${200 + shift * 10}, 60%, 40%)`);
+      oceanGrad.addColorStop(1, `hsl(${240 + shift * 10}, 80%, 15%)`);
+      ctx.fillStyle = oceanGrad;
+      ctx.fillRect(0, h * 0.6, w, h * 0.4);
+
+      // Draw Clouds
+      ctx.save();
+      for (const cloud of cloudsRef.current) {
+        cloud.x += cloud.speed;
+        if (cloud.x > w + 100) cloud.x = -cloud.w - 100;
+        
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.beginPath();
+        const rx = cloud.x;
+        const ry = cloud.y;
+        const rw = cloud.w;
+        const rh = cloud.h;
+        // Cartoonish cloud shape (minimalistic rectangles/circles)
+        ctx.roundRect(rx, ry, rw, rh, rh / 2);
+        ctx.fill();
+        
+        // Slightly brighter top edge
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.beginPath();
+        ctx.roundRect(rx + 5, ry + 2, rw - 10, rh - 10, (rh-10) / 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // Ripples
+      for (let i = ripplesRef.current.length - 1; i >= 0; i--) {
+        const rip = ripplesRef.current[i];
+        rip.r += 1.5;
+        rip.opacity *= 0.98;
+        if (rip.opacity < 0.01) {
+          ripplesRef.current.splice(i, 1);
+          continue;
+        }
+        ctx.strokeStyle = `rgba(255, 255, 255, ${rip.opacity})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(rip.x, rip.y, rip.r, rip.r * 0.4, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Airplanes
+      for (let i = airplanesRef.current.length - 1; i >= 0; i--) {
+        const plane = airplanesRef.current[i];
+        plane.x += plane.vx;
+        plane.y += plane.vy;
+        if (plane.x < -100 || plane.x > w + 100) {
+          airplanesRef.current.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.translate(plane.x, plane.y);
+        ctx.scale(plane.scale * (plane.vx > 0 ? 1 : -1), plane.scale);
+        
+        // Simple tiny cool airplane
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(20, 0);
+        ctx.lineTo(25, 5);
+        ctx.lineTo(0, 2);
+        ctx.fill();
+        // Wing
+        ctx.beginPath();
+        ctx.moveTo(10, 0);
+        ctx.lineTo(8, -8);
+        ctx.lineTo(14, -8);
+        ctx.lineTo(16, 0);
+        ctx.fill();
+        
+        ctx.restore();
+      }
     };
 
     const loop = () => {
       if (mode === 'stars') drawStars();
+      else if (mode === 'sunset') {
+        ctx.clearRect(0,0,w,h);
+        drawSunset();
+      }
       animRef.current = requestAnimationFrame(loop);
     };
     loop();
@@ -227,15 +401,16 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       window.removeEventListener('pointercancel', handlePointerUp);
       window.removeEventListener('pointerdown', handleCanvasPointerDown);
     };
-  }, [mode, isLightTheme, initStars]);
+  }, [mode, isLightTheme, initStars, initClouds]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-auto touch-none"
-      style={{ zIndex: 0 }}
+      className="fixed inset-0 pointer-events-auto touch-none z-0"
     />
   );
 }
 
+
 export default memo(LandingBackgroundEffects);
+

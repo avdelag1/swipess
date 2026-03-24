@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
+import { useVisualPreferences } from '@/hooks/useVisualPreferences';
 import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { nuclearReset } from '@/utils/cacheManager';
@@ -448,10 +449,15 @@ function LegendaryLandingPage() {
   const { theme } = useTheme();
   const isLightTheme = theme === 'light';
 
+  const { preferences } = useVisualPreferences();
+
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
       <Suspense fallback={null}>
-        <LandingBackgroundEffects mode={view === 'auth' ? 'off' : 'stars'} isLightTheme={isLightTheme} />
+        <LandingBackgroundEffects 
+          mode={view === 'auth' ? 'off' : (preferences.background_mode || 'stars')} 
+          isLightTheme={isLightTheme} 
+        />
       </Suspense>
 
       <AnimatePresence mode="wait">
