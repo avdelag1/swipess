@@ -31,6 +31,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 
 // Placeholder for AnimatedLottieIcon if it's missing or from another file
 // In a real scenario I should find where it's defined, but I'll assume it exists in the scope or I'll use a fallback.
@@ -444,12 +445,10 @@ export function BottomNavigation({
                             style={{
                               width: '100%',
                               height: '100%',
-                              color: (active || item.isSpecial) ? 'var(--color-brand-primary)' : iconColorInactive,
-                              stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
-                              strokeWidth: (active || item.isSpecial) ? 2.5 : 2,
-                              filter: (active || item.isSpecial) && !isLight
-                                ? 'drop-shadow(0 0 10px rgba(249,115,22,0.5))'
-                                : 'none',
+                              color: 'rgba(255,255,255,0.45)',
+                              stroke: 'rgba(255,255,255,0.45)',
+                              strokeWidth: 1.8,
+                              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))',
                             }}
                           />
                         </div>
@@ -464,10 +463,10 @@ export function BottomNavigation({
                       'text-[10px] tracking-wide transition-all duration-250 relative font-bold',
                     )}
                     style={{
-                      color: (active || item.isSpecial) ? activeColor : iconColorInactive,
-                      opacity: (active || item.isSpecial) ? 1 : 0.8,
+                      color: active ? '#ffffff' : 'rgba(255,255,255,0.40)',
+                      opacity: 1,
                       zIndex: 1,
-                      textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                      textShadow: active ? '0 0 10px rgba(249,115,22,0.5), 0 1px 2px rgba(0,0,0,0.5)' : '0 1px 2px rgba(0,0,0,0.5)',
                     }}
                   >
                     {item.label}
