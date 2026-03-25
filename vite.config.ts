@@ -9,9 +9,11 @@ function buildVersionPlugin() {
   return {
     name: 'build-version-injector',
     transformIndexHtml(html: string) {
-      const preconnects = `
-    <link rel="preconnect" href="${process.env.VITE_SUPABASE_URL || ''}" crossorigin>
-    <link rel="dns-prefetch" href="${process.env.VITE_SUPABASE_URL || ''}">
+      const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+      const supabaseHints = supabaseUrl
+        ? `\n    <link rel="preconnect" href="${supabaseUrl}" crossorigin>\n    <link rel="dns-prefetch" href="${supabaseUrl}">`
+        : '';
+      const preconnects = `${supabaseHints}
     <meta name="app-version" content="${buildTime}" />`;
       return html.replace('</head>', `${preconnects}\n</head>`);
     },
@@ -19,7 +21,6 @@ function buildVersionPlugin() {
       if (id.endsWith('sw.js') || id.includes('service-worker')) {
         return code.replace(/__BUILD_TIME__/g, buildTime);
       }
-      return code;
     },
     writeBundle: {
       sequential: true,

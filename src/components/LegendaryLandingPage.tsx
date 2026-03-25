@@ -21,17 +21,24 @@ import type { EffectMode } from './LandingBackgroundEffects';
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
 // Optimized logo with modern format support + fallback
-const swipessLogoPng = '/icons/swipess-logo.png';
-
 function LogoImage({ className }: { className?: string }) {
   return (
     <div className={cn("relative overflow-hidden", className)}>
-      <img
-        src={swipessLogoPng}
-        alt="Swipess Logo"
-        style={{ mixBlendMode: 'screen' }}
-        className="w-full h-full object-contain select-none pointer-events-none"
-      />
+      <picture>
+        <source srcSet="/icons/swipess-logo.avif" type="image/avif" />
+        <source srcSet="/icons/swipess-logo.webp" type="image/webp" />
+        <img
+          src="/icons/swipess-logo.png"
+          alt="Swipess Logo"
+          width="612"
+          height="408"
+          fetchPriority="high"
+          loading="eager"
+          decoding="sync"
+          style={{ mixBlendMode: 'screen' }}
+          className="w-full h-full object-contain select-none pointer-events-none"
+        />
+      </picture>
     </div>
   );
 }
@@ -154,8 +161,14 @@ const LandingView = memo(({
             style={{ opacity: torchOpacity }}
           >
             <img
-              src="/icons/fire-s-logo.webp"
+              src="/icons/fire-s-logo-480.webp"
+              srcSet="/icons/fire-s-logo-480.webp 480w, /icons/fire-s-logo-960.webp 960w"
+              sizes="(max-width: 480px) 480px, 960px"
               alt=""
+              width="1536"
+              height="1024"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-contain"
               style={{ mixBlendMode: 'screen' }}
             />

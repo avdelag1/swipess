@@ -34,7 +34,14 @@
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
 
 
-  <!-- Splash screen styles are loaded via index.css for proper Vite processing -->
+  <!-- Critical splash styles inlined to paint the splash before the CSS bundle loads.
+       This eliminates render-blocking delay for the initial loader. -->
+  <style>
+    html,body{margin:0;padding:0;overflow:hidden;background:#000;width:100%;height:100%;position:fixed}
+    .initial-loader{display:flex;justify-content:center;align-items:center;width:100%;height:100vh;height:100dvh;background:#000;overflow:hidden}
+    .splash-logo{width:65vw;max-width:380px;height:auto;object-fit:contain;animation:splash-heartbeat 2s ease-in-out infinite}
+    @keyframes splash-heartbeat{0%,100%{transform:scale(1)}25%,75%{transform:scale(1.06)}50%{transform:scale(1)}}
+  </style>
 
   <!-- Defer font loading - not render blocking -->
 
