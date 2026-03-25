@@ -13,6 +13,7 @@ interface PokerCardProps {
   index: number;
   total: number;
   isTop: boolean;
+  isCollapsed?: boolean;
   onSwipeOut: (id: string) => void;
   onBringToFront: (index: number) => void;
 }
@@ -21,7 +22,7 @@ interface PokerCardProps {
  * PokerCategoryCard - A premium, physical-feeling card for category selection.
  * Features realistic shadows, accent glows, and 3D-tilt gestures.
  */
-export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBringToFront }: PokerCardProps) => {
+export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false, onSwipeOut, onBringToFront }: PokerCardProps) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const isExiting = useRef(false);
@@ -76,7 +77,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBring
 
   return (
     <motion.div
-      drag={true}
+      drag={!isCollapsed}
       dragMomentum={false}
       dragElastic={isTop ? 0.55 : 0.22}
       dragConstraints={isTop
@@ -87,13 +88,18 @@ export const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBring
       onClick={() => !isTop && onBringToFront(index)}
       initial={false}
       animate={{
-        x: isTop ? 0 : folderX,
-        y: isTop ? 0 : folderY,
-        scale:   isTop ? 1 : 1 - index * 0.012,
+        x:       isCollapsed ? 0          : (isTop ? 0 : folderX),
+        y:       isCollapsed ? 0          : (isTop ? 0 : folderY),
+        scale:   isCollapsed ? (isTop ? 1 : 1 - index * 0.022) : (isTop ? 1 : 1 - index * 0.012),
         opacity: index > 4 ? 0 : 1,
-        rotate:  isTop ? 3 : index * POKER_FAN_ROTATION,
+        rotate:  isCollapsed ? 3          : (isTop ? 3 : index * POKER_FAN_ROTATION),
       }}
-      transition={PK_SPRING}
+      transition={isCollapsed
+        // Snap shut fast: all cards race toward front card simultaneously
+        ? { type: 'spring', stiffness: 420, damping: 32, mass: 0.8 }
+        // Fan back open: stagger from front outward for a dealing effect
+        : { type: 'spring', stiffness: 260, damping: 26, mass: 1, delay: index * 0.06 }
+      }
       style={{
         position: 'absolute',
         top: 0,
