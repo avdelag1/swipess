@@ -82,12 +82,6 @@ function preloadPlugin(): import('vite').Plugin {
         }
       }
 
-      for (const [fileName] of Object.entries(ctx.bundle)) {
-        if (fileName.endsWith('.css') && fileName.includes('index')) {
-          preloadLinks.push(`<link rel="preload" href="/${fileName}" as="style" fetchpriority="high">`);
-        }
-      }
-
       return html.replace('</head>', `${preloadLinks.join('\n')}\n</head>`);
     }
   };

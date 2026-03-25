@@ -16,13 +16,15 @@ const CardImage = memo(({
   alt, 
   name, 
   direction: _direction = 'right',
-  fullScreen = false 
+  fullScreen = false,
+  animate = true
 }: { 
   src?: string | null; 
   alt?: string; 
   name?: string; 
   direction?: 'left' | 'right';
   fullScreen?: boolean;
+  animate?: boolean;
 }) => {
   const isMarketingSlide = useMemo(() => src?.startsWith('marketing:'), [src]);
 
@@ -182,8 +184,8 @@ const CardImage = memo(({
           transition: wasInCache ? 'none' : `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
           borderRadius: br,
           animation: wasInCache
-            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards, breathing-zoom 8s ease-out infinite alternate`
-            : 'breathing-zoom 8s ease-out infinite alternate',
+            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards${animate ? ', breathing-zoom 8s ease-out infinite alternate' : ''}`
+            : animate ? 'breathing-zoom 8s ease-out infinite alternate' : 'none',
           zIndex: 3,
           transformOrigin: 'center',
         }}
