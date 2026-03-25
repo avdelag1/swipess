@@ -172,14 +172,13 @@
 
 <body>
   <!-- Clean logo splash — removed when React mounts -->
-  <div id="root">
-    <div class="initial-loader" id="initial-loader">
-      <picture>
-        <source srcset="/icons/swipess-logo.avif" type="image/avif">
-        <source srcset="/icons/swipess-logo.webp" type="image/webp">
-        <img class="splash-logo" src="/icons/swipess-logo.png" alt="Swipess" width="612" height="408" />
-      </picture>
-    </div>
+  <div id="root"></div>
+  <div class="initial-loader" id="initial-loader">
+    <picture>
+      <source srcset="/icons/swipess-logo.avif" type="image/avif">
+      <source srcset="/icons/swipess-logo.webp" type="image/webp">
+      <img class="splash-logo" src="/icons/swipess-logo.png" alt="Swipess" width="612" height="408" />
+    </picture>
   </div>
 
   <!-- Main application script - loaded at end of body for non-blocking render -->

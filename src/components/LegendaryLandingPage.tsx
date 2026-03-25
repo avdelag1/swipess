@@ -184,8 +184,8 @@ const LandingView = memo(({
         }}
         title={isDark ? 'Switch to white stars' : 'Switch to black stars'}
       >
-        <Star className={`w-4 h-4 shrink-0 ${isDark ? 'text-white/70' : 'text-black/50'}`} />
-        <span className={`text-xs font-semibold whitespace-nowrap ${isDark ? 'text-white/70' : 'text-black/50'}`}>
+        <Star className={`w-4 h-4 shrink-0 ${isDark ? 'text-white/95' : 'text-black/85'}`} />
+        <span className={`text-xs font-semibold whitespace-nowrap ${isDark ? 'text-white/95' : 'text-black/85'}`}>
           {isDark ? '⬜ White' : '⬛ Black'}
         </span>
       </button>
