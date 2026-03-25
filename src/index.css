@@ -115,6 +115,8 @@ body::-webkit-scrollbar {
 
 .glass-nano-texture {
   position: relative;
+  /* Isolate this layer's repaints from the rest of the document */
+  contain: layout style;
 }
 .glass-nano-texture::before {
   content: "";
