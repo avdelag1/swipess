@@ -34,7 +34,76 @@
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
 
 
-  <!-- Splash screen styles are loaded via index.css for proper Vite processing -->
+  <!-- [PERF] Critical Splash Styles — Inlined to eliminate render-blocking CSS for FCP/LCP -->
+  <style id="critical-splash-styles">
+    /* Reset & Base */
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden !important;
+      background: #000000;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    /* Initial Loader — Instant visual feedback */
+    .initial-loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      background: #000000;
+      overflow: hidden;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: opacity;
+    }
+
+    /* Splash Logo — Directly impacts LCP */
+    .splash-logo {
+      width: 65vw;
+      max-width: 380px;
+      height: auto;
+      object-fit: contain;
+      animation: splash-heartbeat 2.2s ease-in-out infinite;
+      /* Prevent layout shift */
+      aspect-ratio: 612 / 408;
+      will-change: transform, filter;
+      transform: translateZ(0);
+    }
+
+    @keyframes splash-heartbeat {
+      0%, 100% { 
+        transform: scale(1); 
+        filter: brightness(1) drop-shadow(0 0 0px rgba(255, 77, 0, 0)); 
+      }
+      25% { 
+        transform: scale(1.04); 
+        filter: brightness(1.12) drop-shadow(0 0 25px rgba(255, 77, 0, 0.35)); 
+      }
+      50% { 
+        transform: scale(1); 
+        filter: brightness(1) drop-shadow(0 0 0px rgba(255, 77, 0, 0)); 
+      }
+      75% { 
+        transform: scale(1.04); 
+        filter: brightness(1.12) drop-shadow(0 0 25px rgba(255, 77, 0, 0.35)); 
+      }
+    }
+
+    /* Accessibility: Respect user motion preferences immediately */
+    @media (prefers-reduced-motion: reduce) {
+      .splash-logo { animation: none !important; }
+      .initial-loader { transition: opacity 0.1s linear !important; }
+    }
+  </style>
+
+  <!-- Early redirect hint for authenticated users - reduces redirect latency -->
 
   <!-- Defer font loading - not render blocking -->
 
@@ -139,26 +208,6 @@
     })();
   </script>
 
-  <!-- Early redirect hint for authenticated users - reduces redirect latency -->
-  <script>
-    // Check for cached auth state to avoid redirect delay
-    (function () {
-      try {
-        var authKey = Object.keys(localStorage).find(function (k) { return k.startsWith('sb-') && k.endsWith('-auth-token'); });
-        if (authKey) {
-          var auth = JSON.parse(localStorage.getItem(authKey));
-          if (auth && auth.access_token) {
-            // User is likely authenticated - preload dashboard resources
-            var link = document.createElement('link');
-            link.rel = 'prefetch';
-            link.href = '/client/dashboard';
-            link.as = 'document';
-            document.head.appendChild(link);
-          }
-        }
-      } catch (e) { }
-    })();
-  </script>
 
   <!-- Speculation Rules API — only prefetch known high-value routes -->
   <!-- Document-wide prefetch removed: too costly on mobile bandwidth -->
