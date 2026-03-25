@@ -68,18 +68,18 @@ async function callGeminiDirect(messages: Message[], maxTokens: number): Promise
   if (!key) throw new Error("GEMINI_API_KEY not configured in Supabase Secrets");
 
   console.log(`[AI Orchestrator] Calling Gemini Native (${GEMINI_API_MODEL})...`);
-
-  // Separate system messages from conversation messages
-  // Gemini requires system prompt in systemInstruction field, not in contents
+  
+  // Separate system messages for systemInstruction field
   const systemMessages = messages.filter(m => m.role === "system");
   const conversationMessages = messages.filter(m => m.role !== "system");
-
-  // Format conversation messages for Gemini (user/model only, must alternate)
+  
+  // Format conversation messages for Google AI format (user/model only)
   const contents = conversationMessages.map(m => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }]
   }));
 
+  // Build request body with systemInstruction if system messages exist
   const requestBody: Record<string, unknown> = {
     contents,
     generationConfig: {
@@ -88,7 +88,6 @@ async function callGeminiDirect(messages: Message[], maxTokens: number): Promise
     },
   };
 
-  // Add system instruction if present
   if (systemMessages.length > 0) {
     requestBody.systemInstruction = {
       parts: [{ text: systemMessages.map(m => m.content).join("\n\n") }]
