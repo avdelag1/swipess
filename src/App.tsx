@@ -15,7 +15,8 @@ import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SignupErrorBoundary from "@/components/SignupErrorBoundary";
-import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
+import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { AppOutagePage } from "@/components/AppOutagePage";
 import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
@@ -250,6 +251,7 @@ const App = () => {
     <GlobalErrorBoundary>
       <ConnectionGuard>
       <QueryClientProvider client={queryClient}>
+        <SpeedInsights />
         <BrowserRouter
           future={{
             v7_startTransition: true,
