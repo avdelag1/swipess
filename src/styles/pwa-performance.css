@@ -292,6 +292,8 @@ button:disabled,
 }
 
 /* FIX #12: Optimize Touch Feedback — covers ALL interactive elements */
+/* Note: will-change must NOT be set here (:active is too late for the browser to prepare).
+   GPU promotion for animated elements is handled by translateZ(0) on the element itself. */
 button:active:not([disabled]),
 a:active,
 [role="button"]:active,
@@ -300,7 +302,6 @@ label:active,
 .touchable:active {
     transform: scale(0.96);
     transition: transform 0.04s cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: transform;
 }
 
 /* FIX #13: Prevent Scroll Jank on Filter Panels */
