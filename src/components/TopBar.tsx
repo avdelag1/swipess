@@ -186,18 +186,16 @@ function TopBarComponent({
           style={{ transform: 'translateZ(0)' }}
         />
 
-        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 pl-1.5 pr-2">
-          {/* Left section: Avatar + Mode switcher + filters */}
-          <div className="flex items-center gap-1 min-w-0 flex-shrink-0 relative z-20">
+        <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 pl-1.5 pr-2">
+
+          {/* ── Pinned left anchor: avatar / back button only ── */}
+          <div className="flex-shrink-0 flex items-center gap-1 relative z-20">
             {showBack && (
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={handleBack}
                 className="flex-shrink-0 w-9 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation rounded-xl bg-card transition-all"
-                style={{
-                  boxShadow: cinematicShadow,
-                  border: 'none',
-                }}
+                style={{ boxShadow: cinematicShadow, border: 'none' }}
                 aria-label="Go back"
               >
                 <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground/80" : "text-white/90")} strokeWidth={2.5} />
@@ -243,50 +241,56 @@ function TopBarComponent({
               )
             )}
 
-            <div className="flex items-center flex-shrink-0 relative z-10">
-              <ModeSwitcher variant="icon" size="sm" />
-            </div>
-
-            {showFilters && userRole && (
-              <div className="flex-shrink-0 relative z-10">
-                <QuickFilterDropdown userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'} />
-              </div>
-            )}
+            {/* Gradient fade — buttons scroll behind this */}
+            <div
+              className="absolute top-0 bottom-0 w-8 pointer-events-none z-30"
+              style={{
+                right: '-32px',
+                background: isLight
+                  ? 'linear-gradient(to right, rgb(255,255,255) 30%, transparent)'
+                  : 'linear-gradient(to right, rgb(0,0,0) 30%, transparent)',
+                opacity: transparent ? 0 : 1,
+                transition: 'opacity 0.5s ease',
+              }}
+            />
           </div>
 
-          {/* Global Header Tap Zone */}
+          {/* ── Horizontally scrollable row: all other buttons ── */}
           <div
-            className="absolute inset-0 z-0 cursor-pointer pointer-events-auto"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-            onPointerDown={(e) => {
-              if (e.target === e.currentTarget) {
-                haptics.tap();
-                navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
-              }
-            }}
-          />
-
-          {/* Center: page title */}
-          <div className="flex-1 h-full flex items-center justify-center pointer-events-none relative z-10">
-            {title ? (
-              <span className={cn(
-                "font-black text-xl uppercase tracking-tighter leading-none select-none",
-                isLight
-                  ? "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
-                  : "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
-              )}>
-                {title}
-              </span>
-            ) : null}
-          </div>
-
-          {/* Right section: Actions — horizontally scrollable for future button expansion */}
-          <div
-            className="flex-shrink-0 relative z-20 overflow-x-auto"
-            style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+            className="flex-1 min-w-0 overflow-x-auto"
+            style={{
+              scrollbarWidth: 'none',
+              WebkitOverflowScrolling: 'touch',
+            } as React.CSSProperties}
           >
-          <div className="flex items-center gap-0.5 sm:gap-1.5 flex-nowrap pr-0.5">
-            {/* Token Packages Button with Popover */}
+            <div className="flex items-center gap-1 flex-nowrap pl-2 pr-1">
+              {/* Mode switcher */}
+              <div className="flex-shrink-0">
+                <ModeSwitcher variant="icon" size="sm" />
+              </div>
+
+              {/* Quick filters (discovery pages) */}
+              {showFilters && userRole && (
+                <div className="flex-shrink-0">
+                  <QuickFilterDropdown userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'} />
+                </div>
+              )}
+
+              {/* Page title — centered spacer */}
+              <div className="flex-1 flex items-center justify-center pointer-events-none min-w-[40px]">
+                {title ? (
+                  <span className={cn(
+                    "font-black text-xl uppercase tracking-tighter leading-none select-none whitespace-nowrap",
+                    isLight
+                      ? "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
+                      : "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                  )}>
+                    {title}
+                  </span>
+                ) : null}
+              </div>
+
+              {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -420,12 +424,12 @@ function TopBarComponent({
               </PopoverContent>
             </Popover>
 
-            {/* Theme Toggle */}
-            <ThemeToggle />
+              {/* Theme Toggle */}
+              <ThemeToggle />
 
-            {/* Notifications Button */}
-            <NotificationPopover />
-          </div>
+              {/* Notifications Button */}
+              <NotificationPopover />
+            </div>
           </div>
         </div>
       </header>
