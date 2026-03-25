@@ -56,8 +56,9 @@ export function useSwipe() {
       direction: 'left' | 'right';
       targetType?: 'listing' | 'profile';
     }) => {
-      // Get authenticated user
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      // Use getSession() (cached, no network call) instead of getUser() (network call)
+      const { data: { session }, error: authError } = await supabase.auth.getSession();
+      const user = session?.user;
       if (authError || !user?.id) {
         logger.error('[useSwipe] Auth error:', authError);
         throw new Error('Not authenticated');
