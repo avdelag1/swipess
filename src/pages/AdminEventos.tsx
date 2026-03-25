@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { CheckCircle, XCircle, Search, Clock, MessageSquare, ExternalLink } from 'lucide-react';
 
 interface EventRow {
   id: string;
@@ -22,6 +23,20 @@ interface EventRow {
   is_published: boolean;
   is_approved: boolean;
   organizer_whatsapp: string | null;
+}
+
+interface PromoSubmission {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  event_type: string;
+  location: string;
+  contact_name: string;
+  contact_phone: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  website?: string;
 }
 
 const CATEGORY_OPTIONS = [
@@ -63,6 +78,9 @@ export default function AdminEventos() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [uploading, setUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'events' | 'submissions'>('events');
+  const [submissions, setSubmissions] = useState<PromoSubmission[]>([]);
+  const [isSubmissionsLoading, setIsSubmissionsLoading] = useState(false);
 
   useEffect(() => {
     checkAdmin();
@@ -75,6 +93,7 @@ export default function AdminEventos() {
     if (!data) { navigate('/'); return; }
     setIsAdmin(true);
     fetchEvents();
+    fetchSubmissions();
   };
 
   const fetchEvents = async () => {
@@ -85,6 +104,53 @@ export default function AdminEventos() {
       .order('created_at', { ascending: false });
     setEvents((data as EventRow[]) || []);
     setIsLoading(false);
+  };
+
+  const fetchSubmissions = async () => {
+    setIsSubmissionsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('business_promo_submissions' as any)
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setSubmissions(data || []);
+    } catch (err) {
+      console.error('Error fetching submissions:', err);
+    } finally {
+      setIsSubmissionsLoading(false);
+    }
+  };
+
+  const handleApproveSubmission = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('business_promo_submissions' as any)
+        .update({ status: 'approved' })
+        .eq('id', id);
+      
+      if (error) throw error;
+      toast({ title: 'Submission approved' });
+      fetchSubmissions();
+    } catch (err) {
+      toast({ title: 'Approval failed', variant: 'destructive' });
+    }
+  };
+
+  const handleRejectSubmission = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('business_promo_submissions' as any)
+        .update({ status: 'rejected' })
+        .eq('id', id);
+      
+      if (error) throw error;
+      toast({ title: 'Submission rejected' });
+      fetchSubmissions();
+    } catch (err) {
+      toast({ title: 'Rejection failed', variant: 'destructive' });
+    }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,7 +272,33 @@ export default function AdminEventos() {
         }
       />
 
-      {/* Form */}
+      <div className="flex gap-1 p-1 mb-6 rounded-2xl bg-muted/30 border border-border/10">
+        <button
+          onClick={() => setActiveTab('events')}
+          className={cn(
+            "flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+            activeTab === 'events' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Events
+        </button>
+        <button
+          onClick={() => setActiveTab('submissions')}
+          className={cn(
+            "flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all relative",
+            activeTab === 'submissions' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Submissions
+          {submissions.filter(s => s.status === 'pending').length > 0 && (
+            <span className="absolute top-1 right-2 w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+          )}
+        </button>
+      </div>
+
+      {activeTab === 'events' ? (
+        <>
+          {/* Form */}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -217,7 +309,13 @@ export default function AdminEventos() {
           >
             <div className="flex justify-between items-center">
               <h3 className="font-semibold text-foreground">{editingId ? 'Edit Event' : 'New Event'}</h3>
-              <button onClick={() => { setShowForm(false); setEditingId(null); }}><X className="w-5 h-5 text-muted-foreground" /></button>
+              <button 
+                onClick={() => { setShowForm(false); setEditingId(null); }}
+                title="Close form"
+                aria-label="Close form"
+              >
+                <X className="w-5 h-5 text-muted-foreground" />
+              </button>
             </div>
 
             <Input placeholder="Event title *" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
@@ -225,6 +323,8 @@ export default function AdminEventos() {
 
             <select
               value={form.category}
+              title="Select event category"
+              aria-label="Select event category"
               onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
               className="w-full h-10 rounded-2xl border border-input bg-background px-3 text-sm"
             >
@@ -294,41 +394,142 @@ export default function AdminEventos() {
         <div className="space-y-3">
           {[...Array(4)].map((_, i) => <div key={i} className="h-20 rounded-2xl bg-card animate-pulse" />)}
         </div>
-      ) : events.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <p>No events yet. Create your first one!</p>
-        </div>
       ) : (
         <div className="space-y-3">
-          {events.map(ev => (
-            <div key={ev.id} className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/30">
-              {ev.image_url ? (
-                <img src={ev.image_url} alt="" className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
-              ) : (
-                <div className="w-14 h-14 rounded-xl bg-muted flex-shrink-0" />
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">{ev.title}</p>
-                <p className="text-xs text-muted-foreground">{ev.location || 'No location'}</p>
-                <div className="flex gap-1 mt-1">
-                  <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full", ev.is_published ? "bg-rose-500/15 text-rose-400" : "bg-muted text-muted-foreground")}>
-                    {ev.is_published ? 'Published' : 'Draft'}
-                  </span>
+          {events.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <p>No events yet. Create your first one!</p>
+            </div>
+          ) : (
+            events.map(ev => (
+              <div key={ev.id} className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/30">
+                {ev.image_url ? (
+                  <img src={ev.image_url} alt="" className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                ) : (
+                  <div className="w-14 h-14 rounded-xl bg-muted flex-shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{ev.title}</p>
+                  <p className="text-xs text-muted-foreground">{ev.location || 'No location'}</p>
+                  <div className="flex gap-1 mt-1">
+                    <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full", ev.is_published ? "bg-rose-500/15 text-rose-400" : "bg-muted text-muted-foreground")}>
+                      {ev.is_published ? 'Published' : 'Draft'}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex gap-1.5">
+                  <button onClick={() => togglePublish(ev.id, ev.is_published)} className="p-2 rounded-lg hover:bg-muted/50" title={ev.is_published ? 'Unpublish event' : 'Publish event'} aria-label={ev.is_published ? 'Unpublish event' : 'Publish event'}>
+                    {ev.is_published ? <EyeOff className="w-4 h-4 text-muted-foreground" /> : <Eye className="w-4 h-4 text-muted-foreground" />}
+                  </button>
+                  <button onClick={() => handleEdit(ev.id)} className="p-2 rounded-lg hover:bg-muted/50" title="Edit event" aria-label="Edit event">
+                    <Pencil className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                  <button onClick={() => handleDelete(ev.id)} className="p-2 rounded-lg hover:bg-red-500/10" title="Delete event" aria-label="Delete event">
+                    <Trash2 className="w-4 h-4 text-red-400" />
+                  </button>
                 </div>
               </div>
-              <div className="flex gap-1.5">
-                <button onClick={() => togglePublish(ev.id, ev.is_published)} className="p-2 rounded-lg hover:bg-muted/50">
-                  {ev.is_published ? <EyeOff className="w-4 h-4 text-muted-foreground" /> : <Eye className="w-4 h-4 text-muted-foreground" />}
-                </button>
-                <button onClick={() => handleEdit(ev.id)} className="p-2 rounded-lg hover:bg-muted/50">
-                  <Pencil className="w-4 h-4 text-muted-foreground" />
-                </button>
-                <button onClick={() => handleDelete(ev.id)} className="p-2 rounded-lg hover:bg-red-500/10">
-                  <Trash2 className="w-4 h-4 text-red-400" />
-                </button>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
+        </div>
+      )}
+    </>
+  ) : (
+    <div className="space-y-4">
+      {isSubmissionsLoading ? (
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => <div key={i} className="h-32 rounded-3xl bg-card animate-pulse" />)}
+        </div>
+      ) : submissions.length === 0 ? (
+        <div className="text-center py-20 bg-card/30 rounded-[2.5rem] border border-dashed border-border/40">
+          <Search className="w-10 h-10 text-muted-foreground/20 mx-auto mb-4" />
+          <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">No Submissions Found</p>
+        </div>
+      ) : (
+        submissions.map(sub => (
+              <motion.div
+                key={sub.id}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="p-5 rounded-[2rem] bg-card border border-border/30 shadow-sm space-y-4"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={cn(
+                        "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
+                        sub.status === 'pending' && "bg-orange-500/10 text-orange-400 border-orange-500/20",
+                        sub.status === 'approved' && "bg-green-500/10 text-green-400 border-green-500/20",
+                        sub.status === 'rejected' && "bg-red-500/10 text-red-400 border-red-500/20"
+                      )}>
+                        {sub.status}
+                      </span>
+                      <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+                        {new Date(sub.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <h4 className="font-black text-foreground uppercase tracking-tight italic">{sub.title}</h4>
+                  </div>
+                  <div className="flex gap-2">
+                    {sub.status === 'pending' && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          title="Approve submission"
+                          className="h-10 px-4 rounded-xl border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 active:scale-95 transition-all font-black text-xs uppercase tracking-widest"
+                          onClick={() => handleApproveSubmission(sub.id)}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" /> Approve
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          title="Reject submission"
+                          className="h-10 px-4 rounded-xl border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 active:scale-95 transition-all font-black text-xs uppercase tracking-widest"
+                          onClick={() => handleRejectSubmission(sub.id)}
+                        >
+                          <XCircle className="w-4 h-4 mr-2" /> Reject
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Contact Information</p>
+                    <p className="text-xs font-bold text-foreground">{sub.contact_name}</p>
+                    <div className="flex items-center gap-1">
+                      <MessageSquare className="w-3 h-3 text-green-400" />
+                      <p className="text-xs font-bold text-muted-foreground">{sub.contact_phone}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Type & Location</p>
+                    <p className="text-xs font-bold text-foreground">{sub.event_type}</p>
+                    <p className="text-xs font-bold text-muted-foreground">{sub.location}</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-muted/30 text-[11px] font-medium leading-relaxed text-muted-foreground border border-border/10">
+                  {sub.description}
+                </div>
+
+                {sub.website && (
+                  <a
+                    href={sub.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2 text-[10px] font-black text-orange-400 uppercase tracking-widest hover:translate-x-1 transition-transform"
+                  >
+                    View Website <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </motion.div>
+            ))
+          )}
         </div>
       )}
     </div>

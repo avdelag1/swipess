@@ -25,16 +25,13 @@ function LogoImage({ className }: { className?: string }) {
   return (
     <div className={cn("relative overflow-hidden", className)}>
       <picture>
-        <source srcSet="/icons/swipess-logo.avif" type="image/avif" />
-        <source srcSet="/icons/swipess-logo.webp" type="image/webp" />
+        <source srcset="/icons/swipess-logo.avif" type="image/avif" />
+        <source srcset="/icons/swipess-logo.webp" type="image/webp" />
         <img
-          src="/icons/swipess-logo.png"
+          src={swipessLogoPng}
           alt="Swipess Logo"
-          width="612"
-          height="408"
-          fetchPriority="high"
+          fetchpriority="high"
           loading="eager"
-          decoding="sync"
           style={{ mixBlendMode: 'screen' }}
           className="w-full h-full object-contain select-none pointer-events-none"
         />
@@ -160,18 +157,17 @@ const LandingView = memo(({
             className="absolute inset-0 pointer-events-none"
             style={{ opacity: torchOpacity }}
           >
-            <img
-              src="/icons/fire-s-logo-480.webp"
-              srcSet="/icons/fire-s-logo-480.webp 480w, /icons/fire-s-logo-960.webp 960w"
-              sizes="(max-width: 480px) 480px, 960px"
-              alt=""
-              width="1536"
-              height="1024"
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-contain"
-              style={{ mixBlendMode: 'screen' }}
-            />
+            <picture>
+              <source srcset="/icons/fire-s-logo.avif" type="image/avif" />
+              <img
+                src="/icons/fire-s-logo.webp"
+                alt=""
+                fetchpriority="high"
+                loading="eager"
+                className="w-full h-full object-contain"
+                style={{ mixBlendMode: 'screen' }}
+              />
+            </picture>
           </motion.div>
         </div>
       </motion.div>
@@ -310,7 +306,13 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-400/[0.02] rounded-full" />
       </div>
 
-      <motion.button onClick={onBack} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15, duration: 0.3 }}
+      <motion.button 
+        onClick={onBack} 
+        initial={{ opacity: 0, x: -12 }} 
+        animate={{ opacity: 1, x: 0 }} 
+        transition={{ delay: 0.15, duration: 0.3 }}
+        title="Go back to landing"
+        aria-label="Go back to landing"
         className="absolute top-4 left-4 z-20 text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted"
         style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
       >
@@ -362,7 +364,13 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                   <GlowingField className="relative group">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
                     <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-10 pr-10 h-11" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                    <button 
+                      type="button" 
+                      onClick={() => setShowPassword(!showPassword)} 
+                      title={showPassword ? "Hide password" : "Show password"}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </GlowingField>
