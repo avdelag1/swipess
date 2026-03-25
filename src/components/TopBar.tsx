@@ -186,31 +186,9 @@ function TopBarComponent({
           style={{ transform: 'translateZ(0)' }}
         />
 
-        <div className="max-w-[1400px] mx-auto w-full relative z-10">
-          {/* Global Header Tap Zone: Navigates back to Dashboard from anywhere on the header background */}
-          <div
-            className="absolute inset-0 z-0 cursor-pointer pointer-events-auto"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-            onPointerDown={(e) => {
-              // Only trigger if we tap the background, not children buttons
-              if (e.target === e.currentTarget) {
-                haptics.tap();
-                navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
-              }
-            }}
-          />
-
-          {/* Scrollable button row — all items in one swipeable strip */}
-          <style>{`.topbar-scroll::-webkit-scrollbar { display: none; }`}</style>
-          <div
-            className="topbar-scroll relative z-20 flex items-center gap-1 pl-1.5 pr-2 overflow-x-auto"
-            style={{
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-              WebkitOverflowScrolling: 'touch',
-            }}
-          >
-            {/* Back button */}
+        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 pl-1.5 pr-2">
+          {/* Left section: Avatar + Mode switcher + filters */}
+          <div className="flex items-center gap-1 min-w-0 flex-shrink-0 relative z-20">
             {showBack && (
               <motion.button
                 whileTap={{ scale: 0.9 }}
@@ -226,7 +204,6 @@ function TopBarComponent({
               </motion.button>
             )}
 
-            {/* User Avatar - Tapping navigates to profile */}
             {user ? (
               <motion.button
                 whileTap={{ scale: 0.92 }}
@@ -260,38 +237,51 @@ function TopBarComponent({
               </motion.button>
             ) : (
               !showBack && !title && (
-                <div onPointerDown={() => prefetchRoute('/')} className="cursor-pointer flex-shrink-0">
+                <div onPointerDown={() => prefetchRoute('/')} className="cursor-pointer">
                   <SwipessLogo size="sm" className="flex-shrink-0" />
                 </div>
               )
             )}
 
-            {/* Mode switcher */}
-            <div className="flex items-center flex-shrink-0">
+            <div className="flex items-center flex-shrink-0 relative z-10">
               <ModeSwitcher variant="icon" size="sm" />
             </div>
 
-            {/* Quick filter */}
             {showFilters && userRole && (
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 relative z-10">
                 <QuickFilterDropdown userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'} />
               </div>
             )}
+          </div>
 
-            {/* Page title — inline in the scroll strip */}
-            {title && (
+          {/* Global Header Tap Zone */}
+          <div
+            className="absolute inset-0 z-0 cursor-pointer pointer-events-auto"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+            onPointerDown={(e) => {
+              if (e.target === e.currentTarget) {
+                haptics.tap();
+                navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
+              }
+            }}
+          />
+
+          {/* Center: page title */}
+          <div className="flex-1 h-full flex items-center justify-center pointer-events-none relative z-10">
+            {title ? (
               <span className={cn(
-                "flex-shrink-0 font-black text-xl uppercase tracking-tighter leading-none select-none px-1",
+                "font-black text-xl uppercase tracking-tighter leading-none select-none",
                 isLight
                   ? "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
                   : "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
               )}>
                 {title}
               </span>
-            )}
+            ) : null}
+          </div>
 
-          {/* Right section: Actions (always last in scroll strip) */}
-          <div className="flex items-center gap-0.5 sm:gap-1.5 flex-shrink-0 ml-auto">
+          {/* Right section: Actions */}
+          <div className="flex items-center gap-0.5 sm:gap-1.5 flex-shrink-0 justify-end relative z-20">
             {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
               <PopoverTrigger asChild>
@@ -432,8 +422,7 @@ function TopBarComponent({
             {/* Notifications Button */}
             <NotificationPopover />
           </div>
-          </div>{/* end scrollable row */}
-        </div>{/* end max-w container */}
+        </div>
       </header>
     </>
   );

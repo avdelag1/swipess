@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef, memo, useMemo, lazy, useCallback } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, lazy } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
-import { TinderTopNav } from '@/components/TinderTopNav';
 import { QuickFilterDropdown } from '@/components/QuickFilterDropdown';
 // Lazy-load: 50kb dialog only needed post-tap, not on initial dashboard render
 const _ClientInsightsDialog = lazy(() =>
@@ -108,24 +107,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     onClientInsights?.(clientId);
   };
 
-  // ── Tinder-style top nav for owner ────────────────────────────────────────
-  const OWNER_TABS = [
-    { id: 'all', label: 'For You' },
-    { id: 'property', label: 'Renters' },
-    { id: 'motorcycle', label: 'Riders' },
-    { id: 'bicycle', label: 'Cyclists' },
-    { id: 'services', label: 'Freelancers' },
-  ];
-  const ownerActiveNavTab = storeCategories.length === 0 ? 'all' : (storeCategories[0] || 'all');
-
-  const handleOwnerNavTabChange = useCallback((id: string) => {
-    if (id === 'all') {
-      setCategories([]);
-    } else {
-      setCategories([id as any]);
-    }
-  }, [setCategories]);
-
   // Loading state handling
   if (isAuthLoading || isPrefsLoading) {
     return (
@@ -181,13 +162,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   // NotificationBar is rendered globally in AppLayout — no duplicate here
   return (
     <div className="flex flex-col h-full w-full">
-      <TinderTopNav
-        tabs={OWNER_TABS}
-        activeTab={ownerActiveNavTab}
-        onTabChange={handleOwnerNavTabChange}
-        filterSlot={<QuickFilterDropdown userRole="owner" />}
-        onBoostClick={() => {}}
-      />
       <div className="flex-1 min-h-0">
         <ClientSwipeContainer
           onClientTap={handleClientTap}
