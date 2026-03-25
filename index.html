@@ -22,7 +22,8 @@
   <!-- Supabase preconnect is injected dynamically at build time by Vite -->
 
   <!-- Preload splash logo — first visible element, load with highest priority -->
-  <link rel="preload" as="image" href="/icons/swipess-logo.png" fetchpriority="high">
+  <!-- WebP is 10KB vs 63KB PNG — 85% smaller, huge LCP improvement -->
+  <link rel="preload" as="image" href="/icons/swipess-logo.webp" fetchpriority="high" type="image/webp">
 
   <!-- Fonts - deferred priority -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -38,12 +39,13 @@
   <!-- Defer font loading - not render blocking -->
 
   <!-- Load fonts asynchronously - not render blocking -->
+  <!-- display=optional: no swap period, eliminates font-swap CLS and removes font from LCP critical path -->
   <link rel="preload" as="style"
-    href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=optional"
     onload="this.onload=null;this.rel='stylesheet'">
   <noscript>
     <link
-      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=optional"
       rel="stylesheet">
   </noscript>
 
@@ -158,8 +160,8 @@
     })();
   </script>
 
-  <!-- Speculation Rules API for intelligent prefetching -->
-  <!-- Prefetches likely navigation targets based on hover/scroll patterns -->
+  <!-- Speculation Rules API — only prefetch known high-value routes -->
+  <!-- Document-wide prefetch removed: too costly on mobile bandwidth -->
   <script type="speculationrules">
     {
       "prefetch": [
@@ -169,23 +171,9 @@
             "/client/dashboard",
             "/owner/dashboard",
             "/messages",
-            "/notifications",
-            "/client/profile",
-            "/owner/profile",
-            "/client/settings",
-            "/owner/settings"
+            "/notifications"
           ],
-          "eagerness": "moderate"
-        },
-        {
-          "source": "document",
-          "where": {
-            "and": [
-              { "href_matches": "/*" },
-              { "not": { "selector_matches": ".no-prefetch" } }
-            ]
-          },
-          "eagerness": "moderate"
+          "eagerness": "conservative"
         }
       ]
     }
@@ -196,7 +184,11 @@
   <!-- Clean logo splash — removed when React mounts -->
   <div id="root">
     <div class="initial-loader" id="initial-loader">
-      <img class="splash-logo" src="/icons/swipess-logo.png" alt="Swipess" />
+      <picture>
+        <source srcset="/icons/swipess-logo.avif" type="image/avif">
+        <source srcset="/icons/swipess-logo.webp" type="image/webp">
+        <img class="splash-logo" src="/icons/swipess-logo.png" alt="Swipess" width="612" height="408" />
+      </picture>
     </div>
   </div>
 

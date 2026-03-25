@@ -70,7 +70,7 @@ function preloadPlugin(): import('vite').Plugin {
     transformIndexHtml(html, ctx) {
       if (!ctx.bundle) return html;
 
-      const criticalChunks = ['react-vendor', 'react-router', 'react-query', 'supabase', 'motion', 'utils'];
+      const criticalChunks = ['react-vendor', 'react-router', 'react-query', 'utils'];
       const preloadLinks: string[] = [];
 
       for (const [fileName, chunk] of Object.entries(ctx.bundle)) {
@@ -256,7 +256,7 @@ export default defineConfig(({ mode }) => ({
         }
       },
       treeshake: {
-        preset: 'safest',
+        preset: 'recommended',
       },
       onwarn(warning, warn) {
         if (warning.code === 'MISSING_EXPORT' && warning.exporter?.includes('dompurify')) return;
