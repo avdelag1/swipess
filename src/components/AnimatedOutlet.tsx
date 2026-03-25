@@ -20,7 +20,7 @@ const ENTER_SPRING = {
 
 const EXIT_FAST = {
   duration: 0.12,
-  ease: [0.4, 0, 1, 1],
+  ease: [0.4, 0, 1, 1] as [number, number, number, number],
 };
 
 const pageVariants = {
