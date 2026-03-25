@@ -21,8 +21,6 @@ import type { EffectMode } from './LandingBackgroundEffects';
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
 // Optimized logo with modern format support + fallback
-const swipessLogoPng = '/icons/swipess-logo.png';
-
 function LogoImage({ className }: { className?: string }) {
   return (
     <div className={cn("relative overflow-hidden", className)}>
