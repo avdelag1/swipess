@@ -43,7 +43,6 @@ import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
-import { TinderTopNav } from './TinderTopNav';
 import { QuickFilterDropdown } from './QuickFilterDropdown';
 
 // Navigation guard to prevent double-taps
@@ -961,24 +960,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   const _progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
 
-  // ── Tinder-style top nav tabs ─────────────────────────────────────────────
-  const CLIENT_TABS = [
-    { id: 'all', label: 'For You' },
-    { id: 'property', label: 'Properties' },
-    { id: 'motorcycle', label: 'Motorcycles' },
-    { id: 'bicycle', label: 'Bicycles' },
-    { id: 'services', label: 'Workers' },
-  ];
-  const activeNavTab = storeCategories.length === 0 ? 'all' : (storeCategories[0] || 'all');
-
-  const handleNavTabChange = useCallback((id: string) => {
-    if (id === 'all') {
-      setCategories([]);
-    } else {
-      setCategories([id as any]);
-    }
-  }, [setCategories]);
-
   // Compute body content based on state
   let bodyContent: React.ReactNode;
 
@@ -1043,13 +1024,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   if (bodyContent !== null) {
     return (
       <div className="flex flex-col h-full w-full">
-        <TinderTopNav
-          tabs={CLIENT_TABS}
-          activeTab={activeNavTab}
-          onTabChange={handleNavTabChange}
-          filterSlot={<QuickFilterDropdown userRole="client" />}
-          onBoostClick={() => {}}
-        />
         <div className="flex-1 min-h-0">{bodyContent}</div>
       </div>
     );
@@ -1064,13 +1038,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // Main swipe view - CENTERED STACKED CARD PRESENTATION
   return (
     <div className="flex flex-col h-full w-full">
-      <TinderTopNav
-        tabs={CLIENT_TABS}
-        activeTab={activeNavTab}
-        onTabChange={handleNavTabChange}
-        filterSlot={<QuickFilterDropdown userRole="client" />}
-        onBoostClick={() => {}}
-      />
     <AnimatePresence mode="popLayout">
     <motion.div
       key="cards"
