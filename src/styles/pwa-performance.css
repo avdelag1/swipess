@@ -1,4 +1,38 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  UNIVERSAL MOBILE SPEED — applies to ALL mobile browsers            */
+/*  (PWA, browser tab, web view — same instant feel everywhere)        */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (max-width: 1024px) {
+    /* Sheets, drawers — same speed as native app */
+    [data-radix-dialog-content],
+    [data-state="open"],
+    [data-state="closed"] {
+        animation-duration: 180ms !important;
+        transition-duration: 180ms !important;
+    }
+
+    /* Toasts */
+    [data-sonner-toast] {
+        transition-duration: 120ms !important;
+    }
+
+    /* Press feedback — sub-60ms feels physical */
+    button:active:not([disabled]),
+    [role="button"]:active:not([disabled]),
+    .touchable:active {
+        transform: scale(0.95) !important;
+        transition: transform 50ms cubic-bezier(0, 0, 0.2, 1) !important;
+    }
+
+    /* Eliminate any lingering CSS transition delays on nav/bottom-bar */
+    .app-header,
+    .app-bottom-bar {
+        transition-duration: 120ms !important;
+    }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  PWA INTERACTION LATENCY FIX                                        */
 /*  Eliminates 300ms tap delay and gesture conflicts                   */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
