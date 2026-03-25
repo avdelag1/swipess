@@ -448,7 +448,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         whileTap={{ scale: 0.94 }}
         onClick={() => { haptics.tap(); setIsOpen(!isOpen); }}
         className={cn(
-          'relative flex items-center gap-1.5 sm:gap-2 px-5 sm:px-6 h-11 sm:h-12 rounded-2xl transition-all duration-300 touch-manipulation group overflow-hidden text-sm',
+          'relative flex items-center gap-1 sm:gap-2 px-3 sm:px-5 h-9 sm:h-10 rounded-xl transition-all duration-300 touch-manipulation group overflow-hidden text-sm',
           hasActiveFilters && 'shadow-lg shadow-rose-500/20'
         )}
         style={{

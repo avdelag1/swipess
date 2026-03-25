@@ -141,7 +141,7 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
             </div>
 
             {/* Scrollable Content */}
-            <ScrollArea className="flex-1 overflow-y-auto p-6">
+            <ScrollArea className="flex-1 overflow-y-auto p-6" style={{ overscrollBehavior: 'contain' }}>
               <div className="space-y-6">
               {/* Property Info */}
               <div className="flex items-start justify-between">

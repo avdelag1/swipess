@@ -83,9 +83,9 @@
   <meta name="apple-touch-fullscreen" content="yes">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/swipess-logo.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/swipess-logo.png">
-  <link rel="shortcut icon" href="/icons/swipess-logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
+  <link rel="shortcut icon" href="/icons/favicon.ico">
 
   <!-- Apple Touch Icons - All required sizes -->
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -115,6 +115,26 @@
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       document.documentElement.classList.add('reduce-motion');
     }
+  </script>
+
+  <!-- Android immersive mode: hide the phone navigation bar on first touch.
+       For installed PWA users this is already handled by display:fullscreen in
+       the manifest. This script covers users opening the app in a browser tab. -->
+  <script>
+    (function () {
+      if (!/Android/i.test(navigator.userAgent)) return;
+      // Skip if already running as an installed PWA (standalone / fullscreen mode)
+      if (window.matchMedia('(display-mode: standalone)').matches) return;
+      if (window.matchMedia('(display-mode: fullscreen)').matches) return;
+      var req = document.documentElement.requestFullscreen
+        || document.documentElement.webkitRequestFullscreen;
+      if (!req) return;
+      function enterFullscreen() {
+        req.call(document.documentElement, { navigationUI: 'hide' }).catch(function () {});
+        document.removeEventListener('touchstart', enterFullscreen);
+      }
+      document.addEventListener('touchstart', enterFullscreen, { passive: true, once: true });
+    })();
   </script>
 
   <!-- Early redirect hint for authenticated users - reduces redirect latency -->

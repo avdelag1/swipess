@@ -74,17 +74,17 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
   });
 
   const initStars = useCallback((w: number, h: number) => {
-    const count = Math.floor((w * h) / 2000);
-    starsRef.current = Array.from({ length: Math.min(count, 400) }, () => {
+    const count = Math.floor((w * h) / 700);
+    starsRef.current = Array.from({ length: Math.min(count, 700) }, () => {
       const x = Math.random() * w;
       const y = Math.random() * h;
       return {
         x, y, baseX: x, baseY: y, vx: 0, vy: 0,
-        size: Math.random() * 0.7 + 0.15,
-        opacity: Math.random() * 0.55 + 0.15,
-        twinkleSpeed: Math.random() * 0.04 + 0.008,
+        size: Math.random() * 0.75 + 0.15,
+        opacity: Math.random() * 0.55 + 0.35,
+        twinkleSpeed: Math.random() * 0.01 + 0.001,
         twinklePhase: Math.random() * Math.PI * 2,
-        glow: Math.random() > 0.93,
+        glow: Math.random() > 0.85,
       };
     });
   }, []);
@@ -171,7 +171,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     };
 
     const handleCanvasPointerDown = (e: PointerEvent) => {
-      // Only trigger if we click on background (not buttons/links/interactive)
+      // Only trigger if we click on background (not buttons/links/interactive or the logo)
       const target = e.target as HTMLElement;
       if (
         !target ||
@@ -183,6 +183,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         target.closest('button') ||
         target.closest('a') ||
         target.closest('[role="button"]') ||
+        target.closest('[data-no-bg-sound]') ||
         target.closest('.pointer-events-auto:not(.fixed.inset-0)')
       ) {
         return;
@@ -224,7 +225,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
     const drawStars = () => {
       ctx.clearRect(0, 0, w, h);
-      time += 0.5;
+      time += 0.12;
       for (const star of starsRef.current) {
         const bdx = star.baseX - star.x;
         const bdy = star.baseY - star.y;
@@ -235,24 +236,26 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         star.x += star.vx;
         star.y += star.vy;
 
-        const noise = Math.random() * 0.1;
         const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase) * 0.5 + 0.5;
-        const alpha = Math.min(star.opacity * (twinkle * 0.7 + 0.3 + noise), 1);
+        const alpha = Math.min(star.opacity * (twinkle * 0.65 + 0.35), 1);
 
-        if (alpha < 0.05) continue;
+        if (alpha < 0.02) continue;
 
         if (star.glow) {
-          ctx.shadowBlur = 2;
-          ctx.shadowColor = 'white';
+          ctx.shadowBlur = 4;
+          ctx.shadowColor = isLightTheme ? 'rgba(180,190,230,0.8)' : 'rgba(255,255,255,0.85)';
         }
 
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fillStyle = isLightTheme ? `rgba(40,40,80,${alpha * 0.9})` : `rgba(255,255,255,${alpha})`;
+        ctx.fillStyle = isLightTheme
+          ? `rgba(190,200,240,${alpha * 0.65})`
+          : `rgba(255,255,255,${alpha})`;
         ctx.fill();
-        
+
         if (star.glow) {
           ctx.shadowBlur = 0;
+          ctx.shadowColor = 'transparent';
         }
       }
 

@@ -6,18 +6,14 @@ import { triggerHaptic } from '@/utils/haptics';
 import { playRandomZen } from '@/utils/sounds';
 import {
   Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, Star, Gamepad2
+  ArrowLeft, Star
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from '@/hooks/useTheme';
-import { useVisualPreferences } from '@/hooks/useVisualPreferences';
 import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
-import { nuclearReset } from '@/utils/cacheManager';
 import { cn } from '@/lib/utils';
 import type { EffectMode } from './LandingBackgroundEffects';
 
@@ -62,14 +58,13 @@ const checkPasswordStrength = (password: string) => {
 /* ─── Landing view ───────────────────────────────────────── */
 const LandingView = memo(({
   onEnterAuth,
-  bgMode,
-  onStarClick,
+  isDark,
+  onToggleDark,
 }: {
   onEnterAuth: () => void;
-  bgMode: EffectMode;
-  onStarClick: () => void;
+  isDark: boolean;
+  onToggleDark: () => void;
 }) => {
-  const navigate = useNavigate();
   const x = useMotionValue(0);
   const torchBoost = useMotionValue(0);
 
@@ -82,7 +77,7 @@ const LandingView = memo(({
     [x, torchBoost] as const,
     ([xVal, boost]: number[]) => {
       const fromDrag = Math.min(1, Math.max(0, xVal / 160));
-      return Math.max(0.18, fromDrag + boost * 0.4);
+      return Math.max(0, fromDrag + boost * 0.4);
     }
   );
 
@@ -148,10 +143,11 @@ const LandingView = memo(({
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none"
+        data-no-bg-sound="true"
       >
         <div className="relative">
           <LogoImage
-            className="w-[85vw] max-w-[480px] sm:max-w-[580px] md:max-w-[680px] aspect-video border border-white/5 mx-auto"
+            className="w-[85vw] max-w-[480px] sm:max-w-[580px] md:max-w-[680px] aspect-video mx-auto"
           />
           <motion.div
             className="absolute inset-0 pointer-events-none"
@@ -167,34 +163,22 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* Star filter / Game button — bottom-left corner */}
+      {/* Stars theme toggle — bottom-left corner */}
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          if (bgMode === 'stars') {
-            navigate('/game/trumps-bad-day');
-          } else {
-            onStarClick();
-          }
-        }}
+        onClick={(e) => { e.stopPropagation(); onToggleDark(); }}
         data-testid="button-star-filter"
-        className="absolute bottom-6 left-6 w-11 h-11 flex items-center justify-center rounded-full transition-all active:scale-90"
+        className="absolute bottom-6 left-4 flex items-center gap-2 px-3 py-2 rounded-full transition-all active:scale-90"
         style={{
-          background: bgMode === 'stars'
-            ? 'rgba(250,204,21,0.15)'
-            : 'rgba(255,255,255,0.07)',
-          border: bgMode === 'stars'
-            ? '1px solid rgba(250,204,21,0.35)'
-            : '1px solid rgba(255,255,255,0.12)',
-          backdropFilter: 'blur(10px)',
+          background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+          border: isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.18)',
+          backdropFilter: 'blur(12px)',
         }}
-        title={bgMode === 'stars' ? "Play Trump's Game" : 'Star Filter'}
+        title={isDark ? 'Switch to white stars' : 'Switch to black stars'}
       >
-        {bgMode === 'stars' ? (
-          <Gamepad2 className="w-5 h-5 text-yellow-300" />
-        ) : (
-          <Star className="w-5 h-5 text-white/50" />
-        )}
+        <Star className={`w-4 h-4 shrink-0 ${isDark ? 'text-white/70' : 'text-black/50'}`} />
+        <span className={`text-xs font-semibold whitespace-nowrap ${isDark ? 'text-white/70' : 'text-black/50'}`}>
+          {isDark ? '⬜ White' : '⬛ Black'}
+        </span>
       </button>
 
     </motion.div>
@@ -224,7 +208,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [errorDetails, setErrorDetails] = useState<{ message: string; fullError: string } | null>(null);
 
   const { signIn, signUp } = useAuth();
-  const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
+  const _passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
 
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('auth_client_email') || '';
@@ -323,10 +307,24 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       <div className="h-full flex flex-col justify-center p-4 sm:p-5 relative z-10">
         <motion.div className="w-full max-w-sm mx-auto" variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand">
-                 Welcome
+            <div className="text-center mb-6">
+              <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand mb-1">
+                {isLogin ? 'Welcome Back' : 'Join Swipess'}
               </h1>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {isLogin
+                  ? 'Your perfect property match is waiting.'
+                  : 'Swipe, match & find your dream property.'}
+              </p>
+              {!isLogin && (
+                <div className="flex justify-center gap-3 mt-3">
+                  {['🏠 Real Estate', '✨ Smart Match', '🔒 Secure'].map((feat) => (
+                    <span key={feat} className="text-[10px] text-orange-300/80 font-medium bg-orange-500/10 border border-orange-500/20 rounded-full px-2 py-0.5">
+                      {feat}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -369,11 +367,23 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               </motion.div>
             </form>
 
-            <motion.div variants={itemVariants} className="text-center mt-4">
+            <motion.div variants={itemVariants} className="mt-4 space-y-2 text-center">
+              {isLogin && !isForgotPassword && (
+                <p className="text-xs text-muted-foreground">
+                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-orange-400/80 hover:text-orange-400">
+                    Forgot password?
+                  </button>
+                </p>
+              )}
               <p className="text-xs text-muted-foreground">
-                {isLogin ? "Don't have an account? " : 'Have an account? '}
-                <button type="button" onClick={switchMode} className="text-orange-400 font-semibold">{isLogin ? 'Sign Up' : 'Sign In'}</button>
+                {isLogin ? "New here? " : 'Already have an account? '}
+                <button type="button" onClick={switchMode} className="text-orange-400 font-semibold">{isLogin ? 'Create a free account' : 'Sign In'}</button>
               </p>
+              {!isLogin && (
+                <p className="text-[10px] text-muted-foreground/60 mt-1">
+                  Join thousands finding their perfect property match
+                </p>
+              )}
             </motion.div>
           </motion.div>
         </motion.div>
@@ -394,22 +404,17 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
-  const { theme } = useTheme();
-  const isLightTheme = theme === 'light';
-  const { preferences, setBackgroundMode } = useVisualPreferences();
+  const [isDark, setIsDark] = useState(true);
 
-  const handleStarClick = () => {
-    setBackgroundMode('stars');
-  };
-
-  const activeMode: EffectMode = view === 'auth' ? 'off' : preferences.background_mode;
+  const activeMode: EffectMode = view === 'auth' ? 'off' : 'stars';
+  const bgColor = isDark ? '#050505' : '#f5f5f5';
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: theme === 'light' ? '#ffffff' : theme === 'cheers' ? '#0e0400' : '#050505' }}>
+    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: bgColor }}>
       <Suspense fallback={null}>
-        <LandingBackgroundEffects 
-          mode={activeMode} 
-          isLightTheme={isLightTheme} 
+        <LandingBackgroundEffects
+          mode={activeMode}
+          isLightTheme={!isDark}
         />
       </Suspense>
 
@@ -418,8 +423,8 @@ function LegendaryLandingPage() {
           <LandingView
             key="landing"
             onEnterAuth={() => setView('auth')}
-            bgMode={preferences.background_mode}
-            onStarClick={handleStarClick}
+            isDark={isDark}
+            onToggleDark={() => setIsDark(d => !d)}
           />
         ) : (
           <AuthView key="auth" onBack={() => setView('landing')} />

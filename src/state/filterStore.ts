@@ -203,6 +203,12 @@ export const useFilterStore = create<FilterState>()(
     },
     
     setCategories: (categories) => {
+      // Guard: skip if categories are identical — avoids unnecessary deck resets
+      const current = get().categories;
+      if (
+        current.length === categories.length &&
+        categories.every((c, i) => current[i] === c)
+      ) return;
       logger.info('[FilterStore] setCategories:', categories);
       set((state) => ({
         categories,

@@ -20,7 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, MessageCircle, User, Building2,
   Search, Users, Sparkles, ShieldCheck,
-  Megaphone, Compass, Bell
+  Megaphone, Compass
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -75,7 +75,7 @@ export function BottomNavigation({
   const { navigate } = useAppNavigate();
   const location = useLocation();
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
-  const { unreadCount } = useUnreadNotifications();
+  const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { t } = useTranslation();
