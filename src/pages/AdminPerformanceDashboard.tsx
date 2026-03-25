@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Gauge, Zap, Eye, LayoutShift, Clock, AlertTriangle,
+  Gauge, Zap, Eye, Move, Clock, AlertTriangle,
   CheckCircle, XCircle, RefreshCw, Image, FileCode,
   FileType, Film, TrendingDown, Info,
 } from 'lucide-react';
@@ -170,7 +170,7 @@ function categoryIcon(category: AuditIssue['category']) {
     case 'js': return <FileCode className="w-4 h-4" />;
     case 'css': return <FileType className="w-4 h-4" />;
     case 'network': return <Film className="w-4 h-4" />;
-    case 'render': return <Zap className="w-4 h-4" />;
+    case 'render': return <Move className="w-4 h-4" />;
   }
 }
 
@@ -282,7 +282,7 @@ export default function AdminPerformanceDashboard() {
       unit: '',
       good: 0.1,
       poor: 0.25,
-      icon: <LayoutShift className="w-5 h-5" />,
+      icon: <Move className="w-5 h-5" />,
       description: 'Measures unexpected layout shifts during page load.',
     },
     {
