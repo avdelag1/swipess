@@ -6,12 +6,8 @@ import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
-import { PokerCategoryCard } from './swipe/PokerCategoryCard';
-import { DistanceSlider } from './swipe/DistanceSlider';
-import { 
-  categoryConfig, 
-  getActiveCategoryInfo, 
-  POKER_CARDS
+import {
+  getActiveCategoryInfo,
 } from './swipe/SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
@@ -38,17 +34,15 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { Home, Bike, Briefcase, MapPin, Navigation } from 'lucide-react';
-import { useTheme } from '@/hooks/useTheme';
+import { Home } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
-import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 
 // Navigation guard to prevent double-taps
 function useNavigationGuard() {
@@ -96,7 +90,7 @@ interface SwipessSwipeContainerProps {
   filters?: ListingFilters;
 }
 
-const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
+const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const [page, setPage] = useState(0);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
@@ -139,12 +133,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // PERF: Use selective subscriptions to prevent re-renders on unrelated store changes
   // Only subscribe to actions (stable references) - NOT to clientDeck object
   // This is the key fix for "double render" feeling when navigating back to dashboard
-  const { setClientDeck, markClientSwiped, resetClientDeck, isClientHydrated, isClientReady, markClientReady } = useSwipeDeckStore(
+  const { setClientDeck, markClientSwiped, resetClientDeck, isClientReady, markClientReady } = useSwipeDeckStore(
     useShallow((state) => ({
       setClientDeck: state.setClientDeck,
       markClientSwiped: state.markClientSwiped,
       resetClientDeck: state.resetClientDeck,
-      isClientHydrated: state.isClientHydrated,
       isClientReady: state.isClientReady,
       markClientReady: state.markClientReady,
     }))
@@ -162,8 +155,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // Without this, appending to deckQueueRef doesn't trigger re-render and empty state persists
   const [_deckLength, setDeckLength] = useState(0);
 
-  // Prevents skeleton flash when filters change — holds back skeleton for one render frame
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  // (isTransitioning removed — it caused a 1-frame blank flash worse than the skeleton)
 
   // =============================================================================
   // FIX #1: SWIPE PHASE ISOLATION - DOM moves first, React cleans up after
@@ -398,9 +390,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     // Reset the filter changed flag
     filterChangedRef.current = false;
 
-    // Signal transition start — suppresses skeleton for one frame to avoid flash
-    setIsTransitioning(true);
-
     // Clear deck for fresh results with new filters
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
@@ -417,8 +406,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     setCurrentIndex(0);
     setDeckLength(0);
 
-    // Clear flag after one frame so skeleton can appear with a fade instead of a flash
-    requestAnimationFrame(() => setIsTransitioning(false));
   }, [filterSignature, resetClientDeck]);
 
   // Get listings with filters - PERF: pass userId to avoid getUser() inside queryFn
@@ -972,18 +959,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
   const _progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
 
-  // Check if we have hydrated data (from store/session) - prevents blank deck flash
-  // isReady means we've fully initialized at least once - skip loading UI on return
-  // CRITICAL FIX: When filters change, deck is reset, so check if we're actually loading new data
-  const hasHydratedData = (isClientHydrated() || isClientReady() || deckQueue.length > 0) && !isLoading;
-
   // ── "ALL" DASHBOARD: Shown when no category filter is selected ──────────────
   if (storeCategories.length === 0) {
     return <SwipeAllDashboard setCategories={setCategories} />;
   }
 
-  // STABLE LOADING SHELL: Only show full skeleton if NOT hydrated AND loading
-  if (!hasHydratedData && isLoading && !isTransitioning) {
+  // Show skeleton whenever deck is empty and a fetch is in progress.
+  if (deckQueue.length === 0 && isLoading) {
     return <SwipeLoadingSkeleton />;
   }
 
@@ -1006,8 +988,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     );
   }
 
-
-  // Error state - ONLY show if we have NO cards at all (not when deck is exhausted)
+  // Error state - ONLY show if we have NO cards at all
   if (error && currentIndex === 0 && deckQueue.length === 0) {
     const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
     return (
@@ -1028,7 +1009,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     );
   }
 
-  // Empty state - dynamic based on category (no cards fetched yet)
   if (deckQueue.length === 0) {
     const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
     return (

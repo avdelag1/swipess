@@ -106,8 +106,6 @@ const VARIANTS: Record<Variant, VariantCfg> = {
 };
 
 // ── GLOW BURST ────────────────────────────────────────────────────────────────
-interface GlowBurst { id: number }
-
 // ── ACTION BUTTON ─────────────────────────────────────────────────────────────
 const ActionButton = memo(({
   onClick,
@@ -127,7 +125,6 @@ const ActionButton = memo(({
   index?: number;
 }) => {
   const [isPressed, setIsPressed] = useState(false);
-  const [_glowBursts, setGlowBursts] = useState<GlowBurst[]>([]);
 
   const cfg = VARIANTS[variant];
   const btnSizeCss = size === 'large' ? LARGE_CSS : SMALL_CSS;
@@ -141,11 +138,6 @@ const ActionButton = memo(({
     if (variant === 'like') triggerHaptic('success');
     else if (variant === 'dislike') triggerHaptic('warning');
     else triggerHaptic('light');
-
-    // Spawn glow burst
-    const id = Date.now() + Math.random();
-    setGlowBursts(prev => [...prev, { id }]);
-    setTimeout(() => setGlowBursts(prev => prev.filter(b => b.id !== id)), 450);
 
     onClick();
   }, [disabled, variant, onClick]);

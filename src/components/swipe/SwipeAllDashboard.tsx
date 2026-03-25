@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
-import { 
-  POKER_CARDS, PK_W, PK_H, FOLDER_OFFSET_X, FOLDER_OFFSET_Y 
+import {
+  POKER_CARDS, PK_W, PK_H, FOLDER_OFFSET_X, FOLDER_OFFSET_Y
 } from './SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { PokerCategoryCard } from './PokerCategoryCard';
@@ -14,9 +14,24 @@ export interface SwipeAllDashboardProps {
 /**
  * SwipeAllDashboard - The "All" dashboard shown when no specific category is selected.
  * Presents a fanned-out deck of categories for the user to choose from.
+ * Every 15s the hand folds shut then fans back open.
  */
 export const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
   const [cards, setCards] = useState([...POKER_CARDS]);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Periodic fold → open cycle every 15 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsCollapsed(true);
+      openTimerRef.current = setTimeout(() => setIsCollapsed(false), 1600);
+    }, 15000);
+    return () => {
+      clearInterval(interval);
+      if (openTimerRef.current) clearTimeout(openTimerRef.current);
+    };
+  }, []);
 
   // Swipe out front card: apply filter
   const handleSwipeOut = useCallback((id: string) => {
@@ -47,7 +62,12 @@ export const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => 
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative w-full flex-grow flex flex-col items-center justify-center bg-background overflow-hidden min-h-[calc(100dvh-148px)]"
+        className="relative w-full flex-grow flex flex-col items-center justify-center bg-background overflow-hidden"
+        style={{
+          minHeight: '100dvh',
+          paddingTop: 'calc(52px + var(--safe-top))',
+          paddingBottom: 'calc(68px + var(--safe-bottom))',
+        }}
       >
         {/* Folder card stack — straight horizontal flow, no rotation */}
         <div
@@ -68,6 +88,7 @@ export const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => 
                 index={index}
                 total={cards.length}
                 isTop={isTop}
+                isCollapsed={isCollapsed}
                 onSwipeOut={handleSwipeOut}
                 onBringToFront={handleBringToFront}
               />

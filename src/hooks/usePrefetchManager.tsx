@@ -22,7 +22,7 @@ export function usePrefetchManager() {
     userId: string,
     filters: any,
     currentPage: number,
-    pageSize: number = 10
+    _pageSize: number = 10
   ) => {
     if (!userId) return;
     
