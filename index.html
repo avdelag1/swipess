@@ -22,7 +22,8 @@
   <!-- Supabase preconnect is injected dynamically at build time by Vite -->
 
   <!-- Preload splash logo — first visible element, load with highest priority -->
-  <link rel="preload" as="image" href="/icons/swipess-logo.png" fetchpriority="high">
+  <link rel="preload" as="image" href="/icons/fire-s-logo.avif" type="image/avif" fetchpriority="high">
+  <link rel="preload" as="image" href="/icons/swipess-logo.png" type="image/png" fetchpriority="high">
 
   <!-- Fonts - deferred priority -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -192,7 +193,11 @@
   <!-- Clean logo splash — removed when React mounts -->
   <div id="root">
     <div class="initial-loader" id="initial-loader">
-      <img class="splash-logo" src="/icons/swipess-logo.png" alt="Swipess" />
+      <picture>
+        <source srcset="/icons/fire-s-logo.avif" type="image/avif">
+        <source srcset="/icons/fire-s-logo.webp" type="image/webp">
+        <img class="splash-logo" src="/icons/swipess-logo.png" alt="Swipess" fetchpriority="high" loading="eager" />
+      </picture>
     </div>
   </div>
 

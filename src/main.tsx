@@ -1,13 +1,25 @@
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// FAST INITIAL RENDER - Quita el loader apenas carga la página
+// FAST INITIAL RENDER - Removes the loader only when the app is ready
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const initialLoader = document.getElementById("initial-loader");
 if (initialLoader) {
-  initialLoader.remove();
-  document.documentElement.style.overflow = '';
-  document.documentElement.style.position = '';
-  document.body.style.overflow = '';
-  document.body.style.position = '';
+  // Use requestAnimationFrame to ensure the loader is removed 
+  // only after the browser has had a chance to render the React content
+  window.requestAnimationFrame(() => {
+    // Delay slightly to prevent the "black flash" between JS execution and first paint
+    setTimeout(() => {
+      initialLoader.style.opacity = '0';
+      initialLoader.style.transition = 'opacity 0.2s ease-out';
+      
+      setTimeout(() => {
+        initialLoader.remove();
+        document.documentElement.style.overflow = '';
+        document.documentElement.style.position = '';
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+      }, 200);
+    }, 50);
+  });
 }
 
 import React from "react";
