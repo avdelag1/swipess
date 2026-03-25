@@ -71,7 +71,7 @@ function preloadPlugin(): import('vite').Plugin {
     transformIndexHtml(html, ctx) {
       if (!ctx.bundle) return html;
 
-      const criticalChunks = ['react-vendor', 'react-router', 'react-query', 'utils'];
+      const criticalChunks = ['react-vendor', 'react-router', 'react-query', 'motion', 'icons', 'utils'];
       const preloadLinks: string[] = [];
 
       for (const [fileName, chunk] of Object.entries(ctx.bundle)) {
@@ -231,19 +231,7 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('pages/PriceTracker') || id.includes('pages/LocalIntel') || id.includes('pages/VideoTours')) {
             return 'explorer';
           }
-          if (id.includes('node_modules/@radix-ui/react-dialog') ||
-            id.includes('node_modules/@radix-ui/react-alert-dialog')) {
-            return 'ui-dialogs';
-          }
-          if (id.includes('node_modules/@radix-ui/react-dropdown') ||
-            id.includes('node_modules/@radix-ui/react-select') ||
-            id.includes('node_modules/@radix-ui/react-popover')) {
-            return 'ui-dropdowns';
-          }
-          if (id.includes('node_modules/@radix-ui/react-tooltip')) {
-            return 'ui-tooltip';
-          }
-          if (id.includes('node_modules/@radix-ui')) {
+          if (id.includes('node_modules/@radix-ui/')) {
             return 'ui-radix';
           }
           if (id.includes('node_modules/date-fns')) {
@@ -292,8 +280,8 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules/input-otp')) {
             return 'input-otp';
           }
-          if (id.includes('node_modules/vaul') || id.includes('node_modules/@radix-ui/react-dialog')) {
-            return 'ui-dialogs';
+          if (id.includes('node_modules/vaul')) {
+            return 'ui-radix';
           }
           if (id.includes('node_modules')) {
             return 'vendor';

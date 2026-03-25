@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -226,6 +226,25 @@ const App = () => {
   if (IS_OUTAGE_ACTIVE && !outageBypassed) {
     return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
   }
+
+  // SPEED OF LIGHT: Remove initial splash screen loader ONLY after full mount
+  // This ensures the user never sees a white/black flicker between HTML and JS
+  useEffect(() => {
+    const loader = document.getElementById('initial-loader');
+    if (loader) {
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          loader.style.opacity = '0';
+          loader.style.transition = 'opacity 0.4s ease-out';
+          setTimeout(() => {
+            loader.remove();
+            document.documentElement.style.overflow = '';
+            document.documentElement.style.position = '';
+          }, 400);
+        }, 300); // Small buffer for initial React paint
+      });
+    }
+  }, []);
 
   return (
     <GlobalErrorBoundary>
