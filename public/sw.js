@@ -231,7 +231,7 @@ self.addEventListener('fetch', (event) => {
           const bgFetch = fetch(request, {
             cache: 'no-store' // Bypass browser cache but populate our SW cache
           }).then(networkResponse => {
-            if (networkResponse.ok) {
+            if (networkResponse.ok && networkResponse.status === 200) {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
@@ -260,7 +260,7 @@ self.addEventListener('fetch', (event) => {
         return cache.match(request).then(cachedResponse => {
           if (cachedResponse) return cachedResponse; // instant, no network
           return fetch(request).then(networkResponse => {
-            if (networkResponse.ok) {
+            if (networkResponse.ok && networkResponse.status === 200) {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
@@ -278,7 +278,7 @@ self.addEventListener('fetch', (event) => {
       caches.open(DYNAMIC_CACHE).then(cache => {
         return cache.match(request).then(cachedResponse => {
           const bgFetch = fetch(request).then(networkResponse => {
-            if (networkResponse.ok) {
+            if (networkResponse.ok && networkResponse.status === 200) {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
@@ -301,7 +301,7 @@ self.addEventListener('fetch', (event) => {
       caches.open(IMAGE_CACHE).then(cache => {
         return cache.match(request).then(cachedResponse => {
           const bgFetch = fetch(request).then(networkResponse => {
-            if (networkResponse.ok) {
+            if (networkResponse.ok && networkResponse.status === 200) {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
@@ -324,7 +324,7 @@ self.addEventListener('fetch', (event) => {
       caches.match(request).then(response => {
         if (response) return response;
         return fetch(request).then(networkResponse => {
-          if (networkResponse.ok) {
+          if (networkResponse.ok && networkResponse.status === 200) {
             const cloned = networkResponse.clone();
             caches.open(STATIC_CACHE).then(cache => {
               cache.put(request, cloned);
@@ -341,7 +341,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(request)
       .then(response => {
-        if (response.ok) {
+        if (response.ok && response.status === 200) {
           const responseClone = response.clone();
           caches.open(DYNAMIC_CACHE).then(cache => cache.put(request, responseClone));
         }
