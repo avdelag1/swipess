@@ -240,7 +240,7 @@ export function BottomNavigation({
 
   const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
 
-  const iconColorInactive = isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.55)';
+  const iconColorInactive = isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.55)';
   const activeColor = 'var(--color-brand-primary)';
 
   const barShadow = isLight
@@ -426,7 +426,7 @@ export function BottomNavigation({
                     style={{
                       color: active
                         ? 'var(--color-brand-primary)'
-                        : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.55)'),
+                        : (isLight ? 'rgba(0,0,0,0.72)' : 'rgba(255,255,255,0.55)'),
                       opacity: 1,
                       zIndex: 1,
                       textShadow: 'none',

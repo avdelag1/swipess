@@ -198,7 +198,7 @@ function TopBarComponent({
                 style={{ boxShadow: cinematicShadow, border: 'none' }}
                 aria-label="Go back"
               >
-                <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground/80" : "text-white/90")} strokeWidth={2.5} />
+                <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground" : "text-white/90")} strokeWidth={2.8} />
               </motion.button>
             )}
 
@@ -226,7 +226,7 @@ function TopBarComponent({
                   <AvatarFallback className={cn(
                     "text-xs font-black uppercase rounded-full w-full h-full flex items-center justify-center",
                     isLight
-                      ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/70"
+                      ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/90"
                       : "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
                   )}>
                     {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
