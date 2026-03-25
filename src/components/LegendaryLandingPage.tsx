@@ -28,7 +28,7 @@ function LogoImage({ className }: { className?: string }) {
         <source srcset="/icons/swipess-logo.avif" type="image/avif" />
         <source srcset="/icons/swipess-logo.webp" type="image/webp" />
         <img
-          src={swipessLogoPng}
+          src="/icons/swipess-logo.png"
           alt="Swipess Logo"
           fetchpriority="high"
           loading="eager"
