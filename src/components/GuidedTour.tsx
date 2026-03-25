@@ -105,13 +105,13 @@ export function GuidedTour() {
                 />
               ))}
             </div>
-            <button onClick={skipTour} className="text-muted-foreground hover:text-foreground transition-colors">
-              <X className="w-4 h-4" />
+            <button onClick={skipTour} aria-label="Close tour" className="text-muted-foreground hover:text-foreground transition-colors">
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
 
           <div>
-            <h4 className="text-sm font-bold text-foreground">{step.title}</h4>
+            <p className="text-sm font-bold text-foreground">{step.title}</p>
             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{step.description}</p>
           </div>
 
