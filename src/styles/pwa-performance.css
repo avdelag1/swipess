@@ -257,12 +257,16 @@ button:disabled,
     }
 }
 
-/* FIX #12: Optimize Touch Feedback */
+/* FIX #12: Optimize Touch Feedback — covers ALL interactive elements */
 button:active:not([disabled]),
+a:active,
+[role="button"]:active,
+[tabindex]:active:not([tabindex="-1"]),
+label:active,
 .touchable:active {
-    /* Instant feedback on touch - 60ms is the sweet spot for perceived speed */
     transform: scale(0.96);
-    transition: transform 0.06s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 0.04s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
 }
 
 /* FIX #13: Prevent Scroll Jank on Filter Panels */
@@ -300,10 +304,12 @@ button:active:not([disabled]),
 
 /* ===== PREMIUM MICRO-INTERACTIONS ===== */
 
-/* Tactile press effect for all interactive cards and buttons — INSTANT feedback */
+/* Tactile press effect for all interactive elements — INSTANT feedback */
 .app-content button,
-.app-content [role="button"] {
-    transition: transform 0.06s cubic-bezier(0, 0, 0.2, 1),
+.app-content [role="button"],
+.app-content a,
+.app-content [tabindex]:not([tabindex="-1"]) {
+    transition: transform 0.04s cubic-bezier(0, 0, 0.2, 1),
         box-shadow 0.1s ease,
         background-color 0.1s ease;
 }
