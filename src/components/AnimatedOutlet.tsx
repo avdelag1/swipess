@@ -40,14 +40,14 @@ export function AnimatedOutlet() {
   const outlet = useOutlet();
 
   return (
-    <AnimatePresence mode="popLayout" initial={true}>
+    <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={location.pathname}
         variants={pageVariants}
         initial="initial"
         animate="animate"
         exit="exit"
-        className="h-full w-full flex-1"
+        className="h-full w-full flex flex-col flex-1"
         style={{ willChange: 'transform, opacity' }}
       >
         {outlet}
