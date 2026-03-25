@@ -115,6 +115,7 @@ const EventosFeed = lazy(() => import("./pages/EventosFeed"));
 const EventoDetail = lazy(() => import("./pages/EventoDetail"));
 const AdminEventos = lazy(() => import("./pages/AdminEventos"));
 const AdminPhotos = lazy(() => import("./pages/AdminPhotos"));
+const AdminPerformanceDashboard = lazy(() => import("./pages/AdminPerformanceDashboard"));
 const PriceTracker = lazy(() => import("./pages/PriceTracker"));
 const VideoTours = lazy(() => import("./pages/VideoTours"));
 const LocalIntel = lazy(() => import("./pages/LocalIntel"));
@@ -337,6 +338,7 @@ const App = () => {
                                         <Route path="/explore/eventos/:id" element={<EventoDetail />} />
                                         <Route path="/admin/eventos" element={<AdminProtectedRoute><AdminEventos /></AdminProtectedRoute>} />
                                         <Route path="/admin/photos" element={<AdminProtectedRoute><AdminPhotos /></AdminProtectedRoute>} />
+                                        <Route path="/admin/performance" element={<AdminProtectedRoute><AdminPerformanceDashboard /></AdminProtectedRoute>} />
                                         <Route path="/explore/prices" element={<PriceTracker />} />
                                         <Route path="/explore/tours" element={<VideoTours />} />
                                         <Route path="/explore/intel" element={<LocalIntel />} />

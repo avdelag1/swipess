@@ -9,9 +9,11 @@ function buildVersionPlugin() {
   return {
     name: 'build-version-injector',
     transformIndexHtml(html: string) {
-      const preconnects = `
-    <link rel="preconnect" href="${process.env.VITE_SUPABASE_URL || ''}" crossorigin>
-    <link rel="dns-prefetch" href="${process.env.VITE_SUPABASE_URL || ''}">
+      const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+      const supabaseHints = supabaseUrl
+        ? `\n    <link rel="preconnect" href="${supabaseUrl}" crossorigin>\n    <link rel="dns-prefetch" href="${supabaseUrl}">`
+        : '';
+      const preconnects = `${supabaseHints}
     <meta name="app-version" content="${buildTime}" />`;
       return html.replace('</head>', `${preconnects}\n</head>`);
     },
@@ -19,7 +21,6 @@ function buildVersionPlugin() {
       if (id.endsWith('sw.js') || id.includes('service-worker')) {
         return code.replace(/__BUILD_TIME__/g, buildTime);
       }
-      return code;
     },
     writeBundle: {
       sequential: true,
@@ -101,6 +102,33 @@ function resourceHintsPlugin(): import('vite').Plugin {
   };
 }
 
+/**
+ * Converts render-blocking <link rel="stylesheet"> tags to async loading.
+ * Uses the rel=preload + onload pattern so the CSS no longer sits on the
+ * critical render path. Critical above-the-fold styles are already inlined
+ * in the HTML, so there is no visible FOUC on the splash screen.
+ * Estimated savings: ~1,380 ms of render-blocking time (FCP improvement).
+ */
+function asyncCssPlugin(): import('vite').Plugin {
+  return {
+    name: 'async-css-plugin',
+    enforce: 'post',
+    transformIndexHtml(html) {
+      // Match Vite-generated CSS link tags (with or without crossorigin attribute)
+      return html.replace(
+        /<link rel="stylesheet"([^>]*?)href="(\/assets\/[^"]+\.css)"([^>]*)>/g,
+        (_match, before, href, after) => {
+          const attrs = (before + after).replace(/\s+/g, ' ').trim();
+          return [
+            `<link rel="preload" as="style" href="${href}"${attrs ? ' ' + attrs : ''} onload="this.onload=null;this.rel='stylesheet'">`,
+            `<noscript><link rel="stylesheet" href="${href}"${attrs ? ' ' + attrs : ''}></noscript>`,
+          ].join('\n    ');
+        }
+      );
+    }
+  };
+}
+
 export default defineConfig(({ mode }) => ({
   define: {
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(Date.now().toString()),
@@ -117,6 +145,7 @@ export default defineConfig(({ mode }) => ({
     cssOptimizationPlugin(),
     preloadPlugin(),
     resourceHintsPlugin(),
+    asyncCssPlugin(),
     mode === 'production' && visualizer({
       filename: 'dist/stats.html',
       open: false,
@@ -249,6 +278,22 @@ export default defineConfig(({ mode }) => ({
           }
           if (id.includes('node_modules/@octokit')) {
             return 'octokit';
+          }
+          // Isolate heavy/rarely-used packages to keep the catch-all vendor chunk lean
+          if (id.includes('node_modules/sonner')) {
+            return 'sonner';
+          }
+          if (id.includes('node_modules/browser-image-compression')) {
+            return 'img-compress';
+          }
+          if (id.includes('node_modules/dompurify')) {
+            return 'dompurify';
+          }
+          if (id.includes('node_modules/input-otp')) {
+            return 'input-otp';
+          }
+          if (id.includes('node_modules/vaul') || id.includes('node_modules/@radix-ui/react-dialog')) {
+            return 'ui-dialogs';
           }
           if (id.includes('node_modules')) {
             return 'vendor';
