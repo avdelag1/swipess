@@ -640,15 +640,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
            isEventoDetail || isEventsMain || isRoommatesPage || isSpecialSubPage;
   }, [isCameraRoute, isRadioRoute, location.pathname, isRoommatesPage]);
 
-  // Dynamic page titles
+  // Dynamic page titles disabled per user request: "Remove any title or description on the top header"
+  // Icons and context already convey location; clear header improves tap-to-dashboard UX.
   const pageTitle = useMemo(() => {
-    if (location.pathname.includes('/client/filters')) return 'Mission Parameters';
-    if (location.pathname.includes('/owner/filters')) return 'Client Search';
-    if (location.pathname.includes('/messages')) return 'Secure Link';
-    if (location.pathname.includes('/notifications')) return 'Comm Center';
-    if (location.pathname.includes('/radio')) return 'Radio';
     return '';
-  }, [location.pathname]);
+  }, []);
 
   // Calculate responsive layout values
   const topBarHeight = responsive.isMobile ? 52 : 56;

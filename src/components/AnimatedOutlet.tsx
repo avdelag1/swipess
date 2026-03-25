@@ -56,7 +56,7 @@ export function AnimatedOutlet() {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="h-full w-full flex flex-col flex-1"
+        className="h-full w-full flex-1"
         style={{ willChange: 'transform, opacity' }}
       >
         <Outlet />
