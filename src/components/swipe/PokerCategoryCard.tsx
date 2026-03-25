@@ -1,5 +1,6 @@
 import { memo, useCallback, useRef } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import '../../styles/poker-card-photo.css';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   PK_W, PK_H, FOLDER_OFFSET_X, FOLDER_OFFSET_Y,
@@ -77,12 +78,14 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
 
   return (
     <motion.div
-      drag={!isCollapsed}
+      drag={true}
       dragMomentum={false}
       dragElastic={isTop ? 0.55 : 0.22}
-      dragConstraints={isTop
-        ? { left: -220, right: 220, top: -220, bottom: 220 }
-        : { left: -70,  right: 70,  top: -70,  bottom: 70  }
+      dragConstraints={isCollapsed
+        ? { left: 0, right: 0, top: 0, bottom: 0 }
+        : isTop
+          ? { left: -220, right: 220, top: -220, bottom: 220 }
+          : { left: -70,  right: 70,  top: -70,  bottom: 70  }
       }
       onDragEnd={isTop ? handleDragEnd : handleBackDragEnd}
       onClick={() => !isTop && onBringToFront(index)}
@@ -128,14 +131,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
             : '0 8px 20px rgba(0,0,0,0.35)'
         }}
       >
-        {/* Background photo */}
-        <motion.img
+        {/* Background photo — plain img + CSS animation so it NEVER restarts on re-render */}
+        <img
           src={photo}
           alt={card.label}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover poker-card-photo-zoom"
           loading="eager"
-          animate={{ scale: [1.06, 1.0] }}
-          transition={{ duration: 8, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }}
+          draggable={false}
         />
 
         {/* Gradient overlay */}
