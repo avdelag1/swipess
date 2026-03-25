@@ -128,7 +128,7 @@ export function SkinSwitcher() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => {
-          haptics.impact('light');
+          haptics.tap();
           setIsOpen(!isOpen);
         }}
         className={cn(

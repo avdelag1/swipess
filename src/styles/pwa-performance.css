@@ -304,10 +304,12 @@ label:active,
 
 /* ===== PREMIUM MICRO-INTERACTIONS ===== */
 
-/* Tactile press effect for all interactive cards and buttons — INSTANT feedback */
+/* Tactile press effect for all interactive elements — INSTANT feedback */
 .app-content button,
-.app-content [role="button"] {
-    transition: transform 0.06s cubic-bezier(0, 0, 0.2, 1),
+.app-content [role="button"],
+.app-content a,
+.app-content [tabindex]:not([tabindex="-1"]) {
+    transition: transform 0.04s cubic-bezier(0, 0, 0.2, 1),
         box-shadow 0.1s ease,
         background-color 0.1s ease;
 }

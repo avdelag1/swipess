@@ -20,9 +20,9 @@ const pageVariants = {
     y: 0,
     scale: 1,
     transition: {
-      duration: 0.28,
-      ease: [0.25, 0.46, 0.45, 0.94], // cinematic ease-out
-      opacity: { duration: 0.22 },
+      duration: 0.18,
+      ease: [0.25, 0.46, 0.45, 0.94],
+      opacity: { duration: 0.14 },
     },
   },
   exit: {
