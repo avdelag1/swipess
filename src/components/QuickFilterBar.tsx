@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
-import { getCategoryColorClass } from '@/types/filters';
 
 // Re-export from CascadeFilterButton for backwards compatibility
 export { CascadeFilterButton } from './CascadeFilterButton';
@@ -224,6 +223,16 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
       (!filters.clientType || filters.clientType === 'all') &&
       filters.listingType === 'both';
     const ownerHasActiveFilters = !ownerIsAllSelected;
+
+    // Inline gradient styles per category — avoids Tailwind dynamic class purging
+    // and guarantees text stays visible on the gradient background
+    const catActiveStyles: Record<string, React.CSSProperties> = {
+      property:   { background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 4px 12px rgba(16,185,129,0.4)', color: '#ffffff', border: 'none' },
+      motorcycle: { background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', boxShadow: '0 4px 12px rgba(249,115,22,0.4)',  color: '#ffffff', border: 'none' },
+      bicycle:    { background: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)', boxShadow: '0 4px 12px rgba(168,85,247,0.4)', color: '#ffffff', border: 'none' },
+      services:   { background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', boxShadow: '0 4px 12px rgba(245,158,11,0.4)', color: '#ffffff', border: 'none' },
+    };
+
     return (
       <div
         data-no-swipe-nav
@@ -240,17 +249,21 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
               onClick={handleReset}
               className={cn(
                 smoothButtonClass,
-                'flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold flex-shrink-0 transition-all duration-300',
+                'flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold flex-shrink-0 transition-all duration-200',
                 ownerIsAllSelected
-                  ? isDark
-                    ? 'bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.5)] border-transparent'
-                    : 'bg-gradient-to-r from-orange-400 via-fuchsia-500 to-indigo-500 text-white shadow-[0_4px_12px_rgba(249,115,22,0.4)] border-transparent'
+                  ? ''
                   : 'bg-muted/50 text-foreground border border-border/50 hover:bg-muted/80 backdrop-blur-md'
               )}
+              style={ownerIsAllSelected ? {
+                background: 'linear-gradient(135deg, #f97316 0%, #ec4899 55%, #8b5cf6 100%)',
+                color: '#ffffff',
+                border: 'none',
+                boxShadow: '0 4px 14px rgba(249,115,22,0.45)',
+              } : undefined}
             >
               <Globe className="w-3.5 h-3.5" />
               <span>All</span>
-              {ownerIsAllSelected && <Check className="w-3 h-3 text-white" />}
+              {ownerIsAllSelected && <Check className="w-3 h-3" style={{ color: '#ffffff' }} />}
             </button>
 
             {/* Divider */}
@@ -283,15 +296,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             <div className="flex items-center gap-1.5 flex-shrink-0">
               {categories.map((category) => {
                 const isActive = filters.categories.includes(category.id);
-                
-                // Specific gradients per category
-                const catGradients: Record<string, { dark: string, light: string }> = {
-                  property: { dark: 'from-emerald-500 to-teal-600 shadow-[0_0_12px_rgba(16,185,129,0.4)]', light: 'from-emerald-400 to-teal-500 shadow-[0_4px_10px_rgba(16,185,129,0.3)]' },
-                  motorcycle: { dark: 'from-orange-500 to-red-600 shadow-[0_0_12px_rgba(249,115,22,0.4)]', light: 'from-orange-400 to-red-500 shadow-[0_4px_10px_rgba(249,115,22,0.3)]' },
-                  bicycle: { dark: 'from-purple-500 to-indigo-600 shadow-[0_0_12px_rgba(168,85,247,0.4)]', light: 'from-purple-400 to-indigo-500 shadow-[0_4px_10px_rgba(168,85,247,0.3)]' },
-                  services: { dark: 'from-amber-500 to-yellow-600 shadow-[0_0_12px_rgba(245,158,11,0.4)]', light: 'from-amber-400 to-yellow-500 shadow-[0_4px_10px_rgba(245,158,11,0.3)]' },
-                };
-                const gradStr = catGradients[category.id] ? catGradients[category.id][isDark ? 'dark' : 'light'] : 'from-gray-500 to-gray-600';
+                const activeStyle = catActiveStyles[category.id];
 
                 return (
                   <button
@@ -299,14 +304,20 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                     onClick={() => handleCategoryToggle(category.id)}
                     className={cn(
                       smoothButtonClass,
-                      'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300',
+                      'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200',
                       isActive
-                        ? `bg-gradient-to-r ${gradStr} text-white border-transparent`
+                        ? ''
                         : 'bg-muted/50 text-foreground border border-border/50 hover:bg-muted/80 backdrop-blur-md'
                     )}
+                    // Inline style guarantees gradient bg + white text always visible
+                    style={isActive ? activeStyle : undefined}
                   >
-                    {category.icon}
-                    <span className="hidden sm:inline">{category.label}</span>
+                    {/* Icon inherits white color from parent when active */}
+                    <span style={{ display: 'flex', alignItems: 'center', color: isActive ? '#ffffff' : undefined }}>
+                      {category.icon}
+                    </span>
+                    {/* Label always shown — no hidden sm:inline */}
+                    <span style={{ color: isActive ? '#ffffff' : undefined }}>{category.label}</span>
                   </button>
                 );
               })}
@@ -344,7 +355,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     services:   { bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',   shadow: '0 4px 16px rgba(245,158,11,0.5)',   border: 'rgba(245,158,11,0.8)',  overlay: 'linear-gradient(135deg, rgba(245,158,11,0.72) 0%, rgba(217,119,6,0.72) 100%)' },
   };
 
-  const allSelectedShadow = '0 4px 20px rgba(236,72,153,0.55)';
+  const _allSelectedShadow = '0 4px 20px rgba(236,72,153,0.55)';
 
   // Category preview photos for breathing effect (from mock data + curated)
   const categoryPhotos: Record<string, string> = {
@@ -353,7 +364,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     bicycle:    'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=300&h=150&fit=crop&crop=center',
     services:   'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=300&h=150&fit=crop&crop=center',
   };
-  const allPhoto = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&h=150&fit=crop&crop=center';
+  const _allPhoto = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&h=150&fit=crop&crop=center';
 
   return (
     <div
@@ -365,48 +376,31 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
       )}
     >
       <div className="max-w-screen-xl mx-auto">
-        {/* Main filter row — scrollable photo cards */}
+        {/* Main filter row — compact ALL pill first, large photo cards at end */}
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
-          {/* ALL button — photo card with breathing zoom */}
+          {/* ALL button — compact pill, always visible at the start */}
           <button
             onClick={() => {
               saveQuickFilter([]);
               onChange({ ...filters, categories: [], listingType: 'both' });
             }}
-            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-5 rounded-2xl text-[13px] font-black tracking-wide flex-shrink-0 h-[62px] overflow-hidden relative')}
+            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-5 rounded-full text-[13px] font-black tracking-wide flex-shrink-0 min-h-[44px]')}
             style={{
-              border: clientIsAllSelected ? '2px solid rgba(236,72,153,0.8)' : isDark ? '1.5px solid rgba(255,255,255,0.10)' : '1.5px solid rgba(0,0,0,0.08)',
-              boxShadow: clientIsAllSelected ? allSelectedShadow : 'none',
+              background: clientIsAllSelected
+                ? 'linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%)'
+                : isDark ? 'rgba(20,20,30,0.5)' : 'rgba(255,255,255,0.7)',
+              color: clientIsAllSelected ? '#fff' : isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.75)',
+              border: clientIsAllSelected ? '1px solid transparent' : isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)',
+              boxShadow: clientIsAllSelected ? '0 4px 16px rgba(236,72,153,0.45)' : 'none',
               transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
-            {/* Breathing background photo */}
-            <div className="absolute inset-0 overflow-hidden rounded-2xl">
-              <img
-                src={allPhoto}
-                alt=""
-                aria-hidden="true"
-                style={{
-                  position: 'absolute', inset: 0, width: '100%', height: '100%',
-                  objectFit: 'cover', transformOrigin: 'center',
-                  animation: 'breathing-zoom 8s ease-out infinite alternate',
-                }}
-              />
-              {/* Gradient overlay */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: clientIsAllSelected
-                  ? 'linear-gradient(135deg, rgba(249,115,22,0.75) 0%, rgba(236,72,153,0.75) 50%, rgba(139,92,246,0.75) 100%)'
-                  : isDark ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.38)',
-              }} />
-            </div>
-            {/* Content */}
-            <Globe className="w-4 h-4 relative z-10 text-white" />
-            <span className="relative z-10 text-white">ALL</span>
-            {clientIsAllSelected && <Check className="w-3.5 h-3.5 ml-0.5 text-white/90 relative z-10" />}
+            <Globe className="w-4 h-4" />
+            <span>ALL</span>
+            {clientIsAllSelected && <Check className="w-3.5 h-3.5 ml-0.5 text-white/90" />}
           </button>
 
-          {/* Category chips — photo cards with breathing zoom */}
+          {/* Category chips — large photo cards, scrollable at the end */}
           {categories.map((category) => {
             const isActive = filters.categories.includes(category.id);
             const accent = categoryColors[category.id];
@@ -415,11 +409,11 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
               <button
                 key={category.id}
                 onClick={() => handleCategorySelect(category.id)}
-                className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 rounded-2xl text-xs font-bold flex-shrink-0 h-[62px] overflow-hidden relative')}
+                className={cn(smoothButtonClass, 'flex items-center gap-2 px-5 rounded-[1.8rem] text-sm font-bold flex-shrink-0 h-[82px] overflow-hidden relative')}
                 style={{
-                  border: isActive && accent ? `2px solid ${accent.border}` : isDark ? '1.5px solid rgba(255,255,255,0.10)' : '1.5px solid rgba(0,0,0,0.08)',
-                  boxShadow: isActive && accent ? accent.shadow : 'none',
-                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  border: isActive && accent ? `2.5px solid ${accent.border}` : isDark ? '1.5px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(0,0,0,0.10)',
+                  boxShadow: isActive && accent ? accent.shadow : '0 4px 12px rgba(0,0,0,0.05)',
+                  transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               >
                 {/* Breathing background photo */}

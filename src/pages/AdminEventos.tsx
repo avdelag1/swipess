@@ -3,8 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2, Eye, EyeOff, X, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, X, Upload, Images } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
+import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -188,13 +189,20 @@ export default function AdminEventos() {
         title="Manage Events"
         subtitle="Create and manage Eventos & Experiencias"
         actions={
-          <Button
-            onClick={() => { setForm(emptyForm); setEditingId(null); setShowForm(true); }}
-            size="sm"
-            className="gap-1.5"
-          >
-            <Plus className="w-4 h-4" /> New Event
-          </Button>
+          <div className="flex gap-2">
+            <Link to="/admin/photos">
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <Images className="w-4 h-4" /> Photos
+              </Button>
+            </Link>
+            <Button
+              onClick={() => { setForm(emptyForm); setEditingId(null); setShowForm(true); }}
+              size="sm"
+              className="gap-1.5"
+            >
+              <Plus className="w-4 h-4" /> New Event
+            </Button>
+          </div>
         }
       />
 

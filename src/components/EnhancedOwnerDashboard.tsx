@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, memo, useMemo, lazy } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
+import { QuickFilterDropdown } from '@/components/QuickFilterDropdown';
 // Lazy-load: 50kb dialog only needed post-tap, not on initial dashboard render
 const _ClientInsightsDialog = lazy(() =>
   import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
@@ -32,13 +33,15 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs, isLoading: isPrefsLoading } = useOwnerClientPreferences();
-  const { setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities, storeGender } = useFilterStore(
+  const { setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities, storeGender, setCategories, storeCategories } = useFilterStore(
     useShallow((s) => ({
       setClientGender: s.setClientGender,
       setClientAgeRange: s.setClientAgeRange,
       setClientBudgetRange: s.setClientBudgetRange,
       setClientNationalities: s.setClientNationalities,
       storeGender: s.clientGender,
+      setCategories: s.setCategories,
+      storeCategories: s.categories,
     }))
   );
   const hydratedRef = useRef(false);
@@ -117,6 +120,31 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }
 
   // Error/Auth state check
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center p-8 text-center bg-background/50 backdrop-blur-md">
+        <div className="max-w-xs space-y-6">
+          <div className="w-20 h-20 bg-red-500/20 rounded-3xl flex items-center justify-center mx-auto border border-red-500/30">
+            <Megaphone className="w-10 h-10 text-red-500 animate-pulse" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold tracking-tight">Sync Interrupted</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              We couldn't reach the matching engine. This usually fixes itself in a few seconds.
+            </p>
+          </div>
+          <Button 
+            onClick={() => window.location.reload()}
+            variant="outline" 
+            className="w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px]"
+          >
+            Reconnect
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="w-full h-full flex items-center justify-center p-8 text-center">
@@ -133,19 +161,21 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   // NotificationBar is rendered globally in AppLayout — no duplicate here
   return (
-    <>
-      <ClientSwipeContainer
-        onClientTap={handleClientTap}
-        onInsights={handleInsights}
-        onMessageClick={onMessageClick}
-        profiles={clientProfiles}
-        isLoading={isLoading}
-        error={error}
-        insightsOpen={false} // Insights handled by layout now
-        category={filterCategory || 'default'}
-        filters={mergedFilters}
-      />
-    </>
+    <div className="flex flex-col h-full w-full">
+      <div className="flex-1 min-h-0">
+        <ClientSwipeContainer
+          onClientTap={handleClientTap}
+          onInsights={handleInsights}
+          onMessageClick={onMessageClick}
+          profiles={clientProfiles}
+          isLoading={isLoading}
+          error={error}
+          insightsOpen={false}
+          category={filterCategory || 'default'}
+          filters={mergedFilters}
+        />
+      </div>
+    </div>
   );
 };
 

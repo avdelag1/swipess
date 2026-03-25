@@ -1,27 +1,23 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { useState, useEffect, useCallback } from 'react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Bell, 
-  MessageSquare, 
-  Flame, 
-  CheckCheck, 
-  Trash2, 
-  Star, 
-  Sparkles, 
-  Eye, 
-  Crown, 
-  MessageCircle,
+import {
+  Bell,
+  MessageSquare,
+  Flame,
+  CheckCheck,
+  Trash2,
+  Star,
+  Sparkles,
+  Eye,
+  Crown,
   X,
-  Heart,
   Zap,
-  UserPlus,
-  CheckCircle2,
-  AlertCircle
+  UserPlus
 } from 'lucide-react';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
@@ -102,7 +98,7 @@ interface NotificationItemProps {
 
 function NotificationItem({ notification, onClick, onDismiss, index }: NotificationItemProps) {
   const role = getNotificationRole(notification);
-  const config = typeConfigs[notification.type] || typeConfigs.like;
+  const config = typeConfigs[notification.type as keyof typeof typeConfigs] || typeConfigs.like;
   const Icon = config.icon;
   const [isHovered, setIsHovered] = useState(false);
   const [isSwiping, setIsSwiping] = useState(false);
@@ -217,7 +213,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                   )}
                   onClick={(e) => {
                     e.stopPropagation();
-                    haptics.light();
+                    haptics.tap();
                     onDismiss();
                   }}
                 >
@@ -309,7 +305,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
     markNotificationAsRead 
   } = useNotificationSystem();
   
-  const { unreadCount, refetch } = useUnreadNotifications();
+  const { unreadCount } = useUnreadNotifications();
   
   // Mark all as read when popover opens
   useEffect(() => {
@@ -330,9 +326,9 @@ export function NotificationPopover({ className, children }: NotificationPopover
   });
 
   // Count notifications by type
-  const likesCount = notifications.filter(n => n.type === 'like' || n.type === 'super_like').length;
-  const messagesCount = notifications.filter(n => n.type === 'message').length;
-  const matchesCount = notifications.filter(n => n.type === 'match').length;
+  const _likesCount = notifications.filter(n => n.type === 'like' || n.type === 'super_like').length;
+  const _messagesCount = notifications.filter(n => n.type === 'message').length;
+  const _matchesCount = notifications.filter(n => n.type === 'match').length;
 
   const handleNotificationAction = useCallback((notification: any) => {
     // Mark as read if not already
@@ -348,7 +344,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
   }, [handleNotificationClick, markNotificationAsRead]);
 
   const handleDismiss = useCallback((id: string) => {
-    haptics.light();
+    haptics.tap();
     dismissNotification(id);
   }, [dismissNotification]);
 
@@ -357,185 +353,197 @@ export function NotificationPopover({ className, children }: NotificationPopover
     navigate('/notifications');
   }, [navigate]);
 
-  return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        {children || (
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              "relative h-10 w-10 rounded-xl transition-all duration-200",
-              "hover:scale-105 active:scale-95 group bg-card border-0",
-              "touch-manipulation"
-            )}
-            onPointerDown={(e) => { 
-              e.preventDefault(); 
-              haptics.tap(); 
-            }}
-            onClick={(e) => e.preventDefault()}
-            aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
-          >
-            <div className="relative">
-              <Bell
-                strokeWidth={3}
-                className={cn(
-                  "h-5 w-5 transition-colors duration-150",
-                  isDark ? "text-white/80" : "text-foreground/80",
-                  "group-hover:text-foreground"
-                )}
-              />
-              {/* Notification badge */}
-              <AnimatePresence>
-                {unreadCount > 0 && (
-                  <motion.span
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white px-1.5 shadow-lg"
-                  >
-                    {unreadCount > 99 ? '99+' : unreadCount}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </div>
-            
-            {/* Subtle pulse animation when there are unread */}
-            {unreadCount > 0 && (
-              <motion.span
-                className="absolute inset-0 rounded-xl bg-primary/20"
-                animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0, 0.3] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-            )}
-          </Button>
-        )}
-      </PopoverTrigger>
-      
-      <PopoverContent 
-        align="end" 
-        sideOffset={8}
-        className={cn(
-          "w-[min(calc(100vw-1rem),440px)] p-0 rounded-2xl",
-          "bg-background border border-border/60 shadow-2xl",
-          "overflow-hidden",
-          className
-        )}
-        onPointerDown={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="px-4 pt-4 pb-3 border-b border-border/40 bg-background/80 backdrop-blur-sm">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-primary/10">
-                <Bell className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold tracking-tight">Notifications</h2>
-                <p className="text-sm text-muted-foreground">
-                  {unreadCount > 0 ? (
-                    <span className="font-medium text-primary">{unreadCount} unread</span>
-                  ) : (
-                    'All caught up'
-                  )}
-                </p>
-              </div>
-            </div>
-            
-            {unreadCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  haptics.tap();
-                  markAllAsRead();
-                }}
-                className="gap-2 h-9 px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <CheckCheck className="w-4 h-4" />
-                <span className="hidden sm:inline">Mark all read</span>
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <Tabs value={activeFilter} onValueChange={setActiveFilter} className="w-full">
-          <div className="px-2 py-2 border-b border-border/30">
-            <TabsList className="flex w-full bg-muted/40 rounded-xl p-1 h-auto gap-0.5">
-              <TabsTrigger
-                value="all"
-                className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all"
-              >
-                All
-              </TabsTrigger>
-              <TabsTrigger
-                value="unread"
-                className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
-              >
-                <span>Unread</span>
-                {unreadCount > 0 && (
-                  <Badge variant="secondary" className="h-5 min-w-[20px] px-1.5 text-[10px] font-bold">{unreadCount}</Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger
-                value="like"
-                className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all flex items-center justify-center gap-1"
-              >
-                <Flame className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Likes</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="message"
-                className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all flex items-center justify-center gap-1"
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Msgs</span>
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          <TabsContent value={activeFilter} className="m-0 mt-0">
-            <ScrollArea className="h-[min(calc(100vh-16rem),420px)]">
-              <div className="p-3">
-                {filteredNotifications.length === 0 ? (
-                  <EmptyState filter={activeFilter} />
-                ) : (
-                  <AnimatePresence mode="popLayout">
-                    <div className="space-y-2">
-                      {filteredNotifications.map((notification, index) => (
-                        <NotificationItem
-                          key={notification.id}
-                          notification={notification}
-                          index={index}
-                          onClick={() => handleNotificationAction(notification)}
-                          onDismiss={() => handleDismiss(notification.id)}
-                        />
-                      ))}
-                    </div>
-                  </AnimatePresence>
-                )}
-              </div>
-            </ScrollArea>
-          </TabsContent>
-        </Tabs>
-
-        {/* Footer */}
-        {notifications.length > 0 && (
-          <div className="px-4 py-3 border-t border-border/40 bg-muted/20">
-            <Button
-              variant="outline"
-              className="w-full gap-2 h-10 text-sm font-semibold border-border/40 hover:bg-muted/50 transition-colors"
-              onClick={handleViewAll}
+  const triggerButton = children || (
+    <Button
+      variant="ghost"
+      size="icon"
+      className={cn(
+        "relative h-9 w-9 rounded-xl transition-all duration-200",
+        "hover:scale-105 active:scale-95 group bg-card border-0",
+        "touch-manipulation"
+      )}
+      onClick={() => {
+        haptics.tap();
+        setIsOpen(true);
+      }}
+      aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+    >
+      <div className="relative">
+        <Bell
+          strokeWidth={3}
+          className={cn(
+            "h-5 w-5 transition-colors duration-150",
+            isDark ? "text-white/80" : "text-foreground/80",
+            "group-hover:text-foreground"
+          )}
+        />
+        {/* Notification badge */}
+        <AnimatePresence>
+          {unreadCount > 0 && (
+            <motion.span
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white px-1.5 shadow-lg"
             >
-              <Eye className="w-4 h-4" />
-              View All Notifications
-            </Button>
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Subtle pulse animation when there are unread */}
+      {unreadCount > 0 && (
+        <motion.span
+          className="absolute inset-0 rounded-xl bg-primary/20"
+          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      )}
+    </Button>
+  );
+
+  return (
+    <>
+      {triggerButton}
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent
+          hideCloseButton
+          className={cn(
+            "w-[min(calc(100vw-1rem),440px)] p-0 rounded-2xl",
+            "bg-background border border-border/60 shadow-2xl",
+            "overflow-hidden gap-0",
+            className
+          )}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <DialogTitle className="sr-only">Notifications</DialogTitle>
+
+          {/* Header */}
+          <div className="px-4 pt-4 pb-3 border-b border-border/40 bg-background/80 backdrop-blur-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-primary/10">
+                  <Bell className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold tracking-tight">Notifications</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {unreadCount > 0 ? (
+                      <span className="font-medium text-primary">{unreadCount} unread</span>
+                    ) : (
+                      'All caught up'
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1">
+                {unreadCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      haptics.tap();
+                      markAllAsRead();
+                    }}
+                    className="gap-2 h-9 px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <CheckCheck className="w-4 h-4" />
+                    <span className="hidden sm:inline">Mark all read</span>
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
           </div>
-        )}
-      </PopoverContent>
-    </Popover>
+
+          {/* Tabs */}
+          <Tabs value={activeFilter} onValueChange={setActiveFilter} className="w-full">
+            <div className="px-2 py-2 border-b border-border/30">
+              <TabsList className="flex w-full bg-muted/40 rounded-xl p-1 h-auto gap-0.5">
+                <TabsTrigger
+                  value="all"
+                  className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all"
+                >
+                  All
+                </TabsTrigger>
+                <TabsTrigger
+                  value="unread"
+                  className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                >
+                  <span>Unread</span>
+                  {unreadCount > 0 && (
+                    <Badge variant="secondary" className="h-5 min-w-[20px] px-1.5 text-[10px] font-bold">{unreadCount}</Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="like"
+                  className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all flex items-center justify-center gap-1"
+                >
+                  <Flame className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Likes</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="message"
+                  className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all flex items-center justify-center gap-1"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Msgs</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value={activeFilter} className="m-0 mt-0">
+              <ScrollArea className="h-[min(calc(100vh-16rem),420px)]">
+                <div className="p-3">
+                  {filteredNotifications.length === 0 ? (
+                    <EmptyState filter={activeFilter} />
+                  ) : (
+                    <AnimatePresence mode="popLayout">
+                      <div className="space-y-2">
+                        {filteredNotifications.map((notification, index) => (
+                          <NotificationItem
+                            key={notification.id}
+                            notification={notification}
+                            index={index}
+                            onClick={() => handleNotificationAction(notification)}
+                            onDismiss={() => handleDismiss(notification.id)}
+                          />
+                        ))}
+                      </div>
+                    </AnimatePresence>
+                  )}
+                </div>
+              </ScrollArea>
+            </TabsContent>
+          </Tabs>
+
+          {/* Footer */}
+          {notifications.length > 0 && (
+            <div className="px-4 py-3 border-t border-border/40 bg-muted/20">
+              <Button
+                variant="outline"
+                className="w-full gap-2 h-10 text-sm font-semibold border-border/40 hover:bg-muted/50 transition-colors"
+                onClick={handleViewAll}
+              >
+                <Eye className="w-4 h-4" />
+                View All Notifications
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

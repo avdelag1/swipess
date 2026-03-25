@@ -1,5 +1,5 @@
 import { memo, useEffect, useMemo, useState, useRef } from 'react';
-import { getCardImageUrl } from '@/utils/imageOptimization';
+import { getCardImageUrl, getBlurDataUrl } from '@/utils/imageOptimization';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { MarketingSlide } from './MarketingSlide';
@@ -27,6 +27,7 @@ const CardImage = memo(({
   const isMarketingSlide = useMemo(() => src?.startsWith('marketing:'), [src]);
 
   const optimizedSrc = isMarketingSlide ? src : getCardImageUrl(src ?? '');
+  const blurSrc = useMemo(() => (!isMarketingSlide && src ? getBlurDataUrl(src) : null), [src, isMarketingSlide]);
   const wasInCache = useMemo(() => (src && !isMarketingSlide ? imageCache.has(src) : false), [src, isMarketingSlide]);
 
   const [loaded, setLoaded] = useState<boolean>(() => !!(src && (isMarketingSlide || imageCache.has(src))));
@@ -115,16 +116,35 @@ const CardImage = memo(({
         zIndex: 1,
       }}
     >
+      {/* LQIP Placeholder with blur-up effect */}
       {!loaded && (
         <div
           style={{
             position: 'absolute',
             inset: 0,
+            width: '100%',
+            height: '100%',
             background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.2) 100%)',
-            opacity: 1,
-            transition: wasInCache ? 'none' : 'opacity 400ms ease',
+            zIndex: 1,
           }}
-        />
+        >
+          {blurSrc && (
+            <img
+              src={blurSrc}
+              alt=""
+              aria-hidden="true"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                filter: 'blur(20px)',
+                transform: 'scale(1.1)',
+                opacity: 0.6,
+                transition: 'opacity 0.4s ease',
+              }}
+            />
+          )}
+        </div>
       )}
 
       {showPrev && prevOptimizedRef.current && (
@@ -147,7 +167,6 @@ const CardImage = memo(({
       )}
 
       <img
-        key={src}
         src={optimizedSrc || src}
         alt={alt ?? ''}
         loading="eager"

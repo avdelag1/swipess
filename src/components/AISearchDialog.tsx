@@ -53,7 +53,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
           setIsTyping(false);
           setMessages([{
             role: 'ai',
-            content: "Hey! I'm Swipess AI — your personal property concierge. ✨\n\nI can help you find your dream space, check your matches, or explain how tokens work.\n\nWhat are you looking for today?",
+            content: "Welcome. I am the Swipess Oracle — your sharp, market-savvy guide to Tulum. ✨\n\nI can help you find your dream space, check your matches, or explain how tokens work.\n\nWhat are you looking for today?",
             timestamp: Date.now()
           }]);
         }, 1200);

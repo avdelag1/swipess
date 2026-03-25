@@ -71,7 +71,7 @@ body::-webkit-scrollbar {
 /* ─── View Transitions: circular ripple reveal from toggle button ─── */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.3s;
+  animation-duration: 0.18s;
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -81,7 +81,7 @@ body::-webkit-scrollbar {
 }
 
 ::view-transition-new(root) {
-  animation: theme-circle-reveal 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: theme-circle-reveal 0.18s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   z-index: 2;
 }
 
@@ -115,6 +115,8 @@ body::-webkit-scrollbar {
 
 .glass-nano-texture {
   position: relative;
+  /* Isolate this layer's repaints from the rest of the document */
+  contain: layout style;
 }
 .glass-nano-texture::before {
   content: "";
@@ -152,6 +154,8 @@ html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   width: 100%;
   touch-action: manipulation;

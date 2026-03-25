@@ -55,7 +55,7 @@ export function createSafeNavigate(
         description: 'Please log in to continue.',
         variant: 'destructive',
       });
-      navigate('/login', { replace: true });
+      navigate('/', { replace: true });
       return false;
     }
 

@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="format-detection" content="telephone=no">
 
   <!-- Google Consent Mode v2 — MUST run before any Google tags load -->
   <script>
@@ -82,9 +83,9 @@
   <meta name="apple-touch-fullscreen" content="yes">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/swipess-logo.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/swipess-logo.png">
-  <link rel="shortcut icon" href="/icons/swipess-logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
+  <link rel="shortcut icon" href="/icons/favicon.ico">
 
   <!-- Apple Touch Icons - All required sizes -->
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -116,6 +117,26 @@
     }
   </script>
 
+  <!-- Android immersive mode: hide the phone navigation bar on first touch.
+       For installed PWA users this is already handled by display:fullscreen in
+       the manifest. This script covers users opening the app in a browser tab. -->
+  <script>
+    (function () {
+      if (!/Android/i.test(navigator.userAgent)) return;
+      // Skip if already running as an installed PWA (standalone / fullscreen mode)
+      if (window.matchMedia('(display-mode: standalone)').matches) return;
+      if (window.matchMedia('(display-mode: fullscreen)').matches) return;
+      var req = document.documentElement.requestFullscreen
+        || document.documentElement.webkitRequestFullscreen;
+      if (!req) return;
+      function enterFullscreen() {
+        req.call(document.documentElement, { navigationUI: 'hide' }).catch(function () {});
+        document.removeEventListener('touchstart', enterFullscreen);
+      }
+      document.addEventListener('touchstart', enterFullscreen, { passive: true, once: true });
+    })();
+  </script>
+
   <!-- Early redirect hint for authenticated users - reduces redirect latency -->
   <script>
     // Check for cached auth state to avoid redirect delay
@@ -135,6 +156,35 @@
         }
       } catch (e) { }
     })();
+  </script>
+
+  <!-- Speculation Rules API for intelligent prefetching -->
+  <!-- Prefetches likely navigation targets based on hover/scroll patterns -->
+  <script type="speculationrules">
+    {
+      "prefetch": [
+        {
+          "source": "list",
+          "urls": [
+            "/client/dashboard",
+            "/owner/dashboard",
+            "/messages",
+            "/notifications",
+            "/client/profile",
+            "/owner/profile",
+            "/client/settings",
+            "/owner/settings"
+          ],
+          "where": {
+            "and": [
+              { "href_matches": "/*" },
+              { "not": { "selector_matches": ".no-prefetch" } }
+            ]
+          },
+          "eagerness": "moderate"
+        }
+      ]
+    }
   </script>
 </head>
 

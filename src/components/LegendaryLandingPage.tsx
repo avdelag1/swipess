@@ -2,30 +2,25 @@ import { memo, useState, useRef, useMemo, useEffect, lazy, Suspense } from 'reac
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
+import { triggerHaptic } from '@/utils/haptics';
+import { playRandomZen } from '@/utils/sounds';
 import {
   Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, Gamepad2
+  ArrowLeft, Star
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
-import { nuclearReset } from '@/utils/cacheManager';
 import { cn } from '@/lib/utils';
-import { haptics } from '@/utils/microPolish';
+import type { EffectMode } from './LandingBackgroundEffects';
 
 // Lazy-load heavy deps that aren't needed for first paint
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
 // Optimized logo with modern format support + fallback
-// Using swipess-logo.png from the provided URL (also supports video logo)
-const swipessLogoAvif = '/icons/swipess-logo.png';
-const swipessLogoWebp = '/icons/swipess-logo.png';
-const swipessLogoVideo = '/icons/swipess-logo-video.mp4';
 const swipessLogoPng = '/icons/swipess-logo.png';
 
 function LogoImage({ className }: { className?: string }) {
@@ -63,18 +58,42 @@ const checkPasswordStrength = (password: string) => {
 /* ─── Landing view ───────────────────────────────────────── */
 const LandingView = memo(({
   onEnterAuth,
+  isDark,
+  onToggleDark,
 }: {
   onEnterAuth: () => void;
+  isDark: boolean;
+  onToggleDark: () => void;
 }) => {
-  const navigate = useNavigate();
   const x = useMotionValue(0);
+  const torchBoost = useMotionValue(0);
+
   const logoOpacity = useTransform(x, [0, 100, 220], [1, 0.6, 0]);
   const logoScale = useTransform(x, [0, 120, 220], [1, 0.96, 0.86]);
   const logoBlur = useTransform(x, [0, 100, 220], [0, 2, 14]);
   const logoFilter = useTransform(logoBlur, (v) => `blur(${v}px)`);
 
+  const torchOpacity = useTransform(
+    [x, torchBoost] as const,
+    ([xVal, boost]: number[]) => {
+      const fromDrag = Math.min(1, Math.max(0, xVal / 160));
+      return Math.max(0, fromDrag + boost * 0.4);
+    }
+  );
+
   const isDragging = useRef(false);
   const triggered = useRef(false);
+
+  const handlePointerDown = () => {
+    animate(torchBoost, 1, { duration: 0.05 });
+    triggerHaptic('light');
+  };
+
+  const handlePointerRelease = () => {
+    if (!isDragging.current || x.get() < 50) {
+      animate(torchBoost, 0, { duration: 0.3 });
+    }
+  };
 
   const handleDragStart = () => { isDragging.current = true; };
 
@@ -83,9 +102,12 @@ const LandingView = memo(({
     if (shouldSwipe) {
       if (triggered.current) return;
       triggered.current = true;
+      playRandomZen(0.45);
+      triggerHaptic('success');
       onEnterAuth();
     } else {
       animate(x, 0, { type: 'spring', stiffness: 400, damping: 28, mass: 1 });
+      animate(torchBoost, 0, { duration: 0.3 });
     }
     setTimeout(() => { isDragging.current = false; }, 100);
   };
@@ -93,6 +115,8 @@ const LandingView = memo(({
   const handleTap = () => {
     if (isDragging.current || triggered.current) return;
     triggered.current = true;
+    playRandomZen(0.45);
+    triggerHaptic('light');
     onEnterAuth();
   };
 
@@ -108,35 +132,53 @@ const LandingView = memo(({
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.9}
+        dragElastic={{ left: 0.05, right: 0.82 }}
         dragMomentum={false}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerRelease}
+        onPointerCancel={handlePointerRelease}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onTap={handleTap}
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none"
+        data-no-bg-sound="true"
       >
         <div className="relative">
           <LogoImage
-            className="w-[85vw] max-w-[480px] sm:max-w-[580px] md:max-w-[680px] aspect-video border border-white/5 mx-auto"
+            className="w-[85vw] max-w-[480px] sm:max-w-[580px] md:max-w-[680px] aspect-video mx-auto"
           />
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            style={{ opacity: torchOpacity }}
+          >
+            <img
+              src="/icons/fire-s-logo.webp"
+              alt=""
+              className="w-full h-full object-contain"
+              style={{ mixBlendMode: 'screen' }}
+            />
+          </motion.div>
         </div>
       </motion.div>
 
-      {/* Game button — bottom-left corner */}
+      {/* Stars theme toggle — bottom-left corner */}
       <button
-        onClick={(e) => { e.stopPropagation(); navigate('/game/trumps-bad-day'); }}
-        data-testid="button-game"
-        className="absolute bottom-6 left-6 w-11 h-11 flex items-center justify-center rounded-full transition-all active:scale-90"
+        onClick={(e) => { e.stopPropagation(); onToggleDark(); }}
+        data-testid="button-star-filter"
+        className="absolute bottom-6 left-4 flex items-center gap-2 px-3 py-2 rounded-full transition-all active:scale-90"
         style={{
-          background: 'rgba(255,255,255,0.07)',
-          border: '1px solid rgba(255,255,255,0.12)',
-          backdropFilter: 'blur(10px)',
+          background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+          border: isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.18)',
+          backdropFilter: 'blur(12px)',
         }}
-        title="Mini Game"
+        title={isDark ? 'Switch to white stars' : 'Switch to black stars'}
       >
-        <Gamepad2 className="w-5 h-5 text-white/50" />
+        <Star className={`w-4 h-4 shrink-0 ${isDark ? 'text-white/70' : 'text-black/50'}`} />
+        <span className={`text-xs font-semibold whitespace-nowrap ${isDark ? 'text-white/70' : 'text-black/50'}`}>
+          {isDark ? '⬜ White' : '⬛ Black'}
+        </span>
       </button>
 
     </motion.div>
@@ -162,13 +204,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [_showResendConfirmation, setShowResendConfirmation] = useState(false);
   const [showErrorDetails, setShowErrorDetails] = useState(false);
   const [errorDetails, setErrorDetails] = useState<{ message: string; fullError: string } | null>(null);
-  const [role, setRole] = useState<'client' | 'owner'>('client');
 
-  const { signIn, signUp, signInWithOAuth: _signInWithOAuth } = useAuth();
-  const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
+  const { signIn, signUp } = useAuth();
+  const _passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
 
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('auth_client_email') || '';
@@ -192,21 +232,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       setEmail('');
     } catch (error: unknown) {
       toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to send reset email.', variant: 'destructive' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const _handleResendConfirmation = async () => {
-    if (!email) { toast({ title: 'Email Required', description: 'Please enter your email address.', variant: 'destructive' }); return; }
-    setIsLoading(true);
-    try {
-      const { error } = await supabase.auth.resend({ type: 'signup', email });
-      if (error) throw error;
-      toast({ title: 'Confirmation Email Sent', description: 'Please check your inbox and verify your email.' });
-      setShowResendConfirmation(false);
-    } catch (error: unknown) {
-      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to resend.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -244,47 +269,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       };
       setErrorDetails(errorInfo);
       setShowErrorDetails(true);
-
-      if (error.message?.toLowerCase().includes('email not confirmed')) {
-        setShowResendConfirmation(true);
-      }
-
-      let sentientTitle = `${isLogin ? 'Sign In' : 'Sign Up'} Failed`;
-      let sentientDescription = error.message || 'Authentication failed.';
-
-      if (error.message === 'Invalid login credentials') {
-        sentientTitle = "Login Issue Detected";
-        sentientDescription = "We couldn't find a match for those credentials. Would you like to reset your password?";
-      } else if (error.message?.includes('Too many requests')) {
-        sentientTitle = "Security Cooldown";
-        sentientDescription = "Too many attempts. For your safety, please wait a few minutes before trying again.";
-      }
-
-      toast({
-        title: sentientTitle,
-        description: sentientDescription,
-        variant: 'destructive',
-        action: (
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={() => setShowErrorDetails(true)}
-              className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors border border-white/10"
-            >
-              Details
-            </button>
-            <button
-              onClick={async () => {
-                if (window.confirm("This will clear all local session data and reload the app. Continue?")) {
-                  nuclearReset();
-                }
-              }}
-              className="px-3 py-1 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors border border-orange-500/20"
-            >
-              System Fix
-            </button>
-          </div>
-        )
-      });
+      toast({ title: 'Authentication Failed', description: error.message, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -321,17 +306,25 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 
       <div className="h-full flex flex-col justify-center p-4 sm:p-5 relative z-10">
         <motion.div className="w-full max-w-sm mx-auto" variants={containerVariants} initial="hidden" animate="visible">
-          {isForgotPassword && (
-            <motion.div variants={itemVariants} className="text-center mb-5">
-              <h2 className="text-xl font-bold text-foreground">Reset Password</h2>
-            </motion.div>
-          )}
-
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-black font-brand italic uppercase tracking-tight bg-gradient-to-r from-orange-400 to-rose-400 bg-clip-text text-transparent">
-                Welcome to Swipess
+            <div className="text-center mb-6">
+              <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand mb-1">
+                {isLogin ? 'Welcome Back' : 'Join Swipess'}
               </h1>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {isLogin
+                  ? 'Your perfect property match is waiting.'
+                  : 'Swipe, match & find your dream property.'}
+              </p>
+              {!isLogin && (
+                <div className="flex justify-center gap-3 mt-3">
+                  {['🏠 Real Estate', '✨ Smart Match', '🔒 Secure'].map((feat) => (
+                    <span key={feat} className="text-[10px] text-orange-300/80 font-medium bg-orange-500/10 border border-orange-500/20 rounded-full px-2 py-0.5">
+                      {feat}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -360,41 +353,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </GlowingField>
-                  {!isLogin && password && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
-                        <div className={`h-full ${passwordStrength.color} rounded-full transition-all duration-300`} style={{ width: `${(passwordStrength.score / 4) * 100}%` }} />
-                      </div>
-                      <span className="text-[10px] font-medium">{passwordStrength.label}</span>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {!isLogin && !isForgotPassword && (
-                <motion.div variants={itemVariants}>
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked={agreeToTerms} onChange={(e) => setAgreeToTerms(e.target.checked)} className="sr-only peer" />
-                    <div className="w-4 h-4 rounded border-2 border-border bg-muted peer-checked:bg-orange-500 peer-checked:border-transparent flex items-center justify-center">
-                       {agreeToTerms && <Check className="w-2.5 h-2.5 text-white" />}
-                    </div>
-                     <span className="text-xs text-muted-foreground">I agree to the <a href="/terms" className="text-orange-400">Terms</a></span>
-                  </label>
-                </motion.div>
-              )}
-
-              {isLogin && !isForgotPassword && (
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="sr-only peer" />
-                      <div className="w-4 h-4 rounded border-2 border-border bg-muted peer-checked:bg-orange-500 peer-checked:border-transparent flex items-center justify-center">
-                        {rememberMe && <Check className="w-2.5 h-2.5 text-white" />}
-                      </div>
-                      <span className="text-sm text-muted-foreground">Remember me</span>
-                    </label>
-                    <button type="button" onClick={() => setIsForgotPassword(true)} className="text-sm text-orange-400 font-medium">Forgot password?</button>
-                  </div>
                 </motion.div>
               )}
 
@@ -404,27 +362,28 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                   disabled={isLoading}
                   className="w-full h-12 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:shadow-[0_0_30px_rgba(249,115,22,0.5)] transition-all relative overflow-hidden group"
                 >
-                  <motion.div
-                    className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"
-                    style={{ skewX: -20 }}
-                  />
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <Loader className="w-4 h-4 animate-spin" />
-                      <span>Authenticating...</span>
-                    </div>
-                  ) : (
-                    isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Join the Club'
-                  )}
+                  {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Join the Club'}
                 </Button>
               </motion.div>
             </form>
 
-            <motion.div variants={itemVariants} className="text-center mt-4">
+            <motion.div variants={itemVariants} className="mt-4 space-y-2 text-center">
+              {isLogin && !isForgotPassword && (
+                <p className="text-xs text-muted-foreground">
+                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-orange-400/80 hover:text-orange-400">
+                    Forgot password?
+                  </button>
+                </p>
+              )}
               <p className="text-xs text-muted-foreground">
-                {isLogin ? "Don't have an account? " : 'Have an account? '}
-                <button type="button" onClick={switchMode} className="text-orange-400 font-semibold">{isLogin ? 'Sign Up' : 'Sign In'}</button>
+                {isLogin ? "New here? " : 'Already have an account? '}
+                <button type="button" onClick={switchMode} className="text-orange-400 font-semibold">{isLogin ? 'Create a free account' : 'Sign In'}</button>
               </p>
+              {!isLogin && (
+                <p className="text-[10px] text-muted-foreground/60 mt-1">
+                  Join thousands finding their perfect property match
+                </p>
+              )}
             </motion.div>
           </motion.div>
         </motion.div>
@@ -432,9 +391,8 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 
       {showErrorDetails && errorDetails && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90">
-          <div className="bg-zinc-900 border border-white/10 rounded-xl max-w-2xl w-full p-6 text-white">
-            <h3 className="text-lg font-bold mb-4">Error Details</h3>
-            <pre className="text-xs bg-black/40 p-4 rounded overflow-auto max-h-[50vh]">{errorDetails.message}\n\n{errorDetails.fullError}</pre>
+          <div className="bg-zinc-900 border border-white/10 rounded-xl max-w-2xl w-full p-6 text-white text-xs overflow-auto max-h-[80vh]">
+            <pre>{errorDetails.fullError}</pre>
             <Button onClick={() => setShowErrorDetails(false)} className="w-full mt-4">Close</Button>
           </div>
         </div>
@@ -446,13 +404,18 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
-  const { theme } = useTheme();
-  const isLightTheme = theme === 'light';
+  const [isDark, setIsDark] = useState(true);
+
+  const activeMode: EffectMode = view === 'auth' ? 'off' : 'stars';
+  const bgColor = isDark ? '#050505' : '#f5f5f5';
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
+    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: bgColor }}>
       <Suspense fallback={null}>
-        <LandingBackgroundEffects mode={view === 'auth' ? 'off' : 'stars'} isLightTheme={isLightTheme} />
+        <LandingBackgroundEffects
+          mode={activeMode}
+          isLightTheme={!isDark}
+        />
       </Suspense>
 
       <AnimatePresence mode="wait">
@@ -460,6 +423,8 @@ function LegendaryLandingPage() {
           <LandingView
             key="landing"
             onEnterAuth={() => setView('auth')}
+            isDark={isDark}
+            onToggleDark={() => setIsDark(d => !d)}
           />
         ) : (
           <AuthView key="auth" onBack={() => setView('landing')} />

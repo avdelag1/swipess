@@ -10,7 +10,9 @@ import {
   getCountriesInRegion,
   getCitiesInCountry,
   getCityByName,
+  searchCities,
 } from '@/data/worldLocations';
+import type { CityLocation } from '@/data/worldLocations';
 
 interface OwnerLocationSelectorProps {
   region?: string;
@@ -41,6 +43,25 @@ export function OwnerLocationSelector({
   const [countrySearch, setCountrySearch] = useState('');
   const [citySearch, setCitySearch] = useState('');
   const [neighborhoodSearch, setNeighborhoodSearch] = useState('');
+  const [quickSearch, setQuickSearch] = useState('');
+  const [quickSearchOpen, setQuickSearchOpen] = useState(false);
+
+  // Global city quick-search results (type any city name directly)
+  const quickSearchResults = useMemo(
+    () => quickSearch.length >= 2 ? searchCities(quickSearch).slice(0, 8) : [],
+    [quickSearch]
+  );
+
+  const handleQuickSearchSelect = (result: { region: string; country: string; city: CityLocation }) => {
+    setSelectedRegion(result.region);
+    onCountryChange(result.country);
+    onCityChange(result.city.name);
+    if (onCoordinatesChange && result.city.coordinates) {
+      onCoordinatesChange(result.city.coordinates.lat, result.city.coordinates.lng);
+    }
+    setQuickSearch('');
+    setQuickSearchOpen(false);
+  };
 
   // Get all unique countries across all regions
   const allCountries = useMemo(() => {
@@ -158,6 +179,49 @@ export function OwnerLocationSelector({
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* Quick city search — type a city name to skip the cascade */}
+        <div className="relative">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Quick search: type any city or place…"
+              value={quickSearch}
+              onChange={(e) => {
+                setQuickSearch(e.target.value);
+                setQuickSearchOpen(e.target.value.length >= 2);
+              }}
+              onFocus={() => quickSearch.length >= 2 && setQuickSearchOpen(true)}
+              onBlur={() => setTimeout(() => setQuickSearchOpen(false), 150)}
+              className="pl-9 h-10 text-sm"
+            />
+            {quickSearch && (
+              <button
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => { setQuickSearch(''); setQuickSearchOpen(false); }}
+              >
+                ×
+              </button>
+            )}
+          </div>
+          {quickSearchOpen && quickSearchResults.length > 0 && (
+            <div className="absolute z-50 top-full mt-1 w-full bg-popover border border-border rounded-xl shadow-xl overflow-hidden">
+              {quickSearchResults.map((r) => (
+                <button
+                  key={`${r.country}-${r.city.name}`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleQuickSearchSelect(r)}
+                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted flex items-center gap-2.5 transition-colors"
+                >
+                  <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                  <span className="font-semibold text-foreground">{r.city.name}</span>
+                  <span className="text-muted-foreground text-xs">{r.country}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Cascading Location Selects */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Country Select */}

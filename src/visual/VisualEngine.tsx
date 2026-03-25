@@ -1,87 +1,14 @@
 import { useTheme } from "@/hooks/useTheme";
-import { useEffect, useRef } from "react";
-
-interface Star {
-  x: number;
-  y: number;
-  size: number;
-  opacity: number;
-  twinkleSpeed: number;
-  twinklePhase: number;
-}
-
-function StarCanvas({ isLight }: { isLight: boolean }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const starsRef = useRef<Star[]>([]);
-  const animRef = useRef<number>(0);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      ctx.scale(dpr, dpr);
-      initStars();
-    };
-
-    const initStars = () => {
-      const count = Math.min(120, Math.floor((window.innerWidth * window.innerHeight) / 8000));
-      starsRef.current = Array.from({ length: count }, () => ({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        size: Math.random() * 1.8 + 0.4,
-        opacity: Math.random() * 0.6 + 0.2,
-        twinkleSpeed: Math.random() * 0.02 + 0.005,
-        twinklePhase: Math.random() * Math.PI * 2,
-      }));
-    };
-
-    const draw = (time: number) => {
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      for (const star of starsRef.current) {
-        const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase);
-        const alpha = star.opacity * (0.5 + 0.5 * twinkle);
-        ctx.fillStyle = isLight
-          ? `rgba(30, 30, 60, ${alpha * 0.5})`
-          : `rgba(255, 255, 255, ${alpha})`;
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      animRef.current = requestAnimationFrame(draw);
-    };
-
-    resize();
-    animRef.current = requestAnimationFrame(draw);
-    window.addEventListener("resize", resize);
-    return () => {
-      cancelAnimationFrame(animRef.current);
-      window.removeEventListener("resize", resize);
-    };
-  }, [isLight]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0"
-      style={{
-        mixBlendMode: isLight ? "normal" : "screen",
-        pointerEvents: "none",
-      }}
-    />
-  );
-}
+import { useVisualPreferences } from "@/hooks/useVisualPreferences";
+import LandingBackgroundEffects from "@/components/LandingBackgroundEffects";
 
 export const VisualEngine = () => {
   const { theme } = useTheme();
   const isLight = theme === "light";
+  const { preferences } = useVisualPreferences();
+
+  // If globally disabled or off, show nothing (or just the noise)
+  if (!preferences.enable_background_effects) return null;
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -96,7 +23,13 @@ export const VisualEngine = () => {
           }}
         />
       )}
-      <StarCanvas isLight={isLight} />
+      
+      <LandingBackgroundEffects
+        mode={preferences.background_mode || 'stars'}
+        isLightTheme={isLight}
+        disableSounds={true}
+      />
     </div>
   );
 };
+

@@ -29,16 +29,13 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, Users, MapPin, Bike, Wrench, Navigation } from 'lucide-react';
+import { Users, MapPin, Bike, Wrench, Navigation } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 
@@ -53,8 +50,9 @@ interface DistanceSliderProps {
   detected: boolean;
 }
 
-const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
+const _DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
   const maxKm = 100;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   return (
@@ -366,6 +364,16 @@ const ClientSwipeContainerComponent = ({
   const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
   const error = externalError !== undefined ? externalError : internalError;
 
+  useEffect(() => {
+    logger.info('[ClientSwipeContainer] State Update:', {
+      externalProfilesCount: externalProfiles?.length,
+      internalProfilesCount: internalProfiles?.length,
+      isLoading,
+      hasError: !!error,
+      category
+    });
+  }, [externalProfiles, internalProfiles, isLoading, error, category]);
+
   const swipeMutation = useSwipe();
   const { canAccess: _hasPremiumMessaging, needsUpgrade: _needsUpgrade } = useCanAccessMessaging();
   const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
@@ -413,6 +421,7 @@ const ClientSwipeContainerComponent = ({
   // Prefetch next batch of client profiles when approaching end of current batch
   // Uses requestIdleCallback internally for non-blocking prefetch
   useSwipePrefetch(
+    user?.id,
     currentIndexRef.current,
     page,
     deckQueueRef.current.length
@@ -818,7 +827,7 @@ const ClientSwipeContainerComponent = ({
   const isDeckFinished = !showLoadingSkeleton && topCard === null && (hasHydratedData || !isLoading);
 
   // showInitialError: Only show if we have NO cards and a hard error occurred during initial load
-  const showInitialError = !hasHydratedData && error && deckQueue.length === 0;
+  const _showInitialError = !hasHydratedData && error && deckQueue.length === 0;
 
   // showEmptyState: Only show if loading is DONE and we still have no cards
   const showEmptyState = !isLoading && deckQueue.length === 0 && !error;
@@ -902,14 +911,38 @@ const ClientSwipeContainerComponent = ({
   return (
     <div className="relative w-full flex flex-col" style={{ minHeight: '100dvh' }}>
       <div className="relative flex-1 w-full">
-        {/* Next card visible behind - creates depth and anticipation */}
+        {/* Third card - deepest in poker hand stack */}
+        {(() => {
+          const thirdCard = deckQueueRef.current[currentIndexRef.current + 2];
+          if (!thirdCard) return null;
+          return (
+            <div
+              key={`third-${thirdCard.user_id}`}
+              className="w-full h-full absolute inset-0"
+              style={{
+                zIndex: 3,
+                transform: 'scale(0.9) rotate(2.5deg)',
+                opacity: 0.35,
+                pointerEvents: 'none',
+              }}
+            >
+              <SimpleOwnerSwipeCard
+                profile={thirdCard}
+                onSwipe={() => {}}
+                isTop={false}
+              />
+            </div>
+          );
+        })()}
+
+        {/* Next card visible behind - poker hand fanned effect */}
         {nextCard && (
           <div
-            key={`next - ${nextCard.user_id} `}
+            key={`next-${nextCard.user_id}`}
             className="w-full h-full absolute inset-0"
             style={{
               zIndex: 5,
-              transform: 'scale(0.95)',
+              transform: 'scale(0.95) rotate(-1.5deg)',
               opacity: 0.7,
               pointerEvents: 'none',
             }}

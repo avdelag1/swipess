@@ -1,18 +1,25 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 
-// Import animations
-import profileAnim from '@/assets/animations/profile-bubbly.json';
-import flameAnim from '@/assets/animations/flame-pulse.json';
-import aiAnim from '@/assets/animations/ai-sparkle.json';
-import messageAnim from '@/assets/animations/message-pop.json';
-import compassAnim from '@/assets/animations/compass-elastic.json';
-import genericAnim from '@/assets/animations/generic-pop.json';
-import heartAnim from '@/assets/animations/heart-elastic.json';
-import dislikeAnim from '@/assets/animations/dislike-elastic.json';
-import usersAnim from '@/assets/animations/users-bounce.json';
-import megaphoneAnim from '@/assets/animations/megaphone-shout.json';
-import searchAnim from '@/assets/animations/search-scan.json';
+// Lazy loaders — each JSON is a separate Vite chunk, loaded only on first press
+const ANIMATION_LOADERS: Record<string, () => Promise<any>> = {
+  profile:   () => import('@/assets/animations/profile-bubbly.json'),
+  likes:     () => import('@/assets/animations/flame-pulse.json'),
+  'ai-search': () => import('@/assets/animations/ai-sparkle.json'),
+  messages:  () => import('@/assets/animations/message-pop.json'),
+  browse:    () => import('@/assets/animations/compass-elastic.json'),
+  heart:     () => import('@/assets/animations/heart-elastic.json'),
+  dislike:   () => import('@/assets/animations/dislike-elastic.json'),
+  roommates: () => import('@/assets/animations/users-bounce.json'),
+  eventos:   () => import('@/assets/animations/megaphone-shout.json'),
+  advertise: () => import('@/assets/animations/megaphone-shout.json'),
+  filter:    () => import('@/assets/animations/search-scan.json'),
+};
+
+const genericLoader = () => import('@/assets/animations/generic-pop.json');
+
+// Module-level cache so each animation is only fetched once per session
+const animationCache = new Map<string, any>();
 
 type IconType = 'profile' | 'likes' | 'ai-search' | 'messages' | 'browse' | 'heart' | 'dislike' | 'roommates' | 'eventos' | 'advertise' | 'filter' | string;
 
@@ -24,20 +31,6 @@ interface AnimatedLottieIconProps {
   inactiveIcon?: React.ReactNode;
 }
 
-const ANIMATION_MAP: Record<string, any> = {
-  profile: profileAnim,
-  likes: flameAnim,
-  'ai-search': aiAnim,
-  messages: messageAnim,
-  browse: compassAnim,
-  heart: heartAnim,
-  dislike: dislikeAnim,
-  roommates: usersAnim,
-  eventos: megaphoneAnim,
-  advertise: megaphoneAnim,
-  filter: searchAnim,
-};
-
 export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
   iconId,
   active,
@@ -46,6 +39,23 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
   inactiveIcon
 }) => {
   const lottieRef = useRef<LottieRefCurrentProps>(null);
+  const [animationData, setAnimationData] = useState<any>(() => animationCache.get(iconId) ?? null);
+
+  // Load animation data lazily on first activation
+  useEffect(() => {
+    if (!active || animationCache.has(iconId)) {
+      if (animationCache.has(iconId) && !animationData) {
+        setAnimationData(animationCache.get(iconId));
+      }
+      return;
+    }
+    const loader = ANIMATION_LOADERS[iconId] ?? genericLoader;
+    loader().then((mod) => {
+      const data = mod.default ?? mod;
+      animationCache.set(iconId, data);
+      setAnimationData(data);
+    });
+  }, [active, iconId]);
 
   useEffect(() => {
     if (active && lottieRef.current) {
@@ -55,59 +65,45 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
     }
   }, [active]);
 
-  const animationData = ANIMATION_MAP[iconId] || genericAnim;
+  // When inactive, render the static fallback icon (no Lottie overhead)
+  if (!active || !animationData) {
+    return (
+      <div
+        className={className}
+        style={{
+          width: size,
+          height: size,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {inactiveIcon || (
+          <span style={{ color: '#ffffff', fontSize: size * 0.8 }}>●</span>
+        )}
+      </div>
+    );
+  }
 
+  // When active and data is loaded, render the Lottie animation
   return (
-    <div 
-      className={className} 
-      style={{ 
-        width: size, 
-        height: size, 
-        display: 'flex', 
-        alignItems: 'center', 
+    <div
+      className={className}
+      style={{
+        width: size,
+        height: size,
+        display: 'flex',
+        alignItems: 'center',
         justifyContent: 'center',
-        opacity: active ? 1 : 0.8,
-        transition: 'opacity 0.2s ease',
-        position: 'relative'
       }}
     >
-      <div 
-        style={{ 
-          position: 'absolute', 
-          inset: 0, 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          opacity: active ? 1 : 0,
-          pointerEvents: active ? 'auto' : 'none',
-          transition: 'opacity 0.2s ease-out',
-          zIndex: 2
-        }}
-      >
-        <Lottie
-          lottieRef={lottieRef}
-          animationData={animationData}
-          loop={active && (iconId === 'likes' || iconId === 'ai-search' || iconId === 'browse')} 
-          autoplay={active}
-          style={{ width: '100%', height: '100%' }}
-        />
-      </div>
-      
-      <div 
-        style={{ 
-          position: 'absolute', 
-          inset: 0, 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          opacity: active ? 0 : 1,
-          pointerEvents: active ? 'none' : 'auto',
-          transition: 'opacity 0.2s ease-in',
-          zIndex: 1
-        }}
-      >
-        {inactiveIcon}
-      </div>
+      <Lottie
+        lottieRef={lottieRef}
+        animationData={animationData}
+        loop={iconId !== 'profile'}
+        autoplay={active}
+        style={{ width: '100%', height: '100%' }}
+      />
     </div>
   );
 };

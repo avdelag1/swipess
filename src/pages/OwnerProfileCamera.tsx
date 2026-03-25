@@ -37,7 +37,7 @@ export default function OwnerProfileCamera() {
   }, [navigate, returnPath]);
 
   if (!user) {
-    navigate('/login');
+    navigate('/', { replace: true });
     return null;
   }
 

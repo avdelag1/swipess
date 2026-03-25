@@ -1,16 +1,4 @@
-/**
- * DJTurntableRadio — Professional DJ turntable radio skin.
- *
- * Features:
- * - CSS-rendered spinning vinyl with grooves & center label
- * - SVG tonearm with framer-motion rotation
- * - Vertical pitch fader mapped to volume
- * - Tactile transport controls (prev, play/pause, next)
- * - City theme-adaptive glow & label colors
- * - Station drawer for browsing
- */
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
@@ -18,19 +6,87 @@ import { cityThemes } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
+import { cn } from '@/lib/utils';
 import {
   ArrowLeft, ListMusic, Heart, Shuffle,
   SkipBack, SkipForward, Play, Pause
 } from 'lucide-react';
 
-// ── Font injection ──────────────────────────────────────────────────────────
-if (typeof document !== 'undefined' && !document.getElementById('turntable-fonts')) {
-  const s = document.createElement('style');
-  s.id = 'turntable-fonts';
-  s.textContent = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap');`;
-  document.head.appendChild(s);
+// ── Inline stars canvas ──────────────────────────────────────────────────────
+function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animRef = useRef<number>(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    interface Star { x: number; y: number; size: number; opacity: number; speed: number; phase: number; glow: boolean; }
+    const count = Math.min(Math.floor((w * h) / 700), 700);
+    const stars: Star[] = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      size: Math.random() * 0.75 + 0.15,
+      opacity: Math.random() * 0.55 + 0.35,
+      speed: Math.random() * 0.01 + 0.001,
+      phase: Math.random() * Math.PI * 2,
+      glow: Math.random() > 0.85,
+    }));
+
+    let t = 0;
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      t += 0.12;
+      for (const s of stars) {
+        const twinkle = Math.sin(t * s.speed + s.phase) * 0.5 + 0.5;
+        const alpha = Math.min(s.opacity * (twinkle * 0.65 + 0.35), 1);
+        if (alpha < 0.02) continue;
+        if (s.glow) { ctx.shadowBlur = 4; ctx.shadowColor = 'rgba(255,255,255,0.85)'; }
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.fill();
+        if (s.glow) { ctx.shadowBlur = 0; ctx.shadowColor = 'transparent'; }
+      }
+      animRef.current = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 pointer-events-none z-0"
+      style={{ opacity: 0.65 }}
+    />
+  );
 }
 
+/**
+ * DJTurntableRadio — Professional DJ turntable radio skin.
+ * Purely CSS-driven visuals for high performance.
+ */
 export default function DJTurntableRadio() {
   const navigate = useNavigate();
   const {
@@ -42,6 +98,8 @@ export default function DJTurntableRadio() {
   const [showFavoritesDrawer, setShowFavoritesDrawer] = useState(false);
 
   const cityTheme = cityThemes[state.currentCity] || cityThemes['tulum'];
+  const primaryColor = cityTheme.primaryColor;
+  const secondaryColor = cityTheme.secondaryColor;
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -71,18 +129,18 @@ export default function DJTurntableRadio() {
     setShowFavoritesDrawer(false);
   }, [play]);
 
-  const primaryColor = cityTheme.primaryColor;
-  const secondaryColor = cityTheme.secondaryColor;
-
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col overflow-hidden select-none"
-      style={{
-        background: `radial-gradient(ellipse at 50% 30%, #1a1a1a 0%, #0a0a0a 60%, #050505 100%)`,
-      }}
+      className={cn(
+        "fixed inset-0 z-50 flex flex-col overflow-hidden select-none",
+        "bg-[radial-gradient(ellipse_at_50%_30%,#1a1a1a_0%,#0a0a0a_60%,#050505_100%)]"
+      )}
     >
-      {/* ── Floating top bar ─────────────────────────────────── */}
-      <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 pt-[env(safe-area-inset-top,12px)] pb-2">
+      {/* Stars background */}
+      <RadioStarsCanvas accentColor={primaryColor} />
+
+      {/* Floating top bar */}
+      <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 pt-[env(safe-area-inset-top,12px)] pb-2 uppercase tracking-[0.2em]">
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => navigate(-1)}
@@ -92,8 +150,8 @@ export default function DJTurntableRadio() {
         </motion.button>
 
         <span
-          className="text-xs font-bold tracking-[0.2em] uppercase"
-          style={{ color: primaryColor, fontFamily: "'Bebas Neue', sans-serif", fontSize: '14px' }}
+          className="text-sm font-bold font-['Bebas_Neue']"
+          style={{ color: primaryColor }}
         >
           {cityTheme.name}
         </span>
@@ -102,17 +160,17 @@ export default function DJTurntableRadio() {
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => { toggleShuffle(); triggerHaptic('light'); }}
-            className={`w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center ${state.isShuffle ? 'bg-white/15' : 'bg-white/5'}`}
+            className={cn("w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center transition-colors", state.isShuffle ? "bg-white/15" : "bg-white/5")}
           >
             <Shuffle className="w-4 h-4 text-white/70" />
           </motion.button>
+          
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => { triggerHaptic('light'); navigate('/radio/cassette'); }}
             className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-md flex items-center justify-center"
             title="Switch to Cassette skin"
           >
-            {/* Cassette icon: two circles + tape path */}
             <svg className="w-4 h-4 text-white/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="6" width="20" height="12" rx="2"/>
               <circle cx="7" cy="12" r="2"/>
@@ -120,6 +178,7 @@ export default function DJTurntableRadio() {
               <path d="M9 12h6"/>
             </svg>
           </motion.button>
+          
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowDrawer(true)}
@@ -130,29 +189,21 @@ export default function DJTurntableRadio() {
         </div>
       </div>
 
-      {/* ── Main turntable area ──────────────────────────────── */}
+      {/* Main turntable area */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 pt-16 pb-4">
-
         {/* Turntable deck surface */}
         <div
-          className="relative w-full max-w-[340px] aspect-square rounded-2xl"
+          className="relative w-full max-w-[340px] aspect-square rounded-2xl bg-gradient-to-br from-[#1c1c1c] via-[#111] to-[#0d0d0d] shadow-2xl border-t border-white/5"
           style={{
-            background: 'linear-gradient(145deg, #1c1c1c 0%, #111111 50%, #0d0d0d 100%)',
             boxShadow: `0 0 60px -20px ${primaryColor}22, inset 0 1px 0 rgba(255,255,255,0.05), 0 20px 60px -10px rgba(0,0,0,0.8)`,
           }}
         >
           {/* Metallic platter ring */}
-          <div
-            className="absolute inset-3 rounded-full"
-            style={{
-              background: 'radial-gradient(circle, transparent 48%, #2a2a2a 49%, #3a3a3a 50%, #2a2a2a 51%, transparent 52%), radial-gradient(circle, transparent 95%, #333 96%, #222 100%)',
-              boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)',
-            }}
-          />
+          <div className="absolute inset-3 rounded-full shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] bg-[radial-gradient(circle,transparent_48%,#2a2a2a_49%,#3a3a3a_50%,#2a2a2a_51%,transparent_52%),radial-gradient(circle,transparent_95%,#333_96%,#222_100%)]" />
 
           {/* Spinning vinyl record */}
           <motion.div
-            className="absolute inset-5 rounded-full"
+            className="absolute inset-5 rounded-full shadow-inner"
             style={{
               background: `
                 radial-gradient(circle, ${primaryColor}dd 0%, ${primaryColor}aa 12%, transparent 13%),
@@ -174,29 +225,18 @@ export default function DJTurntableRadio() {
               boxShadow: `inset 0 0 30px rgba(0,0,0,0.6), 0 0 15px ${primaryColor}11`,
             }}
             animate={{ rotate: state.isPlaying ? 360 : 0 }}
-            transition={state.isPlaying ? {
-              duration: 1.8,
-              ease: 'linear',
-              repeat: Infinity,
-            } : {
-              duration: 0.5,
-              ease: 'easeOut',
-            }}
+            transition={state.isPlaying ? { duration: 1.8, ease: 'linear', repeat: Infinity } : { duration: 0.5, ease: 'easeOut' }}
           >
             {/* Center label */}
             <div
-              className="absolute inset-0 m-auto w-[32%] h-[32%] rounded-full flex flex-col items-center justify-center"
+              className="absolute inset-0 m-auto w-[32%] h-[32%] rounded-full flex flex-col items-center justify-center p-1"
               style={{
                 background: `linear-gradient(135deg, ${primaryColor}ee, ${secondaryColor}ee)`,
                 boxShadow: `0 0 20px ${primaryColor}33`,
               }}
             >
-              {/* Spindle hole */}
               <div className="w-2.5 h-2.5 rounded-full bg-black/60 mb-1 border border-white/10" />
-              <p
-                className="text-[7px] font-bold text-white/90 text-center leading-tight px-1 truncate max-w-full"
-                style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.05em' }}
-              >
+              <p className="text-[7px] font-bold text-white/90 text-center leading-tight truncate max-w-full font-['Bebas_Neue'] tracking-wider">
                 {state.currentStation?.name || 'NO SIGNAL'}
               </p>
               <p className="text-[5px] text-white/50 tracking-wider uppercase">
@@ -204,47 +244,27 @@ export default function DJTurntableRadio() {
               </p>
             </div>
 
-            {/* Light reflection on vinyl */}
-            <div
-              className="absolute inset-0 rounded-full pointer-events-none"
-              style={{
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.02) 100%)',
-              }}
-            />
+            {/* Light reflection */}
+            <div className="absolute inset-0 rounded-full pointer-events-none bg-gradient-to-br from-white/10 via-transparent to-white/5" />
           </motion.div>
 
-          {/* ── Tonearm ────────────────────────────────────────── */}
+          {/* Tonearm */}
           <motion.div
-            className="absolute -right-2 -top-2 w-32 h-32 origin-[85%_15%]"
-            style={{ zIndex: 10 }}
+            className="absolute -right-2 -top-2 w-32 h-32 origin-[85%_15%] z-10"
             animate={{ rotate: state.isPlaying ? 22 : 0 }}
             transition={{ type: 'spring', stiffness: 80, damping: 20 }}
           >
             <svg viewBox="0 0 120 120" className="w-full h-full">
-              {/* Pivot base */}
               <circle cx="100" cy="18" r="8" fill="#333" stroke="#444" strokeWidth="1" />
               <circle cx="100" cy="18" r="4" fill="#555" />
-
-              {/* Arm */}
-              <line x1="100" y1="18" x2="30" y2="90" stroke="#aaa" strokeWidth="2.5"
-                strokeLinecap="round" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))' }} />
-
-              {/* Headshell */}
-              <rect x="22" y="85" width="18" height="6" rx="1" fill="#888"
-                transform="rotate(-42, 30, 90)"
-                style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))' }} />
-
-              {/* Cartridge */}
-              <rect x="18" y="92" width="8" height="4" rx="0.5" fill={primaryColor}
-                transform="rotate(-42, 30, 90)" />
-
-              {/* Stylus */}
-              <line x1="20" y1="96" x2="17" y2="99" stroke="#ddd" strokeWidth="0.8"
-                transform="rotate(-42, 30, 90)" />
+              <line x1="100" y1="18" x2="30" y2="90" stroke="#aaa" strokeWidth="2.5" strokeLinecap="round" className="drop-shadow-md" />
+              <rect x="22" y="85" width="18" height="6" rx="1" fill="#888" transform="rotate(-42, 30, 90)" className="drop-shadow-sm" />
+              <rect x="18" y="92" width="8" height="4" rx="0.5" fill={primaryColor} transform="rotate(-42, 30, 90)" />
+              <line x1="20" y1="96" x2="17" y2="99" stroke="#ddd" strokeWidth="0.8" transform="rotate(-42, 30, 90)" />
             </svg>
           </motion.div>
 
-          {/* Playing glow under platter */}
+          {/* Playing glow */}
           <AnimatePresence>
             {state.isPlaying && (
               <motion.div
@@ -252,17 +272,15 @@ export default function DJTurntableRadio() {
                 animate={{ opacity: 0.4 }}
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 rounded-2xl pointer-events-none"
-                style={{
-                  boxShadow: `0 0 80px -20px ${primaryColor}44, inset 0 0 40px -15px ${primaryColor}11`,
-                }}
+                style={{ boxShadow: `0 0 80px -20px ${primaryColor}44, inset 0 0 40px -15px ${primaryColor}11` }}
               />
             )}
           </AnimatePresence>
         </div>
 
-        {/* ── Station info ─────────────────────────────────── */}
+        {/* Station info */}
         <div className="mt-5 text-center w-full max-w-[340px]">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout">
             <motion.div
               key={state.currentStation?.id || 'none'}
               initial={{ opacity: 0, y: 6 }}
@@ -270,10 +288,7 @@ export default function DJTurntableRadio() {
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.25 }}
             >
-              <h2
-                className="text-white text-lg font-bold tracking-tight"
-                style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '22px', letterSpacing: '0.04em' }}
-              >
+              <h2 className="text-white text-2xl font-bold font-['Bebas_Neue'] tracking-wider">
                 {state.currentStation?.name || 'No Station'}
               </h2>
               <p className="text-white/40 text-xs mt-0.5">
@@ -285,168 +300,85 @@ export default function DJTurntableRadio() {
           </AnimatePresence>
         </div>
 
-        {/* ── Controls + Pitch Fader row ─────────────────── */}
+        {/* Controls */}
         <div className="mt-6 flex items-center gap-5 w-full max-w-[340px] justify-center">
-
-          {/* Favorite button */}
           <motion.button
             whileTap={{ scale: 0.85 }}
-            onClick={() => {
-              if (state.currentStation) {
-                toggleFavorite(state.currentStation.id);
-                triggerHaptic('light');
-              }
-            }}
-            className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center"
+            onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('light'); } }}
+            className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center transition-colors hover:bg-white/10"
           >
-            <Heart
-              className="w-4 h-4"
-              fill={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : 'none'}
-              stroke={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : 'rgba(255,255,255,0.4)'}
-            />
+            <Heart className="w-4 h-4" fill={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : 'none'} stroke={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : 'rgba(255,255,255,0.4)'} />
           </motion.button>
 
-          {/* Transport controls */}
           <div className="flex items-center gap-3">
-            {/* Prev */}
             <motion.button
               whileTap={{ scale: 0.85 }}
               onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
-              className="w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{
-                background: 'linear-gradient(145deg, #222, #1a1a1a)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
-              }}
+              className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#222] to-[#1a1a1a] shadow-lg border-t border-white/5"
             >
               <SkipBack className="w-5 h-5 text-white/70" fill="currentColor" />
             </motion.button>
 
-            {/* Play / Pause — large center button */}
             <motion.button
               whileTap={{ scale: 0.92 }}
               onClick={() => { togglePlayPause(); triggerHaptic('medium'); }}
-              className="w-16 h-16 rounded-2xl flex items-center justify-center relative overflow-hidden"
-              style={{
-                background: `linear-gradient(145deg, ${primaryColor}dd, ${primaryColor}88)`,
-                boxShadow: `0 8px 24px ${primaryColor}44, inset 0 1px 0 rgba(255,255,255,0.15)`,
-              }}
+              className="w-16 h-16 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-2xl transition-all"
+              style={{ background: `linear-gradient(145deg, ${primaryColor}dd, ${primaryColor}88)`, boxShadow: `0 8px 24px ${primaryColor}44, inset 0 1px 0 rgba(255,255,255,0.15)` }}
             >
-              {state.isPlaying ? (
-                <Pause className="w-7 h-7 text-white" fill="white" />
-              ) : (
-                <Play className="w-7 h-7 text-white ml-0.5" fill="white" />
-              )}
-              {/* Button surface shine */}
-              <div className="absolute inset-0 pointer-events-none" style={{
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 50%)',
-              }} />
+              {state.isPlaying ? <Pause className="w-7 h-7 text-white" fill="white" /> : <Play className="w-7 h-7 text-white ml-0.5" fill="white" />}
+              <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
             </motion.button>
 
-            {/* Next */}
             <motion.button
               whileTap={{ scale: 0.85 }}
               onClick={() => { changeStation('next'); triggerHaptic('medium'); }}
-              className="w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{
-                background: 'linear-gradient(145deg, #222, #1a1a1a)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
-              }}
+              className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#222] to-[#1a1a1a] shadow-lg border-t border-white/5"
             >
               <SkipForward className="w-5 h-5 text-white/70" fill="currentColor" />
             </motion.button>
           </div>
 
-          {/* ── Pitch Fader (Volume) ──────────────────────── */}
+          {/* Pitch Fader */}
           <div className="flex flex-col items-center gap-1">
-            <span className="text-[8px] text-white/30 tracking-[0.15em] uppercase font-bold"
-              style={{ fontFamily: "'Space Mono', monospace" }}>
-              PITCH
-            </span>
-            <div
-              className="relative w-8 h-28 rounded-lg flex items-center justify-center"
-              style={{
-                background: 'linear-gradient(180deg, #1a1a1a, #111)',
-                boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.03)',
-              }}
-            >
-              {/* Track groove */}
+            <span className="text-[8px] text-white/30 tracking-[0.15em] uppercase font-bold font-['Space_Mono']">PITCH</span>
+            <div className="relative w-8 h-28 rounded-lg flex items-center justify-center bg-gradient-to-b from-[#1a1a1a] to-[#111] shadow-inner border border-white/5">
               <div className="absolute w-[2px] h-[85%] rounded-full bg-white/10" />
-
-              {/* Center detent mark */}
               <div className="absolute w-4 h-[1px] bg-white/15 left-1/2 top-1/2 -translate-x-1/2" />
-
-              {/* Fader knob */}
               <motion.div
-                className="absolute w-6 h-5 rounded-sm cursor-grab active:cursor-grabbing"
-                style={{
-                  background: `linear-gradient(180deg, #444, #2a2a2a)`,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
-                  top: `${(1 - state.volume) * 75 + 8}%`,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                }}
+                className="absolute w-6 h-5 rounded-sm bg-gradient-to-b from-[#444] to-[#2a2a2a] shadow-md border-t border-white/10"
+                style={{ top: `${(1 - state.volume) * 75 + 8}%`, left: '50%', transform: 'translateX(-50%)' }}
                 drag="y"
                 dragConstraints={{ top: -40, bottom: 40 }}
                 dragElastic={0}
                 dragMomentum={false}
                 onDrag={(_, info) => {
-                  // Map drag position to volume (inverted: up = louder)
-                  const parentHeight = 112; // h-28 = 7rem = 112px
-                  const _normalizedY = info.point.y;
-                  // Use offset to calculate relative volume change
+                  const parentHeight = 112;
                   const delta = -info.delta.y / parentHeight;
                   setVolume(Math.max(0, Math.min(1, state.volume + delta)));
                 }}
               >
-                {/* Knob grip lines */}
                 <div className="absolute inset-x-1 top-1/2 -translate-y-1/2 space-y-[2px]">
-                  <div className="h-[1px] bg-white/15" />
-                  <div className="h-[1px] bg-white/10" />
-                  <div className="h-[1px] bg-white/15" />
+                  <div className="h-[1px] bg-white/15" /><div className="h-[1px] bg-white/10" /><div className="h-[1px] bg-white/15" />
                 </div>
               </motion.div>
-
-              {/* Volume percentage */}
-              <span
-                className="absolute -bottom-4 text-[7px] text-white/25"
-                style={{ fontFamily: "'Space Mono', monospace" }}
-              >
-                {Math.round(state.volume * 100)}%
-              </span>
+              <span className="absolute -bottom-4 text-[7px] text-white/25 font-['Space_Mono']">{Math.round(state.volume * 100)}%</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Error toast ──────────────────────────────────── */}
+      {/* Error toast */}
       <AnimatePresence>
         {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="fixed top-14 left-4 right-4 z-50 text-center"
-          >
-            <span
-              className="inline-block px-4 py-2 rounded-full text-xs font-medium text-red-300"
-              style={{
-                background: 'rgba(0,0,0,0.85)',
-                border: '1px solid rgba(255,59,48,0.3)',
-              }}
-            >
-              {error}
-            </span>
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="fixed top-14 left-4 right-4 z-[60] text-center">
+            <span className="inline-block px-4 py-2 rounded-full text-xs font-medium text-red-300 bg-black/85 border border-red-500/30 backdrop-blur-md shadow-lg">{error}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Station Drawer ───────────────────────────────── */}
       <StationDrawer
         isOpen={showDrawer || showFavoritesDrawer}
-        onClose={() => {
-          setShowDrawer(false);
-          setShowFavoritesDrawer(false);
-        }}
+        onClose={() => { setShowDrawer(false); setShowFavoritesDrawer(false); }}
         isFavoritesView={showFavoritesDrawer}
         currentCity={state.currentCity}
         currentStation={state.currentStation}

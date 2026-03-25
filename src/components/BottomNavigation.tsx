@@ -16,7 +16,7 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, MessageCircle, User, Building2,
   Search, Users, Sparkles, ShieldCheck,
@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
@@ -31,8 +32,8 @@ import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 
-const ICON_SIZE = 22;
-const ICON_SIZE_COMPACT = 20;
+const ICON_SIZE = 24;
+const ICON_SIZE_COMPACT = 22;
 const TOUCH_TARGET = 48;
 const TOUCH_TARGET_COMPACT = 44;
 
@@ -74,6 +75,7 @@ export function BottomNavigation({
   const { navigate } = useAppNavigate();
   const location = useLocation();
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
+  const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { t } = useTranslation();
@@ -238,7 +240,7 @@ export function BottomNavigation({
 
   const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
 
-  const iconColorInactive = isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.65)';
+  const iconColorInactive = isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.55)';
   const activeColor = 'var(--color-brand-primary)';
 
   const barShadow = isLight
@@ -255,12 +257,12 @@ export function BottomNavigation({
         className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
           // LAYER 1: Solid glass base with Heavy Backdrop Blur
-          backgroundColor: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(12,12,14,0.82)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
+          backgroundColor: isLight ? 'rgba(255,255,255,0.88)' : 'rgba(8, 8, 10, 0.85)',
+          backdropFilter: 'blur(32px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(180%)',
           // No hard borders — defined by shadows and a subtle rim light
-          border: isLight ? '1px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '28px',
+          border: isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.12)',
+          borderRadius: '32px',
           boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',
@@ -311,7 +313,6 @@ export function BottomNavigation({
         </AnimatePresence>
 
         {/* Nav items row */}
-        <LayoutGroup id="bottom-nav">
         <div
           ref={scrollRef}
           data-no-swipe-nav
@@ -353,9 +354,9 @@ export function BottomNavigation({
                   'touch-manipulation focus-visible:outline-none',
                 )}
                 style={{
-                  minWidth: 64,
+                  minWidth: 72,
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
-                  padding: isNarrow ? '4px 2px' : '6px 4px',
+                  padding: isNarrow ? '6px 2px' : '8px 4px',
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
@@ -364,6 +365,7 @@ export function BottomNavigation({
                 }}
               >
 
+
                 {/* Activity Pulse Halo — radiates when badge is active */}
                 {item.badge && item.badge > 0 && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
@@ -371,41 +373,23 @@ export function BottomNavigation({
                       className="absolute rounded-full"
                       style={{
                         width: 32, height: 32,
-                        background: 'radial-gradient(circle, rgba(236,72,153,0.25) 0%, transparent 70%)',
+                        background: 'radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)',
                       }}
-                      animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
+                      animate={{ scale: [1, 2, 1], opacity: [0.6, 0, 0.6] }}
                       transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                     />
-                    <motion.div
-                      className="absolute rounded-full"
-                      style={{
-                        width: 28, height: 28,
-                        background: 'radial-gradient(circle, rgba(249,115,22,0.20) 0%, transparent 70%)',
-                      }}
-                      animate={{ scale: [1, 2.2, 1], opacity: [0.4, 0, 0.4] }}
-                      transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
-                    />
                   </div>
                 )}
 
-                {/* Special item: animated glow halo */}
-                {item.isSpecial && !active && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
-                    <motion.div
-                      className="absolute rounded-full"
-                      style={{
-                        width: 30, height: 30,
-                        background: 'radial-gradient(circle, rgba(249,115,22,0.28) 0%, transparent 70%)',
-                      }}
-                      animate={{ scale: [1, 1.6, 1], opacity: [0.5, 0, 0.5] }}
-                      transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-                    />
-                  </div>
-                )}
 
                 {/* Icon */}
-                  <div className="relative" style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}>
-                    {/* Notification badge — anchored to the icon, not the full tap target */}
+                  <motion.div
+                    className="relative"
+                    animate={{ scale: active ? 1.15 : 1 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
+                    style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
+                  >
+                    {/* Notification badge */}
                     <AnimatePresence>
                       {item.badge && item.badge > 0 && (
                         <motion.span
@@ -413,83 +397,49 @@ export function BottomNavigation({
                           animate={{ scale: 1 }}
                           exit={{ scale: 0 }}
                           transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                          className="absolute -top-1 -right-1 rounded-full w-[9px] h-[9px] z-20 shadow-md border border-background"
-                          style={{ background: 'linear-gradient(135deg,#ef4444,#dc2626)' }}
+                          className="absolute -top-1 -right-1 rounded-full w-[10px] h-[10px] z-20 shadow-md border border-background"
+                          style={{ background: 'linear-gradient(135deg,#ff4d00,#ff8c00)' }}
                         />
                       )}
                     </AnimatePresence>
-                    
-                    <div className="relative flex items-center justify-center" style={{ width: ICON_SIZE + 10, height: ICON_SIZE + 10 }}>
-                      <Icon
-                        className="transition-all duration-300 ease-out"
-                        style={{
-                          width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                          height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                          color: (active || item.isSpecial) ? '#f97316' : iconColorInactive,
-                          stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
-                          strokeWidth: (active || item.isSpecial) ? 2.5 : 2.2,
-                          filter: (active || item.isSpecial) && !isLight
-                            ? 'drop-shadow(0 0 10px rgba(249,115,22,0.5))'
-                            : 'none',
-                          zIndex: 2
-                        }}
-                      />
-                      
-                      {/* Suble glow behind active icon */}
-                      {active && (
-                        <motion.div
-                          layoutId={`glow-${item.id}`}
-                          className="absolute inset-0 rounded-full"
-                          style={{
-                            background: isLight 
-                              ? 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)'
-                              : 'radial-gradient(circle, rgba(236,72,153,0.12) 0%, transparent 70%)',
-                            zIndex: 1
-                          }}
-                        />
-                      )}
-                    </div>
 
-                  </div>
+                    {/* Icon: filled with brand color when active, outline when inactive */}
+                    <Icon
+                      className="transition-all duration-300 ease-out"
+                      style={{
+                        width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                        height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                        color: active ? activeColor : iconColorInactive,
+                        fill: active ? activeColor : 'none',
+                        strokeWidth: active ? 1.5 : 2,
+                        filter: 'none',
+                      }}
+                    />
+                  </motion.div>
 
-                {/* Label — hidden on very narrow screens (<360px) for icon-only mode */}
+                {/* Label */}
                 {!isNarrow && (
                   <span
                     className={cn(
-                      'text-[10px] tracking-wide transition-all duration-250 relative',
-                      (active || item.isSpecial) ? 'font-black' : 'font-bold',
+                      'text-[10px] tracking-wide transition-all duration-300 relative font-black uppercase italic',
                     )}
                     style={{
-                      color: (active || item.isSpecial) ? activeColor : iconColorInactive,
-                      opacity: (active || item.isSpecial) ? 1 : (isLight ? 0.6 : 0.65),
+                      color: active
+                        ? 'var(--color-brand-primary)'
+                        : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.55)'),
+                      opacity: 1,
                       zIndex: 1,
+                      textShadow: 'none',
                     }}
                   >
                     {item.label}
                   </span>
                 )}
 
-                {/* Sliding active pill — springs between tabs */}
-                {active && (
-                  <motion.span
-                    layoutId="nav-active-dot"
-                    aria-hidden="true"
-                    className="absolute bottom-0 left-1/2 -translate-x-1/2"
-                    style={{
-                      width: 20,
-                      height: 2.5,
-                      borderRadius: 2,
-                      background: 'linear-gradient(90deg, #ec4899, #f97316)',
-                      boxShadow: '0 0 8px rgba(249,115,22,0.65), 0 0 16px rgba(249,115,22,0.3)',
-                    }}
-                    transition={{ type: 'spring', stiffness: 480, damping: 30, mass: 0.5 }}
-                  />
-                )}
               </motion.button>
             );
           })}
         </div>
-        </LayoutGroup>
 
         {/* ── Edge fade indicators ──────────────────────────────────────── */}
         <div
@@ -520,8 +470,8 @@ export function BottomNavigation({
       <svg width="0" height="0" className="absolute" aria-hidden="true">
         <defs>
           <linearGradient id="nav-active-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop stopColor="#ec4899" offset="0%" />
-            <stop stopColor="#f97316" offset="100%" />
+            <stop stopColor="var(--color-brand-accent)" offset="0%" />
+            <stop stopColor="var(--color-brand-primary)" offset="100%" />
           </linearGradient>
         </defs>
       </svg>

@@ -45,13 +45,17 @@ const ConversationSchema = z.object({
 
 // ─── Provider Configuration ────────────────────────────────────────
 
-// Native Google Gemini API (Primary)
+// Native Google Gemini API
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-const GEMINI_API_MODEL = "gemini-1.5-flash";
+const GEMINI_API_MODEL = "gemini-1.5-flash"; // More stable for free tier than 2.0-flash
+
+// Lovable Gateway (Secondary)
+const LOVABLE_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const LOVABLE_MODEL = "google/gemini-1.5-flash"; // Updated from gemini-3-flash-preview
 
 // MiniMax (Fallback)
 const MINIMAX_ENDPOINT = "https://api.minimaxi.chat/v1/chat/completions";
-const MINIMAX_MODEL = "MiniMax-Text-01";
+const MINIMAX_MODEL = "MiniMax-Text-01"; // Updated from MiniMax-M2.5 for better compatibility
 
 // ─── Provider Calls ───────────────────────────────────────────────
 
@@ -59,22 +63,23 @@ const MINIMAX_MODEL = "MiniMax-Text-01";
  * Call Gemini Native API directly
  */
 async function callGeminiDirect(messages: Message[], maxTokens: number): Promise<ProviderResult> {
+  // Check for both possible key names
   const key = Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_API_KEY");
   if (!key) throw new Error("GEMINI_API_KEY not configured in Supabase Secrets");
 
   console.log(`[AI Orchestrator] Calling Gemini Native (${GEMINI_API_MODEL})...`);
-
-  // Separate system messages from conversation messages
-  // Gemini requires system prompt in systemInstruction field, not in contents
+  
+  // Separate system messages for systemInstruction field
   const systemMessages = messages.filter(m => m.role === "system");
   const conversationMessages = messages.filter(m => m.role !== "system");
-
-  // Format conversation messages for Gemini (user/model only, must alternate)
+  
+  // Format conversation messages for Google AI format (user/model only)
   const contents = conversationMessages.map(m => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }]
   }));
 
+  // Build request body with systemInstruction if system messages exist
   const requestBody: Record<string, unknown> = {
     contents,
     generationConfig: {
@@ -83,7 +88,6 @@ async function callGeminiDirect(messages: Message[], maxTokens: number): Promise
     },
   };
 
-  // Add system instruction if present
   if (systemMessages.length > 0) {
     requestBody.systemInstruction = {
       parts: [{ text: systemMessages.map(m => m.content).join("\n\n") }]
@@ -106,13 +110,38 @@ async function callGeminiDirect(messages: Message[], maxTokens: number): Promise
   const data = await res.json();
   const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
   if (!content && data.error) {
-    throw new ProviderError(`Gemini returned error: ${data.error.message}`, 500);
+     throw new ProviderError(`Gemini returned error: ${data.error.message}`, 500);
   }
   return { content, provider: "gemini-native" };
 }
 
 /**
- * Call MiniMax API (fallback)
+ * Call Gemini via Lovable Gateway
+ */
+async function callLovable(messages: Message[], maxTokens: number): Promise<ProviderResult> {
+  const key = Deno.env.get("LOVABLE_API_KEY");
+  if (!key) throw new Error("LOVABLE_API_KEY not configured");
+
+  console.log("[AI Orchestrator] Calling Gemini via Lovable Gateway...");
+  const res = await fetch(LOVABLE_GATEWAY, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!res.ok) {
+    const status = res.status;
+    const body = await res.text();
+    console.error(`Lovable Gateway Error (${status}):`, body);
+    throw new ProviderError(`Gateway error (${status})`, status);
+  }
+
+  const data = await res.json();
+  return { content: data.choices?.[0]?.message?.content || "", provider: "gemini-lovable" };
+}
+
+/**
+ * Call MiniMax API
  */
 async function callMinimax(messages: Message[], maxTokens: number): Promise<ProviderResult> {
   const key = Deno.env.get("MINIMAX_API_KEY");
@@ -164,28 +193,40 @@ class ProviderError extends Error {
 // ─── Main AI Caller ───────────────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
-  // 1. Try Gemini Native (GEMINI_API_KEY)
+  // Strategy: 1. Native API (GEMINI_API_KEY), 2. Lovable Gateway (LOVABLE_API_KEY), 3. MiniMax
+  
+  // 1. Try Gemini Native if key exists
   const hasGeminiNative = !!(Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_API_KEY"));
   if (hasGeminiNative) {
     try {
       return await callGeminiDirect(messages, maxTokens);
     } catch (err) {
-      console.warn("[AI Orchestrator] Gemini Native failed, trying MiniMax fallback...", err);
+      console.warn("[AI Orchestrator] Gemini Native failed, trying next provider...", err);
     }
   }
 
-  // 2. MiniMax Fallback
+  // 2. Try Lovable Gateway if key exists
+  const hasLovable = !!Deno.env.get("LOVABLE_API_KEY");
+  if (hasLovable) {
+    try {
+      return await callLovable(messages, maxTokens);
+    } catch (err) {
+      console.warn("[AI Orchestrator] Lovable Gateway failed, trying fallback...", err);
+    }
+  }
+
+  // 3. Try MiniMax Fallback
   const hasMinimax = !!Deno.env.get("MINIMAX_API_KEY");
   if (hasMinimax) {
     try {
       return await callMinimax(messages, maxTokens);
     } catch (err) {
       console.error("[AI Orchestrator] MiniMax failed:", err);
-      throw new ProviderError("All providers failed", 500);
+      throw new ProviderError("All providers failed: MiniMax error", 500);
     }
   }
 
-  throw new ProviderError("No AI provider configured. Set GEMINI_API_KEY in Supabase Secrets.", 503);
+  throw new ProviderError("The Swipess Oracle is momentarily silent. Please check API configuration.", 503);
 }
 
 // ─── JSON Parser ──────────────────────────────────────────────────
@@ -366,6 +407,7 @@ serve(async (req) => {
           status: "ready",
           message: "AI Orchestrator is alive",
           gemini_configured: !!(Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_API_KEY")),
+          lovable_configured: !!Deno.env.get("LOVABLE_API_KEY"),
           minimax_configured: !!Deno.env.get("MINIMAX_API_KEY"),
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -391,10 +433,10 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-
+    
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.error("[AI Orchestrator] Missing SUPABASE_URL or SUPABASE_ANON_KEY");
-      return new Response(JSON.stringify({ error: "Server configuration error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+       console.error("[AI Orchestrator] Missing SUPABASE_URL or SUPABASE_ANON_KEY");
+       return new Response(JSON.stringify({ error: "Server configuration error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, { global: { headers: { Authorization: authHeader } } });

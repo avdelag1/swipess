@@ -1,0 +1,23 @@
+/*
+ * poker-card-photo.css
+ *
+ * CSS-driven zoom for the PokerCategoryCard background image.
+ * Using a CSS @keyframes animation (instead of Framer Motion animate prop)
+ * means the animation is fully decoupled from React's render cycle —
+ * it will NEVER restart when the parent component re-renders (e.g. when
+ * isCollapsed toggles), so there is no flash / black-out on fold/open.
+ */
+
+@keyframes pokerPhotoZoom {
+  from { transform: scale(1.0); }
+  to   { transform: scale(1.07); }
+}
+
+.poker-card-photo-zoom {
+  animation: pokerPhotoZoom 8s ease-in-out infinite alternate;
+  /* Force own compositor layer so the parent card's transform animation
+     never causes a repaint of this element */
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
