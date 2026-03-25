@@ -1,19 +1,23 @@
-/** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { supabase } from '@/integrations/supabase/client';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent } from '@/components/ui/card';
-import { Briefcase, RefreshCw, X, Sparkles, MapPin, DollarSign, Clock, MessageCircle, Star, ArrowLeft, CalendarDays } from 'lucide-react';
+import { 
+  ArrowLeft, RefreshCw, Sparkles, Clock, CalendarDays, X, HelpCircle, 
+  Briefcase, MapPin, DollarSign, MessageCircle, Star 
+} from 'lucide-react';
 import { toast } from 'sonner';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 import { PRICING_UNITS } from '@/components/WorkerListingForm';
 import { findCategory } from '@/data/serviceCategories';
-import { cn } from '@/lib/utils';
 
 // Hire duration quick filter options
 const HIRE_DURATION_FILTERS = [
@@ -54,7 +58,14 @@ function useWorkerListings(serviceTypeFilter?: string, pricingFilter?: string) {
     queryFn: async () => {
       let query = supabase
         .from('listings')
-        .select('*')
+        .select(`
+          *,
+          owner:profiles!listings_owner_id_fkey (
+            user_id,
+            full_name,
+            avatar_url
+          )
+        `)
         .eq('category', 'worker')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
@@ -68,33 +79,21 @@ function useWorkerListings(serviceTypeFilter?: string, pricingFilter?: string) {
 
       if (error) throw error;
 
-      // Fetch owner profiles separately
-      if (listings && listings.length > 0) {
-        const ownerIds = listings.map((l: any) => l.owner_id);
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('user_id, full_name, avatar_url')
-          .in('user_id', ownerIds);
-
-        const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
-        return listings.map((l: any) => ({
-          id: l.id,
-          title: l.title,
-          description: l.description,
-          price: l.price,
-          images: l.images,
-          city: l.city,
-          service_category: l.service_category,
-          pricing_unit: l.pricing_unit,
-          experience_years: l.experience_years,
-          owner_id: l.owner_id,
-          created_at: l.created_at,
-          status: l.status,
-          owner: profileMap.get(l.owner_id) || null,
-        })) as WorkerListing[];
-      }
-
-      return [] as WorkerListing[];
+      return (listings || []).map((l: any) => ({
+        id: l.id,
+        title: l.title,
+        description: l.description,
+        price: l.price,
+        images: l.images,
+        city: l.city,
+        service_category: l.service_category,
+        pricing_unit: l.pricing_unit,
+        experience_years: l.experience_years,
+        owner_id: l.owner_id,
+        created_at: l.created_at,
+        status: l.status,
+        owner: l.owner,
+      })) as WorkerListing[];
     },
   });
 }
@@ -187,8 +186,7 @@ function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (
           </div>
           <button
             onClick={() => onContact(worker.owner_id)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-white transition-all active:scale-95"
-            style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-white transition-all active:scale-95 bg-gradient-to-r from-[#ec4899] to-[#f97316] shadow-md shadow-pink-500/20"
           >
             <MessageCircle className="w-3.5 h-3.5" />
             Contact
@@ -203,11 +201,19 @@ export default function ClientWorkerDiscovery() {
   const navigate = useNavigate();
   const [selectedDuration, setSelectedDuration] = useState<string>('all');
 
+  const parentRef = useRef<HTMLDivElement>(null);
   const { data: workers, isLoading, refetch, isRefetching } = useWorkerListings(undefined, selectedDuration);
   const startConversation = useStartConversation();
   const [contactingId, setContactingId] = useState<string | null>(null);
 
-  const filteredWorkers = workers;
+  const filteredWorkers = workers || [];
+
+  const rowVirtualizer = useVirtualizer({
+    count: filteredWorkers.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 450, // Height of a WorkerCard
+    overscan: 3,
+  });
 
   const handleContact = useCallback(async (userId: string) => {
     if (contactingId) return;
@@ -263,6 +269,8 @@ export default function ClientWorkerDiscovery() {
             <button
               onClick={() => refetch()}
               disabled={isRefetching}
+              title="Refresh workers"
+              aria-label="Refresh workers list"
               className="w-9 h-9 flex items-center justify-center rounded-full border border-border/40 text-muted-foreground hover:text-foreground transition-all disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
@@ -310,7 +318,11 @@ export default function ClientWorkerDiscovery() {
         </div>
 
         {/* Content */}
-        <div className="px-4 py-4">
+        <div 
+          className="px-4 py-4 overflow-y-auto" 
+          ref={parentRef}
+          style={{ height: 'calc(100vh - 180px)' }} // Roughly account for header/tabs
+        >
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -322,28 +334,41 @@ export default function ClientWorkerDiscovery() {
               ))}
             </div>
           ) : filteredWorkers && filteredWorkers.length > 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            <div
+              style={{
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
             >
-              <AnimatePresence>
-                {filteredWorkers.map((worker, index) => (
-                  <motion.div
-                    key={worker.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.05 }}
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const worker = filteredWorkers[virtualRow.index];
+                return (
+                  <div
+                    key={virtualRow.key}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualRow.start}px)`,
+                      paddingBottom: '16px' // Gap between cards
+                    }}
                   >
-                    <WorkerCard
-                      worker={worker}
-                      onContact={handleContact}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                    >
+                      <WorkerCard
+                        worker={worker}
+                        onContact={handleContact}
+                      />
+                    </motion.div>
+                  </div>
+                );
+              })}
+            </div>
           ) : (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -361,8 +386,7 @@ export default function ClientWorkerDiscovery() {
               </p>
               <button
                 onClick={hasActiveFilters ? clearFilters : () => navigate('/client/dashboard')}
-                className="px-8 py-4 rounded-2xl text-sm font-black text-white transition-all active:scale-95 shadow-lg"
-                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+                className="px-8 py-4 rounded-2xl text-sm font-black text-white transition-all active:scale-95 shadow-lg bg-gradient-to-r from-[#ec4899] to-[#f97316] shadow-pink-500/20"
               >
                 {hasActiveFilters ? 'CLEAR FILTERS' : 'EXPLORE WORLD'}
               </button>

@@ -94,17 +94,7 @@ export default function NotificationsPage() {
             >
               <ArrowLeft className="w-6 h-6" />
             </Button>
-            <div>
-              <h1 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
-                Updates
-                {unreadCount > 0 && (
-                   <span className="flex h-2 w-2 rounded-full bg-brand-accent-2 animate-pulse" />
-                )}
-              </h1>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">
-                Activity History
-              </p>
-            </div>
+            <div className="mb-0" />
           </div>
 
           {notifications.length > 0 && (

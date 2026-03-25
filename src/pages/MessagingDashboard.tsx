@@ -227,27 +227,7 @@ export function MessagingDashboard() {
       <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={userRole} variant="conversation-limit" />
       <div className="w-full pb-4 bg-background">
         <div className="w-full max-w-4xl mx-auto px-4 pt-4 sm:px-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-black tracking-tight flex items-center gap-2">
-                <MessageCircle className="w-6 h-6 text-primary" />
-                Messages
-              </h1>
-              <p className="text-muted-foreground text-sm font-medium">
-                {activeMode === 'owner' ? 'Managing your leads' : 'Talking to providers'}
-              </p>
-            </div>
-            {conversations.some(c => c.last_message?.sender_id !== user?.id && c.last_message?.is_read === false) && (
-              <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase tracking-widest text-primary" onClick={async () => {
-                const unread = conversations.filter(c => c.last_message?.sender_id !== user?.id && c.last_message?.is_read === false);
-                for (const conv of unread) await markChatAsRead.mutateAsync(conv.id);
-                toast({ title: 'Inbox cleared' });
-                haptics.success();
-              }}>
-                Mark all read
-              </Button>
-            )}
-          </div>
+          <div className="mb-0" />
 
           <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar">
             {[
@@ -297,7 +277,7 @@ export function MessagingDashboard() {
                           <div className="flex items-center gap-2">
                             <span className={cn("text-[15px] truncate", isUnread ? "font-black" : "font-bold text-foreground/70")}>{conversation.other_user?.full_name || 'Unknown'}</span>
                           </div>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center justify-between px-1">
                             <span className="text-[10px] text-muted-foreground">{lastAt ? formatDistanceToNow(lastAt) : ''}</span>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={e => e.stopPropagation()}><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>

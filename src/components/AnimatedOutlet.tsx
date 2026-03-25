@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const pageVariants = {
   initial: {
     opacity: 0,
-    y: 10,
+    y: 8,
     scale: 0.99,
   },
   animate: {
@@ -20,17 +20,17 @@ const pageVariants = {
     y: 0,
     scale: 1,
     transition: {
-      duration: 0.28,
-      ease: [0.25, 0.46, 0.45, 0.94], // cinematic ease-out
-      opacity: { duration: 0.22 },
+      duration: 0.22, // Tightened from 0.28
+      ease: [0.17, 0.17, 0.41, 1.0], // Snappy but smooth
+      opacity: { duration: 0.18 },
     },
   },
   exit: {
     opacity: 0,
-    scale: 0.98,
+    scale: 0.985,
     transition: {
-      duration: 0.16,
-      ease: [0.4, 0, 1, 1], // fast ease-in for snappy exit
+      duration: 0.14, // Tightened from 0.16
+      ease: [0.4, 0, 1, 1], 
     },
   },
 } as const;
@@ -40,14 +40,14 @@ export function AnimatedOutlet() {
   const outlet = useOutlet();
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="popLayout" initial={true}>
       <motion.div
         key={location.pathname}
         variants={pageVariants}
         initial="initial"
         animate="animate"
         exit="exit"
-        className="h-full w-full flex flex-col flex-1"
+        className="h-full w-full flex-1"
         style={{ willChange: 'transform, opacity' }}
       >
         {outlet}

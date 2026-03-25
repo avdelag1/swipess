@@ -193,7 +193,7 @@ export default function OwnerFilters() {
       <div className="px-4 py-6 space-y-8 pb-4">
         {/* Quick Actions */}
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60">Client Search</h2>
+          <div />
           <AnimatePresence>
             {hasChanges && (
               <motion.button
