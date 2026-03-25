@@ -115,7 +115,7 @@ export const SwipeExhaustedState = ({
         animate="animate" 
         exit="exit" 
         className="relative w-full flex-1 flex flex-col items-center justify-center p-6 text-center bg-background"
-        style={{ minHeight: '100%' }}
+        style={{ minHeight: 'calc(100dvh - 140px)', paddingTop: '3rem' }}
       >
         <motion.div 
           initial={{ opacity: 0, y: 30 }} 

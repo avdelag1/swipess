@@ -319,16 +319,26 @@ function EventCard({
       style={{ height: '100dvh', scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
       data-testid={`event-card-${event.id}`}
     >
-      {/* Background photo with slow zoom-out on ALL cards */}
+      {/* Background photo with slow zoom-out on ACTIVE cards ONLY */}
       <motion.div
         className="absolute inset-0"
-        animate={{ scale: [1.06, 1.0], filter: isActive ? 'brightness(1.05)' : 'brightness(1)' }}
-        transition={{ scale: { duration: 8, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }, filter: { duration: 0.4 } }}
+        animate={isActive ? { 
+          scale: [1.06, 1.0], 
+          filter: 'brightness(1.05)' 
+        } : { 
+          scale: 1.0, 
+          filter: 'brightness(1)' 
+        }}
+        transition={{ 
+          scale: { duration: 8, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }, 
+          filter: { duration: 0.4 } 
+        }}
       >
         <CardImage
           src={event.image_url}
           alt={event.title}
           fullScreen
+          animate={isActive}
         />
       </motion.div>
 

@@ -256,8 +256,9 @@ function TopBarComponent({
           </div>
 
           {/* ── Horizontally scrollable row: all other buttons ── */}
+          <div className="flex-1 min-w-0 relative">
           <div
-            className="flex-1 min-w-0 overflow-x-auto"
+            className="overflow-x-auto"
             style={{
               scrollbarWidth: 'none',
               WebkitOverflowScrolling: 'touch',
@@ -430,6 +431,18 @@ function TopBarComponent({
               {/* Notifications Button */}
               <NotificationPopover />
             </div>
+          </div>
+          {/* Right gradient fade — rightmost buttons scroll behind this */}
+          <div
+            className="absolute top-0 right-0 bottom-0 w-10 pointer-events-none z-30"
+            style={{
+              background: isLight
+                ? 'linear-gradient(to left, rgb(255,255,255) 30%, transparent)'
+                : 'linear-gradient(to left, rgb(0,0,0) 30%, transparent)',
+              opacity: transparent ? 0 : 1,
+              transition: 'opacity 0.5s ease',
+            }}
+          />
           </div>
         </div>
       </header>

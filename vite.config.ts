@@ -70,7 +70,7 @@ function preloadPlugin(): import('vite').Plugin {
     transformIndexHtml(html, ctx) {
       if (!ctx.bundle) return html;
 
-      const criticalChunks = ['react-vendor', 'react-router', 'react-query', 'supabase', 'motion', 'utils'];
+      const criticalChunks = ['react-vendor', 'react-router', 'react-query', 'utils'];
       const preloadLinks: string[] = [];
 
       for (const [fileName, chunk] of Object.entries(ctx.bundle)) {
@@ -79,12 +79,6 @@ function preloadPlugin(): import('vite').Plugin {
           if (isCritical) {
             preloadLinks.push(`<link rel="modulepreload" href="/${fileName}" fetchpriority="high">`);
           }
-        }
-      }
-
-      for (const [fileName] of Object.entries(ctx.bundle)) {
-        if (fileName.endsWith('.css') && fileName.includes('index')) {
-          preloadLinks.push(`<link rel="preload" href="/${fileName}" as="style" fetchpriority="high">`);
         }
       }
 
@@ -262,7 +256,7 @@ export default defineConfig(({ mode }) => ({
         }
       },
       treeshake: {
-        preset: 'safest',
+        preset: 'recommended',
       },
       onwarn(warning, warn) {
         if (warning.code === 'MISSING_EXPORT' && warning.exporter?.includes('dompurify')) return;
