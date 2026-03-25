@@ -125,13 +125,8 @@ async function callLovable(messages: Message[], maxTokens: number): Promise<Prov
   console.log("[AI Orchestrator] Calling Gemini via Lovable Gateway...");
   const res = await fetch(LOVABLE_GATEWAY, {
     method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: LOVABLE_MODEL,
-      messages,
-      temperature: 0.7,
-      max_tokens: maxTokens,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(requestBody),
   });
 
   if (!res.ok) {
