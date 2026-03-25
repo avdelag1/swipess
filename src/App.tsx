@@ -15,7 +15,7 @@ import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SignupErrorBoundary from "@/components/SignupErrorBoundary";
-import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
+import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { AppOutagePage } from "@/components/AppOutagePage";
 import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
@@ -224,10 +224,6 @@ const App = () => {
   // Outage gate: bypassed via ?preview=swipess URL param or 7× logo tap
   const [outageBypassed, setOutageBypassed] = useState(() => hasOutageBypass());
 
-  if (IS_OUTAGE_ACTIVE && !outageBypassed) {
-    return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
-  }
-
   // SPEED OF LIGHT: Remove initial splash screen loader ONLY after full mount
   // This ensures the user never sees a white/black flicker between HTML and JS
   useEffect(() => {
@@ -246,6 +242,10 @@ const App = () => {
       });
     }
   }, []);
+
+  if (IS_OUTAGE_ACTIVE && !outageBypassed) {
+    return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
+  }
 
   return (
     <GlobalErrorBoundary>
