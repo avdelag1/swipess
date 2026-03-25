@@ -69,22 +69,35 @@ async function callGeminiDirect(messages: Message[], maxTokens: number): Promise
 
   console.log(`[AI Orchestrator] Calling Gemini Native (${GEMINI_API_MODEL})...`);
   
-  // Format messages for Google AI format
-  const contents = messages.map(m => ({
+  // Separate system messages for systemInstruction field
+  const systemMessages = messages.filter(m => m.role === "system");
+  const conversationMessages = messages.filter(m => m.role !== "system");
+  
+  // Format conversation messages for Google AI format (user/model only)
+  const contents = conversationMessages.map(m => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }]
   }));
 
+  // Build request body with systemInstruction if system messages exist
+  const requestBody: Record<string, unknown> = {
+    contents,
+    generationConfig: {
+      maxOutputTokens: maxTokens,
+      temperature: 0.7,
+    },
+  };
+
+  if (systemMessages.length > 0) {
+    requestBody.systemInstruction = {
+      parts: [{ text: systemMessages.map(m => m.content).join("\n\n") }]
+    };
+  }
+
   const res = await fetch(`${GEMINI_API_URL}?key=${key}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents,
-      generationConfig: {
-        maxOutputTokens: maxTokens,
-        temperature: 0.7,
-      },
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!res.ok) {
