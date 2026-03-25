@@ -309,7 +309,13 @@ export default function AdminEventos() {
           >
             <div className="flex justify-between items-center">
               <h3 className="font-semibold text-foreground">{editingId ? 'Edit Event' : 'New Event'}</h3>
-              <button onClick={() => { setShowForm(false); setEditingId(null); }}><X className="w-5 h-5 text-muted-foreground" /></button>
+              <button 
+                onClick={() => { setShowForm(false); setEditingId(null); }}
+                title="Close form"
+                aria-label="Close form"
+              >
+                <X className="w-5 h-5 text-muted-foreground" />
+              </button>
             </div>
 
             <Input placeholder="Event title *" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
@@ -317,6 +323,8 @@ export default function AdminEventos() {
 
             <select
               value={form.category}
+              title="Select event category"
+              aria-label="Select event category"
               onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
               className="w-full h-10 rounded-2xl border border-input bg-background px-3 text-sm"
             >
@@ -410,13 +418,13 @@ export default function AdminEventos() {
                   </div>
                 </div>
                 <div className="flex gap-1.5">
-                  <button onClick={() => togglePublish(ev.id, ev.is_published)} className="p-2 rounded-lg hover:bg-muted/50">
+                  <button onClick={() => togglePublish(ev.id, ev.is_published)} className="p-2 rounded-lg hover:bg-muted/50" title={ev.is_published ? 'Unpublish event' : 'Publish event'} aria-label={ev.is_published ? 'Unpublish event' : 'Publish event'}>
                     {ev.is_published ? <EyeOff className="w-4 h-4 text-muted-foreground" /> : <Eye className="w-4 h-4 text-muted-foreground" />}
                   </button>
-                  <button onClick={() => handleEdit(ev.id)} className="p-2 rounded-lg hover:bg-muted/50">
+                  <button onClick={() => handleEdit(ev.id)} className="p-2 rounded-lg hover:bg-muted/50" title="Edit event" aria-label="Edit event">
                     <Pencil className="w-4 h-4 text-muted-foreground" />
                   </button>
-                  <button onClick={() => handleDelete(ev.id)} className="p-2 rounded-lg hover:bg-red-500/10">
+                  <button onClick={() => handleDelete(ev.id)} className="p-2 rounded-lg hover:bg-red-500/10" title="Delete event" aria-label="Delete event">
                     <Trash2 className="w-4 h-4 text-red-400" />
                   </button>
                 </div>
@@ -466,18 +474,24 @@ export default function AdminEventos() {
                   <div className="flex gap-2">
                     {sub.status === 'pending' && (
                       <>
-                        <button
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          title="Approve submission"
+                          className="h-10 px-4 rounded-xl border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 active:scale-95 transition-all font-black text-xs uppercase tracking-widest"
                           onClick={() => handleApproveSubmission(sub.id)}
-                          className="w-9 h-9 rounded-xl bg-green-500/10 text-green-400 border border-green-500/20 flex items-center justify-center hover:bg-green-500/20 transition-all"
                         >
-                          <CheckCircle className="w-5 h-5" />
-                        </button>
-                        <button
+                          <CheckCircle className="w-4 h-4 mr-2" /> Approve
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          title="Reject submission"
+                          className="h-10 px-4 rounded-xl border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 active:scale-95 transition-all font-black text-xs uppercase tracking-widest"
                           onClick={() => handleRejectSubmission(sub.id)}
-                          className="w-9 h-9 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 flex items-center justify-center hover:bg-red-500/20 transition-all"
                         >
-                          <XCircle className="w-5 h-5" />
-                        </button>
+                          <XCircle className="w-4 h-4 mr-2" /> Reject
+                        </Button>
                       </>
                     )}
                   </div>
