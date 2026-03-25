@@ -149,26 +149,6 @@
     })();
   </script>
 
-  <!-- Early redirect hint for authenticated users - reduces redirect latency -->
-  <script>
-    // Check for cached auth state to avoid redirect delay
-    (function () {
-      try {
-        var authKey = Object.keys(localStorage).find(function (k) { return k.startsWith('sb-') && k.endsWith('-auth-token'); });
-        if (authKey) {
-          var auth = JSON.parse(localStorage.getItem(authKey));
-          if (auth && auth.access_token) {
-            // User is likely authenticated - preload dashboard resources
-            var link = document.createElement('link');
-            link.rel = 'prefetch';
-            link.href = '/client/dashboard';
-            link.as = 'document';
-            document.head.appendChild(link);
-          }
-        }
-      } catch (e) { }
-    })();
-  </script>
 
   <!-- Speculation Rules API — only prefetch known high-value routes -->
   <!-- Document-wide prefetch removed: too costly on mobile bandwidth -->
