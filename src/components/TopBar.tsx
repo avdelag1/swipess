@@ -280,8 +280,12 @@ function TopBarComponent({
             ) : null}
           </div>
 
-          {/* Right section: Actions */}
-          <div className="flex items-center gap-0.5 sm:gap-1.5 flex-shrink-0 justify-end relative z-20">
+          {/* Right section: Actions — horizontally scrollable for future button expansion */}
+          <div
+            className="flex-shrink-0 relative z-20 overflow-x-auto"
+            style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+          >
+          <div className="flex items-center gap-0.5 sm:gap-1.5 flex-nowrap pr-0.5">
             {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
               <PopoverTrigger asChild>
@@ -421,6 +425,7 @@ function TopBarComponent({
 
             {/* Notifications Button */}
             <NotificationPopover />
+          </div>
           </div>
         </div>
       </header>

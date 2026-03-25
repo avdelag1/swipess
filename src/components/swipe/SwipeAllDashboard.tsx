@@ -47,7 +47,12 @@ export const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => 
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative w-full flex-grow flex flex-col items-center justify-center bg-background overflow-hidden min-h-[calc(100dvh-148px)]"
+        className="relative w-full flex-grow flex flex-col items-center justify-center bg-background overflow-hidden"
+        style={{
+          minHeight: '100dvh',
+          paddingTop: 'calc(52px + var(--safe-top))',
+          paddingBottom: 'calc(68px + var(--safe-bottom))',
+        }}
       >
         {/* Folder card stack — straight horizontal flow, no rotation */}
         <div
