@@ -223,31 +223,7 @@ const App = () => {
   // Outage gate: bypassed via ?preview=swipess URL param or 7× logo tap
   const [outageBypassed, setOutageBypassed] = useState(() => hasOutageBypass());
 
-  // SPEED OF LIGHT: Remove initial splash screen loader ONLY after full mount
-  // This ensures the user never sees a white/black flicker between HTML and JS
-  useEffect(() => {
-    const loader = document.getElementById('initial-loader');
-    if (loader) {
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          loader.style.opacity = '0';
-          loader.style.transition = 'opacity 0.15s ease-out';
-          setTimeout(() => {
-            loader.remove();
-            // Load web fonts AFTER splash is gone to prevent font-swap CLS
-            // during initial render. display=optional means no swap if font
-            // arrives late — safe to inject at this point.
-            setTimeout(() => {
-              const link = document.createElement('link');
-              link.rel = 'stylesheet';
-              link.href = 'https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=optional';
-              document.head.appendChild(link);
-            }, 500);
-          }, 150);
-        }, 80); // Minimal buffer for initial React paint
-      });
-    }
-  }, []);
+  // Splash screen removal moved to main.tsx to execute as soon as root is ready
 
   if (IS_OUTAGE_ACTIVE && !outageBypassed) {
     return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
