@@ -45,8 +45,8 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline shadow-none',
         premium: 'bg-primary text-primary-foreground',
         tinder: 'bg-primary text-primary-foreground',
-        glass: 'text-white bg-white/10 backdrop-blur-2xl',
-        glassStrong: 'text-white bg-white/15 backdrop-blur-[32px]',
+        glass: 'text-foreground bg-white/10 backdrop-blur-2xl',
+        glassStrong: 'text-foreground bg-white/15 backdrop-blur-[32px]',
         glassLight: 'text-foreground bg-white/70 backdrop-blur-2xl',
         gradient: 'bg-primary text-primary-foreground',
       },
@@ -107,7 +107,7 @@ function getRippleColor(variant: string | null | undefined): string {
   switch (variant) {
     case 'glass':
     case 'glassStrong':
-      return 'rgba(255,255,255,0.30)';
+      return 'rgba(128,128,128,0.20)';
     case 'glassLight':
       return 'rgba(0,0,0,0.08)';
     case 'destructive':
