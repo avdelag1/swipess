@@ -12,8 +12,9 @@ export default defineConfig(({ mode }) => ({
     {
       name: 'async-css-plugin',
       transformIndexHtml(html) {
+        // Regex covers full Vite hash character set: lowercase, uppercase, digits, underscore, hyphen
         return html.replace(
-          /<link rel="stylesheet" href="\/assets\/index-([a-z0-9]+)\.css">/gi,
+          /<link rel="stylesheet" href="\/assets\/index-([a-zA-Z0-9_-]+)\.css">/gi,
           '<link rel="preload" href="/assets/index-$1.css" as="style" fetchpriority="high" onload="this.onload=null;this.rel=\'stylesheet\'"><noscript><link rel="stylesheet" href="/assets/index-$1.css"></noscript>'
         );
       }
@@ -24,7 +25,7 @@ export default defineConfig(({ mode }) => ({
         if (!ctx.bundle) return html;
         const preloads = [];
         for (const [key, chunk] of Object.entries(ctx.bundle)) {
-          if (chunk.type === 'chunk' && (chunk.name === 'vendor' || chunk.name === 'main')) {
+          if (chunk.type === 'chunk' && (chunk.name === 'react-core' || chunk.name === 'main')) {
             preloads.push(`<link rel="modulepreload" href="/${chunk.fileName}" fetchpriority="high" crossorigin>`);
           }
         }
@@ -50,16 +51,34 @@ export default defineConfig(({ mode }) => ({
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks(id) {
-          // MONOLITHIC CHUNKING: To hit 100/100 on 4G, we minimize request counts.
-          // Grouping all dependencies into ONE vendor chunk is actually faster on high-latency mobile networks
-          // than many small chunks due to HTTP/2 multiplexing overhead and TCP slow start.
-          if (id.includes('node_modules')) {
-            // Keep heavy/rare components isolated so they don't bloat the critical path
-            if (id.includes('recharts') || id.includes('lottie') || id.includes('octokit') || id.includes('victory')) {
-              return 'rare-vendors';
-            }
-            return 'vendor';
+          if (!id.includes('node_modules')) return;
+
+          // React core — tiny, always needed, preloaded
+          if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/scheduler/')) {
+            return 'react-core';
           }
+          // Router — needed for navigation
+          if (id.includes('react-router')) {
+            return 'router';
+          }
+          // Supabase — only needed after auth check, load separately
+          if (id.includes('@supabase')) {
+            return 'supabase';
+          }
+          // Framer Motion — large animation library, not needed for first paint
+          if (id.includes('framer-motion')) {
+            return 'motion';
+          }
+          // Radix UI — component library
+          if (id.includes('@radix-ui')) {
+            return 'radix';
+          }
+          // Heavy/rarely used — keep out of critical path
+          if (id.includes('recharts') || id.includes('lottie') || id.includes('octokit') || id.includes('victory')) {
+            return 'rare-vendors';
+          }
+          // Everything else
+          return 'vendor';
         }
       }
     }
