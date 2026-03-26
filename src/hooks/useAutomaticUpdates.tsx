@@ -246,29 +246,43 @@ export function useAutomaticUpdates() {
  */
 export function UpdateNotification() {
   const { updateInfo, performUpdate, isUpdating } = useAutomaticUpdates();
+  const [dismissed, setDismissed] = useState(false);
 
-  if (!updateInfo.available) return null;
+  if (!updateInfo.available || dismissed) return null;
 
   return (
-    <div className="fixed bottom-24 left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80">
-      <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white p-4 rounded-xl shadow-2xl">
-        <div className="flex items-start gap-3">
-          <div className="p-2 bg-white/20 rounded-lg">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="fixed bottom-24 left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80 group">
+      <div className="relative overflow-hidden bg-slate-900 border border-white/20 text-white p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-5 duration-500">
+        {/* Progress bar background for visual depth */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-amber-500 opacity-50" />
+        
+        <button 
+          onClick={() => setDismissed(true)}
+          className="absolute top-2 right-2 p-1 text-white/40 hover:text-white transition-colors"
+          aria-label="Dismiss"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="flex items-start gap-4">
+          <div className="p-3 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl shadow-lg ring-4 ring-orange-500/20">
+            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </div>
-          <div className="flex-1">
-            <h4 className="font-bold">Update Available</h4>
-            <p className="text-sm text-white/90 mt-1">
-              New version {APP_VERSION} is ready!
+          <div className="flex-1 pr-4">
+            <h4 className="font-bold text-lg tracking-tight">App Refresh</h4>
+            <p className="text-sm text-slate-400 mt-1 leading-relaxed">
+              New elite features are ready.
             </p>
             <button
               onClick={performUpdate}
               disabled={isUpdating}
-              className="mt-3 w-full bg-white text-orange-500 font-bold py-2 rounded-lg hover:bg-white/90 transition-colors disabled:opacity-50"
+              className="mt-4 w-full bg-white text-black font-extrabold py-3 rounded-xl hover:bg-slate-100 active:scale-95 transition-all shadow-[0_10px_20px_rgba(255,255,255,0.1)] disabled:opacity-50"
             >
-              {isUpdating ? 'Updating...' : 'Tap to Restart'}
+              {isUpdating ? 'Applying...' : 'TAP TO RESTART'}
             </button>
           </div>
         </div>
