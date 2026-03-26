@@ -123,9 +123,15 @@ async function callLovable(messages: Message[], maxTokens: number): Promise<Prov
   if (!key) throw new Error("LOVABLE_API_KEY not configured");
 
   console.log("[AI Orchestrator] Calling Gemini via Lovable Gateway...");
+  const requestBody = {
+    model: LOVABLE_MODEL,
+    messages,
+    max_tokens: maxTokens,
+    temperature: 0.7,
+  };
   const res = await fetch(LOVABLE_GATEWAY, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify(requestBody),
   });
 
