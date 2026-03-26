@@ -24,13 +24,13 @@
   <link rel="preconnect" href="https://vplgtcguxujxwrgguxqq.supabase.co" crossorigin>
   <link rel="dns-prefetch" href="https://vplgtcguxujxwrgguxqq.supabase.co">
 
-  <!-- Preload splash logo — Removed in favor of inline SVG for 100/100 FCP -->
+  <!-- Preload LCP image so the browser discovers it immediately from HTML -->
+  <link rel="preload" as="image" href="/icons/swipess-logo.avif" type="image/avif" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <!-- DNS Prefetch + Preconnect for faster third-party connections -->
+  <!-- DNS Prefetch for third-party (preconnect only when actually used) -->
   <link rel="dns-prefetch" href="https://storage.googleapis.com">
-  <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
 
   <!-- Critical styles inlined for instant paint -->
   <style>
@@ -48,15 +48,7 @@
     @keyframes animStar{from{transform:translateY(0px)}to{transform:translateY(-100vh)}}
   </style>
 
-  <!-- Defer font loading -->
-  <link rel="preload" as="style"
-    href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=optional"
-    onload="this.onload=null;this.rel='stylesheet'">
-  <noscript>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=optional"
-      rel="stylesheet">
-  </noscript>
+  <!-- Fonts loaded via JS in main.tsx after splash removal - no render-blocking font CSS -->
 
   <title>Swipess — The Elite Multi-Vertical Hub</title>
   <meta name="description"

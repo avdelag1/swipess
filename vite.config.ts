@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
       name: 'async-css-plugin',
       transformIndexHtml(html) {
         return html.replace(
-          /<link rel="stylesheet" href="\/assets\/index-([a-z0-9]+)\.css">/gi,
+          /<link rel="stylesheet" href="\/assets\/index-([a-zA-Z0-9_-]+)\.css">/gi,
           '<link rel="preload" href="/assets/index-$1.css" as="style" fetchpriority="high" onload="this.onload=null;this.rel=\'stylesheet\'"><noscript><link rel="stylesheet" href="/assets/index-$1.css"></noscript>'
         );
       }
@@ -53,13 +53,25 @@ export default defineConfig(({ mode }) => ({
           // MONOLITHIC CHUNKING: To hit 100/100 on 4G, we minimize request counts.
           // Grouping all dependencies into ONE vendor chunk is actually faster on high-latency mobile networks
           // than many small chunks due to HTTP/2 multiplexing overhead and TCP slow start.
-          if (id.includes('node_modules')) {
-            // Keep heavy/rare components isolated so they don't bloat the critical path
-            if (id.includes('recharts') || id.includes('lottie') || id.includes('octokit') || id.includes('victory')) {
-              return 'rare-vendors';
+            if (id.includes('node_modules')) {
+              // Heavy/rare components isolated from critical path
+              if (id.includes('recharts') || id.includes('lottie') || id.includes('octokit') || id.includes('victory')) {
+                return 'rare-vendors';
+              }
+              // Framer-motion is heavy and only needed after first paint
+              if (id.includes('framer-motion')) {
+                return 'framer-motion';
+              }
+              // Supabase SDK - loaded after initial render
+              if (id.includes('@supabase')) {
+                return 'supabase';
+              }
+              // Radix UI - loaded on demand
+              if (id.includes('@radix-ui')) {
+                return 'radix';
+              }
+              return 'vendor';
             }
-            return 'vendor';
-          }
         }
       }
     }
