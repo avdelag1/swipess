@@ -201,13 +201,17 @@ class ProviderError extends Error {
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
   // Strategy: 1. Native API (GEMINI_API_KEY), 2. Lovable Gateway (LOVABLE_API_KEY), 3. MiniMax
   
+  const errors: string[] = [];
+
   // 1. Try Gemini Native if key exists
   const hasGeminiNative = !!(Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_API_KEY"));
   if (hasGeminiNative) {
     try {
       return await callGeminiDirect(messages, maxTokens);
     } catch (err) {
-      console.warn("[AI Orchestrator] Gemini Native failed, trying next provider...", err);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn("[AI Orchestrator] Gemini Native failed:", msg);
+      errors.push(`Gemini: ${msg}`);
     }
   }
 
@@ -217,7 +221,9 @@ async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderRe
     try {
       return await callLovable(messages, maxTokens);
     } catch (err) {
-      console.warn("[AI Orchestrator] Lovable Gateway failed, trying fallback...", err);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn("[AI Orchestrator] Lovable Gateway failed:", msg);
+      errors.push(`Lovable: ${msg}`);
     }
   }
 
@@ -227,12 +233,13 @@ async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderRe
     try {
       return await callMinimax(messages, maxTokens);
     } catch (err) {
-      console.error("[AI Orchestrator] MiniMax failed:", err);
-      throw new ProviderError("All providers failed: MiniMax error", 500);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[AI Orchestrator] MiniMax failed:", msg);
+      errors.push(`MiniMax: ${msg}`);
     }
   }
 
-  throw new ProviderError("The Swipess Oracle is momentarily silent. Please check API configuration.", 503);
+  throw new ProviderError(`All providers failed — ${errors.join(" | ")}`, 500);
 }
 
 // ─── JSON Parser ──────────────────────────────────────────────────
