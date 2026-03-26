@@ -25,8 +25,33 @@
   <link rel="dns-prefetch" href="https://vplgtcguxujxwrgguxqq.supabase.co">
 
   <!-- Preload splash logo — first visible element, load with highest priority -->
-  <!-- WebP is 10KB vs 63KB PNG — 85% smaller, huge LCP improvement -->
-  <link rel="preload" as="image" href="/icons/swipess-logo.avif" fetchpriority="high" type="image/avif">
+  <link rel="preload" as="image" href="/icons/icon-512.png" fetchpriority="high" type="image/png">
+
+  <!-- Splash screen styles — inlined for zero-latency first paint -->
+  <style>
+    .initial-loader {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      z-index: 9999;
+    }
+    .splash-logo {
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      animation: splash-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes splash-pulse {
+      0%, 100% { transform: scale(1);   opacity: 1;    }
+      50%       { transform: scale(1.06); opacity: 0.85; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .initial-loader { background: #111111; }
+    }
+  </style>
 
   <!-- Fonts loaded via JS after mount to avoid font-swap CLS on initial render.
        See App.tsx: fonts injected after splash removal with a delay. -->
@@ -149,11 +174,7 @@
   <!-- Clean logo splash — removed when React mounts -->
   <div id="root"></div>
   <div class="initial-loader" id="initial-loader">
-    <picture>
-      <source srcset="/icons/swipess-logo.avif" type="image/avif">
-      <source srcset="/icons/swipess-logo.webp" type="image/webp">
-      <img class="splash-logo" src="/icons/swipess-logo.png" alt="Swipess" width="612" height="408" />
-    </picture>
+    <img class="splash-logo" src="/icons/icon-512.png" alt="Swipess" width="160" height="160" />
   </div>
 
   <!-- Main application script - loaded at end of body for non-blocking render -->
