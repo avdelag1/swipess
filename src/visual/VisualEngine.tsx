@@ -1,6 +1,9 @@
+import { lazy, Suspense } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { useVisualPreferences } from "@/hooks/useVisualPreferences";
-import LandingBackgroundEffects from "@/components/LandingBackgroundEffects";
+
+// Lazy-load to keep LandingBackgroundEffects (819ms CPU) off the critical path
+const LandingBackgroundEffects = lazy(() => import("@/components/LandingBackgroundEffects"));
 
 export const VisualEngine = () => {
   const { theme } = useTheme();
@@ -24,11 +27,13 @@ export const VisualEngine = () => {
         />
       )}
       
-      <LandingBackgroundEffects
-        mode={preferences.background_mode || 'stars'}
-        isLightTheme={isLight}
-        disableSounds={true}
-      />
+      <Suspense fallback={null}>
+        <LandingBackgroundEffects
+          mode={preferences.background_mode || 'stars'}
+          isLightTheme={isLight}
+          disableSounds={true}
+        />
+      </Suspense>
     </div>
   );
 };

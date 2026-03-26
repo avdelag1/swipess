@@ -58,12 +58,23 @@ export const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: 
   }
 };
 
+// Primary: local AI-generated images (guaranteed to load, no external dependency).
+// Fallback Unsplash URLs are used for categories without a local asset.
 export const POKER_CARD_PHOTOS: Record<string, string> = {
-  property:   'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=480&q=80&auto=format',
-  motorcycle: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=480&q=80&auto=format',
+  property:   '/images/properties/property_1.png',
+  motorcycle: '/images/motorcycles/vespa_1.png',
   bicycle:    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=480&q=80&auto=format',
   services:   'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=480&q=80&auto=format',
   all:        'https://images.unsplash.com/photo-1552664730-d307ca884978?w=480&q=80&auto=format',
+};
+
+// Gradient fallbacks shown when an image fails to load (no broken/black cards).
+export const POKER_CARD_GRADIENTS: Record<string, string> = {
+  property:   'linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%)',
+  motorcycle: 'linear-gradient(135deg, #3d1f00 0%, #1a0d00 100%)',
+  bicycle:    'linear-gradient(135deg, #1a0030 0%, #0d0018 100%)',
+  services:   'linear-gradient(135deg, #0d2600 0%, #061500 100%)',
+  all:        'linear-gradient(135deg, #00203f 0%, #001526 100%)',
 };
 
 export const POKER_CARDS = [

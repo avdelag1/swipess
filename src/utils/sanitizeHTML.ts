@@ -1,23 +1,7 @@
-import * as DOMPurify from 'dompurify';
+import DOMPurify from 'dompurify';
 
-// Ensure DOMPurify is available in the browser environment
-const getDOMPurify = (): typeof DOMPurify => {
-  if (typeof window === 'undefined') {
-    // Server-side rendering - return a no-op sanitizer
-    return {
-      sanitize: (html: string) => html,
-    } as typeof DOMPurify;
-  }
-  return DOMPurify;
-};
-
-/**
- * Sanitize an HTML string using DOMPurify.
- * Preserves safe formatting tags (b, i, u, p, div, span, table, etc.) for rich text editing.
- */
 /**
  * Escape a plain-text string for safe embedding in HTML.
- * Converts &, <, >, ", and ' to their HTML entity equivalents.
  */
 export function escapeHTML(text: string): string {
   if (!text) return '';
@@ -31,15 +15,11 @@ export function escapeHTML(text: string): string {
 
 /**
  * Sanitize an HTML string using DOMPurify.
- * Preserves safe formatting tags (b, i, u, p, div, span, table, etc.) for rich text editing.
  */
 export function sanitizeHTML(html: string): string {
   if (!html) return '';
 
-  const purify = getDOMPurify();
-  
-  return purify.sanitize(html, {
-    // Allow common rich-text formatting tags
+  return DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [
       'b', 'i', 'u', 's', 'strong', 'em', 'mark', 'small', 'del', 'ins',
       'p', 'br', 'hr', 'div', 'span', 'blockquote', 'pre', 'code',
@@ -48,13 +28,11 @@ export function sanitizeHTML(html: string): string {
       'table', 'thead', 'tbody', 'tr', 'th', 'td',
       'a', 'img',
     ],
-    // Allow safe attributes only
     ALLOWED_ATTR: [
       'href', 'src', 'alt', 'title', 'class', 'id',
       'width', 'height', 'target', 'rel',
       'colspan', 'rowspan',
     ],
-    // Force all links to be safe
     FORCE_BODY: false,
     ALLOW_DATA_ATTR: false,
   });

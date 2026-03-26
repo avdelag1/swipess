@@ -11,7 +11,7 @@ const SWIPE_CARD_FIELDS = `
   id, title, description, price, images, city, neighborhood, beds, baths,
   square_footage, category, listing_type, property_type, vehicle_brand,
   vehicle_model, year, mileage, amenities, pet_friendly, furnished,
-  owner_id, created_at, currency,
+  owner_id, user_id, created_at, currency,
   service_category, pricing_unit, experience_years, experience_level,
   skills, days_available, time_slots_available, work_type, schedule_type,
   location_type, service_radius_km, minimum_booking_hours,
@@ -108,7 +108,7 @@ export function useSmartListingMatching(
                     .from('listings')
                     .select(SWIPE_CARD_FIELDS)
                     .eq('status', 'active')
-                    .neq('owner_id', userId);
+                    .or(`owner_id.neq.${userId},owner_id.is.null`);
 
                 if (swipedListingIds.size > 0) {
                     const idsToExclude = Array.from(swipedListingIds);
@@ -262,9 +262,9 @@ export function useSmartListingMatching(
                     filteredListings = filteredListings.filter(l => (l as any).insurance_verified === true);
                 }
 
-                // Exclude own listings (defense in depth)
+                // Exclude own listings (defense in depth - check both owner_id and user_id)
                 filteredListings = filteredListings.filter(listing => {
-                    if (listing.owner_id === userId) {
+                    if (listing.owner_id === userId || (listing as any).user_id === userId) {
                         logger.warn('[SmartMatching] CRITICAL: Own listing leaked through DB query:', listing.id);
                         return false;
                     }

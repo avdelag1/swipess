@@ -115,7 +115,7 @@ export default function AdminEventos() {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      setSubmissions(data || []);
+      setSubmissions((data as any) || []);
     } catch (err) {
       console.error('Error fetching submissions:', err);
     } finally {
