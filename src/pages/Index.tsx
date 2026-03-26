@@ -2,13 +2,14 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
-import LegendaryLandingPage from "@/components/LegendaryLandingPage";
+const LegendaryLandingPage = React.lazy(() => import("@/components/LegendaryLandingPage"));
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
 import { motion } from "framer-motion";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
+import React from "react";
 
 const Index = () => {
   const { user, loading, initialized } = useAuth();
@@ -320,7 +321,9 @@ const Index = () => {
   if (!user) {
     return (
       <div className="min-h-screen">
-        <LegendaryLandingPage />
+        <React.Suspense fallback={<SuspenseFallback />}>
+          <LegendaryLandingPage />
+        </React.Suspense>
       </div>
     );
   }

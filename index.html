@@ -35,10 +35,9 @@
   <!-- Critical styles inlined for instant paint -->
   <style>
     html,body{margin:0;padding:0;overflow:hidden;background:#000;width:100%;height:100%;position:fixed;color:#fff}
-    .initial-loader{display:flex;justify-content:center;align-items:center;width:100%;height:100dvh;background:#000;position:relative;z-index:9999}
-    .content-wrapper{z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center}
-    .splash-logo{width:80vw;max-width:380px;height:auto;animation:pulse 2s infinite ease-in-out;filter:drop-shadow(0 0 30px rgba(255,158,51,0.2))}
-    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+    .initial-loader{display:flex;justify-content:center;align-items:center;width:100vw;height:100dvh;background:#000;position:fixed;top:0;left:0;z-index:9999;pointer-events:none}
+    .content-wrapper{display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .splash-logo{width:80vw;max-width:280px;height:auto;filter:drop-shadow(0 0 40px rgba(255,158,51,0.2))}
     
     /* FAST CSS STAR FIELD (Speed Index Boost) */
     .stars-container{position:absolute;top:0;left:0;width:100%;height:100%}
@@ -159,10 +158,9 @@
           "urls": [
             "/client/dashboard",
             "/owner/dashboard",
-            "/messages",
-            "/notifications"
+            "/messages"
           ],
-          "eagerness": "conservative"
+          "eagerness": "moderate"
         }
       ]
     }
@@ -182,7 +180,7 @@
     
     <!-- Inlined Logo SVG (Hardware Accelerated) -->
     <div class="content-wrapper">
-      <svg class="splash-logo" viewBox="0 0 1200 340" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Swipess Logo">
+      <svg class="splash-logo" viewBox="0 0 1200 340" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" width="280" height="80">
         <defs>
           <linearGradient id="topG" x1="0" y1="140" x2="0" y2="215" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stop-color="#FFF4CC"/><stop offset="100%" stop-color="#FF9E33"/>
@@ -193,12 +191,12 @@
           <clipPath id="aM"><rect x="0" y="0" width="1200" height="215"/></clipPath>
           <clipPath id="bM"><rect x="0" y="215" width="1200" height="125"/></clipPath>
         </defs>
-        <g transform="translate(600, 212)" class="flame-glow">
-          <path d="M0 122 C-20 96,-25 52,0 12 C25 52,20 96,0 122Z" fill="#ff9e33" opacity="0.8"/>
-          <path d="M0 110 C-11 88,-12 62,0 36 C12 62,11 88,0 110Z" fill="#fff" opacity="0.9"/>
+        <g transform="translate(605, 212)" opacity="0.9">
+          <path d="M0 122 C-20 96,-25 52,0 12 C25 52,20 96,0 122Z" fill="#ff9e33"/>
+          <path d="M0 110 C-11 88,-12 62,0 36 C12 62,11 88,0 110Z" fill="#fff"/>
         </g>
-        <text x="600" y="282" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="900" font-size="200" letter-spacing="4" fill="url(#botG)" clip-path="url(#bM)">SWIPESS</text>
-        <text x="600" y="282" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="900" font-size="200" letter-spacing="4" fill="url(#topG)" clip-path="url(#aM)">SWIPESS</text>
+        <text x="600" y="282" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="200" letter-spacing="4" fill="url(#botG)" clip-path="url(#bM)">SWIPESS</text>
+        <text x="600" y="282" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="200" letter-spacing="4" fill="url(#topG)" clip-path="url(#aM)">SWIPESS</text>
       </svg>
     </div>
   </div>
