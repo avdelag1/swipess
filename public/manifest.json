@@ -1,7 +1,7 @@
 {
-  "name": "Swipess - Find Your Perfect Rental",
+  "name": "Swipess",
   "short_name": "Swipess",
-  "description": "Find your perfect rental property or tenant with ease. Swipe through properties and connect with the right matches. Swipess makes matching easy.",
+  "description": "Swipe to find properties, motorcycles, bicycles, and workers. Swipess is the elite multi-vertical marketplace.",
   "start_url": "/",
   "scope": "/",
   "display": "fullscreen",

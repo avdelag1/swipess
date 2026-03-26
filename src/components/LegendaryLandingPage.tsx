@@ -153,22 +153,6 @@ const LandingView = memo(({
           <LogoImage
             className="w-[85vw] max-w-[480px] sm:max-w-[580px] md:max-w-[680px] aspect-video mx-auto"
           />
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            style={{ opacity: torchOpacity }}
-          >
-            <picture>
-              <source srcset="/icons/fire-s-logo.avif" type="image/avif" />
-              <img
-                src="/icons/fire-s-logo.webp"
-                alt=""
-                fetchpriority="high"
-                loading="eager"
-                className="w-full h-full object-contain"
-                style={{ mixBlendMode: 'screen' }}
-              />
-            </picture>
-          </motion.div>
         </div>
       </motion.div>
 
@@ -328,12 +312,12 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               </h1>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {isLogin
-                  ? 'Your perfect property match is waiting.'
-                  : 'Swipe, match & find your dream property.'}
+                  ? 'Your next match is waiting — homes, motos, bikes & more.'
+                  : 'Swipe & discover properties, motorcycles, bicycles & workers.'}
               </p>
               {!isLogin && (
                 <div className="flex justify-center gap-3 mt-3">
-                  {['🏠 Real Estate', '✨ Smart Match', '🔒 Secure'].map((feat) => (
+                  {['🏠 Properties', '🏍 Motos & Bikes', '🔧 Workers'].map((feat) => (
                     <span key={feat} className="text-[10px] text-orange-300/80 font-medium bg-orange-500/10 border border-orange-500/20 rounded-full px-2 py-0.5">
                       {feat}
                     </span>
@@ -402,7 +386,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               </p>
               {!isLogin && (
                 <p className="text-[10px] text-muted-foreground/60 mt-1">
-                  Join thousands finding their perfect property match
+                  Join thousands discovering their next match
                 </p>
               )}
             </motion.div>
