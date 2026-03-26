@@ -46,8 +46,8 @@ const ConversationSchema = z.object({
 // ─── Provider Configuration ────────────────────────────────────────
 
 // Native Google Gemini API
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-const GEMINI_API_MODEL = "gemini-1.5-flash"; // More stable for free tier than 2.0-flash
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const GEMINI_API_MODEL = "gemini-2.0-flash";
 
 // Lovable Gateway (Secondary)
 const LOVABLE_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
