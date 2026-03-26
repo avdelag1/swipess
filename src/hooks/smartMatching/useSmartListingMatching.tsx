@@ -108,7 +108,7 @@ export function useSmartListingMatching(
                     .from('listings')
                     .select(SWIPE_CARD_FIELDS)
                     .eq('status', 'active')
-                    .neq('owner_id', userId);
+                    .or(`owner_id.neq.${userId},owner_id.is.null`);
 
                 if (swipedListingIds.size > 0) {
                     const idsToExclude = Array.from(swipedListingIds);
