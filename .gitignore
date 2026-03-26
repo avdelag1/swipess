@@ -32,3 +32,4 @@ yarn-error.log*
 # Capacitor build outputs
 android/
 ios/
+supabase/.temp/
