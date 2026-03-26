@@ -257,9 +257,9 @@ export interface ListingFilters {
   bedrooms?: number[];
   bathrooms?: number[];
   amenities?: string[];
-  distance?: number;
-
-  // Boolean flags
+  radiusKm?: number;
+  userLatitude?: number;
+  userLongitude?: number;
   premiumOnly?: boolean;
   verified?: boolean;
   petFriendly?: boolean;

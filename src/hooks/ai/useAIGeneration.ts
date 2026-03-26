@@ -55,7 +55,7 @@ export function useAIGeneration() {
           toast.error('AI rate limit reached. Please try again in a moment.');
         } else if (msg.includes('402') || msg.includes('credits')) {
           toast.error('AI credits exhausted. Please add funds to continue.');
-        } else if (msg.includes('LOVABLE_API_KEY') || msg.includes('not configured')) {
+        } else if (msg.includes('MINIMAX_API_KEY') || msg.includes('not configured')) {
           toast.error('AI service is not configured. Please contact support.');
         } else {
           toast.error('AI service temporarily unavailable. Please try again.');
@@ -69,7 +69,7 @@ export function useAIGeneration() {
           toast.error(fnData.error);
         } else if (fnData.error.includes('credits') || fnData.error.includes('402')) {
           toast.error(fnData.error);
-        } else if (fnData.error.includes('LOVABLE_API_KEY') || fnData.error.includes('not configured')) {
+        } else if (fnData.error.includes('MINIMAX_API_KEY') || fnData.error.includes('not configured')) {
           toast.error('AI service is not configured. Please contact support.');
         }
         throw new Error(fnData.error);
