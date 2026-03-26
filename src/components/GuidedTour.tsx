@@ -112,18 +112,18 @@ export function GuidedTour() {
 
           <div>
             <p className="text-sm font-bold text-foreground">{step.title}</p>
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{step.description}</p>
+            <p className="text-xs text-foreground/75 mt-1 leading-relaxed">{step.description}</p>
           </div>
 
           <div className="flex items-center gap-2">
             {currentStep > 0 && (
-              <Button variant="ghost" size="sm" onClick={prevStep} className="rounded-xl text-xs gap-1 h-8">
+              <Button variant="outline" size="sm" onClick={prevStep} className="rounded-xl text-xs gap-1 h-8">
                 <ChevronLeft className="w-3 h-3" />
                 Back
               </Button>
             )}
             <div className="flex-1" />
-            <Button size="sm" onClick={nextStep} className="rounded-xl text-xs gap-1 h-8">
+            <Button size="sm" onClick={nextStep} className="rounded-xl text-xs gap-1 h-8 bg-primary text-primary-foreground font-semibold">
               {currentStep === totalSteps - 1 ? 'Done' : 'Next'}
               {currentStep < totalSteps - 1 && <ChevronRight className="w-3 h-3" />}
             </Button>

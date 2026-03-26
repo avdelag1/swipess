@@ -16,8 +16,8 @@ export function useErrorReporting() {
       timestamp: new Date(),
     };
 
-    // Log to console for development
-    logger.error('Error Report:', errorReport);
+    // Log to console for development only — avoids noisy console errors in production
+    logger.warn(`[ErrorReport] ${errorReport.context}: ${errorReport.error?.message ?? errorReport.error}`);
   };
 
   // Global error handler

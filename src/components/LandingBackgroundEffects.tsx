@@ -72,6 +72,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     isDown: false,
     isActive: false
   });
+  const lastFrameTimeRef = useRef(0);
 
   const initStars = useCallback((w: number, h: number) => {
     const count = Math.floor((w * h) / 700);
@@ -380,7 +381,22 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       }
     };
 
-    const loop = () => {
+    const TARGET_FPS = 30;
+    const FRAME_INTERVAL = 1000 / TARGET_FPS;
+
+    const loop = (timestamp: number) => {
+      // Skip frame if tab is hidden (saves CPU/battery)
+      if (document.visibilityState === 'hidden') {
+        animRef.current = requestAnimationFrame(loop);
+        return;
+      }
+      // Throttle to ~30fps
+      if (timestamp - lastFrameTimeRef.current < FRAME_INTERVAL) {
+        animRef.current = requestAnimationFrame(loop);
+        return;
+      }
+      lastFrameTimeRef.current = timestamp;
+
       if (mode === 'stars') drawStars();
       else if (mode === 'sunset') {
         ctx.clearRect(0,0,w,h);
@@ -388,7 +404,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       }
       animRef.current = requestAnimationFrame(loop);
     };
-    loop();
+    loop(0);
 
     return () => {
       cancelAnimationFrame(animRef.current);

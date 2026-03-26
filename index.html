@@ -32,16 +32,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <!-- DNS Prefetch + Preconnect for faster third-party connections -->
+  <!-- storage.googleapis.com: dns-prefetch only; preconnect removed (unused at load time) -->
   <link rel="dns-prefetch" href="https://storage.googleapis.com">
-  <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
 
 
   <!-- Critical splash styles inlined to paint the splash before the CSS bundle loads.
        This eliminates render-blocking delay for the initial loader. -->
   <style>
     html,body{margin:0;padding:0;overflow:hidden;background:#000;width:100%;height:100%;position:fixed}
-    .initial-loader{display:flex;justify-content:center;align-items:center;width:100%;height:100vh;height:100dvh;background:#000;overflow:hidden}
+    .initial-loader{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;background:#000;overflow:hidden;z-index:9999}
     .splash-logo{width:65vw;max-width:380px;height:auto;object-fit:contain;animation:splash-heartbeat 2s ease-in-out infinite}
     @keyframes splash-heartbeat{0%,100%{transform:scale(1)}25%,75%{transform:scale(1.06)}50%{transform:scale(1)}}
   </style>
