@@ -90,35 +90,40 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
     setIsTyping(true);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('ai-orchestrator', {
-        body: {
-          task: 'chat',
-          data: {
-            query: userMessage,
-            messages: [
-              ...messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content })),
-              { role: 'user', content: userMessage }
-            ]
-          }
-        }
-      });
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) throw new Error('AI not configured. Contact support.');
 
-      if (fnError) {
-        const errMsg = fnError.message || '';
-        if (errMsg.includes('401') || errMsg.includes('Unauthorized')) {
-          throw new Error('Session expired. Please sign in again.');
-        } else if (errMsg.includes('429') || errMsg.includes('rate limit')) {
-          throw new Error('Too many requests — please wait a moment and try again.');
-        } else if (errMsg.includes('402')) {
-          throw new Error('AI credits exhausted. Please add funds.');
-        } else {
-          throw new Error(errMsg || 'Connection failed');
+      const systemPrompt = `You are the "Swipess Oracle" — a sharp, market-savvy assistant for a multi-vertical marketplace in Tulum, Mexico.
+You help users find properties, motorcycles, bicycles, and workers.
+Be helpful, direct, and friendly. Respond in the user's language.`;
+
+      const history = messages.map(m => ({
+        role: m.role === 'ai' ? 'model' : 'user',
+        parts: [{ text: m.content }]
+      }));
+
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: [...history, { role: 'user', parts: [{ text: userMessage }] }],
+            generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
+          }),
         }
+      );
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        const msg = err?.error?.message || `HTTP ${res.status}`;
+        if (res.status === 429) throw new Error('Too many requests — please wait a moment and try again.');
+        throw new Error(`AI error: ${msg}`);
       }
 
-      if (data?.error) throw new Error(data.error);
-
-      const responseContent = data?.result?.text || data?.result?.message || String(data?.result || '');
+      const data = await res.json();
+      const responseContent = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
       if (!responseContent) throw new Error('AI returned an empty response. Please try again.');
 
       setIsTyping(false);

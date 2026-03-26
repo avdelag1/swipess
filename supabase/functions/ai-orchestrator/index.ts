@@ -45,11 +45,14 @@ const ConversationSchema = z.object({
 
 // ─── Provider Configuration ────────────────────────────────────────
 
-// Native Google Gemini API
+// Native Google Gemini API — ordered by preference
+// All use v1beta which is the most broadly supported endpoint
 const GEMINI_MODELS = [
+  "gemini-2.0-flash",
   "gemini-2.0-flash-lite",
+  "gemini-1.5-flash-001",
+  "gemini-1.5-flash-002",
   "gemini-1.5-flash",
-  "gemini-1.5-flash-latest",
 ];
 
 // Lovable Gateway (Secondary)
@@ -88,10 +91,12 @@ async function callGeminiDirect(messages: Message[], maxTokens: number): Promise
   }
 
   // Try each model in order until one works (quota varies by model)
-  let lastErr = "";
+  const modelErrors: string[] = [];
   for (const model of GEMINI_MODELS) {
+    // Use v1beta for all models — broadest support for systemInstruction
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
     console.log(`[AI Orchestrator] Trying Gemini model: ${model}`);
+
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -100,16 +105,16 @@ async function callGeminiDirect(messages: Message[], maxTokens: number): Promise
     if (!res.ok) {
       const errorBody = await res.text();
       let detail = "";
-      try { detail = JSON.parse(errorBody)?.error?.message || errorBody.slice(0, 100); } catch { detail = errorBody.slice(0, 100); }
-      lastErr = `${model}(${res.status}): ${detail}`;
-      console.warn(`[AI Orchestrator] ${lastErr}`);
+      try { detail = JSON.parse(errorBody)?.error?.message?.slice(0, 80) || errorBody.slice(0, 80); } catch { detail = errorBody.slice(0, 80); }
+      modelErrors.push(`${model}(${res.status}): ${detail}`);
+      console.warn(`[AI Orchestrator] ${model} failed (${res.status}): ${detail}`);
       continue;
     }
     const data = await res.json();
     const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
     if (content) return { content, provider: `gemini-${model}` };
   }
-  throw new ProviderError(`Gemini all models failed — ${lastErr}`, 429);
+  throw new ProviderError(`Gemini all models failed — ${modelErrors.join(" | ")}`, 429);
 }
 
 /**
