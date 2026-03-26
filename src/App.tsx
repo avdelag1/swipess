@@ -256,9 +256,17 @@ const App = () => {
   // SpeedInsights mounted dynamically to not block initial paint
   const [SpeedInsightsComponent, setSpeedInsightsComponent] = useState<any>(null);
   useEffect(() => {
-    import("@vercel/speed-insights/react").then(mod => {
-      setSpeedInsightsComponent(() => mod.SpeedInsights);
-    });
+    // Non-critical: load performance monitoring ONLY once app is fully idle
+    const delaySpeedInsights = () => {
+      import("@vercel/speed-insights/react").then(mod => {
+        setSpeedInsightsComponent(() => mod.SpeedInsights);
+      });
+    };
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(() => setTimeout(delaySpeedInsights, 2000));
+    } else {
+      setTimeout(delaySpeedInsights, 4000);
+    }
   }, []);
 
   return (
