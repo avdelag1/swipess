@@ -43,12 +43,15 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
     setMessages(prev => [...prev, newUserMessage]);
 
     try {
-      const apiMessages = messages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-      }));
-
-      apiMessages.push({ role: 'user', content: userMessage });
+      // STICKY FIX: Clean messages for the Edge Function / Gemini API
+      // Only keep 'role' and 'content'. Metadata like 'timestamp' causes 400 errors.
+      const apiMessages = [
+        ...messages.map(msg => ({
+          role: msg.role === 'assistant' ? 'assistant' : 'user', // strictly assistant or user
+          content: msg.content,
+        })),
+        { role: 'user', content: userMessage }
+      ];
 
       const { data, error: functionError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {
