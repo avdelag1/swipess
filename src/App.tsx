@@ -219,7 +219,7 @@ function ConnectionGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-const App = () => {
+const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
   // Outage gate: bypassed via ?preview=swipess URL param or 7× logo tap
   const [outageBypassed, setOutageBypassed] = useState(() => hasOutageBypass());
 
@@ -243,6 +243,11 @@ const App = () => {
     } else {
       setTimeout(delaySpeedInsights, 4000);
     }
+
+    // SPEED OF LIGHT: Signal to main.tsx that React has finished initial paint
+    requestAnimationFrame(() => {
+      window.dispatchEvent(new CustomEvent('app-rendered'));
+    });
   }, []);
 
   return (
@@ -257,7 +262,7 @@ const App = () => {
           }}
         >
           <ErrorBoundary>
-            <AuthProvider>
+            <AuthProvider authPromise={authPromise}>
               <ActiveModeProvider>
                 <ThemeProvider>
                   <PWAProvider>

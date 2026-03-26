@@ -359,12 +359,12 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
 
   // Category preview photos for breathing effect (from mock data + curated)
   const categoryPhotos: Record<string, string> = {
-    property:   'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=300&h=150&fit=crop&crop=center',
-    motorcycle: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=300&h=150&fit=crop&crop=center',
-    bicycle:    'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=300&h=150&fit=crop&crop=center',
-    services:   'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=300&h=150&fit=crop&crop=center',
+    property:   '/images/properties/property_1.png',
+    motorcycle: '/images/motorcycles/vespa_1.png',
+    bicycle:    '/images/beach-sunset.jpg',
+    services:   '/images/properties/property_2.png',
   };
-  const _allPhoto = 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&h=150&fit=crop&crop=center';
+  const _allPhoto = '/images/beach-sunset.jpg';
 
   return (
     <div

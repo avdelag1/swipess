@@ -41,7 +41,7 @@ const clientPlans: Plan[] = [
       'Post motorcycles or bicycles for rent or sale',
       'Save favorite listings',
       'Discover opportunities',
-      'AI assistant to create listings & discover the city'
+      'Swipess Concierge to create listings & discover the city'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
     accent: 'blue',
@@ -59,7 +59,7 @@ const clientPlans: Plan[] = [
       'Post motorcycles or bicycles for rent or sale',
       'Save favorite listings',
       'Discover opportunities',
-      'AI assistant to create listings & discover the city'
+      'Swipess Concierge to create listings & discover the city'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
     accent: 'pink',
@@ -77,7 +77,7 @@ const clientPlans: Plan[] = [
       'Post motorcycles or bicycles for rent or sale',
       'Save favorite listings',
       'Discover opportunities',
-      'AI assistant to create listings & discover the city'
+      'Swipess Concierge to create listings & discover the city'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
     highlight: true,

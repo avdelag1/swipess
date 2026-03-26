@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { cn } from '@/lib/utils';
@@ -53,7 +53,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
           setIsTyping(false);
           setMessages([{
             role: 'ai',
-            content: "Welcome. I am the Swipess Oracle — your sharp, market-savvy guide to Tulum. ✨\n\nI can help you find your dream space, check your matches, or explain how tokens work.\n\nWhat are you looking for today?",
+            content: "Welcome. I am the Swipess Concierge — your sharp, market-savvy guide to Tulum. ✨\n\nI can help you create the perfect listing, find your dream space, or answer any local question.\n\nWhat can I assist you with today?",
             timestamp: Date.now()
           }]);
         }, 1200);
@@ -74,7 +74,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
     if (!query.trim() || isSearching) return;
 
     if (!user) {
-      toast.error('Please sign in to use the AI assistant');
+      toast.error('Please sign in to use the Swipess Concierge');
       setMessages(prev => [...prev, {
         role: 'ai',
         content: "You need to sign in first to chat with me. Please log in and try again! 🔐",
@@ -90,40 +90,23 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
     setIsTyping(true);
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) throw new Error('AI not configured. Contact support.');
-
-      const systemPrompt = `You are the "Swipess Oracle" — a sharp, market-savvy assistant for a multi-vertical marketplace in Tulum, Mexico.
-You help users find properties, motorcycles, bicycles, and workers.
-Be helpful, direct, and friendly. Respond in the user's language.`;
-
-      const history = messages.map(m => ({
-        role: m.role === 'ai' ? 'model' : 'user',
-        parts: [{ text: m.content }]
-      }));
-
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: systemPrompt }] },
-            contents: [...history, { role: 'user', parts: [{ text: userMessage }] }],
-            generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
-          }),
+      // Call the AI Orchestrator via Supabase Edge Function
+      const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
+        body: {
+          task: 'chat',
+          data: {
+            query: userMessage,
+            messages: messages.map(m => ({
+              role: m.role === 'ai' ? 'assistant' : 'user',
+              content: m.content
+            }))
+          }
         }
-      );
+      });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        const msg = err?.error?.message || `HTTP ${res.status}`;
-        if (res.status === 429) throw new Error('Too many requests — please wait a moment and try again.');
-        throw new Error(`AI error: ${msg}`);
-      }
+      if (funcError) throw funcError;
 
-      const data = await res.json();
-      const responseContent = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const responseContent = data?.result?.text || data?.result?.message || '';
       if (!responseContent) throw new Error('AI returned an empty response. Please try again.');
 
       setIsTyping(false);
@@ -135,6 +118,7 @@ Be helpful, direct, and friendly. Respond in the user's language.`;
       }]);
     } catch (error) {
       setIsTyping(false);
+      console.error('AI Error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       setMessages(prev => [...prev, {
         role: 'ai',
@@ -194,12 +178,16 @@ Be helpful, direct, and friendly. Respond in the user's language.`;
               <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
-            <div>
-              <h2 className={cn("font-black text-base tracking-tight leading-none mb-0.5", isDark ? "text-white" : "text-gray-900")}>AI Assistant</h2>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                <p className={cn("text-[10px] font-bold uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-pink-400")}>Personal Concierge</p>
-              </div>
+            <div className="flex flex-col">
+              <DialogTitle className={cn("font-black text-base tracking-tight leading-none mb-0.5", isDark ? "text-white" : "text-gray-900")}>
+                Swipess Concierge
+              </DialogTitle>
+              <DialogDescription className="flex items-center gap-1.5 p-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                <span className={cn("text-[10px] font-bold uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-pink-400")}>
+                  Personal Concierge
+                </span>
+              </DialogDescription>
             </div>
           </div>
 
@@ -229,7 +217,7 @@ Be helpful, direct, and friendly. Respond in the user's language.`;
               )}>
                 <SwipessLogo size="xl" />
               </div>
-              <p className="text-muted-foreground text-xs font-black uppercase tracking-[0.2em] opacity-50">Secure Oracle Link</p>
+              <p className="text-muted-foreground text-xs font-black uppercase tracking-[0.2em] opacity-50">Secure Concierge Link</p>
             </motion.div>
           )}
 
@@ -298,7 +286,7 @@ Be helpful, direct, and friendly. Respond in the user's language.`;
               </div>
               <div className="bg-gradient-to-r from-orange-500/10 to-pink-500/10 border border-orange-500/20 px-4 py-3 rounded-[1.5rem] rounded-tl-sm text-xs font-bold text-orange-500 flex items-center gap-2 shadow-sm">
                 <Loader2 className="w-3 h-3 animate-spin text-orange-500" />
-                Assistant is thinking...
+                Concierge is thinking...
               </div>
             </motion.div>
           )}

@@ -59,11 +59,11 @@ export const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: 
 };
 
 export const POKER_CARD_PHOTOS: Record<string, string> = {
-  property:   'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=480&q=80&auto=format',
-  motorcycle: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=480&q=80&auto=format',
-  bicycle:    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=480&q=80&auto=format',
-  services:   'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=480&q=80&auto=format',
-  all:        'https://images.unsplash.com/photo-1552664730-d307ca884978?w=480&q=80&auto=format',
+  property:   '/images/properties/property_1.png',
+  motorcycle: '/images/motorcycles/vespa_1.png',
+  bicycle:    '/images/beach-sunset.jpg',
+  services:   '/images/properties/property_2.png',
+  all:        '/images/properties/property_3.png',
 };
 
 export const POKER_CARDS = [

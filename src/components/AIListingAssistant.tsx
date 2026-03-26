@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { logger } from '@/utils/prodLogger';
@@ -235,10 +235,10 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
               <Sparkles className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-black tracking-tight text-foreground">Listing Assistant</h2>
-              <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-80">
-                Step {step === 'category' ? 1 : step === 'photos' ? 2 : step === 'details' ? 3 : step === 'generating' ? 4 : 5} of 5
-              </p>
+              <DialogTitle className="text-xl font-black tracking-tight text-foreground">Swipess Concierge</DialogTitle>
+              <DialogDescription className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-80 decoration-none">
+                Listing Assistant • Step {step === 'category' ? 1 : step === 'photos' ? 2 : step === 'details' ? 3 : step === 'generating' ? 4 : 5} of 5
+              </DialogDescription>
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={() => handleClose()} className="rounded-full h-11 w-11 hover:bg-white/10 transition-colors">
@@ -260,14 +260,14 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                 >
                   <div className="space-y-3">
                     <h3 className="text-3xl font-black text-foreground tracking-tighter">What are you listing?</h3>
-                    <p className="text-base text-muted-foreground font-medium leading-relaxed">Select a category to help the AI narrow down the details.</p>
+                    <p className="text-base text-muted-foreground font-medium leading-relaxed">Select a category to help the Concierge narrow down the details.</p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {CATEGORIES.map((cat) => {
                       // Map worker category to services for getCategoryColorClass
                       const categoryForColor = cat.id === 'worker' ? 'services' : cat.id;
-                      const categoryColor = getCategoryColorClass(categoryForColor as any, isDark);
+                      const categoryColor = getCategoryColorClass(categoryForColor, isDark);
                       return (
                       <motion.button
                         key={cat.id}
@@ -280,6 +280,7 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                             ? "bg-primary text-primary-foreground border-transparent shadow-[0_20px_40px_rgba(var(--primary),0.3)] scale-[1.02] z-10"
                             : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10"
                         )}
+                        aria-pressed={selectedCategory === cat.id}
                       >
                         <div className={cn(
                           "w-14 h-14 rounded-[1.2rem] flex items-center justify-center mb-5 transition-transform duration-500 group-hover:scale-110",
@@ -346,6 +347,8 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                           <img src={img} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                           <button
                             onClick={() => handleRemoveImage(idx)}
+                            aria-label="Remove photo"
+                            title="Remove photo"
                             className="absolute top-3 right-3 w-8 h-8 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-destructive"
                           >
                             <X className="w-5 h-5" />
@@ -421,7 +424,7 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-black">AI is thinking...</h3>
+                    <h3 className="text-2xl font-black">Concierge is thinking...</h3>
                     <p className="text-muted-foreground text-sm mt-1 max-w-[200px]">Crafting the perfect listing for you.</p>
                   </div>
                 </motion.div>

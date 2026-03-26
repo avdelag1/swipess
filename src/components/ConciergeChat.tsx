@@ -15,13 +15,13 @@ import {
   RefreshCw,
   User
 } from 'lucide-react';
-import { useGeminiCityExpert } from '@/hooks/useGeminiCityExpert';
+import { useConciergeAI } from '@/hooks/useConciergeAI';
 import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { haptics } from '@/utils/microPolish';
 
-interface CityExpertChatProps {
+interface ConciergeChatProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialCity?: string;
@@ -29,13 +29,13 @@ interface CityExpertChatProps {
   listings?: any[];
 }
 
-export function CityExpertChat({ 
+export function ConciergeChat({ 
   open, 
   onOpenChange, 
-  initialCity = 'Cancun',
+  initialCity = 'Tulum',
   userRole = 'client',
   listings = []
-}: CityExpertChatProps) {
+}: ConciergeChatProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [input, setInput] = useState('');
@@ -48,7 +48,7 @@ export function CityExpertChat({
     sendMessage, 
     clearMessages,
     isConfigured 
-  } = useGeminiCityExpert();
+  } = useConciergeAI();
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -112,10 +112,10 @@ export function CityExpertChat({
             </div>
             <div>
               <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-gray-900")}>
-                City Expert
+                Concierge
               </h2>
               <p className={cn("text-xs", isDark ? "text-zinc-400" : "text-gray-500")}>
-                AI Assistant for {initialCity}
+                Your Personal Assistant for {initialCity}
               </p>
             </div>
           </div>
@@ -158,10 +158,10 @@ export function CityExpertChat({
                 )}>
                   <Sparkles className={cn("w-8 h-8 mx-auto mb-2", isDark ? "text-cyan-400" : "text-cyan-500")} />
                   <p className={cn("font-medium", isDark ? "text-white" : "text-gray-900")}>
-                    Hello! I'm your {initialCity} Expert AI
+                    Hello! I'm your {initialCity} Concierge
                   </p>
                   <p className={cn("text-sm mt-1", isDark ? "text-zinc-400" : "text-gray-500")}>
-                    Ask me about restaurants, bars, properties, or anything about the city!
+                    How can I assist you with your listings or local information today?
                   </p>
                 </div>
 
@@ -291,7 +291,7 @@ export function CityExpertChat({
             />
             <Button
               onClick={handleSend}
-              disabled={!input.trim() || isLoading || !isConfigured}
+              disabled={!input.trim() || isLoading}
               size="icon"
               className={cn(
                 "h-12 w-12 rounded-xl shrink-0",
@@ -307,11 +307,6 @@ export function CityExpertChat({
               )}
             </Button>
           </div>
-          {!isConfigured && (
-            <p className={cn("text-xs text-center mt-2", isDark ? "text-zinc-500" : "text-gray-400")}>
-              AI Expert is not configured. Add VITE_GEMINI_API_KEY to your .env file.
-            </p>
-          )}
         </div>
       </DialogContent>
     </Dialog>
