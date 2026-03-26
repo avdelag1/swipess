@@ -11,7 +11,7 @@ const SWIPE_CARD_FIELDS = `
   id, title, description, price, images, city, neighborhood, beds, baths,
   square_footage, category, listing_type, property_type, vehicle_brand,
   vehicle_model, year, mileage, amenities, pet_friendly, furnished,
-  owner_id, created_at, currency,
+  owner_id, user_id, created_at, currency,
   service_category, pricing_unit, experience_years, experience_level,
   skills, days_available, time_slots_available, work_type, schedule_type,
   location_type, service_radius_km, minimum_booking_hours,
