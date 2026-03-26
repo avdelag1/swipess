@@ -262,6 +262,7 @@ function TopBarComponent({
             style={{
               scrollbarWidth: 'none',
               WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-x',
             } as React.CSSProperties}
           >
             <div className="flex items-center gap-1 flex-nowrap pl-2 pr-1">
