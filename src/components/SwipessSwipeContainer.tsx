@@ -363,6 +363,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       stableFilters.showHireServices ? '1' : '0',
       stableFilters.clientGender || '',
       stableFilters.clientType || '',
+      stableFilters.radiusKm?.toString() || '50',
+      stableFilters.userLatitude?.toString() || '0',
+      stableFilters.userLongitude?.toString() || '0',
     ].join('|');
   }, [stableFilters]);
 

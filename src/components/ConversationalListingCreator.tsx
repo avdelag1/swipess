@@ -263,9 +263,9 @@ export function ConversationalListingCreator() {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Sparkles className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold">Create Listing with AI</h1>
+              <h1 className="text-3xl font-bold">Swipess Concierge</h1>
             </div>
-            <p className="text-muted-foreground">Choose what you'd like to list</p>
+            <p className="text-muted-foreground">Expert help for your Tulum marketplace listings</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -337,6 +337,8 @@ export function ConversationalListingCreator() {
                   accept="image/*"
                   className="hidden"
                   onChange={handlePhotoUpload}
+                  title="Photo upload"
+                  aria-label="Upload photos"
                 />
               </div>
 
@@ -352,6 +354,8 @@ export function ConversationalListingCreator() {
                       <button
                         onClick={() => handleRemoveImage(index)}
                         className="absolute top-1 right-1 bg-destructive text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove image"
+                        aria-label="Remove image"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -379,7 +383,7 @@ export function ConversationalListingCreator() {
                   </>
                 ) : (
                   <>
-                    Continue to AI Chat
+                    Continue to Swipess Concierge
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </>
                 )}
@@ -408,8 +412,8 @@ export function ConversationalListingCreator() {
                     <MessageSquare className="w-7 h-7 text-primary" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl font-black tracking-tight">AI Assistant</CardTitle>
-                    <CardDescription className="text-sm font-bold opacity-70">Tell us about your listing</CardDescription>
+                    <CardTitle className="text-2xl font-black tracking-tight">Concierge</CardTitle>
+                    <CardDescription className="text-sm font-bold opacity-70">Tell me about your listing and I'll handle the details</CardDescription>
                   </div>
                 </div>
                 <div className="text-right">
@@ -447,7 +451,7 @@ export function ConversationalListingCreator() {
                     <div className="flex justify-start">
                       <div className="bg-white/10 backdrop-blur-xl rounded-[1.5rem] px-6 py-4 flex items-center gap-3">
                         <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                        <span className="text-xs font-black uppercase tracking-widest opacity-60">AI is thinking...</span>
+                        <span className="text-xs font-black uppercase tracking-widest opacity-60">Concierge is thinking...</span>
                       </div>
                     </div>
                   )}

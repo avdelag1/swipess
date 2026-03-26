@@ -11,7 +11,7 @@ export interface MatchedListing extends Listing {
 }
 
 export interface MatchedClientProfile {
-    id: number;
+    id: string;
     user_id: string;
     name: string;
     age: number;

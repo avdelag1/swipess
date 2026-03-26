@@ -5,13 +5,17 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
 import { GradientMaskTop, GradientMaskBottom, GlobalVignette } from '@/components/ui/GradientMasks';
-import { RadioMiniPlayer } from '@/components/RadioMiniPlayer';
-import { NotificationSystem } from '@/components/NotificationSystem';
 import { useTheme } from '@/hooks/useTheme';
 
-// Lazy-load VisualEngine so framer-motion is NOT on the critical path
+// Lazy-load sub-components to reduce initial main-thread work
 const VisualEngine = lazy(() =>
   import('@/visual/VisualEngine').then(m => ({ default: m.VisualEngine }))
+);
+const RadioMiniPlayer = lazy(() =>
+  import('@/components/RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer }))
+);
+const NotificationSystem = lazy(() =>
+  import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
 );
 
 interface AppLayoutProps {
@@ -36,7 +40,10 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen min-h-dvh w-full bg-background overflow-x-hidden">
       <SkipToMainContent />
-      <NotificationSystem />
+      
+      <Suspense fallback={null}>
+        <NotificationSystem />
+      </Suspense>
 
       {/* Lazy-loaded visual engine - does not block first paint */}
       <Suspense fallback={null}>
@@ -57,7 +64,11 @@ export function AppLayout({ children }: AppLayoutProps) {
       </main>
 
       {/* Global Radio Mini Player - skip on full-screen public preview pages */}
-      {!isPublicPreview && <RadioMiniPlayer />}
+      {!isPublicPreview && (
+        <Suspense fallback={null}>
+          <RadioMiniPlayer />
+        </Suspense>
+      )}
       
     </div>
   );

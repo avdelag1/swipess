@@ -43,7 +43,7 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
     setMessages(prev => [...prev, newUserMessage]);
 
     try {
-      // STICKY FIX: Clean messages for the Edge Function / Gemini API
+      // STICKY FIX: Clean messages for the Edge Function / AI API
       // Only keep 'role' and 'content'. Metadata like 'timestamp' causes 400 errors.
       const apiMessages = [
         ...messages.map(msg => ({
@@ -68,9 +68,9 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
       if (functionError) {
         const msg = functionError.message || '';
         if (msg.includes('429') || msg.includes('rate limit')) {
-          toast.error('AI rate limit reached. Please try again in a moment.');
+          toast.error('Concierge is temporarily busy. Please try again in a moment.');
         } else if (msg.includes('402')) {
-          toast.error('AI credits exhausted. Please add funds.');
+          toast.error('Concierge services need more credits. Please add funds.');
         }
         throw functionError;
       }

@@ -9,11 +9,11 @@ import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useTheme } from '@/hooks/useTheme';
 
 const CATEGORIES: { id: QuickFilterCategory | null; label: string; icon: any; color: string; description: string; image: string }[] = [
-    { id: 'property', label: 'Property', icon: Home, color: 'from-rose-500 to-rose-400', description: 'Find your next home', image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=400' },
-    { id: 'motorcycle', label: 'Moto', icon: MotorcycleIcon, color: 'from-orange-500 to-orange-400', description: 'Ride in style', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?auto=format&fit=crop&q=80&w=400' },
+    { id: 'property', label: 'Property', icon: Home, color: 'from-rose-500 to-rose-400', description: 'Find your next home', image: '/images/properties/property_1.png' },
+    { id: 'motorcycle', label: 'Moto', icon: MotorcycleIcon, color: 'from-orange-500 to-orange-400', description: 'Ride in style', image: '/images/motorcycles/vespa_1.png' },
     { id: 'bicycle', label: 'Bicycle', icon: Bike, color: 'from-violet-500 to-violet-400', description: 'Eco-friendly travel', image: 'https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&q=80&w=400' },
-    { id: 'services', label: 'Services', icon: Briefcase, color: 'from-amber-500 to-amber-400', description: 'Hire professionals', image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&q=80&w=400' },
-    { id: null, label: 'All', icon: Search, color: 'from-slate-500 to-slate-400', description: 'Explore everything', image: 'https://images.unsplash.com/photo-1504893524553-b855bce32c67?auto=format&fit=crop&q=80&w=400' },
+    { id: 'services', label: 'Services', icon: Briefcase, color: 'from-amber-500 to-amber-400', description: 'Hire professionals', image: '/images/blue-cassette.jpg' },
+    { id: null, label: 'All', icon: Search, color: 'from-slate-500 to-slate-400', description: 'Explore everything', image: '/images/beach-sunset.jpg' },
 ];
 
 export function CategorySwipeStack() {
@@ -127,7 +127,7 @@ function CategoryCard({
     const springX = useSpring(x, { stiffness: 450, damping: 32 }); // snappier
     const springY = useSpring(y, { stiffness: 450, damping: 32 });
 
-    // VERTICAL STACK — Modern "Lovable" feel, larger and vertical
+    // VERTICAL STACK — Modern premium feel, larger and vertical
     // No "Poker Hand" fan to avoid the "mess"
     const fanRotation = 0; // Vertical stack, no rotation
     const fanX = 0; 

@@ -22,7 +22,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children, authPromise }: { children: ReactNode, authPromise?: Promise<any> }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,15 +45,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Initialize auth state from Supabase session storage
     const initializeAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Use the promise passed from main.tsx if it exists to avoid redundant fetch
+        const { data: { session: fetchedSession }, error } = authPromise 
+          ? await authPromise 
+          : await supabase.auth.getSession();
 
         if (error) {
           logger.error('[Auth] Session retrieval error:', error);
         }
 
         if (isMounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
+          setSession(fetchedSession);
+          setUser(fetchedSession?.user ?? null);
 
           // CRITICAL: Set loading to false IMMEDIATELY after getting session
           // Profile/role setup will happen separately via Index.tsx and ProtectedRoute

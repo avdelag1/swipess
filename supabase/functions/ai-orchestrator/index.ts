@@ -1,14 +1,15 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// ─── Zod Schemas ──────────────────────────────────────────────────
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+<<<<<<< HEAD
 const ListingSchema = z.object({
   title: z.string().min(1).max(100),
   description: z.string().min(1),
@@ -246,26 +247,34 @@ serve(async (req) => {
 
   try {
     // Heartbeat check
+=======
+  try {
+    const key = Deno.env.get("MINIMAX_API_KEY");
+    
+    // Heartbeat
+>>>>>>> a6cd3223 ( Swipess Concierge Titanium 5.1: Stabilized AI Backend & Corrected Smart Matching Filters)
     if (req.method === "GET") {
-      return new Response(JSON.stringify({ status: "alive", providers: {
-        gemini: !!(Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_API_KEY")),
-        lovable: !!Deno.env.get("LOVABLE_API_KEY"),
-        minimax: !!Deno.env.get("MINIMAX_API_KEY")
-      } }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ 
+        status: "online", 
+        key_check: key ? `Present (${key.substring(0, 8)}...)` : "MISSING" 
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const payload = await req.json();
-    const task = payload.task || payload.type;
+    const task = payload.task || "chat";
     const input = payload.data || payload;
 
-    // Auth Validation
+    // Auth Hardening
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return new Response(JSON.stringify({ error: "No authorization provided" }), { status: 401, headers: corsHeaders });
+    if (!authHeader) {
+      console.warn("[Concierge] No Authorization header present");
+      return new Response(JSON.stringify({ error: "No authorization provided" }), { status: 401, headers: corsHeaders });
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-    const supabaseClient = createClient(supabaseUrl!, supabaseAnonKey!, { global: { headers: { Authorization: authHeader } } });
+    const supabaseAnon = Deno.env.get("SUPABASE_ANON_KEY");
     
+<<<<<<< HEAD
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     if (authError || !user) return new Response(JSON.stringify({ error: "Auth failed" }), { status: 401, headers: corsHeaders });
 
@@ -301,18 +310,81 @@ serve(async (req) => {
     } else {
       const parsed = parseJSON(aiResponse.content);
       finalResult = parsed || { text: aiResponse.content, error: "AI returned invalid format" };
+=======
+    if (!supabaseUrl || !supabaseAnon) {
+       console.error("[Concierge] Project environment variables missing");
+       return new Response(JSON.stringify({ error: "Internal Configuration Error" }), { status: 500, headers: corsHeaders });
     }
 
-    return new Response(JSON.stringify({ result: finalResult, provider: aiResponse.provider }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    const supabase = createClient(supabaseUrl, supabaseAnon, { 
+      global: { headers: { Authorization: authHeader } } 
     });
 
-  } catch (err) {
-    console.error("[AI Orchestrator] Critical Crash:", err);
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : "Internal Server Error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !authData?.user) {
+       console.warn("[Concierge] Auth validation failed:", authError?.message);
+       return new Response(JSON.stringify({ error: "Unauthorized access" }), { status: 401, headers: corsHeaders });
+>>>>>>> a6cd3223 ( Swipess Concierge Titanium 5.1: Stabilized AI Backend & Corrected Smart Matching Filters)
+    }
+
+    const user = authData.user;
+    console.log(`[Concierge] Processing ${task} for ${user.id}`);
+
+    if (!key) {
+      return new Response(JSON.stringify({ error: "MiniMax API key is not configured in Supabase secrets" }), { status: 200, headers: corsHeaders });
+    }
+
+    // Call MiniMax
+    const messages = input.messages || [{ role: "user", content: input.query || "Hello" }];
+    const minimaxRes = await fetch("https://api.minimax.io/v1/chat/completions", {
+      method: "POST",
+      headers: { 
+        "Authorization": `Bearer ${key}`, 
+        "Content-Type": "application/json" 
+      },
+      body: JSON.stringify({
+        model: "abab6.5s-chat",
+        messages: messages.map((m: any) => ({
+          role: m.role === "assistant" ? "assistant" : (m.role === "system" ? "system" : "user"),
+          content: m.content || m.text || ""
+        }))
+      })
     });
+
+    const aiData = await minimaxRes.json();
+    
+    if (!minimaxRes.ok) {
+      console.error("[MiniMax] Error:", aiData);
+      return new Response(JSON.stringify({ 
+        error: aiData.base_resp?.status_msg || "MiniMax API Error", 
+        details: aiData 
+      }), { status: 200, headers: corsHeaders });
+    }
+
+    const content = aiData.choices?.[0]?.message?.content || "";
+    let finalResult: any = { text: content, message: content };
+
+    // Try parsing if it's supposed to be JSON
+    if (task !== "chat" && task !== "query") {
+      try {
+        const braceMatch = content.match(/\{[\s\S]*\}/);
+        if (braceMatch) finalResult = JSON.parse(braceMatch[0]);
+      } catch { /* fallback to text */ }
+    }
+
+    return new Response(JSON.stringify({ 
+      result: finalResult, 
+      provider: "minimax",
+      status: "success" 
+    }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+  } catch (err: any) {
+    console.error("[Fatal] Orchestrator Crash:", err);
+    return new Response(JSON.stringify({ 
+      error: err.message || "An unexpected error occurred",
+      status: "crash",
+      diagnostic: "Check your Supabase secrets and function imports."
+    }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });

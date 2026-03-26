@@ -222,30 +222,29 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // STALE-WHILE-REVALIDATE for HTML navigation requests
-  // This is the key to INSTANT launch of the PWA from home screen
+  // NETWORK-FIRST for HTML navigation requests (index.html)
+  // This ensures that when you refresh, you actually get the LATEST code if online.
+  // Stale-while-revalidate is BAD for updates because it serves the old code first.
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
-      caches.open(DYNAMIC_CACHE).then(cache => {
-        return cache.match(request).then(cachedResponse => {
-          // Always fetch fresh version in background
-          const bgFetch = fetch(request, {
-            cache: 'no-store' // Bypass browser cache but populate our SW cache
-          }).then(networkResponse => {
-            if (networkResponse.ok && networkResponse.status === 200) {
-              cache.put(request, networkResponse.clone());
-            }
-            return networkResponse;
-          }).catch(() => cachedResponse);
-
-          if (cachedResponse) {
-            // Return cached immediately for instant launch, update in background
-            event.waitUntil(bgFetch); // keep SW alive to complete cache update
-            return cachedResponse;
-          }
-          // First launch: wait for network
-          return bgFetch;
-        });
+      fetch(request, { 
+        cache: 'no-store', // Always check the network
+        mode: request.mode,
+        credentials: request.credentials
+      })
+      .then(networkResponse => {
+        // If we got a real response, update the cache and return it
+        if (networkResponse.ok && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(DYNAMIC_CACHE).then(cache => cache.put(request, clone));
+        }
+        return networkResponse;
+      })
+      .catch(async () => {
+        // If network is down, serve the latest from cache
+        const cache = await caches.open(DYNAMIC_CACHE);
+        const cachedResponse = await cache.match(request);
+        return cachedResponse || caches.match('/index.html'); // Ultimate fallback
       })
     );
     return;

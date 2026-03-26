@@ -13,10 +13,10 @@ export default defineConfig(({ mode }) => ({
     {
       name: 'async-css-plugin',
       transformIndexHtml(html) {
-        // Vite may emit: <link rel="stylesheet" crossorigin href="..."> (crossorigin before href)
-        // Use a flexible regex that matches any attribute order between rel and href.
+        // MATCH ALL CSS LINKS: This is the hammer. If it's a stylesheet, make it async.
+        // On 4G, blocking on many small CSS files is LCP suicide.
         return html.replace(
-          /<link\s+[^>]*?rel="stylesheet"[^>]*?href="(\/assets\/index-[^"]+\.css)"[^>]*?>/gi,
+          /<link rel="stylesheet" [^>]*href="([^">]+\.css)"[^>]*>/gi,
           '<link rel="preload" href="$1" as="style" fetchpriority="high" onload="this.onload=null;this.rel=\'stylesheet\'"><noscript><link rel="stylesheet" href="$1"></noscript>'
         );
       }
@@ -40,7 +40,8 @@ export default defineConfig(({ mode }) => ({
         if (!ctx.bundle) return html;
         const preloads = [];
         for (const [key, chunk] of Object.entries(ctx.bundle)) {
-          if (chunk.type === 'chunk' && (chunk.name === 'vendor' || chunk.name === 'main')) {
+          // Identify the main application entry point and vendor core
+          if (chunk.type === 'chunk' && (chunk.name === 'index' || chunk.name === 'vendor' || chunk.name === 'main')) {
             preloads.push(`<link rel="modulepreload" href="/${chunk.fileName}" fetchpriority="high" crossorigin>`);
           }
         }
@@ -57,7 +58,7 @@ export default defineConfig(({ mode }) => ({
     target: 'esnext',
     minify: 'esbuild',
     cssMinify: true,
-    cssCodeSplit: true,
+    cssCodeSplit: false, // FORCE ALL CSS INTO ONE FILE TO MINIMIZE REQUEST COUNT ON 4G
     reportCompressedSize: false,
     chunkSizeWarningLimit: 3000,
     rollupOptions: {
@@ -66,28 +67,25 @@ export default defineConfig(({ mode }) => ({
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks(id) {
-          // MONOLITHIC CHUNKING: To hit 100/100 on 4G, we minimize request counts.
-          // Grouping all dependencies into ONE vendor chunk is actually faster on high-latency mobile networks
-          // than many small chunks due to HTTP/2 multiplexing overhead and TCP slow start.
-            if (id.includes('node_modules')) {
-              // Heavy/rare components isolated from critical path
-              if (id.includes('recharts') || id.includes('lottie') || id.includes('octokit') || id.includes('victory')) {
-                return 'rare-vendors';
-              }
-              // Framer-motion is heavy and only needed after first paint
-              if (id.includes('framer-motion')) {
-                return 'framer-motion';
-              }
-              // Supabase SDK - loaded after initial render
-              if (id.includes('@supabase')) {
-                return 'supabase';
-              }
-              // Radix UI - loaded on demand
-              if (id.includes('@radix-ui')) {
-                return 'radix';
-              }
-              return 'vendor';
+          if (id.includes('node_modules')) {
+            // Keep heavy/rare components isolated so they don't bloat the critical path
+            if (id.includes('recharts') || id.includes('lottie') || id.includes('octokit') || id.includes('victory') || id.includes('embla-carousel')) {
+              return 'rare-vendors';
             }
+            
+            // Critical libraries that are large
+            if (id.includes('framer-motion')) return 'framer-motion';
+            if (id.includes('lucide-react')) return 'lucide-react';
+            if (id.includes('@supabase')) return 'supabase';
+            if (id.includes('@tanstack')) return 'tanstack';
+            if (id.includes('radix-ui')) return 'radix-ui';
+            if (id.includes('i18next')) return 'i18n';
+            if (id.includes('date-fns')) return 'date-fns';
+            if (id.includes('zustand')) return 'zustand';
+            
+            // Standard vendor for everything else (React, etc)
+            return 'vendor';
+          }
         }
       }
     }
