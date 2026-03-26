@@ -7,9 +7,10 @@
  * - Build time injected by Vite at build time
  */
 
-// IMPORTANT: This version is auto-updated by vite.config.ts on each build
-// __BUILD_TIME__ is replaced with actual timestamp during production build
-const SW_VERSION = typeof '__BUILD_TIME__' !== 'undefined' ? '__BUILD_TIME__' : 'v1.2.6';
+// IMPORTANT: __BUILD_TIME__ is replaced with an ISO timestamp by the Vite
+// sw-build-time-plugin at build time. In dev mode the literal string is used
+// as the version (safe — SW is unregistered in dev anyway).
+const SW_VERSION = '__BUILD_TIME__';
 const CACHE_VERSION = `swipess-${SW_VERSION}`;
 const CACHE_NAME = CACHE_VERSION;
 const STATIC_CACHE = `${CACHE_NAME}-static`;
