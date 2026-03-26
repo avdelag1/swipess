@@ -14,6 +14,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 
@@ -247,47 +248,64 @@ export function useAutomaticUpdates() {
 export function UpdateNotification() {
   const { updateInfo, performUpdate, isUpdating } = useAutomaticUpdates();
   const [dismissed, setDismissed] = useState(false);
-
-  if (!updateInfo.available || dismissed) return null;
+  const isVisible = updateInfo.available && !dismissed;
 
   return (
-    <div className="fixed bottom-24 left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80 group">
-      <div className="relative overflow-hidden bg-slate-900 border border-white/20 text-white p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-5 duration-500">
-        {/* Progress bar background for visual depth */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-amber-500 opacity-50" />
-        
-        <button 
-          onClick={() => setDismissed(true)}
-          className="absolute top-2 right-2 p-1 text-white/40 hover:text-white transition-colors"
-          aria-label="Dismiss"
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          key="update-notification"
+          initial={{ y: 80, opacity: 0, scale: 0.95 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: 80, opacity: 0, scale: 0.95 }}
+          transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.8 }}
+          className="fixed bottom-24 left-4 right-4 z-[200] sm:left-auto sm:right-4 sm:w-[320px]"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+          <div className="relative overflow-hidden rounded-2xl bg-[#0f0f0f] border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(249,115,22,0.15)]">
+            {/* Top accent bar */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500" />
 
-        <div className="flex items-start gap-4">
-          <div className="p-3 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl shadow-lg ring-4 ring-orange-500/20">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </div>
-          <div className="flex-1 pr-4">
-            <h4 className="font-bold text-lg tracking-tight">App Refresh</h4>
-            <p className="text-sm text-slate-400 mt-1 leading-relaxed">
-              New elite features are ready.
-            </p>
+            {/* Dismiss button */}
             <button
-              onClick={performUpdate}
-              disabled={isUpdating}
-              className="mt-4 w-full bg-white text-black font-extrabold py-3 rounded-xl hover:bg-slate-100 active:scale-95 transition-all shadow-[0_10px_20px_rgba(255,255,255,0.1)] disabled:opacity-50"
+              onClick={() => setDismissed(true)}
+              className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+              aria-label="Dismiss"
             >
-              {isUpdating ? 'Applying...' : 'TAP TO RESTART'}
+              <svg className="w-3 h-3 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
+
+            <div className="flex items-center gap-3 px-4 pt-5 pb-4">
+              {/* Icon */}
+              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center shadow-[0_4px_14px_rgba(249,115,22,0.4)]">
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+
+              {/* Text */}
+              <div className="flex-1 min-w-0 pr-5">
+                <p className="text-white font-bold text-[14px] leading-tight">Update Ready</p>
+                <p className="text-white/45 text-[12px] mt-0.5 leading-snug">New features are available</p>
+              </div>
+            </div>
+
+            {/* Refresh button */}
+            <div className="px-4 pb-4">
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={performUpdate}
+                disabled={isUpdating}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-400 text-white font-black text-[13px] uppercase tracking-wider shadow-[0_8px_20px_rgba(249,115,22,0.35)] disabled:opacity-60 transition-opacity"
+              >
+                {isUpdating ? 'Applying...' : 'Refresh Now'}
+              </motion.button>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
