@@ -262,9 +262,9 @@ export function useSmartListingMatching(
                     filteredListings = filteredListings.filter(l => (l as any).insurance_verified === true);
                 }
 
-                // Exclude own listings (defense in depth)
+                // Exclude own listings (defense in depth - check both owner_id and user_id)
                 filteredListings = filteredListings.filter(listing => {
-                    if (listing.owner_id === userId) {
+                    if (listing.owner_id === userId || (listing as any).user_id === userId) {
                         logger.warn('[SmartMatching] CRITICAL: Own listing leaked through DB query:', listing.id);
                         return false;
                     }
