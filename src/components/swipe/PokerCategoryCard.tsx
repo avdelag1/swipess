@@ -1,11 +1,11 @@
-import { memo, useCallback, useRef } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import '../../styles/poker-card-photo.css';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   PK_W, PK_H, FOLDER_OFFSET_X, FOLDER_OFFSET_Y,
   PK_DIST_THRESHOLD, PK_VEL_THRESHOLD, PK_SPRING,
-  POKER_CARD_PHOTOS, POKER_CARDS, POKER_FAN_ROTATION
+  POKER_CARD_PHOTOS, POKER_CARD_GRADIENTS, POKER_CARDS, POKER_FAN_ROTATION
 } from './SwipeConstants';
 import { cn } from '@/lib/utils';
 
@@ -75,6 +75,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   }, [card.id, index, onSwipeOut, onBringToFront, x, y]);
 
   const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
+  const gradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
+  const [imgError, setImgError] = useState(false);
 
   return (
     <motion.div
@@ -131,14 +133,22 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
             : '0 8px 20px rgba(0,0,0,0.35)'
         }}
       >
-        {/* Background photo — plain img + CSS animation so it NEVER restarts on re-render */}
-        <img
-          src={photo}
-          alt={card.label}
-          className="absolute inset-0 w-full h-full object-cover poker-card-photo-zoom"
-          loading="eager"
-          draggable={false}
-        />
+        {/* Background — uses local AI image when available; falls back to gradient if img fails */}
+        {!imgError ? (
+          <img
+            src={photo}
+            alt={card.label}
+            className="absolute inset-0 w-full h-full object-cover poker-card-photo-zoom"
+            loading="eager"
+            draggable={false}
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div
+            className="absolute inset-0 w-full h-full poker-card-photo-zoom"
+            style={{ background: gradient }}
+          />
+        )}
 
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/5" />
