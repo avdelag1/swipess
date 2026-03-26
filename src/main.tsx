@@ -25,6 +25,28 @@ root.render(
   </ErrorBoundaryWrapper>,
 );
 
+// SPEED OF LIGHT: Remove initial splash screen loader ONLY once React starts hydrating
+// This is moved here from App.tsx to settle the layout as early as possible
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    const loader = document.getElementById('initial-loader');
+    if (loader) {
+      loader.style.opacity = '0';
+      loader.style.transition = 'opacity 0.2s ease-out';
+      setTimeout(() => loader.remove(), 210);
+      
+      // Load non-critical fonts AFTER splash is gone to prevent font-swap CLS
+      // and ensure the initial paint (SVG logo) is instantaneous.
+      setTimeout(() => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=optional';
+        document.head.appendChild(link);
+      }, 400);
+    }
+  });
+});
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // DEFERRED INITIALIZATION - Todo lo pesado se carga DESPUÉS
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
