@@ -2,7 +2,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { UnifiedListingForm } from "@/components/UnifiedListingForm";
 import { useEffect, useState } from "react";
 import { CategorySelectionDialog } from "@/components/CategorySelectionDialog";
-import { AIListingAssistant } from "@/components/AIListingAssistant";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 
@@ -13,13 +12,10 @@ const OwnerNewListing = () => {
   const { data: userRole } = useUserRole(user?.id);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isCategorySelectorOpen, setIsCategorySelectorOpen] = useState(false);
-  const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
   const [initialData, setInitialData] = useState<{
     category: 'property' | 'motorcycle' | 'bicycle' | 'worker';
     mode: 'rent' | 'sale';
   } | null>(null);
-  const [_aiGeneratedData, _setAIGeneratedData] = useState<Record<string, unknown> | null>(null);
-
   useEffect(() => {
     if (userRole && userRole !== 'owner' && userRole !== 'admin') {
       navigate('/owner/dashboard', { replace: true });
@@ -64,35 +60,12 @@ const OwnerNewListing = () => {
     }
   };
 
-  const handleAIComplete = (data: any) => {
-    // Navigate to the form with AI-generated data
-    setSearchParams({ 
-      category: data.category, 
-      mode: 'rent',
-      aiData: JSON.stringify(data.formData)
-    });
-    setIsAIAssistantOpen(false);
-  };
-
-  const handleAIOpen = () => {
-    // Navigate to the new conversational AI flow
-    navigate('/owner/listings/new-ai');
-  };
-
   return (
     <>
-      {/* AI Assistant Dialog */}
-      <AIListingAssistant
-        isOpen={isAIAssistantOpen}
-        onClose={() => setIsAIAssistantOpen(false)}
-        onComplete={handleAIComplete}
-      />
-
       <CategorySelectionDialog
         open={isCategorySelectorOpen}
         onOpenChange={handleCloseCategorySelector}
         onCategorySelect={handleCategorySelect}
-        onAIOpen={handleAIOpen}
       />
       
       {initialData && (

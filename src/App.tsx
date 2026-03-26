@@ -81,7 +81,6 @@ const OwnerProfile = lazy(() => import("./pages/OwnerProfileNew"));
 const OwnerSettings = lazy(() => import("./pages/OwnerSettingsNew"));
 const OwnerProperties = lazy(() => import("./pages/OwnerProperties"));
 const OwnerNewListing = lazy(() => import("./pages/OwnerNewListing"));
-const ConversationalListingCreator = lazy(() => import("./components/ConversationalListingCreator").then(m => ({ default: m.ConversationalListingCreator })));
 const OwnerLikedClients = lazy(() => import("./pages/OwnerLikedClients"));
 const OwnerInterestedClients = lazy(() => import("./pages/OwnerInterestedClients"));
 const OwnerContracts = lazy(() => import("./pages/OwnerContracts"));
@@ -139,7 +138,6 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 
 // Test pages
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
-const AITestPage = lazy(() => import("./pages/AITestPage"));
 const TrumpsBadDayLazy = lazy(() => import("./pages/TrumpsBadDay"));
 const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 const EventosLikes = lazy(() => import("./pages/EventosLikes"));
@@ -327,7 +325,6 @@ const App = () => {
                                         <Route path="/owner/settings" element={<OwnerSettings />} />
                                         <Route path="/owner/properties" element={<OwnerProperties />} />
                                         <Route path="/owner/listings/new" element={<OwnerNewListing />} />
-                                        <Route path="/owner/listings/new-ai" element={<ConversationalListingCreator />} />
                                         <Route path="/owner/liked-clients" element={<OwnerLikedClients />} />
                                         <Route path="/owner/interested-clients" element={<OwnerInterestedClients />} />
                                         <Route path="/owner/clients/property" element={<OwnerPropertyClientDiscovery />} />
@@ -379,9 +376,6 @@ const App = () => {
                                       <Route path="/terms-of-service" element={<AnimatedPage><TermsOfService /></AnimatedPage>} />
                                       <Route path="/agl" element={<AnimatedPage><AGLPage /></AnimatedPage>} />
                                       <Route path="/legal" element={<AnimatedPage><LegalPage /></AnimatedPage>} />
-
-                                      {/* AI Test — public, no login required */}
-                                      <Route path="/ai-test" element={<AnimatedPage><AITestPage /></AnimatedPage>} />
 
                                       {/* Legacy /dashboard redirect — smartly role-aware */}
                                       <Route path="/dashboard" element={<DashboardRedirect />} />

@@ -17,7 +17,6 @@ import { UnifiedListingForm } from '@/components/UnifiedListingForm';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
 import { OwnerListingsStats } from '@/components/OwnerListingsStats';
 import { ShareDialog } from '@/components/ShareDialog';
-import { AIListingAssistant } from '@/components/AIListingAssistant';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -51,8 +50,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   const [editingProperty, setEditingProperty] = useState<Partial<Listing> | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [sharingListing, setSharingListing] = useState<Listing | null>(null);
-  const [showAIAssistant, setShowAIAssistant] = useState(false);
-  const [availabilityStatus, setAvailabilityStatus] = useState<Record<string, string>>({});
+const [availabilityStatus, setAvailabilityStatus] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
 
   // Auto-open form when category is provided via URL params
@@ -99,17 +97,6 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   const handleAddProperty = () => {
     setEditingProperty(null);
     setShowCategoryDialog(true);
-  };
-
-  const handleAIComplete = (data: { category: string; images: string[]; formData: Record<string, unknown> }) => {
-    setEditingProperty({
-      category: data.category,
-      mode: (data.formData.mode as string) || 'rent',
-      images: data.images,
-      ...data.formData,
-    });
-    setShowAIAssistant(false);
-    setIsFormOpen(true);
   };
 
   const handleCategorySelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => {
@@ -278,18 +265,6 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
             </div>
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              className={cn(
-                "flex items-center gap-2 flex-1 sm:flex-initial rounded-2xl h-12 px-6 font-black tracking-wide transition-all",
-                "border border-[var(--color-brand-accent-2)]/30 text-[var(--color-brand-accent-2)] hover:bg-[var(--color-brand-accent-2)]/10",
-                isLight ? "bg-white" : "bg-white/[0.04]"
-              )}
-              onClick={() => setShowAIAssistant(true)}
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>AI</span>
-            </motion.button>
             <motion.button
               whileTap={{ scale: 0.96 }}
               className="flex items-center gap-2 bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white font-black tracking-wide flex-1 sm:flex-initial rounded-2xl h-12 px-6 shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all"
@@ -627,11 +602,6 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         description={`${sharingListing?.title} - $${sharingListing?.price?.toLocaleString() || ''}`}
       />
 
-      <AIListingAssistant
-        isOpen={showAIAssistant}
-        onClose={() => setShowAIAssistant(false)}
-        onComplete={handleAIComplete}
-      />
     </div>
   );
 });
