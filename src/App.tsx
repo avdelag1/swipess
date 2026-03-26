@@ -38,9 +38,9 @@ import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProf
 const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDashboardLayout").then(m => ({ default: m.PersistentDashboardLayout })));
 
 
-// Import UI components directly (not lazy) to avoid useContext issues with ThemeProvider
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+// Non-critical UI elements moved to lazy load for 100/100 performance
+const Toaster = lazy(() => import("@/components/ui/toaster").then(m => ({ default: m.Toaster })));
+const Sonner = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Lazy load pages that are not immediately needed
@@ -304,8 +304,10 @@ const App = () => {
 
                                 <AppLayout>
                                   <TooltipProvider>
-                                    <Sonner />
-                                    <Toaster />
+                                    <Suspense fallback={null}>
+                                      <Sonner />
+                                      <Toaster />
+                                    </Suspense>
                                   </TooltipProvider>
                                   <Suspense fallback={<SuspenseFallback />}>
                                     <Routes>
