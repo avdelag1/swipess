@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Bike, ArrowRight, Sparkles, Briefcase, Key, Tag, Repeat } from "lucide-react";
+import { Building2, Bike, ArrowRight, Briefcase, Key, Tag, Repeat } from "lucide-react";
 import { MotorcycleIcon } from "@/components/icons/MotorcycleIcon";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,7 +13,6 @@ interface CategorySelectionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCategorySelect?: (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => void;
-  onAIOpen?: () => void;
   navigateToNewPage?: boolean;
 }
 
@@ -96,7 +95,6 @@ export function CategorySelectionDialog({
   open, 
   onOpenChange, 
   onCategorySelect,
-  onAIOpen,
   navigateToNewPage = false
 }: CategorySelectionDialogProps) {
   const navigate = useNavigate();
@@ -170,13 +168,6 @@ export function CategorySelectionDialog({
     }
   };
 
-  const handleOpenAI = () => {
-    onOpenChange(false);
-    if (onAIOpen) {
-      onAIOpen();
-    }
-  };
-
   const modes = selectedCategory ? getModes(selectedCategory.id) : [];
 
   return (
@@ -187,17 +178,6 @@ export function CategorySelectionDialog({
         "flex flex-col p-0 gap-0 overflow-hidden"
       )}>
         <DialogHeader className="shrink-0 px-4 sm:px-6 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 pb-3 sm:pb-4 border-b border-border/40">
-
-          {/* AI BUTTON */}
-          <motion.button
-            onClick={handleOpenAI}
-            whileTap={{ scale: 0.97 }}
-            transition={springTap}
-            className="relative w-full mb-4 overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-5 py-3.5 font-semibold text-sm flex items-center justify-center gap-2.5 shadow-lg"
-          >
-            <Sparkles className="w-4 h-4" />
-            Generate Listing with AI
-          </motion.button>
 
           <div>
             <DialogTitle className="text-lg sm:text-xl font-semibold text-foreground">
