@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 
 export default defineConfig(({ mode }) => ({
   server: {
@@ -12,10 +13,25 @@ export default defineConfig(({ mode }) => ({
     {
       name: 'async-css-plugin',
       transformIndexHtml(html) {
+        // Vite may emit: <link rel="stylesheet" crossorigin href="..."> (crossorigin before href)
+        // Use a flexible regex that matches any attribute order between rel and href.
         return html.replace(
-          /<link rel="stylesheet" href="\/assets\/index-([a-zA-Z0-9_-]+)\.css">/gi,
-          '<link rel="preload" href="/assets/index-$1.css" as="style" fetchpriority="high" onload="this.onload=null;this.rel=\'stylesheet\'"><noscript><link rel="stylesheet" href="/assets/index-$1.css"></noscript>'
+          /<link\s+[^>]*?rel="stylesheet"[^>]*?href="(\/assets\/index-[^"]+\.css)"[^>]*?>/gi,
+          '<link rel="preload" href="$1" as="style" fetchpriority="high" onload="this.onload=null;this.rel=\'stylesheet\'"><noscript><link rel="stylesheet" href="$1"></noscript>'
         );
+      }
+    },
+    {
+      // Replaces __BUILD_TIME__ in the copied public/sw.js with the real ISO timestamp.
+      // public/ files are copied verbatim by Vite, so define() doesn't reach them.
+      name: 'sw-build-time-plugin',
+      writeBundle() {
+        const swPath = path.resolve(__dirname, 'dist/sw.js');
+        if (existsSync(swPath)) {
+          const buildTime = new Date().toISOString();
+          const content = readFileSync(swPath, 'utf-8').replace(/__BUILD_TIME__/g, buildTime);
+          writeFileSync(swPath, content);
+        }
       }
     },
     {
