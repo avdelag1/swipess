@@ -110,7 +110,9 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     if (!ctx) return;
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // Cap DPR at 1 — retina canvas doubles pixel count with minimal visual gain
+      // on an animation, but cuts fill rate and JS-side work in half.
+      const dpr = 1;
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
       canvas.style.width = '100%';
@@ -242,22 +244,14 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
         if (alpha < 0.02) continue;
 
-        if (star.glow) {
-          ctx.shadowBlur = 4;
-          ctx.shadowColor = isLightTheme ? 'rgba(180,190,230,0.8)' : 'rgba(255,255,255,0.85)';
-        }
-
+        // shadowBlur removed — it's the most expensive canvas op on mobile
+        // and not perceptible at star sizes < 2px.
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
         ctx.fillStyle = isLightTheme
           ? `rgba(190,200,240,${alpha * 0.65})`
           : `rgba(255,255,255,${alpha})`;
         ctx.fill();
-
-        if (star.glow) {
-          ctx.shadowBlur = 0;
-          ctx.shadowColor = 'transparent';
-        }
       }
 
       for (let i = shootingStarsRef.current.length - 1; i >= 0; i--) {

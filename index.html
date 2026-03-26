@@ -28,35 +28,11 @@
   <!-- WebP is 10KB vs 63KB PNG — 85% smaller, huge LCP improvement -->
   <link rel="preload" as="image" href="/icons/swipess-logo.avif" fetchpriority="high" type="image/avif">
 
-  <!-- Fonts - deferred priority -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <!-- storage.googleapis.com: dns-prefetch only; preconnect removed (unused at load time) -->
-  <link rel="dns-prefetch" href="https://storage.googleapis.com">
-
-
-  <!-- Critical splash styles inlined to paint the splash before the CSS bundle loads.
-       This eliminates render-blocking delay for the initial loader. -->
-  <style>
-    html,body{margin:0;padding:0;overflow:hidden;background:#000;width:100%;height:100%;position:fixed}
-    .initial-loader{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;background:#000;overflow:hidden;z-index:9999}
-    .splash-logo{width:65vw;max-width:380px;height:auto;object-fit:contain;animation:splash-heartbeat 2s ease-in-out infinite}
-    @keyframes splash-heartbeat{0%,100%{transform:scale(1)}25%,75%{transform:scale(1.06)}50%{transform:scale(1)}}
-  </style>
-
-  <!-- Defer font loading - not render blocking -->
-
-  <!-- Load fonts asynchronously - not render blocking -->
-  <!-- display=optional: no swap period, eliminates font-swap CLS and removes font from LCP critical path -->
-  <link rel="preload" as="style"
-    href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=optional"
-    onload="this.onload=null;this.rel='stylesheet'">
-  <noscript>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=optional"
-      rel="stylesheet">
-  </noscript>
+  <!-- Fonts loaded via JS after mount to avoid font-swap CLS on initial render.
+       See App.tsx: fonts injected after splash removal with a delay. -->
+  <!-- dns-prefetch only so the connection is warmed but font fetch doesn't race the initial render -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
 
   <title>Swipess — The Elite Multi-Vertical Hub</title>
   <meta name="description"

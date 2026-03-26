@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGuidedTour } from '@/hooks/useGuidedTour';
-import { Button } from '@/components/ui/button';
 import { X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -83,14 +82,14 @@ export function GuidedTour() {
           />
         )}
 
-        {/* Tooltip */}
+        {/* Tooltip — explicit dark card so contrast is predictable across all themes */}
         <motion.div
           key={currentStep}
           initial={{ opacity: 0, y: 10, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10 }}
-          className="absolute w-[280px] rounded-2xl bg-card border border-border shadow-2xl p-4 space-y-3"
-          style={tooltipStyle}
+          className="absolute w-[280px] rounded-2xl shadow-2xl p-4 space-y-3"
+          style={{ ...tooltipStyle, backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.12)' }}
         >
           {/* Progress dots */}
           <div className="flex items-center justify-between">
@@ -98,35 +97,38 @@ export function GuidedTour() {
               {Array.from({ length: totalSteps }).map((_, i) => (
                 <div
                   key={i}
-                  className={cn(
-                    "w-1.5 h-1.5 rounded-full transition-all",
-                    i === currentStep ? "bg-primary w-4" : i < currentStep ? "bg-primary/50" : "bg-muted"
-                  )}
+                  className={cn("h-1.5 rounded-full transition-all", i === currentStep ? "w-4" : "w-1.5")}
+                  style={{ backgroundColor: i <= currentStep ? '#ffffff' : 'rgba(255,255,255,0.3)' }}
                 />
               ))}
             </div>
-            <button onClick={skipTour} aria-label="Close tour" className="text-muted-foreground hover:text-foreground transition-colors">
+            <button onClick={skipTour} aria-label="Close tour" style={{ color: 'rgba(255,255,255,0.7)' }} className="hover:opacity-100 transition-opacity">
               <X className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
 
           <div>
-            <p className="text-sm font-bold text-foreground">{step.title}</p>
-            <p className="text-xs text-foreground/75 mt-1 leading-relaxed">{step.description}</p>
+            <p className="text-sm font-bold" style={{ color: '#ffffff' }}>{step.title}</p>
+            <p className="text-xs mt-1 leading-relaxed" style={{ color: 'rgba(255,255,255,0.85)' }}>{step.description}</p>
           </div>
 
           <div className="flex items-center gap-2">
             {currentStep > 0 && (
-              <Button variant="outline" size="sm" onClick={prevStep} className="rounded-xl text-xs gap-1 h-8">
+              <button onClick={prevStep} className="inline-flex items-center gap-1 rounded-xl text-xs h-8 px-3 transition-opacity hover:opacity-80" style={{ color: 'rgba(255,255,255,0.85)', border: '1px solid rgba(255,255,255,0.2)' }}>
                 <ChevronLeft className="w-3 h-3" />
                 Back
-              </Button>
+              </button>
             )}
             <div className="flex-1" />
-            <Button size="sm" onClick={nextStep} className="rounded-xl text-xs gap-1 h-8 bg-primary text-primary-foreground font-semibold">
+            {/* White button on dark card → 21:1 contrast ratio, passes WCAG AAA */}
+            <button
+              onClick={nextStep}
+              className="inline-flex items-center gap-1 rounded-xl text-xs h-8 px-3 font-semibold transition-opacity hover:opacity-90"
+              style={{ backgroundColor: '#ffffff', color: '#000000' }}
+            >
               {currentStep === totalSteps - 1 ? 'Done' : 'Next'}
               {currentStep < totalSteps - 1 && <ChevronRight className="w-3 h-3" />}
-            </Button>
+            </button>
           </div>
         </motion.div>
       </motion.div>
