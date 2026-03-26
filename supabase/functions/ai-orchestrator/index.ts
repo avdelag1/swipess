@@ -46,8 +46,11 @@ const ConversationSchema = z.object({
 // ─── Provider Configuration ────────────────────────────────────────
 
 // Native Google Gemini API
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-const GEMINI_API_MODEL = "gemini-1.5-flash"; // More stable for free tier than 2.0-flash
+const GEMINI_MODELS = [
+  "gemini-2.0-flash-lite",
+  "gemini-1.5-flash",
+  "gemini-1.5-flash-latest",
+];
 
 // Lovable Gateway (Secondary)
 const LOVABLE_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
@@ -67,52 +70,46 @@ async function callGeminiDirect(messages: Message[], maxTokens: number): Promise
   const key = Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_API_KEY");
   if (!key) throw new Error("GEMINI_API_KEY not configured in Supabase Secrets");
 
-  console.log(`[AI Orchestrator] Calling Gemini Native (${GEMINI_API_MODEL})...`);
-  
   // Separate system messages for systemInstruction field
   const systemMessages = messages.filter(m => m.role === "system");
   const conversationMessages = messages.filter(m => m.role !== "system");
-  
-  // Format conversation messages for Google AI format (user/model only)
   const contents = conversationMessages.map(m => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }]
   }));
-
-  // Build request body with systemInstruction if system messages exist
   const requestBody: Record<string, unknown> = {
     contents,
-    generationConfig: {
-      maxOutputTokens: maxTokens,
-      temperature: 0.7,
-    },
+    generationConfig: { maxOutputTokens: maxTokens, temperature: 0.7 },
   };
-
   if (systemMessages.length > 0) {
     requestBody.systemInstruction = {
       parts: [{ text: systemMessages.map(m => m.content).join("\n\n") }]
     };
   }
 
-  const res = await fetch(`${GEMINI_API_URL}?key=${key}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(requestBody),
-  });
-
-  if (!res.ok) {
-    const status = res.status;
-    const errorBody = await res.text();
-    console.error(`Gemini Native Error (${status}):`, errorBody);
-    throw new ProviderError(`Gemini error (${status})`, status);
+  // Try each model in order until one works (quota varies by model)
+  let lastErr = "";
+  for (const model of GEMINI_MODELS) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+    console.log(`[AI Orchestrator] Trying Gemini model: ${model}`);
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+    });
+    if (!res.ok) {
+      const errorBody = await res.text();
+      let detail = "";
+      try { detail = JSON.parse(errorBody)?.error?.message || errorBody.slice(0, 100); } catch { detail = errorBody.slice(0, 100); }
+      lastErr = `${model}(${res.status}): ${detail}`;
+      console.warn(`[AI Orchestrator] ${lastErr}`);
+      continue;
+    }
+    const data = await res.json();
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    if (content) return { content, provider: `gemini-${model}` };
   }
-
-  const data = await res.json();
-  const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  if (!content && data.error) {
-     throw new ProviderError(`Gemini returned error: ${data.error.message}`, 500);
-  }
-  return { content, provider: "gemini-native" };
+  throw new ProviderError(`Gemini all models failed — ${lastErr}`, 429);
 }
 
 /**
@@ -201,13 +198,17 @@ class ProviderError extends Error {
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
   // Strategy: 1. Native API (GEMINI_API_KEY), 2. Lovable Gateway (LOVABLE_API_KEY), 3. MiniMax
   
+  const errors: string[] = [];
+
   // 1. Try Gemini Native if key exists
   const hasGeminiNative = !!(Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_API_KEY"));
   if (hasGeminiNative) {
     try {
       return await callGeminiDirect(messages, maxTokens);
     } catch (err) {
-      console.warn("[AI Orchestrator] Gemini Native failed, trying next provider...", err);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn("[AI Orchestrator] Gemini Native failed:", msg);
+      errors.push(`Gemini: ${msg}`);
     }
   }
 
@@ -217,7 +218,9 @@ async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderRe
     try {
       return await callLovable(messages, maxTokens);
     } catch (err) {
-      console.warn("[AI Orchestrator] Lovable Gateway failed, trying fallback...", err);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn("[AI Orchestrator] Lovable Gateway failed:", msg);
+      errors.push(`Lovable: ${msg}`);
     }
   }
 
@@ -227,12 +230,13 @@ async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderRe
     try {
       return await callMinimax(messages, maxTokens);
     } catch (err) {
-      console.error("[AI Orchestrator] MiniMax failed:", err);
-      throw new ProviderError("All providers failed: MiniMax error", 500);
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[AI Orchestrator] MiniMax failed:", msg);
+      errors.push(`MiniMax: ${msg}`);
     }
   }
 
-  throw new ProviderError("The Swipess Oracle is momentarily silent. Please check API configuration.", 503);
+  throw new ProviderError(`All providers failed — ${errors.join(" | ")}`, 500);
 }
 
 // ─── JSON Parser ──────────────────────────────────────────────────
