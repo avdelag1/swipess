@@ -5,7 +5,7 @@ import {
   ArrowLeft, ArrowRight, ArrowUpRight, Check, CheckCircle2, Megaphone, Star, Zap,
   Music, Utensils, Dumbbell, Palette, ShoppingBag, Globe, Camera,
   Users, Eye, TrendingUp, Instagram, Phone, Flame, Crown,
-  Info, Shield, ClipboardList, MessageCircle
+  Info, Shield, ClipboardList, MessageCircle, Clock
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
