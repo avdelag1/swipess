@@ -71,7 +71,7 @@ function preloadPlugin(): import('vite').Plugin {
     transformIndexHtml(html, ctx) {
       if (!ctx.bundle) return html;
 
-      const criticalChunks = ['react-vendor', 'react-router', 'react-query', 'motion', 'icons', 'utils'];
+      const criticalChunks = ['react-vendor', 'backend-vendor', 'motion', 'icons', 'utils'];
       const preloadLinks: string[] = [];
 
       for (const [fileName, chunk] of Object.entries(ctx.bundle)) {
@@ -216,11 +216,8 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('data/worldLocations') || id.includes('data/mexicanLocations')) {
             return 'data-locations';
           }
-          if (id.includes('node_modules/@tanstack/react-query')) {
-            return 'react-query';
-          }
-          if (id.includes('node_modules/@supabase')) {
-            return 'supabase';
+          if (id.includes('node_modules/@tanstack/react-query') || id.includes('node_modules/@supabase')) {
+            return 'backend-vendor';
           }
           if (id.includes('node_modules/framer-motion')) {
             return 'motion';
@@ -234,14 +231,11 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules/@radix-ui/')) {
             return 'ui-radix';
           }
-          if (id.includes('node_modules/date-fns')) {
-            return 'date-utils';
+          if (id.includes('node_modules/date-fns') || id.includes('node_modules/zod')) {
+            return 'helpers';
           }
           if (id.includes('node_modules/lucide-react') || id.includes('node_modules/react-icons')) {
             return 'icons';
-          }
-          if (id.includes('node_modules/zod')) {
-            return 'validation';
           }
           if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/@hookform')) {
             return 'forms';
