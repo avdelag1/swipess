@@ -25,12 +25,12 @@ function LogoImage({ className }: { className?: string }) {
   return (
     <div className={cn("relative overflow-hidden", className)}>
       <picture>
-        <source srcset="/icons/swipess-logo.avif" type="image/avif" />
-        <source srcset="/icons/swipess-logo.webp" type="image/webp" />
+        <source srcSet="/icons/swipess-logo.avif" type="image/avif" />
+        <source srcSet="/icons/swipess-logo.webp" type="image/webp" />
         <img
           src="/icons/swipess-logo.png"
           alt="Swipess Logo"
-          fetchpriority="high"
+          fetchPriority="high"
           loading="eager"
           style={{ mixBlendMode: 'screen' }}
           className="w-full h-full object-contain select-none pointer-events-none"

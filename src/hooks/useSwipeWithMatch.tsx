@@ -178,7 +178,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
                 p_metadata: { liker_id: user.id }
               }).then(
                 () => logger.info('[useSwipeWithMatch] Notification saved for client:', targetId),
-                (err) => logger.error('[useSwipeWithMatch] Failed to save notification:', err)
+                (err: any) => logger.error('[useSwipeWithMatch] Failed to save notification:', err)
               );
               supabase.functions.invoke('send-push-notification', {
                 body: {
@@ -187,9 +187,14 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
                   body: `${ownerName} liked your profile!`,
                   data: { type: 'like', liker_id: user.id }
                 }
-              }).catch(err => logger.error('[useSwipeWithMatch] Push notification failed:', err));
-            })
-            .catch(err => logger.error('[useSwipeWithMatch] Failed to fetch owner profile for notification:', err));
+              }).then(
+                () => {},
+                (err: any) => logger.error('[useSwipeWithMatch] Push notification failed:', err)
+              );
+            }).then(
+              () => {},
+              (err: any) => logger.error('[useSwipeWithMatch] Failed to fetch owner profile for notification:', err)
+            );
         } else {
           // For left swipes (dislikes), use likes table with direction='dismiss'
           const { error: dismissError } = await supabase
