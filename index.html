@@ -68,7 +68,7 @@
 
   <script>
     // PWA Hard Refresh / Version Control
-    const PWA_VERSION = "3.1.7";
+    const PWA_VERSION = "3.1.9";
     if (localStorage.getItem('pwa_version') !== PWA_VERSION) {
       if ('caches' in window) {
          caches.keys().then(names => {
@@ -83,7 +83,7 @@
     // CLEANUP STALE CACHES ON IDLE
     const cleanupCaches = () => {
       try {
-        if (localStorage.getItem('swipes_last_clear') !== '3.1.4') {
+        if (localStorage.getItem('swipes_last_clear') !== '3.1.9') {
           if ('caches' in window) {
             caches.keys().then((names) => {
               names.forEach((name) => {
@@ -91,7 +91,7 @@
               });
             });
           }
-          localStorage.setItem('swipes_last_clear', '3.1.2');
+          localStorage.setItem('swipes_last_clear', '3.1.9');
         }
       } catch { }
     };

@@ -22,8 +22,6 @@ const SWIPE_CARD_FIELDS = `
   latitude, longitude, status, is_active
 `;
 
-function deg2rad(deg: number) { return deg * (Math.PI / 180); }
-
 export function useSmartListingMatching(
     userId: string | undefined,
     _excludeSwipedIds: string[] = [],
@@ -76,18 +74,11 @@ export function useSmartListingMatching(
                     }
                 });
 
-<<<<<<< HEAD
-                let query = supabase
-                    .from('listings')
-                    .select(SWIPE_CARD_FIELDS)
-                    .eq('status', 'active')
-                    .or(`owner_id.neq.${userId},owner_id.is.null`);
-=======
                 // 2. Query Listings
                 let query = supabase.from('listings').select(SWIPE_CARD_FIELDS)
                     .eq('is_active', true)
-                    .neq('owner_id', userId!);
->>>>>>> a6cd3223 ( Swipess Concierge Titanium 5.1: Stabilized AI Backend & Corrected Smart Matching Filters)
+                    .neq('owner_id', userId!)
+                    .or(`owner_id.neq.${userId},owner_id.is.null`);
 
                 if (swipedListingIds.size > 0) {
                     const idList = Array.from(swipedListingIds)
@@ -98,18 +89,32 @@ export function useSmartListingMatching(
                     }
                 }
 
-                // Apply filters (Simplified for brevity)
+                // 3. Apply Professional Filters
                 if (filters?.category) {
                     const normalized = normalizeCategoryName(filters.category);
-                    if (normalized) {
-                      query = query.eq('category', normalized);
-                    }
+                    if (normalized) query = query.eq('category', normalized);
                 }
 
-                const { data: listings, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
+                if (filters?.priceRange) {
+                    query = query.gte('price', filters.priceRange[0]).lte('price', filters.priceRange[1]);
+                }
+
+                if (filters?.propertyType && filters.propertyType.length > 0) {
+                    query = query.in('property_type', filters.propertyType);
+                }
+
+                if (filters?.listingType && filters.listingType !== 'both') {
+                    const mapping: Record<string, string> = { 'rent': 'rent', 'sale': 'buy' };
+                    query = query.eq('listing_type', mapping[filters.listingType] || filters.listingType);
+                }
+
+                // Discovery Injection & Range Fetch
+                const start = page * pageSize;
+                const end = start + pageSize - 1;
+                const { data: listings, error } = await query.range(start, end);
                 if (error) throw error;
 
-                // Discovery Injection
+                // Discovery Injection (Parallel check for the newest matching listings)
                 const validSwipedList = Array.from(swipedListingIds)
                     .filter(id => id && typeof id === 'string' && id.length > 30)
                     .map(id => id.trim());
@@ -131,122 +136,6 @@ export function useSmartListingMatching(
                         (d as any)._isDiscovery = true;
                         finalResults.push(d);
                     }
-<<<<<<< HEAD
-
-                    // Listing type filter
-                    if (effectiveFilters.listingType && effectiveFilters.listingType !== 'both') {
-                        const mapping: Record<string, string> = { 'rent': 'rent', 'sale': 'buy' };
-                        const dbListingType = mapping[effectiveFilters.listingType] || effectiveFilters.listingType;
-                        query = query.eq('listing_type', dbListingType);
-                    }
-
-                    if (effectiveFilters.priceRange) {
-                        query = query.gte('price', effectiveFilters.priceRange[0]).lte('price', effectiveFilters.priceRange[1]);
-                    }
-
-                    if (effectiveFilters.propertyType && effectiveFilters.propertyType.length > 0) {
-                        query = query.in('property_type', effectiveFilters.propertyType);
-                    }
-
-                    if (effectiveFilters.bedrooms && effectiveFilters.bedrooms.length > 0) {
-                        query = query.gte('beds', Math.min(...effectiveFilters.bedrooms));
-                    }
-
-                    if (effectiveFilters.bathrooms && effectiveFilters.bathrooms.length > 0) {
-                        query = query.gte('baths', Math.min(...effectiveFilters.bathrooms));
-                    }
-
-                    // Worker-specific SQL filters (arrays → .in())
-                    if (effectiveFilters.serviceCategory && effectiveFilters.serviceCategory.length > 0) {
-                        query = query.in('service_category', effectiveFilters.serviceCategory);
-                    }
-
-                    if (effectiveFilters.experienceLevel && effectiveFilters.experienceLevel.length > 0) {
-                        query = query.in('experience_level', effectiveFilters.experienceLevel);
-                    }
-                }
-
-                // Pagination
-                const start = page * pageSize;
-                const end = start + pageSize - 1;
-                const { data: listings, error } = await query.range(start, end);
-
-                if (error) {
-                    logger.error('[SmartMatching] Error fetching listings:', {
-                        message: error.message, code: error.code, details: error.details, hint: error.hint,
-                    });
-                    return [];
-                }
-
-                if (!listings?.length) return [];
-
-                // Client-side filters
-                let filteredListings = listings as unknown as Listing[];
-
-                // Amenities filter
-                if (filters?.amenities && filters.amenities.length > 0) {
-                    filteredListings = filteredListings.filter(listing => {
-                        const listingAmenities = listing.amenities || [];
-                        return filters.amenities!.some(amenity => listingAmenities.includes(amenity));
-                    });
-                }
-
-                // Worker client-side filters (JSONB overlap checks)
-                if (effectiveFilters?.workTypes && effectiveFilters.workTypes.length > 0) {
-                    filteredListings = filteredListings.filter(l =>
-                        hasJsonOverlap((l as any).work_type, effectiveFilters.workTypes)
-                    );
-                }
-                if (effectiveFilters?.daysAvailable && effectiveFilters.daysAvailable.length > 0) {
-                    filteredListings = filteredListings.filter(l =>
-                        hasJsonOverlap((l as any).days_available, effectiveFilters.daysAvailable)
-                    );
-                }
-                if (effectiveFilters?.skills && effectiveFilters.skills.length > 0) {
-                    filteredListings = filteredListings.filter(l =>
-                        hasJsonOverlap((l as any).skills, effectiveFilters.skills)
-                    );
-                }
-                if (effectiveFilters?.scheduleTypes && effectiveFilters.scheduleTypes.length > 0) {
-                    filteredListings = filteredListings.filter(l =>
-                        hasJsonOverlap((l as any).schedule_type, effectiveFilters.scheduleTypes)
-                    );
-                }
-                if (effectiveFilters?.timeSlotsAvailable && effectiveFilters.timeSlotsAvailable.length > 0) {
-                    filteredListings = filteredListings.filter(l =>
-                        hasJsonOverlap((l as any).time_slots_available, effectiveFilters.timeSlotsAvailable)
-                    );
-                }
-                if (effectiveFilters?.locationTypes && effectiveFilters.locationTypes.length > 0) {
-                    filteredListings = filteredListings.filter(l =>
-                        hasJsonOverlap((l as any).location_type, effectiveFilters.locationTypes)
-                    );
-                }
-                if (effectiveFilters?.certifications && effectiveFilters.certifications.length > 0) {
-                    filteredListings = filteredListings.filter(l =>
-                        hasJsonOverlap((l as any).certifications, effectiveFilters.certifications)
-                    );
-                }
-                // Boolean verification filters
-                if (effectiveFilters?.offersEmergencyService) {
-                    filteredListings = filteredListings.filter(l => (l as any).offers_emergency_service === true);
-                }
-                if (effectiveFilters?.backgroundCheckVerified) {
-                    filteredListings = filteredListings.filter(l => (l as any).background_check_verified === true);
-                }
-                if (effectiveFilters?.insuranceVerified) {
-                    filteredListings = filteredListings.filter(l => (l as any).insurance_verified === true);
-                }
-
-                // Exclude own listings (defense in depth - check both owner_id and user_id)
-                filteredListings = filteredListings.filter(listing => {
-                    if (listing.owner_id === userId || (listing as any).user_id === userId) {
-                        logger.warn('[SmartMatching] CRITICAL: Own listing leaked through DB query:', listing.id);
-                        return false;
-                    }
-                    return true;
-=======
->>>>>>> a6cd3223 ( Swipess Concierge Titanium 5.1: Stabilized AI Backend & Corrected Smart Matching Filters)
                 });
 
                 // Scoring
@@ -267,7 +156,7 @@ export function useSmartListingMatching(
                 });
 
             } catch (err) {
-                logger.error('[SmartMatching] Fatal error:', err);
+                logger.error('[SmartMatching] Fatal error in useSmartListingMatching:', err);
                 return [];
             }
         },
