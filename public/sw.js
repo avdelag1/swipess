@@ -227,14 +227,13 @@ self.addEventListener('fetch', (event) => {
   // Stale-while-revalidate is BAD for updates because it serves the old code first.
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
-      fetch(request, { 
-        cache: 'no-store', // Always check the network
-        mode: request.mode,
+      fetch(request.url, { // Simplified fetch to url to avoid 'navigate' mode TypeError
+        cache: 'no-store', // Always check the network for navigation
         credentials: request.credentials
       })
       .then(networkResponse => {
         // If we got a real response, update the cache and return it
-        if (networkResponse.ok && networkResponse.status === 200) {
+        if (networkResponse && networkResponse.ok && networkResponse.status === 200) {
           const clone = networkResponse.clone();
           caches.open(DYNAMIC_CACHE).then(cache => cache.put(request, clone));
         }
@@ -244,7 +243,8 @@ self.addEventListener('fetch', (event) => {
         // If network is down, serve the latest from cache
         const cache = await caches.open(DYNAMIC_CACHE);
         const cachedResponse = await cache.match(request);
-        return cachedResponse || caches.match('/index.html'); // Ultimate fallback
+        // Serve cached home page or any available index as ultimate fallback
+        return cachedResponse || caches.match('/index.html') || new Response("Offline", { status: 503 });
       })
     );
     return;
