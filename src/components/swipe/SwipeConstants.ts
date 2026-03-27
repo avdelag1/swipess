@@ -63,15 +63,9 @@ export const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: 
 export const POKER_CARD_PHOTOS: Record<string, string> = {
   property:   '/images/properties/property_1.png',
   motorcycle: '/images/motorcycles/vespa_1.png',
-<<<<<<< HEAD
-  bicycle:    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=480&q=80&auto=format',
-  services:   'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=480&q=80&auto=format',
-  all:        'https://images.unsplash.com/photo-1552664730-d307ca884978?w=480&q=80&auto=format',
-=======
   bicycle:    '/images/beach-sunset.jpg',
   services:   '/images/properties/property_2.png',
   all:        '/images/properties/property_3.png',
->>>>>>> a6cd3223 ( Swipess Concierge Titanium 5.1: Stabilized AI Backend & Corrected Smart Matching Filters)
 };
 
 // Gradient fallbacks shown when an image fails to load (no broken/black cards).
