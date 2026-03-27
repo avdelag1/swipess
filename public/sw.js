@@ -241,10 +241,24 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(async () => {
         // If network is down, serve the latest from cache
-        const cache = await caches.open(DYNAMIC_CACHE);
-        const cachedResponse = await cache.match(request);
-        // Serve cached home page or any available index as ultimate fallback
-        return cachedResponse || caches.match('/index.html') || new Response("Offline", { status: 503 });
+        try {
+          const cache = await caches.open(DYNAMIC_CACHE);
+          const cachedResponse = await cache.match(request);
+          if (cachedResponse) return cachedResponse;
+          
+          // Serve any available index.html as ultimate fallback
+          const indexResponse = await caches.match('/index.html');
+          if (indexResponse) return indexResponse;
+        } catch (e) {
+          console.error('[SW] Fallback error:', e);
+        }
+        
+        // Final fail-safe: return a valid Response to avoid ERR_FAILED
+        return new Response("Service Unavailable", { 
+          status: 503, 
+          statusText: "Service Unavailable", 
+          headers: { 'Content-Type': 'text/plain' } 
+        });
       })
     );
     return;
