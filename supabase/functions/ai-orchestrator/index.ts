@@ -31,16 +31,25 @@ Deno.serve(async (req) => {
     const task = payload.task || "chat";
     const input = payload.data || payload;
 
-    // Supabase Auth validation
+    // Supabase Auth validation (Optional for public chat, required for secure tasks)
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return new Response(JSON.stringify({ error: "Missing Auth" }), { status: 401, headers: corsHeaders });
+    const isPublicTask = task === "chat" || task === "query";
+    
+    if (!authHeader && !isPublicTask) {
+      return new Response(JSON.stringify({ error: "Unauthorized: Secure task requires login." }), { status: 401, headers: corsHeaders });
+    }
 
     const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: { Authorization: authHeader } }
+      global: { headers: authHeader ? { Authorization: authHeader } : {} }
     });
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+    // Only verify user if header is present
+    if (authHeader) {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+         if (!isPublicTask) return new Response(JSON.stringify({ error: "Invalid Token" }), { status: 401, headers: corsHeaders });
+      }
+    }
 
     if (!key) return new Response(JSON.stringify({ error: "No Key Configured" }), { status: 200, headers: corsHeaders });
 
