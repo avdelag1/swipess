@@ -9,6 +9,8 @@ import {
   ArrowLeft, Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })));
+import { Sparkles as SparklesIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -62,10 +64,12 @@ const checkPasswordStrength = (password: string) => {
 /* ─── Landing view ───────────────────────────────────────── */
 const LandingView = memo(({
   onEnterAuth,
+  onEnterAI,
   isDark,
   onToggleDark,
 }: {
   onEnterAuth: () => void;
+  onEnterAI: () => void;
   isDark: boolean;
   onToggleDark: () => void;
 }) => {
@@ -173,6 +177,17 @@ const LandingView = memo(({
           {isDark ? '⬜ White' : '⬛ Black'}
         </span>
       </button>
+
+      {/* AI CONCIERGE FAB — bottom-right corner for high visibility */}
+      <motion.button
+        onClick={(e) => { e.stopPropagation(); onEnterAI?.(); }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        className="absolute bottom-6 right-4 flex items-center gap-2 px-5 p-3 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-[0_0_20px_rgba(236,72,153,0.4)] border border-white/20 transition-all z-20"
+      >
+        <SparklesIcon className="w-5 h-5" />
+        <span className="text-xs font-black uppercase tracking-widest italic">Talk to AI</span>
+      </motion.button>
 
     </motion.div>
   );
@@ -410,6 +425,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [isDark, setIsDark] = useState(true);
+  const [isAIOpen, setIsAIOpen] = useState(false);
 
   const activeMode: EffectMode = view === 'auth' ? 'off' : 'stars';
   const bgColor = isDark ? '#050505' : '#f5f5f5';
@@ -428,6 +444,7 @@ function LegendaryLandingPage() {
           <LandingView
             key="landing"
             onEnterAuth={() => setView('auth')}
+            onEnterAI={() => setIsAIOpen(true)}
             isDark={isDark}
             onToggleDark={() => setIsDark(d => !d)}
           />
@@ -435,6 +452,14 @@ function LegendaryLandingPage() {
           <AuthView key="auth" onBack={() => setView('landing')} />
         )}
       </AnimatePresence>
+
+      <Suspense fallback={null}>
+        <AISearchDialog 
+          isOpen={isAIOpen} 
+          onClose={() => setIsAIOpen(false)} 
+          userRole="client" 
+        />
+      </Suspense>
     </div>
   );
 }

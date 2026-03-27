@@ -6,128 +6,105 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// MULTI-ENDPOINT TITANIUM BRIDGE
+const MINIMAX_ENDPOINTS = [
+  "https://api.minimax.io/v1/chat/completions",
+  "https://api.minimaxi.chat/v1/chat/completions"
+];
+
 Deno.serve(async (req) => {
-  // Handle CORS Preflight
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
     const key = Deno.env.get("MINIMAX_API_KEY");
     
-    // Heartbeat / Diagnostic Endpoint (GET)
+    // Heartbeat / Diagnostic
     if (req.method === "GET") {
       return new Response(JSON.stringify({ 
         status: "online", 
+        version: "v5.2-titanium-plus",
         key_check: key ? `Present (${key.substring(0, 10)}...)` : "MISSING" 
-      }), { 
-        status: 200, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      });
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Parse Payload
     const payload = await req.json().catch(() => ({}));
     const task = payload.task || "chat";
     const input = payload.data || payload;
 
-    // Auth Hardening
+    // Supabase Auth validation
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      console.warn("[Concierge] No Authorization header present");
-      return new Response(JSON.stringify({ error: "No authorization provided" }), { status: 401, headers: corsHeaders });
-    }
+    if (!authHeader) return new Response(JSON.stringify({ error: "Missing Auth" }), { status: 401, headers: corsHeaders });
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseAnon = Deno.env.get("SUPABASE_ANON_KEY");
-    
-    if (!supabaseUrl || !supabaseAnon) {
-       console.error("[Concierge] Project environment variables missing");
-       return new Response(JSON.stringify({ error: "Internal Configuration Error" }), { status: 500, headers: corsHeaders });
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseAnon, { 
-      global: { headers: { Authorization: authHeader } } 
+    const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: authHeader } }
     });
 
-    const { data: authData, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
 
-    if (authError || !authData?.user) {
-       console.warn("[Concierge] Auth validation failed:", authError?.message);
-       return new Response(JSON.stringify({ error: "Unauthorized access" }), { status: 401, headers: corsHeaders });
-    }
+    if (!key) return new Response(JSON.stringify({ error: "No Key Configured" }), { status: 200, headers: corsHeaders });
 
-    const user = authData.user;
-    console.log(`[Concierge] Processing ${task} for ${user.id}`);
-
-    if (!key) {
-      return new Response(JSON.stringify({ 
-        error: "MiniMax API key is not configured in Supabase secrets",
-        diagnostic: "Run 'supabase secrets set MINIMAX_API_KEY=your_key' to fix this."
-      }), { status: 200, headers: corsHeaders });
-    }
-
-    // Call MiniMax (v1 Chat Completions)
+    // AI Call with Multi-Endpoint Retry
     const messages = input.messages || [{ role: "user", content: input.query || "Hello" }];
-    
-    const minimaxRes = await fetch("https://api.minimax.io/v1/chat/completions", {
-      method: "POST",
-      headers: { 
-        "Authorization": `Bearer ${key}`, 
-        "Content-Type": "application/json" 
-      },
-      body: JSON.stringify({
-        model: "abab6.5s-chat",
-        messages: messages.map((m: any) => ({
-          role: m.role === "assistant" ? "assistant" : (m.role === "system" ? "system" : "user"),
-          content: m.content || m.text || ""
-        }))
-      })
-    });
+    const requestBody = {
+      model: "abab6.5s-chat",
+      messages: messages.map((m: any) => ({
+        role: m.role === "assistant" ? "assistant" : (m.role === "system" ? "system" : "user"),
+        content: m.content || m.text || ""
+      }))
+    };
 
-    const aiData = await minimaxRes.json().catch(() => ({}));
-    
-    if (!minimaxRes.ok) {
-      console.error("[MiniMax] API Error Response:", aiData);
-      return new Response(JSON.stringify({ 
-        error: aiData.base_resp?.status_msg || aiData.error?.message || "MiniMax API Connectivity Error",
-        details: aiData 
-      }), { status: 200, headers: corsHeaders });
-    }
+    let apiResponse = null;
+    let lastError = null;
 
-    const content = aiData.choices?.[0]?.message?.content || "";
-    let finalResult: any = { text: content, message: content };
-
-    // Smart JSON extraction for non-chat tasks
-    if (task !== "chat" && task !== "query") {
+    for (const url of MINIMAX_ENDPOINTS) {
+      console.log(`[Titanium] Trying endpoint: ${url}`);
       try {
-        const braceMatch = content.match(/\{[\s\S]*\}/);
-        if (braceMatch) {
-          finalResult = JSON.parse(braceMatch[0]);
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+        });
+        
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.choices?.[0]?.message?.content) {
+          apiResponse = data;
+          break;
+        } else {
+          lastError = data.base_resp?.status_msg || data.error?.message || "Endpoint error";
+          console.warn(`[Titanium] ${url} failed:`, lastError);
         }
-      } catch (parseErr) {
-        console.warn("[Concierge] Failed to parse AI JSON response:", parseErr);
+      } catch (e) {
+        lastError = String(e);
+        console.warn(`[Titanium] ${url} fetch failed:`, e);
       }
     }
 
-    return new Response(JSON.stringify({ 
-      result: finalResult, 
-      provider: "minimax",
-      timestamp: new Date().toISOString()
-    }), { 
-      status: 200, 
-      headers: { ...corsHeaders, "Content-Type": "application/json" } 
+    if (!apiResponse) {
+      return new Response(JSON.stringify({ 
+        error: "Exhausted all MiniMax endpoints", 
+        last_error: lastError 
+      }), { status: 200, headers: corsHeaders });
+    }
+
+    const content = apiResponse.choices[0].message.content;
+    let result: any = { text: content, message: content };
+
+    // Smart JSON output extractor
+    if (task !== "chat" && task !== "query") {
+      const match = content.match(/\{[\s\S]*\}/);
+      if (match) {
+        try { result = JSON.parse(match[0]); } catch { /* text fallback */ }
+      }
+    }
+
+    return new Response(JSON.stringify({ result, provider: "minimax", status: "success" }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
 
   } catch (err: any) {
-    console.error("[Fatal] Orchestrator Crash:", err);
-    return new Response(JSON.stringify({ 
-      error: err.message || "An unexpected error occurred",
-      status: "crash",
-      diagnostic: "Check your Supabase secrets and function imports."
-    }), { 
-      status: 200, 
-      headers: { ...corsHeaders, "Content-Type": "application/json" } 
-    });
+    console.error("[Fatal] Crash:", err);
+    return new Response(JSON.stringify({ error: err.message, status: "crash" }), { status: 200, headers: corsHeaders });
   }
 });
