@@ -1,50 +1,66 @@
-import { useLocation, useOutlet } from 'react-router-dom';
+import { useLocation, Outlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * PREMIUM PAGE TRANSITIONS
- * 
- * Spring physics for buttery-smooth, game-like feel:
- * - Faster, snappier transitions (no sluggish ease curves)
- * - Subtle slide + fade for depth
- * - Optimized will-change for 60fps performance
+ * INSTANT PAGE TRANSITION — popLayout mode
+ *
+ * popLayout lets the NEW page mount immediately without waiting for exit.
+ * Combined with high-stiffness spring physics and minimal offsets,
+ * this gives Instagram/Tinder-level instant page switches.
+ *
+ * GPU-composited: opacity + transform only, zero layout cost.
  */
 
-// Premium spring config - smooth fade for clean page transitions
-const pageTransition = {
-  initial: { opacity: 0 },
-  animate: { 
-    opacity: 1, 
-    transition: { 
-      duration: 0.15
-    }
-  },
-  exit: { 
-    opacity: 0, 
-    transition: { 
-      duration: 0.1
-    }
-  },
-  // Performance optimizations
-  style: { 
-    willChange: 'opacity',
-    backfaceVisibility: 'hidden' as const
-  }
+const ENTER_SPRING = {
+  type: 'spring' as const,
+  stiffness: 500,
+  damping: 35,
+  mass: 0.5,
 };
 
-export function AnimatedOutlet() {
-    const location = useLocation();
-    const outlet = useOutlet();
+const EXIT_FAST = {
+  duration: 0.12,
+  ease: [0.4, 0, 1, 1] as [number, number, number, number],
+};
 
-    return (
-        <AnimatePresence mode="popLayout" initial={false}>
-            <motion.div
-                key={location.pathname}
-                {...pageTransition}
-                className="h-full w-full flex flex-col flex-1"
-            >
-                {outlet}
-            </motion.div>
-        </AnimatePresence>
-    );
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    x: 6,
+    scale: 0.995,
+  },
+  animate: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    transition: {
+      ...ENTER_SPRING,
+      opacity: { duration: 0.1, ease: 'easeOut' },
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.985,
+    transition: EXIT_FAST,
+  },
+} as const;
+
+export function AnimatedOutlet() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="popLayout" initial={false}>
+      <motion.div
+        key={location.pathname}
+        variants={pageVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        className="h-full w-full flex flex-col flex-1"
+        style={{ willChange: 'transform, opacity' }}
+      >
+        <Outlet />
+      </motion.div>
+    </AnimatePresence>
+  );
 }

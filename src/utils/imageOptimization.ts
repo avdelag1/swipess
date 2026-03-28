@@ -55,7 +55,7 @@ export function optimizeImageUrl(
     width,
     height,
     quality = 80,
-    format = 'webp',
+    format = 'avif',
     resize = 'cover'
   } = options;
 
@@ -89,7 +89,7 @@ export function getThumbnailUrl(url: string): string {
     width: 400,
     height: 400,
     quality: 75,
-    format: 'webp'
+    format: 'avif'
   });
 }
 
@@ -102,7 +102,7 @@ export function getCardImageUrl(url: string): string {
     width: 800,
     height: 1200,
     quality: 85,
-    format: 'webp'
+    format: 'avif'
   });
 }
 
@@ -122,7 +122,7 @@ export function getPWACardImageUrl(url: string): string {
     width: 640,      // Reduced from 800 - less pixels to decode
     height: 960,     // Reduced from 1200
     quality: 70,     // Reduced from 85 - smaller file size
-    format: 'webp'
+    format: 'avif'
   });
 }
 
@@ -133,7 +133,7 @@ export function getFullImageUrl(url: string): string {
   return optimizeImageUrl(url, {
     width: 1920,
     quality: 90,
-    format: 'webp'
+    format: 'avif'
   });
 }
 
@@ -157,7 +157,7 @@ export function getBlurDataUrl(url: string): string {
     width: 10,
     height: 10,
     quality: 30,
-    format: 'webp'
+    format: 'avif'
   });
 }
 

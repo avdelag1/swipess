@@ -141,7 +141,12 @@ const AITestPage = () => {
               </div>
             )}
             {messages.length > 0 && (
-              <button onClick={() => setMessages([])} className="p-2 rounded-xl bg-white/5 hover:bg-rose-500/10 hover:text-rose-500 transition-all">
+              <button 
+                onClick={() => setMessages([])} 
+                className="p-2 rounded-xl bg-white/5 hover:bg-rose-500/10 hover:text-rose-500 transition-all"
+                title="Clear messages"
+                aria-label="Clear messages"
+              >
                 <Trash2 className="w-4 h-4" />
               </button>
             )}
@@ -157,7 +162,7 @@ const AITestPage = () => {
               </div>
               <p className="text-xs font-black uppercase tracking-widest text-white/40 mb-2">Engine Ready</p>
               <p className="text-[11px] font-bold text-muted-foreground/60 leading-relaxed uppercase">
-                Send a sample listing prompt or ask a local question to test MiniMax & Gemini orchestration.
+                Send a sample listing prompt or ask a local question to test MiniMax orchestration.
               </p>
             </div>
           )}

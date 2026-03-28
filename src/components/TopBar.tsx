@@ -3,7 +3,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Zap, MessageCircle, Crown, FileText, ArrowLeft, Sparkles } from 'lucide-react';
+import { Zap, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -26,7 +26,7 @@ import { NotificationPopover } from './NotificationPopover';
 
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { SwipessLogo } from './SwipessLogo';
-import { CityExpertChat } from './CityExpertChat';
+
 
 // Tier styling for package cards
 const tierConfig = {
@@ -67,7 +67,7 @@ interface TopBarProps {
 }
 
 function TopBarComponent({
-  onNotificationsClick,
+  onNotificationsClick: _onNotificationsClick,
   onMessageActivationsClick,
   className,
   showFilters,
@@ -77,10 +77,10 @@ function TopBarComponent({
   title,
   showBack = false,
 }: TopBarProps) {
-  const { unreadCount: notificationCount } = useUnreadNotifications();
+  const { unreadCount: _unreadCount } = useUnreadNotifications();
   const { navigate } = useAppNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
-  const [cityExpertOpen, setCityExpertOpen] = useState(false);
+  
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -186,32 +186,28 @@ function TopBarComponent({
           style={{ transform: 'translateZ(0)' }}
         />
 
-        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 px-2">
-          {/* Left section: Avatar + Mode switcher + filters */}
-          <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
-            {/* Unified Nav Group: [Back?] [Avatar] [Title] */}
+        <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 pl-1.5 pr-2">
+
+          {/* ── Pinned left anchor: avatar / back button only ── */}
+          <div className="flex-shrink-0 flex items-center gap-1 relative z-20">
             {showBack && (
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={handleBack}
                 className="flex-shrink-0 w-9 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation rounded-xl bg-card transition-all"
-                style={{
-                  boxShadow: cinematicShadow,
-                  border: 'none',
-                }}
+                style={{ boxShadow: cinematicShadow, border: 'none' }}
                 aria-label="Go back"
               >
-                <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground/80" : "text-white/90")} strokeWidth={2.5} />
+                <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground" : "text-white/90")} strokeWidth={2.8} />
               </motion.button>
             )}
 
-            {/* User Avatar - Tapping navigates to profile */}
             {user ? (
               <motion.button
                 whileTap={{ scale: 0.92 }}
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  haptics.select(); // Higher urgency than tap
+                  haptics.select();
                   const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
                   prefetchRoute(profilePath);
                 }}
@@ -225,12 +221,12 @@ function TopBarComponent({
                 style={{ WebkitTapHighlightColor: 'transparent' }}
                 aria-label="Go to profile"
               >
-                <Avatar className="h-12 w-12 rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
+                <Avatar className="h-9 w-9 rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
                   <AvatarImage src={profile?.avatar_url || ''} className="object-cover w-full h-full rounded-full" />
                   <AvatarFallback className={cn(
                     "text-xs font-black uppercase rounded-full w-full h-full flex items-center justify-center",
                     isLight
-                      ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/70"
+                      ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/90"
                       : "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
                   )}>
                     {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
@@ -245,49 +241,58 @@ function TopBarComponent({
               )
             )}
 
-
-            <div className="flex items-center gap-1.5 flex-shrink-0 ml-1 relative z-10">
-
-              <ModeSwitcher variant="icon" size="sm" />
-            </div>
-
-            {showFilters && userRole && (
-              <div className="flex-shrink-0 relative z-10">
-                <QuickFilterDropdown userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'} />
-              </div>
-            )}
+            {/* Gradient fade — buttons scroll behind this */}
+            <div
+              className="absolute top-0 bottom-0 w-8 pointer-events-none z-30"
+              style={{
+                right: '-32px',
+                background: isLight
+                  ? 'linear-gradient(to right, rgb(255,255,255) 30%, transparent)'
+                  : 'linear-gradient(to right, rgb(0,0,0) 30%, transparent)',
+                opacity: transparent ? 0 : 1,
+                transition: 'opacity 0.5s ease',
+              }}
+            />
           </div>
 
-          {/* Global Header Tap Zone: Navigates back to Dashboard from anywhere on the header background */}
+          {/* ── Horizontally scrollable row: all other buttons ── */}
+          <div className="flex-1 min-w-0 relative">
           <div
-            className="absolute inset-0 z-0 cursor-pointer pointer-events-auto"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-            onPointerDown={(e) => {
-              // Only trigger if we tap the background, not children buttons
-              if (e.target === e.currentTarget) {
-                haptics.tap();
-                navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
-              }
-            }}
-          />
+            className="overflow-x-auto"
+            style={{
+              scrollbarWidth: 'none',
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-x',
+            } as React.CSSProperties}
+          >
+            <div className="flex items-center gap-1 flex-nowrap pl-2 pr-1">
+              {/* Mode switcher */}
+              <div className="flex-shrink-0">
+                <ModeSwitcher variant="icon" size="sm" />
+              </div>
 
-          {/* Center Content Section */}
-          <div className="flex-1 h-full flex items-center justify-center pointer-events-none relative z-10">
-            {title ? (
-              <span className={cn(
-                "font-black text-xl uppercase tracking-tighter leading-none select-none",
-                isLight
-                  ? "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
-                  : "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
-              )}>
-                {title}
-              </span>
-            ) : null}
-          </div>
+              {/* Quick filters (discovery pages) */}
+              {showFilters && userRole && (
+                <div className="flex-shrink-0">
+                  <QuickFilterDropdown userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'} />
+                </div>
+              )}
 
-          {/* Right section: Actions */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
-            {/* Token Packages Button with Popover */}
+              {/* Page title — centered spacer */}
+              <div className="flex-1 flex items-center justify-center pointer-events-none min-w-[40px]">
+                {title ? (
+                  <span className={cn(
+                    "font-black text-xl uppercase tracking-tighter leading-none select-none whitespace-nowrap",
+                    isLight
+                      ? "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
+                      : "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                  )}>
+                    {title}
+                  </span>
+                ) : null}
+              </div>
+
+              {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -421,40 +426,26 @@ function TopBarComponent({
               </PopoverContent>
             </Popover>
 
-            {/* Theme Toggle */}
-            <ThemeToggle />
+              {/* Theme Toggle */}
+              <ThemeToggle />
 
-            {/* City Expert AI Button */}
-            <Button
-              variant="ghost"
-              className={cn(
-                "relative h-10 w-10 px-0 rounded-xl transition-all duration-200 ease-out",
-                "hover:scale-105 active:scale-95 group bg-card",
-                "touch-manipulation flex items-center gap-1 flex-shrink-0",
-              )}
-              style={{
-                boxShadow: cinematicShadow,
-                border: 'none',
-              }}
-              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setCityExpertOpen(true); }}
-              onClick={(e) => e.preventDefault()}
-              aria-label="City Expert AI Assistant"
-            >
-              <Sparkles strokeWidth={3} className={cn("h-4 w-4", isLight ? "text-cyan-600" : "text-cyan-400")} />
-            </Button>
-
-            {/* Notifications Button */}
-            <NotificationPopover />
+              {/* Notifications Button */}
+              <NotificationPopover />
+            </div>
+          </div>
+          {/* Right gradient fade — rightmost buttons scroll behind this */}
+          <div
+            className="absolute top-0 right-0 bottom-0 w-10 pointer-events-none z-30"
+            style={{
+              background: isLight
+                ? 'linear-gradient(to left, rgb(255,255,255) 30%, transparent)'
+                : 'linear-gradient(to left, rgb(0,0,0) 30%, transparent)',
+              opacity: transparent ? 0 : 1,
+              transition: 'opacity 0.5s ease',
+            }}
+          />
           </div>
         </div>
-
-        {/* City Expert AI Chat Dialog */}
-        <CityExpertChat 
-          open={cityExpertOpen} 
-          onOpenChange={setCityExpertOpen}
-          initialCity="Cancun"
-          userRole={userRole}
-        />
       </header>
     </>
   );

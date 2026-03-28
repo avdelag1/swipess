@@ -20,7 +20,7 @@
  *                 → Tap left/right of center to decrease/increase volume
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
@@ -32,6 +32,77 @@ import {
   ArrowLeft, ListMusic, Play, Pause, ThumbsUp,
   SkipBack, SkipForward, Square, Shuffle
 } from 'lucide-react';
+
+// ── Inline stars canvas ──────────────────────────────────────────────────────
+function RetroStarsCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animRef = useRef<number>(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    interface Star { x: number; y: number; size: number; opacity: number; speed: number; phase: number; glow: boolean; }
+    const count = Math.min(Math.floor((w * h) / 700), 700);
+    const stars: Star[] = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      size: Math.random() * 0.75 + 0.15,
+      opacity: Math.random() * 0.55 + 0.35,
+      speed: Math.random() * 0.01 + 0.001,
+      phase: Math.random() * Math.PI * 2,
+      glow: Math.random() > 0.85,
+    }));
+
+    let t = 0;
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      t += 0.12;
+      for (const s of stars) {
+        const twinkle = Math.sin(t * s.speed + s.phase) * 0.5 + 0.5;
+        const alpha = Math.min(s.opacity * (twinkle * 0.65 + 0.35), 1);
+        if (alpha < 0.02) continue;
+        if (s.glow) { ctx.shadowBlur = 4; ctx.shadowColor = 'rgba(255,255,255,0.85)'; }
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.fill();
+        if (s.glow) { ctx.shadowBlur = 0; ctx.shadowColor = 'transparent'; }
+      }
+      animRef.current = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 pointer-events-none z-0"
+      style={{ opacity: 0.55 }}
+    />
+  );
+}
 
 // ── Font injection ──────────────────────────────────────────────────────────
 if (typeof document !== 'undefined' && !document.getElementById('cassette-radio-fonts')) {
@@ -132,6 +203,9 @@ export default function RetroRadioStation() {
       className="fixed inset-0 overflow-hidden"
       style={{ background: '#0a0a0a', touchAction: 'none' }}
     >
+      {/* Stars background */}
+      <RetroStarsCanvas />
+
       {/* ═══════════════════════════════════════════════════════════════════
           THE CASSETTE PLAYER IMAGE — fills the ENTIRE screen
           object-fit: cover ensures no gaps, image crops to fill viewport

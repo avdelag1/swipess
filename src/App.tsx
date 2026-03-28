@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -20,12 +20,16 @@ import { AppOutagePage } from "@/components/AppOutagePage";
 import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
+import { AnimatedPage } from "@/components/AnimatedPage";
 import Index from "./pages/Index";
 import '@/i18n';
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Automatic update system
 import { useForceUpdateOnVersionChange, UpdateNotification } from "@/hooks/useAutomaticUpdates";
+
+// PWA install prompt (shown after 45s for eligible users/devices)
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 // Profile auto-sync system - keeps profile data fresh for all users
 import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProfileAutoSync";
@@ -34,9 +38,9 @@ import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProf
 const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDashboardLayout").then(m => ({ default: m.PersistentDashboardLayout })));
 
 
-// Import UI components directly (not lazy) to avoid useContext issues with ThemeProvider
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+// Non-critical UI elements moved to lazy load for 100/100 performance
+const Toaster = lazy(() => import("@/components/ui/toaster").then(m => ({ default: m.Toaster })));
+const Sonner = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Lazy load pages that are not immediately needed
@@ -109,8 +113,9 @@ const RadioFavorites = lazy(() => import("./pages/RadioFavorites"));
 // New feature pages - lazy loaded
 const EventosFeed = lazy(() => import("./pages/EventosFeed"));
 const EventoDetail = lazy(() => import("./pages/EventoDetail"));
-const PromotionRequest = lazy(() => import("./pages/PromotionRequest"));
 const AdminEventos = lazy(() => import("./pages/AdminEventos"));
+const AdminPhotos = lazy(() => import("./pages/AdminPhotos"));
+const AdminPerformanceDashboard = lazy(() => import("./pages/AdminPerformanceDashboard"));
 const PriceTracker = lazy(() => import("./pages/PriceTracker"));
 const VideoTours = lazy(() => import("./pages/VideoTours"));
 const LocalIntel = lazy(() => import("./pages/LocalIntel"));
@@ -135,7 +140,9 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 // Test pages
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
 const AITestPage = lazy(() => import("./pages/AITestPage"));
+const TrumpsBadDayLazy = lazy(() => import("./pages/TrumpsBadDay"));
 const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
+const EventosLikes = lazy(() => import("./pages/EventosLikes"));
 
 
 // Route-deciding redirect for /dashboard
@@ -212,18 +219,42 @@ function ConnectionGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-const App = () => {
+const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
   // Outage gate: bypassed via ?preview=swipess URL param or 7× logo tap
   const [outageBypassed, setOutageBypassed] = useState(() => hasOutageBypass());
+
+  // Splash screen removal moved to main.tsx to execute as soon as root is ready
 
   if (IS_OUTAGE_ACTIVE && !outageBypassed) {
     return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
   }
 
+  // SpeedInsights mounted dynamically to not block initial paint
+  const [SpeedInsightsComponent, setSpeedInsightsComponent] = useState<any>(null);
+  useEffect(() => {
+    // Non-critical: load performance monitoring ONLY once app is fully idle
+    const delaySpeedInsights = () => {
+      import("@vercel/speed-insights/react").then(mod => {
+        setSpeedInsightsComponent(() => mod.SpeedInsights);
+      });
+    };
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(() => setTimeout(delaySpeedInsights, 2000));
+    } else {
+      setTimeout(delaySpeedInsights, 4000);
+    }
+
+    // SPEED OF LIGHT: Signal to main.tsx that React has finished initial paint
+    requestAnimationFrame(() => {
+      window.dispatchEvent(new CustomEvent('app-rendered'));
+    });
+  }, []);
+
   return (
     <GlobalErrorBoundary>
       <ConnectionGuard>
       <QueryClientProvider client={queryClient}>
+        {SpeedInsightsComponent && <SpeedInsightsComponent />}
         <BrowserRouter
           future={{
             v7_startTransition: true,
@@ -231,7 +262,7 @@ const App = () => {
           }}
         >
           <ErrorBoundary>
-            <AuthProvider>
+            <AuthProvider authPromise={authPromise}>
               <ActiveModeProvider>
                 <ThemeProvider>
                   <PWAProvider>
@@ -249,10 +280,15 @@ const App = () => {
                                 {/* Update notification banner */}
                                 <UpdateNotification />
 
+                                {/* PWA install prompt — shown after 45s, respects dismissal */}
+                                <PWAInstallPrompt />
+
                                 <AppLayout>
                                   <TooltipProvider>
-                                    <Sonner />
-                                    <Toaster />
+                                    <Suspense fallback={null}>
+                                      <Sonner />
+                                      <Toaster />
+                                    </Suspense>
                                   </TooltipProvider>
                                   <Suspense fallback={<SuspenseFallback />}>
                                     <Routes>
@@ -261,7 +297,7 @@ const App = () => {
                                           <Index />
                                         </SignupErrorBoundary>
                                       } />
-                                      <Route path="/reset-password" element={<ResetPassword />} />
+                                      <Route path="/reset-password" element={<AnimatedPage><ResetPassword /></AnimatedPage>} />
 
                                       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                                         SPEED OF LIGHT: UNIFIED layout for ALL protected routes
@@ -324,50 +360,53 @@ const App = () => {
 
                                         {/* New feature routes */}
                                         <Route path="/explore/eventos" element={<EventosFeed />} />
-                                        <Route path="/explore/eventos/promote" element={<PromotionRequest />} />
+                                        <Route path="/explore/eventos/likes" element={<EventosLikes />} />
                                         <Route path="/explore/eventos/:id" element={<EventoDetail />} />
                                         <Route path="/admin/eventos" element={<AdminProtectedRoute><AdminEventos /></AdminProtectedRoute>} />
+                                        <Route path="/admin/photos" element={<AdminProtectedRoute><AdminPhotos /></AdminProtectedRoute>} />
+                                        <Route path="/admin/performance" element={<AdminProtectedRoute><AdminPerformanceDashboard /></AdminProtectedRoute>} />
                                         <Route path="/explore/prices" element={<PriceTracker />} />
                                         <Route path="/explore/tours" element={<VideoTours />} />
                                         <Route path="/explore/intel" element={<LocalIntel />} />
                                         <Route path="/explore/roommates" element={<RoommateMatching />} />
+                                         <Route path="/game/trumps-bad-day" element={<Suspense fallback={<SuspenseFallback />}><TrumpsBadDayLazy /></Suspense>} />
                                         <Route path="/documents" element={<DocumentVault />} />
                                         <Route path="/escrow" element={<EscrowDashboard />} />
                                       </Route>
  
 
                                       {/* Payment routes - outside layout */}
-                                      <Route path="/payment/success" element={<Suspense fallback={<SuspenseFallback />}><PaymentSuccess /></Suspense>} />
-                                      <Route path="/payment/cancel" element={<Suspense fallback={<SuspenseFallback />}><PaymentCancel /></Suspense>} />
+                                      <Route path="/payment/success" element={<Suspense fallback={<SuspenseFallback />}><AnimatedPage><PaymentSuccess /></AnimatedPage></Suspense>} />
+                                      <Route path="/payment/cancel" element={<Suspense fallback={<SuspenseFallback />}><AnimatedPage><PaymentCancel /></AnimatedPage></Suspense>} />
 
                                       {/* Legal Pages - Public Access */}
-                                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                                      <Route path="/terms-of-service" element={<TermsOfService />} />
-                                      <Route path="/agl" element={<AGLPage />} />
-                                      <Route path="/legal" element={<LegalPage />} />
+                                      <Route path="/privacy-policy" element={<AnimatedPage><PrivacyPolicy /></AnimatedPage>} />
+                                      <Route path="/terms-of-service" element={<AnimatedPage><TermsOfService /></AnimatedPage>} />
+                                      <Route path="/agl" element={<AnimatedPage><AGLPage /></AnimatedPage>} />
+                                      <Route path="/legal" element={<AnimatedPage><LegalPage /></AnimatedPage>} />
 
                                       {/* AI Test — public, no login required */}
-                                      <Route path="/ai-test" element={<AITestPage />} />
+                                      <Route path="/ai-test" element={<AnimatedPage><AITestPage /></AnimatedPage>} />
 
                                       {/* Legacy /dashboard redirect — smartly role-aware */}
                                       <Route path="/dashboard" element={<DashboardRedirect />} />
 
                                       {/* Info Pages - Public Access */}
-                                      <Route path="/about" element={<AboutPage />} />
-                                      <Route path="/faq/client" element={<FAQClientPage />} />
-                                      <Route path="/faq/owner" element={<FAQOwnerPage />} />
+                                      <Route path="/about" element={<AnimatedPage><AboutPage /></AnimatedPage>} />
+                                      <Route path="/faq/client" element={<AnimatedPage><FAQClientPage /></AnimatedPage>} />
+                                      <Route path="/faq/owner" element={<AnimatedPage><FAQOwnerPage /></AnimatedPage>} />
 
                                       {/* Public Preview Pages - Shareable Links */}
-                                      <Route path="/profile/:id" element={<PublicProfilePreview />} />
-                                      <Route path="/listing/:id" element={<PublicListingPreview />} />
+                                      <Route path="/profile/:id" element={<AnimatedPage><PublicProfilePreview /></AnimatedPage>} />
+                                      <Route path="/listing/:id" element={<AnimatedPage><PublicListingPreview /></AnimatedPage>} />
 
                                       {/* Test Pages — dev only */}
                                       {import.meta.env.DEV && (
-                                        <Route path="/test/mock-owners" element={<MockOwnersTestPage />} />
+                                        <Route path="/test/mock-owners" element={<AnimatedPage><MockOwnersTestPage /></AnimatedPage>} />
                                       )}
 
                                       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                                      <Route path="*" element={<NotFound />} />
+                                      <Route path="*" element={<AnimatedPage><NotFound /></AnimatedPage>} />
                                     </Routes>
                                   </Suspense>
                                 </AppLayout>

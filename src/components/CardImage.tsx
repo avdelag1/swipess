@@ -1,5 +1,5 @@
 import { memo, useEffect, useMemo, useState, useRef } from 'react';
-import { getCardImageUrl } from '@/utils/imageOptimization';
+import { getCardImageUrl, getBlurDataUrl } from '@/utils/imageOptimization';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { MarketingSlide } from './MarketingSlide';
@@ -9,24 +9,27 @@ function isBrowser() {
 }
 
 const CROSSFADE_MS = 200;
-const CROSSFADE_EASE = [0.4, 0, 0.2, 1]; // Smooth soft-start cubic bezier
+const _CROSSFADE_EASE = [0.4, 0, 0.2, 1]; // Smooth soft-start cubic bezier (reserved for future animation)
 
 const CardImage = memo(({ 
   src, 
   alt, 
   name, 
-  direction = 'right',
-  fullScreen = false 
+  direction: _direction = 'right',
+  fullScreen = false,
+  animate = true
 }: { 
   src?: string | null; 
   alt?: string; 
   name?: string; 
   direction?: 'left' | 'right';
   fullScreen?: boolean;
+  animate?: boolean;
 }) => {
   const isMarketingSlide = useMemo(() => src?.startsWith('marketing:'), [src]);
 
   const optimizedSrc = isMarketingSlide ? src : getCardImageUrl(src ?? '');
+  const blurSrc = useMemo(() => (!isMarketingSlide && src ? getBlurDataUrl(src) : null), [src, isMarketingSlide]);
   const wasInCache = useMemo(() => (src && !isMarketingSlide ? imageCache.has(src) : false), [src, isMarketingSlide]);
 
   const [loaded, setLoaded] = useState<boolean>(() => !!(src && (isMarketingSlide || imageCache.has(src))));
@@ -63,7 +66,7 @@ const CardImage = memo(({
       if (!mounted) return;
       try {
         if ((img as any).decode) await (img as any).decode();
-      } catch (_e) {}
+      } catch (_e) { /* decode not supported, skip */ }
       imageCache.set(src, true);
       setLoaded(true);
     };
@@ -115,16 +118,35 @@ const CardImage = memo(({
         zIndex: 1,
       }}
     >
+      {/* LQIP Placeholder with blur-up effect */}
       {!loaded && (
         <div
           style={{
             position: 'absolute',
             inset: 0,
+            width: '100%',
+            height: '100%',
             background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.2) 100%)',
-            opacity: 1,
-            transition: wasInCache ? 'none' : 'opacity 400ms ease',
+            zIndex: 1,
           }}
-        />
+        >
+          {blurSrc && (
+            <img
+              src={blurSrc}
+              alt=""
+              aria-hidden="true"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                filter: 'blur(20px)',
+                transform: 'scale(1.1)',
+                opacity: 0.6,
+                transition: 'opacity 0.4s ease',
+              }}
+            />
+          )}
+        </div>
       )}
 
       {showPrev && prevOptimizedRef.current && (
@@ -147,7 +169,6 @@ const CardImage = memo(({
       )}
 
       <img
-        key={src}
         src={optimizedSrc || src}
         alt={alt ?? ''}
         loading="eager"
@@ -163,8 +184,8 @@ const CardImage = memo(({
           transition: wasInCache ? 'none' : `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
           borderRadius: br,
           animation: wasInCache
-            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards, breathing-zoom 8s ease-out infinite alternate`
-            : 'breathing-zoom 8s ease-out infinite alternate',
+            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards${animate ? ', breathing-zoom 8s ease-out infinite alternate' : ''}`
+            : animate ? 'breathing-zoom 8s ease-out infinite alternate' : 'none',
           zIndex: 3,
           transformOrigin: 'center',
         }}

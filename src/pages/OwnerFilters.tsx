@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Users, Check, RotateCcw, UserCircle, Baby, Briefcase, ShoppingBag, Building2, Globe } from 'lucide-react';
+import { Users, Check, RotateCcw, UserCircle, Baby, Briefcase, ShoppingBag, Building2, Globe } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
 import { useFilterStore } from '@/state/filterStore';
@@ -189,267 +189,247 @@ export default function OwnerFilters() {
   }, [resetOwnerFilters]);
 
   return (
-    <div className="h-full w-full flex flex-col bg-background transition-colors duration-500 overflow-hidden">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
-        <div className="flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center h-10 w-10 rounded-full bg-secondary border border-border/50 shadow-sm"
-            >
-              <ArrowLeft className="w-5 h-5 text-foreground" />
-            </motion.button>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight text-foreground">Client Filters</h1>
-              <p className="text-xs font-medium text-muted-foreground">
-                {activeFilterCount > 0 ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active` : 'Refine client search'}
-              </p>
-            </div>
-          </div>
-
+    <div className="w-full bg-background transition-colors duration-500 pb-20">
+      <div className="px-4 py-6 space-y-8 pb-4">
+        {/* Quick Actions */}
+        <div className="flex items-center justify-between px-1">
+          <div />
           <AnimatePresence>
             {hasChanges && (
               <motion.button
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleReset}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-secondary/80 border border-border/50 text-sm font-semibold text-foreground/80 shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/80 border border-border/50 text-[10px] font-black text-foreground hover:bg-secondary transition-colors shadow-sm"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                Reset
+                RESET ALL
               </motion.button>
             )}
           </AnimatePresence>
         </div>
-      </header>
 
-      <div className="overflow-y-auto">
-        <div className="px-4 py-6 space-y-8 pb-24">
-          {/* Gender Section */}
-          <section className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
-                <div className="w-1.5 h-1.5 rounded-full bg-pink-500" />
-                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                  Gender
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {genderOptions.map((option) => {
-                const isSelected = selectedGender === option.id;
-                return (
-                  <motion.button
-                    key={option.id}
-                    onClick={() => setSelectedGender(option.id)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={cn(
-                      "relative overflow-hidden rounded-[2rem] text-left transition-all duration-300",
-                      isSelected
-                        ? "border-2 border-primary/30 ring-4 ring-primary/5 shadow-lg"
-                        : "border border-border/50 bg-card/40 hover:bg-card/60"
-                    )}
-                    style={{
-                      height: '110px',
-                      background: isSelected ? option.gradient : undefined,
-                    }}
-                  >
-                    <div className="relative p-4 flex flex-col justify-between h-full">
-                      <div className={cn(
-                        "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors",
-                        isSelected ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
-                      )}>
-                        {option.icon}
-                      </div>
-                      <div>
-                        <p className={cn("text-sm font-bold", isSelected ? "text-white" : "text-foreground")}>{option.label}</p>
-                        <p className={cn("text-[10px] font-medium opacity-70", isSelected ? "text-white" : "text-muted-foreground")}>
-                          {option.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    <AnimatePresence>
-                      {isSelected && (
-                        <motion.div
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0, opacity: 0 }}
-                          className="absolute top-3 right-3 w-6 h-6 rounded-full bg-background flex items-center justify-center shadow-lg"
-                        >
-                          <Check className="w-3.5 h-3.5 text-primary" />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.button>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Age Range Section */}
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
-                <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                  Age Range
-                </span>
-              </div>
-              <span className="text-sm font-bold text-foreground">
-                {ageRange[0]} – {ageRange[1] === AGE_MAX ? '65+' : ageRange[1]}
+        {/* Gender Section */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
+              <div className="w-1.5 h-1.5 rounded-full bg-pink-500" />
+              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
+                Gender
               </span>
             </div>
+          </div>
 
-            <div className="px-2">
-              <Slider
-                min={AGE_MIN}
-                max={AGE_MAX}
-                step={1}
-                value={ageRange}
-                onValueChange={(val) => setAgeRange(val as [number, number])}
-                className="w-full"
-              />
-              <div className="flex justify-between mt-2">
-                <span className="text-[10px] font-medium text-muted-foreground">{AGE_MIN}</span>
-                <span className="text-[10px] font-medium text-muted-foreground">65+</span>
-              </div>
-            </div>
-          </section>
-
-          {/* Budget Range Section */}
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
-                <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                  Budget Range
-                </span>
-              </div>
-              <span className="text-sm font-bold text-foreground">
-                ${budgetRange[0].toLocaleString()} – ${budgetRange[1] === BUDGET_MAX ? '50k+' : budgetRange[1].toLocaleString()}
-              </span>
-            </div>
-
-            <div className="px-2">
-              <Slider
-                min={BUDGET_MIN}
-                max={BUDGET_MAX}
-                step={500}
-                value={budgetRange}
-                onValueChange={(val) => setBudgetRange(val as [number, number])}
-                className="w-full"
-              />
-              <div className="flex justify-between mt-2">
-                <span className="text-[10px] font-medium text-muted-foreground">$0</span>
-                <span className="text-[10px] font-medium text-muted-foreground">$50k+</span>
-              </div>
-            </div>
-          </section>
-
-          {/* Nationality Section */}
-          <section className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                  Nationality
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {nationalityOptions.map((nat) => {
-                const isSelected = selectedNationalities.includes(nat);
-                return (
-                  <motion.button
-                    key={nat}
-                    onClick={() => toggleNationality(nat)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={cn(
-                      "flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold transition-all duration-200 border",
-                      isSelected
-                        ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/10"
-                        : "bg-card/40 text-foreground/70 border-border/50 hover:bg-card/60"
-                    )}
-                  >
-                    <Globe className="w-3.5 h-3.5" />
-                    {nat}
-                    {isSelected && <Check className="w-3 h-3 ml-0.5" />}
-                  </motion.button>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Client Type Section */}
-          <section className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
-                <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                  Client Type
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {clientTypeOptions.map((type) => {
-                const isSelected = selectedClientType === type.id;
-                return (
-                  <motion.button
-                    key={type.id}
-                    onClick={() => setSelectedClientType(type.id)}
-                    whileHover={{ scale: 1.01, x: 4 }}
-                    whileTap={{ scale: 0.99 }}
-                    className={cn(
-                      "w-full flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300",
-                      isSelected
-                        ? "bg-primary/5 border-primary/20 shadow-md shadow-primary/5"
-                        : "bg-card/30 border-border/40"
-                    )}
-                  >
+          <div className="grid grid-cols-2 gap-3">
+            {genderOptions.map((option) => {
+              const isSelected = selectedGender === option.id;
+              return (
+                <motion.button
+                  key={option.id}
+                  onClick={() => setSelectedGender(option.id)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={cn(
+                    "relative overflow-hidden rounded-[2rem] text-left transition-all duration-300",
+                    isSelected
+                      ? "border-2 border-primary/30 ring-4 ring-primary/5 shadow-lg"
+                      : "border border-border/50 bg-card/40 hover:bg-card/60"
+                  )}
+                  style={{
+                    height: '110px',
+                    background: isSelected ? option.gradient : undefined,
+                  }}
+                >
+                  <div className="relative p-4 flex flex-col justify-between h-full">
                     <div className={cn(
-                      "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors shadow-sm",
-                      isSelected ? "bg-primary text-primary-foreground" : "bg-secondary " + type.accentClass
+                      "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors",
+                      isSelected ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
                     )}>
-                      {type.icon}
+                      {option.icon}
                     </div>
-                    <div className="flex-1">
-                      <span className={cn("text-sm font-bold block", isSelected ? "text-primary" : "text-foreground")}>{type.label}</span>
-                      <span className="text-[10px] font-medium text-muted-foreground">{type.description}</span>
+                    <div>
+                      <p className={cn("text-sm font-bold", isSelected ? "text-white" : "text-foreground")}>{option.label}</p>
+                      <p className={cn("text-[10px] font-medium opacity-70", isSelected ? "text-white" : "text-muted-foreground")}>
+                        {option.description}
+                      </p>
                     </div>
-                    <AnimatePresence>
-                      {isSelected && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          exit={{ scale: 0 }}
-                          className="w-6 h-6 rounded-full bg-primary flex items-center justify-center"
-                        >
-                          <Check className="w-3.5 h-3.5 text-primary-foreground" />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.button>
-                );
-              })}
+                  </div>
+
+                  <AnimatePresence>
+                    {isSelected && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        className="absolute top-3 right-3 w-6 h-6 rounded-full bg-background flex items-center justify-center shadow-lg"
+                      >
+                        <Check className="w-3.5 h-3.5 text-primary" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Age Range Section */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
+              <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
+                Age Range
+              </span>
             </div>
-          </section>
-        </div>
+            <span className="text-sm font-bold text-foreground">
+              {ageRange[0]} – {ageRange[1] === AGE_MAX ? '65+' : ageRange[1]}
+            </span>
+          </div>
+
+          <div className="px-2">
+            <Slider
+              min={AGE_MIN}
+              max={AGE_MAX}
+              step={1}
+              value={ageRange}
+              onValueChange={(val) => setAgeRange(val as [number, number])}
+              className="w-full"
+            />
+            <div className="flex justify-between mt-2">
+              <span className="text-[10px] font-medium text-muted-foreground">{AGE_MIN}</span>
+              <span className="text-[10px] font-medium text-muted-foreground">65+</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Budget Range Section */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
+                Budget Range
+              </span>
+            </div>
+            <span className="text-sm font-bold text-foreground">
+              ${budgetRange[0].toLocaleString()} – ${budgetRange[1] === BUDGET_MAX ? '50k+' : budgetRange[1].toLocaleString()}
+            </span>
+          </div>
+
+          <div className="px-2">
+            <Slider
+              min={BUDGET_MIN}
+              max={BUDGET_MAX}
+              step={500}
+              value={budgetRange}
+              onValueChange={(val) => setBudgetRange(val as [number, number])}
+              className="w-full"
+            />
+            <div className="flex justify-between mt-2">
+              <span className="text-[10px] font-medium text-muted-foreground">$0</span>
+              <span className="text-[10px] font-medium text-muted-foreground">$50k+</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Nationality Section */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
+                Nationality
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {nationalityOptions.map((nat) => {
+              const isSelected = selectedNationalities.includes(nat);
+              return (
+                <motion.button
+                  key={nat}
+                  onClick={() => toggleNationality(nat)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold transition-all duration-200 border",
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/10"
+                      : "bg-card/40 text-foreground/70 border-border/50 hover:bg-card/60"
+                  )}
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  {nat}
+                  {isSelected && <Check className="w-3 h-3 ml-0.5" />}
+                </motion.button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Client Type Section */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
+              <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
+                Client Type
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            {clientTypeOptions.map((type) => {
+              const isSelected = selectedClientType === type.id;
+              return (
+                <motion.button
+                  key={type.id}
+                  onClick={() => setSelectedClientType(type.id)}
+                  whileHover={{ scale: 1.01, x: 4 }}
+                  whileTap={{ scale: 0.99 }}
+                  className={cn(
+                    "w-full flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300",
+                    isSelected
+                      ? "bg-primary/5 border-primary/20 shadow-md shadow-primary/5"
+                      : "bg-card/30 border-border/40"
+                  )}
+                >
+                  <div className={cn(
+                    "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors shadow-sm",
+                    isSelected ? "bg-primary text-primary-foreground" : "bg-secondary " + type.accentClass
+                  )}>
+                    {type.icon}
+                  </div>
+                  <div className="flex-1">
+                    <span className={cn("text-sm font-bold block", isSelected ? "text-primary" : "text-foreground")}>{type.label}</span>
+                    <span className="text-[10px] font-medium text-muted-foreground">{type.description}</span>
+                  </div>
+                  <AnimatePresence>
+                    {isSelected && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        className="w-6 h-6 rounded-full bg-primary flex items-center justify-center"
+                      >
+                        <Check className="w-3.5 h-3.5 text-primary-foreground" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+              );
+            })}
+          </div>
+        </section>
       </div>
 
-      {/* Bottom Fixed Apply Button */}
-      <div className="fixed left-0 right-0 p-4 bg-background/80 backdrop-blur-xl border-t border-border/40" style={{ bottom: 'calc(68px + var(--safe-bottom, 0px))' }}>
+      {/* Sticky Apply Button Bar - Premium ergonomic position above bottom nav */}
+      <div className="sticky bottom-0 z-20 p-4 bg-background/80 backdrop-blur-xl border-t border-border/10">
         <div className="max-w-md mx-auto">
           <motion.button
             whileHover={{ scale: 1.02 }}

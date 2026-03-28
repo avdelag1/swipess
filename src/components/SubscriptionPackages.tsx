@@ -41,7 +41,7 @@ const clientPlans: Plan[] = [
       'Post motorcycles or bicycles for rent or sale',
       'Save favorite listings',
       'Discover opportunities',
-      'AI assistant to create listings & discover the city'
+      'Swipess Concierge to create listings & discover the city'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
     accent: 'blue',
@@ -59,7 +59,7 @@ const clientPlans: Plan[] = [
       'Post motorcycles or bicycles for rent or sale',
       'Save favorite listings',
       'Discover opportunities',
-      'AI assistant to create listings & discover the city'
+      'Swipess Concierge to create listings & discover the city'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
     accent: 'pink',
@@ -77,7 +77,7 @@ const clientPlans: Plan[] = [
       'Post motorcycles or bicycles for rent or sale',
       'Save favorite listings',
       'Discover opportunities',
-      'AI assistant to create listings & discover the city'
+      'Swipess Concierge to create listings & discover the city'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
     highlight: true,
@@ -118,8 +118,8 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
 
   const handleSubscribe = async (plan: Plan) => {
     const selection = { role: userRole, planId: plan.id, name: plan.name, price: plan.price, at: new Date().toISOString() };
-    localStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify(selection));
-    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
+    sessionStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify(selection));
+    sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
 
     window.open(plan.paypalUrl, '_blank');
 

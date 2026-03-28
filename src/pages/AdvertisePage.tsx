@@ -1,11 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowLeft, ArrowRight, Check, Megaphone, Sparkles, Star, Zap, Calendar,
+  ArrowLeft, ArrowRight, ArrowUpRight, Check, CheckCircle2, Megaphone, Star, Zap,
   Music, Utensils, Dumbbell, Palette, ShoppingBag, Globe, Camera,
   Users, Eye, TrendingUp, Instagram, Phone, Flame, Crown,
-  Info, Shield, ClipboardList, MessageCircle
+  Info, Shield, ClipboardList, MessageCircle, Clock
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -205,11 +205,45 @@ export default function AdvertisePage() {
   const [form, setForm] = useState<FormData>(INITIAL);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [approvedSubmission, setApprovedSubmission] = useState<any>(null);
+  const [pendingSubmission, setPendingSubmission] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const steps: Step[] = ["type", "details", "package", "confirm"];
+  const steps: Step[] = ["type", "details", "confirm"];
   const stepIdx = steps.indexOf(step);
   const progress = ((stepIdx + 1) / steps.length) * 100;
+
+  // ── CHECK FOR APPROVED SUBMISSIONS ──
+  useEffect(() => {
+    async function checkStatus() {
+      if (!user) return;
+      try {
+        const { data, error } = await supabase
+          .from("business_promo_submissions" as any)
+          .select("*")
+          .eq("user_id", user.id)
+          .in("status", ["approved", "pending"])
+          .order("created_at", { ascending: false });
+        
+        if (!error && data && data.length > 0) {
+          const approved = data.find((s: any) => s.status === 'approved');
+          const pending = data.find((s: any) => s.status === 'pending');
+          
+          if (approved) setApprovedSubmission(approved);
+          else if (pending) setPendingSubmission(pending);
+        }
+      } catch (err) {
+        console.error("Error checking submission status:", err);
+      }
+    }
+    checkStatus();
+  }, [user]);
+
+  const handleLaunchPayment = (pkg: typeof PACKAGES[0]) => {
+    haptics.tap();
+    window.open(pkg.paypalUrl, '_blank');
+    toast.success("Redirecting to PayPal", { description: `Launching ${pkg.name} package.` });
+  };
 
   // ── Theme-aware style helpers ─────────────────────────────────────────────
   const th = {
@@ -268,9 +302,6 @@ export default function AdvertisePage() {
         contact_name: form.contactName,
         contact_phone: form.contactPhone,
         website: form.website || null,
-        package_id: form.packageId,
-        duration: selectedPkg?.duration,
-        price_mxn: price, // stores USD value
         status: "pending",
       });
       if (error) throw error;
@@ -514,15 +545,11 @@ export default function AdvertisePage() {
                     </div>
                   ))}
                 </div>
-                <a
-                  href={pkg.paypalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 w-full py-3 rounded-xl font-black text-sm text-white text-center block"
-                  style={{ background: pkg.color, boxShadow: `0 4px 16px rgba(${pkg.colorRgb},0.35)` }}
-                >
-                  Pay Now — ${pkg.price.toFixed(2)} USD
-                </a>
+                <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-2">
+                  <div className="text-[10px] font-bold text-muted-foreground uppercase text-center italic">
+                    Pay only after review
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -530,11 +557,71 @@ export default function AdvertisePage() {
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); setView("form"); }}
-            className="w-full py-5 rounded-[2rem] font-black text-white mt-8 flex items-center justify-center gap-3"
-            style={{ background: "linear-gradient(135deg,#f97316,#a855f7)", boxShadow: "0 12px 40px rgba(249,115,22,0.35)" }}
+            className="w-full py-5 rounded-[2rem] font-black text-white mt-8 flex items-center justify-center gap-3 relative overflow-hidden group shadow-2xl"
+            style={{ background: "linear-gradient(135deg,#f97316,#a855f7)" }}
           >
-            Get Started Now <ArrowRight className="w-5 h-5" />
+            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+            <span className="relative z-10 flex items-center gap-2">Get Started Now <ArrowRight className="w-5 h-5" /></span>
           </motion.button>
+
+           {approvedSubmission && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-12 p-8 rounded-[3rem] border-2 border-primary/20 bg-primary/5 space-y-6"
+            >
+              <div className="text-center space-y-2">
+                <div className="w-16 h-16 rounded-[1.5rem] bg-primary/20 flex items-center justify-center mx-auto mb-4 border border-primary/30 rotate-3">
+                  <CheckCircle2 className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">Approval Rocket! 🚀</h3>
+                <p className="text-sm font-bold text-white/60">Your brand promotion for <span className="text-white">"{approvedSubmission.title}"</span> has been approved! Ready to launch?</p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                {PACKAGES.map(pkg => (
+                  <button
+                    key={pkg.id}
+                    onClick={() => handleLaunchPayment(pkg)}
+                    className="flex items-center justify-between p-5 rounded-2xl bg-white/10 border border-white/10 hover:border-white/20 transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color }}>
+                        {pkg.icon}
+                      </div>
+                      <div className="text-left">
+                        <div className="font-black text-white text-sm uppercase tracking-tight">{pkg.name}</div>
+                        <div className="text-[10px] text-white/40 font-bold uppercase tracking-widest">${pkg.price} USD / {pkg.durationLabel}</div>
+                      </div>
+                    </div>
+                    <ArrowUpRight className="w-5 h-5 text-white/20 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                  </button>
+                ))}
+              </div>
+              
+              <button 
+                onClick={() => setApprovedSubmission(null)}
+                className="w-full text-[10px] font-black uppercase tracking-widest text-white/20 hover:text-white/40 transition-colors"
+              >
+                Create another submission
+              </button>
+            </motion.div>
+          )}
+
+          {pendingSubmission && !approvedSubmission && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-12 p-8 rounded-[3rem] border border-orange-500/20 bg-orange-500/5 space-y-4 text-center"
+            >
+              <div className="w-16 h-16 rounded-[1.5rem] bg-orange-500/20 flex items-center justify-center mx-auto mb-2 border border-orange-500/30">
+                <Clock className="w-8 h-8 text-orange-400 animate-pulse" />
+              </div>
+              <h3 className="text-xl font-black text-white uppercase tracking-tighter italic">Review in Progress</h3>
+              <p className="text-xs font-bold text-white/60">We're reviewing <span className="text-white">"{pendingSubmission.title}"</span>. You'll be notified as soon as it's ready to launch!</p>
+              <div className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-400 pt-2">Estimated: &lt; 24h</div>
+            </motion.div>
+          )}
         </div>
       </div>
     );
@@ -794,82 +881,7 @@ export default function AdvertisePage() {
                     className="flex-1 h-14 rounded-2xl font-black text-white flex items-center justify-center gap-2 disabled:opacity-30 active:scale-[0.97]"
                     style={{ background: "linear-gradient(135deg,#f97316,#a855f7)" }}
                   >
-                    Choose Package <ArrowRight className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── Step 3: Package ── */}
-            {step === "package" && (
-              <div className="space-y-4">
-                <div>
-                  <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>Choose your package</h2>
-                  <p className="text-sm" style={{ color: th.textMuted }}>All prices in USD. Cancel anytime.</p>
-                </div>
-
-                {/* Package cards */}
-                <div className="space-y-3">
-                  {PACKAGES.map(pkg => {
-                    const selected = form.packageId === pkg.id;
-                    return (
-                      <button
-                        key={pkg.id}
-                        onClick={() => { haptics.tap(); set("packageId", pkg.id); }}
-                        className="w-full p-4 rounded-2xl text-left relative overflow-hidden transition-all active:scale-[0.98]"
-                        style={{
-                          background: selected
-                            ? `linear-gradient(135deg, rgba(${pkg.colorRgb},0.2), rgba(${pkg.colorRgb},0.1))`
-                            : th.card,
-                          border: `2px solid ${selected ? pkg.color : th.cardBorder}`,
-                        }}
-                      >
-                        {pkg.popular && (
-                          <div className="absolute top-2 right-2 z-10">
-                            <div className="bg-gradient-to-r from-orange-500 to-rose-500 text-[8px] font-black uppercase tracking-[0.15em] px-2.5 py-1 rounded-full text-white shadow-lg">
-                              POPULAR
-                            </div>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                            style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color }}>
-                            {pkg.icon}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-black" style={{ color: th.text }}>{pkg.name}</div>
-                            <div className="text-[10px] truncate" style={{ color: th.textDim }}>{pkg.tagline}</div>
-                          </div>
-                          <div className={`ml-auto text-right flex-shrink-0 ${pkg.popular ? "mt-5" : ""}`}>
-                            <div className="font-black" style={{ color: pkg.color }}>${pkg.price.toFixed(2)}</div>
-                            <div className="text-[10px]" style={{ color: th.textDim }}>USD {pkg.durationLabel}</div>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-x-3 gap-y-1.5">
-                          {pkg.perks.map(perk => (
-                            <div key={perk} className="flex items-center gap-1.5 text-xs" style={{ color: th.textMuted }}>
-                              <Check className="w-3 h-3 flex-shrink-0" style={{ color: pkg.color }} />
-                              {perk}
-                            </div>
-                          ))}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="flex gap-3">
-                  <button onClick={back}
-                    className="h-14 px-5 rounded-2xl font-bold active:scale-[0.97]"
-                    style={{ background: th.backFormBtn, border: `1px solid ${th.backFormBorder}`, color: th.text }}>
-                    Back
-                  </button>
-                  <button
-                    onClick={next}
-                    className="flex-1 h-14 rounded-2xl font-black text-white flex items-center justify-center gap-2 active:scale-[0.97]"
-                    style={{ background: "linear-gradient(135deg,#f97316,#a855f7)" }}
-                  >
-                    Review Order <ArrowRight className="w-5 h-5" />
+                    Review Submission <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -904,18 +916,12 @@ export default function AdvertisePage() {
                       <span className="font-bold text-right flex-1 truncate" style={{ color: th.text }}>{row.value}</span>
                     </div>
                   ))}
-                  <div className="pt-3 flex justify-between items-center mt-1"
+                  <div className="pt-3 space-y-2 mt-1"
                     style={{ borderTop: `1px solid ${th.divider}` }}>
-                    <div>
-                      <div className="text-xs" style={{ color: th.textDim }}>{selectedPkg?.name} · {selectedPkg?.durationLabel}</div>
-                      <div className="font-black text-lg" style={{ color: th.text }}>
-                        ${price?.toFixed(2)} <span className="text-sm" style={{ color: th.textDim }}>USD {selectedPkg?.durationLabel}</span>
-                      </div>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                      style={{ background: `rgba(${selectedPkg?.colorRgb},0.2)`, color: selectedPkg?.color }}>
-                      {selectedPkg?.icon}
-                    </div>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-orange-400">Step 1: Free Review</p>
+                    <p className="text-xs leading-relaxed" style={{ color: th.textMuted }}>
+                      Our team will verify your details. Once approved, you'll receive a notification and can choose your promotion package.
+                    </p>
                   </div>
                 </div>
 

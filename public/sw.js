@@ -7,10 +7,11 @@
  * - Build time injected by Vite at build time
  */
 
-// IMPORTANT: This version is auto-updated by vite.config.ts on each build
-// __BUILD_TIME__ is replaced with actual timestamp during production build
-const SW_VERSION = typeof '__BUILD_TIME__' !== 'undefined' ? '__BUILD_TIME__' : Date.now().toString();
-const CACHE_VERSION = `swipess-v${SW_VERSION}`;
+// IMPORTANT: __BUILD_TIME__ is replaced with an ISO timestamp by the Vite
+// sw-build-time-plugin at build time. In dev mode the literal string is used
+// as the version (safe — SW is unregistered in dev anyway).
+const SW_VERSION = '__BUILD_TIME__';
+const CACHE_VERSION = `swipess-${SW_VERSION}`;
 const CACHE_NAME = CACHE_VERSION;
 const STATIC_CACHE = `${CACHE_NAME}-static`;
 const DYNAMIC_CACHE = `${CACHE_NAME}-dynamic`;
@@ -22,6 +23,53 @@ const urlsToCache = [
   '/manifest.json',
   '/manifest.webmanifest'
 ];
+
+/**
+ * TINDER-SPEED: Precache all JS/CSS chunks after install
+ * Native apps have all code pre-downloaded. We simulate this by
+ * crawling /assets/ and caching every chunk in the background.
+ * This means second+ navigations load INSTANTLY from cache.
+ */
+async function precacheAppShell() {
+  try {
+    // Fetch the HTML page to discover all <script> and <link> tags
+    const htmlResponse = await fetch('/', { cache: 'no-store' });
+    const html = await htmlResponse.text();
+
+    // Extract all /assets/*.js and /assets/*.css URLs from the HTML
+    const assetUrls = [];
+    const regex = /\/assets\/[a-zA-Z0-9_\-]+\.[a-zA-Z0-9]+\.(js|css)/g;
+    let match;
+    while ((match = regex.exec(html)) !== null) {
+      assetUrls.push(match[0]);
+    }
+
+    // Also extract modulepreload links
+    const modulePreloadRegex = /href="(\/assets\/[^"]+)"/g;
+    while ((match = modulePreloadRegex.exec(html)) !== null) {
+      if (!assetUrls.includes(match[1])) {
+        assetUrls.push(match[1]);
+      }
+    }
+
+    if (assetUrls.length > 0) {
+      const cache = await caches.open(STATIC_CACHE);
+      // Cache them one at a time to avoid saturating the network
+      for (const url of assetUrls) {
+        try {
+          const existing = await cache.match(url);
+          if (!existing) {
+            await cache.add(url);
+          }
+        } catch (_e) {
+          // Individual asset failure is fine — skip and continue
+        }
+      }
+    }
+  } catch (_e) {
+    // Non-critical — app works fine without precache
+  }
+}
 
 // Cache TTL settings (in seconds)
 const CACHE_TTL = {
@@ -174,29 +222,42 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // STALE-WHILE-REVALIDATE for HTML navigation requests
-  // This is the key to INSTANT launch of the PWA from home screen
+  // NETWORK-FIRST for HTML navigation requests (index.html)
+  // This ensures that when you refresh, you actually get the LATEST code if online.
+  // Stale-while-revalidate is BAD for updates because it serves the old code first.
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
-      caches.open(DYNAMIC_CACHE).then(cache => {
-        return cache.match(request).then(cachedResponse => {
-          // Always fetch fresh version in background
-          const bgFetch = fetch(request, {
-            cache: 'no-store' // Bypass browser cache but populate our SW cache
-          }).then(networkResponse => {
-            if (networkResponse.ok) {
-              cache.put(request, networkResponse.clone());
-            }
-            return networkResponse;
-          }).catch(() => cachedResponse);
-
-          if (cachedResponse) {
-            // Return cached immediately for instant launch, update in background
-            event.waitUntil(bgFetch); // keep SW alive to complete cache update
-            return cachedResponse;
-          }
-          // First launch: wait for network
-          return bgFetch;
+      fetch(request.url, { // Simplified fetch to url to avoid 'navigate' mode TypeError
+        cache: 'no-store', // Always check the network for navigation
+        credentials: request.credentials
+      })
+      .then(networkResponse => {
+        // If we got a real response, update the cache and return it
+        if (networkResponse && networkResponse.ok && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(DYNAMIC_CACHE).then(cache => cache.put(request, clone));
+        }
+        return networkResponse;
+      })
+      .catch(async () => {
+        // If network is down, serve the latest from cache
+        try {
+          const cache = await caches.open(DYNAMIC_CACHE);
+          const cachedResponse = await cache.match(request);
+          if (cachedResponse) return cachedResponse;
+          
+          // Serve any available index.html as ultimate fallback
+          const indexResponse = await caches.match('/index.html');
+          if (indexResponse) return indexResponse;
+        } catch (e) {
+          console.error('[SW] Fallback error:', e);
+        }
+        
+        // Final fail-safe: return a valid Response to avoid ERR_FAILED
+        return new Response("Service Unavailable", { 
+          status: 503, 
+          statusText: "Service Unavailable", 
+          headers: { 'Content-Type': 'text/plain' } 
         });
       })
     );
@@ -213,7 +274,7 @@ self.addEventListener('fetch', (event) => {
         return cache.match(request).then(cachedResponse => {
           if (cachedResponse) return cachedResponse; // instant, no network
           return fetch(request).then(networkResponse => {
-            if (networkResponse.ok) {
+            if (networkResponse.ok && networkResponse.status === 200) {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
@@ -231,14 +292,19 @@ self.addEventListener('fetch', (event) => {
       caches.open(DYNAMIC_CACHE).then(cache => {
         return cache.match(request).then(cachedResponse => {
           const bgFetch = fetch(request).then(networkResponse => {
-            if (networkResponse.ok) {
+            if (networkResponse.ok && networkResponse.status === 200) {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
-          }).catch(() => cachedResponse); // Fallback to cache on network error
+          }).catch(() => {
+            // If network fails, return the cached version if we have it
+            if (cachedResponse) return cachedResponse;
+            // Otherwise return a tiny valid response to avoid crash
+            return new Response('', { status: 404, statusText: 'Not Found' });
+          });
 
           if (cachedResponse) {
-            event.waitUntil(bgFetch); // keep SW alive to complete cache update
+            event.waitUntil(bgFetch); 
             return cachedResponse;
           }
           return bgFetch;
@@ -254,14 +320,21 @@ self.addEventListener('fetch', (event) => {
       caches.open(IMAGE_CACHE).then(cache => {
         return cache.match(request).then(cachedResponse => {
           const bgFetch = fetch(request).then(networkResponse => {
-            if (networkResponse.ok) {
+            if (networkResponse.ok && networkResponse.status === 200) {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
-          }).catch(() => cachedResponse);
+          }).catch(() => {
+            if (cachedResponse) return cachedResponse;
+            // Ultimate fallback for images (transparent pixel)
+            return new Response('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', { 
+              status: 200, 
+              headers: { 'Content-Type': 'image/gif' } 
+            });
+          });
 
           if (cachedResponse) {
-            event.waitUntil(bgFetch); // keep SW alive to complete cache update
+            event.waitUntil(bgFetch);
             return cachedResponse;
           }
           return bgFetch;
@@ -277,7 +350,7 @@ self.addEventListener('fetch', (event) => {
       caches.match(request).then(response => {
         if (response) return response;
         return fetch(request).then(networkResponse => {
-          if (networkResponse.ok) {
+          if (networkResponse.ok && networkResponse.status === 200) {
             const cloned = networkResponse.clone();
             caches.open(STATIC_CACHE).then(cache => {
               cache.put(request, cloned);
@@ -294,7 +367,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(request)
       .then(response => {
-        if (response.ok) {
+        if (response.ok && response.status === 200) {
           const responseClone = response.clone();
           caches.open(DYNAMIC_CACHE).then(cache => cache.put(request, responseClone));
         }
@@ -333,6 +406,9 @@ self.addEventListener('activate', (event) => {
     ])
   );
 
+  // Trigger app shell precaching in the background
+  event.waitUntil(precacheAppShell());
+
   // Notify ALL clients about the update with version info
   self.clients.matchAll({ type: 'window' }).then(clients => {
     clients.forEach(client => {
@@ -343,7 +419,12 @@ self.addEventListener('activate', (event) => {
       });
     });
   });
+
+  // TINDER-SPEED: Precache all JS/CSS chunks in background after activation
+  // This makes ALL lazy-loaded routes instant on subsequent navigations
+  precacheAppShell();
 });
+
 
 // IMPROVED: True LRU cache eviction using response headers and access time
 // Stores metadata in IndexedDB to track last access time

@@ -2,13 +2,13 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
-import LegendaryLandingPage from "@/components/LegendaryLandingPage";
+const LegendaryLandingPage = React.lazy(() => import("@/components/LegendaryLandingPage"));
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
-import { motion } from "framer-motion";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
+import React from "react";
 
 const Index = () => {
   const { user, loading, initialized } = useAuth();
@@ -225,20 +225,15 @@ const Index = () => {
         return;
       }
 
-      // Fallback 2: Primary role
-      if (userRole) {
-        hasNavigated.current = true;
-        logger.log("[Index] Navigating to unified hub with role:", userRole);
-        const target = userRole === 'owner' ? "/owner/dashboard" : "/client/dashboard";
-        navigate(target, { replace: true });
-        return;
-      }
-
-      // Fallback 3: Metadata or Default
+      // Fallback 2: Primary role or Metadata
       if (!isNewUser && !isLoadingRole) {
         hasNavigated.current = true;
         const metadataRole = user?.user_metadata?.role;
-        const fallbackRole = (metadataRole === 'client' || metadataRole === 'owner') ? metadataRole : 'client';
+        // Accept null userRole and fallback to metadata instead of hanging
+        const fallbackRole = (userRole === 'client' || userRole === 'owner') 
+          ? userRole 
+          : (metadataRole === 'client' || metadataRole === 'owner') ? metadataRole : 'client';
+          
         logger.log("[Index] Last resort navigation to unified hub with role:", fallbackRole);
         navigate(fallbackRole === 'owner' ? "/owner/dashboard" : "/client/dashboard", { replace: true });
         return;
@@ -297,11 +292,11 @@ const Index = () => {
         <SuspenseFallback />
         
         {showEscapeHatch && (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+          <div 
             className="fixed bottom-12 left-0 right-0 z-[10000] flex justify-center px-6"
+            style={{ animation: 'fadeSlideUp 0.4s ease-out forwards' }}
           >
+            <style>{`@keyframes fadeSlideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}`}</style>
             <div className="bg-card/80 backdrop-blur-xl border border-border p-5 rounded-2xl shadow-2xl max-w-sm text-center">
               <p className="text-foreground font-medium text-sm mb-3">Taking longer than usual...</p>
               <button
@@ -311,7 +306,7 @@ const Index = () => {
                 Refresh Session
               </button>
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     );
@@ -319,8 +314,10 @@ const Index = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen">
-        <LegendaryLandingPage />
+      <div className="min-h-screen bg-[#050505] overflow-hidden">
+        <React.Suspense fallback={<SuspenseFallback />}>
+          <LegendaryLandingPage />
+        </React.Suspense>
       </div>
     );
   }

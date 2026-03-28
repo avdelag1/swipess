@@ -145,9 +145,13 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
           'flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium',
           'border',
           isOpen || hasActiveFilters
-            ? 'bg-white text-gray-900 border-white shadow-md'
+            ? 'border-transparent text-white shadow-md'
             : isDark ? 'bg-muted/50 text-foreground border-border/50' : 'bg-card text-foreground border-border shadow-sm'
         )}
+        style={isOpen || hasActiveFilters ? {
+          background: 'linear-gradient(135deg, #f97316 0%, #ec4899 55%, #8b5cf6 100%)',
+          boxShadow: '0 4px 14px rgba(249,115,22,0.45)',
+        } : undefined}
       >
         <Filter className="w-4 h-4" />
         <span>{t('filters.quickFilter')}</span>

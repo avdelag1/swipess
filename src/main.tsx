@@ -1,39 +1,51 @@
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// FAST INITIAL RENDER - Quita el loader apenas carga la página
+// FAST INITIAL RENDER - Decoupled rendering from Auth initialization
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const initialLoader = document.getElementById("initial-loader");
-if (initialLoader) {
-  initialLoader.remove();
-  document.documentElement.style.overflow = '';
-  document.documentElement.style.position = '';
-  document.body.style.overflow = '';
-  document.body.style.position = '';
-}
-
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./styles/responsive.css";
 import "./styles/PremiumShine.css";
-
-import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
+import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/utils/prodLogger";
 
-// Arranca la app normalmente
-// NOTE: StrictMode REMOVED intentionally for production-like performance
-// StrictMode double-mounts components causing: dashboard flicker, duplicate fetches,
-// delayed UI completion, subscription thrash. Preview must match production behavior.
-const root = createRoot(document.getElementById("root")!);
-root.render(
-  <ErrorBoundaryWrapper>
-    <App />
-  </ErrorBoundaryWrapper>,
-);
+// 1. START AUTH CHECK BEFORE RENDERING (Parallel process)
+// We fire this immediately so it's happening while React chunks download.
+const authPromise = supabase.auth.getSession().catch(() => ({ data: { session: null } }));
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// DEFERRED INITIALIZATION - Todo lo pesado se carga DESPUÉS
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 2. RENDER REACT IMMEDIATELY
+// Do NOT wait for authPromise. The App/AuthProvider will handle the loading state.
+const rootElement = document.getElementById("root");
+if (rootElement) {
+  const root = createRoot(rootElement as HTMLElement);
+  root.render(
+    <React.StrictMode>
+      <App authPromise={authPromise} />
+    </React.StrictMode>
+  );
+}
+
+// 3. REMOVE SPLASH ONLY AFTER HYDRATION
+// We use a double RAF + a tiny delay to ensure the browser has painted the React tree.
+window.addEventListener('app-rendered', () => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      // Signal hydration complete — triggers CSS transition on #root
+      const root = document.getElementById('root');
+      if (root) root.classList.add('hydrated');
+      
+      const loader = document.getElementById('initial-loader');
+      if (loader) {
+        loader.style.opacity = '0';
+        loader.style.transition = 'opacity 0.2s ease-out';
+        setTimeout(() => loader.remove(), 220);
+      }
+    });
+  });
+});
+
+// 4. DEFERRED INITIALIZATION (Background tasks)
 const deferredInit = (callback: () => void, timeout = 3000) => {
   if ("requestIdleCallback" in window) {
     (window as any).requestIdleCallback(callback, { timeout });
@@ -42,39 +54,28 @@ const deferredInit = (callback: () => void, timeout = 3000) => {
   }
 };
 
-// SPEED OF LIGHT: Do NOT prefetch routes on startup
-// Route prefetching now happens inside DashboardLayout ONLY after first paint
-// via requestIdleCallback. This ensures initial render is never blocked.
-
-// Priority 2: Herramientas de rendimiento + Offline Sync
+// Priority: Perf tools, Updates, Offline Sync
 deferredInit(async () => {
   try {
     const [
       { logBundleSize },
-      { setupUpdateChecker, checkAppVersion },
+      { checkAppVersion },
       { initPerformanceOptimizations },
-      { initWebVitalsMonitoring },
       { initOfflineSync },
     ] = await Promise.all([
       import("@/utils/performance"),
       import("@/utils/cacheManager"),
       import("@/utils/performanceMonitor"),
-      import("@/utils/webVitals"),
       import("@/utils/offlineSwipeQueue"),
     ]);
     logBundleSize();
     checkAppVersion();
-    // Check for updates every 5 minutes (focus/online events still trigger immediately)
-    setupUpdateChecker(300000);
     initPerformanceOptimizations();
-    initWebVitalsMonitoring();
-    initOfflineSync(); // PERF: Sync queued swipes when back online
-  } catch {
-    // Silently ignore - these are optional optimizations
-  }
-}, 2000); // Start earlier (2s instead of 3s)
+    initOfflineSync();
+  } catch { }
+}, 4000);
 
-// Priority 3: Configuración nativa (solo en app móvil)
+// Priority: Native Mobile Plugins
 deferredInit(async () => {
   try {
     const { Capacitor } = await import("@capacitor/core");
@@ -84,63 +85,19 @@ deferredInit(async () => {
       await StatusBar.setStyle({ style: Style.Light });
       await StatusBar.setBackgroundColor({ color: "#000000" });
     }
-  } catch {
-    // Silently ignore - only applies to native mobile platforms
-  }
-}, 5000);
+  } catch { }
+}, 6000);
 
-// Service Worker with AGGRESSIVE update handling for PWA
-if ("serviceWorker" in navigator) {
-  // In dev mode: unregister all service workers and clear all caches
-  // so we never serve a stale/broken cached bundle during development
-  if (import.meta.env.DEV) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      registrations.forEach((r) => r.unregister());
-    });
-    caches.keys().then((keys) => {
-      keys.forEach((k) => caches.delete(k));
-    });
-  }
-
+// Service Worker Registration
+if ("serviceWorker" in navigator && !import.meta.env.DEV) {
   window.addEventListener("load", () => {
-    if (import.meta.env.DEV) return; // Skip SW in dev mode
-
-    navigator.serviceWorker
-      .register("/sw.js", { updateViaCache: 'none' }) // Never use HTTP cache for SW
-      .then((registration) => {
-        logger.info('[SW] Registered successfully');
-
-        // Check for updates immediately on registration
-        registration.update();
-
-        // Handle new SW waiting to activate
-        registration.addEventListener("updatefound", () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            logger.info('[SW] New version installing...');
-            newWorker.addEventListener("statechange", () => {
-              if (newWorker.state === "installed") {
-                logger.info('[SW] New version installed');
-                // If there's a waiting worker, it will auto-activate via skipWaiting()
-                // The page will reload when controllerchange fires
-              }
-            });
-          }
+    navigator.serviceWorker.register("/sw.js", { updateViaCache: 'none' })
+      .then((reg) => {
+        reg.update();
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          window.dispatchEvent(new CustomEvent('sw-controller-changed'));
         });
       })
-      .catch((err) => logger.error('[SW] Registration failed:', err));
-
-    // Graceful update handling instead of forced reload
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      logger.info('[SW] New version active. App will update on next navigation or via Automatic Updates UI.');
-      window.dispatchEvent(new CustomEvent('sw-controller-changed'));
-    });
-
-    // Listen for update messages from SW
-    navigator.serviceWorker.addEventListener('message', (event) => {
-      if (event.data?.type === 'SW_UPDATED') {
-        window.dispatchEvent(new CustomEvent('sw-updated', { detail: event.data }));
-      }
-    });
+      .catch((err) => logger.error('[SW] Error:', err));
   });
 }

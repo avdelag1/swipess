@@ -241,7 +241,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       logger.error('[ActiveMode] Navigation failed:', navError);
       try {
         navigate(newMode === 'client' ? '/client/dashboard' : '/owner/dashboard', { replace: true });
-      } catch (f) { /* ignore */ }
+      } catch (_f) { /* ignore */ }
     }
 
     // 8. Show success toast (non-blocking)

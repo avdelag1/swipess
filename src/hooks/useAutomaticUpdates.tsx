@@ -14,6 +14,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 
@@ -137,12 +138,20 @@ export async function forceAppUpdate(): Promise<void> {
 /**
  * React hook for automatic update checking
  */
+/**
+ * React hook for automatic update checking
+ */
 export function useAutomaticUpdates() {
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({ available: false, needsRefresh: false });
   const [isUpdating, setIsUpdating] = useState(false);
   const queryClient = useQueryClient();
 
   const checkUpdates = useCallback(async () => {
+    // If we've already interacted in this session, don't show again
+    if (sessionStorage.getItem('swipess_update_seen') === 'true') {
+      return;
+    }
+
     const info = checkForUpdates();
     
     // Only update state if info actually changed to prevent unnecessary re-renders
@@ -152,17 +161,15 @@ export function useAutomaticUpdates() {
       }
       return info;
     });
-
-    // CRITICAL: Removed queryClient.clear() from here. 
-    // It should only be called in performUpdate or when we are absolutely certain
-    // we want to wipe everything. Calling it on every periodic check (even if update available)
-    // can trigger global re-render loops in some app configurations.
-  }, []); // Remove queryClient dependency as we use the one from scope or ref if needed
+  }, []);
 
   const performUpdate = useCallback(async () => {
     if (isUpdating) return;
     
     setIsUpdating(true);
+    // Mark as seen in session immediately
+    sessionStorage.setItem('swipess_update_seen', 'true');
+
     try {
       logger.info('[AutoUpdate] Performing manual update...');
       
@@ -178,16 +185,14 @@ export function useAutomaticUpdates() {
       // Update version
       markVersionAsInstalled();
 
-      // Reload
-      window.location.reload();
+      // Reload with delay for visual feedback
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       logger.error('Update failed:', error);
       setIsUpdating(false);
-      toast({
-        title: 'Update Failed',
-        description: 'Please refresh the page or clear your browser cache.',
-        variant: 'destructive',
-      });
+      window.location.reload();
     }
   }, [isUpdating, queryClient]);
 
@@ -195,43 +200,36 @@ export function useAutomaticUpdates() {
     // Only run the initial check once on mount
     checkUpdates();
 
-    // Also check when app gains focus (user returns to tab)
+    // Also check when app gains focus
     const handleFocus = () => {
-      // Don't check if we're already in the middle of an update
       if (!isUpdating) checkUpdates();
     };
     window.addEventListener('focus', handleFocus);
 
-    // Listen for service worker updates
-    let swSubscription: { registration: ServiceWorkerRegistration, handleUpdateFound: () => void } | null = null;
+    // Filter service worker updates
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then((registration) => {
-        const handleUpdateFound = () => {
+        registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                setUpdateInfo({
-                  available: true,
-                  version: APP_VERSION,
-                  needsRefresh: true,
-                });
+                if (sessionStorage.getItem('swipess_update_seen') !== 'true') {
+                  setUpdateInfo({
+                    available: true,
+                    version: APP_VERSION,
+                    needsRefresh: true,
+                  });
+                }
               }
             });
           }
-        };
-        registration.addEventListener('updatefound', handleUpdateFound);
-        swSubscription = { registration, handleUpdateFound };
+        });
       });
     }
 
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-      if (swSubscription) {
-        swSubscription.registration.removeEventListener('updatefound', swSubscription.handleUpdateFound);
-      }
-    };
-  }, [checkUpdates, isUpdating]); // performUpdate removed from deps as it's not used in effect
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [checkUpdates, isUpdating]);
 
   return {
     updateInfo,
@@ -243,37 +241,104 @@ export function useAutomaticUpdates() {
 
 /**
  * Component that shows update notification when available
+ * UPGRADED: Liquid Glass Design with Swipess Rose highlights
  */
 export function UpdateNotification() {
   const { updateInfo, performUpdate, isUpdating } = useAutomaticUpdates();
+  const [dismissed, setDismissed] = useState(false);
+  const isVisible = updateInfo.available && !dismissed;
 
-  if (!updateInfo.available) return null;
+  const handleUpdateClick = useCallback(async () => {
+    // Immediate local dismissal and session suppression
+    setDismissed(true);
+    sessionStorage.setItem('swipess_update_seen', 'true');
+    await performUpdate();
+  }, [performUpdate]);
 
   return (
-    <div className="fixed bottom-24 left-4 right-4 z-50 sm:left-auto sm:right-4 sm:w-80">
-      <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white p-4 rounded-xl shadow-2xl">
-        <div className="flex items-start gap-3">
-          <div className="p-2 bg-white/20 rounded-lg">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          key="update-notification"
+          initial={{ y: 100, opacity: 0, scale: 0.9 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: 100, opacity: 0, scale: 0.8 }}
+          transition={{ type: 'spring', stiffness: 450, damping: 30, mass: 1 }}
+          className="fixed bottom-[104px] left-4 right-4 z-[999] sm:left-auto sm:right-6 sm:w-[360px]"
+        >
+          {/* Main Glass Container */}
+          <div 
+             className="relative overflow-hidden rounded-[2.2rem] border p-[1px] shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
+             style={{
+               background: 'rgba(8, 8, 10, 0.85)',
+               borderColor: 'rgba(255,255,255,0.08)',
+               backdropFilter: 'blur(40px) saturate(200%)',
+               WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+             }}
+          >
+            {/* Animated Inner Glow Overlay */}
+            <motion.div 
+               className="absolute -inset-[50%] bg-gradient-to-br from-rose-500/15 via-orange-500/10 to-transparent pointer-none blur-[40px]"
+               animate={{ rotate: 360 }}
+               transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+            />
+
+            <div className="relative z-10 p-6">
+              <div className="flex items-center gap-4 mb-5">
+                {/* Logo Frame — Deep Glass */}
+                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center relative overflow-hidden shadow-inner">
+                  <div className="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-orange-500/10" />
+                  <img src="/icons/fire-s-logo-zoom.png" className="w-9 h-9 object-contain relative z-10" alt="S" />
+                </div>
+
+                {/* Text Content */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-black text-lg tracking-tight leading-tight uppercase italic italic-brand">
+                    Pulse Updated
+                  </p>
+                  <p className="text-white/50 text-[10px] font-bold mt-1 uppercase tracking-widest leading-snug">
+                    New platform version ready
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Button: Swipess Core Rose */}
+              <motion.button
+                whileTap={{ scale: 0.96 }}
+                disabled={isUpdating}
+                onClick={handleUpdateClick}
+                className="w-full relative overflow-hidden h-14 rounded-2xl transition-all duration-300 group border-none"
+                style={{
+                  background: 'linear-gradient(90deg, #ff1f1f, #ff6b3d)',
+                  boxShadow: '0 8px 30px rgba(255, 31, 31, 0.35)',
+                }}
+              >
+                {/* Button Gloss Rim */}
+                <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-white/20 z-20" />
+                
+                {/* Animated Shine Effect */}
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent w-1/3 -skew-x-[35deg]"
+                  animate={{ left: ['-100%', '200%'] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+                />
+
+                <span className="relative z-10 text-white font-black text-sm uppercase tracking-[0.2em]">
+                  {isUpdating ? 'Synthesizing...' : 'NEW UPDATE'}
+                </span>
+              </motion.button>
+            </div>
+            
+            {/* Version Badge */}
+            <div className="absolute bottom-2 right-6 opacity-20">
+               <span className="text-[8px] text-white/50 font-mono tracking-widest uppercase">
+                 Build: {BUILD_TIMESTAMP.slice(-8)}
+               </span>
+            </div>
           </div>
-          <div className="flex-1">
-            <h4 className="font-bold">Update Available</h4>
-            <p className="text-sm text-white/90 mt-1">
-              New version {APP_VERSION} is ready!
-            </p>
-            <button
-              onClick={performUpdate}
-              disabled={isUpdating}
-              className="mt-3 w-full bg-white text-orange-500 font-bold py-2 rounded-lg hover:bg-white/90 transition-colors disabled:opacity-50"
-            >
-              {isUpdating ? 'Updating...' : 'Tap to Restart'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 

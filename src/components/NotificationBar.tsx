@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageCircle, ThumbsUp, Star, UserPlus, Zap, Crown } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
 
 type NotificationType = 'like' | 'message' | 'super_like' | 'match' | 'new_user' | 'premium_purchase' | 'activation_purchase';
 
@@ -29,14 +27,14 @@ interface NotificationBarProps {
   onNotificationClick: (notification: Notification) => void;
 }
 
-const typeConfigs: Record<NotificationType, { icon: any; accentColor: string }> = {
-  like:                { icon: ThumbsUp,     accentColor: '#ec4899' },
-  match:               { icon: SparklesIcon, accentColor: 'var(--color-brand-accent-2)' },
-  super_like:          { icon: Star,         accentColor: '#fbbf24' },
-  message:             { icon: MessageCircle,accentColor: '#60a5fa' },
-  new_user:            { icon: UserPlus,     accentColor: '#34d399' },
-  premium_purchase:    { icon: Crown,        accentColor: '#a78bfa' },
-  activation_purchase: { icon: Zap,          accentColor: '#fb923c' },
+const typeConfigs: Record<NotificationType, { icon: any; accentColor: string; bg: string }> = {
+  like:                { icon: ThumbsUp,      accentColor: '#ec4899', bg: 'rgba(236,72,153,0.12)' },
+  match:               { icon: SparklesIcon,  accentColor: '#8b5cf6', bg: 'rgba(139,92,246,0.12)' },
+  super_like:          { icon: Star,          accentColor: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+  message:             { icon: MessageCircle, accentColor: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
+  new_user:            { icon: UserPlus,      accentColor: '#10b981', bg: 'rgba(16,185,129,0.12)' },
+  premium_purchase:    { icon: Crown,         accentColor: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
+  activation_purchase: { icon: Zap,           accentColor: '#f97316', bg: 'rgba(249,115,22,0.12)' },
 };
 
 function SparklesIcon(props: any) {
@@ -49,21 +47,15 @@ function SparklesIcon(props: any) {
 }
 
 export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMarkAllRead, onNotificationClick }: NotificationBarProps) {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
-
   // ─── SNAPSHOT PATTERN ───────────────────────────────────────────────────────
-  // "current" is the notification we are CURRENTLY displaying.
-  // It is set once when we decide to show it and never changed until after the
-  // exit animation fully completes.  This prevents the card content from
-  // switching mid-animation (which caused the "two notifications at once" bug).
   const [current, setCurrent] = useState<Notification | null>(null);
   const [visible, setVisible] = useState(false);
+  // Track exit direction — default is always 'right' (slides out to the right)
+  const [exitDir, setExitDir] = useState<'up' | 'right'>('right');
 
-  // Refs — no re-renders needed for these
   const timerRef   = useRef<ReturnType<typeof setTimeout>>();
-  const isExiting  = useRef(false);   // true while the exit animation is running
-  const pendingRef = useRef<Notification | null>(null); // queued next notification
+  const isExiting  = useRef(false);
+  const pendingRef = useRef<Notification | null>(null);
 
   const unread = useMemo(
     () => notifications.filter(n => !n.read),
@@ -73,23 +65,15 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMa
   // ─── TRIGGER: show when a new unread arrives ─────────────────────────────
   useEffect(() => {
     const next = unread[0];
-
     if (!next) {
-      // Nothing left — start dismissal if still visible
-      if (visible) startDismiss();
+      if (visible) startDismiss('right');
       return;
     }
-
-    // Already showing this exact notification — do nothing
     if (current?.id === next.id && visible) return;
-
-    // Mid-exit — remember the next one for after the animation
     if (isExiting.current) {
       pendingRef.current = next;
       return;
     }
-
-    // Show the new notification
     showNotification(next);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unread.map(n => n.id).join(',')]);
@@ -98,123 +82,122 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMa
     clearTimeout(timerRef.current);
     setCurrent(notif);
     setVisible(true);
-    // Auto-dismiss after 5 s
-    timerRef.current = setTimeout(() => startDismiss(), 5000);
+    // Auto-dismiss after 4s — exits to the right
+    timerRef.current = setTimeout(() => startDismiss('right'), 4000);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const startDismiss = useCallback(() => {
-    if (isExiting.current) return; // already dismissing
+  const startDismiss = useCallback((dir: 'up' | 'right' = 'right') => {
+    if (isExiting.current) return;
     isExiting.current = true;
+    setExitDir(dir);
     clearTimeout(timerRef.current);
     setVisible(false);
-    // NOTE: we do NOT call onDismiss here — we wait for the exit animation
-    //       to finish so the card content stays frozen during the slide-out.
   }, []);
 
-  // Called by AnimatePresence once the exit animation is 100% done
   const handleExitComplete = useCallback(() => {
     isExiting.current = false;
-
-    // NOW tell the parent to mark this notification read
     if (current) onDismiss(current.id);
-
     const pending = pendingRef.current;
     pendingRef.current = null;
-
     if (pending) {
-      // Show the queued notification after a brief breath
-      setTimeout(() => showNotification(pending), 200);
+      setTimeout(() => showNotification(pending), 150);
     } else {
       setCurrent(null);
     }
   }, [current, onDismiss, showNotification]);
 
-  // ─── UI ─────────────────────────────────────────────────────────────────────
   if (!current) return null;
 
   const config = typeConfigs[current.type] ?? typeConfigs.like;
   const Icon   = config.icon;
-
   const unreadCount = unread.length;
 
+  // Animation: enters from left, exits right (default) or up (swipe up)
+  const exitVariant = exitDir === 'up'
+    ? { y: '-130%', opacity: 0, transition: { type: 'spring' as const, stiffness: 500, damping: 38 } }
+    : { x: '115%',  opacity: 0, transition: { type: 'spring' as const, stiffness: 420, damping: 36 } };
+
   return (
-    // Fixed container: always mounted, provides centering — not animated itself
-    <div className="fixed top-14 left-0 right-0 z-[100] px-4 flex justify-center pointer-events-none">
+    <div className="fixed top-16 left-0 right-0 z-[150] px-3 flex justify-center pointer-events-none">
       <AnimatePresence onExitComplete={handleExitComplete}>
         {visible && (
           <motion.div
             key={current.id}
-            // Slides in from fully off-screen left, rests in center, exits to fully off-screen right
-            initial={{ x: '-110%', opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: '110%', opacity: 0 }}
+            // Slides in from the LEFT, rests centered, exits to the RIGHT
+            initial={{ x: '-115%', opacity: 0, scale: 0.94 }}
+            animate={{ x: 0, opacity: 1, scale: 1 }}
+            exit={exitVariant}
             transition={{
-              x:       { type: 'spring', stiffness: 420, damping: 38, mass: 1 },
-              opacity: { type: 'tween', duration: 0.18, ease: 'easeOut' },
+              x:       { type: 'spring', stiffness: 420, damping: 38, mass: 0.75 },
+              scale:   { type: 'spring', stiffness: 420, damping: 38, mass: 0.75 },
+              opacity: { type: 'tween', duration: 0.12, ease: 'easeOut' },
             }}
-            // ── SWIPE-RIGHT-TO-DISMISS ──────────────────────────────────────
-            drag="x"
-            dragDirectionLock
-            dragConstraints={{ left: -10, right: 300 }}
-            dragElastic={{ left: 0.05, right: 0.25 }}
+            // ── SWIPE TO DISMISS ─────────────────────────────────────────────
+            drag
+            dragDirectionLock={false}
+            dragConstraints={{ left: -16, right: 600, top: -600, bottom: 16 }}
+            dragElastic={{ left: 0.03, right: 0.12, top: 0.18, bottom: 0.02 }}
+            dragMomentum={false}
             onDrag={(_, info) => {
-              if (info.offset.x > 60 && !isExiting.current) {
-                startDismiss();
-              }
+              if (isExiting.current) return;
+              if (info.offset.y < -24) startDismiss('up');
+              else if (info.offset.x > 44) startDismiss('right');
             }}
             onDragEnd={(_, info) => {
-              if (info.offset.x > 30 && !isExiting.current) startDismiss();
+              if (isExiting.current) return;
+              if (info.offset.y < -14) startDismiss('up');
+              else if (info.offset.x > 20) startDismiss('right');
             }}
-            whileTap={{ scale: 0.985 }}
-            className="pointer-events-auto flex items-stretch min-w-[300px] max-w-[92vw] rounded-2xl overflow-hidden cursor-pointer"
+            whileTap={{ scale: 0.978 }}
+            className="pointer-events-auto w-full max-w-[400px] rounded-2xl overflow-hidden cursor-pointer"
             style={{
-              background: isDark ? 'rgba(20,20,24,0.97)' : '#ffffff',
-              border: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'}`,
-              boxShadow: isDark
-                ? '0 8px 28px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35)'
-                : '0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
+              background: 'rgba(15,15,15,0.92)',
+              border: `1px solid ${config.accentColor}28`,
+              boxShadow: `0 12px 40px rgba(0,0,0,0.35), 0 0 0 1px ${config.accentColor}18, 0 4px 12px ${config.accentColor}18`,
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
             }}
             onClick={() => {
               onNotificationClick(current);
-              startDismiss();
+              startDismiss('right');
             }}
           >
-            {/* Left accent stripe */}
-            <div className="w-[3px] flex-shrink-0" style={{ background: config.accentColor }} />
+            {/* Left accent stripe — type-specific color */}
+            <div
+              className="absolute left-0 top-0 bottom-0 w-[3px]"
+              style={{ background: config.accentColor }}
+            />
 
-            {/* Content */}
-            <div className="flex items-center gap-3 px-4 py-3 flex-1 min-w-0">
+            <div className="flex items-center gap-3 pl-5 pr-3 py-3">
               {/* Icon chip */}
               <div
                 className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{ background: `${config.accentColor}18` }}
+                style={{ background: config.bg }}
               >
                 <Icon style={{ color: config.accentColor, width: 17, height: 17 }} />
               </div>
 
               {/* Text */}
-              <div className="flex-1 min-w-0 pr-1">
-                <p className="text-[13px] font-semibold leading-tight mb-0.5 truncate text-foreground">
+              <div className="flex-1 min-w-0">
+                <p
+                  className="text-[13px] font-bold leading-tight mb-0.5 truncate text-white"
+                >
                   {unreadCount > 1 ? `${unreadCount} new notifications` : current.title}
                 </p>
-                <p className="text-[12px] truncate leading-snug text-muted-foreground">
+                <p className="text-[12px] truncate leading-snug text-white/50">
                   {unreadCount > 1 ? 'Tap to see all' : current.message}
                 </p>
               </div>
 
-              {/* Close button */}
+              {/* Dismiss button */}
               <button
-                onClick={(e) => { e.stopPropagation(); startDismiss(); }}
-                className={cn(
-                  "flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center",
-                  isDark ? "hover:bg-white/10 active:bg-white/15" : "hover:bg-black/5 active:bg-black/10",
-                )}
+                onClick={(e) => { e.stopPropagation(); startDismiss('right'); }}
+                className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                style={{ background: 'rgba(255,255,255,0.06)' }}
                 aria-label="Dismiss"
               >
-                <X className="w-3.5 h-3.5 text-muted-foreground" />
+                <X className="w-3.5 h-3.5 text-white/40" />
               </button>
             </div>
           </motion.div>

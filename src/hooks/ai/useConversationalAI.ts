@@ -43,12 +43,22 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
     setMessages(prev => [...prev, newUserMessage]);
 
     try {
-      const apiMessages = messages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-      }));
+      // Pre-flight auth check — fail fast if no session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please sign in to use the AI Concierge');
+        throw new Error('Not authenticated');
+      }
 
-      apiMessages.push({ role: 'user', content: userMessage });
+      // STICKY FIX: Clean messages for the Edge Function / AI API
+      // Only keep 'role' and 'content'. Metadata like 'timestamp' causes 400 errors.
+      const apiMessages = [
+        ...messages.map(msg => ({
+          role: msg.role === 'assistant' ? 'assistant' : 'user', // strictly assistant or user
+          content: msg.content,
+        })),
+        { role: 'user', content: userMessage }
+      ];
 
       const { data, error: functionError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {
@@ -65,9 +75,9 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
       if (functionError) {
         const msg = functionError.message || '';
         if (msg.includes('429') || msg.includes('rate limit')) {
-          toast.error('AI rate limit reached. Please try again in a moment.');
+          toast.error('Concierge is temporarily busy. Please try again in a moment.');
         } else if (msg.includes('402')) {
-          toast.error('AI credits exhausted. Please add funds.');
+          toast.error('Concierge services need more credits. Please add funds.');
         }
         throw functionError;
       }

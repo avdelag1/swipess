@@ -1,28 +1,30 @@
 import { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { 
-  Bot, 
-  Send, 
-  X, 
-  Loader2, 
+  Bot,
+  Send,
+  X,
+  Loader2,
   Sparkles,
   MapPin,
   Building2,
   Car,
-  Briefcase,
   RefreshCw,
   User
 } from 'lucide-react';
-import { useGeminiCityExpert } from '@/hooks/useGeminiCityExpert';
+import { useConciergeAI } from '@/hooks/useConciergeAI';
+import { SwipessLogo } from './SwipessLogo';
 import { useTheme } from '@/hooks/useTheme';
+import { useUserSubscription } from '@/hooks/useSubscription';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { haptics } from '@/utils/microPolish';
 
-interface CityExpertChatProps {
+interface ConciergeChatProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialCity?: string;
@@ -30,14 +32,15 @@ interface CityExpertChatProps {
   listings?: any[];
 }
 
-export function CityExpertChat({ 
+export function ConciergeChat({ 
   open, 
   onOpenChange, 
-  initialCity = 'Cancun',
+  initialCity = 'Tulum',
   userRole = 'client',
   listings = []
-}: CityExpertChatProps) {
+}: ConciergeChatProps) {
   const { theme } = useTheme();
+  const { data: subscription } = useUserSubscription();
   const isDark = theme === 'dark';
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -49,7 +52,7 @@ export function CityExpertChat({
     sendMessage, 
     clearMessages,
     isConfigured 
-  } = useGeminiCityExpert();
+  } = useConciergeAI();
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -57,6 +60,13 @@ export function CityExpertChat({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Pre-warm the Edge Function to avoid cold-start delays
+  useEffect(() => {
+    if (open) {
+      supabase.functions.invoke('ai-orchestrator', { body: { task: 'ping' } }).catch(() => {});
+    }
+  }, [open]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -104,19 +114,30 @@ export function CityExpertChat({
         )}>
           <div className="flex items-center gap-3">
             <div className={cn(
-              "w-10 h-10 rounded-xl flex items-center justify-center",
-              isDark 
-                ? "bg-gradient-to-br from-cyan-500 to-blue-600" 
-                : "bg-gradient-to-br from-cyan-400 to-blue-500"
+              "w-11 h-11 rounded-full flex items-center justify-center relative overflow-hidden group shadow-lg border",
+              isDark ? "bg-zinc-900 border-white/10" : "bg-white border-zinc-200"
             )}>
-              <Bot className="w-5 h-5 text-white" />
+              <SwipessLogo size="sm" className="relative z-10" />
+              <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
             <div>
-              <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-gray-900")}>
-                City Expert
-              </h2>
+              <div className="flex items-center gap-1.5">
+                <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-gray-900")}>
+                  Swipess Concierge
+                </h2>
+                <div className="flex items-center gap-1.5 ml-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                  <span className="text-[9px] font-black text-rose-500 uppercase tracking-[0.2em]">Personal Concierge</span>
+                </div>
+                {userRole === 'owner' || (subscription?.subscription_packages?.tier === 'premium' || subscription?.subscription_packages?.tier === 'unlimited') && (
+                  <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-bold uppercase tracking-wider border border-amber-500/20">
+                    <Sparkles className="w-2.5 h-2.5" />
+                    Premium
+                  </span>
+                )}
+              </div>
               <p className={cn("text-xs", isDark ? "text-zinc-400" : "text-gray-500")}>
-                AI Assistant for {initialCity}
+                Personal Assistant for {initialCity}
               </p>
             </div>
           </div>
@@ -159,10 +180,10 @@ export function CityExpertChat({
                 )}>
                   <Sparkles className={cn("w-8 h-8 mx-auto mb-2", isDark ? "text-cyan-400" : "text-cyan-500")} />
                   <p className={cn("font-medium", isDark ? "text-white" : "text-gray-900")}>
-                    Hello! I'm your {initialCity} Expert AI
+                    Hello! I'm your {initialCity} Concierge
                   </p>
                   <p className={cn("text-sm mt-1", isDark ? "text-zinc-400" : "text-gray-500")}>
-                    Ask me about restaurants, bars, properties, or anything about the city!
+                    How can I assist you with your listings or local information today?
                   </p>
                 </div>
 
@@ -292,7 +313,7 @@ export function CityExpertChat({
             />
             <Button
               onClick={handleSend}
-              disabled={!input.trim() || isLoading || !isConfigured}
+              disabled={!input.trim() || isLoading}
               size="icon"
               className={cn(
                 "h-12 w-12 rounded-xl shrink-0",
@@ -308,11 +329,6 @@ export function CityExpertChat({
               )}
             </Button>
           </div>
-          {!isConfigured && (
-            <p className={cn("text-xs text-center mt-2", isDark ? "text-zinc-500" : "text-gray-400")}>
-              AI Expert is not configured. Add VITE_GEMINI_API_KEY to your .env file.
-            </p>
-          )}
         </div>
       </DialogContent>
     </Dialog>

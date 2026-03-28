@@ -1,17 +1,27 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 
-// Import animations
-import profileAnim from '@/assets/animations/profile-bubbly.json';
-import flameAnim from '@/assets/animations/flame-pulse.json';
-import aiAnim from '@/assets/animations/ai-sparkle.json';
-import messageAnim from '@/assets/animations/message-pop.json';
-import compassAnim from '@/assets/animations/compass-elastic.json';
-import genericAnim from '@/assets/animations/generic-pop.json';
-import heartAnim from '@/assets/animations/heart-elastic.json';
-import dislikeAnim from '@/assets/animations/dislike-elastic.json';
+// Lazy loaders — each JSON is a separate Vite chunk, loaded only on first press
+const ANIMATION_LOADERS: Record<string, () => Promise<any>> = {
+  profile:   () => import('@/assets/animations/profile-bubbly.json'),
+  likes:     () => import('@/assets/animations/flame-pulse.json'),
+  'ai-search': () => import('@/assets/animations/ai-sparkle.json'),
+  messages:  () => import('@/assets/animations/message-pop.json'),
+  browse:    () => import('@/assets/animations/compass-elastic.json'),
+  heart:     () => import('@/assets/animations/heart-elastic.json'),
+  dislike:   () => import('@/assets/animations/dislike-elastic.json'),
+  roommates: () => import('@/assets/animations/users-bounce.json'),
+  eventos:   () => import('@/assets/animations/megaphone-shout.json'),
+  advertise: () => import('@/assets/animations/megaphone-shout.json'),
+  filter:    () => import('@/assets/animations/search-scan.json'),
+};
 
-type IconType = 'profile' | 'likes' | 'ai-search' | 'messages' | 'browse' | 'heart' | 'dislike' | string;
+const genericLoader = () => import('@/assets/animations/generic-pop.json');
+
+// Module-level cache so each animation is only fetched once per session
+const animationCache = new Map<string, any>();
+
+type IconType = 'profile' | 'likes' | 'ai-search' | 'messages' | 'browse' | 'heart' | 'dislike' | 'roommates' | 'eventos' | 'advertise' | 'filter' | string;
 
 interface AnimatedLottieIconProps {
   iconId: IconType;
@@ -21,16 +31,6 @@ interface AnimatedLottieIconProps {
   inactiveIcon?: React.ReactNode;
 }
 
-const ANIMATION_MAP: Record<string, any> = {
-  profile: profileAnim,
-  likes: flameAnim,
-  'ai-search': aiAnim,
-  messages: messageAnim,
-  browse: compassAnim,
-  heart: heartAnim,
-  dislike: dislikeAnim,
-};
-
 export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
   iconId,
   active,
@@ -39,6 +39,23 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
   inactiveIcon
 }) => {
   const lottieRef = useRef<LottieRefCurrentProps>(null);
+  const [animationData, setAnimationData] = useState<any>(() => animationCache.get(iconId) ?? null);
+
+  // Load animation data lazily on first activation
+  useEffect(() => {
+    if (!active || animationCache.has(iconId)) {
+      if (animationCache.has(iconId) && !animationData) {
+        setAnimationData(animationCache.get(iconId));
+      }
+      return;
+    }
+    const loader = ANIMATION_LOADERS[iconId] ?? genericLoader;
+    loader().then((mod) => {
+      const data = mod.default ?? mod;
+      animationCache.set(iconId, data);
+      setAnimationData(data);
+    });
+  }, [active, iconId]);
 
   useEffect(() => {
     if (active && lottieRef.current) {
@@ -48,18 +65,16 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
     }
   }, [active]);
 
-  const animationData = ANIMATION_MAP[iconId] || genericAnim;
-
-  // When inactive, render the fallback icon instead of the animation
-  if (!active) {
+  // When inactive, render the static fallback icon (no Lottie overhead)
+  if (!active || !animationData) {
     return (
-      <div 
-        className={className} 
-        style={{ 
-          width: size, 
-          height: size, 
-          display: 'flex', 
-          alignItems: 'center', 
+      <div
+        className={className}
+        style={{
+          width: size,
+          height: size,
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'center',
         }}
       >
@@ -70,22 +85,22 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
     );
   }
 
-  // When active, render the Lottie animation
+  // When active and data is loaded, render the Lottie animation
   return (
-    <div 
-      className={className} 
-      style={{ 
-        width: size, 
-        height: size, 
-        display: 'flex', 
-        alignItems: 'center', 
+    <div
+      className={className}
+      style={{
+        width: size,
+        height: size,
+        display: 'flex',
+        alignItems: 'center',
         justifyContent: 'center',
       }}
     >
       <Lottie
         lottieRef={lottieRef}
         animationData={animationData}
-        loop={iconId !== 'profile'} // Loop mostly for flame/sparkles
+        loop={iconId !== 'profile'}
         autoplay={active}
         style={{ width: '100%', height: '100%' }}
       />

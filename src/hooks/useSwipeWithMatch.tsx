@@ -44,10 +44,9 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
       direction: 'left' | 'right';
       targetType: 'listing' | 'profile'
     }) => {
-      // Defensive auth check
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      if (!currentUser?.id || !user?.id) {
-        logger.error('Auth check failed:', { currentUser: currentUser?.id, user: user?.id });
+      // Use cached session (no network call) for auth check
+      if (!user?.id) {
+        logger.error('Auth check failed: no user in context');
         throw new Error('User not authenticated. Please refresh the page.');
       }
 
@@ -57,21 +56,8 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
         throw new Error('You cannot like your own profile');
       }
 
-      // CRITICAL: Also check for own listings
-      if (targetType === 'listing') {
-        // We need to verify the listing doesn't belong to the user
-        // This should already be filtered by the query, but double-check
-        const { data: listing } = await supabase
-          .from('listings')
-          .select('owner_id')
-          .eq('id', targetId)
-          .maybeSingle();
-
-        if (listing && listing.owner_id === user.id) {
-          logger.error('[useSwipeWithMatch] CRITICAL: Attempted to like own listing - filter failed!', { userId: user.id, listingId: targetId });
-          throw new Error('You cannot like your own listing');
-        }
-      }
+      // Own-listing guard is enforced at query level (owner_id != user.id filter)
+      // and at the DB level via RLS. No extra round-trip needed here.
 
       let like: any;
 
@@ -117,44 +103,21 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
             throw new Error('This user is no longer active');
           }
 
-          // For owner → client likes, use likes table with target_type='profile'
-          // First, check if like already exists
-          const { data: existingLike } = await supabase
+          // For owner → client likes, use upsert to handle both insert and re-like in one round-trip
+          const { data: ownerLike, error: ownerLikeError } = await supabase
             .from('likes')
-            .select('id')
-            .eq('user_id', user.id)
-            .eq('target_id', targetId)
-            .eq('target_type', 'profile')
+            .upsert({
+              user_id: user.id,
+              target_id: targetId,
+              target_type: 'profile',
+              direction: 'right',
+              created_at: new Date().toISOString()
+            }, {
+              onConflict: 'user_id,target_id,target_type',
+              ignoreDuplicates: false
+            })
+            .select()
             .maybeSingle();
-
-          let ownerLike;
-          let ownerLikeError;
-
-          if (existingLike) {
-            // Update existing like (just update the timestamp)
-            const result = await supabase
-              .from('likes')
-              .update({ created_at: new Date().toISOString() })
-              .eq('id', existingLike.id)
-              .select()
-              .single();
-            ownerLike = result.data;
-            ownerLikeError = result.error;
-          } else {
-            // Insert new like
-            const result = await supabase
-              .from('likes')
-              .insert({
-                user_id: user.id,
-                target_id: targetId,
-                target_type: 'profile',
-                direction: 'right'
-              })
-              .select()
-              .single();
-            ownerLike = result.data;
-            ownerLikeError = result.error;
-          }
 
           if (ownerLikeError) {
             // Handle expected errors gracefully (unique constraint violations, RLS, FK violations)
@@ -198,41 +161,40 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
             like = ownerLike;
           }
 
-          // IMPORTANT: Send notification to the liked client
-          // Get owner's profile info for the notification
-          const { data: ownerProfile } = await supabase
+          // Send notifications fire-and-forget — don't block mutation resolution
+          supabase
             .from('profiles')
             .select('full_name, avatar_url')
             .eq('user_id', user.id)
-            .maybeSingle();
-
-          const ownerName = ownerProfile?.full_name || 'Someone';
-
-          // Create in-app notification for the client
-          supabase.rpc('create_notification_for_user', {
-            p_user_id: targetId,
-            p_notification_type: 'new_like',
-            p_title: '🔥 New Flame!',
-            p_message: `${ownerName} liked your profile!`,
-            p_related_user_id: user.id,
-            p_metadata: { liker_id: user.id }
-          }).then(
-            () => logger.info('[useSwipeWithMatch] Notification saved for client:', targetId),
-            (err) => logger.error('[useSwipeWithMatch] Failed to save notification:', err)
-          );
-
-          // Trigger push notification (fire-and-forget)
-          supabase.functions.invoke('send-push-notification', {
-            body: {
-              user_id: targetId,
-              title: '🔥 New Flame!',
-              body: `${ownerName} liked your profile!`,
-              data: { type: 'like', liker_id: user.id }
-            }
-          }).then(
-            () => logger.info('[useSwipeWithMatch] Push notification sent to client:', targetId),
-            (err) => logger.error('[useSwipeWithMatch] Push notification failed:', err)
-          );
+            .maybeSingle()
+            .then(({ data: ownerProfile }) => {
+              const ownerName = ownerProfile?.full_name || 'Someone';
+              supabase.rpc('create_notification_for_user', {
+                p_user_id: targetId,
+                p_notification_type: 'new_like',
+                p_title: '🔥 New Flame!',
+                p_message: `${ownerName} liked your profile!`,
+                p_related_user_id: user.id,
+                p_metadata: { liker_id: user.id }
+              }).then(
+                () => logger.info('[useSwipeWithMatch] Notification saved for client:', targetId),
+                (err: any) => logger.error('[useSwipeWithMatch] Failed to save notification:', err)
+              );
+              supabase.functions.invoke('send-push-notification', {
+                body: {
+                  user_id: targetId,
+                  title: '🔥 New Flame!',
+                  body: `${ownerName} liked your profile!`,
+                  data: { type: 'like', liker_id: user.id }
+                }
+              }).then(
+                () => {},
+                (err: any) => logger.error('[useSwipeWithMatch] Push notification failed:', err)
+              );
+            }).then(
+              () => {},
+              (err: any) => logger.error('[useSwipeWithMatch] Failed to fetch owner profile for notification:', err)
+            );
         } else {
           // For left swipes (dislikes), use likes table with direction='dismiss'
           const { error: dismissError } = await supabase
@@ -278,21 +240,16 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
           }
           like = clientLike;
 
-          // IMPORTANT: Notify listing owner when client likes their listing
-          // Get listing owner and client info for notification
-          // Use allSettled so a failed fetch doesn't abort the swipe that was already saved
-          const [listingSettled, clientSettled] = await Promise.allSettled([
+          // Notify listing owner fire-and-forget — don't block mutation resolution
+          Promise.allSettled([
             supabase.from('listings').select('owner_id, title').eq('id', targetId).maybeSingle(),
             supabase.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle()
-          ]);
-          const listingResult = listingSettled.status === 'fulfilled' ? listingSettled.value : { data: null };
-          const clientResult = clientSettled.status === 'fulfilled' ? clientSettled.value : { data: null };
-
-          if (listingResult.data?.owner_id) {
+          ]).then(([listingSettled, clientSettled]) => {
+            const listingResult = listingSettled.status === 'fulfilled' ? listingSettled.value : { data: null };
+            const clientResult = clientSettled.status === 'fulfilled' ? clientSettled.value : { data: null };
+            if (!listingResult.data?.owner_id) return;
             const clientName = clientResult.data?.full_name || 'Someone';
             const listingTitle = listingResult.data.title || 'your listing';
-
-            // Create in-app notification for the owner
             supabase.rpc('create_notification_for_user', {
               p_user_id: listingResult.data.owner_id,
               p_notification_type: 'new_like',
@@ -304,8 +261,6 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
               () => logger.info('[useSwipeWithMatch] Notification sent to owner:', listingResult.data?.owner_id),
               (err) => logger.error('[useSwipeWithMatch] Failed to notify owner:', err)
             );
-
-            // Trigger push notification (fire-and-forget)
             supabase.functions.invoke('send-push-notification', {
               body: {
                 user_id: listingResult.data.owner_id,
@@ -314,7 +269,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
                 data: { type: 'like', liker_id: user.id, listing_id: targetId }
               }
             }).catch(err => logger.error('[useSwipeWithMatch] Push to owner failed:', err));
-          }
+          });
         } else {
           // Client left swipe on listing - save dismissal using likes table
           const { error: dismissError } = await supabase

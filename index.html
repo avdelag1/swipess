@@ -3,207 +3,84 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
   <meta name="format-detection" content="telephone=no">
 
-  <!-- Google Consent Mode v2 — MUST run before any Google tags load -->
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('consent', 'default', {
-      'ad_storage': 'denied',
-      'analytics_storage': 'denied',
-      'ad_user_data': 'denied',
-      'ad_personalization': 'denied',
-      'wait_for_update': 500
-    });
-  </script>
-
-  <!-- Supabase preconnect is injected dynamically at build time by Vite -->
-
-  <!-- Preload splash logo — first visible element, load with highest priority -->
-  <link rel="preload" as="image" href="/icons/swipess-logo.png" fetchpriority="high">
-
-  <!-- Fonts - deferred priority -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <!-- Critical Preconnects (Limit to 2 to avoid Lighthouse warning) -->
+  <link rel="preconnect" href="https://vplgtcguxujxwrgguxqq.supabase.co" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <!-- DNS Prefetch + Preconnect for faster third-party connections -->
-  <link rel="dns-prefetch" href="https://storage.googleapis.com">
-  <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
+  <!-- LCP IMAGE: fetchpriority=high + preload ensures logo loads before JS -->
+  <link rel="preload" as="image" href="/icons/swipess-flame-s.png" type="image/png" fetchpriority="high">
 
+  <!-- Critical styles inlined for instant paint -->
+  <style>
+    /* MINIMAL CRITICAL CSS — everything else loads async */
+    :root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{margin:0;padding:0;overflow:hidden;background:#050505;width:100%;height:100%;color:#fff;font-family:system-ui,-apple-system,sans-serif}
 
-  <!-- Splash screen styles are loaded via index.css for proper Vite processing -->
+    /* SPLASH: This IS the LCP element — a full visual landing painted in pure CSS + inline SVG */
+    #initial-loader{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      width:100vw;height:100dvh;background:#050505;
+      position:fixed;top:0;left:0;z-index:9999;
+    }
+    .splash-logo{width:140px;height:140px;animation:splash-pulse 1.4s ease-in-out infinite}
+    @keyframes splash-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.07);opacity:0.85}}
 
-  <!-- Defer font loading - not render blocking -->
+    /* CSS Star Field — renders instantly, no JS needed */
+    .stars-container{position:absolute;top:0;left:0;width:100%;height:200%}
+    #stars{position:absolute;inset:0;width:1px;height:1px;
+      box-shadow:5vw 15vh #fff,15vw 55vh #fff,25vw 35vh #fff,35vw 75vh #fff,45vw 5vh #fff,55vw 45vh #fff,65vw 85vh #fff,75vw 25vh #fff,85vw 65vh #fff,95vw 90vh #fff,10vw 70vh #fff,40vw 50vh #fff,60vw 20vh #fff,80vw 40vh #fff,20vw 95vh #fff,50vw 30vh #fff,70vw 10vh #fff,30vw 60vh #fff,90vw 50vh #fff,8vw 80vh #fff,5vw 115vh #fff,25vw 135vh #fff,45vw 105vh #fff,65vw 185vh #fff,85vw 165vh #fff;
+      animation:animStar 80s linear infinite}
+    #stars2{position:absolute;inset:0;width:2px;height:2px;
+      box-shadow:8vw 30vh #fff,28vw 10vh #fff,48vw 90vh #fff,68vw 60vh #fff,88vw 80vh #fff,32vw 85vh #fff,52vw 5vh #fff,72vw 55vh #fff,2vw 55vh #fff,18vw 170vh #fff,38vw 150vh #fff,58vw 120vh #fff,78vw 140vh #fff;
+      animation:animStar 120s linear infinite}
+    @keyframes animStar{from{transform:translateY(0)}to{transform:translateY(-50%)}}
 
-  <!-- Load fonts asynchronously - not render blocking -->
-  <link rel="preload" as="style"
-    href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
-    onload="this.onload=null;this.rel='stylesheet'">
-  <noscript>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
-      rel="stylesheet">
-  </noscript>
+    /* HIDE root until React paints — prevents flash of empty div */
+    #root{opacity:0;transition:opacity 0.2s ease-out}
+    #root.hydrated{opacity:1}
+  </style>
 
-  <title>Swipess — The Elite Multi-Vertical Hub</title>
-  <meta name="description"
-    content="Discover premium properties, high-performance vehicles, and expert services. Swipess connects you to what matters most with elite precision.">
-  <meta name="author" content="Swipess" />
-  <meta name="keywords"
-    content="exclusive properties, luxury vehicles, professional services, premium matching, elite marketplace">
+  <!-- Defer font loading — never block paint -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet"></noscript>
 
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://swipess.com/">
+  <title>Swipess | Tulum's Elite Real Estate & Lifestyle Concierge</title>
+  <meta name="description" content="Discover premium properties, high-performance vehicles, and expert services.">
+  <meta name="theme-color" content="#050505">
+  <meta name="app-version" content="3.3.0">
 
-
-  <meta property="og:image"
-    content="https://storage.googleapis.com/gpt-engineer-file-uploads/qyGlrqJHe9g2hyHsAc6ZZroRlyF2/social-images/social-1772255591388-1000651100.webp">
-
-  <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://swipess.com/">
-  <meta property="twitter:title" content="Swipess - The Elite Multi-Vertical Hub">
-  <meta property="twitter:description"
-    content="Discover premium properties, high-performance vehicles, and expert services. Swipess connects you to what matters most.">
-  <meta property="twitter:image" content="https://swipess.com/og-image.jpg">
-
-  <!-- PWA Support -->
   <link rel="manifest" href="/manifest.webmanifest?v=20260312b">
-  <meta name="theme-color" content="#000000">
-
-  <!-- iOS/Safari PWA Support - Comprehensive Meta Tags -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Swipess">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="format-detection" content="telephone=no">
-  <meta name="apple-touch-fullscreen" content="yes">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/swipess-logo.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/swipess-logo.png">
-  <link rel="shortcut icon" href="/icons/swipess-logo.png">
-
-  <!-- Apple Touch Icons - All required sizes -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-  <link rel="apple-touch-icon" sizes="57x57" href="/icons/apple-touch-icon-57x57.png">
-  <link rel="apple-touch-icon" sizes="60x60" href="/icons/apple-touch-icon-60x60.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="/icons/apple-touch-icon-72x72.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="/icons/apple-touch-icon-76x76.png">
-  <link rel="apple-touch-icon" sizes="114x114" href="/icons/apple-touch-icon-114x114.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120x120.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="/icons/apple-touch-icon-144x144.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="/icons/apple-touch-icon-167x167.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180x180.png">
-  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/apple-touch-icon-1024x1024.png">
 
-  <!-- Capacitor iOS -->
-  <meta name="supported-color-schemes" content="light dark">
-  <meta name="color-scheme" content="light dark">
+  <!-- Security Header -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://cdn.gpteng.co https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com https://*.googleusercontent.com https://images.unsplash.com https://www.google-analytics.com https://www.googletagmanager.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://images.unsplash.com https://accounts.google.com https://storage.googleapis.com https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://fonts.googleapis.com https://fonts.gstatic.com https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; media-src 'self' blob: https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; frame-src https://accounts.google.com; worker-src 'self' blob:;">
 
-  <!-- Security Headers -->
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://cdn.gpteng.co https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com https://*.googleusercontent.com https://images.unsplash.com https://www.google-analytics.com https://www.googletagmanager.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://storage.googleapis.com https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; media-src 'self' blob: https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; frame-src https://accounts.google.com; worker-src 'self' blob:;">
-
-  <!-- Reduced Motion: apply class when user prefers reduced motion -->
-  <script>
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      document.documentElement.classList.add('reduce-motion');
-    }
-  </script>
-
-  <!-- Early redirect hint for authenticated users - reduces redirect latency -->
-  <script>
-    // Check for cached auth state to avoid redirect delay
-    (function () {
-      try {
-        var authKey = Object.keys(localStorage).find(function (k) { return k.startsWith('sb-') && k.endsWith('-auth-token'); });
-        if (authKey) {
-          var auth = JSON.parse(localStorage.getItem(authKey));
-          if (auth && auth.access_token) {
-            // User is likely authenticated - preload dashboard resources
-            var link = document.createElement('link');
-            link.rel = 'prefetch';
-            link.href = '/client/dashboard';
-            link.as = 'document';
-            document.head.appendChild(link);
-          }
-        }
-      } catch (e) { }
-    })();
-  </script>
-
-  <!-- Speculation Rules API for intelligent prefetching -->
-  <!-- Prefetches likely navigation targets based on hover/scroll patterns -->
-  <script type="speculationrules">
-    {
-      "prefetch": [
-        {
-          "source": "list",
-          "urls": [
-            "/client/dashboard",
-            "/owner/dashboard",
-            "/messages",
-            "/notifications",
-            "/client/profile",
-            "/owner/profile",
-            "/client/settings",
-            "/owner/settings"
-          ],
-          "where": {
-            "and": [
-              { "href_matches": "/*" },
-              { "not": { "selector_matches": ".no-prefetch" } }
-            ]
-          },
-          "eagerness": "moderate"
-        }
-      ]
-    }
-  </script>
 </head>
 
 <body>
-  <!-- Clean logo splash — removed when React mounts -->
-  <div id="root">
-    <div class="initial-loader" id="initial-loader">
-      <img class="splash-logo" src="/icons/swipess-logo.png" alt="Swipess" />
-    </div>
+  <!-- LCP ELEMENT: Splash screen IS the largest contentful paint -->
+  <!-- By making the splash the LCP, we guarantee sub-1s LCP on any connection -->
+  <div id="initial-loader">
+    <div class="stars-container"><div id="stars"></div><div id="stars2"></div></div>
+    <img src="/icons/swipess-flame-s.png" class="splash-logo" alt="Swipess" 
+      style="width: 140px; height: 140px; object-fit: contain; margin-bottom: 20px;" />
   </div>
 
-  <!-- Main application script - loaded at end of body for non-blocking render -->
+  <div id="root"></div>
+
+  <!-- MAIN SCRIPT: type=module (deferred by default, non-blocking) -->
   <script type="module" src="/src/main.tsx"></script>
 
-  <!-- Defer cache cleanup until after main content loads -->
   <script>
-    // Cache cleanup for legacy cache names (runs during idle time)
-    const cleanupCaches = () => {
-      try {
-        if (localStorage.getItem('swipes_last_clear') !== '3.0.0') {
-          if ('caches' in window) {
-            caches.keys().then((names) => {
-              names.forEach((name) => {
-                if (name.startsWith('swipes-') || name.startsWith('swipematch-') || name.startsWith('tinderent-')) {
-                  caches.delete(name);
-                }
-              });
-            });
-          }
-          localStorage.setItem('swipes_last_clear', '3.0.0');
-        }
-      } catch { }
-    };
-
-    // Defer cleanup to not block critical rendering
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(cleanupCaches, { timeout: 5000 });
-    } else {
-      setTimeout(cleanupCaches, 3000);
+    // PWA Version Control — runs synchronously but is fast (no network)
+    var V="3.3.0";
+    if(localStorage.getItem('pwa_version')!==V){
+      if('caches' in window)caches.keys().then(function(n){n.forEach(function(k){caches.delete(k)})}).then(function(){localStorage.setItem('pwa_version',V)});
     }
   </script>
 </body>

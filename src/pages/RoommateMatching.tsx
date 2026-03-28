@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Users, SlidersHorizontal,
   Sparkles, X, MapPin,
-  Briefcase, MessageCircle,
-  ShieldCheck, Info, Clock,
+  Briefcase,
+  ShieldCheck, Clock,
   Eye, EyeOff
 } from 'lucide-react';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
@@ -18,6 +18,7 @@ import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
 import { MessageConfirmationDialog } from '@/components/MessageConfirmationDialog';
 import { useStartConversation, useConversationStats } from '@/hooks/useConversations';
+import { RoommateFiltersSheet, RoommateFilterState } from '@/components/filters/RoommateFiltersSheet';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -166,6 +167,7 @@ export default function RoommateMatching() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [canUndo, setCanUndo] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [currentFilters, setCurrentFilters] = useState<RoommateFilterState | undefined>();
   const [showDetails, setShowDetails] = useState(false);
   const [roommateVisible, setRoommateVisible] = useState(true);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
@@ -518,40 +520,17 @@ export default function RoommateMatching() {
         )}
       </AnimatePresence>
 
-      {/* ── FILTER SHEET (FULL GLASS) ── */}
-      <AnimatePresence>
-        {showFilters && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilters(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[300]" />
-            <motion.div 
-              initial={{ y: '100%' }} 
-              animate={{ y: 0 }} 
-              exit={{ y: '100%' }} 
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className={cn("fixed bottom-0 left-0 right-0 z-[301] rounded-t-[3.5rem] border-t p-8 pb-[calc(2.5rem+var(--safe-bottom))]", isLight ? "bg-white border-slate-200" : "bg-zinc-900 border-white/10")}
-            >
-              <div className={cn("w-14 h-1.5 rounded-full mx-auto mb-10", isLight ? "bg-border" : "bg-white/10")} />
-              <div className="flex items-center justify-between mb-10">
-                <h3 className="text-3xl font-black italic tracking-tighter uppercase leading-none text-foreground">Filters</h3>
-                <button onClick={() => setShowFilters(false)} className={cn("w-12 h-12 rounded-[1.25rem] flex items-center justify-center border", isLight ? "bg-secondary border-border/40 text-foreground" : "bg-white/5 border-white/10 text-white")}><X className="w-5 h-5" /></button>
-              </div>
-              
-              <div className="space-y-12 mb-12">
-                 <FilterGroup label="Alignment Preference" options={['Any', 'Female', 'Male', 'Non-binary']} selected="Any" setSelected={() => {}} />
-                 <FilterGroup label="Work Flow" options={['Any', 'Remote', 'Creative', 'Hustle', 'Slow']} selected="Any" setSelected={() => {}} />
-              </div>
-              
-              <motion.button 
-                whileTap={{ scale: 0.97 }} 
-                onClick={() => setShowFilters(false)} 
-                className="w-full py-5 rounded-[2rem] bg-primary text-white font-black uppercase tracking-[0.3em] text-[11px] shadow-2xl shadow-primary/30"
-              >
-                Manifest Results
-              </motion.button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* ── REAL FILTER SHEET ── */}
+      <RoommateFiltersSheet
+        open={showFilters}
+        onClose={() => setShowFilters(false)}
+        currentFilters={currentFilters}
+        onApply={(f) => {
+          setCurrentFilters(f);
+          setShowFilters(false);
+          triggerHaptic('success');
+        }}
+      />
 
       <MessageConfirmationDialog
         open={messageDialogOpen}

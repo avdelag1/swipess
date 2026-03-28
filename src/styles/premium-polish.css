@@ -34,13 +34,11 @@
 @keyframes photo-crossfade-in {
   from {
     opacity: 0;
-    transform: scale(1.08) translateZ(0);
-    filter: blur(10px) brightness(1.2);
+    transform: scale(1.04) translateZ(0);
   }
   to {
     opacity: 1;
     transform: scale(1) translateZ(0);
-    filter: blur(0px) brightness(1);
   }
 }
 
@@ -48,12 +46,10 @@
   from {
     opacity: 1;
     transform: scale(1) translateZ(0);
-    filter: blur(0px);
   }
   to {
     opacity: 0;
-    transform: scale(0.92) translateZ(0);
-    filter: blur(10px);
+    transform: scale(0.96) translateZ(0);
   }
 }
 
@@ -125,23 +121,20 @@
 /*  3. ENHANCED ANIMATIONS                                               */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-/* Premium view entry with blur */
+/* Premium view entry — opacity+transform only (no blur, avoids GPU repaint) */
 @keyframes view-entry-premium {
   0% {
     opacity: 0;
     transform: translateY(12px) scale(0.98);
-    filter: blur(4px);
   }
 
   60% {
     opacity: 1;
-    filter: blur(0);
   }
 
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
   }
 }
 
@@ -173,13 +166,11 @@
 
 @keyframes prism-blur-in {
   0% {
-    filter: blur(12px) saturate(200%) contrast(120%);
     opacity: 0;
     transform: scale(1.05) translateZ(0);
   }
 
   100% {
-    filter: blur(0px) saturate(100%) contrast(100%);
     opacity: 1;
     transform: scale(1) translateZ(0);
   }
@@ -187,13 +178,11 @@
 
 @keyframes prism-blur-out {
   0% {
-    filter: blur(0px) saturate(100%) contrast(100%);
     opacity: 1;
     transform: scale(1) translateZ(0);
   }
 
   100% {
-    filter: blur(12px) saturate(200%) contrast(120%);
     opacity: 0;
     transform: scale(0.95) translateZ(0);
   }
@@ -784,18 +773,10 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 @keyframes stagger-item-enter {
   0% {
     opacity: 0;
-    transform: translateY(20px) scale(0.96) translateZ(0);
-    filter: blur(5px);
-  }
-
-  60% {
-    filter: blur(0);
   }
 
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1) translateZ(0);
-    filter: blur(0);
   }
 }
 
