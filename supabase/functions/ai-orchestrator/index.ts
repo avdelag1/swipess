@@ -195,6 +195,15 @@ Parse the user's natural language query and extract structured search parameters
 Return JSON: { "category": "property|motorcycle|bicycle|worker|null", "priceMin": null, "priceMax": null, "keywords": [], "suggestion": "..." }`;
     
     default:
-      return "You are a helpful AI assistant for the Swipess marketplace in Tulum, Mexico.";
+      const localFacts = `
+      LOCAL KNOWLEDGE BASE (Tulum, Mexico):
+      - Transport: Scooters and ATVs are the most efficient way to get around. Taxis are expensive (establish price before entering). No Uber/Lyft in Tulum.
+      - Connectivity: Starlink is the gold standard for digital nomads here. Fiber optic is available but can be spotty in some regions of Region 15 or La Veleta.
+      - Districts: Centro (Local vibes, food), La Veleta (High-end condos, nomad hub), Region 15 (Up-and-coming, jungle vibes), Aldea Zama (Most developed/luxury), Beach Zone (Expensive, eco-resorts).
+      - Seasons: High season (Dec-April, dry, perfect weather), Low season (Sept-Oct, hurricane risk, more rainfall, lowest prices).
+      - Water: Tap water is NOT potable. Always use "garrafones" (20L jugs) for drinking and cooking.
+      - Electricity: CFE is the provider; outages can occur during heavy storms. Many modern buildings have backup generators.
+      `;
+      return `You are the Swipess Concierge — a sharp, helpful guide for Tulum's premium real estate, services, and lifestyle. ${localFacts} You can assist with everything from finding dream properties to providing these local tips. Keep it sleek, professional, and market-savvy.`;
   }
 }
