@@ -451,8 +451,8 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       const nebulaX = (w/2) + Math.cos(timestamp * 0.0002) * (w * 0.2);
       const nebulaY = (h/2) + Math.sin(timestamp * 0.0003) * (h * 0.2);
       const nebulaGrad = ctx.createRadialGradient(nebulaX, nebulaY, 10, nebulaX, nebulaY, w * 0.8);
-      nebulaGrad.addColorStop(0, isLightTheme ? 'rgba(255,255,255,0)' : 'rgba(255, 60, 20, 0.03)');
-      nebulaGrad.addColorStop(0.5, isLightTheme ? 'rgba(0,0,0,0)' : 'rgba(10, 20, 50, 0.02)');
+      nebulaGrad.addColorStop(0, isLightTheme ? 'rgba(255,255,255,0)' : 'rgba(10, 20, 60, 0.04)');
+      nebulaGrad.addColorStop(0.5, isLightTheme ? 'rgba(0,0,0,0)' : 'rgba(5, 10, 30, 0.02)');
       nebulaGrad.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = nebulaGrad;
       ctx.fillRect(0, 0, w, h);
@@ -468,7 +468,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
           pointerRef.current.x, pointerRef.current.y, glowSize
         );
         
-        const haloColor = isLightTheme ? '70, 100, 255' : '255, 120, 0';
+        const haloColor = isLightTheme ? '70, 100, 255' : '255, 255, 255';
         haloGrad.addColorStop(0, `rgba(${haloColor}, ${glowOpacity})`);
         haloGrad.addColorStop(0.5, `rgba(${haloColor}, ${glowOpacity * 0.4})`);
         haloGrad.addColorStop(1, 'rgba(0,0,0,0)');

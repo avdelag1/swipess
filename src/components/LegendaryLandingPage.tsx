@@ -135,15 +135,6 @@ const LandingView = memo(({
         whileTap={{ scale: 0.97 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none relative"
       >
-        {/* Logo Pulsing Aura */}
-        <motion.div
-          animate={{ opacity: [0.1, 0.2, 0.1], scale: [1, 1.05, 1] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className={cn(
-            "absolute inset-0 rounded-full blur-[60px] pointer-events-none translate-y-[-5vh]",
-            isDark ? "bg-rose-500/20" : "bg-orange-500/10"
-          )}
-        />
 
         <div className="relative">
           <LogoImage

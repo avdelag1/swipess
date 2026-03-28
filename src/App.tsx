@@ -30,6 +30,7 @@ import { useForceUpdateOnVersionChange, UpdateNotification } from "@/hooks/useAu
 
 // PWA install prompt (shown after 45s for eligible users/devices)
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { WelcomeBonusModal } from "@/components/WelcomeBonusModal";
 
 // Profile auto-sync system - keeps profile data fresh for all users
 import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProfileAutoSync";
@@ -284,6 +285,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
                                 <PWAInstallPrompt />
 
                                 <AppLayout>
+                                  <WelcomeBonusModal />
                                   <TooltipProvider>
                                     <Suspense fallback={null}>
                                       <Sonner />
