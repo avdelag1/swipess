@@ -619,6 +619,10 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
   }
 }
 
+.breathing-zoom {
+  animation: breathing-zoom 4s ease-in-out infinite alternate !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   @keyframes breathing-zoom {
     0%, 100% {

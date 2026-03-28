@@ -184,8 +184,8 @@ const CardImage = memo(({
           transition: wasInCache ? 'none' : `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
           borderRadius: br,
           animation: wasInCache
-            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards${animate ? ', breathing-zoom 8s ease-out infinite alternate' : ''}`
-            : animate ? 'breathing-zoom 8s ease-out infinite alternate' : 'none',
+            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards${animate ? ', breathing-zoom 4s ease-in-out infinite alternate' : ''}`
+            : animate ? 'breathing-zoom 4s ease-in-out infinite alternate' : 'none',
           zIndex: 3,
           transformOrigin: 'center',
         }}
