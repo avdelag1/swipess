@@ -78,13 +78,12 @@ export function useSmartListingMatching(
                     .eq('is_active', true)
                     .or(`owner_id.neq.${userId},owner_id.is.null`);
 
-                // 3. Apply excluded IDs (Robustly cleaned to prevent 400 errors)
+                // 3. Apply excluded IDs (Standard Array Filter - Prevents 400 Errors)
                 if (swipedListingIds.size > 0) {
                     const idList = Array.from(swipedListingIds)
-                        .filter(id => id && typeof id === 'string' && id.length > 30)
-                        .map(id => id.trim());
+                        .filter(id => id && typeof id === 'string' && id.length > 20);
                     if (idList.length > 0) {
-                        query = query.not('id', 'in', `(${idList.join(',')})`);
+                        query = query.not('id', 'in', idList);
                     }
                 }
 
@@ -99,7 +98,7 @@ export function useSmartListingMatching(
                 }
 
                 if (filters?.listingType && filters.listingType !== 'both') {
-                    const mapping: Record<string, string> = { 'rent': 'rent', 'sale': 'buy' };
+                    const mapping: Record<string, string> = { 'both': 'both', 'rent': 'rent', 'sale': 'buy' };
                     query = query.eq('listing_type', mapping[filters.listingType] || filters.listingType);
                 }
 
@@ -114,19 +113,13 @@ export function useSmartListingMatching(
                     throw error;
                 }
 
-                // 5. Discovery Injection (Grab fresh items the user hasn't seen yet)
-                const validSwipedList = Array.from(swipedListingIds)
-                    .filter(id => id && typeof id === 'string' && id.length > 30)
-                    .map(id => id.trim());
+                // 5. Discovery Injection (Array Filter Fallback)
+                const discoveryExcludedIds = Array.from(swipedListingIds).filter(id => id && id.length > 20);
                 
-                const swipeInClause = validSwipedList.length > 0 
-                  ? `(${validSwipedList.join(',')})` 
-                  : `(00000000-0000-0000-0000-000000000000)`;
-
                 const { data: discovery } = await supabase.from('listings').select(SWIPE_CARD_FIELDS)
                     .eq('is_active', true)
                     .or(`owner_id.neq.${userId},owner_id.is.null`)
-                    .not('id', 'in', swipeInClause)
+                    .not('id', 'in', discoveryExcludedIds.length > 0 ? discoveryExcludedIds : ['00000000-0000-0000-0000-000000000000'])
                     .order('created_at', { ascending: false })
                     .limit(2);
 
