@@ -60,12 +60,13 @@ export function useConciergeAI() {
       const userTier = subscription?.subscription_packages?.tier || 'Basic';
       const userLang = i18n.language || 'en';
 
-      // Capture history - Filter out error messages to avoid confusing the AI
+      // LIGHTNING-FAST CONTEXT: Only sync the last 5 relevant messages to keep prompt lean.
       const history = messages
         .filter(m => !m.content.includes('I encountered an error') && !m.content.includes('Service unavailable'))
+        .slice(-5) 
         .map(m => ({
           role: m.role,
-          content: m.content
+          content: m.content.length > 400 ? m.content.substring(0, 400) + '...' : m.content
         }));
 
       // 2. Call the AI Orchestrator with refined context

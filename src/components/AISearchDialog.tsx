@@ -110,12 +110,13 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
       const userName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || 'Friend';
       const userTier = (clientProfile as any)?.subscription_tier || 'Basic';
 
-      // SANITIZED HISTORY: Filter out previous error messages to maintain conversation flow
+      // LIGHTNING-FAST CONTEXT: Only sync the last 5 messages + dynamic truncation for speed.
       const sanitizedHistory = messages
         .filter(m => !m.content.includes('⚠️') && !m.content.includes('connection lost'))
+        .slice(-5)
         .map(m => ({
           role: m.role === 'ai' ? 'assistant' : 'user',
-          content: m.content
+          content: m.content.length > 400 ? m.content.substring(0, 400) + '...' : m.content
         }));
 
       // Call the AI Orchestrator via Supabase Edge Function with full Vibe context

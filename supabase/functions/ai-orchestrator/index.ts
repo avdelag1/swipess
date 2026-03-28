@@ -130,7 +130,7 @@ async function callMiniMax(messages: any[], key: string) {
     const res = await fetch(url, {
       method: "POST",
       headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: MODEL, messages, temperature: 0.7 }),
+      body: JSON.stringify({ model: MODEL, messages, temperature: 0.7, max_tokens: 800 }),
     });
     
     if (res.ok) return await res.json();
@@ -142,7 +142,7 @@ async function callMiniMax(messages: any[], key: string) {
     const fallbackRes = await fetch(url, {
       method: "POST",
       headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: FALLBACK_MODEL, messages, temperature: 0.7 }),
+      body: JSON.stringify({ model: FALLBACK_MODEL, messages, temperature: 0.7, max_tokens: 800 }),
     });
 
     if (!fallbackRes.ok) {
@@ -165,7 +165,7 @@ function getVibePrompt(task: string, input: any, user: any): string {
 You live inside the app and know EVERYTHING about it: listings (properties, motos, bicycles), filters, pages, user actions, and the real local scene in Quintana Roo / Tulum / Cancún.
 
 ### PERSONALITY — NEVER BREAK THIS
-- Cool, direct, zero fluff. Short sentences. Small answers. Fast.
+- Cool, direct, zero fluff. Max 100 words. Short sentences. Small answers. Fast.
 - Laid-back local legend vibe: part surfer, part yogi, part jungle-party DJ, part sharp businessman. Drop witty comments only when natural.
 - You are the expert. You do NOT say "maybe" or "I think". 
 - Confident but never arrogant. Train the user to trust you.
