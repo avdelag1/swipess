@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
@@ -20,6 +20,8 @@ interface ConciergeContext {
   listings?: any[];
 }
 
+const STORAGE_KEY_PREFIX = 'Swipess_vibe_chat_';
+
 export function useConciergeAI() {
   const [messages, setMessages] = useState<ConciergeMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,6 +30,42 @@ export function useConciergeAI() {
   const { data: subscription } = useUserSubscription();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const storageKey = user ? `${STORAGE_KEY_PREFIX}${user.id}` : null;
+
+  // Hydrate messages from localStorage on mount/user change
+  useEffect(() => {
+    if (!storageKey) return;
+    
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Ensure timestamps are Date objects
+        const hydrated = parsed.map((m: any) => ({
+          ...m,
+          timestamp: new Date(m.timestamp)
+        }));
+        setMessages(hydrated);
+      }
+    } catch (err) {
+      console.warn('[Vibe] Failed to hydrate chat:', err);
+    }
+  }, [storageKey]);
+
+  // Sync messages to localStorage whenever they change
+  useEffect(() => {
+    if (!storageKey || messages.length === 0) return;
+    
+    try {
+      // Limit persistence to last 20 messages for UI depth
+      // (Prompt context still limited to 5 for speed)
+      const toStore = messages.slice(-20);
+      localStorage.setItem(storageKey, JSON.stringify(toStore));
+    } catch (err) {
+      console.warn('[Vibe] Failed to persist chat:', err);
+    }
+  }, [messages, storageKey]);
   
   const sendMessage = useCallback(async (userMessage: string, context?: ConciergeContext) => {
     if (!user) {
@@ -46,7 +84,7 @@ export function useConciergeAI() {
     };
     
     // Optimistically update UI
-    setMessages(prev => [...prev, userMsg]);
+    setMessages(prev => [...prev.slice(-19), userMsg]);
 
     try {
       // 1. Fetch user profile for deep personalization
@@ -107,7 +145,7 @@ export function useConciergeAI() {
         action: aiAction
       };
       
-      setMessages(prev => [...prev, assistantMsg]);
+      setMessages(prev => [...prev.slice(-19), assistantMsg]);
 
       // 3. Handle Vibe Actions
       if (aiAction) {
@@ -158,9 +196,10 @@ export function useConciergeAI() {
   }, [messages, user, subscription, location.pathname, navigate]);
 
   const clearMessages = useCallback(() => {
+    if (storageKey) localStorage.removeItem(storageKey);
     setMessages([]);
     setError(null);
-  }, []);
+  }, [storageKey]);
 
   return {
     messages,
