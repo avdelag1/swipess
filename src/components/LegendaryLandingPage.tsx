@@ -171,22 +171,22 @@ const LandingView = memo(({
       </motion.div>
 
       {/* Stars theme toggle — bottom-left corner */}
-      <button
-        onClick={(e) => { e.stopPropagation(); onToggleDark(); }}
+      <motion.button
+        whileTap={{ scale: 0.85 }}
+        onClick={(e) => { e.stopPropagation(); onToggleDark(); haptics.impact('light'); }}
         data-testid="button-star-filter"
-        className="absolute bottom-6 left-4 flex items-center gap-2 px-3 py-2 rounded-full transition-all active:scale-90"
-        style={{
-          background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
-          border: isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.18)',
-          backdropFilter: 'blur(12px)',
-        }}
-        title={isDark ? 'Switch to white stars' : 'Switch to black stars'}
+        className={cn(
+          "absolute bottom-6 left-6 flex items-center gap-2.5 px-4 py-2.5 rounded-2xl transition-colors duration-200 z-50 shadow-lg",
+          isDark ? "bg-white/10 border border-white/20 text-white" : "bg-black/5 border border-black/10 text-black"
+        )}
+        style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
+        title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
       >
-        <Star className={`w-4 h-4 shrink-0 ${isDark ? 'text-white/95' : 'text-black/85'}`} />
-        <span className={`text-xs font-semibold whitespace-nowrap ${isDark ? 'text-white/95' : 'text-black/85'}`}>
-          {isDark ? '⬜ White' : '⬛ Black'}
+        <Star className={cn("w-4 h-4 transition-transform duration-300", !isDark && "fill-black")} />
+        <span className="text-[11px] font-black uppercase tracking-wider italic italic-brand">
+          {isDark ? 'Mode: Dark' : 'Mode: Light'}
         </span>
-      </button>
+      </motion.button>
 
 
     </motion.div>
@@ -431,7 +431,11 @@ function LegendaryLandingPage() {
   const bgColor = isDark ? '#050505' : '#f5f5f5';
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: bgColor }}>
+    <motion.div 
+      className="h-screen h-dvh relative overflow-hidden" 
+      animate={{ backgroundColor: bgColor }}
+      transition={{ duration: 0.3, ease: "circOut" }}
+    >
       <Suspense fallback={null}>
         <LandingBackgroundEffects
           mode={activeMode}

@@ -364,64 +364,39 @@ export function BottomNavigation({
                   flexShrink: 0,
                 }}
               >
-                {/* Special Mascot Treatment for Concierge Tab */}
-                {item.id === 'ai-search' ? (
-                  <motion.div
-                    className="relative flex items-center justify-center p-0"
-                    animate={{ 
-                      scale: active ? 1.15 : 1,
-                    }}
-                    transition={{ 
-                      type: 'spring', 
-                      stiffness: 500, 
-                      damping: 30,
-                    }}
-                    style={{ zIndex: 1 }}
-                  >
-                    <img 
-                      src="/icons/fire-s-logo-zoom.png" 
-                      alt="Concierge"
-                      className={cn(
-                        "w-7 h-7 object-contain transition-all duration-300",
-                        !active && "opacity-60 grayscale-[0.3]"
-                      )}
-                    />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    className="relative"
-                    animate={{ scale: active ? 1.15 : 1 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
-                    style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
-                  >
-                    {/* Notification badge */}
-                    <AnimatePresence>
-                      {item.badge && item.badge > 0 && (
-                        <motion.span
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          exit={{ scale: 0 }}
-                          transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                          className="absolute -top-1 -right-1 rounded-full w-[10px] h-[10px] z-20 shadow-md border border-background"
-                          style={{ background: 'linear-gradient(135deg,#ff4d00,#ff8c00)' }}
-                        />
-                      )}
-                    </AnimatePresence>
+                <motion.div
+                  className="relative"
+                  animate={{ scale: active ? 1.15 : 1 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
+                  style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
+                >
+                  {/* Notification badge */}
+                  <AnimatePresence>
+                    {item.badge && item.badge > 0 && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                        className="absolute -top-1 -right-1 rounded-full w-[10px] h-[10px] z-20 shadow-md border border-background"
+                        style={{ background: 'linear-gradient(135deg,#ff4d00,#ff8c00)' }}
+                      />
+                    )}
+                  </AnimatePresence>
 
-                    {/* Icon: filled with brand color when active, outline when inactive */}
-                    <Icon
-                      className="transition-all duration-300 ease-out"
-                      style={{
-                        width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                        height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                        color: active ? activeColor : iconColorInactive,
-                        fill: active ? activeColor : 'none',
-                        strokeWidth: active ? 1.5 : 2,
-                        filter: 'none',
-                      }}
-                    />
-                  </motion.div>
-                )}
+                  {/* Icon: filled with brand color when active, outline when inactive */}
+                  <Icon
+                    className="transition-all duration-300 ease-out"
+                    style={{
+                      width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                      height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                      color: active ? activeColor : iconColorInactive,
+                      fill: active ? activeColor : 'none',
+                      strokeWidth: active ? 1.5 : 2,
+                      filter: 'none',
+                    }}
+                  />
+                </motion.div>
                 
                 {/* Label */}
                 {!isNarrow && (

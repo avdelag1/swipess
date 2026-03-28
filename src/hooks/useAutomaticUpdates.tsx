@@ -138,12 +138,20 @@ export async function forceAppUpdate(): Promise<void> {
 /**
  * React hook for automatic update checking
  */
+/**
+ * React hook for automatic update checking
+ */
 export function useAutomaticUpdates() {
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({ available: false, needsRefresh: false });
   const [isUpdating, setIsUpdating] = useState(false);
   const queryClient = useQueryClient();
 
   const checkUpdates = useCallback(async () => {
+    // If we've already interacted in this session, don't show again
+    if (sessionStorage.getItem('swipess_update_seen') === 'true') {
+      return;
+    }
+
     const info = checkForUpdates();
     
     // Only update state if info actually changed to prevent unnecessary re-renders
@@ -153,17 +161,15 @@ export function useAutomaticUpdates() {
       }
       return info;
     });
-
-    // CRITICAL: Removed queryClient.clear() from here. 
-    // It should only be called in performUpdate or when we are absolutely certain
-    // we want to wipe everything. Calling it on every periodic check (even if update available)
-    // can trigger global re-render loops in some app configurations.
-  }, []); // Remove queryClient dependency as we use the one from scope or ref if needed
+  }, []);
 
   const performUpdate = useCallback(async () => {
     if (isUpdating) return;
     
     setIsUpdating(true);
+    // Mark as seen in session immediately
+    sessionStorage.setItem('swipess_update_seen', 'true');
+
     try {
       logger.info('[AutoUpdate] Performing manual update...');
       
@@ -179,16 +185,14 @@ export function useAutomaticUpdates() {
       // Update version
       markVersionAsInstalled();
 
-      // Reload
-      window.location.reload();
+      // Reload with delay for visual feedback
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       logger.error('Update failed:', error);
       setIsUpdating(false);
-      toast({
-        title: 'Update Failed',
-        description: 'Please refresh the page or clear your browser cache.',
-        variant: 'destructive',
-      });
+      window.location.reload();
     }
   }, [isUpdating, queryClient]);
 
@@ -196,43 +200,36 @@ export function useAutomaticUpdates() {
     // Only run the initial check once on mount
     checkUpdates();
 
-    // Also check when app gains focus (user returns to tab)
+    // Also check when app gains focus
     const handleFocus = () => {
-      // Don't check if we're already in the middle of an update
       if (!isUpdating) checkUpdates();
     };
     window.addEventListener('focus', handleFocus);
 
-    // Listen for service worker updates
-    let swSubscription: { registration: ServiceWorkerRegistration, handleUpdateFound: () => void } | null = null;
+    // Filter service worker updates
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then((registration) => {
-        const handleUpdateFound = () => {
+        registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                setUpdateInfo({
-                  available: true,
-                  version: APP_VERSION,
-                  needsRefresh: true,
-                });
+                if (sessionStorage.getItem('swipess_update_seen') !== 'true') {
+                  setUpdateInfo({
+                    available: true,
+                    version: APP_VERSION,
+                    needsRefresh: true,
+                  });
+                }
               }
             });
           }
-        };
-        registration.addEventListener('updatefound', handleUpdateFound);
-        swSubscription = { registration, handleUpdateFound };
+        });
       });
     }
 
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-      if (swSubscription) {
-        swSubscription.registration.removeEventListener('updatefound', swSubscription.handleUpdateFound);
-      }
-    };
-  }, [checkUpdates, isUpdating]); // performUpdate removed from deps as it's not used in effect
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [checkUpdates, isUpdating]);
 
   return {
     updateInfo,
@@ -244,9 +241,6 @@ export function useAutomaticUpdates() {
 
 /**
  * Component that shows update notification when available
- */
-/**
- * Component that shows update notification when available
  * UPGRADED: Liquid Glass Design with Swipess Rose highlights
  */
 export function UpdateNotification() {
@@ -255,8 +249,9 @@ export function UpdateNotification() {
   const isVisible = updateInfo.available && !dismissed;
 
   const handleUpdateClick = useCallback(async () => {
-    // Immediate local dismissal for a snappy UX
+    // Immediate local dismissal and session suppression
     setDismissed(true);
+    sessionStorage.setItem('swipess_update_seen', 'true');
     await performUpdate();
   }, [performUpdate]);
 
@@ -329,7 +324,7 @@ export function UpdateNotification() {
                 />
 
                 <span className="relative z-10 text-white font-black text-sm uppercase tracking-[0.2em]">
-                  {isUpdating ? 'Synthesizing...' : 'Elevate Experience'}
+                  {isUpdating ? 'Synthesizing...' : 'NEW UPDATE'}
                 </span>
               </motion.button>
             </div>
@@ -337,7 +332,7 @@ export function UpdateNotification() {
             {/* Version Badge */}
             <div className="absolute bottom-2 right-6 opacity-20">
                <span className="text-[8px] text-white/50 font-mono tracking-widest uppercase">
-                 v{APP_VERSION}
+                 Build: {BUILD_TIMESTAMP.slice(-8)}
                </span>
             </div>
           </div>
