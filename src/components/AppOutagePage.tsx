@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OUTAGE_BYPASS_KEY } from '@/config/outage';
-import { SentientSLogo } from './SentientSLogo';
+import { SwipessLogo } from './SwipessLogo';
 const _swipessLogo = '/icons/swipess-logo.png';
 
 interface AppOutagePageProps {
@@ -49,7 +49,7 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
         className="cursor-default select-none mb-10"
         aria-label="Swipess logo"
       >
-        <SentientSLogo
+        <SwipessLogo
           size="xl"
           className="mx-auto"
         />

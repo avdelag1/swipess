@@ -367,25 +367,23 @@ export function BottomNavigation({
                 {/* Special Mascot Treatment for Concierge Tab */}
                 {item.id === 'ai-search' ? (
                   <motion.div
-                    className="relative"
+                    className="relative flex items-center justify-center p-0"
                     animate={{ 
-                      scale: active ? 1.25 : 1,
-                      rotate: active ? [0, -5, 5, 0] : 0
+                      scale: active ? 1.15 : 1,
                     }}
                     transition={{ 
                       type: 'spring', 
                       stiffness: 500, 
-                      damping: 15,
-                      rotate: { duration: 0.5, ease: "easeInOut" }
+                      damping: 30,
                     }}
-                    style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
+                    style={{ zIndex: 1 }}
                   >
                     <img 
                       src="/icons/fire-s-logo-zoom.png" 
                       alt="Concierge"
                       className={cn(
                         "w-7 h-7 object-contain transition-all duration-300",
-                        !active && "opacity-60 grayscale-[0.5]"
+                        !active && "opacity-60 grayscale-[0.3]"
                       )}
                     />
                   </motion.div>

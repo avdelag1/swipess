@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })));
-import { SentientSLogo } from './SentientSLogo';
+import { SwipessLogo } from './SwipessLogo';
 import { Sparkles as SparklesIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -27,7 +27,7 @@ const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects')
 function LogoImage({ className }: { className?: string }) {
   return (
     <div className={cn("relative flex items-center justify-center translate-y-[-5vh]", className)}>
-        <SentientSLogo size="4xl" className="scale-[2.4] sm:scale-[3] md:scale-[3.5]" />
+        <SwipessLogo size="4xl" className="scale-[2.4] sm:scale-[3] md:scale-[3.5]" />
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { cn } from '@/lib/utils';
 import { useClientProfile } from '@/hooks/useClientProfile';
 import { useTheme } from '@/hooks/useTheme';
-import { SentientSLogo } from './SentientSLogo';
+import { SwipessLogo } from './SwipessLogo';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -239,7 +239,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
               "w-12 h-12 rounded-2xl flex items-center justify-center relative overflow-hidden group border",
               isDark ? "bg-zinc-900 border-white/10" : "bg-white border-gray-100 shadow-sm"
             )}>
-              <SentientSLogo size="sm" className="relative z-10" />
+              <SwipessLogo size="sm" className="relative z-10" />
               <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
@@ -280,7 +280,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                 "w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl border mb-4",
                 isDark ? "bg-zinc-900 border-white/10" : "bg-gray-100 border-black/8"
               )}>
-                <SentientSLogo size="md" />
+                <SwipessLogo size="xl" />
               </div>
               <p className="text-muted-foreground text-xs font-black uppercase tracking-[0.2em] opacity-50">Secure Concierge Link</p>
             </motion.div>
@@ -302,7 +302,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                       : "bg-muted border-border"
                   )}>
                     {message.role === 'ai' ? (
-                      <SentientSLogo size="xs" />
+                      <SwipessLogo size="xs" />
                     ) : (
                       userAvatar ? (
                         <img src={userAvatar} alt="Me" className="w-full h-full object-cover rounded-xl" />
@@ -347,7 +347,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                 "w-10 h-10 rounded-2xl flex items-center justify-center",
                 isDark ? "bg-zinc-900 border border-white/10" : "bg-gray-100 border border-black/8"
               )}>
-                <SentientSLogo size="xs" className="animate-pulse" />
+                <SwipessLogo size="xs" className="animate-pulse" />
               </div>
               <div className="bg-gradient-to-r from-orange-500/10 to-pink-500/10 border border-orange-500/20 px-4 py-3 rounded-[1.5rem] rounded-tl-sm text-xs font-bold text-orange-500 flex items-center gap-2 shadow-sm">
                 <Loader2 className="w-3 h-3 animate-spin text-orange-500" />

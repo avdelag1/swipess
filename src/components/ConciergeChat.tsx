@@ -17,7 +17,7 @@ import {
   User
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
-import { SentientSLogo } from './SentientSLogo';
+import { SwipessLogo } from './SwipessLogo';
 import { useTheme } from '@/hooks/useTheme';
 import { useUserSubscription } from '@/hooks/useSubscription';
 import { cn } from '@/lib/utils';
@@ -117,7 +117,7 @@ export function ConciergeChat({
               "w-11 h-11 rounded-full flex items-center justify-center relative overflow-hidden group shadow-lg border",
               isDark ? "bg-zinc-900 border-white/10" : "bg-white border-zinc-200"
             )}>
-              <SentientSLogo size="sm" className="relative z-10" />
+              <SwipessLogo size="sm" className="relative z-10" />
               <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
             <div>

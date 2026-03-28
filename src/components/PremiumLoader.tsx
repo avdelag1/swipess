@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { SentientSLogo } from './SentientSLogo';
+import { SwipessLogo } from './SwipessLogo';
 import { cn } from '@/lib/utils';
 
 interface PremiumLoaderProps {
@@ -22,7 +22,7 @@ export function PremiumLoader({ className, size = 'md' }: PremiumLoaderProps) {
           ease: "easeInOut"
         }}
       >
-        <SentientSLogo size={logoSize} />
+        <SwipessLogo size={logoSize} />
       </motion.div>
       
       {/* The "Red Bar" linear progress indicator */}
