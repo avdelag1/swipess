@@ -387,11 +387,17 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
     const loop = (timestamp: number) => {
-      // Skip frame if tab is hidden (saves CPU/battery)
+      // Skip frame if tab is hidden
       if (document.visibilityState === 'hidden') {
         animRef.current = requestAnimationFrame(loop);
         return;
       }
+      
+      // Random Automated Shooting Stars (1% chance every few seconds if in stars mode)
+      if (mode === 'stars' && Math.random() < 0.002) {
+        spawnShootingStar(Math.random() * w, Math.random() * h * 0.5);
+      }
+
       // Throttle to ~30fps
       if (timestamp - lastFrameTimeRef.current < FRAME_INTERVAL) {
         animRef.current = requestAnimationFrame(loop);

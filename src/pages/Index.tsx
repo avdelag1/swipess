@@ -314,7 +314,7 @@ const Index = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-[#050505] overflow-hidden">
         <React.Suspense fallback={<SuspenseFallback />}>
           <LegendaryLandingPage />
         </React.Suspense>

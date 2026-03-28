@@ -82,6 +82,16 @@ const LandingView = memo(({
   const isDragging = useRef(false);
   const triggered = useRef(false);
 
+  // Auto-Zen Ambient Sounds
+  useEffect(() => {
+    const playZen = () => {
+      try { playRandomZen(0.15); } catch { /* ignore */ }
+    };
+    // Play a soft sound every minute just to keep it "alive"
+    const interval = setInterval(playZen, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handlePointerDown = () => {
     animate(torchBoost, 1, { duration: 0.05 });
     triggerHaptic('light');
@@ -140,9 +150,19 @@ const LandingView = memo(({
         onTap={handleTap}
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
-        className="cursor-grab active:cursor-grabbing touch-none select-none"
+        className="cursor-grab active:cursor-grabbing touch-none select-none relative"
         data-no-bg-sound="true"
       >
+        {/* Logo Pulsing Aura */}
+        <motion.div
+          animate={{ opacity: [0.1, 0.2, 0.1], scale: [1, 1.05, 1] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          className={cn(
+            "absolute inset-0 rounded-full blur-[60px] pointer-events-none translate-y-[-5vh]",
+            isDark ? "bg-rose-500/20" : "bg-orange-500/10"
+          )}
+        />
+
         <div className="relative">
           <LogoImage
             className="w-[85vw] max-w-[480px] sm:max-w-[580px] md:max-w-[680px] aspect-video mx-auto"
