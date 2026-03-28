@@ -125,34 +125,59 @@ Deno.serve(async (req) => {
 
 async function callMiniMax(messages: any[], key: string) {
   const url = MINIMAX_ENDPOINTS[0];
-  
+  let lastError = null;
+
+  // Retry Loop: 2 attempts for Primary, 1 for Fallback
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      console.log(`[Vibe] Calling MiniMax (Model: ${MODEL}, Attempt: ${attempt + 1})`);
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          model: MODEL, 
+          messages, 
+          temperature: 0.7, 
+          max_tokens: 1000,
+          // Add a shorter timeout for the fetch to avoid hanging too long
+          signal: AbortSignal.timeout(25000) 
+        }),
+      });
+      
+      if (res.ok) return await res.json();
+      
+      const errorData = await res.json().catch(() => ({}));
+      console.warn(`[Vibe] Primary Model (${MODEL}) attempt ${attempt + 1} failed: ${res.status}.`, errorData);
+      lastError = errorData;
+    } catch (e) {
+      console.error(`[Vibe] Fetch error (Attempt ${attempt + 1}):`, e);
+      lastError = e;
+    }
+  }
+
+  // Fallback logic
+  console.warn(`[Vibe] All primary attempts failed. Trying fallback model: ${FALLBACK_MODEL}`);
   try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: MODEL, messages, temperature: 0.7, max_tokens: 800 }),
-    });
-    
-    if (res.ok) return await res.json();
-    
-    const errorData = await res.json().catch(() => ({}));
-    console.warn(`[Vibe] Primary Model (${MODEL}) failed: ${res.status}. Trying fallback...`);
-    
-    // Fallback logic
     const fallbackRes = await fetch(url, {
       method: "POST",
       headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: FALLBACK_MODEL, messages, temperature: 0.7, max_tokens: 800 }),
+      body: JSON.stringify({ 
+        model: FALLBACK_MODEL, 
+        messages, 
+        temperature: 0.7, 
+        max_tokens: 1000,
+        signal: AbortSignal.timeout(30000) 
+      }),
     });
 
     if (!fallbackRes.ok) {
       const fallbackErr = await fallbackRes.json().catch(() => ({}));
-      throw new Error(`MiniMax API Fatal: ${JSON.stringify(fallbackErr)}`);
+      throw new Error(`MiniMax API Fatal (Fallback also failed): ${JSON.stringify(fallbackErr)}`);
     }
 
     return await fallbackRes.json();
   } catch (e) {
-    throw e;
+    throw lastError || e;
   }
 }
 
