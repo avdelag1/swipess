@@ -245,50 +245,100 @@ export function useAutomaticUpdates() {
 /**
  * Component that shows update notification when available
  */
+/**
+ * Component that shows update notification when available
+ * UPGRADED: Liquid Glass Design with Swipess Rose highlights
+ */
 export function UpdateNotification() {
   const { updateInfo, performUpdate, isUpdating } = useAutomaticUpdates();
   const [dismissed, setDismissed] = useState(false);
   const isVisible = updateInfo.available && !dismissed;
+
+  const handleUpdateClick = useCallback(async () => {
+    // Immediate local dismissal for a snappy UX
+    setDismissed(true);
+    await performUpdate();
+  }, [performUpdate]);
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
           key="update-notification"
-          initial={{ y: 80, opacity: 0, scale: 0.95 }}
+          initial={{ y: 100, opacity: 0, scale: 0.9 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
-          exit={{ y: 80, opacity: 0, scale: 0.95 }}
-          transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.8 }}
-          className="fixed bottom-24 left-4 right-4 z-[200] sm:left-auto sm:right-4 sm:w-[320px]"
+          exit={{ y: 100, opacity: 0, scale: 0.8 }}
+          transition={{ type: 'spring', stiffness: 450, damping: 30, mass: 1 }}
+          className="fixed bottom-[104px] left-4 right-4 z-[999] sm:left-auto sm:right-6 sm:w-[360px]"
         >
-          <div className="relative overflow-hidden rounded-2xl bg-[#0f0f0f] border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(249,115,22,0.15)]">
-            {/* Top accent bar */}
-            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500" />
+          {/* Main Glass Container */}
+          <div 
+             className="relative overflow-hidden rounded-[2.2rem] border p-[1px] shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
+             style={{
+               background: 'rgba(8, 8, 10, 0.85)',
+               borderColor: 'rgba(255,255,255,0.08)',
+               backdropFilter: 'blur(40px) saturate(200%)',
+               WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+             }}
+          >
+            {/* Animated Inner Glow Overlay */}
+            <motion.div 
+               className="absolute -inset-[50%] bg-gradient-to-br from-rose-500/15 via-orange-500/10 to-transparent pointer-none blur-[40px]"
+               animate={{ rotate: 360 }}
+               transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+            />
 
+            <div className="relative z-10 p-6">
+              <div className="flex items-center gap-4 mb-5">
+                {/* Logo Frame — Deep Glass */}
+                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center relative overflow-hidden shadow-inner">
+                  <div className="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-orange-500/10" />
+                  <img src="/icons/fire-s-logo-zoom.png" className="w-9 h-9 object-contain relative z-10" alt="S" />
+                </div>
 
-            <div className="flex items-center gap-3 px-4 pt-5 pb-4">
-              {/* Sentient Mascot Icon */}
-              <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center overflow-hidden border border-white/10">
-                <img src="/icons/fire-s-logo-zoom.png" className="w-8 h-8 object-contain" alt="Update" />
+                {/* Text Content */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-black text-lg tracking-tight leading-tight uppercase italic italic-brand">
+                    Pulse Updated
+                  </p>
+                  <p className="text-white/50 text-[10px] font-bold mt-1 uppercase tracking-widest leading-snug">
+                    New platform version ready
+                  </p>
+                </div>
               </div>
 
-              {/* Text */}
-              <div className="flex-1 min-w-0 pr-5">
-                <p className="text-white font-bold text-[14px] leading-tight">Update Ready</p>
-                <p className="text-white/45 text-[12px] mt-0.5 leading-snug">New features are available</p>
-              </div>
-            </div>
-
-            {/* Refresh button */}
-            <div className="px-4 pb-4">
+              {/* Action Button: Swipess Core Rose */}
               <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={performUpdate}
+                whileTap={{ scale: 0.96 }}
                 disabled={isUpdating}
-                className="w-full py-4 rounded-xl bg-white text-black font-black text-[14px] uppercase tracking-[0.1em] shadow-[0_20px_40px_rgba(255,255,255,0.15)] disabled:opacity-60 transition-all border-none"
+                onClick={handleUpdateClick}
+                className="w-full relative overflow-hidden h-14 rounded-2xl transition-all duration-300 group border-none"
+                style={{
+                  background: 'linear-gradient(90deg, #ff1f1f, #ff6b3d)',
+                  boxShadow: '0 8px 30px rgba(255, 31, 31, 0.35)',
+                }}
               >
-                {isUpdating ? 'Pulsing Version...' : 'Refresh App Now'}
+                {/* Button Gloss Rim */}
+                <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-white/20 z-20" />
+                
+                {/* Animated Shine Effect */}
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent w-1/3 -skew-x-[35deg]"
+                  animate={{ left: ['-100%', '200%'] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+                />
+
+                <span className="relative z-10 text-white font-black text-sm uppercase tracking-[0.2em]">
+                  {isUpdating ? 'Synthesizing...' : 'Elevate Experience'}
+                </span>
               </motion.button>
+            </div>
+            
+            {/* Version Badge */}
+            <div className="absolute bottom-2 right-6 opacity-20">
+               <span className="text-[8px] text-white/50 font-mono tracking-widest uppercase">
+                 v{APP_VERSION}
+               </span>
             </div>
           </div>
         </motion.div>
