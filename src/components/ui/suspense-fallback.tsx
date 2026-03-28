@@ -24,6 +24,11 @@ let hasCompletedFirstRender = false;
 if (typeof window !== 'undefined') {
   // After 2s the app is definitely past initial load
   setTimeout(() => { hasCompletedFirstRender = true; }, 2000);
+  
+  // IMMEDIATELY disable splash once app signals it is rendered
+  window.addEventListener('app-rendered', () => {
+    hasCompletedFirstRender = true;
+  });
 }
 
 export function SuspenseFallback({ className, minimal = false }: SuspenseFallbackProps) {

@@ -4,14 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Listing } from '../useListings';
 import { logger } from '@/utils/prodLogger';
 import { normalizeCategoryName } from '@/types/filters';
-import { MatchedListing, ListingFilters, shuffleArray } from './types';
+import { ListingFilters } from './types';
 import { calculateListingMatch } from './matchCalculators';
 
 const SWIPE_CARD_FIELDS = `
   id, title, description, price, images, city, neighborhood, beds, baths,
   square_footage, category, listing_type, property_type, vehicle_brand,
   vehicle_model, year, mileage, amenities, pet_friendly, furnished,
-  owner_id, created_at, currency,
+  owner_id, user_id, created_at, currency,
   service_category, pricing_unit, experience_years, experience_level,
   skills, days_available, time_slots_available, work_type, schedule_type,
   location_type, service_radius_km, minimum_booking_hours,
@@ -21,8 +21,6 @@ const SWIPE_CARD_FIELDS = `
   electric_assist, battery_range, frame_size, frame_material,
   latitude, longitude, status, is_active
 `;
-
-function deg2rad(deg: number) { return deg * (Math.PI / 180); }
 
 export function useSmartListingMatching(
     userId: string | undefined,
@@ -56,7 +54,7 @@ export function useSmartListingMatching(
             if (!userId) return [];
 
             try {
-                // 1. Fetch user context and swiped IDs
+                // 1. Fetch user context and swiped IDs (Hardened against malformed UUIDs)
                 const [
                     { data: likedListings },
                     { data: leftSwipes }
@@ -69,18 +67,18 @@ export function useSmartListingMatching(
                 const swipedListingIds = new Set<string>();
                 likedListings?.forEach(l => swipedListingIds.add(l.target_id));
                 leftSwipes?.forEach(s => {
-                    if (new Date(s.created_at) < new Date(threeDaysAgo)) {
-                        swipedListingIds.add(s.target_id);
-                    } else if (!isRefreshMode) {
+                    const isOldSwipe = new Date(s.created_at) < new Date(threeDaysAgo);
+                    if (isOldSwipe || !isRefreshMode) {
                         swipedListingIds.add(s.target_id);
                     }
                 });
 
-                // 2. Query Listings
+                // 2. Build the main query (using is_active for stability)
                 let query = supabase.from('listings').select(SWIPE_CARD_FIELDS)
                     .eq('is_active', true)
-                    .neq('owner_id', userId!);
+                    .or(`owner_id.neq.${userId},owner_id.is.null`);
 
+                // 3. Apply excluded IDs (Robustly cleaned to prevent 400 errors)
                 if (swipedListingIds.size > 0) {
                     const idList = Array.from(swipedListingIds)
                         .filter(id => id && typeof id === 'string' && id.length > 30)
@@ -90,18 +88,33 @@ export function useSmartListingMatching(
                     }
                 }
 
-                // Apply filters (Simplified for brevity)
+                // 4. Apply Filters (Consolidated and Safe)
                 if (filters?.category) {
                     const normalized = normalizeCategoryName(filters.category);
-                    if (normalized) {
-                      query = query.eq('category', normalized);
-                    }
+                    if (normalized) query = query.eq('category', normalized);
                 }
 
-                const { data: listings, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
-                if (error) throw error;
+                if (filters?.priceRange) {
+                    query = query.gte('price', filters.priceRange[0]).lte('price', filters.priceRange[1]);
+                }
 
-                // Discovery Injection
+                if (filters?.listingType && filters.listingType !== 'both') {
+                    const mapping: Record<string, string> = { 'rent': 'rent', 'sale': 'buy' };
+                    query = query.eq('listing_type', mapping[filters.listingType] || filters.listingType);
+                }
+
+                if (filters?.propertyType && filters.propertyType.length > 0) {
+                    query = query.in('property_type', filters.propertyType);
+                }
+
+                // Fetch current page
+                const { data: listings, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
+                if (error) {
+                    logger.error('[SmartMatching] DB Query Error:', error);
+                    throw error;
+                }
+
+                // 5. Discovery Injection (Grab fresh items the user hasn't seen yet)
                 const validSwipedList = Array.from(swipedListingIds)
                     .filter(id => id && typeof id === 'string' && id.length > 30)
                     .map(id => id.trim());
@@ -112,7 +125,7 @@ export function useSmartListingMatching(
 
                 const { data: discovery } = await supabase.from('listings').select(SWIPE_CARD_FIELDS)
                     .eq('is_active', true)
-                    .neq('owner_id', userId!)
+                    .or(`owner_id.neq.${userId},owner_id.is.null`)
                     .not('id', 'in', swipeInClause)
                     .order('created_at', { ascending: false })
                     .limit(2);
@@ -125,7 +138,7 @@ export function useSmartListingMatching(
                     }
                 });
 
-                // Scoring
+                // 6. Scoring & Sorting
                 const matchedResults = finalResults.map(listing => {
                     const match = calculateListingMatch((filters || {}) as any, listing as Listing);
                     return {
@@ -143,7 +156,7 @@ export function useSmartListingMatching(
                 });
 
             } catch (err) {
-                logger.error('[SmartMatching] Fatal error:', err);
+                logger.error('[SmartMatching] Fatal Exception:', err);
                 return [];
             }
         },

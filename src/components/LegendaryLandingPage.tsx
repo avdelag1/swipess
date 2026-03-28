@@ -9,6 +9,8 @@ import {
   ArrowLeft, Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })));
+import { Sparkles as SparklesIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,19 +25,8 @@ const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects')
 // Optimized logo with modern format support + fallback
 function LogoImage({ className }: { className?: string }) {
   return (
-    <div className={cn("relative overflow-hidden", className)}>
-      <picture>
-        <source srcSet="/icons/swipess-logo.avif" type="image/avif" />
-        <source srcSet="/icons/swipess-logo.webp" type="image/webp" />
-        <img
-          src="/icons/swipess-logo.png"
-          alt="Swipess Logo"
-          fetchPriority="high"
-          loading="eager"
-          style={{ mixBlendMode: 'screen' }}
-          className="w-full h-full object-contain select-none pointer-events-none"
-        />
-      </picture>
+    <div className={cn("relative flex items-center justify-center p-8 rounded-[3rem] bg-gradient-to-br from-white/10 to-transparent backdrop-blur-3xl border border-white/20", className)}>
+        <SparklesIcon className="w-24 h-24 text-orange-500 animate-pulse" />
     </div>
   );
 }
@@ -62,10 +53,12 @@ const checkPasswordStrength = (password: string) => {
 /* ─── Landing view ───────────────────────────────────────── */
 const LandingView = memo(({
   onEnterAuth,
+  onEnterAI,
   isDark,
   onToggleDark,
 }: {
   onEnterAuth: () => void;
+  onEnterAI: () => void;
   isDark: boolean;
   onToggleDark: () => void;
 }) => {
@@ -173,6 +166,7 @@ const LandingView = memo(({
           {isDark ? '⬜ White' : '⬛ Black'}
         </span>
       </button>
+
 
     </motion.div>
   );
@@ -410,6 +404,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [isDark, setIsDark] = useState(true);
+  const [isAIOpen, setIsAIOpen] = useState(false);
 
   const activeMode: EffectMode = view === 'auth' ? 'off' : 'stars';
   const bgColor = isDark ? '#050505' : '#f5f5f5';
@@ -428,6 +423,7 @@ function LegendaryLandingPage() {
           <LandingView
             key="landing"
             onEnterAuth={() => setView('auth')}
+            onEnterAI={() => setIsAIOpen(true)}
             isDark={isDark}
             onToggleDark={() => setIsDark(d => !d)}
           />
@@ -435,6 +431,14 @@ function LegendaryLandingPage() {
           <AuthView key="auth" onBack={() => setView('landing')} />
         )}
       </AnimatePresence>
+
+      <Suspense fallback={null}>
+        <AISearchDialog 
+          isOpen={isAIOpen} 
+          onClose={() => setIsAIOpen(false)} 
+          userRole="client" 
+        />
+      </Suspense>
     </div>
   );
 }

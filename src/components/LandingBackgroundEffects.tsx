@@ -21,7 +21,7 @@ interface Star {
   x: number; y: number; baseX: number; baseY: number;
   size: number; opacity: number;
   twinkleSpeed: number; twinklePhase: number;
-  vx: number; vy: number; glow?: boolean;
+  vx: number; vy: number; glow?: boolean; driftSpeed: number;
 }
 interface ShootingStar {
   x: number; y: number; vx: number; vy: number;
@@ -86,6 +86,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         twinkleSpeed: Math.random() * 0.01 + 0.001,
         twinklePhase: Math.random() * Math.PI * 2,
         glow: Math.random() > 0.85,
+        driftSpeed: Math.random() * 0.15 + 0.08,
       };
     });
   }, []);
@@ -230,6 +231,13 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       ctx.clearRect(0, 0, w, h);
       time += 0.12;
       for (const star of starsRef.current) {
+        // Slow upward drift (time-lapse effect)
+        star.baseY -= star.driftSpeed;
+        if (star.baseY < -star.size) {
+          star.baseY = h + star.size;
+          star.y = star.baseY;
+        }
+
         const bdx = star.baseX - star.x;
         const bdy = star.baseY - star.y;
         star.vx += bdx * 0.05;

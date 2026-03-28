@@ -7,9 +7,10 @@
  * - Build time injected by Vite at build time
  */
 
-// IMPORTANT: This version is auto-updated by vite.config.ts on each build
-// __BUILD_TIME__ is replaced with actual timestamp during production build
-const SW_VERSION = typeof '__BUILD_TIME__' !== 'undefined' ? '__BUILD_TIME__' : 'v1.2.6';
+// IMPORTANT: __BUILD_TIME__ is replaced with an ISO timestamp by the Vite
+// sw-build-time-plugin at build time. In dev mode the literal string is used
+// as the version (safe — SW is unregistered in dev anyway).
+const SW_VERSION = '__BUILD_TIME__';
 const CACHE_VERSION = `swipess-${SW_VERSION}`;
 const CACHE_NAME = CACHE_VERSION;
 const STATIC_CACHE = `${CACHE_NAME}-static`;
@@ -221,29 +222,42 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // STALE-WHILE-REVALIDATE for HTML navigation requests
-  // This is the key to INSTANT launch of the PWA from home screen
+  // NETWORK-FIRST for HTML navigation requests (index.html)
+  // This ensures that when you refresh, you actually get the LATEST code if online.
+  // Stale-while-revalidate is BAD for updates because it serves the old code first.
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
-      caches.open(DYNAMIC_CACHE).then(cache => {
-        return cache.match(request).then(cachedResponse => {
-          // Always fetch fresh version in background
-          const bgFetch = fetch(request, {
-            cache: 'no-store' // Bypass browser cache but populate our SW cache
-          }).then(networkResponse => {
-            if (networkResponse.ok && networkResponse.status === 200) {
-              cache.put(request, networkResponse.clone());
-            }
-            return networkResponse;
-          }).catch(() => cachedResponse);
-
-          if (cachedResponse) {
-            // Return cached immediately for instant launch, update in background
-            event.waitUntil(bgFetch); // keep SW alive to complete cache update
-            return cachedResponse;
-          }
-          // First launch: wait for network
-          return bgFetch;
+      fetch(request.url, { // Simplified fetch to url to avoid 'navigate' mode TypeError
+        cache: 'no-store', // Always check the network for navigation
+        credentials: request.credentials
+      })
+      .then(networkResponse => {
+        // If we got a real response, update the cache and return it
+        if (networkResponse && networkResponse.ok && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(DYNAMIC_CACHE).then(cache => cache.put(request, clone));
+        }
+        return networkResponse;
+      })
+      .catch(async () => {
+        // If network is down, serve the latest from cache
+        try {
+          const cache = await caches.open(DYNAMIC_CACHE);
+          const cachedResponse = await cache.match(request);
+          if (cachedResponse) return cachedResponse;
+          
+          // Serve any available index.html as ultimate fallback
+          const indexResponse = await caches.match('/index.html');
+          if (indexResponse) return indexResponse;
+        } catch (e) {
+          console.error('[SW] Fallback error:', e);
+        }
+        
+        // Final fail-safe: return a valid Response to avoid ERR_FAILED
+        return new Response("Service Unavailable", { 
+          status: 503, 
+          statusText: "Service Unavailable", 
+          headers: { 'Content-Type': 'text/plain' } 
         });
       })
     );
