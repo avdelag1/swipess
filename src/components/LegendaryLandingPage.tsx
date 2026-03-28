@@ -464,7 +464,7 @@ function LegendaryLandingPage() {
           userRole="client" 
         />
       </Suspense>
-    </div>
+      </motion.div>
   );
 }
 
