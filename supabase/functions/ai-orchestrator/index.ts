@@ -6,11 +6,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// MULTI-ENDPOINT TITANIUM BRIDGE
+// TITANIUM V6 — upgraded to MiniMax M2.7 + chatcompletion_v2 endpoint
 const MINIMAX_ENDPOINTS = [
-  "https://api.minimax.io/v1/chat/completions",
-  "https://api.minimaxi.chat/v1/chat/completions"
+  "https://api.minimax.io/v1/text/chatcompletion_v2",
+  "https://api.minimax.io/v1/chat/completions",              // legacy fallback
+  "https://api.minimaxi.chat/v1/text/chatcompletion_v2",     // CN mirror
 ];
+
+const MODEL = "MiniMax-M2.7";
+const MODEL_FALLBACK = "abab6.5s-chat";   // legacy fallback if M2.7 is unavailable
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -18,11 +22,12 @@ Deno.serve(async (req) => {
   try {
     const key = Deno.env.get("MINIMAX_API_KEY");
     
-    // Heartbeat / Diagnostic
+    // ── Heartbeat / Diagnostic ────────────────────────────────────────
     if (req.method === "GET") {
       return new Response(JSON.stringify({ 
         status: "online", 
-        version: "v5.2-titanium-plus",
+        version: "v6.0-titanium-m2",
+        model: MODEL,
         key_check: key ? `Present (${key.substring(0, 10)}...)` : "MISSING" 
       }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
@@ -31,75 +36,107 @@ Deno.serve(async (req) => {
     const task = payload.task || "chat";
     const input = payload.data || payload;
 
-    // Supabase Auth validation (Optional for public chat, required for secure tasks)
+    // ── Auth — validate session for ALL tasks ─────────────────────────
     const authHeader = req.headers.get("Authorization");
-    const isPublicTask = task === "chat" || task === "query";
-    
-    if (!authHeader && !isPublicTask) {
-      return new Response(JSON.stringify({ error: "Unauthorized: Secure task requires login." }), { status: 401, headers: corsHeaders });
+
+    if (!authHeader) {
+      console.warn("[Titanium] No Authorization header received");
+      return new Response(JSON.stringify({ 
+        error: "No authorization provided. Please sign in first.",
+        code: "NO_AUTH" 
+      }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: authHeader ? { Authorization: authHeader } : {} }
-    });
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!, 
+      Deno.env.get("SUPABASE_ANON_KEY")!, 
+      { global: { headers: { Authorization: authHeader } } }
+    );
 
-    // Only verify user if header is present
-    if (authHeader) {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
-         if (!isPublicTask) return new Response(JSON.stringify({ error: "Invalid Token" }), { status: 401, headers: corsHeaders });
-      }
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.error("[Titanium] Auth failed:", authError?.message);
+      return new Response(JSON.stringify({ 
+        error: "Invalid or expired session. Please sign in again.",
+        code: "INVALID_TOKEN" 
+      }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    if (!key) return new Response(JSON.stringify({ error: "No Key Configured" }), { status: 200, headers: corsHeaders });
+    console.log(`[Titanium] Authenticated user: ${user.id} | Task: ${task}`);
 
-    // AI Call with Multi-Endpoint Retry
+    if (!key) {
+      return new Response(JSON.stringify({ 
+        error: "AI service not configured. MINIMAX_API_KEY is missing.",
+        code: "NO_KEY" 
+      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // ── Build AI request ──────────────────────────────────────────────
     const messages = input.messages || [{ role: "user", content: input.query || "Hello" }];
-    const requestBody = {
-      model: "abab6.5s-chat",
-      messages: messages.map((m: any) => ({
-        role: m.role === "assistant" ? "assistant" : (m.role === "system" ? "system" : "user"),
-        content: m.content || m.text || ""
-      }))
-    };
+    const cleanMessages = messages.map((m: any) => ({
+      role: m.role === "assistant" ? "assistant" : (m.role === "system" ? "system" : "user"),
+      content: m.content || m.text || ""
+    }));
 
+    // Inject system prompt for non-chat tasks
+    if (task === "listing" || task === "conversation" || task === "enhance" || task === "profile" || task === "search") {
+      const systemPrompt = getSystemPrompt(task, input);
+      cleanMessages.unshift({ role: "system", content: systemPrompt });
+    }
+
+    // ── Multi-endpoint retry with model fallback ──────────────────────
     let apiResponse = null;
     let lastError = null;
+    let usedModel = MODEL;
 
-    for (const url of MINIMAX_ENDPOINTS) {
-      console.log(`[Titanium] Trying endpoint: ${url}`);
-      try {
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-          body: JSON.stringify(requestBody),
-        });
-        
-        const data = await res.json().catch(() => ({}));
-        if (res.ok && data.choices?.[0]?.message?.content) {
-          apiResponse = data;
-          break;
-        } else {
-          lastError = data.base_resp?.status_msg || data.error?.message || "Endpoint error";
-          console.warn(`[Titanium] ${url} failed:`, lastError);
+    // Try primary model first, then fallback
+    const modelsToTry = [MODEL, MODEL_FALLBACK];
+
+    for (const model of modelsToTry) {
+      for (const url of MINIMAX_ENDPOINTS) {
+        console.log(`[Titanium] Trying: ${model} @ ${url}`);
+        try {
+          const requestBody = { model, messages: cleanMessages };
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { 
+              "Authorization": `Bearer ${key}`, 
+              "Content-Type": "application/json" 
+            },
+            body: JSON.stringify(requestBody),
+          });
+          
+          const data = await res.json().catch(() => ({}));
+          
+          if (res.ok && data.choices?.[0]?.message?.content) {
+            apiResponse = data;
+            usedModel = model;
+            console.log(`[Titanium] ✅ Success via ${model} @ ${url}`);
+            break;
+          } else {
+            lastError = data.base_resp?.status_msg || data.error?.message || `HTTP ${res.status}`;
+            console.warn(`[Titanium] ❌ ${url} (${model}) failed:`, lastError);
+          }
+        } catch (e) {
+          lastError = String(e);
+          console.warn(`[Titanium] ❌ ${url} (${model}) fetch error:`, e);
         }
-      } catch (e) {
-        lastError = String(e);
-        console.warn(`[Titanium] ${url} fetch failed:`, e);
       }
+      if (apiResponse) break;
     }
 
     if (!apiResponse) {
       return new Response(JSON.stringify({ 
-        error: "Exhausted all MiniMax endpoints", 
-        last_error: lastError 
-      }), { status: 200, headers: corsHeaders });
+        error: "AI service temporarily unavailable. Please try again.",
+        last_error: lastError,
+        code: "AI_EXHAUSTED"
+      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const content = apiResponse.choices[0].message.content;
     let result: any = { text: content, message: content };
 
-    // Smart JSON output extractor
+    // Smart JSON output extractor for structured tasks
     if (task !== "chat" && task !== "query") {
       const match = content.match(/\{[\s\S]*\}/);
       if (match) {
@@ -107,13 +144,56 @@ Deno.serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({ result, provider: "minimax", status: "success" }), {
+    return new Response(JSON.stringify({ 
+      result, 
+      provider: "minimax", 
+      model_used: usedModel,
+      status: "success" 
+    }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
 
   } catch (err: any) {
-    console.error("[Fatal] Crash:", err);
-    return new Response(JSON.stringify({ error: err.message, status: "crash" }), { status: 200, headers: corsHeaders });
+    console.error("[Titanium] Fatal crash:", err);
+    return new Response(JSON.stringify({ 
+      error: err.message || "Internal server error", 
+      code: "CRASH",
+      status: "crash" 
+    }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
+
+// ── System prompts per task ─────────────────────────────────────────────
+function getSystemPrompt(task: string, input: any): string {
+  switch (task) {
+    case "listing":
+      return `You are an expert real estate and marketplace listing writer for Tulum, Mexico. 
+Generate a compelling listing based on the user's input. 
+Category: ${input.category || "general"}
+Return a JSON object with: title, description, price (number), city, and any relevant category-specific fields.
+Always respond with valid JSON only.`;
+    
+    case "conversation":
+      return `You are the Swipess Concierge — a sharp, market-savvy guide to Tulum's rental and services marketplace.
+Help the user create a ${input.category || "general"} listing by asking questions and extracting structured data.
+When you have enough info, set isComplete to true.
+Always return JSON: { "message": "your reply", "extractedData": {}, "isComplete": false }`;
+    
+    case "enhance":
+      return `You are a professional copywriter. Enhance the given text to be more compelling and ${input.tone || "professional"}. 
+Return JSON: { "text": "enhanced text" }`;
+    
+    case "profile":
+      return `You are a lifestyle profile writer. Create an engaging bio based on the user's interests and details.
+Return JSON: { "bio": "...", "lifestyle": "...", "interests_enhanced": ["..."] }`;
+    
+    case "search":
+      return `You are a smart search assistant for a marketplace in Tulum.
+Parse the user's natural language query and extract structured search parameters.
+Return JSON: { "category": "property|motorcycle|bicycle|worker|null", "priceMin": null, "priceMax": null, "keywords": [], "suggestion": "..." }`;
+    
+    default:
+      return "You are a helpful AI assistant for the Swipess marketplace in Tulum, Mexico.";
+  }
+}

@@ -90,6 +90,13 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
     setIsTyping(true);
 
     try {
+      // Pre-flight auth check — verify session token exists
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Session expired. Please sign in again.');
+        throw new Error('Not authenticated');
+      }
+
       // Call the AI Orchestrator via Supabase Edge Function
       const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {

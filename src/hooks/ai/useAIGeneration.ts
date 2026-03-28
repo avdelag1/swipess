@@ -42,6 +42,13 @@ export function useAIGeneration() {
     setError(null);
 
     try {
+      // Pre-flight auth check — fail fast if no session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please sign in to use AI features');
+        throw new Error('Not authenticated');
+      }
+
       const { data: fnData, error: fnError } = await supabase.functions.invoke('ai-orchestrator', {
         body: { task: type, data },
       });

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface ConciergeMessage {
   id: string;
@@ -33,6 +34,13 @@ export function useConciergeAI() {
     setMessages(prev => [...prev, userMsg]);
 
     try {
+      // Pre-flight auth check — fail fast if no session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please sign in to use the Concierge');
+        throw new Error('Not authenticated');
+      }
+
       // Call the AI Orchestrator via Supabase Edge Function
       const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {
