@@ -13,6 +13,7 @@ const MINIMAX_ENDPOINTS = [
 ];
 
 const MODEL = "MiniMax-M2.7";
+const FALLBACK_MODEL = "MiniMax-M2.5";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -24,6 +25,11 @@ Deno.serve(async (req) => {
     const payload = await req.json().catch(() => ({}));
     const task = payload.task || "chat";
     const input = payload.data || payload;
+
+    // Fast warm-up for cold starts
+    if (task === "ping") {
+      return new Response(JSON.stringify({ status: "ready" }), { status: 200, headers: corsHeaders });
+    }
 
     // ── Auth ──────────────────────────────────────────────────────────
     const authHeader = req.headers.get("Authorization");
@@ -119,16 +125,35 @@ Deno.serve(async (req) => {
 
 async function callMiniMax(messages: any[], key: string) {
   const url = MINIMAX_ENDPOINTS[0];
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model: MODEL, messages, temperature: 0.7 }),
-  });
-  if (!res.ok) {
+  
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: MODEL, messages, temperature: 0.7 }),
+    });
+    
+    if (res.ok) return await res.json();
+    
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(`MiniMax API Error (${res.status}): ${JSON.stringify(errorData)}`);
+    console.warn(`[Vibe] Primary Model (${MODEL}) failed: ${res.status}. Trying fallback...`);
+    
+    // Fallback logic
+    const fallbackRes = await fetch(url, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: FALLBACK_MODEL, messages, temperature: 0.7 }),
+    });
+
+    if (!fallbackRes.ok) {
+      const fallbackErr = await fallbackRes.json().catch(() => ({}));
+      throw new Error(`MiniMax API Fatal: ${JSON.stringify(fallbackErr)}`);
+    }
+
+    return await fallbackRes.json();
+  } catch (e) {
+    throw e;
   }
-  return await res.json();
 }
 
 function getVibePrompt(task: string, input: any, user: any): string {

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
@@ -59,6 +60,13 @@ export function ConciergeChat({
     }
   }, [messages]);
 
+  // Pre-warm the Edge Function to avoid cold-start delays
+  useEffect(() => {
+    if (open) {
+      supabase.functions.invoke('ai-orchestrator', { body: { task: 'ping' } }).catch(() => {});
+    }
+  }, [open]);
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
     
@@ -115,8 +123,12 @@ export function ConciergeChat({
             <div>
               <div className="flex items-center gap-1.5">
                 <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-gray-900")}>
-                  Vibe
+                  Swipess Concierge
                 </h2>
+                <div className="flex items-center gap-1.5 ml-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                  <span className="text-[9px] font-black text-rose-500 uppercase tracking-[0.2em]">Personal Concierge</span>
+                </div>
                 {userRole === 'owner' || (subscription?.subscription_packages?.tier === 'premium' || subscription?.subscription_packages?.tier === 'unlimited') && (
                   <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-bold uppercase tracking-wider border border-amber-500/20">
                     <Sparkles className="w-2.5 h-2.5" />

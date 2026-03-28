@@ -47,6 +47,9 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 200);
+      
+      // PRE-WARMING: Wake up the edge function for high-performance first response
+      supabase.functions.invoke('ai-orchestrator', { body: { task: 'ping' } }).catch(() => {});
       if (messages.length === 0) {
         setIsTyping(true);
         const msgT = setTimeout(() => {
@@ -97,16 +100,39 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
         throw new Error('Not authenticated');
       }
 
-      // Call the AI Orchestrator via Supabase Edge Function
+      // Fetch user profile for deep personalization
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, bio, interests, lifestyle_tags')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      const userName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || 'Friend';
+      const userTier = (clientProfile as any)?.subscription_tier || 'Basic';
+
+      // SANITIZED HISTORY: Filter out previous error messages to maintain conversation flow
+      const sanitizedHistory = messages
+        .filter(m => !m.content.includes('⚠️') && !m.content.includes('connection lost'))
+        .map(m => ({
+          role: m.role === 'ai' ? 'assistant' : 'user',
+          content: m.content
+        }));
+
+      // Call the AI Orchestrator via Supabase Edge Function with full Vibe context
       const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {
           task: 'chat',
           data: {
             query: userMessage,
-            messages: messages.map(m => ({
-              role: m.role === 'ai' ? 'assistant' : 'user',
-              content: m.content
-            }))
+            userName,
+            userTier,
+            userProfile: {
+              bio: profile?.bio,
+              interests: profile?.interests,
+              lifestyle: profile?.lifestyle_tags
+            },
+            currentPath: '/ai-search', // Identifying this specific dialog
+            messages: sanitizedHistory
           }
         }
       });
@@ -119,22 +145,25 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
       }
 
       const responseContent = data?.result?.text || data?.result?.message || '';
-      if (!responseContent) throw new Error('AI returned an empty response. Please try again.');
+      if (!responseContent) throw new Error('Vibe is currently pondering. Please try again.');
 
       setIsTyping(false);
       setMessages(prev => [...prev, {
         role: 'ai',
         content: responseContent,
         timestamp: Date.now(),
-        showAction: false,
+        showAction: !!data?.result?.action,
+        actionLabel: data?.result?.action?.label || 'View',
+        actionRoute: data?.result?.action?.params?.path || data?.result?.action?.route,
       }]);
     } catch (error) {
       setIsTyping(false);
-      console.error('AI Error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('[Vibe Search] Error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Vibe connection lost';
+      
       setMessages(prev => [...prev, {
         role: 'ai',
-        content: `⚠️ ${errorMessage}\n\nPlease try again.`,
+        content: `⚠️ ${errorMessage}\n\nPlease check your connection or try again.`,
         timestamp: Date.now()
       }]);
     } finally {

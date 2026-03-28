@@ -38,49 +38,61 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
   const handleInputChange = (val: number) => {
     setLocalKm(val);
     displayPct.set((val / maxKm) * 100);
+    // Real-time update to parent for "instant" feeling as requested by user
+    onRadiusChange(val);
   };
 
   return (
-    <div className="w-full max-w-xs mx-auto mt-2 px-2">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5">
-          <MapPin className="w-3.5 h-3.5 text-primary" />
-          <span className="text-xs font-bold text-foreground uppercase tracking-wider">Distance</span>
+    <div className="w-full max-w-xs mx-auto mt-2 px-4 py-2">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-primary/10">
+            <MapPin className="w-4 h-4 text-primary" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mb-1">Coverage</span>
+            <span className="text-xs font-bold text-foreground leading-none">Search Radius</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <motion.span 
-            className="text-xs font-black text-primary min-w-[3ch] text-right"
-            animate={{ scale: [1, 1.1, 1] }}
+        <div className="flex items-center gap-2">
+          <motion.div 
+            className="px-2 py-1 rounded-md bg-muted/50 border border-border/50"
+            animate={{ scale: [1, 1.02, 1] }}
             key={localKm}
             transition={{ duration: 0.1 }}
           >
-            {localKm} km
-          </motion.span>
+            <span className="text-sm font-black text-primary tracking-tight">
+              {localKm} <span className="text-[10px] opacity-60">km</span>
+            </span>
+          </motion.div>
           <button
             onClick={onDetectLocation}
             disabled={detecting}
             className={cn(
-              "flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tight border transition-all active:scale-95",
+              "flex items-center gap-1.5 h-8 px-3 rounded-xl text-[10px] font-black uppercase tracking-tight border transition-all active:scale-90",
               detected
-                ? "bg-primary/10 border-primary/40 text-primary"
-                : "bg-transparent border-muted-foreground/30 text-muted-foreground"
+                ? "bg-primary border-primary text-white shadow-lg shadow-primary/20"
+                : "bg-background border-border text-muted-foreground hover:border-primary/50"
             )}
+            title="Detect my current GPS location"
           >
-            <Navigation className={cn("w-2.5 h-2.5", detecting && "animate-spin")} />
-            {detecting ? '...' : detected ? 'GPS' : 'Detect'}
+            <Navigation className={cn("w-3 h-3", detecting && "animate-spin")} />
+            {detecting ? '...' : detected ? 'Fixed' : 'Detect'}
           </button>
         </div>
       </div>
       
-      <div className="relative h-8 flex items-center group">
+      <div className="relative h-10 flex items-center group">
         <label htmlFor="radius-slider" className="sr-only">Search Radius</label>
         
-        {/* Track background */}
-        <div className="absolute w-full h-2 rounded-full overflow-hidden bg-muted/40 backdrop-blur-sm shadow-inner" />
+        {/* Living Track background */}
+        <div className="absolute w-full h-2 rounded-full bg-muted/30 backdrop-blur-md overflow-hidden">
+           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 animate-pulse" />
+        </div>
         
-        {/* Progress fill */}
+        {/* Sentient Progress fill */}
         <motion.div
-          className="absolute h-2 rounded-full bg-gradient-to-r from-[#ec4899] to-[#f97316] shadow-[0_0_15px_rgba(236,72,153,0.3)]"
+          className="absolute h-2 rounded-full bg-gradient-to-r from-[#ec4899] to-[#f97316] shadow-[0_0_20px_rgba(236,72,153,0.4)]"
           style={{ width: springPct.get() + '%' }}
         />
         
@@ -92,22 +104,25 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
           step={1}
           value={localKm}
           onChange={(e) => handleInputChange(Number(e.target.value))}
-          onMouseUp={(e) => onRadiusChange(Number((e.target as HTMLInputElement).value))}
-          onTouchEnd={(e) => onRadiusChange(Number((e.target as HTMLInputElement).value))}
-          className="absolute w-full opacity-0 h-8 cursor-pointer touch-none z-20"
-          title="Adjust distance radius"
+          className="absolute w-full opacity-0 h-10 cursor-pointer touch-none z-20"
+          title="Slide to adjust your search distance"
         />
         
-        {/* Thumb position calc */}
-        <div
-          className="absolute w-6 h-6 rounded-full border-[3px] border-white shadow-xl pointer-events-none bg-gradient-to-br from-[#ec4899] to-[#f97316] z-10"
-          style={{ left: `calc(${(localKm / maxKm) * 100}% - 12px)` }}
-        />
+        {/* Premium Sentient Thumb */}
+        <motion.div
+          className="absolute w-8 h-8 rounded-2xl border-[3px] border-white shadow-[0_10px_30px_rgba(0,0,0,0.3)] pointer-events-none bg-gradient-to-br from-[#ec4899] to-[#f97316] z-10 flex items-center justify-center overflow-hidden"
+          style={{ left: `calc(${(localKm / maxKm) * 100}% - 16px)` }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9, rotate: 5 }}
+        >
+          <div className="absolute inset-0 bg-white/20 animate-pulse" />
+          <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_white]" />
+        </motion.div>
       </div>
       
-      <div className="flex justify-between mt-1 text-muted-foreground/60 px-1">
-        <span className="text-[10px] font-black uppercase tracking-widest">1 km</span>
-        <span className="text-[10px] font-black uppercase tracking-widest">100 km</span>
+      <div className="flex justify-between mt-2 px-1">
+        <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.3em]">Local</span>
+        <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.3em]">100 km+</span>
       </div>
     </div>
   );

@@ -60,12 +60,13 @@ export function useConciergeAI() {
       const userTier = subscription?.subscription_packages?.tier || 'Basic';
       const userLang = i18n.language || 'en';
 
-      // Capture history BEFORE the new message to avoid duplicates, 
-      // as the backend now handles pushing the 'query' if needed.
-      const history = messages.map(m => ({
-        role: m.role,
-        content: m.content
-      }));
+      // Capture history - Filter out error messages to avoid confusing the AI
+      const history = messages
+        .filter(m => !m.content.includes('I encountered an error') && !m.content.includes('Service unavailable'))
+        .map(m => ({
+          role: m.role,
+          content: m.content
+        }));
 
       // 2. Call the AI Orchestrator with refined context
       const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
@@ -107,16 +108,16 @@ export function useConciergeAI() {
       
       setMessages(prev => [...prev, assistantMsg]);
 
-      // 3. Handle Jarvis Actions
+      // 3. Handle Vibe Actions
       if (aiAction) {
-        console.log('[Jarvis] Action Triggered:', aiAction);
+        console.log('[Vibe] Action Triggered:', aiAction);
         
         switch (aiAction.type) {
           case 'navigate':
             if (aiAction.params?.path) {
               toast(`Navigating to ${aiAction.params.path}`, { 
                 icon: '🚀',
-                description: 'Jarvis is moving you there now.' 
+                description: 'Vibe is taking you there now.' 
               });
               setTimeout(() => navigate(aiAction.params.path), 1200);
             }
@@ -135,7 +136,7 @@ export function useConciergeAI() {
             toast.success("Profile update requested! I'll handle that.", { icon: '📝' });
             break;
           default:
-            console.warn('[Jarvis] Unknown action:', aiAction.type);
+            console.warn('[Vibe] Unknown action:', aiAction.type);
         }
       }
 

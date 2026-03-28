@@ -296,10 +296,15 @@ self.addEventListener('fetch', (event) => {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
-          }).catch(() => cachedResponse); // Fallback to cache on network error
+          }).catch(() => {
+            // If network fails, return the cached version if we have it
+            if (cachedResponse) return cachedResponse;
+            // Otherwise return a tiny valid response to avoid crash
+            return new Response('', { status: 404, statusText: 'Not Found' });
+          });
 
           if (cachedResponse) {
-            event.waitUntil(bgFetch); // keep SW alive to complete cache update
+            event.waitUntil(bgFetch); 
             return cachedResponse;
           }
           return bgFetch;
@@ -319,10 +324,17 @@ self.addEventListener('fetch', (event) => {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
-          }).catch(() => cachedResponse);
+          }).catch(() => {
+            if (cachedResponse) return cachedResponse;
+            // Ultimate fallback for images (transparent pixel)
+            return new Response('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', { 
+              status: 200, 
+              headers: { 'Content-Type': 'image/gif' } 
+            });
+          });
 
           if (cachedResponse) {
-            event.waitUntil(bgFetch); // keep SW alive to complete cache update
+            event.waitUntil(bgFetch);
             return cachedResponse;
           }
           return bgFetch;
