@@ -26,7 +26,11 @@ function SwipessLogoComponent({
       <img
         src="/icons/fire-s-logo-960.webp"
         alt="Swipess"
+        width="960"
+        height="640"
         draggable={false}
+        fetchPriority="high"
+        decoding="async"
         className={cn(
           'w-auto object-contain select-none pointer-events-none transition-all duration-300',
           heightMap[size]

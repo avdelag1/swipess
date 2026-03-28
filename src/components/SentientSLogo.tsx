@@ -102,8 +102,10 @@ export const SentientSLogo = memo(({ size = 'md', className }: SentientSLogoProp
 
       {/* The Central S Logo */}
       <img
-        src="/icons/fire-s-logo-zoom.png"
+        src="/icons/fire-s-logo-960.webp"
         alt="S"
+        width="960"
+        height="640"
         className="w-full h-full object-contain relative z-10 scale-125"
       />
 

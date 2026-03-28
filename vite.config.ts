@@ -85,7 +85,13 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('recharts') || id.includes('lottie') || id.includes('octokit') || id.includes('victory') || id.includes('embla-carousel')) {
               return 'rare-vendors';
             }
-            
+
+            // Heavy form/validation libs — only needed after auth interaction
+            if (id.includes('browser-image-compression')) return 'image-compression';
+            if (id.includes('zod')) return 'zod';
+            if (id.includes('react-hook-form')) return 'react-hook-form';
+            if (id.includes('react-select')) return 'react-select';
+
             // Split large libs into their own chunks for parallel download
             if (id.includes('framer-motion')) return 'framer-motion';
             if (id.includes('lucide-react')) return 'lucide-react';

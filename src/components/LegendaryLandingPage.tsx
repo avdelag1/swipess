@@ -415,10 +415,14 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                     type="button"
                     variant="outline"
                     onClick={() => {
-                        triggerHaptic('light');
-                        signInWithOAuth('google', isLogin ? undefined : 'client');
+                        triggerHaptic('warning');
+                        toast({
+                          title: 'Google Login: Coming Soon',
+                          description: "We're currently finalizing our secure Google integration. Please use your email to sign in or create a free account for now!",
+                          variant: 'default',
+                        });
                     }}
-                    className="w-full h-12 bg-white/5 border-border/80 hover:bg-white/10 text-foreground font-bold flex items-center justify-center gap-3 transition-all rounded-xl"
+                    className="w-full h-12 bg-white/5 border-border/80 hover:bg-white/10 text-foreground font-bold flex items-center justify-center gap-3 transition-all rounded-xl grayscale-[0.5] opacity-80"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                       <path

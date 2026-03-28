@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://vplgtcguxujxwrgguxqq.supabase.co" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <!-- LCP IMAGE: fetchpriority=high + preload ensures logo loads before JS -->
-  <link rel="preload" as="image" href="/icons/swipess-flame-s.png" type="image/png" fetchpriority="high">
+  <!-- LCP IMAGE: preload the exact asset used as LCP so browser fetches it ASAP -->
+  <link rel="preload" as="image" href="/icons/fire-s-logo-960.webp" type="image/webp" fetchpriority="high">
 
   <!-- Critical styles inlined for instant paint -->
   <style>
@@ -68,7 +68,8 @@
   <div id="initial-loader">
     <div class="stars-container"><div id="stars"></div><div id="stars2"></div></div>
     <img src="/icons/fire-s-logo-960.webp" class="splash-logo" alt="Swipess" 
-      style="width: 140px; height: 140px; object-fit: contain; margin-bottom: 20px;" />
+      width="140" height="140"
+      style="width:140px;height:140px;object-fit:contain;margin-bottom:20px;" />
   </div>
 
   <div id="root"></div>
@@ -81,6 +82,13 @@
     var V="3.3.0";
     if(localStorage.getItem('pwa_version')!==V){
       if('caches' in window)caches.keys().then(function(n){n.forEach(function(k){caches.delete(k)})}).then(function(){localStorage.setItem('pwa_version',V)});
+    }
+    // SW: graceful registration — suppress fetch errors from console
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('/sw.js').catch(function(e){
+        // Silently fail on sw fetch error (common on first deploy or cache bust)
+        console.warn('[SW] Registration skipped:', e.message);
+      });
     }
   </script>
 </body>
