@@ -265,23 +265,11 @@ export function UpdateNotification() {
             {/* Top accent bar */}
             <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500" />
 
-            {/* Dismiss button */}
-            <button
-              onClick={() => setDismissed(true)}
-              className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors"
-              aria-label="Dismiss"
-            >
-              <svg className="w-3 h-3 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
 
             <div className="flex items-center gap-3 px-4 pt-5 pb-4">
-              {/* Icon */}
-              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center shadow-[0_4px_14px_rgba(249,115,22,0.4)]">
-                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
+              {/* Sentient Mascot Icon */}
+              <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center overflow-hidden border border-white/10">
+                <img src="/icons/fire-s-logo-zoom.png" className="w-8 h-8 object-contain" alt="Update" />
               </div>
 
               {/* Text */}
@@ -297,9 +285,9 @@ export function UpdateNotification() {
                 whileTap={{ scale: 0.97 }}
                 onClick={performUpdate}
                 disabled={isUpdating}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-400 text-white font-black text-[13px] uppercase tracking-wider shadow-[0_8px_20px_rgba(249,115,22,0.35)] disabled:opacity-60 transition-opacity"
+                className="w-full py-4 rounded-xl bg-white text-black font-black text-[14px] uppercase tracking-[0.1em] shadow-[0_20px_40px_rgba(255,255,255,0.15)] disabled:opacity-60 transition-all border-none"
               >
-                {isUpdating ? 'Applying...' : 'Refresh Now'}
+                {isUpdating ? 'Pulsing Version...' : 'Refresh App Now'}
               </motion.button>
             </div>
           </div>

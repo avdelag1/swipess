@@ -17,6 +17,7 @@ import {
   User
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
+import { SentientSLogo } from './SentientSLogo';
 import { useTheme } from '@/hooks/useTheme';
 import { useUserSubscription } from '@/hooks/useSubscription';
 import { cn } from '@/lib/utils';
@@ -113,12 +114,11 @@ export function ConciergeChat({
         )}>
           <div className="flex items-center gap-3">
             <div className={cn(
-              "w-10 h-10 rounded-xl flex items-center justify-center",
-              isDark 
-                ? "bg-gradient-to-br from-cyan-500 to-blue-600" 
-                : "bg-gradient-to-br from-cyan-400 to-blue-500"
+              "w-11 h-11 rounded-full flex items-center justify-center relative overflow-hidden group shadow-lg border",
+              isDark ? "bg-zinc-900 border-white/10" : "bg-white border-zinc-200"
             )}>
-              <Bot className="w-5 h-5 text-white" />
+              <SentientSLogo size="sm" className="relative z-10" />
+              <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">

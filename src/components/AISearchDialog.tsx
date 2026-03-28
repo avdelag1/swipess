@@ -8,7 +8,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { cn } from '@/lib/utils';
 import { useClientProfile } from '@/hooks/useClientProfile';
 import { useTheme } from '@/hooks/useTheme';
-import { SwipessLogo } from './SwipessLogo';
+import { SentientSLogo } from './SentientSLogo';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -216,7 +216,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
               "w-12 h-12 rounded-2xl flex items-center justify-center relative overflow-hidden group border",
               isDark ? "bg-zinc-900 border-white/10" : "bg-white border-gray-100 shadow-sm"
             )}>
-              <SwipessLogo size="sm" className="relative z-10" />
+              <SentientSLogo size="sm" className="relative z-10" />
               <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
