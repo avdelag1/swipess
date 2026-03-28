@@ -294,11 +294,41 @@ function ShareModal({
   );
 }
 
+// ── STORY PROGRESS BAR ────────────────────────────────────────────────────────
+function StoryProgressBar({ 
+  duration, 
+  isActive, 
+  isPaused, 
+  onComplete,
+  animKey
+}: { 
+  duration: number; 
+  isActive: boolean; 
+  isPaused: boolean; 
+  onComplete: () => void;
+  animKey: number;
+}) {
+  return (
+    <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 right-4 z-[60] flex gap-1.5 h-1">
+      <div className="relative flex-1 bg-white/20 rounded-full overflow-hidden backdrop-blur-md">
+        <motion.div
+          key={animKey}
+          initial={{ width: '0%' }}
+          animate={isActive ? { width: isPaused ? undefined : '100%' } : { width: '0%' }}
+          transition={isActive && !isPaused ? { duration: duration / 1000, ease: 'linear' } : { duration: 0 }}
+          onAnimationComplete={() => { if (isActive && !isPaused) onComplete(); }}
+          className="absolute inset-y-0 left-0 bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+        />
+      </div>
+    </div>
+  );
+}
+
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 function EventCard({
-  event, isActive, onLike, liked, onChat, onShare, onMiddleTap, onNextEvent, onPrevEvent,
+  event, isActive, isPaused, animKey, onTickComplete, onLike, liked, onChat, onShare, onMiddleTap, onNextEvent, onPrevEvent,
 }: {
-  event: EventItem; isActive: boolean; onLike: () => void; liked: boolean;
+  event: EventItem; isActive: boolean; isPaused: boolean; animKey: number; onTickComplete: () => void; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
   onNextEvent: () => void; onPrevEvent: () => void;
 }) {
@@ -319,6 +349,14 @@ function EventCard({
       style={{ height: '100dvh', scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
       data-testid={`event-card-${event.id}`}
     >
+      {/* Story Progress Bar */}
+      <StoryProgressBar 
+        duration={AUTOPLAY_DURATION} 
+        isActive={isActive && !showDetails} 
+        isPaused={isPaused} 
+        animKey={animKey}
+        onComplete={onTickComplete}
+      />
       {/* Background photo with slow zoom-out on ACTIVE cards ONLY */}
       <motion.div
         className="absolute inset-0"
@@ -974,31 +1012,16 @@ export default function EventosFeed() {
           </div>
         </div>
 
-        {/* Instagram-style progress bars — pure CSS animation, no React re-renders */}
-        <div className="flex gap-1 px-4 pb-2">
-          {filteredEvents.slice(0, 12).map((_, i) => (
+        {/* Navigation Dots — subtle TikTok style indicators */}
+        <div className="flex justify-center gap-1.5 px-4 pb-2">
+          {filteredEvents.slice(0, 10).map((_, i) => (
             <div
               key={i}
-              className="flex-1 h-[3px] rounded-full overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.15)' }}
-            >
-              <div
-                key={i === activeIdx ? `active-${animKey}` : `bar-${i}`}
-                className="h-full rounded-full"
-                style={{
-                  background: i < activeIdx
-                    ? 'rgba(255,255,255,0.7)'
-                    : i === activeIdx
-                      ? 'linear-gradient(90deg, rgba(255,255,255,0.9), rgba(249,115,22,0.8))'
-                      : 'transparent',
-                  width: i < activeIdx ? '100%' : i === activeIdx ? undefined : '0%',
-                  animation: i === activeIdx
-                    ? `progress-fill ${AUTOPLAY_DURATION}ms linear forwards`
-                    : 'none',
-                  animationPlayState: (!autoPlay || isPaused) ? 'paused' : 'running',
-                }}
-              />
-            </div>
+              className={cn(
+                "h-1 rounded-full bg-white/30 transition-all duration-300",
+                i === activeIdx ? "w-6 bg-white" : "w-1"
+              )}
+            />
           ))}
         </div>
 
@@ -1070,6 +1093,18 @@ export default function EventosFeed() {
                   <EventCard
                     event={event}
                     isActive={virtualRow.index === activeIdx}
+                    isPaused={isPaused}
+                    animKey={animKey}
+                    onTickComplete={() => {
+                      if (activeIdx < filteredEvents.length) {
+                        const nextIdx = activeIdx + 1;
+                        parentRef.current?.scrollTo({ 
+                          top: nextIdx * parentRef.current.clientHeight, 
+                          behavior: 'smooth' 
+                        });
+                        setAnimKey(k => k + 1);
+                      }
+                    }}
                     liked={likedIds.has(event.id)}
                     onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
                     onChat={() => handleOpenChat(event)}

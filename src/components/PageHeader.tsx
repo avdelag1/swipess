@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
+import { SwipessLogo } from "./SwipessLogo";
 
 interface PageHeaderProps {
   title: string;
@@ -61,11 +62,14 @@ export function PageHeader({
             Back
           </motion.button>
         )}
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">{title}</h1>
-          {subtitle && (
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
-          )}
+        <div className="flex items-center gap-3">
+          <SwipessLogo size="md" className="transition-all" />
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">{title}</h1>
+            {subtitle && (
+              <p className="text-sm text-muted-foreground">{subtitle}</p>
+            )}
+          </div>
         </div>
       </div>
       {actions && (

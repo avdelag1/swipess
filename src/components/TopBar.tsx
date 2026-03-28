@@ -203,40 +203,45 @@ function TopBarComponent({
             )}
 
             {user ? (
-              <motion.button
-                whileTap={{ scale: 0.92 }}
-                onPointerDown={(e) => {
-                  e.stopPropagation();
-                  haptics.select();
-                  const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
-                  prefetchRoute(profilePath);
-                }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
-                  navigate(profilePath);
-                }}
-                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0"
-                style={{ WebkitTapHighlightColor: 'transparent' }}
-                aria-label="Go to profile"
-              >
-                <Avatar className="h-9 w-9 rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
-                  <AvatarImage src={profile?.avatar_url || ''} className="object-cover w-full h-full rounded-full" />
-                  <AvatarFallback className={cn(
-                    "text-xs font-black uppercase rounded-full w-full h-full flex items-center justify-center",
-                    isLight
-                      ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/90"
-                      : "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
-                  )}>
-                    {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-              </motion.button>
+              <div className="flex items-center gap-2">
+                <div onPointerDown={() => prefetchRoute('/')} className="cursor-pointer">
+                  <SwipessLogo size="md" className="transition-transform active:scale-95" />
+                </div>
+                <motion.button
+                  whileTap={{ scale: 0.92 }}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    haptics.select();
+                    const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
+                    prefetchRoute(profilePath);
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
+                    navigate(profilePath);
+                  }}
+                  className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0"
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
+                  aria-label="Go to profile"
+                >
+                  <Avatar className="h-9 w-9 rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
+                    <AvatarImage src={profile?.avatar_url || ''} className="object-cover w-full h-full rounded-full" />
+                    <AvatarFallback className={cn(
+                      "text-xs font-black uppercase rounded-full w-full h-full flex items-center justify-center",
+                      isLight
+                        ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/90"
+                        : "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
+                    )}>
+                      {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </motion.button>
+              </div>
             ) : (
               !showBack && !title && (
                 <div onPointerDown={() => prefetchRoute('/')} className="cursor-pointer">
-                  <SwipessLogo size="sm" className="flex-shrink-0" />
+                  <SwipessLogo size="md" className="flex-shrink-0" />
                 </div>
               )
             )}

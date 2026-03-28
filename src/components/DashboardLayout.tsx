@@ -19,6 +19,7 @@ import { useQueryClient } from '@tanstack/react-query'
 
 // New Mobile Navigation Components
 import { TopBar } from '@/components/TopBar'
+import { SwipessLogo } from '@/components/SwipessLogo'
 import { BottomNavigation } from '@/components/BottomNavigation'
 const AdvancedFilters = lazy(() => import('@/components/AdvancedFilters').then(m => ({ default: m.AdvancedFilters })))
 // Lazy-loaded Dialogs (improves bundle size and initial load)
@@ -691,6 +692,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           paddingRight: 'max(var(--safe-right), 0px)',
         }}
       >
+        {/* Global Branding Watermark - Vibrant "Elite" feel */}
+        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[-1] opacity-[0.1] select-none">
+          <SwipessLogo size="xl" className="w-[80%] max-w-4xl" />
+        </div>
+
         {/* PERF FIX: Removed motion.div key={location.pathname} wrapper.
             AnimatedOutlet already handles page transitions with key={location.key}.
             The double wrapper was causing unnecessary unmount/remount cycles. */}

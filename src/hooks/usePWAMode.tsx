@@ -37,6 +37,8 @@ export interface PWAOptimizations {
   isPWA: boolean;
   isIOS: boolean;
   isAndroid: boolean;
+  deferredPrompt: any | null;
+  promptInstall: () => Promise<void>;
 }
 
 const BROWSER_OPTIMIZATIONS: PWAOptimizations = {
@@ -53,6 +55,8 @@ const BROWSER_OPTIMIZATIONS: PWAOptimizations = {
   isPWA: false,
   isIOS: false,
   isAndroid: false,
+  deferredPrompt: null,
+  promptInstall: async () => {},
 };
 
 // PWA mode: Lighter animations, disabled expensive effects
@@ -70,6 +74,8 @@ const PWA_OPTIMIZATIONS: PWAOptimizations = {
   isPWA: true,
   isIOS: false,
   isAndroid: false,
+  deferredPrompt: null,
+  promptInstall: async () => {},
 };
 
 // iOS PWA is the worst - even more aggressive
@@ -127,6 +133,17 @@ const PWAContext = createContext<PWAOptimizations>(BROWSER_OPTIMIZATIONS);
 
 export function PWAProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState(() => detectPWAMode());
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  const promptInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    }
+  };
 
   useEffect(() => {
     // Re-detect on display-mode change (rare but possible)
@@ -148,14 +165,27 @@ export function PWAProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    // Android / Chrome / Edge: listen for the native install event
+    const installHandler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', installHandler);
+
     return () => {
       mediaQuery.removeEventListener('change', handleChange);
+      window.removeEventListener('beforeinstallprompt', installHandler);
     };
   }, []);
 
   const optimizations = useMemo(
-    () => getOptimizations(mode.isPWA, mode.isIOS, mode.isAndroid),
-    [mode.isPWA, mode.isIOS, mode.isAndroid]
+    () => ({
+      ...getOptimizations(mode.isPWA, mode.isIOS, mode.isAndroid),
+      deferredPrompt,
+      promptInstall
+    }),
+    [mode.isPWA, mode.isIOS, mode.isAndroid, deferredPrompt]
   );
 
   return (

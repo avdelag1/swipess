@@ -11,20 +11,20 @@ function SwipessLogoComponent({
   className,
 }: SwipessLogoProps) {
   const heightMap = {
-    xs: 'h-6',
-    sm: 'h-9',
-    md: 'h-10',
-    lg: 'h-14',
-    xl: 'h-24',
-    '2xl': 'h-32',
-    '3xl': 'h-48',
-    '4xl': 'h-64',
+    xs: 'h-10',
+    sm: 'h-14',
+    md: 'h-20',
+    lg: 'h-32',
+    xl: 'h-48',
+    '2xl': 'h-64',
+    '3xl': 'h-80',
+    '4xl': 'h-96',
   };
 
   return (
     <div className={cn('relative inline-flex items-center justify-center', className)}>
       <img
-        src="/icons/fire-s-logo-960.webp"
+        src="/icons/swipess-logo.webp"
         alt="Swipess"
         width="960"
         height="640"

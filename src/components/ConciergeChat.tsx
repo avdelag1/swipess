@@ -310,10 +310,15 @@ export function ConciergeChat({
                         <ReactMarkdown
                           components={{
                             a: ({ node, ...props }) => (
-                              <a target="_blank" rel="noopener noreferrer" className={cn(
-                                "underline font-bold underline-offset-4 transition-colors",
-                                isDark ? "text-cyan-400 hover:text-cyan-300 decoration-cyan-400/30" : "text-cyan-600 hover:text-cyan-500 decoration-cyan-600/30"
-                              )} {...props} />
+                              <a 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className={cn(
+                                  "inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 font-bold no-underline border border-cyan-500/20 hover:bg-cyan-500/20 transition-colors shadow-sm",
+                                  !isDark && "bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100"
+                                )} 
+                                {...props} 
+                              />
                             ),
                             p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
                             ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2 space-y-1" {...props} />,
@@ -321,6 +326,7 @@ export function ConciergeChat({
                             li: ({ node, ...props }) => <li className="pl-1" {...props} />
                           }}
                         >
+                          {message.content}
                         </ReactMarkdown>
                       </div>
                     )}

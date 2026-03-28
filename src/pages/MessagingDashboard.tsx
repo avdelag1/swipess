@@ -253,7 +253,7 @@ export function MessagingDashboard() {
             <input placeholder="Search conversations..." className={cn("w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] outline-none focus:ring-2 focus:ring-primary/30 transition-all", isLight ? "bg-secondary border border-border/40" : "bg-white/[0.04] border border-white/10")} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 stagger-enter">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-20"><MessageCircle className="w-10 h-10 text-primary animate-pulse mb-3" /></div>
             ) : filteredConversations.length > 0 ? (

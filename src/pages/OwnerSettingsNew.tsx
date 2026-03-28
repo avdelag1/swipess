@@ -15,6 +15,8 @@ import { BackgroundThemeSettings } from "@/components/BackgroundThemeSettings";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PWAInstallButton } from "@/components/PWAInstallButton";
+import { SwipessLogo } from "@/components/SwipessLogo";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 const stagger = { staggerChildren: 0.04 };
@@ -185,6 +187,8 @@ const OwnerSettingsNew = () => {
   return (
     <div className="w-full min-h-full overflow-y-auto px-6 pt-4 pb-40 scrollbar-hide bg-background">
       <div className="max-w-3xl mx-auto space-y-10">
+        <PWAInstallButton className="mb-2" />
+
 
 
         <motion.div
@@ -246,18 +250,21 @@ const OwnerSettingsNew = () => {
         </motion.div>
 
         {/* App Version - Elegant footer */}
-        <div className="text-center pt-10 pb-10">
+        <div className="text-center pt-10 pb-12">
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="inline-flex flex-col items-center gap-1.5"
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="flex flex-col items-center gap-4"
           >
-            <div className="flex items-center gap-2">
-              <span className="swipess-text text-lg tracking-tighter text-foreground/40">Swipess</span>
-              <Badge variant="outline" className="text-[9px] font-black tracking-widest uppercase py-0 px-1.5 bg-muted border-border text-muted-foreground">v1.2.0</Badge>
+            <SwipessLogo size="md" className="transition-transform duration-500 hover:scale-110" />
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="flex items-center gap-2">
+                <span className="swipess-text text-xl font-black tracking-tighter text-foreground/80">Swipess</span>
+                <Badge variant="outline" className="text-[10px] font-black tracking-widest uppercase py-0.5 px-2 bg-brand-primary/10 border-brand-primary/20 text-brand-primary font-mono">v3.3.0</Badge>
+              </div>
+              <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.25em] opacity-40">Elite Discovery Engine</p>
             </div>
-            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Moscow Experience Engine</p>
           </motion.div>
         </div>
       </div>

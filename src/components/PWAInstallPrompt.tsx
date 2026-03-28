@@ -9,7 +9,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 const DISMISSED_KEY = 'swipess-pwa-install-dismissed';
 const DISMISSED_FOREVER_KEY = 'swipess-pwa-install-dismissed-forever';
-const SHOW_DELAY_MS = 45000; // Show after 45s of use
+const SHOW_DELAY_MS = 5000; // Show after 5s of use for immediate accessibility
 
 function isIOS() {
   const ua = navigator.userAgent;

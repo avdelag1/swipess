@@ -71,7 +71,7 @@ export const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => 
       >
         {/* Folder card stack — straight horizontal flow, no rotation */}
         <div
-          className="relative"
+          className="relative stagger-enter"
           style={{
             width: containerW,
             height: containerH,
