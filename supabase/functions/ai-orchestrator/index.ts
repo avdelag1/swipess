@@ -14,7 +14,8 @@ const MINIMAX_ENDPOINTS = [
 ];
 
 const MODEL = "MiniMax-M2.7";
-const MODEL_FALLBACK = "abab6.5s-chat";   // legacy fallback if M2.7 is unavailable
+const MODEL_FALLBACK = "abab6.5g-chat"; // Upgraded from 's' to 'g' for higher stability
+const MODEL_LEGACY = "abab6.5s-chat";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -89,8 +90,8 @@ Deno.serve(async (req) => {
     let lastError = null;
     let usedModel = MODEL;
 
-    // Try primary model first, then fallback
-    const modelsToTry = [MODEL, MODEL_FALLBACK];
+    // Try primary model first, then fallbacks
+    const modelsToTry = [MODEL, MODEL_FALLBACK, MODEL_LEGACY];
 
     for (const model of modelsToTry) {
       for (const url of MINIMAX_ENDPOINTS) {
