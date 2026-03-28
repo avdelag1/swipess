@@ -15,23 +15,22 @@ function SwipessLogoComponent({
     sm: 'h-9',
     md: 'h-10',
     lg: 'h-14',
-    xl: 'h-20',
-    '2xl': 'h-28',
-    '3xl': 'h-36',
-    '4xl': 'h-48',
+    xl: 'h-24',
+    '2xl': 'h-32',
+    '3xl': 'h-48',
+    '4xl': 'h-64',
   };
 
   return (
     <div className={cn('relative inline-flex items-center justify-center overflow-hidden', className)}>
       <picture>
-        <source srcSet="/icons/swipess-flame-s.png" type="image/png" />
+        <source srcSet="/icons/swipess-logo.webp" type="image/webp" />
         <img
-          src="/icons/swipess-flame-s.png"
+          src="/icons/swipess-logo.webp"
           alt="Swipess"
           draggable={false}
           className={cn(
-            'w-auto object-contain select-none pointer-events-none transition-all duration-300 scale-110',
-            'mix-blend-normal', // Using blend modes manually in containers if needed
+            'w-auto object-contain select-none pointer-events-none transition-all duration-300',
             heightMap[size]
           )}
         />

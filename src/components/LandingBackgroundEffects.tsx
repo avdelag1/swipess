@@ -1,4 +1,5 @@
 import { memo, useEffect, useRef, useCallback } from 'react';
+import { cn } from '@/lib/utils';
 import { playRandomZen } from '@/utils/sounds';
 
 export type EffectMode = 'off' | 'stars' | 'sunset';
@@ -263,14 +264,20 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     canvas.addEventListener('pointerdown', handleCanvasPointerDown, { passive: true });
 
     const drawStars = () => {
-      ctx.clearRect(0, 0, w, h);
       time += 0.12;
-      for (const star of starsRef.current) {
-        // Slow upward drift (time-lapse effect)
-        star.baseY -= star.driftSpeed;
+      for (let i = 0; i < starsRef.current.length; i++) {
+        const star = starsRef.current[i];
+        
+        // ── Depth Layer Multipliers ──
+        // Smaller stars move shower, larger stars move faster (parallax)
+        const depthSpeed = star.size * star.driftSpeed;
+        star.baseY -= depthSpeed;
+        
         if (star.baseY < -star.size) {
-          star.baseY = h + star.size;
+          star.baseY = window.innerHeight + star.size;
           star.y = star.baseY;
+          star.baseX = Math.random() * window.innerWidth;
+          star.x = star.baseX;
         }
 
         const bdx = star.baseX - star.x;
@@ -283,19 +290,27 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         star.y += star.vy;
 
         const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase) * 0.5 + 0.5;
-        const alpha = Math.min(star.opacity * (twinkle * 0.65 + 0.35), 1);
+        const alpha = Math.min(star.opacity * (twinkle * 0.7 + 0.3), 1);
 
         if (alpha < 0.02) continue;
 
-        // shadowBlur removed — it's the most expensive canvas op on mobile
-        // and not perceptible at star sizes < 2px.
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        
+        // Add subtle glow to larger stars
+        if (star.size > 0.6) {
+           ctx.shadowBlur = 4;
+           ctx.shadowColor = isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,150,100,0.2)';
+        } else {
+           ctx.shadowBlur = 0;
+        }
+
         ctx.fillStyle = isLightTheme
           ? `rgba(190,200,240,${alpha * 0.65})`
           : `rgba(255,255,255,${alpha})`;
         ctx.fill();
       }
+      ctx.shadowBlur = 0;
 
       for (let i = shootingStarsRef.current.length - 1; i >= 0; i--) {
         const ss = shootingStarsRef.current[i];
@@ -314,7 +329,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
         const grad = ctx.createLinearGradient(tx, ty, ss.x, ss.y);
         grad.addColorStop(0, 'rgba(255,255,255,0)');
-        grad.addColorStop(1, `rgba(255,255,255,${fadeAlpha})`);
+        grad.addColorStop(1, isLightTheme ? `rgba(100,100,255,${fadeAlpha * 0.8})` : `rgba(255,255,255,${fadeAlpha})`);
         ctx.strokeStyle = grad;
         ctx.lineWidth = ss.width;
         ctx.lineCap = 'round';
@@ -429,13 +444,26 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         return;
       }
       
-      // Automatic Shooting Stars Every 7 Seconds (Visual Only)
-      if (mode === 'stars' && timestamp - lastAutoStarTime > 7000) {
+      ctx.clearRect(0, 0, w, h);
+
+      // ─── Phase 1: Nebula / Atmospheric Glow ──────────────────────────────
+      // A subtle, organic moving radial gradient to add "live" depth
+      const nebulaX = (w/2) + Math.cos(timestamp * 0.0002) * (w * 0.2);
+      const nebulaY = (h/2) + Math.sin(timestamp * 0.0003) * (h * 0.2);
+      const nebulaGrad = ctx.createRadialGradient(nebulaX, nebulaY, 10, nebulaX, nebulaY, w * 0.8);
+      nebulaGrad.addColorStop(0, isLightTheme ? 'rgba(255,255,255,0)' : 'rgba(255, 60, 20, 0.03)');
+      nebulaGrad.addColorStop(0.5, isLightTheme ? 'rgba(0,0,0,0)' : 'rgba(10, 20, 50, 0.02)');
+      nebulaGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = nebulaGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Automatic Shooting Stars Every 9 Seconds (Visual Only)
+      if (mode === 'stars' && timestamp - lastAutoStarTime > 9000) {
         spawnShootingStar();
         lastAutoStarTime = timestamp;
       }
 
-      // Throttle to ~30fps
+      // Throttle logic (keep it light)
       if (timestamp - lastFrameTimeRef.current < FRAME_INTERVAL) {
         animRef.current = requestAnimationFrame(loop);
         return;
@@ -444,27 +472,36 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
       if (mode === 'stars') drawStars();
       else if (mode === 'sunset') {
-        ctx.clearRect(0,0,w,h);
         drawSunset();
       }
       animRef.current = requestAnimationFrame(loop);
     };
     loop(0);
 
+    const canvasEl = canvasRef.current;
+    if (canvasEl) {
+      canvasEl.addEventListener('pointerdown', handleCanvasPointerDown, { passive: true });
+    }
+
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
-      canvas.removeEventListener('pointermove', handlePointerMove);
-      canvas.removeEventListener('pointerup', handlePointerUp);
-      canvas.removeEventListener('pointercancel', handlePointerUp);
-      canvas.removeEventListener('pointerdown', handleCanvasPointerDown);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
+      if (canvasEl) {
+        canvasEl.removeEventListener('pointerdown', handleCanvasPointerDown);
+      }
     };
   }, [mode, isLightTheme, initStars, initClouds]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-auto touch-none z-0"
+      className={cn(
+        "fixed inset-0 pointer-events-auto touch-none z-0 transition-opacity duration-500",
+        mode === 'off' ? "opacity-0" : "opacity-100"
+      )}
     />
   );
 }
