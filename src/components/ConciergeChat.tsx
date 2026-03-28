@@ -16,7 +16,8 @@ import {
   RefreshCw,
   User,
   Trash2,
-  Archive
+  Archive,
+  ChevronRight
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
 import { useAIUsage } from '@/hooks/useAIUsage';
@@ -28,6 +29,7 @@ import { useUserSubscription } from '@/hooks/useSubscription';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { haptics } from '@/utils/microPolish';
+import { useNavigate } from 'react-router-dom';
 
 interface ConciergeChatProps {
   open: boolean;
@@ -46,6 +48,7 @@ export function ConciergeChat({
 }: ConciergeChatProps) {
   const { theme } = useTheme();
   const { data: subscription } = useUserSubscription();
+  const navigate = useNavigate();
   const isDark = theme === 'dark';
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -103,10 +106,10 @@ export function ConciergeChat({
   };
 
   const quickSuggestions = [
-    { icon: MapPin, label: 'Nearby restaurants', prompt: `What are the best restaurants near the beach in ${initialCity}?` },
-    { icon: Building2, label: 'Find apartment', prompt: 'Find me a pet-friendly apartment under $1000 near the beach' },
-    { icon: Car, label: 'Car rental', prompt: 'What car rental options are available near the airport?' },
-    { icon: Sparkles, label: 'Area guide', prompt: `Tell me about the best neighborhoods in ${initialCity} for families` },
+    { icon: MapPin, label: 'Beach Clubs', prompt: `What are the best beach clubs in the Hotel Zone with free access?` },
+    { icon: Building2, label: 'Find a Villa', prompt: 'Find me a 2-bedroom property under $5,000/mo near the beach' },
+    { icon: Sparkles, label: 'Local Prices', prompt: 'Which luxury restaurants in Tulum have a minimum spend under $100?' },
+    { icon: Car, label: 'Rent a Car', prompt: 'What car rental options are available near the airport?' },
   ];
 
   return (
@@ -228,26 +231,34 @@ export function ConciergeChat({
                 </div>
 
                 {/* Quick suggestions */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 mt-4">
                   {quickSuggestions.map((suggestion, index) => (
-                    <button
+                    <motion.button
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0, transition: { delay: index * 0.1 } }}
                       key={index}
                       onClick={() => {
                         haptics.tap();
                         setInput(suggestion.prompt);
+                        handleSend();
                       }}
                       className={cn(
-                        "flex items-center gap-2 p-3 rounded-xl text-left transition-all hover:scale-[1.02]",
+                        "flex items-center gap-2 p-3 rounded-xl text-left transition-all active:scale-95 group",
                         isDark 
-                          ? "bg-zinc-800/60 hover:bg-zinc-700/60 border border-zinc-700/30" 
-                          : "bg-gray-50 hover:bg-gray-100 border border-gray-200"
+                          ? "bg-zinc-800/40 hover:bg-zinc-700/60 border border-zinc-700/50" 
+                          : "bg-white hover:bg-gray-50 border border-gray-200 shadow-sm"
                       )}
                     >
-                      <suggestion.icon className={cn("w-4 h-4 shrink-0", isDark ? "text-cyan-400" : "text-cyan-500")} />
-                      <span className={cn("text-xs font-medium", isDark ? "text-zinc-300" : "text-gray-600")}>
+                      <div className={cn(
+                        "w-8 h-8 flex items-center justify-center rounded-full shrink-0",
+                        isDark ? "bg-zinc-900 group-hover:bg-zinc-800" : "bg-gray-100 group-hover:bg-white"
+                      )}>
+                        <suggestion.icon className={cn("w-4 h-4", isDark ? "text-cyan-400" : "text-cyan-500")} />
+                      </div>
+                      <span className={cn("text-xs font-semibold leading-tight", isDark ? "text-zinc-300" : "text-gray-700")}>
                         {suggestion.label}
                       </span>
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </motion.div>
@@ -310,8 +321,55 @@ export function ConciergeChat({
                             li: ({ node, ...props }) => <li className="pl-1" {...props} />
                           }}
                         >
-                          {message.content}
                         </ReactMarkdown>
+                      </div>
+                    )}
+
+                    {/* Render Interactive Card if Action exists */}
+                    {message.role === 'assistant' && message.action?.type === 'show_venue_card' && (
+                      <div className="mt-3 overflow-hidden rounded-xl border shadow-xl breathing-zoom backdrop-blur-md border-white/10 bg-zinc-900/80">
+                        <div className="h-24 w-full relative bg-gradient-to-br from-indigo-500/40 via-purple-500/20 to-pink-500/40 flex items-center justify-center overflow-hidden">
+                           <div className="absolute inset-0 bg-black/40 mix-blend-overlay" />
+                           <Sparkles className="w-8 h-8 text-white/40 relative z-10 animate-pulse" />
+                          <div className="absolute bottom-3 left-3 right-3 text-white z-10">
+                            <h4 className="font-bold leading-tight drop-shadow-md">{message.action.params?.title}</h4>
+                            <p className="text-[10px] uppercase tracking-wider font-extrabold text-white/80 drop-shadow-md">{message.action.params?.category}</p>
+                          </div>
+                        </div>
+                        <div className="p-2.5 flex gap-2">
+                           {message.action.params?.whatsapp && message.action.params?.whatsapp !== '' && (
+                             <a href={`https://wa.me/${message.action.params.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="flex-1 text-center py-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-green-500/20 transition-colors">WhatsApp</a>
+                           )}
+                           {message.action.params?.instagram && message.action.params?.instagram !== '' && (
+                             <a href={`https://instagram.com/${message.action.params.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex-1 text-center py-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-pink-500/20 transition-colors">Instagram</a>
+                           )}
+                           {(!message.action.params?.whatsapp && !message.action.params?.instagram) && message.action.params?.website_url && (
+                             <a href={message.action.params?.website_url} target="_blank" rel="noreferrer" className="flex-1 text-center py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-blue-500/20 transition-colors">Website</a>
+                           )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {message.role === 'assistant' && message.action?.type === 'show_listing_card' && (
+                      <div className="mt-3 overflow-hidden rounded-xl border shadow-xl breathing-zoom backdrop-blur-md cursor-pointer hover:border-cyan-500/50 transition-colors border-white/10 bg-zinc-900/80"
+                           onClick={() => {
+                             onOpenChange(false);
+                             setTimeout(() => navigate(`/properties/${message.action.params?.id}`), 100);
+                           }}
+                      >
+                        <div className="h-24 w-full relative bg-gradient-to-br from-cyan-500/40 via-blue-500/20 to-emerald-500/40 flex items-center justify-center overflow-hidden">
+                           <div className="absolute inset-0 bg-black/40 mix-blend-overlay" />
+                           <Building2 className="w-8 h-8 text-white/40 relative z-10 animate-pulse" />
+                          <div className="absolute bottom-3 left-3 right-3 text-white z-10">
+                            <h4 className="font-bold leading-tight line-clamp-1 drop-shadow-md">{message.action.params?.title}</h4>
+                            <p className="text-[10px] font-black tracking-widest text-white/80 drop-shadow-md uppercase">{message.action.params?.location} • ${message.action.params?.price}/mo</p>
+                          </div>
+                        </div>
+                        <div className="p-2 border-t border-white/5 bg-white/5 text-center">
+                           <span className="py-1 p-1 text-[10px] font-black tracking-widest uppercase text-white hover:text-cyan-400 transition-colors flex items-center justify-center gap-1.5">
+                             View Listing <ChevronRight className="w-3 h-3" />
+                           </span>
+                        </div>
                       </div>
                     )}
                   </div>

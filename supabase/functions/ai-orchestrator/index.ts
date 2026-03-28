@@ -134,7 +134,57 @@ Deno.serve(async (req) => {
               : "No specific local expert knowledge found for this query. Use your existing training to answer with the best links you can find.";
 
             cleanMessages.push({ role: "assistant", content });
-            cleanMessages.push({ role: "user", content: `TOOL RESULT: ${contextResult}. Now give the user your final expert advice with the links in markdown format.` });
+            cleanMessages.push({ role: "user", content: `TOOL RESULT: ${contextResult}. Now give the user your final expert advice with the links in markdown format. If you want to visually show the best venue, conclude with {"action": {"type":"show_venue_card", "params": {"title":"...", "category":"...", "whatsapp":"...", "instagram":"..."}}}` });
+            continue; // Go back to AI for final answer
+          }
+          
+          // INTERNAL TOOL EXECUTION: Swipess Property Listings RAG
+          else if (action?.type === "search_internal_listings" && action.params?.query) {
+            const query = action.params.query;
+            const targetCity = action.params.city || 'Tulum';
+            console.log(`[Vibe Agent] Searching internal listings for: ${query} in ${targetCity}`);
+            
+            let propertyCards = [];
+            try {
+              let { data, error: searchError } = await supabase
+                .from('listings')
+                .select('id, title, description, price_per_month, bedrooms, bathrooms, location, images, listing_type, city')
+                .eq('city', targetCity)
+                .textSearch('title', query)
+                .limit(5);
+
+              if (!data || data.length === 0) {
+                 const keyword = query.split(' ')[0] || query;
+                 const fallback = await supabase
+                    .from('listings')
+                    .select('id, title, description, price_per_month, bedrooms, bathrooms, location, images, listing_type, city')
+                    .eq('city', targetCity)
+                    .ilike('title', `%${keyword}%`)
+                    .limit(5);
+                 propertyCards = fallback.data || [];
+              } else {
+                 propertyCards = data || [];
+              }
+              
+              if (searchError) console.warn("[Vibe Agent] Database property search failed:", searchError);
+            } catch (dbErr) {
+              console.warn("[Vibe Agent] Property query error:", dbErr);
+            }
+
+            const contextResult = propertyCards.length 
+              ? `INTERNAL REAL ESTATE FOUND:\n${propertyCards.map((p: any) => 
+                  `[${p.title}] - ${p.listing_type}\n` +
+                  (p.city ? ` - City: ${p.city}\n` : '') +
+                  (p.location ? ` - Zone: ${p.location}\n` : '') +
+                  (p.price_per_month ? ` - Price: $${p.price_per_month}/mo\n` : '') +
+                  ((p.bedrooms || p.bathrooms) ? ` - Layout: ${p.bedrooms || 0} Beds, ${p.bathrooms || 0} Baths\n` : '') +
+                  (p.description ? ` - Description: ${p.description.substring(0, 100)}...\n` : '') +
+                  ` - ID: ${p.id}\n`
+                ).join("\n")}`
+              : "No specific local Swipess properties found matching exactly. Mention to the user that we can notify them when something matches or run a broader search.";
+
+            cleanMessages.push({ role: "assistant", content });
+            cleanMessages.push({ role: "user", content: `TOOL RESULT: ${contextResult}. Give the user your final recommendation for these properties. IMPORTANT: You MUST conclude with the JSON action {"action": {"type":"show_listing_card", "params": { "id":"<id_of_best_property>", "title":"<property_title>", "price":"<property_price>", "location":"<property_location>" }}} so the app can visualize the property directly in the chat.` });
             continue; // Go back to AI for final answer
           }
 
@@ -286,17 +336,17 @@ You live inside the app and know EVERYTHING about it.
 - USER ADDRESSING: Address the user as ${userName}. Their gender is ${userGender}. Adapt your tone to be perfectly respectful and cool based on this.
 - If they are a "man", use more "bro/friend" vibes. If they are a "woman", be extra helpful and sophisticated. If not specified, be neutral and chic.`;
 
-  const vibeCapabilities = `### KNOWLEDGE & TOOLS
+   const vibeCapabilities = `### KNOWLEDGE & TOOLS
 - App Actions: navigate, open_search, create_listing.
-- PERSISTENT KNOWLEDGE TOOL: "search_local_expert_knowledge" (params: { "query": "Your search term" }). Use this whenever you are asked about Tulum businesses.
+- PERSISTENT KNOWLEDGE TOOL: "search_local_expert_knowledge" (params: { "query": "Your search term" }). Use this whenever you are asked about Tulum businesses, beach clubs, or restaurants.
+- SWIPESS PROPERTY SEARCH: "search_internal_listings" (params: { "query": "villa, apartment, 2 bedrooms...", "city": "Tulum" }). Use this whenever the user asks for apartments, properties, or rentals!
 - WEB SEARCH: "web_search_resource" (params: { "query": "Your search for tacos, instagram, etc" }).
-- **PRICING & EXPERTIZE EXPERT:** The user is looking for the best prices, spots, and exact numbers. Find the minimum spend (min_spend) or mention if access is free. Give precise numbers when possible.
-- **LINKS EXPERT**: ALWAYS use explicit Markdown links for websites: [Papaya Playa Project](https://papayaplayaproject.com). NEVER output raw URLs. You MUST link to the best business.
+- **PRICING & EXPERTIZE EXPERT:** Get the best prices, spots, and exact numbers. Find the minimum spend (min_spend). Give precise numbers.
 - Provide the top 3-4 options for best prices and value.`;
 
   const vibeRules = `### RESPONSE RULES
-- Max 4-5 lines. Bullet points for options.
-- Action format: { "message": "text", "action": { "type": "...", "params": {...} } }
+- Max 4-5 lines. Fast and punchy.
+- AI Card Rendering formatting: ALWAYS structure your final reply with an action: { "message": "text", "action": { "type": "show_venue_card", "params": {"title":"", "category":"", "whatsapp":""} } } or "show_listing_card" for properties!
 - Context: Page: ${currentPath}, Tier: ${userTier}`;
 
   switch (task) {
