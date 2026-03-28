@@ -152,6 +152,30 @@ const SAMPLE_CARDS = [
     price: "$18",
     color: "#f97316",
   },
+  {
+    bg: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400&q=80&auto=format",
+    tag: "LIVE DJ",
+    title: "Sunset Session",
+    venue: "Papaya Playa",
+    price: "$30",
+    color: "#3b82f6",
+  },
+  {
+    bg: "https://images.unsplash.com/photo-1545235617-9465d2a55698?w=400&q=80&auto=format",
+    tag: "WELLNESS",
+    title: "Yoga & Sound",
+    venue: "Holistika",
+    price: "$25",
+    color: "#10b981",
+  },
+  {
+    bg: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&q=80&auto=format",
+    tag: "PRIVATE ART",
+    title: "Gallery Night",
+    venue: "Azulik",
+    price: "Invite",
+    color: "#eab308",
+  },
 ];
 
 // ── Feature items ──────────────────────────────────────────────────────────────
@@ -422,12 +446,12 @@ export default function AdvertisePage() {
                 key={i}
                 className="absolute inset-0 rounded-[2rem] overflow-hidden"
                 style={{
-                  transform: `rotate(${(i - 1) * 6}deg) translateY(${(i - 1) * -8}px)`,
+                  transform: `rotate(${(i - 2) * 5}deg) translateY(${(i - 2) * -6}px)`,
                   zIndex: SAMPLE_CARDS.length - i,
                   boxShadow: "0 20px 50px rgba(0,0,0,0.4)",
                 }}
-                animate={{ rotate: [(i - 1) * 6, (i - 1) * 6 + 1, (i - 1) * 6] }}
-                transition={{ duration: 3 + i, repeat: Infinity, ease: "easeInOut" }}
+                animate={{ rotate: [(i - 2) * 5, (i - 2) * 5 + 0.5, (i - 2) * 5] }}
+                transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut" }}
               >
                 <img src={card.bg} className="w-full h-full object-cover" alt="" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />

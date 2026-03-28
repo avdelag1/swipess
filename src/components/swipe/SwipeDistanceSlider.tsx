@@ -21,7 +21,8 @@ export const SwipeDistanceSlider = ({
   const maxKm = 100;
 
   const displayPct = useMotionValue((radiusKm / maxKm) * 100);
-  const springPct = useSpring(displayPct, { stiffness: 500, damping: 30, mass: 0.5 });
+  // PERF: Stiffer, lower mass spring for "instant" zero-lag response
+  const springPct = useSpring(displayPct, { stiffness: 1000, damping: 40, mass: 0.1 });
   const localKmVal = useMotionValue(radiusKm);
 
   useEffect(() => {
@@ -80,17 +81,17 @@ export const SwipeDistanceSlider = ({
       </div>
 
       <div className="relative h-10 flex items-center group">
-        {/* Track - Pure Glass Morphic */}
-        <div className="absolute w-full h-2 rounded-full bg-white/10 border border-white/5 overflow-hidden shadow-inner">
-          {/* Subtle shine on the track, NOT pulse */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0" />
+        {/* Track - Pure Glass Morphic "Hollow" look */}
+        <div className="absolute w-full h-2.5 rounded-full bg-white/5 border border-white/10 overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]">
+          {/* Active Fill - Vibrant Glow */}
+          <motion.div
+            className="h-full bg-gradient-to-r from-[#ec4899] to-[#f97316] shadow-[0_0_15px_rgba(236,72,153,0.5)] relative"
+            style={{ width: springPctVal }}
+          >
+             {/* Subtle shine on the fill */}
+             <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+          </motion.div>
         </div>
-        
-        {/* Fill - Left to Thumb */}
-        <motion.div
-          className="absolute h-2 rounded-full bg-gradient-to-r from-[#ec4899] to-[#f97316] shadow-[0_0_20px_rgba(236,72,153,0.6)] z-10"
-          style={{ width: springPctVal }}
-        />
         
         <input
           type="range"
@@ -105,18 +106,19 @@ export const SwipeDistanceSlider = ({
           style={{ touchAction: 'none' }}
         />
         
-        {/* Thumb - The "Little Bowl" circle */}
+        {/* Thumb - The "Little Bowl" circle with premium glow */}
         <motion.div
-          className="absolute w-8 h-8 rounded-full border-[3px] border-white shadow-[0_10px_30px_rgba(0,0,0,0.6)] pointer-events-none bg-gradient-to-br from-[#ec4899] to-[#f97316] z-20 flex items-center justify-center overflow-hidden"
+          className="absolute w-10 h-10 rounded-full border-[3px] border-white/90 shadow-[0_15px_45px_rgba(0,0,0,0.7),0_0_20px_rgba(236,72,153,0.4)] pointer-events-none bg-gradient-to-br from-[#ec4899] to-[#f97316] z-20 flex items-center justify-center"
           style={{ 
             x: thumbX,
-            left: 'calc(0% - 16px)'
+            left: 'calc(0% - 20px)'
           }}
-          whileTap={{ scale: 0.92, rotate: 5 }}
+          whileTap={{ scale: 0.9, rotate: 0 }}
         >
-          {/* Internal reflection for bowl effect */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent" />
-          <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
+          {/* Internal reflection & glowing center */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/30 to-transparent rounded-full" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.4)_0%,transparent_70%)]" />
+          <div className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_15px_rgba(255,255,255,1),0_0_30px_rgba(255,255,255,0.6)] z-10" />
         </motion.div>
       </div>
 
