@@ -364,25 +364,30 @@ export function BottomNavigation({
                   flexShrink: 0,
                 }}
               >
-
-
-                {/* Activity Pulse Halo — radiates when badge is active */}
-                {item.badge && item.badge > 0 && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
-                    <motion.div
-                      className="absolute rounded-full"
-                      style={{
-                        width: 32, height: 32,
-                        background: 'radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)',
-                      }}
-                      animate={{ scale: [1, 2, 1], opacity: [0.6, 0, 0.6] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                {/* Special Mascot Treatment for Concierge Tab */}
+                {item.id === 'ai-search' ? (
+                  <motion.div
+                    className="relative flex items-center justify-center p-0"
+                    animate={{ 
+                      scale: active ? 1.15 : 1,
+                    }}
+                    transition={{ 
+                      type: 'spring', 
+                      stiffness: 500, 
+                      damping: 30,
+                    }}
+                    style={{ zIndex: 1 }}
+                  >
+                    <img 
+                      src="/icons/fire-s-logo-zoom.png" 
+                      alt="Concierge"
+                      className={cn(
+                        "w-7 h-7 object-contain transition-all duration-300",
+                        !active && "opacity-60 grayscale-[0.3]"
+                      )}
                     />
-                  </div>
-                )}
-
-
-                {/* Icon */}
+                  </motion.div>
+                ) : (
                   <motion.div
                     className="relative"
                     animate={{ scale: active ? 1.15 : 1 }}
@@ -416,7 +421,8 @@ export function BottomNavigation({
                       }}
                     />
                   </motion.div>
-
+                )}
+                
                 {/* Label */}
                 {!isNarrow && (
                   <span

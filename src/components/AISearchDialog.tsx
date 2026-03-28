@@ -43,6 +43,28 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
 
   const userAvatar = (clientProfile?.profile_images as string[] | undefined)?.[0] ?? (clientProfile as any)?.avatar_url ?? null;
 
+  const storageKey = user ? `Swipess_vibe_search_${user.id}` : null;
+
+  // Persistence: Hydrate on mount/open
+  useEffect(() => {
+    if (!isOpen || !storageKey) return;
+    
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        setMessages(JSON.parse(stored));
+      }
+    } catch (err) {
+      console.warn('[Vibe Search] Hydration failed:', err);
+    }
+  }, [isOpen, storageKey]);
+
+  // Persistence: Save on change — limit to 20 for history depth
+  useEffect(() => {
+    if (!storageKey || messages.length === 0) return;
+    localStorage.setItem(storageKey, JSON.stringify(messages.slice(-20)));
+  }, [messages, storageKey]);
+
   // Fire effects and init
   useEffect(() => {
     if (isOpen) {
@@ -63,15 +85,16 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
         return () => { clearTimeout(msgT); };
       }
     } else {
-      const t = setTimeout(() => { setMessages([]); setQuery(''); }, 300);
-      return () => clearTimeout(t);
+      setQuery('');
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
+    if (isOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isTyping, isOpen]);
 
   const handleSend = useCallback(async () => {
     if (!query.trim() || isSearching) return;

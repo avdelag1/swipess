@@ -225,20 +225,15 @@ const Index = () => {
         return;
       }
 
-      // Fallback 2: Primary role
-      if (userRole) {
-        hasNavigated.current = true;
-        logger.log("[Index] Navigating to unified hub with role:", userRole);
-        const target = userRole === 'owner' ? "/owner/dashboard" : "/client/dashboard";
-        navigate(target, { replace: true });
-        return;
-      }
-
-      // Fallback 3: Metadata or Default
+      // Fallback 2: Primary role or Metadata
       if (!isNewUser && !isLoadingRole) {
         hasNavigated.current = true;
         const metadataRole = user?.user_metadata?.role;
-        const fallbackRole = (metadataRole === 'client' || metadataRole === 'owner') ? metadataRole : 'client';
+        // Accept null userRole and fallback to metadata instead of hanging
+        const fallbackRole = (userRole === 'client' || userRole === 'owner') 
+          ? userRole 
+          : (metadataRole === 'client' || metadataRole === 'owner') ? metadataRole : 'client';
+          
         logger.log("[Index] Last resort navigation to unified hub with role:", fallbackRole);
         navigate(fallbackRole === 'owner' ? "/owner/dashboard" : "/client/dashboard", { replace: true });
         return;

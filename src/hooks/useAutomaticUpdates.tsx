@@ -245,62 +245,100 @@ export function useAutomaticUpdates() {
 /**
  * Component that shows update notification when available
  */
+/**
+ * Component that shows update notification when available
+ * UPGRADED: Liquid Glass Design with Swipess Rose highlights
+ */
 export function UpdateNotification() {
   const { updateInfo, performUpdate, isUpdating } = useAutomaticUpdates();
   const [dismissed, setDismissed] = useState(false);
   const isVisible = updateInfo.available && !dismissed;
+
+  const handleUpdateClick = useCallback(async () => {
+    // Immediate local dismissal for a snappy UX
+    setDismissed(true);
+    await performUpdate();
+  }, [performUpdate]);
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
           key="update-notification"
-          initial={{ y: 80, opacity: 0, scale: 0.95 }}
+          initial={{ y: 100, opacity: 0, scale: 0.9 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
-          exit={{ y: 80, opacity: 0, scale: 0.95 }}
-          transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.8 }}
-          className="fixed bottom-24 left-4 right-4 z-[200] sm:left-auto sm:right-4 sm:w-[320px]"
+          exit={{ y: 100, opacity: 0, scale: 0.8 }}
+          transition={{ type: 'spring', stiffness: 450, damping: 30, mass: 1 }}
+          className="fixed bottom-[104px] left-4 right-4 z-[999] sm:left-auto sm:right-6 sm:w-[360px]"
         >
-          <div className="relative overflow-hidden rounded-2xl bg-[#0f0f0f] border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(249,115,22,0.15)]">
-            {/* Top accent bar */}
-            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500" />
+          {/* Main Glass Container */}
+          <div 
+             className="relative overflow-hidden rounded-[2.2rem] border p-[1px] shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
+             style={{
+               background: 'rgba(8, 8, 10, 0.85)',
+               borderColor: 'rgba(255,255,255,0.08)',
+               backdropFilter: 'blur(40px) saturate(200%)',
+               WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+             }}
+          >
+            {/* Animated Inner Glow Overlay */}
+            <motion.div 
+               className="absolute -inset-[50%] bg-gradient-to-br from-rose-500/15 via-orange-500/10 to-transparent pointer-none blur-[40px]"
+               animate={{ rotate: 360 }}
+               transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+            />
 
-            {/* Dismiss button */}
-            <button
-              onClick={() => setDismissed(true)}
-              className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors"
-              aria-label="Dismiss"
-            >
-              <svg className="w-3 h-3 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="relative z-10 p-6">
+              <div className="flex items-center gap-4 mb-5">
+                {/* Logo Frame — Deep Glass */}
+                <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center relative overflow-hidden shadow-inner">
+                  <div className="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-orange-500/10" />
+                  <img src="/icons/fire-s-logo-zoom.png" className="w-9 h-9 object-contain relative z-10" alt="S" />
+                </div>
 
-            <div className="flex items-center gap-3 px-4 pt-5 pb-4">
-              {/* Icon */}
-              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center shadow-[0_4px_14px_rgba(249,115,22,0.4)]">
-                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
+                {/* Text Content */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-black text-lg tracking-tight leading-tight uppercase italic italic-brand">
+                    Pulse Updated
+                  </p>
+                  <p className="text-white/50 text-[10px] font-bold mt-1 uppercase tracking-widest leading-snug">
+                    New platform version ready
+                  </p>
+                </div>
               </div>
 
-              {/* Text */}
-              <div className="flex-1 min-w-0 pr-5">
-                <p className="text-white font-bold text-[14px] leading-tight">Update Ready</p>
-                <p className="text-white/45 text-[12px] mt-0.5 leading-snug">New features are available</p>
-              </div>
-            </div>
-
-            {/* Refresh button */}
-            <div className="px-4 pb-4">
+              {/* Action Button: Swipess Core Rose */}
               <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={performUpdate}
+                whileTap={{ scale: 0.96 }}
                 disabled={isUpdating}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-400 text-white font-black text-[13px] uppercase tracking-wider shadow-[0_8px_20px_rgba(249,115,22,0.35)] disabled:opacity-60 transition-opacity"
+                onClick={handleUpdateClick}
+                className="w-full relative overflow-hidden h-14 rounded-2xl transition-all duration-300 group border-none"
+                style={{
+                  background: 'linear-gradient(90deg, #ff1f1f, #ff6b3d)',
+                  boxShadow: '0 8px 30px rgba(255, 31, 31, 0.35)',
+                }}
               >
-                {isUpdating ? 'Applying...' : 'Refresh Now'}
+                {/* Button Gloss Rim */}
+                <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-white/20 z-20" />
+                
+                {/* Animated Shine Effect */}
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent w-1/3 -skew-x-[35deg]"
+                  animate={{ left: ['-100%', '200%'] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+                />
+
+                <span className="relative z-10 text-white font-black text-sm uppercase tracking-[0.2em]">
+                  {isUpdating ? 'Synthesizing...' : 'Elevate Experience'}
+                </span>
               </motion.button>
+            </div>
+            
+            {/* Version Badge */}
+            <div className="absolute bottom-2 right-6 opacity-20">
+               <span className="text-[8px] text-white/50 font-mono tracking-widest uppercase">
+                 v{APP_VERSION}
+               </span>
             </div>
           </div>
         </motion.div>
