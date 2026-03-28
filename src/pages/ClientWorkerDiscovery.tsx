@@ -18,6 +18,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { PRICING_UNITS } from '@/components/WorkerListingForm';
 import { findCategory } from '@/data/serviceCategories';
+import { SaveButton } from '@/components/SaveButton';
+import { triggerHaptic } from '@/utils/haptics';
 
 // Hire duration quick filter options
 const HIRE_DURATION_FILTERS = [
@@ -172,25 +174,42 @@ function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (
         </div>
 
         {/* Price and Action */}
-        <div className="flex items-center justify-between pt-2 border-t border-border/50">
-          <div className="flex items-center gap-1">
-            <DollarSign className="w-4 h-4 text-rose-500" />
-            <span className="font-bold text-lg">
-              {(worker.price ?? 0) > 0 ? `$${worker.price}` : 'Quote'}
-            </span>
-            {(worker.price ?? 0) > 0 && pricingInfo && (
-              <span className="text-xs text-muted-foreground">
-                /{pricingInfo.label.replace('Per ', '')}
+        <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/40">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight leading-none mb-1">Price</span>
+            <div className="flex items-baseline gap-1">
+              <span className="font-black text-xl tracking-tighter text-foreground">
+                {(worker.price ?? 0) > 0 ? `$${worker.price}` : 'Quote'}
               </span>
-            )}
+              {(worker.price ?? 0) > 0 && pricingInfo && (
+                <span className="text-[10px] font-bold text-muted-foreground/80 lowercase">
+                  /{pricingInfo.label.replace('Per ', '')}
+                </span>
+              )}
+            </div>
           </div>
-          <button
-            onClick={() => onContact(worker.owner_id)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-white transition-all active:scale-95 bg-gradient-to-r from-[#ec4899] to-[#f97316] shadow-md shadow-pink-500/20"
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            Contact
-          </button>
+          
+          <div className="flex items-center gap-2.5">
+            <SaveButton 
+              targetId={worker.id}
+              targetType="listing"
+              className="w-11 h-11 rounded-2xl bg-muted/30 border border-border/20 backdrop-blur-md"
+              variant="circular"
+            />
+            <button
+              onClick={() => {
+                triggerHaptic('light');
+                onContact(worker.owner_id);
+              }}
+              className="group relative flex items-center justify-center gap-2 px-6 h-11 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white transition-all active:scale-95 bg-gradient-to-br from-rose-500 via-pink-600 to-orange-500 shadow-xl shadow-rose-500/20 overflow-hidden"
+            >
+              <motion.div 
+                className="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-sweep" 
+              />
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>Contact</span>
+            </button>
+          </div>
         </div>
       </CardContent>
     </Card>

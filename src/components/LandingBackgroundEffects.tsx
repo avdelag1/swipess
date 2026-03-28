@@ -457,6 +457,26 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       ctx.fillStyle = nebulaGrad;
       ctx.fillRect(0, 0, w, h);
 
+      // ─── Phase 1.5: Dynamic Ambient Glow (Torch) ────────────────────────
+      // Creates a beautiful halo that follows the cursor/touch for "physical" feel
+      if (pointerRef.current.isActive || pointerRef.current.isDown) {
+        const glowSize = pointerRef.current.isDown ? 450 : 350;
+        const glowOpacity = isLightTheme ? 0.04 : (pointerRef.current.isDown ? 0.08 : 0.05);
+        
+        const haloGrad = ctx.createRadialGradient(
+          pointerRef.current.x, pointerRef.current.y, 0,
+          pointerRef.current.x, pointerRef.current.y, glowSize
+        );
+        
+        const haloColor = isLightTheme ? '70, 100, 255' : '255, 120, 0';
+        haloGrad.addColorStop(0, `rgba(${haloColor}, ${glowOpacity})`);
+        haloGrad.addColorStop(0.5, `rgba(${haloColor}, ${glowOpacity * 0.4})`);
+        haloGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        
+        ctx.fillStyle = haloGrad;
+        ctx.fillRect(0, 0, w, h);
+      }
+
       // Automatic Shooting Stars Every 9 Seconds (Visual Only)
       if (mode === 'stars' && timestamp - lastAutoStarTime > 9000) {
         spawnShootingStar();

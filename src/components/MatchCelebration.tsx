@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Sparkles, Star } from 'lucide-react';
+import { Flame, Sparkles, MessageCircle, X, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { playNotificationSound } from '@/utils/notificationSounds';
+import { cn } from '@/lib/utils';
 
 interface MatchCelebrationProps {
   isOpen: boolean;
@@ -19,22 +19,16 @@ interface MatchCelebrationProps {
 }
 
 export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: MatchCelebrationProps) {
-  const [showContent, setShowContent] = useState(false);
+  const [showButtons, setShowButtons] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      // Trigger celebration haptic when match celebration opens
       triggerHaptic('match');
-
-      // Play celebratory bell sound for the match
-      playNotificationSound('match').catch((error) => {
-        logger.warn('Failed to play match notification sound:', error);
-      });
-
-      const timer = setTimeout(() => setShowContent(true), 500);
+      playNotificationSound('match').catch(err => logger.warn('Match sound failed', err));
+      const timer = setTimeout(() => setShowButtons(true), 1200);
       return () => clearTimeout(timer);
     } else {
-      setShowContent(false);
+      setShowButtons(false);
     }
   }, [isOpen]);
 
@@ -50,200 +44,189 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center overflow-hidden bg-black/95 backdrop-blur-sm"
         >
-          {/* Background Animation */}
-          <div className="absolute inset-0 overflow-hidden">
-            {[...Array(20)].map((_, i) => (
+          {/* Close button */}
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2 }}
+            onClick={onClose}
+            className="absolute top-6 right-6 p-2 rounded-full bg-white/10 text-white/60 hover:text-white"
+          >
+            <X className="w-6 h-6" />
+          </motion.button>
+
+          {/* Background Particle Effects */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {[...Array(30)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute"
                 initial={{ 
-                  x: Math.random() * window.innerWidth,
-                  y: window.innerHeight + 50,
-                  rotate: 0,
-                  scale: 0
+                  x: "50%", 
+                  y: "50%", 
+                  scale: 0, 
+                  opacity: 1,
+                  rotate: Math.random() * 360 
                 }}
-                animate={{
-                  y: -50,
-                  rotate: 360,
-                  scale: [0, 1, 0],
+                animate={{ 
+                  x: `${50 + (Math.random() - 0.5) * 200}%`, 
+                  y: `${50 + (Math.random() - 0.5) * 200}%`,
+                  scale: Math.random() * 2 + 0.5,
+                  opacity: 0,
+                  rotate: Math.random() * 720
                 }}
-                transition={{
-                  duration: 3,
-                  delay: Math.random() * 2,
+                transition={{ 
+                  duration: 2 + Math.random() * 2,
+                  delay: i * 0.02,
+                  ease: "easeOut",
                   repeat: Infinity,
                   repeatDelay: Math.random() * 3
                 }}
+                className="absolute"
               >
-                {i % 3 === 0 ? (
-                  <Flame className="w-6 h-6 text-orange-500 fill-current" />
-                ) : i % 3 === 1 ? (
-                  <Sparkles className="w-5 h-5 text-yellow-400" />
+                {i % 4 === 0 ? (
+                  <Sparkles className="w-4 h-4 text-yellow-500 fill-current" />
+                ) : i % 4 === 1 ? (
+                  <Flame className="w-5 h-5 text-orange-500 fill-current" />
+                ) : i % 4 === 2 ? (
+                  <Zap className="w-3 h-3 text-blue-400 fill-current shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
                 ) : (
-                  <Star className="w-4 h-4 text-red-400 fill-current" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
                 )}
               </motion.div>
             ))}
           </div>
 
-          {/* Main Content */}
-          <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            exit={{ scale: 0, rotate: 180 }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 260, 
-              damping: 20,
-              duration: 0.8 
-            }}
-            className="relative z-10 w-full max-w-md"
-          >
-            <Card className="p-8 text-center bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/50 dark:to-red-950/50 border-2 border-orange-200 dark:border-orange-800 shadow-2xl">
-              {/* Match Text Animation */}
-              <motion.div
-                initial={{ y: -50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
-                className="mb-8"
-              >
-                <motion.h1
-                  className="text-6xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-orange-500 bg-clip-text text-transparent"
-                  animate={{ 
-                    scale: [1, 1.1, 1],
-                  }}
-                  transition={{ 
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatType: "reverse"
-                  }}
-                >
-                  IT'S A MATCH!
-                </motion.h1>
-                
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.6, duration: 0.5 }}
-                  className="flex justify-center mt-4"
-                >
-                  <div className="relative">
-                    <Flame className="w-16 h-16 text-orange-500 fill-current" />
-                    <motion.div
-                      animate={{ scale: [1, 1.3, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className="absolute inset-0"
-                    >
-                      <Flame className="w-16 h-16 text-orange-300 fill-current" />
-                    </motion.div>
+          {/* Cinematic Title */}
+          <div className="relative mb-12">
+            <motion.h2
+              initial={{ scale: 0.5, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 200, 
+                damping: 15,
+                delay: 0.2 
+              }}
+              className="text-5xl md:text-7xl font-black text-center italic tracking-tighter"
+            >
+              <span className="bg-gradient-to-b from-orange-400 via-rose-500 to-pink-600 bg-clip-text text-transparent filter drop-shadow-[0_0_20px_rgba(244,63,94,0.3)]">
+                IT'S A MATCH!
+              </span>
+            </motion.h2>
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: "100%" }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+              className="h-1 bg-gradient-to-r from-transparent via-rose-500 to-transparent mt-2 mx-auto"
+            />
+          </div>
+
+          {/* Profile Collision Animation */}
+          <div className="relative flex items-center justify-center h-48 w-full max-w-lg mb-12">
+            {/* Left side profile - US */}
+            <motion.div
+              initial={{ x: -300, opacity: 0, rotate: -20 }}
+              animate={{ x: -60, opacity: 1, rotate: -5 }}
+              transition={{ 
+                type: "spring",
+                stiffness: 150,
+                damping: 12,
+                delay: 0.4
+              }}
+              className="relative z-10"
+            >
+              <div className="w-32 h-44 rounded-2xl border-4 border-white overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] rotate-[-4deg]">
+                <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-900 flex items-center justify-center">
+                  <span className="text-white text-3xl font-bold">YOU</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Zap in the middle when they hit */}
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: [0, 1.5, 1], opacity: [0, 1, 0] }}
+              transition={{ delay: 0.8, duration: 0.4 }}
+              className="absolute z-30"
+            >
+                <div className="w-24 h-24 bg-white rounded-full blur-2xl" />
+            </motion.div>
+
+            {/* Right side profile - MATCH */}
+            <motion.div
+              initial={{ x: 300, opacity: 0, rotate: 20 }}
+              animate={{ x: 60, opacity: 1, rotate: 5 }}
+              transition={{ 
+                type: "spring",
+                stiffness: 150,
+                damping: 12,
+                delay: 0.45
+              }}
+              className="relative z-10"
+            >
+              <div className="w-32 h-44 rounded-2xl border-4 border-white overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] rotate-[4deg]">
+                {matchedUser.avatar ? (
+                  <img src={matchedUser.avatar} className="w-full h-full object-cover" alt={matchedUser.name} />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-rose-500 to-orange-700 flex items-center justify-center">
+                    <span className="text-white text-4xl font-black">{matchedUser.name?.[0] || 'U'}</span>
                   </div>
-                </motion.div>
-              </motion.div>
-
-              {/* Profile Images */}
-              <AnimatePresence>
-                {showContent && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-6"
-                  >
-                    <div className="flex items-center justify-center gap-4 mb-4">
-                      {/* Matched User Profile */}
-                      <motion.div
-                        initial={{ x: -100, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-center"
-                      >
-                        <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-orange-400 shadow-lg">
-                          {matchedUser?.avatar ? (
-                            <img 
-                              src={matchedUser.avatar} 
-                              alt={matchedUser.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-xl">
-                              {matchedUser?.name?.charAt(0) || 'U'}
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-sm font-semibold mt-2 text-foreground">
-                          {matchedUser?.name || 'User'}
-                        </p>
-                      </motion.div>
-
-                      {/* Flame in the middle */}
-                      <motion.div
-                        animate={{
-                          rotate: [0, 10, -10, 0],
-                          scale: [1, 1.2, 1]
-                        }}
-                        transition={{
-                          duration: 1,
-                          repeat: Infinity,
-                          repeatType: "reverse"
-                        }}
-                      >
-                        <Flame className="w-8 h-8 text-orange-500 fill-current" />
-                      </motion.div>
-
-                      {/* Current User Profile */}
-                      <motion.div
-                        initial={{ x: 100, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-center"
-                      >
-                        <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-orange-400 shadow-lg">
-                          <div className="w-full h-full bg-gradient-to-br from-rose-400 to-blue-500 flex items-center justify-center text-white font-bold text-xl">
-                            You
-                          </div>
-                        </div>
-                        <p className="text-sm font-semibold mt-2 text-foreground">
-                          You
-                        </p>
-                      </motion.div>
-                    </div>
-
-                    <motion.p 
-                      className="text-muted-foreground mb-6"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.8 }}
-                    >
-                      You both liked each other! Start a conversation and make the magic happen.
-                    </motion.p>
-
-                    {/* Action Buttons */}
-                    <motion.div
-                      className="flex gap-3 justify-center"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 1 }}
-                    >
-                      <Button
-                        onClick={handleStartConversation}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold px-6 py-2 shadow-lg"
-                      >
-                        Start Conversation
-                      </Button>
-                      <Button
-                        onClick={onClose}
-                        variant="outline"
-                        className="border-border hover:bg-muted"
-                      >
-                        Keep Browsing
-                      </Button>
-                    </motion.div>
-                  </motion.div>
                 )}
-              </AnimatePresence>
-            </Card>
-          </motion.div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Subtext */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="text-white/70 text-lg font-medium mb-12 text-center px-8"
+          >
+            You and <span className="text-white font-bold">{matchedUser.name}</span> have a spark!
+          </motion.p>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-4 w-full max-w-[280px]">
+            <AnimatePresence>
+              {showButtons && (
+                <>
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="w-full"
+                  >
+                    <Button
+                      onClick={handleStartConversation}
+                      className="w-full h-14 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-lg shadow-[0_10px_30px_rgba(244,63,94,0.4)] relative group overflow-hidden"
+                    >
+                      <motion.div 
+                        className="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-sweep" 
+                      />
+                      <MessageCircle className="w-5 h-5 mr-3" />
+                      SEND A MESSAGE
+                    </Button>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    <Button
+                      onClick={onClose}
+                      variant="ghost"
+                      className="w-full h-12 text-white/50 hover:text-white hover:bg-white/5 text-sm font-bold uppercase tracking-widest"
+                    >
+                      Keep Swiping
+                    </Button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

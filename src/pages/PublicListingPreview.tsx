@@ -17,6 +17,7 @@ import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { STORAGE } from '@/constants/app';
 import { cn } from '@/lib/utils';
 import { SwipessLogo } from '@/components/SwipessLogo';
+import { SaveButton } from '@/components/SaveButton';
 
 const FREE_MESSAGING_CATEGORIES = ['motorcycle', 'bicycle'];
 
@@ -238,6 +239,16 @@ export default function PublicListingPreview() {
         <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full shadow-lg h-9">
           <SwipessLogo size="xs" />
         </div>
+
+        {/* Save/Favorite action */}
+        {listing && (
+          <SaveButton 
+            targetId={listing.id}
+            targetType="listing"
+            className="w-9 h-9"
+            variant="circular"
+          />
+        )}
 
         {/* Auth action */}
         {!user ? (

@@ -15,6 +15,8 @@ import { motion } from 'framer-motion';
 import { useStartConversation } from '@/hooks/useConversations';
 import { toast as sonnerToast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
+import { SaveButton } from '@/components/SaveButton';
+import { triggerHaptic } from '@/utils/haptics';
 
 export default function OwnerPropertyClientDiscovery() {
   const navigate = useNavigate();
@@ -274,22 +276,36 @@ export default function OwnerPropertyClientDiscovery() {
                         )}
 
                         {/* Action Buttons */}
-                        <div className="flex gap-2">
-                          <Button 
-                            onClick={() => handleConnect(client.user_id)}
-                            className="flex-1"
-                            size="sm"
+                        <div className="flex items-center gap-2 mt-2 pt-3 border-t border-border/40">
+                          <SaveButton 
+                            targetId={client.user_id}
+                            targetType="profile"
+                            className="w-11 h-11 rounded-2xl bg-muted/40 border border-border/20 backdrop-blur-md"
+                            variant="circular"
+                          />
+                          <button 
+                            onClick={() => {
+                              triggerHaptic('light');
+                              handleConnect(client.user_id);
+                            }}
+                            className="group relative flex-1 h-11 flex items-center justify-center gap-2 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] text-white transition-all active:scale-95 bg-gradient-to-br from-purple-500 via-indigo-600 to-blue-500 shadow-xl shadow-indigo-500/20 overflow-hidden"
                           >
-                            <MessageCircle className="h-4 w-4 mr-2" />
-                            Connect
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => navigate(`/owner/view-client/${client.user_id}`)}
+                            <motion.div 
+                               className="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-sweep" 
+                            />
+                            <MessageCircle className="h-4 w-4" />
+                            <span>Connect</span>
+                          </button>
+                          <button 
+                            className="w-11 h-11 flex items-center justify-center rounded-2xl bg-muted/40 border border-border/20 text-muted-foreground hover:text-foreground transition-all active:scale-95"
+                            onClick={() => {
+                                triggerHaptic('light');
+                                navigate(`/owner/view-client/${client.user_id}`);
+                            }}
+                            title="View Profile"
                           >
-                            View
-                          </Button>
+                            <User className="w-5 h-5" />
+                          </button>
                         </div>
                       </CardContent>
                     </Card>

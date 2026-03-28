@@ -6,6 +6,7 @@ import { useFilterPersistence } from '@/hooks/useFilterPersistence';
 import { useMemo, useEffect, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useMatchRealtime } from '@/hooks/useMatchRealtime';
+import { useLikesRealtime } from '@/hooks/useLikesRealtime';
 
 // Global match celebration modal
 const MatchCelebration = lazy(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
@@ -38,6 +39,9 @@ export function PersistentDashboardLayout() {
 
   // GLOBAL MATCH CELEBRATION: Real-time listener for match events across the entire dashboard
   const { matchCelebration, closeCelebration } = useMatchRealtime();
+
+  // GLOBAL LIKES SYNC: Ensures saves and favorites stay in sync across tabs and devices
+  useLikesRealtime();
 
   // SPEED OF LIGHT: Derive role from path INSTANTLY
   const userRole = useMemo(() => {

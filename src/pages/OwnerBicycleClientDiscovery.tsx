@@ -12,6 +12,10 @@ import { useNavigate } from 'react-router-dom';
 import { useSmartClientMatching, ClientFilters } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
+import { SaveButton } from '@/components/SaveButton';
+import { useStartConversation } from '@/hooks/useConversations';
+import { toast as sonnerToast } from 'sonner';
+import { triggerHaptic } from '@/utils/haptics';
 
 export default function OwnerBicycleClientDiscovery() {
   const navigate = useNavigate();
@@ -19,6 +23,8 @@ export default function OwnerBicycleClientDiscovery() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, any>>({});
+  const [isCreatingConversation, setIsCreatingConversation] = useState(false);
+  const startConversation = useStartConversation();
 
   // Convert filters to ClientFilters format
   const clientFilters: ClientFilters | undefined = useMemo(() => {
@@ -66,8 +72,25 @@ export default function OwnerBicycleClientDiscovery() {
     // No need to manually refetch - the query will auto-update when filters change
   };
 
-  const handleConnect = (clientId: string) => {
-    navigate('/messages', { state: { clientId } });
+  const handleConnect = async (clientId: string) => {
+    if (isCreatingConversation) return;
+    setIsCreatingConversation(true);
+    try {
+      sonnerToast.loading('Starting conversation...', { id: 'start-conv' });
+      const result = await startConversation.mutateAsync({
+        otherUserId: clientId,
+        initialMessage: "Hi! I'd like to connect regarding your bicycle search.",
+        canStartNewConversation: true,
+      });
+      if (result?.conversationId) {
+        sonnerToast.success('Opening chat...', { id: 'start-conv' });
+        navigate(`/messages?conversationId=${result.conversationId}`);
+      }
+    } catch (error) {
+      sonnerToast.error('Could not start conversation', { id: 'start-conv' });
+    } finally {
+      setIsCreatingConversation(false);
+    }
   };
 
   return (
@@ -205,22 +228,36 @@ export default function OwnerBicycleClientDiscovery() {
                           </div>
                         )}
 
-                        <div className="flex gap-2">
-                          <Button 
-                            onClick={() => handleConnect(String(client.id))}
-                            className="flex-1"
-                            size="sm"
+                        <div className="flex items-center gap-2 mt-2 pt-3 border-t border-border/40">
+                          <SaveButton 
+                            targetId={client.user_id}
+                            targetType="profile"
+                            className="w-11 h-11 rounded-2xl bg-muted/40 border border-border/20 backdrop-blur-md"
+                            variant="circular"
+                          />
+                          <button 
+                            onClick={() => {
+                              triggerHaptic('light');
+                              handleConnect(client.user_id);
+                            }}
+                            className="group relative flex-1 h-11 flex items-center justify-center gap-2 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] text-white transition-all active:scale-95 bg-gradient-to-br from-green-500 via-emerald-600 to-teal-500 shadow-xl shadow-emerald-500/20 overflow-hidden"
                           >
-                            <MessageCircle className="h-4 w-4 mr-2" />
-                            Connect
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => navigate(`/owner/view-client/${client.user_id || client.id}`)}
+                            <motion.div 
+                               className="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-sweep" 
+                            />
+                            <MessageCircle className="h-4 w-4" />
+                            <span>Connect</span>
+                          </button>
+                          <button 
+                            className="w-11 h-11 flex items-center justify-center rounded-2xl bg-muted/40 border border-border/20 text-muted-foreground hover:text-foreground transition-all active:scale-95"
+                            onClick={() => {
+                                triggerHaptic('light');
+                                navigate(`/owner/view-client/${client.user_id || client.id}`);
+                            }}
+                            title="View Profile"
                           >
-                            View
-                          </Button>
+                            <User className="w-5 h-5" />
+                          </button>
                         </div>
                       </CardContent>
                     </Card>
