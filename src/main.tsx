@@ -31,11 +31,15 @@ if (rootElement) {
 window.addEventListener('app-rendered', () => {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
+      // Signal hydration complete — triggers CSS transition on #root
+      const root = document.getElementById('root');
+      if (root) root.classList.add('hydrated');
+      
       const loader = document.getElementById('initial-loader');
       if (loader) {
         loader.style.opacity = '0';
-        loader.style.transition = 'opacity 0.25s ease-out';
-        setTimeout(() => loader.remove(), 260);
+        loader.style.transition = 'opacity 0.2s ease-out';
+        setTimeout(() => loader.remove(), 220);
       }
     });
   });

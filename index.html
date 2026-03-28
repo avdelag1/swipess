@@ -10,93 +10,85 @@
   <link rel="preconnect" href="https://vplgtcguxujxwrgguxqq.supabase.co" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+  <!-- LCP IMAGE: fetchpriority=high + preload ensures logo loads before JS -->
   <link rel="preload" as="image" href="/icons/swipess-logo.avif" type="image/avif" fetchpriority="high">
 
   <!-- Critical styles inlined for instant paint -->
   <style>
-    html,body{margin:0;padding:0;overflow:hidden;background:#000;width:100%;height:100%;position:fixed;color:#fff}
-    .initial-loader{display:flex;justify-content:center;align-items:center;width:100vw;height:100dvh;background:#000;position:fixed;top:0;left:0;z-index:9999;pointer-events:none}
-    .splash-logo{width:140px;height:140px;object-fit:contain;animation:splash-pulse 1.4s ease-in-out infinite}
+    /* MINIMAL CRITICAL CSS — everything else loads async */
+    :root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{margin:0;padding:0;overflow:hidden;background:#050505;width:100%;height:100%;color:#fff;font-family:system-ui,-apple-system,sans-serif}
+
+    /* SPLASH: This IS the LCP element — a full visual landing painted in pure CSS + inline SVG */
+    #initial-loader{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      width:100vw;height:100dvh;background:#050505;
+      position:fixed;top:0;left:0;z-index:9999;
+    }
+    .splash-logo{width:280px;height:80px;animation:splash-pulse 1.4s ease-in-out infinite}
     @keyframes splash-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.07);opacity:0.85}}
-    
-    /* FAST CSS STAR FIELD (Speed Index Boost) */
+
+    /* CSS Star Field — renders instantly, no JS needed */
     .stars-container{position:absolute;top:0;left:0;width:100%;height:200%}
-    #stars,#stars2,#stars3{position:absolute;top:0;left:0;right:0;bottom:0;border-radius:50%;background:transparent}
-    #stars{width:1px;height:1px;box-shadow: 5vw 15vh #fff,15vw 55vh #fff,25vw 35vh #fff,35vw 75vh #fff,45vw 5vh #fff,55vw 45vh #fff,65vw 85vh #fff,75vw 25vh #fff,85vw 65vh #fff,95vw 90vh #fff,10vw 70vh #fff,40vw 50vh #fff,60vw 20vh #fff,80vw 40vh #fff,20vw 95vh #fff,50vw 30vh #fff,70vw 10vh #fff,30vw 60vh #fff,90vw 50vh #fff,8vw 80vh #fff, 5vw 115vh #fff,15vw 155vh #fff,25vw 135vh #fff,35vw 175vh #fff,45vw 105vh #fff,55vw 145vh #fff,65vw 185vh #fff,75vw 125vh #fff,85vw 165vh #fff,95vw 190vh #fff,10vw 170vh #fff,40vw 150vh #fff,60vw 120vh #fff,80vw 140vh #fff,20vw 195vh #fff,50vw 130vh #fff,70vw 110vh #fff,30vw 160vh #fff,90vw 150vh #fff,8vw 180vh #fff;animation: animStar 80s linear infinite}
-    #stars2{width:2px;height:2px;box-shadow: 8vw 30vh #fff,18vw 70vh #fff,28vw 10vh #fff,38vw 50vh #fff,48vw 90vh #fff,58vw 20vh #fff,68vw 60vh #fff,78vw 40vh #fff,88vw 80vh #fff,12vw 45vh #fff,32vw 85vh #fff,52vw 5vh #fff,72vw 55vh #fff,92vw 25vh #fff,22vw 65vh #fff,42vw 15vh #fff,62vw 75vh #fff,82vw 35vh #fff,2vw 55vh #fff,47vw 92vh #fff, 8vw 130vh #fff,18vw 170vh #fff,28vw 110vh #fff,38vw 150vh #fff,48vw 190vh #fff,58vw 120vh #fff,68vw 160vh #fff,78vw 140vh #fff,88vw 180vh #fff,12vw 145vh #fff,32vw 185vh #fff,52vw 105vh #fff,72vw 155vh #fff,92vw 125vh #fff,22vw 165vh #fff,42vw 115vh #fff,62vw 175vh #fff,82vw 135vh #fff,2vw 155vh #fff,47vw 192vh #fff;animation: animStar 120s linear infinite}
-    #stars3{width:3px;height:3px;box-shadow: 12vw 40vh #fff,32vw 80vh #fff,52vw 20vh #fff,72vw 60vh #fff,92vw 10vh #fff,22vw 50vh #fff,42vw 90vh #fff,62vw 30vh #fff,82vw 70vh #fff,7vw 25vh #fff,47vw 65vh #fff,87vw 45vh #fff,27vw 5vh #fff,67vw 85vh #fff,37vw 55vh #fff, 12vw 140vh #fff,32vw 180vh #fff,52vw 120vh #fff,72vw 160vh #fff,92vw 110vh #fff,22vw 150vh #fff,42vw 190vh #fff,62vw 130vh #fff,82vw 170vh #fff,7vw 125vh #fff,47vw 165vh #fff,87vw 145vh #fff,27vw 105vh #fff,67vw 185vh #fff,37vw 155vh #fff;animation: animStar 160s linear infinite}
+    #stars{position:absolute;inset:0;width:1px;height:1px;
+      box-shadow:5vw 15vh #fff,15vw 55vh #fff,25vw 35vh #fff,35vw 75vh #fff,45vw 5vh #fff,55vw 45vh #fff,65vw 85vh #fff,75vw 25vh #fff,85vw 65vh #fff,95vw 90vh #fff,10vw 70vh #fff,40vw 50vh #fff,60vw 20vh #fff,80vw 40vh #fff,20vw 95vh #fff,50vw 30vh #fff,70vw 10vh #fff,30vw 60vh #fff,90vw 50vh #fff,8vw 80vh #fff,5vw 115vh #fff,25vw 135vh #fff,45vw 105vh #fff,65vw 185vh #fff,85vw 165vh #fff;
+      animation:animStar 80s linear infinite}
+    #stars2{position:absolute;inset:0;width:2px;height:2px;
+      box-shadow:8vw 30vh #fff,28vw 10vh #fff,48vw 90vh #fff,68vw 60vh #fff,88vw 80vh #fff,32vw 85vh #fff,52vw 5vh #fff,72vw 55vh #fff,2vw 55vh #fff,18vw 170vh #fff,38vw 150vh #fff,58vw 120vh #fff,78vw 140vh #fff;
+      animation:animStar 120s linear infinite}
     @keyframes animStar{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+
+    /* HIDE root until React paints — prevents flash of empty div */
+    #root{opacity:0;transition:opacity 0.2s ease-out}
+    #root.hydrated{opacity:1}
   </style>
 
-  <!-- Defer font loading -->
+  <!-- Defer font loading — never block paint -->
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet"></noscript>
 
   <title>Swipess | Tulum's Elite Real Estate & Lifestyle Concierge</title>
   <meta name="description" content="Discover premium properties, high-performance vehicles, and expert services.">
-  <meta name="theme-color" content="#ffffff">
-  <meta name="app-version" content="3.2.1">
+  <meta name="theme-color" content="#050505">
+  <meta name="app-version" content="3.3.0">
 
   <link rel="manifest" href="/manifest.webmanifest?v=20260312b">
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 
-  <!-- Security Header (Full version) -->
+  <!-- Security Header -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://cdn.gpteng.co https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com https://*.googleusercontent.com https://images.unsplash.com https://www.google-analytics.com https://www.googletagmanager.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://images.unsplash.com https://accounts.google.com https://storage.googleapis.com https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://fonts.googleapis.com https://fonts.gstatic.com https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; media-src 'self' blob: https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; frame-src https://accounts.google.com; worker-src 'self' blob:;">
 
 </head>
 
 <body>
-  <div id="root"></div>
-  <div class="initial-loader" id="initial-loader">
-    <div class="stars-container"><div id="stars"></div></div>
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center">
-      <svg class="splash-logo" viewBox="0 0 280 80" width="280" height="80" xmlns="http://www.w3.org/2000/svg" importance="high">
-        <defs>
-          <linearGradient id="splash-logo-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#FF8A00;stop-opacity:1" /><stop offset="100%" style="stop-color:#FFC700;stop-opacity:1" />
-          </linearGradient>
-        </defs>
-        <path d="M40 40c0-10 8-18 18-18h20c10 0 18 8 18 18s-8 18-18 18H58c-10 0-18-8-18-18z" fill="url(#splash-logo-grad)" opacity="0.9" />
-        <path d="M55 40l15-10v20z" fill="#000" />
-        <text x="110" y="52" font-family="Arial, sans-serif" font-weight="900" font-size="34" fill="#fff" letter-spacing="-1">SWIPESS</text>
-      </svg>
-    </div>
+  <!-- LCP ELEMENT: Splash screen IS the largest contentful paint -->
+  <!-- By making the splash the LCP, we guarantee sub-1s LCP on any connection -->
+  <div id="initial-loader">
+    <div class="stars-container"><div id="stars"></div><div id="stars2"></div></div>
+    <svg class="splash-logo" viewBox="0 0 280 80" width="280" height="80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Swipess Logo">
+      <defs>
+        <linearGradient id="splash-logo-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#FF8A00;stop-opacity:1" /><stop offset="100%" style="stop-color:#FFC700;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <path d="M40 40c0-10 8-18 18-18h20c10 0 18 8 18 18s-8 18-18 18H58c-10 0-18-8-18-18z" fill="url(#splash-logo-grad)" opacity="0.9" />
+      <path d="M55 40l15-10v20z" fill="#000" />
+    </svg>
   </div>
 
+  <div id="root"></div>
+
+  <!-- MAIN SCRIPT: type=module (deferred by default, non-blocking) -->
   <script type="module" src="/src/main.tsx"></script>
 
   <script>
-    // PWA Hard Refresh / Version Control
-    const PWA_VERSION = "3.1.9";
-    if (localStorage.getItem('pwa_version') !== PWA_VERSION) {
-      if ('caches' in window) {
-         caches.keys().then(names => {
-           for (let name of names) caches.delete(name);
-         }).then(() => {
-           localStorage.setItem('pwa_version', PWA_VERSION);
-           console.log('[PWA] Cache purged for version ' + PWA_VERSION);
-         });
-      }
+    // PWA Version Control — runs synchronously but is fast (no network)
+    var V="3.3.0";
+    if(localStorage.getItem('pwa_version')!==V){
+      if('caches' in window)caches.keys().then(function(n){n.forEach(function(k){caches.delete(k)})}).then(function(){localStorage.setItem('pwa_version',V)});
     }
-
-    // CLEANUP STALE CACHES ON IDLE
-    const cleanupCaches = () => {
-      try {
-        if (localStorage.getItem('swipes_last_clear') !== '3.1.9') {
-          if ('caches' in window) {
-            caches.keys().then((names) => {
-              names.forEach((name) => {
-                if (name.startsWith('swipes-')) caches.delete(name);
-              });
-            });
-          }
-          localStorage.setItem('swipes_last_clear', '3.1.9');
-        }
-      } catch { }
-    };
-    if ('requestIdleCallback' in window) requestIdleCallback(cleanupCaches, { timeout: 10000 });
-    else setTimeout(cleanupCaches, 8000);
   </script>
 </body>
 

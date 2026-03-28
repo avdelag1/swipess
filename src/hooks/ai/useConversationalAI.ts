@@ -43,6 +43,13 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
     setMessages(prev => [...prev, newUserMessage]);
 
     try {
+      // Pre-flight auth check — fail fast if no session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please sign in to use the AI Concierge');
+        throw new Error('Not authenticated');
+      }
+
       // STICKY FIX: Clean messages for the Edge Function / AI API
       // Only keep 'role' and 'content'. Metadata like 'timestamp' causes 400 errors.
       const apiMessages = [

@@ -25,19 +25,8 @@ const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects')
 // Optimized logo with modern format support + fallback
 function LogoImage({ className }: { className?: string }) {
   return (
-    <div className={cn("relative overflow-hidden", className)}>
-      <picture>
-        <source srcSet="/icons/swipess-logo.avif" type="image/avif" />
-        <source srcSet="/icons/swipess-logo.webp" type="image/webp" />
-        <img
-          src="/icons/swipess-logo.png"
-          alt="Swipess Logo"
-          fetchPriority="high"
-          loading="eager"
-          style={{ mixBlendMode: 'screen' }}
-          className="w-full h-full object-contain select-none pointer-events-none"
-        />
-      </picture>
+    <div className={cn("relative flex items-center justify-center p-8 rounded-[3rem] bg-gradient-to-br from-white/10 to-transparent backdrop-blur-3xl border border-white/20", className)}>
+        <SparklesIcon className="w-24 h-24 text-orange-500 animate-pulse" />
     </div>
   );
 }
@@ -178,16 +167,6 @@ const LandingView = memo(({
         </span>
       </button>
 
-      {/* AI CONCIERGE FAB — bottom-right corner for high visibility */}
-      <motion.button
-        onClick={(e) => { e.stopPropagation(); onEnterAI?.(); }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        className="absolute bottom-6 right-4 flex items-center gap-2 px-5 p-3 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-[0_0_20px_rgba(236,72,153,0.4)] border border-white/20 transition-all z-20"
-      >
-        <SparklesIcon className="w-5 h-5" />
-        <span className="text-xs font-black uppercase tracking-widest italic">Talk to AI</span>
-      </motion.button>
 
     </motion.div>
   );
