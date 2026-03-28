@@ -7,7 +7,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
-import { motion } from "framer-motion";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import React from "react";
 
@@ -298,11 +297,11 @@ const Index = () => {
         <SuspenseFallback />
         
         {showEscapeHatch && (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+          <div 
             className="fixed bottom-12 left-0 right-0 z-[10000] flex justify-center px-6"
+            style={{ animation: 'fadeSlideUp 0.4s ease-out forwards' }}
           >
+            <style>{`@keyframes fadeSlideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}`}</style>
             <div className="bg-card/80 backdrop-blur-xl border border-border p-5 rounded-2xl shadow-2xl max-w-sm text-center">
               <p className="text-foreground font-medium text-sm mb-3">Taking longer than usual...</p>
               <button
@@ -312,7 +311,7 @@ const Index = () => {
                 Refresh Session
               </button>
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     );

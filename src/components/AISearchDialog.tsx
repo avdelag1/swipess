@@ -113,6 +113,11 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
 
       if (funcError) throw funcError;
 
+      // Handle server-side AI errors sent with 200 OK
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
       const responseContent = data?.result?.text || data?.result?.message || '';
       if (!responseContent) throw new Error('AI returned an empty response. Please try again.');
 
