@@ -174,21 +174,22 @@ const CardImage = memo(({
         loading="eager"
         decoding="async"
         fetchPriority="high"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          opacity: loaded ? 1 : 0,
-          transition: wasInCache ? 'none' : `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
-          borderRadius: br,
-          animation: wasInCache
-            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards${animate ? ', breathing-zoom 4s ease-in-out infinite alternate' : ''}`
-            : animate ? 'breathing-zoom 4s ease-in-out infinite alternate' : 'none',
-          zIndex: 3,
-          transformOrigin: 'center',
-        }}
+          className={cn(loaded && animate ? 'breathing-zoom' : '')}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: loaded ? 1 : 0,
+            transition: wasInCache ? 'none' : `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+            borderRadius: br,
+            animation: wasInCache
+              ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards${animate ? ', breathing-zoom 8s ease-in-out infinite alternate' : ''}`
+              : animate ? 'breathing-zoom 8s ease-in-out infinite alternate' : 'none',
+            zIndex: 3,
+            transformOrigin: 'center',
+          }}
         onLoad={() => {
           if (src) imageCache.set(src, true);
           setLoaded(true);

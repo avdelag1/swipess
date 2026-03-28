@@ -615,12 +615,12 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
     transform: scale(1.0);
   }
   100% {
-    transform: scale(1.05);
+    transform: scale(1.06);
   }
 }
 
 .breathing-zoom {
-  animation: breathing-zoom 4s ease-in-out infinite alternate !important;
+  animation: breathing-zoom 8s ease-in-out infinite alternate !important;
 }
 
 @keyframes progress-fill {

@@ -145,7 +145,6 @@ export default function DJTurntableRadio() {
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [showFavoritesDrawer, setShowFavoritesDrawer] = useState(false);
-  const [pitch, setPitch] = useState(0.5); // Visual pitch slider state
 
   const cityTheme = cityThemes[state.currentCity] || cityThemes['tulum'];
   const primaryColor = cityTheme.primaryColor;
@@ -247,43 +246,14 @@ export default function DJTurntableRadio() {
       {/* Main turntable area */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 pt-16">
         <div className="relative w-full max-w-[440px] flex items-center justify-center">
-          {/* Vertical Pitch Slider (Professional Turntable Look) */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="absolute right-0 top-1/2 -translate-y-1/2 w-16 h-64 bg-black/40 backdrop-blur-3xl rounded-3xl border border-white/10 p-2 flex flex-col items-center justify-between z-20 shadow-2xl"
-          >
-            <div className="text-[8px] font-black text-white/30 tracking-widest vertical-text mt-4">PITCH</div>
-            <div className="relative flex-1 w-full flex justify-center py-4">
-              <div className="w-[4px] h-full rounded-full bg-white/10 border border-white/5" />
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={pitch}
-                onChange={(e) => { setPitch(parseFloat(e.target.value)); triggerHaptic('light'); }}
-                className="absolute inset-x-0 h-full opacity-0 cursor-pointer z-20 -rotate-90 origin-center"
-                style={{ width: '160px', top: '50px' }}
-                title="Pitch Control"
-                aria-label="Pitch Control"
-              />
-              <motion.div 
-                className="absolute w-10 h-6 rounded-md bg-[#222] border border-white/20 shadow-xl flex items-center justify-center z-10"
-                style={{ bottom: `calc(${pitch * 100}% - 12px)` }}
-              >
-                <div className="w-6 h-[2px] bg-red-500/80 shadow-[0_0_8px_red]" />
-              </motion.div>
-            </div>
-            <div className="text-[10px] font-black text-white/60 mb-4">{(pitch * 16 - 8).toFixed(1)}%</div>
-          </motion.div>
+
 
           {/* Turntable Platter Wrapper */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, rotate: -15 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-            className="relative w-[85%] aspect-square flex items-center justify-center mr-8"
+            className="relative w-[90%] aspect-square flex items-center justify-center"
           >
             <AnimatePresence>
               {state.isPlaying && (
@@ -324,8 +294,8 @@ export default function DJTurntableRadio() {
                     boxShadow: `0 0 50px ${primaryColor}66, inset 0 2px 15px rgba(255,255,255,0.6)`
                   }}
                 >
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#050505] border border-white/20 z-20 flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 rounded-full bg-white/50 shadow-[0_0_4px_white]" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-br from-[#1a1a1a] to-[#050505] border border-white/20 z-20 flex items-center justify-center shadow-inner">
+                    <div className="w-1.5 h-1.5 rounded-full bg-white/90 shadow-[0_0_8px_white]" />
                   </div>
 
                   <div className="text-center z-10 pt-6">

@@ -59,6 +59,8 @@ export const WelcomeBonusModal = () => {
             
             <button
               onClick={handleClose}
+              title="Close"
+              aria-label="Close"
               className="absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/10 text-white/40 hover:text-white transition-colors z-10"
             >
               <X className="w-5 h-5" />

@@ -357,28 +357,15 @@ function EventCard({
         animKey={animKey}
         onComplete={onTickComplete}
       />
-      {/* Background photo with slow zoom-out on ACTIVE cards ONLY */}
-      <motion.div
-        className="absolute inset-0"
-        animate={isActive ? { 
-          scale: [1.0, 1.05, 1.0], 
-          filter: 'brightness(1.05)' 
-        } : { 
-          scale: 1.0, 
-          filter: 'brightness(1)' 
-        }}
-        transition={{ 
-          scale: { duration: 12, ease: 'easeInOut', repeat: Infinity }, 
-          filter: { duration: 0.4 } 
-        }}
-      >
+      {/* Background photo with premium breathing-zoom on ACTIVE cards */}
+      <div className="absolute inset-0">
         <CardImage
           src={event.image_url}
           alt={event.title}
           fullScreen
           animate={isActive}
         />
-      </motion.div>
+      </div>
 
       {/* Gradient overlays */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-black/40 pointer-events-none" />
