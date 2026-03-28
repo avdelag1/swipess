@@ -13,6 +13,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { STORAGE } from '@/constants/app';
 import { cn } from '@/lib/utils';
+import { SwipessLogo } from '@/components/SwipessLogo';
 
 export default function PublicProfilePreview() {
   const { id } = useParams<{ id: string }>();
@@ -200,9 +201,9 @@ export default function PublicProfilePreview() {
           <div className="w-9" />
         )}
 
-        <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full shadow-lg">
-          <Sparkles className="w-3.5 h-3.5 text-orange-400" />
-          <span className="text-white font-bold text-sm tracking-tight">Swipess</span>
+        {/* Swipess logo pill */}
+        <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full shadow-lg h-9">
+          <SwipessLogo size="xs" />
         </div>
 
         {!user ? (

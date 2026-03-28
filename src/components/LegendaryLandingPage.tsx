@@ -6,12 +6,12 @@ import { triggerHaptic } from '@/utils/haptics';
 import { playRandomZen } from '@/utils/sounds';
 import {
   Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Star, Sun, Sparkles
+  ArrowLeft, Sun, Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })));
 import { SwipessLogo } from './SwipessLogo';
-import { Sparkles as SparklesIcon } from 'lucide-react';
+
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -54,12 +54,10 @@ const checkPasswordStrength = (password: string) => {
 /* ─── Landing view ───────────────────────────────────────── */
 const LandingView = memo(({
   onEnterAuth,
-  onEnterAI,
   isDark,
   onToggleDark,
 }: {
   onEnterAuth: () => void;
-  onEnterAI: () => void;
   isDark: boolean;
   onToggleDark: () => void;
 }) => {
@@ -71,26 +69,12 @@ const LandingView = memo(({
   const logoBlur = useTransform(x, [0, 100, 220], [0, 2, 14]);
   const logoFilter = useTransform(logoBlur, (v) => `blur(${v}px)`);
 
-  const torchOpacity = useTransform(
-    [x, torchBoost] as const,
-    ([xVal, boost]: number[]) => {
-      const fromDrag = Math.min(1, Math.max(0, xVal / 160));
-      return Math.max(0, fromDrag + boost * 0.4);
-    }
-  );
+
 
   const isDragging = useRef(false);
   const triggered = useRef(false);
 
-  // Auto-Zen Ambient Sounds
-  useEffect(() => {
-    const playZen = () => {
-      try { playRandomZen(0.15); } catch { /* ignore */ }
-    };
-    // Play a soft sound every minute just to keep it "alive"
-    const interval = setInterval(playZen, 60000);
-    return () => clearInterval(interval);
-  }, []);
+  // Ambient sounds removed as per user preference (only play on tap now)
 
   const handlePointerDown = () => {
     animate(torchBoost, 1, { duration: 0.05 });
@@ -344,6 +328,9 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         <motion.div className="w-full max-w-sm mx-auto" variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
             <div className="text-center mb-6">
+              <div className="flex justify-center mb-4">
+                <SwipessLogo size="md" className="scale-125" />
+              </div>
               <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand mb-1">
                 {isLogin ? 'Welcome Back' : 'Join Swipess'}
               </h1>
@@ -470,7 +457,6 @@ function LegendaryLandingPage() {
           <LandingView
             key="landing"
             onEnterAuth={() => setView('auth')}
-            onEnterAI={() => setIsAIOpen(true)}
             isDark={isDark}
             onToggleDark={() => setIsDark(d => !d)}
           />
