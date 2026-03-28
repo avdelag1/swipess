@@ -24,7 +24,7 @@ function SwipessLogoComponent({
   return (
     <div className={cn('relative inline-flex items-center justify-center', className)}>
       <img
-        src="/icons/swipess-flame-s.png"
+        src="/icons/fire-s-logo-zoom.png"
         alt="Swipess"
         draggable={false}
         className={cn(
