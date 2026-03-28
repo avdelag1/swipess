@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ 
       result: { text: finalContent, message: finalContent, action: finalAction }, 
       status: "success",
-      version: "v10.0-vibe-agent"
+      version: "v10.1-vibe-agent"
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
