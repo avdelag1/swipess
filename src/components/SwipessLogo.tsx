@@ -24,13 +24,14 @@ function SwipessLogoComponent({
   return (
     <div className={cn('relative inline-flex items-center justify-center overflow-hidden', className)}>
       <picture>
-        <source srcSet="/icons/fire-s-logo-zoom.png" type="image/png" />
+        <source srcSet="/icons/swipess-flame-s.png" type="image/png" />
         <img
-          src="/icons/fire-s-logo-zoom.png"
+          src="/icons/swipess-flame-s.png"
           alt="Swipess"
           draggable={false}
           className={cn(
-            'w-auto object-contain select-none pointer-events-none transition-all duration-300 scale-125',
+            'w-auto object-contain select-none pointer-events-none transition-all duration-300 scale-110',
+            'mix-blend-normal', // Using blend modes manually in containers if needed
             heightMap[size]
           )}
         />
