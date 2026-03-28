@@ -257,10 +257,10 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       pointerRef.current.isActive = false;
     };
 
-    window.addEventListener('pointermove', handlePointerMove, { passive: true });
-    window.addEventListener('pointerup', handlePointerUp, { passive: true });
-    window.addEventListener('pointercancel', handlePointerUp, { passive: true });
-    window.addEventListener('pointerdown', handleCanvasPointerDown, { passive: true });
+    canvas.addEventListener('pointermove', handlePointerMove, { passive: true });
+    canvas.addEventListener('pointerup', handlePointerUp, { passive: true });
+    canvas.addEventListener('pointercancel', handlePointerUp, { passive: true });
+    canvas.addEventListener('pointerdown', handleCanvasPointerDown, { passive: true });
 
     const drawStars = () => {
       ctx.clearRect(0, 0, w, h);
@@ -454,10 +454,10 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerup', handlePointerUp);
-      window.removeEventListener('pointercancel', handlePointerUp);
-      window.removeEventListener('pointerdown', handleCanvasPointerDown);
+      canvas.removeEventListener('pointermove', handlePointerMove);
+      canvas.removeEventListener('pointerup', handlePointerUp);
+      canvas.removeEventListener('pointercancel', handlePointerUp);
+      canvas.removeEventListener('pointerdown', handleCanvasPointerDown);
     };
   }, [mode, isLightTheme, initStars, initClouds]);
 
