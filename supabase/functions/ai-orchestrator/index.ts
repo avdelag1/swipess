@@ -88,9 +88,9 @@ Deno.serve(async (req) => {
             // Query Supabase for local expert cards or info
             let { data: expertCards, error: searchError } = await supabase
               .from('expert_knowledge')
-              .select('title, content, category, metadata')
+              .select('title, content, category, metadata, location, website_url, instagram_handle, whatsapp')
               .textSearch('content', query)
-              .limit(3);
+              .limit(5);
 
             // Fallback: If searching for tacos/instagram/links, provide curated links
             const lowerQuery = query.toLowerCase();
@@ -106,7 +106,14 @@ Deno.serve(async (req) => {
             }
 
             const contextResult = (expertCards?.length || curatedLinks)
-              ? `LOCAL EXPERT KNOWLEDGE FOUND:\n${expertCards?.map((c: any) => `[${c.title}] ${c.content} ${c.metadata?.link ? `LINK: ${c.metadata.link}` : ''}`).join("\n")}${curatedLinks}`
+              ? `LOCAL EXPERT KNOWLEDGE FOUND:\n${expertCards?.map((c: any) => 
+                  `[${c.title}] ${c.content}\n` +
+                  (c.location ? ` - Location: ${c.location}\n` : '') +
+                  (c.instagram_handle ? ` - Instagram: ${c.instagram_handle}\n` : '') +
+                  (c.whatsapp ? ` - WhatsApp: ${c.whatsapp}\n` : '') +
+                  (c.website_url ? ` - Website: ${c.website_url}\n` : '') +
+                  (c.metadata?.link ? ` - Link: ${c.metadata.link}\n` : '')
+                ).join("\n")}${curatedLinks}`
               : "No specific local expert knowledge found for this query. Use your existing training to answer with the best links you can find.";
 
             cleanMessages.push({ role: "assistant", content });
