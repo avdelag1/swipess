@@ -34,7 +34,7 @@ interface ChatSession {
   timestamp: number;
 }
 
-const MAX_MESSAGES = 20;
+const MAX_MESSAGES = 100;
 const MAX_HISTORY = 10;
 const STORAGE_SESSIONS_KEY = (userId: string) => `Swipess_sessions_${userId}`;
 
@@ -248,42 +248,64 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
         className={cn("sm:max-w-[460px] w-[calc(100%-16px)] h-[85vh] max-h-[800px] border p-0 overflow-hidden rounded-[2.8rem] shadow-2xl outline-none [&]:top-[50%] !flex !flex-col !gap-0", isDark ? "bg-[#0e0e11] border-white/10" : "bg-white border-gray-200")}
         hideCloseButton={true}
       >
-        {/* Header */}
-        <div className={cn("relative px-6 py-5 border-b flex items-center justify-between", isDark ? "border-white/10" : "border-gray-200")}>
+        {/* Expert Header — High-End Branding & Vault Switch */}
+        <div className={cn("relative px-6 py-5 border-b flex items-center justify-between z-50", isDark ? "border-white/[0.08] bg-black/40" : "border-gray-100 bg-white/80")}>
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setView(view === 'chat' ? 'history' : 'chat')}
-              className={cn(
-                "w-12 h-12 rounded-2xl flex items-center justify-center relative overflow-hidden group border transition-all",
-                isDark ? "bg-zinc-900 border-white/10" : "bg-white border-gray-100 shadow-sm"
-              )}
+            <motion.button 
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.95 }}
+               onClick={() => setView(view === 'chat' ? 'history' : 'chat')}
+               className={cn(
+                 "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 relative group overflow-hidden border",
+                 view === 'history' 
+                   ? "bg-orange-500 border-orange-400 shadow-xl shadow-orange-500/40" 
+                   : (isDark ? "bg-zinc-900 border-white/10" : "bg-white border-gray-100 shadow-sm")
+               )}
             >
-              <SwipessLogo size="sm" className="relative z-10" />
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-rose-500 opacity-0 group-hover:opacity-20 transition-opacity" />
-            </button>
-
+              <SwipessLogo size="xs" className={cn("transition-transform duration-300", view === 'history' ? "scale-125" : "scale-110")} />
+              <div className={cn("absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity")} />
+              {sessions.length > 0 && view === 'chat' && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 border-2 border-white rounded-full flex items-center justify-center text-[9px] font-black text-white shadow-xl">
+                  {sessions.length}
+                </span>
+              )}
+            </motion.button>
             <div className="flex flex-col">
-              <DialogTitle className={cn("font-black text-lg tracking-tight leading-none mb-1", isDark ? "text-white" : "text-gray-900")}>
+              <DialogTitle className={cn("text-[13px] font-black uppercase tracking-[0.2em] italic-brand italic", isDark ? "text-white" : "text-gray-900")}>
                 {view === 'history' ? 'Conversation Vault' : 'Concierge'}
               </DialogTitle>
-              <DialogDescription className="flex items-center gap-2 p-0">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-rose-400">
-                  {view === 'history' ? `${sessions.length}/10 Archived` : `${interactionCount}/${MAX_MESSAGES} Messages`}
-                </span>
+              <DialogDescription className="text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1 italic flex items-center gap-1.5 leading-none">
+                {view === 'history' ? (
+                  <>History Archive <Flame className="w-2.5 h-2.5 text-orange-500" /></>
+                ) : (
+                  <>Active Connection <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /></>
+                )}
               </DialogDescription>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
              <Button
-                variant="ghost"
+                variant="ghost" 
+                size="sm"
+                onClick={() => setView(view === 'chat' ? 'history' : 'chat')}
+                className={cn(
+                  "hidden sm:flex h-10 px-5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all gap-2 border shadow-sm",
+                  view === 'history' 
+                    ? "bg-white text-black border-white hover:bg-white/90" 
+                    : "bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 text-muted-foreground border-transparent"
+                )}
+             >
+                {view === 'history' ? 'Back to Chat' : 'View Memory'}
+             </Button>
+             <Button
+                variant="ghost" 
                 size="icon"
                 onClick={handleClose}
-                className={cn("h-11 w-11 rounded-full transition-all border shadow-lg active:scale-90", isDark ? "bg-white/5 hover:bg-white/10 border-white/10 text-white/50" : "bg-black/5 hover:bg-black/10 border-gray-200 text-gray-500")}
-              >
-                <X className="h-5 w-5" />
-              </Button>
+                className="w-11 h-11 rounded-xl hover:bg-rose-500/10 text-muted-foreground transition-all duration-300 group"
+             >
+                <X className="w-5.5 h-5.5 group-hover:text-rose-500 transition-colors" />
+             </Button>
           </div>
         </div>
 
@@ -405,29 +427,24 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
 
                 {/* Footer Input Area */}
                 <div className={cn("p-5 border-t relative", isDark ? "border-white/5 bg-black/40" : "border-gray-100 bg-gray-50/50")}>
-                  {isLimitReached ? (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                      className="flex flex-col items-center gap-4 py-2"
-                    >
-                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60">Conversation limit reached</p>
-                      <Button 
-                        onClick={startNewChat}
-                        className="w-full h-14 rounded-2xl bg-gradient-to-r from-orange-500 to-rose-500 text-white font-black text-sm uppercase tracking-widest shadow-xl shadow-orange-500/20"
-                      >
-                         Refresh & Start New Chat
-                      </Button>
+                  {/* Soft limit nudge — No longer blocks communication */}
+                  {isLimitReached && (
+                    <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="absolute -top-12 left-5 right-5 flex justify-center">
+                       <div className="bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg">
+                         Memory Full — Consider Starting New Chat
+                       </div>
                     </motion.div>
-                  ) : (
-                    <div className={cn(
-                      "relative rounded-3xl border transition-all duration-300 group overflow-hidden",
-                      isDark 
-                        ? "bg-zinc-900 border-white/10 focus-within:border-orange-500/50 focus-within:ring-4 focus-within:ring-orange-500/10" 
-                        : "bg-white border-gray-200 focus-within:border-orange-500 shadow-xl"
-                    )}>
-                      <textarea
-                        ref={inputRef}
-                        placeholder="Ask the expert..."
+                  )}
+
+                  <div className={cn(
+                    "relative rounded-[1.8rem] border transition-all duration-300 group overflow-hidden",
+                    isDark 
+                      ? "bg-zinc-900 border-white/10 focus-within:border-orange-500/50 focus-within:ring-4 focus-within:ring-orange-500/10" 
+                      : "bg-white border-gray-200 focus-within:border-orange-500 shadow-xl shadow-black/5"
+                  )}>
+                    <textarea
+                      ref={inputRef}
+                      placeholder="Ask the expert..."
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={handleKeyDown}
@@ -452,12 +469,11 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                         <Send className="h-4 w-4" />
                       </Button>
                     </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
       </DialogContent>
     </Dialog>
   );

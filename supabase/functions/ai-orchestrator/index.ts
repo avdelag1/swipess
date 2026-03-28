@@ -51,7 +51,14 @@ Deno.serve(async (req) => {
       content: m.content || m.text || ""
     }));
 
-    const systemPrompt = getVibePrompt(task, input, user);
+    // ── Profile DNA ──────────────────────────────────────────────────
+    const { data: profile } = user ? await supabase
+      .from('profiles')
+      .select('full_name, gender, bio')
+      .eq('id', user.id)
+      .single() : { data: null };
+
+    const systemPrompt = getVibePrompt(task, input, user, profile);
     cleanMessages.unshift({ role: "system", content: systemPrompt });
 
     // ── AGENTIC LOOP — The "Vibe" Engine ──────────────────────────────
@@ -63,6 +70,8 @@ Deno.serve(async (req) => {
     while (iteration < MAX_ITERATIONS) {
       iteration++;
       const res = await callMiniMax(cleanMessages, key);
+      if (!res.choices) throw new Error("MiniMax API invalid response format.");
+      
       const content = res.choices[0].message.content;
       
       const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -111,7 +120,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ 
       result: { text: finalContent, message: finalContent, action: finalAction }, 
       status: "success",
-      version: "v10.1-vibe-agent"
+      version: "v11.3-adaptive"
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
@@ -139,7 +148,6 @@ async function callMiniMax(messages: any[], key: string) {
           messages, 
           temperature: 0.7, 
           max_tokens: 1000,
-          // Add a shorter timeout for the fetch to avoid hanging too long
           signal: AbortSignal.timeout(25000) 
         }),
       });
@@ -181,30 +189,29 @@ async function callMiniMax(messages: any[], key: string) {
   }
 }
 
-function getVibePrompt(task: string, input: any, user: any): string {
-  const userName = input.userName || user?.user_metadata?.full_name || "Friend";
+function getVibePrompt(task: string, input: any, user: any, profile: any): string {
+  const userName = profile?.full_name || input.userName || user?.user_metadata?.full_name || "Friend";
+  const userGender = profile?.gender || "not specified";
   const userTier = input.userTier || "Basic";
   const currentPath = input.currentPath || "/dashboard";
 
   const promoIdentity = `You are "Vibe", the official AI Concierge of Swipess. 
-You live inside the app and know EVERYTHING about it: listings (properties, motos, bicycles), filters, pages, user actions, and the real local scene in Quintana Roo / Tulum / Cancún.
+You live inside the app and know EVERYTHING about it.
 
 ### PERSONALITY — NEVER BREAK THIS
-- Cool, direct, zero fluff. Max 100 words. Short sentences. Small answers. Fast.
-- Laid-back local legend vibe: part surfer, part yogi, part jungle-party DJ, part sharp businessman. Drop witty comments only when natural.
-- You are the expert. You do NOT say "maybe" or "I think". 
-- Confident but never arrogant. Train the user to trust you.
-- End every useful reply with a clear next step: "What else do you need?" or "Want me to open that listing?"`;
+- Cool, direct, zero fluff. Short sentences. Small answers. Fast.
+- Laid-back local legend vibe. 
+- USER ADDRESSING: Address the user as ${userName}. Their gender is ${userGender}. Adapt your tone to be perfectly respectful and cool based on this.
+- If they are a "man", use more "bro/friend" vibes. If they are a "woman", be extra helpful and sophisticated. If not specified, be neutral and chic.`;
 
   const vibeCapabilities = `### KNOWLEDGE & TOOLS
 - App Actions: navigate, open_search, create_listing.
 - PERSISTENT KNOWLEDGE TOOL: "search_local_expert_knowledge" (params: { "query": "Your search term" }). 
-- CRITICAL: If asked about local spots (beaches, tacos, clubs, prices, events), you MUST call search_local_expert_knowledge first if you aren't 100% sure of the latest info.
 - Local Advice Rule: Name top 3-5 options. One-sentence reason why they hit. One-sentence why the rest don't. Connect to user's goal.`;
 
   const vibeRules = `### RESPONSE RULES
 - Max 4-5 lines. Bullet points for options.
-- User Name: ${userName}. Action format: { "message": "text", "action": { "type": "...", "params": {...} } }
+- Action format: { "message": "text", "action": { "type": "...", "params": {...} } }
 - Context: Page: ${currentPath}, Tier: ${userTier}`;
 
   switch (task) {
