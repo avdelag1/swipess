@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, Gift, Zap, ShieldCheck, Crown } from 'lucide-react';
+import { Sparkles, X, Zap, ShieldCheck, Crown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -121,9 +121,10 @@ export const WelcomeBonusModal = () => {
                 <p className="mt-4 text-[10px] text-white/20 font-medium">Automatic activation — no credit card required.</p>
               </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
     </AnimatePresence>
   );
 };
+export default WelcomeBonusModal;

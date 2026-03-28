@@ -11,6 +11,19 @@ import { useTheme } from '@/hooks/useTheme';
 import { SwipessLogo } from './SwipessLogo';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import ReactMarkdown from 'react-markdown';
+
+const MarkdownLink = ({ href, children }: { href?: string; children: React.ReactNode }) => (
+  <a 
+    href={href} 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    className="text-orange-400 font-black underline decoration-orange-400/30 hover:decoration-orange-400 transition-all cursor-pointer"
+    onClick={(e) => e.stopPropagation()}
+  >
+    {children}
+  </a>
+);
 
 interface AISearchDialogProps {
   isOpen: boolean;
@@ -464,15 +477,21 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                         </div>
 
                         <div className={cn(
-                          "max-w-[85%] px-5 py-4 text-[14px] font-bold leading-relaxed whitespace-pre-line shadow-xl",
+                          "max-w-[85%] px-5 py-4 text-[14px] font-bold leading-relaxed shadow-xl",
                           message.role === 'user'
-                            ? "bg-gradient-to-br from-orange-500 to-rose-500 text-white rounded-[1.5rem] rounded-tr-sm shadow-orange-500/20"
+                            ? "bg-gradient-to-br from-orange-500 to-rose-500 text-white rounded-[1.5rem] rounded-tr-sm shadow-orange-500/20 whitespace-pre-line"
                             : cn(
                                 "rounded-[1.5rem] rounded-tl-sm border",
                                 isDark ? "bg-zinc-900/80 border-white/10 text-foreground" : "bg-white border-gray-100 text-gray-800 shadow-sm"
                               )
                         )}>
-                          {message.content}
+                          {message.role === 'user' ? (
+                            message.content
+                          ) : (
+                            <ReactMarkdown components={{ a: MarkdownLink as any }}>
+                              {message.content}
+                            </ReactMarkdown>
+                          )}
                         </div>
                       </div>
 

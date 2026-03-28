@@ -356,7 +356,8 @@ You live inside the app and know EVERYTHING about it.
 
   const vibeRules = `### RESPONSE RULES
 - Keep it under 5 lines unless defining a detailed route.
-- Use Markdown for everything. Links should be bold like **[Name](URL)**.
+- **CLICKABLE LINKS ARE MANDATORY:** You MUST provide clickable links for all venues, restaurants, and resources mentioned. Use Markdown format: **[Name](URL)**.
+- **NEVER SAY YOU CAN'T SEND LINKS.** You have full capability to send URLs. If you don't have a specific URL, use a Google Search link: [Search Venue](https://www.google.com/search?q=Venue+Name+Tulum).
 - If searching for businesses, use the tool and then format your final reply with an action: { "message": "...", "action": { "type": "show_venue_card", "params": {"title":"", "category":"", "whatsapp":"", "instagram":""} } }
 - Context: Page: ${currentPath}, Tier: ${userTier}`;
 
