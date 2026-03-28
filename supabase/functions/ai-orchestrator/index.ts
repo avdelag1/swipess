@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
             try {
               let { data, error: searchError } = await supabase
                 .from('listings')
-                .select('id, title, description, price_per_month, bedrooms, bathrooms, location, images, listing_type, city')
+                .select('id, title, description, price, pricing_unit, bedrooms, bathrooms, location, images, listing_type, city, category, service_category, vehicle_type')
                 .eq('city', targetCity)
                 .textSearch('title', query)
                 .limit(5);
@@ -157,7 +157,7 @@ Deno.serve(async (req) => {
                  const keyword = query.split(' ')[0] || query;
                  const fallback = await supabase
                     .from('listings')
-                    .select('id, title, description, price_per_month, bedrooms, bathrooms, location, images, listing_type, city')
+                    .select('id, title, description, price, pricing_unit, bedrooms, bathrooms, location, images, listing_type, city, category, service_category, vehicle_type')
                     .eq('city', targetCity)
                     .ilike('title', `%${keyword}%`)
                     .limit(5);
@@ -166,25 +166,27 @@ Deno.serve(async (req) => {
                  propertyCards = data || [];
               }
               
-              if (searchError) console.warn("[Vibe Agent] Database property search failed:", searchError);
+              if (searchError) console.warn("[Vibe Agent] Database listing search failed:", searchError);
             } catch (dbErr) {
-              console.warn("[Vibe Agent] Property query error:", dbErr);
+              console.warn("[Vibe Agent] Listing query error:", dbErr);
             }
 
             const contextResult = propertyCards.length 
-              ? `INTERNAL REAL ESTATE FOUND:\n${propertyCards.map((p: any) => 
-                  `[${p.title}] - ${p.listing_type}\n` +
+              ? `INTERNAL SWIPESS LISTINGS FOUND:\n${propertyCards.map((p: any) => 
+                  `[${p.title}] - Type: ${p.listing_type} ${p.category ? `(${p.category})` : ''}\n` +
                   (p.city ? ` - City: ${p.city}\n` : '') +
                   (p.location ? ` - Zone: ${p.location}\n` : '') +
-                  (p.price_per_month ? ` - Price: $${p.price_per_month}/mo\n` : '') +
-                  ((p.bedrooms || p.bathrooms) ? ` - Layout: ${p.bedrooms || 0} Beds, ${p.bathrooms || 0} Baths\n` : '') +
-                  (p.description ? ` - Description: ${p.description.substring(0, 100)}...\n` : '') +
+                  (p.price ? ` - Price: $${p.price}${p.pricing_unit ? `/${p.pricing_unit}` : ''}\n` : '') +
+                  ((p.listing_type === 'property' && (p.bedrooms || p.bathrooms)) ? ` - Layout: ${p.bedrooms || 0} Beds, ${p.bathrooms || 0} Baths\n` : '') +
+                  ((p.listing_type === 'service' && p.service_category) ? ` - Service: ${p.service_category}\n` : '') +
+                  ((['vehicle', 'motorcycle', 'bicycle'].includes(p.listing_type) && p.vehicle_type) ? ` - Vehicle Type: ${p.vehicle_type}\n` : '') +
+                  (p.description ? ` - Description: ${p.description.substring(0, 150)}...\n` : '') +
                   ` - ID: ${p.id}\n`
                 ).join("\n")}`
-              : "No specific local Swipess properties found matching exactly. Mention to the user that we can notify them when something matches or run a broader search.";
+              : "No specific local Swipess listings found matching exactly. Mention to the user that we can notify them when something matches or run a broader search.";
 
             cleanMessages.push({ role: "assistant", content });
-            cleanMessages.push({ role: "user", content: `TOOL RESULT: ${contextResult}. Give the user your final recommendation for these properties. IMPORTANT: You MUST conclude with the JSON action {"action": {"type":"show_listing_card", "params": { "id":"<id_of_best_property>", "title":"<property_title>", "price":"<property_price>", "location":"<property_location>" }}} so the app can visualize the property directly in the chat.` });
+            cleanMessages.push({ role: "user", content: `TOOL RESULT: ${contextResult}. Give the user your final recommendation for these listings. IMPORTANT: You MUST conclude with the JSON action {"action": {"type":"show_listing_card", "params": { "id":"<id_of_best_match>", "title":"<title>", "price":"<price_with_unit>", "location":"<location>" }}} so the app can visualize the property/service/vehicle directly in the chat.` });
             continue; // Go back to AI for final answer
           }
 
@@ -339,14 +341,14 @@ You live inside the app and know EVERYTHING about it.
    const vibeCapabilities = `### KNOWLEDGE & TOOLS
 - App Actions: navigate, open_search, create_listing.
 - PERSISTENT KNOWLEDGE TOOL: "search_local_expert_knowledge" (params: { "query": "Your search term" }). Use this whenever you are asked about Tulum businesses, beach clubs, or restaurants.
-- SWIPESS PROPERTY SEARCH: "search_internal_listings" (params: { "query": "villa, apartment, 2 bedrooms...", "city": "Tulum" }). Use this whenever the user asks for apartments, properties, or rentals!
+- SWIPESS INTERNAL SEARCH: "search_internal_listings" (params: { "query": "chef, cleaner, scooter, apartment...", "city": "Tulum" }). Use this whenever the user asks for properties, jobs, workers, freelance services, motorcycles, bicycles, cars, etc. It searches EVERYTHING!
 - WEB SEARCH: "web_search_resource" (params: { "query": "Your search for tacos, instagram, etc" }).
 - **PRICING & EXPERTIZE EXPERT:** Get the best prices, spots, and exact numbers. Find the minimum spend (min_spend). Give precise numbers.
 - Provide the top 3-4 options for best prices and value.`;
 
   const vibeRules = `### RESPONSE RULES
 - Max 4-5 lines. Fast and punchy.
-- AI Card Rendering formatting: ALWAYS structure your final reply with an action: { "message": "text", "action": { "type": "show_venue_card", "params": {"title":"", "category":"", "whatsapp":""} } } or "show_listing_card" for properties!
+- AI Card Rendering formatting: ALWAYS structure your final reply with an action: { "message": "text", "action": { "type": "show_venue_card", "params": {"title":"", "category":"", "whatsapp":""} } } or "show_listing_card" for internal listings (properties, motos, jobs)!
 - Context: Page: ${currentPath}, Tier: ${userTier}`;
 
   switch (task) {
