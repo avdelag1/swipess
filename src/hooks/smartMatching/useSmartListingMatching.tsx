@@ -81,9 +81,11 @@ export function useSmartListingMatching(
                 // 3. Apply excluded IDs (Standard Array Filter - Prevents 400 Errors)
                 if (swipedListingIds.size > 0) {
                     const idList = Array.from(swipedListingIds)
-                        .filter(id => id && typeof id === 'string' && id.length > 20);
+                        .filter(id => id && typeof id === 'string' && id.length > 30) // UUID check
+                        .map(id => id.trim());
                     if (idList.length > 0) {
-                        query = query.not('id', 'in', idList);
+                        // Use explicit filter with manual parentheses to ensure PostgREST compliance
+                        query = query.filter('id', 'not.in', `(${idList.join(',')})`);
                     }
                 }
 
@@ -110,18 +112,29 @@ export function useSmartListingMatching(
                 const { data: listings, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
                 if (error) {
                     logger.error('[SmartMatching] DB Query Error:', error);
-                    throw error;
+                    // Return empty instead of throwing to prevent crashing the entire App/Dashboard
+                    return [];
                 }
 
                 // 5. Discovery Injection (Array Filter Fallback)
-                const discoveryExcludedIds = Array.from(swipedListingIds).filter(id => id && id.length > 20);
+                const discoveryExcludedIds = Array.from(swipedListingIds)
+                    .filter(id => id && id.length > 30)
+                    .map(id => id.trim());
                 
-                const { data: discovery } = await supabase.from('listings').select(SWIPE_CARD_FIELDS)
+                const discoveryList = discoveryExcludedIds.length > 0 
+                  ? `(${discoveryExcludedIds.join(',')})` 
+                  : `(00000000-0000-0000-0000-000000000000)`;
+
+                                const { data: discovery, error: discError } = await supabase.from('listings').select(SWIPE_CARD_FIELDS)
                     .eq('is_active', true)
                     .or(`owner_id.neq.${userId},owner_id.is.null`)
-                    .not('id', 'in', discoveryExcludedIds.length > 0 ? discoveryExcludedIds : ['00000000-0000-0000-0000-000000000000'])
+                    .filter('id', 'not.in', discoveryList)
                     .order('created_at', { ascending: false })
                     .limit(2);
+
+                if (discError) {
+                    logger.error('[SmartMatching] Discovery fetch failed:', discError);
+                }
 
                 const finalResults = [...(listings || [])];
                 discovery?.forEach(d => {
