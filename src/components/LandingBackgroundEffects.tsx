@@ -26,6 +26,8 @@ interface Star {
 interface ShootingStar {
   x: number; y: number; vx: number; vy: number;
   age: number; maxAge: number; length: number;
+  width: number;
+  type: 'tiny' | 'medium' | 'typical';
 }
 
 // ─── Sunset types ────────────────────────────────────────────────────────────
@@ -138,16 +140,49 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
     let time = 0;
 
-    const spawnShootingStar = (x: number, y: number) => {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = Math.random() * 10 + 8;
+    const spawnShootingStar = (x?: number, y?: number) => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      
+      // If no position provided, spawn from a random edge but move TOWARDS center
+      const startX = x !== undefined ? x : (Math.random() > 0.5 ? (Math.random() > 0.5 ? -50 : w + 50) : Math.random() * w);
+      const startY = y !== undefined ? y : (startX < 0 || startX > w ? Math.random() * h * 0.5 : -50);
+
+      // Target the center area for longer visual enjoyment
+      const targetX = w / 2 + (Math.random() - 0.5) * (w * 0.4);
+      const targetY = h / 2 + (Math.random() - 0.5) * (h * 0.4);
+      
+      const angle = Math.atan2(targetY - startY, targetX - startX);
+      const sizeType = Math.random() < 0.4 ? 'tiny' : (Math.random() < 0.7 ? 'medium' : 'typical');
+      
+      let speed, length, width, maxAge;
+      
+      if (sizeType === 'tiny') {
+        speed = 4 + Math.random() * 3;
+        length = 20 + Math.random() * 20;
+        width = 1;
+        maxAge = 1.2 + Math.random() * 0.5;
+      } else if (sizeType === 'medium') {
+        speed = 7 + Math.random() * 4;
+        length = 50 + Math.random() * 30;
+        width = 1.8;
+        maxAge = 1.0 + Math.random() * 0.4;
+      } else {
+        speed = 10 + Math.random() * 6;
+        length = 100 + Math.random() * 60;
+        width = 3.0;
+        maxAge = 0.8 + Math.random() * 0.3;
+      }
+
       shootingStarsRef.current.push({
-        x, y,
+        x: startX, y: startY,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         age: 0,
-        maxAge: Math.random() * 0.8 + 0.6,
-        length: Math.random() * 50 + 60,
+        maxAge,
+        length,
+        width,
+        type: sizeType
       });
     };
 
@@ -281,7 +316,8 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         grad.addColorStop(0, 'rgba(255,255,255,0)');
         grad.addColorStop(1, `rgba(255,255,255,${fadeAlpha})`);
         ctx.strokeStyle = grad;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = ss.width;
+        ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(tx, ty);
         ctx.lineTo(ss.x, ss.y);
@@ -386,16 +422,17 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     const TARGET_FPS = 30;
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
+    let lastAutoStarTime = 0;
     const loop = (timestamp: number) => {
-      // Skip frame if tab is hidden
       if (document.visibilityState === 'hidden') {
         animRef.current = requestAnimationFrame(loop);
         return;
       }
       
-      // Random Automated Shooting Stars (1% chance every few seconds if in stars mode)
-      if (mode === 'stars' && Math.random() < 0.002) {
-        spawnShootingStar(Math.random() * w, Math.random() * h * 0.5);
+      // Automatic Shooting Stars Every 7 Seconds (Visual Only)
+      if (mode === 'stars' && timestamp - lastAutoStarTime > 7000) {
+        spawnShootingStar();
+        lastAutoStarTime = timestamp;
       }
 
       // Throttle to ~30fps

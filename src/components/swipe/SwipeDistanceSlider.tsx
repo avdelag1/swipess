@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { MapPin, Navigation } from 'lucide-react';
 import { motion, useSpring, useMotionValue, useTransform } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface SwipeDistanceSliderProps {
   radiusKm: number;
@@ -20,7 +21,7 @@ export const SwipeDistanceSlider = ({
   const maxKm = 100;
 
   const displayPct = useMotionValue((radiusKm / maxKm) * 100);
-  const springPct = useSpring(displayPct, { stiffness: 450, damping: 40 });
+  const springPct = useSpring(displayPct, { stiffness: 500, damping: 30, mass: 0.5 });
   const localKmVal = useMotionValue(radiusKm);
 
   useEffect(() => {
@@ -42,21 +43,21 @@ export const SwipeDistanceSlider = ({
   const displayKmText = useTransform(localKmVal, (v) => `${Math.round(v)} km`);
 
   return (
-    <div className="w-full max-w-xs mx-auto mt-2 px-4 py-3 bg-black/20 backdrop-blur-xl rounded-3xl border border-white/5 shadow-2xl">
+    <div className="w-full max-w-xs mx-auto mt-2 px-4 py-3 bg-black/40 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-primary/20 border border-primary/20">
+          <div className="p-1.5 rounded-lg bg-primary/20 border border-primary/20 shadow-[0_0_15px_rgba(236,72,153,0.2)]">
             <MapPin className="w-4 h-4 text-primary" />
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.25em] leading-none mb-1">Radar Radius</span>
-            <span className="text-xs font-bold text-white/80 leading-none">Scanning Range</span>
+            <span className="text-xs font-bold text-white/90 leading-none">Scanning Range</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <motion.div 
-            className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10"
-            style={{ scale: 1.05 }}
+            className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10 shadow-inner"
+            whileHover={{ scale: 1.05 }}
           >
             <motion.span className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500 min-w-[5ch] text-right">
               {displayKmText}
@@ -67,8 +68,8 @@ export const SwipeDistanceSlider = ({
               onClick={onDetectLocation}
               disabled={detecting}
               className={cn(
-                "flex items-center gap-1.5 h-8 px-3 rounded-xl text-[10px] font-black uppercase tracking-tight border transition-all active:scale-90",
-                detected ? "bg-primary border-primary text-white shadow-lg shadow-primary/30" : "bg-white/5 border-white/10 text-white/60"
+                "flex items-center gap-1.5 h-8 px-3 rounded-xl text-[10px] font-black uppercase tracking-tight border transition-all active:scale-95",
+                detected ? "bg-primary border-primary text-white shadow-[0_0_20px_rgba(236,72,153,0.4)]" : "bg-white/5 border-white/10 text-white/60 hover:border-white/20"
               )}
             >
               <Navigation className={cn("w-3 h-3", detecting && "animate-spin")} />
@@ -79,13 +80,18 @@ export const SwipeDistanceSlider = ({
       </div>
 
       <div className="relative h-10 flex items-center group">
-        <div className="absolute w-full h-2 rounded-full bg-white/5 border border-white/5 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10 animate-pulse" />
+        {/* Track - Pure Glass Morphic */}
+        <div className="absolute w-full h-2 rounded-full bg-white/10 border border-white/5 overflow-hidden shadow-inner">
+          {/* Subtle shine on the track, NOT pulse */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0" />
         </div>
+        
+        {/* Fill - Left to Thumb */}
         <motion.div
-          className="absolute h-2 rounded-full bg-gradient-to-r from-[#ec4899] to-[#f97316] shadow-[0_0_25px_rgba(236,72,153,0.5)]"
+          className="absolute h-2 rounded-full bg-gradient-to-r from-[#ec4899] to-[#f97316] shadow-[0_0_20px_rgba(236,72,153,0.6)] z-10"
           style={{ width: springPctVal }}
         />
+        
         <input
           type="range"
           min={1}
@@ -93,21 +99,24 @@ export const SwipeDistanceSlider = ({
           step={1}
           aria-label="Distance Radius"
           title="Adjust search radius"
-          defaultValue={radiusKm}
+          value={radiusKm}
           onChange={(e) => handleInputChange(Number(e.target.value))}
           className="absolute w-full opacity-0 h-10 cursor-pointer z-30"
           style={{ touchAction: 'none' }}
         />
+        
+        {/* Thumb - The "Little Bowl" circle */}
         <motion.div
-          className="absolute w-8 h-8 rounded-2xl border-[3px] border-white shadow-[0_10px_30px_rgba(0,0,0,0.5)] pointer-events-none bg-gradient-to-br from-[#ec4899] to-[#f97316] z-10 flex items-center justify-center overflow-hidden"
+          className="absolute w-8 h-8 rounded-full border-[3px] border-white shadow-[0_10px_30px_rgba(0,0,0,0.6)] pointer-events-none bg-gradient-to-br from-[#ec4899] to-[#f97316] z-20 flex items-center justify-center overflow-hidden"
           style={{ 
             x: thumbX,
             left: 'calc(0% - 16px)'
           }}
-          whileTap={{ scale: 0.9 }}
+          whileTap={{ scale: 0.92, rotate: 5 }}
         >
-          <div className="absolute inset-0 bg-white/20 animate-pulse" />
-          <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_white]" />
+          {/* Internal reflection for bowl effect */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent" />
+          <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
         </motion.div>
       </div>
 
@@ -119,6 +128,3 @@ export const SwipeDistanceSlider = ({
   );
 };
 
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(' ');
-}
