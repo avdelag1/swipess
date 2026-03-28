@@ -22,19 +22,16 @@ function SwipessLogoComponent({
   };
 
   return (
-    <div className={cn('relative inline-flex items-center justify-center overflow-hidden', className)}>
-      <picture>
-        <source srcSet="/icons/swipess-logo.webp" type="image/webp" />
-        <img
-          src="/icons/swipess-logo.webp"
-          alt="Swipess"
-          draggable={false}
-          className={cn(
-            'w-auto object-contain select-none pointer-events-none transition-all duration-300',
-            heightMap[size]
-          )}
-        />
-      </picture>
+    <div className={cn('relative inline-flex items-center justify-center', className)}>
+      <img
+        src="/icons/icon.svg"
+        alt="Swipess"
+        draggable={false}
+        className={cn(
+          'w-auto object-contain select-none pointer-events-none transition-all duration-300',
+          heightMap[size]
+        )}
+      />
     </div>
   );
 }

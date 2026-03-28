@@ -41,8 +41,8 @@
     </filter>
   </defs>
 
-  <!-- Background with rounded corners -->
-  <rect width="1024" height="1024" rx="226" fill="url(#bgGradient)"/>
+  <!-- Background with rounded corners REMOVED for transparency -->
+  <!-- <rect width="1024" height="1024" rx="226" fill="url(#bgGradient)"/> -->
 
   <!-- S letter composed of two curves -->
   <g filter="url(#shadow)">
