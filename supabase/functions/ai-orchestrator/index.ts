@@ -15,6 +15,14 @@ const MINIMAX_ENDPOINTS = [
 const MODEL = "MiniMax-M2.7";
 const FALLBACK_MODEL = "MiniMax-M2.5";
 
+// AI Tier → max_tokens mapping (mirrors frontend config/aiTiers.ts)
+const TIER_MAX_TOKENS: Record<string, number> = {
+  free: 400,
+  basic: 500,
+  premium: 800,
+  unlimited: 1500,
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -61,6 +69,10 @@ Deno.serve(async (req) => {
     const systemPrompt = getVibePrompt(task, input, user, profile);
     cleanMessages.unshift({ role: "system", content: systemPrompt });
 
+    // ── Resolve tier ──────────────────────────────────────────────────
+    const userTier = (input.userTier || 'free').toLowerCase();
+    const maxTokens = TIER_MAX_TOKENS[userTier] || TIER_MAX_TOKENS.free;
+
     // ── AGENTIC LOOP — The "Vibe" Engine ──────────────────────────────
     let finalContent = "";
     let finalAction = null;
@@ -69,7 +81,7 @@ Deno.serve(async (req) => {
 
     while (iteration < MAX_ITERATIONS) {
       iteration++;
-      const res = await callMiniMax(cleanMessages, key);
+      const res = await callMiniMax(cleanMessages, key, maxTokens);
       if (!res.choices) throw new Error("MiniMax API invalid response format.");
       
       const content = res.choices[0].message.content;
@@ -113,10 +125,11 @@ Deno.serve(async (req) => {
               ? `LOCAL EXPERT KNOWLEDGE FOUND:\n${expertCards.map((c: any) => 
                   `[${c.title}] ${c.content}\n` +
                   (c.location ? ` - Location: ${c.location}\n` : '') +
+                  (c.metadata?.min_spend ? ` - Estimated Price / Minimum Spend: ${c.metadata.min_spend}\n` : '') +
+                  (c.metadata?.free_access ? ` - Free Access / No Cover: Supported\n` : '') +
                   (c.instagram_handle ? ` - Instagram: ${c.instagram_handle}\n` : '') +
                   (c.whatsapp ? ` - WhatsApp: ${c.whatsapp}\n` : '') +
-                  (c.website_url ? ` - Website: ${c.website_url}\n` : '') +
-                  (c.metadata?.link ? ` - Link: ${c.metadata.link}\n` : '')
+                  (c.website_url ? ` - Website: ${c.website_url}\n` : '')
                 ).join("\n")}${curatedLinks}`
               : "No specific local expert knowledge found for this query. Use your existing training to answer with the best links you can find.";
 
@@ -138,10 +151,58 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── Log usage to ai_usage (server-side, authoritative) ──────────
+    if (user) {
+      const taskType = task === 'listing' ? 'listing' : 'chat';
+      try {
+        const serviceClient = createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+        );
+        
+        const now = new Date();
+        const today = now.toISOString().split('T')[0]; // YYYY-MM-DD
+        
+        const { data: existing } = await serviceClient
+          .from('ai_usage')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('task_type', taskType)
+          .maybeSingle();
+          
+        if (existing) {
+          const lastDate = existing.last_request_at?.split('T')?.[0];
+          const shouldReset = taskType === 'chat'
+            ? lastDate !== today // daily reset for chat
+            : lastDate?.slice(0,7) !== today.slice(0,7); // monthly reset for listings
+          
+          await serviceClient
+            .from('ai_usage')
+            .update({
+              request_count: shouldReset ? 1 : (existing.request_count || 0) + 1,
+              last_request_at: now.toISOString(),
+            })
+            .eq('id', existing.id);
+        } else {
+          await serviceClient
+            .from('ai_usage')
+            .insert({
+              user_id: user.id,
+              task_type: taskType,
+              request_count: 1,
+              last_request_at: now.toISOString(),
+            });
+        }
+      } catch (usageErr) {
+        console.warn('[Vibe] Usage logging failed (non-fatal):', usageErr);
+      }
+    }
+
     return new Response(JSON.stringify({ 
       result: { text: finalContent, message: finalContent, action: finalAction }, 
       status: "success",
-      version: "v11.3-adaptive"
+      version: "v11.3-adaptive",
+      tier: userTier,
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
@@ -153,7 +214,7 @@ Deno.serve(async (req) => {
   }
 });
 
-async function callMiniMax(messages: any[], key: string) {
+async function callMiniMax(messages: any[], key: string, maxTokens: number = 1000) {
   const url = MINIMAX_ENDPOINTS[0];
   let lastError = null;
 
@@ -168,7 +229,7 @@ async function callMiniMax(messages: any[], key: string) {
           model: MODEL, 
           messages, 
           temperature: 0.7, 
-          max_tokens: 1000,
+          max_tokens: maxTokens,
           signal: AbortSignal.timeout(25000) 
         }),
       });
@@ -194,7 +255,7 @@ async function callMiniMax(messages: any[], key: string) {
         model: FALLBACK_MODEL, 
         messages, 
         temperature: 0.7, 
-        max_tokens: 1000,
+        max_tokens: maxTokens,
         signal: AbortSignal.timeout(30000) 
       }),
     });
@@ -227,10 +288,11 @@ You live inside the app and know EVERYTHING about it.
 
   const vibeCapabilities = `### KNOWLEDGE & TOOLS
 - App Actions: navigate, open_search, create_listing.
-- PERSISTENT KNOWLEDGE TOOL: "search_local_expert_knowledge" (params: { "query": "Your search term" }).
-- WEB SEARCH: "web_search_resource" (params: { "query": "Your search for tacos, instagram, etc" }). 
-- Local Advice Rule: Name top 3-5 options. Always include direct links (Markdown format [Title](URL)) if you know them.
-- If you don't know a link, encourage searching the web for a specific term.`;
+- PERSISTENT KNOWLEDGE TOOL: "search_local_expert_knowledge" (params: { "query": "Your search term" }). Use this whenever you are asked about Tulum businesses.
+- WEB SEARCH: "web_search_resource" (params: { "query": "Your search for tacos, instagram, etc" }).
+- **PRICING & EXPERTIZE EXPERT:** The user is looking for the best prices, spots, and exact numbers. Find the minimum spend (min_spend) or mention if access is free. Give precise numbers when possible.
+- **LINKS EXPERT**: ALWAYS use explicit Markdown links for websites: [Papaya Playa Project](https://papayaplayaproject.com). NEVER output raw URLs. You MUST link to the best business.
+- Provide the top 3-4 options for best prices and value.`;
 
   const vibeRules = `### RESPONSE RULES
 - Max 4-5 lines. Bullet points for options.

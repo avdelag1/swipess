@@ -19,6 +19,9 @@ import {
   Archive
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
+import { useAIUsage } from '@/hooks/useAIUsage';
+import { formatQuota } from '@/config/aiTiers';
+import ReactMarkdown from 'react-markdown';
 import { SwipessLogo } from './SwipessLogo';
 import { useTheme } from '@/hooks/useTheme';
 import { useUserSubscription } from '@/hooks/useSubscription';
@@ -56,6 +59,13 @@ export function ConciergeChat({
     deletePermanently,
     isConfigured 
   } = useConciergeAI();
+
+  const {
+    messagesUsedToday,
+    isAtMessageLimit,
+    limits,
+    tierName,
+  } = useAIUsage();
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -135,13 +145,25 @@ export function ConciergeChat({
                 {userRole === 'owner' || (subscription?.subscription_packages?.tier === 'premium' || subscription?.subscription_packages?.tier === 'unlimited') && (
                   <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-bold uppercase tracking-wider border border-amber-500/20">
                     <Sparkles className="w-2.5 h-2.5" />
-                    Premium
+                    {tierName}
                   </span>
                 )}
               </div>
-              <p className={cn("text-xs", isDark ? "text-zinc-400" : "text-gray-500")}>
-                Personal Assistant for {initialCity}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className={cn("text-xs", isDark ? "text-zinc-400" : "text-gray-500")}>
+                  Personal Assistant for {initialCity}
+                </p>
+                {limits.dailyMessages !== Infinity && (
+                  <span className={cn(
+                    "text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                    isAtMessageLimit 
+                      ? isDark ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-red-50 text-red-600 border-red-200"
+                      : isDark ? "bg-white/5 text-zinc-400 border-white/10" : "bg-gray-50 text-gray-500 border-gray-200"
+                  )}>
+                    {formatQuota(messagesUsedToday, limits.dailyMessages)}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -149,7 +171,7 @@ export function ConciergeChat({
               variant="ghost"
               size="icon"
               onClick={() => {
-                haptics.notification('warning');
+                haptics.warning();
                 clearMessages();
               }}
               title="Archive Conversation"
@@ -161,7 +183,7 @@ export function ConciergeChat({
               variant="ghost"
               size="icon"
               onClick={() => {
-                haptics.notification('error');
+                haptics.error();
                 if (window.confirm('Permanently delete this conversation?')) {
                   deletePermanently();
                 }
@@ -267,7 +289,31 @@ export function ConciergeChat({
                         ? "bg-zinc-800 text-zinc-100"
                         : "bg-gray-100 text-gray-900"
                   )}>
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    {message.role === 'user' ? (
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    ) : (
+                      <div className={cn(
+                        "text-sm max-w-none break-words leading-relaxed space-y-2",
+                        isDark ? "text-zinc-100" : "text-gray-900"
+                      )}>
+                        <ReactMarkdown
+                          components={{
+                            a: ({ node, ...props }) => (
+                              <a target="_blank" rel="noopener noreferrer" className={cn(
+                                "underline font-bold underline-offset-4 transition-colors",
+                                isDark ? "text-cyan-400 hover:text-cyan-300 decoration-cyan-400/30" : "text-cyan-600 hover:text-cyan-500 decoration-cyan-600/30"
+                              )} {...props} />
+                            ),
+                            p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                            ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-2 space-y-1" {...props} />,
+                            ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-2 space-y-1" {...props} />,
+                            li: ({ node, ...props }) => <li className="pl-1" {...props} />
+                          }}
+                        >
+                          {message.content}
+                        </ReactMarkdown>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -315,6 +361,36 @@ export function ConciergeChat({
           "px-4 pb-4 pt-2 border-t shrink-0",
           isDark ? "border-zinc-700/50" : "border-gray-100"
         )}>
+          {isAtMessageLimit ? (
+            /* ── Upgrade Banner ── */
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={cn(
+                "p-4 rounded-2xl text-center space-y-3",
+                isDark ? "bg-amber-500/10 border border-amber-500/20" : "bg-amber-50 border border-amber-200"
+              )}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                <span className={cn("text-sm font-bold", isDark ? "text-amber-300" : "text-amber-700")}>
+                  Daily AI limit reached
+                </span>
+              </div>
+              <p className={cn("text-xs", isDark ? "text-amber-400/70" : "text-amber-600")}>
+                Upgrade your plan for more AI messages & features.
+              </p>
+              <Button
+                onClick={() => {
+                  onOpenChange(false);
+                  window.location.href = '/subscription-packages';
+                }}
+                className="w-full h-10 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-xs uppercase tracking-widest hover:from-amber-600 hover:to-orange-600"
+              >
+                View Plans
+              </Button>
+            </motion.div>
+          ) : (
           <div className="flex gap-2">
             <Textarea
               value={input}
@@ -347,6 +423,7 @@ export function ConciergeChat({
               )}
             </Button>
           </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

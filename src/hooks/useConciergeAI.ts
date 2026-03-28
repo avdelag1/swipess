@@ -217,6 +217,7 @@ export function useConciergeAI() {
     error,
     sendMessage,
     clearMessages,
+    deletePermanently,
     isConfigured: true, 
   };
 }

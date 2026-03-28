@@ -14,10 +14,11 @@ import { PaymentErrorBoundary } from "@/components/PaymentErrorBoundary";
 const clientPremiumPlans = [
   {
     id: 'client-unlimited-1-month',
-    name: '1 Month',
+    name: 'Monthly',
     label: 'STARTER',
     price: 39,
     durationText: '/month',
+    aiTier: 'AI Lite',
     benefits: [
       'Communicate with listings and members',
       'Post properties for rent or sale',
@@ -25,17 +26,21 @@ const clientPremiumPlans = [
       'Post motorcycles or bicycles for rent or sale',
       'Save favorite listings',
       'Discover opportunities',
-      'Swipess Concierge to create listings & discover the city'
+    ],
+    aiFeatures: [
+      '🤖 AI Concierge — 15 messages/day',
+      '📝 AI Listing Creator — 3 listings/month',
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
     accent: 'blue' as const,
   },
   {
     id: 'client-unlimited-6-months',
-    name: '6 Months',
+    name: 'Semi-Annual',
     label: 'POPULAR',
     price: 119,
     durationText: '/6 months',
+    aiTier: 'AI Pro',
     benefits: [
       'Communicate with listings and members',
       'Post properties for rent or sale',
@@ -43,17 +48,23 @@ const clientPremiumPlans = [
       'Post motorcycles or bicycles for rent or sale',
       'Save favorite listings',
       'Discover opportunities',
-      'Swipess Concierge to create listings & discover the city'
+    ],
+    aiFeatures: [
+      '🧠 AI Concierge — 50 messages/day',
+      '📝 AI Listing Creator — 10 listings/month',
+      '🗺️ Local Expert Knowledge & Recommendations',
+      '💡 AI Smart Suggestions',
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
     accent: 'pink' as const,
   },
   {
     id: 'client-unlimited-1-year',
-    name: '1 Year',
+    name: 'Yearly',
     label: 'BEST VALUE',
     price: 299,
     durationText: '/year',
+    aiTier: 'AI Unlimited',
     benefits: [
       'Communicate with listings and members',
       'Post properties for rent or sale',
@@ -61,7 +72,13 @@ const clientPremiumPlans = [
       'Post motorcycles or bicycles for rent or sale',
       'Save favorite listings',
       'Discover opportunities',
-      'Swipess Concierge to create listings & discover the city'
+    ],
+    aiFeatures: [
+      '🔥 AI Concierge — Unlimited messages',
+      '📝 AI Listing Creator — Unlimited',
+      '🗺️ Local Expert Knowledge & Recommendations',
+      '💡 AI Personalized Smart Suggestions',
+      '⚡ Priority AI Responses',
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
     highlight: true,
@@ -208,6 +225,17 @@ export default function SubscriptionPackagesPage() {
 
                   {/* Plan name */}
                   <h3 className="text-xl font-black text-white mb-1 uppercase tracking-tight">{plan.name}</h3>
+                  {'aiTier' in plan && (
+                    <span className={cn(
+                      "inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg mb-2",
+                      plan.accent === 'gold' ? "bg-amber-500/15 text-amber-400" :
+                      plan.accent === 'pink' ? "bg-pink-500/15 text-pink-400" :
+                      "bg-blue-500/15 text-blue-400"
+                    )}>
+                      <Sparkles className="w-2.5 h-2.5" />
+                      {(plan as any).aiTier}
+                    </span>
+                  )}
 
                   {/* Price */}
                   <div className="flex items-baseline gap-1 mb-6">
@@ -222,7 +250,7 @@ export default function SubscriptionPackagesPage() {
                   <div className="h-px bg-white/10 mb-6" />
 
                   {/* Benefits */}
-                  <div className="flex-1 space-y-3 mb-8">
+                  <div className="flex-1 space-y-3 mb-4">
                     {plan.benefits.map((benefit, i) => (
                       <div key={i} className="flex items-start gap-3">
                         <Check className={cn("w-4 h-4 flex-shrink-0 mt-0.5", style.checkColor)} />
@@ -230,6 +258,26 @@ export default function SubscriptionPackagesPage() {
                       </div>
                     ))}
                   </div>
+
+                  {/* AI Features — highlighted section */}
+                  {'aiFeatures' in plan && (plan as any).aiFeatures.length > 0 && (
+                    <div className={cn(
+                      "p-3 rounded-2xl mb-6 space-y-2.5 border",
+                      plan.accent === 'gold' ? "bg-amber-500/5 border-amber-500/15" :
+                      plan.accent === 'pink' ? "bg-pink-500/5 border-pink-500/15" :
+                      "bg-blue-500/5 border-blue-500/15"
+                    )}>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <Sparkles className={cn("w-3 h-3", style.checkColor)} />
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/50">AI Benefits</span>
+                      </div>
+                      {(plan as any).aiFeatures.map((feature: string, i: number) => (
+                        <div key={i} className="flex items-start gap-2.5">
+                          <span className="text-[11px] font-bold text-white/90 leading-relaxed">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {/* CTA */}
                   <Button

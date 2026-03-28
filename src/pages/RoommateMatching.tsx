@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Users, SlidersHorizontal,
@@ -11,6 +11,7 @@ import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { useAuth } from '@/hooks/useAuth';
@@ -39,96 +40,6 @@ interface RoommateCandidate {
   preferred_activities: string[];
   compatibility?: number;
 }
-
-// ── MOCK DATA ─────────────────────────────────────────────────────────────────
-
-const MOCK_CANDIDATES: RoommateCandidate[] = [
-  {
-    user_id: 'mock-1',
-    name: 'Sarah J.',
-    age: 26,
-    city: 'Tulum Centro',
-    country: 'Canada',
-    bio: 'Digital nomad looking for a chill spot near the beach. I work in tech and love morning yoga.',
-    profile_images: ['https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600'],
-    interests: ['Yoga', 'Tech', 'Hiking'],
-    languages: ['English', 'Spanish'],
-    work_schedule: 'Full-time Remote',
-    cleanliness_level: 'Very Clean',
-    noise_tolerance: 'Low',
-    personality_traits: ['Introvert', 'Early bird'],
-    preferred_activities: ['Cooking', 'Reading'],
-    compatibility: 95
-  },
-  {
-    user_id: 'mock-2',
-    name: 'Marcus L.',
-    age: 29,
-    city: 'La Veleta',
-    country: 'USA',
-    bio: 'Professional chef relocated to Tulum. Looking for a social house with good vibes.',
-    profile_images: ['https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=600'],
-    interests: ['Cooking', 'Music', 'Surfing'],
-    languages: ['English'],
-    work_schedule: 'Evening shifts',
-    cleanliness_level: 'Moderate',
-    noise_tolerance: 'High',
-    personality_traits: ['Extrovert', 'Night owl'],
-    preferred_activities: ['Parties', 'Beach clubs'],
-    compatibility: 82
-  },
-  {
-    user_id: 'mock-3',
-    name: 'Elena R.',
-    age: 24,
-    city: 'Aldea Zama',
-    country: 'Germany',
-    bio: 'Artist and weaver. I spend most of my time in my studio. Quiet and respectful.',
-    profile_images: ['https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=600'],
-    interests: ['Art', 'Design', 'Sustainability'],
-    languages: ['German', 'English', 'Spanish'],
-    work_schedule: 'Flexible',
-    cleanliness_level: 'Very Clean',
-    noise_tolerance: 'Moderate',
-    personality_traits: ['Creative', 'Calm'],
-    preferred_activities: ['Art galleries', 'Eco-tours'],
-    compatibility: 88
-  },
-  {
-    user_id: 'mock-4',
-    name: 'Julian M.',
-    age: 31,
-    city: 'Region 15',
-    country: 'Argentina',
-    bio: 'Software engineer and kite surfer. Looking for a place with high-speed internet and like-minded peeps.',
-    profile_images: ['https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=600'],
-    interests: ['Kite Surfing', 'Rust', 'Coffee'],
-    languages: ['Spanish', 'English'],
-    work_schedule: '9-5 Remote',
-    cleanliness_level: 'Clean',
-    noise_tolerance: 'Moderate',
-    personality_traits: ['Active', 'Social'],
-    preferred_activities: ['Beach workout', 'Gaming'],
-    compatibility: 91
-  },
-  {
-    user_id: 'mock-5',
-    name: 'Chloe B.',
-    age: 27,
-    city: 'Tankah Bay',
-    country: 'UK',
-    bio: 'Yoga instructor and content creator. I love quiet mornings and sunrise sessions. Seeking a peaceful home.',
-    profile_images: ['https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&q=80&w=600'],
-    interests: ['Yoga', 'Photography', 'Travel'],
-    languages: ['English', 'French'],
-    work_schedule: 'Morning Classes',
-    cleanliness_level: 'Pristine',
-    noise_tolerance: 'Very Low',
-    personality_traits: ['Zen', 'Organized'],
-    preferred_activities: ['Meditation', 'Skin care'],
-    compatibility: 94
-  }
-];
 
 // ── CUSTOM HOOKS ─────────────────────────────────────────────────────────────
 
@@ -191,10 +102,37 @@ export default function RoommateMatching() {
     true // isRoommateSection
   );
 
-  // Merge real and mock for dev fallback
+  // Load saved roommate preferences on mount
+  useEffect(() => {
+    if (!user?.id) return;
+    const loadSavedFilters = async () => {
+      const { data } = await (supabase as any)
+        .from('roommate_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (data) {
+        setCurrentFilters({
+          preferred_gender: data.preferred_gender || [],
+          preferred_budget_min: data.preferred_budget_min,
+          preferred_budget_max: data.preferred_budget_max,
+          preferred_age_min: data.preferred_age_min,
+          preferred_age_max: data.preferred_age_max,
+          preferred_cleanliness: data.preferred_cleanliness,
+          preferred_noise_tolerance: data.preferred_noise_tolerance,
+          preferred_smoking: data.preferred_smoking,
+          preferred_drinking: data.preferred_drinking,
+          preferred_work_schedule: data.preferred_work_schedule,
+          deal_breakers: data.deal_breakers || [],
+        });
+      }
+    };
+    loadSavedFilters();
+  }, [user?.id]);
+
+  // Only use real candidates — no mock fallback
   const candidates = useMemo(() => {
-    if (realCandidates && realCandidates.length > 0) return realCandidates;
-    return MOCK_CANDIDATES;
+    return realCandidates || [];
   }, [realCandidates]);
 
   const handleSwipe = useCallback((_direction: 'left' | 'right') => {

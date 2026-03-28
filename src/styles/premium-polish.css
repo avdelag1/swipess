@@ -612,10 +612,10 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 
 @keyframes breathing-zoom {
   0% {
-    transform: scale(1.06);
+    transform: scale(1.0);
   }
   100% {
-    transform: scale(1.0);
+    transform: scale(1.05);
   }
 }
 

@@ -1,4 +1,4 @@
-import { useLocation, Outlet } from 'react-router-dom';
+import { useLocation, useOutlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
@@ -47,6 +47,7 @@ const pageVariants = {
 
 export function AnimatedOutlet() {
   const location = useLocation();
+  const outlet = useOutlet();
 
   return (
     <AnimatePresence mode="popLayout" initial={false}>
@@ -59,7 +60,7 @@ export function AnimatedOutlet() {
         className="h-full w-full flex flex-col flex-1"
         style={{ willChange: 'transform, opacity' }}
       >
-        <Outlet />
+        {outlet}
       </motion.div>
     </AnimatePresence>
   );

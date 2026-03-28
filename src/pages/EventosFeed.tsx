@@ -323,14 +323,14 @@ function EventCard({
       <motion.div
         className="absolute inset-0"
         animate={isActive ? { 
-          scale: [1.06, 1.0], 
+          scale: [1.0, 1.05, 1.0], 
           filter: 'brightness(1.05)' 
         } : { 
           scale: 1.0, 
           filter: 'brightness(1)' 
         }}
         transition={{ 
-          scale: { duration: 8, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }, 
+          scale: { duration: 12, ease: 'easeInOut', repeat: Infinity }, 
           filter: { duration: 0.4 } 
         }}
       >
@@ -991,7 +991,7 @@ export default function EventosFeed() {
                     : i === activeIdx
                       ? 'linear-gradient(90deg, rgba(255,255,255,0.9), rgba(249,115,22,0.8))'
                       : 'transparent',
-                  width: i < activeIdx ? '100%' : '0%',
+                  width: i < activeIdx ? '100%' : i === activeIdx ? undefined : '0%',
                   animation: i === activeIdx
                     ? `progress-fill ${AUTOPLAY_DURATION}ms linear forwards`
                     : 'none',

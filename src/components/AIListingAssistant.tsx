@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAIUsage } from '@/hooks/useAIUsage';
 
 type Category = 'property' | 'motorcycle' | 'bicycle' | 'worker';
 
@@ -66,6 +68,9 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
   const [location, setLocation] = useState('');
   const [_isGenerating, setIsGenerating] = useState(false);
   const [generatedData, setGeneratedData] = useState<Record<string, unknown> | null>(null);
+
+  const { isAtListingLimit, listingsUsedThisMonth, limits, tierName } = useAIUsage();
+  const navigate = useNavigate();
 
   const resetState = () => {
     setStep('category');
@@ -161,6 +166,18 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
 
   const generateListing = async () => {
     if (!selectedCategory || images.length === 0) return;
+
+    // Enforce monthly listing limit
+    if (isAtListingLimit) {
+      toast.error(`Monthly AI listing limit reached (${listingsUsedThisMonth}/${limits.monthlyListings === Infinity ? '∞' : limits.monthlyListings})`, {
+        description: 'Upgrade your plan for more AI-generated listings.',
+        action: {
+          label: 'View Plans',
+          onClick: () => { handleClose(); navigate('/subscription-packages'); },
+        },
+      });
+      return;
+    }
 
     setIsGenerating(true);
     setStep('generating');
