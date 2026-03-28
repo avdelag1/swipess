@@ -106,7 +106,6 @@ const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const SubscriptionPackagesPage = lazy(() => import("./pages/SubscriptionPackagesPage"));
 
-const RetroRadioStation = lazy(() => import("./pages/RetroRadioStation"));
 const DJTurntableRadio = lazy(() => import("./pages/DJTurntableRadio"));
 const RadioPlaylists = lazy(() => import("./pages/RadioPlaylists"));
 const RadioFavorites = lazy(() => import("./pages/RadioFavorites"));
@@ -138,10 +137,6 @@ const OwnerProfileCamera = lazy(() => import("./pages/OwnerProfileCamera"));
 const PublicProfilePreview = lazy(() => import("./pages/PublicProfilePreview"));
 const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 
-// Test pages
-const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
-const AITestPage = lazy(() => import("./pages/AITestPage"));
-const TrumpsBadDayLazy = lazy(() => import("./pages/TrumpsBadDay"));
 const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 const EventosLikes = lazy(() => import("./pages/EventosLikes"));
 
@@ -356,7 +351,6 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
                                         <Route path="/notifications" element={<NotificationsPage />} />
                                         <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
                                         <Route path="/radio" element={<DJTurntableRadio />} />
-                                        <Route path="/radio/cassette" element={<RetroRadioStation />} />
                                         <Route path="/radio/playlists" element={<RadioPlaylists />} />
                                         <Route path="/radio/favorites" element={<RadioFavorites />} />
 
@@ -371,7 +365,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
                                         <Route path="/explore/tours" element={<VideoTours />} />
                                         <Route path="/explore/intel" element={<LocalIntel />} />
                                         <Route path="/explore/roommates" element={<RoommateMatching />} />
-                                         <Route path="/game/trumps-bad-day" element={<Suspense fallback={<SuspenseFallback />}><TrumpsBadDayLazy /></Suspense>} />
+
                                         <Route path="/documents" element={<DocumentVault />} />
                                         <Route path="/escrow" element={<EscrowDashboard />} />
                                       </Route>
@@ -387,8 +381,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
                                       <Route path="/agl" element={<AnimatedPage><AGLPage /></AnimatedPage>} />
                                       <Route path="/legal" element={<AnimatedPage><LegalPage /></AnimatedPage>} />
 
-                                      {/* AI Test — public, no login required */}
-                                      <Route path="/ai-test" element={<AnimatedPage><AITestPage /></AnimatedPage>} />
+
 
                                       {/* Legacy /dashboard redirect — smartly role-aware */}
                                       <Route path="/dashboard" element={<DashboardRedirect />} />
@@ -402,10 +395,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
                                       <Route path="/profile/:id" element={<AnimatedPage><PublicProfilePreview /></AnimatedPage>} />
                                       <Route path="/listing/:id" element={<AnimatedPage><PublicListingPreview /></AnimatedPage>} />
 
-                                      {/* Test Pages — dev only */}
-                                      {import.meta.env.DEV && (
-                                        <Route path="/test/mock-owners" element={<AnimatedPage><MockOwnersTestPage /></AnimatedPage>} />
-                                      )}
+
 
                                       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                                       <Route path="*" element={<AnimatedPage><NotFound /></AnimatedPage>} />
