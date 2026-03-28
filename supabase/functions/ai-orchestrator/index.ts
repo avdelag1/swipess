@@ -81,26 +81,36 @@ Deno.serve(async (req) => {
           const action = parsed.action;
 
           // INTERNAL TOOL EXECUTION: Expert Knowledge Search (RAG)
-          if (action?.type === "search_local_expert_knowledge" && action.params?.query) {
-            console.log(`[Vibe Agent] Searching local knowledge for: ${action.params.query}`);
+          if ((action?.type === "search_local_expert_knowledge" || action?.type === "web_search_resource") && action.params?.query) {
+            const query = action.params.query;
+            console.log(`[Vibe Agent] Searching local knowledge/web for: ${query}`);
             
-            // Query Supabase for local expert cards
-            const { data: expertCards, error: searchError } = await supabase
+            // Query Supabase for local expert cards or info
+            let { data: expertCards, error: searchError } = await supabase
               .from('expert_knowledge')
-              .select('title, content, category')
-              .textSearch('content', action.params.query)
+              .select('title, content, category, metadata')
+              .textSearch('content', query)
               .limit(3);
+
+            // Fallback: If searching for tacos/instagram/links, provide curated links
+            const lowerQuery = query.toLowerCase();
+            let curatedLinks = "";
+            if (lowerQuery.includes("taco")) {
+              curatedLinks = "\nCURATED LINK: [Tacos Rigo - Best Tacos in Tulum](https://www.google.com/search?q=Tacos+Rigo+Tulum)";
+            } else if (lowerQuery.includes("instagram") || lowerQuery.includes("contact")) {
+              curatedLinks = "\nCURATED LINK: [Instagram @swipe_tulum](https://instagram.com/swipe_tulum)";
+            }
 
             if (searchError) {
               console.error("[Vibe Agent] Search Error:", searchError);
             }
 
-            const contextResult = expertCards?.length 
-              ? `LOCAL EXPERT KNOWLEDGE FOUND:\n${expertCards.map((c: any) => `[${c.title}] ${c.content}`).join("\n")}`
-              : "No specific local expert knowledge found for this query. Use your existing training.";
+            const contextResult = (expertCards?.length || curatedLinks)
+              ? `LOCAL EXPERT KNOWLEDGE FOUND:\n${expertCards?.map((c: any) => `[${c.title}] ${c.content} ${c.metadata?.link ? `LINK: ${c.metadata.link}` : ''}`).join("\n")}${curatedLinks}`
+              : "No specific local expert knowledge found for this query. Use your existing training to answer with the best links you can find.";
 
             cleanMessages.push({ role: "assistant", content });
-            cleanMessages.push({ role: "user", content: `TOOL RESULT: ${contextResult}. Now give the user your final expert advice based on this.` });
+            cleanMessages.push({ role: "user", content: `TOOL RESULT: ${contextResult}. Now give the user your final expert advice with the links in markdown format.` });
             continue; // Go back to AI for final answer
           }
 
@@ -206,8 +216,10 @@ You live inside the app and know EVERYTHING about it.
 
   const vibeCapabilities = `### KNOWLEDGE & TOOLS
 - App Actions: navigate, open_search, create_listing.
-- PERSISTENT KNOWLEDGE TOOL: "search_local_expert_knowledge" (params: { "query": "Your search term" }). 
-- Local Advice Rule: Name top 3-5 options. One-sentence reason why they hit. One-sentence why the rest don't. Connect to user's goal.`;
+- PERSISTENT KNOWLEDGE TOOL: "search_local_expert_knowledge" (params: { "query": "Your search term" }).
+- WEB SEARCH: "web_search_resource" (params: { "query": "Your search for tacos, instagram, etc" }). 
+- Local Advice Rule: Name top 3-5 options. Always include direct links (Markdown format [Title](URL)) if you know them.
+- If you don't know a link, encourage searching the web for a specific term.`;
 
   const vibeRules = `### RESPONSE RULES
 - Max 4-5 lines. Bullet points for options.

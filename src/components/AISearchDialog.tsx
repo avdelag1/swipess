@@ -256,14 +256,14 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                whileTap={{ scale: 0.95 }}
                onClick={() => setView(view === 'chat' ? 'history' : 'chat')}
                className={cn(
-                 "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 relative group overflow-hidden border",
+                 "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 relative group border",
                  view === 'history' 
                    ? "bg-orange-500 border-orange-400 shadow-xl shadow-orange-500/40" 
                    : (isDark ? "bg-zinc-900 border-white/10" : "bg-white border-gray-100 shadow-sm")
                )}
             >
               <SwipessLogo size="xs" className={cn("transition-transform duration-300", view === 'history' ? "scale-125" : "scale-110")} />
-              <div className={cn("absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity")} />
+              <div className={cn("absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity")} />
               {sessions.length > 0 && view === 'chat' && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 border-2 border-white rounded-full flex items-center justify-center text-[9px] font-black text-white shadow-xl">
                   {sessions.length}
@@ -451,7 +451,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                         rows={1}
                         disabled={isSearching}
                         className={cn(
-                          "w-full resize-none bg-transparent px-6 py-4.5 pr-14 text-sm font-bold outline-none placeholder:text-muted-foreground/40",
+                          "w-full resize-none bg-transparent px-6 py-[18px] pr-14 text-sm font-bold outline-none placeholder:text-muted-foreground/40 leading-tight",
                           "min-h-[56px] max-h-[160px]",
                         )}
                       />
