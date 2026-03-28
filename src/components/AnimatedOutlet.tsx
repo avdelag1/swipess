@@ -10,34 +10,24 @@ import { motion, AnimatePresence } from 'framer-motion';
  * - Optimized will-change for 60fps performance
  */
 
-// Premium spring config - feels like a high-end mobile app
+// Premium spring config - smooth fade for clean page transitions
 const pageTransition = {
-  initial: { opacity: 0, x: 8, scale: 0.98 },
+  initial: { opacity: 0 },
   animate: { 
     opacity: 1, 
-    x: 0, 
-    scale: 1,
     transition: { 
-      type: 'spring',
-      stiffness: 400,
-      damping: 32,
-      mass: 0.8
+      duration: 0.15
     }
   },
   exit: { 
     opacity: 0, 
-    x: -8,
-    scale: 0.98,
     transition: { 
-      type: 'spring',
-      stiffness: 500,
-      damping: 40,
-      mass: 0.6
+      duration: 0.1
     }
   },
   // Performance optimizations
   style: { 
-    willChange: 'transform, opacity',
+    willChange: 'opacity',
     backfaceVisibility: 'hidden' as const
   }
 };
