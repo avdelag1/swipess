@@ -107,7 +107,6 @@ const LandingView = memo(({
   const handleTap = () => {
     if (isDragging.current || triggered.current) return;
     triggered.current = true;
-    playRandomZen(0.45);
     triggerHaptic('light');
     onEnterAuth();
   };
@@ -117,9 +116,9 @@ const LandingView = memo(({
       key="landing"
       className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4"
       style={{ paddingBottom: '10vh' }}
-      initial={{ opacity: 0, x: -30 }}
-      animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }}
+      initial={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
+      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }}
+      exit={{ opacity: 0, scale: 0.94, filter: 'blur(12px)', transition: { duration: 0.4, ease: [0.7, 0, 0.84, 0] } }}
     >
       <motion.div
         drag="x"
@@ -135,7 +134,6 @@ const LandingView = memo(({
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none relative"
-        data-no-bg-sound="true"
       >
         {/* Logo Pulsing Aura */}
         <motion.div
@@ -302,9 +300,9 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     <motion.div
       key="auth"
       className="absolute inset-0 flex flex-col overflow-hidden"
-      initial={{ y: 24, opacity: 0 }}
-      animate={{ y: 0, opacity: 1, transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      exit={{ y: 16, opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
+      initial={{ opacity: 0, scale: 0.96, filter: 'blur(8px)' }}
+      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } }}
+      exit={{ opacity: 0, scale: 1.05, filter: 'blur(12px)', transition: { duration: 0.3, ease: [0.7, 0, 0.84, 0] } }}
     >
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/[0.03] rounded-full" />

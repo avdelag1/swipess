@@ -185,6 +185,11 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         width,
         type: sizeType
       });
+
+      // User triggered stars should ALWAYS play sound
+      if (x !== undefined && y !== undefined && !disableSoundsRef.current) {
+        playRandomZen(0.2);
+      }
     };
 
     const spawnAirplane = (x: number, y: number) => {
@@ -235,15 +240,10 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       pointerRef.current.x = e.clientX;
       pointerRef.current.y = e.clientY;
 
-      if (!disableSoundsRef.current) {
-        if (mode === 'stars' || mode === 'sunset') {
-          playRandomZen(0.2);
-        }
-      }
-
       if (mode === 'stars') {
         spawnShootingStar(e.clientX, e.clientY);
       } else if (mode === 'sunset') {
+        if (!disableSoundsRef.current) playRandomZen(0.15);
         const hh = window.innerHeight;
         if (e.clientY > hh * 0.6) {
           spawnRipple(e.clientX, e.clientY);
@@ -478,10 +478,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     };
     loop(0);
 
-    const canvasEl = canvasRef.current;
-    if (canvasEl) {
-      canvasEl.addEventListener('pointerdown', handleCanvasPointerDown, { passive: true });
-    }
+    window.addEventListener('pointerdown', handleCanvasPointerDown, { passive: true });
 
     return () => {
       cancelAnimationFrame(animRef.current);
@@ -489,9 +486,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
       window.removeEventListener('pointercancel', handlePointerUp);
-      if (canvasEl) {
-        canvasEl.removeEventListener('pointerdown', handleCanvasPointerDown);
-      }
+      window.removeEventListener('pointerdown', handleCanvasPointerDown);
     };
   }, [mode, isLightTheme, initStars, initClouds]);
 
