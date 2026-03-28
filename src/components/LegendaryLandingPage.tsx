@@ -6,7 +6,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { playRandomZen } from '@/utils/sounds';
 import {
   Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Star
+  ArrowLeft, Star, Sun, Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })));
@@ -170,22 +170,44 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* Stars theme toggle — bottom-left corner */}
+      {/* Theme toggle — bottom-left corner */}
       <motion.button
         whileTap={{ scale: 0.85 }}
-        onClick={(e) => { e.stopPropagation(); onToggleDark(); haptics.impact('light'); }}
+        onClick={(e) => { e.stopPropagation(); onToggleDark(); triggerHaptic('light'); }}
         data-testid="button-star-filter"
         className={cn(
-          "absolute bottom-6 left-6 flex items-center gap-2.5 px-4 py-2.5 rounded-2xl transition-colors duration-200 z-50 shadow-lg",
+          "absolute bottom-8 left-8 flex items-center justify-center w-14 h-14 rounded-full transition-colors duration-200 z-50 shadow-2xl overflow-hidden group",
           isDark ? "bg-white/10 border border-white/20 text-white" : "bg-black/5 border border-black/10 text-black"
         )}
         style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
         title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
       >
-        <Star className={cn("w-4 h-4 transition-transform duration-300", !isDark && "fill-black")} />
-        <span className="text-[11px] font-black uppercase tracking-wider italic italic-brand">
-          {isDark ? 'Mode: Dark' : 'Mode: Light'}
-        </span>
+        <AnimatePresence mode="wait">
+          {isDark ? (
+            <motion.div
+              key="sun"
+              initial={{ scale: 0, rotate: -90 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 90 }}
+              className="relative z-10"
+            >
+              <Sun className="w-6 h-6 fill-white" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="stars"
+              initial={{ scale: 0, rotate: 90 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: -90 }}
+              className="relative z-10"
+            >
+              <Sparkles className="w-6 h-6 fill-black" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Hover Shine Effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </motion.button>
 
 
