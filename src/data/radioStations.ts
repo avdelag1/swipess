@@ -7,28 +7,28 @@ export const cityThemes: Record<CityLocation, CityTheme> = {
   'new-york': {
     id: 'new-york',
     name: 'New York',
-    primaryColor: '#ff0000',
+    primaryColor: '#ff3d00',
     secondaryColor: '#1a1a1a',
     accentColor: '#ffffff',
-    gradient: 'linear-gradient(135deg, #ff0000 0%, #1a1a1a 100%)',
+    gradient: 'linear-gradient(135deg, #ff3d00 0%, #1a1a1a 100%)',
     description: 'The city that never sleeps'
   },
   'miami': {
     id: 'miami',
     name: 'Miami',
-    primaryColor: '#0070f3',
+    primaryColor: '#00d2ff',
     secondaryColor: '#E4007C',
     accentColor: '#ffffff',
-    gradient: 'linear-gradient(135deg, #0070f3 0%, #E4007C 100%)',
+    gradient: 'linear-gradient(135deg, #00d2ff 0%, #E4007C 100%)',
     description: 'Neon nights and tropical vibes'
   },
   'ibiza': {
     id: 'ibiza',
     name: 'Ibiza',
-    primaryColor: '#5e17eb',
-    secondaryColor: '#4cc9f0',
+    primaryColor: '#a100ff',
+    secondaryColor: '#00e5ff',
     accentColor: '#ffffff',
-    gradient: 'linear-gradient(135deg, #5e17eb 0%, #4cc9f0 100%)',
+    gradient: 'linear-gradient(135deg, #a100ff 0%, #00e5ff 100%)',
     description: 'Electronic paradise'
   },
   'tulum': {
@@ -43,100 +43,100 @@ export const cityThemes: Record<CityLocation, CityTheme> = {
   'california': {
     id: 'california',
     name: 'California',
-    primaryColor: '#E4007C',
-    secondaryColor: '#fdc500',
+    primaryColor: '#FF1493',
+    secondaryColor: '#FFD700',
     accentColor: '#ffffff',
-    gradient: 'linear-gradient(135deg, #E4007C 0%, #fdc500 100%)',
+    gradient: 'linear-gradient(135deg, #FF1493 0%, #FFD700 100%)',
     description: 'West coast sunshine'
   },
   'texas': {
     id: 'texas',
     name: 'Texas',
-    primaryColor: '#8b0000',
+    primaryColor: '#9e0000',
     secondaryColor: '#cd853f',
     accentColor: '#daa520',
-    gradient: 'linear-gradient(135deg, #8b0000 0%, #cd853f 50%, #daa520 100%)',
+    gradient: 'linear-gradient(135deg, #9e0000 0%, #cd853f 50%, #daa520 100%)',
     description: 'Lone star vibes'
   },
   'french': {
     id: 'french',
     name: 'French',
-    primaryColor: '#001f3f',
+    primaryColor: '#002395',
     secondaryColor: '#ffffff',
-    accentColor: '#ff4136',
-    gradient: 'linear-gradient(135deg, #001f3f 0%, #ffffff 50%, #ff4136 100%)',
+    accentColor: '#ed2939',
+    gradient: 'linear-gradient(135deg, #002395 0%, #ffffff 50%, #ed2939 100%)',
     description: 'Parisian elegance'
   },
   'italy': {
     id: 'italy',
     name: 'Italy',
-    primaryColor: '#009246',
-    secondaryColor: '#ce2b37',
+    primaryColor: '#008c45',
+    secondaryColor: '#cd212a',
     accentColor: '#ffffff',
-    gradient: 'linear-gradient(135deg, #009246 0%, #ffffff 50%, #ce2b37 100%)',
+    gradient: 'linear-gradient(135deg, #008c45 0%, #ffffff 50%, #cd212a 100%)',
     description: 'Italian vibes and electronic energy'
   },
   'podcasts': {
     id: 'podcasts',
     name: 'Podcasts',
-    primaryColor: '#6a0572',
-    secondaryColor: '#ab83a1',
-    accentColor: '#ffc300',
-    gradient: 'linear-gradient(135deg, #6a0572 0%, #ab83a1 50%, #ffc300 100%)',
+    primaryColor: '#7b1fa2',
+    secondaryColor: '#ce93d8',
+    accentColor: '#ffd600',
+    gradient: 'linear-gradient(135deg, #7b1fa2 0%, #ce93d8 50%, #ffd600 100%)',
     description: 'Talk shows and storytelling'
   },
   'reggae': {
     id: 'reggae',
     name: 'Reggae',
-    primaryColor: '#009B3A',
-    secondaryColor: '#FED100',
+    primaryColor: '#388e3c',
+    secondaryColor: '#fbc02d',
     accentColor: '#000000',
-    gradient: 'linear-gradient(135deg, #009B3A 0%, #FED100 50%, #000000 100%)',
+    gradient: 'linear-gradient(135deg, #388e3c 0%, #fbc02d 50%, #000000 100%)',
     description: 'Island vibes and roots music'
   },
   'jazz': {
     id: 'jazz',
     name: 'Jazz',
-    primaryColor: '#232323',
-    secondaryColor: '#B8860B',
-    accentColor: '#FF6B6B',
-    gradient: 'linear-gradient(135deg, #232323 0%, #B8860B 50%, #FF6B6B 100%)',
+    primaryColor: '#263238',
+    secondaryColor: '#ffa000',
+    accentColor: '#ff5252',
+    gradient: 'linear-gradient(135deg, #263238 0%, #ffa000 50%, #ff5252 100%)',
     description: 'Smooth jazz and improvisations'
   },
   'arabic': {
     id: 'arabic',
     name: 'Arabic',
-    primaryColor: '#c5a059',
-    secondaryColor: '#8c1f28',
+    primaryColor: '#af9164',
+    secondaryColor: '#7d1e28',
     accentColor: '#ffffff',
-    gradient: 'linear-gradient(135deg, #c5a059 0%, #8c1f28 100%)',
+    gradient: 'linear-gradient(135deg, #af9164 0%, #7d1e28 100%)',
     description: 'Middle Eastern Sounds'
   },
   'persian': {
     id: 'persian',
     name: 'Persian',
-    primaryColor: '#00a86b',
+    primaryColor: '#008450',
     secondaryColor: '#ffffff',
-    accentColor: '#ff0000',
-    gradient: 'linear-gradient(135deg, #00a86b 0%, #ff0000 100%)',
+    accentColor: '#d32f2f',
+    gradient: 'linear-gradient(135deg, #008450 0%, #d32f2f 100%)',
     description: 'Iranian Melodies'
   },
   'meditation': {
     id: 'meditation',
     name: 'Meditation',
-    primaryColor: '#a18cd1',
-    secondaryColor: '#fbc2eb',
+    primaryColor: '#9c27b0',
+    secondaryColor: '#f06292',
     accentColor: '#ffffff',
-    gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+    gradient: 'linear-gradient(135deg, #9c27b0 0%, #f06292 100%)',
     description: 'Zen and Relaxation'
   },
   'bongs': {
     id: 'bongs',
     name: 'Bowls & Gongs',
-    primaryColor: '#d4af37',
-    secondaryColor: '#1a1a1a',
+    primaryColor: '#c5b358',
+    secondaryColor: '#121212',
     accentColor: '#ffffff',
-    gradient: 'linear-gradient(135deg, #d4af37 0%, #1a1a1a 100%)',
+    gradient: 'linear-gradient(135deg, #c5b358 0%, #121212 100%)',
     description: 'Sound Baths & Healing'
   }
 };
@@ -175,18 +175,18 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'miami-4',
-    name: 'Miami Latin',
+    name: 'Miami Vibes',
     frequency: '99.5',
-    streamUrl: 'https://ice1.somafm.com/u80s-128-mp3',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
     city: 'miami',
-    genre: 'Latino',
+    genre: 'Downtempo',
     description: 'Tropical Rhythms'
   },
   {
     id: 'miami-5',
     name: 'South Beach Lounge',
     frequency: '102.3',
-    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
     city: 'miami',
     genre: 'Lounge',
     description: 'Elegant nights'
@@ -195,14 +195,14 @@ export const radioStations: RadioStation[] = [
     id: 'miami-6',
     name: 'Ocean Drive',
     frequency: '95.1',
-    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
+    streamUrl: 'https://ice1.somafm.com/thetrip-128-mp3',
     city: 'miami',
     genre: 'House',
     description: 'Cruising the coast'
   },
   {
     id: 'miami-7',
-    name: 'Magic Miami',
+    name: 'Secret Agent',
     frequency: '101.5',
     streamUrl: 'https://ice1.somafm.com/secretagent-128-mp3',
     city: 'miami',
@@ -220,7 +220,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'miami-9',
-    name: 'Sub-Zero Miami',
+    name: 'Sub-Zero',
     frequency: '94.3',
     streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
     city: 'miami',
@@ -229,7 +229,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'miami-10',
-    name: 'Miami Sunshine',
+    name: 'Sunshine State',
     frequency: '107.1',
     streamUrl: 'https://ice1.somafm.com/indiepop-128-mp3',
     city: 'miami',
@@ -240,6 +240,15 @@ export const radioStations: RadioStation[] = [
   // New York - 10 Stations
   {
     id: 'ny-1',
+    name: 'WNYC Public',
+    frequency: '93.9',
+    streamUrl: 'https://fm939.wnyc.org/wnycfm.mp3',
+    city: 'new-york',
+    genre: 'Talk',
+    description: 'Public Radio'
+  },
+  {
+    id: 'ny-2',
     name: 'WKCR Jazz',
     frequency: '89.9',
     streamUrl: 'http://wkcr.streamguys1.com:80/live',
@@ -248,25 +257,7 @@ export const radioStations: RadioStation[] = [
     description: 'Real NY Jazz'
   },
   {
-    id: 'ny-2',
-    name: 'WNYC News',
-    frequency: '93.9',
-    streamUrl: 'https://fm939.wnyc.org/wnycfm.mp3',
-    city: 'new-york',
-    genre: 'Talk',
-    description: 'Public Radio'
-  },
-  {
     id: 'ny-3',
-    name: 'NYC Hip Hop',
-    frequency: '97.1',
-    streamUrl: 'https://ice1.somafm.com/thetrip-128-mp3',
-    city: 'new-york',
-    genre: 'Hip Hop',
-    description: 'Street vibes'
-  },
-  {
-    id: 'ny-4',
     name: 'The Big Apple',
     frequency: '101.1',
     streamUrl: 'https://ice1.somafm.com/seven-128-mp3',
@@ -275,7 +266,7 @@ export const radioStations: RadioStation[] = [
     description: 'Classic NY'
   },
   {
-    id: 'ny-5',
+    id: 'ny-4',
     name: 'Brooklyn Underground',
     frequency: '105.5',
     streamUrl: 'https://ice1.somafm.com/suburbansprawl-128-mp3',
@@ -284,16 +275,7 @@ export const radioStations: RadioStation[] = [
     description: 'Bushwick sounds'
   },
   {
-    id: 'ny-6',
-    name: 'Wall Street Rock',
-    frequency: '98.7',
-    streamUrl: 'https://ice1.somafm.com/indiepop-128-mp3',
-    city: 'new-york',
-    genre: 'Rock',
-    description: 'Power chords'
-  },
-  {
-    id: 'ny-7',
+    id: 'ny-5',
     name: 'Central Park Chill',
     frequency: '92.3',
     streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
@@ -302,17 +284,17 @@ export const radioStations: RadioStation[] = [
     description: 'Oasis in the city'
   },
   {
-    id: 'ny-8',
-    name: 'Greenwich Folk',
-    frequency: '90.7',
-    streamUrl: 'https://ice1.somafm.com/folkfwd-128-mp3',
+    id: 'ny-6',
+    name: 'Modern Rock',
+    frequency: '98.7',
+    streamUrl: 'https://ice1.somafm.com/bagel-128-mp3',
     city: 'new-york',
-    genre: 'Folk',
-    description: 'Village sounds'
+    genre: 'Rock',
+    description: 'Power chords'
   },
   {
-    id: 'ny-9',
-    name: 'Empire State Classical',
+    id: 'ny-7',
+    name: 'Empire Classical',
     frequency: '96.3',
     streamUrl: 'https://wqxr.streamguys1.com/wqxr',
     city: 'new-york',
@@ -320,13 +302,31 @@ export const radioStations: RadioStation[] = [
     description: 'Masterpieces'
   },
   {
-    id: 'ny-10',
-    name: 'NY Ambient',
+    id: 'ny-8',
+    name: 'NYC Ambient',
     frequency: '104.5',
     streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
     city: 'new-york',
     genre: 'Ambient',
     description: 'Late night NY'
+  },
+  {
+    id: 'ny-9',
+    name: 'Worldwide FM',
+    frequency: '90.7',
+    streamUrl: 'https://worldwidefm.out.airtime.pro/worldwidefm_a',
+    city: 'new-york',
+    genre: 'Eclectic',
+    description: 'Global sounds'
+  },
+  {
+    id: 'ny-10',
+    name: 'Rinse FM',
+    frequency: '106.8',
+    streamUrl: 'https://streamer.rinse.fm/rinsefm',
+    city: 'new-york',
+    genre: 'Underground',
+    description: 'London to NY'
   },
 
   // Ibiza - 10 Stations
@@ -336,7 +336,7 @@ export const radioStations: RadioStation[] = [
     frequency: '97.6',
     streamUrl: 'https://api.ibizaglobalradio.com:8443/live',
     city: 'ibiza',
-    genre: 'Dance',
+    genre: 'Deep House',
     description: 'Electronic Soul'
   },
   {
@@ -352,88 +352,88 @@ export const radioStations: RadioStation[] = [
     id: 'ibiza-3',
     name: 'Blue Marlin',
     frequency: '101.2',
-    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
+    streamUrl: 'https://bluemarlinibiza.ice.infomaniak.ch/bluemarlinibiza-128.mp3',
     city: 'ibiza',
     genre: 'Chill',
     description: 'Beach Club'
   },
   {
     id: 'ibiza-4',
-    name: 'Sunset Ashram',
+    name: 'Pure Ibiza',
     frequency: '95.5',
-    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    streamUrl: 'https://pureibizaradio.com:8443/live',
     city: 'ibiza',
-    genre: 'Lounge',
+    genre: 'Electronic',
     description: 'Sunset Bliss'
   },
   {
     id: 'ibiza-5',
-    name: 'Pacha Radio',
+    name: 'Groove Salad',
     frequency: '104.7',
-    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
+    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
     city: 'ibiza',
-    genre: 'Club',
-    description: 'Main Room'
+    genre: 'Ambient',
+    description: 'Chillout Lounge'
   },
   {
     id: 'ibiza-6',
-    name: 'Ushuaia',
+    name: 'Lush Ibiza',
     frequency: '99.9',
-    streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
     city: 'ibiza',
-    genre: 'Deep Tech',
-    description: 'Day Party'
+    genre: 'Vocals',
+    description: 'Deep & Melodic'
   },
   {
     id: 'ibiza-7',
-    name: 'Amnesia',
+    name: 'Cafe Del Mar',
     frequency: '107.0',
-    streamUrl: 'https://ice1.somafm.com/thetrip-128-mp3',
+    streamUrl: 'https://stream.cafedelmar.radio/radio/8000/radio.mp3',
     city: 'ibiza',
-    genre: 'Techno',
-    description: 'Pyramid Nights'
+    genre: 'Chillout',
+    description: 'The Original Sunset'
   },
   {
     id: 'ibiza-8',
-    name: 'DC-10',
+    name: 'Underground Ibiza',
     frequency: '102.1',
-    streamUrl: 'https://ice1.somafm.com/dubstep-128-mp3',
+    streamUrl: 'https://ice1.somafm.com/thetrip-128-mp3',
     city: 'ibiza',
-    genre: 'Underground',
-    description: 'Circoloco'
+    genre: 'Techno',
+    description: 'Afterparty vibes'
   },
   {
     id: 'ibiza-9',
-    name: 'Hi Ibiza',
+    name: 'Ibiza 80s',
     frequency: '106.3',
-    streamUrl: 'https://ice1.somafm.com/vaporwaves-128-mp3',
+    streamUrl: 'https://ice1.somafm.com/u80s-128-mp3',
     city: 'ibiza',
-    genre: 'Future House',
-    description: 'Cutting Edge'
+    genre: 'Retro',
+    description: 'Classic Island'
   },
   {
     id: 'ibiza-10',
-    name: 'Lio Ibiza',
+    name: 'Secret Agent',
     frequency: '105.5',
     streamUrl: 'https://ice1.somafm.com/secretagent-128-mp3',
     city: 'ibiza',
-    genre: 'Cabaret Pop',
-    description: 'Sexy & Wild'
+    genre: 'Lounge',
+    description: 'Elegant Mystery'
   },
 
   // Tulum - 10 Stations
   {
     id: 'tulum-1',
-    name: 'Groove Salad',
+    name: 'Tulum Deep',
     frequency: '102.1',
     streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
     city: 'tulum',
     genre: 'Ambient',
-    description: 'Tulum Jungle Chilled'
+    description: 'Jungle Chilled'
   },
   {
     id: 'tulum-2',
-    name: 'Lush Tulum',
+    name: 'Nomade Vibes',
     frequency: '98.5',
     streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
     city: 'tulum',
@@ -442,7 +442,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-3',
-    name: 'Drone Zone Tulum',
+    name: 'Drone Zone',
     frequency: '100.1',
     streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
     city: 'tulum',
@@ -460,25 +460,25 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-5',
-    name: 'Def Con',
+    name: 'Papaya Playa',
     frequency: '91.7',
-    streamUrl: 'https://ice1.somafm.com/defcon-128-mp3',
+    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
     city: 'tulum',
-    genre: 'Electronic',
-    description: 'Digital Jungle'
+    genre: 'House',
+    description: 'Beach Club'
   },
   {
     id: 'tulum-6',
-    name: 'Secret Agent',
+    name: 'Be Tulum',
     frequency: '105.9',
     streamUrl: 'https://ice1.somafm.com/secretagent-128-mp3',
     city: 'tulum',
-    genre: 'Retro',
-    description: 'Mysterious Vibes'
+    genre: 'Lounge',
+    description: 'Elegant nights'
   },
   {
     id: 'tulum-7',
-    name: 'Sonic Universe',
+    name: 'Ahau Vibes',
     frequency: '103.5',
     streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
     city: 'tulum',
@@ -496,12 +496,12 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-9',
-    name: 'Suburbs',
+    name: 'The Trip',
     frequency: '96.7',
-    streamUrl: 'https://ice1.somafm.com/suburbansprawl-128-mp3',
+    streamUrl: 'https://ice1.somafm.com/thetrip-128-mp3',
     city: 'tulum',
-    genre: 'Alternative',
-    description: 'Raw Energy'
+    genre: 'Techno',
+    description: 'After dark'
   },
   {
     id: 'tulum-10',

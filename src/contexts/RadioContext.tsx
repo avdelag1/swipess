@@ -38,6 +38,7 @@ interface RadioContextType {
   playPlaylist: (stationIds: string[]) => void;
   playFavorites: () => void;
   setMiniPlayerMode: (mode: 'expanded' | 'minimized' | 'closed') => void;
+  getFrequencyData: () => Uint8Array;
 }
 
 const RadioContext = createContext<RadioContextType | undefined>(undefined);
@@ -61,10 +62,17 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Audio Context for Visualizer
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyzerRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const dataArrayRef = useRef<Uint8Array>(new Uint8Array(0));
+
   // Initialize audio element once
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
+      audioRef.current.crossOrigin = "anonymous"; // Important for visualizer!
       audioRef.current.volume = state.volume;
       audioRef.current.preload = 'auto';
     }
@@ -252,6 +260,24 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }, 10000);
 
       await audioRef.current.play();
+      
+      // Initialize AudioContext on first play (user gesture)
+      if (!audioContextRef.current && audioRef.current) {
+        try {
+          audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+          analyzerRef.current = audioContextRef.current.createAnalyser();
+          analyzerRef.current.fftSize = 256;
+          sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+          sourceRef.current.connect(analyzerRef.current);
+          analyzerRef.current.connect(audioContextRef.current.destination);
+          dataArrayRef.current = new Uint8Array(analyzerRef.current.frequencyBinCount);
+        } catch (e) {
+          logger.error('[RadioPlayer] Failed to init AudioContext:', e);
+        }
+      } else if (audioContextRef.current?.state === 'suspended') {
+        audioContextRef.current.resume();
+      }
+
       setState(prev => ({ ...prev, isPlaying: true }));
       setError(null);
 
@@ -399,6 +425,14 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const isStationFavorite = useCallback((stationId: string) => state.favorites.includes(stationId), [state.favorites]);
 
+  const getFrequencyData = useCallback(() => {
+    if (analyzerRef.current && dataArrayRef.current) {
+      analyzerRef.current.getByteFrequencyData(dataArrayRef.current);
+      return dataArrayRef.current as any;
+    }
+    return new Uint8Array(0);
+  }, []);
+
   const value = useMemo(() => ({
     state,
     loading,
@@ -417,7 +451,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     playPlaylist,
     playFavorites,
     setMiniPlayerMode,
-  }), [state, loading, error, play, pause, togglePlayPause, togglePower, changeStation, setCity, setVolume, toggleShuffle, setSkin, toggleFavorite, isStationFavorite, playPlaylist, playFavorites, setMiniPlayerMode]);
+    getFrequencyData,
+  }), [state, loading, error, play, pause, togglePlayPause, togglePower, changeStation, setCity, setVolume, toggleShuffle, setSkin, toggleFavorite, isStationFavorite, playPlaylist, playFavorites, setMiniPlayerMode, getFrequencyData]);
 
   return <RadioContext.Provider value={value}>{children}</RadioContext.Provider>;
 }

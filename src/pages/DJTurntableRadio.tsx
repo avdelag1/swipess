@@ -9,11 +9,11 @@ import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
 import {
   ArrowLeft, ListMusic, Heart, Shuffle,
-  SkipBack, SkipForward, Play, Pause
+  SkipBack, SkipForward, Play, Pause, Activity
 } from 'lucide-react';
 
-// ── Inline stars canvas ──────────────────────────────────────────────────────
-function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }) {
+// ── Stars Canvas ───────────────────────────────────────────────────────────
+function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
 
@@ -83,9 +83,58 @@ function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }
   );
 }
 
+// ── Real-time Frequency Visualizer ──────────────────────────────────────────
+function RadioVisualizer({ isPlaying, color }: { isPlaying: boolean; color: string }) {
+  const { getFrequencyData } = useRadio();
+  const [bars, setBars] = useState<number[]>(new Array(32).fill(0));
+  const requestRef = useRef<number>(0);
+
+  const animate = useCallback(() => {
+    if (isPlaying) {
+      const data = getFrequencyData();
+      if (data && data.length > 0) {
+        const newBars = [];
+        const step = Math.floor(data.length / 32);
+        for (let i = 0; i < 32; i++) {
+          newBars.push(data[i * step] / 255);
+        }
+        setBars(newBars);
+      } else {
+        setBars(prev => prev.map(v => Math.max(0.1, v * 0.92 + (Math.random() * 0.08))));
+      }
+    } else {
+      setBars(prev => prev.map(v => v * 0.8));
+    }
+    requestRef.current = requestAnimationFrame(animate);
+  }, [isPlaying, getFrequencyData]);
+
+  useEffect(() => {
+    requestRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(requestRef.current);
+  }, [animate]);
+
+  return (
+    <div className="flex items-end justify-center gap-[3px] h-12 w-full mt-4 px-12">
+      {bars.map((v, i) => (
+        <motion.div
+          key={i}
+          className="w-1 rounded-full"
+          style={{ 
+            background: `linear-gradient(to top, ${color}22, ${color})`, 
+            boxShadow: v > 0.6 ? `0 0 12px ${color}88` : 'none',
+            opacity: 0.4 + (v * 0.6)
+          }}
+          animate={{ height: `${Math.max(6, v * 100)}%` }}
+          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+        />
+      ))}
+    </div>
+  );
+}
+
 /**
- * DJTurntableRadio — Professional DJ turntable radio skin.
- * Purely CSS-driven visuals for high performance.
+ * DJTurntableRadio — Professional DJ turntable radio skin (Flagship Overhaul).
+ * Unified "God Mode" experience with liquid-glass aesthetics and vertical pitch control.
  */
 export default function DJTurntableRadio() {
   const navigate = useNavigate();
@@ -96,6 +145,7 @@ export default function DJTurntableRadio() {
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [showFavoritesDrawer, setShowFavoritesDrawer] = useState(false);
+  const [pitch, setPitch] = useState(0.5); // Visual pitch slider state
 
   const cityTheme = cityThemes[state.currentCity] || cityThemes['tulum'];
   const primaryColor = cityTheme.primaryColor;
@@ -132,249 +182,299 @@ export default function DJTurntableRadio() {
   return (
     <div
       className={cn(
-        "fixed inset-0 z-50 flex flex-col overflow-hidden select-none",
-        "bg-[radial-gradient(ellipse_at_50%_30%,#1a1a1a_0%,#0a0a0a_60%,#050505_100%)]"
+        "fixed inset-0 z-50 flex flex-col overflow-hidden select-none transition-colors duration-1000",
+        "bg-[#030303]"
       )}
     >
+      {/* Background gradients for liquid feel */}
+      <div className="absolute inset-0 opacity-50 pointer-events-none" style={{
+        background: `radial-gradient(circle at 50% -10%, ${primaryColor}33 0%, transparent 60%), 
+                     radial-gradient(circle at 10% 90%, ${secondaryColor}11 0%, transparent 40%)`
+      }} />
+
       {/* Stars background */}
       <RadioStarsCanvas accentColor={primaryColor} />
 
       {/* Floating top bar */}
-      <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 pt-[env(safe-area-inset-top,12px)] pb-2 uppercase tracking-[0.2em]">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-6 pt-[env(safe-area-inset-top,16px)] pb-4"
+      >
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-md flex items-center justify-center"
+          className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-2xl flex items-center justify-center border border-white/10 shadow-2xl"
         >
           <ArrowLeft className="w-5 h-5 text-white/70" />
         </motion.button>
 
-        <span
-          className="text-sm font-bold font-['Bebas_Neue']"
-          style={{ color: primaryColor }}
-        >
-          {cityTheme.name}
-        </span>
+        <div className="flex flex-col items-center">
+          <motion.div 
+            key={cityTheme.name}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-lg font-bold font-['Bebas_Neue'] tracking-[0.4em] text-white"
+            style={{ textShadow: `0 0 25px ${primaryColor}` }}
+          >
+            {cityTheme.name.toUpperCase()}
+          </motion.div>
+          <div className="flex items-center gap-2 mt-[-2px]">
+            <span className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_10px_#4ade80]" />
+            <span className="text-[9px] text-white/40 tracking-[0.2em] font-black font-['Space_Mono'] uppercase">Streaming Live</span>
+          </div>
+        </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => { toggleShuffle(); triggerHaptic('light'); }}
-            className={cn("w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center transition-colors", state.isShuffle ? "bg-white/15" : "bg-white/5")}
+            className={cn("w-12 h-12 rounded-2xl backdrop-blur-2xl flex items-center justify-center transition-all border", state.isShuffle ? "bg-white/20 border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.2)]" : "bg-white/5 border-white/10")}
           >
-            <Shuffle className="w-4 h-4 text-white/70" />
-          </motion.button>
-          
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => { triggerHaptic('light'); navigate('/radio/cassette'); }}
-            className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-md flex items-center justify-center"
-            title="Switch to Cassette skin"
-          >
-            <svg className="w-4 h-4 text-white/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="6" width="20" height="12" rx="2"/>
-              <circle cx="7" cy="12" r="2"/>
-              <circle cx="17" cy="12" r="2"/>
-              <path d="M9 12h6"/>
-            </svg>
+            <Shuffle className={cn("w-5 h-5", state.isShuffle ? "text-white" : "text-white/40")} />
           </motion.button>
           
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowDrawer(true)}
-            className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-md flex items-center justify-center"
+            className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-2xl flex items-center justify-center border border-white/10 shadow-2xl"
           >
-            <ListMusic className="w-4 h-4 text-white/70" />
+            <ListMusic className="w-5 h-5 text-white/70" />
           </motion.button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Main turntable area */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 pt-16 pb-4">
-        {/* Turntable deck surface */}
-        <div
-          className="relative w-full max-w-[340px] aspect-square rounded-2xl bg-gradient-to-br from-[#1c1c1c] via-[#111] to-[#0d0d0d] shadow-2xl border-t border-white/5"
-          style={{
-            boxShadow: `0 0 60px -20px ${primaryColor}22, inset 0 1px 0 rgba(255,255,255,0.05), 0 20px 60px -10px rgba(0,0,0,0.8)`,
-          }}
-        >
-          {/* Metallic platter ring */}
-          <div className="absolute inset-3 rounded-full shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] bg-[radial-gradient(circle,transparent_48%,#2a2a2a_49%,#3a3a3a_50%,#2a2a2a_51%,transparent_52%),radial-gradient(circle,transparent_95%,#333_96%,#222_100%)]" />
-
-          {/* Spinning vinyl record */}
-          <motion.div
-            className="absolute inset-5 rounded-full shadow-inner"
-            style={{
-              background: `
-                radial-gradient(circle, ${primaryColor}dd 0%, ${primaryColor}aa 12%, transparent 13%),
-                radial-gradient(circle, transparent 13%, #111 14%, #0a0a0a 15%, transparent 16%),
-                radial-gradient(circle, transparent 18%, rgba(255,255,255,0.03) 19%, transparent 20%),
-                radial-gradient(circle, transparent 24%, rgba(255,255,255,0.02) 25%, transparent 26%),
-                radial-gradient(circle, transparent 30%, rgba(255,255,255,0.03) 31%, transparent 32%),
-                radial-gradient(circle, transparent 36%, rgba(255,255,255,0.02) 37%, transparent 38%),
-                radial-gradient(circle, transparent 42%, rgba(255,255,255,0.03) 43%, transparent 44%),
-                radial-gradient(circle, transparent 48%, rgba(255,255,255,0.02) 49%, transparent 50%),
-                radial-gradient(circle, transparent 55%, rgba(255,255,255,0.03) 56%, transparent 57%),
-                radial-gradient(circle, transparent 62%, rgba(255,255,255,0.02) 63%, transparent 64%),
-                radial-gradient(circle, transparent 69%, rgba(255,255,255,0.03) 70%, transparent 71%),
-                radial-gradient(circle, transparent 76%, rgba(255,255,255,0.02) 77%, transparent 78%),
-                radial-gradient(circle, transparent 83%, rgba(255,255,255,0.03) 84%, transparent 85%),
-                radial-gradient(circle, transparent 90%, rgba(255,255,255,0.02) 91%, transparent 92%),
-                #0a0a0a
-              `,
-              boxShadow: `inset 0 0 30px rgba(0,0,0,0.6), 0 0 15px ${primaryColor}11`,
-            }}
-            animate={{ rotate: state.isPlaying ? 360 : 0 }}
-            transition={state.isPlaying ? { duration: 1.8, ease: 'linear', repeat: Infinity } : { duration: 0.5, ease: 'easeOut' }}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 pt-16">
+        <div className="relative w-full max-w-[440px] flex items-center justify-center">
+          {/* Vertical Pitch Slider (Professional Turntable Look) */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="absolute right-0 top-1/2 -translate-y-1/2 w-16 h-64 bg-black/40 backdrop-blur-3xl rounded-3xl border border-white/10 p-2 flex flex-col items-center justify-between z-20 shadow-2xl"
           >
-            {/* Center label */}
-            <div
-              className="absolute inset-0 m-auto w-[32%] h-[32%] rounded-full flex flex-col items-center justify-center p-1"
-              style={{
-                background: `linear-gradient(135deg, ${primaryColor}ee, ${secondaryColor}ee)`,
-                boxShadow: `0 0 20px ${primaryColor}33`,
-              }}
-            >
-              <div className="w-2.5 h-2.5 rounded-full bg-black/60 mb-1 border border-white/10" />
-              <p className="text-[7px] font-bold text-white/90 text-center leading-tight truncate max-w-full font-['Bebas_Neue'] tracking-wider">
-                {state.currentStation?.name || 'NO SIGNAL'}
-              </p>
-              <p className="text-[5px] text-white/50 tracking-wider uppercase">
-                {state.currentStation?.frequency || '---'}
-              </p>
-            </div>
-
-            {/* Light reflection */}
-            <div className="absolute inset-0 rounded-full pointer-events-none bg-gradient-to-br from-white/10 via-transparent to-white/5" />
-          </motion.div>
-
-          {/* Tonearm */}
-          <motion.div
-            className="absolute -right-2 -top-2 w-32 h-32 origin-[85%_15%] z-10"
-            animate={{ rotate: state.isPlaying ? 22 : 0 }}
-            transition={{ type: 'spring', stiffness: 80, damping: 20 }}
-          >
-            <svg viewBox="0 0 120 120" className="w-full h-full">
-              <circle cx="100" cy="18" r="8" fill="#333" stroke="#444" strokeWidth="1" />
-              <circle cx="100" cy="18" r="4" fill="#555" />
-              <line x1="100" y1="18" x2="30" y2="90" stroke="#aaa" strokeWidth="2.5" strokeLinecap="round" className="drop-shadow-md" />
-              <rect x="22" y="85" width="18" height="6" rx="1" fill="#888" transform="rotate(-42, 30, 90)" className="drop-shadow-sm" />
-              <rect x="18" y="92" width="8" height="4" rx="0.5" fill={primaryColor} transform="rotate(-42, 30, 90)" />
-              <line x1="20" y1="96" x2="17" y2="99" stroke="#ddd" strokeWidth="0.8" transform="rotate(-42, 30, 90)" />
-            </svg>
-          </motion.div>
-
-          {/* Playing glow */}
-          <AnimatePresence>
-            {state.isPlaying && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 rounded-2xl pointer-events-none"
-                style={{ boxShadow: `0 0 80px -20px ${primaryColor}44, inset 0 0 40px -15px ${primaryColor}11` }}
+            <div className="text-[8px] font-black text-white/30 tracking-widest vertical-text mt-4">PITCH</div>
+            <div className="relative flex-1 w-full flex justify-center py-4">
+              <div className="w-[4px] h-full rounded-full bg-white/10 border border-white/5" />
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={pitch}
+                onChange={(e) => { setPitch(parseFloat(e.target.value)); triggerHaptic('light'); }}
+                className="absolute inset-x-0 h-full opacity-0 cursor-pointer z-20 -rotate-90 origin-center"
+                style={{ width: '160px', top: '50px' }}
+                title="Pitch Control"
+                aria-label="Pitch Control"
               />
-            )}
-          </AnimatePresence>
+              <motion.div 
+                className="absolute w-10 h-6 rounded-md bg-[#222] border border-white/20 shadow-xl flex items-center justify-center z-10"
+                style={{ bottom: `calc(${pitch * 100}% - 12px)` }}
+              >
+                <div className="w-6 h-[2px] bg-red-500/80 shadow-[0_0_8px_red]" />
+              </motion.div>
+            </div>
+            <div className="text-[10px] font-black text-white/60 mb-4">{(pitch * 16 - 8).toFixed(1)}%</div>
+          </motion.div>
+
+          {/* Turntable Platter Wrapper */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, rotate: -15 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+            className="relative w-[85%] aspect-square flex items-center justify-center mr-8"
+          >
+            <AnimatePresence>
+              {state.isPlaying && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 0.5, scale: 1.2 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="absolute inset-0 rounded-full blur-[120px] pointer-events-none"
+                  style={{ background: `radial-gradient(circle, ${primaryColor}55 0%, transparent 70%)` }}
+                />
+              )}
+            </AnimatePresence>
+
+            <div className="relative w-full h-full rounded-full bg-[#080808] shadow-[0_60px_120px_rgba(0,0,0,1),inset_0_2px_15px_rgba(255,255,255,0.05)] border-[6px] border-[#1a1a1a] p-3 overflow-hidden">
+              <div className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+              
+              {/* Record Platter */}
+              <motion.div
+                className="absolute inset-[3%] rounded-full shadow-[inset_0_0_80px_rgba(0,0,0,1),0_20px_50px_rgba(0,0,0,1)] flex items-center justify-center"
+                style={{
+                  background: `
+                    radial-gradient(circle at center, #050505 0%, #000 100%),
+                    repeating-radial-gradient(circle at center, transparent 0, transparent 0.8px, rgba(255,255,255,0.03) 1px, rgba(255,255,255,0.03) 1.5px)
+                  `,
+                }}
+                animate={{ rotate: state.isPlaying ? 360 : 0 }}
+                transition={state.isPlaying ? { duration: 2.5, ease: 'linear', repeat: Infinity } : { duration: 1.5, ease: 'circOut' }}
+              >
+                {/* Surface Reflection */}
+                <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0deg,rgba(255,255,255,0.05)_30deg,transparent_60deg,transparent_180deg,rgba(255,255,255,0.04)_210deg,transparent_240deg)] pointer-events-none" />
+                
+                {/* Center Label */}
+                <div
+                  className="relative w-[36%] h-[36%] rounded-full flex flex-col items-center justify-center p-4 z-10 overflow-hidden shadow-2xl"
+                  style={{
+                    background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
+                    border: '1px solid rgba(255,255,255,0.4)',
+                    boxShadow: `0 0 50px ${primaryColor}66, inset 0 2px 15px rgba(255,255,255,0.6)`
+                  }}
+                >
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#050505] border border-white/20 z-20 flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-white/50 shadow-[0_0_4px_white]" />
+                  </div>
+
+                  <div className="text-center z-10 pt-6">
+                    <p className="text-[11px] font-black text-white leading-none font-['Bebas_Neue'] tracking-[0.25em] uppercase mb-[3px] drop-shadow-xl">
+                      {state.currentStation?.name || 'SENTIENT'}
+                    </p>
+                    <p className="text-[8px] text-white/80 tracking-widest font-['Space_Mono'] font-black">
+                      {state.currentStation?.frequency || 'LIVE'}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Station info */}
-        <div className="mt-5 text-center w-full max-w-[340px]">
+        {/* Info & Visualizer Section */}
+        <div className="mt-6 text-center w-full max-w-[420px] stagger-enter">
           <AnimatePresence mode="popLayout">
             <motion.div
               key={state.currentStation?.id || 'none'}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.25 }}
+              initial={{ opacity: 0, y: 15, filter: 'blur(12px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -15, filter: 'blur(12px)' }}
+              transition={{ duration: 0.6, ease: 'circOut' }}
             >
-              <h2 className="text-white text-2xl font-bold font-['Bebas_Neue'] tracking-wider">
-                {state.currentStation?.name || 'No Station'}
+              <h2 className="text-white text-5xl font-black font-['Bebas_Neue'] tracking-wide drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+                {state.currentStation?.name || 'Radio'}
               </h2>
-              <p className="text-white/40 text-xs mt-0.5">
-                {state.currentStation?.genre || ''}
-                {state.currentStation?.genre && state.currentStation?.frequency && ' · '}
-                {state.currentStation?.frequency || ''}
-              </p>
+              <div className="flex items-center justify-center gap-4 mt-2">
+                <motion.div 
+                  animate={{ scale: isPlaying ? [1, 1.2, 1] : 1 }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="w-2 h-2 rounded-full" 
+                  style={{ backgroundColor: primaryColor, boxShadow: `0 0 10px ${primaryColor}` }} 
+                />
+                <p className="text-white/60 text-[11px] tracking-[0.4em] font-black uppercase font-['Space_Mono']">
+                  {state.currentStation?.genre || 'Broadcast'}
+                </p>
+              </div>
             </motion.div>
           </AnimatePresence>
+
+          <RadioVisualizer isPlaying={state.isPlaying} color={primaryColor} />
         </div>
 
-        {/* Controls */}
-        <div className="mt-6 flex items-center gap-5 w-full max-w-[340px] justify-center">
-          <motion.button
-            whileTap={{ scale: 0.85 }}
-            onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('light'); } }}
-            className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center transition-colors hover:bg-white/10"
-          >
-            <Heart className="w-4 h-4" fill={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : 'none'} stroke={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : 'rgba(255,255,255,0.4)'} />
-          </motion.button>
-
-          <div className="flex items-center gap-3">
+        {/* Playback Controls Container */}
+        <div className="mt-auto mb-8 flex flex-col items-center gap-10 w-full max-w-[440px] stagger-enter">
+          <div className="flex items-center gap-6">
             <motion.button
               whileTap={{ scale: 0.85 }}
-              onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
-              className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#222] to-[#1a1a1a] shadow-lg border-t border-white/5"
+              onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('light'); } }}
+              className="w-16 h-16 rounded-3xl bg-white/5 backdrop-blur-3xl flex items-center justify-center border border-white/10 shadow-2xl"
             >
-              <SkipBack className="w-5 h-5 text-white/70" fill="currentColor" />
+              <Heart 
+                className="w-7 h-7 transition-all duration-500" 
+                fill={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : 'none'} 
+                stroke={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : 'rgba(255,255,255,0.5)'} 
+                style={state.currentStation && isStationFavorite(state.currentStation.id) ? { filter: `drop-shadow(0 0 20px ${primaryColor})` } : {}}
+              />
             </motion.button>
 
-            <motion.button
-              whileTap={{ scale: 0.92 }}
-              onClick={() => { togglePlayPause(); triggerHaptic('medium'); }}
-              className="w-16 h-16 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-2xl transition-all"
-              style={{ background: `linear-gradient(145deg, ${primaryColor}dd, ${primaryColor}88)`, boxShadow: `0 8px 24px ${primaryColor}44, inset 0 1px 0 rgba(255,255,255,0.15)` }}
-            >
-              {state.isPlaying ? <Pause className="w-7 h-7 text-white" fill="white" /> : <Play className="w-7 h-7 text-white ml-0.5" fill="white" />}
-              <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
-            </motion.button>
+            <div className="flex items-center gap-4 bg-white/5 backdrop-blur-3xl rounded-[50px] p-2.5 border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
+                className="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors"
+              >
+                <SkipBack className="w-7 h-7 text-white/50" fill="currentColor" />
+              </motion.button>
+
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
+                className="w-28 h-28 rounded-full flex items-center justify-center relative shadow-[0_20px_50px_rgba(0,0,0,0.6)] border-2 border-white/20"
+                style={{ 
+                  background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
+                  boxShadow: `0 0 60px ${primaryColor}33, inset 0 2px 20px rgba(255,255,255,0.5)`
+                }}
+              >
+                {state.isPlaying ? <Pause className="w-12 h-12 text-white" fill="white" /> : <Play className="w-12 h-12 text-white ml-2" fill="white" />}
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none" />
+              </motion.button>
+
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => { changeStation('next'); triggerHaptic('medium'); }}
+                className="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors"
+              >
+                <SkipForward className="w-7 h-7 text-white/50" fill="currentColor" />
+              </motion.button>
+            </div>
 
             <motion.button
               whileTap={{ scale: 0.85 }}
-              onClick={() => { changeStation('next'); triggerHaptic('medium'); }}
-              className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#222] to-[#1a1a1a] shadow-lg border-t border-white/5"
+              onClick={() => { navigate('/radio/cassette'); triggerHaptic('light'); }}
+              className="w-16 h-16 rounded-3xl bg-white/5 backdrop-blur-3xl flex items-center justify-center border border-white/10 shadow-2xl"
             >
-              <SkipForward className="w-5 h-5 text-white/70" fill="currentColor" />
+              <div className="w-7 h-7 border-[3px] border-white/40 rounded-full flex items-center justify-center relative">
+                <div className="w-2.5 h-2.5 bg-white/40 rounded-full" />
+                <div className="absolute inset-[-6px] border border-white/10 rounded-full" />
+              </div>
             </motion.button>
           </div>
 
-          {/* Pitch Fader */}
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-[8px] text-white/30 tracking-[0.15em] uppercase font-bold font-['Space_Mono']">PITCH</span>
-            <div className="relative w-8 h-28 rounded-lg flex items-center justify-center bg-gradient-to-b from-[#1a1a1a] to-[#111] shadow-inner border border-white/5">
-              <div className="absolute w-[2px] h-[85%] rounded-full bg-white/10" />
-              <div className="absolute w-4 h-[1px] bg-white/15 left-1/2 top-1/2 -translate-x-1/2" />
-              <motion.div
-                className="absolute w-6 h-5 rounded-sm bg-gradient-to-b from-[#444] to-[#2a2a2a] shadow-md border-t border-white/10"
-                style={{ top: `${(1 - state.volume) * 75 + 8}%`, left: '50%', transform: 'translateX(-50%)' }}
-                drag="y"
-                dragConstraints={{ top: -40, bottom: 40 }}
-                dragElastic={0}
-                dragMomentum={false}
-                onDrag={(_, info) => {
-                  const parentHeight = 112;
-                  const delta = -info.delta.y / parentHeight;
-                  setVolume(Math.max(0, Math.min(1, state.volume + delta)));
+          {/* Master Volume Bar */}
+          <div className="w-full px-10 pb-4">
+            <div className="flex justify-between items-center mb-5">
+              <div className="flex items-center gap-3">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: primaryColor }} />
+                <span className="text-[10px] text-white/50 tracking-[0.5em] font-black font-['Space_Mono'] uppercase">MASTER VOLUME</span>
+              </div>
+              <span className="text-sm text-white font-black font-['Space_Mono'] opacity-90">{Math.round(state.volume * 100)}%</span>
+            </div>
+            <div className="relative w-full h-12 flex items-center cursor-pointer group">
+              <div className="absolute w-full h-[6px] rounded-full bg-white/5 border border-white/5 overflow-hidden">
+                <motion.div 
+                  className="h-full rounded-full"
+                  style={{ 
+                    width: `${state.volume * 100}%`, 
+                    background: `linear-gradient(90deg, ${primaryColor}77, ${primaryColor})`,
+                    boxShadow: state.isPlaying ? `0 0 20px ${primaryColor}` : 'none'
+                  }}
+                />
+              </div>
+              
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={state.volume}
+                onChange={(e) => setVolume(parseFloat(e.target.value))}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                title="Master Volume"
+                aria-label="Master Volume"
+              />
+
+              <motion.div 
+                className="absolute w-8 h-8 rounded-full bg-white border-[6px] border-[#080808] z-20 pointer-events-none"
+                style={{ 
+                  left: `calc(${state.volume * 100}% - 16px)`,
+                  boxShadow: `0 0 30px ${primaryColor}aa, 0 10px 20px rgba(0,0,0,0.8)`
                 }}
-              >
-                <div className="absolute inset-x-1 top-1/2 -translate-y-1/2 space-y-[2px]">
-                  <div className="h-[1px] bg-white/15" /><div className="h-[1px] bg-white/10" /><div className="h-[1px] bg-white/15" />
-                </div>
-              </motion.div>
-              <span className="absolute -bottom-4 text-[7px] text-white/25 font-['Space_Mono']">{Math.round(state.volume * 100)}%</span>
+              />
             </div>
           </div>
         </div>
       </div>
-
-      {/* Error toast */}
-      <AnimatePresence>
-        {error && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="fixed top-14 left-4 right-4 z-[60] text-center">
-            <span className="inline-block px-4 py-2 rounded-full text-xs font-medium text-red-300 bg-black/85 border border-red-500/30 backdrop-blur-md shadow-lg">{error}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <StationDrawer
         isOpen={showDrawer || showFavoritesDrawer}

@@ -13,6 +13,8 @@ import { deckFadeVariants } from '@/utils/modernAnimations';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
+import { QuickFilterBar } from './QuickFilterBar';
+import { DistanceSlider } from './swipe/DistanceSlider';
 
 // FIX #3: Lazy-load modals to prevent them from affecting swipe tree
 // These are rendered via portal outside the swipe container's React tree
@@ -1045,12 +1047,41 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       initial="initial"
       animate="animate"
       exit="exit"
-      className="relative w-full flex flex-col items-center justify-center"
-      style={{ height: '100%', minHeight: '100%', perspective: '1200px' }}
+      className="relative w-full flex flex-col items-center justify-start pt-2 px-3"
+      style={{ height: 'calc(100dvh - 210px)', minHeight: 'calc(100dvh - 210px)', perspective: '1200px' }}
       onMouseEnter={handleDeckHover}
     >
+      {/* PREMIUM: Global Quick Filter Bar — Compact, Breathing, & Multi-Layered */}
+      <div className="w-full mb-4">
+        <QuickFilterBar
+          filters={{
+            categories: storeCategories as any[],
+            listingType: (stableFilters.listingType as any) || 'both',
+            clientGender: (stableFilters.clientGender as any) || 'any',
+            clientType: (stableFilters.clientType as any) || 'all',
+          }}
+          onChange={(newFilters) => {
+            if (newFilters.categories) {
+              setCategories(newFilters.categories as any);
+            }
+          }}
+          className="rounded-3xl shadow-xl border border-white/5 bg-background/40 backdrop-blur-md"
+        />
+      </div>
+
+      {/* PREMIUM: Little Bowl Distance Selector — Fluid Spring-Physics Interaction */}
+      <div className="w-full mb-6">
+        <DistanceSlider
+          radiusKm={radiusKm}
+          onRadiusChange={setRadiusKm}
+          onDetectLocation={detectLocation}
+          detecting={locationDetecting}
+          detected={locationDetected}
+        />
+      </div>
+
       {/* Centered card stack container with perspective */}
-      <div className="relative flex-1 w-full max-w-md flex items-center justify-center" style={{ perspective: '1200px' }}>
+      <div className="relative flex-1 w-full max-w-md flex items-center justify-center pt-2" style={{ perspective: '1200px' }}>
         {/* THIRD CARD - Deepest in stack for poker hand depth */}
         {(() => {
           const thirdCard = deckQueueRef.current[currentIndexRef.current + 2];

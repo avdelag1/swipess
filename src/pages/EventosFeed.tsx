@@ -967,86 +967,99 @@ export default function EventosFeed() {
     <div data-no-swipe-nav className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col">
 
       {/* ── TOP HUD ── */}
-      <div className="absolute top-0 left-0 right-0 z-30 pt-safe">
+      <div className="absolute top-0 left-0 right-0 z-30 pt-safe stagger-enter">
         {/* Back button + title + promote */}
-        <div className="flex items-center gap-3 px-4 pt-3 pb-2">
+        <motion.div 
+          className="flex items-center gap-3 px-4 pt-3 pb-2"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        >
           <button
             onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)' }}
           >
-            <ArrowLeft className="w-4 h-4 text-white" />
+            <ArrowLeft className="w-5 h-5 text-white" />
           </button>
           <div className="flex-1">
-            <h1 className="text-white font-black font-brand text-lg tracking-tight">Tulum Events</h1>
-            <p className="text-white/50 text-[10px]">{filteredEvents.length} events near you</p>
+            <h1 className="text-white font-black font-brand text-xl tracking-tight leading-tight">Tulum Events</h1>
+            <div className="flex items-center gap-1.5 mt-[-2px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.8)]" />
+              <p className="text-white/60 text-[10px] uppercase font-black tracking-widest leading-none">{filteredEvents.length} LIVE NOW</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            {/* Auto-play toggle */}
+          <div className="flex items-center gap-2.5">
             <button
               onClick={() => { setAutoPlay(p => !p); triggerHaptic('light'); }}
-              className="w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-xl border border-white/10 active:scale-95 transition-all"
               aria-label={autoPlay ? 'Pause auto-play' : 'Start auto-play'}
+              title={autoPlay ? 'Pause auto-play' : 'Start auto-play'}
             >
-              {autoPlay ? <Pause className="w-3.5 h-3.5 text-white" /> : <Play className="w-3.5 h-3.5 text-white" />}
+              {autoPlay ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-white ml-0.5" />}
             </button>
-            <span className="text-[11px] text-white/50 font-bold">{Math.min(activeIdx + 1, filteredEvents.length)}/{filteredEvents.length}</span>
             <button
               onClick={() => { triggerHaptic('light'); navigate('/explore/eventos/likes'); }}
-              className="w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-xl border border-white/10 active:scale-95 transition-all"
               aria-label="View saved events"
+              title="View saved events"
             >
-              <Heart className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
+              <Heart className="w-4 h-4 text-orange-400 fill-orange-400" />
             </button>
             <button
               onClick={() => navigate('/client/advertise')}
-              className="flex items-center gap-1.5 px-3 h-8 rounded-full text-[11px] font-black uppercase tracking-wide text-white"
-              style={{ background: 'linear-gradient(135deg,rgba(249,115,22,0.8),rgba(168,85,247,0.8))', backdropFilter: 'blur(8px)' }}
+              className="flex items-center gap-2 px-4 h-10 rounded-full text-[11px] font-black uppercase tracking-widest text-white shadow-lg active:scale-95 transition-all"
+              style={{ background: 'linear-gradient(135deg, #f97316, #ef4444)' }}
               data-testid="btn-promote-header"
             >
-              <Megaphone className="w-3 h-3" />
+              <Megaphone className="w-3.5 h-3.5" />
               Promote
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Navigation Dots — subtle TikTok style indicators */}
-        <div className="flex justify-center gap-1.5 px-4 pb-2">
+        <div className="flex justify-center gap-1.5 px-4 pb-3">
           {filteredEvents.slice(0, 10).map((_, i) => (
-            <div
+            <motion.div
               key={i}
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.05 }}
               className={cn(
-                "h-1 rounded-full bg-white/30 transition-all duration-300",
-                i === activeIdx ? "w-6 bg-white" : "w-1"
+                "h-1 rounded-full transition-all duration-500",
+                i === activeIdx ? "w-8 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" : "w-1.5 bg-white/20"
               )}
             />
           ))}
         </div>
 
         {/* Category filter pills */}
-        <div className="flex gap-2 px-4 pb-3 overflow-x-auto no-scrollbar">
-          {CATEGORIES.map(cat => {
+        <div className="flex gap-2.5 px-4 pb-4 overflow-x-auto no-scrollbar scroll-smooth">
+          {CATEGORIES.map((cat, idx) => {
             const Icon = cat.icon;
             const active = activeCategory === cat.key;
             return (
-              <button
+              <motion.button
                 key={cat.key}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 + (idx * 0.04) }}
                 title={`Filter by ${cat.label}`}
                 aria-label={`Filter events by ${cat.label}`}
                 onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
-                className="flex items-center gap-1.5 px-3 h-7 rounded-full shrink-0 text-[11px] font-black font-brand uppercase tracking-wide transition-all active:scale-95"
+                className="flex items-center gap-2 px-4 h-9 rounded-full shrink-0 text-[11px] font-black uppercase tracking-[0.1em] transition-all active:scale-90"
                 style={{
-                  background: active ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.4)',
-                  color: active ? '#000' : 'rgba(255,255,255,0.8)',
-                  backdropFilter: 'blur(8px)',
-                  border: active ? 'none' : '1px solid rgba(255,255,255,0.2)',
+                  background: active ? 'rgba(255,255,255,0.95)' : 'rgba(0,0,0,0.45)',
+                  color: active ? '#000' : 'rgba(255,255,255,0.85)',
+                  backdropFilter: 'blur(16px)',
+                  border: active ? 'none' : '1px solid rgba(255,255,255,0.15)',
+                  boxShadow: active ? '0 8px 20px rgba(255,255,255,0.2)' : 'none'
                 }}
               >
-                <Icon className="w-3 h-3" />
+                <Icon className={cn("w-3.5 h-3.5", active ? "text-orange-600" : "text-white/60")} />
                 {cat.label}
-              </button>
+              </motion.button>
             );
           })}
         </div>

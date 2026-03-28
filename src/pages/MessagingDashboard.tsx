@@ -263,7 +263,17 @@ export function MessagingDashboard() {
                 const lastAt = conversation.last_message_at ? new Date(conversation.last_message_at) : null;
 
                 return (
-                  <motion.div key={conversation.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }}>
+                  <motion.div 
+                    key={conversation.id} 
+                    initial={{ opacity: 0, y: 16, scale: 0.98 }} 
+                    animate={{ opacity: 1, y: 0, scale: 1 }} 
+                    transition={{ 
+                      delay: index * 0.045,
+                      type: 'spring',
+                      stiffness: 400,
+                      damping: 30
+                    }}
+                  >
                     <button className={cn("w-full flex items-center gap-3.5 p-3.5 rounded-2xl text-left transition-colors", isLight ? "hover:bg-secondary" : "hover:bg-white/[0.04]")} onClick={() => setSelectedConversationId(conversation.id)}>
                       <div className="relative shrink-0">
                          <Avatar className="w-13 h-13 border-2 border-background shadow-xl">
