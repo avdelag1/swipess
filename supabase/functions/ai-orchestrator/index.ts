@@ -86,27 +86,31 @@ Deno.serve(async (req) => {
             console.log(`[Vibe Agent] Searching local knowledge/web for: ${query}`);
             
             // Query Supabase for local expert cards or info
-            let { data: expertCards, error: searchError } = await supabase
-              .from('expert_knowledge')
-              .select('title, content, category, metadata, location, website_url, instagram_handle, whatsapp')
-              .textSearch('content', query)
-              .limit(5);
+            let expertCards = [];
+            let curatedLinks = "";
+            try {
+              const { data, error: searchError } = await supabase
+                .from('expert_knowledge')
+                .select('title, content, category, metadata, location, website_url, instagram_handle, whatsapp')
+                .textSearch('content', query)
+                .limit(5);
+              
+              if (!searchError) expertCards = data || [];
+              else console.warn("[Vibe Agent] Database search failed (perhaps table missing?):", searchError);
+            } catch (dbErr) {
+              console.warn("[Vibe Agent] Expert table not found or query error:", dbErr);
+            }
 
             // Fallback: If searching for tacos/instagram/links, provide curated links
             const lowerQuery = query.toLowerCase();
-            let curatedLinks = "";
             if (lowerQuery.includes("taco")) {
               curatedLinks = "\nCURATED LINK: [Tacos Rigo - Best Tacos in Tulum](https://www.google.com/search?q=Tacos+Rigo+Tulum)";
             } else if (lowerQuery.includes("instagram") || lowerQuery.includes("contact")) {
               curatedLinks = "\nCURATED LINK: [Instagram @swipe_tulum](https://instagram.com/swipe_tulum)";
             }
 
-            if (searchError) {
-              console.error("[Vibe Agent] Search Error:", searchError);
-            }
-
-            const contextResult = (expertCards?.length || curatedLinks)
-              ? `LOCAL EXPERT KNOWLEDGE FOUND:\n${expertCards?.map((c: any) => 
+            const contextResult = (expertCards.length || curatedLinks)
+              ? `LOCAL EXPERT KNOWLEDGE FOUND:\n${expertCards.map((c: any) => 
                   `[${c.title}] ${c.content}\n` +
                   (c.location ? ` - Location: ${c.location}\n` : '') +
                   (c.instagram_handle ? ` - Instagram: ${c.instagram_handle}\n` : '') +
