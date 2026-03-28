@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
 import { useTheme } from '@/hooks/useTheme';
+import { useUserSubscription } from '@/hooks/useSubscription';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { haptics } from '@/utils/microPolish';
@@ -37,6 +38,7 @@ export function ConciergeChat({
   listings = []
 }: ConciergeChatProps) {
   const { theme } = useTheme();
+  const { data: subscription } = useUserSubscription();
   const isDark = theme === 'dark';
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -111,11 +113,19 @@ export function ConciergeChat({
               <Bot className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-gray-900")}>
-                Concierge
-              </h2>
+              <div className="flex items-center gap-1.5">
+                <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-gray-900")}>
+                  Vibe
+                </h2>
+                {userRole === 'owner' || (subscription?.subscription_packages?.tier === 'premium' || subscription?.subscription_packages?.tier === 'unlimited') && (
+                  <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-bold uppercase tracking-wider border border-amber-500/20">
+                    <Sparkles className="w-2.5 h-2.5" />
+                    Premium
+                  </span>
+                )}
+              </div>
               <p className={cn("text-xs", isDark ? "text-zinc-400" : "text-gray-500")}>
-                Your Personal Assistant for {initialCity}
+                Personal Assistant for {initialCity}
               </p>
             </div>
           </div>
