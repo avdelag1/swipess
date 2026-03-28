@@ -27,7 +27,7 @@ const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects')
 function LogoImage({ className }: { className?: string }) {
   return (
     <div className={cn("relative flex items-center justify-center translate-y-[-2vh]", className)}>
-        <SwipessLogo size="3xl" className="filter drop-shadow-[0_0_30px_rgba(255,107,53,0.3)] shadow-2xl" />
+        <SwipessLogo size="3xl" />
     </div>
   );
 }
