@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight, User } from 'lucide-react';
+import { Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight, User, Trash2, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,6 +32,7 @@ interface ChatSession {
   messages: Message[];
   title: string;
   timestamp: number;
+  isArchived?: boolean;
 }
 
 const MAX_MESSAGES = 100;
@@ -235,6 +236,37 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
     setView('chat');
   };
 
+  const deleteSession = useCallback((sessionId: string) => {
+    setSessions(prev => {
+      const updated = prev.filter(s => s.id !== sessionId);
+      if (user) {
+        localStorage.setItem(STORAGE_SESSIONS_KEY(user.id), JSON.stringify(updated));
+      }
+      return updated;
+    });
+    
+    if (currentSessionId === sessionId) {
+      setMessages([]);
+      setCurrentSessionId(null);
+    }
+    
+    toast.success('Conversation deleted permanently.');
+  }, [user, currentSessionId]);
+
+  const archiveSession = useCallback((sessionId: string) => {
+    setSessions(prev => {
+      const updated = prev.map(s => 
+        s.id === sessionId ? { ...s, isArchived: !s.isArchived } : s
+      );
+      if (user) {
+        localStorage.setItem(STORAGE_SESSIONS_KEY(user.id), JSON.stringify(updated));
+      }
+      return updated;
+    });
+    
+    toast.success('Conversation status updated.');
+  }, [user]);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
@@ -325,27 +357,76 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                     No archived conversations yet.
                   </div>
                 ) : (
-                  sessions.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => restoreSession(s)}
-                      className={cn(
-                        "w-full text-left p-4 rounded-3xl border transition-all flex items-start gap-4 group hover:scale-[1.02] active:scale-[0.98]",
-                        isDark ? "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10" : "bg-gray-50 border-gray-100 hover:bg-gray-100"
-                      )}
+                  sessions.filter(s => !s.isArchived).map((s) => (
+                    <div 
+                      key={s.id} 
+                      className="group relative"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/20 to-rose-500/20 flex items-center justify-center flex-shrink-0 text-orange-500">
-                        <MessageCircle className="w-5 h-5" />
+                      <button
+                        onClick={() => restoreSession(s)}
+                        className={cn(
+                          "w-full text-left p-4 pr-24 rounded-3xl border transition-all flex items-start gap-4 hover:scale-[1.01] active:scale-[0.99]",
+                          isDark ? "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10" : "bg-gray-50 border-gray-100 hover:bg-gray-100"
+                        )}
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/20 to-rose-500/20 flex items-center justify-center flex-shrink-0 text-orange-500">
+                          <MessageCircle className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={cn("font-bold text-sm truncate mb-1", isDark ? "text-white" : "text-gray-900")}>{s.title}</p>
+                          <p className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">
+                            {new Date(s.timestamp).toLocaleDateString()} • {s.messages.length} messages
+                          </p>
+                        </div>
+                      </button>
+
+                      {/* Action Buttons Overlay */}
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => { e.stopPropagation(); archiveSession(s.id); }}
+                          className="h-9 w-9 rounded-xl hover:bg-orange-500/10 text-muted-foreground hover:text-orange-500 transition-all border border-transparent hover:border-orange-500/20"
+                        >
+                          <Archive className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => { e.stopPropagation(); deleteSession(s.id); }}
+                          className="h-9 w-9 rounded-xl hover:bg-rose-500/10 text-muted-foreground hover:text-rose-500 transition-all border border-transparent hover:border-rose-500/20"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={cn("font-bold text-sm truncate mb-1", isDark ? "text-white" : "text-gray-900")}>{s.title}</p>
-                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">
-                          {new Date(s.timestamp).toLocaleDateString()} • {s.messages.length} messages
-                        </p>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
+                    </div>
                   ))
+                )}
+
+                {/* Optional: Show archived section if needed */}
+                {sessions.some(s => s.isArchived) && (
+                   <div className="pt-6 border-t border-white/5">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4 px-2">Archived Vault</p>
+                      <div className="space-y-3 opacity-60 grayscale-[0.5]">
+                        {sessions.filter(s => s.isArchived).map(s => (
+                           <div key={s.id} className="group relative">
+                              <button
+                                onClick={() => restoreSession(s)}
+                                className={cn(
+                                  "w-full text-left p-3 pr-12 rounded-2xl border border-white/5 bg-white/5 flex items-center gap-3",
+                                )}
+                              >
+                                <Archive className="w-4 h-4 text-orange-500/50" />
+                                <span className="text-xs font-bold truncate flex-1">{s.title}</span>
+                                <Trash2 
+                                  className="w-4 h-4 text-muted-foreground hover:text-rose-500 cursor-pointer" 
+                                  onClick={(e) => { e.stopPropagation(); deleteSession(s.id); }}
+                                />
+                              </button>
+                           </div>
+                        ))}
+                      </div>
+                   </div>
                 )}
               </motion.div>
             ) : (

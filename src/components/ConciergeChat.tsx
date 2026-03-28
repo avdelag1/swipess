@@ -14,7 +14,9 @@ import {
   Building2,
   Car,
   RefreshCw,
-  User
+  User,
+  Trash2,
+  Archive
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
 import { SwipessLogo } from './SwipessLogo';
@@ -51,6 +53,7 @@ export function ConciergeChat({
     error, 
     sendMessage, 
     clearMessages,
+    deletePermanently,
     isConfigured 
   } = useConciergeAI();
 
@@ -146,12 +149,27 @@ export function ConciergeChat({
               variant="ghost"
               size="icon"
               onClick={() => {
-                haptics.tap();
+                haptics.notification('warning');
                 clearMessages();
               }}
+              title="Archive Conversation"
               className={cn("h-9 w-9 rounded-lg", isDark ? "text-zinc-400 hover:text-white hover:bg-zinc-800" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100")}
             >
-              <RefreshCw className="w-4 h-4" />
+              <Archive className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                haptics.notification('error');
+                if (window.confirm('Permanently delete this conversation?')) {
+                  deletePermanently();
+                }
+              }}
+              title="Delete Permanently"
+              className={cn("h-9 w-9 rounded-lg hover:text-rose-500", isDark ? "text-zinc-400 hover:bg-zinc-800" : "text-gray-500 hover:bg-gray-100")}
+            >
+              <Trash2 className="w-4 h-4" />
             </Button>
             <Button
               variant="ghost"

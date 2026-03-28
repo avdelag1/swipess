@@ -33,40 +33,46 @@ export function useConciergeAI() {
 
   const storageKey = user ? `${STORAGE_KEY_PREFIX}${user.id}` : null;
 
-  // Hydrate messages from localStorage on mount/user change
-  useEffect(() => {
-    if (!storageKey) return;
-    
-    try {
-      const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // Ensure timestamps are Date objects
-        const hydrated = parsed.map((m: any) => ({
-          ...m,
-          timestamp: new Date(m.timestamp)
-        }));
-        setMessages(hydrated);
-      }
-    } catch (err) {
-      console.warn('[Vibe] Failed to hydrate chat:', err);
-    }
-  }, [storageKey]);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
 
-  // Sync messages to localStorage whenever they change
+  // Load latest conversation or create new one on mount
   useEffect(() => {
-    if (!storageKey || messages.length === 0) return;
+    if (!user) return;
     
-    try {
-      // Limit persistence to last 20 messages for UI depth
-      // (Prompt context still limited to 5 for speed)
-      const toStore = messages.slice(-20);
-      localStorage.setItem(storageKey, JSON.stringify(toStore));
-    } catch (err) {
-      console.warn('[Vibe] Failed to persist chat:', err);
-    }
-  }, [messages, storageKey]);
-  
+    const initChat = async () => {
+      // Try to find an active (non-archived) conversation
+      const { data: convs } = await supabase
+        .from('ai_conversations')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_archived', false)
+        .order('updated_at', { ascending: false })
+        .limit(1);
+
+      if (convs && convs.length > 0) {
+        setCurrentConversationId(convs[0].id);
+        
+        // Load messages for this conversation
+        const { data: msgs } = await supabase
+          .from('ai_messages')
+          .select('*')
+          .eq('conversation_id', convs[0].id)
+          .order('created_at', { ascending: true });
+
+        if (msgs) {
+          setMessages(msgs.map(m => ({
+            id: m.id,
+            role: m.role as any,
+            content: m.content,
+            timestamp: new Date(m.created_at)
+          })));
+        }
+      }
+    };
+
+    initChat();
+  }, [user]);
+
   const sendMessage = useCallback(async (userMessage: string, context?: ConciergeContext) => {
     if (!user) {
       toast.error('Please sign in to use the Concierge');
@@ -76,38 +82,50 @@ export function useConciergeAI() {
     setIsLoading(true);
     setError(null);
 
-    const userMsg: ConciergeMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: userMessage,
-      timestamp: new Date(),
-    };
-    
-    // Optimistically update UI
-    setMessages(prev => [...prev.slice(-19), userMsg]);
-
     try {
-      // 1. Fetch user profile for deep personalization
+      // 1. Ensure we have a conversation record
+      let convId = currentConversationId;
+      if (!convId) {
+        const { data: newConv, error: convErr } = await supabase
+          .from('ai_conversations')
+          .insert({ user_id: user.id, title: userMessage.substring(0, 30) })
+          .select()
+          .single();
+        
+        if (convErr) throw convErr;
+        convId = newConv.id;
+        setCurrentConversationId(convId);
+      }
+
+      // 2. Save User Message to DB
+      const userMsg: ConciergeMessage = {
+        id: Date.now().toString(),
+        role: 'user',
+        content: userMessage,
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, userMsg]);
+
+      await supabase.from('ai_messages').insert({
+        conversation_id: convId,
+        user_id: user.id,
+        role: 'user',
+        content: userMessage
+      });
+
+      // 3. AI Logic (unchanged orchestrator call)
       const { data: profile } = await supabase
         .from('profiles')
         .select('full_name, bio, interests, lifestyle_tags')
         .eq('id', user.id)
         .maybeSingle();
 
-      const userName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || 'Friend';
+      const userName = profile?.full_name || 'Friend';
       const userTier = subscription?.subscription_packages?.tier || 'Basic';
-      const userLang = i18n.language || 'en';
+      
+      const history = messages.slice(-5).map(m => ({ role: m.role, content: m.content }));
 
-      // LIGHTNING-FAST CONTEXT: Only sync the last 5 relevant messages to keep prompt lean.
-      const history = messages
-        .filter(m => !m.content.includes('I encountered an error') && !m.content.includes('Service unavailable'))
-        .slice(-5) 
-        .map(m => ({
-          role: m.role,
-          content: m.content.length > 400 ? m.content.substring(0, 400) + '...' : m.content
-        }));
-
-      // 2. Call the AI Orchestrator with refined context
       const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {
           task: 'chat',
@@ -115,13 +133,6 @@ export function useConciergeAI() {
             query: userMessage,
             userName,
             userTier,
-            userLang,
-            userProfile: {
-              bio: profile?.bio,
-              interests: profile?.interests,
-              lifestyle: profile?.lifestyle_tags
-            },
-            currentPath: location.pathname,
             messages: history,
             context: {
               city: context?.city || 'Tulum',
@@ -134,72 +145,71 @@ export function useConciergeAI() {
 
       if (funcError) throw funcError;
 
-      const aiText = data?.result?.text || data?.result?.message || 'I apologize, but I could not generate a response.';
-      const aiAction = data?.result?.action;
-
+      const aiText = data?.result?.text || 'I am processing that...';
       const assistantMsg: ConciergeMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: aiText,
         timestamp: new Date(),
-        action: aiAction
+        action: data?.result?.action
       };
       
-      setMessages(prev => [...prev.slice(-19), assistantMsg]);
+      setMessages(prev => [...prev, assistantMsg]);
 
-      // 3. Handle Vibe Actions
-      if (aiAction) {
-        console.log('[Vibe] Action Triggered:', aiAction);
-        
-        switch (aiAction.type) {
-          case 'navigate':
-            if (aiAction.params?.path) {
-              toast(`Navigating to ${aiAction.params.path}`, { 
-                icon: '🚀',
-                description: 'Vibe is taking you there now.' 
-              });
-              setTimeout(() => navigate(aiAction.params.path), 1200);
-            }
-            break;
-          case 'open_search':
-            const category = aiAction.params?.category || 'property';
-            toast(`Opening ${category} search...`, { icon: '🔍' });
-            window.dispatchEvent(new CustomEvent('open-ai-search', { detail: { category } }));
-            break;
-          case 'create_listing':
-            const targetCategory = aiAction.params?.category || 'property';
-            toast(`Opening Listing Creator for ${targetCategory}`, { icon: '✍️' });
-            navigate('/owner/listings/new-ai', { state: { category: targetCategory } });
-            break;
-          case 'update_profile':
-            toast.success("Profile update requested! I'll handle that.", { icon: '📝' });
-            break;
-          default:
-            console.warn('[Vibe] Unknown action:', aiAction.type);
-        }
-      }
+      // 4. Save AI Response to DB
+      await supabase.from('ai_messages').insert({
+        conversation_id: convId!,
+        user_id: user.id,
+        role: 'assistant',
+        content: aiText,
+        metadata: assistantMsg.action ? { action: assistantMsg.action } : {}
+      });
 
     } catch (err) {
       console.error('Concierge Error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Service unavailable';
-      setError(errorMessage);
-      
-      setMessages(prev => [...prev, {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: `I encountered an error: ${errorMessage}. I'll keep trying to assist you.`,
-        timestamp: new Date(),
-      }]);
+      setError(err instanceof Error ? err.message : 'Service unavailable');
     } finally {
       setIsLoading(false);
     }
-  }, [messages, user, subscription, location.pathname, navigate]);
+  }, [messages, user, currentConversationId, subscription]);
 
-  const clearMessages = useCallback(() => {
-    if (storageKey) localStorage.removeItem(storageKey);
-    setMessages([]);
-    setError(null);
-  }, [storageKey]);
+  const clearMessages = useCallback(async () => {
+    if (!currentConversationId || !user) {
+      setMessages([]);
+      return;
+    }
+
+    try {
+      // Soft-delete: Move to archive rather than permanent wipe for "Archive" feature
+      await supabase
+        .from('ai_conversations')
+        .update({ is_archived: true })
+        .eq('id', currentConversationId);
+      
+      setMessages([]);
+      setCurrentConversationId(null);
+      toast.success('Conversation archived');
+    } catch (err) {
+      console.error('Failed to clear messages:', err);
+    }
+  }, [currentConversationId, user]);
+
+  const deletePermanently = useCallback(async () => {
+    if (!currentConversationId || !user) return;
+    
+    try {
+      await supabase
+        .from('ai_conversations')
+        .delete()
+        .eq('id', currentConversationId);
+      
+      setMessages([]);
+      setCurrentConversationId(null);
+      toast.success('Conversation permanently deleted');
+    } catch (err) {
+      console.error('Failed to delete:', err);
+    }
+  }, [currentConversationId, user]);
 
   return {
     messages,
