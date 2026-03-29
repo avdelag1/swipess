@@ -13,9 +13,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const ENTER_SPRING = {
   type: 'spring' as const,
-  stiffness: 500,
-  damping: 35,
-  mass: 0.5,
+  stiffness: 450,
+  damping: 28,
+  mass: 0.6,
 };
 
 const EXIT_FAST = {
@@ -26,21 +26,22 @@ const EXIT_FAST = {
 const pageVariants = {
   initial: {
     opacity: 0,
-    x: 6,
-    scale: 0.995,
+    y: 24,
+    scale: 0.96,
   },
   animate: {
     opacity: 1,
-    x: 0,
+    y: 0,
     scale: 1,
     transition: {
       ...ENTER_SPRING,
-      opacity: { duration: 0.1, ease: 'easeOut' },
+      opacity: { duration: 0.15, ease: 'easeOut' },
     },
   },
   exit: {
     opacity: 0,
-    scale: 0.985,
+    scale: 0.98,
+    y: -8,
     transition: EXIT_FAST,
   },
 } as const;

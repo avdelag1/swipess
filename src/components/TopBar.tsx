@@ -222,10 +222,10 @@ function TopBarComponent({
                   style={{ WebkitTapHighlightColor: 'transparent' }}
                   aria-label="Go to profile"
                 >
-                  <Avatar className="h-9 w-9 rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
+                  <Avatar className="h-[42px] w-[42px] rounded-full overflow-hidden cursor-pointer border-[1.5px] border-white/10 ring-0 shadow-sm">
                     <AvatarImage src={profile?.avatar_url || ''} className="object-cover w-full h-full rounded-full" />
                     <AvatarFallback className={cn(
-                      "text-xs font-black uppercase rounded-full w-full h-full flex items-center justify-center",
+                      "text-sm font-black uppercase rounded-full w-full h-full flex items-center justify-center",
                       isLight
                         ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/90"
                         : "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"

@@ -398,11 +398,11 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 <AnimatePresence>
                   {clickedCategory === category.id && category.hasSubOptions && category.id !== 'services' && (
                     <motion.div
-                      initial={{ opacity: 0, height: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, height: 'auto', scale: 1 }}
-                      exit={{ opacity: 0, height: 0, scale: 0.95 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 30, mass: 0.8 }}
-                      className="overflow-hidden"
+                      initial={{ opacity: 0, height: 0, scale: 0.95, filter: 'blur(10px)' }}
+                      animate={{ opacity: 1, height: 'auto', scale: 1, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0, height: 0, scale: 0.95, filter: 'blur(4px)' }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 28, mass: 0.6 }}
+                      className="overflow-hidden origin-top"
                     >
                       <div className="pl-14 sm:pl-16 pr-5 pb-3">
                         <div className="flex gap-2">
@@ -501,11 +501,11 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
             />
             <motion.div
               ref={dropdownRef}
-              initial={{ opacity: 0, y: -10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              transition={{ type: 'spring', stiffness: 700, damping: 42, mass: 0.4 }}
-              className="fixed left-3 top-20 z-[10002] sm:left-1/2 sm:-translate-x-1/2"
+              initial={{ opacity: 0, y: -20, scale: 0.9, filter: 'blur(12px)' }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -15, scale: 0.95, filter: 'blur(8px)' }}
+              transition={{ type: 'spring', stiffness: 450, damping: 25, mass: 0.5 }}
+              className="fixed left-3 top-20 z-[10002] sm:left-1/2 sm:-translate-x-1/2 origin-top-left sm:origin-top"
             >
               {userRole === 'owner' ? renderOwnerFilters() : renderClientFilters()}
             </motion.div>
