@@ -126,7 +126,7 @@ export const SwipeExhaustedState = ({
             <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full scale-150 animate-pulse" />
             <div className="relative">
               <motion.div
-                animate={{ scale: [1, 1.05, 1], rotate: [0, 5, -5, 0] }}
+                animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${iconColor || 'text-primary'} shadow-lg`}
               >

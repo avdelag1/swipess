@@ -110,8 +110,8 @@ export const SwipeDistanceSlider = ({
         <motion.div
           className="absolute w-10 h-10 rounded-full border-[3px] border-white/90 shadow-[0_15px_45px_rgba(0,0,0,0.7),0_0_20px_rgba(236,72,153,0.4)] pointer-events-none bg-gradient-to-br from-[#ec4899] to-[#f97316] z-20 flex items-center justify-center"
           style={{ 
-            x: thumbX,
-            left: 'calc(0% - 20px)'
+            left: thumbX,
+            x: '-50%'
           }}
           whileTap={{ scale: 0.9, rotate: 0 }}
         >

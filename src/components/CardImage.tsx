@@ -174,7 +174,7 @@ const CardImage = memo(({
         loading="eager"
         decoding="async"
         fetchPriority="high"
-          className={cn(loaded && animate ? 'breathing-zoom' : '')}
+          className=""
           style={{
             position: 'absolute',
             inset: 0,
