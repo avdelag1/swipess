@@ -145,7 +145,10 @@ export function useConciergeAI() {
 
       if (funcError) throw funcError;
 
-      const aiText = data?.result?.text || 'I am processing that...';
+      const rawText = data?.result?.text || 'I am processing that...';
+      // Strip any leaked JSON action blocks — user should only see the human-readable message,
+      // never raw internal {"action": ...} objects that were meant for tool execution only.
+      const aiText = rawText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || rawText;
       const assistantMsg: ConciergeMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',

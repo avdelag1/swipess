@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
     let finalContent = "";
     let finalAction = null;
     let iteration = 0;
-    const MAX_ITERATIONS = 2;
+    const MAX_ITERATIONS = 4; // Allow up to 3 tool uses + 1 final answer
 
     while (iteration < MAX_ITERATIONS) {
       iteration++;
@@ -92,37 +92,27 @@ Deno.serve(async (req) => {
           const parsed = JSON.parse(jsonMatch[0]);
           const action = parsed.action;
 
-          // INTERNAL TOOL EXECUTION: Expert Knowledge Search (RAG)
-          if ((action?.type === "search_local_expert_knowledge" || action?.type === "web_search_resource") && action.params?.query) {
+          // INTERNAL TOOL EXECUTION: Local Expert Knowledge Search (RAG)
+          if (action?.type === "search_local_expert_knowledge" && action.params?.query) {
             const query = action.params.query;
-            console.log(`[Vibe Agent] Searching local knowledge/web for: ${query}`);
-            
-            // Query Supabase for local expert cards or info
+            console.log(`[Vibe Agent] Searching local expert knowledge for: ${query}`);
+
             let expertCards = [];
-            let curatedLinks = "";
             try {
               const { data, error: searchError } = await supabase
                 .from('expert_knowledge')
                 .select('title, content, category, metadata, location, website_url, instagram_handle, whatsapp')
                 .textSearch('content', query)
                 .limit(5);
-              
+
               if (!searchError) expertCards = data || [];
-              else console.warn("[Vibe Agent] Database search failed (perhaps table missing?):", searchError);
+              else console.warn("[Vibe Agent] Database search failed:", searchError);
             } catch (dbErr) {
-              console.warn("[Vibe Agent] Expert table not found or query error:", dbErr);
+              console.warn("[Vibe Agent] Expert table query error:", dbErr);
             }
 
-            // Fallback: If searching for tacos/instagram/links, provide curated links
-            const lowerQuery = query.toLowerCase();
-            if (lowerQuery.includes("taco")) {
-              curatedLinks = "\nCURATED LINK: [Tacos Rigo - Best Tacos in Tulum](https://www.google.com/search?q=Tacos+Rigo+Tulum)";
-            } else if (lowerQuery.includes("instagram") || lowerQuery.includes("contact")) {
-              curatedLinks = "\nCURATED LINK: [Instagram @swipe_tulum](https://instagram.com/swipe_tulum)";
-            }
-
-            const contextResult = (expertCards.length || curatedLinks)
-              ? `LOCAL EXPERT KNOWLEDGE FOUND:\n${expertCards.map((c: any) => 
+            const contextResult = expertCards.length
+              ? `LOCAL EXPERT KNOWLEDGE FOUND:\n${expertCards.map((c: any) =>
                   `[${c.title}] ${c.content}\n` +
                   (c.location ? ` - Location: ${c.location}\n` : '') +
                   (c.metadata?.min_spend ? ` - Estimated Price / Minimum Spend: ${c.metadata.min_spend}\n` : '') +
@@ -130,12 +120,61 @@ Deno.serve(async (req) => {
                   (c.instagram_handle ? ` - Instagram: ${c.instagram_handle}\n` : '') +
                   (c.whatsapp ? ` - WhatsApp: ${c.whatsapp}\n` : '') +
                   (c.website_url ? ` - Website: ${c.website_url}\n` : '')
-                ).join("\n")}${curatedLinks}`
+                ).join("\n")}`
               : "No specific local expert knowledge found for this query. Use your existing training to answer with the best links you can find.";
 
             cleanMessages.push({ role: "assistant", content });
             cleanMessages.push({ role: "user", content: `TOOL RESULT: ${contextResult}. Now give the user your final expert advice with the links in markdown format. If you want to visually show the best venue, conclude with {"action": {"type":"show_venue_card", "params": {"title":"...", "category":"...", "whatsapp":"...", "instagram":"..."}}}` });
-            continue; // Go back to AI for final answer
+            continue;
+          }
+
+          // REAL-TIME WEB SEARCH via Tavily AI Search API
+          else if (action?.type === "web_search_resource" && action.params?.query) {
+            const query = action.params.query;
+            console.log(`[Vibe Agent] Performing real-time web search for: ${query}`);
+
+            let webContext = "";
+            const tavilyKey = Deno.env.get("TAVILY_API_KEY");
+
+            if (tavilyKey) {
+              try {
+                const tavilyRes = await fetch("https://api.tavily.com/search", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    api_key: tavilyKey,
+                    query,
+                    search_depth: "basic",
+                    max_results: 5,
+                    include_answer: true,
+                  }),
+                  signal: AbortSignal.timeout(10000),
+                });
+
+                if (tavilyRes.ok) {
+                  const tavilyData = await tavilyRes.json();
+                  const answer = tavilyData.answer ? `DIRECT ANSWER: ${tavilyData.answer}\n\n` : "";
+                  const results = (tavilyData.results || [])
+                    .map((r: any) => `- [${r.title}](${r.url})\n  ${r.content?.substring(0, 200) || ""}`)
+                    .join("\n");
+                  webContext = `REAL-TIME WEB SEARCH RESULTS FOR "${query}":\n\n${answer}TOP RESULTS:\n${results}`;
+                  console.log(`[Vibe Agent] Tavily returned ${tavilyData.results?.length || 0} results`);
+                } else {
+                  console.warn("[Vibe Agent] Tavily API error:", tavilyRes.status);
+                  webContext = `Web search unavailable right now. Use your existing knowledge and provide a Google Search link: [Search: ${query}](https://www.google.com/search?q=${encodeURIComponent(query)})`;
+                }
+              } catch (searchErr) {
+                console.warn("[Vibe Agent] Tavily fetch error:", searchErr);
+                webContext = `Web search timed out. Use your existing knowledge and provide a Google Search link: [Search: ${query}](https://www.google.com/search?q=${encodeURIComponent(query)})`;
+              }
+            } else {
+              // No API key — graceful fallback
+              webContext = `No web search key configured. Use your existing knowledge to answer and provide a Google Search link: [Search: ${query}](https://www.google.com/search?q=${encodeURIComponent(query)})`;
+            }
+
+            cleanMessages.push({ role: "assistant", content });
+            cleanMessages.push({ role: "user", content: `TOOL RESULT: ${webContext}. Now give the user a concise, helpful answer using these real-time results. Include the clickable source links in your response using markdown format [Title](URL). Be direct and factual.` });
+            continue;
           }
           
           // INTERNAL TOOL EXECUTION: Swipess Property Listings RAG
@@ -190,16 +229,39 @@ Deno.serve(async (req) => {
             continue; // Go back to AI for final answer
           }
 
-          finalContent = parsed.message || parsed.text || content;
+          // Strip any JSON action blocks from visible text — user should never see raw JSON
+          const strippedContent = content.replace(/\{[\s\S]*\}/, '').trim();
+          finalContent = parsed.message || parsed.text || strippedContent;
           finalAction = action;
           break;
         } catch {
-          finalContent = content;
+          // JSON parse failed — strip the malformed JSON block and show only the text
+          finalContent = content.replace(/\{[\s\S]*\}/, '').trim();
           break;
         }
       } else {
+        // Plain text response (no JSON) — safe to use directly
         finalContent = content;
         break;
+      }
+    }
+
+    // ── Recovery: if the loop exhausted without a clean answer, prompt for one ──
+    // This handles cases where the AI kept calling tools and hit MAX_ITERATIONS
+    // or where the content was just a bare JSON action with no human-readable text.
+    if (!finalContent || finalContent.trim().startsWith('{')) {
+      console.warn("[Vibe] Loop exhausted without clean answer — running recovery call");
+      cleanMessages.push({
+        role: "user",
+        content: "Based on the information you have gathered, please give your final answer now. Write it as a natural, human-readable message with markdown links. Do not output any JSON or action blocks."
+      });
+      try {
+        const recoveryRes = await callMiniMax(cleanMessages, key, maxTokens);
+        const rc = recoveryRes.choices?.[0]?.message?.content || "";
+        finalContent = rc.replace(/\{[\s\S]*\}/, '').trim() || "I found some results — please try asking again for full details.";
+      } catch (recoveryErr) {
+        console.warn("[Vibe] Recovery call failed:", recoveryErr);
+        finalContent = "I found some information but had trouble formatting the response. Please ask again.";
       }
     }
 
@@ -337,19 +399,15 @@ You live inside the app and know EVERYTHING about it.
 - USER ADDRESSING: Address the user as ${userName}. Their gender is ${userGender}. Adapt your tone to be perfectly respectful and cool.
 - If they are a "man", use more "bro/friend" vibes. If they are a "woman", be extra helpful and sophisticated. If not specified, be neutral and chic.
 
-### SMART DISCOVERY PHASE (THE "BRAIN")
-**CRITICAL:** If a user asks for a recommendation, plan, or "best route" without giving enough detail, DO NOT give a full answer yet. Instead, ask 2-3 short, sharp clarifying questions to build the perfect plan.
-**Questions to consider asking:**
-- "Where are you coming from?" (Are they American? Chinese? Local?)
-- "What's the budget? (Flexing or chill?)"
-- "Any food allergies or specific cuisines you love/hate?"
-- "What's the music vibe? (Techno, Reggaeton, House, Acoustic?)"
-- "What time do you arrive or start your plan?"
-**BE SMART:** If they give these details, proceed to a perfect expert plan. If not, BE AN EXPERT and tell them: "To make this legendary, I need a bit more: [Question 1] and [Question 2]?"`;
+### SMART DISCOVERY — USE SPARINGLY
+**DEFAULT BEHAVIOR: SEARCH AND ANSWER DIRECTLY.** For any request about venues, restaurants, properties, prices, links, or anything the user wants to find — just use your tools and answer immediately.
+**Only ask clarifying questions for COMPLEX multi-day itinerary planning** (e.g. "plan my whole weekend", "build me a 3-day trip"). For simple requests like "find the best beach club", "what's a good restaurant", "search for X" — skip questions entirely and go straight to the answer.
+**If the user says "search online", "look it up", "check the web", "real time", "current", or "find a link" — NEVER ask questions. Search immediately and reply.**`;
 
    const vibeCapabilities = `### KNOWLEDGE & TOOLS
 - App Actions: navigate, open_search, create_listing.
-- PERSISTENT KNOWLEDGE TOOL: "search_local_expert_knowledge". Use this for Beach Clubs, Restaurants, and Nightlife.
+- LOCAL EXPERT KNOWLEDGE: "search_local_expert_knowledge". Use this for Beach Clubs, Restaurants, and Nightlife in Tulum.
+- **REAL-TIME WEB SEARCH: "web_search_resource"** — Use this when the user asks for current prices, live info, recent news, website links, or anything that requires up-to-date data from the internet. This performs a REAL web search and returns actual URLs and content. ALWAYS use it for: current prices, today's events, business contacts, website URLs, "find me a link to...", "what's the price of...", "is X open?", etc.
 - **SECRET TULUM INTEL:** You know Tulum Centro's heart: "La Mini Quinta" (also called "La Calle del Terror"). It's the strip with Santo Gordo, La Pizzina, La Guardia, Santino, and Strawhat. This is where the real local energy is.
 - SWIPESS INTERNAL SEARCH: "search_internal_listings" (properties, scooters, chefs, cleaning services, etc).
 - **PRICING EXPERT:** Always find min spends ($ USD) and best deals.`;
@@ -357,8 +415,11 @@ You live inside the app and know EVERYTHING about it.
   const vibeRules = `### RESPONSE RULES
 - Keep it under 5 lines unless defining a detailed route.
 - **CLICKABLE LINKS ARE MANDATORY:** You MUST provide clickable links for all venues, restaurants, and resources mentioned. Use Markdown format: **[Name](URL)**.
-- **NEVER SAY YOU CAN'T SEND LINKS.** You have full capability to send URLs. If you don't have a specific URL, use a Google Search link: [Search Venue](https://www.google.com/search?q=Venue+Name+Tulum).
-- If searching for businesses, use the tool and then format your final reply with an action: { "message": "...", "action": { "type": "show_venue_card", "params": {"title":"", "category":"", "whatsapp":"", "instagram":""} } }
+- **NEVER SAY YOU CAN'T SEND LINKS.** You have full web search capability. Use "web_search_resource" to find real URLs, then include them in your reply. If you already have the URL from a tool result, use it directly.
+- **FOR REAL-TIME INFO:** Always call "web_search_resource" first — do NOT guess prices, hours, or contact info. Get it from the web and cite the source URL.
+- **WEB SEARCH TRIGGER:** If the user says "search online", "look it up", "real time", "check the web", "current", "latest", "find a link", or similar — you MUST call "web_search_resource" immediately before answering.
+- **CRITICAL JSON FORMAT:** When you use any action (show_venue_card, show_listing_card, web_search_resource, etc.), your response MUST be a JSON object with BOTH a "message" field AND an "action" field: {"message": "Your full human-readable reply here with [links](urls) and all relevant info", "action": {"type": "...", "params": {...}}}. NEVER output a bare action JSON without a message — the user cannot see internal tool calls, only your message field.
+- If searching for businesses, use the tool and then format your final reply: {"message": "Here are the best options...", "action": {"type": "show_venue_card", "params": {"title":"", "category":"", "whatsapp":"", "instagram":""}}}
 - Context: Page: ${currentPath}, Tier: ${userTier}`;
 
   switch (task) {

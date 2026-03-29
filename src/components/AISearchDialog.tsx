@@ -211,7 +211,9 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
       if (funcError) throw funcError;
       if (data?.error) throw new Error(data.error);
 
-      const responseContent = data?.result?.text || data?.result?.message || 'I am focused. Say again?';
+      const rawContent = data?.result?.text || data?.result?.message || 'I am focused. Say again?';
+      // Strip any leaked JSON action blocks — user should only ever see the human-readable message
+      const responseContent = rawContent.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || rawContent;
 
       setMessages(prev => [...prev, {
         role: 'ai',

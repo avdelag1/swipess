@@ -239,8 +239,7 @@ export function ConciergeChat({
                       key={index}
                       onClick={() => {
                         haptics.tap();
-                        setInput(suggestion.prompt);
-                        handleSend();
+                        sendMessage(suggestion.prompt, { city: initialCity, userRole, listings });
                       }}
                       className={cn(
                         "flex items-center gap-2 p-3 rounded-xl text-left transition-all active:scale-95 group",
