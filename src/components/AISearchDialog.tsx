@@ -229,8 +229,6 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
     } catch (error) {
       console.error('[Concierge] Error:', error);
       toast.error('Concierge connection disrupted. Re-sending...');
-      // Allow retry by not clearing the input if it fails early, but here we already cleared it.
-      // So we add a helpful error message instead.
       setMessages(prev => [...prev, {
         role: 'ai',
         content: "⚠️ I encountered a brief disruption in my connection. Could you please repeat that? I've archived our progress so far.",
@@ -297,11 +295,11 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
       <DialogContent
         className={cn(
           "sm:max-w-[460px] w-[calc(100%-16px)] h-[85vh] max-h-[800px] border p-0 overflow-hidden rounded-[2.8rem] shadow-2xl outline-none [&]:top-[50%] !flex !flex-col !gap-0", 
-          isDark ? "bg-[#0e0e11] border-white/10 text-white" : "bg-white border-gray-200 text-zinc-900"
+          isDark ? "bg-[#0e0e11] border-white/10 text-white" : "bg-white border-gray-400 !text-black"
         )}
         hideCloseButton={true}
       >
-        {/* Expert Header — High-End Branding & Vault Switch */}
+        {/* Header */}
         <div className={cn("relative px-6 py-5 border-b flex items-center justify-between z-50", isDark ? "border-white/[0.08] bg-black/40" : "border-gray-100 bg-white/80")}>
           <div className="flex items-center gap-4">
             <motion.button 
@@ -316,7 +314,6 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                )}
             >
               <SwipessLogo size="xs" className={cn("transition-transform duration-300", view === 'history' ? "scale-125" : "scale-110")} />
-              <div className={cn("absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity")} />
               {sessions.length > 0 && view === 'chat' && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 border-2 border-white rounded-full flex items-center justify-center text-[9px] font-black text-white shadow-xl">
                   {sessions.length}
@@ -379,35 +376,30 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                   </div>
                 ) : (
                   sessions.filter(s => !s.isArchived).map((s) => (
-                    <div 
-                      key={s.id} 
-                      className="group relative"
-                    >
+                    <div key={s.id} className="group relative">
                       <button
                         onClick={() => restoreSession(s)}
                         className={cn(
                           "w-full text-left p-4 pr-24 rounded-3xl border transition-all flex items-start gap-4 hover:scale-[1.01] active:scale-[0.99]",
-                          isDark ? "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10" : "bg-gray-50 border-gray-100 hover:bg-gray-100"
+                          isDark ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-gray-50 border-gray-100 hover:bg-gray-100"
                         )}
                       >
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/20 to-rose-500/20 flex items-center justify-center flex-shrink-0 text-orange-500">
+                        <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0 text-orange-500">
                           <MessageCircle className="w-5 h-5" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className={cn("font-bold text-sm truncate mb-1", isDark ? "text-white" : "text-gray-900")}>{s.title}</p>
+                        <div className="flex-1 min-w-0 text-foreground">
+                          <p className="font-bold text-sm truncate mb-1">{s.title}</p>
                           <p className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">
                             {new Date(s.timestamp).toLocaleDateString()} • {s.messages.length} messages
                           </p>
                         </div>
                       </button>
-
-                      {/* Action Buttons Overlay */}
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={(e) => { e.stopPropagation(); archiveSession(s.id); }}
-                          className="h-9 w-9 rounded-xl hover:bg-orange-500/10 text-muted-foreground hover:text-orange-500 transition-all border border-transparent hover:border-orange-500/20"
+                          className="h-9 w-9 rounded-xl hover:bg-orange-500/10 text-muted-foreground hover:text-orange-500"
                         >
                           <Archive className="h-4 w-4" />
                         </Button>
@@ -415,39 +407,13 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                           variant="ghost"
                           size="icon"
                           onClick={(e) => { e.stopPropagation(); deleteSession(s.id); }}
-                          className="h-9 w-9 rounded-xl hover:bg-rose-500/10 text-muted-foreground hover:text-rose-500 transition-all border border-transparent hover:border-rose-500/20"
+                          className="h-9 w-9 rounded-xl hover:bg-rose-500/10 text-muted-foreground hover:text-rose-500"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                   ))
-                )}
-
-                {/* Optional: Show archived section if needed */}
-                {sessions.some(s => s.isArchived) && (
-                   <div className="pt-6 border-t border-white/5">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4 px-2">Archived Vault</p>
-                      <div className="space-y-3 opacity-60 grayscale-[0.5]">
-                        {sessions.filter(s => s.isArchived).map(s => (
-                           <div key={s.id} className="group relative">
-                              <button
-                                onClick={() => restoreSession(s)}
-                                className={cn(
-                                  "w-full text-left p-3 pr-12 rounded-2xl border border-white/5 bg-white/5 flex items-center gap-3",
-                                )}
-                              >
-                                <Archive className="w-4 h-4 text-orange-500/50" />
-                                <span className="text-xs font-bold truncate flex-1">{s.title}</span>
-                                <Trash2 
-                                  className="w-4 h-4 text-muted-foreground hover:text-rose-500 cursor-pointer" 
-                                  onClick={(e) => { e.stopPropagation(); deleteSession(s.id); }}
-                                />
-                              </button>
-                           </div>
-                        ))}
-                      </div>
-                   </div>
                 )}
               </motion.div>
             ) : (
@@ -468,7 +434,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                     >
                       <div className={cn("flex gap-3", message.role === 'user' && "flex-row-reverse")}>
                         <div className={cn(
-                          "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm border",
+                          "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 border shadow-sm",
                           message.role === 'ai'
                             ? (isDark ? "bg-zinc-900 border-white/10" : "bg-gray-100 border-black/8")
                             : "bg-muted border-border"
@@ -489,14 +455,14 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                           message.role === 'user'
                             ? "bg-gradient-to-br from-orange-500 to-rose-500 text-white rounded-[1.5rem] rounded-tr-sm shadow-orange-500/20 whitespace-pre-line"
                             : cn(
-                                "rounded-[1.5rem] rounded-tl-sm border",
-                                isDark ? "bg-zinc-900/80 border-white/10 text-foreground" : "bg-white border-gray-200 text-zinc-900 shadow-xl shadow-black/8"
+                                "rounded-[1.5rem] rounded-tl-sm border shadow-lg",
+                                isDark ? "bg-zinc-900/80 border-white/10 text-foreground" : "bg-white border-gray-300 !text-black"
                               )
                         )}>
                           {message.role === 'user' ? (
                             message.content
                           ) : (
-                            <div className={cn("markdown-content font-bold", !isDark && "text-zinc-900")}>
+                            <div className={cn("markdown-content font-bold", !isDark && "!text-black")}>
                               <ReactMarkdown components={{ a: (props) => <MarkdownLink {...props} isDark={isDark} /> as any }}>
                                 {message.content}
                               </ReactMarkdown>
@@ -535,9 +501,8 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Footer Input Area */}
+                {/* Footer */}
                 <div className={cn("p-5 border-t relative", isDark ? "border-white/5 bg-black/40" : "border-gray-100 bg-gray-50/50")}>
-                  {/* Soft limit nudge — No longer blocks communication */}
                   {isLimitReached && (
                     <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="absolute -top-12 left-5 right-5 flex justify-center">
                        <div className="bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg">
@@ -545,12 +510,11 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                        </div>
                     </motion.div>
                   )}
-
-                  <div className={cn(
-                    "relative rounded-[1.8rem] border transition-all duration-300 group overflow-hidden",
+                   <div className={cn(
+                    "relative rounded-[2.2rem] border-2 transition-all duration-300 group overflow-hidden shadow-2xl",
                     isDark 
-                      ? "bg-zinc-900 border-white/10 focus-within:border-orange-500/50 focus-within:ring-4 focus-within:ring-orange-500/10" 
-                      : "bg-white border-gray-200 focus-within:border-orange-500 shadow-xl shadow-black/5"
+                      ? "bg-[#0c0c0e] border-white/10 focus-within:border-orange-500/50" 
+                      : "bg-white border-gray-400 focus-within:border-orange-500"
                   )}>
                       <textarea
                         ref={inputRef}
@@ -561,9 +525,9 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                         rows={1}
                         disabled={isSearching}
                         className={cn(
-                          "w-full resize-none bg-transparent px-6 py-[18px] pr-14 text-sm font-bold outline-none placeholder:text-muted-foreground/40 leading-tight",
+                          "w-full resize-none bg-transparent px-6 py-[18px] pr-14 text-sm font-bold outline-none leading-tight",
                           "min-h-[56px] max-h-[160px]",
-                          isDark ? "text-white" : "text-zinc-900 font-black"
+                          isDark ? "text-white placeholder:text-muted-foreground/30" : "!text-black placeholder:text-zinc-600 font-extrabold"
                         )}
                       />
                       <Button

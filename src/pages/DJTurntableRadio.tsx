@@ -7,6 +7,7 @@ import { CityLocation } from '@/types/radio';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 import {
   ArrowLeft, ListMusic, Heart, Shuffle,
   SkipBack, SkipForward, Play, Pause, Activity
@@ -142,6 +143,8 @@ export default function DJTurntableRadio() {
     state, error, play, togglePlayPause, changeStation,
     setCity, setVolume, toggleShuffle, toggleFavorite, isStationFavorite,
   } = useRadio();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || theme === 'cheers';
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [showFavoritesDrawer, setShowFavoritesDrawer] = useState(false);
@@ -181,8 +184,8 @@ export default function DJTurntableRadio() {
   return (
     <div
       className={cn(
-        "fixed inset-0 z-50 flex flex-col overflow-hidden select-none transition-colors duration-1000",
-        "bg-[#030303]"
+        "fixed inset-0 z-50 flex flex-col overflow-hidden select-none transition-all duration-1000",
+        isDark ? "bg-[#030303]" : "bg-[#f8f9fa]"
       )}
     >
       {/* Background gradients for liquid feel */}
@@ -203,9 +206,12 @@ export default function DJTurntableRadio() {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => navigate(-1)}
-          className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-2xl flex items-center justify-center border border-white/10 shadow-2xl"
+          className={cn(
+            "w-12 h-12 rounded-2xl flex items-center justify-center border shadow-2xl transition-all",
+            isDark ? "bg-white/5 backdrop-blur-2xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
+          )}
         >
-          <ArrowLeft className="w-5 h-5 text-white/70" />
+          <ArrowLeft className={cn("w-5 h-5", isDark ? "text-white/70" : "text-black/60")} />
         </motion.button>
 
         <div className="flex flex-col items-center">
@@ -213,8 +219,8 @@ export default function DJTurntableRadio() {
             key={cityTheme.name}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-2xl font-black font-brand tracking-[0.2em] text-white"
-            style={{ textShadow: `0 0 30px ${primaryColor}88` }}
+            className={cn("text-2xl font-black font-brand tracking-[0.2em]", isDark ? "text-white" : "text-black")}
+            style={{ textShadow: isDark ? `0 0 30px ${primaryColor}88` : `0 0 20px ${primaryColor}33` }}
           >
             {cityTheme.name.toUpperCase()}
           </motion.div>
@@ -228,17 +234,25 @@ export default function DJTurntableRadio() {
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => { toggleShuffle(); triggerHaptic('light'); }}
-            className={cn("w-12 h-12 rounded-2xl backdrop-blur-2xl flex items-center justify-center transition-all border", state.isShuffle ? "bg-white/20 border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.2)]" : "bg-white/5 border-white/10")}
+            className={cn(
+              "w-12 h-12 rounded-2xl backdrop-blur-2xl flex items-center justify-center transition-all border", 
+              state.isShuffle 
+                ? (isDark ? "bg-white/20 border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.2)]" : "bg-black/10 border-black/10 shadow-lg") 
+                : (isDark ? "bg-white/5 border-white/10" : "bg-black/5 border-black/5 shadow-sm")
+            )}
           >
-            <Shuffle className={cn("w-5 h-5", state.isShuffle ? "text-white" : "text-white/40")} />
+            <Shuffle className={cn("w-5 h-5", state.isShuffle ? (isDark ? "text-white" : "text-black") : (isDark ? "text-white/40" : "text-black/30"))} />
           </motion.button>
           
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowDrawer(true)}
-            className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-2xl flex items-center justify-center border border-white/10 shadow-2xl"
+            className={cn(
+              "w-12 h-12 rounded-2xl flex items-center justify-center border shadow-2xl transition-all",
+              isDark ? "bg-white/5 backdrop-blur-2xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
+            )}
           >
-            <ListMusic className="w-5 h-5 text-white/70" />
+            <ListMusic className={cn("w-5 h-5", isDark ? "text-white/70" : "text-black/60")} />
           </motion.button>
         </div>
       </motion.div>
@@ -267,8 +281,11 @@ export default function DJTurntableRadio() {
               )}
             </AnimatePresence>
 
-            <div className="relative w-full h-full rounded-full bg-[#080808] shadow-[0_60px_120px_rgba(0,0,0,1),inset_0_2px_15px_rgba(255,255,255,0.05)] border-[6px] border-[#1a1a1a] p-3 overflow-hidden">
-              <div className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+            <div className={cn(
+              "relative w-full h-full rounded-full shadow-[0_60px_120px_rgba(0,0,0,0.8),inset_0_2px_15px_rgba(255,255,255,0.1)] border-[6px] p-3 overflow-hidden",
+              isDark ? "bg-[#080808] border-[#1a1a1a]" : "bg-[#f0f0f0] border-white shadow-xl"
+            )}>
+              <div className={cn("absolute inset-0 opacity-20 pointer-events-none", isDark ? "bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" : "bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')]")} />
               
               {/* Record Platter */}
               <motion.div
@@ -299,10 +316,10 @@ export default function DJTurntableRadio() {
                   </div>
 
                   <div className="text-center z-10 pt-6 px-2">
-                    <p className="text-[12px] font-black text-white leading-tight tracking-[0.2em] uppercase mb-[2px] drop-shadow-xl line-clamp-1">
+                    <p className="text-[14px] font-black text-white leading-tight tracking-[0.3em] uppercase mb-[4px] drop-shadow-xl line-clamp-1 font-mono">
                       {state.currentStation?.name || 'SENTIENT'}
                     </p>
-                    <p className="text-[9px] text-white/70 tracking-[0.25em] font-black uppercase">
+                    <p className="text-[10px] text-white/90 tracking-[0.4em] font-black uppercase font-mono bg-black/40 px-2 py-0.5 rounded-sm inline-block">
                       {state.currentStation?.frequency || 'LIVE'}
                     </p>
                   </div>
@@ -322,7 +339,7 @@ export default function DJTurntableRadio() {
               exit={{ opacity: 0, y: -15, filter: 'blur(12px)' }}
               transition={{ duration: 0.6, ease: 'circOut' }}
             >
-              <h2 className="text-white text-6xl font-black tracking-tighter drop-shadow-[0_0_40px_rgba(255,255,255,0.2)]">
+              <h2 className={cn("text-6xl sm:text-7xl font-black tracking-tighter drop-shadow-2xl uppercase font-brand", isDark ? "text-white" : "!text-black")}>
                 {state.currentStation?.name || 'Radio'}
               </h2>
               <div className="flex items-center justify-center gap-4 mt-1.5">
@@ -332,7 +349,7 @@ export default function DJTurntableRadio() {
                   className="w-2.5 h-2.5 rounded-full" 
                   style={{ backgroundColor: primaryColor, boxShadow: `0 0 15px ${primaryColor}` }} 
                 />
-                <p className="text-white/60 text-[12px] tracking-[0.5em] font-black uppercase">
+                <p className={cn("text-xs tracking-[0.6em] font-black uppercase text-center", isDark ? "text-white/60" : "!text-black/60")}>
                   {state.currentStation?.genre || 'Broadcast'}
                 </p>
               </div>
@@ -348,23 +365,29 @@ export default function DJTurntableRadio() {
             <motion.button
               whileTap={{ scale: 0.85 }}
               onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('light'); } }}
-              className="w-16 h-16 rounded-3xl bg-white/5 backdrop-blur-3xl flex items-center justify-center border border-white/10 shadow-2xl"
+              className={cn(
+                "w-16 h-16 rounded-3xl flex items-center justify-center border shadow-2xl transition-all",
+                isDark ? "bg-white/5 backdrop-blur-3xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
+              )}
             >
               <Heart 
                 className="w-7 h-7 transition-all duration-500" 
                 fill={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : 'none'} 
-                stroke={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : 'rgba(255,255,255,0.5)'} 
+                stroke={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : (isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.3)')} 
                 style={state.currentStation && isStationFavorite(state.currentStation.id) ? { filter: `drop-shadow(0 0 20px ${primaryColor})` } : {}}
               />
             </motion.button>
 
-            <div className="flex items-center gap-4 bg-white/5 backdrop-blur-3xl rounded-[50px] p-2.5 border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
+            <div className={cn(
+              "flex items-center gap-4 rounded-[50px] p-2.5 border shadow-[0_30px_60px_rgba(0,0,0,0.3)] transition-all",
+              isDark ? "bg-white/5 backdrop-blur-3xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
+            )}>
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
-                className="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors"
+                className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
               >
-                <SkipBack className="w-7 h-7 text-white/50" fill="currentColor" />
+                <SkipBack className={cn("w-7 h-7", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
               </motion.button>
 
               <motion.button
@@ -383,20 +406,23 @@ export default function DJTurntableRadio() {
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { changeStation('next'); triggerHaptic('medium'); }}
-                className="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors"
+                className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
               >
-                <SkipForward className="w-7 h-7 text-white/50" fill="currentColor" />
+                <SkipForward className={cn("w-7 h-7", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
               </motion.button>
             </div>
 
             <motion.button
               whileTap={{ scale: 0.85 }}
               onClick={() => { navigate('/radio/cassette'); triggerHaptic('light'); }}
-              className="w-16 h-16 rounded-3xl bg-white/5 backdrop-blur-3xl flex items-center justify-center border border-white/10 shadow-2xl"
+              className={cn(
+                "w-16 h-16 rounded-3xl flex items-center justify-center border shadow-2xl transition-all",
+                isDark ? "bg-white/5 backdrop-blur-3xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
+              )}
             >
-              <div className="w-7 h-7 border-[3px] border-white/40 rounded-full flex items-center justify-center relative">
-                <div className="w-2.5 h-2.5 bg-white/40 rounded-full" />
-                <div className="absolute inset-[-6px] border border-white/10 rounded-full" />
+              <div className={cn("w-7 h-7 border-[3px] rounded-full flex items-center justify-center relative", isDark ? "border-white/40" : "border-black/30")}>
+                <div className={cn("w-2.5 h-2.5 rounded-full", isDark ? "bg-white/40" : "bg-black/30")} />
+                <div className={cn("absolute inset-[-6px] border rounded-full", isDark ? "border-white/10" : "border-black/5")} />
               </div>
             </motion.button>
           </div>
@@ -406,12 +432,12 @@ export default function DJTurntableRadio() {
             <div className="flex justify-between items-center mb-5">
               <div className="flex items-center gap-3">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: primaryColor }} />
-                <span className="text-[10px] text-white/50 tracking-[0.5em] font-black font-['Space_Mono'] uppercase">MASTER VOLUME</span>
+                <span className={cn("text-[10px] tracking-[0.5em] font-black uppercase", isDark ? "text-white/50" : "text-black/40")}>MASTER VOLUME</span>
               </div>
-              <span className="text-sm text-white font-black font-['Space_Mono'] opacity-90">{Math.round(state.volume * 100)}%</span>
+              <span className={cn("text-sm font-black opacity-90", isDark ? "text-white" : "text-black")}>{Math.round(state.volume * 100)}%</span>
             </div>
             <div className="relative w-full h-12 flex items-center cursor-pointer group">
-              <div className="absolute w-full h-[6px] rounded-full bg-white/5 border border-white/5 overflow-hidden">
+              <div className={cn("absolute w-full h-[6px] rounded-full overflow-hidden border", isDark ? "bg-white/5 border-white/5" : "bg-black/5 border-black/5")}>
                 <motion.div 
                   className="h-full rounded-full"
                   style={{ 
@@ -435,10 +461,10 @@ export default function DJTurntableRadio() {
               />
 
               <motion.div 
-                className="absolute w-8 h-8 rounded-full bg-white border-[6px] border-[#080808] z-20 pointer-events-none"
+                className={cn("absolute w-8 h-8 rounded-full border-[6px] z-20 pointer-events-none", isDark ? "bg-white border-[#080808]" : "bg-white border-gray-200 shadow-lg")}
                 style={{ 
                   left: `calc(${state.volume * 100}% - 16px)`,
-                  boxShadow: `0 0 30px ${primaryColor}aa, 0 10px 20px rgba(0,0,0,0.8)`
+                  boxShadow: isDark ? `0 0 30px ${primaryColor}aa, 0 10px 20px rgba(0,0,0,0.8)` : `0 0 20px ${primaryColor}66, 0 4px 12px rgba(0,0,0,0.1)`
                 }}
               />
             </div>

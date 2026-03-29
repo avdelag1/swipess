@@ -561,11 +561,13 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 @keyframes breathing-zoom {
-  0% {
-    transform: scale(1.0) translateZ(0);
+  0% { 
+    transform: scale(1.0);
+    filter: brightness(1);
   }
-  100% {
-    transform: scale(1.08) translateZ(0);
+  100% { 
+    transform: scale(1.15);
+    filter: brightness(1.08);
   }
 }
 
@@ -865,37 +867,68 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  12. QUICK FILTER SUBTLE HIGHLIGHTS                                   */
+/*  12. QUICK FILTER HIGH-CONTRAST PILLS (Premium Design 2026)         */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-.filter-pill-subtle {
-  transition: all 400ms var(--ease-spring);
-  position: relative;
-  overflow: hidden;
+.filter-pill-active--property {
+  border-color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.1) !important;
+  color: #065f46 !important;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+  transform: translateY(-1px) scale(1.02);
+}
+.dark .filter-pill-active--property {
+  color: #fff !important;
+  background: rgba(16, 185, 129, 0.05) !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
 }
 
-.filter-pill-subtle::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: currentColor;
-  opacity: 0;
-  transition: opacity 300ms ease;
+.filter-pill-active--motorcycle {
+  border-color: #f97316 !important;
+  background: rgba(249, 115, 22, 0.1) !important;
+  color: #9a3412 !important;
+  box-shadow: 0 0 16px rgba(249, 115, 22, 0.25);
+  transform: translateY(-1px) scale(1.02);
+}
+.dark .filter-pill-active--motorcycle {
+  color: #fff !important;
+  background: rgba(249, 115, 22, 0.05) !important;
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.35);
 }
 
-.filter-pill-subtle.active {
-  background: var(--glass-bg);
-  border-color: currentColor !important;
-  box-shadow: 0 0 15px currentColor;
-  color: var(--primary);
+.filter-pill-active--bicycle {
+  border-color: #8b5cf6 !important;
+  background: rgba(139, 92, 246, 0.1) !important;
+  color: #5b21b6 !important;
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.25);
+  transform: translateY(-1px) scale(1.02);
+}
+.dark .filter-pill-active--bicycle {
+  color: #fff !important;
+  background: rgba(139, 92, 246, 0.05) !important;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.35);
 }
 
-.filter-pill-subtle.active::after {
-  opacity: 0.08;
+.filter-pill-active--services {
+  border-color: #fbbf24 !important;
+  background: rgba(251, 191, 36, 0.1) !important;
+  color: #92400e !important;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.25);
+  transform: translateY(-1px) scale(1.02);
+}
+.dark .filter-pill-active--services {
+  color: #fff !important;
+  background: rgba(251, 191, 36, 0.05) !important;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.35);
 }
 
-/* Light mode specific adjustments for quick filters */
-.light .filter-pill-subtle.active {
-  background: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 0 10px currentColor;
+.filter-pill-inactive {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+.dark .filter-pill-inactive {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
 }

@@ -412,20 +412,9 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 onClick={() => handleCategorySelect(category.id)}
                 className={cn(
                   smoothButtonClass, 
-                  'flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold flex-shrink-0 h-9 transition-all duration-300',
-                  isActive && 'filter-pill-subtle active'
+                  'flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold flex-shrink-0 h-9 transition-all duration-300 border-2',
+                  isActive ? `filter-pill-active--${category.id}` : 'filter-pill-inactive'
                 )}
-                style={isActive && accent ? {
-                  color: isDark ? '#fff' : category.id === 'property' ? '#065f46' : category.id === 'motorcycle' ? '#9a3412' : category.id === 'bicycle' ? '#5b21b6' : '#92400e',
-                  borderColor: isDark ? accent.border : accent.border,
-                  borderWidth: '2px',
-                  background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.8)',
-                  boxShadow: `0 0 12px ${accent.border}44`,
-                } : {
-                  background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)',
-                  border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
-                  color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)',
-                }}
               >
                 <span className="flex items-center transition-colors">
                   {category.icon}

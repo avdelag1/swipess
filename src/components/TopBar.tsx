@@ -280,7 +280,7 @@ function TopBarComponent({
                   <span className={cn(
                     "font-black text-xl uppercase tracking-tighter leading-none select-none whitespace-nowrap",
                     isLight
-                      ? "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
+                      ? "!text-black drop-shadow-[0_1px_2px_rgba(255,255,255,0.4)]"
                       : "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
                   )}>
                     {title}
