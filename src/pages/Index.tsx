@@ -1,14 +1,13 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-
-const LegendaryLandingPage = React.lazy(() => import("@/components/LegendaryLandingPage"));
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
-import React from "react";
+
+const LegendaryLandingPage = React.lazy(() => import("@/components/LegendaryLandingPage"));
 
 const Index = () => {
   const { user, loading, initialized } = useAuth();
@@ -105,7 +104,7 @@ const Index = () => {
       }
     },
     enabled: !!user && initialized,
-    retry: 3,
+    retry: 5,
     retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 3000),
     staleTime: 30000,
     gcTime: 300000,
@@ -250,7 +249,7 @@ const Index = () => {
       }
     };
 
-    // Safety net: if performRedirection never fires navigation within 4s, force it
+    // Safety net: if performRedirection never fires navigation within 5s, force it
     // IMPORTANT: Do NOT clear this from performRedirection — it must run independently
     const safetyTimeout = setTimeout(() => {
       if (!hasNavigated.current && user) {
@@ -258,7 +257,7 @@ const Index = () => {
         logger.warn("[Index] Safety timeout triggered — forcing navigation to unified hub");
         navigate("/client/dashboard", { replace: true });
       }
-    }, 2000);
+    }, 5000);
 
     performRedirection();
     return () => clearTimeout(safetyTimeout);
