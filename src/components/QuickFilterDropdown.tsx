@@ -206,7 +206,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 className={cn(
                   'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-75 touch-manipulation border',
                   categories.length === 0
-                    ? 'bg-slate-700 text-white border-transparent ring-2 ring-slate-500/20'
+                    ? 'bg-gradient-to-br from-rose-500 via-rose-600 to-orange-500 text-white border-transparent shadow-lg shadow-rose-500/20'
                     : isDark ? 'bg-white/5 border-border text-foreground hover:bg-white/10' : 'bg-black/[0.03] border-border text-gray-700 hover:bg-black/[0.05]'
                 )}
               >
@@ -224,8 +224,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     className={cn(
                       'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-75 touch-manipulation border',
                       isActive
-                        ? cn('bg-gradient-to-br text-white border-transparent ring-2 ring-offset-1', option.color,
-                            isDark ? 'ring-white/20' : 'ring-black/10')
+                        ? 'bg-gradient-to-br from-rose-500 via-rose-600 to-orange-500 text-white border-transparent shadow-lg shadow-rose-500/20'
                         : cn('transition-all duration-200', option.inactiveColor, option.bgTint, option.border, 'hover:border-border/80')
                     )}
                   >
@@ -251,8 +250,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     className={cn(
                       'flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-semibold transition-all duration-75 touch-manipulation border',
                       isActive
-                        ? cn('bg-gradient-to-br text-white border-transparent ring-2 ring-offset-1', option.color,
-                            isDark ? 'ring-white/20' : 'ring-black/10')
+                        ? 'bg-gradient-to-br from-rose-500 via-rose-600 to-orange-500 text-white border-transparent shadow-lg shadow-rose-500/20'
                         : cn('transition-all duration-200', option.inactiveColor, option.bgTint, option.border, 'hover:border-border/80')
                     )}
                   >
@@ -278,8 +276,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     className={cn(
                       'flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-xl text-xs font-semibold transition-all duration-75 touch-manipulation border',
                       isActive
-                        ? cn('bg-gradient-to-br text-white border-transparent ring-2 ring-offset-1', option.color,
-                            isDark ? 'ring-white/20' : 'ring-black/10')
+                        ? 'bg-gradient-to-br from-rose-500 via-rose-600 to-orange-500 text-white border-transparent shadow-lg shadow-rose-500/20'
                         : cn('transition-all duration-200', option.inactiveColor, option.bgTint, option.border, 'hover:border-border/80')
                     )}
                   >
@@ -452,19 +449,17 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
           hasActiveFilters && 'shadow-lg shadow-rose-500/20'
         )}
         style={{
-          background: hasActiveFilters
-            ? (isDark 
-                ? 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)' 
-                : 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)')
-            : glassBg,
+          background: glassBg,
           border: hasActiveFilters
-            ? (isDark ? '1px solid rgba(255, 255, 255, 0.2)' : '2px solid transparent')
+            ? 'none' // Handled by gradient border div
             : glassBorder,
-          boxShadow: floatingShadow,
+          boxShadow: hasActiveFilters ? '0 10px 25px -5px rgba(244, 63, 94, 0.2)' : floatingShadow,
         }}
       >
-        {hasActiveFilters && !isDark && (
-          <div className="absolute inset-0 p-[2px] rounded-2xl bg-gradient-to-r from-pink-500 via-rose-600 to-orange-500 -z-10" />
+        {hasActiveFilters && (
+          <div className="absolute inset-0 rounded-xl p-[1.5px] bg-gradient-to-r from-pink-500 via-rose-600 to-orange-500 -z-10">
+            <div className={cn("w-full h-full rounded-[10px]", isDark ? "bg-zinc-900" : "bg-white")} />
+          </div>
         )}
         
         <QuickFilterText hasActiveFilters={hasActiveFilters} isDark={isDark} />

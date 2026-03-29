@@ -1,4 +1,5 @@
 import { memo, useCallback, useRef, useState } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import '../../styles/poker-card-photo.css';
 import { triggerHaptic } from '@/utils/haptics';
@@ -24,6 +25,8 @@ interface PokerCardProps {
  * Features realistic shadows, accent glows, and 3D-tilt gestures.
  */
 export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed = false, onSwipeOut, onBringToFront }: PokerCardProps) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const isExiting = useRef(false);
@@ -124,13 +127,13 @@ export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed 
       {/* Card face */}
       <div
         className={cn(
-          "w-full h-full relative overflow-hidden rounded-[24px] bg-[#0a0a0a]",
-          isTop ? "border-[1.5px] border-white/20 shadow-2xl" : "border border-white/10 shadow-lg"
+          "w-full h-full relative overflow-hidden rounded-[24px] bg-white",
+          isTop ? "border-[2px] border-black/5 shadow-2xl" : "border border-black/5 shadow-lg"
         )}
         style={{
           boxShadow: isTop 
-            ? `0 24px 56px rgba(0,0,0,0.6), 0 0 48px rgba(${card.accentRgb},0.18)` 
-            : '0 8px 20px rgba(0,0,0,0.35)'
+            ? `0 32px 64px rgba(0,0,0,0.18), 0 0 48px rgba(${card.accentRgb},0.2)` 
+            : '0 12px 24px rgba(0,0,0,0.08)'
         }}
       >
         {/* Background — uses local AI image when available; falls back to gradient if img fails */}
@@ -150,8 +153,8 @@ export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed 
           />
         )}
 
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/5" />
+        {/* Soft light overlay for the info section */}
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white via-white/80 to-transparent" />
 
         {/* Accent glow pulse on front card */}
         {isTop && (
@@ -166,15 +169,15 @@ export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed 
         {/* Action labels */}
         {isTop && (
           <>
-            <motion.div style={{ opacity: likeOpacity, rotate: -12 }} className="absolute top-5 left-5 pointer-events-none border-2 border-emerald-400 text-emerald-400 font-black text-sm px-3 py-1 rounded-xl">YES!</motion.div>
-            <motion.div style={{ opacity: nopeOpacity, rotate: 12 }} className="absolute top-5 right-5 pointer-events-none border-2 border-rose-400 text-rose-400 font-black text-sm px-3 py-1 rounded-xl">NOPE</motion.div>
+            <motion.div style={{ opacity: likeOpacity, rotate: -12 }} className="absolute top-5 left-5 pointer-events-none border-2 border-emerald-600 text-emerald-600 font-black text-sm px-3 py-1 rounded-xl bg-white/90">YES!</motion.div>
+            <motion.div style={{ opacity: nopeOpacity, rotate: 12 }} className="absolute top-5 right-5 pointer-events-none border-2 border-rose-600 text-rose-600 font-black text-sm px-3 py-1 rounded-xl bg-white/90">NOPE</motion.div>
           </>
         )}
 
         {/* Card info */}
         <div className="absolute inset-x-0 bottom-0 px-6 pb-6 pt-14">
-          <p className="text-[10px] font-black uppercase tracking-[0.28em] text-white/45 mb-1">{card.description}</p>
-          <h3 className="text-white text-3xl font-black tracking-tight uppercase leading-none">{card.label}</h3>
+          <p className="text-[10px] font-black uppercase tracking-[0.28em] text-black/45 mb-1">{card.description}</p>
+          <h3 className="text-black text-3xl font-black tracking-tight uppercase leading-none">{card.label}</h3>
 
           {isTop && (
             <motion.button
@@ -184,9 +187,9 @@ export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed 
               onClick={(e) => { e.stopPropagation(); onSwipeOut(card.id); }}
               className="mt-4 w-full py-3 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-transform"
               style={{
-                background: 'rgba(255,255,255,0.92)',
-                color: '#111',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
+                background: isDark ? 'rgba(0,0,0,0.92)' : 'rgba(0,0,0,0.85)',
+                color: '#fff',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
                 backdropFilter: 'none',
               }}
             >

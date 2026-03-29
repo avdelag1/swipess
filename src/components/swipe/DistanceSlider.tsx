@@ -26,7 +26,7 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
   
   // Motion values for sub-pixel smooth animations
   const displayPct = useMotionValue((radiusKm / maxKm) * 100);
-  const springPct = useSpring(displayPct, { stiffness: 500, damping: 30, mass: 0.5 });
+  const springPct = useSpring(displayPct, { stiffness: 450, damping: 32, mass: 0.6 });
 
   // Keep in sync when the parent changes the value externally (e.g. GPS detect).
   useEffect(() => {
@@ -88,7 +88,7 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
         <label htmlFor="radius-slider" className="sr-only">Search Radius</label>
         
         {/* Track - Pure Glass Morphic with Liquid Highlight */}
-        <div className="absolute w-full h-2 rounded-full bg-white/5 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
+        <div className="absolute left-[3%] right-[3%] h-2 rounded-full bg-white/5 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10" />
            {/* Animated liquid shimmer on the track */}
            <motion.div 
@@ -100,15 +100,15 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
         
         {/* Fill - Left to Right with Glowing Edge */}
         <motion.div
-          className="absolute h-2 rounded-full z-10"
-          style={{ 
-            width: springPctVal,
-            background: `linear-gradient(90deg, #ec4899 0%, #f97316 100%)`,
-            boxShadow: `0 0 20px rgba(236,72,153,0.4), 0 0 40px rgba(249,115,22,0.2)`
-          }}
+           className="absolute left-[3%] h-2.5 rounded-full z-10"
+           style={{ 
+             width: useTransform(springPct, [0, 100], ['0%', '94%']),
+             background: `linear-gradient(90deg, #ec4899 0%, #f97316 100%)`,
+             boxShadow: `0 0 15px rgba(236,72,153,0.3)`
+           }}
         >
-          {/* Glowing tip of the fill */}
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white blur-sm opacity-60" />
+          {/* Subtle shine on the fill */}
+          <div className="absolute inset-x-0 top-0 h-1 bg-white/20 rounded-full" />
         </motion.div>
         
         <input
@@ -119,28 +119,25 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
           step={1}
           value={localKm}
           onChange={(e) => handleInputChange(Number(e.target.value))}
-          className="absolute w-full opacity-0 h-10 cursor-pointer touch-none z-30"
+          className="absolute left-[3%] right-[3%] opacity-0 h-10 cursor-pointer touch-none z-30"
           title="Slide to adjust your search distance"
           aria-label="Search Radius Slider"
         />
         
-        {/* Thumb - The "Little Bowl" - High-Fidelity Design */}
+        {/* Thumb - The "Premium Bowl" - Refined size and depth */}
         <motion.div
-          className="absolute w-9 h-9 rounded-full border-[2.5px] border-white shadow-[0_12px_24px_rgba(0,0,0,0.6),inset_0_2px_4px_rgba(255,255,255,0.4)] pointer-events-none z-20 flex items-center justify-center overflow-hidden"
+          className="absolute w-8 h-8 rounded-full border-[2.5px] border-white shadow-[0_12px_32px_rgba(0,0,0,0.6),0_0_20px_rgba(236,72,153,0.3)] pointer-events-none z-20 flex items-center justify-center overflow-hidden"
           style={{ 
-            left: thumbLeft,
+            left: useTransform(springPct, [0, 100], ['3%', '97%']),
             x: '-50%',
-            background: `radial-gradient(circle at 30% 30%, #ec4899 0%, #d946ef 45%, #f97316 100%)`
+            background: `radial-gradient(circle at 35% 35%, #ec4899 0%, #be185d 40%, #f59e0b 100%)`
           }}
-          whileHover={{ scale: 1.2 }}
-          whileTap={{ scale: 0.8, rotate: -5 }}
+          whileHover={{ scale: 1.15 }}
+          whileTap={{ scale: 0.85 }}
         >
-          {/* Inner "Bowl" Shadow Depth */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.25)_100%)]" />
-          {/* Catch-light */}
-          <div className="absolute top-1.5 left-1.5 w-3 h-3 bg-white/30 rounded-full blur-[1px]" />
-          {/* Core glow */}
-          <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,1)]" />
+          {/* Glossy catch-light */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-80" />
+          <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,1)] z-10" />
         </motion.div>
       </div>
       

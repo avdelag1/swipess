@@ -8,6 +8,7 @@ import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import {
   getActiveCategoryInfo,
 } from './swipe/SwipeConstants';
+import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -961,6 +962,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   }, []);
 
   const _progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
+
+  // Render the fanned-out poker card categories if no filter is active
+  if (storeCategories.length === 0) {
+    return <SwipeAllDashboard setCategories={setCategories} />;
+  }
 
   // Show skeleton whenever deck is empty and a fetch is in progress.
   if (deckQueue.length === 0 && isLoading) {

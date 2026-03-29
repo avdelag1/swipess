@@ -98,6 +98,12 @@ export function ConciergeChat({
     });
   };
 
+  const linkify = (text: string) => {
+    // Basic regex to find raw URLs that aren't already part of a markdown link
+    const urlRegex = /(?<!\(|\[)(https?:\/\/[^\s<]+[^.,\s<])/g;
+    return text.replace(urlRegex, '[$1]($1)');
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -325,7 +331,7 @@ export function ConciergeChat({
                             li: ({ node, ...props }) => <li className="pl-1" {...props} />
                           }}
                         >
-                          {message.content}
+                          {linkify(message.content)}
                         </ReactMarkdown>
                       </div>
                     )}
@@ -398,9 +404,9 @@ export function ConciergeChat({
                     "flex items-center gap-2 px-4 py-3 rounded-2xl",
                     isDark ? "bg-zinc-800" : "bg-gray-100"
                   )}>
-                    <Loader2 className={cn("w-4 h-4 animate-spin", isDark ? "text-zinc-400" : "text-gray-500")} />
-                    <span className={cn("text-sm", isDark ? "text-zinc-400" : "text-gray-500")}>
-                      Thinking...
+                    <Loader2 className={cn("w-4 h-4 animate-spin", isDark ? "text-cyan-400" : "text-cyan-600")} />
+                    <span className={cn("text-sm font-bold", isDark ? "text-cyan-400" : "text-cyan-600")}>
+                      Finding resources...
                     </span>
                   </div>
                 </motion.div>

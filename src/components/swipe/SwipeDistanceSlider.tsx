@@ -21,8 +21,8 @@ export const SwipeDistanceSlider = ({
   const maxKm = 100;
 
   const displayPct = useMotionValue((radiusKm / maxKm) * 100);
-  // PERF: Stiffer, lower mass spring for "instant" zero-lag response
-  const springPct = useSpring(displayPct, { stiffness: 1000, damping: 40, mass: 0.1 });
+  // PRECISE: Medium-stiff spring for a heavy, high-end "liquid" feel without the jitter
+  const springPct = useSpring(displayPct, { stiffness: 450, damping: 32, mass: 0.6 });
   const localKmVal = useMotionValue(radiusKm);
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export const SwipeDistanceSlider = ({
 
       <div className="relative h-10 flex items-center group">
         {/* Track - Pure Glass Morphic "Hollow" look */}
-        <div className="absolute w-full h-2.5 rounded-full bg-white/5 border border-white/10 overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]">
+        <div className="absolute left-[3%] right-[3%] h-2.5 rounded-full bg-white/5 border border-white/10 overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]">
           {/* Active Fill - Vibrant Glow */}
           <motion.div
             className="h-full bg-gradient-to-r from-[#ec4899] to-[#f97316] shadow-[0_0_15px_rgba(236,72,153,0.5)] relative"
@@ -102,23 +102,24 @@ export const SwipeDistanceSlider = ({
           title="Adjust search radius"
           value={radiusKm}
           onChange={(e) => handleInputChange(Number(e.target.value))}
-          className="absolute w-full opacity-0 h-10 cursor-pointer z-30"
+          className="absolute left-[3%] right-[3%] opacity-0 h-10 cursor-pointer z-30"
           style={{ touchAction: 'none' }}
         />
         
-        {/* Thumb - The "Little Bowl" circle with premium glow */}
+        {/* Thumb - The "Premium Bowl" - Refined size and depth */}
         <motion.div
-          className="absolute w-10 h-10 rounded-full border-[3px] border-white/90 shadow-[0_15px_45px_rgba(0,0,0,0.7),0_0_20px_rgba(236,72,153,0.4)] pointer-events-none bg-gradient-to-br from-[#ec4899] to-[#f97316] z-20 flex items-center justify-center"
+          className="absolute w-8 h-8 rounded-full border-[2.5px] border-white shadow-[0_12px_32px_rgba(0,0,0,0.6),0_0_20px_rgba(236,72,153,0.3)] pointer-events-none z-20 flex items-center justify-center overflow-hidden"
           style={{ 
-            left: thumbX,
-            x: '-50%'
+            left: useTransform(springPct, [0, 100], ['3%', '97%']),
+            x: '-50%',
+            background: `radial-gradient(circle at 35% 35%, #ec4899 0%, #be185d 40%, #f59e0b 100%)`
           }}
-          whileTap={{ scale: 0.9, rotate: 0 }}
+          whileHover={{ scale: 1.15 }}
+          whileTap={{ scale: 0.85 }}
         >
-          {/* Internal reflection & glowing center */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/30 to-transparent rounded-full" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.4)_0%,transparent_70%)]" />
-          <div className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_15px_rgba(255,255,255,1),0_0_30px_rgba(255,255,255,0.6)] z-10" />
+          {/* Internal reflection & glossy finish */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-80" />
+          <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,1)] z-10" />
         </motion.div>
       </div>
 
