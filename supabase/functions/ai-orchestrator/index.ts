@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
     let finalContent = "";
     let finalAction = null;
     let iteration = 0;
-    const MAX_ITERATIONS = 2;
+    const MAX_ITERATIONS = 4; // Allow up to 3 tool uses + 1 final answer
 
     while (iteration < MAX_ITERATIONS) {
       iteration++;
@@ -229,16 +229,39 @@ Deno.serve(async (req) => {
             continue; // Go back to AI for final answer
           }
 
-          finalContent = parsed.message || parsed.text || content;
+          // Strip any JSON action blocks from visible text — user should never see raw JSON
+          const strippedContent = content.replace(/\{[\s\S]*\}/, '').trim();
+          finalContent = parsed.message || parsed.text || strippedContent;
           finalAction = action;
           break;
         } catch {
-          finalContent = content;
+          // JSON parse failed — strip the malformed JSON block and show only the text
+          finalContent = content.replace(/\{[\s\S]*\}/, '').trim();
           break;
         }
       } else {
+        // Plain text response (no JSON) — safe to use directly
         finalContent = content;
         break;
+      }
+    }
+
+    // ── Recovery: if the loop exhausted without a clean answer, prompt for one ──
+    // This handles cases where the AI kept calling tools and hit MAX_ITERATIONS
+    // or where the content was just a bare JSON action with no human-readable text.
+    if (!finalContent || finalContent.trim().startsWith('{')) {
+      console.warn("[Vibe] Loop exhausted without clean answer — running recovery call");
+      cleanMessages.push({
+        role: "user",
+        content: "Based on the information you have gathered, please give your final answer now. Write it as a natural, human-readable message with markdown links. Do not output any JSON or action blocks."
+      });
+      try {
+        const recoveryRes = await callMiniMax(cleanMessages, key, maxTokens);
+        const rc = recoveryRes.choices?.[0]?.message?.content || "";
+        finalContent = rc.replace(/\{[\s\S]*\}/, '').trim() || "I found some results — please try asking again for full details.";
+      } catch (recoveryErr) {
+        console.warn("[Vibe] Recovery call failed:", recoveryErr);
+        finalContent = "I found some information but had trouble formatting the response. Please ask again.";
       }
     }
 
@@ -399,7 +422,9 @@ You live inside the app and know EVERYTHING about it.
 - **CLICKABLE LINKS ARE MANDATORY:** You MUST provide clickable links for all venues, restaurants, and resources mentioned. Use Markdown format: **[Name](URL)**.
 - **NEVER SAY YOU CAN'T SEND LINKS.** You have full web search capability. Use "web_search_resource" to find real URLs, then include them in your reply. If you already have the URL from a tool result, use it directly.
 - **FOR REAL-TIME INFO:** Always call "web_search_resource" first — do NOT guess prices, hours, or contact info. Get it from the web and cite the source URL.
-- If searching for businesses, use the tool and then format your final reply with an action: { "message": "...", "action": { "type": "show_venue_card", "params": {"title":"", "category":"", "whatsapp":"", "instagram":""} } }
+- **WEB SEARCH TRIGGER:** If the user says "search online", "look it up", "real time", "check the web", "current", "latest", "find a link", or similar — you MUST call "web_search_resource" immediately before answering.
+- **CRITICAL JSON FORMAT:** When you use any action (show_venue_card, show_listing_card, web_search_resource, etc.), your response MUST be a JSON object with BOTH a "message" field AND an "action" field: {"message": "Your full human-readable reply here with [links](urls) and all relevant info", "action": {"type": "...", "params": {...}}}. NEVER output a bare action JSON without a message — the user cannot see internal tool calls, only your message field.
+- If searching for businesses, use the tool and then format your final reply: {"message": "Here are the best options...", "action": {"type": "show_venue_card", "params": {"title":"", "category":"", "whatsapp":"", "instagram":""}}}
 - Context: Page: ${currentPath}, Tier: ${userTier}`;
 
   switch (task) {
