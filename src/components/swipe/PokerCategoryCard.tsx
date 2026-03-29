@@ -93,11 +93,11 @@ export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed 
       onClick={() => !isTop && onBringToFront(index)}
       initial={false}
       animate={{
-        x:       isCollapsed ? 0          : (isTop ? 0 : (index - (total - 1) / 2) * FOLDER_OFFSET_X),
+        x:       isCollapsed ? 0          : (isTop ? 0 : (Math.ceil(index / 2) * (index % 2 === 0 ? 1 : -1)) * FOLDER_OFFSET_X),
         y:       isCollapsed ? 0          : (isTop ? 0 : folderY),
         scale:   isCollapsed ? (isTop ? 1 : 1 - index * 0.022) : (isTop ? 1 : 1 - index * 0.012),
         opacity: index > 4 ? 0 : 1,
-        rotate:  isCollapsed ? 3          : (isTop ? 3 : (index - (total - 1) / 2) * POKER_FAN_ROTATION),
+        rotate:  isCollapsed ? 3          : (isTop ? 3 : (Math.ceil(index / 2) * (index % 2 === 0 ? 1 : -1)) * POKER_FAN_ROTATION),
       }}
       transition={isCollapsed
         // Snap shut fast: all cards race toward front card simultaneously
@@ -112,9 +112,9 @@ export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed 
         width: PK_W,
         height: PK_H,
         zIndex: 50 - index,
-        x: isTop ? x : (index - (total - 1) / 2) * FOLDER_OFFSET_X,
+        x: isTop ? x : (Math.ceil(index / 2) * (index % 2 === 0 ? 1 : -1)) * FOLDER_OFFSET_X,
         y: isTop ? y : folderY,
-        rotate: isTop ? dragTilt : (index - (total - 1) / 2) * POKER_FAN_ROTATION,
+        rotate: isTop ? dragTilt : (Math.ceil(index / 2) * (index % 2 === 0 ? 1 : -1)) * POKER_FAN_ROTATION,
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
       } as any}
