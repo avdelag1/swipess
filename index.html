@@ -18,12 +18,12 @@
     /* MINIMAL CRITICAL CSS — everything else loads async */
     :root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
     *,*::before,*::after{box-sizing:border-box}
-    html,body{margin:0;padding:0;overflow:hidden;background:#050505;width:100%;height:100%;color:#fff;font-family:system-ui,-apple-system,sans-serif}
+    html,body{margin:0;padding:0;overflow:hidden;background:#f9f9fb;width:100%;height:100%;color:#1a1a1a;font-family:system-ui,-apple-system,sans-serif}
 
     /* SPLASH: This IS the LCP element — a full visual landing painted in pure CSS + inline SVG */
     #initial-loader{
       display:flex;flex-direction:column;align-items:center;justify-content:center;
-      width:100vw;height:100dvh;background:#050505;
+      width:100vw;height:100dvh;background:#f9f9fb;
       position:fixed;top:0;left:0;z-index:9999;
     }
     .splash-logo{width:140px;height:140px;animation:splash-pulse 1.4s ease-in-out infinite}
@@ -32,11 +32,11 @@
     /* CSS Star Field — renders instantly, no JS needed */
     .stars-container{position:absolute;top:0;left:0;width:100%;height:200%}
     #stars{position:absolute;inset:0;width:1px;height:1px;
-      box-shadow:5vw 15vh #fff,15vw 55vh #fff,25vw 35vh #fff,35vw 75vh #fff,45vw 5vh #fff,55vw 45vh #fff,65vw 85vh #fff,75vw 25vh #fff,85vw 65vh #fff,95vw 90vh #fff,10vw 70vh #fff,40vw 50vh #fff,60vw 20vh #fff,80vw 40vh #fff,20vw 95vh #fff,50vw 30vh #fff,70vw 10vh #fff,30vw 60vh #fff,90vw 50vh #fff,8vw 80vh #fff,5vw 115vh #fff,25vw 135vh #fff,45vw 105vh #fff,65vw 185vh #fff,85vw 165vh #fff;
-      animation:animStar 80s linear infinite}
+      box-shadow:5vw 15vh #000,15vw 55vh #000,25vw 35vh #000,35vw 75vh #000,45vw 5vh #000,55vw 45vh #000,65vw 85vh #000,75vw 25vh #000,85vw 65vh #000,95vw 90vh #000,10vw 70vh #000,40vw 50vh #000,60vw 20vh #000,80vw 40vh #000,20vw 95vh #000,50vw 30vh #000,70vw 10vh #000,30vw 60vh #000,90vw 50vh #000,8vw 80vh #000,5vw 115vh #000,25vw 135vh #000,45vw 105vh #000,65vw 185vh #000,85vw 165vh #000;
+      animation:animStar 80s linear infinite;opacity:0.05}
     #stars2{position:absolute;inset:0;width:2px;height:2px;
-      box-shadow:8vw 30vh #fff,28vw 10vh #fff,48vw 90vh #fff,68vw 60vh #fff,88vw 80vh #fff,32vw 85vh #fff,52vw 5vh #fff,72vw 55vh #fff,2vw 55vh #fff,18vw 170vh #fff,38vw 150vh #fff,58vw 120vh #fff,78vw 140vh #fff;
-      animation:animStar 120s linear infinite}
+      box-shadow:8vw 30vh #000,28vw 10vh #000,48vw 90vh #000,68vw 60vh #000,88vw 80vh #000,32vw 85vh #000,52vw 5vh #000,72vw 55vh #000,2vw 55vh #000,18vw 170vh #000,38vw 150vh #000,58vw 120vh #000,78vw 140vh #000;
+      animation:animStar 120s linear infinite;opacity:0.08}
     @keyframes animStar{from{transform:translateY(0)}to{transform:translateY(-50%)}}
 
     /* HIDE root until React paints — prevents flash of empty div */
@@ -50,7 +50,7 @@
 
   <title>Swipess | The Elite Destination for Discovery & Connection</title>
   <meta name="description" content="Tulum's high-performance platform for elite real estate, luxury vehicles, and world-class service providers. Discover excellence.">
-  <meta name="theme-color" content="#050505">
+  <meta name="theme-color" content="#ffffff">
   <meta name="app-version" content="3.3.0">
 
   <!-- iOS PWA Support — required for "Add to Home Screen" on iPhone/iPad -->

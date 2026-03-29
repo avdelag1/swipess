@@ -13,12 +13,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 
-const MarkdownLink = ({ href, children }: { href?: string; children: React.ReactNode }) => (
+const MarkdownLink = ({ href, children, isDark }: { href?: string; children: React.ReactNode; isDark?: boolean }) => (
   <a 
     href={href} 
     target="_blank" 
     rel="noopener noreferrer" 
-    className="text-orange-400 font-black underline decoration-orange-400/30 hover:decoration-orange-400 transition-all cursor-pointer"
+    className={cn(
+      "font-black underline transition-all cursor-pointer",
+      isDark ? "text-orange-400 decoration-orange-400/30 hover:decoration-orange-400" : "text-orange-600 decoration-orange-600/30 hover:decoration-orange-600"
+    )}
     onClick={(e) => e.stopPropagation()}
   >
     {children}
@@ -68,7 +71,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { data: clientProfile } = useClientProfile();
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isDark = theme === 'dark' || theme === 'cheers';
 
   const userAvatar = (clientProfile?.profile_images as string[] | undefined)?.[0] ?? (clientProfile as any)?.avatar_url ?? null;
 
@@ -487,14 +490,14 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                             ? "bg-gradient-to-br from-orange-500 to-rose-500 text-white rounded-[1.5rem] rounded-tr-sm shadow-orange-500/20 whitespace-pre-line"
                             : cn(
                                 "rounded-[1.5rem] rounded-tl-sm border",
-                                isDark ? "bg-zinc-900/80 border-white/10 text-foreground" : "bg-white border-gray-100 text-zinc-800 shadow-sm"
+                                isDark ? "bg-zinc-900/80 border-white/10 text-foreground" : "bg-white border-gray-200 text-zinc-900 shadow-xl shadow-black/8"
                               )
                         )}>
                           {message.role === 'user' ? (
                             message.content
                           ) : (
-                            <div className={cn("markdown-content font-bold", !isDark && "text-zinc-800")}>
-                              <ReactMarkdown components={{ a: MarkdownLink as any }}>
+                            <div className={cn("markdown-content font-bold", !isDark && "text-zinc-900")}>
+                              <ReactMarkdown components={{ a: (props) => <MarkdownLink {...props} isDark={isDark} /> as any }}>
                                 {message.content}
                               </ReactMarkdown>
                             </div>
@@ -560,7 +563,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                         className={cn(
                           "w-full resize-none bg-transparent px-6 py-[18px] pr-14 text-sm font-bold outline-none placeholder:text-muted-foreground/40 leading-tight",
                           "min-h-[56px] max-h-[160px]",
-                          isDark ? "text-white" : "text-zinc-900"
+                          isDark ? "text-white" : "text-zinc-900 font-black"
                         )}
                       />
                       <Button

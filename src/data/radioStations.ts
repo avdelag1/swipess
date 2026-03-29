@@ -251,7 +251,7 @@ export const radioStations: RadioStation[] = [
     id: 'ny-2',
     name: 'WKCR Jazz',
     frequency: '89.9',
-    streamUrl: 'http://wkcr.streamguys1.com:80/live',
+    streamUrl: 'https://wkcr.streamguys1.com/live',
     city: 'new-york',
     genre: 'Jazz',
     description: 'Real NY Jazz'

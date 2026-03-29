@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { X, Download, Share } from 'lucide-react';
+import { X, Download, Share, Sparkles } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
+import { SwipessLogo } from '@/components/SwipessLogo';
+import { cn } from '@/lib/utils';
 
 // BeforeInstallPromptEvent is not in the standard TS lib
 interface BeforeInstallPromptEvent extends Event {
@@ -41,6 +44,8 @@ export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const [iosMode, setIosMode] = useState(false);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     // Skip if already installed or dismissed forever
@@ -100,48 +105,56 @@ export function PWAInstallPrompt() {
     <div
       role="dialog"
       aria-label="Install Swipess app"
-      className="fixed bottom-0 left-0 right-0 z-[9999] px-4 pb-safe-bottom"
+      className="fixed bottom-0 left-0 right-0 z-[10000] px-4 pb-safe-bottom"
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
     >
-      <div className="bg-[#111] border border-white/10 rounded-2xl p-4 shadow-2xl max-w-md mx-auto">
+      <div className={cn(
+        "relative rounded-[2.5rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)] max-w-md mx-auto overflow-hidden",
+        isDark ? "bg-[#111] border border-white/10" : "bg-white border border-black/5"
+      )}>
+        {/* Decorative background element */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/10 to-rose-500/10 blur-2xl pointer-events-none" />
         {/* Header row */}
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <img
-              src="/icons/swipess-logo.png"
-              alt="Swipess"
-              width={44}
-              height={44}
-              className="rounded-xl flex-shrink-0"
-              loading="eager"
-            />
+          <div className="flex items-center gap-4">
+            <div className={cn(
+               "w-12 h-12 rounded-2x overflow-hidden flex items-center justify-center",
+               isDark ? "bg-zinc-900 border border-white/10" : "bg-gray-50 border border-black/5"
+            )}>
+               <SwipessLogo size="xs" />
+            </div>
             <div>
-              <p className="text-white font-semibold text-sm leading-tight">Swipess</p>
-              <p className="text-white/50 text-xs">swipess.vercel.app</p>
+              <p className={cn("font-black text-base tracking-tight leading-tight", isDark ? "text-white" : "text-black")}>SWIPESS</p>
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-orange-500" />
+                <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/40" : "text-black/40")}>Elite Discovery</p>
+              </div>
             </div>
           </div>
           <button
             onClick={handleDismiss}
             aria-label="Dismiss install prompt"
-            className="text-white/40 hover:text-white/70 transition-colors p-1 -mt-1 -mr-1"
+            className={cn("transition-colors p-2 -mt-2 -mr-2", isDark ? "text-white/20 hover:text-white/50" : "text-black/20 hover:text-black/50")}
           >
-            <X size={18} />
+            <X size={20} strokeWidth={3} />
           </button>
         </div>
 
         {/* Body */}
-        <p className="text-white/70 text-sm mt-3 leading-snug">
+        <p className={cn("text-sm mt-4 font-bold leading-relaxed", isDark ? "text-white/70" : "text-black/60")}>
           {iosMode
-            ? 'Install Swipess on your iPhone for instant access — no app store needed.'
-            : 'Install the app for a faster, native-like experience — works offline too.'}
+            ? 'Install Swipess for a premium, edge-to-edge native experience.'
+            : 'Get the app for faster navigation and real-time elite discovery.'}
         </p>
-
+ 
         {/* iOS instructions */}
         {iosMode && (
-          <div className="mt-3 bg-white/5 rounded-xl px-3 py-2.5 flex items-center gap-2 text-white/60 text-xs">
-            <Share size={14} className="flex-shrink-0 text-[#f97316]" />
-            Tap <strong className="text-white/80 mx-0.5">Share</strong> then
-            <strong className="text-white/80 mx-0.5">"Add to Home Screen"</strong>
+          <div className={cn(
+             "mt-4 rounded-2xl px-4 py-3 flex items-center gap-3 text-[11px] font-black uppercase tracking-widest",
+             isDark ? "bg-white/5 text-white/60" : "bg-black/5 text-black/60"
+          )}>
+            <Share size={16} className="flex-shrink-0 text-orange-500" />
+            <span>Tap <strong className={isDark ? "text-white" : "text-black"}>Share</strong> then <strong className={isDark ? "text-white" : "text-black"}>"Add to Home Screen"</strong></span>
           </div>
         )}
 

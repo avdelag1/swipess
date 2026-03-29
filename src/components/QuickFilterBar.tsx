@@ -405,26 +405,33 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
           {categories.map((category) => {
             const isActive = filters.categories.includes(category.id);
             const accent = categoryColors[category.id];
+            
             return (
               <button
                 key={category.id}
                 onClick={() => handleCategorySelect(category.id)}
-                className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold flex-shrink-0 h-9 transition-all duration-200')}
+                className={cn(
+                  smoothButtonClass, 
+                  'flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold flex-shrink-0 h-9 transition-all duration-300',
+                  isActive && 'filter-pill-subtle active'
+                )}
                 style={isActive && accent ? {
-                  background: accent.bg,
-                  boxShadow: accent.shadow,
-                  color: '#fff',
-                  border: 'none',
+                  color: isDark ? '#fff' : category.id === 'property' ? '#065f46' : category.id === 'motorcycle' ? '#9a3412' : category.id === 'bicycle' ? '#5b21b6' : '#92400e',
+                  borderColor: isDark ? accent.border : accent.border,
+                  borderWidth: '2px',
+                  background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.8)',
+                  boxShadow: `0 0 12px ${accent.border}44`,
                 } : {
-                  background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                  border: isDark ? '1.5px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(0,0,0,0.10)',
-                  color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)',
+                  background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)',
+                  border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
+                  color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)',
                 }}
               >
-                <span style={{ display: 'flex', alignItems: 'center', color: isActive ? '#fff' : undefined }}>
+                <span className="flex items-center transition-colors">
                   {category.icon}
                 </span>
-                <span style={{ color: isActive ? '#fff' : undefined }}>{category.label}</span>
+                <span className="transition-colors">{category.label}</span>
+                {isActive && <Check className="w-3 h-3 ml-0.5" />}
               </button>
             );
           })}
@@ -433,10 +440,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
         {/* Dynamic section title */}
         <div className="px-1 pb-1 pt-0.5">
           <p className={cn(
-              'font-bold transition-all duration-300 bg-clip-text text-transparent bg-gradient-to-r',
+              'font-black transition-all duration-500 bg-clip-text text-transparent bg-gradient-to-r',
               clientIsAllSelected 
-                ? 'from-orange-500 to-pink-500 text-sm' 
-                : 'from-muted-foreground to-foreground text-xs opacity-80'
+                ? 'from-orange-500 via-pink-500 to-rose-500 text-sm' 
+                : 'from-muted-foreground/60 to-foreground text-[10px] uppercase tracking-widest opacity-90'
             )}
           >
             {clientIsAllSelected

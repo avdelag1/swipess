@@ -562,15 +562,15 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 
 @keyframes breathing-zoom {
   0% {
-    transform: scale(1.02) translateZ(0);
+    transform: scale(1.0) translateZ(0);
   }
   100% {
-    transform: scale(1.12) translateZ(0);
+    transform: scale(1.08) translateZ(0);
   }
 }
 
 .breathing-zoom {
-  animation: breathing-zoom 7s ease-in-out infinite alternate !important;
+  animation: breathing-zoom 6s ease-in-out infinite alternate !important;
   will-change: transform;
 }
 
@@ -592,7 +592,6 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 }
 
 @keyframes liquid-flow {
-
   0%,
   100% {
     background-position: 22% 0%, 88% 108%;
@@ -614,16 +613,6 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
     opacity: 0.88;
   }
 }
-
-/**
- * The liquid highlight overlay itself.
- * Background is a two-part radial gradient:
- *   PRIMARY   — large bright ellipse toward top-left (main catch-light)
- *   SECONDARY — smaller faint ellipse at bottom-right (counter-reflection)
- *
- * backgroundSize is set large (220% × 220%) on the primary so the
- * background-position animation moves it visibly across the surface.
- */
 .liquid-glass-highlight {
   background:
     radial-gradient(ellipse 140% 60% at 22% 0%,
@@ -833,4 +822,80 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
   .liquid-glass-highlight--animated {
     animation: none !important;
   }
+}
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  12. BRAND SPECIFIC UTILITIES                                         */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.italic-brand {
+  font-style: italic;
+  letter-spacing: -0.01em;
+  /* Subtle skew to make it feel more "liquid" and fast */
+  transform: skewX(-1deg);
+  display: inline-block;
+  background: linear-gradient(135deg, currentColor 0%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  13. HEART BREATHING EFFECT                                           */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@keyframes heart-breath {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(239, 68, 68, 0));
+  }
+  50% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.4));
+  }
+}
+
+.heart-breathing {
+  animation: heart-breath 3s ease-in-out infinite;
+}
+
+.swipe-card-size {
+  width: 240px;
+  height: 320px;
+  left: calc(50% - 120px);
+  top: calc(50% - 160px);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  12. QUICK FILTER SUBTLE HIGHLIGHTS                                   */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.filter-pill-subtle {
+  transition: all 400ms var(--ease-spring);
+  position: relative;
+  overflow: hidden;
+}
+
+.filter-pill-subtle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.filter-pill-subtle.active {
+  background: var(--glass-bg);
+  border-color: currentColor !important;
+  box-shadow: 0 0 15px currentColor;
+  color: var(--primary);
+}
+
+.filter-pill-subtle.active::after {
+  opacity: 0.08;
+}
+
+/* Light mode specific adjustments for quick filters */
+.light .filter-pill-subtle.active {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 0 10px currentColor;
 }

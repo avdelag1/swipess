@@ -11,11 +11,13 @@ interface Props {
 interface State {
   hasError: boolean;
   error?: Error;
+  showDetails: boolean;
 }
 
 class SignupErrorBoundary extends Component<Props, State> {
   public state: State = {
-    hasError: false
+    hasError: false,
+    showDetails: false
   };
 
   public static getDerivedStateFromError(error: Error): State {
@@ -95,9 +97,39 @@ class SignupErrorBoundary extends Component<Props, State> {
                     If the problem persists, please contact support
                   </p>
                   
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-900 transition-colors cursor-pointer border border-zinc-200/50 shadow-sm">
-                      <MessageSquare className="w-3.5 h-3.5" />
+                  <div className="flex flex-col items-center gap-6">
+                    <div className="flex gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-900 transition-colors cursor-pointer border border-zinc-200/50 shadow-sm">
+                        <MessageSquare className="w-4 h-4" />
+                      </div>
+                    </div>
+
+                    {/* Technical Details Toggle */}
+                    <div className="flex flex-col items-center">
+                      <button
+                        onClick={() => this.setState(s => ({ showDetails: !s.showDetails }))}
+                        className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-300 hover:text-zinc-500 transition-colors flex items-center gap-2"
+                      >
+                        {this.state.showDetails ? 'Hide' : 'Show'} Technical Details
+                        <div className={`w-1 h-1 rounded-full ${this.state.showDetails ? 'bg-rose-500' : 'bg-zinc-200'}`} />
+                      </button>
+
+                      {this.state.showDetails && this.state.error && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-4 p-4 rounded-2xl bg-zinc-50 border border-zinc-100/50 text-left max-w-sm overflow-hidden"
+                        >
+                          <p className="text-[10px] font-mono text-rose-600/80 break-all leading-relaxed mb-2 font-bold">
+                            {this.state.error.name}: {this.state.error.message}
+                          </p>
+                          {this.state.error.stack && (
+                            <p className="text-[9px] font-mono text-zinc-400 line-clamp-4 leading-normal">
+                              {this.state.error.stack}
+                            </p>
+                          )}
+                        </motion.div>
+                      )}
                     </div>
                   </div>
                 </div>

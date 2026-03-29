@@ -54,47 +54,56 @@ export const StationDrawer = ({
             className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100]"
           />
 
-          {/* Drawer */}
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 left-0 right-0 h-[85vh] bg-[#0a0a0a] border-t border-white/10 rounded-t-[2.5rem] p-6 z-[101] overflow-hidden flex flex-col"
+            transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+            className={cn(
+               "fixed bottom-0 left-0 right-0 h-[85vh] z-[101] overflow-hidden flex flex-col",
+               "rounded-t-[2.5rem] border-t modal-liquid-glass p-6",
+            )}
+            style={{ 
+              '--accent-dynamic': accentColor,
+              '--accent-dynamic-alpha': `${accentColor}20`
+            } as React.CSSProperties}
           >
+            {/* Liquid Shine Overlay */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
+               <div className="liquid-glass-highlight--animated absolute inset-0" />
+            </div>
+
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
                 <div 
-                  className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--accent-dynamic-alpha)] text-[var(--accent-dynamic)]"
                 >
-                  {isFavoritesView ? <Star size={20} fill={accentColor} /> : <Music size={20} />}
+                  {isFavoritesView ? <Star size={20} className="fill-[var(--accent-dynamic)]" /> : <Music size={20} />}
                 </div>
-                <h2 className="text-2xl font-black text-white tracking-tight">
-                  {isFavoritesView ? 'FAVORITES' : `WORLD STATIONS`}
+                <h2 className="text-3xl font-black text-foreground tracking-tighter italic">
+                  {isFavoritesView ? 'FAVORITES' : `WORLD RADIOS`}
                 </h2>
               </div>
               <button 
                 onClick={onClose}
-                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-white transition-colors"
+                className="w-12 h-12 rounded-full bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center text-foreground/40 hover:text-foreground transition-all active:scale-90"
               >
                 <X size={24} />
               </button>
             </div>
 
-            {/* City Selection (Only in main view) */}
             {!isFavoritesView && (
-              <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-4 mb-4">
+              <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-6 mb-4 relative z-10">
                 {cities.map((city) => (
                   <button
                     key={city.id}
                     onClick={() => onCitySelect(city.id as CityLocation)}
                     className={cn(
-                      "flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all border",
+                      "flex-shrink-0 px-6 py-3 rounded-2xl text-[11px] font-black tracking-widest transition-all border",
                       currentCity === city.id 
-                        ? "bg-white text-black border-white" 
-                        : "bg-white/5 text-white/40 border-white/5 hover:border-white/20"
+                        ? "bg-foreground text-background border-foreground shadow-lg shadow-black/10" 
+                        : "bg-foreground/5 text-foreground/40 border-foreground/5 hover:border-foreground/20"
                     )}
                   >
                     {city.name.toUpperCase()}
@@ -120,18 +129,15 @@ export const StationDrawer = ({
                       key={station.id}
                       layout
                       className={cn(
-                        "group relative flex items-center justify-between p-4 rounded-3xl transition-all duration-500",
+                        "group relative flex items-center justify-between p-5 rounded-[2rem] transition-all duration-500",
                         isActive 
-                          ? "bg-white/10 shadow-[0_0_30px_rgba(255,255,255,0.05)]" 
-                          : "bg-white/[0.03] hover:bg-white/[0.06]"
+                          ? "bg-foreground/10 shadow-xl shadow-black/5" 
+                          : "bg-foreground/[0.03] hover:bg-foreground/[0.06]"
                       )}
                     >
                       {/* Active Border Glow */}
                       {isActive && (
-                        <div 
-                          className="absolute inset-x-0 bottom-0 h-[2px] rounded-full blur-[2px] animate-pulse"
-                          style={{ backgroundColor: accentColor }}
-                        />
+                        <div className="absolute inset-x-0 bottom-0 h-[2px] rounded-full blur-[2px] animate-pulse bg-[var(--accent-dynamic)]" />
                       )}
 
                       <button 
@@ -141,7 +147,7 @@ export const StationDrawer = ({
                           onStationSelect(station.id);
                         }}
                       >
-                        <div className="relative w-14 h-14 rounded-2xl bg-black/40 flex items-center justify-center overflow-hidden border border-white/10 shadow-inner">
+                        <div className="relative w-16 h-16 rounded-[1.25rem] bg-foreground/5 flex items-center justify-center overflow-hidden border border-foreground/10 shadow-inner">
                           {isActive && isPlaying ? (
                             <div className="flex items-center gap-[2px] h-6">
                               {[0, 1, 2].map(i => (
@@ -149,13 +155,12 @@ export const StationDrawer = ({
                                   key={i}
                                   animate={{ height: ['40%', '100%', '60%', '80%', '40%'] }}
                                   transition={{ repeat: Infinity, duration: 0.8, delay: i * 0.15 }}
-                                  className="w-[3px] rounded-full"
-                                  style={{ backgroundColor: accentColor }}
+                                  className="w-[3px] rounded-full bg-[var(--accent-dynamic)]"
                                 />
                               ))}
                             </div>
                           ) : (
-                            <Play size={22} className={cn("transition-colors", isActive ? "text-white" : "text-white/20")} fill={isActive ? "white" : "none"} />
+                            <Play size={24} className={cn("transition-all duration-300", isActive ? "text-foreground" : "text-foreground/20")} fill={isActive ? "currentColor" : "none"} />
                           )}
                         </div>
                         
@@ -165,13 +170,13 @@ export const StationDrawer = ({
                               {station.frequency}
                             </span>
                             <h3 className={cn(
-                              "font-black text-sm tracking-tight transition-colors",
-                              isActive ? "text-white" : "text-white/60 group-hover:text-white"
+                              "font-black text-base tracking-tighter transition-colors",
+                              isActive ? "text-foreground" : "text-foreground/70 group-hover:text-foreground"
                             )}>
                               {station.name.toUpperCase()}
                             </h3>
                           </div>
-                          <p className="text-[10px] text-white/30 font-bold tracking-wider line-clamp-1 uppercase">
+                          <p className="text-[11px] text-foreground/40 font-black tracking-widest line-clamp-1 uppercase">
                             {station.genre} • {station.description}
                           </p>
                         </div>
@@ -188,10 +193,9 @@ export const StationDrawer = ({
                           size={20} 
                           className={cn(
                             "transition-all duration-300",
-                            isFavorite ? "text-rose-500 scale-110" : "text-white/10 group-hover:text-white/30"
+                            isFavorite ? "text-rose-500 scale-110 drop-shadow-[0_0_10px_rgba(244,63,94,0.4)]" : "text-white/10 group-hover:text-white/30"
                           )} 
                           fill={isFavorite ? "currentColor" : "none"}
-                          style={isFavorite ? { filter: 'drop-shadow(0 0 10px rgba(244,63,94,0.4))' } : {}}
                         />
                       </button>
                     </motion.div>

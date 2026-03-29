@@ -196,21 +196,18 @@ function CategoryCard({
                 "transition-shadow duration-300",
                 isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer hover:shadow-2xl",
                 "bg-black border border-white/12 shadow-[0_20px_50px_rgba(0,0,0,0.4)]",
-                isActive && "ring-4 ring-brand-accent-2 ring-offset-4 ring-offset-background backdrop-blur-xl"
+                isActive && "ring-4 ring-brand-accent-2 ring-offset-4 ring-offset-background backdrop-blur-xl",
+                "swipe-card-size"
             )}
-            style={{
-                width: '240px',
-                height: '320px',
-                left: 'calc(50% - 120px)',
-                top: 'calc(50% - 160px)',
+            style={{ 
                 transformOrigin: 'center center',
+                '--card-image-url': `url(${category.image})`,
                 ...({ x: springX, y: springY, zIndex } as any)
-            }}
+            } as React.CSSProperties}
         >
             {/* Background Photo */}
             <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${category.image})` }}
+                className="absolute inset-0 bg-cover bg-center breathing-zoom bg-[image:var(--card-image-url)]"
             />
             {/* Dark overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20" />
