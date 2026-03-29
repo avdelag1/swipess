@@ -476,7 +476,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
 
   const activeMode: EffectMode = view === 'auth' ? 'off' : 'stars';

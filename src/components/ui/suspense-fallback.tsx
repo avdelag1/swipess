@@ -49,7 +49,7 @@ export function SuspenseFallback({ className, minimal = false }: SuspenseFallbac
   return (
     <div
       className={cn(
-        'fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#000000] overflow-hidden overscroll-none touch-none',
+        'fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#f9f9fb] overflow-hidden overscroll-none touch-none',
         className
       )}
       aria-hidden="true"

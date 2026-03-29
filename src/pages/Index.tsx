@@ -288,7 +288,7 @@ const Index = () => {
   // User exists but still loading role/redirection
   if (user && (isLoadingRole || (isNewUser && !userRole) || !hasNavigated.current)) {
     return (
-      <div className="min-h-screen min-h-dvh bg-[#000000] flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen min-h-dvh bg-[#f9f9fb] flex flex-col items-center justify-center p-4">
         <SuspenseFallback />
         
         {showEscapeHatch && (
