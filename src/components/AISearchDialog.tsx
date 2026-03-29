@@ -292,7 +292,10 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className={cn("sm:max-w-[460px] w-[calc(100%-16px)] h-[85vh] max-h-[800px] border p-0 overflow-hidden rounded-[2.8rem] shadow-2xl outline-none [&]:top-[50%] !flex !flex-col !gap-0", isDark ? "bg-[#0e0e11] border-white/10" : "bg-white border-gray-200")}
+        className={cn(
+          "sm:max-w-[460px] w-[calc(100%-16px)] h-[85vh] max-h-[800px] border p-0 overflow-hidden rounded-[2.8rem] shadow-2xl outline-none [&]:top-[50%] !flex !flex-col !gap-0", 
+          isDark ? "bg-[#0e0e11] border-white/10 text-white" : "bg-white border-gray-200 text-zinc-900"
+        )}
         hideCloseButton={true}
       >
         {/* Expert Header — High-End Branding & Vault Switch */}
@@ -484,15 +487,17 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                             ? "bg-gradient-to-br from-orange-500 to-rose-500 text-white rounded-[1.5rem] rounded-tr-sm shadow-orange-500/20 whitespace-pre-line"
                             : cn(
                                 "rounded-[1.5rem] rounded-tl-sm border",
-                                isDark ? "bg-zinc-900/80 border-white/10 text-foreground" : "bg-white border-gray-100 text-gray-800 shadow-sm"
+                                isDark ? "bg-zinc-900/80 border-white/10 text-foreground" : "bg-white border-gray-100 text-zinc-800 shadow-sm"
                               )
                         )}>
                           {message.role === 'user' ? (
                             message.content
                           ) : (
-                            <ReactMarkdown components={{ a: MarkdownLink as any }}>
-                              {message.content}
-                            </ReactMarkdown>
+                            <div className={cn("markdown-content font-bold", !isDark && "text-zinc-800")}>
+                              <ReactMarkdown components={{ a: MarkdownLink as any }}>
+                                {message.content}
+                              </ReactMarkdown>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -544,9 +549,9 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                       ? "bg-zinc-900 border-white/10 focus-within:border-orange-500/50 focus-within:ring-4 focus-within:ring-orange-500/10" 
                       : "bg-white border-gray-200 focus-within:border-orange-500 shadow-xl shadow-black/5"
                   )}>
-                    <textarea
-                      ref={inputRef}
-                      placeholder="Ask the expert..."
+                      <textarea
+                        ref={inputRef}
+                        placeholder="Ask the expert..."
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={handleKeyDown}
@@ -555,6 +560,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                         className={cn(
                           "w-full resize-none bg-transparent px-6 py-[18px] pr-14 text-sm font-bold outline-none placeholder:text-muted-foreground/40 leading-tight",
                           "min-h-[56px] max-h-[160px]",
+                          isDark ? "text-white" : "text-zinc-900"
                         )}
                       />
                       <Button

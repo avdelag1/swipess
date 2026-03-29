@@ -59,7 +59,7 @@ const LandingView = memo(({
 }: {
   onEnterAuth: () => void;
   isDark: boolean;
-  onToggleDark: () => void;
+  onToggleDark: (e: React.MouseEvent) => void;
 }) => {
   const x = useMotionValue(0);
   const torchBoost = useMotionValue(0);
@@ -146,7 +146,7 @@ const LandingView = memo(({
       {/* Theme toggle — bottom-left corner */}
       <motion.button
         whileTap={{ scale: 0.85 }}
-        onClick={(e) => { e.stopPropagation(); onToggleDark(); triggerHaptic('light'); }}
+        onClick={(e) => { e.stopPropagation(); onToggleDark(e); triggerHaptic('light'); }}
         data-testid="button-star-filter"
         className={cn(
           "absolute bottom-8 left-8 flex items-center justify-center w-14 h-14 rounded-full transition-colors duration-200 z-50 shadow-2xl overflow-hidden group",
@@ -475,18 +475,26 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
+  const { theme, setTheme } = useTheme();
   const [view, setView] = useState<View>('landing');
-  const [isDark, setIsDark] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
 
+  const isDark = theme === 'dark' || theme === 'cheers';
   const activeMode: EffectMode = view === 'auth' ? 'off' : 'stars';
   const bgColor = isDark ? '#050505' : '#f5f5f5';
 
+  const toggleTheme = (e?: React.MouseEvent) => {
+    const nextTheme = isDark ? 'light' : 'dark';
+    setTheme(nextTheme, e ? { x: e.clientX, y: e.clientY } : undefined);
+  };
+
   return (
     <motion.div 
-      className="h-screen h-dvh relative overflow-hidden" 
+      className={cn(
+        "h-screen h-dvh relative overflow-hidden transition-colors duration-300",
+        isDark ? "dark black-matte" : "light white-matte text-zinc-900"
+      )} 
       animate={{ backgroundColor: bgColor }}
-      transition={{ duration: 0.3, ease: "circOut" }}
     >
       <Suspense fallback={null}>
         <LandingBackgroundEffects
@@ -501,7 +509,7 @@ function LegendaryLandingPage() {
             key="landing"
             onEnterAuth={() => setView('auth')}
             isDark={isDark}
-            onToggleDark={() => setIsDark(d => !d)}
+            onToggleDark={toggleTheme}
           />
         ) : (
           <AuthView key="auth" onBack={() => setView('landing')} />
