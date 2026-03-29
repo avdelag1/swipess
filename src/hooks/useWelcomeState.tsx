@@ -132,7 +132,7 @@ async function saveWelcomeNotification(userId: string) {
       user_id: userId,
       notification_type: 'system_announcement' as const,
       title: 'Welcome to Swipess! 🎉',
-      message: 'Your journey to finding the perfect match starts now!',
+      message: 'Thank you for choosing us! As one of our first users, you have been granted exclusive BETA PRIVILEGE: free tokens and free AI tools for life! Enjoy the elite experience.',
       is_read: false
     };
 

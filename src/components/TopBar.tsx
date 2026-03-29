@@ -202,11 +202,8 @@ function TopBarComponent({
               </motion.button>
             )}
 
-            {user ? (
+            {user && (
               <div className="flex items-center gap-2">
-                <div onPointerDown={() => prefetchRoute('/')} className="cursor-pointer">
-                  <SwipessLogo size="md" className="transition-transform active:scale-95" />
-                </div>
                 <motion.button
                   whileTap={{ scale: 0.92 }}
                   onPointerDown={(e) => {
@@ -238,12 +235,6 @@ function TopBarComponent({
                   </Avatar>
                 </motion.button>
               </div>
-            ) : (
-              !showBack && !title && (
-                <div onPointerDown={() => prefetchRoute('/')} className="cursor-pointer">
-                  <SwipessLogo size="md" className="flex-shrink-0" />
-                </div>
-              )
             )}
 
             {/* Gradient fade — buttons scroll behind this */}
