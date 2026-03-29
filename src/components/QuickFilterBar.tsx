@@ -378,89 +378,53 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
       <div className="max-w-screen-xl mx-auto">
         {/* Main filter row — compact ALL pill first, large photo cards at end */}
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1 stagger-enter">
-          {/* ALL button — compact pill, always visible at the start */}
+          {/* ALL button — compact pill */}
           <button
             onClick={() => {
               saveQuickFilter([]);
               onChange({ ...filters, categories: [], listingType: 'both' });
             }}
-            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-5 rounded-full text-[13px] font-black tracking-wide flex-shrink-0 min-h-[44px] overflow-hidden relative')}
-            style={{
+            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 rounded-full text-sm font-black tracking-wide flex-shrink-0 h-9')}
+            style={clientIsAllSelected ? {
+              background: 'linear-gradient(135deg, #f97316 0%, #ec4899 55%, #8b5cf6 100%)',
               color: '#fff',
-              border: clientIsAllSelected ? '2.5px solid transparent' : isDark ? '1.5px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(0,0,0,0.10)',
-              boxShadow: clientIsAllSelected ? '0 4px 20px rgba(236,72,153,0.55)' : 'none',
-              transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
+              border: 'none',
+              boxShadow: '0 4px 14px rgba(249,115,22,0.45)',
+            } : {
+              background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+              border: isDark ? '1.5px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(0,0,0,0.10)',
+              color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)',
             }}
           >
-            {/* Breathing background photo for ALL */}
-            <div className="absolute inset-0 overflow-hidden rounded-full">
-              <img
-                src={_allPhoto}
-                alt=""
-                aria-hidden="true"
-                style={{
-                  position: 'absolute', inset: 0, width: '100%', height: '100%',
-                  objectFit: 'cover', transformOrigin: 'center',
-                  animation: 'breathing-zoom 8s ease-in-out infinite alternate',
-                }}
-              />
-              {/* Pulse/Gradient overlay */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: clientIsAllSelected 
-                  ? 'linear-gradient(135deg, rgba(249,115,22,0.72) 0%, rgba(236,72,153,0.72) 50%, rgba(139,92,246,0.72) 100%)'
-                  : 'rgba(0,0,0,0.45)',
-              }} />
-            </div>
-
-            <div className="relative z-10 flex items-center gap-1.5">
-              <Globe className="w-4 h-4" />
-              <span>ALL</span>
-              {clientIsAllSelected && <Check className="w-3.5 h-3.5 ml-0.5" />}
-            </div>
+            <Globe className="w-4 h-4" />
+            <span>ALL</span>
+            {clientIsAllSelected && <Check className="w-3.5 h-3.5 ml-0.5" />}
           </button>
 
-          {/* Category chips — large photo cards, scrollable at the end */}
+          {/* Category chips — compact pills */}
           {categories.map((category) => {
             const isActive = filters.categories.includes(category.id);
             const accent = categoryColors[category.id];
-            const photo = categoryPhotos[category.id];
             return (
               <button
                 key={category.id}
                 onClick={() => handleCategorySelect(category.id)}
-                className={cn(smoothButtonClass, 'flex items-center gap-2 px-5 rounded-[1.8rem] text-sm font-bold flex-shrink-0 h-[82px] overflow-hidden relative')}
-                style={{
-                  border: isActive && accent ? `2.5px solid ${accent.border}` : isDark ? '1.5px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(0,0,0,0.10)',
-                  boxShadow: isActive && accent ? accent.shadow : '0 4px 12px rgba(0,0,0,0.05)',
-                  transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
+                className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold flex-shrink-0 h-9 transition-all duration-200')}
+                style={isActive && accent ? {
+                  background: accent.bg,
+                  boxShadow: accent.shadow,
+                  color: '#fff',
+                  border: 'none',
+                } : {
+                  background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                  border: isDark ? '1.5px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(0,0,0,0.10)',
+                  color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)',
                 }}
               >
-                {/* Breathing background photo */}
-                <div className="absolute inset-0 overflow-hidden rounded-2xl">
-                  {photo && (
-                    <img
-                      src={photo}
-                      alt=""
-                      aria-hidden="true"
-                      style={{
-                        position: 'absolute', inset: 0, width: '100%', height: '100%',
-                        objectFit: 'cover', transformOrigin: 'center',
-                        animation: 'breathing-zoom 8s ease-in-out infinite alternate',
-                      }}
-                    />
-                  )}
-                  {/* Gradient overlay */}
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    background: isActive && accent ? accent.overlay : isDark ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.40)',
-                  }} />
-                </div>
-                {/* Content */}
-                <div className={cn("transition-transform duration-300 relative z-10 text-white", isActive && "scale-110")}>
+                <span style={{ display: 'flex', alignItems: 'center', color: isActive ? '#fff' : undefined }}>
                   {category.icon}
-                </div>
-                <span className="tracking-tight relative z-10 text-white">{category.label}</span>
+                </span>
+                <span style={{ color: isActive ? '#fff' : undefined }}>{category.label}</span>
               </button>
             );
           })}

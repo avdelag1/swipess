@@ -42,7 +42,9 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
   };
 
   const springPctVal = useTransform(springPct, (v) => `${v}%`);
-  const thumbLeft = useTransform(springPct, (v) => `calc(${v}% - 16px)`);
+  // Thumb is w-9 = 36px. Offset must scale with v so the center tracks exactly:
+  // at v=0 → left=0, at v=50 → left=calc(50%-18px), at v=100 → left=calc(100%-36px)
+  const thumbLeft = useTransform(springPct, (v) => `calc(${v}% - ${v * 0.36}px)`);
 
   return (
     <div className="w-full max-w-xs mx-auto mt-2 px-4 py-2">
