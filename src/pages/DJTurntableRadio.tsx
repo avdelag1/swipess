@@ -211,16 +211,16 @@ export default function DJTurntableRadio() {
         <div className="flex flex-col items-center">
           <motion.div 
             key={cityTheme.name}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-lg font-bold font-['Bebas_Neue'] tracking-[0.4em] text-white"
-            style={{ textShadow: `0 0 25px ${primaryColor}` }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-2xl font-black font-brand tracking-[0.2em] text-white"
+            style={{ textShadow: `0 0 30px ${primaryColor}88` }}
           >
             {cityTheme.name.toUpperCase()}
           </motion.div>
           <div className="flex items-center gap-2 mt-[-2px]">
-            <span className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_10px_#4ade80]" />
-            <span className="text-[9px] text-white/40 tracking-[0.2em] font-black font-['Space_Mono'] uppercase">Streaming Live</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_12px_#4ade80]" />
+            <span className="text-[10px] text-white/50 tracking-[0.3em] font-black uppercase">Streaming Live</span>
           </div>
         </div>
 
@@ -298,11 +298,11 @@ export default function DJTurntableRadio() {
                     <div className="w-1.5 h-1.5 rounded-full bg-white/90 shadow-[0_0_8px_white]" />
                   </div>
 
-                  <div className="text-center z-10 pt-6">
-                    <p className="text-[11px] font-black text-white leading-none font-['Bebas_Neue'] tracking-[0.25em] uppercase mb-[3px] drop-shadow-xl">
+                  <div className="text-center z-10 pt-6 px-2">
+                    <p className="text-[12px] font-black text-white leading-tight tracking-[0.2em] uppercase mb-[2px] drop-shadow-xl line-clamp-1">
                       {state.currentStation?.name || 'SENTIENT'}
                     </p>
-                    <p className="text-[8px] text-white/80 tracking-widest font-['Space_Mono'] font-black">
+                    <p className="text-[9px] text-white/70 tracking-[0.25em] font-black uppercase">
                       {state.currentStation?.frequency || 'LIVE'}
                     </p>
                   </div>
@@ -322,17 +322,17 @@ export default function DJTurntableRadio() {
               exit={{ opacity: 0, y: -15, filter: 'blur(12px)' }}
               transition={{ duration: 0.6, ease: 'circOut' }}
             >
-              <h2 className="text-white text-5xl font-black font-['Bebas_Neue'] tracking-wide drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+              <h2 className="text-white text-6xl font-black tracking-tighter drop-shadow-[0_0_40px_rgba(255,255,255,0.2)]">
                 {state.currentStation?.name || 'Radio'}
               </h2>
-              <div className="flex items-center justify-center gap-4 mt-2">
+              <div className="flex items-center justify-center gap-4 mt-1.5">
                 <motion.div 
-                  animate={{ scale: isPlaying ? [1, 1.2, 1] : 1 }}
+                  animate={{ scale: state.isPlaying ? [1, 1.25, 1] : 1 }}
                   transition={{ repeat: Infinity, duration: 2 }}
-                  className="w-2 h-2 rounded-full" 
-                  style={{ backgroundColor: primaryColor, boxShadow: `0 0 10px ${primaryColor}` }} 
+                  className="w-2.5 h-2.5 rounded-full" 
+                  style={{ backgroundColor: primaryColor, boxShadow: `0 0 15px ${primaryColor}` }} 
                 />
-                <p className="text-white/60 text-[11px] tracking-[0.4em] font-black uppercase font-['Space_Mono']">
+                <p className="text-white/60 text-[12px] tracking-[0.5em] font-black uppercase">
                   {state.currentStation?.genre || 'Broadcast'}
                 </p>
               </div>

@@ -104,11 +104,11 @@ export const StationDrawer = ({
             )}
 
             {/* Station List */}
-            <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide space-y-3">
+            <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide space-y-3 stagger-enter">
               {filteredStations.length === 0 ? (
                 <div className="h-40 flex flex-col items-center justify-center text-white/20">
-                  <Globe size={48} className="mb-4 opacity-30" />
-                  <p className="font-bold">NO STATIONS FOUND</p>
+                  <Globe size={40} className="mb-4 opacity-30" />
+                  <p className="font-black text-xs tracking-widest">STATIONS OFFLINE</p>
                 </div>
               ) : (
                 filteredStations.map((station) => {
@@ -116,39 +116,62 @@ export const StationDrawer = ({
                   const isFavorite = favorites.includes(station.id);
 
                   return (
-                    <div 
+                    <motion.div 
                       key={station.id}
+                      layout
                       className={cn(
-                        "group relative flex items-center justify-between p-4 rounded-2xl transition-all border",
+                        "group relative flex items-center justify-between p-4 rounded-3xl transition-all duration-500",
                         isActive 
-                          ? "bg-white/10 border-white/20" 
-                          : "bg-white/5 border-transparent hover:border-white/10"
+                          ? "bg-white/10 shadow-[0_0_30px_rgba(255,255,255,0.05)]" 
+                          : "bg-white/[0.03] hover:bg-white/[0.06]"
                       )}
                     >
+                      {/* Active Border Glow */}
+                      {isActive && (
+                        <div 
+                          className="absolute inset-x-0 bottom-0 h-[2px] rounded-full blur-[2px] animate-pulse"
+                          style={{ backgroundColor: accentColor }}
+                        />
+                      )}
+
                       <button 
-                        className="flex items-center gap-4 flex-1 text-left"
-                        onClick={() => onStationSelect(station.id)}
+                        className="flex items-center gap-5 flex-1 text-left"
+                        onClick={() => {
+                          triggerHaptic('medium');
+                          onStationSelect(station.id);
+                        }}
                       >
-                        <div className="relative w-12 h-12 rounded-xl bg-black flex items-center justify-center overflow-hidden border border-white/10">
-                          {isActive && isPlaying && (
-                            <div className="absolute inset-0 bg-white/10 animate-pulse" />
+                        <div className="relative w-14 h-14 rounded-2xl bg-black/40 flex items-center justify-center overflow-hidden border border-white/10 shadow-inner">
+                          {isActive && isPlaying ? (
+                            <div className="flex items-center gap-[2px] h-6">
+                              {[0, 1, 2].map(i => (
+                                <motion.div
+                                  key={i}
+                                  animate={{ height: ['40%', '100%', '60%', '80%', '40%'] }}
+                                  transition={{ repeat: Infinity, duration: 0.8, delay: i * 0.15 }}
+                                  className="w-[3px] rounded-full"
+                                  style={{ backgroundColor: accentColor }}
+                                />
+                              ))}
+                            </div>
+                          ) : (
+                            <Play size={22} className={cn("transition-colors", isActive ? "text-white" : "text-white/20")} fill={isActive ? "white" : "none"} />
                           )}
-                          <Play size={20} className={isActive ? "text-white" : "text-white/20"} fill={isActive ? "white" : "none"} />
                         </div>
                         
-                        <div>
-                          <div className="flex items-center gap-2">
-                             <span className="text-xs font-black px-1.5 py-0.5 rounded-md bg-white/10 text-white/40">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                             <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md bg-white/5 text-white/40 border border-white/5">
                               {station.frequency}
                             </span>
                             <h3 className={cn(
-                              "font-bold text-sm tracking-wide",
-                              isActive ? "text-white" : "text-white/70"
+                              "font-black text-sm tracking-tight transition-colors",
+                              isActive ? "text-white" : "text-white/60 group-hover:text-white"
                             )}>
                               {station.name.toUpperCase()}
                             </h3>
                           </div>
-                          <p className="text-[10px] text-white/30 font-bold tracking-widest uppercase mt-0.5">
+                          <p className="text-[10px] text-white/30 font-bold tracking-wider line-clamp-1 uppercase">
                             {station.genre} • {station.description}
                           </p>
                         </div>
@@ -159,17 +182,19 @@ export const StationDrawer = ({
                           triggerHaptic('light');
                           onToggleFavorite(station.id);
                         }}
-                        className="w-10 h-10 flex items-center justify-center transition-transform active:scale-95"
+                        className="ml-2 w-12 h-12 flex items-center justify-center rounded-2xl bg-white/[0.02] hover:bg-white/[0.05] transition-all active:scale-90"
                       >
                         <Heart 
                           size={20} 
                           className={cn(
-                            isFavorite ? "text-rose-500" : "text-white/10 group-hover:text-white/30"
+                            "transition-all duration-300",
+                            isFavorite ? "text-rose-500 scale-110" : "text-white/10 group-hover:text-white/30"
                           )} 
-                          fill={isFavorite ? "currentColor" : "none"} 
+                          fill={isFavorite ? "currentColor" : "none"}
+                          style={isFavorite ? { filter: 'drop-shadow(0 0 10px rgba(244,63,94,0.4))' } : {}}
                         />
                       </button>
-                    </div>
+                    </motion.div>
                   );
                 })
               )}

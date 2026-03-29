@@ -150,10 +150,10 @@ export const radioStations: RadioStation[] = [
     id: 'miami-1',
     name: 'Miami Deep House',
     frequency: '93.1',
-    streamUrl: 'https://streaming.tmcrental.com/radio/8000/radio.mp3',
+    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
     city: 'miami',
     genre: 'Deep House',
-    description: 'Beach club vibes'
+    description: 'Ultra-lux house vibes'
   },
   {
     id: 'miami-2',
@@ -332,12 +332,12 @@ export const radioStations: RadioStation[] = [
   // Ibiza - 10 Stations
   {
     id: 'ibiza-1',
-    name: 'Ibiza Global Radio',
+    name: 'Ibiza Global Live',
     frequency: '97.6',
     streamUrl: 'https://api.ibizaglobalradio.com:8443/live',
     city: 'ibiza',
-    genre: 'Deep House',
-    description: 'Electronic Soul'
+    genre: 'Electronic',
+    description: 'The Soul of Ibiza'
   },
   {
     id: 'ibiza-2',
@@ -424,12 +424,12 @@ export const radioStations: RadioStation[] = [
   // Tulum - 10 Stations
   {
     id: 'tulum-1',
-    name: 'Tulum Deep',
+    name: 'Tulum Deep Pulse',
     frequency: '102.1',
     streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
     city: 'tulum',
-    genre: 'Ambient',
-    description: 'Jungle Chilled'
+    genre: 'Deep House',
+    description: 'Sunset & Jungle beats'
   },
   {
     id: 'tulum-2',
