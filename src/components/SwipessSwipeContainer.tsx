@@ -5,7 +5,6 @@ import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
-import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import {
   getActiveCategoryInfo,
 } from './swipe/SwipeConstants';
@@ -962,11 +961,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   }, []);
 
   const _progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
-
-  // ── "ALL" DASHBOARD: Shown when no category filter is selected ──────────────
-  if (storeCategories.length === 0) {
-    return <SwipeAllDashboard setCategories={setCategories} />;
-  }
 
   // Show skeleton whenever deck is empty and a fetch is in progress.
   if (deckQueue.length === 0 && isLoading) {
