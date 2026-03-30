@@ -178,6 +178,17 @@ const SAMPLE_CARDS = [
   },
 ];
 
+// ── Photo strip — Tulum lifestyle imagery ─────────────────────────────────────
+const PHOTO_STRIP = [
+  "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&q=80&auto=format",   // beach chairs
+  "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&q=80&auto=format", // concert crowd
+  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80&auto=format",   // restaurant
+  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80&auto=format", // sunset nature
+  "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400&q=80&auto=format", // DJ set
+  "https://images.unsplash.com/photo-1545235617-9465d2a55698?w=400&q=80&auto=format",   // yoga
+  "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&q=80&auto=format", // beach party
+];
+
 // ── Feature items ──────────────────────────────────────────────────────────────
 const FEATURES = [
   {
@@ -377,6 +388,14 @@ export default function AdvertisePage() {
   if (view === "landing") {
     return (
       <div className="min-h-[100dvh] overflow-y-auto" style={{ background: th.pageBg }}>
+        {/* Subtle gradient blobs */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full blur-[120px]"
+            style={{ background: "radial-gradient(circle, #f97316, transparent)", opacity: isLight ? 0.08 : 0.18 }} />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full blur-[120px]"
+            style={{ background: "radial-gradient(circle, #a855f7, transparent)", opacity: isLight ? 0.08 : 0.18 }} />
+        </div>
+
         {/* Back button */}
         <div className="absolute top-0 left-0 right-0 z-50 pt-safe px-4 pt-4">
           <button
@@ -388,205 +407,156 @@ export default function AdvertisePage() {
           </button>
         </div>
 
-        {/* ── HERO ── */}
-        <div className="relative min-h-[100dvh] flex flex-col items-center justify-center px-6 text-center pb-12 pt-24">
-          {/* Background gradient blobs */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] rounded-full blur-[100px]"
-              style={{ background: "radial-gradient(circle, #f97316, transparent)", opacity: isLight ? 0.1 : 0.2 }} />
-            <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] rounded-full blur-[100px]"
-              style={{ background: "radial-gradient(circle, #a855f7, transparent)", opacity: isLight ? 0.1 : 0.2 }} />
-          </div>
-
+        {/* ── COMPACT HERO ── */}
+        <div className="relative px-5 pt-16 pb-3 text-center">
           {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full mb-3"
             style={{ background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.35)" }}
           >
-            <Flame className="w-4 h-4 text-orange-400" />
-            <span className="text-[11px] font-black text-orange-400 uppercase tracking-[0.2em]">Tulum's #1 Discovery App</span>
+            <Flame className="w-3.5 h-3.5 text-orange-400" />
+            <span className="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em]">Tulum's #1 Discovery App</span>
           </motion.div>
 
           {/* Headline */}
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-5xl font-black leading-[0.95] tracking-tighter mb-4"
-            style={{ color: th.text, textShadow: "0 0 80px rgba(249,115,22,0.2)" }}
+            transition={{ delay: 0.08 }}
+            className="text-4xl font-black leading-[0.95] tracking-tighter mb-2"
+            style={{ color: th.text }}
           >
-            Promote<br />
+            Promote{" "}
             <span style={{ background: "linear-gradient(135deg,#f97316,#fb923c,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               Your Brand
-            </span><br />
+            </span>{" "}
             in Tulum
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-base max-w-xs leading-relaxed mb-8"
+            transition={{ delay: 0.15 }}
+            className="text-sm max-w-xs mx-auto leading-snug"
             style={{ color: th.textMuted }}
           >
-            Reach property owners, renters, digital nomads & tourists who are actively spending in Tulum — direct connection, zero middlemen
+            Reach 15k+ property owners, renters &amp; tourists — direct, zero middlemen
           </motion.p>
-
-          {/* Sample cards stack */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            className="relative w-full max-w-[280px] h-[200px] mb-8"
-          >
-            {SAMPLE_CARDS.map((card, i) => (
-              <motion.div
-                key={i}
-                className="absolute inset-0 rounded-[2rem] overflow-hidden"
-                style={{
-                  transform: `rotate(${(i - 2) * 5}deg) translateY(${(i - 2) * -6}px)`,
-                  zIndex: SAMPLE_CARDS.length - i,
-                  boxShadow: "0 20px 50px rgba(0,0,0,0.4)",
-                }}
-                animate={{ rotate: [(i - 2) * 5, (i - 2) * 5 + 0.5, (i - 2) * 5] }}
-                transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <img src={card.bg} className="w-full h-full object-cover" alt="" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute inset-x-3 bottom-3">
-                  <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full text-white"
-                    style={{ background: card.color }}>
-                    {card.tag}
-                  </span>
-                  <div className="text-white font-black text-sm mt-1">{card.title}</div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white/60 text-[10px]">{card.venue}</span>
-                    <span className="font-bold text-[10px]" style={{ color: card.color }}>{card.price}</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* Stats row */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="grid grid-cols-4 gap-3 w-full max-w-sm mb-10"
-          >
-            {STATS.map(stat => {
-              const Icon = stat.icon;
-              return (
-                <div key={stat.label} className="flex flex-col items-center gap-1 p-3 rounded-2xl"
-                  style={{ background: th.card, border: `1px solid ${th.cardBorder}` }}>
-                  <Icon className="w-4 h-4 mb-0.5" style={{ color: stat.color }} />
-                  <div className="font-black text-sm" style={{ color: th.text }}>{stat.value}</div>
-                  <div className="text-[9px] text-center leading-tight" style={{ color: th.textDim }}>{stat.label}</div>
-                </div>
-              );
-            })}
-          </motion.div>
-
-          {/* CTA */}
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => { haptics.tap(); setView("form"); }}
-            className="w-full max-w-sm py-5 rounded-[2rem] font-black text-white text-base flex items-center justify-center gap-3"
-            style={{ background: "linear-gradient(135deg,#f97316,#a855f7)", boxShadow: "0 16px 50px rgba(249,115,22,0.4)" }}
-          >
-            <Megaphone className="w-5 h-5" />
-            Start Promoting — From $4.99 USD
-          </motion.button>
-
-          <p className="text-[11px] mt-4" style={{ color: th.textFaint }}>No upfront payment · We contact you to confirm</p>
         </div>
 
-        {/* ── WHAT YOU GET ── */}
-        <div className="px-6 pb-16">
-          <h2 className="text-2xl font-black text-center mb-2" style={{ color: th.text }}>Everything you need</h2>
-          <p className="text-sm text-center mb-8" style={{ color: th.textMuted }}>to get noticed in Tulum</p>
+        {/* ── PHOTO STRIP ── */}
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex gap-2 overflow-x-auto px-5 py-3"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as any}
+        >
+          {PHOTO_STRIP.map((url, i) => (
+            <div key={i} className="flex-shrink-0 h-[90px] w-[130px] rounded-2xl overflow-hidden relative"
+              style={{ boxShadow: "0 8px 24px rgba(0,0,0,0.18)" }}>
+              <img
+                src={url}
+                className="w-full h-full object-cover"
+                alt=""
+                style={{ animation: `breathing-zoom 6s ease-in-out ${i * 0.9}s infinite alternate`, backfaceVisibility: "hidden" as any, transformOrigin: "center" }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+            </div>
+          ))}
+        </motion.div>
 
-          <div className="space-y-4">
-            {FEATURES.map(item => (
-              <div key={item.title} className="flex items-start gap-4 p-4 rounded-2xl"
+        {/* ── STATS ROW ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="grid grid-cols-4 gap-2 px-5 mb-4"
+        >
+          {STATS.map(stat => {
+            const Icon = stat.icon;
+            return (
+              <div key={stat.label} className="flex flex-col items-center gap-0.5 p-2.5 rounded-xl"
                 style={{ background: th.card, border: `1px solid ${th.cardBorder}` }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: `rgba(${item.colorRgb},0.18)`, color: item.color }}>
-                  {item.icon}
-                </div>
-                <div>
-                  <div className="font-black text-sm" style={{ color: th.text }}>{item.title}</div>
-                  <div className="text-xs mt-0.5 leading-relaxed" style={{ color: th.textMuted }}>{item.desc}</div>
-                </div>
+                <Icon className="w-3.5 h-3.5 mb-0.5" style={{ color: stat.color }} />
+                <div className="font-black text-xs" style={{ color: th.text }}>{stat.value}</div>
+                <div className="text-[8px] text-center leading-tight" style={{ color: th.textDim }}>{stat.label}</div>
               </div>
-            ))}
+            );
+          })}
+        </motion.div>
+
+        {/* ── PRICING CARDS (horizontal scroll) ── */}
+        <div className="px-5 mb-4">
+          <div className="flex items-baseline justify-between mb-2">
+            <h2 className="text-base font-black" style={{ color: th.text }}>Choose your plan</h2>
+            <span className="text-[10px]" style={{ color: th.textDim }}>Pay only after review</span>
           </div>
-
-          {/* Pricing preview */}
-          <h2 className="text-2xl font-black text-center mt-12 mb-2" style={{ color: th.text }}>Simple pricing</h2>
-          <p className="text-sm text-center mb-2" style={{ color: th.textMuted }}>Choose what fits your budget</p>
-          <p className="text-xs text-center mb-6 max-w-xs mx-auto leading-relaxed" style={{ color: th.textDim }}>
-            Every plan gives you access to our community of property owners, renters, workers & tourists actively spending in Tulum
-          </p>
-
-          <div className="space-y-3">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex gap-3 overflow-x-auto pb-2"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as any}
+          >
             {PACKAGES.map(pkg => (
-              <div key={pkg.id} className="relative p-4 rounded-2xl overflow-hidden group transition-all"
-                style={{ background: `rgba(${pkg.colorRgb},0.10)`, border: `1px solid rgba(${pkg.colorRgb},0.2)` }}>
+              <div key={pkg.id} className="flex-shrink-0 w-44 p-4 rounded-2xl relative flex flex-col"
+                style={{ background: `rgba(${pkg.colorRgb},0.12)`, border: `1.5px solid rgba(${pkg.colorRgb},${pkg.popular ? "0.45" : "0.2"})`, minWidth: 168 }}>
                 {pkg.popular && (
-                  <div className="absolute top-2 right-2 z-10">
-                    <div className="bg-gradient-to-r from-orange-500 to-rose-500 text-[8px] font-black uppercase tracking-[0.15em] px-2.5 py-1 rounded-full text-white shadow-lg">
-                      POPULAR
+                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
+                    <div className="bg-gradient-to-r from-orange-500 to-rose-500 text-[8px] font-black uppercase tracking-[0.15em] px-2.5 py-0.5 rounded-full text-white shadow-md whitespace-nowrap">
+                      ★ MOST POPULAR
                     </div>
                   </div>
                 )}
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                <div className="flex items-center gap-2 mb-2 mt-1">
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color }}>
                     {pkg.icon}
                   </div>
-                  <div className="flex-1 min-w-0 pr-2">
-                    <div className="font-black text-sm" style={{ color: th.text }}>{pkg.name}</div>
-                    <div className="text-[10px] truncate" style={{ color: th.textDim }}>{pkg.tagline}</div>
-                  </div>
-                  <div className={`text-right flex-shrink-0 ${pkg.popular ? "mt-5" : ""}`}>
-                    <div className="font-black text-sm" style={{ color: pkg.color }}>${pkg.price.toFixed(2)}</div>
-                    <div className="text-[10px]" style={{ color: th.textDim }}>USD {pkg.durationLabel}</div>
-                  </div>
+                  <div className="font-black text-sm" style={{ color: th.text }}>{pkg.name}</div>
                 </div>
-                <div className="mt-3 pt-3 flex flex-col gap-2"
-                  style={{ borderTop: `1px solid rgba(${pkg.colorRgb},0.15)` }}>
-                  {pkg.perks.map(perk => (
-                    <div key={perk} className="flex items-start gap-2 text-[11px] leading-snug" style={{ color: th.textMuted }}>
-                      <Check className="w-3 h-3 flex-shrink-0 mt-0.5" style={{ color: pkg.color }} />
+                <div className="font-black text-2xl leading-none mb-0.5" style={{ color: pkg.color }}>${pkg.price.toFixed(2)}</div>
+                <div className="text-[10px] mb-3" style={{ color: th.textDim }}>USD {pkg.durationLabel}</div>
+                <div className="space-y-1.5 flex-1 mb-3">
+                  {pkg.perks.slice(0, 3).map(perk => (
+                    <div key={perk} className="flex items-start gap-1.5 text-[10px] leading-snug" style={{ color: th.textMuted }}>
+                      <Check className="w-2.5 h-2.5 flex-shrink-0 mt-0.5" style={{ color: pkg.color }} />
                       {perk}
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-2">
-                  <div className="text-[10px] font-bold text-muted-foreground uppercase text-center italic">
-                    Pay only after review
-                  </div>
-                </div>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleLaunchPayment(pkg)}
+                  className="w-full py-2 rounded-xl font-black text-white text-[11px] uppercase tracking-wider"
+                  style={{ background: `linear-gradient(135deg, ${pkg.color}, rgba(${pkg.colorRgb},0.7))`, boxShadow: `0 4px 16px rgba(${pkg.colorRgb},0.35)` }}
+                >
+                  Get Started
+                </motion.button>
               </div>
             ))}
-          </div>
+          </motion.div>
+        </div>
 
+        {/* ── MAIN CTA ── */}
+        <div className="px-5 pb-8">
           <motion.button
-            whileTap={{ scale: 0.96 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => { haptics.tap(); setView("form"); }}
-            className="w-full py-5 rounded-[2rem] font-black text-white mt-8 flex items-center justify-center gap-3 relative overflow-hidden group shadow-2xl"
-            style={{ background: "linear-gradient(135deg,#f97316,#a855f7)" }}
+            className="w-full py-4 rounded-[2rem] font-black text-white flex items-center justify-center gap-2 relative overflow-hidden"
+            style={{ background: "linear-gradient(135deg,#f97316,#a855f7)", boxShadow: "0 16px 40px rgba(249,115,22,0.35)" }}
           >
-            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-            <span className="relative z-10 flex items-center gap-2">Get Started Now <ArrowRight className="w-5 h-5" /></span>
+            <Megaphone className="w-4 h-4" />
+            Start Promoting — From $4.99 USD
           </motion.button>
+          <p className="text-[10px] text-center mt-2" style={{ color: th.textFaint }}>No upfront payment · We contact you to confirm</p>
+        </div>
 
            {approvedSubmission && (
             <motion.div
