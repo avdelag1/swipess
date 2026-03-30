@@ -417,6 +417,36 @@ export function ConciergeChat({
                         </div>
                       </div>
                     )}
+
+                    {message.role === 'assistant' && message.action?.type === 'show_expert_card' && (
+                      <div className={cn("mt-3 overflow-hidden rounded-xl border shadow-xl breathing-zoom backdrop-blur-md", isDark ? "border-white/10 bg-zinc-900/80" : "border-gray-200 bg-white")}>
+                        <div className="p-4 relative">
+                           <div className="flex items-center gap-3 mb-3">
+                              <div className={cn("w-12 h-12 rounded-full flex items-center justify-center border shadow-lg", isDark ? "bg-zinc-800 border-white/10" : "bg-gray-100 border-gray-200")}>
+                                <User className={cn("w-6 h-6", isDark ? "text-cyan-400" : "text-cyan-600")} />
+                              </div>
+                              <div>
+                                <h4 className="font-bold leading-tight text-base">{message.action.params?.title}</h4>
+                                <p className="text-[10px] font-black tracking-widest text-cyan-500 uppercase">{message.action.params?.category || 'Expert'}</p>
+                              </div>
+                           </div>
+                           <p className={cn("text-xs leading-relaxed line-clamp-3 mb-4", isDark ? "text-zinc-400" : "text-gray-500")}>
+                             {message.action.params?.description}
+                           </p>
+                           <div className="flex flex-wrap gap-2">
+                              {message.action.params?.whatsapp && (
+                                <a href={`https://wa.me/${message.action.params.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className={cn("px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors", isDark ? "bg-green-500/10 hover:bg-green-500/20 text-green-400 border-green-500/20" : "bg-green-50 hover:bg-green-100 text-green-700 border-green-200")}>WhatsApp</a>
+                              )}
+                              {message.action.params?.instagram && (
+                                <a href={`https://instagram.com/${message.action.params.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className={cn("px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors", isDark ? "bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 border-pink-500/20" : "bg-pink-50 hover:bg-pink-100 text-pink-700 border-pink-200")}>Instagram</a>
+                              )}
+                              {message.action.params?.website && (
+                                <a href={message.action.params.website} target="_blank" rel="noreferrer" className={cn("px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors", isDark ? "bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-blue-500/20" : "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200")}>Website</a>
+                              )}
+                           </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -441,11 +471,11 @@ export function ConciergeChat({
                     <div className="flex items-center gap-2">
                        <Loader2 className={cn("w-3 h-3 animate-spin", isDark ? "text-cyan-400" : "text-cyan-600")} />
                        <span className={cn("text-[10px] font-black uppercase tracking-widest", isDark ? "text-cyan-500" : "text-cyan-600")}>
-                         {messages.length > 5 ? "Deepening Memory..." : "Analyzing Context..."}
+                         {messages.length > 5 ? "Optimizing Reality..." : "Summoning Intel..."}
                        </span>
                     </div>
                     <span className={cn("text-xs font-medium", isDark ? "text-zinc-400" : "text-gray-500")}>
-                      Swipess AI is thinking...
+                      The Network is resonating...
                     </span>
                     {/* Progress bar line */}
                     <div className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-cyan-500 via-purple-500 to-rose-500 w-full animate-shimmer" />
