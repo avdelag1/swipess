@@ -14,6 +14,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTheme } from '@/hooks/useTheme';
 import CardImage from '@/components/CardImage';
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
@@ -308,16 +309,25 @@ function StoryProgressBar({
   onComplete: () => void;
   animKey: number;
 }) {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   return (
     <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 right-4 z-[60] flex gap-1.5 h-1">
-      <div className="relative flex-1 bg-white/20 rounded-full overflow-hidden backdrop-blur-md">
+      <div className={cn(
+        "relative flex-1 rounded-full overflow-hidden backdrop-blur-md",
+        isLight ? "bg-black/10" : "bg-white/20"
+      )}>
         <motion.div
           key={animKey}
           initial={{ width: '0%' }}
           animate={isActive ? { width: isPaused ? undefined : '100%' } : { width: '0%' }}
           transition={isActive && !isPaused ? { duration: duration / 1000, ease: 'linear' } : { duration: 0 }}
           onAnimationComplete={() => { if (isActive && !isPaused) onComplete(); }}
-          className="absolute inset-y-0 left-0 bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+          className={cn(
+            "absolute inset-y-0 left-0",
+            isLight ? "bg-black/80 shadow-[0_0_8px_rgba(0,0,0,0.2)]" : "bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+          )}
         />
       </div>
     </div>
@@ -332,6 +342,8 @@ function EventCard({
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
   onNextEvent: () => void; onPrevEvent: () => void;
 }) {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const [showDetails, setShowDetails] = useState(false);
   const [likeAnim, setLikeAnim] = useState(false);
 
@@ -345,7 +357,10 @@ function EventCard({
 
   return (
     <div
-      className="relative w-full shrink-0 overflow-hidden bg-black"
+      className={cn(
+        "relative w-full shrink-0 overflow-hidden transition-colors duration-500",
+        isLight ? "bg-white" : "bg-black"
+      )}
       style={{ height: '100dvh', scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
       data-testid={`event-card-${event.id}`}
     >
@@ -368,7 +383,12 @@ function EventCard({
       </div>
 
       {/* Gradient overlays */}
-      <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/90 via-black/10 to-black/40 pointer-events-none" />
+      <div className={cn(
+        "absolute inset-0 pointer-events-none transition-opacity duration-700",
+        isLight 
+          ? "bg-gradient-to-t from-white/95 via-white/20 to-white/40 opacity-90" 
+          : "bg-gradient-to-t from-black/90 via-black/10 to-black/40"
+      )} />
 
       {/* LEFT tap zone — previous event */}
       <button
@@ -378,9 +398,13 @@ function EventCard({
       >
         <div
           className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity"
-          style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
+          style={{ 
+            background: isLight ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)', 
+            backdropFilter: 'blur(8px)', 
+            border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.2)' 
+          }}
         >
-          <ChevronLeft className="w-4 h-4 text-white" />
+          <ChevronLeft className={cn("w-4 h-4", isLight ? "text-black" : "text-white")} />
         </div>
       </button>
 
@@ -399,9 +423,13 @@ function EventCard({
       >
         <div
           className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity"
-          style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
+          style={{ 
+            background: isLight ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)', 
+            backdropFilter: 'blur(8px)', 
+            border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.2)' 
+          }}
         >
-          <ChevronRight className="w-4 h-4 text-white" />
+          <ChevronRight className={cn("w-4 h-4", isLight ? "text-black" : "text-white")} />
         </div>
       </button>
 
@@ -433,8 +461,15 @@ function EventCard({
             >
               {/* Tags */}
               <div className="flex flex-wrap gap-2">
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white/80"
-                  style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}>
+                <span className={cn(
+                  "px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
+                  isLight ? "text-black/70" : "text-white/80"
+                )}
+                  style={{ 
+                    background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.12)', 
+                    backdropFilter: 'blur(8px)', 
+                    border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.2)' 
+                  }}>
                   {event.category}
                 </span>
                 {event.discount_tag && (
@@ -452,13 +487,19 @@ function EventCard({
               </div>
 
               {/* Title */}
-              <h2 className="text-3xl font-black font-brand text-white leading-[1.05] tracking-tight drop-shadow-lg">
+              <h2 className={cn(
+                "text-3xl font-black font-brand leading-[1.05] tracking-tight drop-shadow-lg",
+                isLight ? "text-black" : "text-white"
+              )}>
                 {event.title}
               </h2>
 
               {/* Description */}
               {event.description && (
-                <p className="text-sm text-white/70 leading-relaxed line-clamp-2">
+                <p className={cn(
+                  "text-sm leading-relaxed line-clamp-2",
+                  isLight ? "text-black/70" : "text-white/70"
+                )}>
                   {event.description}
                 </p>
               )}
@@ -466,13 +507,13 @@ function EventCard({
               {/* Meta */}
               <div className="flex flex-wrap gap-x-4 gap-y-1.5">
                 {event.event_date && (
-                  <div className="flex items-center gap-1.5 text-xs text-white/70">
+                  <div className={cn("flex items-center gap-1.5 text-xs", isLight ? "text-black/60" : "text-white/70")}>
                     <Calendar className="w-3.5 h-3.5 text-orange-400" />
                     <span>{formatDate(event.event_date)}</span>
                   </div>
                 )}
                 {event.location && (
-                  <div className="flex items-center gap-1.5 text-xs text-white/70">
+                  <div className={cn("flex items-center gap-1.5 text-xs", isLight ? "text-black/60" : "text-white/70")}>
                     <MapPin className="w-3.5 h-3.5 text-orange-400" />
                     <span>{event.location}</span>
                   </div>
@@ -484,15 +525,18 @@ function EventCard({
 
               {/* Organizer */}
               {event.organizer_name && (
-                <p className="text-[11px] text-white/40 font-medium">by {event.organizer_name}</p>
+                <p className={cn("text-[11px] font-medium", isLight ? "text-black/40" : "text-white/40")}>by {event.organizer_name}</p>
               )}
 
               {/* CTA row */}
               <div className="flex gap-2 pt-1">
                 <button
                   onClick={(e) => { e.stopPropagation(); triggerHaptic('medium'); setShowDetails(true); }}
-                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-[1.25rem] text-xs font-black uppercase tracking-widest text-white"
-                  style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)' }}
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2.5 rounded-[1.25rem] text-xs font-black uppercase tracking-widest transition-all",
+                    isLight ? "text-black bg-black/5 hover:bg-black/10" : "text-white bg-white/15 hover:bg-white/25"
+                  )}
+                  style={{ backdropFilter: 'blur(12px)', border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.2)' }}
                   data-testid={`btn-info-${event.id}`}
                 >
                   <Info className="w-3.5 h-3.5" />
@@ -526,11 +570,16 @@ function EventCard({
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ background: liked ? 'rgba(239,68,68,0.3)' : 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: `1px solid ${liked ? 'rgba(239,68,68,0.5)' : 'rgba(255,255,255,0.15)'}`, transition: 'all 0.2s ease' }}>
-            <Heart className={cn('w-6 h-6 transition-colors', liked ? 'fill-red-500 text-red-500' : 'text-white')} />
+            className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+            style={{ 
+              background: liked ? 'rgba(239,68,68,0.3)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.4)'), 
+              backdropFilter: 'blur(8px)', 
+              border: `1px solid ${liked ? 'rgba(239,68,68,0.5)' : (isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)')}`, 
+              transition: 'all 0.2s ease' 
+            }}>
+            <Heart className={cn('w-6 h-6 transition-colors', liked ? 'fill-red-500 text-red-500' : (isLight ? 'text-black' : 'text-white'))} />
           </motion.div>
-          <span className="text-[10px] text-white/60 font-bold">Like</span>
+          <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Like</span>
         </button>
 
         {/* Chat → WhatsApp */}
@@ -541,11 +590,15 @@ function EventCard({
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}>
-            <MessageCircle className="w-6 h-6 text-white" />
+            className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+            style={{ 
+              background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.4)', 
+              backdropFilter: 'blur(8px)', 
+              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.15)' 
+            }}>
+            <MessageCircle className={cn("w-6 h-6", isLight ? "text-black" : "text-white")} />
           </motion.div>
-          <span className="text-[10px] text-white/60 font-bold">Chat</span>
+          <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Chat</span>
         </button>
 
         {/* Share */}
@@ -556,11 +609,15 @@ function EventCard({
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}>
-            <Share2 className="w-5 h-5 text-white" />
+            className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+            style={{ 
+              background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.4)', 
+              backdropFilter: 'blur(8px)', 
+              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.15)' 
+            }}>
+            <Share2 className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} />
           </motion.div>
-          <span className="text-[10px] text-white/60 font-bold">Share</span>
+          <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Share</span>
         </button>
       </div>
 
@@ -573,13 +630,19 @@ function EventCard({
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 280 }}
             className="absolute inset-0 z-50 overflow-y-auto"
-            style={{ background: 'rgba(0,0,0,0.96)', backdropFilter: 'blur(20px)' }}
+            style={{ 
+              background: isLight ? 'rgba(255,255,255,0.98)' : 'rgba(0,0,0,0.96)', 
+              backdropFilter: 'blur(20px)' 
+            }}
           >
             <div className="relative h-[45dvh]">
               {event.image_url && (
-                <img src={event.image_url} className="w-full h-full object-cover opacity-60" alt="" />
+                <img src={event.image_url} className={cn("w-full h-full object-cover", isLight ? "opacity-30" : "opacity-60")} alt="" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+              <div className={cn(
+                "absolute inset-0",
+                isLight ? "bg-gradient-to-t from-white via-white/40 to-transparent" : "bg-gradient-to-t from-black via-black/40 to-transparent"
+              )} />
               <button
                 onClick={() => setShowDetails(false)}
                 className="absolute top-safe top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center z-10"
@@ -588,48 +651,48 @@ function EventCard({
                 <ChevronUp className="w-5 h-5 text-white" />
               </button>
               <div className="absolute bottom-6 left-5 right-5">
-                <h3 className="text-3xl font-black text-white leading-tight">{event.title}</h3>
-                {event.organizer_name && <p className="text-white/50 text-sm mt-1">by {event.organizer_name}</p>}
+                <h3 className={cn("text-3xl font-black leading-tight", isLight ? "text-black" : "text-white")}>{event.title}</h3>
+                {event.organizer_name && <p className={cn("text-sm mt-1", isLight ? "text-black/50" : "text-white/50")}>by {event.organizer_name}</p>}
               </div>
             </div>
             <div className="p-5 space-y-5">
               {event.description && (
-                <p className="text-white/80 text-sm leading-relaxed">{event.description}</p>
+                <p className={cn("text-sm leading-relaxed", isLight ? "text-black/80" : "text-white/80")}>{event.description}</p>
               )}
               <div className="grid grid-cols-2 gap-3">
                 {event.event_date && (
-                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' }}>
                     <Calendar className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
                     <div>
-                      <div className="text-[10px] text-white/40 uppercase tracking-widest">Date</div>
-                      <div className="text-sm font-bold text-white">{formatDate(event.event_date)}</div>
+                      <div className={cn("text-[10px] uppercase tracking-widest", isLight ? "text-black/40" : "text-white/40")}>Date</div>
+                      <div className={cn("text-sm font-bold", isLight ? "text-black" : "text-white")}>{formatDate(event.event_date)}</div>
                     </div>
                   </div>
                 )}
                 {event.location && (
-                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' }}>
                     <MapPin className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
                     <div>
-                      <div className="text-[10px] text-white/40 uppercase tracking-widest">Location</div>
-                      <div className="text-sm font-bold text-white">{event.location}</div>
+                      <div className={cn("text-[10px] uppercase tracking-widest", isLight ? "text-black/40" : "text-white/40")}>Location</div>
+                      <div className={cn("text-sm font-bold", isLight ? "text-black" : "text-white")}>{event.location}</div>
                     </div>
                   </div>
                 )}
                 {event.price_text && (
-                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' }}>
                     <Ticket className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
                     <div>
-                      <div className="text-[10px] text-white/40 uppercase tracking-widest">Price</div>
-                      <div className="text-sm font-bold text-orange-300">{event.price_text}</div>
+                      <div className={cn("text-[10px] uppercase tracking-widest", isLight ? "text-black/40" : "text-white/40")}>Price</div>
+                      <div className="text-sm font-bold text-orange-400">{event.price_text}</div>
                     </div>
                   </div>
                 )}
                 {event.location_detail && (
-                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' }}>
                     <MapPin className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
                     <div>
-                      <div className="text-[10px] text-white/40 uppercase tracking-widest">Venue</div>
-                      <div className="text-sm font-bold text-white">{event.location_detail}</div>
+                      <div className={cn("text-[10px] uppercase tracking-widest", isLight ? "text-black/40" : "text-white/40")}>Venue</div>
+                      <div className={cn("text-sm font-bold", isLight ? "text-black" : "text-white")}>{event.location_detail}</div>
                     </div>
                   </div>
                 )}
@@ -646,8 +709,11 @@ function EventCard({
                   onClick={() => { triggerHaptic('light'); onChat(); setShowDetails(false); }}
                   title="Chat with organizer on WhatsApp"
                   aria-label="Chat with organizer on WhatsApp"
-                  className="flex-1 py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
-                  style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
+                  className={cn(
+                    "flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2",
+                    isLight ? "text-black bg-black/5 border-black/10" : "text-white bg-white/10 border-white/15"
+                  )}
+                  style={{ border: '1px solid' }}
                 >
                   <MessageCircle className="w-4 h-4" /> Chat on WhatsApp
                 </button>
@@ -671,10 +737,16 @@ function EventCard({
 
 // ── PROMOTE CTA CARD (appears at end of feed) ─────────────────────────────────
 function PromoteCTACard({ onPromote }: { onPromote: () => void }) {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   return (
     <div
-      className="relative w-full shrink-0 overflow-hidden flex flex-col items-center justify-center px-8"
-      style={{ height: '100dvh', scrollSnapAlign: 'start', scrollSnapStop: 'always', background: '#0a0a0b' }}
+      className={cn(
+        "relative w-full shrink-0 overflow-hidden flex flex-col items-center justify-center px-8 transition-colors duration-500",
+        isLight ? "bg-white" : "bg-[#0a0a0b]"
+      )}
+      style={{ height: '100dvh', scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
     >
       {/* Glow blobs */}
       <div className="absolute top-1/4 left-0 w-64 h-64 rounded-full opacity-20 blur-[80px] pointer-events-none"
@@ -698,13 +770,13 @@ function PromoteCTACard({ onPromote }: { onPromote: () => void }) {
         {/* Text */}
         <div>
           <div className="text-[11px] font-black uppercase tracking-[0.3em] text-orange-400/80 mb-3">For Businesses</div>
-          <h2 className="text-4xl font-black text-white leading-[1] tracking-tighter mb-3">
+          <h2 className={cn("text-4xl font-black leading-[1] tracking-tighter mb-3", isLight ? "text-black" : "text-white")}>
             Want to<br />
             <span style={{ background: 'linear-gradient(135deg,#f97316,#a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               Promote here?
             </span>
           </h2>
-          <p className="text-white/50 text-sm leading-relaxed max-w-[260px] mx-auto">
+          <p className={cn("text-sm leading-relaxed max-w-[260px] mx-auto", isLight ? "text-black/50" : "text-white/50")}>
             Reach 15,000+ Tulum locals, expats & tourists with your event, restaurant, or brand
           </p>
         </div>
@@ -713,8 +785,8 @@ function PromoteCTACard({ onPromote }: { onPromote: () => void }) {
         <div className="flex justify-center gap-6">
           {[['15k+', 'Users'], ['120k+', 'Views/mo'], ['89%', 'Engagement']].map(([val, label]) => (
             <div key={label} className="text-center">
-              <div className="text-white font-black text-lg">{val}</div>
-              <div className="text-white/40 text-[10px]">{label}</div>
+              <div className={cn("font-black text-lg", isLight ? "text-black" : "text-white")}>{val}</div>
+              <div className={cn("text-[10px]", isLight ? "text-black/40" : "text-white/40")}>{label}</div>
             </div>
           ))}
         </div>
@@ -741,6 +813,8 @@ function PromoteCTACard({ onPromote }: { onPromote: () => void }) {
 export default function EventosFeed() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const queryClient = useQueryClient();
   const parentRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
@@ -951,7 +1025,10 @@ export default function EventosFeed() {
   }, [activeIdx]);
 
   return (
-    <div data-no-swipe-nav className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col">
+    <div data-no-swipe-nav className={cn(
+      "relative w-full h-[100dvh] overflow-hidden flex flex-col transition-colors duration-500",
+      isLight ? "bg-white" : "bg-black"
+    )}>
 
       {/* ── TOP HUD ── */}
       <div className="absolute top-0 left-0 right-0 z-30 pt-safe stagger-enter">
@@ -965,29 +1042,39 @@ export default function EventosFeed() {
           <button
             onClick={() => navigate(-1)}
             className="w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)' }}
+            style={{ 
+              background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)', 
+              backdropFilter: 'blur(12px)', 
+              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.2)' 
+            }}
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} />
           </button>
           <div className="flex-1">
-            <h1 className="text-white font-black font-brand text-xl tracking-tight leading-tight">Tulum Events</h1>
+            <h1 className={cn("font-black font-brand text-xl tracking-tight leading-tight", isLight ? "text-black" : "text-white")}>Tulum Events</h1>
             <div className="flex items-center gap-1.5 mt-[-2px]">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.8)]" />
-              <p className="text-white/60 text-[10px] uppercase font-black tracking-widest leading-none">{filteredEvents.length} LIVE NOW</p>
+              <p className={cn("text-[10px] uppercase font-black tracking-widest leading-none", isLight ? "text-black/60" : "text-white/60")}>{filteredEvents.length} LIVE NOW</p>
             </div>
           </div>
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => { setAutoPlay(p => !p); triggerHaptic('light'); }}
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-xl border border-white/10 active:scale-95 transition-all"
+              className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-95",
+                isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/10"
+              )}
               aria-label={autoPlay ? 'Pause auto-play' : 'Start auto-play'}
               title={autoPlay ? 'Pause auto-play' : 'Start auto-play'}
             >
-              {autoPlay ? <Pause className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 text-white ml-0.5" />}
+              {autoPlay ? <Pause className={cn("w-4 h-4", isLight ? "text-black" : "text-white")} /> : <Play className={cn("w-4 h-4 ml-0.5", isLight ? "text-black" : "text-white")} />}
             </button>
             <button
               onClick={() => { triggerHaptic('light'); navigate('/explore/eventos/likes'); }}
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-xl border border-white/10 active:scale-95 transition-all"
+              className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-95",
+                isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/10"
+              )}
               aria-label="View saved events"
               title="View saved events"
             >
@@ -1015,7 +1102,9 @@ export default function EventosFeed() {
               transition={{ delay: i * 0.05 }}
               className={cn(
                 "h-1 rounded-full transition-all duration-500",
-                i === activeIdx ? "w-8 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" : "w-1.5 bg-white/20"
+                i === activeIdx 
+                  ? (isLight ? "w-8 bg-black shadow-[0_0_8px_rgba(0,0,0,0.2)]" : "w-8 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]")
+                  : (isLight ? "w-1.5 bg-black/10" : "w-1.5 bg-white/20")
               )}
             />
           ))}
@@ -1037,14 +1126,20 @@ export default function EventosFeed() {
                 onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
                 className="flex items-center gap-2 px-4 h-9 rounded-full shrink-0 text-[11px] font-black uppercase tracking-[0.1em] transition-all active:scale-90"
                 style={{
-                  background: active ? 'rgba(255,255,255,0.95)' : 'rgba(0,0,0,0.45)',
-                  color: active ? '#000' : 'rgba(255,255,255,0.85)',
+                  background: active 
+                    ? (isLight ? 'rgba(0,0,0,0.95)' : 'rgba(255,255,255,0.95)') 
+                    : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.45)'),
+                  color: active 
+                    ? (isLight ? '#fff' : '#000') 
+                    : (isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.85)'),
                   backdropFilter: 'blur(16px)',
-                  border: active ? 'none' : '1px solid rgba(255,255,255,0.15)',
-                  boxShadow: active ? '0 8px 20px rgba(255,255,255,0.2)' : 'none'
+                  border: active ? 'none' : (isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.15)'),
+                  boxShadow: active 
+                    ? (isLight ? '0 8px 20px rgba(0,0,0,0.1)' : '0 8px 20px rgba(255,255,255,0.2)') 
+                    : 'none'
                 }}
               >
-                <Icon className={cn("w-3.5 h-3.5", active ? "text-orange-600" : "text-white/60")} />
+                <Icon className={cn("w-3.5 h-3.5", active ? "text-orange-600" : (isLight ? "text-black/40" : "text-white/60"))} />
                 {cat.label}
               </motion.button>
             );
@@ -1119,8 +1214,11 @@ export default function EventosFeed() {
           })}
         </div>
         {filteredEvents.length === 0 && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center text-white/50 gap-3">
-             <Sparkles className="w-8 h-8 text-white/20" />
+          <div className={cn(
+            "absolute inset-0 flex flex-col items-center justify-center p-8 text-center gap-3",
+            isLight ? "text-black/40" : "text-white/50"
+          )}>
+             <Sparkles className={cn("w-8 h-8", isLight ? "text-black/10" : "text-white/20")} />
              <span className="text-sm font-bold">No events in this category yet</span>
           </div>
         )}
@@ -1136,7 +1234,7 @@ export default function EventosFeed() {
           transition={{ duration: 0.3 }}
           className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 pointer-events-none"
         >
-          <ChevronLeft className="w-8 h-8 text-white/40" />
+          <ChevronLeft className={cn("w-8 h-8", isLight ? "text-black/40" : "text-white/40")} />
         </motion.div>
       )}
 
@@ -1149,7 +1247,7 @@ export default function EventosFeed() {
           transition={{ duration: 0.3 }}
           className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 pointer-events-none"
         >
-          <ChevronRight className="w-8 h-8 text-white/40" />
+          <ChevronRight className={cn("w-8 h-8", isLight ? "text-black/40" : "text-white/40")} />
         </motion.div>
       )}
 

@@ -226,7 +226,7 @@ export default function DJTurntableRadio() {
           </motion.div>
           <div className="flex items-center gap-2 mt-[-2px]">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_12px_#4ade80]" />
-            <span className="text-[10px] text-white/50 tracking-[0.3em] font-black uppercase">Streaming Live</span>
+            <span className={cn("text-[10px] tracking-[0.3em] font-black uppercase", isDark ? "text-white/50" : "text-black/40")}>Streaming Live</span>
           </div>
         </div>
 
@@ -320,7 +320,7 @@ export default function DJTurntableRadio() {
                     <p className="text-[14px] font-black text-white leading-tight tracking-[0.3em] uppercase mb-[4px] drop-shadow-xl line-clamp-1 font-mono">
                       {state.currentStation?.name || 'SENTIENT'}
                     </p>
-                    <p className="text-[10px] text-white/90 tracking-[0.4em] font-black uppercase font-mono bg-black/40 px-2 py-0.5 rounded-sm inline-block">
+                    <p className="text-[10px] text-white tracking-[0.4em] font-black uppercase font-mono bg-black/40 px-2 py-0.5 rounded-sm inline-block">
                       {state.currentStation?.frequency || 'LIVE'}
                     </p>
                   </div>

@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 import CardImage from '@/components/CardImage';
 
 interface EventItem {
@@ -28,6 +29,8 @@ interface EventItem {
 export default function EventosLikes() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -83,19 +86,30 @@ export default function EventosLikes() {
   const categories = ['all', ...new Set((likedEvents || []).map(e => e.category))];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-white pb-24">
+    <div className={cn(
+      "min-h-screen pb-24 transition-colors duration-500",
+      isLight ? "bg-white text-black" : "bg-[#0a0a0b] text-white"
+    )}>
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 pt-[var(--safe-top)] px-4 pb-4">
+      <div className={cn(
+        "sticky top-0 z-50 backdrop-blur-xl pt-[var(--safe-top)] px-4 pb-4 border-b transition-colors duration-500",
+        isLight ? "bg-white/80 border-black/5" : "bg-black/60 border-white/5"
+      )}>
         <div className="flex items-center gap-4 py-4">
           <button 
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center active:scale-90 transition-transform"
+            title="Go back"
+            aria-label="Go back"
+            className={cn(
+              "w-10 h-10 rounded-2xl flex items-center justify-center active:scale-90 transition-all",
+              isLight ? "bg-black/5 border-black/10 text-black" : "bg-white/5 border-white/10 text-white"
+            )}
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-xl font-black font-brand tracking-tight">Saved Events</h1>
-            <p className="text-white/40 text-[10px] uppercase font-bold tracking-widest">
+            <h1 className={cn("text-xl font-black font-brand tracking-tight", isLight ? "text-black" : "text-white")}>Saved Events</h1>
+            <p className={cn("text-[10px] uppercase font-bold tracking-widest", isLight ? "text-black/40" : "text-white/40")}>
               {likedEvents?.length || 0} Events in your vault
             </p>
           </div>
@@ -109,13 +123,16 @@ export default function EventosLikes() {
         {/* Search & Simple Filter */}
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+            <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4", isLight ? "text-black/30" : "text-white/30")} />
             <input 
               type="text" 
               placeholder="Search favorites..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-orange-500/50 transition-colors"
+              className={cn(
+                "w-full rounded-2xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-orange-500/50 transition-colors",
+                isLight ? "bg-black/5 border-black/10 text-black placeholder:text-black/30" : "bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              )}
             />
           </div>
         </div>
@@ -131,7 +148,7 @@ export default function EventosLikes() {
                   "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all",
                   selectedCategory === cat 
                     ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" 
-                    : "bg-white/5 text-white/40 border border-white/5"
+                    : (isLight ? "bg-black/5 text-black/40 border border-black/5" : "bg-white/5 text-white/40 border border-white/5")
                 )}
               >
                 {cat}
@@ -146,7 +163,7 @@ export default function EventosLikes() {
         {isLoading ? (
           <div className="grid grid-cols-2 gap-4">
             {[1,2,3,4].map(i => (
-              <div key={i} className="aspect-[4/5] rounded-[2rem] bg-white/5 animate-pulse" />
+              <div key={i} className={cn("aspect-[4/5] rounded-[2rem] animate-pulse", isLight ? "bg-black/5" : "bg-white/5")} />
             ))}
           </div>
         ) : filtered.length > 0 ? (
@@ -160,7 +177,10 @@ export default function EventosLikes() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
                   transition={{ delay: idx * 0.05, type: 'spring', stiffness: 300, damping: 25 }}
-                  className="group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-zinc-900 border border-white/5"
+                  className={cn(
+                    "group relative aspect-[3/4] rounded-[2.5rem] overflow-hidden border transition-colors duration-500",
+                    isLight ? "bg-zinc-100 border-black/5" : "bg-zinc-900 border-white/5"
+                  )}
                   onClick={() => navigate(`/explore/eventos/${ev.id}`, { state: { eventData: ev } })}
                 >
                   {/* Image */}
@@ -170,7 +190,10 @@ export default function EventosLikes() {
                   />
                   
                   {/* Overlays */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
+                  <div className={cn(
+                    "absolute inset-0 opacity-80 transition-opacity duration-700",
+                    isLight ? "bg-gradient-to-t from-white via-white/20 to-transparent" : "bg-gradient-to-t from-black via-black/20 to-transparent"
+                  )} />
                   
                   {/* Category Badge */}
                   <div className="absolute top-4 left-4">
@@ -186,17 +209,20 @@ export default function EventosLikes() {
                       removeLikeMutation.mutate(ev.id);
                     }}
                     aria-label={`Remove ${ev.title} from favorites`}
-                    className="absolute top-4 right-4 w-9 h-9 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity active:scale-90"
+                    className={cn(
+                      "absolute top-4 right-4 w-9 h-9 rounded-xl backdrop-blur-md border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all active:scale-90",
+                      isLight ? "bg-white/40 border-black/10" : "bg-black/40 border-white/10"
+                    )}
                   >
                     <Trash2 className="w-4 h-4 text-rose-500" />
                   </button>
 
                   {/* Info */}
                   <div className="absolute bottom-5 left-5 right-5 space-y-2">
-                    <h3 className="font-black text-sm line-clamp-2 leading-tight drop-shadow-lg">
+                    <h3 className={cn("font-black text-sm line-clamp-2 leading-tight drop-shadow-lg", isLight ? "text-black" : "text-white")}>
                       {ev.title}
                     </h3>
-                    <div className="flex items-center gap-1.5 text-[9px] text-white/60 font-medium">
+                    <div className={cn("flex items-center gap-1.5 text-[9px] font-medium", isLight ? "text-black/60" : "text-white/60")}>
                       <Calendar className="w-3 h-3 text-orange-400" />
                       <span>{ev.event_date ? new Date(ev.event_date).toLocaleDateString() : 'TBA'}</span>
                     </div>
@@ -207,11 +233,14 @@ export default function EventosLikes() {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center px-8">
-            <div className="w-20 h-20 rounded-[2rem] bg-zinc-900 border border-white/5 flex items-center justify-center mb-6">
-              <Sparkles className="w-8 h-8 text-white/10" />
+            <div className={cn(
+              "w-20 h-20 rounded-[2rem] border flex items-center justify-center mb-6",
+              isLight ? "bg-zinc-100 border-black/5" : "bg-zinc-900 border-white/5"
+            )}>
+              <Sparkles className={cn("w-8 h-8", isLight ? "text-black/10" : "text-white/10")} />
             </div>
-            <h3 className="text-xl font-black mb-2">Pure Potential.</h3>
-            <p className="text-white/40 text-sm leading-relaxed mb-8">
+            <h3 className={cn("text-xl font-black mb-2", isLight ? "text-black" : "text-white")}>Pure Potential.</h3>
+            <p className={cn("text-sm leading-relaxed mb-8", isLight ? "text-black/40" : "text-white/40")}>
               Your favorite events will appear here. Start swiping to fill your social calendar.
             </p>
             <button 

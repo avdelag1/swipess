@@ -26,6 +26,7 @@ export function useConciergeAI() {
   const [messages, setMessages] = useState<ConciergeMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userVibe, setUserVibe] = useState<string | null>(null);
   const { user } = useAuth();
   const { data: subscription } = useUserSubscription();
   const location = useLocation();
@@ -158,6 +159,10 @@ export function useConciergeAI() {
       };
       
       setMessages(prev => [...prev, assistantMsg]);
+      
+      if (data?.vibe) {
+        setUserVibe(data.vibe);
+      }
 
       // 4. Save AI Response to DB
       await supabase.from('ai_messages').insert({
@@ -221,6 +226,7 @@ export function useConciergeAI() {
     sendMessage,
     clearMessages,
     deletePermanently,
+    userVibe,
     isConfigured: true, 
   };
 }

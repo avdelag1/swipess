@@ -60,6 +60,7 @@ export function ConciergeChat({
     sendMessage, 
     clearMessages,
     deletePermanently,
+    userVibe,
     isConfigured 
   } = useConciergeAI();
 
@@ -122,17 +123,27 @@ export function ConciergeChat({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         className={cn(
-          "max-w-md w-[calc(100%-16px)] h-[85vh] max-h-[750px] flex flex-col p-0 gap-0 overflow-hidden rounded-[2rem]",
+          "max-w-md w-[calc(100%-16px)] h-[85vh] max-h-[750px] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem] border-none shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)]",
           isDark 
-            ? "bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 border-zinc-700/50" 
-            : "bg-white border-gray-200"
+            ? "bg-[#0a0a0b]/80 backdrop-blur-2xl" 
+            : "bg-white/90 backdrop-blur-2xl"
         )}
         hideCloseButton
       >
+        {/* Animated Glow Border */}
+        <div className="absolute inset-0 p-[1px] rounded-[2.5rem] pointer-events-none z-0">
+          <div className={cn(
+            "w-full h-full rounded-[2.5rem] opacity-30",
+            isDark 
+              ? "bg-gradient-to-br from-cyan-500 via-purple-500 to-rose-500" 
+              : "bg-gradient-to-br from-cyan-400 via-blue-400 to-indigo-400"
+          )} />
+        </div>
+        
         {/* Header */}
         <div className={cn(
-          "flex items-center justify-between px-5 py-4 border-b shrink-0",
-          isDark ? "border-zinc-700/50" : "border-gray-100"
+          "relative z-10 flex items-center justify-between px-6 py-5 border-b shrink-0",
+          isDark ? "border-white/5 bg-white/5" : "border-gray-100 bg-gray-50/50"
         )}>
           <div className="flex items-center gap-3">
             <div className={cn(
@@ -148,20 +159,30 @@ export function ConciergeChat({
                   Swipess Concierge
                 </h2>
                 <div className="flex items-center gap-1.5 ml-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                  <span className="text-[9px] font-black text-rose-500 uppercase tracking-[0.2em]">Personal Concierge</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+                  <span className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.2em]">Sentient AI</span>
                 </div>
-                {userRole === 'owner' || (subscription?.subscription_packages?.tier === 'premium' || subscription?.subscription_packages?.tier === 'unlimited') && (
-                  <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-500 text-[10px] font-bold uppercase tracking-wider border border-amber-500/20">
-                    <Sparkles className="w-2.5 h-2.5" />
-                    {tierName}
-                  </span>
-                )}
               </div>
               <div className="flex items-center gap-2">
-                <p className={cn("text-xs", isDark ? "text-zinc-400" : "text-gray-500")}>
-                  Personal Assistant for {initialCity}
-                </p>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={userVibe || 'syncing'}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 10 }}
+                    className={cn(
+                      "flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase tracking-wider",
+                      isDark 
+                        ? "bg-white/5 border-white/10 text-zinc-400" 
+                        : "bg-gray-100 border-gray-200 text-gray-500"
+                    )}
+                  >
+                    <Bot className="w-2.5 h-2.5" />
+                    Persona: {userVibe || 'Exploring...'}
+                    <span className="absolute inset-0 bg-cyan-500/10 blur-[5px] rounded-full animate-pulse" />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
                 {limits.dailyMessages !== Infinity && (
                   <span className={cn(
                     "text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border",
@@ -174,7 +195,6 @@ export function ConciergeChat({
                 )}
               </div>
             </div>
-          </div>
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
@@ -219,20 +239,30 @@ export function ConciergeChat({
             {/* Welcome message */}
             {messages.length === 0 && (
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="space-y-4"
+                className="space-y-6 pt-4"
               >
                 <div className={cn(
-                  "p-4 rounded-2xl text-center",
-                  isDark ? "bg-zinc-800/50" : "bg-gray-50"
+                  "p-6 rounded-[2rem] text-center relative overflow-hidden group",
+                  isDark ? "bg-white/5 shadow-inner" : "bg-gray-50 shadow-inner"
                 )}>
-                  <Sparkles className={cn("w-8 h-8 mx-auto mb-2", isDark ? "text-cyan-400" : "text-cyan-500")} />
-                  <p className={cn("font-medium", isDark ? "text-white" : "text-gray-900")}>
-                    Hello! I'm your {initialCity} Concierge
-                  </p>
-                  <p className={cn("text-sm mt-1", isDark ? "text-zinc-400" : "text-gray-500")}>
-                    How can I assist you with your listings or local information today?
+                   {/* Background ambient light */}
+                  <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-[80px] pointer-events-none" />
+                  <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-500/20 rounded-full blur-[80px] pointer-events-none" />
+
+                  <div className={cn(
+                    "w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center rotate-6 group-hover:rotate-0 transition-transform duration-500 shadow-xl border",
+                    isDark ? "bg-zinc-900 border-white/10" : "bg-white border-gray-100"
+                  )}>
+                    <SwipessLogo size="sm" />
+                  </div>
+                  
+                  <h3 className={cn("text-xl font-black tracking-tight mb-2", isDark ? "text-white" : "text-gray-900")}>
+                    Welcome to Swipess {initialCity}
+                  </h3>
+                  <p className={cn("text-sm leading-relaxed", isDark ? "text-zinc-400" : "text-gray-500")}>
+                    Your sentient local expert for properties, listings, and Tulum's secret spots.
                   </p>
                 </div>
 
@@ -296,15 +326,19 @@ export function ConciergeChat({
 
                   {/* Message bubble */}
                   <div className={cn(
-                    "max-w-[80%] p-3 rounded-2xl",
+                    "max-w-[85%] p-4 rounded-3xl relative overflow-hidden",
                     message.role === 'user'
                       ? isDark 
-                        ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white"
-                        : "bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
+                        ? "bg-gradient-to-br from-indigo-600 to-indigo-700 text-white shadow-[0_10px_20px_-10px_rgba(79,70,229,0.5)]"
+                        : "bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg"
                       : isDark 
-                        ? "bg-zinc-800 text-zinc-100"
-                        : "bg-gray-100 text-gray-900"
+                        ? "bg-white/5 text-zinc-100 border border-white/5 backdrop-blur-md"
+                        : "bg-gray-100 text-gray-900 border border-gray-200"
                   )}>
+                    {/* User bubble accent */}
+                    {message.role === 'user' && (
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-12 translate-x-12 blur-2xl pointer-events-none" />
+                    )}
                     {message.role === 'user' ? (
                       <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     ) : (
@@ -401,13 +435,20 @@ export function ConciergeChat({
                     <Bot className="w-4 h-4 text-white" />
                   </div>
                   <div className={cn(
-                    "flex items-center gap-2 px-4 py-3 rounded-2xl",
-                    isDark ? "bg-zinc-800" : "bg-gray-100"
+                    "flex flex-col gap-1 px-4 py-3 rounded-2xl relative overflow-hidden",
+                    isDark ? "bg-white/5 border border-white/5" : "bg-gray-100 border border-gray-200"
                   )}>
-                    <Loader2 className={cn("w-4 h-4 animate-spin", isDark ? "text-cyan-400" : "text-cyan-600")} />
-                    <span className={cn("text-sm font-bold", isDark ? "text-cyan-400" : "text-cyan-600")}>
-                      Finding resources...
+                    <div className="flex items-center gap-2">
+                       <Loader2 className={cn("w-3 h-3 animate-spin", isDark ? "text-cyan-400" : "text-cyan-600")} />
+                       <span className={cn("text-[10px] font-black uppercase tracking-widest", isDark ? "text-cyan-500" : "text-cyan-600")}>
+                         {messages.length > 5 ? "Deepening Memory..." : "Analyzing Context..."}
+                       </span>
+                    </div>
+                    <span className={cn("text-xs font-medium", isDark ? "text-zinc-400" : "text-gray-500")}>
+                      Swipess AI is thinking...
                     </span>
+                    {/* Progress bar line */}
+                    <div className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-cyan-500 via-purple-500 to-rose-500 w-full animate-shimmer" />
                   </div>
                 </motion.div>
               )}

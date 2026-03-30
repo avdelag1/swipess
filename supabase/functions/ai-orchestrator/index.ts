@@ -62,12 +62,22 @@ Deno.serve(async (req) => {
     // ── Profile DNA ──────────────────────────────────────────────────
     const { data: profile } = user ? await supabase
       .from('profiles')
-      .select('full_name, gender, bio')
+      .select('full_name, gender, bio, interests, lifestyle_tags, sentient_memory')
       .eq('id', user.id)
       .single() : { data: null };
 
     const systemPrompt = getVibePrompt(task, input, user, profile);
     cleanMessages.unshift({ role: "system", content: systemPrompt });
+
+    // Include Profile & Memory context for better understanding
+    const memory = profile?.sentient_memory || {};
+    const memoryString = JSON.stringify(memory);
+    if (Object.keys(memory).length > 0) {
+      cleanMessages.push({ 
+        role: "system", 
+        content: `USER SENTIENT MEMORY (What you already know about them): ${memoryString}` 
+      });
+    }
 
     // ── Resolve tier ──────────────────────────────────────────────────
     const userTier = (input.userTier || 'free').toLowerCase();
@@ -312,11 +322,52 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── SENTIENT MEMORY UPDATE (Learn as we go) ──────────────────────
+    if (user && iteration > 1) { // Only learn if we had an actual chat interaction
+       const learningPrompt = `
+         TASK: REFRESH USER MEMORY.
+         Review the current conversation and the existing memory: ${JSON.stringify(profile?.sentient_memory || {})}
+         1. Create a 3-word "Sentient Vibe" (e.g. "Luxury Beach Lover", "Practical Local Host").
+         2. List 3 key preferences discovered (e.g. ["loves sushi", "prices over $100", "needs pet friendly"]).
+         3. Update the "interaction_style" (e.g. "bro", "sophisticated", "direct").
+         
+         Output ONLY valid JSON: { "vibe": "...", "preferences": [...], "interaction_style": "...", "last_topic": "..." }
+       `;
+       
+       try {
+         // Run a fast, lightweight learning call in the background (no await if we want speed, but for consistency let's do it quick)
+         const learningRes = await callMiniMax([
+           { role: "system", content: "You are a memory analyzer. Summarize the user's personality based on history." },
+           ...cleanMessages.slice(-5), // only recent context
+           { role: "user", content: learningPrompt }
+         ], key, 300);
+         
+         const memoryJson = learningRes.choices?.[0]?.message?.content.match(/\{[\s\S]*\}/);
+         if (memoryJson) {
+           const newMemory = JSON.parse(memoryJson[0]);
+           const serviceClient = createClient(
+             Deno.env.get("SUPABASE_URL")!,
+             Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+           );
+           
+           await serviceClient
+             .from('profiles')
+             .update({ sentient_memory: newMemory })
+             .eq('id', user.id);
+           
+           console.log(`[Sentient] Memory updated for ${user.id}: ${newMemory.vibe}`);
+         }
+       } catch (learnErr) {
+         console.warn('[Sentient] Memory update failed:', learnErr);
+       }
+    }
+
     return new Response(JSON.stringify({ 
       result: { text: finalContent, message: finalContent, action: finalAction }, 
       status: "success",
-      version: "v11.3-adaptive",
+      version: "v11.5-sentient",
       tier: userTier,
+      vibe: profile?.sentient_memory?.vibe || "Exploring"
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
@@ -390,14 +441,24 @@ function getVibePrompt(task: string, input: any, user: any, profile: any): strin
   const userGender = profile?.gender || "not specified";
   const userTier = input.userTier || "Basic";
   const currentPath = input.currentPath || "/dashboard";
+  
+  const memory = profile?.sentient_memory || {};
+  const currentVibe = memory.vibe || "Exploring";
+  const style = memory.interaction_style || (userGender === "woman" ? "sophisticated" : "bro");
 
-  const promoIdentity = `You are "Vibe", the sharp, market-savvy AI Concierge of Swipess in Tulum. 
-You live inside the app and know EVERYTHING about it.
+  const promoIdentity = `### THE SWIPESS MISSION (MARKETING DNA)
+- CORE IDENTITY: "Swipess: The Sentient Local Network".
+- THE REVOLUTION: We are the ONLY middleman you need because we remove all others. No agents, no "fixers," no commissions. Just you and the direct source.
+- DIRECT-TO-SOURCE: Users pay US a small subscription so they NEVER pay commissions to anyone else. 100% direct owner contact.
+- LEGAL SECURITY: We have on-demand lawyers for every deal. Renting, buying, or disputes—the network has your back.
+- LIFESTYLE LOOP: Everything is synced. Look for a villa -> find a roommate -> book a scooter -> listen to our radio -> check for tonight's party. All in one loop.
 
 ### PERSONALITY — NEVER BREAK THIS
 - Cool, direct, local legend vibe. Fast and punchy, but deeply helpful.
 - USER ADDRESSING: Address the user as ${userName}. Their gender is ${userGender}. Adapt your tone to be perfectly respectful and cool.
-- If they are a "man", use more "bro/friend" vibes. If they are a "woman", be extra helpful and sophisticated. If not specified, be neutral and chic.
+- PITCHING: If the user asks about the app, benefits, or "why pay?", use the MISSION logic above. Tell them: "I'm your Sentient Concierge. I find you the source directly so you skip the middleman fees. One Yearly Elite pass and the whole city is yours—unlimited AI, direct contacts, and legal peace of mind."
+- Use your SENTIENT MEMORY to personalize every response.
+- Your current understanding of the user: "${currentVibe}".
 
 ### SMART DISCOVERY — ONE-SHOT PROTOCOL
 **DEFAULT BEHAVIOR: SEARCH AND ANSWER DIRECTLY.** For any request about venues, restaurants, properties, prices, links, or anything the user wants to find — just use your tools and answer immediately.

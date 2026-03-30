@@ -79,6 +79,6 @@
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
   Content-Security-Policy: frame-ancestors 'self'; base-uri 'self'; form-action 'self'
-  Permissions-Policy: camera=(self), payment=()
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(self)
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   Cross-Origin-Opener-Policy: same-origin-allow-popups

@@ -19,6 +19,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 import type { EffectMode } from './LandingBackgroundEffects';
 
 // Lazy-load heavy deps that aren't needed for first paint
@@ -150,8 +151,8 @@ const LandingView = memo(({
         onClick={(e) => { e.stopPropagation(); onToggleDark(e); triggerHaptic('light'); }}
         data-testid="button-star-filter"
         className={cn(
-          "absolute bottom-8 left-8 flex items-center justify-center w-14 h-14 rounded-full transition-colors duration-200 z-50 shadow-2xl overflow-hidden group",
-          isDark ? "bg-white/10 border border-white/20 text-white" : "bg-black/5 border border-black/10 text-black"
+          "absolute bottom-8 left-8 flex items-center justify-center w-14 h-14 rounded-full transition-colors duration-200 z-50 shadow-2xl overflow-hidden group border",
+          isDark ? "bg-white/10 border-white/20 text-white" : "bg-black/5 border-black/10 text-black"
         )}
         style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
         title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -184,7 +185,22 @@ const LandingView = memo(({
         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </motion.button>
 
-
+      {/* Benefits Indicator */}
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1, duration: 1 }}
+        className="absolute bottom-8 right-8 flex flex-col items-center gap-2 pointer-events-none opacity-40"
+      >
+        <span className={cn("text-[9px] font-black uppercase tracking-[0.3em]", isDark ? "text-white" : "text-black")}>
+          The Sentient Network
+        </span>
+        <motion.div
+          animate={{ y: [0, 5, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className={cn("w-[2px] h-8 rounded-full", isDark ? "bg-white/20" : "bg-black/20")}
+        />
+      </motion.div>
     </motion.div>
   );
 });
@@ -322,18 +338,23 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 <SwipessLogo size="md" className="scale-125" />
               </div>
               <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand mb-1">
-                {isLogin ? 'Welcome Back' : 'Join Swipess'}
+                {isLogin ? 'Resonate with Tulum' : 'The Clean Connect'}
               </h1>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className="text-muted-foreground text-sm font-medium leading-relaxed px-4">
                 {isLogin
-                  ? 'Your next match is waiting — homes, motos, bikes & more.'
-                  : 'Swipe & discover properties, motorcycles, bicycles & workers.'}
+                  ? 'Access properties, scooters, and legal experts directly. No commission. All AI.'
+                  : 'The only local network you need. Direct to owner. Sentient by design.'}
               </p>
               {!isLogin && (
-                <div className="flex justify-center gap-3 mt-3">
-                  {['🏠 Properties', '🏍 Motos & Bikes', '🔧 Workers'].map((feat) => (
-                    <span key={feat} className="text-[10px] text-orange-300/80 font-medium bg-orange-500/10 border border-orange-500/20 rounded-full px-2 py-0.5">
-                      {feat}
+                <div className="flex flex-wrap justify-center gap-2 mt-4 max-w-[280px] mx-auto">
+                  {[
+                    { label: 'Direct Properties', icon: '🏠' },
+                    { label: 'Verified Lawyers', icon: '⚖️' },
+                    { label: 'Motos & Bikes', icon: '🏍' },
+                    { label: 'Lifestyle AI', icon: '💎' }
+                  ].map((feat) => (
+                    <span key={feat.label} className="text-[9px] text-white font-black uppercase tracking-tighter bg-white/5 border border-white/10 rounded-lg px-2 py-1 flex items-center gap-1 shadow-sm">
+                      <span className="text-[12px]">{feat.icon}</span> {feat.label}
                     </span>
                   ))}
                 </div>

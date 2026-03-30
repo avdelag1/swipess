@@ -214,3 +214,18 @@ body {
   background-size: 200% 100%;
   animation: shimmer 2s infinite linear;
 }
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes breathing-zoom {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+}
+
+.breathing-zoom {
+  animation: breathing-zoom 4s ease-in-out infinite;
+}

@@ -60,25 +60,25 @@ const clientPremiumPlans = [
   },
   {
     id: 'client-unlimited-1-year',
-    name: 'Yearly',
+    name: 'Yearly Elite',
     label: 'BEST VALUE',
     price: 299,
     durationText: '/year',
-    aiTier: 'AI Unlimited',
+    aiTier: 'Sentient Unlimited',
     benefits: [
-      'Communicate with listings and members',
-      'Post properties for rent or sale',
-      'Post services (chef, driver, cleaning, etc.)',
-      'Post motorcycles or bicycles for rent or sale',
-      'Save favorite listings',
-      'Discover opportunities',
+      '⚡ Zero-Commission Network (Direct Owners)',
+      '⚖️ Priority Legal Support & Dispute Help',
+      '🏠 Exclusive High-Demand Property List',
+      '🤝 Premium Tribe (Roommate) Matching',
+      '🎟️ VIP Event Bookings & Concierge Service',
+      '📻 Premium Ad-Free Radio Experience',
     ],
     aiFeatures: [
-      '🔥 AI Concierge — Unlimited messages',
+      '🔥 AI Concierge — Unlimited 24/7 Access',
+      '🧠 Full "Vibe" Sentient Memory Sync',
       '📝 AI Listing Creator — Unlimited',
-      '🗺️ Local Expert Knowledge & Recommendations',
-      '💡 AI Personalized Smart Suggestions',
-      '⚡ Priority AI Responses',
+      '🗺️ Local Insider Knowledge (Hidden Spots)',
+      '⚡ Direct-to-Source Contact Unlocking',
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
     highlight: true,
@@ -182,14 +182,14 @@ export default function SubscriptionPackagesPage() {
           <div className="inline-flex items-center gap-2 mb-4">
             <Zap className="w-6 h-6 text-brand-accent-2 animate-pulse" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
-              Elite Marketplace
+              The Sentient Experience
             </span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-black tracking-tighter text-white mb-6">
-            Unlock Full <span className="text-brand-accent-2 line-through decoration-white/20">Access</span>
+            Own the <span className="text-brand-accent-2 italic">Network</span>
           </h1>
           <p className="text-sm font-bold text-muted-foreground leading-relaxed max-w-lg mx-auto">
-            Choose a plan that fits your needs. Every subscription includes unlimited messaging, AI listing tools, and full access to all marketplace services.
+            Stop paying commissions. Start resonating. Unlock direct access to owners, verified legal support, and unlimited Sentient AI assistance.
           </p>
         </motion.div>
       </div>
