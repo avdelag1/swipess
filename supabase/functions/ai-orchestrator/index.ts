@@ -109,12 +109,12 @@ Deno.serve(async (req) => {
 
             let expertCards = [];
             try {
-              // Priority 1: Title match (exact or partial)
-              const { data: titleData } = await supabase
+              // Priority 1: Title or Category match
+              const { data: directData } = await supabase
                 .from('expert_knowledge')
                 .select('title, content, category, location, website_url, instagram_handle, whatsapp')
-                .ilike('title', `%${query.split(' ')[0]}%`)
-                .limit(3);
+                .or(`title.ilike.%${query}%,category.ilike.%${query}%`)
+                .limit(5);
 
               // Priority 2: Full content search
               const { data: contentData } = await supabase
@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
                 .textSearch('content', query, { config: 'english', type: 'websearch' })
                 .limit(5);
 
-              const allResults = [...(titleData || []), ...(contentData || [])];
+              const allResults = [...(directData || []), ...(contentData || [])];
               // De-duplicate by title
               expertCards = Array.from(new Map(allResults.map(item => [item.title, item])).values());
               
@@ -137,14 +137,16 @@ Deno.serve(async (req) => {
                   `[${c.title}] ${c.content}\n` +
                   (c.category ? ` - Profession/Category: ${c.category}\n` : '') +
                   (c.location ? ` - Location: ${c.location}\n` : '') +
-                  (c.instagram_handle ? ` - Instagram: ${c.instagram_handle}\n` : '') +
+                  (c.instagram_handle ? ` - Instagram: @${c.instagram_handle.replace('@', '')}\n` : '') +
                   (c.whatsapp ? ` - WhatsApp: ${c.whatsapp}\n` : '') +
                   (c.website_url ? ` - Website: ${c.website_url}\n` : '')
                 ).join("\n")}`
-              : "No specific local expert knowledge found for this query.";
+              : "ZERO RESULTS FOUND LOCALLY for this specific expert.";
 
             cleanMessages.push({ role: "assistant", content });
-            cleanMessages.push({ role: "user", content: `TOOL RESULT: ${contextResult}. Give the user your final answer. If you found a professional expert (Coach, Healer, Artist, DJ, etc.), conclude with: {"action": {"type":"show_expert_card", "params": {"title":"${expertCards[0]?.title || 'Expert'}", "description":"${expertCards[0]?.content?.substring(0, 150) || 'Bio'}", "category":"${expertCards[0]?.category || 'Expert'}", "whatsapp":"${expertCards[0]?.whatsapp || ''}", "instagram":"${expertCards[0]?.instagram_handle || ''}", "website":"${expertCards[0]?.website_url || ''}"}}}. If you found a venue/place (Beach Club, Restaurant), use: {"action": {"type":"show_venue_card", "params": {"title":"...", "category":"...", "whatsapp":"...", "instagram":"..."}}}. Be direct and one-shot as per protocol.` });
+            cleanMessages.push({ role: "user", content: `TOOL RESULT: ${contextResult}. 
+            IMPORTANT: If the result is "ZERO RESULTS FOUND LOCALLY", you MUST immediately call 'web_search_resource' to find this person/topic on Google. DO NOT give up. 
+            If you found them, conclude with: {"action": {"type":"show_expert_card", "params": {"title":"...", "description":"...", "category":"...", "whatsapp":"...", "instagram":"...", "website":"..."}}}.` });
             continue;
           }
 
