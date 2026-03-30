@@ -140,15 +140,16 @@ export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed 
           <img
             src={photo}
             alt={card.label}
-            className="absolute inset-0 w-full h-full object-cover breathing-zoom"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ animation: 'breathing-zoom 6s ease-in-out infinite alternate', backfaceVisibility: 'hidden', transformOrigin: 'center' }}
             loading="eager"
             draggable={false}
             onError={() => setImgError(true)}
           />
         ) : (
           <div
-            className="absolute inset-0 w-full h-full breathing-zoom"
-            style={{ background: gradient }}
+            className="absolute inset-0 w-full h-full"
+            style={{ background: gradient, animation: 'breathing-zoom 6s ease-in-out infinite alternate', backfaceVisibility: 'hidden', transformOrigin: 'center' }}
           />
         )}
 

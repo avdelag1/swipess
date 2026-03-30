@@ -561,19 +561,15 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 @keyframes breathing-zoom {
-  0% { 
-    transform: scale(1.0);
-    filter: brightness(1);
-  }
-  100% { 
-    transform: scale(1.15);
-    filter: brightness(1.08);
-  }
+  0%   { transform: scale(1.03) translateZ(0); }
+  100% { transform: scale(1.18) translateZ(0); }
 }
 
 .breathing-zoom {
   animation: breathing-zoom 6s ease-in-out infinite alternate !important;
-  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform-origin: center;
 }
 
 @keyframes progress-fill {
