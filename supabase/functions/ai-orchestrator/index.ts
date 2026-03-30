@@ -124,17 +124,16 @@ Deno.serve(async (req) => {
             const contextResult = expertCards.length
               ? `LOCAL EXPERT KNOWLEDGE FOUND:\n${expertCards.map((c: any) =>
                   `[${c.title}] ${c.content}\n` +
+                  (c.category ? ` - Profession/Category: ${c.category}\n` : '') +
                   (c.location ? ` - Location: ${c.location}\n` : '') +
-                  (c.metadata?.min_spend ? ` - Estimated Price / Minimum Spend: ${c.metadata.min_spend}\n` : '') +
-                  (c.metadata?.free_access ? ` - Free Access / No Cover: Supported\n` : '') +
                   (c.instagram_handle ? ` - Instagram: ${c.instagram_handle}\n` : '') +
                   (c.whatsapp ? ` - WhatsApp: ${c.whatsapp}\n` : '') +
                   (c.website_url ? ` - Website: ${c.website_url}\n` : '')
                 ).join("\n")}`
-              : "No specific local expert knowledge found for this query. Use your existing training to answer with the best links you can find.";
+              : "No specific local expert knowledge found for this query.";
 
             cleanMessages.push({ role: "assistant", content });
-            cleanMessages.push({ role: "user", content: `TOOL RESULT: ${contextResult}. Now give the user your final expert advice with the links in markdown format. If you want to visually show the best venue, conclude with {"action": {"type":"show_venue_card", "params": {"title":"...", "category":"...", "whatsapp":"...", "instagram":"..."}}}` });
+            cleanMessages.push({ role: "user", content: `TOOL RESULT: ${contextResult}. Give the user your final answer. If you found a professional expert (Coach, Healer, Artist, DJ, etc.), conclude with: {"action": {"type":"show_expert_card", "params": {"title":"${expertCards[0]?.title || 'Expert'}", "description":"${expertCards[0]?.content?.substring(0, 150) || 'Bio'}", "category":"${expertCards[0]?.category || 'Expert'}", "whatsapp":"${expertCards[0]?.whatsapp || ''}", "instagram":"${expertCards[0]?.instagram_handle || ''}", "website":"${expertCards[0]?.website_url || ''}"}}}. If you found a venue/place (Beach Club, Restaurant), use: {"action": {"type":"show_venue_card", "params": {"title":"...", "category":"...", "whatsapp":"...", "instagram":"..."}}}. Be direct and one-shot as per protocol.` });
             continue;
           }
 
