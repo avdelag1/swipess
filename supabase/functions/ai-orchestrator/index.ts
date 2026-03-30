@@ -109,14 +109,25 @@ Deno.serve(async (req) => {
 
             let expertCards = [];
             try {
-              const { data, error: searchError } = await supabase
+              // Priority 1: Title match (exact or partial)
+              const { data: titleData } = await supabase
                 .from('expert_knowledge')
-                .select('title, content, category, metadata, location, website_url, instagram_handle, whatsapp')
-                .textSearch('content', query)
+                .select('title, content, category, location, website_url, instagram_handle, whatsapp')
+                .ilike('title', `%${query.split(' ')[0]}%`)
+                .limit(3);
+
+              // Priority 2: Full content search
+              const { data: contentData } = await supabase
+                .from('expert_knowledge')
+                .select('title, content, category, location, website_url, instagram_handle, whatsapp')
+                .textSearch('content', query, { config: 'english', type: 'websearch' })
                 .limit(5);
 
-              if (!searchError) expertCards = data || [];
-              else console.warn("[Vibe Agent] Database search failed:", searchError);
+              const allResults = [...(titleData || []), ...(contentData || [])];
+              // De-duplicate by title
+              expertCards = Array.from(new Map(allResults.map(item => [item.title, item])).values());
+              
+              if (expertCards.length === 0) console.warn("[Vibe Agent] No local experts found for query:", query);
             } catch (dbErr) {
               console.warn("[Vibe Agent] Expert table query error:", dbErr);
             }
@@ -238,19 +249,25 @@ Deno.serve(async (req) => {
             continue; // Go back to AI for final answer
           }
 
-          // Strip any JSON action blocks from visible text — user should never see raw JSON
-          const strippedContent = content.replace(/\{[\s\S]*\}/, '').trim();
+          // Strip any JSON action blocks AND TECHNICAL TAGS — user should never see raw JSON or tool markers
+          const strippedContent = content
+            .replace(/\[TOOL_CALL\][\s\S]*?\[\/TOOL_CALL\]/gi, '') // Remove pseudo-tags
+            .replace(/\{[\s\S]*\}/, '') // Remove JSON
+            .trim();
           finalContent = parsed.message || parsed.text || strippedContent;
           finalAction = action;
           break;
         } catch {
-          // JSON parse failed — strip the malformed JSON block and show only the text
-          finalContent = content.replace(/\{[\s\S]*\}/, '').trim();
+          // JSON parse failed — strip and show only text
+          finalContent = content
+            .replace(/\[TOOL_CALL\][\s\S]*?\[\/TOOL_CALL\]/gi, '')
+            .replace(/\{[\s\S]*\}/, '')
+            .trim();
           break;
         }
       } else {
-        // Plain text response (no JSON) — safe to use directly
-        finalContent = content;
+        // Plain text response — strip any accidental tags
+        finalContent = content.replace(/\[TOOL_CALL\][\s\S]*?\[\/TOOL_CALL\]/gi, '').trim();
         break;
       }
     }
@@ -460,11 +477,13 @@ function getVibePrompt(task: string, input: any, user: any, profile: any): strin
 - Your current understanding of the user: "${currentVibe}".
 
 ### ZERO EXCUSE & ONE-SHOT PROTOCOL
-- **ABSOLUTE BAN ON STATUS UPDATES:** NEVER say "Let me check," "Searching now," "Looking into that," "One moment," or "I'll find that for you." The user must NEVER see these words.
-- **NO PREAMBLES:** Do not explain that you are searching. Do not say "Ok," "Sure," or "I see." Go directly to the solution.
-- **SILENT AGENTIC LOOP:** If you need to use a tool, do it silently in the background. The user must only receive the FINAL, COMPLETE answer with all links, venue cards, and property details.
-- **DIRECT TO SOURCE:** Your first word must be the beginning of the answer or the solution. If the user asks for a price, give the price. If they ask for a place, give the name and link immediately.
-- **FAIL DIRECTLY:** If you cannot find something after searching, do not apologize with excuses. Say: "I couldn't find a direct source for [X] yet. Here is the closest alternative or a link to search yourself: [Search Link](...)."
+- **ABSOLUTE BAN ON TECHNICAL TAGS:** NEVER output "[TOOL_CALL]", "Tool Call", or any pseudo-code.
+- **MANDATORY JSON FORMAT:** All tool calls MUST be wrapped in a valid JSON object only. Example: {"action": {"type": "search_local_expert_knowledge", "params": {"query": "Ezriyah"}}}
+- **ABSOLUTE BAN ON STATUS UPDATES:** NEVER say "Let me check," "Searching now," or "Looking into that."
+- **NO PREAMBLES:** Go directly to the solution.
+- **SILENT AGENTIC LOOP:** The user must only receive the FINAL, COMPLETE answer.
+- **DIRECT TO SOURCE:** Your first word must be the beginning of the answer.
+- **FAIL DIRECTLY:** If you cannot find something, say: "I couldn't find a direct source for [X] yet. Here is the closest alternative: [Name](URL)."
 - **NO INTERMEDIATE MESSAGES:** NEVER tell the user you are "thinking," "processing," or "searching deeply."
 - **FORCE ACTION:** If the user implies they want to see something or find a place, you MUST call at least one search tool (web_search_resource or search_local_expert_knowledge). Do not just reply from training data if the user wants real-time or local specifics. Deliver the links in the FIRST response.`;
 
