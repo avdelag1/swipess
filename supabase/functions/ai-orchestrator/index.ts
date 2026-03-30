@@ -84,13 +84,12 @@ Deno.serve(async (req) => {
     const maxTokens = TIER_MAX_TOKENS[userTier] || TIER_MAX_TOKENS.free;
 
     // ── AGENTIC LOOP — The "Vibe" Engine ──────────────────────────────
+    const maxLoops = 8;
+    let loopCount = 0;
     let finalContent = "";
     let finalAction = null;
-    let iteration = 0;
-    const MAX_ITERATIONS = 4; // Allow up to 3 tool uses + 1 final answer
-
-    while (iteration < MAX_ITERATIONS) {
-      iteration++;
+    while (loopCount < maxLoops) {
+      loopCount++;
       const res = await callMiniMax(cleanMessages, key, maxTokens);
       if (!res.choices) throw new Error("MiniMax API invalid response format.");
       
@@ -269,14 +268,22 @@ Deno.serve(async (req) => {
         }
       } else {
         // Plain text response — strip any accidental tags
-        finalContent = content.replace(/\[TOOL_CALL\][\s\S]*?\[\/TOOL_CALL\]/gi, '').trim();
+        const stripped = content.replace(/\[TOOL_CALL\][\s\S]*?\[\/TOOL_CALL\]/gi, '').trim();
+        
+        // SAFETY CHECK: If the AI is just giving an excuse or a technical log, nudge it.
+        const isTechnicalOrEmpty = !stripped || stripped.includes("TOOL_RESULT") || stripped.length < 5;
+        if (isTechnicalOrEmpty && loopCount < maxLoops) {
+            cleanMessages.push({ role: "assistant", content });
+            cleanMessages.push({ role: "user", content: "That response was technical or empty. Please provide only the FINAL human-readable answer for the user now. No technical steps." });
+            continue;
+        }
+
+        finalContent = stripped;
         break;
       }
     }
 
     // ── Recovery: if the loop exhausted without a clean answer, prompt for one ──
-    // This handles cases where the AI kept calling tools and hit MAX_ITERATIONS
-    // or where the content was just a bare JSON action with no human-readable text.
     if (!finalContent || finalContent.trim().startsWith('{')) {
       console.warn("[Vibe] Loop exhausted without clean answer — running recovery call");
       cleanMessages.push({
@@ -286,7 +293,7 @@ Deno.serve(async (req) => {
       try {
         const recoveryRes = await callMiniMax(cleanMessages, key, maxTokens);
         const rc = recoveryRes.choices?.[0]?.message?.content || "";
-        finalContent = rc.replace(/\{[\s\S]*\}/, '').trim() || "I found some results — please try asking again for full details.";
+        finalContent = rc.replace(/\{[\s\S]*\}/, '').replace(/\[TOOL_CALL\][\s\S]*?\[\/TOOL_CALL\]/gi, '').trim() || "I found some results — please try asking again for full details.";
       } catch (recoveryErr) {
         console.warn("[Vibe] Recovery call failed:", recoveryErr);
         finalContent = "I found some information but had trouble formatting the response. Please ask again.";
@@ -480,12 +487,12 @@ function getVibePrompt(task: string, input: any, user: any, profile: any): strin
 
 ### ZERO EXCUSE & ONE-SHOT PROTOCOL
 - **ABSOLUTE BAN ON TECHNICAL TAGS:** NEVER output "[TOOL_CALL]", "Tool Call", or any pseudo-code.
-- **MANDATORY JSON FORMAT:** All tool calls MUST be wrapped in a valid JSON object only. Example: {"action": {"type": "search_local_expert_knowledge", "params": {"query": "Ezriyah"}}}
-- **ABSOLUTE BAN ON STATUS UPDATES:** NEVER say "Let me check," "Searching now," or "Looking into that."
-- **NO PREAMBLES:** Go directly to the solution.
-- **SILENT AGENTIC LOOP:** The user must only receive the FINAL, COMPLETE answer.
+- **MANDATORY JSON FORMAT:** All tool calls MUST be wrapped in a valid JSON object only.
+- **ZERO TOLERANCE FOR HALLUCINATION:** NEVER guess a phone number or Instagram handle. Use 'web_search_resource' or 'search_local_expert_knowledge' to be 100% accurate. If you cannot find it, say you couldn't find it.
+- **SILENT SEARCHING:** The user must NEVER see your internal thought process or tool results.
+- **ONE-SHOT DELIVERY:** Your response should be the final, complete solution. No "I will look," no "Searching now."
 - **DIRECT TO SOURCE:** Your first word must be the beginning of the answer.
-- **FAIL DIRECTLY:** If you cannot find something, say: "I couldn't find a direct source for [X] yet. Here is the closest alternative: [Name](URL)."
+- **PROACTIVE SEARCH:** If the user asks for a specific person (like Ezriyah), search locally first. If not found, immediately search the web in the SAME response loop.
 - **NO INTERMEDIATE MESSAGES:** NEVER tell the user you are "thinking," "processing," or "searching deeply."
 - **FORCE ACTION:** If the user implies they want to see something or find a place, you MUST call at least one search tool (web_search_resource or search_local_expert_knowledge). Do not just reply from training data if the user wants real-time or local specifics. Deliver the links in the FIRST response.`;
 
