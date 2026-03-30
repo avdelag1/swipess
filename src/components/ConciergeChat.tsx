@@ -123,10 +123,10 @@ export function ConciergeChat({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         className={cn(
-          "max-w-md w-[calc(100%-16px)] h-[85vh] max-h-[750px] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem] border-none shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)]",
+          "max-w-xl w-[calc(100%-16px)] h-[90vh] max-h-[850px] flex flex-col p-0 gap-0 overflow-hidden rounded-[2.5rem] border-none shadow-[0_0_60px_-15px_rgba(0,0,0,0.6)]",
           isDark 
-            ? "bg-[#0a0a0b]/80 backdrop-blur-2xl" 
-            : "bg-white/90 backdrop-blur-2xl"
+            ? "bg-[#0a0a0b]/85 backdrop-blur-3xl" 
+            : "bg-white/95 backdrop-blur-3xl"
         )}
         hideCloseButton
       >
@@ -142,12 +142,12 @@ export function ConciergeChat({
         
         {/* Header */}
         <div className={cn(
-          "relative z-10 flex items-center justify-between px-6 py-5 border-b shrink-0",
+          "relative z-10 flex items-center justify-between px-5 py-3 border-b shrink-0",
           isDark ? "border-white/5 bg-white/5" : "border-gray-100 bg-gray-50/50"
         )}>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <div className={cn(
-              "w-11 h-11 rounded-full flex items-center justify-center relative overflow-hidden group shadow-lg border",
+              "w-9 h-9 rounded-full flex items-center justify-center relative overflow-hidden group shadow-md border",
               isDark ? "bg-zinc-900 border-white/10" : "bg-white border-zinc-200"
             )}>
               <SwipessLogo size="sm" className="relative z-10" />
@@ -155,12 +155,12 @@ export function ConciergeChat({
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h2 className={cn("font-bold text-lg", isDark ? "text-white" : "text-gray-900")}>
-                  Swipess Concierge
+                <h2 className={cn("font-bold text-base", isDark ? "text-white" : "text-gray-900")}>
+                  Concierge
                 </h2>
                 <div className="flex items-center gap-1.5 ml-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
-                  <span className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.2em]">Sentient AI</span>
+                  <span className="w-1 h-1 rounded-full bg-cyan-500 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+                  <span className="text-[9px] font-black text-cyan-500 uppercase tracking-[0.1em]">Online</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -197,36 +197,28 @@ export function ConciergeChat({
             </div>
           <div className="flex items-center gap-1">
             <Button
-              variant="ghost"
-              size="icon"
+              variant="outline"
+              size="sm"
               onClick={() => {
-                haptics.warning();
+                haptics.tap();
                 clearMessages();
               }}
-              title="Archive Conversation"
-              className={cn("h-9 w-9 rounded-lg", isDark ? "text-zinc-400 hover:text-white hover:bg-zinc-800" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100")}
+              className={cn(
+                "h-7 px-2.5 rounded-full text-[9px] font-black uppercase tracking-widest gap-1",
+                isDark 
+                  ? "bg-zinc-800 border-white/10 text-zinc-300 hover:text-white" 
+                  : "bg-white border-zinc-200 text-zinc-600 hover:text-zinc-900 shadow-sm"
+              )}
             >
-              <Archive className="w-4 h-4" />
+              <RefreshCw className="w-2.5 h-2.5" />
+              New Chat
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                haptics.error();
-                if (window.confirm('Permanently delete this conversation?')) {
-                  deletePermanently();
-                }
-              }}
-              title="Delete Permanently"
-              className={cn("h-9 w-9 rounded-lg hover:text-rose-500", isDark ? "text-zinc-400 hover:bg-zinc-800" : "text-gray-500 hover:bg-gray-100")}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
+            <div className={cn("w-[1px] h-4 mx-1", isDark ? "bg-white/10" : "bg-gray-200")} />
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onOpenChange(false)}
-              className={cn("h-9 w-9 rounded-lg", isDark ? "text-zinc-400 hover:text-white hover:bg-zinc-800" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100")}
+              className={cn("h-8 w-8 rounded-lg", isDark ? "text-zinc-400 hover:text-white hover:bg-zinc-800" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100")}
             >
               <X className="w-4 h-4" />
             </Button>
@@ -326,7 +318,7 @@ export function ConciergeChat({
 
                   {/* Message bubble */}
                   <div className={cn(
-                    "max-w-[85%] p-4 rounded-3xl relative overflow-hidden",
+                    "max-w-[88%] p-3 px-3.5 rounded-2xl relative overflow-hidden shadow-sm",
                     message.role === 'user'
                       ? isDark 
                         ? "bg-gradient-to-br from-indigo-600 to-indigo-700 text-white shadow-[0_10px_20px_-10px_rgba(79,70,229,0.5)]"
