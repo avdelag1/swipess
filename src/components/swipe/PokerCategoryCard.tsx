@@ -1,7 +1,6 @@
 import { memo, useCallback, useRef, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import '../../styles/poker-card-photo.css';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   PK_W, PK_H, FOLDER_OFFSET_X, FOLDER_OFFSET_Y,
@@ -141,14 +140,14 @@ export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed 
           <img
             src={photo}
             alt={card.label}
-            className="absolute inset-0 w-full h-full object-cover poker-card-photo-zoom"
+            className="absolute inset-0 w-full h-full object-cover breathing-zoom"
             loading="eager"
             draggable={false}
             onError={() => setImgError(true)}
           />
         ) : (
           <div
-            className="absolute inset-0 w-full h-full poker-card-photo-zoom"
+            className="absolute inset-0 w-full h-full breathing-zoom"
             style={{ background: gradient }}
           />
         )}

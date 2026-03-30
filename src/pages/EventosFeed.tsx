@@ -357,13 +357,13 @@ function EventCard({
         animKey={animKey}
         onComplete={onTickComplete}
       />
-      {/* Background photo with premium breathing-zoom on ACTIVE cards */}
+      {/* Background photo with breathing-zoom on all cards */}
       <div className="absolute inset-0">
         <CardImage
           src={event.image_url}
           alt={event.title}
           fullScreen
-          animate={isActive}
+          animate={true}
         />
       </div>
 
