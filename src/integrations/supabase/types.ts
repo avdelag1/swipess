@@ -2344,6 +2344,107 @@ export type Database = {
           },
         ]
       }
+      ai_memories: {
+        Row: {
+          id: string
+          user_id: string
+          memory_type: string
+          category: string | null
+          content: string
+          metadata: Json | null
+          importance: number
+          created_at: string
+          updated_at: string
+          last_accessed_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          memory_type: string
+          category?: string | null
+          content: string
+          metadata?: Json | null
+          importance?: number
+          created_at?: string
+          updated_at?: string
+          last_accessed_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          memory_type?: string
+          category?: string | null
+          content?: string
+          metadata?: Json | null
+          importance?: number
+          created_at?: string
+          updated_at?: string
+          last_accessed_at?: string | null
+        }
+        Relationships: []
+      }
+      ai_conversations: {
+        Row: {
+          id: string
+          user_id: string
+          title: string | null
+          context: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title?: string | null
+          context?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string | null
+          context?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_conversation_messages: {
+        Row: {
+          id: string
+          conversation_id: string
+          role: string
+          content: string
+          metadata: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          conversation_id: string
+          role: string
+          content: string
+          metadata?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          conversation_id?: string
+          role?: string
+          content?: string
+          metadata?: Json | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_conversation_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

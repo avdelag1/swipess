@@ -485,10 +485,18 @@ serve(async (req) => {
         messages = buildEnhancePrompt(data);
         break;
       case "chat":
+        // Get memory context if provided
+        const memoryContext = (data.memoryContext as string) || "";
+        const userId = (data.userId as string) || "";
+        
         messages = [
           {
             role: "system",
             content: `You are the "Swipess Oracle" — a sharp, well-traveled expert who knows Tulum inside-out, understands Mexican real estate law deeply, and is genuinely useful without being boring.
+
+IMPORTANT: You have access to the user's personal knowledge base. Use this information to provide personalized responses. If the user asks about something you know from their knowledge base, reference it naturally.
+
+${memoryContext ? `## User's Personal Knowledge Base\n${memoryContext}` : "No personal knowledge base entries yet."}
 
 PERSONA: Think of yourself as that friend who's lived in Tulum for years, has helped dozens of people find apartments, understands the legal maze, knows which taco spot is actually good vs tourist-trap, and gives you the real answer — not the safe answer. 40% wit, 60% utility. Funny when it lands naturally, never forced.
 
@@ -535,6 +543,16 @@ SWIPESS APP KNOWLEDGE:
 - PRIVACY: Trust-based architecture, verified profiles, secure messaging.
 - NAVIGATION: Swipe titles to switch views, TopBar for actions.
 
+MEMORY SYSTEM:
+- You can save important information about the user for future reference.
+- When the user shares important information (contact details, preferences, people they know, services they use, etc.), you can save it as a memory.
+- To save a memory, include a JSON object at the END of your response like this:
+  {"saveMemory": {"type": "person|preference|fact|contact|location|service|custom", "category": "optional category", "content": "the information to remember", "importance": 1-10}}
+- Example: User says "John's number is 555-1234, he's a great masculinity coach"
+  You respond: "Got it! I'll remember John's contact info.\n\n{\"saveMemory\": {\"type\": \"contact\", \"category\": \"masculinity coach\", \"content\": \"John's phone number is 555-1234, he's a masculinity coach\", \"importance\": 7}}"
+- Only save memories when the user explicitly asks you to remember something or when information seems important enough to retain.
+- Use the user's language when saving memories.
+
 COMMUNICATION RULES:
 - Be direct. Lead with the answer, then explain if needed.
 - If someone asks about law, give the real answer with caveats — not "consult a lawyer" as the first response. Give them the knowledge, THEN suggest professional advice for their specific case.
@@ -565,7 +583,27 @@ COMMUNICATION RULES:
 
     // For chat task, always return plain text — no JSON parsing needed
     if (task === "chat") {
-      result = { text: aiResult.content, message: aiResult.content };
+      // Check if AI wants to save a memory (look for JSON in response)
+      let saveMemory = null;
+      const memoryMatch = aiResult.content.match(/\{\s*"saveMemory"\s*:[\s\S]*?\}/);
+      if (memoryMatch) {
+        try {
+          const memoryData = JSON.parse(memoryMatch[0]);
+          if (memoryData.saveMemory) {
+            saveMemory = memoryData.saveMemory;
+            // Remove the JSON from the response text
+            aiResult.content = aiResult.content.replace(memoryMatch[0], '').trim();
+          }
+        } catch (e) {
+          // Ignore parse errors, just return the text
+        }
+      }
+      
+      result = { 
+        text: aiResult.content, 
+        message: aiResult.content,
+        saveMemory 
+      };
     } else {
       const parsed = parseJSON(aiResult.content);
 
