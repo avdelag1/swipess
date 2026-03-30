@@ -338,7 +338,7 @@ export function ConciergeChat({
 
                     {/* Render Interactive Card if Action exists */}
                     {message.role === 'assistant' && message.action?.type === 'show_venue_card' && (
-                      <div className="mt-3 overflow-hidden rounded-xl border shadow-xl breathing-zoom backdrop-blur-md border-white/10 bg-zinc-900/80">
+                      <div className={cn("mt-3 overflow-hidden rounded-xl border shadow-xl breathing-zoom backdrop-blur-md", isDark ? "border-white/10 bg-zinc-900/80" : "border-gray-200 bg-white")}>
                         <div className="h-24 w-full relative bg-gradient-to-br from-indigo-500/40 via-purple-500/20 to-pink-500/40 flex items-center justify-center overflow-hidden">
                            <div className="absolute inset-0 bg-black/40 mix-blend-overlay" />
                            <Sparkles className="w-8 h-8 text-white/40 relative z-10 animate-pulse" />
@@ -349,20 +349,20 @@ export function ConciergeChat({
                         </div>
                         <div className="p-2.5 flex gap-2">
                            {message.action.params?.whatsapp && message.action.params?.whatsapp !== '' && (
-                             <a href={`https://wa.me/${message.action.params.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="flex-1 text-center py-2 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-green-500/20 transition-colors">WhatsApp</a>
+                             <a href={`https://wa.me/${message.action.params.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className={cn("flex-1 text-center py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors", isDark ? "bg-green-500/10 hover:bg-green-500/20 text-green-400 border-green-500/20" : "bg-green-50 hover:bg-green-100 text-green-700 border-green-200")}>WhatsApp</a>
                            )}
                            {message.action.params?.instagram && message.action.params?.instagram !== '' && (
-                             <a href={`https://instagram.com/${message.action.params.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className="flex-1 text-center py-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-pink-500/20 transition-colors">Instagram</a>
+                             <a href={`https://instagram.com/${message.action.params.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" className={cn("flex-1 text-center py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors", isDark ? "bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 border-pink-500/20" : "bg-pink-50 hover:bg-pink-100 text-pink-700 border-pink-200")}>Instagram</a>
                            )}
                            {(!message.action.params?.whatsapp && !message.action.params?.instagram) && message.action.params?.website_url && (
-                             <a href={message.action.params?.website_url} target="_blank" rel="noreferrer" className="flex-1 text-center py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-blue-500/20 transition-colors">Website</a>
+                             <a href={message.action.params?.website_url} target="_blank" rel="noreferrer" className={cn("flex-1 text-center py-2 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors", isDark ? "bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-blue-500/20" : "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200")}>Website</a>
                            )}
                         </div>
                       </div>
                     )}
                     
                     {message.role === 'assistant' && message.action?.type === 'show_listing_card' && (
-                      <div className="mt-3 overflow-hidden rounded-xl border shadow-xl breathing-zoom backdrop-blur-md cursor-pointer hover:border-cyan-500/50 transition-colors border-white/10 bg-zinc-900/80"
+                      <div className={cn("mt-3 overflow-hidden rounded-xl border shadow-xl breathing-zoom backdrop-blur-md cursor-pointer hover:border-cyan-500/50 transition-colors", isDark ? "border-white/10 bg-zinc-900/80" : "border-gray-200 bg-white")}
                            onClick={() => {
                              onOpenChange(false);
                              setTimeout(() => navigate(`/properties/${message.action.params?.id}`), 100);
@@ -376,8 +376,8 @@ export function ConciergeChat({
                             <p className="text-[10px] font-black tracking-widest text-white/80 drop-shadow-md uppercase">{message.action.params?.location} • ${message.action.params?.price}/mo</p>
                           </div>
                         </div>
-                        <div className="p-2 border-t border-white/5 bg-white/5 text-center">
-                           <span className="py-1 p-1 text-[10px] font-black tracking-widest uppercase text-white hover:text-cyan-400 transition-colors flex items-center justify-center gap-1.5">
+                        <div className={cn("p-2 border-t text-center", isDark ? "border-white/5 bg-white/5" : "border-gray-100 bg-gray-50")}>
+                           <span className={cn("py-1 p-1 text-[10px] font-black tracking-widest uppercase transition-colors flex items-center justify-center gap-1.5", isDark ? "text-white hover:text-cyan-400" : "text-gray-700 hover:text-cyan-600")}>
                              View Listing <ChevronRight className="w-3 h-3" />
                            </span>
                         </div>
