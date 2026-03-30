@@ -368,7 +368,7 @@ function EventCard({
       </div>
 
       {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-black/40 pointer-events-none" />
+      <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/90 via-black/10 to-black/40 pointer-events-none" />
 
       {/* LEFT tap zone — previous event */}
       <button
@@ -421,7 +421,7 @@ function EventCard({
       </AnimatePresence>
 
       {/* Bottom content */}
-      <div className="absolute inset-x-0 bottom-0 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
+      <div className="absolute inset-x-0 bottom-0 z-[2] px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
         <AnimatePresence>
           {isActive && (
             <motion.div
