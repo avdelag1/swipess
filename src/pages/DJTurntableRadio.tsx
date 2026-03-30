@@ -258,16 +258,17 @@ export default function DJTurntableRadio() {
       </motion.div>
 
       {/* Main turntable area */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 pt-16">
+      <div className="flex-1 flex flex-col items-center justify-start px-4 pt-16 overflow-hidden">
         <div className="relative w-full max-w-[440px] flex items-center justify-center">
 
 
-          {/* Turntable Platter Wrapper */}
-          <motion.div 
+          {/* Turntable Platter Wrapper — height-capped so it never pushes controls off screen */}
+          <motion.div
             initial={{ opacity: 0, scale: 0.9, rotate: -15 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-            className="relative w-[90%] aspect-square flex items-center justify-center"
+            className="relative aspect-square flex items-center justify-center"
+            style={{ width: 'min(85vw, 38dvh)' }}
           >
             <AnimatePresence>
               {state.isPlaying && (
@@ -330,7 +331,7 @@ export default function DJTurntableRadio() {
         </div>
 
         {/* Info & Visualizer Section */}
-        <div className="mt-6 text-center w-full max-w-[420px] stagger-enter">
+        <div className="mt-3 text-center w-full max-w-[420px] stagger-enter">
           <AnimatePresence mode="popLayout">
             <motion.div
               key={state.currentStation?.id || 'none'}
@@ -339,7 +340,7 @@ export default function DJTurntableRadio() {
               exit={{ opacity: 0, y: -15, filter: 'blur(12px)' }}
               transition={{ duration: 0.6, ease: 'circOut' }}
             >
-              <h2 className={cn("text-6xl sm:text-7xl font-black tracking-tighter drop-shadow-2xl uppercase font-brand", isDark ? "text-white" : "!text-black")}>
+              <h2 className={cn("text-4xl sm:text-5xl font-black tracking-tighter drop-shadow-2xl uppercase font-brand", isDark ? "text-white" : "!text-black")}>
                 {state.currentStation?.name || 'Radio'}
               </h2>
               <div className="flex items-center justify-center gap-4 mt-1.5">
@@ -360,7 +361,7 @@ export default function DJTurntableRadio() {
         </div>
 
         {/* Playback Controls Container */}
-        <div className="mt-auto mb-8 flex flex-col items-center gap-10 w-full max-w-[440px] stagger-enter">
+        <div className="mt-auto mb-6 flex flex-col items-center gap-5 w-full max-w-[440px] stagger-enter">
           <div className="flex items-center gap-6">
             <motion.button
               whileTap={{ scale: 0.85 }}
@@ -428,8 +429,8 @@ export default function DJTurntableRadio() {
           </div>
 
           {/* Master Volume Bar */}
-          <div className="w-full px-10 pb-4">
-            <div className="flex justify-between items-center mb-5">
+          <div className="w-full px-8 pb-2">
+            <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-3">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: primaryColor }} />
                 <span className={cn("text-[10px] tracking-[0.5em] font-black uppercase", isDark ? "text-white/50" : "text-black/40")}>MASTER VOLUME</span>
