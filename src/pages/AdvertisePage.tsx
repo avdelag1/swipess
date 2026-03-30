@@ -617,9 +617,8 @@ export default function AdvertisePage() {
             </motion.div>
           )}
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
   // ── FORM ────────────────────────────────────────────────────────────────────
   return (
