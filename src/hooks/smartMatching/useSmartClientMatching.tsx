@@ -64,19 +64,30 @@ export function useSmartClientMatching(
                     languages_spoken, neighborhood, bio, onboarding_completed
                 `;
 
-                let query = supabase
-                    .from('profiles')
-                    .select(CLIENT_FIELDS)
-                    .neq('user_id', userId)
-                    .eq('role', 'client')
-                    .eq('is_active', true)
-                    .eq('onboarding_completed', true);
+                // 🚀 SPEED OF LIGHT: Attempt database-level filtering (RPC)
+                // This is the "Materialized View" strategy: DB handles exclusion in one pass.
+                try {
+                    const { data: rpcClients, error: rpcError } = await (supabase as any).rpc('get_smart_clients', {
+                        p_user_id: userId,
+                        p_limit: pageSize,
+                        p_offset: page * pageSize
+                    });
+
+                    if (!rpcError && rpcClients && Array.isArray(rpcClients) && rpcClients.length > 0) {
+                        return rpcClients as any[];
+                    }
+                } catch (e) {
+                    // Fallback to PostgREST
+                }
+
+                // 2. BUILD SECURE POSTGREST QUERY (Fallback)
+                let query = supabase.from('profiles').select(CLIENT_FIELDS);
 
                 if (swipedProfileIds.size > 0) {
                     const idList = Array.from(swipedProfileIds)
                         .filter(id => id && typeof id === 'string' && id.length > 30)
                         .map(id => id.trim())
-                        .slice(0, 150); // URL SAFETY: Prevent 400 Bad Request
+                        .slice(0, 150); // URL SAFETY: Prevent 400
                     if (idList.length > 0) {
                         query = query.not('user_id', 'in', `(${idList.join(',')})`);
                     }

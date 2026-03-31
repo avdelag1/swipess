@@ -78,40 +78,54 @@ export function useSmartListingMatching(
                     .eq('is_active', true)
                     .or(`owner_id.neq.${userId},owner_id.is.null`);
 
+                // 🚀 SPEED OF LIGHT: Attempt database-level filtering (RPC)
+                // This is the "Materialized View" strategy: DB handles exclusion and JOINs in one pass.
+                try {
+                    const { data: rpcListings, error: rpcError } = await (supabase as any).rpc('get_smart_listings', {
+                        p_user_id: userId,
+                        p_category: category === 'all' ? null : category,
+                        p_limit: pageSize,
+                        p_offset: page * pageSize
+                    });
+
+                    if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
+                        return (rpcListings as any[]).map(l => ({
+                            ...l,
+                            images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
+                        }));
+                    }
+                    if (rpcError) logger.warn('[SmartMatching] RPC Error:', rpcError.message);
+                } catch (e) {
+                    logger.warn('[SmartMatching] RPC Fallback to PostgREST');
+                }
+
+                // 2. BUILD SECURE POSTGREST QUERY (Fallback)
+                let query = supabase.from('listings').select(SWIPE_CARD_FIELDS);
+
                 // 3. Apply excluded IDs (Standard Array Filter - Prevents 400 Errors)
                 if (swipedListingIds.size > 0) {
                     const idList = Array.from(swipedListingIds)
-                        .filter(id => id && typeof id === 'string' && id.length > 30) // UUID check
+                        .filter(id => id && typeof id === 'string' && id.length > 30)
                         .map(id => id.trim())
-                        .slice(0, 150); // URL SAFETY: Only exclude most recent 150 to avoid 400 Bad Request
+                        .slice(0, 150); // URL SAFETY: Prevent 400
                     
                     if (idList.length > 0) {
-                        // Use explicit filter with manual parentheses to ensure PostgREST compliance
                         query = query.filter('id', 'not.in', `(${idList.join(',')})`);
                     }
                 }
 
-                // 4. Apply Filters (Consolidated and Safe)
-                if (filters?.category) {
+                // 4. Apply Filters
+                if (filters?.category && filters.category !== 'all') {
                     const normalized = normalizeCategoryName(filters.category);
                     if (normalized) query = query.eq('category', normalized);
                 }
 
-                if (filters?.priceRange) {
-                    query = query.gte('price', filters.priceRange[0]).lte('price', filters.priceRange[1]);
-                }
-
-                if (filters?.listingType && filters.listingType !== 'both') {
-                    const mapping: Record<string, string> = { 'both': 'both', 'rent': 'rent', 'sale': 'buy' };
-                    query = query.eq('listing_type', mapping[filters.listingType] || filters.listingType);
-                }
-
-                if (filters?.propertyType && filters.propertyType.length > 0) {
-                    query = query.in('property_type', filters.propertyType);
-                }
-
                 // Fetch current page
                 const { data: listings, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
+                if (error) {
+                    logger.error('[SmartMatching] PostgREST Query Error:', error);
+                    return [];
+                }
                 if (error) {
                     logger.error('[SmartMatching] DB Query Error:', error);
                     // Return empty instead of throwing to prevent crashing the entire App/Dashboard

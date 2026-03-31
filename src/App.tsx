@@ -229,6 +229,33 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
     return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
   }
 
+  // 🚀 SPEED OF LIGHT: Predictive Chunk Preloading
+  // Once we know the user's role, we can pre-import their dashboard system in the background.
+  // This ensures that clicking "Dashboard" is completely instant (no "Loading..." state).
+  const { user } = useAuth();
+  useEffect(() => {
+    if (!user) return;
+    
+    const role = user.user_metadata?.role;
+    const prefetchDashboard = () => {
+      if (role === 'owner') {
+        import("./components/EnhancedOwnerDashboard");
+        import("./pages/OwnerProfileNew");
+        import("./pages/OwnerProperties");
+      } else {
+        import("./pages/ClientDashboard");
+        import("./pages/ClientProfileNew");
+        import("./pages/ClientWorkerDiscovery");
+      }
+    };
+
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(prefetchDashboard);
+    } else {
+      setTimeout(prefetchDashboard, 1500);
+    }
+  }, [user]);
+
   // SpeedInsights mounted dynamically to not block initial paint
   const [SpeedInsightsComponent, setSpeedInsightsComponent] = useState<any>(null);
   useEffect(() => {
@@ -239,9 +266,9 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
       });
     };
     if ('requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(() => setTimeout(delaySpeedInsights, 2000));
+      (window as any).requestIdleCallback(() => setTimeout(delaySpeedInsights, 3000));
     } else {
-      setTimeout(delaySpeedInsights, 4000);
+      setTimeout(delaySpeedInsights, 5000);
     }
 
     // SPEED OF LIGHT: Signal to main.tsx that React has finished initial paint

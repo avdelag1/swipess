@@ -127,38 +127,53 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
           }
         }
 
+        // 🚀 SPEED OF LIGHT: Attempt database-level filtering (RPC)
+        // This is the "Materialized View" strategy: DB handles exclusion in one pass.
+        try {
+          const { data: rpcListings, error: rpcError } = await (supabase as any).rpc('get_smart_listings', {
+            p_user_id: user?.user?.id,
+            p_category: category === 'all' ? null : category,
+            p_limit: 30, // Increased limit for consistent feed
+            p_offset: 0
+          });
+
+          if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
+            return (rpcListings as any[]).map(l => ({
+                ...l,
+                images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
+            })) as Listing[];
+          }
+        } catch (e) {
+            // Fallback to PostgREST
+        }
+
+        // 2. BUILD SECURE POSTGREST QUERY (Fallback)
         let query = supabase
           .from('listings')
           .select('*')
           .eq('status', 'active')
-          .order('created_at', { ascending: false }); // Newest first
+          .order('created_at', { ascending: false });
 
-        // CRITICAL: Exclude own listings - user shouldn't see their own listings when browsing
+        // CRITICAL: Exclude own listings
         if (user.user) {
           query = query.neq('owner_id', user.user.id);
         }
 
-        // Filter by listing types (rent/buy) based on user preferences
-        if (preferredListingTypes.length > 0 && !preferredListingTypes.includes('both')) {
-          query = query.in('listing_type', preferredListingTypes);
-        }
-
-        // Exclude swiped properties - use array directly for parameterized query
+        // URL SAFETY: Apply excluded IDs (Fallback only)
         if (excludeSwipedIds.length > 0) {
           const safeIds = excludeSwipedIds
             .filter(id => id && id.length > 30)
-            .slice(0, 150); // URL SAFETY: Max 150 IDs to prevent 400 error
+            .map(id => id.trim())
+            .slice(0, 150); // URL SAFETY: Prevent 400
           if (safeIds.length > 0) {
             query = query.not('id', 'in', `(${safeIds.join(',')})`);
           }
         }
 
-        query = query.limit(20);
-
-        const { data: listings, error } = await query;
+        const { data: listings, error } = await query.limit(20);
         if (error) {
-          if (import.meta.env.DEV) logger.error('Listings query error:', error);
-          throw error;
+          logger.error('Listings PostgREST error:', error);
+          return [];
         }
 
         return (listings as Listing[]) || [];

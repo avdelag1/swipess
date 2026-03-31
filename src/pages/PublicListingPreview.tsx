@@ -484,9 +484,15 @@ export default function PublicListingPreview() {
                     size="lg"
                     variant="outline"
                     className="w-full rounded-2xl h-11 font-medium border-border/50"
-                    onClick={() => navigate('/client/dashboard')}
+                    onClick={() => {
+                      if (user?.user_metadata?.role === 'owner') {
+                        navigate('/owner/properties');
+                      } else {
+                        navigate('/client/dashboard');
+                      }
+                    }}
                   >
-                    Back to Dashboard
+                    Back to Workspace
                   </Button>
                 </>
               ) : (
