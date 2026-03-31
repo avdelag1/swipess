@@ -59,14 +59,31 @@ Deno.serve(async (req) => {
       content: m.content || m.text || ""
     }));
 
-    // ── Profile DNA ──────────────────────────────────────────────────
-    const { data: profile } = user ? await supabase
-      .from('profiles')
-      .select('full_name, gender, bio, interests, lifestyle_tags, sentient_memory')
-      .eq('id', user.id)
-      .single() : { data: null };
+    // ── Profile DNA + Memory ─────────────────────────────────────────
+    let profile: any = null;
+    let memories: any[] = [];
+    let clientProfile: any = null;
 
-    const systemPrompt = getVibePrompt(task, input, user, profile);
+    if (user) {
+      const [profileResult, memoriesResult, clientProfileResult] = await Promise.all([
+        supabase.from('profiles')
+          .select('full_name, gender, bio, interests, lifestyle_tags, city, country, sentient_memory')
+          .eq('id', user.id).single(),
+        supabase.from('user_memories')
+          .select('category, title, content, tags')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(50),
+        supabase.from('client_profiles')
+          .select('personality_traits, preferred_activities, dietary_preferences, work_schedule')
+          .eq('user_id', user.id).maybeSingle(),
+      ]);
+      profile = profileResult.data;
+      memories = memoriesResult.data || [];
+      clientProfile = clientProfileResult.data;
+    }
+
+    const systemPrompt = getVibePrompt(task, input, user, profile, memories, clientProfile);
     cleanMessages.unshift({ role: "system", content: systemPrompt });
 
     // Include Profile & Memory context for better understanding
@@ -348,7 +365,7 @@ Deno.serve(async (req) => {
     }
 
     // ── SENTIENT MEMORY UPDATE (Learn as we go) ──────────────────────
-    if (user && iteration > 1) { // Only learn if we had an actual chat interaction
+    if (user && loopCount > 1) { // Only learn if we had an actual chat interaction
        const learningPrompt = `
          TASK: REFRESH USER MEMORY.
          Review the current conversation and the existing memory: ${JSON.stringify(profile?.sentient_memory || {})}
@@ -461,7 +478,7 @@ async function callMiniMax(messages: any[], key: string, maxTokens: number = 100
   }
 }
 
-function getVibePrompt(task: string, input: any, user: any, profile: any): string {
+function getVibePrompt(task: string, input: any, user: any, profile: any, memories: any[] = [], clientProfile: any = null): string {
   const userName = profile?.full_name || input.userName || user?.user_metadata?.full_name || "Friend";
   const userGender = profile?.gender || "not specified";
   const userTier = input.userTier || "Basic";
@@ -471,12 +488,48 @@ function getVibePrompt(task: string, input: any, user: any, profile: any): strin
   const currentVibe = memory.vibe || "Exploring";
   const style = memory.interaction_style || (userGender === "woman" ? "sophisticated" : "bro");
 
+  // Build the Personal Knowledge Base block
+  const interestsList = (profile?.interests && Array.isArray(profile.interests) && profile.interests.length)
+    ? profile.interests.join(', ') : 'Not specified';
+  const lifestyleList = (profile?.lifestyle_tags && Array.isArray(profile.lifestyle_tags) && profile.lifestyle_tags.length)
+    ? profile.lifestyle_tags.join(', ') : 'Not specified';
+  const personalityList = (clientProfile?.personality_traits && Array.isArray(clientProfile.personality_traits) && clientProfile.personality_traits.length)
+    ? clientProfile.personality_traits.join(', ') : '';
+  const activitiesList = (clientProfile?.preferred_activities && Array.isArray(clientProfile.preferred_activities) && clientProfile.preferred_activities.length)
+    ? clientProfile.preferred_activities.join(', ') : '';
+
+  const memoriesBlock = memories.length > 0
+    ? memories.map((m: any) =>
+        `  [${(m.category || 'NOTE').toUpperCase()}] ${m.title}: ${m.content}${m.tags?.length ? ` (tags: ${m.tags.join(', ')})` : ''}`
+      ).join('\n')
+    : '  (No memories stored yet)';
+
+  const personalKnowledgeBase = `
+### PERSONAL KNOWLEDGE BASE — CHECK THIS FIRST
+This is private data stored specifically for ${userName}. ALWAYS read this before calling any search tool.
+
+USER PROFILE:
+  Name: ${userName} | Gender: ${userGender} | Tier: ${userTier}
+  Bio: ${profile?.bio || 'Not provided'}
+  Interests: ${interestsList}
+  Lifestyle: ${lifestyleList}
+  Location: ${profile?.city || 'Tulum'}, ${profile?.country || 'Mexico'}${personalityList ? `\n  Personality: ${personalityList}` : ''}${activitiesList ? `\n  Activities: ${activitiesList}` : ''}
+
+STORED MEMORIES (${memories.length}):
+${memoriesBlock}
+
+MEMORY RULES:
+- If the answer is in STORED MEMORIES, reply from memory IMMEDIATELY — skip all tool calls.
+- Only use web_search_resource or search_local_expert_knowledge when memory doesn't have the answer.
+- If the user shares a new fact about themselves, a person, or a contact, save it silently: {"message":"<reply>","action":{"type":"save_memory","params":{"category":"contact|fact|preference|note","title":"<short title>","content":"<full detail>","tags":[]}}}`;
+
   const promoIdentity = `### THE SWIPESS MISSION (MARKETING DNA)
 - CORE IDENTITY: "Swipess: The Sentient Local Network".
 - THE REVOLUTION: We are the ONLY middleman you need because we remove all others. No agents, no "fixers," no commissions. Just you and the direct source.
 - DIRECT-TO-SOURCE: Users pay US a small subscription so they NEVER pay commissions to anyone else. 100% direct owner contact.
 - LEGAL SECURITY: We have on-demand lawyers for every deal. Renting, buying, or disputes—the network has your back.
 - LIFESTYLE LOOP: Everything is synced. Look for a villa -> find a roommate -> book a scooter -> listen to our radio -> check for tonight's party. All in one loop.
+${personalKnowledgeBase}
 
 ### PERSONALITY — NEVER BREAK THIS
 - Cool, direct, local legend vibe. Fast and punchy, but deeply helpful.

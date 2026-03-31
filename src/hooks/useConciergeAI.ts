@@ -1,10 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 import { useUserSubscription } from './useSubscription';
-import { useLocation, useNavigate } from 'react-router-dom';
-import i18n from '@/i18n';
+import { useLocation } from 'react-router-dom';
+import { MEMORIES_QUERY_KEY } from './useUserMemories';
 
 interface ConciergeMessage {
   id: string;
@@ -20,6 +21,13 @@ interface ConciergeContext {
   listings?: any[];
 }
 
+interface ConversationSummary {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const STORAGE_KEY_PREFIX = 'Swipess_vibe_chat_';
 
 export function useConciergeAI() {
@@ -27,37 +35,40 @@ export function useConciergeAI() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userVibe, setUserVibe] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const { user } = useAuth();
   const { data: subscription } = useUserSubscription();
   const location = useLocation();
-  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const storageKey = user ? `${STORAGE_KEY_PREFIX}${user.id}` : null;
-
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
 
-  // Load latest conversation or create new one on mount
+  // Load conversation list + latest active conversation on mount
   useEffect(() => {
     if (!user) return;
-    
+
     const initChat = async () => {
-      // Try to find an active (non-archived) conversation
-      const { data: convs } = await supabase
+      // Fetch recent conversations for the history list
+      const { data: convList } = await supabase
         .from('ai_conversations')
-        .select('*')
+        .select('id, title, created_at, updated_at')
         .eq('user_id', user.id)
         .eq('is_archived', false)
         .order('updated_at', { ascending: false })
-        .limit(1);
+        .limit(10);
 
-      if (convs && convs.length > 0) {
-        setCurrentConversationId(convs[0].id);
-        
-        // Load messages for this conversation
+      if (convList) setConversations(convList);
+
+      // Load the most recent active conversation
+      if (convList && convList.length > 0) {
+        const latest = convList[0];
+        setCurrentConversationId(latest.id);
+
         const { data: msgs } = await supabase
           .from('ai_messages')
           .select('*')
-          .eq('conversation_id', convs[0].id)
+          .eq('conversation_id', latest.id)
           .order('created_at', { ascending: true });
 
         if (msgs) {
@@ -65,7 +76,8 @@ export function useConciergeAI() {
             id: m.id,
             role: m.role as any,
             content: m.content,
-            timestamp: new Date(m.created_at)
+            timestamp: new Date(m.created_at),
+            action: m.metadata?.action,
           })));
         }
       }
@@ -89,13 +101,14 @@ export function useConciergeAI() {
       if (!convId) {
         const { data: newConv, error: convErr } = await supabase
           .from('ai_conversations')
-          .insert({ user_id: user.id, title: userMessage.substring(0, 30) })
+          .insert({ user_id: user.id, title: userMessage.substring(0, 40) })
           .select()
           .single();
-        
+
         if (convErr) throw convErr;
         convId = newConv.id;
         setCurrentConversationId(convId);
+        setConversations(prev => [newConv, ...prev]);
       }
 
       // 2. Save User Message to DB
@@ -105,7 +118,7 @@ export function useConciergeAI() {
         content: userMessage,
         timestamp: new Date(),
       };
-      
+
       setMessages(prev => [...prev, userMsg]);
 
       await supabase.from('ai_messages').insert({
@@ -115,7 +128,7 @@ export function useConciergeAI() {
         content: userMessage
       });
 
-      // 3. AI Logic (unchanged orchestrator call)
+      // 3. Fetch profile for userName (light query — heavy data is fetched server-side)
       const { data: profile } = await supabase
         .from('profiles')
         .select('full_name, bio, interests, lifestyle_tags')
@@ -124,7 +137,7 @@ export function useConciergeAI() {
 
       const userName = profile?.full_name || 'Friend';
       const userTier = subscription?.subscription_packages?.tier || 'Basic';
-      
+
       const history = messages.slice(-15).map(m => ({ role: m.role, content: m.content }));
 
       const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
@@ -138,7 +151,8 @@ export function useConciergeAI() {
             context: {
               city: context?.city || 'Tulum',
               userRole: context?.userRole,
-              listings: context?.listings?.slice(0, 5)
+              listings: context?.listings?.slice(0, 5),
+              currentPath: location.pathname,
             }
           }
         }
@@ -147,17 +161,17 @@ export function useConciergeAI() {
       if (funcError) throw funcError;
 
       const rawText = data?.result?.text || 'I am processing that...';
-      // Strip any leaked JSON action blocks — user should only see the human-readable message,
-      // never raw internal {"action": ...} objects that were meant for tool execution only.
       const aiText = rawText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || rawText;
+      const aiAction = data?.result?.action;
+
       const assistantMsg: ConciergeMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: aiText,
         timestamp: new Date(),
-        action: data?.result?.action
+        action: aiAction,
       };
-      
+
       setMessages(prev => [...prev, assistantMsg]);
       
       if (data?.vibe) {
@@ -170,8 +184,32 @@ export function useConciergeAI() {
         user_id: user.id,
         role: 'assistant',
         content: aiText,
-        metadata: assistantMsg.action ? { action: assistantMsg.action } : {}
+        metadata: aiAction ? { action: aiAction } : {}
       });
+
+      // 5. Handle save_memory action — persist new fact to user_memories table
+      if (aiAction?.type === 'save_memory' && aiAction.params) {
+        const { category, title, content, tags } = aiAction.params;
+        if (title && content) {
+          await (supabase as any).from('user_memories').insert({
+            user_id: user.id,
+            category: category || 'note',
+            title,
+            content,
+            tags: tags || [],
+            source: 'ai',
+          });
+          // Invalidate the memories cache so the memory panel refreshes
+          queryClient.invalidateQueries({ queryKey: MEMORIES_QUERY_KEY(user.id) });
+          toast.success(`Remembered: ${title}`, { duration: 2000 });
+        }
+      }
+
+      // 6. Update conversation updated_at
+      await supabase
+        .from('ai_conversations')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', convId!);
 
     } catch (err) {
       console.error('Concierge Error:', err);
@@ -179,8 +217,44 @@ export function useConciergeAI() {
     } finally {
       setIsLoading(false);
     }
-  }, [messages, user, currentConversationId, subscription]);
+  }, [messages, user, currentConversationId, subscription, location.pathname]);
 
+  // Start a fresh conversation (archives current)
+  const startNewChat = useCallback(async () => {
+    if (currentConversationId && user) {
+      await supabase
+        .from('ai_conversations')
+        .update({ is_archived: true })
+        .eq('id', currentConversationId);
+      setConversations(prev => prev.filter(c => c.id !== currentConversationId));
+    }
+    setMessages([]);
+    setCurrentConversationId(null);
+  }, [currentConversationId, user]);
+
+  // Switch to a different conversation from history
+  const switchConversation = useCallback(async (convId: string) => {
+    if (!user) return;
+    setCurrentConversationId(convId);
+
+    const { data: msgs } = await supabase
+      .from('ai_messages')
+      .select('*')
+      .eq('conversation_id', convId)
+      .order('created_at', { ascending: true });
+
+    if (msgs) {
+      setMessages(msgs.map(m => ({
+        id: m.id,
+        role: m.role as any,
+        content: m.content,
+        timestamp: new Date(m.created_at),
+        action: m.metadata?.action,
+      })));
+    }
+  }, [user]);
+
+  // Archive current conversation
   const clearMessages = useCallback(async () => {
     if (!currentConversationId || !user) {
       setMessages([]);
@@ -188,12 +262,12 @@ export function useConciergeAI() {
     }
 
     try {
-      // Soft-delete: Move to archive rather than permanent wipe for "Archive" feature
       await supabase
         .from('ai_conversations')
         .update({ is_archived: true })
         .eq('id', currentConversationId);
-      
+
+      setConversations(prev => prev.filter(c => c.id !== currentConversationId));
       setMessages([]);
       setCurrentConversationId(null);
       toast.success('Conversation archived');
@@ -202,18 +276,20 @@ export function useConciergeAI() {
     }
   }, [currentConversationId, user]);
 
+  // Permanently delete current conversation
   const deletePermanently = useCallback(async () => {
     if (!currentConversationId || !user) return;
-    
+
     try {
       await supabase
         .from('ai_conversations')
         .delete()
         .eq('id', currentConversationId);
-      
+
+      setConversations(prev => prev.filter(c => c.id !== currentConversationId));
       setMessages([]);
       setCurrentConversationId(null);
-      toast.success('Conversation permanently deleted');
+      toast.success('Conversation deleted');
     } catch (err) {
       console.error('Failed to delete:', err);
     }
@@ -223,10 +299,14 @@ export function useConciergeAI() {
     messages,
     isLoading,
     error,
+    conversations,
+    currentConversationId,
     sendMessage,
+    startNewChat,
+    switchConversation,
     clearMessages,
     deletePermanently,
     userVibe,
-    isConfigured: true, 
+    isConfigured: true,
   };
 }
