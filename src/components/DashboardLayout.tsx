@@ -12,7 +12,10 @@ import { useTheme } from '@/hooks/useTheme'
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
 import { cn } from '@/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
+import { useCategories } from '@/state/filterStore'
+import { QuickFilterCategory } from '@/types/filters'
 import { warmDiscoveryCache } from '@/utils/performance'
+
 
 // New Mobile Navigation Components
 import { TopBar } from '@/components/TopBar'
@@ -350,8 +353,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     return mapping[category] || category;
   }, []);
 
+  // Get current filter categories from the store
+  const categories = useCategories();
+  
   // Get the original UI category (before mapping) for display purposes
   const _activeUiCategory = categories.length === 1 ? categories[0] : null;
+
 
   // Check if we're on a discovery page where filters should be shown
   // MUST be declared BEFORE enhancedChildren useMemo that references it
