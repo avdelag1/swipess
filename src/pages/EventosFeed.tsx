@@ -978,17 +978,17 @@ export default function EventosFeed() {
 
       {/* ── TOP HUD ── Dynamic Info Injection ── */}
       {(true) && (
-        <div className="absolute top-0 left-0 right-0 z-[100] pt-[calc(env(safe-area-inset-top,0px)+32px)] overflow-visible">
-          {/* Back button + title + promote — Higher padding to clear 'S' Logo */}
+        <div className="absolute top-0 left-0 right-0 z-[100] pt-[calc(env(safe-area-inset-top,0px)+8px)] overflow-visible">
+          {/* Back button + title + promote — Minimal padding to sit tight at top */}
           <motion.div 
-            className="flex items-center gap-3 px-6 pt-16 pb-4"
+            className="flex items-center gap-3 px-6 pt-4 pb-2"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
           <button
             onClick={() => navigate(-1)}
-            className="w-12 h-12 rounded-[1.25rem] flex items-center justify-center shadow-xl active:scale-90 transition-transform"
+            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-xl active:scale-90 transition-transform"
             style={{ 
               background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(15,15,16,0.6)', 
               backdropFilter: 'blur(24px)', 
@@ -999,7 +999,7 @@ export default function EventosFeed() {
             <ArrowLeft className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} />
           </button>
           <div className="flex-1 min-w-0">
-            <h1 className={cn("font-black font-brand text-xl tracking-tight leading-tight truncate", isLight ? "text-black" : "text-white")}>
+            <h1 className={cn("font-black font-brand text-lg tracking-tight leading-tight truncate", isLight ? "text-black" : "text-white")}>
               {filteredEvents[activeIdx]?.title || 'Tulum Events'}
             </h1>
             <div className="flex items-center gap-1.5 mt-[-2px]">
@@ -1009,36 +1009,36 @@ export default function EventosFeed() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => { setAutoPlay(p => !p); triggerHaptic('light'); }}
               className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-95",
+                "w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-95",
                 isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/10"
               )}
               aria-label={autoPlay ? 'Pause auto-play' : 'Start auto-play'}
               title={autoPlay ? 'Pause auto-play' : 'Start auto-play'}
             >
-              {autoPlay ? <Pause className={cn("w-4 h-4", isLight ? "text-black" : "text-white")} /> : <Play className={cn("w-4 h-4 ml-0.5", isLight ? "text-black" : "text-white")} />}
+              {autoPlay ? <Pause className={cn("w-3.5 h-3.5", isLight ? "text-black" : "text-white")} /> : <Play className={cn("w-3.5 h-3.5 ml-0.5", isLight ? "text-black" : "text-white")} />}
             </button>
             <button
               onClick={() => { triggerHaptic('light'); navigate('/explore/eventos/likes'); }}
               className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-95",
+                "w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all active:scale-95",
                 isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/10"
               )}
               aria-label="View saved events"
               title="View saved events"
             >
-              <Heart className="w-4 h-4 text-orange-400 fill-orange-400" />
+              <Heart className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
             </button>
             <button
               onClick={() => navigate('/client/advertise')}
-              className="flex items-center gap-2 px-4 h-10 rounded-full text-[11px] font-black uppercase tracking-widest text-white shadow-lg active:scale-95 transition-all"
+              className="flex items-center gap-2 px-3 h-8 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-lg active:scale-95 transition-all"
               style={{ background: 'linear-gradient(135deg, #f97316, #ef4444)' }}
               data-testid="btn-promote-header"
             >
-              <Megaphone className="w-3.5 h-3.5" />
+              <Megaphone className="w-3 h-3" />
               Promote
             </button>
           </div>
