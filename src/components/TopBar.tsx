@@ -167,6 +167,13 @@ function TopBarComponent({
     }
   };
 
+  const handleGoHome = (e: React.MouseEvent | React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptics.success();
+    navigate('/');
+  };
+
   return (
     <>
       <header
@@ -274,8 +281,13 @@ function TopBarComponent({
                 </div>
               )}
 
-              {/* Page title — centered spacer */}
-              <div className="flex-1 flex items-center justify-center pointer-events-none min-w-[40px]">
+              {/* Page title — centered spacer (Tap to go Dashboard) */}
+              <motion.div 
+                whileTap={{ scale: 0.95 }}
+                onPointerDown={handleGoHome}
+                className="flex-1 flex items-center justify-center cursor-pointer min-w-[60px] h-full z-50 py-1"
+                title="Go to Dashboard"
+              >
                 {title ? (
                   <span className={cn(
                     "font-black text-xl uppercase tracking-tighter leading-none select-none whitespace-nowrap",
@@ -285,8 +297,10 @@ function TopBarComponent({
                   )}>
                     {title}
                   </span>
-                ) : null}
-              </div>
+                ) : (
+                  <div className="w-1 h-1 rounded-full bg-foreground/10" />
+                )}
+              </motion.div>
 
               {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
