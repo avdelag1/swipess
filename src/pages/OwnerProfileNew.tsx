@@ -37,7 +37,9 @@ const OwnerProfileNew = () => {
 
   return (
     <>
-      <div className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full">
+      {/* Spacer for immersive header - perfectly matches TopBar height */}
+      <div className="h-[calc(56px+var(--safe-top))]" />
+      <div className="w-full max-w-lg mx-auto p-4 pt-2 pb-4 space-y-6 bg-background min-h-full">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
           <div className="relative">

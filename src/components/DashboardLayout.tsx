@@ -295,6 +295,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const immersiveRoutes = [
       '/client/dashboard',
       '/owner/dashboard',
+      '/client/profile',
+      '/owner/profile',
     ];
 
     const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
