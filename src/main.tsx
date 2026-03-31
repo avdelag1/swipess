@@ -12,7 +12,11 @@ import { logger } from "@/utils/prodLogger";
 
 // 1. START AUTH CHECK BEFORE RENDERING (Parallel process)
 // We fire this immediately so it's happening while React chunks download.
-const authPromise = supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+// Ensure we always return a valid object structure even on failure to prevent destructuring crashes.
+const authPromise = supabase.auth.getSession()
+  .then(res => res || { data: { session: null }, error: null })
+  .catch(() => ({ data: { session: null }, error: null }));
+
 
 // 2. RENDER REACT IMMEDIATELY
 // Do NOT wait for authPromise. The App/AuthProvider will handle the loading state.

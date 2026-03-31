@@ -46,9 +46,14 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
     const initializeAuth = async () => {
       try {
         // Use the promise passed from main.tsx if it exists to avoid redundant fetch
-        const { data: { session: fetchedSession }, error } = authPromise 
+        // SAFE DESTRUCTURING: Handle potential null data from getSession response
+        const result = authPromise 
           ? await authPromise 
           : await supabase.auth.getSession();
+        
+        const fetchedSession = result?.data?.session ?? null;
+        const error = result?.error;
+
 
         if (error) {
           logger.error('[Auth] Session retrieval error:', error);
