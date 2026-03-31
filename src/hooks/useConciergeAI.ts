@@ -96,6 +96,16 @@ export function useConciergeAI() {
     setError(null);
 
     try {
+      // Optimistic UI: Add user message immediately
+      const tempId = crypto.randomUUID();
+      const optimisticUserMsg: ConciergeMessage = {
+        id: tempId,
+        role: 'user',
+        content: userMessage,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, optimisticUserMsg]);
+      
       // 1. Ensure we have a conversation record
       let convId = currentConversationId;
       if (!convId) {

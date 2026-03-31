@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo, useRef } from 'react';
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -36,8 +36,23 @@ export const SentientSLogo = memo(({ size = 'md', className }: SentientSLogoProp
   const [isJumping, setIsJumping] = useState(false);
   const controls = useAnimation();
 
+  const [isVisible, setIsVisible] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // ── Visibility Tracking ─────────────────────────────────────────────
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   // ── Sentient Random Movements ───────────────────────────────────────
   useEffect(() => {
+    if (!isVisible) return;
     const aliveLoop = setInterval(() => {
       const rand = Math.random();
       if (rand < 0.2) {
@@ -58,7 +73,7 @@ export const SentientSLogo = memo(({ size = 'md', className }: SentientSLogoProp
     }, 4000);
 
     return () => clearInterval(aliveLoop);
-  }, [controls]);
+  }, [controls, isVisible]);
 
   // ── Interaction Logic ───────────────────────────────────────────────
   const handleTap = useCallback(() => {
@@ -87,8 +102,9 @@ export const SentientSLogo = memo(({ size = 'md', className }: SentientSLogoProp
 
   return (
     <motion.div
+      ref={containerRef}
       onClick={handleTap}
-      animate={controls}
+      animate={isVisible ? controls : {}}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.9 }}
       className={cn(
