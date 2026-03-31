@@ -4,6 +4,7 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import { createIDBPersister } from "@/lib/persister";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { LazyMotion, domMax } from "framer-motion";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
@@ -23,7 +24,7 @@ import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
 import { AnimatedPage } from "@/components/AnimatedPage";
-import Index from "./pages/Index";
+const Index = lazy(() => import("./pages/Index"));
 import '@/i18n';
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -296,7 +297,8 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
          client={queryClient} 
          persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }} // 24H data retention
       >
-        {SpeedInsightsComponent && <SpeedInsightsComponent />}
+        <LazyMotion features={domMax} strict>
+          {SpeedInsightsComponent && <SpeedInsightsComponent />}
         <BrowserRouter
           future={{
             v7_startTransition: true,
@@ -462,6 +464,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             </AuthProvider>
           </ErrorBoundary>
         </BrowserRouter>
+        </LazyMotion>
       </PersistQueryClientProvider>
       </ConnectionGuard>
     </GlobalErrorBoundary>
