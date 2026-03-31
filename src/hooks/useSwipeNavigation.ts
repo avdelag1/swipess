@@ -34,7 +34,7 @@ export function useSwipeNavigation({
 }: SwipeNavConfig) {
   const navigate = useNavigate();
   const location = useLocation();
-  const touchRef = useRef<{ x: number; y: number; t: number } | null>(null);
+  const touchRef = useRef<{ x: number; y: number; t: number; scrollTop: number } | null>(null);
   const navigatedRef = useRef(false);
 
   const currentIndex = paths.indexOf(location.pathname);
@@ -46,8 +46,12 @@ export function useSwipeNavigation({
 
     navigatedRef.current = false;
     const touch = e.touches[0];
-    touchRef.current = { x: touch.clientX, y: touch.clientY, t: Date.now() };
-  }, []);
+    // Capture scroll position at touch start so we can guard against
+    // firing swipe-up while the user is scrolling down a page
+    const container = document.querySelector(containerSelector) as HTMLElement | null;
+    const scrollTopAtStart = container?.scrollTop ?? 0;
+    touchRef.current = { x: touch.clientX, y: touch.clientY, t: Date.now(), scrollTop: scrollTopAtStart };
+  }, [containerSelector]);
 
   const handleTouchEnd = useCallback(
     (e: TouchEvent) => {
@@ -62,7 +66,9 @@ export function useSwipeNavigation({
       const absDy = Math.abs(dy);
 
       // 1. Detect Vertical Swipe Up First (higher priority for dashboard)
-      if (dy < -threshold && absDy > absDx * 1.5) {
+      // Only fires when the container was scrolled to the top at touch-start,
+      // so normal page scrolling never accidentally triggers this.
+      if (dy < -threshold && absDy > absDx * 1.5 && touchRef.current.scrollTop === 0) {
         if (onSwipeUp) {
           navigatedRef.current = true;
           onSwipeUp();
@@ -74,8 +80,10 @@ export function useSwipeNavigation({
       if (currentIndex === -1) return; // current page not in lateral nav list
 
       // 2. Detect Horizontal Swipe
-      // Must be more horizontal than vertical
-      if (absDy >= absDx) return;
+      // Require gesture to be clearly horizontal: horizontal component must be
+      // at least 2× the vertical component to avoid triggering during diagonal
+      // scrolls or card swipes.
+      if (absDy >= absDx * 0.5) return;
 
       const velocity = absDx / dt;
       const passesThreshold = absDx >= threshold || velocity >= velocityThreshold;

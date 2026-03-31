@@ -1048,6 +1048,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       exit="exit"
       className="relative w-full flex flex-col items-center justify-center px-3"
       style={{ height: 'calc(100dvh - 120px)', minHeight: 'calc(100dvh - 120px)', perspective: '1200px' }}
+      data-no-swipe-nav
       onMouseEnter={handleDeckHover}
     >
       {/* Centered card stack container with perspective */}

@@ -847,7 +847,7 @@ const ClientSwipeContainerComponent = ({
   }
 
   return (
-    <div className="relative w-full flex flex-col" style={{ minHeight: '100dvh' }}>
+    <div className="relative w-full flex flex-col" data-no-swipe-nav style={{ minHeight: '100dvh' }}>
       <div className="relative flex-1 w-full">
         {/* Third card - deepest in poker hand stack */}
         {(() => {
