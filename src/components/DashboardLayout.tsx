@@ -159,18 +159,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const [appliedFilters, setAppliedFilters] = useState<Record<string, unknown> | null>(null);
 
-  // Swipe up to events from any main dashboard page
-  const handleSwipeUp = useCallback(() => {
-    navigate('/explore/eventos');
-  }, [navigate]);
-
-  useSwipeNavigation({
-    paths: userRole === 'owner' 
-      ? ['/owner/dashboard', '/messages', '/radio', '/owner/profile', '/owner/settings'] 
-      : ['/client/dashboard', '/messages', '/radio', '/client/profile', '/client/settings'],
-    onSwipeUp: handleSwipeUp
-  });
-
   // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects (throttled to ~30fps)
   // PERF: Disabled on PWA/touch devices to save CPU and battery
   useEffect(() => {
