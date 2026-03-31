@@ -36,15 +36,25 @@
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       width:100vw;height:100dvh;background:#000;
       position:fixed;top:0;left:0;z-index:9999;
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  -webkit-backdrop-filter 0.4s ease-out,
+                  backdrop-filter 0.4s ease-out;
+    }
+    #initial-loader.dissolving {
+      opacity: 0;
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      pointer-events: none;
     }
     .splash-logo{
-      width:128px;height:128px;
-      animation:splash-pulse 1.8s ease-in-out infinite;
-      filter: drop-shadow(0 0 25px rgba(255, 31, 31, 0.4));
+      width:120px;height:120px;
+      animation:splash-pulse 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px rgba(255, 31, 31, 0.3));
+      will-change: transform, opacity;
     }
     @keyframes splash-pulse{
-      0%,100%{transform:scale(0.95);opacity:0.85;filter:drop-shadow(0 0 20px rgba(255, 31, 31, 0.3))}
-      50%{transform:scale(1.05);opacity:1;filter:drop-shadow(0 0 45px rgba(255, 31, 31, 0.6))}
+      0%,100%{transform:scale(0.98);opacity:0.92}
+      50%{transform:scale(1.02);opacity:1}
     }
     .loader-bar{
       width:160px;height:2px;background:rgba(255,255,255,0.05);

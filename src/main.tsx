@@ -40,17 +40,22 @@ if (rootElement) {
 // 3. REMOVE SPLASH ONLY AFTER HYDRATION
 // We use a double RAF + a tiny delay to ensure the browser has painted the React tree.
 window.addEventListener('app-rendered', () => {
+  // 🚀 ZENITH HYDRATION PROTOCOL
+  // Dual-RAF ensures browser paint queue is clear before revealing
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      // Signal hydration complete — triggers CSS transition on #root
+      // 1. Signal hydration complete to start #root fade-in
       const root = document.getElementById('root');
       if (root) root.classList.add('hydrated');
       
+      // 2. Trigger the "Liquid Dissolve" of the splash screen
       const loader = document.getElementById('initial-loader');
       if (loader) {
-        loader.style.opacity = '0';
-        loader.style.transition = 'opacity 0.2s ease-out';
-        setTimeout(() => loader.remove(), 220);
+        loader.classList.add('dissolving');
+        // Wait for CSS transition (300ms) plus a tiny safety buffer
+        setTimeout(() => {
+          if (loader.parentNode) loader.remove();
+        }, 450);
       }
     });
   });
