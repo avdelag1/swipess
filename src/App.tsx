@@ -336,14 +336,14 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
                                 {/* PWA install prompt — shown after 45s, respects dismissal */}
                                 <PWAInstallPrompt />
 
-                                <AppLayout>
-                                  <WelcomeBonusModal />
-                                  <TooltipProvider>
-                                    <Suspense fallback={null}>
-                                      <Sonner />
-                                      <Toaster />
-                                    </Suspense>
-                                  </TooltipProvider>
+                                  <AppLayout>
+                                    <WelcomeBonusModal />
+                                    <TooltipProvider>
+                                      <Suspense fallback={null}>
+                                        <Toaster />
+                                      </Suspense>
+                                    </TooltipProvider>
+
                                   <Suspense fallback={<SuspenseFallback />}>
                                     <Routes>
                                       <Route path="/" element={
