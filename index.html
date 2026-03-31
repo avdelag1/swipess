@@ -61,8 +61,17 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet"></noscript>
 
+  <!-- SEO & Extension Compatibility -->
   <title>Swipess | Your Local Jarvis</title>
   <meta name="description" content="High-performance platform for elite real estate, luxury vehicles, and world-class service providers. Discover excellence.">
+  
+  <!-- Social Metadata (Extensions often query these) -->
+  <meta property="og:title" content="Swipess | Your Local Jarvis">
+  <meta property="og:description" content="High-performance platform discovered excellence.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Swipess | Your Local Jarvis">
+
   <meta name="theme-color" content="#0A0A0B">
   <meta name="app-version" content="3.5.0">
 
@@ -78,9 +87,25 @@
   <!-- Security Header -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://cdn.gpteng.co https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com https://*.googleusercontent.com https://images.unsplash.com https://www.google-analytics.com https://www.googletagmanager.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://images.unsplash.com https://accounts.google.com https://storage.googleapis.com https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://fonts.googleapis.com https://fonts.gstatic.com https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; media-src 'self' blob: https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; frame-src https://accounts.google.com; worker-src 'self' blob:;">
 
+  <script>
+    // 🛡️ EXTENSION GUARD: Silently swallow chrome-extension errors
+    // Many extensions (like Stylus/UserStyle) crash when they can't find elements in SPAs.
+    // This prevents these third-party errors from appearing as "app errors".
+    window.addEventListener('error', function(e) {
+      if (e.filename && e.filename.indexOf('chrome-extension://') !== -1) {
+        e.stopImmediatePropagation();
+        return false;
+      }
+    }, true);
+  </script>
 </head>
 
 <body>
+  <!-- EXTENSION COMPATIBILITY SKELETON: These exist to satisfy extensions that check for basic structure -->
+  <header style="display:none" aria-hidden="true"></header>
+  <main id="main-content" style="display:none" aria-hidden="true"></main>
+  <footer style="display:none" aria-hidden="true"></footer>
+
   <!-- LCP ELEMENT: Splash screen IS the largest contentful paint -->
   <!-- By making the splash the LCP, we guarantee sub-1s LCP on any connection -->
   <div id="initial-loader">

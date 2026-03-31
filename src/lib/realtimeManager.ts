@@ -145,14 +145,36 @@ class RealtimeSubscriptionManager {
 
       // If no more listeners, cleanup the channel
       if (currentEntry.listeners.size === 0) {
-        currentEntry.channel.unsubscribe().then(() => {
+        supabase.removeChannel(currentEntry.channel).then(() => {
           if (import.meta.env.DEV) {
-            logger.info(`[RealtimeManager] Channel unsubscribed: ${subscriptionKey}`);
+            logger.info(`[RealtimeManager] Channel removed: ${subscriptionKey}`);
           }
         });
         this.subscriptions.delete(subscriptionKey);
       }
     };
+  }
+
+  /**
+   * Cleanup all subscriptions
+   * Call when user logs out
+   */
+  cleanup(): void {
+    this.subscriptions.forEach((entry, key) => {
+      supabase.removeChannel(entry.channel).then(() => {
+        if (import.meta.env.DEV) {
+          logger.info(`[RealtimeManager] Cleanup removed: ${key}`);
+        }
+      });
+    });
+
+    this.subscriptions.clear();
+    this.userId = null;
+    this.initialized = false;
+
+    if (import.meta.env.DEV) {
+      logger.info('[RealtimeManager] Cleanup complete');
+    }
   }
 
   /**
@@ -179,28 +201,6 @@ class RealtimeSubscriptionManager {
     }
 
     return { table, event, filter };
-  }
-
-  /**
-   * Cleanup all subscriptions
-   * Call when user logs out
-   */
-  cleanup(): void {
-    this.subscriptions.forEach((entry, key) => {
-      entry.channel.unsubscribe().then(() => {
-        if (import.meta.env.DEV) {
-          logger.info(`[RealtimeManager] Cleanup unsubscribed: ${key}`);
-        }
-      });
-    });
-
-    this.subscriptions.clear();
-    this.userId = null;
-    this.initialized = false;
-
-    if (import.meta.env.DEV) {
-      logger.info('[RealtimeManager] Cleanup complete');
-    }
   }
 
   /**

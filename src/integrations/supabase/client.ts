@@ -43,12 +43,16 @@ export const supabase = createClient<Database>(
     },
     realtime: {
       params: {
-        eventsPerSecond: 10,
+        eventsPerSecond: 20, // Increased from 10 for smoother real-time UX
       },
       // Explicit heartbeat + exponential reconnect backoff
-      // Prevents rapid reconnect loops that flood the server on connection loss
-      heartbeatIntervalMs: 30000,
-      reconnectAfterMs: (tries: number) => Math.min(1000 * Math.pow(2, tries), 30000),
+      // Reduced heartbeat to 20s to detect drops faster on flaky networks (mobile)
+      heartbeatIntervalMs: 20000,
+      reconnectAfterMs: (tries: number) => {
+        // Optimized backoff: 1s, 2s, 4s, 8s, 16s, then max 30s
+        return Math.min(Math.pow(2, tries) * 1000, 30000);
+      },
     },
   }
 );
+

@@ -279,9 +279,8 @@ export function useRealtimeChat(conversationId: string) {
       isTypingRef.current = false;
       setIsTyping(false);
 
-      // Properly unsubscribe AND remove channels to prevent memory leaks
-      messagesChannel.unsubscribe();
-      typingChannel.unsubscribe();
+      // Properly remove channels — removeChannel internally handles unsubscribing
+      // and cleaning up the client's internal references to avoid memory leaks.
       supabase.removeChannel(messagesChannel);
       supabase.removeChannel(typingChannel);
 

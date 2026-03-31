@@ -101,8 +101,8 @@ export function useNotifications() {
       .subscribe();
 
     return () => {
-      // Properly unsubscribe AND remove channel to prevent memory leaks
-      channel.unsubscribe();
+      // Properly remove channel — removeChannel internally handles unsubscribing
+      // and cleaning up the client's internal references to avoid memory leaks.
       supabase.removeChannel(channel);
     };
   }, [user?.id]);
