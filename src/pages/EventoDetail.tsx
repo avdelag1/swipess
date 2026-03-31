@@ -311,13 +311,13 @@ export default function EventoDetail() {
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-slate-50 dark:from-black via-slate-50/40 dark:via-black/40 to-transparent" />
 
-        {/* Floating Controls */}
-        <div className="absolute top-[var(--safe-top)] left-4 right-4 flex justify-between items-center z-50 py-4">
+        {/* Floating Controls — Adjusted lower to clear 'S' Logo */}
+        <div className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] left-4 right-4 flex justify-between items-center z-50 py-4">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => navigate(-1)}
             aria-label="Go back"
-            className="w-11 h-11 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
+            className="w-12 h-12 rounded-2xl bg-black/30 backdrop-blur-2xl border border-white/15 flex items-center justify-center text-white shadow-2xl"
           >
             <ChevronLeft className="w-6 h-6" />
           </motion.button>

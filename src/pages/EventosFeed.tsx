@@ -25,10 +25,13 @@ interface EventItem {
   description: string | null;
   category: string;
   image_url: string | null;
+  image_urls?: any[];
   event_date: string | null;
+  event_end_date?: string | null;
   location: string | null;
   location_detail: string | null;
   organizer_name: string | null;
+  organizer_photo_url?: string | null;
   organizer_whatsapp: string | null;
   promo_text: string | null;
   discount_tag: string | null;
@@ -1065,24 +1068,25 @@ export default function EventosFeed() {
       isLight ? "bg-white" : "bg-black"
     )}>
 
-      {/* ── TOP HUD ── Adjusted tosit clearly below standard PWA bars and logo */}
-      <div className="absolute top-0 left-0 right-0 z-30 pt-[calc(env(safe-area-inset-top,0px)+16px)] stagger-enter">
-        {/* Back button + title + promote — Adjusted for 'S' logo overlap fix */}
+      {/* ── TOP HUD ── Adjusted to sit clearly below standard PWA bars and logo */}
+      <div className="absolute top-0 left-0 right-0 z-[100] pt-[calc(env(safe-area-inset-top,0px)+32px)] overflow-visible">
+        {/* Back button + title + promote — Higher padding to clear 'S' Logo */}
         <motion.div 
-          className="flex items-center gap-3 px-6 pt-10 pb-2"
-          initial={{ opacity: 0, y: -10 }}
+          className="flex items-center gap-3 px-6 pt-16 pb-4"
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
           <button
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full flex items-center justify-center"
+            className="w-12 h-12 rounded-[1.25rem] flex items-center justify-center shadow-xl active:scale-90 transition-transform"
             style={{ 
-              background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)', 
-              backdropFilter: 'blur(12px)', 
-              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.2)' 
+              background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(15,15,16,0.6)', 
+              backdropFilter: 'blur(24px)', 
+              border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.12)' 
             }}
           >
+
             <ArrowLeft className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} />
           </button>
           <div className="flex-1">
