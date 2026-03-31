@@ -100,9 +100,11 @@ export interface Listing {
   provider_name?: string | null;
 }
 
-export function useListings(excludeSwipedIds: string[] = [], options: { enabled?: boolean } = {}) {
+export function useListings(excludeSwipedIds: string[] = [], options: { enabled?: boolean, category?: string } = {}) {
+  const category = options.category || 'all';
+
   return useQuery({
-    queryKey: ['listings', excludeSwipedIds, 'with-filters'],
+    queryKey: ['listings', excludeSwipedIds, category, 'with-filters'],
     // INSTANT NAVIGATION: Keep previous data during refetch to prevent UI blanking
     placeholderData: (prev) => prev,
     queryFn: async () => {

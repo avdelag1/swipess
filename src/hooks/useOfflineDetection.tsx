@@ -33,5 +33,5 @@ export function useOfflineDetection() {
     };
   }, []);
 
-  return isOnline;
+  return { isOnline };
 }

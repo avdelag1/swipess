@@ -6,13 +6,14 @@ import {
   Flame, Users, Search, ThumbsUp, ShieldCheck, ShieldAlert,
   Home, Briefcase, DollarSign, GripVertical,
 } from "lucide-react";
-import { motion, Reorder } from "framer-motion";
+import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/useTheme";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikedClientInsightsModal } from "@/components/LikedClientInsightsModal";
+import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
 
 import { cn } from "@/lib/utils";
 import {
@@ -288,31 +289,17 @@ export function LikedClients() {
             ))}
           </div>
         ) : filteredClients.length > 0 ? (
-          <Reorder.Group
-            axis="y"
-            values={filteredClients}
+          <PremiumSortableGrid
+            items={filteredClients}
             onReorder={handleReorder}
-            data-no-swipe-nav
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-              {filteredClients.map((client, index) => (
-                <Reorder.Item
-                  key={client.id}
-                  value={client}
-                  className="list-none"
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.06, type: 'spring', stiffness: 400, damping: 28 }}
-                  whileDrag={{ scale: 1.03, zIndex: 50, boxShadow: "0 20px 60px rgba(228,0,124,0.25)" }}
-                >
-                  <PremiumLikedCard
-                    type="profile"
-                    data={client}
-                    onAction={(action) => handleAction(action, client)}
-                  />
-                </Reorder.Item>
-              ))}
-          </Reorder.Group>
+            renderItem={(client) => (
+              <PremiumLikedCard
+                type="profile"
+                data={client}
+                onAction={(action) => handleAction(action, client)}
+              />
+            )}
+          />
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}

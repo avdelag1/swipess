@@ -10,9 +10,10 @@ import { useTheme } from "@/hooks/useTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { motion, Reorder } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
+import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
 import type { Listing } from "@/hooks/useListings";
 import {
   AlertDialog,
@@ -214,31 +215,17 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             ))}
           </div>
         ) : orderedFilteredProperties.length > 0 ? (
-          <Reorder.Group
-            axis="y"
-            values={orderedFilteredProperties}
+          <PremiumSortableGrid
+            items={orderedFilteredProperties}
             onReorder={handleReorder}
-            data-no-swipe-nav
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-              {orderedFilteredProperties.map((property, index) => (
-                <Reorder.Item
-                  key={property.id}
-                  value={property}
-                  className="list-none"
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.06, type: 'spring', stiffness: 400, damping: 28 }}
-                  whileDrag={{ scale: 1.03, zIndex: 50, boxShadow: "0 20px 60px rgba(228,0,124,0.25)" }}
-                >
-                  <PremiumLikedCard
-                    type="listing"
-                    data={property}
-                    onAction={(action) => handleAction(action, property)}
-                  />
-                </Reorder.Item>
-              ))}
-          </Reorder.Group>
+            renderItem={(property) => (
+              <PremiumLikedCard
+                type="listing"
+                data={property}
+                onAction={(action) => handleAction(action, property)}
+              />
+            )}
+          />
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}

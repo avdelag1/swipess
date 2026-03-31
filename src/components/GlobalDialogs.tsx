@@ -6,7 +6,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useListings } from '@/hooks/useListings';
 import { useClientProfiles } from '@/hooks/useClientProfiles';
 import { useWelcomeState } from '@/hooks/useWelcomeState';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 
 // Lazy-loaded Dialogs
 const AdvancedFilters = lazy(() => import('@/components/AdvancedFilters').then(m => ({ default: m.AdvancedFilters })));
@@ -27,6 +27,8 @@ const MessageActivationPackages = lazy(() => import('@/components/MessageActivat
 const PushNotificationPrompt = lazy(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })));
 const WelcomeNotification = lazy(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })));
 const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })));
+const LikedListingInsightsModal = lazy(() => import('@/components/LikedListingInsightsModal').then(m => ({ default: m.LikedListingInsightsModal })));
+const LikedClientInsightsModal = lazy(() => import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal })));
 
 interface GlobalDialogsProps {
   userRole: 'client' | 'owner' | 'admin';
@@ -161,7 +163,20 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         <AISearchDialog
           isOpen={store.isAISearchOpen}
           onClose={() => store.setModal('isAISearchOpen', false)}
-          userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'}
+          userRole={userRole === 'admin' ? 'client' : userRole}
+        />
+
+        {/* LIKED ITEM MODALS */}
+        <LikedListingInsightsModal
+          open={store.showPropertyInsights}
+          onOpenChange={(open) => store.setModal('showPropertyInsights', open)}
+          listing={selectedListing}
+        />
+
+        <LikedClientInsightsModal
+          open={store.showClientInsights}
+          onOpenChange={(open) => store.setModal('showClientInsights', open)}
+          client={selectedProfile as any}
         />
       </SmartSuspense>
 

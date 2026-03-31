@@ -3,8 +3,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ThumbsUp, GripVertical, Flame, Home, Briefcase, DollarSign } from "lucide-react";
-import { motion, Reorder } from "framer-motion";
+import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
 import { toast } from "sonner";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
@@ -224,28 +225,17 @@ const ClientWhoLikedYou = () => {
             ))}
           </div>
         ) : filteredOwners.length > 0 ? (
-          <Reorder.Group
-            axis="y"
-            values={filteredOwners}
+          <PremiumSortableGrid
+            items={filteredOwners}
             onReorder={handleReorder}
-            data-no-swipe-nav
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-              {filteredOwners.map((owner) => (
-                <Reorder.Item
-                  key={owner.id}
-                  value={owner}
-                  className="list-none"
-                  whileDrag={{ scale: 1.03, zIndex: 50, boxShadow: "0 20px 60px rgba(228,0,124,0.25)" }}
-                >
-                  <PremiumLikedCard
-                    type="profile"
-                    data={owner}
-                    onAction={(action) => handleAction(action, owner)}
-                  />
-                </Reorder.Item>
-              ))}
-          </Reorder.Group>
+            renderItem={(owner) => (
+              <PremiumLikedCard
+                type="profile"
+                data={owner}
+                onAction={(action) => handleAction(action, owner)}
+              />
+            )}
+          />
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
