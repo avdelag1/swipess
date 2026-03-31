@@ -25,7 +25,7 @@ if (typeof window !== 'undefined') {
 export function SuspenseFallback({ className, minimal = false }: SuspenseFallbackProps) {
   // ALWAYS return the PremiumLoader centered for consistent 'alive' feel
   return (
-    <div className={cn("flex-1 h-full w-full flex flex-col items-center justify-center min-h-[50vh]", className)}>
+    <div className={cn("flex-1 h-full w-full flex flex-col items-center justify-center min-h-[50vh] bg-black", className)}>
       <PremiumLoader size="lg" />
     </div>
   );

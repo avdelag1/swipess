@@ -14,7 +14,7 @@ import { PremiumLoader } from "@/components/PremiumLoader";
  */
 function ProtectedRouteLoadingSkeleton() {
   return (
-    <div className="min-h-screen min-h-dvh w-full bg-background flex items-center justify-center">
+    <div className="min-h-screen min-h-dvh w-full bg-black flex items-center justify-center">
       <PremiumLoader size="lg" />
     </div>
   );
