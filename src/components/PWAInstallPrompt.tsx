@@ -171,7 +171,12 @@ export function PWAInstallPrompt() {
           )}
           <button
             onClick={handleDismissForever}
-            className="flex-1 text-white/40 hover:text-white/60 text-xs transition-colors py-2.5 px-3 rounded-xl border border-white/10 hover:border-white/20"
+            className={cn(
+              "flex-1 text-xs font-semibold transition-colors py-2.5 px-3 rounded-xl border",
+              isDark
+                ? "text-white/70 hover:text-white border-white/20 hover:border-white/40"
+                : "text-black/60 hover:text-black border-black/15 hover:border-black/30"
+            )}
           >
             {iosMode ? 'Maybe later' : 'Not now'}
           </button>
