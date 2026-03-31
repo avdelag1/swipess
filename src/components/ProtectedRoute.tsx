@@ -1,71 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
+import { PremiumLoader } from "@/components/PremiumLoader";
+
 /**
- * iOS-grade loading skeleton for protected routes
- * Prevents flash/flicker during auth check by showing content structure
+ * PRODUCTION-READY UNIFIED LOADER
+ * Matches index.html splash exactly for a seamless transition
  */
 function ProtectedRouteLoadingSkeleton() {
   return (
-    <div
-      className="min-h-screen min-h-dvh w-full bg-background flex flex-col layout-padding-top layout-padding-bottom"
-    >
-      {/* Top bar skeleton */}
-      <div className="fixed top-0 left-0 right-0 h-[52px] bg-background border-b border-border/50 flex items-center justify-between px-4 z-50 safe-header-padding">
-        <Skeleton className="h-8 w-24 rounded-lg" />
-        <div className="flex gap-2">
-          <Skeleton className="h-9 w-9 rounded-full" />
-          <Skeleton className="h-9 w-9 rounded-full" />
-        </div>
-      </div>
-
-      {/* Main content skeleton - mimics swipe card layout */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-6">
-        <div className="w-full max-w-lg aspect-[3/4] rounded-3xl overflow-hidden relative">
-          <Skeleton className="absolute inset-0 rounded-3xl" />
-          {/* Story dots */}
-          <div className="absolute top-3 left-4 right-4 flex gap-1 z-10">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={`dot-${i}`} className="flex-1 h-1 rounded-full bg-white/20" />
-            ))}
-          </div>
-          {/* Bottom sheet */}
-          <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm rounded-t-[24px] p-4 pt-6">
-            <Skeleton className="w-10 h-1.5 mx-auto mb-3 rounded-full bg-white/30" />
-            <div className="flex justify-between items-start mb-3">
-              <div className="space-y-2">
-                <Skeleton className="h-5 w-48 bg-white/20" />
-                <Skeleton className="h-4 w-32 bg-white/15" />
-              </div>
-              <div className="text-right space-y-1">
-                <Skeleton className="h-6 w-20 bg-white/20" />
-                <Skeleton className="h-3 w-12 ml-auto bg-white/15" />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Skeleton className="h-4 w-12 bg-white/15 rounded" />
-              <Skeleton className="h-4 w-12 bg-white/15 rounded" />
-              <Skeleton className="h-4 w-16 bg-white/15 rounded" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom nav skeleton */}
-      <div className="fixed bottom-0 left-0 right-0 h-[68px] bg-background border-t border-border/50 flex items-center justify-around px-4 safe-footer-padding">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <Skeleton key={`nav-${i}`} className="h-10 w-10 rounded-xl" />
-        ))}
-      </div>
+    <div className="min-h-screen min-h-dvh w-full bg-background flex items-center justify-center">
+      <PremiumLoader size="lg" />
     </div>
   );
 }
+
 
 /**
  * SPEED OF LIGHT: Simplified ProtectedRoute

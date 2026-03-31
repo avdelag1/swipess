@@ -31,18 +31,32 @@
     :root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
     html,body{margin:0;padding:0;overflow:hidden;background:#000;width:100%;height:100%;color:#fff;font-family:system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
 
-    /* SPLASH: This IS the LCP element — a full visual landing painted in pure CSS + inline SVG */
+    /* SPLASH: Unified High-Fidelity Splash (Dark Theme) */
     #initial-loader{
       display:flex;flex-direction:column;align-items:center;justify-content:center;
-      width:100vw;height:100dvh;background:#f9f9fb;
+      width:100vw;height:100dvh;background:#000;
       position:fixed;top:0;left:0;z-index:9999;
     }
     .splash-logo{
-      width:140px;height:140px;
-      animation:splash-pulse 1.4s ease-in-out infinite;
-      filter: drop-shadow(0 0 20px rgba(255, 115, 22, 0.3));
+      width:120px;height:120px;
+      animation:splash-pulse 1.8s ease-in-out infinite;
+      filter: drop-shadow(0 0 25px rgba(255, 31, 31, 0.4));
     }
-    @keyframes splash-pulse{0%,100%{transform:scale(1);opacity:1;filter:drop-shadow(0 0 20px rgba(255, 115, 22, 0.3))}50%{transform:scale(1.07);opacity:0.85;filter:drop-shadow(0 0 40px rgba(255, 115, 22, 0.5))}}
+    @keyframes splash-pulse{
+      0%,100%{transform:scale(0.95);opacity:0.85;filter:drop-shadow(0 0 20px rgba(255, 31, 31, 0.3))}
+      50%{transform:scale(1.05);opacity:1;filter:drop-shadow(0 0 45px rgba(255, 31, 31, 0.6))}
+    }
+    .loader-bar{
+      width:160px;height:2px;background:rgba(255,255,255,0.05);
+      border-radius:10px;margin-top:24px;position:relative;overflow:hidden;
+    }
+    .loader-progress{
+      position:absolute;inset:0;width:100%;
+      background:linear-gradient(90deg,transparent 0%,#ff1f1f 50%,transparent 100%);
+      animation:loader-slide 1.5s ease-in-out infinite;
+    }
+    @keyframes loader-slide{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
 
     /* CSS Star Field — renders instantly, no JS needed */
     .stars-container{position:absolute;top:0;left:0;width:100%;height:200%}
@@ -113,9 +127,11 @@
   <div id="initial-loader">
     <div class="stars-container"><div id="stars"></div><div id="stars2"></div></div>
     <img src="/icons/fire-s-logo-960.webp" class="splash-logo" alt="Swipess" 
-      width="140" height="140"
-      style="width:140px;height:140px;object-fit:contain;margin-bottom:20px;" />
+      width="120" height="120"
+      style="width:120px;height:120px;object-fit:contain;" />
+    <div class="loader-bar"><div class="loader-progress"></div></div>
   </div>
+
 
   <div id="root"></div>
 
