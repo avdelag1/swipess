@@ -385,8 +385,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             }}
             className={cn(
               smoothButtonClass, 
-              'relative flex-shrink-0 w-28 h-36 rounded-[2rem] overflow-hidden border-2 transition-all duration-500 group',
-              clientIsAllSelected ? 'border-orange-500 scale-[1.02] shadow-xl' : 'border-border/40 scale-100 opacity-80'
+              'relative flex-shrink-0 w-28 h-36 rounded-[2rem] overflow-hidden border-2 transition-all duration-150 group',
+              clientIsAllSelected ? 'border-orange-500 shadow-xl' : 'border-border/40 opacity-80'
             )}
           >
             <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
@@ -396,7 +396,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
               alt="All"
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
-              <Globe className={cn("w-7 h-7 mb-1 transition-transform duration-500", clientIsAllSelected && "scale-110")} />
+              <Globe className={cn("w-7 h-7 mb-1 transition-transform duration-150", clientIsAllSelected && "scale-105")} />
               <span className="text-[10px] font-black uppercase tracking-widest">Global</span>
               <span className="text-xl font-black">ALL</span>
             </div>
@@ -417,8 +417,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 onClick={() => handleCategorySelect(category.id)}
                 className={cn(
                   smoothButtonClass, 
-                  'relative flex-shrink-0 w-28 h-36 rounded-[2rem] overflow-hidden border-2 transition-all duration-500 group',
-                  isActive ? 'border-orange-500 scale-[1.02] shadow-xl' : 'border-border/40 scale-100 opacity-80'
+                  'relative flex-shrink-0 w-28 h-36 rounded-[2rem] overflow-hidden border-2 transition-all duration-150 group',
+                  isActive ? 'border-orange-500 shadow-xl' : 'border-border/40 opacity-80'
                 )}
               >
                 <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
@@ -428,7 +428,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                   alt={category.label}
                 />
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
-                  <div className={cn("mb-1 transition-transform duration-500", isActive && "scale-110")}>
+                  <div className={cn("mb-1 transition-transform duration-150", isActive && "scale-105")}>
                     {category.icon}
                   </div>
                   <span className="text-[10px] font-black uppercase tracking-widest">Filter</span>
@@ -447,7 +447,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
         {/* Status indicator */}
         <div className="px-1 pt-1">
           <p className={cn(
-              'font-black transition-all duration-500 bg-clip-text text-transparent bg-gradient-to-r',
+              'font-black transition-all duration-150 bg-clip-text text-transparent bg-gradient-to-r',
               clientIsAllSelected 
                 ? 'from-orange-500 via-pink-500 to-rose-500 text-[10px] uppercase tracking-widest' 
                 : 'from-muted-foreground/60 to-foreground text-[10px] uppercase tracking-widest opacity-90'

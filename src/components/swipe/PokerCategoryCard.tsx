@@ -141,19 +141,6 @@ export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed 
             src={photo}
             alt={card.label}
             className="absolute inset-0 w-full h-full object-cover"
-            animate={{ 
-              scale: [1.02, 1.12, 1.02],
-              filter: [
-                'brightness(1) contrast(1)', 
-                'brightness(1.15) contrast(1.05)', 
-                'brightness(1) contrast(1)'
-              ]
-            }}
-            transition={{ 
-              duration: 4.5, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
-            }}
             style={{ backfaceVisibility: 'hidden', transformOrigin: 'center' }}
             loading="eager"
             draggable={false}
@@ -162,19 +149,6 @@ export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed 
         ) : (
           <motion.div
             className="absolute inset-0 w-full h-full"
-            animate={{ 
-              scale: [1.02, 1.1, 1.02],
-              filter: [
-                'brightness(1) contrast(1)', 
-                'brightness(1.18) contrast(1.08)', 
-                'brightness(1) contrast(1)'
-              ]
-            }}
-            transition={{ 
-              duration: 4.5, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
-            }}
             style={{ background: gradient, backfaceVisibility: 'hidden', transformOrigin: 'center' }}
           />
         )}

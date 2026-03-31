@@ -91,9 +91,9 @@ export const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => 
           })}
         </div>
 
-        {/* Subtle ambient glow */}
+        {/* Subtle ambient glow - static for max performance */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.05] blur-[100px] bg-primary animate-pulse-slow" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.03] blur-[100px] bg-primary" />
         </div>
       </motion.div>
     </AnimatePresence>

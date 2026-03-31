@@ -9,7 +9,7 @@ function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
-const CROSSFADE_MS = 200;
+const CROSSFADE_MS = 100; // Accelerated crossfade for instant reaction
 const _CROSSFADE_EASE = [0.4, 0, 0.2, 1]; // Smooth soft-start cubic bezier (reserved for future animation)
 
 const CardImage = memo(({ 
@@ -177,7 +177,7 @@ const CardImage = memo(({
         loading={priority ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={priority ? "high" : "auto"}
-        className={cn(priority && "breathing-zoom")}
+        className={cn("")}
         style={{
           position: 'absolute',
           inset: 0,

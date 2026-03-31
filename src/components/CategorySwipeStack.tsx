@@ -235,22 +235,20 @@ function CategoryCard({
                 ...({ x: springX, y: springY, zIndex } as any)
             } as React.CSSProperties}
         >
-            {/* Background Photo */}
+            {/* Background Photo - static for performance */}
             <div
-                className="absolute inset-0 bg-cover bg-center breathing-zoom bg-[image:var(--card-image-url)]"
+                className="absolute inset-0 bg-cover bg-center bg-[image:var(--card-image-url)]"
             />
             {/* Dark overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20" />
 
-            {/* Icon Container — Ken Burns breathing zoom on top card */}
+            {/* Icon Container - static for performance */}
             <motion.div
                 className={cn(
                     "w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl relative z-10",
                     `bg-gradient-to-br ${category.color} text-white`
                 )}
                 whileHover={{ scale: 1.1, rotate: 5 }}
-                animate={isTop ? { y: [0, -5, 0], scale: [1, 1.04, 1] } : { scale: 1 }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             >
                 <category.icon className="w-10 h-10" strokeWidth={2.5} />
                 {isActive && (

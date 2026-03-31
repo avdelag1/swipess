@@ -197,7 +197,7 @@ const CardImage = memo(({
       <img
         src={src}
         alt={alt}
-        className={cn("absolute inset-0 w-full h-full", !fullScreen && "rounded-[24px]", loaded ? "breathing-zoom" : "")}
+        className={cn("absolute inset-0 w-full h-full", !fullScreen && "rounded-[24px]", loaded ? "" : "")}
         style={{
           objectFit: 'cover',
           objectPosition: 'center',
@@ -206,7 +206,6 @@ const CardImage = memo(({
           WebkitUserDrag: 'none',
           pointerEvents: 'none',
           transform: 'translateZ(0)', // GPU promotion
-          animation: loaded ? 'breathing-zoom 8s ease-in-out infinite alternate' : 'none',
         } as React.CSSProperties}
         onLoad={() => {
           imageCache.set(src, true);
