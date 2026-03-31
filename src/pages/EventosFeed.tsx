@@ -49,7 +49,7 @@ const CATEGORIES = [
 const AUTOPLAY_DURATION = 6000; // 6 seconds per card
 
 // ── MOCK DATA ─────────────────────────────────────────────────────────────────
-const MOCK_EVENTS: EventItem[] = [
+export const MOCK_EVENTS: EventItem[] = [
   {
     id: 'm1', title: 'Sunset Cacao Ceremony', category: 'beach',
     image_url: '/images/events/cacao_ceremony.png',
@@ -923,17 +923,21 @@ export default function EventosFeed() {
     return list;
   }, [allEvents, activeCategory, likedIds]);
 
-  // 🚀 SPEED OF LIGHT: Manual scroll listener to sync activeIdx for Dots/AutoPlay
+  // 🚀 SPEED OF LIGHT: Robust scroll listener to sync activeIdx for Dots/AutoPlay
   useEffect(() => {
     const el = parentRef.current;
     if (!el) return;
 
     const handleScroll = () => {
-      // Logic: calculate current index based on scroll position / height
-      const newIdx = Math.round(el.scrollTop / (el.clientHeight || window.innerHeight));
-      if (newIdx !== activeIdx && newIdx >= 0 && newIdx < filteredEvents.length) {
-        setActiveIdx(newIdx);
-        setAnimKey(k => k + 1); // Reset progress on manual move
+      const height = el.clientHeight || window.innerHeight || 1;
+      const newIdx = Math.round(el.scrollTop / height);
+      
+      if (newIdx !== activeIdx && newIdx >= 0) {
+        // Only update if within reasonable bounds (including Promote card)
+        if (newIdx <= filteredEvents.length) {
+          setActiveIdx(newIdx);
+          setAnimKey(k => k + 1); // Reset progress on manual move
+        }
       }
     };
 
@@ -948,17 +952,7 @@ export default function EventosFeed() {
     overscan: 2,
   });
 
-  // Track scroll position → active index
-  useEffect(() => {
-    const el = parentRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const idx = Math.round(el.scrollTop / el.clientHeight);
-      setActiveIdx(idx);
-    };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, []);
+  // (Removed redundant scroll listener to prevent race conditions)
 
   // Reset scroll when category changes
   useEffect(() => {
@@ -998,11 +992,12 @@ export default function EventosFeed() {
     const timeout = setTimeout(() => {
       const el = parentRef.current;
       if (el) {
+        const height = el.clientHeight || window.innerHeight || 1;
         // Now include the Promote card (index = filteredEvents.length)
         const maxIdx = filteredEvents.length; 
         if (activeIdx >= maxIdx) return; // Stop at Promote card
         const nextIdx = activeIdx + 1;
-        el.scrollTo({ top: nextIdx * el.clientHeight, behavior: 'smooth' });
+        el.scrollTo({ top: nextIdx * height, behavior: 'smooth' });
       }
       setAnimKey(k => k + 1);
     }, AUTOPLAY_DURATION);

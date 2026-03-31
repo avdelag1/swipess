@@ -1,5 +1,6 @@
 import { memo, useEffect, useMemo, useState, useRef } from 'react';
 import { getCardImageUrl, getBlurDataUrl } from '@/utils/imageOptimization';
+import { cn } from '@/lib/utils';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { MarketingSlide } from './MarketingSlide';
@@ -17,7 +18,8 @@ const CardImage = memo(({
   name, 
   direction: _direction = 'right',
   fullScreen = false,
-  animate = true
+  animate = true,
+  priority = false
 }: { 
   src?: string | null; 
   alt?: string; 
@@ -25,6 +27,7 @@ const CardImage = memo(({
   direction?: 'left' | 'right';
   fullScreen?: boolean;
   animate?: boolean;
+  priority?: boolean;
 }) => {
   const isMarketingSlide = useMemo(() => src?.startsWith('marketing:'), [src]);
 
@@ -171,9 +174,9 @@ const CardImage = memo(({
       <img
         src={optimizedSrc || src}
         alt={alt ?? ''}
-        loading="eager"
+        loading={priority ? "eager" : "lazy"}
         decoding="async"
-        fetchPriority="high"
+        fetchPriority={priority ? "high" : "auto"}
         className={cn(animate && "breathing-zoom")}
         style={{
           position: 'absolute',

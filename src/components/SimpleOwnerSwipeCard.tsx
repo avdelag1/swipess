@@ -559,7 +559,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           pointerEvents: 'none',
         }}
       >
-        <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} fullScreen={fullScreen} />
+      <CardImage 
+        src={currentImage} 
+        alt={profile.name || 'Client'} 
+        name={profile.name} 
+        fullScreen={fullScreen} 
+        priority={false} 
+      />
         {/* No gradient - full-bleed cards */}
       </div>
     );

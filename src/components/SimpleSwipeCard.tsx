@@ -337,7 +337,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             style={{ pointerEvents: 'none', zIndex: 1 }}
           />
         ) : (
-          <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} direction={photoDirection} />
+          <CardImage 
+            src={currentImage} 
+            alt={listing.title || 'Listing'} 
+            name={listing.title} 
+            direction={photoDirection} 
+            priority={false} 
+          />
         )}
       </div>
     );
@@ -386,6 +392,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               alt={listing.title || 'Listing'} 
               name={listing.title} 
               direction={photoDirection} 
+              priority={isTop}
             />
           )}
           

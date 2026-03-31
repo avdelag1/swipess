@@ -5,7 +5,7 @@ import {
   Sparkles, X, MapPin,
   Briefcase,
   ShieldCheck, Clock,
-  Eye, EyeOff
+  Eye, EyeOff, Zap, Search
 } from 'lucide-react';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { useNavigate } from 'react-router-dom';
@@ -83,6 +83,9 @@ export default function RoommateMatching() {
   const [roommateVisible, setRoommateVisible] = useState(true);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [messageSending, setMessageSending] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [showSpeedMeet, setShowSpeedMeet] = useState(false);
+  const [speedMatches, setSpeedMatches] = useState<any[]>([]);
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
   const startConversation = useStartConversation();
@@ -150,6 +153,30 @@ export default function RoommateMatching() {
 
   const handleLike = () => cardRef.current?.triggerSwipe('right');
   const handleDislike = () => cardRef.current?.triggerSwipe('left');
+
+  const handleSpeedMeet = useCallback(() => {
+    if (isScanning || candidates.length === 0) return;
+    
+    setIsScanning(true);
+    triggerHaptic('medium');
+    
+    // Simulate AI Scan
+    setTimeout(() => {
+      // Pick 3 random highly compatible candidates (or just next 3)
+      const matches = candidates
+        .filter((_, i) => i >= currentIndex)
+        .slice(0, 3)
+        .map(c => ({
+          ...c,
+          compatibility: Math.floor(Math.random() * 15) + 85 // 85-99%
+        }));
+      
+      setSpeedMatches(matches);
+      setIsScanning(false);
+      setShowSpeedMeet(true);
+      triggerHaptic('success');
+    }, 2400);
+  }, [currentIndex, candidates, isScanning]);
 
   const topCard = candidates[currentIndex] ?? null;
   const nextCard = candidates[currentIndex + 1] ?? null;
@@ -336,6 +363,7 @@ export default function RoommateMatching() {
           onShare={() => triggerHaptic('light')}
           onUndo={handleUndo}
           onMessage={() => { triggerHaptic('light'); setMessageDialogOpen(true); }}
+          onSpeedMeet={handleSpeedMeet}
           canUndo={canUndo}
           className="relative"
         />
@@ -493,6 +521,127 @@ export default function RoommateMatching() {
           }
         }}
       />
+
+      {/* ── AI SCANNING OVERLAY ── */}
+      <AnimatePresence>
+        {isScanning && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[500] bg-black/80 backdrop-blur-xl flex flex-col items-center justify-center text-center p-8"
+          >
+            <div className="relative mb-12">
+               <motion.div 
+                 animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                 transition={{ duration: 2, repeat: Infinity }}
+                 className="absolute inset-0 bg-primary/40 blur-[80px] rounded-full"
+               />
+               <div className="w-32 h-32 rounded-[3.5rem] bg-black border border-white/20 flex items-center justify-center relative z-10 overflow-hidden">
+                  <motion.div
+                    animate={{ y: [-100, 100] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-x-0 h-[2px] bg-primary shadow-[0_0_15px_#00E5FF]"
+                  />
+                  <Zap className="w-14 h-14 text-primary animate-pulse" />
+               </div>
+            </div>
+            <motion.h2 
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="text-3xl font-black italic tracking-tighter uppercase text-white mb-4"
+            >
+              AI Speed Match Scanning...
+            </motion.h2>
+            <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em] max-w-[200px]">
+              Analyzing 15,000+ local vibers for maximum compatibility
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── SPEED MEET RESULTS OVERLAY ── */}
+      <AnimatePresence>
+        {showSpeedMeet && (
+          <motion.div
+            initial={{ y: '100dvh' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100dvh' }}
+            transition={{ type: 'spring', damping: 32, stiffness: 280 }}
+            className="fixed inset-0 z-[600] bg-black overflow-y-auto no-scrollbar"
+          >
+             <div className="p-8 pt-[calc(var(--safe-top)+20px)] pb-32">
+                <div className="flex items-center justify-between mb-12">
+                   <div>
+                      <div className="flex items-center gap-2 mb-1">
+                         <Sparkles className="w-4 h-4 text-amber-400" />
+                         <span className="text-[10px] font-black text-amber-400 uppercase tracking-[0.3em]">AI Express Match</span>
+                      </div>
+                      <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase leading-none">Speed Meet</h2>
+                   </div>
+                   <motion.button 
+                     whileTap={{ scale: 0.9 }}
+                     onClick={() => setShowSpeedMeet(false)}
+                     className="w-11 h-11 rounded-[1.25rem] bg-white/10 border border-white/20 flex items-center justify-center text-white"
+                   >
+                     <X className="w-5 h-5" />
+                   </motion.button>
+                </div>
+
+                <div className="space-y-6">
+                   {speedMatches.map((match, idx) => (
+                     <motion.div 
+                       key={match.user_id}
+                       initial={{ opacity: 0, x: -20 }}
+                       animate={{ opacity: 1, x: 0 }}
+                       transition={{ delay: 0.2 + (idx * 0.1) }}
+                       className="p-1 rounded-[2.5rem] bg-gradient-to-br from-white/20 to-transparent border border-white/10 group"
+                     >
+                        <div className="flex items-center gap-5 p-4 rounded-[2.25rem] bg-zinc-900/80 backdrop-blur-xl">
+                           <div className="relative w-24 h-24 rounded-[1.8rem] overflow-hidden shrink-0">
+                              <img src={match.profile_images?.[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                           </div>
+                           <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                 <h3 className="text-xl font-black text-white truncate">{match.name}</h3>
+                                 <span className="text-white/40 font-bold">{match.age}</span>
+                              </div>
+                              <div className="flex items-center gap-3 mb-3">
+                                 <div className="px-2 py-0.5 rounded-full bg-primary/20 border border-primary/30 flex items-center gap-1">
+                                    <Sparkles className="w-2.5 h-2.5 text-primary" />
+                                    <span className="text-[9px] font-black text-primary uppercase tracking-widest">{match.compatibility}%</span>
+                                 </div>
+                                 <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">{match.city}</span>
+                              </div>
+                              <motion.button 
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => {
+                                  setShowSpeedMeet(false);
+                                  setMessageDialogOpen(true);
+                                  // In a real app we'd target this specific person
+                                }}
+                                className="w-full py-3 rounded-2xl bg-white text-black font-black uppercase tracking-[0.25em] text-[9px] shadow-[0_10px_30px_rgba(255,255,255,0.2)]"
+                              >
+                                Meet Now
+                              </motion.button>
+                           </div>
+                        </div>
+                     </motion.div>
+                   ))}
+                </div>
+
+                <div className="mt-12 p-8 rounded-[2.5rem] bg-primary/10 border border-primary/20 text-center space-y-4">
+                   <Zap className="w-8 h-8 text-primary mx-auto animate-pulse" />
+                   <p className="text-[11px] font-black text-white uppercase tracking-widest leading-relaxed">
+                     Don't wait for a match.<br/>
+                     <span className="text-primary">Instant intro</span> available for $1.99
+                   </p>
+                </div>
+             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

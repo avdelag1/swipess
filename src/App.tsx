@@ -239,6 +239,12 @@ function PredictiveBundleLoader() {
         import("./pages/ClientProfileNew");
         import("./pages/ClientWorkerDiscovery");
       }
+      
+      // Secondary prefetch: Shared high-traffic routes
+      setTimeout(() => {
+        import("./pages/MessagingDashboard");
+        import("./pages/NotificationsPage");
+      }, 5000);
     };
 
     if ('requestIdleCallback' in window) {

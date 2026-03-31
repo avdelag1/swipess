@@ -117,12 +117,16 @@ export default function EventoDetail() {
   const { data: event, isLoading } = useQuery({
     queryKey: ['evento', id],
     queryFn: async () => {
-      // 🚀 SPEED OF LIGHT: Handle mock data IDs (starting with 'm') to prevent Supabase 400 errors
+      // 🚀 SPEED OF LIGHT: Handle mock data IDs (starting with 'm')
       if (id?.startsWith('m')) {
-        // Find in local state or return state data
         if (stateEventData) return stateEventData;
-        // Search through MOCK_EVENTS if we have access to them (fallback to "not found")
-        throw new Error('Mock event not found. Please navigate from the feed.');
+        
+        // Dynamic import to avoid circular dependencies or large initial bundle
+        const { MOCK_EVENTS } = await import('./EventosFeed');
+        const found = MOCK_EVENTS.find(e => e.id === id);
+        if (found) return found;
+        
+        throw new Error('Mock event not found.');
       }
 
       const { data, error } = await supabase

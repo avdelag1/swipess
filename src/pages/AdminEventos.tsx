@@ -125,16 +125,50 @@ export default function AdminEventos() {
 
   const handleApproveSubmission = async (id: string) => {
     try {
+      // 1. Get the submission data
+      const { data: sub, error: fetchErr } = await supabase
+        .from('business_promo_submissions' as any)
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (fetchErr || !sub) throw fetchErr || new Error('Submission not found');
+
+      // 2. Insert into live events table
+      const { error: insertErr } = await supabase
+        .from('events')
+        .insert({
+          title: sub.title,
+          description: sub.description,
+          category: sub.event_type || 'promo',
+          image_url: sub.image_url || null, // Submissions should have image_url
+          event_date: sub.event_date || null,
+          location: sub.location,
+          location_detail: sub.location_detail || null,
+          organizer_name: sub.contact_name,
+          organizer_whatsapp: sub.contact_phone,
+          promo_text: sub.promo_text || null,
+          is_approved: true,
+          is_published: true,
+          created_by: sub.user_id,
+        });
+
+      if (insertErr) throw insertErr;
+
+      // 3. Mark submission as approved
       const { error } = await supabase
         .from('business_promo_submissions' as any)
         .update({ status: 'approved' })
         .eq('id', id);
       
       if (error) throw error;
-      toast({ title: 'Submission approved' });
+      
+      toast({ title: 'Submission approved & Published 🎉' });
       fetchSubmissions();
-    } catch (err) {
-      toast({ title: 'Approval failed', variant: 'destructive' });
+      fetchEvents(); // Refresh events list too
+    } catch (err: any) {
+      console.error('Approval error:', err);
+      toast({ title: 'Approval failed', description: err.message, variant: 'destructive' });
     }
   };
 

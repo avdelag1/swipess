@@ -14,7 +14,7 @@
 
 import { memo, useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Share2, RotateCcw, MessageCircle, Flame, ThumbsDown } from 'lucide-react';
+import { Share2, RotateCcw, MessageCircle, Flame, ThumbsDown, Sparkles } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { AnimatedLottieIcon } from './ui/AnimatedLottieIcon';
 
@@ -24,6 +24,7 @@ interface SwipeActionButtonBarProps {
   onShare?: () => void;
   onUndo?: () => void;
   onMessage?: () => void;
+  onSpeedMeet?: () => void;
   canUndo?: boolean;
   disabled?: boolean;
   className?: string;
@@ -43,7 +44,7 @@ const GAP_CSS = 'clamp(8px, 3vw, 14px)';
 const TAP_SCALE = 0.87;
 
 // ── VARIANT CONFIGS ───────────────────────────────────────────────────────────
-type Variant = 'default' | 'like' | 'dislike' | 'amber' | 'cyan' | 'purple';
+type Variant = 'default' | 'like' | 'dislike' | 'amber' | 'cyan' | 'purple' | 'gold';
 
 interface VariantCfg {
   iconColor: string;
@@ -93,6 +94,14 @@ const VARIANTS: Record<Variant, VariantCfg> = {
     glowIntense: '0 0 32px rgba(168, 85, 247, 0.45)',
     dropShadow: '0 8px 16px -4px rgba(168, 85, 247, 0.4)',
     circleBg: 'rgba(168, 85, 247, 0.15)',
+    circleBorder: 'none',
+  },
+  gold: {
+    iconColor: '#FFD700',
+    glow: '0 0 20px rgba(255, 215, 0, 0.4)',
+    glowIntense: '0 0 40px rgba(255, 215, 0, 0.6)',
+    dropShadow: '0 12px 24px -6px rgba(255, 215, 0, 0.45)',
+    circleBg: 'rgba(255, 215, 0, 0.15)',
     circleBorder: 'none',
   },
   default: {
@@ -208,6 +217,7 @@ function SwipeActionButtonBarComponent({
   onShare,
   onUndo,
   onMessage,
+  onSpeedMeet,
   canUndo = false,
   disabled = false,
   className = '',
@@ -285,6 +295,19 @@ function SwipeActionButtonBarComponent({
             index={4}
           >
             <MessageCircle className="w-full h-full" strokeWidth={2.8} />
+          </ActionButton>
+        )}
+
+        {onSpeedMeet && (
+          <ActionButton
+            onClick={onSpeedMeet}
+            disabled={disabled}
+            size="large"
+            variant="gold"
+            ariaLabel="AI Speed Meet"
+            index={5}
+          >
+            <Sparkles className="w-full h-full" strokeWidth={2.2} />
           </ActionButton>
         )}
       </div>

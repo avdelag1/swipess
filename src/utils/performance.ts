@@ -64,7 +64,7 @@ export async function warmDiscoveryCache(queryClient: QueryClient, userId: strin
 
   // 2. Prefetch Events (Universal)
   queryClient.prefetchQuery({
-    queryKey: ['eventos'],
+    queryKey: ['eventos', 'v4'],
     queryFn: async () => {
       const { data } = await supabase
         .from('events')

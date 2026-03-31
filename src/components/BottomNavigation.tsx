@@ -342,6 +342,10 @@ export function BottomNavigation({
                   haptics.select();
                   if (item.path) prefetchRoute(item.path);
                 }}
+                onPointerEnter={() => {
+                  // HOVER PREFETCH: Gain 100-300ms before they even click
+                  if (item.path) prefetchRoute(item.path);
+                }}
                 onPointerUp={(e) => handlePointerUp(e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
                 onTouchStart={(e) => e.stopPropagation()}
