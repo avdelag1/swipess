@@ -454,8 +454,8 @@ const EventCard = memo(({
         )}
       </AnimatePresence>
 
-      {/* Bottom content — pushed lower for better visual balance */}
-      <div className="absolute inset-x-0 bottom-0 z-[2] px-4 pb-[calc(0.6rem+env(safe-area-inset-bottom,0px))]">
+      {/* Bottom content — RAISED higher per user request ('bring up the rest of the title info') */}
+      <div className="absolute inset-x-0 bottom-[12%] z-[2] px-6 pb-[calc(0.6rem+env(safe-area-inset-bottom,0px))]">
         <AnimatePresence>
           {isActive && (
             <motion.div
@@ -1068,11 +1068,12 @@ export default function EventosFeed() {
       isLight ? "bg-white" : "bg-black"
     )}>
 
-      {/* ── TOP HUD ── Adjusted to sit clearly below standard PWA bars and logo */}
-      <div className="absolute top-0 left-0 right-0 z-[100] pt-[calc(env(safe-area-inset-top,0px)+32px)] overflow-visible">
-        {/* Back button + title + promote — Higher padding to clear 'S' Logo */}
-        <motion.div 
-          className="flex items-center gap-3 px-6 pt-16 pb-4"
+      {/* ── TOP HUD ── HIDDEN PER USER REQUEST FOR IMMERSIVE FEEL ── */}
+      {false && (
+        <div className="absolute top-0 left-0 right-0 z-[100] pt-[calc(env(safe-area-inset-top,0px)+32px)] overflow-visible">
+          {/* Back button + title + promote — Higher padding to clear 'S' Logo */}
+          <motion.div 
+            className="flex items-center gap-3 px-6 pt-16 pb-4"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
@@ -1202,6 +1203,7 @@ export default function EventosFeed() {
           ))}
         </div>
       </div>
+    )}
 
       {/* ── VERTICAL SNAP SCROLL FEED (Virtualized) ── */}
       <div
@@ -1310,7 +1312,7 @@ export default function EventosFeed() {
       {/* ── SHARE OVERLAY ── */}
       {showShareModal && shareEventData && (
         <ShareModal
-          event={shareEventData}
+          event={shareEventData as any}
           open={showShareModal}
           onClose={() => setShowShareModal(false)}
         />

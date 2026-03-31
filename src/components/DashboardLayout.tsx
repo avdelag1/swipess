@@ -624,8 +624,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
                           location.pathname !== '/explore/eventos/likes'; // Likes should have the regular header padding
     
     // User wants header gone from Events to avoid interference
-    // SHOW global TopBar per user request for back navigation consistency
-    const isEventsMain = false; 
+    const isEventsMain = (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/');
 
     // Rare sub-pages that manage their own navigation/back behavior
     const isSpecialSubPage = [
