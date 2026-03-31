@@ -19,7 +19,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
 import type { EffectMode } from './LandingBackgroundEffects';
 
 // Lazy-load heavy deps that aren't needed for first paint
@@ -193,7 +192,7 @@ const LandingView = memo(({
         className="absolute bottom-8 right-8 flex flex-col items-center gap-2 pointer-events-none opacity-40"
       >
         <span className={cn("text-[9px] font-black uppercase tracking-[0.3em]", isDark ? "text-white" : "text-black")}>
-          The Sentient Network
+          Your Local Jarvis
         </span>
         <motion.div
           animate={{ y: [0, 5, 0] }}
@@ -338,11 +337,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 <SwipessLogo size="md" className="scale-125" />
               </div>
               <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand mb-1">
-                {isLogin ? 'Resonate with Tulum' : 'The Clean Connect'}
+                {isLogin ? 'Your Lifestyle AI' : 'The Clean Connect'}
               </h1>
               <p className="text-muted-foreground text-sm font-medium leading-relaxed px-4">
                 {isLogin
-                  ? 'Access properties, scooters, and legal experts directly. No commission. All AI.'
+                  ? 'Access properties, vehicles, and legal experts directly. No commission. All AI.'
                   : 'The only local network you need. Direct to owner. Sentient by design.'}
               </p>
               {!isLogin && (
