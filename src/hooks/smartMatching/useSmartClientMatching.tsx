@@ -75,7 +75,8 @@ export function useSmartClientMatching(
                 if (swipedProfileIds.size > 0) {
                     const idList = Array.from(swipedProfileIds)
                         .filter(id => id && typeof id === 'string' && id.length > 30)
-                        .map(id => id.trim());
+                        .map(id => id.trim())
+                        .slice(0, 150); // URL SAFETY: Prevent 400 Bad Request
                     if (idList.length > 0) {
                         query = query.not('user_id', 'in', `(${idList.join(',')})`);
                     }
@@ -86,7 +87,8 @@ export function useSmartClientMatching(
 
                 const validSwipedList = Array.from(swipedProfileIds)
                     .filter(id => id && typeof id === 'string' && id.length > 30)
-                    .map(id => id.trim());
+                    .map(id => id.trim())
+                    .slice(0, 150); // URL SAFETY: Prevent 400
                 
                 const swipeInClause = validSwipedList.length > 0 
                   ? `(${validSwipedList.join(',')})` 

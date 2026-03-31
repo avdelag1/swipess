@@ -82,7 +82,9 @@ export function useSmartListingMatching(
                 if (swipedListingIds.size > 0) {
                     const idList = Array.from(swipedListingIds)
                         .filter(id => id && typeof id === 'string' && id.length > 30) // UUID check
-                        .map(id => id.trim());
+                        .map(id => id.trim())
+                        .slice(0, 150); // URL SAFETY: Only exclude most recent 150 to avoid 400 Bad Request
+                    
                     if (idList.length > 0) {
                         // Use explicit filter with manual parentheses to ensure PostgREST compliance
                         query = query.filter('id', 'not.in', `(${idList.join(',')})`);
@@ -119,7 +121,8 @@ export function useSmartListingMatching(
                 // 5. Discovery Injection (Array Filter Fallback)
                 const discoveryExcludedIds = Array.from(swipedListingIds)
                     .filter(id => id && id.length > 30)
-                    .map(id => id.trim());
+                    .map(id => id.trim())
+                    .slice(0, 150); // URL SAFETY: Prevent 400
                 
                 const discoveryList = discoveryExcludedIds.length > 0 
                   ? `(${discoveryExcludedIds.join(',')})` 

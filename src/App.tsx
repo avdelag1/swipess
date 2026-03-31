@@ -1,5 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from "react";
-import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
+import { QueryClient, QueryCache } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createIDBPersister } from "@/lib/persister";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
@@ -165,7 +167,7 @@ const queryClient = new QueryClient({
       refetchOnMount: true,        // Only refetch if data is stale (respects staleTime)
       refetchOnReconnect: true,
       staleTime: 5 * 60 * 1000, // 5 minutes - reduce unnecessary refetches
-      gcTime: 15 * 60 * 1000, // 15 minutes
+      gcTime: 1000 * 60 * 60 * 24, // 24 hours - keep data in cache for a long time
       networkMode: 'offlineFirst', // Better offline support
     },
     mutations: {
@@ -174,6 +176,8 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+const persister = createIDBPersister();
 
 function NotificationWrapper({ children }: { children: React.ReactNode }) {
   useNotifications();
@@ -249,7 +253,10 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
   return (
     <GlobalErrorBoundary>
       <ConnectionGuard>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider 
+         client={queryClient} 
+         persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }} // 24H data retention
+      >
         {SpeedInsightsComponent && <SpeedInsightsComponent />}
         <BrowserRouter
           future={{
@@ -414,7 +421,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             </AuthProvider>
           </ErrorBoundary>
         </BrowserRouter>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
       </ConnectionGuard>
     </GlobalErrorBoundary>
   );

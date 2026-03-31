@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
+import { predictivePrefetchEvent, predictivePrefetchCategory } from '@/utils/performance';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -998,6 +999,11 @@ export default function EventosFeed() {
     setShowShareModal(true);
   }, []);
 
+  // 🚀 SPEED OF LIGHT: Manual prefetch trigger for "Intent"
+  const prefetchEvent = useCallback((id: string) => {
+    predictivePrefetchEvent(queryClient, id);
+  }, [queryClient]);
+
   const handleMiddleTap = useCallback((event: EventItem) => {
     triggerHaptic('light');
     navigate(`/explore/eventos/${event.id}`, { state: { eventData: event } });
@@ -1124,6 +1130,8 @@ export default function EventosFeed() {
                 title={`Filter by ${cat.label}`}
                 aria-label={`Filter events by ${cat.label}`}
                 onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
+                onMouseEnter={() => predictivePrefetchCategory(queryClient, cat.key)}
+                onTouchStart={() => predictivePrefetchCategory(queryClient, cat.key)}
                 className="flex items-center gap-2 px-4 h-9 rounded-full shrink-0 text-[11px] font-black uppercase tracking-[0.1em] transition-all active:scale-90"
                 style={{
                   background: active 

@@ -145,7 +145,12 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
 
         // Exclude swiped properties - use array directly for parameterized query
         if (excludeSwipedIds.length > 0) {
-          query = query.not('id', 'in', `(${excludeSwipedIds.join(',')})`);
+          const safeIds = excludeSwipedIds
+            .filter(id => id && id.length > 30)
+            .slice(0, 150); // URL SAFETY: Max 150 IDs to prevent 400 error
+          if (safeIds.length > 0) {
+            query = query.not('id', 'in', `(${safeIds.join(',')})`);
+          }
         }
 
         query = query.limit(20);

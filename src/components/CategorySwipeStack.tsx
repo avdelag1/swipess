@@ -7,6 +7,8 @@ import { haptics } from '@/utils/microPolish';
 import { QuickFilterCategory } from '@/types/filters';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useTheme } from '@/hooks/useTheme';
+import { useQueryClient } from '@tanstack/react-query';
+import { predictivePrefetchCategory } from '@/utils/performance';
 
 const CATEGORIES: { id: QuickFilterCategory | 'eventos' | null; label: string; icon: any; color: string; description: string; image: string }[] = [
     { id: 'property', label: 'Property', icon: Home, color: 'from-rose-500 to-rose-400', description: 'Find your next home', image: '/images/filters/property.png' },
@@ -21,6 +23,7 @@ export function CategorySwipeStack() {
     const [stack, setStack] = useState(CATEGORIES);
     const activeCategory = useFilterStore(s => s.activeCategory);
     const { setActiveCategory } = useFilterActions();
+    const queryClient = useQueryClient();
     const navigate = React.useMemo(() => {
         // Need to import or pass navigate? No, use the function from rrd if needed
         return (path: string) => window.history.pushState(null, '', path);
@@ -98,6 +101,7 @@ export function CategorySwipeStack() {
                                 haptics.success();
                                 window.location.href = '/explore/eventos'; // Fast and reliable
                             }}
+                            queryClient={queryClient}
                         />
                     );
                 }).reverse()}
@@ -129,10 +133,11 @@ interface CategoryCardProps {
     onSwipeLeft: () => void;
     onSwipeUp: () => void;
     onSelect: () => void;
+    queryClient?: any;
 }
 
 function CategoryCard({
-    category, isTop, index, itemCount: _itemCount, isActive, isDark: _isDark, onSwipeRight, onSwipeLeft, onSwipeUp, onSelect
+    category, isTop, index, itemCount: _itemCount, isActive, isDark: _isDark, onSwipeRight, onSwipeLeft, onSwipeUp, onSelect, queryClient
 }: CategoryCardProps) {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
@@ -208,6 +213,8 @@ function CategoryCard({
                 scale: scale * 1.05,
                 transition: { duration: 0.2, ease: "easeOut" } 
             } : {}}
+            onMouseEnter={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, category.id)}
+            onTouchStart={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, category.id)}
             exit={{ 
                 x: x.get() > 0 ? 500 : -500, 
                 rotate: x.get() > 0 ? 15 : -15, 

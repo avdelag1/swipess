@@ -16,6 +16,7 @@ import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
 import { cn } from '@/lib/utils'
 import type { QuickFilterCategory } from '@/types/filters'
 import { useQueryClient } from '@tanstack/react-query'
+import { warmDiscoveryCache } from '@/utils/performance'
 
 // New Mobile Navigation Components
 import { TopBar } from '@/components/TopBar'
@@ -226,7 +227,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (!userId) return;
     
     const prefetch = () => {
-      // 1. DATA PREFETCH
+      // 0. AGGRESSIVE DISCOVERY DATA WARMING (High-Priority)
+      warmDiscoveryCache(queryClient, userId, userRole as 'client' | 'owner');
+
+      // 1. DATA PREFETCH (Secondary)
       queryClient.prefetchQuery({
         queryKey: ['liked-properties'],
         queryFn: async () => {
@@ -248,9 +252,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       // 2. COMPONENT PREFETCH
       const componentsToPreload = [
         () => import("@/components/SubscriptionPackages"),
-        () => import("@/components/NotificationsDialog"),
         () => import("@/components/AISearchDialog"),
         () => import("@/components/PropertyDetails"),
+        () => import("@/components/CategorySwipeStack"),
+        () => import("@/pages/EventosFeed"),
+        () => import("@/pages/MessagingDashboard"),
+        () => import("@/pages/ClientLikedProperties"),
         userRole === 'owner' ? () => import("@/components/OwnerClientSwipeDialog") : null,
         userRole === 'client' ? () => import("@/components/ClientProfileDialog") : null,
       ].filter(Boolean) as (() => Promise<any>)[];
