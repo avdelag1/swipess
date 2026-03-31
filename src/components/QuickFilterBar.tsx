@@ -357,54 +357,59 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
 
   const _allSelectedShadow = '0 4px 20px rgba(236,72,153,0.55)';
 
-  // Category preview photos for breathing effect (from mock data + curated)
+  // Category preview photos for breathing effect (using high-end assets)
   const categoryPhotos: Record<string, string> = {
-    property:   '/images/properties/property_1.png',
-    motorcycle: '/images/motorcycles/vespa_1.png',
-    bicycle:    '/images/beach-sunset.jpg',
-    services:   '/images/properties/property_2.png',
+    property:   '/images/filters/property.png',
+    motorcycle: '/images/filters/scooter.png',
+    bicycle:    '/images/filters/bicycle.png',
+    services:   '/images/filters/workers.png',
   };
-  const _allPhoto = '/images/beach-sunset.jpg';
 
   return (
     <div
       data-no-swipe-nav
       className={cn(
         isDark ? 'bg-background/60' : 'bg-white/85',
-        'backdrop-blur-xl border-b border-border px-3 pt-2 pb-1',
+        'backdrop-blur-xl border-b border-border px-3 pt-2 pb-3',
         className
       )}
     >
       <div className="max-w-screen-xl mx-auto">
-        {/* Main filter row — compact ALL pill first, large photo cards at end */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1 stagger-enter">
-          {/* ALL button — compact pill */}
+        {/* Main filter cards — horizontal scroll */}
+        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 stagger-enter">
+          {/* ALL card */}
           <button
             onClick={() => {
               saveQuickFilter([]);
               onChange({ ...filters, categories: [], listingType: 'both' });
             }}
-            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 rounded-full text-sm font-black tracking-wide flex-shrink-0 h-9')}
-            style={clientIsAllSelected ? {
-              background: 'linear-gradient(135deg, #f97316 0%, #ec4899 55%, #8b5cf6 100%)',
-              color: '#fff',
-              border: 'none',
-              boxShadow: '0 4px 14px rgba(249,115,22,0.45)',
-            } : {
-              background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-              border: isDark ? '1.5px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(0,0,0,0.10)',
-              color: isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)',
-            }}
+            className={cn(
+              smoothButtonClass, 
+              'relative flex-shrink-0 w-28 h-36 rounded-[2rem] overflow-hidden border-2 transition-all duration-500 group',
+              clientIsAllSelected ? 'border-orange-500 scale-[1.02] shadow-xl' : 'border-border/40 scale-100 opacity-80'
+            )}
           >
-            <Globe className="w-4 h-4" />
-            <span>ALL</span>
-            {clientIsAllSelected && <Check className="w-3.5 h-3.5 ml-0.5" />}
+            <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
+            <img 
+              src="/images/filters/property.png" 
+              className="absolute inset-0 w-full h-full object-cover breathing-zoom" 
+              alt="All"
+            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
+              <Globe className={cn("w-7 h-7 mb-1 transition-transform duration-500", clientIsAllSelected && "scale-110")} />
+              <span className="text-[10px] font-black uppercase tracking-widest">Global</span>
+              <span className="text-xl font-black">ALL</span>
+            </div>
+            {clientIsAllSelected && (
+              <div className="absolute top-2 right-2 z-30 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
+                <Check className="w-3 h-3 text-white" />
+              </div>
+            )}
           </button>
 
-          {/* Category chips — compact pills */}
           {categories.map((category) => {
             const isActive = filters.categories.includes(category.id);
-            const accent = categoryColors[category.id];
+            const photo = categoryPhotos[category.id];
             
             return (
               <button
@@ -412,26 +417,39 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 onClick={() => handleCategorySelect(category.id)}
                 className={cn(
                   smoothButtonClass, 
-                  'flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold flex-shrink-0 h-9 transition-all duration-300 border-2',
-                  isActive ? `filter-pill-active--${category.id}` : 'filter-pill-inactive'
+                  'relative flex-shrink-0 w-28 h-36 rounded-[2rem] overflow-hidden border-2 transition-all duration-500 group',
+                  isActive ? 'border-orange-500 scale-[1.02] shadow-xl' : 'border-border/40 scale-100 opacity-80'
                 )}
               >
-                <span className="flex items-center transition-colors">
-                  {category.icon}
-                </span>
-                <span className="transition-colors">{category.label}</span>
-                {isActive && <Check className="w-3 h-3 ml-0.5" />}
+                <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
+                <img 
+                  src={photo} 
+                  className="absolute inset-0 w-full h-full object-cover breathing-zoom" 
+                  alt={category.label}
+                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
+                  <div className={cn("mb-1 transition-transform duration-500", isActive && "scale-110")}>
+                    {category.icon}
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-widest">Filter</span>
+                  <span className="text-sm font-black whitespace-nowrap">{category.label}</span>
+                </div>
+                {isActive && (
+                  <div className="absolute top-2 right-2 z-30 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
+                    <Check className="w-3 h-3 text-white" />
+                  </div>
+                )}
               </button>
             );
           })}
         </div>
 
-        {/* Dynamic section title */}
-        <div className="px-1 pb-1 pt-0.5">
+        {/* Status indicator */}
+        <div className="px-1 pt-1">
           <p className={cn(
               'font-black transition-all duration-500 bg-clip-text text-transparent bg-gradient-to-r',
               clientIsAllSelected 
-                ? 'from-orange-500 via-pink-500 to-rose-500 text-sm' 
+                ? 'from-orange-500 via-pink-500 to-rose-500 text-[10px] uppercase tracking-widest' 
                 : 'from-muted-foreground/60 to-foreground text-[10px] uppercase tracking-widest opacity-90'
             )}
           >

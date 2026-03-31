@@ -10,14 +10,17 @@ interface SwipeNavConfig {
   velocityThreshold?: number;
   /** CSS selector for the scrollable container to attach listeners to */
   containerSelector?: string;
+  onSwipeUp?: () => void;
   enabled?: boolean;
 }
 
 /**
  * Enables horizontal swipe gestures to navigate between adjacent bottom-nav pages.
+ * Also supports vertical swipe up for special routes (e.g. Events).
  *
  * Constraints:
- *  - Horizontal distance must exceed vertical distance (prevents scroll hijack)
+ *  - Horizontal distance must exceed vertical distance for lateral nav
+ *  - Vertical swipe up specifically detected for onSwipeUp callback
  *  - Elements with `data-no-swipe-nav` attribute (or children thereof) are excluded
  *  - Respects both distance and velocity thresholds
  */
@@ -26,6 +29,7 @@ export function useSwipeNavigation({
   threshold = 80,
   velocityThreshold = 600,
   containerSelector = '#dashboard-scroll-container',
+  onSwipeUp,
   enabled = true,
 }: SwipeNavConfig) {
   const navigate = useNavigate();
@@ -48,7 +52,6 @@ export function useSwipeNavigation({
   const handleTouchEnd = useCallback(
     (e: TouchEvent) => {
       if (!touchRef.current || navigatedRef.current) return;
-      if (currentIndex === -1) return; // current page not in nav list
 
       const touch = e.changedTouches[0];
       const dx = touch.clientX - touchRef.current.x;
@@ -58,6 +61,19 @@ export function useSwipeNavigation({
       const absDx = Math.abs(dx);
       const absDy = Math.abs(dy);
 
+      // 1. Detect Vertical Swipe Up First (higher priority for dashboard)
+      if (dy < -threshold && absDy > absDx * 1.5) {
+        if (onSwipeUp) {
+          navigatedRef.current = true;
+          onSwipeUp();
+          touchRef.current = null;
+          return;
+        }
+      }
+
+      if (currentIndex === -1) return; // current page not in lateral nav list
+
+      // 2. Detect Horizontal Swipe
       // Must be more horizontal than vertical
       if (absDy >= absDx) return;
 
@@ -82,7 +98,7 @@ export function useSwipeNavigation({
 
       touchRef.current = null;
     },
-    [currentIndex, paths, threshold, velocityThreshold, navigate],
+    [currentIndex, paths, threshold, velocityThreshold, navigate, onSwipeUp],
   );
 
   useEffect(() => {

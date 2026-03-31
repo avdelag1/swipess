@@ -14,14 +14,10 @@ interface ProtectedRouteProps {
 function ProtectedRouteLoadingSkeleton() {
   return (
     <div
-      className="min-h-screen min-h-dvh w-full bg-background flex flex-col"
-      style={{
-        paddingTop: 'calc(52px + var(--safe-top, 0px))',
-        paddingBottom: 'calc(68px + var(--safe-bottom, 0px))',
-      }}
+      className="min-h-screen min-h-dvh w-full bg-background flex flex-col layout-padding-top layout-padding-bottom"
     >
       {/* Top bar skeleton */}
-      <div className="fixed top-0 left-0 right-0 h-[52px] bg-background border-b border-border/50 flex items-center justify-between px-4 z-50" style={{ paddingTop: 'var(--safe-top, 0px)' }}>
+      <div className="fixed top-0 left-0 right-0 h-[52px] bg-background border-b border-border/50 flex items-center justify-between px-4 z-50 safe-header-padding">
         <Skeleton className="h-8 w-24 rounded-lg" />
         <div className="flex gap-2">
           <Skeleton className="h-9 w-9 rounded-full" />
@@ -62,7 +58,7 @@ function ProtectedRouteLoadingSkeleton() {
       </div>
 
       {/* Bottom nav skeleton */}
-      <div className="fixed bottom-0 left-0 right-0 h-[68px] bg-background border-t border-border/50 flex items-center justify-around px-4" style={{ paddingBottom: 'var(--safe-bottom, 0px)' }}>
+      <div className="fixed bottom-0 left-0 right-0 h-[68px] bg-background border-t border-border/50 flex items-center justify-around px-4 safe-footer-padding">
         {[1, 2, 3, 4, 5].map((i) => (
           <Skeleton key={`nav-${i}`} className="h-10 w-10 rounded-xl" />
         ))}
@@ -125,12 +121,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }, [user?.id]);
 
   // SPEED OF LIGHT: If we've shown content before, keep showing children
-  // This prevents flicker during token refresh or re-renders
-  if (hasShownContent && user) {
+  // This prevents flicker during token refresh or transient auth state changes
+  if (hasShownContent) {
     return <>{children}</>;
   }
 
-  // Show skeleton while auth is loading - prevents flash
+  // Show skeleton while auth is loading - prevents initial flash
   if (loading) return <ProtectedRouteLoadingSkeleton />;
 
   // Not logged in: show skeleton briefly (effect will redirect)

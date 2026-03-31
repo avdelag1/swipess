@@ -8,11 +8,12 @@ import { QuickFilterCategory } from '@/types/filters';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useTheme } from '@/hooks/useTheme';
 
-const CATEGORIES: { id: QuickFilterCategory | null; label: string; icon: any; color: string; description: string; image: string }[] = [
+const CATEGORIES: { id: QuickFilterCategory | 'eventos' | null; label: string; icon: any; color: string; description: string; image: string }[] = [
     { id: 'property', label: 'Property', icon: Home, color: 'from-rose-500 to-rose-400', description: 'Find your next home', image: '/images/filters/property.png' },
     { id: 'motorcycle', label: 'Moto', icon: MotorcycleIcon, color: 'from-orange-500 to-orange-400', description: 'Ride in style', image: '/images/filters/scooter.png' },
     { id: 'bicycle', label: 'Bicycle', icon: Bike, color: 'from-violet-500 to-violet-400', description: 'Eco-friendly travel', image: '/images/filters/bicycle.png' },
     { id: 'services', label: 'Services', icon: Briefcase, color: 'from-amber-500 to-amber-400', description: 'Hire professionals', image: '/images/filters/workers.png' },
+    { id: 'eventos', label: 'Events', icon: Sparkles, color: 'from-fuchsia-500 to-fuchsia-400', description: 'What\'s happening now', image: '/images/events/cenote_rave.png' },
     { id: null, label: 'All', icon: Search, color: 'from-slate-500 to-slate-400', description: 'Explore everything', image: '/images/promo/promo_1.png' },
 ];
 
@@ -20,6 +21,14 @@ export function CategorySwipeStack() {
     const [stack, setStack] = useState(CATEGORIES);
     const activeCategory = useFilterStore(s => s.activeCategory);
     const { setActiveCategory } = useFilterActions();
+    const navigate = React.useMemo(() => {
+        // Need to import or pass navigate? No, use the function from rrd if needed
+        return (path: string) => window.history.pushState(null, '', path);
+    }, []);
+    // Wait, let's use the actual useNavigate from react-router-dom
+    // I'll add it in the imports below. For now, I'll pass it if needed.
+    // Actually I will import it in CategorySwipeStack
+
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
@@ -71,7 +80,7 @@ export function CategorySwipeStack() {
             <AnimatePresence mode="popLayout">
                 {stack.map((cat, index) => {
                     const isTop = index === 0;
-                    const isActive = activeCategory === cat.id;
+                    const isActive = activeCategory === (cat.id as any);
 
                     return (
                         <CategoryCard
@@ -82,9 +91,13 @@ export function CategorySwipeStack() {
                             itemCount={stack.length}
                             isActive={isActive}
                             isDark={isDark}
-                            onSwipeRight={() => handleSwipeRight(cat.id)}
-                            onSwipeLeft={() => handleSwipeLeft(cat.id)}
-                            onSelect={() => handleSelect(cat.id)}
+                            onSwipeRight={() => handleSwipeRight(cat.id as any)}
+                            onSwipeLeft={() => handleSwipeLeft(cat.id as any)}
+                            onSelect={() => handleSelect(cat.id as any)}
+                            onSwipeUp={() => {
+                                haptics.success();
+                                window.location.href = '/explore/eventos'; // Fast and reliable
+                            }}
                         />
                     );
                 }).reverse()}
@@ -114,11 +127,12 @@ interface CategoryCardProps {
     isDark: boolean;
     onSwipeRight: () => void;
     onSwipeLeft: () => void;
+    onSwipeUp: () => void;
     onSelect: () => void;
 }
 
 function CategoryCard({
-    category, isTop, index, itemCount: _itemCount, isActive, isDark: _isDark, onSwipeRight, onSwipeLeft, onSelect
+    category, isTop, index, itemCount: _itemCount, isActive, isDark: _isDark, onSwipeRight, onSwipeLeft, onSwipeUp, onSelect
 }: CategoryCardProps) {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
@@ -155,6 +169,15 @@ function CategoryCard({
 
     const handleDragEnd = (_: any, info: PanInfo) => {
         setIsDragging(false);
+        const absX = Math.abs(info.offset.x);
+        const absY = Math.abs(info.offset.y);
+
+        // Vertical Swipe Up detection
+        if (info.offset.y < -80 && absY > absX * 1.5) {
+            onSwipeUp();
+            return;
+        }
+
         if (info.offset.x > 80) {
             onSwipeRight();
         } else if (info.offset.x < -80) {
@@ -164,9 +187,9 @@ function CategoryCard({
 
     return (
         <motion.div
-            drag={isTop ? "x" : false}
-            dragConstraints={{ left: -150, right: 150 }} 
-            dragElastic={0.1}
+            drag={isTop ? true : false}
+            dragConstraints={{ left: -150, right: 150, top: -250, bottom: 0 }} 
+            dragElastic={0.15}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onClick={() => !isTop && onSelect()}

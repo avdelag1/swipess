@@ -11,8 +11,8 @@ import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
 import { logger } from '@/utils/prodLogger'
 import { useFilterStore } from '@/state/filterStore'
 import { useShallow } from 'zustand/react/shallow'
+import { useTheme } from '@/hooks/useTheme'
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
-
 import { cn } from '@/lib/utils'
 import type { QuickFilterCategory } from '@/types/filters'
 import { useQueryClient } from '@tanstack/react-query'
@@ -112,6 +112,8 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark' || theme === 'cheers'
   const [showSubscriptionPackages, setShowSubscriptionPackages] = useState(false)
 
   const [_showPreferences, _setShowPreferences] = useState(false)
@@ -138,9 +140,35 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showSavedSearches, setShowSavedSearches] = useState(false)
   const [showMessageActivations, setShowMessageActivations] = useState(false)
 
+  const { navigate } = useAppNavigate();
+  const location = useLocation()
+  const { user } = useAuth()
+  const { restoreDrafts } = useAnonymousDrafts()
+  const responsive = useResponsiveContext()
   const [isAISearchOpen, setIsAISearchOpen] = useState(false);
 
+  const { categories, listingType: _listingType, clientGender: _clientGender, clientType: _clientType } = useFilterStore(
+    useShallow((state) => ({
+      categories: state.categories,
+      listingType: state.listingType,
+      clientGender: state.clientGender,
+      clientType: state.clientType,
+    }))
+  );
+
   const [appliedFilters, setAppliedFilters] = useState<Record<string, unknown> | null>(null);
+
+  // Swipe up to events from any main dashboard page
+  const handleSwipeUp = useCallback(() => {
+    navigate('/explore/eventos');
+  }, [navigate]);
+
+  useSwipeNavigation({
+    paths: userRole === 'owner' 
+      ? ['/owner/dashboard', '/messages', '/radio', '/owner/profile', '/owner/settings'] 
+      : ['/client/dashboard', '/messages', '/radio', '/client/profile', '/client/settings'],
+    onSwipeUp: handleSwipeUp
+  });
 
   // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects (throttled to ~30fps)
   // PERF: Disabled on PWA/touch devices to save CPU and battery
@@ -164,21 +192,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
-
-  const { categories, listingType: _listingType, clientGender: _clientGender, clientType: _clientType } = useFilterStore(
-    useShallow((state) => ({
-      categories: state.categories,
-      listingType: state.listingType,
-      clientGender: state.clientGender,
-      clientType: state.clientType,
-    }))
-  );
-
-  const { navigate } = useAppNavigate();
-  const location = useLocation()
-  const { user } = useAuth()
-  const { restoreDrafts } = useAnonymousDrafts()
-  const responsive = useResponsiveContext()
 
   // PERF: Extract stable userId to prevent re-renders when user object reference changes
   // User object may get new reference on token refresh, but ID stays the same
@@ -616,7 +629,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
                           location.pathname !== '/explore/eventos/likes'; // Likes should have the regular header padding
     
     // User wants header gone from Events to avoid interference
-    const isEventsMain = location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/';
+    // SHOW global TopBar per user request for back navigation consistency
+    const isEventsMain = false; 
 
     // Rare sub-pages that manage their own navigation/back behavior
     const isSpecialSubPage = [
@@ -652,7 +666,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const bottomNavHeight = responsive.isMobile ? 68 : 72;
 
   return (
-    <div className="app-root min-h-screen min-h-dvh overflow-hidden relative" style={{ width: '100%', maxWidth: '100vw' }}>
+    <div className={cn(
+      "app-root min-h-screen min-h-dvh overflow-hidden relative",
+      isDark ? "dark dark-matte" : "light white-matte"
+    )} style={{ width: '100%', maxWidth: '100vw' }}>
 
       {/* Speed of Light Global Loading Bar */}
       <LoadingBar />

@@ -1,7 +1,7 @@
 {
-  "name": "Swipess: Elite Discovery",
-  "short_name": "Swipess",
-  "description": "Elite Multi-Vertical Marketplace: Discovery & Connection.",
+  "name": "Local Jarvis",
+  "short_name": "Local Jarvis",
+  "description": "Your Personal Elite Discovery & Connection Concierge.",
   "start_url": "/?pwa=true",
   "scope": "/",
   "display": "standalone",

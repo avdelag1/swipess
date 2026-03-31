@@ -33,7 +33,7 @@ interface EventDetail {
 
 /**
  * BRAND ADVERTISING COMPONENT
- * Shows benefits for brands to advertise in Swipess.
+ * Shows benefits for brands to advertise in Local Jarvis.
  */
 function BrandBenefitsSection() {
   const { navigate } = useAppNavigate();
@@ -192,7 +192,7 @@ export default function EventoDetail() {
     if (navigator.share && event) {
       await navigator.share({
         title: event.title,
-        text: `Check out ${event.title} on Swipess!`,
+        text: `Check out ${event.title} on Local Jarvis!`,
         url: window.location.href,
       }).catch(() => {});
     } else {
@@ -205,7 +205,7 @@ export default function EventoDetail() {
     triggerHaptic('medium');
     if (!event?.organizer_whatsapp) return;
     const phone = event.organizer_whatsapp.replace(/\D/g, '');
-    const message = encodeURIComponent(`Hola, vi tu evento "${event.title}" en Swipess 🔥`);
+    const message = encodeURIComponent(`Hola, vi tu evento "${event.title}" en Local Jarvis 🔥`);
     window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
   };
 

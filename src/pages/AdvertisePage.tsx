@@ -429,7 +429,7 @@ export default function AdvertisePage() {
             style={{ color: th.text }}
           >
             Promote{" "}
-            <span style={{ background: "linear-gradient(135deg,#f97316,#fb923c,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            <span className="brand-gradient-text">
               Your Brand
             </span>{" "}
             in Tulum

@@ -72,7 +72,7 @@ const MOCK_EVENTS: EventItem[] = [
   },
   {
     id: 'm4', title: 'Reiki & Energy Healing', category: 'beach',
-    image_url: '/images/events/yoga_sound.png',
+    image_url: '/images/events/gallery_night.png',
     description: 'Private and group reiki sessions in an open-air jungle setting. Release blockages, restore balance, and leave feeling renewed.',
     event_date: '2026-04-08T10:00:00', location: 'Holistika, Tulum', location_detail: 'Healing Hut',
     organizer_name: 'Tulum Wellness', organizer_whatsapp: '+529841119900', promo_text: 'Private & group sessions', discount_tag: null, is_free: false, price_text: '$550 MXN',
@@ -86,7 +86,7 @@ const MOCK_EVENTS: EventItem[] = [
   },
   {
     id: 'm6', title: 'Seafood & Bubbles Promo', category: 'promo',
-    image_url: '/images/events/food_market.png',
+    image_url: '/images/events/sunset_session.png',
     description: 'Celebrate with fresh calamari, oysters, and champagne by the sea. Special prix-fixe menu every evening until midnight.',
     event_date: '2026-04-10T20:00:00', location: 'Zona Hotelera, Tulum', location_detail: 'El Arco Bar',
     organizer_name: 'El Arco', organizer_whatsapp: '+529845556644', promo_text: 'Prix-fixe menu', discount_tag: '20% OFF', is_free: false, price_text: 'From $350 MXN',
@@ -186,7 +186,7 @@ function openWhatsApp(phone: string | null, eventTitle: string) {
     return;
   }
   const clean = phone.replace(/[^+\d]/g, '');
-  const msg = encodeURIComponent(`Hi! I'm interested in "${eventTitle}" — I found it on SwipesS 🎉`);
+  const msg = encodeURIComponent(`Hi! I'm interested in "${eventTitle}" — I found it on Local Jarvis 🎉`);
   window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
 }
 
@@ -209,7 +209,7 @@ function ShareModal({
       try {
         await navigator.share({
           title: event.title,
-          text: `Check out ${event.title} in Tulum! Sign up on SwipesS to get connected 🎉`,
+          text: `Check out ${event.title} in Tulum! Sign up on Local Jarvis to get connected 🎉`,
           url: url
         });
         onClose();
@@ -247,7 +247,7 @@ function ShareModal({
           >
             <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-8" />
             <div className="w-20 h-20 rounded-[2rem] mx-auto mb-4 overflow-hidden shadow-2xl">
-              <img src={event.image_url || ''} className="w-full h-full object-cover" alt="" />
+              <img src={event.image_url || ''} className="w-full h-full object-cover breathing-zoom" alt="" />
             </div>
             <h3 className="text-xl font-black text-white mb-2">Share this Event</h3>
             <p className="text-white/50 text-sm mb-8">Invite friends — they'll need to sign up to see the full event.</p>
@@ -637,7 +637,7 @@ function EventCard({
           >
             <div className="relative h-[45dvh]">
               {event.image_url && (
-                <img src={event.image_url} className={cn("w-full h-full object-cover", isLight ? "opacity-30" : "opacity-60")} alt="" />
+                <img src={event.image_url} className={cn("w-full h-full object-cover breathing-zoom", isLight ? "opacity-30" : "opacity-60")} alt="" />
               )}
               <div className={cn(
                 "absolute inset-0",

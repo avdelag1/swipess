@@ -222,10 +222,46 @@ body {
 }
 
 @keyframes breathing-zoom {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0% { transform: scale(1); filter: brightness(1) contrast(1); }
+  100% { transform: scale(1.18); filter: brightness(1.08) contrast(1.05); }
 }
 
 .breathing-zoom {
-  animation: breathing-zoom 8s ease-in-out infinite alternate;
+  animation: breathing-zoom 12s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite alternate;
+  will-change: transform, filter;
+  transform-gpu: translateZ(0);
+}
+
+.dark-matte {
+  background-color: #0A0A0B !important;
+  color: #FFFFFF !important;
+}
+
+.white-matte {
+  background-color: #F8F9FA !important;
+  color: #000000 !important;
+}
+
+/* ─── Layout Utils (Safe Areas) ─── */
+.layout-padding-top {
+  padding-top: calc(52px + var(--safe-top, 0px));
+}
+
+.layout-padding-bottom {
+  padding-bottom: calc(68px + var(--safe-bottom, 0px));
+}
+
+.safe-header-padding {
+  padding-top: var(--safe-top, 0px);
+}
+
+.safe-footer-padding {
+  padding-bottom: var(--safe-bottom, 0px);
+}
+
+.brand-gradient-text {
+  background: linear-gradient(135deg, #f97316, #fb923c, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }

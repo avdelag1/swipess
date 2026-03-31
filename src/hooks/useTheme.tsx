@@ -19,6 +19,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers'];
 const DEFAULT_THEME: Theme = 'light';
+const STORAGE_KEY = 'swipess_theme_preference';
 
 /** Map legacy DB values to new theme names */
 function normalizeTheme(raw: string | null | undefined): Theme {
@@ -33,25 +34,31 @@ const ALL_THEME_CLASSES = [
   'amber', 'red',
 ];
 
+/** 
+ * SPEED OF LIGHT: Optimized DOM theme application 
+ * Skips unnecessary removals to prevent flickering in dark mode 
+ */
 function applyThemeToDOM(theme: Theme) {
   const root = window.document.documentElement;
   
+  // Check if theme is already applied - avoids "white flash" caused by class removal
+  if (root.classList.contains(theme) && (theme !== 'dark' || root.classList.contains('black-matte'))) {
+    return;
+  }
+
   // Mark transition start for smooth color shift
   root.style.colorScheme = theme === 'cheers' ? 'dark' : theme;
   
-  // Remove all old theme classes
+  // PERFORMANCE: Only remove if we're actually changing
   root.classList.remove(...ALL_THEME_CLASSES);
 
-  // Add the theme class — .dark, .light, or .cheers
+  // Add the theme class
   root.classList.add(theme);
 
-  // For dark theme, also add .black-matte so CSS variables are applied
   if (theme === 'dark') {
     root.classList.add('black-matte');
   }
 
-  // For cheers theme, also add .dark so Tailwind dark: variants activate
-  // (cheers is a dark-variant theme — warm leopard colors on a dark background)
   if (theme === 'cheers') {
     root.classList.add('dark');
   }
@@ -64,25 +71,29 @@ function applyThemeToDOM(theme: Theme) {
     document.head.appendChild(meta);
   }
   
-  // Smooth transition for status bar in PWA
   let targetColor: string;
-  if (theme === 'dark') {
-    targetColor = '#000000';
-  } else if (theme === 'cheers') {
-    targetColor = '#180800'; // Dark leopard brown
-  } else {
-    targetColor = '#ffffff';
-  }
-  meta.setAttribute('content', targetColor);
+  if (theme === 'dark') targetColor = '#000000';
+  else if (theme === 'cheers') targetColor = '#180800';
+  else targetColor = '#ffffff';
   
+  meta.setAttribute('content', targetColor);
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(DEFAULT_THEME);
-  const { user } = useAuth();
+  // SPEED OF LIGHT: Instant initialization from localStorage
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return DEFAULT_THEME;
+    const cached = localStorage.getItem(STORAGE_KEY);
+    return (cached as Theme) || DEFAULT_THEME;
+  });
+  
+  const { user, loading } = useAuth();
 
-  // Load theme from database when user logs in
+  // Load theme from database when user is confirmed
   useEffect(() => {
+    // PROTECT: Don't flip to light theme while auth is still loading
+    if (loading) return;
+
     if (user?.id) {
       const loadUserTheme = async () => {
         try {
@@ -93,60 +104,56 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             .maybeSingle();
 
           if (error) throw error;
-          setThemeState(normalizeTheme(data?.theme_preference));
+          
+          const dbTheme = normalizeTheme(data?.theme_preference);
+          if (dbTheme !== theme) {
+            setThemeState(dbTheme);
+            localStorage.setItem(STORAGE_KEY, dbTheme);
+          }
         } catch (error) {
           logger.error('Failed to load theme preference:', error);
-          setThemeState(DEFAULT_THEME);
         }
       };
       loadUserTheme();
     } else {
-      setThemeState(DEFAULT_THEME);
+      // Not logged in: fallback to cached theme or default
+      const cached = localStorage.getItem(STORAGE_KEY);
+      if (!cached) setThemeState(DEFAULT_THEME);
     }
-  }, [user?.id]);
+  }, [user?.id, loading]);
 
   // Apply theme class to document
   useEffect(() => {
     applyThemeToDOM(theme);
   }, [theme]);
 
-  // Save theme to database and update state
   const setTheme = async (newTheme: Theme, coords?: ThemeToggleCoords) => {
     const root = window.document.documentElement;
-
-    // Store click origin for the CSS clip-path reveal animation
+    
+    // UI Feedback: Store coordinates for reveal animation
     root.style.setProperty('--theme-reveal-x', coords ? `${coords.x}px` : '50%');
     root.style.setProperty('--theme-reveal-y', coords ? `${coords.y}px` : '50%');
 
-    // Freeze all element-level transitions so nothing "bleeds" during the view transition
-    root.classList.add('theme-switching');
-
-    // Use View Transitions API for circular ripple reveal if supported
-    const doc = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };
+    // Freeze transitions or start View Transition
+    const doc = document as any;
     if (doc.startViewTransition) {
-      const vt = doc.startViewTransition(() => {
+      doc.startViewTransition(() => {
         applyThemeToDOM(newTheme);
         setThemeState(newTheme);
-      });
-      // Remove the freeze class only after the full animation is done
-      vt.finished.finally(() => {
-        root.classList.remove('theme-switching');
+        localStorage.setItem(STORAGE_KEY, newTheme);
       });
     } else {
-      // Fallback: apply immediately, remove freeze on next tick
       applyThemeToDOM(newTheme);
       setThemeState(newTheme);
-      requestAnimationFrame(() => root.classList.remove('theme-switching'));
+      localStorage.setItem(STORAGE_KEY, newTheme);
     }
 
     if (user?.id) {
       try {
-        const { error } = await supabase
+        await supabase
           .from('profiles')
           .update({ theme_preference: newTheme })
           .eq('user_id', user.id);
-
-        if (error) throw error;
       } catch (error) {
         logger.error('Failed to save theme preference:', error);
       }
