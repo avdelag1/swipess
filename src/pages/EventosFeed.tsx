@@ -37,13 +37,13 @@ interface EventItem {
 }
 
 const CATEGORIES = [
-  { key: 'all', label: 'All', icon: Sparkles },
-  { key: 'beach', label: 'Beach', icon: Waves },
-  { key: 'jungle', label: 'Jungle', icon: Trees },
-  { key: 'music', label: 'Music', icon: Music },
-  { key: 'food', label: 'Food', icon: Utensils },
-  { key: 'promo', label: 'Promos', icon: Ticket },
-  { key: 'likes', label: 'Saved', icon: Heart },
+  { key: 'all', label: 'All', icon: Sparkles, img: '/images/events/gallery_night.png' },
+  { key: 'beach', label: 'Beach', icon: Waves, img: '/images/events/cacao_ceremony.png' },
+  { key: 'jungle', label: 'Jungle', icon: Trees, img: '/images/events/yoga_sound.png' },
+  { key: 'music', label: 'Music', icon: Music, img: '/images/events/cenote_rave.png' },
+  { key: 'food', label: 'Food', icon: Utensils, img: '/images/events/food_market.png' },
+  { key: 'promo', label: 'Promos', icon: Ticket, img: '/images/events/sunset_session.png' },
+  { key: 'likes', label: 'Saved', icon: Heart, img: '/images/events/gallery_night.png' },
 ];
 
 const AUTOPLAY_DURATION = 6000; // 6 seconds per card
@@ -1057,7 +1057,7 @@ export default function EventosFeed() {
       <div className="absolute top-0 left-0 right-0 z-30 pt-safe stagger-enter">
         {/* Back button + title + promote */}
         <motion.div 
-          className="flex items-center gap-3 px-4 pt-3 pb-2"
+          className="flex items-center gap-3 px-6 pt-8 pb-8"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -1115,26 +1115,8 @@ export default function EventosFeed() {
           </div>
         </motion.div>
 
-        {/* Navigation Dots — subtle TikTok style indicators */}
-        <div className="flex justify-center gap-1.5 px-4 pb-3">
-          {filteredEvents.slice(0, 10).map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.05 }}
-              className={cn(
-                "h-1 rounded-full transition-all duration-500",
-                i === activeIdx 
-                  ? (isLight ? "w-8 bg-black shadow-[0_0_8px_rgba(0,0,0,0.2)]" : "w-8 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]")
-                  : (isLight ? "w-1.5 bg-black/10" : "w-1.5 bg-white/20")
-              )}
-            />
-          ))}
-        </div>
-
         {/* Category filter pills */}
-        <div className="flex gap-2.5 px-4 pb-4 overflow-x-auto no-scrollbar scroll-smooth">
+        <div className="flex gap-2.5 px-4 pt-4 pb-2.5 overflow-x-auto no-scrollbar scroll-smooth">
           {CATEGORIES.map((cat, idx) => {
             const Icon = cat.icon;
             const active = activeCategory === cat.key;
@@ -1147,28 +1129,61 @@ export default function EventosFeed() {
                 title={`Filter by ${cat.label}`}
                 aria-label={`Filter events by ${cat.label}`}
                 onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
-                onMouseEnter={() => predictivePrefetchCategory(queryClient, cat.key)}
-                onTouchStart={() => predictivePrefetchCategory(queryClient, cat.key)}
-                className="flex items-center gap-2 px-4 h-9 rounded-full shrink-0 text-[11px] font-black uppercase tracking-[0.1em] transition-all active:scale-90"
-                style={{
-                  background: active 
-                    ? (isLight ? 'rgba(0,0,0,0.95)' : 'rgba(255,255,255,0.95)') 
-                    : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.45)'),
-                  color: active 
-                    ? (isLight ? '#fff' : '#000') 
-                    : (isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.85)'),
-                  backdropFilter: 'blur(16px)',
-                  border: active ? 'none' : (isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.15)'),
-                  boxShadow: active 
-                    ? (isLight ? '0 8px 20px rgba(0,0,0,0.1)' : '0 8px 20px rgba(255,255,255,0.2)') 
-                    : 'none'
-                }}
+                className={cn(
+                  "relative flex flex-col items-center justify-center w-20 h-24 rounded-[1.5rem] shrink-0 overflow-hidden transition-all duration-300 border-2",
+                  active 
+                    ? (isLight ? "border-orange-500 shadow-lg scale-105" : "border-orange-400 shadow-[0_0_15px_rgba(251,146,60,0.4)] scale-105")
+                    : "border-transparent opacity-80"
+                )}
               >
-                <Icon className={cn("w-3.5 h-3.5", active ? "text-orange-600" : (isLight ? "text-black/40" : "text-white/60"))} />
-                {cat.label}
+                {/* Background AI Photo with Breathing Effect */}
+                <div className="absolute inset-0 z-0">
+                  <img 
+                    src={cat.img} 
+                    alt={cat.label} 
+                    className={cn(
+                      "w-full h-full object-cover",
+                      active && "breathing-zoom"
+                    )}
+                  />
+                  <div className={cn(
+                    "absolute inset-0 z-10",
+                    active ? "bg-black/20" : "bg-black/50"
+                  )} />
+                </div>
+
+                {/* Content Overlay */}
+                <div className="relative z-20 flex flex-col items-center gap-1">
+                  <Icon className={cn("w-5 h-5", active ? "text-orange-400" : "text-white/70")} strokeWidth={2.5} />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white">{cat.label}</span>
+                </div>
+
+                {active && (
+                  <motion.div 
+                    layoutId="active-indicator"
+                    className="absolute bottom-1 w-6 h-1 rounded-full bg-orange-500 z-30" 
+                  />
+                )}
               </motion.button>
             );
           })}
+        </div>
+
+        {/* Navigation Dots — subtle TikTok style indicators at the bottom of the header */}
+        <div className="flex justify-center gap-1.5 px-4 pt-6 pb-8">
+          {filteredEvents.slice(0, 10).map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className={cn(
+                "h-1 rounded-full transition-all duration-500 shadow-sm",
+                i === activeIdx 
+                  ? (isLight ? "w-8 bg-black/80" : "w-8 bg-white/90")
+                  : (isLight ? "w-1.5 bg-black/10" : "w-1.5 bg-white/20")
+              )}
+            />
+          ))}
         </div>
       </div>
 
