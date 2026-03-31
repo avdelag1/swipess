@@ -36,9 +36,9 @@
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       width:100vw;height:100dvh;background:#000;
       position:fixed;top:0;left:0;z-index:9999;
-      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                  -webkit-backdrop-filter 0.4s ease-out,
-                  backdrop-filter 0.4s ease-out;
+      transition: opacity 0.1s cubic-bezier(0.4, 0, 0.2, 1), 
+                  -webkit-backdrop-filter 0.15s ease-out,
+                  backdrop-filter 0.15s ease-out;
     }
     #initial-loader.dissolving {
       opacity: 0;
@@ -79,7 +79,7 @@
     @keyframes animStar{from{transform:translateY(0)}to{transform:translateY(-50%)}}
 
     /* HIDE root until React paints — prevents flash of empty div */
-    #root{opacity:0;transition:opacity 0.2s ease-out}
+    #root{opacity:0;transition:opacity 0.1s cubic-bezier(0.4, 0, 0.2, 1)}
     #root.hydrated{opacity:1}
     /* Critical Extension Compatibility Styles */
     .skeleton-hidden { display: none !important; visibility: hidden; pointer-events: none; }
@@ -145,8 +145,9 @@
 
   <div id="root"></div>
 
-  <!-- MAIN SCRIPT: type=module (deferred by default, non-blocking) -->
-  <script type="module" src="/src/main.tsx"></script>
+  <!-- MAIN SCRIPT: modulepreload + fetchpriority for immediate execution -->
+  <link rel="modulepreload" href="/src/main.tsx">
+  <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
 
   <script>
     // PWA Version Control — runs synchronously but is fast (no network)

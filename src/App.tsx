@@ -233,22 +233,35 @@ function PredictiveBundleLoader() {
     
     const role = user.user_metadata?.role;
     
-    // 1. DATA PREFETCHING: Load the DB rows while the user is still on landing/splash
     const prefetchData = () => {
-      // Prefetch profile - essential for all pages
+      // Role-agnostic essentials
       queryClient.prefetchQuery({
         queryKey: ['client-profile', user.id],
-        staleTime: 5 * 60 * 1000
+        staleTime: Infinity,
       });
       
-      // Prefetch based on role
+      // Role-specific massive prefetch
       if (role === 'owner') {
         queryClient.prefetchQuery({
           queryKey: ['owner-stats', user.id],
           staleTime: 1000 * 60
         });
       } else {
-        // Prefetch initial discovery cards
+        // CLIENT: Extreme hydration for all discovery paths
+        const categories: QuickFilterCategory[] = ['property', 'motorcycle', 'bicycle', 'services'];
+        categories.forEach(cat => {
+          queryClient.prefetchQuery({
+            queryKey: ['listings', cat],
+            staleTime: Infinity,
+          });
+        });
+        
+        // Also prefetch 'all' and 'smart' listings
+        queryClient.prefetchQuery({
+          queryKey: ['listings', null],
+          staleTime: Infinity
+        });
+        
         queryClient.prefetchQuery({
           queryKey: ['smart-listings', user.id, [], { categories: [] }, 0],
           staleTime: 5 * 60 * 1000

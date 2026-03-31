@@ -15,20 +15,20 @@ import { ReactNode } from 'react';
 
 const PAGE_SPRING = {
   type: 'spring' as const,
-  stiffness: 340,
-  damping: 28,
-  mass: 0.7,
+  stiffness: 450, // Ultra-snappy
+  damping: 32,
+  mass: 0.6,
 };
 
 const CHILD_SPRING = {
   type: 'spring' as const,
-  stiffness: 400,
-  damping: 26,
-  mass: 0.65,
+  stiffness: 550, // Tactile snap
+  damping: 34,
+  mass: 0.5,
 };
 
 const EXIT_FAST = {
-  duration: 0.14,
+  duration: 0.08, // Near-instant exit
   ease: [0.4, 0, 1, 1] as const,
 };
 

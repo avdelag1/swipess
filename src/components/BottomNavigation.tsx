@@ -61,9 +61,9 @@ interface NavItem {
 
 const TAP_SPRING = {
   type: 'spring' as const,
-  stiffness: 440,
-  damping: 24,
-  mass: 0.6,
+  stiffness: 600, // Faster snap
+  damping: 30,
+  mass: 0.5,
 };
 
 export const BottomNavigation = memo(({
@@ -136,7 +136,8 @@ export const BottomNavigation = memo(({
     if (!scrollRef.current) return;
     const activeBtn = scrollRef.current.querySelector('[aria-current="page"]') as HTMLElement;
     if (activeBtn) {
-      activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+      // INSTANT VIEW: No smooth scrolling for internal state sync, keep it technical and fast
+      activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
     }
   }, [location.pathname]);
 
@@ -382,9 +383,9 @@ export const BottomNavigation = memo(({
                     initial={false}
                     transition={{
                       type: 'spring',
-                      stiffness: 400,
-                      damping: 32,
-                      mass: 0.8
+                      stiffness: 550, // Accelerated pill switch
+                      damping: 35,
+                      mass: 0.6
                     }}
                     style={{
                       background: isLight 
