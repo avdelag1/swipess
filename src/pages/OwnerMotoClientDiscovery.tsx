@@ -56,7 +56,7 @@ export default function OwnerMotoClientDiscovery() {
   }, [filters]);
 
   // PERF: pass userId to avoid getUser() inside queryFn
-  const { data: clients = [], refetch: _refetch } = useSmartClientMatching(user?.id, 'moto', 0, 10, false, clientFilters);
+  const { data: clients = [], refetch: _refetch } = useSmartClientMatching(user?.id, 'motorcycle', 0, 10, false, clientFilters);
 
   const filteredClients = (clients || []).filter(client =>
     client.name?.toLowerCase()?.includes(searchQuery.toLowerCase())
@@ -86,7 +86,7 @@ export default function OwnerMotoClientDiscovery() {
         sonnerToast.success('Opening chat...', { id: 'start-conv' });
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
-    } catch (error) {
+    } catch (_error) {
       sonnerToast.error('Could not start conversation', { id: 'start-conv' });
     } finally {
       setIsCreatingConversation(false);

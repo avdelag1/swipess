@@ -23,23 +23,23 @@ import { RoommateFiltersSheet, RoommateFilterState } from '@/components/filters/
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 
-interface RoommateCandidate {
-  user_id: string;
-  name: string;
-  age: number;
-  city: string;
-  country: string;
-  bio: string;
-  profile_images: string[];
-  interests: string[];
-  languages: string[];
-  work_schedule: string;
-  cleanliness_level: string;
-  noise_tolerance: string;
-  personality_traits: string[];
-  preferred_activities: string[];
-  compatibility?: number;
-}
+// interface RoommateCandidate {
+//   user_id: string;
+//   name: string;
+//   age: number;
+//   city: string;
+//   country: string;
+//   bio: string;
+//   profile_images: string[];
+//   interests: string[];
+//   languages: string[];
+//   work_schedule: string;
+//   cleanliness_level: string;
+//   noise_tolerance: string;
+//   personality_traits: string[];
+//   preferred_activities: string[];
+//   compatibility?: number;
+// }
 
 // ── CUSTOM HOOKS ─────────────────────────────────────────────────────────────
 
@@ -511,27 +511,5 @@ function InfoPill({ icon: Icon, label, value }: { icon: any; label: string; valu
   );
 }
 
-function FilterGroup({ label, options, selected, setSelected }: { label: string; options: string[]; selected: string; setSelected: (v: string) => void; }) {
-  return (
-    <div>
-      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] mb-6">{label}</p>
-      <div className="flex flex-wrap gap-3">
-        {options.map(opt => (
-          <motion.button
-            key={opt}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => { triggerHaptic('light'); setSelected(opt); }}
-            className={cn(
-              "px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] border transition-all",
-              selected === opt
-                ? "bg-primary text-white border-primary shadow-[0_10px_20px_rgba(var(--primary-rgb),0.2)] scale-105"
-                : "bg-foreground/5 border-foreground/10 text-foreground/50 hover:bg-foreground/10"
-            )}
-          >
-            {opt}
-          </motion.button>
-        ))}
-      </div>
-    </div>
-  );
-}
+// FilterGroup was removed as it was unused.
+

@@ -223,7 +223,7 @@ Deno.serve(async (req) => {
             
             let propertyCards = [];
             try {
-              let { data, error: searchError } = await supabase
+              const { data, error: searchError } = await supabase
                 .from('listings')
                 .select('id, title, description, price, pricing_unit, bedrooms, bathrooms, location, images, listing_type, city, category, service_category, vehicle_type')
                 .eq('city', targetCity)
@@ -486,7 +486,7 @@ function getVibePrompt(task: string, input: any, user: any, profile: any, memori
   
   const memory = profile?.sentient_memory || {};
   const currentVibe = memory.vibe || "Exploring";
-  const style = memory.interaction_style || (userGender === "woman" ? "sophisticated" : "bro");
+  
 
   // Build the Personal Knowledge Base block
   const interestsList = (profile?.interests && Array.isArray(profile.interests) && profile.interests.length)

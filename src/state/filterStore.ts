@@ -15,7 +15,7 @@ import type {
   QuickFilters,
   ListingFilters
 } from '@/types/filters';
-import { logger } from '@/utils/prodLogger';
+// import { logger } from '@/utils/prodLogger';
 
 // Read localStorage to set initial categories on store creation
 function getInitialCategories(): QuickFilterCategory[] {

@@ -86,7 +86,7 @@ export default function OwnerBicycleClientDiscovery() {
         sonnerToast.success('Opening chat...', { id: 'start-conv' });
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
-    } catch (error) {
+    } catch (_error) {
       sonnerToast.error('Could not start conversation', { id: 'start-conv' });
     } finally {
       setIsCreatingConversation(false);
