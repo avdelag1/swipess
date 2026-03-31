@@ -425,8 +425,7 @@ export default function AdvertisePage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
-            className="text-4xl font-black leading-[0.95] tracking-tighter mb-2"
-            style={{ color: th.text }}
+            className="text-4xl font-black leading-[0.95] tracking-tighter mb-2 text-foreground"
           >
             Promote{" "}
             <span className="brand-gradient-text">
@@ -439,8 +438,7 @@ export default function AdvertisePage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="text-sm max-w-xs mx-auto leading-relaxed font-medium"
-            style={{ color: th.textMuted }}
+            className="text-sm max-w-xs mx-auto leading-relaxed font-medium text-muted-foreground"
           >
             Reach <span className="text-white font-bold">15k+ property owners</span>, renters &amp; tourists — direct, zero middlemen
           </motion.p>

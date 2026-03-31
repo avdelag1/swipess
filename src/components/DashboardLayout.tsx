@@ -674,9 +674,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className={cn(
-      "app-root min-h-screen min-h-dvh overflow-hidden relative",
+      "app-root min-h-screen min-h-dvh overflow-hidden relative w-full max-w-[100vw]",
       isDark ? "dark dark-matte" : "light white-matte"
-    )} style={{ width: '100%', maxWidth: '100vw' }}>
+    )}>
 
       {/* Speed of Light Global Loading Bar */}
       <LoadingBar />

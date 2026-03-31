@@ -38,28 +38,36 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
       }
 
       try {
-        // FIX: Query only columns that actually exist on the profiles table
+        // 🚀 SPEED OF LIGHT: Attempt database-level filtering (RPC)
+        // This is the "Materialized View" strategy: DB handles exclusion in one pass.
+        try {
+          const { data: rpcClients, error: rpcError } = await (supabase as any).rpc('get_smart_clients', {
+            p_user_id: user.id,
+            p_limit: 100, // Reasonable first page for feed
+            p_offset: 0
+          });
+
+          if (!rpcError && rpcClients && Array.isArray(rpcClients) && rpcClients.length > 0) {
+            // Transform data (enrichment will happen later in the same way)
+            return rpcClients as any[];
+          }
+          if (rpcError) logger.warn('[ClientProfiles] RPC Error:', rpcError.message);
+        } catch (e) {
+          // Fallback to PostgREST
+        }
+
+        // 2. BUILD SECURE POSTGREST QUERY (Fallback)
         const { data: profiles, error } = await supabase
           .from('profiles')
           .select(`
-            id,
-            user_id,
-            full_name,
-            avatar_url,
-            age,
-            gender,
-            images,
-            interests,
-            lifestyle_tags,
-            smoking,
-            city,
-            country,
-            neighborhood,
-            nationality,
-            bio,
-            created_at
+            id, user_id, full_name, avatar_url, age, gender, images, 
+            interests, lifestyle_tags, smoking, city, country, 
+            neighborhood, nationality, bio, created_at
           `)
           .neq('user_id', user.id)
+          .eq('role', 'client')
+          .eq('is_active', true)
+          .eq('onboarding_completed', true)
           .order('created_at', { ascending: false })
           .limit(100);
 

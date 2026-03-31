@@ -374,13 +374,15 @@ function EventCard({
         onComplete={onTickComplete}
       />
       {/* Background photo with breathing-zoom on all cards */}
-      <div className="absolute inset-0">
-        <CardImage
-          src={event.image_url}
-          alt={event.title}
-          fullScreen
-          animate={true}
-        />
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="w-full h-full breathing-zoom">
+          <CardImage
+            src={event.image_url}
+            alt={event.title}
+            fullScreen
+            animate={true}
+          />
+        </div>
       </div>
 
       {/* Gradient overlays */}
@@ -832,6 +834,8 @@ export default function EventosFeed() {
 
   useEffect(() => { autoPlayRef.current = autoPlay; }, [autoPlay]);
 
+
+
   const { data: likedIds = new Set<string>() } = useQuery({
     queryKey: ['event-likes', user?.id],
     queryFn: async () => {
@@ -918,6 +922,24 @@ export default function EventosFeed() {
         : allEvents.filter(e => e.category === activeCategory);
     return list;
   }, [allEvents, activeCategory, likedIds]);
+
+  // 🚀 SPEED OF LIGHT: Manual scroll listener to sync activeIdx for Dots/AutoPlay
+  useEffect(() => {
+    const el = parentRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      // Logic: calculate current index based on scroll position / height
+      const newIdx = Math.round(el.scrollTop / (el.clientHeight || window.innerHeight));
+      if (newIdx !== activeIdx && newIdx >= 0 && newIdx < filteredEvents.length) {
+        setActiveIdx(newIdx);
+        setAnimKey(k => k + 1); // Reset progress on manual move
+      }
+    };
+
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [activeIdx, filteredEvents.length]);
 
   const rowVirtualizer = useVirtualizer({
     count: filteredEvents.length + 1, // +1 for the Promote card

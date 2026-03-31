@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
@@ -90,11 +90,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
 
   // Load theme from database when user is confirmed
+  const hasLoadedThemeRef = useRef(false);
+
   useEffect(() => {
     // PROTECT: Don't flip to light theme while auth is still loading
     if (loading) return;
 
-    if (user?.id) {
+    if (user?.id && !hasLoadedThemeRef.current) {
       const loadUserTheme = async () => {
         try {
           const { data, error } = await supabase
@@ -110,15 +112,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             setThemeState(dbTheme);
             localStorage.setItem(STORAGE_KEY, dbTheme);
           }
+          hasLoadedThemeRef.current = true; // Fix: Prevent theme thrashes on auth refreshes
         } catch (error) {
           logger.error('Failed to load theme preference:', error);
         }
       };
       loadUserTheme();
-    } else {
+    } else if (!user && !loading) {
       // Not logged in: fallback to cached theme or default
       const cached = localStorage.getItem(STORAGE_KEY);
       if (!cached) setThemeState(DEFAULT_THEME);
+      hasLoadedThemeRef.current = false; // Reset for next user
     }
   }, [user?.id, loading]);
 

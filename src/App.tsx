@@ -219,25 +219,17 @@ function ConnectionGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
-  // Outage gate: bypassed via ?preview=swipess URL param or 7× logo tap
-  const [outageBypassed, setOutageBypassed] = useState(() => hasOutageBypass());
-
-  // Splash screen removal moved to main.tsx to execute as soon as root is ready
-
-  if (IS_OUTAGE_ACTIVE && !outageBypassed) {
-    return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
-  }
-
-  // 🚀 SPEED OF LIGHT: Predictive Chunk Preloading
-  // Once we know the user's role, we can pre-import their dashboard system in the background.
-  // This ensures that clicking "Dashboard" is completely instant (no "Loading..." state).
+// 🚀 SPEED OF LIGHT: Predictive Chunk Preloading
+// Once we know the user's role, we can pre-import their dashboard system in the background.
+// This ensures that clicking "Dashboard" is completely instant (no "Loading..." state).
+function PredictiveBundleLoader() {
   const { user } = useAuth();
   useEffect(() => {
     if (!user) return;
     
     const role = user.user_metadata?.role;
     const prefetchDashboard = () => {
+      // Logic for pre-fetching dashboard chunks
       if (role === 'owner') {
         import("./components/EnhancedOwnerDashboard");
         import("./pages/OwnerProfileNew");
@@ -255,6 +247,20 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
       setTimeout(prefetchDashboard, 1500);
     }
   }, [user]);
+
+  return null;
+}
+
+const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
+  // Outage gate: bypassed via ?preview=swipess URL param or 7× logo tap
+  const [outageBypassed, setOutageBypassed] = useState(() => hasOutageBypass());
+
+  // Splash screen removal moved to main.tsx to execute as soon as root is ready
+
+  if (IS_OUTAGE_ACTIVE && !outageBypassed) {
+    return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
+  }
+
 
   // SpeedInsights mounted dynamically to not block initial paint
   const [SpeedInsightsComponent, setSpeedInsightsComponent] = useState<any>(null);
@@ -293,7 +299,9 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
         >
           <ErrorBoundary>
             <AuthProvider authPromise={authPromise}>
+              <PredictiveBundleLoader />
               <ActiveModeProvider>
+
                 <ThemeProvider>
                   <PWAProvider>
                     <RadioProvider>
