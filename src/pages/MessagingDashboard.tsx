@@ -21,6 +21,7 @@ import {
 } from '@/hooks/useConversations';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { MessagingInterface } from '@/components/MessagingInterface';
+import { MessageSkeleton } from '@/components/ui/LayoutSkeletons';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
@@ -255,7 +256,7 @@ export function MessagingDashboard() {
 
           <div className="space-y-1.5 stagger-enter">
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center py-20"><MessageCircle className="w-10 h-10 text-primary animate-pulse mb-3" /></div>
+              <MessageSkeleton />
             ) : filteredConversations.length > 0 ? (
               filteredConversations.map((conversation, index) => {
                 const _isOwner = conversation.other_user?.role === 'owner';

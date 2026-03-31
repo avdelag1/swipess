@@ -78,7 +78,7 @@ function TopBarComponent({
   showBack = false,
 }: TopBarProps) {
   const { unreadCount: _unreadCount } = useUnreadNotifications();
-  const { navigate } = useAppNavigate();
+  const { navigate, prefetch } = useAppNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
   
   const { user } = useAuth();
@@ -98,9 +98,10 @@ function TopBarComponent({
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
   const cinematicShadow = isLight ? 'var(--shadow-cinematic-sm)' : 'var(--shadow-cinematic-md)';
 
-  // Fetch the three token packages
+  // 🚀 SPEED: Token packages are static, cache them for 24 hours
   const { data: packages } = useQuery({
     queryKey: ['topbar-token-packages', packageCategory],
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
     queryFn: async () => {
       const { data, error } = await supabase
         .from('subscription_packages')
@@ -113,10 +114,11 @@ function TopBarComponent({
     },
   });
 
-  // Fetch the user profile to display the avatar
+  // 🚀 SPEED: User profile is cached forever (invalidated by profile updates elsewhere)
   const { data: profile } = useQuery({
     queryKey: ['topbar-user-profile', user?.id],
     enabled: !!user?.id,
+    staleTime: Infinity,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
@@ -217,7 +219,7 @@ function TopBarComponent({
                     e.stopPropagation();
                     haptics.select();
                     const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
-                    prefetchRoute(profilePath);
+                    prefetch(profilePath);
                   }}
                   onClick={(e) => {
                     e.preventDefault();

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState, useEffect } from "react";
-import { QueryClient, QueryCache } from "@tanstack/react-query";
+import { QueryClient, QueryCache, useQueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createIDBPersister } from "@/lib/persister";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
@@ -226,22 +226,46 @@ function ConnectionGuard({ children }: { children: React.ReactNode }) {
 // This ensures that clicking "Dashboard" is completely instant (no "Loading..." state).
 function PredictiveBundleLoader() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  
   useEffect(() => {
     if (!user) return;
     
     const role = user.user_metadata?.role;
+    
+    // 1. DATA PREFETCHING: Load the DB rows while the user is still on landing/splash
+    const prefetchData = () => {
+      // Prefetch profile - essential for all pages
+      queryClient.prefetchQuery({
+        queryKey: ['client-profile', user.id],
+        staleTime: 5 * 60 * 1000
+      });
+      
+      // Prefetch based on role
+      if (role === 'owner') {
+        queryClient.prefetchQuery({
+          queryKey: ['owner-stats', user.id],
+          staleTime: 1000 * 60
+        });
+      } else {
+        // Prefetch initial discovery cards
+        queryClient.prefetchQuery({
+          queryKey: ['smart-listings', user.id, [], { categories: [] }, 0],
+          staleTime: 5 * 60 * 1000
+        });
+      }
+    };
+
+    // 2. BUNDLE PREFETCHING: Load the JS chunks
     const prefetchDashboard = () => {
       // Logic for pre-fetching dashboard chunks
       if (role === 'owner') {
         import("./components/EnhancedOwnerDashboard");
         import("./pages/OwnerProfileNew");
         import("./pages/OwnerProperties");
-        import("./pages/OwnerPropertyClientDiscovery");
-        import("./pages/OwnerMotoClientDiscovery");
       } else {
         import("./pages/ClientDashboard");
         import("./pages/ClientProfileNew");
-        import("./pages/ClientWorkerDiscovery");
         import("./pages/ClientLikedProperties");
       }
       
@@ -250,16 +274,21 @@ function PredictiveBundleLoader() {
         import("./pages/MessagingDashboard");
         import("./pages/NotificationsPage");
         import("./pages/EventosFeed");
-        import("./pages/DJTurntableRadio");
-      }, 5000);
+      }, 3000);
     };
 
     if ('requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(prefetchDashboard);
+      (window as any).requestIdleCallback(() => {
+        prefetchData();
+        prefetchDashboard();
+      });
     } else {
-      setTimeout(prefetchDashboard, 1500);
+      setTimeout(() => {
+        prefetchData();
+        prefetchDashboard();
+      }, 1500);
     }
-  }, [user]);
+  }, [user, queryClient]);
 
   return null;
 }

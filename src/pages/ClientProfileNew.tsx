@@ -15,7 +15,7 @@ import { ActivityFeed } from "@/components/ActivityFeed";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ProfileSkeleton } from "@/components/ui/LayoutSkeletons";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/microPolish";
@@ -53,21 +53,7 @@ const ClientProfileNew = () => {
   const completionPercent = calculateCompletion();
 
   if (isLoading) {
-    return (
-      <div className="w-full p-4 pb-32">
-        <div className="max-w-lg mx-auto space-y-4">
-          <div className="flex items-center gap-4 mb-6">
-            <Skeleton className="w-24 h-24 rounded-full" />
-            <div className="flex-1">
-              <Skeleton className="h-6 w-32 mb-2" />
-              <Skeleton className="h-4 w-48" />
-            </div>
-          </div>
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-32 rounded-2xl" />
-        </div>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   return (

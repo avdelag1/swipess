@@ -73,7 +73,7 @@ export const BottomNavigation = memo(({
   onListingsClick: _onListingsClick,
   onAISearchClick,
 }: BottomNavigationProps) => {
-  const { navigate } = useAppNavigate();
+  const { navigate, prefetch } = useAppNavigate();
   const location = useLocation();
   const setCategories = useFilterStore((s) => s.setCategories);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
@@ -171,9 +171,9 @@ export const BottomNavigation = memo(({
       e.stopPropagation();
       isDraggingRef.current = false;
       touchState.current = { x: e.clientX, y: e.clientY };
-      if (item.path) prefetchRoute(item.path);
+      if (item.path) prefetch(item.path);
     },
-    [],
+    [prefetch],
   );
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
@@ -346,11 +346,11 @@ export const BottomNavigation = memo(({
                 data-no-cinematic
                 onPointerDown={() => {
                   haptics.select();
-                  if (item.path) prefetchRoute(item.path);
+                  if (item.path) prefetch(item.path);
                 }}
                 onPointerEnter={() => {
                   // HOVER PREFETCH: Gain 100-300ms before they even click
-                  if (item.path) prefetchRoute(item.path);
+                  if (item.path) prefetch(item.path);
                 }}
                 onPointerUp={(e) => handlePointerUp(e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}

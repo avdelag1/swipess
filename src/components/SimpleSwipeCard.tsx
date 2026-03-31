@@ -434,9 +434,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           <div
             className="px-6 py-3 rounded-xl border-4 border-rose-500 text-rose-500 font-black text-3xl tracking-wider"
             style={{
-              transform: 'rotate(-12deg) translateZ(0)',
+              transform: 'rotate(-12deg) translateZ(0)', // GPU Composite
               backfaceVisibility: 'hidden',
               textShadow: '0 0 10px rgba(244, 63, 94, 0.6), 0 0 20px rgba(244, 63, 94, 0.4)',
+              willChange: 'opacity, transform',
             }}
           >
             YES!
@@ -454,9 +455,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           <div
             className="px-6 py-3 rounded-xl border-4 border-red-500 text-red-500 font-black text-3xl tracking-wider"
             style={{
-              transform: 'rotate(12deg) translateZ(0)',
+              transform: 'rotate(12deg) translateZ(0)', // GPU Composite
               backfaceVisibility: 'hidden',
               textShadow: '0 0 10px rgba(239, 68, 68, 0.6), 0 0 20px rgba(239, 68, 68, 0.4)',
+              willChange: 'opacity, transform',
             }}
           >
             NOPE
@@ -467,11 +469,15 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           className="absolute left-4 right-4 z-20 pointer-events-none p-5 rounded-[24px]"
           style={{ 
             bottom: 'clamp(130px, 22vh, 180px)',
-            background: 'rgba(0,0,0,0.55)',
+            background: 'rgba(0,0,0,0.65)', // Slightly darker for better contrast without blur
             boxShadow: 'var(--shadow-cinematic-md)',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
+            // 🚀 PERF BOOST: Disable expensive backdrop-filter during DRAG
+            // A blur moving over a detailed image is the #1 cause of frame-drops
+            backdropFilter: isDragging.current ? 'none' : 'blur(4px)', 
+            WebkitBackdropFilter: isDragging.current ? 'none' : 'blur(4px)', 
             border: '1px solid rgba(255,255,255,0.08)',
+            contain: 'layout paint', // ISOLATION: No layout leakage
+            transform: 'translateZ(0)', // Force GPU layer
           }}
         >
           <div className="flex items-center gap-2 mb-3 flex-wrap">

@@ -392,7 +392,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
             <img 
               src="/images/filters/property.png" 
-              className="absolute inset-0 w-full h-full object-cover breathing-zoom" 
+              className="absolute inset-0 w-full h-full object-cover" 
               alt="All"
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
@@ -424,7 +424,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
                 <img 
                   src={photo} 
-                  className="absolute inset-0 w-full h-full object-cover breathing-zoom" 
+                  className="absolute inset-0 w-full h-full object-cover" 
                   alt={category.label}
                 />
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">

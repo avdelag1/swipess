@@ -24,22 +24,28 @@ const ENTER_GLIDE = {
 const pageVariants: any = {
   initial: {
     opacity: 0,
-    y: 12,
-    scale: 0.985,
+    x: 8,
+    scale: 0.995,
   },
   animate: {
     opacity: 1,
-    y: 0,
+    x: 0,
     scale: 1,
     transition: {
-      ...ENTER_GLIDE,
+      type: 'spring',
+      stiffness: 450,
+      damping: 38,
+      mass: 0.8,
     },
   },
   exit: {
     opacity: 0,
-    scale: 0.99,
-    y: -4,
-    transition: EXIT_FAST,
+    scale: 1.005,
+    x: -4,
+    transition: {
+      duration: 0.15,
+      ease: 'easeOut'
+    },
   },
 };
 
@@ -55,7 +61,7 @@ export function AnimatedOutlet() {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="h-full w-full flex flex-col flex-1 stagger-enter gpu-accelerate"
+        className="h-full w-full flex flex-col flex-1 gpu-accelerate"
         style={{ willChange: 'transform, opacity' }}
       >
         {outlet}

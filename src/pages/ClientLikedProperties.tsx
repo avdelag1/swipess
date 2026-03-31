@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
+import { DashboardSkeleton } from "@/components/ui/LayoutSkeletons";
 import type { Listing } from "@/hooks/useListings";
 import {
   AlertDialog,
@@ -208,11 +209,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-96 rounded-[2.5rem] bg-muted animate-pulse" />
-            ))}
-          </div>
+          <DashboardSkeleton />
         ) : orderedFilteredProperties.length > 0 ? (
           <PremiumSortableGrid
             items={orderedFilteredProperties}

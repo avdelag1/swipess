@@ -59,7 +59,7 @@ const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boole
   <span className={cn(
     "font-black text-sm sm:text-base tracking-tight whitespace-nowrap uppercase italic",
     hasActiveFilters
-      ? "bg-gradient-to-r from-pink-500 via-rose-600 to-orange-500 bg-clip-text text-transparent breathing-zoom"
+      ? "bg-gradient-to-r from-pink-500 via-rose-600 to-orange-500 bg-clip-text text-transparent"
       : isDark ? "text-white/90" : "text-slate-800"
   )}>
     Quick Filter
@@ -470,7 +470,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               initial={{ scale: 0, rotate: -45 }}
               animate={{ scale: 1, rotate: 0 }}
               exit={{ scale: 0, rotate: 45 }}
-              className="bg-gradient-to-br from-orange-500 to-pink-600 text-white text-[10px] sm:text-xs font-black rounded-lg w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-md shadow-pink-500/40 breathing-zoom"
+              className="bg-gradient-to-br from-orange-500 to-pink-600 text-white text-[10px] sm:text-xs font-black rounded-lg w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-md shadow-pink-500/40"
             >
               {activeFilterCount}
             </motion.span>
