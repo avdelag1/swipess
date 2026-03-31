@@ -50,6 +50,12 @@ function applyThemeToDOM(theme: Theme) {
     root.classList.add('black-matte');
   }
 
+  // For light theme, also add .white-matte so glass/elevation tokens use
+  // the correct light-mode values (transparent glass → near-opaque white glass)
+  if (theme === 'light') {
+    root.classList.add('white-matte');
+  }
+
   // For cheers theme, also add .dark so Tailwind dark: variants activate
   // (cheers is a dark-variant theme — warm leopard colors on a dark background)
   if (theme === 'cheers') {

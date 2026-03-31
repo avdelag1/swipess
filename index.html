@@ -10,8 +10,9 @@
   <link rel="preconnect" href="https://vplgtcguxujxwrgguxqq.supabase.co" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <!-- LCP IMAGE: preload the exact asset used as LCP so browser fetches it ASAP -->
-  <link rel="preload" as="image" href="/icons/fire-s-logo-960.webp" type="image/webp" fetchpriority="high">
+  <!-- LCP IMAGE: preload — serve 480px on mobile, 960px on larger screens -->
+  <link rel="preload" as="image" href="/icons/fire-s-logo-480.webp" type="image/webp" fetchpriority="high" media="(max-width: 640px)" imagesrcset="/icons/fire-s-logo-480.webp">
+  <link rel="preload" as="image" href="/icons/fire-s-logo-960.webp" type="image/webp" fetchpriority="high" media="(min-width: 641px)" imagesrcset="/icons/fire-s-logo-960.webp">
 
   <!-- Critical styles inlined for instant paint -->
   <style>
@@ -57,9 +58,28 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Swipess">
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180x180.png">
-  <link rel="manifest" href="/manifest.json?v=20260329v1">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/fire-s-logo.png">
+  <!-- Apple touch icons — all sizes for every iPhone/iPad screen density -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180x180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/icons/apple-touch-icon-167x167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/apple-touch-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/icons/apple-touch-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/icons/apple-touch-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/icons/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/icons/apple-touch-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="57x57" href="/icons/apple-touch-icon-57x57.png">
+  <!-- Favicons — multi-size for all browsers -->
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
+  <link rel="shortcut icon" href="/icons/favicon.ico">
+  <link rel="manifest" href="/manifest.json?v=20260330v1">
+  <!-- theme-color: white in light mode, black in dark mode -->
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#111317" media="(prefers-color-scheme: dark)">
 
   <!-- Security Header -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://cdn.gpteng.co https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com https://*.googleusercontent.com https://images.unsplash.com https://www.google-analytics.com https://www.googletagmanager.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://images.unsplash.com https://accounts.google.com https://storage.googleapis.com https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://fonts.googleapis.com https://fonts.gstatic.com https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; media-src 'self' blob: https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; frame-src https://accounts.google.com; worker-src 'self' blob:;">

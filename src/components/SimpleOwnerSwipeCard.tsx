@@ -97,7 +97,7 @@ const PlaceholderImage = memo(({ name }: { name?: string | null }) => {
       <div className="text-center relative z-10 px-8">
         <div className="w-32 h-32 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center mx-auto mb-6 border-4 border-white/50">
           <img
-            src="/icons/swipess-logo.png"
+            src="/icons/fire-s-logo.webp"
             alt="Logo"
             className="w-20 h-20"
             draggable={false}
