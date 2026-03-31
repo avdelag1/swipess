@@ -13,11 +13,7 @@ import { PremiumLoader } from "@/components/PremiumLoader";
  * Matches index.html splash exactly for a seamless transition
  */
 function ProtectedRouteLoadingSkeleton() {
-  return (
-    <div className="min-h-screen min-h-dvh w-full bg-black flex items-center justify-center">
-      <PremiumLoader size="lg" />
-    </div>
-  );
+  return <PremiumLoader size="lg" full />;
 }
 
 

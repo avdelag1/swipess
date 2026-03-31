@@ -5,13 +5,18 @@ import { cn } from '@/lib/utils';
 interface PremiumLoaderProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  full?: boolean;
 }
 
-export function PremiumLoader({ className, size = 'md' }: PremiumLoaderProps) {
+export function PremiumLoader({ className, size = 'md', full = false }: PremiumLoaderProps) {
   const logoSize = size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : 'md';
   
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-6", className)}>
+    <div className={cn(
+      "flex flex-col items-center justify-center gap-6", 
+      full ? "fixed inset-0 z-[99999] bg-black" : "",
+      className
+    )}>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
