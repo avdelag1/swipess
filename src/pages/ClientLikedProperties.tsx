@@ -28,12 +28,11 @@ import {
 import { usePersistentReorder } from "@/hooks/usePersistentReorder";
 
 const categories = [
-  { id: "all", label: "All Likes", icon: Flame, title: "Your Favorites", subtitle: "Listings and connections you saved" },
-  { id: "property", label: "Homes", icon: Home, title: "Dream Habitats", subtitle: "Elite living spaces" },
-  { id: "motorcycle", label: "Motos", icon: Car, title: "Power & Speed", subtitle: "Premium machines" },
-  { id: "bicycle", label: "Bikes", icon: Bike, title: "Urban Flow", subtitle: "Sustainable precision" },
-  { id: "worker", label: "Services", icon: Briefcase, title: "Elite Talent", subtitle: "The support you need" },
-  { id: "event", label: "Events", icon: Flame, title: "Social Pulse", subtitle: "Tulum's finest gatherings" },
+  { id: "all", label: "All Favorites", icon: Flame, title: "Your World", subtitle: "Reorder and filter your top essentials" },
+  { id: "property", label: "Properties", icon: Home, title: "Dream Habitats", subtitle: "Elite living spaces" },
+  { id: "motorcycle", label: "Motorcycles", icon: Car, title: "Power & Speed", subtitle: "Premium machines" },
+  { id: "bicycle", label: "Bicycles", icon: Bike, title: "Urban Flow", subtitle: "Sustainable precision" },
+  { id: "worker", label: "Workers", icon: Briefcase, title: "Elite Talent", subtitle: "The support you need" },
 ];
 
 interface ClientLikedPropertiesProps {

@@ -35,7 +35,7 @@ import {
 import { usePersistentReorder } from "@/hooks/usePersistentReorder";
 
 const clientCategories = [
-  { id: "all", label: "All", icon: Flame },
+  { id: "all", label: "All Talents", icon: Flame },
   { id: "renter", label: "Renters", icon: Home },
   { id: "worker", label: "Workers", icon: Briefcase },
   { id: "buyer", label: "Buyers", icon: DollarSign },
@@ -154,25 +154,23 @@ export function LikedClients() {
 
   // Category + search filter
   const baseFiltered = likedClients.filter((client) => {
-    const matchesSearch =
-      (client.full_name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ((client as any).occupation || "").toLowerCase().includes(searchTerm.toLowerCase());
+    const occupations = (client as any).occupation?.toLowerCase() || "";
+    const name = (client.full_name || "").toLowerCase();
+    const bio = (client as any).bio?.toLowerCase() || "";
+    
+    const matchesSearch = name.includes(searchTerm.toLowerCase()) || occupations.includes(searchTerm.toLowerCase());
+    
     if (filterSafeOnly && (client as any).has_criminal_record) return false;
+    
     if (selectedCategory === "renter")
-      return (
-        matchesSearch &&
-        ((client as any).occupation || "").toLowerCase().includes("rent")
-      );
+      return matchesSearch && (occupations.includes("rent") || bio.includes("rent"));
+      
     if (selectedCategory === "worker")
-      return (
-        matchesSearch &&
-        ((client as any).occupation || "").toLowerCase().includes("work")
-      );
+      return matchesSearch && (occupations.includes("work") || occupations.includes("service") || bio.includes("work") || bio.includes("service"));
+      
     if (selectedCategory === "buyer")
-      return (
-        matchesSearch &&
-        ((client as any).occupation || "").toLowerCase().includes("buy")
-      );
+      return matchesSearch && (occupations.includes("buy") || occupations.includes("hire") || bio.includes("buy") || bio.includes("hire") || bio.includes("looking to"));
+      
     return matchesSearch;
   });
 
