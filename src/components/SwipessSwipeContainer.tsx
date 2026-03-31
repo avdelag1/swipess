@@ -439,6 +439,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     const newIds = smartListings.filter(l => !currentIds.has(l.id) && !swipedIdsRef.current.has(l.id));
     hasNewListingsRef.current = newIds.length > 0;
     prevListingIdsRef.current = listingIdsSignature;
+
+    // SPEED OF LIGHT: Synchronous Hydration
+    // Populating the ref during render ensures zero skeleton flicker on mount
+    if (deckQueueRef.current.length === 0 && smartListings.length > 0) {
+      deckQueueRef.current = smartListings;
+      setDeckLength(smartListings.length);
+    }
   }
 
   // Prefetch images for next cards (3 profiles ahead for smoother swiping)

@@ -30,7 +30,8 @@ const OwnerProfileNew = () => {
 
   const isLoading = statsLoading || profileLoading;
 
-  if (isLoading) {
+  // SPEED OF LIGHT: Skip skeleton if data is already in cache
+  if (isLoading && !ownerProfile) {
     return <ProfileSkeleton />;
   }
 

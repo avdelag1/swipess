@@ -52,7 +52,8 @@ const ClientProfileNew = () => {
 
   const completionPercent = calculateCompletion();
 
-  if (isLoading) {
+  // SPEED OF LIGHT: Skip skeleton if data is already in cache
+  if (isLoading && !profile) {
     return <ProfileSkeleton />;
   }
 
