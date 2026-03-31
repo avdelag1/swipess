@@ -47,8 +47,8 @@ export function useSmartListingMatching(
 
     return useQuery({
         queryKey: ['smart-listings', userId, filtersKey, page, isRefreshMode],
-        staleTime: 60 * 1000,
-        gcTime: 10 * 60 * 1000,
+        staleTime: 5 * 60 * 1000, // 5 minutes (Real-time channel handles invalidation)
+        gcTime: 1000 * 60 * 60,   // 1 hour
         placeholderData: (prev: any) => prev,
         queryFn: async () => {
             if (!userId) return [];

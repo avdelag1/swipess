@@ -61,9 +61,9 @@ interface NavItem {
 
 const TAP_SPRING = {
   type: 'spring' as const,
-  stiffness: 600, // Faster snap
-  damping: 30,
-  mass: 0.5,
+  stiffness: 850, // WARP 9
+  damping: 45,
+  mass: 0.4,
 };
 
 export const BottomNavigation = memo(({

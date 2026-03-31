@@ -477,7 +477,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         }}
       >
         {/* Global Branding Watermark - Vibrant "Elite" feel */}
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[-1] opacity-[0.1] select-none">
+        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[-1] opacity-[0.1] select-none" style={{ contentVisibility: 'auto' }}>
           <SwipessLogo size="xl" className="w-[80%] max-w-4xl" />
         </div>
 

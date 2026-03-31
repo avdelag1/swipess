@@ -14,16 +14,16 @@ const pageVariants = {
     opacity: 1,
     scale: 1,
     transition: {
-      duration: 0.18,
-      ease: [0.22, 1, 0.36, 1], // Zenith Glide
+      duration: 0.12, // Warp speed
+      ease: [0.23, 1, 0.32, 1],
     }
   },
   exit: {
     opacity: 0,
-    scale: 0.99,
+    scale: 1,
     transition: {
-      duration: 0.15,
-      ease: [0.32, 0, 0.67, 0],
+      duration: 0.08,
+      ease: 'circIn',
     }
   },
 } as const;

@@ -12,20 +12,20 @@ import { motion, AnimatePresence } from 'framer-motion';
  */
 
 const EXIT_FAST = {
-  duration: 0.18,
-  ease: [0.32, 0, 0.67, 0], // Organic cinematic ease-in
+  duration: 0.08, // Instant exit
+  ease: 'circIn',
 };
 
 const ENTER_GLIDE = {
-  duration: 0.22,
-  ease: [0.22, 1, 0.36, 1], // Power cubic-bezier (Zenith Standard)
+  duration: 0.12, // Warp speed
+  ease: [0.23, 1, 0.32, 1], // Fast cubic-bezier
 };
 
 const pageVariants: any = {
   initial: {
     opacity: 0,
-    x: 8,
-    scale: 0.995,
+    x: 12,
+    scale: 0.99,
   },
   animate: {
     opacity: 1,
@@ -33,19 +33,16 @@ const pageVariants: any = {
     scale: 1,
     transition: {
       type: 'spring',
-      stiffness: 450,
-      damping: 38,
-      mass: 0.8,
+      stiffness: 800, // Ultra-high stiffness
+      damping: 48,
+      mass: 0.5,
     },
   },
   exit: {
     opacity: 0,
-    scale: 1.005,
-    x: -4,
-    transition: {
-      duration: 0.15,
-      ease: 'easeOut'
-    },
+    scale: 1,
+    x: -8,
+    transition: EXIT_FAST,
   },
 };
 
