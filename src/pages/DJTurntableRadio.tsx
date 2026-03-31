@@ -332,13 +332,13 @@ export default function DJTurntableRadio() {
 
         {/* Info & Visualizer Section */}
         <div className="mt-3 text-center w-full max-w-[420px] stagger-enter">
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="wait">
             <motion.div
               key={state.currentStation?.id || 'none'}
-              initial={{ opacity: 0, y: 15, filter: 'blur(12px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -15, filter: 'blur(12px)' }}
-              transition={{ duration: 0.6, ease: 'circOut' }}
+              initial={{ opacity: 0, scale: 1.15, y: 15, filter: 'blur(20px)' }}
+              animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, scale: 0.85, y: -15, filter: 'blur(20px)' }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
               <h2 className={cn("text-4xl sm:text-5xl font-black tracking-tighter drop-shadow-2xl uppercase font-brand", isDark ? "text-white" : "!text-black")}>
                 {state.currentStation?.name || 'Radio'}

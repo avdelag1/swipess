@@ -56,6 +56,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     isShuffle: false,
     skin: 'turntable',
     favorites: [],
+    deadStationIds: JSON.parse(localStorage.getItem('swipess_radio_dead_stations') || '[]'),
     miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
   });
 
@@ -93,14 +94,20 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Track failed stations to avoid infinite loops
+  // Track failed stations to avoid infinite loops and identify dead ones
   const failedStationsRef = useRef<Set<string>>(new Set());
+  const failedStationsCountRef = useRef<Record<string, number>>({});
   const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Shuffle queue: pre-shuffled list of ALL stations
   const shuffleQueueRef = useRef<RadioStation[]>([]);
   const shuffleIndexRef = useRef<number>(0);
+
+  // Filter out dead stations from the master list
+  const activeStations = useMemo(() => {
+    return radioStations.filter(s => !state.deadStationIds.includes(s.id));
+  }, [state.deadStationIds]);
 
   // Refs to hold latest callbacks
   const changeStationRef = useRef<(direction: 'next' | 'prev') => void>(() => {});
@@ -122,11 +129,23 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         audio.src = '';
       }
 
+      // Flag station as potentially dead
+      const currentId = state.currentStation?.id;
+      if (currentId) {
+        const fails = (failedStationsCountRef.current[currentId] || 0) + 1;
+        failedStationsCountRef.current[currentId] = fails;
+        
+        if (fails >= 3) {
+          logger.warn(`[RadioPlayer] Station ${currentId} flagged as DEAD after ${fails} failures`);
+          markStationAsDead(currentId);
+        }
+      }
+
       if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
       errorTimeoutRef.current = setTimeout(() => {
         setError(null);
         changeStationRef.current('next');
-      }, 500);
+      }, 800);
     };
 
     const handleCanPlay = () => {
@@ -353,7 +372,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }
 
     const city = state.currentCity;
-    const stations = getStationsByCity(city);
+    const stations = activeStations.filter(s => s.city === city);
     if (stations.length === 0) return;
 
     const currentIndex = state.currentStation ? stations.findIndex(s => s.id === state.currentStation?.id) : -1;
@@ -362,7 +381,16 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       : (currentIndex - 1 + stations.length) % stations.length;
 
     play(stations[nextIndex]);
-  }, [state.currentStation, state.currentCity, state.isShuffle, play]);
+  }, [state.currentStation, state.currentCity, state.isShuffle, activeStations, play]);
+
+  // Permanently mark a station as dead
+  const markStationAsDead = useCallback((stationId: string) => {
+    setState(prev => {
+      const newDead = Array.from(new Set([...prev.deadStationIds, stationId]));
+      localStorage.setItem('swipess_radio_dead_stations', JSON.stringify(newDead));
+      return { ...prev, deadStationIds: newDead };
+    });
+  }, []);
 
   changeStationRef.current = changeStation;
 
@@ -384,7 +412,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     const newShuffle = !state.isShuffle;
     if (newShuffle) {
       const currentId = state.currentStation?.id;
-      shuffleQueueRef.current = shuffleArray(radioStations, currentId);
+      shuffleQueueRef.current = shuffleArray(activeStations, currentId);
       shuffleIndexRef.current = 0;
     } else {
       shuffleQueueRef.current = [];

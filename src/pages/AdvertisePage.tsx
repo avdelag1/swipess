@@ -129,7 +129,7 @@ const INITIAL: FormData = {
 
 const SAMPLE_CARDS = [
   {
-    bg: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&q=80&auto=format",
+    bg: "/images/events/cenote_rave.png",
     tag: "TONIGHT",
     title: "Cenote Rave",
     venue: "Zamna Tulum",
@@ -137,7 +137,7 @@ const SAMPLE_CARDS = [
     color: "#a855f7",
   },
   {
-    bg: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80&auto=format",
+    bg: "/images/events/food_market.png",
     tag: "FREE ENTRY",
     title: "Food Market",
     venue: "La Veleta",
@@ -145,7 +145,7 @@ const SAMPLE_CARDS = [
     color: "#ef4444",
   },
   {
-    bg: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80&auto=format",
+    bg: "/images/events/cacao_ceremony.png",
     tag: "EARLY BIRD",
     title: "Cacao Ceremony",
     venue: "Playa Paraíso",
@@ -153,7 +153,7 @@ const SAMPLE_CARDS = [
     color: "#f97316",
   },
   {
-    bg: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400&q=80&auto=format",
+    bg: "/images/events/sunset_session.png",
     tag: "LIVE DJ",
     title: "Sunset Session",
     venue: "Papaya Playa",
@@ -161,7 +161,7 @@ const SAMPLE_CARDS = [
     color: "#3b82f6",
   },
   {
-    bg: "https://images.unsplash.com/photo-1545235617-9465d2a55698?w=400&q=80&auto=format",
+    bg: "/images/events/yoga_sound.png",
     tag: "WELLNESS",
     title: "Yoga & Sound",
     venue: "Holistika",
@@ -169,7 +169,7 @@ const SAMPLE_CARDS = [
     color: "#10b981",
   },
   {
-    bg: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&q=80&auto=format",
+    bg: "/images/events/gallery_night.png",
     tag: "PRIVATE ART",
     title: "Gallery Night",
     venue: "Azulik",
@@ -180,13 +180,13 @@ const SAMPLE_CARDS = [
 
 // ── Photo strip — Tulum lifestyle imagery ─────────────────────────────────────
 const PHOTO_STRIP = [
-  "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&q=80&auto=format",   // beach chairs
-  "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&q=80&auto=format", // concert crowd
-  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80&auto=format",   // restaurant
-  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80&auto=format", // sunset nature
-  "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400&q=80&auto=format", // DJ set
-  "https://images.unsplash.com/photo-1545235617-9465d2a55698?w=400&q=80&auto=format",   // yoga
-  "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&q=80&auto=format", // beach party
+  "/images/promo/promo_1.png", // Beach club sunset
+  "/images/promo/promo_2.png", // Jungle restaurant
+  "/images/promo/promo_3.png", // Beach party DJ
+  "/images/promo/promo_4.png", // Wellness retreat
+  "/images/promo/promo_5.png", // Boutique hotel
+  "/images/promo/promo_6.png", // Sunset dinner
+  "/images/promo/promo_7.png", // Yacht chill
 ];
 
 // ── Feature items ──────────────────────────────────────────────────────────────
@@ -439,31 +439,38 @@ export default function AdvertisePage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="text-sm max-w-xs mx-auto leading-snug"
+            className="text-sm max-w-xs mx-auto leading-relaxed font-medium"
             style={{ color: th.textMuted }}
           >
-            Reach 15k+ property owners, renters &amp; tourists — direct, zero middlemen
+            Reach <span className="text-white font-bold">15k+ property owners</span>, renters &amp; tourists — direct, zero middlemen
           </motion.p>
         </div>
 
-        {/* ── PHOTO STRIP ── */}
+        {/* ── PHOTO STRIP — IMMERSIVE ── */}
         <motion.div
-          initial={{ opacity: 0, x: 30 }}
+          initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex gap-2 overflow-x-auto px-5 py-3"
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="flex gap-4 overflow-x-auto px-5 py-6 no-scrollbar"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as any}
         >
           {PHOTO_STRIP.map((url, i) => (
-            <div key={i} className="flex-shrink-0 h-[90px] w-[130px] rounded-2xl overflow-hidden relative"
-              style={{ boxShadow: "0 8px 24px rgba(0,0,0,0.18)" }}>
+            <div key={i} className="flex-shrink-0 h-[120px] w-[200px] rounded-[2rem] overflow-hidden relative group"
+              style={{ 
+                boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+                border: "1px solid rgba(255,255,255,0.08)"
+              }}>
               <img
                 src={url}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                 alt=""
-                style={{ animation: `breathing-zoom 6s ease-in-out ${i * 0.9}s infinite alternate`, backfaceVisibility: "hidden" as any, transformOrigin: "center" }}
+                style={{ 
+                  animation: `breathing-zoom 8s ease-in-out ${i * 1.2}s infinite alternate`, 
+                  backfaceVisibility: "hidden" as any, 
+                  transformOrigin: "center" 
+                }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
             </div>
           ))}
         </motion.div>
@@ -501,42 +508,71 @@ export default function AdvertisePage() {
             className="flex gap-3 overflow-x-auto pb-2"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as any}
           >
-            {PACKAGES.map(pkg => (
-              <div key={pkg.id} className="flex-shrink-0 w-44 p-4 rounded-2xl relative flex flex-col"
-                style={{ background: `rgba(${pkg.colorRgb},0.12)`, border: `1.5px solid rgba(${pkg.colorRgb},${pkg.popular ? "0.45" : "0.2"})`, minWidth: 168 }}>
+            {PACKAGES.map((pkg, idx) => (
+              <motion.div 
+                key={pkg.id} 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + (idx * 0.1) }}
+                className="flex-shrink-0 w-64 p-6 rounded-[2.5rem] relative flex flex-col group overflow-hidden"
+                style={{ 
+                  background: `rgba(${pkg.colorRgb}, 0.08)`, 
+                  backdropFilter: "blur(20px)",
+                  border: `1.5px solid rgba(${pkg.colorRgb}, ${pkg.popular ? "0.4" : "0.1"})`, 
+                  minWidth: 220,
+                  boxShadow: pkg.popular ? `0 20px 50px rgba(${pkg.colorRgb}, 0.15)` : "none"
+                }}
+              >
+                {/* Glow effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
                 {pkg.popular && (
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
-                    <div className="bg-gradient-to-r from-orange-500 to-rose-500 text-[8px] font-black uppercase tracking-[0.15em] px-2.5 py-0.5 rounded-full text-white shadow-md whitespace-nowrap">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                    <div className="bg-gradient-to-r from-orange-500 to-rose-500 text-[9px] font-black uppercase tracking-[0.2em] px-4 py-1 rounded-full text-white shadow-xl whitespace-nowrap">
                       ★ MOST POPULAR
                     </div>
                   </div>
                 )}
-                <div className="flex items-center gap-2 mb-2 mt-1">
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color }}>
+
+                <div className="flex items-center gap-3 mb-4 mt-1">
+                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+                    style={{ 
+                      background: `linear-gradient(135deg, rgba(${pkg.colorRgb}, 0.3), rgba(${pkg.colorRgb}, 0.1))`, 
+                      color: pkg.color,
+                      boxShadow: `0 8px 20px rgba(${pkg.colorRgb}, 0.2)`
+                    }}>
                     {pkg.icon}
                   </div>
-                  <div className="font-black text-sm" style={{ color: th.text }}>{pkg.name}</div>
+                  <div className="font-black text-base tracking-tight" style={{ color: th.text }}>{pkg.name}</div>
                 </div>
-                <div className="font-black text-2xl leading-none mb-0.5" style={{ color: pkg.color }}>${pkg.price.toFixed(2)}</div>
-                <div className="text-[10px] mb-3" style={{ color: th.textDim }}>USD {pkg.durationLabel}</div>
-                <div className="space-y-1.5 flex-1 mb-3">
-                  {pkg.perks.slice(0, 3).map(perk => (
-                    <div key={perk} className="flex items-start gap-1.5 text-[10px] leading-snug" style={{ color: th.textMuted }}>
-                      <Check className="w-2.5 h-2.5 flex-shrink-0 mt-0.5" style={{ color: pkg.color }} />
-                      {perk}
+
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="font-black text-4xl leading-none" style={{ color: pkg.color }}>${pkg.price.toFixed(2)}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: th.textDim }}>USD</span>
+                </div>
+                <div className="text-[11px] font-bold mb-5 opacity-60 uppercase tracking-widest" style={{ color: th.textDim }}>{pkg.durationLabel}</div>
+                
+                <div className="space-y-3 flex-1 mb-6">
+                  {pkg.perks.slice(0, 4).map(perk => (
+                    <div key={perk} className="flex items-start gap-2.5 text-[11px] leading-relaxed font-medium" style={{ color: th.textMuted }}>
+                      <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `rgba(${pkg.colorRgb}, 0.15)` }}>
+                        <Check className="w-2.5 h-2.5" style={{ color: pkg.color }} />
+                      </div>
+                      <span className="opacity-80">{perk}</span>
                     </div>
                   ))}
                 </div>
+
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleLaunchPayment(pkg)}
-                  className="w-full py-2 rounded-xl font-black text-white text-[11px] uppercase tracking-wider"
-                  style={{ background: `linear-gradient(135deg, ${pkg.color}, rgba(${pkg.colorRgb},0.7))`, boxShadow: `0 4px 16px rgba(${pkg.colorRgb},0.35)` }}
+                  className="w-full py-3.5 rounded-[1.5rem] font-black text-white text-[12px] uppercase tracking-[0.15em] relative shadow-2xl overflow-hidden"
+                  style={{ background: `linear-gradient(135deg, ${pkg.color}, rgba(${pkg.colorRgb}, 0.7))` }}
                 >
-                  Get Started
+                  <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors" />
+                  <span className="relative z-10">Get Started</span>
                 </motion.button>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         </div>

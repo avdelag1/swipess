@@ -223,9 +223,9 @@ body {
 
 @keyframes breathing-zoom {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.015); }
+  50% { transform: scale(1.05); }
 }
 
 .breathing-zoom {
-  animation: breathing-zoom 4s ease-in-out infinite;
+  animation: breathing-zoom 8s ease-in-out infinite alternate;
 }
