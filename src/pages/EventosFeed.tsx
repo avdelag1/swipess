@@ -454,116 +454,24 @@ const EventCard = memo(({
         )}
       </AnimatePresence>
 
-      {/* Bottom content — RAISED higher per user request ('bring up the rest of the title info') */}
-      <div className="absolute inset-x-0 bottom-[12%] z-[2] px-6 pb-[calc(0.6rem+env(safe-area-inset-bottom,0px))]">
-        <AnimatePresence>
-          {isActive && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 14 }}
-              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              className="space-y-3 pr-16"
-            >
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2">
-                <span className={cn(
-                  "px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
-                  isLight ? "text-black/70" : "text-white/80"
-                )}
-                  style={{ 
-                    background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.12)', 
-                    backdropFilter: 'blur(8px)', 
-                    border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.2)' 
-                  }}>
-                  {event.category}
-                </span>
-                {event.discount_tag && (
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white"
-                    style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)' }}>
-                    {event.discount_tag}
-                  </span>
-                )}
-                {event.is_free && (
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-rose-300"
-                    style={{ background: 'rgba(244,63,94,0.2)', border: '1px solid rgba(244,63,94,0.4)' }}>
-                    FREE
-                  </span>
-                )}
-              </div>
-
-              {/* Title */}
-              <h2 className={cn(
-                "text-3xl font-black font-brand leading-[1.05] tracking-tight drop-shadow-lg",
-                isLight ? "text-black" : "text-white"
-              )}>
-                {event.title}
-              </h2>
-
-              {/* Description */}
-              {event.description && (
-                <p className={cn(
-                  "text-sm leading-relaxed line-clamp-2",
-                  isLight ? "text-black/70" : "text-white/70"
-                )}>
-                  {event.description}
-                </p>
-              )}
-
-              {/* Meta */}
-              <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-                {event.event_date && (
-                  <div className={cn("flex items-center gap-1.5 text-xs", isLight ? "text-black/60" : "text-white/70")}>
-                    <Calendar className="w-3.5 h-3.5 text-orange-400" />
-                    <span>{formatDate(event.event_date)}</span>
-                  </div>
-                )}
-                {event.location && (
-                  <div className={cn("flex items-center gap-1.5 text-xs", isLight ? "text-black/60" : "text-white/70")}>
-                    <MapPin className="w-3.5 h-3.5 text-orange-400" />
-                    <span>{event.location}</span>
-                  </div>
-                )}
-                {event.price_text && (
-                  <div className="text-xs font-bold text-orange-300">{event.price_text}</div>
-                )}
-              </div>
-
-              {/* Organizer */}
-              {event.organizer_name && (
-                <p className={cn("text-[11px] font-medium", isLight ? "text-black/40" : "text-white/40")}>by {event.organizer_name}</p>
-              )}
-
-              {/* CTA row */}
-              <div className="flex gap-2 pt-1">
-                <button
-                  onClick={(e) => { e.stopPropagation(); triggerHaptic('medium'); setShowDetails(true); }}
-                  className={cn(
-                    "flex items-center gap-1.5 px-4 py-2.5 rounded-[1.25rem] text-xs font-black uppercase tracking-widest transition-all",
-                    isLight ? "text-black bg-black/5 hover:bg-black/10" : "text-white bg-white/15 hover:bg-white/25"
-                  )}
-                  style={{ backdropFilter: 'blur(12px)', border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.2)' }}
-                  data-testid={`btn-info-${event.id}`}
-                >
-                  <Info className="w-3.5 h-3.5" />
-                  More Info
-                </button>
-                {!event.is_free && event.price_text && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); triggerHaptic('medium'); onChat(); }}
-                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-[1.25rem] text-xs font-black uppercase tracking-widest text-white"
-                    style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)', boxShadow: '0 4px 14px rgba(249,115,22,0.4)' }}
-                    data-testid={`btn-tickets-${event.id}`}
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Get Tickets
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      {/* Bottom content — HIDDEN PER USER REQUEST FOR NATIVE MOVE-AROUND FEEL */}
+      {false && (
+        <div className="absolute inset-x-0 bottom-[12%] z-[2] px-6 pb-[calc(0.6rem+env(safe-area-inset-bottom,0px))]">
+          <AnimatePresence>
+            {isActive && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 14 }}
+                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                className="space-y-3 pr-16"
+              >
+                {/* Content was here */}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
 
       {/* Right side action buttons */}
       <div className="absolute right-4 flex flex-col gap-6 items-center z-30"
@@ -1068,8 +976,8 @@ export default function EventosFeed() {
       isLight ? "bg-white" : "bg-black"
     )}>
 
-      {/* ── TOP HUD ── HIDDEN PER USER REQUEST FOR IMMERSIVE FEEL ── */}
-      {false && (
+      {/* ── TOP HUD ── Dynamic Info Injection ── */}
+      {(true) && (
         <div className="absolute top-0 left-0 right-0 z-[100] pt-[calc(env(safe-area-inset-top,0px)+32px)] overflow-visible">
           {/* Back button + title + promote — Higher padding to clear 'S' Logo */}
           <motion.div 
@@ -1090,11 +998,15 @@ export default function EventosFeed() {
 
             <ArrowLeft className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} />
           </button>
-          <div className="flex-1">
-            <h1 className={cn("font-black font-brand text-xl tracking-tight leading-tight", isLight ? "text-black" : "text-white")}>Tulum Events</h1>
+          <div className="flex-1 min-w-0">
+            <h1 className={cn("font-black font-brand text-xl tracking-tight leading-tight truncate", isLight ? "text-black" : "text-white")}>
+              {filteredEvents[activeIdx]?.title || 'Tulum Events'}
+            </h1>
             <div className="flex items-center gap-1.5 mt-[-2px]">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.8)]" />
-              <p className={cn("text-[10px] uppercase font-black tracking-widest leading-none", isLight ? "text-black/60" : "text-white/60")}>{filteredEvents.length} LIVE NOW</p>
+              <p className={cn("text-[10px] uppercase font-black tracking-widest leading-none", isLight ? "text-black/60" : "text-white/60")}>
+                {filteredEvents[activeIdx]?.location?.toUpperCase() || 'LIVE NOW'}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2.5">
