@@ -83,7 +83,7 @@ export function useSmartListingMatching(
                 try {
                     const { data: rpcListings, error: rpcError } = await (supabase as any).rpc('get_smart_listings', {
                         p_user_id: userId,
-                        p_category: category === 'all' ? null : category,
+                        p_category: (filters?.category === 'all' || !filters?.category) ? null : filters.category,
                         p_limit: pageSize,
                         p_offset: page * pageSize
                     });
@@ -100,7 +100,8 @@ export function useSmartListingMatching(
                 }
 
                 // 2. BUILD SECURE POSTGREST QUERY (Fallback)
-                let query = supabase.from('listings').select(SWIPE_CARD_FIELDS);
+                // Reuse existing query or reset it? The logic below expects a fresh query for PostgREST
+                query = supabase.from('listings').select(SWIPE_CARD_FIELDS);
 
                 // 3. Apply excluded IDs (Standard Array Filter - Prevents 400 Errors)
                 if (swipedListingIds.size > 0) {
@@ -124,11 +125,6 @@ export function useSmartListingMatching(
                 const { data: listings, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
                 if (error) {
                     logger.error('[SmartMatching] PostgREST Query Error:', error);
-                    return [];
-                }
-                if (error) {
-                    logger.error('[SmartMatching] DB Query Error:', error);
-                    // Return empty instead of throwing to prevent crashing the entire App/Dashboard
                     return [];
                 }
 
