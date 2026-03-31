@@ -3,22 +3,31 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <!-- Critical Preconnects (Limit to 2 to avoid Lighthouse warning) -->
+  <!-- Resource Hints (Shaving off MS for 'Instant' feel) -->
+  <link rel="dns-prefetch" href="https://vplgtcguxujxwrgguxqq.supabase.co">
+  <link rel="dns-prefetch" href="https://images.unsplash.com">
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  
+  <!-- Critical Preconnects -->
   <link rel="preconnect" href="https://vplgtcguxujxwrgguxqq.supabase.co" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <!-- LCP IMAGE: preload the exact asset used as LCP so browser fetches it ASAP -->
+  <!-- LCP IMAGE (Aggressive High Priority) -->
   <link rel="preload" as="image" href="/icons/fire-s-logo-960.webp" type="image/webp" fetchpriority="high">
 
-  <!-- Critical styles inlined for instant paint -->
+  <!-- Critical styles for Instant App feel -->
   <style>
-    /* MINIMAL CRITICAL CSS — everything else loads async */
+    /* 🚀 INSTANT RESPONSE SYSTEM: Removes Tap Delay (300ms) globally */
+    *{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+    input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;user-select:text;touch-action:auto}
+    
     :root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
-    *,*::before,*::after{box-sizing:border-box}
-    html,body{margin:0;padding:0;overflow:hidden;background:#f9f9fb;width:100%;height:100%;color:#1a1a1a;font-family:system-ui,-apple-system,sans-serif}
+    html,body{margin:0;padding:0;overflow:hidden;background:#000;width:100%;height:100%;color:#fff;font-family:system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
 
     /* SPLASH: This IS the LCP element — a full visual landing painted in pure CSS + inline SVG */
     #initial-loader{

@@ -350,12 +350,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }
 
   return (
-    <div className="absolute inset-0 flex flex-col">
+    <div className="absolute inset-0 flex flex-col pointer-events-none">
       <motion.div
         drag
         dragControls={dragControls}
         dragListener={false}
         dragMomentum={false}
+        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+        dragElastic={0.15}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onClick={handleCardTap}
@@ -363,12 +365,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         onPointerMove={handleUnifiedPointerMove}
         onPointerUp={handleUnifiedPointerUp}
         onPointerCancel={handleUnifiedPointerCancel}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[32px] overflow-hidden shadow-2xl glass-nano-texture"
+        whileDrag={{ 
+          scale: 1.02,
+          transition: { duration: 0.1, ease: "easeOut" }
+        }}
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[32px] overflow-hidden shadow-2xl glass-nano-texture pointer-events-auto"
         style={{
           x,
           y,
           rotate: cardRotate,
           opacity: cardOpacity,
+          willChange: 'transform',
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
         }}
       >
         <div 
