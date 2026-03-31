@@ -69,7 +69,7 @@ export async function warmDiscoveryCache(queryClient: QueryClient, userId: strin
     queryFn: async () => {
       const { data } = await supabase
         .from('events')
-        .select('*')
+        .select('id, title, description, category, image_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
         .order('event_date', { ascending: true })
         .limit(30);
       
@@ -108,7 +108,7 @@ export async function predictivePrefetchCategory(queryClient: QueryClient, categ
     queryFn: async () => {
       const { data } = await supabase
         .from('listings')
-        .select('*')
+        .select('id, title, description, category, image_url, price, status, location, features, image_urls')
         .eq('category', category)
         .eq('status', 'active')
         .limit(20);
@@ -132,7 +132,7 @@ export async function predictivePrefetchEvent(queryClient: QueryClient, eventId:
     queryFn: async () => {
       const { data } = await supabase
         .from('events')
-        .select('*')
+        .select('id, title, description, category, image_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
         .eq('id', eventId)
         .single();
       

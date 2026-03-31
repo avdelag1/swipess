@@ -8,6 +8,7 @@ import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import {
   getActiveCategoryInfo,
 } from './swipe/SwipeConstants';
+import { SwipeCardPeek } from './swipe/SwipeCardPeek';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
@@ -1082,10 +1083,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 willChange: 'transform',
               }}
             >
-              <SimpleSwipeCard
+              <SwipeCardPeek
                 listing={thirdCard}
-                onSwipe={() => {}}
-                isTop={false}
               />
             </motion.div>
           );
@@ -1113,10 +1112,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 willChange: 'transform',
               }}
             >
-              <SimpleSwipeCard
+              <SwipeCardPeek
                 listing={nextCard}
-                onSwipe={() => { }}
-                isTop={false}
               />
             </motion.div>
           );

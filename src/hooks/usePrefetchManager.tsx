@@ -178,7 +178,7 @@ export function usePrefetchManager() {
       queryFn: async () => {
         const { data } = await supabase
           .from('listings')
-          .select('*')
+          .select('id, title, description, price, images, city, beds, baths, category, owner_id')
           .eq('id', listingId)
           .single();
         return data;
@@ -204,7 +204,7 @@ export function usePrefetchManager() {
       queryFn: async () => {
         const { data } = await supabase
           .from('profiles')
-          .select('*')
+          .select('id, full_name, avatar_url, bio, city, user_id')
           .eq('user_id', userId)
           .single();
         return data;
