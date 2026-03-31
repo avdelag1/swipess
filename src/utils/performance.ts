@@ -59,6 +59,7 @@ export async function warmDiscoveryCache(queryClient: QueryClient, userId: strin
 
       // Also prefetch the first few images of each category to prime the browser cache
       // This is the "magic" step for "instant" images
+      prefetchImage(`/images/filters/${category === 'motorcycle' ? 'scooter' : category}.png`);
     });
   }
 

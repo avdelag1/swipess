@@ -87,9 +87,4 @@ export const POKER_CARDS = [
 
 export const PK_W = 330;
 export const PK_H = 520;
-export const FOLDER_OFFSET_X = 30;
-export const FOLDER_OFFSET_Y = 0;
-export const POKER_FAN_ROTATION = 8; // degrees per card in the fan
-export const PK_DIST_THRESHOLD = 110;
-export const PK_VEL_THRESHOLD  = 480;
 export const PK_SPRING = { type: 'spring' as const, stiffness: 520, damping: 34, mass: 0.9 };

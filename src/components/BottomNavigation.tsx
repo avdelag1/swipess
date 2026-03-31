@@ -14,7 +14,7 @@
  *   - The glass bar clearly shows blurred content behind it (no opaque bg)
  */
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -65,13 +65,13 @@ const TAP_SPRING = {
   mass: 0.6,
 };
 
-export function BottomNavigation({
+export const BottomNavigation = memo(({
   userRole,
   onFilterClick: _onFilterClick,
   onAddListingClick: _onAddListingClick,
   onListingsClick: _onListingsClick,
   onAISearchClick,
-}: BottomNavigationProps) {
+}: BottomNavigationProps) => {
   const { navigate } = useAppNavigate();
   const location = useLocation();
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
@@ -462,4 +462,6 @@ export function BottomNavigation({
       </svg>
     </nav>
   );
-}
+});
+
+BottomNavigation.displayName = 'BottomNavigation';
