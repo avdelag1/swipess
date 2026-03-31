@@ -31,6 +31,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useFilterStore } from '@/state/filterStore';
 
 const ICON_SIZE = 24;
 const ICON_SIZE_COMPACT = 22;
@@ -74,6 +75,7 @@ export const BottomNavigation = memo(({
 }: BottomNavigationProps) => {
   const { navigate } = useAppNavigate();
   const location = useLocation();
+  const setCategories = useFilterStore((s) => s.setCategories);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { theme } = useTheme();
@@ -202,6 +204,10 @@ export const BottomNavigation = memo(({
 
       if (item.path === location.pathname) {
         haptics.tap();
+        // Tapping Dashboard while already on dashboard resets to category selection grid
+        if (item.id === 'browse') {
+          setCategories([]);
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
@@ -221,7 +227,7 @@ export const BottomNavigation = memo(({
         navigate(item.path);
       }
     },
-    [navigate, location.pathname],
+    [navigate, location.pathname, setCategories],
   );
 
   const handleNavKeyDown = useCallback(

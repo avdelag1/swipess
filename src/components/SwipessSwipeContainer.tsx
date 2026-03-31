@@ -1051,6 +1051,16 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       data-no-swipe-nav
       onMouseEnter={handleDeckHover}
     >
+      {/* Back to categories button */}
+      <button
+        onClick={() => setCategories([])}
+        className="absolute top-2 left-3 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-white/50 hover:text-white/80 text-[10px] font-black uppercase tracking-widest"
+        aria-label="Back to categories"
+      >
+        <Home className="w-3 h-3" />
+        <span>All</span>
+      </button>
+
       {/* Centered card stack container with perspective */}
       <div className="relative flex-1 w-full max-w-md flex items-center justify-center pt-2" style={{ perspective: '1200px' }}>
         {/* THIRD CARD - Deepest in stack for poker hand depth */}

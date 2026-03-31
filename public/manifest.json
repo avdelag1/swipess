@@ -16,10 +16,9 @@
   "icons": [
     { "src": "/icons/fire-s-logo-960.webp", "sizes": "960x960", "type": "image/webp", "purpose": "any" },
     { "src": "/icons/fire-s-logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "/icons/fire-s-logo-480.webp", "sizes": "480x480", "type": "image/webp", "purpose": "any" },
+    { "src": "/icons/fire-s-logo.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/fire-s-logo-960.webp", "sizes": "960x960", "type": "image/webp", "purpose": "maskable" }
   ],
   "categories": ["lifestyle", "business", "social", "travel"],
   "shortcuts": [
