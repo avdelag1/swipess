@@ -298,8 +298,7 @@ function TopBarComponent({
                     {title}
                   </span>
                 ) : (
-                  <SwipessLogo size="xs" className="opacity-90 hover:opacity-100 transition-opacity" />
-
+                  <div className="w-10 h-full" />
                 )}
               </motion.div>
 
