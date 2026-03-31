@@ -117,24 +117,24 @@ export function useFilterPersistence() {
         
         logger.info('[FilterPersistence] Updated active filter');
       } else {
-        const hasFilters = state.categories.length > 0 || 
-                          state.listingType !== 'both' || 
-                          state.clientGender !== 'any' || 
-                          state.clientType !== 'all';
+        // PROACTIVE PERSISTENCE: Ensure clean state by deactivating any existing active filters
+        // though maybeSingle of line 102 suggests there's at most one, we want to be certain.
+        await supabase
+          .from('saved_filters')
+          .update({ is_active: false })
+          .eq('user_id', user.id);
+
+        await supabase
+          .from('saved_filters')
+          .insert({
+            user_id: user.id,
+            name: 'Current Session',
+            filter_data: filterData,
+            is_active: true,
+            user_role: 'client',
+          });
         
-        if (hasFilters) {
-          await supabase
-            .from('saved_filters')
-            .insert({
-              user_id: user.id,
-              name: 'Current Session',
-              filter_data: filterData,
-              is_active: true,
-              user_role: 'client',
-            });
-          
-          logger.info('[FilterPersistence] Created new session filter');
-        }
+        logger.info('[FilterPersistence] Created new session filter (including possible All state)');
       }
     } catch (error) {
       logger.error('[FilterPersistence] Error saving filters:', error);

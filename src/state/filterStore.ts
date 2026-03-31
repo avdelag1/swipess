@@ -6,7 +6,7 @@
  */
 
 import { create } from 'zustand';
-import { subscribeWithSelector } from 'zustand/middleware';
+import { subscribeWithSelector, persist } from 'zustand/middleware';
 import type { 
   QuickFilterCategory, 
   QuickFilterListingType, 
@@ -17,21 +17,7 @@ import type {
 } from '@/types/filters';
 // import { logger } from '@/utils/prodLogger';
 
-// Read localStorage to set initial categories on store creation
-function getInitialCategories(): QuickFilterCategory[] {
-  try {
-    const saved = localStorage.getItem('quickFilter');
-    const map: Record<string, QuickFilterCategory[]> = {
-      properties: ['property'],
-      motorcycles: ['motorcycle'],
-      bicycles: ['bicycle'],
-      workers: ['services'],
-    };
-    return map[saved ?? ''] ?? [];
-  } catch {
-    return [];
-  }
-}
+
 
 interface FilterState {
   // ========== CLIENT FILTERS ==========
@@ -106,10 +92,11 @@ interface ClientFiltersShape {
 }
 
 export const useFilterStore = create<FilterState>()(
-  subscribeWithSelector((set, get) => ({
-    // ========== INITIAL STATE ==========
-    activeCategory: null,
-    categories: getInitialCategories(),
+  persist(
+    subscribeWithSelector((set, get) => ({
+      // ========== INITIAL STATE ==========
+      activeCategory: null,
+      categories: [],
     listingType: 'both',
     clientGender: 'any',
     clientType: 'all',
@@ -356,12 +343,26 @@ export const useFilterStore = create<FilterState>()(
       if (role === 'client') return state.categories.length > 0 || state.listingType !== 'both';
       return state.clientGender !== 'any' || state.clientType !== 'all' || state.categories.length > 0 || state.listingType !== 'both';
     },
-    getActiveFilterCount: (role) => {
-      const state = get();
-      if (role === 'client') return state.categories.length + (state.listingType !== 'both' ? 1 : 0);
-      return (state.clientGender !== 'any' ? 1 : 0) + (state.clientType !== 'all' ? 1 : 0) + (state.clientAgeRange ? 1 : 0) + (state.clientBudgetRange ? 1 : 0) + (state.clientNationalities.length > 0 ? 1 : 0) + state.categories.length + (state.listingType !== 'both' ? 1 : 0);
-    },
-  }))
+      getActiveFilterCount: (role) => {
+        const state = get();
+        if (role === 'client') return state.categories.length + (state.listingType !== 'both' ? 1 : 0);
+        return (state.clientGender !== 'any' ? 1 : 0) + (state.clientType !== 'all' ? 1 : 0) + (state.clientAgeRange ? 1 : 0) + (state.clientBudgetRange ? 1 : 0) + (state.clientNationalities.length > 0 ? 1 : 0) + state.categories.length + (state.listingType !== 'both' ? 1 : 0);
+      },
+    })),
+    {
+      name: 'swipess-filter-storage', // name of the item in the storage (must be unique)
+      partialize: (state) => ({ 
+        categories: state.categories, 
+        activeCategory: state.activeCategory, 
+        listingType: state.listingType,
+        clientGender: state.clientGender,
+        clientType: state.clientType,
+        userLatitude: state.userLatitude,
+        userLongitude: state.userLongitude,
+        radiusKm: state.radiusKm
+      }), // only persist these fields
+    }
+  )
 );
 
 // SELECTOR HOOKS

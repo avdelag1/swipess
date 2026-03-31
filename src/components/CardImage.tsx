@@ -177,7 +177,7 @@ const CardImage = memo(({
         loading={priority ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={priority ? "high" : "auto"}
-        className={cn(animate && "breathing-zoom")}
+        className={cn(priority && "breathing-zoom")}
         style={{
           position: 'absolute',
           inset: 0,
@@ -185,13 +185,10 @@ const CardImage = memo(({
           height: '100%',
           objectFit: 'cover',
           opacity: loaded ? 1 : 0,
-          transition: wasInCache ? 'none' : `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+          transition: `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
           borderRadius: br,
           zIndex: 3,
           transformOrigin: 'center',
-          animation: wasInCache 
-            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards`
-            : 'none'
         }}
         onLoad={() => {
           if (src) imageCache.set(src, true);

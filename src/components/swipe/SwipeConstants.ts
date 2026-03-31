@@ -61,11 +61,11 @@ export const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: 
 // Primary: local AI-generated images (guaranteed to load, no external dependency).
 // Fallback Unsplash URLs are used for categories without a local asset.
 export const POKER_CARD_PHOTOS: Record<string, string> = {
-  property:   '/images/properties/property_1.png',
-  motorcycle: '/images/motorcycles/vespa_1.png',
-  bicycle:    '/images/beach-sunset.jpg',
-  services:   '/images/properties/property_2.png',
-  all:        '/images/properties/property_3.png',
+  property:   '/images/filters/property.png',
+  motorcycle: '/images/filters/scooter.png',
+  bicycle:    '/images/filters/bicycle.png',
+  services:   '/images/filters/workers.png',
+  all:        '/images/filters/workers.png', // Fallback to workers for 'all'
 };
 
 // Gradient fallbacks shown when an image fails to load (no broken/black cards).

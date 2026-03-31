@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo, memo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -297,7 +297,7 @@ function ShareModal({
 }
 
 // ── STORY PROGRESS BAR ────────────────────────────────────────────────────────
-function StoryProgressBar({ 
+const StoryProgressBar = memo(({ 
   duration, 
   isActive, 
   isPaused, 
@@ -309,12 +309,12 @@ function StoryProgressBar({
   isPaused: boolean; 
   onComplete: () => void;
   animKey: number;
-}) {
+}) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
   return (
-    <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 right-4 z-[60] flex gap-1.5 h-1">
+    <div className="absolute top-[calc(env(safe-area-inset-top,0px)+8px)] left-4 right-4 z-[60] flex gap-1.5 h-1">
       <div className={cn(
         "relative flex-1 rounded-full overflow-hidden backdrop-blur-md",
         isLight ? "bg-black/10" : "bg-white/20"
@@ -333,16 +333,16 @@ function StoryProgressBar({
       </div>
     </div>
   );
-}
+});
 
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
-function EventCard({
+const EventCard = memo(({
   event, isActive, isPaused, animKey, onTickComplete, onLike, liked, onChat, onShare, onMiddleTap, onNextEvent, onPrevEvent,
 }: {
   event: EventItem; isActive: boolean; isPaused: boolean; animKey: number; onTickComplete: () => void; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
   onNextEvent: () => void; onPrevEvent: () => void;
-}) {
+}) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const [showDetails, setShowDetails] = useState(false);
@@ -451,8 +451,8 @@ function EventCard({
         )}
       </AnimatePresence>
 
-      {/* Bottom content */}
-      <div className="absolute inset-x-0 bottom-0 z-[2] px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
+      {/* Bottom content — pushed lower for better visual balance */}
+      <div className="absolute inset-x-0 bottom-0 z-[2] px-4 pb-[calc(0.6rem+env(safe-area-inset-bottom,0px))]">
         <AnimatePresence>
           {isActive && (
             <motion.div
@@ -570,6 +570,8 @@ function EventCard({
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}
           className="flex flex-col items-center gap-1"
           data-testid={`like-event-${event.id}`}
+          title={liked ? "Unlike" : "Like"}
+          aria-label={liked ? "Unlike this event" : "Like this event"}
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
@@ -590,6 +592,8 @@ function EventCard({
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }}
           className="flex flex-col items-center gap-1"
           data-testid={`chat-event-${event.id}`}
+          title="Chat on WhatsApp"
+          aria-label="Chat on WhatsApp"
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
@@ -609,6 +613,8 @@ function EventCard({
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onShare(); }}
           className="flex flex-col items-center gap-1"
           data-testid={`share-event-${event.id}`}
+          title="Share this event"
+          aria-label="Share this event"
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
@@ -736,10 +742,10 @@ function EventCard({
       </AnimatePresence>
     </div>
   );
-}
+});
 
 // ── PROMOTE CTA CARD (appears at end of feed) ─────────────────────────────────
-function PromoteCTACard({ onPromote }: { onPromote: () => void }) {
+const PromoteCTACard = memo(({ onPromote }: { onPromote: () => void }) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
@@ -810,7 +816,7 @@ function PromoteCTACard({ onPromote }: { onPromote: () => void }) {
       </motion.div>
     </div>
   );
-}
+});
 
 // ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 export default function EventosFeed() {
@@ -993,11 +999,17 @@ export default function EventosFeed() {
       const el = parentRef.current;
       if (el) {
         const height = el.clientHeight || window.innerHeight || 1;
-        // Now include the Promote card (index = filteredEvents.length)
         const maxIdx = filteredEvents.length; 
-        if (activeIdx >= maxIdx) return; // Stop at Promote card
+        if (activeIdx >= maxIdx) return;
         const nextIdx = activeIdx + 1;
         el.scrollTo({ top: nextIdx * height, behavior: 'smooth' });
+
+        // SPEED BOOST: Prefetch next 3 events ahead of scroll
+        for (let i = 1; i <= 3; i++) {
+          const preIdx = (nextIdx + i) % (maxIdx + 1);
+          const preId = filteredEvents[preIdx]?.id;
+          if (preId) predictivePrefetchEvent(queryClient, preId);
+        }
       }
       setAnimKey(k => k + 1);
     }, AUTOPLAY_DURATION);
@@ -1053,11 +1065,11 @@ export default function EventosFeed() {
       isLight ? "bg-white" : "bg-black"
     )}>
 
-      {/* ── TOP HUD ── */}
-      <div className="absolute top-0 left-0 right-0 z-30 pt-safe stagger-enter">
-        {/* Back button + title + promote */}
+      {/* ── TOP HUD ── Adjusted tosit clearly below standard PWA bars and logo */}
+      <div className="absolute top-0 left-0 right-0 z-30 pt-[calc(env(safe-area-inset-top,0px)+16px)] stagger-enter">
+        {/* Back button + title + promote — Adjusted for 'S' logo overlap fix */}
         <motion.div 
-          className="flex items-center gap-3 px-6 pt-8 pb-8"
+          className="flex items-center gap-3 px-6 pt-10 pb-2"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -1169,8 +1181,8 @@ export default function EventosFeed() {
           })}
         </div>
 
-        {/* Navigation Dots — subtle TikTok style indicators at the bottom of the header */}
-        <div className="flex justify-center gap-1.5 px-4 pt-6 pb-8">
+        {/* Navigation Dots — minimal height to prevent overlap */}
+        <div className="flex justify-center gap-1.5 px-4 pt-2 pb-4">
           {filteredEvents.slice(0, 10).map((_, i) => (
             <motion.div
               key={i}
