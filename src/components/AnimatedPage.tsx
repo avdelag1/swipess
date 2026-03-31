@@ -9,19 +9,21 @@ import { ReactNode } from 'react';
  */
 
 const pageVariants = {
-  initial: { opacity: 0 },
+  initial: { opacity: 0, scale: 0.99 },
   animate: {
     opacity: 1,
+    scale: 1,
     transition: {
-      duration: 0.08,
-      ease: "easeOut",
+      duration: 0.18,
+      ease: [0.22, 1, 0.36, 1], // Zenith Glide
     }
   },
   exit: {
     opacity: 0,
+    scale: 0.99,
     transition: {
-      duration: 0.06,
-      ease: "easeIn",
+      duration: 0.15,
+      ease: [0.32, 0, 0.67, 0],
     }
   },
 } as const;
@@ -33,8 +35,8 @@ export function AnimatedPage({ children }: { children: ReactNode }) {
       animate="animate"
       exit="exit"
       variants={pageVariants}
-      style={{ willChange: 'opacity' }}
-      className="h-full w-full"
+      className="h-full w-full gpu-accelerate"
+      style={{ willChange: 'opacity, transform' }}
     >
       {children}
     </motion.div>

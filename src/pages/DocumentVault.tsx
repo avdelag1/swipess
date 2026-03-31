@@ -96,8 +96,8 @@ export default function DocumentVault() {
     if (!user) return;
     setIsLoading(true);
     const [docsRes, contractsRes] = await Promise.all([
-      supabase.from('legal_documents').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-      supabase.from('digital_contracts').select('*').or(`owner_id.eq.${user.id},client_id.eq.${user.id}`).order('created_at', { ascending: false }),
+      supabase.from('legal_documents').select('id, file_name, file_path, document_type, status, created_at, file_size, mime_type').eq('user_id', user.id).order('created_at', { ascending: false }),
+      supabase.from('digital_contracts').select('id, title, status, created_at, owner_id, client_id').or(`owner_id.eq.${user.id},client_id.eq.${user.id}`).order('created_at', { ascending: false }),
     ]);
     setDocuments(docsRes.data || []);
     setContracts(contractsRes.data || []);

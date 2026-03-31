@@ -1,7 +1,7 @@
 {
-  "name": "Local Jarvis",
-  "short_name": "Local Jarvis",
-  "description": "Your Personal Elite Discovery & Connection Concierge.",
+  "name": "Swipess",
+  "short_name": "Swipess",
+  "description": "Your Elite Discovery & Connection Engine.",
   "start_url": "/?pwa=true",
   "scope": "/",
   "display": "standalone",

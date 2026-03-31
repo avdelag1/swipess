@@ -129,7 +129,7 @@ export function useSmartClientMatching(
                 const userIds = finalProfiles.map(p => p.user_id);
                 const { data: cpData } = await supabase
                     .from('client_profiles')
-                    .select('*')
+                    .select('user_id, age, gender, city, country, preferred_activities, profile_images, interests, roommate_available, work_schedule, name')
                     .in('user_id', userIds);
 
                 const cpMap = new Map(cpData?.map(cp => [cp.user_id, cp]) || []);

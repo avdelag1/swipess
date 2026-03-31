@@ -13,6 +13,7 @@ import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import CardImage from '@/components/CardImage';
+import { DiscoverySkeleton } from '@/components/ui/DiscoverySkeleton';
 
 interface EventItem {
   id: string;
@@ -161,10 +162,8 @@ export default function EventosLikes() {
       {/* Grid Content */}
       <div className="p-4 pt-6">
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-4">
-            {[1,2,3,4].map(i => (
-              <div key={i} className={cn("aspect-[4/5] rounded-[2rem] animate-pulse", isLight ? "bg-black/5" : "bg-white/5")} />
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <DiscoverySkeleton count={4} />
           </div>
         ) : filtered.length > 0 ? (
           <div className="grid grid-cols-2 gap-4">

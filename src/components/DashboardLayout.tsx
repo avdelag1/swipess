@@ -43,6 +43,8 @@ const MessageActivationPackages = lazy(() => import('@/components/MessageActivat
 const PushNotificationPrompt = lazy(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })))
 const WelcomeNotification = lazy(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })))
 const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })))
+import { GlobalDialogs } from './GlobalDialogs'
+import { useModalStore } from '@/state/modalStore'
 
 // SPEED OF LIGHT COMPONENTS
 import { LoadingBar } from './ui/LoadingBar';
@@ -115,31 +117,10 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const { theme } = useTheme()
   const isDark = theme === 'dark' || theme === 'cheers'
-  const [showSubscriptionPackages, setShowSubscriptionPackages] = useState(false)
-
-  const [_showPreferences, _setShowPreferences] = useState(false)
-  const [showProfile, setShowProfile] = useState(false)
-  const [selectedListingId, setSelectedListingId] = useState<string | null>(null)
-  const [showPropertyDetails, setShowPropertyDetails] = useState(false)
-  const [showPropertyInsights, setShowPropertyInsights] = useState(false)
-  const [showClientInsights, setShowClientInsights] = useState(false)
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null)
-  const [subscriptionReason, setSubscriptionReason] = useState<string>('')
-
-  // Owner dialogs
-  const [showOwnerSettings, setShowOwnerSettings] = useState(false)
-  const [showOwnerProfile, setShowOwnerProfile] = useState(false)
-  const [showOwnerSwipe, setShowOwnerSwipe] = useState(false)
-
-  // Other dialogs
-  const [showLegalDocuments, setShowLegalDocuments] = useState(false)
-  const [showSupport, setShowSupport] = useState(false)
-  const [showFilters, setShowFilters] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingChecked, setOnboardingChecked] = useState(false)
-  const [showCategoryDialog, setShowCategoryDialog] = useState(false)
-  const [showSavedSearches, setShowSavedSearches] = useState(false)
-  const [showMessageActivations, setShowMessageActivations] = useState(false)
+  
+  const modalStore = useModalStore()
 
   const { navigate } = useAppNavigate();
   const location = useLocation()
@@ -262,14 +243,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [userId, userRole, queryClient]);
 
-  // Lazy load listings and profiles only when insights dialogs are opened
-  // This prevents unnecessary API calls on every page load
-  const { data: listings = [], error: listingsError } = useListings([], {
-    enabled: showPropertyInsights || showClientInsights
-  });
-  const { data: profiles = [], error: profilesError } = useClientProfiles([], {
-    enabled: showClientInsights
-  });
+  // REMOVED: useListings and useClientProfiles moved to GlobalDialogs to prevent 
+  // re-renders of the main layout shell during data fetching for modals.
 
   if (import.meta.env.DEV) {
     if (listingsError && (showPropertyInsights || showClientInsights)) {
@@ -477,31 +452,30 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // REMOVED: handleNotificationsClick removed in favor of direct navigation in TopBar
 
   const handleMessageActivationsClick = useCallback(() => {
-    navigate('/subscription-packages');
-  }, [navigate]);
+    modalStore.setModal('showMessageActivations', true);
+  }, [modalStore]);
 
   const _handleMenuItemClick = useCallback((action: string) => {
     switch (action) {
       case 'add-listing':
-        setShowCategoryDialog(true)
+        modalStore.setModal('showCategoryDialog', true)
         break
       case 'saved-searches':
-        setShowSavedSearches(true)
+        modalStore.setModal('showSavedSearches', true)
         break
       case 'legal-documents':
-        setShowLegalDocuments(true)
+        modalStore.setModal('showLegalDocuments', true)
         break
       case 'premium-packages':
-        setSubscriptionReason('Choose the perfect plan for your needs!')
-        setShowSubscriptionPackages(true)
+        modalStore.openSubscription('Choose the perfect plan for your needs!')
         break
       case 'support':
-        setShowSupport(true)
+        modalStore.setModal('showSupport', true)
         break
       default:
         break
     }
-  }, [])
+  }, [modalStore])
 
   const handleApplyFilters = useCallback((filters: any) => {
     // Convert AdvancedFilters format to ListingFilters format
@@ -720,174 +694,21 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
         <BottomNavigation
           userRole={userRole}
-          onFilterClick={handleFilterClick}
-          onAddListingClick={handleAddListingClick}
+          onFilterClick={() => modalStore.setModal('showFilters', true)}
+          onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
           onListingsClick={handleListingsClick}
           onAISearchClick={() => {
             if (userRole === 'owner') {
               navigate('/owner/listings/new-ai');
             } else {
-              setIsAISearchOpen(true);
+              modalStore.setModal('isAISearchOpen', true);
             }
           }}
         />
       )}
 
-      {/* Advanced Filters Dialog */}
-      <SmartSuspense fallback={null}>
-        <AdvancedFilters
-          isOpen={showFilters}
-          onClose={() => setShowFilters(false)}
-          onApplyFilters={handleApplyFilters}
-          userRole={userRole}
-          currentFilters={appliedFilters ?? {}}
-        />
-      </SmartSuspense>
-
-      {/* All Dialogs/Modals */}
-      <SmartSuspense fallback={null}>
-        <SubscriptionPackages
-          isOpen={showSubscriptionPackages}
-          onClose={() => setShowSubscriptionPackages(false)}
-          reason={subscriptionReason}
-          userRole={userRole}
-        />
-      </SmartSuspense>
-
-      {/* Token Packages */}
-      <SmartSuspense fallback={null}>
-        <MessageActivationPackages
-          isOpen={showMessageActivations}
-          onClose={() => setShowMessageActivations(false)}
-          userRole={userRole}
-        />
-      </SmartSuspense>
-
-      {userRole === 'client' && (
-        <SmartSuspense fallback={null}>
-          <>
-            <ClientProfileDialog
-              open={showProfile}
-              onOpenChange={setShowProfile}
-            />
-
-            <PropertyDetails
-              listingId={selectedListingId}
-              isOpen={showPropertyDetails}
-              onClose={() => {
-                setShowPropertyDetails(false)
-                setSelectedListingId(null)
-              }}
-              onMessageClick={handleMessageClick}
-            />
-
-            <PropertyInsightsDialog
-              open={showPropertyInsights}
-              onOpenChange={(open) => {
-                setShowPropertyInsights(open)
-                if (!open) setSelectedListingId(null)
-              }}
-              listing={selectedListing || null}
-            />
-
-            <SavedSearchesDialog
-              open={showSavedSearches}
-              onOpenChange={setShowSavedSearches}
-            />
-          </>
-        </SmartSuspense>
-      )}
-
-      {userRole === 'owner' && (
-        <SmartSuspense fallback={null}>
-          <>
-            <ClientInsightsDialog
-              open={showClientInsights}
-              onOpenChange={(open) => {
-                setShowClientInsights(open)
-                if (!open) setSelectedProfileId(null)
-              }}
-              profile={selectedProfile || null}
-            />
-
-            <OwnerSettingsDialog
-              open={showOwnerSettings}
-              onOpenChange={setShowOwnerSettings}
-            />
-
-            <OwnerProfileDialog
-              open={showOwnerProfile}
-              onOpenChange={setShowOwnerProfile}
-            />
-
-            <OwnerClientSwipeDialog
-              open={showOwnerSwipe}
-              onOpenChange={setShowOwnerSwipe}
-            />
-
-            <LegalDocumentsDialog
-              open={showLegalDocuments}
-              onOpenChange={setShowLegalDocuments}
-            />
-
-            <CategorySelectionDialog
-              open={showCategoryDialog}
-              onOpenChange={setShowCategoryDialog}
-              onCategorySelect={(category, mode) => {
-                setShowCategoryDialog(false);
-                navigate(`/owner/properties?category=${category}&mode=${mode}`);
-              }}
-            />
-          </>
-        </SmartSuspense>
-      )}
-
-      <SmartSuspense fallback={null}>
-        <SupportDialog
-          isOpen={showSupport}
-          onClose={() => setShowSupport(false)}
-          userRole={userRole}
-        />
-      </SmartSuspense>
-
-      {/* REMOVED: NotificationsDialog removed in favor of /notifications page */}
-
-      <SmartSuspense fallback={null}>
-        <OnboardingFlow
-          open={showOnboarding}
-          onComplete={() => {
-            setShowOnboarding(false);
-            // Clear cache so we don't show onboarding again
-            clearOnboardingCache();
-            toast({
-              title: 'Profile Complete!',
-              description: 'Start exploring and find your perfect match!',
-            });
-          }}
-        />
-      </SmartSuspense>
-
-      {/* AI Search Dialog */}
-      <SmartSuspense fallback={null}>
-        <AISearchDialog
-          isOpen={isAISearchOpen}
-          onClose={() => setIsAISearchOpen(false)}
-          userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'}
-        />
-      </SmartSuspense>
-
-      {/* Push Notification Permission Prompt */}
-      <SmartSuspense fallback={null}>
-        <PushNotificationPrompt />
-      </SmartSuspense>
-
-      {/* Welcome Notification Banner for First-Time Users */}
-      <SmartSuspense fallback={null}>
-        <WelcomeNotification
-          isOpen={shouldShowWelcome}
-          onClose={dismissWelcome}
-        />
-      </SmartSuspense>
+      {/* ZENITH GLOBAL DIALOGS — Decoupled lifecycle */}
+      <GlobalDialogs userRole={userRole} />
     </div>
   )
 }

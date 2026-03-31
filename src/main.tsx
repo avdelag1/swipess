@@ -19,10 +19,17 @@ const authPromise = supabase.auth.getSession().catch(() => ({ data: { session: n
 const rootElement = document.getElementById("root");
 if (rootElement) {
   const root = createRoot(rootElement as HTMLElement);
+
+  // 🔥 ZENITH FIX: StrictMode ONLY in development
+  // This removes the intentional double-mount / double-fetch in dev
   root.render(
-    <React.StrictMode>
+    import.meta.env.DEV ? (
+      <React.StrictMode>
+        <App authPromise={authPromise} />
+      </React.StrictMode>
+    ) : (
       <App authPromise={authPromise} />
-    </React.StrictMode>
+    )
   );
 }
 

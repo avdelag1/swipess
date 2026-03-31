@@ -375,9 +375,10 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           y,
           rotate: cardRotate,
           opacity: cardOpacity,
-          willChange: 'transform',
-          transform: 'translateZ(0)',
+          willChange: 'transform, opacity',
+          transform: 'translate3d(0,0,0)',
           backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
         }}
       >
         <div 

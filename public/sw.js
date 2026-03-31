@@ -129,6 +129,27 @@ self.addEventListener('message', (event) => {
   }
 });
 
+// 🚀 ZENITH: Native Background Sync
+// Allows the app to complete swipes or messages even if the user
+// closes the app while offline.
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-swipes') {
+    event.waitUntil(
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: 'BACKGROUND_SYNC_COMPLETE', tag: event.tag });
+        });
+      })
+    );
+  }
+});
+
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'content-prefetch') {
+    event.waitUntil(precacheAppShell());
+  }
+});
+
 // ─── Push Notification Handlers ──────────────────────────────────
 
 /**

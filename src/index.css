@@ -113,6 +113,8 @@ html {
   overflow-x: hidden;
   width: 100%;
   touch-action: manipulation;
+  overscroll-behavior-y: none; /* Prevents PWA pull-to-refresh jank */
+  -webkit-overflow-scrolling: touch;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   --safe-top: env(safe-area-inset-top, 0px);
@@ -125,6 +127,7 @@ body {
   padding: 0;
   min-height: 100dvh;
   overflow-x: hidden;
+  overscroll-behavior: none; /* Zenith Protocol: Lock viewport */
 }
 
 #root {
@@ -175,10 +178,17 @@ body {
   transition: transform 50ms ease;
 }
 
-/* GPU acceleration */
-.gpu-accelerate {
-  transform: translateZ(0);
-  will-change: transform;
+/* 🚀 ZENITH HARDWARE ACCELERATION 🚀 */
+.gpu-accelerate, .zenith-surface {
+  transform: translate3d(0,0,0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
+  contain: layout style paint;
+}
+
+.zenith-layer {
+  isolation: isolate;
 }
 
 /* ─── Premium Animations ─── */

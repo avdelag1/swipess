@@ -1,58 +1,33 @@
 import { useState, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { supabase } from '@/integrations/supabase/client';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, RefreshCw, Sparkles, Clock, CalendarDays, X, HelpCircle, 
-  Briefcase, MapPin, DollarSign, MessageCircle, Star 
+  ArrowLeft, RefreshCw, Sparkles, Clock, CalendarDays, X, 
+  MapPin, MessageCircle 
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DiscoverySkeleton } from '@/components/ui/DiscoverySkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { PRICING_UNITS } from '@/components/WorkerListingForm';
-import { findCategory } from '@/data/serviceCategories';
-import { SaveButton } from '@/components/SaveButton';
 import { triggerHaptic } from '@/utils/haptics';
+import { WorkerCard, type WorkerListing } from '@/components/discovery/WorkerCard';
 
-// Hire duration quick filter options
-const HIRE_DURATION_FILTERS = [
-  { value: 'all', label: 'All', description: 'Show all services' },
-  { value: 'monthly', label: 'Monthly', description: 'Monthly hire' },
-  { value: 'hourly', label: 'Hourly', description: 'Pay per hour' },
-  { value: 'daily', label: 'Daily', description: 'Pay per day' },
-  { value: 'project', label: 'Project', description: 'Project-based' },
-] as const;
-
-interface WorkerListing {
-  id: string;
-  title: string | null;
-  description: string | null;
-  price: number | null;
-  images: string[] | null;
-  city: string | null;
-  country?: string | null;
-  service_category?: string | null;
-  custom_service_name?: string | null;
-  pricing_unit?: string | null;
-  availability?: string | null;
-  experience_years?: number | null;
-  languages?: string[] | null;
-  owner_id: string;
-  created_at: string | null;
-  status: string | null;
-  owner?: {
-    id: string;
-    full_name: string | null;
-    avatar_url: string | null;
-  } | null;
-}
+// 🚀 ZENITH: Explicit field selection to minimize payload
+const WORKER_FIELDS = `
+  id, title, description, price, images, city, service_category, 
+  pricing_unit, experience_years, availability, owner_id, created_at, status,
+  owner:profiles!listings_owner_id_fkey (
+    user_id,
+    full_name,
+    avatar_url
+  )
+`;
 
 function useWorkerListings(serviceTypeFilter?: string, pricingFilter?: string) {
   return useQuery({
@@ -60,14 +35,7 @@ function useWorkerListings(serviceTypeFilter?: string, pricingFilter?: string) {
     queryFn: async () => {
       let query = supabase
         .from('listings')
-        .select(`
-          *,
-          owner:profiles!listings_owner_id_fkey (
-            user_id,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select(WORKER_FIELDS)
         .eq('category', 'worker')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
@@ -78,152 +46,29 @@ function useWorkerListings(serviceTypeFilter?: string, pricingFilter?: string) {
       }
 
       const { data: listings, error } = await query;
-
       if (error) throw error;
-
-      return (listings || []).map((l: any) => ({
-        id: l.id,
-        title: l.title,
-        description: l.description,
-        price: l.price,
-        images: l.images,
-        city: l.city,
-        service_category: l.service_category,
-        pricing_unit: l.pricing_unit,
-        experience_years: l.experience_years,
-        owner_id: l.owner_id,
-        created_at: l.created_at,
-        status: l.status,
-        owner: l.owner,
-      })) as WorkerListing[];
+      return (listings || []) as unknown as WorkerListing[];
     },
   });
 }
 
-function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (userId: string) => void }) {
-  const categoryInfo = findCategory(worker.service_category || '');
-  const pricingInfo = PRICING_UNITS.find(p => p.value === worker.pricing_unit);
-
-  return (
-    <Card className="overflow-hidden rounded-2xl transition-all shadow-sm border-border/40 bg-card hover:shadow-lg hover:border-border/60">
-      <div className="relative aspect-[4/3] bg-muted">
-        {worker.images?.[0] ? (
-          <img
-            src={worker.images[0] as string}
-            alt={worker.title ?? 'Worker'}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/10">
-            <Briefcase className="w-12 h-12 text-primary/50" />
-          </div>
-        )}
-        <Badge className="absolute top-2 left-2 bg-background/90 backdrop-blur-sm">
-          {categoryInfo?.icon} {categoryInfo?.label || worker.service_category}
-        </Badge>
-        {pricingInfo && (
-          <Badge className="absolute top-2 right-2 bg-rose-500/90 text-white backdrop-blur-sm">
-            {pricingInfo.label}
-          </Badge>
-        )}
-      </div>
-
-      <CardContent className="p-4 space-y-3">
-        {/* Title and Owner */}
-        <div>
-          <h3 className="font-semibold text-lg line-clamp-1">{worker.title}</h3>
-          {worker.owner && (
-            <div className="flex items-center gap-2 mt-1">
-              <div className="w-5 h-5 rounded-full overflow-hidden bg-muted">
-                {worker.owner.avatar_url ? (
-                  <img src={worker.owner.avatar_url ?? undefined} alt={worker.owner.full_name ?? undefined} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-primary/20" />
-                )}
-              </div>
-              <span className="text-sm text-muted-foreground">{worker.owner.full_name}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Description */}
-        {worker.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">{worker.description}</p>
-        )}
-
-        {/* Details */}
-        <div className="flex flex-wrap gap-2 text-xs">
-          {worker.city && (
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <MapPin className="w-3 h-3" />
-              {worker.city}
-            </span>
-          )}
-          {worker.experience_years && (
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <Star className="w-3 h-3" />
-              {worker.experience_years} yrs exp
-            </span>
-          )}
-          {worker.availability && (
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <Clock className="w-3 h-3" />
-              {worker.availability.slice(0, 20)}...
-            </span>
-          )}
-        </div>
-
-        {/* Price and Action */}
-        <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/40">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight leading-none mb-1">Price</span>
-            <div className="flex items-baseline gap-1">
-              <span className="font-black text-xl tracking-tighter text-foreground">
-                {(worker.price ?? 0) > 0 ? `$${worker.price}` : 'Quote'}
-              </span>
-              {(worker.price ?? 0) > 0 && pricingInfo && (
-                <span className="text-[10px] font-bold text-muted-foreground/80 lowercase">
-                  /{pricingInfo.label.replace('Per ', '')}
-                </span>
-              )}
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2.5">
-            <SaveButton 
-              targetId={worker.id}
-              targetType="listing"
-              className="w-11 h-11 rounded-2xl bg-muted/30 border border-border/20 backdrop-blur-md"
-              variant="circular"
-            />
-            <button
-              onClick={() => {
-                triggerHaptic('light');
-                onContact(worker.owner_id);
-              }}
-              className="group relative flex items-center justify-center gap-2 px-6 h-11 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white transition-all active:scale-95 bg-gradient-to-br from-rose-500 via-pink-600 to-orange-500 shadow-xl shadow-rose-500/20 overflow-hidden"
-            >
-              <motion.div 
-                className="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-sweep" 
-              />
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>Contact</span>
-            </button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+// Hire duration quick filter options
+const HIRE_DURATION_FILTERS = [
+  { value: 'all', label: 'All', description: 'Show all services' },
+  { value: 'monthly', label: 'Monthly', description: 'Monthly hire' },
+  { value: 'hourly', label: 'Hourly', description: 'Pay per hour' },
+  { value: 'daily', label: 'Daily', description: 'Pay per day' },
+  { value: 'project', label: 'Project', description: 'Project-based' },
+] as const;
 
 export default function ClientWorkerDiscovery() {
   const navigate = useNavigate();
   const [selectedDuration, setSelectedDuration] = useState<string>('all');
+  const [contactingId, setContactingId] = useState<string | null>(null);
 
   const parentRef = useRef<HTMLDivElement>(null);
   const { data: workers, isLoading, refetch, isRefetching } = useWorkerListings(undefined, selectedDuration);
   const startConversation = useStartConversation();
-  const [contactingId, setContactingId] = useState<string | null>(null);
 
   const filteredWorkers = workers || [];
 
@@ -234,6 +79,7 @@ export default function ClientWorkerDiscovery() {
     overscan: 3,
   });
 
+  // 🚀 ZENITH: Optimized contact handler with stable reference
   const handleContact = useCallback(async (userId: string) => {
     if (contactingId) return;
     setContactingId(userId);
@@ -262,157 +108,142 @@ export default function ClientWorkerDiscovery() {
     }
   }, [contactingId, startConversation, navigate]);
 
-  const clearFilters = () => {
-    setSelectedDuration('all');
-  };
-
+  const clearFilters = () => setSelectedDuration('all');
   const hasActiveFilters = selectedDuration !== 'all';
 
   return (
-    <>
-      <div className="min-h-screen pb-16">
-        {/* Header */}
-        <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border/50 px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => navigate(-1)}
-                className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors duration-150"
-              >
-                <ArrowLeft className="w-4 h-4" strokeWidth={2.5} />
-                <span>Back</span>
-              </button>
-              <div className="w-2 h-2 rounded-full bg-[var(--color-brand-accent-2)] shadow-[0_0_6px_var(--color-brand-accent-2)] mx-1" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Find Services</span>
-            </div>
+    <div className="min-h-[110dvh] pb-16 bg-background">
+      {/* 🚀 Header: Glassmorphism + Sticky */}
+      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/40 px-4 py-4 safe-top-padding">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => refetch()}
-              disabled={isRefetching}
-              title="Refresh workers"
-              aria-label="Refresh workers list"
-              className="w-9 h-9 flex items-center justify-center rounded-full border border-border/40 text-muted-foreground hover:text-foreground transition-all disabled:opacity-50"
+              onClick={() => navigate(-1)}
+              className="group flex items-center justify-center w-10 h-10 rounded-full bg-muted/30 border border-border/10 hover:bg-muted/50 transition-all active:scale-90"
+              title="Go back"
             >
-              <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
+              <ArrowLeft className="w-5 h-5 text-foreground/80" strokeWidth={2.5} />
             </button>
-          </div>
-
-          {/* Hire Duration Quick Filter */}
-          <div className="flex gap-1.5 mb-3 overflow-x-auto pb-1 scrollbar-hide">
-            {HIRE_DURATION_FILTERS.map((filter) => (
-              <button
-                key={filter.value}
-                onClick={() => setSelectedDuration(filter.value)}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all",
-                  selectedDuration === filter.value
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-muted/80 text-muted-foreground hover:bg-muted"
-                )}
-              >
-                {filter.value === 'monthly' && <CalendarDays className="w-3 h-3" />}
-                {filter.value === 'hourly' && <Clock className="w-3 h-3" />}
-                {filter.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Active Filters */}
-          {hasActiveFilters && (
-            <div className="flex items-center gap-2 mt-3">
-              <span className="text-xs text-muted-foreground">Filters:</span>
-              {selectedDuration !== 'all' && (
-                <Badge variant="secondary" className="gap-1">
-                  {HIRE_DURATION_FILTERS.find(f => f.value === selectedDuration)?.label}
-                  <X
-                    className="w-3 h-3 cursor-pointer"
-                    onClick={() => setSelectedDuration('all')}
-                  />
-                </Badge>
-              )}
-              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs h-6">
-                Clear all
-              </Button>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-rose-500 mb-0.5">Discovery</span>
+              <h1 className="text-lg font-black tracking-tight leading-none text-foreground">Services</h1>
             </div>
-          )}
+          </div>
+          <button
+            onClick={() => refetch()}
+            disabled={isRefetching}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-muted/30 border border-border/10 text-foreground/70 hover:text-foreground transition-all active:rotate-180 disabled:opacity-50"
+            title="Refresh feed"
+          >
+            <RefreshCw className={cn("w-4 h-4", isRefetching && "animate-spin")} />
+          </button>
         </div>
 
-        {/* Content */}
-        <div 
-          className="px-4 py-4 overflow-y-auto" 
-          ref={parentRef}
-          style={{ height: 'calc(100vh - 180px)' }} // Roughly account for header/tabs
-        >
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="space-y-3">
-                  <Skeleton className="h-40 w-full rounded-xl" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
-              ))}
-            </div>
-          ) : filteredWorkers && filteredWorkers.length > 0 ? (
-            <div
-              style={{
-                height: `${rowVirtualizer.getTotalSize()}px`,
-                width: '100%',
-                position: 'relative',
+        {/* 🚀 ZENITH: Smooth Filter Bar */}
+        <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar -mx-4 px-4">
+          {HIRE_DURATION_FILTERS.map((filter) => (
+            <button
+              key={filter.value}
+              onClick={() => {
+                triggerHaptic('light');
+                setSelectedDuration(filter.value);
               }}
+              className={cn(
+                "flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap border",
+                selectedDuration === filter.value
+                  ? "bg-foreground text-background border-foreground shadow-lg shadow-foreground/10 translate-y-[-1px]"
+                  : "bg-muted/30 text-muted-foreground border-transparent hover:bg-muted/50"
+              )}
             >
-              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                const worker = filteredWorkers[virtualRow.index];
-                return (
-                  <div
-                    key={virtualRow.key}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      transform: `translateY(${virtualRow.start}px)`,
-                      paddingBottom: '16px' // Gap between cards
-                    }}
-                  >
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                    >
-                      <WorkerCard
-                        worker={worker}
-                        onContact={handleContact}
-                      />
-                    </motion.div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col items-center justify-center py-24 text-center rounded-[3rem] border border-border/40 bg-muted/20"
-            >
-              <div className="w-24 h-24 rounded-[2rem] bg-muted/60 border border-border/30 flex items-center justify-center mb-8 shadow-xl">
-                <Sparkles className="w-12 h-12 text-[var(--color-brand-accent-2)]/60 animate-pulse" />
-              </div>
-              <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">No Services Found</h3>
-              <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold mb-10">
-                {hasActiveFilters
-                  ? "Try adjusting your filters to find more service providers"
-                  : "Service providers will appear here once sellers list their services"}
-              </p>
-              <button
-                onClick={hasActiveFilters ? clearFilters : () => navigate('/client/dashboard')}
-                className="px-8 py-4 rounded-2xl text-sm font-black text-white transition-all active:scale-95 shadow-lg bg-gradient-to-r from-[#ec4899] to-[#f97316] shadow-pink-500/20"
-              >
-                {hasActiveFilters ? 'CLEAR FILTERS' : 'EXPLORE WORLD'}
-              </button>
-            </motion.div>
-          )}
+              {filter.value === 'monthly' && <CalendarDays className="w-3.5 h-3.5" />}
+              {filter.value === 'hourly' && <Clock className="w-3.5 h-3.5" />}
+              {filter.label}
+            </button>
+          ))}
         </div>
+
+        {/* Active Filters Summary */}
+        {hasActiveFilters && (
+          <div className="flex items-center gap-2 mt-4 animate-in fade-in slide-in-from-top-1">
+            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mr-1">Active:</span>
+            {selectedDuration !== 'all' && (
+              <Badge variant="secondary" className="gap-1.5 px-3 py-1 bg-muted/50 border-border/20 text-[10px] font-black uppercase tracking-widest rounded-lg">
+                {HIRE_DURATION_FILTERS.find(f => f.value === selectedDuration)?.label}
+                <X className="w-3 h-3 cursor-pointer hover:text-rose-500 transition-colors" onClick={() => setSelectedDuration('all')} />
+              </Badge>
+            )}
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-[10px] font-black uppercase tracking-widest h-6 px-2 text-rose-500 hover:bg-rose-500/10">
+              Reset
+            </Button>
+          </div>
+        )}
       </div>
-    </>
+
+      {/* 🚀 Discovery Feed with Row Virtualization */}
+      <div 
+        className="px-4 pt-6 pb-24 overflow-y-auto h-[calc(100vh-120px)]" 
+        ref={parentRef}
+      >
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <DiscoverySkeleton count={6} />
+          </div>
+        ) : filteredWorkers && filteredWorkers.length > 0 ? (
+          <div
+            style={{
+              height: `${rowVirtualizer.getTotalSize()}px`,
+              width: '100%',
+              position: 'relative',
+            }}
+          >
+            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              const worker = filteredWorkers[virtualRow.index];
+              return (
+                <div
+                  key={virtualRow.key}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    transform: `translateY(${virtualRow.start}px)`,
+                    paddingBottom: '24px' 
+                  }}
+                >
+                  <WorkerCard
+                    worker={worker}
+                    onContact={handleContact}
+                    // 🚀 ZENITH: Prioritize first two visible items for instant paint
+                    priority={virtualRow.index <= 1}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-center py-24 text-center rounded-[3rem] border border-border/20 bg-muted/5 shadow-inner"
+          >
+            <div className="w-24 h-24 rounded-[2.5rem] bg-gradient-to-br from-muted/30 to-muted/10 border border-border/10 flex items-center justify-center mb-8 shadow-xl">
+              <Sparkles className="w-12 h-12 text-rose-500/50 animate-pulse" />
+            </div>
+            <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4 uppercase">Ghost Town</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold mb-10 uppercase tracking-tight">
+              {hasActiveFilters
+                ? "Your filters are too strict. No masters found matching those criteria."
+                : "The future is coming. No master-level workers have registered in this sector yet."}
+            </p>
+            <button
+              onClick={hasActiveFilters ? clearFilters : () => navigate('/client/dashboard')}
+              className="px-10 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-white transition-all active:scale-95 shadow-2xl bg-gradient-to-br from-rose-500 via-pink-600 to-orange-500 shadow-rose-500/20"
+            >
+              {hasActiveFilters ? 'Vaporize Filters' : 'Phase Out'}
+            </button>
+          </motion.div>
+        )}
+      </div>
+    </div>
   );
 }

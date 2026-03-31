@@ -11,40 +11,37 @@ import { motion, AnimatePresence } from 'framer-motion';
  * GPU-composited: opacity + transform only, zero layout cost.
  */
 
-const ENTER_SPRING = {
-  type: 'spring' as const,
-  stiffness: 450,
-  damping: 28,
-  mass: 0.6,
-};
-
 const EXIT_FAST = {
-  duration: 0.12,
-  ease: [0.4, 0, 1, 1] as [number, number, number, number],
+  duration: 0.18,
+  ease: [0.32, 0, 0.67, 0], // Organic cinematic ease-in
 };
 
-const pageVariants = {
+const ENTER_GLIDE = {
+  duration: 0.22,
+  ease: [0.22, 1, 0.36, 1], // Power cubic-bezier (Zenith Standard)
+};
+
+const pageVariants: any = {
   initial: {
     opacity: 0,
-    y: 24,
-    scale: 0.96,
+    y: 12,
+    scale: 0.985,
   },
   animate: {
     opacity: 1,
     y: 0,
     scale: 1,
     transition: {
-      ...ENTER_SPRING,
-      opacity: { duration: 0.15, ease: 'easeOut' },
+      ...ENTER_GLIDE,
     },
   },
   exit: {
     opacity: 0,
-    scale: 0.98,
-    y: -8,
+    scale: 0.99,
+    y: -4,
     transition: EXIT_FAST,
   },
-} as const;
+};
 
 export function AnimatedOutlet() {
   const location = useLocation();
@@ -58,7 +55,7 @@ export function AnimatedOutlet() {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="h-full w-full flex flex-col flex-1 stagger-enter"
+        className="h-full w-full flex flex-col flex-1 stagger-enter gpu-accelerate"
         style={{ willChange: 'transform, opacity' }}
       >
         {outlet}

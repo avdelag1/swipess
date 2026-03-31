@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, createContext, useContext, ReactNode, useMemo } from 'react';
+import { useState, useCallback, useEffect, useRef, createContext, useContext, ReactNode, useMemo, useTransition } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -86,6 +86,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     return getCachedMode(user?.id) || 'client';
   });
   const [isSwitching, setIsSwitching] = useState(false);
+  const [_isPending, startTransition] = useTransition();
 
   // Update initial mode when user changes; reset on logout
   useEffect(() => {
@@ -232,15 +233,20 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       resetClientDeck();
     }
 
-    // 7. Navigate with error handling - use { transition: true } if supported in future
+    // 7. Navigate with error handling
     try {
       const targetPath = getTargetPath(newMode);
-      // Replace: true for cleaner history during mode jumps
-      navigate(targetPath, { replace: true });
+      
+      startTransition(() => {
+        // Replace: true for cleaner history during mode jumps
+        navigate(targetPath, { replace: true });
+      });
     } catch (navError) {
       logger.error('[ActiveMode] Navigation failed:', navError);
       try {
-        navigate(newMode === 'client' ? '/client/dashboard' : '/owner/dashboard', { replace: true });
+        startTransition(() => {
+          navigate(newMode === 'client' ? '/client/dashboard' : '/owner/dashboard', { replace: true });
+        });
       } catch (_f) { /* ignore */ }
     }
 

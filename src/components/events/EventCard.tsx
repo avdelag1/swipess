@@ -121,14 +121,12 @@ export const EventCard = memo(({
       <button
         onClick={(e) => { e.stopPropagation(); onPrevEvent(); }}
         className="absolute left-0 top-[8%] bottom-[40%] w-[30%] z-10 flex items-center justify-start pl-3"
-        aria-label="Previous event"
+        title="Previous event"
       >
-        <div className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity"
-          style={{ 
-            background: isLight ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)', 
-            backdropFilter: 'blur(8px)', 
-            border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.2)' 
-          }}>
+        <div className={cn(
+          "w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity backdrop-blur-md border",
+          isLight ? "bg-white/35 border-black/10" : "bg-black/35 border-white/20"
+        )}>
           <ChevronLeft className={cn("w-4 h-4", isLight ? "text-black" : "text-white")} />
         </div>
       </button>
@@ -136,20 +134,18 @@ export const EventCard = memo(({
       <button
         onClick={(e) => { e.stopPropagation(); onMiddleTap(); }}
         className="absolute inset-x-[30%] top-[8%] bottom-[40%] z-10"
-        aria-label="View event details"
+        title="View event details"
       />
 
       <button
         onClick={(e) => { e.stopPropagation(); onNextEvent(); }}
         className="absolute right-0 top-[8%] bottom-[40%] w-[30%] z-10 flex items-center justify-end pr-3"
-        aria-label="Next event"
+        title="Next event"
       >
-        <div className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity"
-          style={{ 
-            background: isLight ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)', 
-            backdropFilter: 'blur(8px)', 
-            border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.2)' 
-          }}>
+        <div className={cn(
+          "w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity backdrop-blur-md border",
+          isLight ? "bg-white/35 border-black/10" : "bg-black/35 border-white/20"
+        )}>
           <ChevronRight className={cn("w-4 h-4", isLight ? "text-black" : "text-white")} />
         </div>
       </button>
@@ -170,42 +166,53 @@ export const EventCard = memo(({
       </AnimatePresence>
 
       {/* Right side action buttons */}
-      <div className="absolute right-4 flex flex-col gap-6 items-center z-30"
-        style={{ bottom: 'calc(6.5rem + env(safe-area-inset-bottom,0px))' }}>
+      <div className="absolute right-4 flex flex-col gap-6 items-center z-30 bottom-[calc(6.5rem+env(safe-area-inset-bottom,0px))]">
         <button
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}
           className="flex flex-col items-center gap-1"
+          title={liked ? "Unlike" : "Like"}
         >
-          <motion.div whileTap={{ scale: 0.85 }} className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
-            style={{ 
-              background: liked ? 'rgba(239,68,68,0.3)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.4)'), 
-              backdropFilter: 'blur(8px)', 
-              border: `1px solid ${liked ? 'rgba(239,68,68,0.5)' : (isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)')}`
-            }}>
+          <motion.div 
+            whileTap={{ scale: 0.85 }} 
+            className={cn(
+              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
+              liked ? "bg-red-500/30 border-red-500/50" : (isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15")
+            )}
+          >
             <Heart className={cn('w-6 h-6 transition-colors', liked ? 'fill-red-500 text-red-500' : (isLight ? 'text-black' : 'text-white'))} />
           </motion.div>
           <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Like</span>
         </button>
 
-        <button onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }} className="flex flex-col items-center gap-1">
-          <motion.div whileTap={{ scale: 0.85 }} className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
-            style={{ 
-              background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.4)', 
-              backdropFilter: 'blur(8px)', 
-              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.15)' 
-            }}>
+        <button 
+          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }} 
+          className="flex flex-col items-center gap-1"
+          title="Chat with host"
+        >
+          <motion.div 
+            whileTap={{ scale: 0.85 }} 
+            className={cn(
+              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
+              isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
+            )}
+          >
             <MessageCircle className={cn("w-6 h-6", isLight ? "text-black" : "text-white")} />
           </motion.div>
           <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Chat</span>
         </button>
 
-        <button onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onShare(); }} className="flex flex-col items-center gap-1">
-          <motion.div whileTap={{ scale: 0.85 }} className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
-            style={{ 
-              background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.4)', 
-              backdropFilter: 'blur(8px)', 
-              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.15)' 
-            }}>
+        <button 
+          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onShare(); }} 
+          className="flex flex-col items-center gap-1"
+          title="Share event"
+        >
+          <motion.div 
+            whileTap={{ scale: 0.85 }} 
+            className={cn(
+              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
+              isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
+            )}
+          >
             <Share2 className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} />
           </motion.div>
           <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Share</span>
@@ -218,16 +225,21 @@ export const EventCard = memo(({
           <motion.div
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 280 }}
-            className="absolute inset-0 z-50 overflow-y-auto"
-            style={{ background: isLight ? 'rgba(255,255,255,0.98)' : 'rgba(0,0,0,0.96)', backdropFilter: 'blur(20px)' }}
+            className={cn(
+              "absolute inset-0 z-50 overflow-y-auto backdrop-blur-[20px]",
+              isLight ? "bg-white/98" : "bg-black/96"
+            )}
           >
             <div className="relative h-[45dvh]">
               {event.image_url && (
                 <img src={event.image_url} className={cn("w-full h-full object-cover", isLight ? "opacity-30" : "opacity-60")} alt="" />
               )}
               <div className={cn("absolute inset-0", isLight ? "bg-gradient-to-t from-white via-white/40 to-transparent" : "bg-gradient-to-t from-black via-black/40 to-transparent")} />
-              <button onClick={() => setShowDetails(false)} className="absolute top-safe top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center z-10"
-                style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <button 
+                onClick={() => setShowDetails(false)} 
+                className="absolute top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center z-10 bg-black/50 backdrop-blur-md border border-white/20"
+                title="Close details"
+              >
                 <ChevronUp className="w-5 h-5 text-white" />
               </button>
               <div className="absolute bottom-6 left-5 right-5">
@@ -239,7 +251,7 @@ export const EventCard = memo(({
               {event.description && <p className={cn("text-sm leading-relaxed", isLight ? "text-black/80" : "text-white/80")}>{event.description}</p>}
               <div className="grid grid-cols-2 gap-3">
                 {event.event_date && (
-                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' }}>
+                  <div className={cn("flex items-start gap-3 p-3 rounded-2xl", isLight ? "bg-black/5" : "bg-white/5")}>
                     <Calendar className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
                     <div>
                       <div className={cn("text-[10px] uppercase tracking-widest", isLight ? "text-black/40" : "text-white/40")}>Date</div>
@@ -248,7 +260,7 @@ export const EventCard = memo(({
                   </div>
                 )}
                 {event.location && (
-                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' }}>
+                  <div className={cn("flex items-start gap-3 p-3 rounded-2xl", isLight ? "bg-black/5" : "bg-white/5")}>
                     <MapPin className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
                     <div>
                       <div className={cn("text-[10px] uppercase tracking-widest", isLight ? "text-black/40" : "text-white/40")}>Location</div>
@@ -258,10 +270,18 @@ export const EventCard = memo(({
                 )}
               </div>
               <div className="flex gap-3 pt-2">
-                <button onClick={() => onChat()} className={cn("flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2", isLight ? "text-black bg-black/5 border-black/10" : "text-white bg-white/10 border-white/15")} style={{ border: '1px solid' }}>
+                <button 
+                  onClick={() => onChat()} 
+                  className={cn("flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 border", isLight ? "text-black bg-black/5 border-black/10" : "text-white bg-white/10 border-white/15")}
+                  title="Chat on WhatsApp"
+                >
                   <MessageCircle className="w-4 h-4" /> Chat on WhatsApp
                 </button>
-                <button onClick={() => onShare()} className="flex-1 py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2" style={{ background: 'linear-gradient(135deg,#f97316,#a855f7)' }}>
+                <button 
+                  onClick={() => onShare()} 
+                  className="flex-1 py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2 bg-gradient-to-br from-orange-500 to-purple-600"
+                  title="Share event"
+                >
                   <Share2 className="w-4 h-4" /> Share Event
                 </button>
               </div>

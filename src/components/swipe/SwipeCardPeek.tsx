@@ -21,8 +21,7 @@ export const SwipeCardPeek = memo(({ listing }: SwipeCardPeekProps) => {
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ zIndex: 1 }}
+          className="absolute inset-0 w-full h-full object-cover z-[1]"
         />
       ) : (
         <CardImage 

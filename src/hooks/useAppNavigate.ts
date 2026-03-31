@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTransition } from 'react';
 import { triggerHaptic } from '@/utils/haptics';
 
 /**
@@ -9,20 +10,23 @@ import { triggerHaptic } from '@/utils/haptics';
  */
 export function useAppNavigate() {
   const navigate = useNavigate();
+  const [isPending, startTransition] = useTransition();
 
   const appNavigate = (to: string | number, options?: any) => {
     triggerHaptic('light');
 
-    if (typeof to === 'number') {
-      navigate(to);
-    } else {
-      navigate(to, options);
-    }
+    startTransition(() => {
+      if (typeof to === 'number') {
+        navigate(to);
+      } else {
+        navigate(to, options);
+      }
+    });
   };
 
   return { 
     navigate: appNavigate, 
-    isPending: false,
+    isPending,
     rawNavigate: navigate 
   };
 }

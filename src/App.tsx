@@ -40,6 +40,7 @@ import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProf
 
 // SPEED OF LIGHT: Persistent layout wrapper - mounted ONCE, never remounts
 const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDashboardLayout").then(m => ({ default: m.PersistentDashboardLayout })));
+import { ZenithPrewarmer } from "@/components/ZenithPrewarmer";
 
 
 // Non-critical UI elements moved to lazy load for 100/100 performance
@@ -165,7 +166,7 @@ const queryClient = new QueryClient({
       retry: 1,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
       refetchOnWindowFocus: false, // Prevents flash/reloads when switching apps (critical for iOS)
-      refetchOnMount: true,        // Only refetch if data is stale (respects staleTime)
+      refetchOnMount: false,        // NATIVE FEEL: Don't refetch on navigation if data is in cache
       refetchOnReconnect: true,
       staleTime: 5 * 60 * 1000, // 5 minutes - reduce unnecessary refetches
       gcTime: 1000 * 60 * 60 * 24, // 24 hours - keep data in cache for a long time
@@ -235,16 +236,21 @@ function PredictiveBundleLoader() {
         import("./components/EnhancedOwnerDashboard");
         import("./pages/OwnerProfileNew");
         import("./pages/OwnerProperties");
+        import("./pages/OwnerPropertyClientDiscovery");
+        import("./pages/OwnerMotoClientDiscovery");
       } else {
         import("./pages/ClientDashboard");
         import("./pages/ClientProfileNew");
         import("./pages/ClientWorkerDiscovery");
+        import("./pages/ClientLikedProperties");
       }
       
       // Secondary prefetch: Shared high-traffic routes
       setTimeout(() => {
         import("./pages/MessagingDashboard");
         import("./pages/NotificationsPage");
+        import("./pages/EventosFeed");
+        import("./pages/DJTurntableRadio");
       }, 5000);
     };
 
@@ -307,6 +313,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
         >
           <ErrorBoundary>
             <AuthProvider authPromise={authPromise}>
+              <ZenithPrewarmer />
               <PredictiveBundleLoader />
               <ActiveModeProvider>
 

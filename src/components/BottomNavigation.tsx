@@ -374,6 +374,28 @@ export const BottomNavigation = memo(({
                   flexShrink: 0,
                 }}
               >
+                {/* Active Indicator — Layout Animation */}
+                {active && (
+                  <motion.div
+                    layoutId="nav-pill"
+                    className="absolute inset-[4px] rounded-2xl z-0"
+                    initial={false}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 400,
+                      damping: 32,
+                      mass: 0.8
+                    }}
+                    style={{
+                      background: isLight 
+                        ? 'rgba(236,72,153,0.06)' 
+                        : 'rgba(236,72,153,0.12)',
+                      border: isLight 
+                        ? '0.5px solid rgba(236,72,153,0.1)' 
+                        : '0.5px solid rgba(236,72,153,0.2)',
+                    }}
+                  />
+                )}
                 <motion.div
                   className="relative"
                   animate={{ scale: active ? 1.15 : 1 }}

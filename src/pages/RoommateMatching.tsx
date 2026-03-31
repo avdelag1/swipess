@@ -110,8 +110,7 @@ export default function RoommateMatching() {
     if (!user?.id) return;
     const loadSavedFilters = async () => {
       const { data } = await (supabase as any)
-        .from('roommate_preferences')
-        .select('*')
+        .select('user_id, preferred_gender, preferred_budget_min, preferred_budget_max, preferred_age_min, preferred_age_max, preferred_cleanliness, preferred_noise_tolerance, preferred_smoking, preferred_drinking, preferred_work_schedule, deal_breakers')
         .eq('user_id', user.id)
         .maybeSingle();
       if (data) {
