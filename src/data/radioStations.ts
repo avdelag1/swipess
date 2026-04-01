@@ -159,7 +159,7 @@ export const radioStations: RadioStation[] = [
     id: 'miami-2',
     name: 'Revolution Radio',
     frequency: '93.5',
-    streamUrl: 'https://ice64.securenetsystems.net/WBGF',
+    streamUrl: 'https://ice1.somafm.com/sf1033-128-mp3',
     city: 'miami',
     genre: 'EDM',
     description: 'Miami Electronic Music'
@@ -251,7 +251,7 @@ export const radioStations: RadioStation[] = [
     id: 'ny-2',
     name: 'WKCR Jazz',
     frequency: '89.9',
-    streamUrl: 'https://wkcr.streamguys1.com/live',
+    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
     city: 'new-york',
     genre: 'Jazz',
     description: 'Real NY Jazz'
@@ -296,7 +296,7 @@ export const radioStations: RadioStation[] = [
     id: 'ny-7',
     name: 'Empire Classical',
     frequency: '96.3',
-    streamUrl: 'https://wqxr.streamguys1.com/wqxr',
+    streamUrl: 'https://ice1.somafm.com/bootliquor-128-mp3',
     city: 'new-york',
     genre: 'Classical',
     description: 'Masterpieces'
@@ -314,7 +314,7 @@ export const radioStations: RadioStation[] = [
     id: 'ny-9',
     name: 'Worldwide FM',
     frequency: '90.7',
-    streamUrl: 'https://worldwidefm.out.airtime.pro/worldwidefm_a',
+    streamUrl: 'https://ice1.somafm.com/covers-128-mp3',
     city: 'new-york',
     genre: 'Eclectic',
     description: 'Global sounds'
@@ -323,7 +323,7 @@ export const radioStations: RadioStation[] = [
     id: 'ny-10',
     name: 'Rinse FM',
     frequency: '106.8',
-    streamUrl: 'https://streamer.rinse.fm/rinsefm',
+    streamUrl: 'https://ice1.somafm.com/missioncontrol-128-mp3',
     city: 'new-york',
     genre: 'Underground',
     description: 'London to NY'
@@ -334,7 +334,7 @@ export const radioStations: RadioStation[] = [
     id: 'ibiza-1',
     name: 'Ibiza Global Live',
     frequency: '97.6',
-    streamUrl: 'https://api.ibizaglobalradio.com:8443/live',
+    streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
     city: 'ibiza',
     genre: 'Electronic',
     description: 'The Soul of Ibiza'
@@ -343,7 +343,7 @@ export const radioStations: RadioStation[] = [
     id: 'ibiza-2',
     name: 'Ibiza Sonica',
     frequency: '92.4',
-    streamUrl: 'https://s3.sonicabroadcast.com/7002/stream',
+    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
     city: 'ibiza',
     genre: 'House',
     description: 'Deep Vibes'
@@ -352,7 +352,7 @@ export const radioStations: RadioStation[] = [
     id: 'ibiza-3',
     name: 'Blue Marlin',
     frequency: '101.2',
-    streamUrl: 'https://bluemarlinibiza.ice.infomaniak.ch/bluemarlinibiza-128.mp3',
+    streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
     city: 'ibiza',
     genre: 'Chill',
     description: 'Beach Club'
@@ -361,7 +361,7 @@ export const radioStations: RadioStation[] = [
     id: 'ibiza-4',
     name: 'Pure Ibiza',
     frequency: '95.5',
-    streamUrl: 'https://pureibizaradio.com:8443/live',
+    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
     city: 'ibiza',
     genre: 'Electronic',
     description: 'Sunset Bliss'
@@ -388,7 +388,7 @@ export const radioStations: RadioStation[] = [
     id: 'ibiza-7',
     name: 'Cafe Del Mar',
     frequency: '107.0',
-    streamUrl: 'https://stream.cafedelmar.radio/radio/8000/radio.mp3',
+    streamUrl: 'https://ice1.somafm.com/deepspaceone-128-mp3',
     city: 'ibiza',
     genre: 'Chillout',
     description: 'The Original Sunset'
@@ -1180,7 +1180,7 @@ export const radioStations: RadioStation[] = [
     id: 'tulum-beach-3',
     name: 'Cenote Sounds',
     frequency: '103.5',
-    streamUrl: 'https://streaming.tmcrental.com/radio/8000/radio.mp3',
+    streamUrl: 'https://ice1.somafm.com/vaporwaves-128-mp3',
     city: 'tulum',
     genre: 'Organic House',
     description: 'Deep jungle electronic from the Yucatan'
