@@ -455,7 +455,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const getFrequencyData = useCallback((): Uint8Array => {
     if (analyzerRef.current && dataArrayRef.current) {
-      analyzerRef.current.getByteFrequencyData(dataArrayRef.current);
+      analyzerRef.current.getByteFrequencyData(dataArrayRef.current as any);
       return dataArrayRef.current;
     }
     return new Uint8Array(0);
