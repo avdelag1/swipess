@@ -329,8 +329,9 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
       setTimeout(delaySpeedInsights, 5000);
     }
 
-    // SPEED OF LIGHT: Signal to main.tsx that React has finished initial paint
+    // SPEED OF LIGHT: Signal to main.tsx and index.html that React has finished initial paint
     requestAnimationFrame(() => {
+      (window as any).__APP_MOUNTED__ = true;
       window.dispatchEvent(new CustomEvent('app-rendered'));
     });
   }, []);

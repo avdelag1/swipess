@@ -80,43 +80,39 @@ export default defineConfig(({ mode }) => ({
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks(id) {
+          // 1. Role-Based & Feature Isolation (Internal code)
+          if (id.includes('src/pages/Client')) return 'role-client';
+          if (id.includes('src/pages/Owner')) return 'role-owner';
+          if (id.includes('src/pages/admin')) return 'role-admin';
+          if (id.includes('src/components/radio')) return 'feature-radio';
+          if (id.includes('src/pages/Discovery')) return 'feature-discovery';
+
+          // 2. Third-Party Libraries (Vendor)
           if (id.includes('node_modules')) {
-            // CRITICAL: Isolate heavy libs that aren't needed for initial paint
-            // Split them into individual chunks for parallel download
+            // Core framework: Essential for mount
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || id.includes('scheduler')) {
+              return 'vendor-core';
+            }
+
+            // High-weight visualization & processing
             if (id.includes('recharts')) return 'vendor-recharts';
             if (id.includes('lottie')) return 'vendor-lottie';
             if (id.includes('octokit')) return 'vendor-octokit';
-            if (id.includes('victory')) return 'vendor-victory';
             if (id.includes('embla-carousel')) return 'vendor-embla';
-            if (id.includes('framer-motion')) return 'vendor-framer';
-            if (id.includes('lucide-react')) return 'vendor-lucide';
-            if (id.includes('@supabase')) return 'vendor-supabase';
-            if (id.includes('@tanstack')) return 'vendor-tanstack';
+            
+            // Motion & Interaction
+            if (id.includes('framer-motion')) return 'vendor-motion';
+            
+            // Data & Auth
+            if (id.includes('supabase') || id.includes('tanstack')) return 'vendor-data';
+            
+            // UI & Utilities
+            if (id.includes('lucide-react')) return 'vendor-icons';
             if (id.includes('radix-ui')) return 'vendor-radix';
             if (id.includes('i18next')) return 'vendor-i18n';
             if (id.includes('date-fns')) return 'vendor-date-fns';
             if (id.includes('zustand')) return 'vendor-zustand';
             if (id.includes('browser-image-compression')) return 'vendor-image-compression';
-
-            // Role-Based Isolation: Keeps Client code separate from Owner code
-            if (id.includes('src/pages/Client')) return 'role-client';
-            if (id.includes('src/pages/Owner')) return 'role-owner';
-            if (id.includes('src/pages/admin')) return 'role-admin';
-
-            // Feature chunks
-            if (id.includes('src/components/radio')) return 'feature-radio';
-            if (id.includes('src/pages/Discovery')) return 'feature-discovery';
-
-            // Core framework: Keep primary libraries together to prevent 'unstable_scheduleCallback' synchronization issues
-            // Core framework: Essential libraries for initial mount
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || id.includes('scheduler')) {
-              return 'vendor-core';
-            }
-
-            // High-Performance: Move heavy libraries to secondary priority chunks
-            if (id.includes('framer-motion')) return 'vendor-motion';
-            if (id.includes('supabase') || id.includes('tanstack')) return 'vendor-data';
-            if (id.includes('lucide')) return 'vendor-icons';
 
             return 'vendor';
           }
