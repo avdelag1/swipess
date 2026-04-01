@@ -168,34 +168,63 @@
     </div>
   </div>
 
-  <script>
-    // Recovery Logic: If #root is still empty after 10s, something went wrong (likely stale SW)
-    setTimeout(function() {
+    // 🛡️ RECOVERY & FAIL-SAFE SYSTEM
+    function removeSplash() {
+      var loader = document.getElementById('initial-loader');
+      var root = document.getElementById('root');
+      if (root) root.classList.add('hydrated');
+      if (loader && !loader.classList.contains('dissolving')) {
+        loader.classList.add('dissolving');
+        setTimeout(function() { if(loader.parentNode) loader.remove(); }, 600);
+      }
+    }
+
+    // Fail-safe: Always remove splash after 7 seconds regardless of React state
+    var splashTimeout = setTimeout(function() {
+      console.warn('[Splash] Fail-safe triggered');
+      removeSplash();
       var root = document.getElementById('root');
       if (root && root.innerHTML === "") {
         document.getElementById('mount-recovery').style.display = 'block';
       }
-    }, 10000);
+    }, 7000);
+
+    // Listen for the app-rendered event from main.tsx/App.tsx
+    window.addEventListener('app-rendered', function() {
+      console.log('[Splash] App rendered signal received');
+      clearTimeout(splashTimeout);
+      requestAnimationFrame(function() {
+        requestAnimationFrame(removeSplash);
+      });
+    });
 
     function clearAndReload() {
+      console.log('[Recovery] Clearing caches and forcing hard refresh...');
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(regs) {
-          for(let reg of regs) reg.unregister();
+          for(let reg of regs) { 
+            console.log('[Recovery] Unregistering SW:', reg.scope);
+            reg.unregister(); 
+          }
         }).then(function() {
           if ('caches' in window) {
             caches.keys().then(function(keys) {
-              return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+              return Promise.all(keys.map(function(k) { 
+                console.log('[Recovery] Deleting cache:', k);
+                return caches.delete(k); 
+              }));
             }).then(function() {
               sessionStorage.clear();
-              localStorage.clear(); // Only as a last resort to fix state corruption
-              window.location.reload(true);
+              localStorage.clear();
+              // Cache-bust the reload to circumvent aggressive intermediary proxies/CDN
+              window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
             });
           } else {
-            window.location.reload(true);
+            window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
           }
         });
       } else {
-        window.location.reload(true);
+        window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
       }
     }
   </script>
