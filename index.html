@@ -160,39 +160,49 @@
       width="128" height="128"
       style="width:128px;height:128px;object-fit:contain;" />
     <div class="loader-bar"><div class="loader-progress"></div></div>
-    
-    <!-- 🚀 RECOVERY SYSTEM: Shown only if React fails to mount after 10s -->
-    <div id="mount-recovery" style="display:none;position:absolute;bottom:10vh;padding:20px;text-align:center;z-index:10001;animation:fade-in-up 0.5s ease-out forwards;">
-      <p style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:12px;font-weight:600;letter-spacing:0.05em;">APP INITIALIZATION DELAYED</p>
-      <button onclick="clearAndReload()" style="background:#ff1f1f;color:#fff;border:none;padding:14px 28px;border-radius:50px;font-weight:700;font-size:14px;box-shadow:0 10px 20px rgba(255,31,31,0.3);cursor:pointer;text-transform:uppercase;letter-spacing:0.1em;active:scale(0.95);transition:transform 0.1s;">Reload App</button>
-    </div>
+  </div>
+
+  <div id="mount-recovery" style="display:none;position:fixed;bottom:10vh;left:0;right:0;padding:20px;text-align:center;z-index:20000;animation:fade-in-up 0.5s ease-out forwards;">
+    <p style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:12px;font-weight:600;letter-spacing:0.05em;">APP INITIALIZATION DELAYED</p>
+    <button onclick="clearAndReload()" style="background:#ff1f1f;color:#fff;border:none;padding:14px 28px;border-radius:50px;font-weight:700;font-size:14px;box-shadow:0 10px 20px rgba(255,31,31,0.3);cursor:pointer;text-transform:uppercase;letter-spacing:0.1em;active:scale(0.95);transition:transform 0.1s;">Reload App</button>
   </div>
 
     // 🛡️ RECOVERY & FAIL-SAFE SYSTEM
     function removeSplash() {
+      console.log('[Splash] Dissolving loader...');
       var loader = document.getElementById('initial-loader');
       var root = document.getElementById('root');
       if (root) root.classList.add('hydrated');
       if (loader && !loader.classList.contains('dissolving')) {
         loader.classList.add('dissolving');
-        setTimeout(function() { if(loader.parentNode) loader.remove(); }, 600);
+        // Do NOT remove from DOM immediately so recovery button stays visible if needed
+        setTimeout(function() { 
+          if(loader.parentNode && !document.getElementById('mount-recovery').style.display === 'block') {
+            loader.remove(); 
+          }
+        }, 1000);
       }
     }
 
-    // Fail-safe: Always remove splash after 7 seconds regardless of React state
+    // Fail-safe: Always remove splash after 5 seconds
     var splashTimeout = setTimeout(function() {
-      console.warn('[Splash] Fail-safe triggered');
+      console.warn('[Splash] Fail-safe triggered - App taking too long to render');
       removeSplash();
-      var root = document.getElementById('root');
-      if (root && root.innerHTML === "") {
-        document.getElementById('mount-recovery').style.display = 'block';
-      }
-    }, 7000);
+      // Show recovery UI if root is still empty OR after 8s total
+      setTimeout(function() {
+        var root = document.getElementById('root');
+        if (!root || root.innerHTML === "" || !window.__APP_INITIALIZED__) {
+          document.getElementById('mount-recovery').style.display = 'block';
+        }
+      }, 1000);
+    }, 5000);
 
-    // Listen for the app-rendered event from main.tsx/App.tsx
+    // Listen for the app-rendered event
     window.addEventListener('app-rendered', function() {
+      window.__APP_INITIALIZED__ = true;
       console.log('[Splash] App rendered signal received');
       clearTimeout(splashTimeout);
+      document.getElementById('mount-recovery').style.display = 'none';
       requestAnimationFrame(function() {
         requestAnimationFrame(removeSplash);
       });
