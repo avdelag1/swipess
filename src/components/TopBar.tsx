@@ -216,14 +216,9 @@ function TopBarComponent({
                 <motion.button
                   whileTap={{ scale: 0.92 }}
                   onPointerDown={(e) => {
-                    e.stopPropagation();
-                    haptics.select();
-                    const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
-                    prefetch(profilePath);
-                  }}
-                  onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    haptics.select();
                     const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
                     navigate(profilePath);
                   }}
@@ -232,7 +227,12 @@ function TopBarComponent({
                   aria-label="Go to profile"
                 >
                   <Avatar className="h-[42px] w-[42px] rounded-full overflow-hidden cursor-pointer border-[1.5px] border-white/10 ring-0 shadow-sm">
-                    <AvatarImage src={profile?.avatar_url || ''} className="object-cover w-full h-full rounded-full" />
+                    <AvatarImage 
+                      src={profile?.avatar_url || ''} 
+                      className="object-cover w-full h-full rounded-full" 
+                      loading="eager"
+                      fetchpriority="high"
+                    />
                     <AvatarFallback className={cn(
                       "text-sm font-black uppercase rounded-full w-full h-full flex items-center justify-center",
                       isLight

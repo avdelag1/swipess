@@ -10,6 +10,27 @@ import "./styles/PremiumShine.css";
 import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/utils/prodLogger";
 
+// 🚀 SPEED OF LIGHT: Hardware-Aware Performance Scaling
+// Detect device capabilities to toggle complex effects (glass, blurs, springs)
+(function() {
+  const memory = (navigator as any).deviceMemory || 4;
+  const cores = navigator.hardwareConcurrency || 4;
+  const isLowEnd = memory < 4 || cores < 4;
+  const isHighEnd = memory >= 8 && cores >= 8;
+  
+  const body = document.body;
+  if (isLowEnd) {
+    body.classList.add('hw-low', 'perf-lite');
+    body.style.setProperty('--backdrop-blur-intensity', '0px');
+  } else if (isHighEnd) {
+    body.classList.add('hw-high', 'perf-ultra');
+    body.style.setProperty('--backdrop-blur-intensity', '32px');
+  } else {
+    body.classList.add('hw-mid', 'perf-standard');
+    body.style.setProperty('--backdrop-blur-intensity', '16px');
+  }
+})();
+
 // 1. START AUTH CHECK BEFORE RENDERING (Parallel process)
 // We fire this immediately so it's happening while React chunks download.
 // Ensure we always return a valid object structure even on failure to prevent destructuring crashes.
