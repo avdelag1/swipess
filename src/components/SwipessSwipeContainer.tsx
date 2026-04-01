@@ -586,60 +586,25 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     // NOW it's safe to update React state - animation is done
     setCurrentIndex(newIndex);
 
-    // Update local ref for swiped IDs (already done in phase 1, but ensure consistency)
-    swipedIdsRef.current.add(listing.id);
+    // Zustand update - DEFERRED until animation complete
+    markClientSwiped(listing.id);
 
-    // FIX: Save to DB FIRST, then update cache only on success
-    // This prevents liked listings from showing in cache if DB save fails
-    if (direction === 'right') {
-      // Save swipe to DB with proper error handling
-      swipeMutation.mutateAsync({
-        targetId: listing.id,
-        direction,
-        targetType: 'listing'
-      }).then(() => {
-        // SUCCESS: Add the liked listing to the cache AFTER DB write succeeds
-        queryClient.setQueryData(['liked-properties'], (oldData: any[] | undefined) => {
-          const currentListing = listing;
-          if (!oldData) {
-            return [currentListing];
-          }
-          // Check if already in the list to avoid duplicates
-          const exists = oldData.some((item: any) => item.id === currentListing.id);
-          if (exists) {
-            return oldData;
-          }
-          return [currentListing, ...oldData];
-        });
-      }).catch((err) => {
-        // ERROR: DB save failed - show error to user
-        logger.error('[SwipessSwipeContainer] Failed to save like:', err);
+    // Record for undo (only left swipes are saved for undo)
+    recordSwipe(listing.id, 'listing', direction);
 
-        // Only show error for unexpected failures (not duplicates/RLS)
-        const errorMessage = err?.message?.toLowerCase() || '';
-        const errorCode = err?.code || '';
-        const isExpectedError =
-          errorMessage.includes('duplicate') ||
-          errorMessage.includes('already exists') ||
-          errorMessage.includes('unique constraint') ||
-          errorCode === '23505' || // Unique constraint violation
-          errorCode === '42501';   // RLS policy violation
+    // Save swipe to DB with optimistic UI
+    // The useSwipe hook now handles queryClient.setQueryData optimistically
+    swipeMutation.mutate({
+      targetId: listing.id,
+      direction,
+      targetType: 'listing',
+      targetObject: { ...listing, direction }
+    });
 
-        if (!isExpectedError) {
-          toast.error('Failed to save like', {
-            description: 'Your like was not saved. Please try again.',
-          });
-        }
-      });
-    } else {
-      // For left swipes (dislikes), just save without cache update
-      swipeMutation.mutateAsync({
-        targetId: listing.id,
-        direction,
-        targetType: 'listing'
-      }).catch((err) => {
-        // Non-critical - dislike not saved, but user can continue swiping
-        logger.error('[SwipessSwipeContainer] Failed to save dislike:', err);
+    // Track dismissal on left swipe (dislike)
+    if (direction === 'left') {
+      dismissTarget(listing.id).catch(() => {
+        // Non-critical error - already logged in hook
       });
     }
 

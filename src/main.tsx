@@ -38,52 +38,61 @@ const authPromise = supabase.auth.getSession()
   .catch(() => ({ data: { session: null }, error: null }));
 
 
-// 2. RENDER REACT IMMEDIATELY
-// Do NOT wait for authPromise. The App/AuthProvider will handle the loading state.
-const rootElement = document.getElementById("root");
-if (rootElement) {
-  const root = createRoot(rootElement as HTMLElement);
-
-  // 🔥 ZENITH FIX: StrictMode ONLY in development
-  // This removes the intentional double-mount / double-fetch in dev
-  root.render(
-    import.meta.env.DEV ? (
-      <React.StrictMode>
-        <App authPromise={authPromise} />
-      </React.StrictMode>
-    ) : (
-      <App authPromise={authPromise} />
-    )
-  );
-}
 
 // 3. REMOVE SPLASH ONLY AFTER HYDRATION
 // We use a double RAF + a tiny delay to ensure the browser has painted the React tree.
-// 3. REMOVE SPLASH ONLY AFTER HYDRATION + FONTS READY
-// We use a unified promise to ensure React is painted AND fonts are perfectly matched
-// before the splash screen dissolves, eliminating 'Font-Wobble' (FOUT).
+// 3. SPLASH REMOVAL (Robust with Timeout)
+const removeSplash = () => {
+  const loader = document.getElementById('initial-loader');
+  const root = document.getElementById('root');
+  if (root) root.classList.add('hydrated');
+  if (loader && !loader.classList.contains('dissolving')) {
+    loader.classList.add('dissolving');
+    setTimeout(() => loader.remove(), 600);
+  }
+};
+
+// 8-second hard timeout for splash removal (Fail-safe)
+const splashTimeout = setTimeout(() => {
+  logger.warn('[Mount] Splash timeout triggered — forcing removal');
+  removeSplash();
+}, 8000);
+
+// Unified paint signal
 Promise.all([
   new Promise(resolve => window.addEventListener('app-rendered', resolve, { once: true })),
   document.fonts.ready
 ]).then(() => {
+  clearTimeout(splashTimeout);
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      // 1. Signal hydration complete to start #root fade-in
-      const root = document.getElementById('root');
-      if (root) root.classList.add('hydrated');
-      
-      // 2. Trigger the "Liquid Dissolve" of the splash screen
-      const loader = document.getElementById('initial-loader');
-      if (loader) {
-        loader.classList.add('dissolving');
-        // Wait for CSS transition (300ms) plus a tiny safety buffer
-        setTimeout(() => {
-          if (loader.parentNode) loader.remove();
-        }, 450);
-      }
+      removeSplash();
     });
   });
 });
+
+// 4. RENDER REACT (Robust)
+const rootElement = document.getElementById("root");
+if (rootElement) {
+  const root = createRoot(rootElement as HTMLElement);
+
+  try {
+    // 🔥 ZENITH FIX: StrictMode ONLY in development
+    root.render(
+      import.meta.env.DEV ? (
+        <React.StrictMode>
+          <App authPromise={authPromise} />
+        </React.StrictMode>
+      ) : (
+        <App authPromise={authPromise} />
+      )
+    );
+  } catch (error) {
+    logger.error('[Mount] Fatal React Render Error:', error);
+    clearTimeout(splashTimeout);
+    removeSplash(); // Ensure user can see something even if it's a crash screen
+  }
+}
 
 // 4. DEFERRED INITIALIZATION (Background tasks)
 const deferredInit = (callback: () => void, timeout = 3000) => {

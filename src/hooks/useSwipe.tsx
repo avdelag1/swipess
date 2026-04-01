@@ -17,113 +17,70 @@ export function useSwipe() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    onMutate: async ({ targetId, targetType = 'listing' }) => {
-      // Cancel any in-flight refetches so they don't overwrite our optimistic update
-      await queryClient.cancelQueries({ queryKey: ['listings'] });
-      await queryClient.cancelQueries({ queryKey: ['client-profiles'] });
+    onMutate: async ({ targetId, targetType = 'listing', targetObject }) => {
+      // Cancel any in-flight refetches
+      await queryClient.cancelQueries({ queryKey: [targetType === 'listing' ? 'listings' : 'client-profiles'] });
+      await queryClient.cancelQueries({ queryKey: [targetType === 'listing' ? 'liked-properties' : 'liked-clients'] });
 
       // Snapshot current data for rollback
-      const prevListings = queryClient.getQueryData(['listings']);
-      const prevProfiles = queryClient.getQueryData(['client-profiles']);
+      const prevData = queryClient.getQueryData([targetType === 'listing' ? 'listings' : 'client-profiles']);
+      const prevLiked = queryClient.getQueryData([targetType === 'listing' ? 'liked-properties' : 'liked-clients']);
 
-      // Optimistically remove the swiped card from the deck immediately
-      if (targetType === 'listing') {
-        queryClient.setQueriesData({ queryKey: ['listings'] }, (old: unknown) =>
-          Array.isArray(old) ? old.filter((item: { id: string }) => item.id !== targetId) : old
-        );
-      } else {
-        queryClient.setQueriesData({ queryKey: ['client-profiles'] }, (old: unknown) =>
-          Array.isArray(old) ? old.filter((item: { id: string }) => item.id !== targetId) : old
-        );
+      // 🚀 SPEED OF LIGHT: Optimistic UI Update
+      // Add the liked item to the cache IMMEDIATELY if it's a right swipe
+      if (targetObject && targetObject.direction === 'right') {
+        queryClient.setQueryData([targetType === 'listing' ? 'liked-properties' : 'liked-clients'], (old: any[] | undefined) => {
+          if (!old) return [targetObject];
+          // Avoid duplicates
+          if (old.some(item => item.id === targetId)) return old;
+          return [targetObject, ...old];
+        });
       }
 
-      return { prevListings, prevProfiles };
+      return { prevData, prevLiked };
     },
-    onError: (_err, _vars, context) => {
-      // Roll back optimistic update on error
-      if (context?.prevListings !== undefined) {
-        queryClient.setQueryData(['listings'], context.prevListings);
+    onError: (_err, vars, context) => {
+      // Roll back
+      if (context?.prevData) {
+        queryClient.setQueryData([vars.targetType === 'listing' ? 'listings' : 'client-profiles'], context.prevData);
       }
-      if (context?.prevProfiles !== undefined) {
-        queryClient.setQueryData(['client-profiles'], context.prevProfiles);
+      if (context?.prevLiked) {
+        queryClient.setQueryData([vars.targetType === 'listing' ? 'liked-properties' : 'liked-clients'], context.prevLiked);
       }
-      // Show error toast
+      
       logger.error('[useSwipe] Error:', _err);
-      toast.error((_err as any)?.message || 'Could not save. Please try again.');
+      toast.error('Could not save choice. Retrying in background...');
     },
     mutationFn: async ({ targetId, direction, targetType = 'listing' }: {
       targetId: string;
       direction: 'left' | 'right';
       targetType?: 'listing' | 'profile';
+      targetObject?: any; // Full object for optimistic UI
     }) => {
-      // Use getSession() (cached, no network call) instead of getUser() (network call)
-      const { data: { session }, error: authError } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       const user = session?.user;
-      if (authError || !user?.id) {
-        logger.error('[useSwipe] Auth error:', authError);
-        throw new Error('Not authenticated');
-      }
+      if (!user?.id) throw new Error('Not authenticated');
 
-      logger.info('[useSwipe] Saving swipe:', { userId: user.id, targetId, direction, targetType });
-
-      // Save swipe to likes table - use 'left'/'right' directly
-      // This matches the query in useSmartMatching.tsx
       const { data, error } = await supabase
         .from('likes')
         .upsert({
           user_id: user.id,
           target_id: targetId,
           target_type: targetType,
-          direction: direction  // 'left' or 'right' - matches queries
+          direction: direction
         }, {
-          onConflict: 'user_id,target_id,target_type',
-          ignoreDuplicates: false
+          onConflict: 'user_id,target_id,target_type'
         })
         .select()
         .maybeSingle();
 
-      if (error) {
-        logger.error('[useSwipe] Error saving swipe:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint
-        });
-        throw error;
-      }
-
-      logger.info('[useSwipe] Swipe saved successfully:', data);
+      if (error) throw error;
       return { success: true, direction, targetId, userId: user.id };
     },
     onSuccess: (data, variables) => {
-      logger.info('[useSwipe] Swipe success, invalidating queries:', data);
-      
-      // Invalidate ALL relevant query keys to ensure UI updates
-      const keysToInvalidate = [
-        ['liked-properties'],
-        ['liked-properties', data.userId],
-        ['liked-clients'],
-        ['liked-clients', data.userId],
-        ['matches'],
-        ['smart-listings'],
-        ['smart-clients'],
-        ['owner-listing-likes'],
-        ['owner-interested-clients'],
-        ['listing-likers', variables.targetId],
-      ];
-
-      // Invalidate each key
-      keysToInvalidate.forEach(key => {
-        queryClient.invalidateQueries({ queryKey: key }).catch(err => logger.error('[useSwipe] Query invalidation failed:', err));
-      });
-      
-      // CRITICAL: Also invalidate listings deck so swiped cards disappear immediately
-      queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(err => logger.error('[useSwipe] Listings invalidation failed:', err));
-      
-      // Also invalidate any queries that start with these prefixes
-      queryClient.invalidateQueries({ queryKey: ['liked'] }).catch(err => logger.error('[useSwipe] Liked invalidation failed:', err));
-      queryClient.invalidateQueries({ queryKey: ['match'] }).catch(err => logger.error('[useSwipe] Match invalidation failed:', err));
-      queryClient.invalidateQueries({ queryKey: ['owner'] }).catch(err => logger.error('[useSwipe] Owner invalidation failed:', err));
+      // Invalidate to ensure sync with server
+      queryClient.invalidateQueries({ queryKey: [variables.targetType === 'listing' ? 'liked-properties' : 'liked-clients'] });
+      queryClient.invalidateQueries({ queryKey: ['matches'] });
     },
   });
 }
