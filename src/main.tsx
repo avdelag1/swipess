@@ -6,7 +6,6 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./styles/responsive.css";
-import "./styles/PremiumShine.css";
 import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/utils/prodLogger";
 
@@ -57,30 +56,33 @@ if (rootElement) {
   );
 }
 
-// 3. REMOVE SPLASH ONLY AFTER HYDRATION
-// We use a double RAF + a tiny delay to ensure the browser has painted the React tree.
 // 3. REMOVE SPLASH ONLY AFTER HYDRATION + FONTS READY
-// We use a unified promise to ensure React is painted AND fonts are perfectly matched
+// We use a unified promise to ensure React is painted AND fonts are matched
 // before the splash screen dissolves, eliminating 'Font-Wobble' (FOUT).
+function dismissSplash() {
+  const root = document.getElementById('root');
+  if (root) root.classList.add('hydrated');
+  const loader = document.getElementById('initial-loader');
+  if (loader && !loader.classList.contains('dissolving')) {
+    loader.classList.add('dissolving');
+    setTimeout(() => {
+      if (loader.parentNode) loader.remove();
+    }, 450);
+  }
+}
+
+// Safety net: never let the splash block the app for more than 8 seconds.
+// Covers edge cases: React crash, font CDN timeout, missing app-rendered event.
+const splashSafetyTimeout = setTimeout(dismissSplash, 8000);
+
 Promise.all([
   new Promise(resolve => window.addEventListener('app-rendered', resolve, { once: true })),
   document.fonts.ready
 ]).then(() => {
+  clearTimeout(splashSafetyTimeout);
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      // 1. Signal hydration complete to start #root fade-in
-      const root = document.getElementById('root');
-      if (root) root.classList.add('hydrated');
-      
-      // 2. Trigger the "Liquid Dissolve" of the splash screen
-      const loader = document.getElementById('initial-loader');
-      if (loader) {
-        loader.classList.add('dissolving');
-        // Wait for CSS transition (300ms) plus a tiny safety buffer
-        setTimeout(() => {
-          if (loader.parentNode) loader.remove();
-        }, 450);
-      }
+      dismissSplash();
     });
   });
 });

@@ -478,9 +478,6 @@ self.addEventListener('activate', (event) => {
     ])
   );
 
-  // Trigger app shell precaching in the background
-  event.waitUntil(precacheAppShell());
-
   // Notify ALL clients about the update with version info
   self.clients.matchAll({ type: 'window' }).then(clients => {
     clients.forEach(client => {
@@ -492,7 +489,7 @@ self.addEventListener('activate', (event) => {
     });
   });
 
-  // TINDER-SPEED: Precache all JS/CSS chunks in background after activation
+  // Precache all JS/CSS chunks in background after activation
   // This makes ALL lazy-loaded routes instant on subsequent navigations
   precacheAppShell();
 });
