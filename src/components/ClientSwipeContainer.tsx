@@ -42,6 +42,7 @@ import { MOCK_TEST_CLIENTS } from '@/utils/testReelData';
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 import { DistanceSlider } from './swipe/DistanceSlider';
+import { DiscoveryReel } from './DiscoveryReel';
 
 // ── Distance Slider Component ─────────────────────────────────────────────────
 interface DistanceSliderProps {
@@ -446,14 +447,16 @@ const ClientSwipeContainerComponent = ({
     }
   }, [clientProfiles, isLoading, setOwnerDeck, category, isOwnerReady, markOwnerReady, dismissedIds, user?.id]);
 
-  // INSTANT SWIPE: Update UI immediately, fire DB operations in background
-  const executeSwipe = useCallback((direction: 'left' | 'right') => {
-    const profile = deckQueueRef.current[currentIndexRef.current];
-    // FIX: Add explicit null/undefined check to prevent errors
-    if (!profile || !profile.user_id) {
-      logger.warn('[ClientSwipeContainer] Cannot swipe - no valid profile at current index');
-      return;
-    }
+    // INSTANT SWIPE: Update UI immediately, fire DB operations in background
+    const executeSwipe = useCallback((direction: 'left' | 'right') => {
+      const profile = deckQueueRef.current[currentIndexRef.current];
+      // FIX: Add explicit null/undefined check to prevent errors
+      if (!profile || !profile.user_id) {
+        logger.warn('[ClientSwipeContainer] Cannot swipe - no valid profile at current index');
+        return;
+      }
+
+      const isMockData = profile.user_id?.startsWith('test-') || profile.user_id?.startsWith('client-');
 
     // CRITICAL: Prevent swiping on own profile (should never happen, but defense in depth)
     if (user?.id && profile.user_id === user.id) {
@@ -486,11 +489,14 @@ const ClientSwipeContainerComponent = ({
       }),
 
       // Save swipe to DB with match detection - CRITICAL: Must succeed for likes to save
-      swipeMutation.mutateAsync({
-        targetId: profile.user_id,
-        direction,
-        targetType: 'profile'
-      }).then(() => {
+      // Skip DB write for mock data to avoid RLS/FK errors
+      isMockData 
+        ? Promise.resolve({ success: true, direction, targetId: profile.user_id, userId: user?.id })
+        : swipeMutation.mutateAsync({
+            targetId: profile.user_id,
+            direction,
+            targetType: 'profile'
+          }).then(() => {
         // SUCCESS: Like saved successfully
         logger.info('[ClientSwipeContainer] Swipe saved successfully:', { direction, profileId: profile.user_id });
 
@@ -826,116 +832,48 @@ const ClientSwipeContainerComponent = ({
     );
   }
 
-
-
-  // Main swipe view - edge-to-edge cards with next card visible behind
-  if (isDeckFinished || showEmptyState || !topCard) {
-    return (
-      <SwipeExhaustedState 
-        categoryLabel={labels.plural}
-        CategoryIcon={labels.Icon}
-        iconColor={labels.color}
-        isRefreshing={isRefreshing}
-        onRefresh={handleRefresh}
-        radiusKm={radiusKm}
-        onRadiusChange={setRadiusKm}
-        onDetectLocation={detectLocation}
-        detecting={locationDetecting}
-        detected={locationDetected}
-        error={externalError}
-        isInitialLoad={externalIsLoading && (!externalProfiles || externalProfiles.length === 0)}
-      />
-    );
-  }
-
+  // ── RENDER — UINFIED DISCOVERY REEL ──────────────────────────────────────
+  // The 'Radius Controller' is now the interactive Slide 0
+  // of the vertical snap-scrolling reel.
   return (
-    <div className="relative w-full flex flex-col" data-no-swipe-nav style={{ minHeight: '100dvh' }}>
-      <div className="relative flex-1 w-full">
-        {/* Third card - deepest in poker hand stack */}
-        {(() => {
-          const thirdCard = deckQueueRef.current[currentIndexRef.current + 2];
-          if (!thirdCard) return null;
-          return (
-            <div
-              key={`third-${thirdCard.user_id}`}
-              className="w-full h-full absolute inset-0"
-              style={{
-                zIndex: 3,
-                transform: 'scale(0.9) rotate(2.5deg)',
-                opacity: 0.35,
-                pointerEvents: 'none',
-              }}
-            >
-              <SimpleOwnerSwipeCard
-                profile={thirdCard}
-                onSwipe={() => {}}
-                isTop={false}
-              />
-            </div>
-          );
-        })()}
-
-        {/* Next card visible behind - poker hand fanned effect */}
-        {nextCard && (
-          <div
-            key={`next-${nextCard.user_id}`}
-            className="w-full h-full absolute inset-0"
-            style={{
-              zIndex: 5,
-              transform: 'scale(0.95) rotate(-1.5deg)',
-              opacity: 0.7,
-              pointerEvents: 'none',
-            }}
-          >
-            <SimpleOwnerSwipeCard
-              profile={nextCard}
-              onSwipe={() => { /* noop: non-interactive card */ }}
-              isTop={false}
+    <>
+      <DiscoveryReel
+        items={deckQueue.slice(currentIndex)} 
+        headerContent={
+          <div className="w-full h-full flex flex-col items-center justify-center -mt-12 px-6">
+            <DistanceSlider
+              radiusKm={radiusKm}
+              onRadiusChange={setRadiusKm}
+              onDetectLocation={detectLocation}
+              detecting={locationDetecting}
+              detected={locationDetected}
             />
           </div>
-        )}
-
-        {/* Current card on top - fully interactive */}
-        <div
-          key={topCard.user_id}
-          className="w-full h-full absolute inset-0"
-          style={{ zIndex: 10 }}
-        >
-          <SimpleOwnerSwipeCard
-            ref={cardRef}
-            profile={topCard}
-            onSwipe={handleSwipe}
-            onTap={() => onClientTap(topCard.user_id)}
-            onInsights={() => handleInsights(topCard.user_id)}
-            onMessage={() => handleConnect(topCard.user_id)}
-            onShare={handleShare}
-            onUndo={undoLastSwipe}
-            canUndo={canUndo}
-            isTop={true}
-          />
-        </div>
-
-        {/* Static Action Buttons - Floating bottom bar */}
-        {topCard && !insightsOpen && (
-          <div className="absolute left-0 right-0 flex justify-center z-[1100]" style={{ bottom: 'calc(var(--safe-bottom, 0px) + 100px)' }}>
-            <SwipeActionButtonBar
-              onLike={handleButtonLike}
-              onDislike={handleButtonDislike}
+        }
+        onRefresh={handleRefresh}
+        isLoading={isRefreshing}
+        renderItem={(profile, idx) => (
+          <div className="relative w-full h-[calc(100%-120px)] max-w-2xl flex items-center justify-center p-4">
+            <SimpleOwnerSwipeCard
+              key={profile.user_id}
+              ref={idx === 0 ? cardRef : undefined}
+              profile={profile}
+              onSwipe={handleSwipe}
+              onTap={() => onClientTap(profile.user_id)}
+              onInsights={() => handleInsights(profile.user_id)}
+              onMessage={() => handleConnect(profile.user_id)}
               onShare={handleShare}
               onUndo={undoLastSwipe}
-              onMessage={() => handleConnect(topCard.user_id)}
               canUndo={canUndo}
+              isTop={idx === 0}
             />
           </div>
         )}
-      </div>
+      />
 
-      {/* FIX: Render modals via portal OUTSIDE the swipe React tree
-          This prevents modal state changes from causing swipe re-renders,
-          matching the "Tinder-level" fluidity of the client side */}
+      {/* FIX: Render modals via portal OUTSIDE the swipe React tree */}
       {createPortal(
         <Suspense fallback={null}>
-
           <MessageConfirmationDialog
             open={messageDialogOpen}
             onOpenChange={setMessageDialogOpen}
@@ -944,17 +882,19 @@ const ClientSwipeContainerComponent = ({
             isLoading={isCreatingConversation}
           />
 
-          <ShareDialog
-            open={shareDialogOpen}
-            onOpenChange={setShareDialogOpen}
-            profileId={topCard.user_id}
-            title={topCard.name ? `Check out ${String(topCard.name)} 's profile` : 'Check out this profile'}
-            description={`Budget: $${topCard.budget_max?.toLocaleString() || 'N/A'} - Looking for: ${Array.isArray(topCard.preferred_listing_types) ? topCard.preferred_listing_types.join(', ') : 'Various properties'}`}
-          />
+          {topCard && (
+            <ShareDialog
+              open={shareDialogOpen}
+              onOpenChange={setShareDialogOpen}
+              profileId={topCard.user_id}
+              title={topCard.name ? `Check out ${String(topCard.name)}'s profile` : 'Check out this profile'}
+              description={`Budget: $${topCard.budget_max?.toLocaleString() || 'N/A'} - Looking for: ${Array.isArray(topCard.preferred_listing_types) ? topCard.preferred_listing_types.join(', ') : 'Various properties'}`}
+            />
+          )}
         </Suspense>,
         document.body
       )}
-    </div>
+    </>
   );
 };
 

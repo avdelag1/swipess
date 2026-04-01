@@ -132,6 +132,15 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
 
   const handleCategoryClick = (categoryId: QuickFilterCategory) => {
     haptics.tap();
+    
+    // For Owners: Direct selection (redundant sub-menus removed as they use the global 'Looking For' toggle)
+    if (userRole === 'owner') {
+      setCategories([categoryId]);
+      setIsOpen(false);
+      setClickedCategory(null);
+      return;
+    }
+
     if (categoryId === 'services') {
       setCategories([categoryId]);
       setListingType('both');

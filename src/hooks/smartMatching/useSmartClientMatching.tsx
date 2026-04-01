@@ -7,7 +7,7 @@ import { calculateClientMatch } from './matchCalculators';
 
 export function useSmartClientMatching(
     userId?: string,
-    _category?: 'property' | 'motorcycle' | 'bicycle',
+    _category?: 'property' | 'motorcycle' | 'bicycle' | 'services' | 'worker',
     page: number = 0,
     pageSize: number = 10,
     isRefreshMode: boolean = false,
@@ -82,6 +82,12 @@ export function useSmartClientMatching(
 
                 // 2. BUILD SECURE POSTGREST QUERY (Fallback)
                 let query = supabase.from('profiles').select(CLIENT_FIELDS);
+
+                // APPLY CATEGORY FILTER: Ensure we only find clients interested in the owner's offering
+                if (_category) {
+                    const mappedCategory = _category === 'worker' ? 'services' : _category;
+                    query = query.contains('preferred_listing_types', [mappedCategory]);
+                }
 
                 if (swipedProfileIds.size > 0) {
                     const idList = Array.from(swipedProfileIds)

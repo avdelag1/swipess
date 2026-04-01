@@ -10,6 +10,7 @@ import {
 } from './swipe/SwipeConstants';
 import { SwipeCardPeek } from './swipe/SwipeCardPeek';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
+import { DiscoveryReel } from './DiscoveryReel';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -971,195 +972,37 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
   }, []);
 
-  const _progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
-
-  // Render the fanned-out poker card categories if no filter is active
-  if (storeCategories.length === 0) {
-    return <SwipeAllDashboard setCategories={setCategories} />;
-  }
-
-  // Show skeleton whenever deck is empty and a fetch is in progress.
-  if (deckQueue.length === 0 && isLoading) {
-    return <SwipeLoadingSkeleton />;
-  }
-
-  // Exhausted/Empty state - dynamic based on category
-  if (currentIndex > 0 && currentIndex >= deckQueue.length) {
-    const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    return (
-      <SwipeExhaustedState
-        categoryLabel={String(categoryInfo?.plural || 'listings')}
-        CategoryIcon={categoryInfo?.icon || Home}
-        iconColor={categoryInfo?.color || 'text-primary'}
-        isRefreshing={isRefreshing}
-        onRefresh={handleRefresh}
-        radiusKm={radiusKm}
-        onRadiusChange={setRadiusKm}
-        onDetectLocation={detectLocation}
-        detecting={locationDetecting}
-        detected={locationDetected}
-      />
-    );
-  }
-
-  // Error state - ONLY show if we have NO cards at all
-  if (error && currentIndex === 0 && deckQueue.length === 0) {
-    const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    return (
-      <SwipeExhaustedState
-        categoryLabel={String(categoryInfo?.plural || 'listings')}
-        CategoryIcon={categoryInfo?.icon || Home}
-        iconColor={categoryInfo?.color || 'text-primary'}
-        isRefreshing={isRefreshing}
-        onRefresh={handleRefresh}
-        radiusKm={radiusKm}
-        onRadiusChange={setRadiusKm}
-        onDetectLocation={detectLocation}
-        detecting={locationDetecting}
-        detected={locationDetected}
-        error={error}
-        isInitialLoad={true}
-      />
-    );
-  }
-
-  if (deckQueue.length === 0) {
-    const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    return (
-      <SwipeExhaustedState
-        categoryLabel={String(categoryInfo?.plural || 'listings')}
-        CategoryIcon={categoryInfo?.icon || Home}
-        iconColor={categoryInfo?.color || 'text-primary'}
-        isRefreshing={isRefreshing}
-        onRefresh={handleRefresh}
-        radiusKm={radiusKm}
-        onRadiusChange={setRadiusKm}
-        onDetectLocation={detectLocation}
-        detecting={locationDetecting}
-        detected={locationDetected}
-      />
-    );
-  }
-
-  // Get current category info for the page title
-  const activeCategoryInfo = getActiveCategoryInfo(filters);
-  const _activeCategoryLabel = String(activeCategoryInfo?.plural || 'Listings');
-  const _ActiveCategoryIcon = activeCategoryInfo?.icon || Home;
-  const _activeCategoryColor = activeCategoryInfo?.color || 'text-primary';
-
-  // Main swipe view - CENTERED STACKED CARD PRESENTATION
+  // ── RENDER — UINFIED DISCOVERY REEL ──────────────────────────────────────
+  // The 'Premiums Dashboard' (SwipeAllDashboard) is now the interactive Slide 0
+  // of the vertical snap-scrolling reel.
   return (
-    <AnimatePresence mode="popLayout">
-    <motion.div
-      key="cards"
-      variants={deckFadeVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="relative w-full flex flex-col items-center justify-center"
-      style={{ height: 'calc(100dvh - 120px)', minHeight: 'calc(100dvh - 120px)', perspective: '1200px' }}
-      data-no-swipe-nav
-      onMouseEnter={handleDeckHover}
-    >
-      {/* Back to categories button */}
-      <button
-        onClick={() => setCategories([])}
-        className="absolute top-2 left-3 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-white/50 hover:text-white/80 text-[10px] font-black uppercase tracking-widest"
-        aria-label="Back to categories"
-      >
-        <Home className="w-3 h-3" />
-        <span>All</span>
-      </button>
-
-      {/* Centered card stack container with perspective — FULL BLEED ON MOBILE */}
-      <div className="relative flex-1 w-full max-w-2xl flex items-center justify-center -mt-8" style={{ perspective: '1500px' }}>
-        {/* THIRD CARD - Deepest in stack for poker hand depth */}
-        {(() => {
-          const thirdCard = deckQueueRef.current[currentIndexRef.current + 2];
-          if (!thirdCard) return null;
-          return (
-            <motion.div
-              key={`third-${thirdCard.id}`}
-              className="absolute w-full h-full gpu-layer"
-              style={{
-                zIndex: 3,
-                scale: 1,
-                opacity: 0, // Keep preloaded but hidden
-                translateZ: -100,
-                pointerEvents: 'none',
-                y: 0,
-              }}
-            >
-              <SwipeCardPeek
-                listing={thirdCard}
-              />
-            </motion.div>
-          );
-        })()}
-
-        {/* NEXT CARD - Visible behind current card (poker hand style)
-            - Scale slightly smaller to create depth
-            - Slight rotation for fanned poker-hand effect
-            - Already preloaded so transition is instant */}
-        {(() => {
-          const nextCard = deckQueueRef.current[currentIndexRef.current + 1];
-          if (!nextCard) return null;
-          return (
-            <motion.div
-              key={`next-${nextCard.id}`}
-              className="absolute w-full h-full gpu-layer"
-              style={{
-                zIndex: 5,
-                scale: 1,
-                opacity: 1,
-                translateZ: 0,
-                pointerEvents: 'none',
-                y: '100%', // Position exactly below the screen
-                willChange: 'transform',
-              }}
-            >
-              <SwipeCardPeek
-                listing={nextCard}
-              />
-            </motion.div>
-          );
-        })()}
-
-        {/* CURRENT CARD - Top of stack, fully interactive, centered */}
-        {topCard && (
-          <motion.div
-            key={topCard.id}
-            className="absolute w-full h-full rounded-3xl overflow-hidden"
-            // Spring-forward entrance: card pops from "peeked" position to full size.
-            // Skipped on first card (hasSwipedRef.current=false) to avoid jarring load animation.
-            initial={hasSwipedRef.current ? { scale: 0.97, opacity: 0.72, y: 8 } : false}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 420, damping: 28, mass: 0.85 }}
-            style={{ 
-              zIndex: 10,
-              perspective: '1200px',
-              willChange: 'transform',
-            }}
-          >
+    <>
+      <DiscoveryReel
+        items={deckQueue.slice(currentIndex)} 
+        headerContent={
+          <div className="w-full h-full flex flex-col items-center justify-center -mt-12">
+             <SwipeAllDashboard setCategories={setCategories} />
+          </div>
+        }
+        onRefresh={handleRefresh}
+        isLoading={isRefreshing}
+        renderItem={(listing, idx) => (
+          <div className="relative w-full h-[calc(100%-120px)] max-w-2xl flex items-center justify-center p-4">
             <SimpleSwipeCard
-              ref={cardRef}
-              listing={topCard}
+              key={listing.id}
+              ref={idx === 0 ? cardRef : undefined}
+              listing={listing}
               onSwipe={handleSwipe}
               onInsights={handleInsights}
               onShare={handleShare}
               onMessage={handleMessage}
-              isTop={true}
-              externalX={topCardX}
+              isTop={idx === 0}
             />
-          </motion.div>
+          </div>
         )}
+      />
 
-        {/* Action buttons removed — Integrated into DiscoverySidebar within cards */}
-      </div>
-
-      {/* FIX #3: PORTAL ISOLATION - Modals render outside swipe tree
-          This prevents modal state changes from causing re-renders in the swipe container
-          The modal lives in a completely separate React subtree */}
+      {/* FIX #3: PORTAL ISOLATION - Modals render outside swipe tree */}
       {typeof document !== 'undefined' && createPortal(
         <Suspense fallback={null}>
           {insightsModalOpen && (
@@ -1200,8 +1043,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         isLoading={isCreatingConversation}
         category={selectedListing?.category}
       />
-    </motion.div>
-    </AnimatePresence>
+    </>
   );
 };
 
