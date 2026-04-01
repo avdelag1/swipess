@@ -376,7 +376,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     >
       <div className="max-w-screen-xl mx-auto">
         {/* Main filter cards — horizontal scroll */}
-        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 stagger-enter">
+        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 stagger-enter" style={{ willChange: 'scroll-position' }}>
           {/* ALL card */}
           <button
             onClick={() => {

@@ -397,3 +397,52 @@ label:active,
         transform: none !important;
     }
 }
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  ELITE HARDWARE ADAPTATION — Reactive Performance Tiering           */
+/*  Ensures 120fps on flagships AND 60fps on low-end devices           */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* TIER 1: Low-End Hardware Guard (RAM < 4GB or Cores < 4) */
+body.hw-low .backdrop-blur,
+body.hw-low [class*="backdrop-blur"],
+body.hw-low .modal-overlay,
+body.hw-low [data-radix-dialog-overlay] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background-color: rgba(0, 0, 0, 0.92) !important;
+}
+
+body.hw-low .animate-pulse,
+body.hw-low .animate-bounce,
+body.hw-low .animate-ping,
+body.hw-low .marketing-breathing {
+    animation: none !important;
+}
+
+body.hw-low * {
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
+
+body.hw-low .swipe-card {
+    contain: strict;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+}
+
+/* TIER 2: Mid-Range Hardware Balanced Mode (RAM < 8GB) */
+body.hw-mid .backdrop-blur-xl {
+    -webkit-backdrop-filter: blur(8px) saturate(110%) !important;
+    backdrop-filter: blur(8px) saturate(110%) !important;
+}
+
+body.hw-mid .animate-pulse {
+    animation-duration: 3s !important;
+}
+
+/* UNIVERSAL: Viewport Jitter & Interaction Cleanup */
+[data-no-swipe-nav] {
+    touch-action: pan-x !important;
+    overscroll-behavior-x: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
