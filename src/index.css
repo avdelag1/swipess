@@ -22,11 +22,11 @@ body::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
 
-/* ─── View Transitions: circular ripple reveal from toggle button ─── */
+/* ─── View Transitions: High-Fidelity ripple reveal from toggle button ─── */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.18s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-duration: 0.15s;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
 
 ::view-transition-old(root) {
@@ -35,24 +35,34 @@ body::-webkit-scrollbar {
 }
 
 ::view-transition-new(root) {
-  animation: theme-circle-reveal 0.18s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: theme-ripple-reveal 0.15s cubic-bezier(0.2, 0, 0, 1) forwards;
   z-index: 2;
+  mix-blend-mode: normal;
 }
 
-@keyframes progress-fill {
-  from { width: 0%; }
-  to { width: 100%; }
-}
-
-@keyframes theme-circle-reveal {
-  from {
+/* 🏎️ ULTRA-FAST RIPPLE: Includes a subtle scale-up for 'Warp' feel */
+@keyframes theme-ripple-reveal {
+  0% {
     clip-path: circle(0% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%));
-    opacity: 0.95;
+    transform: scale(0.995);
+    filter: brightness(1.2) contrast(1.1);
   }
-  to {
+  100% {
     clip-path: circle(150% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%));
-    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1) contrast(1);
   }
+}
+
+/* 🚀 HARDWARE-AWARE: Simpler transition for budget devices to avoid GPU thrashing */
+.hw-low ::view-transition-new(root) {
+  animation: theme-instant-fade 0.15s ease-out forwards;
+  clip-path: none !important;
+}
+
+@keyframes theme-instant-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
