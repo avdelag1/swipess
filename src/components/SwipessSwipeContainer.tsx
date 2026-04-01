@@ -1078,16 +1078,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           return (
             <motion.div
               key={`third-${thirdCard.id}`}
-              className="absolute w-full h-full gpu-layer rounded-3xl overflow-hidden"
+              className="absolute w-full h-full gpu-layer"
               style={{
                 zIndex: 3,
-                scale: 0.9,
-                opacity: 0.35,
-                translateZ: 0,
+                scale: 1,
+                opacity: 0, // Keep preloaded but hidden
+                translateZ: -100,
                 pointerEvents: 'none',
-                y: 20,
-                rotate: 2.5,
-                willChange: 'transform',
+                y: 0,
               }}
             >
               <SwipeCardPeek
@@ -1107,15 +1105,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           return (
             <motion.div
               key={`next-${nextCard.id}`}
-              className="absolute w-full h-full gpu-layer rounded-3xl overflow-hidden"
+              className="absolute w-full h-full gpu-layer"
               style={{
                 zIndex: 5,
-                scale: nextCardScale,
-                opacity: nextCardOpacity,
+                scale: 1,
+                opacity: 1,
                 translateZ: 0,
                 pointerEvents: 'none',
-                y: 12,
-                rotate: -1.5,
+                y: '100%', // Position exactly below the screen
                 willChange: 'transform',
               }}
             >
@@ -1147,36 +1144,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               listing={topCard}
               onSwipe={handleSwipe}
               onInsights={handleInsights}
+              onShare={handleShare}
+              onMessage={handleMessage}
               isTop={true}
               externalX={topCardX}
             />
           </motion.div>
         )}
 
-        {/* Action buttons - positioned below card stack */}
-        {topCard && !insightsModalOpen && (
-          <motion.div 
-            className="absolute flex justify-center z-[1100]" 
-            style={{ 
-              bottom: 'calc(-140px - var(--safe-bottom, 0px))',
-              left: 0,
-              right: 0,
-              pointerEvents: 'auto',
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.4 }}
-          >
-            <SwipeActionButtonBar
-              onLike={handleButtonLike}
-              onDislike={handleButtonDislike}
-              onShare={handleShare}
-              onUndo={undoLastSwipe}
-              onMessage={handleMessage}
-              canUndo={canUndo}
-            />
-          </motion.div>
-        )}
+        {/* Action buttons removed — Integrated into DiscoverySidebar within cards */}
       </div>
 
       {/* FIX #3: PORTAL ISOLATION - Modals render outside swipe tree

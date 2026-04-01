@@ -25,6 +25,8 @@ import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
+import { DiscoverySidebar } from '@/components/DiscoverySidebar';
+import { useSwipeUndo } from '@/hooks/useSwipeUndo';
 
 // Exposed interface for parent to trigger swipe animations
 export interface SimpleSwipeCardRef {
@@ -60,6 +62,8 @@ interface SimpleSwipeCardProps {
   listing: Listing | MatchedListing;
   onSwipe: (direction: 'left' | 'right') => void;
   onInsights?: () => void;
+  onShare?: () => void;
+  onMessage?: () => void;
   isTop?: boolean;
   /** Optional shared MotionValue from parent — lets container animate the card below in real-time */
   externalX?: MotionValue<number>;
@@ -70,6 +74,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   listing,
   onSwipe,
   onInsights,
+  onShare,
+  onMessage,
   isTop = true,
   externalX,
   externalY,
@@ -82,6 +88,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const dragControls = useDragControls();
   const dragStartedRef = useRef(false);
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
+  const { undoLastSwipe, canUndo } = useSwipeUndo();
 
   // Motion values for BOTH X and Y - enables diagonal movement
   // Always create internal values (hooks must not be conditional)
@@ -220,26 +227,30 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     const sweepX = info.offset.x;
+    const sweepY = info.offset.y;
     const velocityX = info.velocity.x;
+    const velocityY = info.velocity.y;
 
-    // Tinder-style threshold check (Distance OR Velocity)
-    if (Math.abs(sweepX) > SWIPE_THRESHOLD || Math.abs(velocityX) > VELOCITY_THRESHOLD) {
+    // 🏎️ MULTI-DIMENSIONAL SWIPE: L/R for High Intent, UP for Fast Pass
+    const isHorizontalSwipe = Math.abs(sweepX) > SWIPE_THRESHOLD || Math.abs(velocityX) > VELOCITY_THRESHOLD;
+    const isVerticalUpSwipe = sweepY < -SWIPE_THRESHOLD || velocityY < -VELOCITY_THRESHOLD;
+
+    if (isHorizontalSwipe) {
       const direction = sweepX > 0 ? 'right' : 'left';
       hasExited.current = true;
       isExitingRef.current = true;
-      
       triggerHaptic(direction === 'right' ? 'success' : 'warning');
       onSwipe(direction);
+    } else if (isVerticalUpSwipe) {
+      // 🚀 FAST PASS (FLICK UP)
+      hasExited.current = true;
+      isExitingRef.current = true;
+      triggerHaptic('light');
+      onSwipe('left'); // Flick Up = Pass
     } else {
       // Snap back to center
-      animate(x, 0, {
-        type: 'spring',
-        ...ACTIVE_SPRING,
-      });
-      animate(y, 0, {
-        type: 'spring',
-        ...ACTIVE_SPRING,
-      });
+      animate(x, 0, { type: 'spring', ...ACTIVE_SPRING });
+      animate(y, 0, { type: 'spring', ...ACTIVE_SPRING });
     }
 
     setTimeout(() => {
@@ -289,6 +300,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     triggerHaptic(direction === 'right' ? 'success' : 'warning');
 
     const exitX = direction === 'right' ? getExitDistance() : -getExitDistance();
+    const exitY = direction === 'left' && !isDragging.current ? -getExitDistance() : 0; // Vertical lift for passes
 
     let swipeFired = false;
     const fireSwipe = () => {
@@ -465,10 +477,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         </motion.div>
 
+        {/* 🚀 CINEMATIC INFO OVERLAY — Restored and Refined */}
         <div
-          className="absolute left-0 right-0 z-20 pointer-events-none p-6"
+          className="absolute left-0 right-0 z-20 pointer-events-none p-6 pb-20"
           style={{ 
-            bottom: 'clamp(100px, 18vh, 160px)',
+            bottom: 0,
             background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 50%, transparent 100%)',
             borderTop: '1px solid rgba(255,255,255,0.1)',
             contain: 'layout paint',
@@ -476,13 +489,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           }}
         >
           <div className="flex items-center gap-2 mb-3 flex-wrap">
-            {'matchPercentage' in listing && (listing as MatchedListing).matchPercentage > 0 && (
-              <SwipeMatchMeter
-                percentage={(listing as MatchedListing).matchPercentage}
-                reasons={(listing as MatchedListing).matchReasons}
-                compact
-              />
-            )}
             <div
               className="inline-flex rounded-full px-3 py-1.5"
               style={{
@@ -533,11 +539,23 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           )}
         </div>
 
+        {/* 🏎️ DISCOVERY REEL SIDEBAR — Social-Media Standard */}
+        {isTop && (
+          <DiscoverySidebar
+            onUndo={undoLastSwipe}
+            onMessage={onMessage}
+            onShare={onShare}
+            onInsights={onInsights}
+            canUndo={canUndo}
+            matchPercentage={'matchPercentage' in listing ? (listing as MatchedListing).matchPercentage : undefined}
+          />
+        )}
+
         {listing.has_verified_documents && (
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="absolute top-16 right-5 z-40"
+            className="absolute top-16 left-6 z-40" // Moved to left to avoid sidebar overlap
           >
             <div className="group relative">
                {/* Pulsing Outer Ring */}
