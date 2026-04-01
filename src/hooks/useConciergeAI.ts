@@ -272,7 +272,7 @@ export function useConciergeAI() {
     }
 
     try {
-      await supabase
+      await (supabase as any)
         .from('ai_conversations')
         .update({ is_archived: true })
         .eq('id', currentConversationId);
