@@ -246,6 +246,29 @@
   <script type="module" src="/src/main.tsx"></script>
 
   <script>
+    // RECOVERY FALLBACK: If React fails to mount (chunk error, SW stale cache, etc.)
+    // show a reload button after 10s so the user isn't stuck forever.
+    setTimeout(function() {
+      var root = document.getElementById('root');
+      if (root && !root.firstChild) {
+        var btn = document.createElement('button');
+        btn.textContent = 'Reload App';
+        btn.style.cssText = 'position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:99999;background:#ff1f1f;color:#fff;border:none;border-radius:999px;padding:14px 32px;font-size:16px;font-weight:600;cursor:pointer;font-family:system-ui,sans-serif;box-shadow:0 4px 20px rgba(255,31,31,0.4)';
+        btn.onclick = function() {
+          if ('caches' in window) {
+            caches.keys().then(function(names) {
+              return Promise.all(names.map(function(n) { return caches.delete(n); }));
+            }).then(function() { window.location.reload(); });
+          } else {
+            window.location.reload();
+          }
+        };
+        document.body.appendChild(btn);
+      }
+    }, 10000);
+  </script>
+
+  <script>
     // PWA Version Control — runs synchronously but is fast (no network)
     var V="3.6.0";
     if(localStorage.getItem('pwa_version')!==V){
