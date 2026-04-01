@@ -247,15 +247,15 @@ export function useConciergeAI() {
     if (!user) return;
     setCurrentConversationId(convId);
 
-    const { data: msgs } = await supabase
+    const { data: msgs } = await (supabase as any)
       .from('ai_messages')
       .select('*')
       .eq('conversation_id', convId)
       .order('created_at', { ascending: true });
 
     if (msgs) {
-      setMessages(msgs.map(m => ({
-        id: m.id,
+      setMessages((msgs as any[]).map((m: any) => ({
+        id: String(m.id),
         role: m.role as any,
         content: m.content,
         timestamp: new Date(m.created_at),
