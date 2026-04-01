@@ -165,11 +165,8 @@
 
   <div id="root"></div>
 
-  <!-- MAIN SCRIPT: modulepreload + fetchpriority for immediate execution -->
-  <link rel="modulepreload" href="/src/main.tsx">
-  <link rel="modulepreload" href="/src/pages/ClientDashboard.tsx">
-  <link rel="modulepreload" href="/src/pages/OwnerDashboard.tsx">
-  <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
+  <!-- MAIN SCRIPT: Let Vite handle the entry point injection -->
+  <script type="module" src="/src/main.tsx"></script>
 
   <script>
     // PWA Version Control — runs synchronously but is fast (no network)
