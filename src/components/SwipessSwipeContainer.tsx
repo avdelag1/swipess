@@ -941,7 +941,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // The 'Premiums Dashboard' (SwipeAllDashboard) is now the interactive Slide 0
   // of the vertical snap-scrolling reel.
   return (
-    <div className="relative w-full h-full overflow-hidden flex flex-col pt-4 bg-background">
+    <div className="relative w-full h-full overflow-hidden flex flex-col pt-2 bg-background">
       {/* PREMIUM AMBIENT GLOWS: Dynamic Category-Aware Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10 bg-[#0a0a0b]">
         <motion.div
@@ -989,11 +989,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       <div className="flex-1 relative flex items-center justify-center p-4 min-h-0 overflow-hidden">
         <AnimatePresence mode="wait">
           {!storeActiveCategory ? (
-            <div className="w-full flex flex-col items-center justify-center mt-[-80px]">
+            <div className="w-full flex flex-col items-center justify-center mt-[-140px] lg:mt-[-160px]">
               <SwipeAllDashboard setCategories={setCategories} />
             </div>
           ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-            <div className="relative w-full h-[68dvh] max-w-2xl mt-[-60px]">
+            <div className="relative w-full h-[74dvh] max-w-2xl mt-[-100px] lg:mt-[-120px]">
 
               {/* Back card (Peek) */}
               {currentIndex + 1 < deckQueue.length && (
