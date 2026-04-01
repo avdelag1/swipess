@@ -65,7 +65,7 @@ export function useConciergeAI() {
         const latest = (convList as any)[0];
         setCurrentConversationId(latest.id as string);
 
-        const { data: msgs } = await supabase
+        const { data: msgs } = await (supabase as any)
           .from('ai_messages')
           .select('*')
           .eq('conversation_id', latest.id)
