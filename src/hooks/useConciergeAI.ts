@@ -131,7 +131,7 @@ export function useConciergeAI() {
 
       setMessages(prev => [...prev, userMsg]);
 
-      await supabase.from('ai_messages').insert({
+      await (supabase as any).from('ai_messages').insert({
         conversation_id: convId,
         user_id: user.id,
         role: 'user',
@@ -189,7 +189,7 @@ export function useConciergeAI() {
       }
 
       // 4. Save AI Response to DB
-      await supabase.from('ai_messages').insert({
+      await (supabase as any).from('ai_messages').insert({
         conversation_id: convId!,
         user_id: user.id,
         role: 'assistant',
