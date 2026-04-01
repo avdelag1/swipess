@@ -10,7 +10,6 @@ import {
 } from './swipe/SwipeConstants';
 import { SwipeCardPeek } from './swipe/SwipeCardPeek';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
-import { DiscoveryReel } from './DiscoveryReel';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -46,7 +45,7 @@ import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
-import { MOCK_TEST_LISTINGS } from '@/utils/testReelData';
+// import { MOCK_TEST_LISTINGS } was here - removed per user request for Instagram cleanup
 
 // Navigation guard to prevent double-taps
 function useNavigationGuard() {
@@ -986,14 +985,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         </div>
       </div>
 
-      <div className="flex-1 relative flex items-center justify-center pb-20 lg:pb-24 p-4 min-h-0 overflow-hidden">
-        <AnimatePresence mode="wait">
-          {!storeActiveCategory ? (
-            <div className="w-full flex flex-col items-center justify-center">
-              <SwipeAllDashboard setCategories={setCategories} />
-            </div>
-          ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-            <div className="relative w-full h-[72dvh] max-w-2xl">
+      <div className="flex-1 relative min-h-0 overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center pb-20 lg:pb-24 p-4">
+          <AnimatePresence mode="wait">
+            {!storeActiveCategory ? (
+              <div className="w-full flex flex-col items-center justify-center">
+                <SwipeAllDashboard setCategories={setCategories} />
+              </div>
+            ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
+              <div className="relative w-full h-[70dvh] max-w-2xl">
 
               {/* Back card (Peek) */}
               {currentIndex + 1 < deckQueue.length && (
@@ -1045,6 +1045,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           )}
         </AnimatePresence>
       </div>
+    </div>
 
       {/* Action Buttons — only shown when a specific category is selected (not on the quick-filter deck) */}
       {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
