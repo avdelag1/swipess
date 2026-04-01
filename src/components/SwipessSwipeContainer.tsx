@@ -178,8 +178,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // The DB query (with refetchOnMount:'always') excludes swiped items at SQL level
   // Restoring from cache caused swiped cards to reappear across sessions/dashboard switches
   const getInitialDeck = () => {
-    // 🚀 FLAGSHIP TEST DATA INJECTION — Pre-populated for discovery testing
-    return [...MOCK_TEST_LISTINGS];
+    return [];
   };
 
   // CONSTANT-TIME SWIPE DECK: Use refs for queue management (no re-renders on swipe)
