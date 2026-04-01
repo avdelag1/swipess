@@ -14,7 +14,7 @@ interface DiscoverySidebarProps {
   matchPercentage?: number;
 }
 
-const SIDEBAR_SPRING = { type: 'spring', stiffness: 400, damping: 30, mass: 0.8 };
+const SIDEBAR_SPRING = { type: 'spring' as const, stiffness: 400, damping: 30, mass: 0.8 };
 
 export const DiscoverySidebar = memo(({
   onUndo,

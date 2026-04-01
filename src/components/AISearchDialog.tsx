@@ -463,7 +463,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                             message.content
                           ) : (
                             <div className={cn("markdown-content font-bold", !isDark && "!text-black")}>
-                              <ReactMarkdown components={{ a: (props) => <MarkdownLink {...props} isDark={isDark} /> as any }}>
+                              <ReactMarkdown components={{ a: (props: any) => <MarkdownLink {...props} isDark={isDark} /> as any }}>
                                 {message.content}
                               </ReactMarkdown>
                             </div>
