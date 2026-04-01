@@ -127,46 +127,15 @@ export const SentientSLogo = memo(({ size = 'md', className }: SentientSLogoProp
 
       {/* The Sentient Face Controls */}
       <div className="absolute inset-0 z-20 pointer-events-none flex flex-col items-center justify-center pt-2">
-         {/* Eyes Wrapper */}
+         {/* Eyes Wrapper - unified for zero-mount performance */}
          <div className="flex gap-2.5 mb-1.5 translate-y-2">
-            <AnimatePresence mode="wait">
-              {mood === 'winking' ? (
-                <>
-                  <Eye type="normal" />
-                  <Eye type="closed" />
-                </>
-              ) : mood === 'shocked' ? (
-                <>
-                  <Eye type="shocked" />
-                  <Eye type="shocked" />
-                </>
-              ) : mood === 'cool' ? (
-                <>
-                  <Eye type="cool" />
-                  <Eye type="cool" />
-                </>
-              ) : (
-                <>
-                  <Eye type="normal" />
-                  <Eye type="normal" />
-                </>
-              )}
-            </AnimatePresence>
+            <Eye mood={mood} side="left" />
+            <Eye mood={mood} side="right" />
          </div>
 
-         {/* Mouth Wrapper */}
+         {/* Mouth Wrapper - unified for zero-mount performance */}
          <div className="h-4 translate-y-1">
-            <AnimatePresence mode="wait">
-              {mood === 'happy' || mood === 'winking' ? (
-                <Mouth type="happy" />
-              ) : mood === 'shocked' ? (
-                <Mouth type="shocked" />
-              ) : mood === 'cool' ? (
-                <Mouth type="cool" />
-              ) : (
-                <Mouth type="normal" />
-              )}
-            </AnimatePresence>
+            <Mouth mood={mood} />
          </div>
       </div>
     </motion.div>
@@ -175,45 +144,49 @@ export const SentientSLogo = memo(({ size = 'md', className }: SentientSLogoProp
 
 // ── Little Parts ─────────────────────────────────────────────────────────────
 
-const Eye = ({ type }: { type: 'normal' | 'closed' | 'shocked' | 'cool' }) => (
-  <motion.div
-    initial={{ scale: 0 }}
-    animate={{ scale: 1 }}
-    exit={{ scale: 0 }}
-    className={cn(
-      "w-2.5 h-2.5 bg-white rounded-full shadow-lg border-b-2 border-rose-900/40 relative overflow-hidden",
-      type === 'cool' && "bg-black"
-    )}
-  >
-    {type === 'normal' && <div className="absolute top-0.5 left-0.5 w-1 h-1 bg-black rounded-full" />}
-    {type === 'closed' && (
-       <div className="absolute inset-0 bg-rose-500/80 flex items-center justify-center">
-         <div className="w-full h-0.5 bg-rose-900/50" />
-       </div>
-    )}
-    {type === 'shocked' && <div className="absolute inset-0 flex items-center justify-center font-black text-[6px] text-black">!</div>}
-    {type === 'cool' && (
-      <div className="absolute top-1/2 left-0 w-full h-1 bg-zinc-800 -translate-y-1/2" />
-    )}
-  </motion.div>
-);
+const Eye = ({ mood, side }: { mood: string, side: 'left' | 'right' }) => {
+  const type = mood === 'winking' && side === 'right' ? 'closed' : 
+               mood === 'shocked' ? 'shocked' : 
+               mood === 'cool' ? 'cool' : 'normal';
 
-const Mouth = ({ type }: { type: 'normal' | 'happy' | 'shocked' | 'cool' }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 5 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -5 }}
-    className="flex items-center justify-center"
-  >
-    {type === 'normal' && <div className="w-2.5 h-0.5 bg-rose-900/80 rounded-full" />}
-    {type === 'happy' && (
-      <div className="w-3.5 h-2.5 border-b-2 border-rose-900/80 rounded-full bg-rose-100/20" />
-    )}
-    {type === 'shocked' && (
-      <div className="w-2 h-2 rounded-full border border-rose-900/80 bg-rose-900/10" />
-    )}
-    {type === 'cool' && (
-      <div className="w-3 h-0.5 bg-black rotate-[-5deg] shadow-sm" />
-    )}
-  </motion.div>
-);
+  return (
+    <div
+      className={cn(
+        "w-2.5 h-2.5 bg-white rounded-full shadow-lg border-b-2 border-rose-900/40 relative overflow-hidden transition-all duration-200",
+        type === 'cool' && "bg-black"
+      )}
+    >
+      {type === 'normal' && <div className="absolute top-0.5 left-0.5 w-1 h-1 bg-black rounded-full" />}
+      {type === 'closed' && (
+         <div className="absolute inset-0 bg-rose-500/80 flex items-center justify-center">
+           <div className="w-full h-0.5 bg-rose-900/50" />
+         </div>
+      )}
+      {type === 'shocked' && <div className="absolute inset-0 flex items-center justify-center font-black text-[6px] text-black">!</div>}
+      {type === 'cool' && (
+        <div className="absolute top-1/2 left-0 w-full h-1 bg-zinc-800 -translate-y-1/2" />
+      )}
+    </div>
+  );
+};
+
+const Mouth = ({ mood }: { mood: string }) => {
+  const type = (mood === 'happy' || mood === 'winking') ? 'happy' : 
+               mood === 'shocked' ? 'shocked' : 
+               mood === 'cool' ? 'cool' : 'normal';
+
+  return (
+    <div className="flex items-center justify-center transition-all duration-200">
+      {type === 'normal' && <div className="w-2.5 h-0.5 bg-rose-900/80 rounded-full" />}
+      {type === 'happy' && (
+        <div className="w-3.5 h-2.5 border-b-2 border-rose-900/80 rounded-full bg-rose-100/20" />
+      )}
+      {type === 'shocked' && (
+        <div className="w-2 h-2 rounded-full border border-rose-900/80 bg-rose-900/10" />
+      )}
+      {type === 'cool' && (
+        <div className="w-3 h-0.5 bg-black rotate-[-5deg] shadow-sm" />
+      )}
+    </div>
+  );
+};
