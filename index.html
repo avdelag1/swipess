@@ -20,8 +20,6 @@
 
   <!-- LCP IMAGE (Aggressive High Priority) -->
   <link rel="preload" as="image" href="/icons/fire-s-logo-960.webp" type="image/webp" fetchpriority="high">
-  <link rel="preload" as="image" href="/icons/fire-s-logo.png" type="image/png" fetchpriority="high">
-
 
   <!-- Critical styles for Instant App feel -->
   <style>
@@ -134,14 +132,21 @@
 
   <script>
     // 🛡️ EXTENSION GUARD: Silently swallow chrome-extension errors
-    // Many extensions (like Stylus/UserStyle) crash when they can't find elements in SPAs.
     // This prevents these third-party errors from appearing as "app errors".
-    window.addEventListener('error', function(e) {
-      if (e.filename && e.filename.indexOf('chrome-extension://') !== -1) {
-        e.stopImmediatePropagation();
+    (function() {
+      const handleExtensionError = function(e) {
+        const isExtension = (e.filename && e.filename.indexOf('chrome-extension://') !== -1) || 
+                          (e.reason && e.reason.stack && e.reason.stack.indexOf('chrome-extension://') !== -1);
+        if (isExtension) {
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          return true;
+        }
         return false;
-      }
-    }, true);
+      };
+      
+      window.addEventListener('error', handleExtensionError, true);
+      window.addEventListener('unhandledrejection', handleExtensionError, true);
+    })();
   </script>
 </head>
 

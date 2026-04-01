@@ -107,8 +107,8 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('src/components/radio')) return 'feature-radio';
             if (id.includes('src/pages/Discovery')) return 'feature-discovery';
 
-            // Core framework
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            // Core framework: Keep primary libraries together to prevent 'unstable_scheduleCallback' synchronization issues
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || id.includes('scheduler')) {
               return 'vendor-core';
             }
 
