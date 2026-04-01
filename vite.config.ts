@@ -102,6 +102,15 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('date-fns')) return 'date-fns';
             if (id.includes('zustand')) return 'zustand';
             
+            // Role-Based Isolation: Keeps Client code separate from Owner code
+            if (id.includes('src/pages/Client')) return 'role-client';
+            if (id.includes('src/pages/Owner')) return 'role-owner';
+            if (id.includes('src/pages/admin')) return 'role-admin';
+
+            // Feature chunks
+            if (id.includes('src/components/radio')) return 'feature-radio';
+            if (id.includes('src/pages/Discovery')) return 'feature-discovery';
+
             // Everything else (React, etc)
             return 'vendor';
           }
