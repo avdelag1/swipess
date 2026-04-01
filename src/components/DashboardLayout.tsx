@@ -21,6 +21,7 @@ import { warmDiscoveryCache } from '@/utils/performance'
 import { TopBar } from '@/components/TopBar'
 import { SwipessLogo } from '@/components/SwipessLogo'
 import { BottomNavigation } from '@/components/BottomNavigation'
+import { ButlerProactive } from '@/components/ButlerProactive'
 
 // SPEED OF LIGHT HOOKS
 import { useWelcomeState } from "@/hooks/useWelcomeState"
@@ -505,6 +506,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           }}
         />
       )}
+
+      {/* PROACTIVE AI BUTLER — Sentient Insights */}
+      <ButlerProactive />
 
       {/* ZENITH GLOBAL DIALOGS — Decoupled lifecycle */}
       <GlobalDialogs userRole={userRole} />

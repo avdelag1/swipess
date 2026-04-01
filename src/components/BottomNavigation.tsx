@@ -375,7 +375,7 @@ export const BottomNavigation = memo(({
                   flexShrink: 0,
                 }}
               >
-                {/* Active Indicator — Layout Animation */}
+                {/* Active Indicator — Slingshot-Morph Pill */}
                 {active && (
                   <motion.div
                     layoutId="nav-pill"
@@ -383,19 +383,23 @@ export const BottomNavigation = memo(({
                     initial={false}
                     transition={{
                       type: 'spring',
-                      stiffness: 700, // Slingshot tension
-                      damping: 32,
-                      mass: 0.5,
+                      stiffness: 850, // SLINGSHOT
+                      damping: 38,
+                      mass: 0.6,
                     }}
                     style={{
                       background: isLight 
-                        ? 'rgba(236,72,153,0.06)' 
-                        : 'rgba(236,72,153,0.12)',
+                        ? 'rgba(236,72,153,0.08)' 
+                        : 'rgba(255,107,53,0.12)',
                       border: isLight 
-                        ? '0.5px solid rgba(236,72,153,0.1)' 
-                        : '0.5px solid rgba(236,72,153,0.2)',
+                        ? '1px solid rgba(236,72,153,0.15)' 
+                        : '1px solid rgba(255,107,53,0.25)',
+                      boxShadow: 'inset 0 0 20px rgba(255,107,53,0.05)',
                     }}
-                  />
+                  >
+                     {/* Liquid highlight catch-light */}
+                     <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                  </motion.div>
                 )}
                 <motion.div
                   className="relative"
@@ -403,6 +407,11 @@ export const BottomNavigation = memo(({
                   transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
                   style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
                 >
+                  {/* 🟢 PRESENCE GLOW: Pulsing indicator for platform activity */}
+                  {item.path && !item.isCenter && (
+                    <div className="absolute -top-1 -left-1 w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.7)] animate-pulse opacity-0 group-hover:opacity-100 transition-opacity z-30" />
+                  )}
+
                   {/* Notification badge */}
                   <AnimatePresence>
                     {item.badge && item.badge > 0 && (
@@ -411,9 +420,11 @@ export const BottomNavigation = memo(({
                         animate={{ scale: 1 }}
                         exit={{ scale: 0 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                        className="absolute -top-1 -right-1 rounded-full w-[10px] h-[10px] z-20 shadow-md border border-background"
+                        className="absolute -top-1 -right-1 rounded-full px-1.5 h-[16px] z-20 shadow-[0_2px_8px_rgba(255,140,0,0.4)] border-2 border-background flex items-center justify-center text-[10px] font-black text-white"
                         style={{ background: 'linear-gradient(135deg,#ff4d00,#ff8c00)' }}
-                      />
+                      >
+                        {item.badge}
+                      </motion.span>
                     )}
                   </AnimatePresence>
 
@@ -425,8 +436,8 @@ export const BottomNavigation = memo(({
                       height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
                       color: active ? activeColor : iconColorInactive,
                       fill: active ? activeColor : 'none',
-                      strokeWidth: active ? 1.5 : 2,
-                      filter: 'none',
+                      strokeWidth: active ? 2 : 2.5,
+                      filter: active ? 'drop-shadow(0 0 4px rgba(255,107,53,0.3))' : 'none',
                     }}
                   />
                 </motion.div>
