@@ -311,14 +311,8 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
   // Outage gate: bypassed via ?preview=swipess URL param or 7× logo tap
   const [outageBypassed, setOutageBypassed] = useState(() => hasOutageBypass());
 
-  // Splash screen removal moved to main.tsx to execute as soon as root is ready
-
-  if (IS_OUTAGE_ACTIVE && !outageBypassed) {
-    return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
-  }
-
-
   // SpeedInsights mounted dynamically to not block initial paint
+  // IMPORTANT: hooks must be declared before any conditional returns (Rules of Hooks)
   const [SpeedInsightsComponent, setSpeedInsightsComponent] = useState<any>(null);
   useEffect(() => {
     // Non-critical: load performance monitoring ONLY once app is fully idle
@@ -338,6 +332,10 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
       window.dispatchEvent(new CustomEvent('app-rendered'));
     });
   }, []);
+
+  if (IS_OUTAGE_ACTIVE && !outageBypassed) {
+    return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
+  }
 
   return (
     <GlobalErrorBoundary>
@@ -388,6 +386,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
                                     <TooltipProvider>
                                       <Suspense fallback={null}>
                                         <Toaster />
+                                        <Sonner />
                                       </Suspense>
                                     </TooltipProvider>
 
