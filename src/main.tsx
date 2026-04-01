@@ -52,16 +52,19 @@ const removeSplash = () => {
   }
 };
 
-// 8-second hard timeout for splash removal (Fail-safe)
+// 4-second hard timeout for splash removal (Fail-safe)
 const splashTimeout = setTimeout(() => {
   logger.warn('[Mount] Splash timeout triggered — forcing removal');
   removeSplash();
-}, 8000);
+}, 4000); // Reduced from 8s for 'Speed of Light' experience
 
-// Unified paint signal
+// Unified paint signal with 1.5s font-loading race
 Promise.all([
   new Promise(resolve => window.addEventListener('app-rendered', resolve, { once: true })),
-  document.fonts.ready
+  Promise.race([
+    document.fonts.ready,
+    new Promise(resolve => setTimeout(resolve, 1500))
+  ])
 ]).then(() => {
   clearTimeout(splashTimeout);
   requestAnimationFrame(() => {
@@ -111,12 +114,12 @@ deferredInit(async () => {
       { checkAppVersion },
       { initPerformanceOptimizations },
       { initOfflineSync },
-    ] = await Promise.all([
+    ] = (await Promise.all([
       import("@/utils/performance"),
       import("@/utils/cacheManager"),
       import("@/utils/performanceMonitor"),
       import("@/utils/offlineSwipeQueue"),
-    ]);
+    ])) as any;
     logBundleSize();
     checkAppVersion();
     initPerformanceOptimizations();

@@ -251,10 +251,15 @@ self.addEventListener('fetch', (event) => {
   // Stale-while-revalidate is BAD for updates because it serves the old code first.
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
-      fetch(request.url, { // Simplified fetch to url to avoid 'navigate' mode TypeError
-        cache: 'no-store', // Always check the network for navigation
-        credentials: request.credentials
-      })
+      // SPEED OF LIGHT: Add a 5s race to the network fetch.
+      // If the network hangs, we drop it and serve from the local cache immediately.
+      Promise.race([
+        fetch(request.url, { 
+          cache: 'no-store',
+          credentials: request.credentials
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('SW Timeout')), 5000))
+      ])
       .then(networkResponse => {
         // If we got a real response, update the cache and return it
         if (networkResponse && networkResponse.ok && networkResponse.status === 200) {

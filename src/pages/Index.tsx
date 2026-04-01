@@ -116,7 +116,7 @@ const Index = () => {
       const role = query.state.data as string | null | undefined;
       if (!user || role) return false;
       if (userAgeMs > 30000) return false;
-      return 800;
+      return 400; // Accelerated polling (800 -> 400)
     },
   });
 
@@ -257,7 +257,7 @@ const Index = () => {
         logger.warn("[Index] Safety timeout triggered — forcing navigation to unified hub");
         navigate("/client/dashboard", { replace: true });
       }
-    }, 5000);
+    }, 3000); // Reduced safety net to 3s for native feel
 
     performRedirection();
     return () => clearTimeout(safetyTimeout);
@@ -275,7 +275,7 @@ const Index = () => {
   // Escape hatch: show a recovery UI if loading is stuck beyond 6 seconds
   useEffect(() => {
     if (!user || !initialized) return;
-    const timer = setTimeout(() => setShowEscapeHatch(true), 6000);
+    const timer = setTimeout(() => setShowEscapeHatch(true), 4000);
     return () => clearTimeout(timer);
    
   }, [user, initialized]);

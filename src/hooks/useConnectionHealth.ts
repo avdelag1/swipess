@@ -19,7 +19,7 @@ interface ConnectionHealth {
   retry: () => void;
 }
 
-const CHECK_TIMEOUT_MS = 8000; // 8s — if Supabase doesn't respond, it's unreachable
+const CHECK_TIMEOUT_MS = 5000; // Reduced to 5s for faster 'Speed of Light' detection
 const MAX_RETRIES = 3;
 
 function isErrorWithMessage(err: unknown): err is { message: string; name?: string } {

@@ -46,10 +46,16 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
     const initializeAuth = async () => {
       try {
         // Use the promise passed from main.tsx if it exists to avoid redundant fetch
-        // SAFE DESTRUCTURING: Handle potential null data from getSession response
-        const result = authPromise 
-          ? await authPromise 
-          : await supabase.auth.getSession();
+        const checkPromise = authPromise 
+          ? authPromise 
+          : supabase.auth.getSession();
+        
+        // SPEED OF LIGHT: 4s race for first initialization.
+        // If auth check hangs, we stop waiting and allow the app to mount (as logged out).
+        const result = (await Promise.race([
+          checkPromise,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Auth Timeout')), 4000))
+        ])) as any;
         
         const fetchedSession = result?.data?.session ?? null;
         const error = result?.error;
