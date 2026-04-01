@@ -67,8 +67,8 @@ const buttonVariants = cva(
 // ── SPRING ANIMATION CONFIGS ──────────────────────────────────────────────────
 // Elastic (wobbly) — for CTAs and primary actions
 const elasticTap = {
-  scale: 0.92,
-  transition: { type: 'spring' as const, stiffness: 500, damping: 12, mass: 0.6 },
+  scale: 0.94,
+  transition: { type: 'spring' as const, stiffness: 850, damping: 45, mass: 0.45 },
 };
 
 // Subtle — for secondary / utility buttons

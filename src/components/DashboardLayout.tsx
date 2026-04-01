@@ -261,12 +261,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [userId, restoreDrafts]);
 
-  // SCROLL-TO-TOP: Reset after exit animation completes (exit is 160ms, reset at 180ms)
+  // SCROLL-TO-TOP: Reset after exit completes (exit is 80ms, reset at 100ms)
   useEffect(() => {
     const id = setTimeout(() => {
       const el = document.getElementById('dashboard-scroll-container');
       el?.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-    }, 180);
+    }, 100);
     return () => clearTimeout(id);
   }, [location.pathname]);
 

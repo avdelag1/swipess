@@ -261,7 +261,7 @@ button:disabled,
     .prism-transition-in,
     .prism-transition-out,
     .modal-enter-premium {
-        animation-duration: 0.15s !important;
+        animation-duration: 0.1s !important;
     }
 
     /* Disable complex animations during active scroll for jank-free scrolling */
