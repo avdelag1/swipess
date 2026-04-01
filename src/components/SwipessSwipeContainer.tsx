@@ -979,17 +979,21 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           className="absolute -bottom-1/4 -left-1/4 w-[900px] h-[900px] rounded-full blur-[180px]"
         />
       </div>
-      {/* Top Controls Overlay */}
-      <div className="absolute top-4 left-0 right-0 z-50 px-6 flex flex-col items-center gap-4 pointer-events-none">
-        <div className="w-full flex justify-between items-center pointer-events-auto">
-          <SwipeAllDashboard setCategories={setCategories} />
+      {/* Top Controls Overlay - Simplified to prevent overlap */}
+      <div className="shrink-0 z-50 px-6 flex flex-col items-center gap-4">
+        <div className="w-full flex justify-between items-center">
+          {/* Dashboard Title or Category Selection can go here */}
         </div>
       </div>
 
-      <div className="flex-1 relative flex items-center justify-center p-4 min-h-0">
-        <AnimatePresence>
-          {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-            <div className="relative w-full h-full max-w-2xl max-h-[750px] mb-8">
+      <div className="flex-1 relative flex items-center justify-center p-4 min-h-0 overflow-hidden">
+        <AnimatePresence mode="wait">
+          {!storeActiveCategory ? (
+            <div className="w-full flex flex-col items-center justify-center mt-[-80px]">
+              <SwipeAllDashboard setCategories={setCategories} />
+            </div>
+          ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
+            <div className="relative w-full h-[68dvh] max-w-2xl mt-[-60px]">
 
               {/* Back card (Peek) */}
               {currentIndex + 1 < deckQueue.length && (
