@@ -288,7 +288,9 @@ function PredictiveBundleLoader() {
         import("./pages/MessagingDashboard");
         import("./pages/NotificationsPage");
         import("./pages/EventosFeed");
-      }, 3000);
+        import("./pages/SubscriptionPackagesPage"); // PREFETCH PRICING
+        import("./pages/AboutPage"); // PREFETCH INFO
+      }, 2000); // Reduced delay from 3000 to 2000
     };
 
     if ('requestIdleCallback' in window) {

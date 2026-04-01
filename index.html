@@ -162,6 +162,83 @@
     <div class="loader-bar"><div class="loader-progress"></div></div>
   </div>
 
+  <div id="mount-recovery" style="display:none;position:fixed;bottom:10vh;left:0;right:0;padding:20px;text-align:center;z-index:20000;animation:fade-in-up 0.5s ease-out forwards;">
+    <p style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:12px;font-weight:600;letter-spacing:0.05em;">APP INITIALIZATION DELAYED</p>
+    <button onclick="clearAndReload()" style="background:#ff1f1f;color:#fff;border:none;padding:14px 28px;border-radius:50px;font-weight:700;font-size:14px;box-shadow:0 10px 20px rgba(255,31,31,0.3);cursor:pointer;text-transform:uppercase;letter-spacing:0.1em;active:scale(0.95);transition:transform 0.1s;">Reload App</button>
+  </div>
+
+    // 🛡️ RECOVERY & FAIL-SAFE SYSTEM
+    function removeSplash() {
+      console.log('[Splash] Dissolving loader...');
+      var loader = document.getElementById('initial-loader');
+      var root = document.getElementById('root');
+      if (root) root.classList.add('hydrated');
+      if (loader && !loader.classList.contains('dissolving')) {
+        loader.classList.add('dissolving');
+        // Do NOT remove from DOM immediately so recovery button stays visible if needed
+        setTimeout(function() { 
+          if(loader.parentNode && !document.getElementById('mount-recovery').style.display === 'block') {
+            loader.remove(); 
+          }
+        }, 1000);
+      }
+    }
+
+    // Fail-safe: Always remove splash after 5 seconds
+    var splashTimeout = setTimeout(function() {
+      console.warn('[Splash] Fail-safe triggered - App taking too long to render');
+      removeSplash();
+      // Show recovery UI if root is still empty OR after 8s total
+      setTimeout(function() {
+        var root = document.getElementById('root');
+        if (!root || root.innerHTML === "" || !window.__APP_INITIALIZED__) {
+          document.getElementById('mount-recovery').style.display = 'block';
+        }
+      }, 1000);
+    }, 5000);
+
+    // Listen for the app-rendered event
+    window.addEventListener('app-rendered', function() {
+      window.__APP_INITIALIZED__ = true;
+      console.log('[Splash] App rendered signal received');
+      clearTimeout(splashTimeout);
+      document.getElementById('mount-recovery').style.display = 'none';
+      requestAnimationFrame(function() {
+        requestAnimationFrame(removeSplash);
+      });
+    });
+
+    function clearAndReload() {
+      console.log('[Recovery] Clearing caches and forcing hard refresh...');
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          for(let reg of regs) { 
+            console.log('[Recovery] Unregistering SW:', reg.scope);
+            reg.unregister(); 
+          }
+        }).then(function() {
+          if ('caches' in window) {
+            caches.keys().then(function(keys) {
+              return Promise.all(keys.map(function(k) { 
+                console.log('[Recovery] Deleting cache:', k);
+                return caches.delete(k); 
+              }));
+            }).then(function() {
+              sessionStorage.clear();
+              localStorage.clear();
+              // Cache-bust the reload to circumvent aggressive intermediary proxies/CDN
+              window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
+            });
+          } else {
+            window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
+          }
+        });
+      } else {
+        window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
+      }
+    }
+  </script>
+
 
   <div id="root"></div>
 

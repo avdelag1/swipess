@@ -38,26 +38,46 @@ const authPromise = supabase.auth.getSession()
   .catch(() => ({ data: { session: null }, error: null }));
 
 
-// Helper: dissolve and remove the splash screen, reveal #root
-function removeSplash() {
+
+// 3. REMOVE SPLASH ONLY AFTER HYDRATION
+// We use a double RAF + a tiny delay to ensure the browser has painted the React tree.
+// 3. SPLASH REMOVAL (Robust with Timeout)
+const removeSplash = () => {
+  const loader = document.getElementById('initial-loader');
   const root = document.getElementById('root');
   if (root) root.classList.add('hydrated');
-  const loader = document.getElementById('initial-loader');
-  if (loader) {
+  if (loader && !loader.classList.contains('dissolving')) {
     loader.classList.add('dissolving');
-    setTimeout(() => { if (loader.parentNode) loader.remove(); }, 450);
+    setTimeout(() => loader.remove(), 600);
   }
-}
+};
 
-// 2. RENDER REACT IMMEDIATELY
-// Do NOT wait for authPromise. The App/AuthProvider will handle the loading state.
-try {
-  const rootElement = document.getElementById("root");
-  if (rootElement) {
-    const root = createRoot(rootElement as HTMLElement);
+// 8-second hard timeout for splash removal (Fail-safe)
+const splashTimeout = setTimeout(() => {
+  logger.warn('[Mount] Splash timeout triggered — forcing removal');
+  removeSplash();
+}, 8000);
 
+// Unified paint signal
+Promise.all([
+  new Promise(resolve => window.addEventListener('app-rendered', resolve, { once: true })),
+  document.fonts.ready
+]).then(() => {
+  clearTimeout(splashTimeout);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      removeSplash();
+    });
+  });
+});
+
+// 4. RENDER REACT (Robust)
+const rootElement = document.getElementById("root");
+if (rootElement) {
+  const root = createRoot(rootElement as HTMLElement);
+
+  try {
     // 🔥 ZENITH FIX: StrictMode ONLY in development
-    // This removes the intentional double-mount / double-fetch in dev
     root.render(
       import.meta.env.DEV ? (
         <React.StrictMode>
@@ -67,33 +87,12 @@ try {
         <App authPromise={authPromise} />
       )
     );
+  } catch (error) {
+    logger.error('[Mount] Fatal React Render Error:', error);
+    clearTimeout(splashTimeout);
+    removeSplash(); // Ensure user can see something even if it's a crash screen
   }
-} catch (err) {
-  // If React itself fails to mount, force-remove the splash so the user
-  // sees the recovery button added by index.html instead of a black screen.
-  logger.error('[main] Fatal render error:', err);
-  removeSplash();
 }
-
-// 3. REMOVE SPLASH ONLY AFTER HYDRATION + FONTS READY
-// We use a unified promise to ensure React is painted AND fonts are perfectly matched
-// before the splash screen dissolves, eliminating 'Font-Wobble' (FOUT).
-//
-// SAFETY NET: If React fails to mount for any reason (JS error, chunk failure, etc.)
-// we force-remove the splash after 8 seconds so the user isn't stuck on a black screen.
-const splashForcedRemovalTimer = setTimeout(removeSplash, 8000);
-
-Promise.all([
-  new Promise(resolve => window.addEventListener('app-rendered', resolve, { once: true })),
-  document.fonts.ready
-]).then(() => {
-  clearTimeout(splashForcedRemovalTimer);
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      removeSplash();
-    });
-  });
-});
 
 // 4. DEFERRED INITIALIZATION (Background tasks)
 const deferredInit = (callback: () => void, timeout = 3000) => {
