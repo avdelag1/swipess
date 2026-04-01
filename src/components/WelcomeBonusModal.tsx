@@ -12,6 +12,17 @@ export const WelcomeBonusModal = () => {
   useEffect(() => {
     if (!user) return;
 
+    // Check if user is "new" (created within last 7 days)
+    const createdAt = new Date(user.created_at);
+    const now = new Date();
+    const ageMs = now.getTime() - createdAt.getTime();
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+
+    if (ageMs > sevenDaysMs) {
+      // User is too old for the welcome bonus
+      return;
+    }
+
     // Check if we've already shown this to this user
     const hasSeen = localStorage.getItem(`swipess_welcome_bonus_${user.id}`);
     
