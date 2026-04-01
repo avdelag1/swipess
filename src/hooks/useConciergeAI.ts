@@ -50,7 +50,7 @@ export function useConciergeAI() {
 
     const initChat = async () => {
       // Fetch recent conversations for the history list
-      const { data: convList } = await supabase
+      const { data: convList } = await (supabase as any)
         .from('ai_conversations')
         .select('id, title, created_at, updated_at')
         .eq('user_id', user.id)
@@ -58,22 +58,22 @@ export function useConciergeAI() {
         .order('updated_at', { ascending: false })
         .limit(10);
 
-      if (convList) setConversations(convList);
+      if (convList) setConversations(convList as any);
 
       // Load the most recent active conversation
       if (convList && convList.length > 0) {
-        const latest = convList[0];
-        setCurrentConversationId(latest.id);
+        const latest = (convList as any)[0];
+        setCurrentConversationId(latest.id as string);
 
-        const { data: msgs } = await supabase
+        const { data: msgs } = await (supabase as any)
           .from('ai_messages')
           .select('*')
           .eq('conversation_id', latest.id)
           .order('created_at', { ascending: true });
 
         if (msgs) {
-          setMessages(msgs.map(m => ({
-            id: m.id,
+          setMessages((msgs as any[]).map((m: any) => ({
+            id: String(m.id),
             role: m.role as any,
             content: m.content,
             timestamp: new Date(m.created_at),
@@ -109,16 +109,16 @@ export function useConciergeAI() {
       // 1. Ensure we have a conversation record
       let convId = currentConversationId;
       if (!convId) {
-        const { data: newConv, error: convErr } = await supabase
+        const { data: newConv, error: convErr } = await (supabase as any)
           .from('ai_conversations')
           .insert({ user_id: user.id, title: userMessage.substring(0, 40) })
           .select()
           .single();
 
         if (convErr) throw convErr;
-        convId = newConv.id;
+        convId = newConv.id as string;
         setCurrentConversationId(convId);
-        setConversations(prev => [newConv, ...prev]);
+        setConversations(prev => [newConv as ConversationSummary, ...prev]);
       }
 
       // 2. Save User Message to DB
@@ -131,7 +131,7 @@ export function useConciergeAI() {
 
       setMessages(prev => [...prev, userMsg]);
 
-      await supabase.from('ai_messages').insert({
+      await (supabase as any).from('ai_messages').insert({
         conversation_id: convId,
         user_id: user.id,
         role: 'user',
@@ -189,7 +189,7 @@ export function useConciergeAI() {
       }
 
       // 4. Save AI Response to DB
-      await supabase.from('ai_messages').insert({
+      await (supabase as any).from('ai_messages').insert({
         conversation_id: convId!,
         user_id: user.id,
         role: 'assistant',
@@ -216,7 +216,7 @@ export function useConciergeAI() {
       }
 
       // 6. Update conversation updated_at
-      await supabase
+      await (supabase as any)
         .from('ai_conversations')
         .update({ updated_at: new Date().toISOString() })
         .eq('id', convId!);
@@ -232,7 +232,7 @@ export function useConciergeAI() {
   // Start a fresh conversation (archives current)
   const startNewChat = useCallback(async () => {
     if (currentConversationId && user) {
-      await supabase
+      await (supabase as any)
         .from('ai_conversations')
         .update({ is_archived: true })
         .eq('id', currentConversationId);
@@ -247,15 +247,15 @@ export function useConciergeAI() {
     if (!user) return;
     setCurrentConversationId(convId);
 
-    const { data: msgs } = await supabase
+    const { data: msgs } = await (supabase as any)
       .from('ai_messages')
       .select('*')
       .eq('conversation_id', convId)
       .order('created_at', { ascending: true });
 
     if (msgs) {
-      setMessages(msgs.map(m => ({
-        id: m.id,
+      setMessages((msgs as any[]).map((m: any) => ({
+        id: String(m.id),
         role: m.role as any,
         content: m.content,
         timestamp: new Date(m.created_at),
@@ -272,7 +272,7 @@ export function useConciergeAI() {
     }
 
     try {
-      await supabase
+      await (supabase as any)
         .from('ai_conversations')
         .update({ is_archived: true })
         .eq('id', currentConversationId);
@@ -291,7 +291,7 @@ export function useConciergeAI() {
     if (!currentConversationId || !user) return;
 
     try {
-      await supabase
+      await (supabase as any)
         .from('ai_conversations')
         .delete()
         .eq('id', currentConversationId);

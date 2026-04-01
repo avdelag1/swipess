@@ -122,8 +122,8 @@ export default function EventoDetail() {
         if (stateEventData) return stateEventData;
         
         // Dynamic import to avoid circular dependencies or large initial bundle
-        const { MOCK_EVENTS } = await import('./EventosFeed');
-        const found = MOCK_EVENTS.find(e => e.id === id);
+        const mod = await import('./EventosFeed') as any;
+        const found = mod.MOCK_EVENTS?.find((e: any) => e.id === id);
         if (found) return found;
         
         throw new Error('Mock event not found.');

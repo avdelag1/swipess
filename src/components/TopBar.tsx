@@ -231,7 +231,7 @@ function TopBarComponent({
                       src={profile?.avatar_url || ''} 
                       className="object-cover w-full h-full rounded-full" 
                       loading="eager"
-                      fetchpriority="high"
+                      fetchPriority="high"
                     />
                     <AvatarFallback className={cn(
                       "text-sm font-black uppercase rounded-full w-full h-full flex items-center justify-center",
