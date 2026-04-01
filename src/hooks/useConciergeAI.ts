@@ -291,7 +291,7 @@ export function useConciergeAI() {
     if (!currentConversationId || !user) return;
 
     try {
-      await supabase
+      await (supabase as any)
         .from('ai_conversations')
         .delete()
         .eq('id', currentConversationId);

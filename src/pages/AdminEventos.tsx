@@ -156,8 +156,8 @@ export default function AdminEventos() {
       if (insertErr) throw insertErr;
 
       // 3. Mark submission as approved
-      const { error } = await supabase
-        .from('business_promo_submissions' as any)
+      const { error } = await (supabase as any)
+        .from('business_promo_submissions')
         .update({ status: 'approved' })
         .eq('id', id);
       
