@@ -49,6 +49,9 @@ export function AnimatedOutlet() {
   const location = useLocation();
   const outlet = useOutlet();
 
+  // SPEED OF LIGHT: Disable exit on hw-low for 'Instant-Mount' feel
+  const skipExit = typeof document !== 'undefined' && document.body.classList.contains('hw-low');
+
   return (
     <AnimatePresence mode="popLayout" initial={false}>
       <motion.div
@@ -56,7 +59,7 @@ export function AnimatedOutlet() {
         variants={pageVariants}
         initial="initial"
         animate="animate"
-        exit="exit"
+        exit={skipExit ? (undefined as any) : "exit"}
         className="h-full w-full flex flex-col flex-1 gpu-accelerate"
         style={{ willChange: 'transform, opacity' }}
       >

@@ -10,24 +10,23 @@ import "./styles/PremiumShine.css";
 import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/utils/prodLogger";
 
-// 🚀 SPEED OF LIGHT: Hardware-Aware Performance Scaling
-// Detect device capabilities to toggle complex effects (glass, blurs, springs)
 (function() {
+  // 🚀 SPEED OF LIGHT: Hardware & Network Awareness
   const memory = (navigator as any).deviceMemory || 4;
   const cores = navigator.hardwareConcurrency || 4;
+  const connection = (navigator as any).connection || {};
+  
   const isLowEnd = memory < 4 || cores < 4;
-  const isHighEnd = memory >= 8 && cores >= 8;
+  const isSlowNet = connection.saveData || (connection.effectiveType && ['slow-2g', '2g', '3g'].includes(connection.effectiveType));
   
   const body = document.body;
-  if (isLowEnd) {
+  if (isLowEnd || isSlowNet) {
     body.classList.add('hw-low', 'perf-lite');
+    if (isSlowNet) body.classList.add('net-slow');
     body.style.setProperty('--backdrop-blur-intensity', '0px');
-  } else if (isHighEnd) {
+  } else {
     body.classList.add('hw-high', 'perf-ultra');
     body.style.setProperty('--backdrop-blur-intensity', '32px');
-  } else {
-    body.classList.add('hw-mid', 'perf-standard');
-    body.style.setProperty('--backdrop-blur-intensity', '16px');
   }
 })();
 
