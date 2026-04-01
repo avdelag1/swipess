@@ -4,7 +4,7 @@ import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Shield, FileText, HelpCircle, Info, ChevronRight,
-  Scale, Volume2, Building2, Globe
+  Scale, Volume2, Building2, Globe, Users
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -102,6 +102,13 @@ const OwnerSettingsNew = () => {
     {
       label: t('settings.faq'),
       items: [
+        {
+          icon: Users,
+          label: "Partner Sync",
+          description: "Invite a partner to find shared matches",
+          bg: 'linear-gradient(135deg, #db2777, #f472b6)',
+          route: '/partner/sync',
+        },
         {
           icon: HelpCircle,
           label: t('settings.faq'),
