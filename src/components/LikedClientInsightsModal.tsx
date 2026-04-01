@@ -291,7 +291,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className="w-full max-w-2xl h-[90vh] max-h-[90vh] p-0 overflow-hidden bg-background border-0 rounded-3xl"
+          className="w-full max-w-2xl h-[95dvh] max-h-[95dvh] p-0 overflow-hidden bg-background border-0 sm:rounded-[32px] rounded-none sm:h-[90vh]"
           hideCloseButton
         >
           <div className="flex flex-col h-full">
@@ -309,6 +309,8 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                   {/* Close Button */}
                   <button
                     onClick={() => onOpenChange(false)}
+                    title="Close"
+                    aria-label="Close"
                     className="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm z-10"
                   >
                     <X className="w-5 h-5" />
@@ -319,12 +321,16 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                     <>
                       <button
                         onClick={handlePrevImage}
+                        title="Previous image"
+                        aria-label="Previous image"
                         className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm"
                       >
                         <ChevronLeft className="w-6 h-6" />
                       </button>
                       <button
                         onClick={handleNextImage}
+                        title="Next image"
+                        aria-label="Next image"
                         className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm"
                       >
                         <ChevronRight className="w-6 h-6" />
@@ -366,6 +372,8 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                         <button
                           key={idx}
                           onClick={() => setCurrentImageIndex(idx)}
+                          title={`Go to image ${idx + 1}`}
+                          aria-label={`Go to image ${idx + 1}`}
                           className={`h-1.5 rounded-full transition-all duration-200 ${
                             idx === currentImageIndex
                               ? 'w-6 bg-primary'
@@ -383,20 +391,21 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
               )}
             </div>
 
-            {/* Content Section - Scrollable */}
-            <ScrollArea className="flex-1 min-h-0">
-              <div className="p-4 sm:p-6 space-y-4 pt-8 pb-6">
-                {/* Name & Basic Info */}
-                <div className="space-y-2">
-                  <h2 className="text-xl sm:text-2xl font-bold leading-tight flex items-center gap-2">
-                    {client.name}
-                    {client.verified && (
-                      <CheckCircle className="w-5 h-5 text-rose-500 flex-shrink-0" />
-                    )}
-                  </h2>
+            {/* 🚀 LIQUID SCROLL AREA — Flex-1 ensures footer is ALWAYS docked */}
+            <div className="flex-1 min-h-0 relative flex flex-col">
+              <ScrollArea className="h-full w-full">
+                <div className="p-4 sm:p-6 space-y-5 pt-10 pb-8">
+                  {/* Name & Basic Info */}
+                  <div className="space-y-2">
+                    <h2 className="text-xl sm:text-2xl font-bold leading-tight flex items-center gap-2">
+                      {client.name}
+                      {client.verified && (
+                        <CheckCircle className="w-5 h-5 text-rose-500 flex-shrink-0" />
+                      )}
+                    </h2>
 
-                  {/* Quick Info Row */}
-                  <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                    {/* Quick Info Row */}
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                     {client.age && (
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
@@ -503,25 +512,30 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
               </div>
             </ScrollArea>
 
-            {/* Action Buttons - Fixed at Bottom */}
-            <div className="flex-shrink-0 p-4 border-t bg-background/80 backdrop-blur-sm space-y-3">
-              {/* Primary Action */}
+            {/* Scroll Gradient Indicator — Sentient Cue */}
+            <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
+          </div>
+
+          {/* ⚡ ACTION DOCK — MEXICAN PINK PREMIUM — HARD-DOCKED */}
+          <div className="flex-shrink-0 p-5 border-t border-white/5 bg-background/95 backdrop-blur-md shadow-[0_-15px_35px_rgba(0,0,0,0.6)] z-20">
+            <div className="grid grid-cols-1 gap-3">
+              {/* Primary Action — Ultra High Priority */}
               <Button
                 onClick={handleMessage}
                 disabled={isCreatingConversation || !client}
-                className="w-full h-12 mexican-pink-premium font-semibold text-base rounded-xl"
+                className="w-full h-14 bg-gradient-to-r from-brand-accent-1 to-brand-accent-2 hover:brightness-110 active:scale-[0.98] transition-all font-black text-lg uppercase tracking-wider rounded-2xl shadow-[0_0_20px_rgba(255,107,53,0.35)] border-0"
               >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                {isCreatingConversation ? 'Starting...' : 'Send Message'}
+                <MessageCircle className="w-6 h-6 mr-3 text-white" />
+                <span className="text-white">{isCreatingConversation ? 'Starting...' : 'Send Message'}</span>
               </Button>
 
-              {/* Secondary Actions */}
-              <div className="grid grid-cols-3 gap-2">
+              {/* Secondary Actions — Discovery Suite */}
+              <div className="grid grid-cols-3 gap-2 mt-1">
                 <Button
                   onClick={handleDelete}
                   variant="outline"
                   size="sm"
-                  className="h-10 bg-red-500/10 hover:bg-red-500/20 border-red-500/30 text-red-600 dark:text-red-400 rounded-xl"
+                  className="h-11 bg-red-500/10 hover:bg-red-500/20 border-red-500/30 text-red-600 dark:text-red-400 rounded-xl"
                   disabled={deleteMutation.isPending}
                 >
                   <Trash2 className="w-4 h-4 mr-1.5" />
@@ -531,7 +545,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                   onClick={handleBlock}
                   variant="outline"
                   size="sm"
-                  className="h-10 bg-orange-500/10 hover:bg-orange-500/20 border-orange-500/30 text-orange-600 dark:text-orange-400 rounded-xl"
+                  className="h-11 bg-orange-500/10 hover:bg-orange-500/20 border-orange-500/30 text-orange-600 dark:text-orange-400 rounded-xl"
                   disabled={blockMutation.isPending}
                 >
                   <Ban className="w-4 h-4 mr-1.5" />
@@ -541,7 +555,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                   onClick={handleReport}
                   variant="outline"
                   size="sm"
-                  className="h-10 bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-600 dark:text-yellow-400 rounded-xl"
+                  className="h-11 bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-600 dark:text-yellow-400 rounded-xl"
                   disabled={reportMutation.isPending}
                 >
                   <Flag className="w-4 h-4 mr-1.5" />
@@ -549,6 +563,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                 </Button>
               </div>
             </div>
+          </div>
           </div>
         </DialogContent>
 

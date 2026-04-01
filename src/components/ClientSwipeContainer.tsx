@@ -38,6 +38,7 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { MOCK_TEST_CLIENTS } from '@/utils/testReelData';
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 import { DistanceSlider } from './swipe/DistanceSlider';
@@ -167,7 +168,8 @@ const ClientSwipeContainerComponent = ({
   // The DB query (with refetchOnMount:'always') excludes swiped items at SQL level
   // Restoring from cache caused swiped cards to reappear across sessions/dashboard switches
   const getInitialDeck = () => {
-    return [];
+    // 🚀 FLAGSHIP TEST DATA INJECTION — Pre-populated for discovery testing
+    return [...MOCK_TEST_CLIENTS];
   };
 
   // CONSTANT-TIME SWIPE DECK: Use refs for queue management (no re-renders on swipe)

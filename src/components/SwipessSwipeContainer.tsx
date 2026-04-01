@@ -45,6 +45,7 @@ import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
+import { MOCK_TEST_LISTINGS } from '@/utils/testReelData';
 
 // Navigation guard to prevent double-taps
 function useNavigationGuard() {
@@ -177,7 +178,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // The DB query (with refetchOnMount:'always') excludes swiped items at SQL level
   // Restoring from cache caused swiped cards to reappear across sessions/dashboard switches
   const getInitialDeck = () => {
-    return [];
+    // 🚀 FLAGSHIP TEST DATA INJECTION — Pre-populated for discovery testing
+    return [...MOCK_TEST_LISTINGS];
   };
 
   // CONSTANT-TIME SWIPE DECK: Use refs for queue management (no re-renders on swipe)
