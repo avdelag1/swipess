@@ -232,7 +232,7 @@ export function useConciergeAI() {
   // Start a fresh conversation (archives current)
   const startNewChat = useCallback(async () => {
     if (currentConversationId && user) {
-      await supabase
+      await (supabase as any)
         .from('ai_conversations')
         .update({ is_archived: true })
         .eq('id', currentConversationId);
