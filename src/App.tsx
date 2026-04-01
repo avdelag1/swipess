@@ -351,28 +351,29 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
            buster: 'v1.4', // Force refresh on significant asset change
          }} 
         >
-        <LazyMotion features={domMax} strict>
+        <LazyMotion features={domMax}>
           {SpeedInsightsComponent && <SpeedInsightsComponent />}
+        
         <BrowserRouter
           future={{
             v7_startTransition: true,
             v7_relativeSplatPath: true
           }}
         >
-          <ErrorBoundary>
-            <AuthProvider authPromise={authPromise}>
-              <ZenithPrewarmer />
-              <PredictiveBundleLoader />
-              <ActiveModeProvider>
+          <AuthProvider authPromise={authPromise}>
+            <ZenithPrewarmer />
+            <PredictiveBundleLoader />
+            
+            <ActiveModeProvider>
+            <ThemeProvider>
+            <PWAProvider>
+            <RadioProvider>
+            <ResponsiveProvider>
+            <UpdateWrapper>
+            <ProfileSyncWrapper>
+            <NotificationWrapper>
+            <PushNotificationWrapper>
 
-                <ThemeProvider>
-                  <PWAProvider>
-                    <RadioProvider>
-                      <ResponsiveProvider>
-                        <UpdateWrapper>
-                          <ProfileSyncWrapper>
-                            <NotificationWrapper>
-                              <PushNotificationWrapper>
                                 {/* Guided tour for first-time users */}
                                 <Suspense fallback={null}>
                                   <GuidedTourLazy />
@@ -518,8 +519,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
                 </ThemeProvider>
               </ActiveModeProvider>
             </AuthProvider>
-          </ErrorBoundary>
-        </BrowserRouter>
+          </BrowserRouter>
         </LazyMotion>
       </PersistQueryClientProvider>
       </ConnectionGuard>

@@ -80,41 +80,17 @@ export default defineConfig(({ mode }) => ({
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks(id) {
-          // 1. Role-Based & Feature Isolation (Internal code)
-          if (id.includes('src/pages/Client')) return 'role-client';
-          if (id.includes('src/pages/Owner')) return 'role-owner';
-          if (id.includes('src/pages/admin')) return 'role-admin';
-          if (id.includes('src/components/radio')) return 'feature-radio';
-          if (id.includes('src/pages/Discovery')) return 'feature-discovery';
-
-          // 2. Third-Party Libraries (Vendor)
           if (id.includes('node_modules')) {
-            // Core framework: Essential for mount
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || id.includes('scheduler')) {
-              return 'vendor-core';
-            }
-
-            // High-weight visualization & processing
-            if (id.includes('recharts')) return 'vendor-recharts';
+            // ONLY isolate the absolute heaviest libraries that aren't core to boot
+            if (id.includes('recharts') || id.includes('victory')) return 'vendor-viz';
             if (id.includes('lottie')) return 'vendor-lottie';
-            if (id.includes('octokit')) return 'vendor-octokit';
-            if (id.includes('embla-carousel')) return 'vendor-embla';
+            if (id.includes('octokit')) return 'vendor-github';
+            if (id.includes('embla-carousel')) return 'vendor-carousel';
+            if (id.includes('browser-image-compression')) return 'vendor-img';
             
-            // Motion & Interaction
-            if (id.includes('framer-motion')) return 'vendor-motion';
-            
-            // Data & Auth
-            if (id.includes('supabase') || id.includes('tanstack')) return 'vendor-data';
-            
-            // UI & Utilities
-            if (id.includes('lucide-react')) return 'vendor-icons';
-            if (id.includes('radix-ui')) return 'vendor-radix';
-            if (id.includes('i18next')) return 'vendor-i18n';
-            if (id.includes('date-fns')) return 'vendor-date-fns';
-            if (id.includes('zustand')) return 'vendor-zustand';
-            if (id.includes('browser-image-compression')) return 'vendor-image-compression';
-
-            return 'vendor';
+            // Keep everything else in a unified vendor chunk to avoid 'unstable_scheduleCallback' 
+            // and 'useState is null' sync issues across fragmented chunks.
+            return 'vendor-core';
           }
         }
       }
