@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
@@ -164,8 +164,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const value = useMemo(() => ({ theme, setTheme }), [theme]); // setTheme is stable since it's a constant function in this scope
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );

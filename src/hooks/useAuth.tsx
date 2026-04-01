@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext, ReactNode, useRef } from 'react';
+import { useState, useEffect, createContext, useContext, ReactNode, useRef, useMemo } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
@@ -545,7 +545,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
     }
   };
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     session,
     loading,
@@ -554,7 +554,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
     signIn,
     signInWithOAuth,
     signOut
-  };
+  }), [user, session, loading, initialized]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

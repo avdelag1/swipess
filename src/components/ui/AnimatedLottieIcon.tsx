@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import Lottie, { LottieRefCurrentProps } from 'lottie-react';
+import React, { useEffect, useRef, useState, lazy, Suspense } from 'react';
+const Lottie = lazy(() => import('lottie-react'));
 
 // Lazy loaders — each JSON is a separate Vite chunk, loaded only on first press
 const ANIMATION_LOADERS: Record<string, () => Promise<any>> = {
@@ -38,7 +38,7 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
   className,
   inactiveIcon
 }) => {
-  const lottieRef = useRef<LottieRefCurrentProps>(null);
+  const lottieRef = useRef<any>(null);
   const [animationData, setAnimationData] = useState<any>(() => animationCache.get(iconId) ?? null);
 
   // Load animation data lazily on first activation
@@ -59,9 +59,13 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
 
   useEffect(() => {
     if (active && lottieRef.current) {
-      lottieRef.current.goToAndPlay(0);
+      if (typeof lottieRef.current.goToAndPlay === 'function') {
+        lottieRef.current.goToAndPlay(0);
+      }
     } else if (!active && lottieRef.current) {
-      lottieRef.current.stop();
+      if (typeof lottieRef.current.stop === 'function') {
+        lottieRef.current.stop();
+      }
     }
   }, [active]);
 
@@ -97,13 +101,15 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
         justifyContent: 'center',
       }}
     >
-      <Lottie
-        lottieRef={lottieRef}
-        animationData={animationData}
-        loop={iconId !== 'profile'}
-        autoplay={active}
-        style={{ width: '100%', height: '100%' }}
-      />
+      <Suspense fallback={inactiveIcon}>
+        <Lottie
+          lottieRef={lottieRef}
+          animationData={animationData}
+          loop={iconId !== 'profile'}
+          autoplay={active}
+          style={{ width: '100%', height: '100%' }}
+        />
+      </Suspense>
     </div>
   );
 };

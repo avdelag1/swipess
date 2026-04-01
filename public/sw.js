@@ -21,7 +21,10 @@ const IMAGE_CACHE = `${CACHE_NAME}-images`;
 const urlsToCache = [
   '/',
   '/manifest.json',
-  '/manifest.webmanifest'
+  '/manifest.webmanifest',
+  '/favicon.ico',
+  '/icons/fire-s-logo.png',
+  '/icons/fire-s-logo-960.webp'
 ];
 
 /**

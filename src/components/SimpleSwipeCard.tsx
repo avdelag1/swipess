@@ -147,6 +147,31 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
 
+  // 🚀 FLAGSHIP FEATURE: 3D Perspective Tilt based on pointer position
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+
+  const handlePointerMoveForTilt = useCallback((e: React.PointerEvent) => {
+    if (!isTop) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const xPos = e.clientX - rect.left;
+    const yPos = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // Calculate relative offset (-1 to 1)
+    const rotateYVal = ((xPos - centerX) / centerX) * 8; // Max 8 deg tilt
+    const rotateXVal = ((centerY - yPos) / centerY) * 8; // Max 8 deg tilt
+    
+    rotateY.set(rotateYVal);
+    rotateX.set(rotateXVal);
+  }, [isTop, rotateX, rotateY]);
+
+  const handlePointerLeaveForTilt = useCallback(() => {
+    animate(rotateX, 0, { duration: 0.5 });
+    animate(rotateY, 0, { duration: 0.5 });
+  }, [rotateX, rotateY]);
+
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
@@ -411,9 +436,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         onDragEnd={handleDragEnd}
         onClick={handleCardTap}
         onPointerDown={handleUnifiedPointerDown}
-        onPointerMove={handleUnifiedPointerMove}
-        onPointerUp={handleUnifiedPointerUp}
-        onPointerCancel={handleUnifiedPointerCancel}
+        onPointerMove={(e) => {
+          handleUnifiedPointerMove(e);
+          handlePointerMoveForTilt(e);
+        }}
+        onPointerLeave={handlePointerLeaveForTilt}
+        onPointerUp={(e) => {
+          handleUnifiedPointerUp(e);
+          handlePointerLeaveForTilt();
+        }}
+        onPointerCancel={(e) => {
+          handleUnifiedPointerCancel(e);
+          handlePointerLeaveForTilt();
+        }}
         animate={{ 
           scale: 1, 
           transition: { type: 'spring', stiffness: 400, damping: 28 }
@@ -432,8 +467,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           x,
           y,
           rotate: cardRotate,
+          rotateX,
+          rotateY,
           opacity: cardOpacity,
           willChange: 'transform, opacity',
+          transformStyle: 'preserve-3d',
+          perspective: '1000px',
           transform: 'translate3d(0,0,0)',
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
@@ -468,17 +507,21 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           )}
           
           {imageCount > 1 && (
-            <div className="absolute top-2 left-2 right-2 flex gap-[3px] z-20">
+            <div className="absolute top-3 left-3 right-3 flex gap-1.5 z-20">
               {Array.from({ length: imageCount }).map((_, idx) => (
                 <div
                   key={idx}
-                  className="h-[3px] flex-1 rounded-full transition-all duration-200"
-                  style={{
-                    backgroundColor: idx === currentImageIndex
-                      ? 'rgba(255, 255, 255, 0.95)'
-                      : 'rgba(255, 255, 255, 0.35)',
-                  }}
-                />
+                  className="h-[2px] flex-1 rounded-full transition-all duration-500 overflow-hidden bg-white/20"
+                >
+                  <motion.div 
+                    initial={false}
+                    animate={{ 
+                      x: idx < currentImageIndex ? '0%' : idx === currentImageIndex ? '0%' : '-100%',
+                      opacity: idx === currentImageIndex ? 1 : 0.5
+                    }}
+                    className="w-full h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]"
+                  />
+                </div>
               ))}
             </div>
           )}

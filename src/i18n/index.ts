@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import en from './en.json';
+import en from './locales/en.json';
 
 // Performance Optimizer: Lazy-load ALL languages except English
 // This reduces the initial bundle size by ~15-20% depending on translation volume.
@@ -23,7 +23,7 @@ i18n.use(initReactI18next).init({
 // Async loader for other languages - fires immediately in background after init
 const currentLang = localStorage.getItem('language') || 'en';
 if (currentLang !== 'en' && LANGUAGES.includes(currentLang)) {
-  import(`./${currentLang}.json`).then((module) => {
+  import(`./locales/${currentLang}.json`).then((module) => {
     i18n.addResourceBundle(currentLang, 'translation', module.default, true, true);
   });
 }
@@ -31,7 +31,7 @@ if (currentLang !== 'en' && LANGUAGES.includes(currentLang)) {
 // Global language switcher wrapper to ensure dynamic loading
 export const changeLanguage = async (lng: string) => {
   if (lng !== 'en' && !i18n.hasResourceBundle(lng, 'translation')) {
-    const module = await import(`./${lng}.json`);
+    const module = await import(`./locales/${lng}.json`);
     i18n.addResourceBundle(lng, 'translation', module.default, true, true);
   }
   await i18n.changeLanguage(lng);

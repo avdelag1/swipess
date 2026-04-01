@@ -82,26 +82,22 @@ export default defineConfig(({ mode }) => ({
         manualChunks(id) {
           if (id.includes('node_modules')) {
             // CRITICAL: Isolate heavy libs that aren't needed for initial paint
-            if (id.includes('recharts') || id.includes('lottie') || id.includes('octokit') || id.includes('victory') || id.includes('embla-carousel')) {
-              return 'rare-vendors';
-            }
+            // Split them into individual chunks for parallel download
+            if (id.includes('recharts')) return 'vendor-recharts';
+            if (id.includes('lottie')) return 'vendor-lottie';
+            if (id.includes('octokit')) return 'vendor-octokit';
+            if (id.includes('victory')) return 'vendor-victory';
+            if (id.includes('embla-carousel')) return 'vendor-embla';
+            if (id.includes('framer-motion')) return 'vendor-framer';
+            if (id.includes('lucide-react')) return 'vendor-lucide';
+            if (id.includes('@supabase')) return 'vendor-supabase';
+            if (id.includes('@tanstack')) return 'vendor-tanstack';
+            if (id.includes('radix-ui')) return 'vendor-radix';
+            if (id.includes('i18next')) return 'vendor-i18n';
+            if (id.includes('date-fns')) return 'vendor-date-fns';
+            if (id.includes('zustand')) return 'vendor-zustand';
+            if (id.includes('browser-image-compression')) return 'vendor-image-compression';
 
-            // Heavy form/validation libs — only needed after auth interaction
-            if (id.includes('browser-image-compression')) return 'image-compression';
-            if (id.includes('zod')) return 'zod';
-            if (id.includes('react-hook-form')) return 'react-hook-form';
-            if (id.includes('react-select')) return 'react-select';
-
-            // Split large libs into their own chunks for parallel download
-            if (id.includes('framer-motion')) return 'framer-motion';
-            if (id.includes('lucide-react')) return 'lucide-react';
-            if (id.includes('@supabase')) return 'supabase';
-            if (id.includes('@tanstack')) return 'tanstack';
-            if (id.includes('radix-ui')) return 'radix-ui';
-            if (id.includes('i18next')) return 'i18n';
-            if (id.includes('date-fns')) return 'date-fns';
-            if (id.includes('zustand')) return 'zustand';
-            
             // Role-Based Isolation: Keeps Client code separate from Owner code
             if (id.includes('src/pages/Client')) return 'role-client';
             if (id.includes('src/pages/Owner')) return 'role-owner';
@@ -111,7 +107,11 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('src/components/radio')) return 'feature-radio';
             if (id.includes('src/pages/Discovery')) return 'feature-discovery';
 
-            // Everything else (React, etc)
+            // Core framework
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'vendor-core';
+            }
+
             return 'vendor';
           }
         }

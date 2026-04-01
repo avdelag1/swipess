@@ -281,6 +281,31 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
 
+  // 🚀 FLAGSHIP FEATURE: 3D Perspective Tilt based on pointer position
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+
+  const handlePointerMoveForTilt = useCallback((e: React.PointerEvent) => {
+    if (!isTop) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const xPos = e.clientX - rect.left;
+    const yPos = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // Calculate relative offset (-1 to 1)
+    const rotateYVal = ((xPos - centerX) / centerX) * 6; // Max 6 deg tilt
+    const rotateXVal = ((centerY - yPos) / centerY) * 6; // Max 6 deg tilt
+    
+    rotateY.set(rotateYVal);
+    rotateX.set(rotateXVal);
+  }, [isTop, rotateX, rotateY]);
+
+  const handlePointerLeaveForTilt = useCallback(() => {
+    animate(rotateX, 0, { duration: 0.5 });
+    animate(rotateY, 0, { duration: 0.5 });
+  }, [rotateX, rotateY]);
+
   // Fetch user rating aggregate for this client profile
   const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregateEnhanced(profile?.user_id);
 
@@ -589,8 +614,15 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         onDragEnd={handleDragEnd}
         onClick={handleCardTap}
         onPointerDown={handleUnifiedPointerDown}
-        onPointerMove={handleUnifiedPointerMove}
-        onPointerUp={handleUnifiedPointerUp}
+        onPointerMove={(e) => {
+          handleUnifiedPointerMove(e);
+          handlePointerMoveForTilt(e);
+        }}
+        onPointerLeave={handlePointerLeaveForTilt}
+        onPointerUp={(e) => {
+          handleUnifiedPointerUp(e);
+          handlePointerLeaveForTilt();
+        }}
         animate={{ 
           scale: 1, 
           transition: { type: 'spring', stiffness: 400, damping: 28 }
@@ -608,9 +640,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           x,
           y,
           rotate: cardRotate,
+          rotateX,
+          rotateY,
           opacity: cardOpacity,
           transformOrigin: 'bottom center',
           willChange: 'transform, opacity',
+          transformStyle: 'preserve-3d',
+          perspective: '1000px',
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           touchAction: 'none',
@@ -658,12 +694,21 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           />
 
           {imageCount > 1 && (
-            <div className="absolute top-[60px] left-2 right-2 z-25 flex gap-[3px]" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
+            <div className="absolute top-[64px] left-3 right-3 z-30 flex gap-1.5" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
               {images.map((_, idx) => (
                 <div
                   key={idx}
-                  className={`flex-1 h-[3px] rounded-full transition-all duration-200 ${idx === currentImageIndex ? 'bg-white/95' : 'bg-white/35'}`}
-                />
+                  className="h-[2px] flex-1 rounded-full transition-all duration-500 overflow-hidden bg-white/20"
+                >
+                  <motion.div 
+                    initial={false}
+                    animate={{ 
+                      x: idx < currentImageIndex ? '0%' : idx === currentImageIndex ? '0%' : '-100%',
+                      opacity: idx === currentImageIndex ? 1 : 0.5
+                    }}
+                    className="w-full h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]"
+                  />
+                </div>
               ))}
             </div>
           )}
