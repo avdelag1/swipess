@@ -24,24 +24,23 @@ const ENTER_GLIDE = {
 const pageVariants: any = {
   initial: {
     opacity: 0,
-    x: 12,
-    scale: 0.99,
+    // ZERO OFFSET: Prevents pages from 'arriving weird' from top/bottom/sides
+    // Pure cross-dissolve with a subtle 0.995 scale for 'Elite' feel.
+    scale: 0.995,
   },
   animate: {
     opacity: 1,
-    x: 0,
     scale: 1,
     transition: {
       type: 'spring',
-      stiffness: 800, // Ultra-high stiffness
-      damping: 48,
+      stiffness: 900, // Overclocked for instant look
+      damping: 60,
       mass: 0.5,
     },
   },
   exit: {
     opacity: 0,
     scale: 1,
-    x: -8,
     transition: EXIT_FAST,
   },
 };

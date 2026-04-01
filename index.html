@@ -98,9 +98,9 @@
     .skeleton-hidden { display: none !important; visibility: hidden; pointer-events: none; }
   </style>
 
-  <!-- Defer font loading — never block paint -->
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet"></noscript>
+  <!-- High-Efficiency Font Loading: display=block and preloading prevents 'Text-Jump' (FOUT) -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=block" fetchpriority="high" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=block" rel="stylesheet"></noscript>
 
   <!-- SEO & Extension Compatibility -->
   <title>Swipess | Your Local Jarvis</title>

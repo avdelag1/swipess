@@ -60,9 +60,13 @@ if (rootElement) {
 
 // 3. REMOVE SPLASH ONLY AFTER HYDRATION
 // We use a double RAF + a tiny delay to ensure the browser has painted the React tree.
-window.addEventListener('app-rendered', () => {
-  // 🚀 ZENITH HYDRATION PROTOCOL
-  // Dual-RAF ensures browser paint queue is clear before revealing
+// 3. REMOVE SPLASH ONLY AFTER HYDRATION + FONTS READY
+// We use a unified promise to ensure React is painted AND fonts are perfectly matched
+// before the splash screen dissolves, eliminating 'Font-Wobble' (FOUT).
+Promise.all([
+  new Promise(resolve => window.addEventListener('app-rendered', resolve, { once: true })),
+  document.fonts.ready
+]).then(() => {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       // 1. Signal hydration complete to start #root fade-in
