@@ -1,8 +1,7 @@
-import React, { ReactNode, useState, useEffect, useCallback, useMemo, lazy, useRef } from 'react'
+import React, { ReactNode, useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
-import { toast } from '@/components/ui/sonner'
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from "react-router-dom";
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
@@ -14,7 +13,6 @@ import { cn } from '@/lib/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCategories } from '@/state/filterStore'
 import { QuickFilterCategory } from '@/types/filters'
-import { warmDiscoveryCache } from '@/utils/performance'
 
 
 // New Mobile Navigation Components
@@ -28,7 +26,6 @@ import { useWelcomeState } from "@/hooks/useWelcomeState"
 import { LoadingBar } from './ui/LoadingBar';
 import { GlobalDialogs } from './GlobalDialogs'
 import { useModalStore } from '@/state/modalStore'
-import { SmartSuspense } from './SmartSuspense';
 
 // =============================================================================
 // PERFORMANCE FIX: SessionStorage caching for dashboard checks
@@ -74,7 +71,7 @@ function setOnboardingCache(userId: string, needsOnboarding: boolean): void {
   }
 }
 
-function clearOnboardingCache(): void {
+function _clearOnboardingCache(): void {
   try {
     sessionStorage.removeItem(ONBOARDING_CACHE_KEY);
   } catch {
@@ -92,7 +89,7 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const { theme } = useTheme()
   const isDark = theme === 'dark' || theme === 'cheers'
-  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [_showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingChecked, setOnboardingChecked] = useState(false)
   
   const modalStore = useModalStore()
@@ -135,7 +132,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // PERFORMANCE FIX: Welcome state with DB-backed persistence
   // Shows welcome only on first signup, not every login (survives localStorage clears)
-  const { shouldShowWelcome, dismissWelcome } = useWelcomeState(userId)
+  const { shouldShowWelcome: _shouldShowWelcome, dismissWelcome: _dismissWelcome } = useWelcomeState(userId)
 
   const queryClient = useQueryClient();
 
@@ -318,11 +315,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // (survives localStorage clears from external preview URLs)
 
 
-  const handleMessageClick = useCallback(() => {
+  const _handleMessageClick = useCallback(() => {
     modalStore.openSubscription(userRole === 'owner' ? 'Unlock messaging to connect with clients!' : 'Unlock messaging to connect with property owners!')
   }, [userRole, modalStore])
 
-  const handleFilterClick = useCallback(() => {
+  const _handleFilterClick = useCallback(() => {
     if (userRole === 'owner') {
       navigate('/owner/filters-explore')
     } else {
@@ -330,7 +327,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [userRole, navigate, modalStore])
 
-  const handleAddListingClick = useCallback(() => {
+  const _handleAddListingClick = useCallback(() => {
     modalStore.setModal('showCategoryDialog', true)
   }, [modalStore])
 

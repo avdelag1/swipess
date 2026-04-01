@@ -84,9 +84,9 @@ export function ConciergeChat({
     isLoading,
     error,
     sendMessage,
-    clearMessages,
+    clearMessages: _clearMessages,
     deletePermanently,
-    userVibe,
+    userVibe: _userVibe,
     conversations,
     currentConversationId,
     startNewChat,
@@ -402,7 +402,7 @@ export function ConciergeChat({
                           <div className="text-sm max-w-none break-words leading-relaxed space-y-1.5">
                             <ReactMarkdown
                               components={{
-                                a: ({ node, ...props }) => (
+                                a: ({ node: _node, ...props }) => (
                                   <a
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -415,11 +415,11 @@ export function ConciergeChat({
                                     {...props}
                                   />
                                 ),
-                                p: ({ node, ...props }) => <p className="mb-1.5 last:mb-0" {...props} />,
-                                ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5" {...props} />,
-                                ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5" {...props} />,
-                                li: ({ node, ...props }) => <li className="pl-0.5" {...props} />,
-                                strong: ({ node, ...props }) => <strong className="font-bold" {...props} />,
+                                p: ({ node: _node, ...props }) => <p className="mb-1.5 last:mb-0" {...props} />,
+                                ul: ({ node: _node, ...props }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5" {...props} />,
+                                ol: ({ node: _node, ...props }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5" {...props} />,
+                                li: ({ node: _node, ...props }) => <li className="pl-0.5" {...props} />,
+                                strong: ({ node: _node, ...props }) => <strong className="font-bold" {...props} />,
                               }}
                             >
                               {linkify(message.content)}

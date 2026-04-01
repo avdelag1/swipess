@@ -23,7 +23,7 @@ interface PokerCardProps {
  * PokerCategoryCard - A premium, physical-feeling card for category selection.
  * Features realistic shadows, accent glows, and 3D-tilt gestures.
  */
-export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed = false, onSwipeOut, onBringToFront }: PokerCardProps) => {
+export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCollapsed = false, onSwipeOut, onBringToFront }: PokerCardProps) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
@@ -34,7 +34,7 @@ export const PokerCategoryCard = memo(({ card, index, total, isTop, isCollapsed 
   const dragTilt = useTransform(x, [-180, 0, 180], [-9, 3, 15]);
 
   // Folder-stack position
-  const folderX = index * FOLDER_OFFSET_X;
+  const _folderX = index * FOLDER_OFFSET_X;
   const folderY = index * FOLDER_OFFSET_Y;
 
   // Overlays

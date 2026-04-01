@@ -127,7 +127,7 @@ const INITIAL: FormData = {
   photoUrl: "",
 };
 
-const SAMPLE_CARDS = [
+const _SAMPLE_CARDS = [
   {
     bg: "/images/events/cenote_rave.png",
     tag: "TONIGHT",
@@ -190,7 +190,7 @@ const PHOTO_STRIP = [
 ];
 
 // ── Feature items ──────────────────────────────────────────────────────────────
-const FEATURES = [
+const _FEATURES = [
   {
     icon: <Users className="w-5 h-5" />,
     color: "#3b82f6",
@@ -312,7 +312,7 @@ export default function AdvertisePage() {
   const set = (field: keyof FormData, val: string) => setForm(f => ({ ...f, [field]: val }));
 
   const selectedPkg = PACKAGES.find(p => p.id === form.packageId)!;
-  const price = selectedPkg?.price;
+  const _price = selectedPkg?.price;
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

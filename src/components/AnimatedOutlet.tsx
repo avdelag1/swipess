@@ -16,7 +16,7 @@ const EXIT_FAST = {
   ease: 'circIn',
 };
 
-const ENTER_GLIDE = {
+const _ENTER_GLIDE = {
   duration: 0.12, // Warp speed
   ease: [0.23, 1, 0.32, 1], // Fast cubic-bezier
 };

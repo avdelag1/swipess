@@ -111,7 +111,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
       try {
         // Get current user's filter preferences for listing types
         const { data: user } = await supabase.auth.getUser();
-        let preferredListingTypes = ['rent']; // Default to rent
+        let _preferredListingTypes = ['rent']; // Default to rent
 
         if (user.user) {
           const { data: preferences, error: prefError } = await supabase
@@ -125,7 +125,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
           }
 
           if ((preferences?.preferred_listing_types as any)?.length) {
-            preferredListingTypes = (preferences as any).preferred_listing_types;
+            _preferredListingTypes = (preferences as any).preferred_listing_types;
           }
         }
 
@@ -145,7 +145,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
                 images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
             })) as Listing[];
           }
-        } catch (e) {
+        } catch {
             // Fallback to PostgREST
         }
 

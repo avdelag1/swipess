@@ -17,7 +17,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
 import { haptics } from '@/utils/microPolish';
-import { prefetchRoute } from '@/utils/routePrefetcher';
 
 import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
@@ -25,7 +24,6 @@ import { ThemeToggle } from './ThemeToggle';
 import { NotificationPopover } from './NotificationPopover';
 
 import { useScrollDirection } from '@/hooks/useScrollDirection';
-import { SwipessLogo } from './SwipessLogo';
 
 
 // Tier styling for package cards
@@ -78,7 +76,7 @@ function TopBarComponent({
   showBack = false,
 }: TopBarProps) {
   const { unreadCount: _unreadCount } = useUnreadNotifications();
-  const { navigate, prefetch } = useAppNavigate();
+  const { navigate, prefetch: _prefetch } = useAppNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
   
   const { user } = useAuth();

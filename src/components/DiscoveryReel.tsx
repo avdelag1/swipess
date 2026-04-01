@@ -1,6 +1,5 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
-import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/microPolish';
 import { ChevronDown, ArrowUp } from 'lucide-react';
 

@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Heart, ArrowLeft, Megaphone, Pause, Play
+  ArrowLeft, Pause, Play
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -157,7 +157,7 @@ export default function EventosFeed() {
   });
 
   // 5. Auto-play Logic
-  const pauseAutoPlay = useCallback(() => {
+  const _pauseAutoPlay = useCallback(() => {
     setIsPaused(true);
     if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
     pauseTimeoutRef.current = setTimeout(() => {

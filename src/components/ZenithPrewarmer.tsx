@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { runIdleTask } from '@/lib/utils';
 import { logger } from '@/utils/prodLogger';
 import { prefetchRoute } from '@/utils/routePrefetcher';

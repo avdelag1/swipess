@@ -165,7 +165,7 @@ export default function AdminPhotos() {
     setAssigningId(null);
   };
 
-  const formatBytes = (bytes: number) => {
+  const _formatBytes = (bytes: number) => {
     if (bytes === 0) return '—';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB'];

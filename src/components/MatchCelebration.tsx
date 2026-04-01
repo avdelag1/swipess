@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { playNotificationSound } from '@/utils/notificationSounds';
-import { cn } from '@/lib/utils';
 
 interface MatchCelebrationProps {
   isOpen: boolean;

@@ -24,7 +24,6 @@ import { MessagingInterface } from '@/components/MessagingInterface';
 import { MessageSkeleton } from '@/components/ui/LayoutSkeletons';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/sonner';
 import { MessageActivationPackages } from '@/components/MessageActivationPackages';
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';

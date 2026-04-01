@@ -95,7 +95,7 @@ export function useSmartListingMatching(
                         }));
                     }
                     if (rpcError) logger.warn('[SmartMatching] RPC Error:', rpcError.message);
-                } catch (e) {
+                } catch {
                     logger.warn('[SmartMatching] RPC Fallback to PostgREST');
                 }
 

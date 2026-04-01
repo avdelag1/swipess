@@ -52,7 +52,7 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
             return rpcClients as any[];
           }
           if (rpcError) logger.warn('[ClientProfiles] RPC Error:', rpcError.message);
-        } catch (e) {
+        } catch {
           // Fallback to PostgREST
         }
 

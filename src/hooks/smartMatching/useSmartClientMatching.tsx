@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import { MatchedClientProfile, ClientFilters } from './types';
-import { calculateClientMatch } from './matchCalculators';
 
 export function useSmartClientMatching(
     userId?: string,
@@ -76,7 +75,7 @@ export function useSmartClientMatching(
                     if (!rpcError && rpcClients && Array.isArray(rpcClients) && rpcClients.length > 0) {
                         return rpcClients as any[];
                     }
-                } catch (e) {
+                } catch {
                     // Fallback to PostgREST
                 }
 

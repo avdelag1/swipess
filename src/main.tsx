@@ -112,7 +112,7 @@ deferredInit(async () => {
     checkAppVersion();
     initPerformanceOptimizations();
     initOfflineSync();
-  } catch { }
+  } catch { /* intentional */ }
 }, 4000);
 
 // Priority: Native Mobile Plugins
@@ -125,7 +125,7 @@ deferredInit(async () => {
       await StatusBar.setStyle({ style: Style.Light });
       await StatusBar.setBackgroundColor({ color: "#000000" });
     }
-  } catch { }
+  } catch { /* intentional */ }
 }, 6000);
 
 // Service Worker Registration

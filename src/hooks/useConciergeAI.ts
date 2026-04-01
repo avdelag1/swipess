@@ -41,7 +41,7 @@ export function useConciergeAI() {
   const location = useLocation();
   const queryClient = useQueryClient();
 
-  const storageKey = user ? `${STORAGE_KEY_PREFIX}${user.id}` : null;
+  const _storageKey = user ? `${STORAGE_KEY_PREFIX}${user.id}` : null;
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
 
   // Load conversation list + latest active conversation on mount

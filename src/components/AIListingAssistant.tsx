@@ -69,7 +69,7 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
   const [_isGenerating, setIsGenerating] = useState(false);
   const [generatedData, setGeneratedData] = useState<Record<string, unknown> | null>(null);
 
-  const { isAtListingLimit, listingsUsedThisMonth, limits, tierName } = useAIUsage();
+  const { isAtListingLimit, listingsUsedThisMonth, limits, tierName: _tierName } = useAIUsage();
   const navigate = useNavigate();
 
   const resetState = () => {

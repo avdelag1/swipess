@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, ChevronUp, Calendar, MapPin, Ticket, Sparkles } from 'lucide-react';
+import { Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, ChevronUp, Calendar, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useTheme } from '@/hooks/useTheme';

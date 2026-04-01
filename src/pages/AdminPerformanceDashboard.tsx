@@ -130,7 +130,7 @@ function scoreColor(score: number) {
   return 'text-red-500';
 }
 
-function scoreBg(score: number) {
+function _scoreBg(score: number) {
   if (score >= 90) return 'bg-emerald-500/10 border-emerald-500/30';
   if (score >= 50) return 'bg-amber-500/10 border-amber-500/30';
   return 'bg-red-500/10 border-red-500/30';

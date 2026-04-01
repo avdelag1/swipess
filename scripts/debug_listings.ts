@@ -24,7 +24,7 @@ async function checkListings() {
 
   console.log('Recent Listings:', data);
 
-  const { count, error: countError } = await supabase
+  const { count, error: _countError } = await supabase
     .from('listings')
     .select('*', { count: 'exact', head: true });
 

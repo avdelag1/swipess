@@ -5,12 +5,10 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { supabase } from '@/integrations/supabase/client';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, RefreshCw, Sparkles, Clock, CalendarDays, X, 
-  MapPin, MessageCircle 
+import {
+  ArrowLeft, RefreshCw, Sparkles, Clock, CalendarDays, X
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Skeleton } from '@/components/ui/skeleton';
 import { DiscoverySkeleton } from '@/components/ui/DiscoverySkeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

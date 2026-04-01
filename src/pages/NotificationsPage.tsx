@@ -57,12 +57,12 @@ const NotificationIconBg = ({ type, role = 'neutral' }: { type: string; role?: '
 
 export default function NotificationsPage() {
   const { 
-    notifications, 
-    dismissNotification, 
+    notifications,
+    dismissNotification,
     clearAllNotifications,
-    markAllAsRead, 
+    markAllAsRead,
     handleNotificationClick,
-    unreadCount
+    unreadCount: _unreadCount
   } = useNotificationSystem();
   
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);

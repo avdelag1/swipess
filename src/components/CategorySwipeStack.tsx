@@ -24,7 +24,7 @@ export function CategorySwipeStack() {
     const activeCategory = useFilterStore(s => s.activeCategory);
     const { setActiveCategory } = useFilterActions();
     const queryClient = useQueryClient();
-    const navigate = React.useMemo(() => {
+    const _navigate = React.useMemo(() => {
         // Need to import or pass navigate? No, use the function from rrd if needed
         return (path: string) => window.history.pushState(null, '', path);
     }, []);

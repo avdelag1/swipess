@@ -6,7 +6,6 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useListings } from '@/hooks/useListings';
 import { useClientProfiles } from '@/hooks/useClientProfiles';
 import { useWelcomeState } from '@/hooks/useWelcomeState';
-import { toast } from '@/components/ui/sonner';
 
 // Lazy-loaded Dialogs
 const AdvancedFilters = lazy(() => import('@/components/AdvancedFilters').then(m => ({ default: m.AdvancedFilters })));

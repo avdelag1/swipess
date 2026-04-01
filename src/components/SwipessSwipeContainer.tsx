@@ -8,10 +8,7 @@ import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import {
   getActiveCategoryInfo,
 } from './swipe/SwipeConstants';
-import { SwipeCardPeek } from './swipe/SwipeCardPeek';
 import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
-import { DiscoveryReel } from './DiscoveryReel';
-import { deckFadeVariants } from '@/utils/modernAnimations';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
@@ -945,7 +942,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   };
 
   // PREMIUM: Hover-based prefetch - prefetch next batch when user hovers near bottom of deck
-  const handleDeckHover = useCallback(() => {
+  const _handleDeckHover = useCallback(() => {
     // Only prefetch if we're running low and not already fetching
     const remainingCards = deckQueueRef.current.length - currentIndexRef.current;
     // Don't fetch if we're past the end of the deck (remainingCards <= 0)

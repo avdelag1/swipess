@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { CheckCircle, XCircle, Search, Clock, MessageSquare, ExternalLink } from 'lucide-react';
+import { CheckCircle, XCircle, Search, MessageSquare, ExternalLink } from 'lucide-react';
 
 interface EventRow {
   id: string;
@@ -182,7 +182,7 @@ export default function AdminEventos() {
       if (error) throw error;
       toast({ title: 'Submission rejected' });
       fetchSubmissions();
-    } catch (err) {
+    } catch {
       toast({ title: 'Rejection failed', variant: 'destructive' });
     }
   };
