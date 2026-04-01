@@ -985,15 +985,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         </div>
       </div>
 
-      <div className="flex-1 relative min-h-0 overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center pb-20 lg:pb-24 p-4">
+      <div className="absolute inset-0 flex items-center justify-center pb-20 lg:pb-24 p-4 z-10 pointer-events-none">
+        <div className="w-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="wait">
             {!storeActiveCategory ? (
               <div className="w-full flex flex-col items-center justify-center">
                 <SwipeAllDashboard setCategories={setCategories} />
               </div>
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-              <div className="relative w-full h-[70dvh] max-w-2xl">
+              <div className="relative w-full h-[72dvh] max-w-2xl">
 
               {/* Back card (Peek) */}
               {currentIndex + 1 < deckQueue.length && (

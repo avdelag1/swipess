@@ -311,7 +311,7 @@
 
   <script>
     // PWA Version Control — runs synchronously but is fast (no network)
-    var V="3.6.0";
+    var V="3.6.2";
     if(localStorage.getItem('pwa_version')!==V){
       if('caches' in window)caches.keys().then(function(n){n.forEach(function(k){caches.delete(k)})}).then(function(){localStorage.setItem('pwa_version',V); window.location.reload();});
     }
