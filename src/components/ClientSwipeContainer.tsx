@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, memo, lazy, Suspense } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
@@ -41,6 +42,7 @@ import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { MOCK_TEST_CLIENTS } from '@/utils/testReelData';
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
+import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { DistanceSlider } from './swipe/DistanceSlider';
 import { DiscoveryReel } from './DiscoveryReel';
 
@@ -832,15 +834,33 @@ const ClientSwipeContainerComponent = ({
     );
   }
 
-  // ── RENDER — UINFIED DISCOVERY REEL ──────────────────────────────────────
-  // The 'Radius Controller' is now the interactive Slide 0
-  // of the vertical snap-scrolling reel.
   return (
     <>
-      <DiscoveryReel
-        items={deckQueue.slice(currentIndex)} 
-        headerContent={
-          <div className="w-full h-full flex flex-col items-center justify-center -mt-12 px-6">
+      <div className="relative w-full h-full overflow-hidden flex flex-col pt-4 bg-background">
+        {/* PREMIUM AMBIENT GLOWS: Deep visual space */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+          <motion.div
+            animate={{ 
+              scale: [1, 1.2, 1],
+              opacity: [0.03, 0.05, 0.03],
+              rotate: [0, 45, 0]
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/4 -right-1/4 w-[600px] h-[600px] rounded-full blur-[120px] bg-primary"
+          />
+          <motion.div
+            animate={{ 
+              scale: [1, 1.1, 1],
+              opacity: [0.02, 0.04, 0.02],
+              rotate: [0, -45, 0]
+            }}
+            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -bottom-1/4 -left-1/4 w-[700px] h-[700px] rounded-full blur-[140px] bg-rose-500"
+          />
+        </div>
+        {/* Top Controls Overlay */}
+        <div className="absolute top-4 left-0 right-0 z-50 px-6 flex flex-col items-center gap-4 pointer-events-none">
+          <div className="w-full flex justify-between items-center pointer-events-auto">
             <DistanceSlider
               radiusKm={radiusKm}
               onRadiusChange={setRadiusKm}
@@ -849,29 +869,72 @@ const ClientSwipeContainerComponent = ({
               detected={locationDetected}
             />
           </div>
-        }
-        onRefresh={handleRefresh}
-        isLoading={isRefreshing}
-        renderItem={(profile, idx) => (
-          <div className="relative w-full h-[calc(100%-120px)] max-w-2xl flex items-center justify-center p-4">
-            <SimpleOwnerSwipeCard
-              key={profile.user_id}
-              ref={idx === 0 ? cardRef : undefined}
-              profile={profile}
-              onSwipe={handleSwipe}
-              onTap={() => onClientTap(profile.user_id)}
-              onInsights={() => handleInsights(profile.user_id)}
-              onMessage={() => handleConnect(profile.user_id)}
-              onShare={handleShare}
-              onUndo={undoLastSwipe}
-              canUndo={canUndo}
-              isTop={idx === 0}
-            />
+        </div>
+
+        <div className="flex-1 relative flex items-center justify-center p-4">
+          <AnimatePresence>
+            {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
+              <div className="relative w-full h-[calc(100%-40px)] max-w-2xl">
+                {/* Back card (Peek) */}
+                {currentIndex + 1 < deckQueue.length && (
+                  <div className="absolute inset-0 z-10 scale-[0.96] translate-y-2 opacity-50 blur-[2px]">
+                     <SimpleOwnerSwipeCard
+                      key={deckQueue[currentIndex + 1].user_id}
+                      profile={deckQueue[currentIndex + 1]}
+                      onSwipe={() => {}}
+                      isTop={false}
+                    />
+                  </div>
+                )}
+                
+                {/* Front card */}
+                <SimpleOwnerSwipeCard
+                  key={deckQueue[currentIndex].user_id}
+                  ref={cardRef}
+                  profile={deckQueue[currentIndex]}
+                  onSwipe={handleSwipe}
+                  onTap={() => onClientTap(deckQueue[currentIndex].user_id)}
+                  onInsights={() => handleInsights(deckQueue[currentIndex].user_id)}
+                  onMessage={() => handleConnect(deckQueue[currentIndex].user_id)}
+                  onShare={handleShare}
+                  onUndo={undoLastSwipe}
+                  canUndo={canUndo}
+                  isTop={true}
+                />
+              </div>
+            ) : !externalIsLoading ? (
+               <SwipeExhaustedState 
+                  onRefresh={handleRefresh}
+                  isRefreshing={isRefreshing}
+                  categoryLabel={labels.plural}
+                  CategoryIcon={labels.Icon}
+                  iconColor={labels.color}
+                  radiusKm={radiusKm}
+                  onRadiusChange={setRadiusKm}
+                  onDetectLocation={detectLocation}
+                  detecting={locationDetecting}
+                  detected={locationDetected}
+                  error={externalError}
+               />
+            ) : (
+               <SwipeLoadingSkeleton />
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Action Buttons */}
+        {deckQueue.length > 0 && currentIndex < deckQueue.length && (
+          <div className="pb-8 pt-2">
+             <SwipeActionButtonBar
+                onLike={() => cardRef.current?.triggerSwipe('right')}
+                onDislike={() => cardRef.current?.triggerSwipe('left')}
+                onUndo={undoLastSwipe}
+                canUndo={canUndo}
+             />
           </div>
         )}
-      />
+      </div>
 
-      {/* FIX: Render modals via portal OUTSIDE the swipe React tree */}
       {createPortal(
         <Suspense fallback={null}>
           <MessageConfirmationDialog

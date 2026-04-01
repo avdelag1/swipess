@@ -73,7 +73,7 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
             className={cn(
               "flex items-center gap-1.5 h-8 px-3 rounded-xl text-[10px] font-black uppercase tracking-tight border transition-all active:scale-95",
               detected
-                ? "bg-primary border-primary text-white shadow-[0_0_15px_rgba(236,72,153,0.3)]"
+                ? "bg-primary border-primary text-white shadow-[0_0_15px_rgba(236,72,153,0.3)] animate-gps-pulse"
                 : "bg-background border-border text-muted-foreground hover:border-primary/50"
             )}
             title="Detect my current GPS location"

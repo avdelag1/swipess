@@ -58,6 +58,38 @@ const SPRING_CONFIGS = {
 
 const ACTIVE_SPRING = SPRING_CONFIGS.NATIVE; // Responsive iOS-like feel without excessive bounce
 
+/**
+ * GLASS SHINE ANIMATION
+ * Creates a "moving reflection" that follows the user's drag
+ */
+const GlassShine = ({ x, y }: { x: MotionValue<number>; y: MotionValue<number> }) => {
+  const shineX = useTransform(x, [-300, 300], ['-50%', '150%']);
+  const shineY = useTransform(y, [-300, 300], ['-50%', '150%']);
+  const shineOpacity = useTransform(
+    [x, y],
+    ([latestX, latestY]: any) => {
+      const distance = Math.sqrt(latestX ** 2 + latestY ** 2);
+      return Math.min(0.4, distance / 400);
+    }
+  );
+
+  return (
+    <motion.div
+      className="absolute inset-0 z-10 pointer-events-none overflow-hidden"
+      style={{ opacity: shineOpacity }}
+    >
+      <motion.div
+        className="absolute w-[200%] h-[200%] bg-gradient-radial from-white/30 via-transparent to-transparent"
+        style={{
+          left: shineX,
+          top: shineY,
+          transform: 'translate(-50%, -50%)',
+        }}
+      />
+    </motion.div>
+  );
+};
+
 interface SimpleSwipeCardProps {
   listing: Listing | MatchedListing;
   onSwipe: (direction: 'left' | 'right') => void;
@@ -333,9 +365,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   if (!isTop) {
     return (
       <div
-        className="absolute inset-0 overflow-hidden"
+        className="absolute inset-x-2 bottom-4 top-4 rounded-[32px] overflow-hidden shadow-sm"
         style={{
           pointerEvents: 'none',
+          backgroundColor: 'rgba(255, 255, 255, 0.03)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
         }}
       >
         {currentImage === 'video_attachment' && listing.video_url ? (
@@ -345,17 +380,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             muted
             loop
             playsInline
-            className="absolute inset-0 w-full h-full object-cover z-[1]"
+            className="absolute inset-0 w-full h-full object-cover z-[1] opacity-60"
             style={{ pointerEvents: 'none', zIndex: 1 }}
           />
         ) : (
-          <CardImage 
-            src={currentImage} 
-            alt={listing.title || 'Listing'} 
-            name={listing.title} 
-            direction={photoDirection} 
-            priority={false} 
-          />
+          <div className="absolute inset-0 opacity-60">
+            <CardImage 
+              src={currentImage} 
+              alt={listing.title || 'Listing'} 
+              name={listing.title} 
+              direction={photoDirection} 
+              priority={false} 
+            />
+          </div>
         )}
       </div>
     );
@@ -377,11 +414,20 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         onPointerMove={handleUnifiedPointerMove}
         onPointerUp={handleUnifiedPointerUp}
         onPointerCancel={handleUnifiedPointerCancel}
-        whileDrag={{ 
-          scale: 1.02,
-          transition: { duration: 0.1, ease: "easeOut" }
+        animate={{ 
+          scale: 1, 
+          transition: { type: 'spring', stiffness: 400, damping: 28 }
         }}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[32px] overflow-hidden shadow-2xl glass-nano-texture pointer-events-auto"
+        // 🚀 LIVE FEEL: Periodic breathing-zoom
+        whileInView={{
+          scale: [1, 1.012, 1],
+          transition: {
+            duration: 9,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }
+        }}
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[32px] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)] glass-nano-texture pointer-events-auto border border-white/10"
         style={{
           x,
           y,
@@ -391,8 +437,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           transform: 'translate3d(0,0,0)',
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
+          background: 'rgba(255, 255, 255, 0.01)',
+          backdropFilter: 'blur(20px)',
         }}
       >
+        <GlassShine x={x} y={y} />
         <div 
           ref={containerRef as any}
           className="absolute inset-0 overflow-hidden" 
@@ -477,67 +526,85 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         </motion.div>
 
-        {/* 🚀 CINEMATIC INFO OVERLAY — Restored and Refined */}
+        {/* 🚀 PREMIUM INFUSION: Dissolving Info Overlay in bottom-left */}
         <div
-          className="absolute left-0 right-0 z-20 pointer-events-none p-6 pb-20"
+          key={`info-${currentImageIndex % 4}`}
+          className="absolute left-6 bottom-24 z-30 pointer-events-none max-w-[80%]"
           style={{ 
-            bottom: 0,
-            background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 50%, transparent 100%)',
-            borderTop: '1px solid rgba(255,255,255,0.1)',
             contain: 'layout paint',
             transform: 'translateZ(0)',
           }}
         >
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <div
-              className="inline-flex rounded-full px-3 py-1.5"
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.45)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-              }}
-            >
-              <CompactRatingDisplay
-                aggregate={ratingAggregate as any}
-                isLoading={isRatingLoading}
-                showReviews={false}
-                className="text-white"
-              />
+          <motion.div
+            initial={{ opacity: 0, x: -10, filter: 'blur(8px)' }}
+            animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+            className="space-y-1.5"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className="inline-flex rounded-full px-3 py-1 bg-black/40 backdrop-blur-md border border-white/10 shadow-lg"
+              >
+                <CompactRatingDisplay
+                  aggregate={ratingAggregate as any}
+                  isLoading={isRatingLoading}
+                  showReviews={false}
+                  className="text-white"
+                />
+              </div>
+              {listing.has_verified_documents && (
+                <div className="px-2.5 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400">Elite</span>
+                </div>
+              )}
             </div>
-          </div>
-          {listing.category === 'vehicle' || listing.vehicle_type ? (
-            <VehicleCardInfo
-              price={listing.price || 0}
-              priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'day'}
-              make={listing.vehicle_brand ?? undefined}
-              model={listing.vehicle_model ?? undefined}
-              year={listing.year ?? undefined}
-              location={listing.city ?? undefined}
-              isVerified={(listing as any).has_verified_documents ?? undefined}
-              photoIndex={currentImageIndex}
-            />
-          ) : listing.category === 'worker' || listing.category === 'services' || (listing as any).service_category ? (
-            <ServiceCardInfo
-              hourlyRate={listing.price || 0}
-              pricingUnit={(listing as any).pricing_unit || 'hr'}
-              serviceName={(listing as any).service_category || listing.title || 'Service'}
-              name={listing.title}
-              location={listing.city ?? undefined}
-              isVerified={(listing as any).has_verified_documents ?? undefined}
-              photoIndex={currentImageIndex}
-            />
-          ) : (
-            <PropertyCardInfo
-              price={listing.price || 0}
-              priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'night'}
-              propertyType={listing.property_type ?? undefined}
-              beds={listing.beds ?? undefined}
-              baths={listing.baths ?? undefined}
-              location={listing.city ?? undefined}
-              isVerified={(listing as any).has_verified_documents ?? undefined}
-              photoIndex={currentImageIndex}
-            />
-          )}
+
+            {listing.category === 'vehicle' || listing.vehicle_type ? (
+              <VehicleCardInfo
+                price={listing.price || 0}
+                priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'day'}
+                make={listing.vehicle_brand ?? undefined}
+                model={listing.vehicle_model ?? undefined}
+                year={listing.year ?? undefined}
+                location={listing.city ?? undefined}
+                isVerified={(listing as any).has_verified_documents ?? undefined}
+                photoIndex={currentImageIndex}
+                className="!text-white !space-y-0"
+              />
+            ) : listing.category === 'worker' || listing.category === 'services' || (listing as any).service_category ? (
+              <ServiceCardInfo
+                hourlyRate={listing.price || 0}
+                pricingUnit={(listing as any).pricing_unit || 'hr'}
+                serviceName={(listing as any).service_category || listing.title || 'Service'}
+                name={listing.title}
+                location={listing.city ?? undefined}
+                isVerified={(listing as any).has_verified_documents ?? undefined}
+                photoIndex={currentImageIndex}
+                className="!text-white !space-y-0"
+              />
+            ) : (
+              <PropertyCardInfo
+                price={listing.price || 0}
+                priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'night'}
+                propertyType={listing.property_type ?? undefined}
+                beds={listing.beds ?? undefined}
+                baths={listing.baths ?? undefined}
+                location={listing.city ?? undefined}
+                isVerified={(listing as any).has_verified_documents ?? undefined}
+                photoIndex={currentImageIndex}
+                className="!text-white !space-y-0"
+              />
+            )}
+          </motion.div>
         </div>
+
+        {/* Global Dark Gradient for contrast */}
+        <div 
+          className="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none z-10"
+          style={{
+            background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)'
+          }}
+        />
 
         {/* 🏎️ DISCOVERY REEL SIDEBAR — Social-Media Standard */}
         {isTop && (
@@ -551,24 +618,16 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           />
         )}
 
+        {/* Verified Badge - Left corner higher up */}
         {listing.has_verified_documents && (
-          <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="absolute top-16 left-6 z-40" // Moved to left to avoid sidebar overlap
-          >
-            <div className="group relative">
-               {/* Pulsing Outer Ring */}
-               <div className="absolute -inset-1 rounded-full bg-emerald-500/20 animate-ping opacity-75" />
-               
-               <div className="relative px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/60 backdrop-blur-md border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,1)]" />
-                 <span className="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-400 drop-shadow-sm">
-                   Elite Verified
-                 </span>
-               </div>
-            </div>
-          </motion.div>
+          <div className="absolute top-16 left-6 z-40">
+             <div className="relative px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10">
+               <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,1)]" />
+               <span className="text-[10px] font-black uppercase tracking-[0.1em] text-white">
+                 Verified
+               </span>
+             </div>
+          </div>
         )}
       </motion.div>
     </div>

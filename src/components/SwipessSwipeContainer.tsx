@@ -976,31 +976,101 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // The 'Premiums Dashboard' (SwipeAllDashboard) is now the interactive Slide 0
   // of the vertical snap-scrolling reel.
   return (
-    <>
-      <DiscoveryReel
-        items={deckQueue.slice(currentIndex)} 
-        headerContent={
-          <div className="w-full h-full flex flex-col items-center justify-center -mt-12">
-             <SwipeAllDashboard setCategories={setCategories} />
-          </div>
-        }
-        onRefresh={handleRefresh}
-        isLoading={isRefreshing}
-        renderItem={(listing, idx) => (
-          <div className="relative w-full h-[calc(100%-120px)] max-w-2xl flex items-center justify-center p-4">
-            <SimpleSwipeCard
-              key={listing.id}
-              ref={idx === 0 ? cardRef : undefined}
-              listing={listing}
-              onSwipe={handleSwipe}
-              onInsights={handleInsights}
-              onShare={handleShare}
-              onMessage={handleMessage}
-              isTop={idx === 0}
-            />
-          </div>
-        )}
-      />
+    <div className="relative w-full h-full overflow-hidden flex flex-col pt-4 bg-background">
+      {/* PREMIUM AMBIENT GLOWS: Deep visual space */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+        <motion.div
+          animate={{ 
+            scale: [1, 1.25, 1],
+            opacity: [0.02, 0.04, 0.02],
+            rotate: [0, 90, 0]
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] rounded-full blur-[160px] bg-primary/40"
+        />
+        <motion.div
+          animate={{ 
+            scale: [1, 1.15, 1],
+            opacity: [0.01, 0.03, 0.01],
+            rotate: [0, -90, 0]
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -bottom-1/4 -left-1/4 w-[900px] h-[900px] rounded-full blur-[180px] bg-rose-500/30"
+        />
+      </div>
+      {/* Top Controls Overlay */}
+      <div className="absolute top-4 left-0 right-0 z-50 px-6 flex flex-col items-center gap-4 pointer-events-none">
+        <div className="w-full flex justify-between items-center pointer-events-auto">
+          <SwipeAllDashboard setCategories={setCategories} />
+        </div>
+      </div>
+
+      <div className="flex-1 relative flex items-center justify-center p-4">
+        <AnimatePresence>
+          {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
+            <div className="relative w-full h-[calc(100%-40px)] max-w-2xl">
+              {/* Back card (Peek) */}
+              {currentIndex + 1 < deckQueue.length && (
+                <motion.div 
+                  className="absolute inset-0 z-10"
+                  style={{
+                    scale: nextCardScale,
+                    opacity: nextCardOpacity,
+                    willChange: 'transform, opacity',
+                  }}
+                >
+                   <SimpleSwipeCard
+                    key={deckQueue[currentIndex + 1].id}
+                    listing={deckQueue[currentIndex + 1]}
+                    onSwipe={() => {}}
+                    isTop={false}
+                  />
+                </motion.div>
+              )}
+              
+              {/* Front card */}
+              <SimpleSwipeCard
+                key={topCard?.id}
+                ref={cardRef}
+                listing={topCard}
+                onSwipe={handleSwipe}
+                onInsights={handleInsights}
+                onMessage={handleMessage}
+                onShare={handleShare}
+                isTop={true}
+                externalX={topCardX}
+              />
+            </div>
+          ) : !isLoading ? (
+             <SwipeExhaustedState 
+                onRefresh={handleRefresh}
+                isRefreshing={isRefreshing}
+                categoryLabel={storeActiveCategory || 'Listings'}
+                CategoryIcon={Home}
+                radiusKm={radiusKm}
+                onRadiusChange={setRadiusKm}
+                onDetectLocation={detectLocation}
+                detecting={locationDetecting}
+                detected={locationDetected}
+                error={error}
+             />
+          ) : (
+             <SwipeLoadingSkeleton />
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Action Buttons */}
+      {deckQueue.length > 0 && currentIndex < deckQueue.length && (
+        <div className="pb-8 pt-2">
+           <SwipeActionButtonBar
+              onLike={handleButtonLike}
+              onDislike={handleButtonDislike}
+              onUndo={undoLastSwipe}
+              canUndo={canUndo}
+           />
+        </div>
+      )}
 
       {/* FIX #3: PORTAL ISOLATION - Modals render outside swipe tree */}
       {typeof document !== 'undefined' && createPortal(
@@ -1021,29 +1091,27 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               description={topCard.description}
             />
           )}
+          
+          <MessageConfirmationDialog
+            open={messageDialogOpen}
+            onOpenChange={setMessageDialogOpen}
+            onConfirm={handleSendMessage}
+            recipientName={selectedListing ? `the owner of ${selectedListing.title}` : 'the owner'}
+            isLoading={isCreatingConversation}
+          />
+
+          <DirectMessageDialog
+            open={directMessageDialogOpen}
+            onOpenChange={setDirectMessageDialogOpen}
+            onConfirm={handleSendMessage}
+            recipientName={selectedListing ? `the owner of ${selectedListing.title}` : 'the owner'}
+            isLoading={isCreatingConversation}
+            category={selectedListing?.category}
+          />
         </Suspense>,
         document.body
       )}
-
-      {/* Message Confirmation Dialog - Shows remaining tokens */}
-      <MessageConfirmationDialog
-        open={messageDialogOpen}
-        onOpenChange={setMessageDialogOpen}
-        onConfirm={handleSendMessage}
-        recipientName={selectedListing ? `the owner of ${selectedListing.title}` : 'the owner'}
-        isLoading={isCreatingConversation}
-      />
-
-      {/* Direct Message Dialog - For motorcycle/bicycle listings (free messaging) */}
-      <DirectMessageDialog
-        open={directMessageDialogOpen}
-        onOpenChange={setDirectMessageDialogOpen}
-        onConfirm={handleSendMessage}
-        recipientName={selectedListing ? `the owner of ${selectedListing.title}` : 'the owner'}
-        isLoading={isCreatingConversation}
-        category={selectedListing?.category}
-      />
-    </>
+    </div>
   );
 };
 

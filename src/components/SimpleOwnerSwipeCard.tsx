@@ -85,31 +85,25 @@ interface ClientProfile {
 const PlaceholderImage = memo(({ name }: { name?: string | null }) => {
   return (
     <div
-      className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center"
+      className="absolute inset-0 w-full h-full bg-black/20 flex flex-col items-center justify-center p-8 text-center"
       style={{
         transform: 'translateZ(0)',
-        touchAction: 'none',
-        WebkitUserSelect: 'none',
-        userSelect: 'none',
+        backdropFilter: 'blur(20px)',
       }}
     >
-      <div className="absolute inset-0 bg-black/20" />
-      <div className="text-center relative z-10 px-8">
-        <div className="w-32 h-32 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center mx-auto mb-6 border-4 border-white/50">
-          <img
-            src="/icons/swipess-logo.png"
-            alt="Logo"
-            className="w-20 h-20"
-            draggable={false}
-          />
-        </div>
-        <p className="text-white text-xl font-bold mb-2 drop-shadow-lg">
-          {name || 'Client Profile'}
-        </p>
-        <p className="text-white/90 text-base font-medium drop-shadow-md">
-          Waiting for client to upload photos :)
-        </p>
+      <div className="w-32 h-32 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center mb-8 shadow-2xl relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <img
+          src="/icons/swipess-logo.png"
+          alt="Logo"
+          className="w-16 h-16 relative z-10"
+          draggable={false}
+        />
       </div>
+      <h3 className="text-white text-2xl font-black tracking-tight mb-2 uppercase">{name || 'Client'}</h3>
+      <p className="text-white/40 text-xs font-bold uppercase tracking-widest leading-relaxed">
+        Visual identity is being processed<br/>by the sentient engine
+      </p>
     </div>
   );
 });
@@ -261,6 +255,17 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   // Motion values for BOTH X and Y - enables diagonal movement
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+
+  // Moving Glass Shine effect
+  const shineX = useTransform(x, [-300, 300], ['-50%', '150%']);
+  const shineY = useTransform(y, [-300, 300], ['-50%', '150%']);
+  const shineOpacity = useTransform(
+    [x, y],
+    ([latestX, latestY]: any) => {
+      const distance = Math.sqrt(latestX ** 2 + latestY ** 2);
+      return Math.min(0.3, distance / 400);
+    }
+  );
 
   // Tinder-style rotation: pivots from bottom of card based on X drag
   const cardRotate = useTransform(x, [-300, 0, 300], [-MAX_ROTATION, 0, MAX_ROTATION]);
@@ -414,7 +419,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
       // Calculate Y exit based on swipe angle - maintains diagonal trajectory
       const swipeAngle = Math.atan2(offsetY, Math.abs(offsetX));
-      const exitY = Math.tan(swipeAngle) * exitDistance * (offsetY > 0 ? 1 : 1);
+      const exitY = Math.tan(swipeAngle) * exitDistance;
 
       // Spring-based exit animation - feels more natural than tween
       animate(x, exitX, {
@@ -536,43 +541,43 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }), [handleButtonSwipe]);
 
   // FIX: Early return if profile is null/undefined to prevent errors
-  // All hooks must be called above this point to maintain hook order
   if (!profile || !profile.user_id) {
     return null;
   }
 
-  // Format budget - moved AFTER null check to prevent errors
   const budgetText = profile.budget_min && profile.budget_max
     ? `$${profile.budget_min.toLocaleString()} - $${profile.budget_max.toLocaleString()}`
     : profile.budget_max
       ? `Up to $${profile.budget_max.toLocaleString()}`
       : null;
 
-  // Render based on position - all hooks called above regardless of render path
   if (!isTop) {
-    // Non-top card: simple static preview (no interaction, just visual)
+    // Non-top card: GLASS PEEK
     return (
       <div
-        className="absolute inset-0 overflow-hidden"
+        className="absolute inset-x-2 bottom-4 top-4 rounded-[32px] overflow-hidden shadow-sm"
         style={{
           pointerEvents: 'none',
+          backgroundColor: 'rgba(255, 255, 255, 0.03)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
         }}
       >
-      <CardImage 
-        src={currentImage} 
-        alt={profile.name || 'Client'} 
-        name={profile.name} 
-        fullScreen={fullScreen} 
-        priority={false} 
-      />
-        {/* No gradient - full-bleed cards */}
+        <div className="absolute inset-0 opacity-40">
+          <CardImage 
+            src={currentImage} 
+            alt={profile.name || 'Client'} 
+            name={profile.name} 
+            fullScreen={fullScreen} 
+            priority={false} 
+          />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="absolute inset-0 flex flex-col">
-      {/* Draggable Card - FREE XY MOVEMENT (Tinder-style diagonal) */}
       <motion.div
         drag
         dragControls={dragControls}
@@ -586,41 +591,64 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         onPointerDown={handleUnifiedPointerDown}
         onPointerMove={handleUnifiedPointerMove}
         onPointerUp={handleUnifiedPointerUp}
-        onPointerCancel={handleUnifiedPointerCancel}
+        animate={{ 
+          scale: 1, 
+          transition: { type: 'spring', stiffness: 400, damping: 28 }
+        }}
+        // 🚀 LIVE FEEL: Periodic breathing-zoom
+        whileInView={{
+          scale: [1, 1.015, 1],
+          transition: {
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }
+        }}
         style={{
           x,
           y,
           rotate: cardRotate,
           opacity: cardOpacity,
           transformOrigin: 'bottom center',
-          willChange: 'transform, opacity', // Force GPU acceleration for interaction
+          willChange: 'transform, opacity',
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           touchAction: 'none',
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
-          transform: 'translateZ(0)', // Force compositor layer
+          transform: 'translateZ(0)',
           borderRadius: fullScreen ? '0px' : '32px',
-          boxShadow: fullScreen ? 'none' : 'var(--shadow-cinematic-lg)',
-          border: 'none',
+          boxShadow: fullScreen ? 'none' : '0 32px 64px -16px rgba(0,0,0,0.5), 0 16px 32px -8px rgba(0,0,0,0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          background: 'rgba(255, 255, 255, 0.01)',
+          backdropFilter: 'blur(20px)',
         } as any}
         className={cn(
           "flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden",
-          !fullScreen && "shadow-2xl"
+          !fullScreen && "shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)]"
         )}
       >
-        {/* Image area - FULL VIEWPORT with magnifier support */}
+        {/* Glass Shine */}
+        <motion.div
+          className="absolute inset-0 z-10 pointer-events-none"
+          style={{ opacity: shineOpacity }}
+        >
+          <motion.div
+            className="absolute w-[200%] h-[200%] bg-gradient-radial from-white/20 via-transparent to-transparent"
+            style={{
+              left: shineX,
+              top: shineY,
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+        </motion.div>
+
         <div
           ref={containerRef}
           className={cn("absolute inset-0 w-full h-full overflow-hidden", !fullScreen && "rounded-[24px]")}
           onClick={handleImageTap}
-          style={{
-            touchAction: 'none',
-            WebkitUserSelect: 'none',
-            userSelect: 'none',
-          }}
+          style={{ touchAction: 'none' }}
         >
-          {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
           <CardImage 
             src={currentImage} 
             alt={profile.name || 'Client'} 
@@ -629,7 +657,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             fullScreen={fullScreen}
           />
 
-          {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (
             <div className="absolute top-[60px] left-2 right-2 z-25 flex gap-[3px]" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
               {images.map((_, idx) => (
@@ -642,216 +669,133 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           )}
         </div>
 
-        {/* YES! overlay */}
         <motion.div
           className="absolute top-8 left-8 z-30 pointer-events-none"
-          style={{
-            opacity: likeOpacity,
-            backfaceVisibility: 'hidden',
-            transform: 'translateZ(0)',
-          }}
+          style={{ opacity: likeOpacity }}
         >
-          <div
-            className="px-6 py-3 rounded-xl border-4 border-rose-500 text-rose-500 font-black text-3xl tracking-wider"
-            style={{
-              transform: 'rotate(-12deg) translateZ(0)',
-              backfaceVisibility: 'hidden',
-              textShadow: '0 0 10px rgba(34, 197, 94, 0.6), 0 0 20px rgba(34, 197, 94, 0.4)',
-            }}
-          >
+          <div className="px-6 py-3 rounded-xl border-4 border-rose-500 text-rose-500 font-black text-3xl tracking-wider" style={{ transform: 'rotate(-12deg)' }}>
             YES!
           </div>
         </motion.div>
 
-        {/* NOPE overlay */}
         <motion.div
           className="absolute top-8 right-8 z-30 pointer-events-none"
-          style={{
-            opacity: passOpacity,
-            
-            backfaceVisibility: 'hidden',
-            transform: 'translateZ(0)',
-          }}
+          style={{ opacity: passOpacity }}
         >
-          <div
-            className="px-6 py-3 rounded-xl border-4 border-red-500 text-red-500 font-black text-3xl tracking-wider"
-            style={{
-              transform: 'rotate(12deg) translateZ(0)',
-              backfaceVisibility: 'hidden',
-              textShadow: '0 0 10px rgba(239, 68, 68, 0.6), 0 0 20px rgba(239, 68, 68, 0.4)',
-            }}
-          >
+          <div className="px-6 py-3 rounded-xl border-4 border-red-500 text-red-500 font-black text-3xl tracking-wider" style={{ transform: 'rotate(12deg)' }}>
             NOPE
           </div>
         </motion.div>
 
-        {/* Bottom gradient overlay for text readability against light images */}
         <div
           className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none"
           style={{
-            height: '45%',
-            background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 40%, transparent 100%)',
+            height: '60%',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)',
           }}
-          aria-hidden="true"
         />
 
-        {/* Content overlay - INSIDE motion.div so it moves with the card on swipe
-             Dynamic bottom positioning: scales with viewport height */}
         <div
+          key={`info-${currentImageIndex % 4}`}
           className={cn(
-            "absolute left-4 right-4 z-20 pointer-events-none p-5 rounded-[24px] flex flex-col justify-end",
-            fullScreen ? "bottom-0 pb-[calc(100px+var(--safe-bottom))] min-h-[45%]" : "pb-6"
+            "absolute left-6 bottom-32 z-30 pointer-events-none flex flex-col justify-end max-w-[85%]",
+            fullScreen && "pb-[calc(100px+var(--safe-bottom))]"
           )}
-          style={{ 
-            bottom: !fullScreen ? 'clamp(120px, 20vh, 180px)' : undefined,
-            background: 'rgba(0,0,0,0.55)',
-            boxShadow: 'var(--shadow-cinematic-md)',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
-            border: '1px solid rgba(255,255,255,0.08)',
-          }}
         >
-          {/* Match Meter + Rating badges row */}
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            {/* Match Percentage — only shown when smart matching has scored this profile */}
-            {'matchPercentage' in profile && (profile as any).matchPercentage > 0 && (
-              <SwipeMatchMeter
-                percentage={(profile as any).matchPercentage}
-                reasons={(profile as any).matchReasons}
-                compact
-              />
-            )}
-            {/* Rating Display - Glass-pill tactile badge */}
-            <div
-              className="inline-flex rounded-full px-3 py-1.5"
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.55)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
-              }}
-            >
-              <CompactRatingDisplay
-                aggregate={ratingAggregate ?? null}
-                isLoading={isRatingLoading}
-                showReviews={false}
-                className="text-white"
-              />
+          <motion.div
+            initial={{ opacity: 0, x: -15, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+            className="space-y-1.5"
+          >
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
+              {'matchPercentage' in profile && (profile as any).matchPercentage > 0 && (
+                <SwipeMatchMeter
+                  percentage={(profile as any).matchPercentage}
+                  reasons={(profile as any).matchReasons}
+                  compact
+                />
+              )}
+              <div className="inline-flex rounded-full px-3 py-1.5 bg-black/35 backdrop-blur-[10px] border border-white/10">
+                <CompactRatingDisplay
+                  aggregate={ratingAggregate ?? null}
+                  isLoading={isRatingLoading}
+                  showReviews={false}
+                  className="text-white"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Photo 0: Name + Age */}
-          {currentImageIndex % 4 === 0 && (
-            <>
-              <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-white text-2xl font-bold" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}>
-                  {profile.name || 'Anonymous'}
-                </h2>
-                {profile.age && (
-                  <span className="text-white/80 text-xl">{profile.age}</span>
-                )}
-              </div>
-              {profile.city && (
-                <div className="flex items-center gap-1 text-white/90 text-base">
-                  <MapPin className="w-4 h-4" />
-                  <span className="font-medium">{profile.city}{profile.country ? `, ${profile.country}` : ''}</span>
+            {currentImageIndex % 4 === 0 && (
+              <>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-white text-3xl font-black tracking-tight" style={{ textShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                    {profile.name || 'Anonymous'}
+                  </h2>
+                  {profile.age && <span className="text-white/80 text-2xl font-bold">{profile.age}</span>}
+                  {profile.verified && (
+                    <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center border border-white/20">
+                      <div className="w-2.5 h-2.5 bg-white rounded-full" />
+                    </div>
+                  )}
                 </div>
-              )}
-            </>
-          )}
-
-          {/* Photo 1: Budget */}
-          {currentImageIndex % 4 === 1 && (
-            <>
-              {budgetText && (
-                <>
-                  <div className="text-lg text-white/80 font-medium mb-1">Monthly Budget</div>
-                  <div className="flex items-center gap-1 text-white/90">
-                    <DollarSign className="w-5 h-5" />
-                    <span className="text-2xl font-bold drop-shadow-lg">{budgetText}</span>
+                {profile.city && (
+                  <div className="flex items-center gap-1.5 text-white/70 text-sm font-black uppercase tracking-widest">
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span>{profile.city}</span>
                   </div>
-                </>
-              )}
-              {!budgetText && profile.work_schedule && (
-                <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
-                }}>
-                  <Briefcase className="w-4 h-4 text-white" />
-                  <span className="text-base font-medium text-white">{getWorkScheduleLabel(profile.work_schedule)}</span>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Photo 2: Location + Work Schedule */}
-          {currentImageIndex % 4 === 2 && (
-            <>
-              {profile.city && (
-                <div className="flex items-center gap-1 text-white/90 mb-2">
-                  <MapPin className="w-5 h-5" />
-                  <span className="text-xl font-bold drop-shadow-lg">
-                    {profile.city}{profile.country ? `, ${profile.country}` : ''}
-                  </span>
-                </div>
-              )}
-              {profile.work_schedule && (
-                <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
-                }}>
-                  <Briefcase className="w-4 h-4 text-white" />
-                  <span className="text-base font-medium text-white">{getWorkScheduleLabel(profile.work_schedule)}</span>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Photo 3+: Full Summary */}
-          {currentImageIndex % 4 === 3 && (
-            <>
-              <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-white text-xl font-bold">
-                  {profile.name || 'Anonymous'}
-                </h2>
-                {profile.age && (
-                  <span className="text-white/80 text-lg">{profile.age}</span>
                 )}
-              </div>
+              </>
+            )}
 
-              {profile.city && (
-                <div className="flex items-center gap-1 text-white/80 text-sm mb-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>{profile.city}{profile.country ? `, ${profile.country}` : ''}</span>
-                </div>
-              )}
-
-              <div className="flex flex-wrap items-center gap-2 text-white/90 text-sm">
+            {currentImageIndex % 4 === 1 && (
+              <>
                 {budgetText && (
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-full" style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                  }}>
-                    <DollarSign className="w-3 h-3" /> {budgetText}
-                  </span>
+                  <div className="bg-black/20 backdrop-blur-md border border-white/5 rounded-2xl p-4 w-fit">
+                    <div className="text-[10px] text-white/50 font-black uppercase tracking-[0.2em] mb-1">Target Budget</div>
+                    <div className="flex items-center gap-1.5 text-white">
+                      <DollarSign className="w-5 h-5 text-rose-500" />
+                      <span className="text-2xl font-black tracking-tighter">{budgetText}</span>
+                    </div>
+                  </div>
                 )}
-                {profile.work_schedule && (
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-full" style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                  }}>
-                    <Briefcase className="w-3 h-3" /> {profile.work_schedule}
-                  </span>
+                {!budgetText && profile.work_schedule && (
+                  <div className="bg-black/20 backdrop-blur-md border border-white/5 rounded-2xl p-4 w-fit">
+                    <div className="text-[10px] text-white/50 font-black uppercase tracking-[0.2em] mb-1">Work Life</div>
+                    <div className="flex items-center gap-1.5 text-white">
+                      <Briefcase className="w-5 h-5 text-purple-500" />
+                      <span className="text-base font-black tracking-tight uppercase">{getWorkScheduleLabel(profile.work_schedule)}</span>
+                    </div>
+                  </div>
                 )}
+              </>
+            )}
+
+            {currentImageIndex % 4 === 2 && profile.city && (
+              <div className="bg-black/20 backdrop-blur-md border border-white/5 rounded-2xl p-4 w-fit">
+                <div className="text-[10px] text-white/50 font-black uppercase tracking-[0.2em] mb-1">Sector</div>
+                <div className="flex items-center gap-1.5 text-white">
+                  <MapPin className="w-5 h-5 text-orange-500" />
+                  <span className="text-xl font-black tracking-tighter uppercase">{profile.city}{profile.country ? `, ${profile.country}` : ''}</span>
+                </div>
               </div>
-            </>
-          )}
+            )}
+
+            {currentImageIndex % 4 === 3 && (
+              <div className="flex flex-wrap gap-2">
+                {(profile.interests?.slice(0, 3) || ['Quiet & Clean']).map((interest, i) => (
+                  <div key={i} className="px-4 py-2 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-white font-black text-[10px] uppercase tracking-widest">
+                    {interest}
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
         </div>
       </motion.div>
-
     </div>
   );
 });
 
 export const SimpleOwnerSwipeCard = memo(SimpleOwnerSwipeCardComponent);
+export default SimpleOwnerSwipeCard;
