@@ -438,11 +438,19 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
     let lastAutoStarTime = 0;
+
     const loop = (timestamp: number) => {
       if (document.visibilityState === 'hidden') {
         animRef.current = requestAnimationFrame(loop);
         return;
       }
+
+      // PERF: Throttle ALL drawing to ~30fps at the top, before any canvas work
+      if (timestamp - lastFrameTimeRef.current < FRAME_INTERVAL) {
+        animRef.current = requestAnimationFrame(loop);
+        return;
+      }
+      lastFrameTimeRef.current = timestamp;
       
       ctx.clearRect(0, 0, w, h);
 
@@ -483,12 +491,8 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         lastAutoStarTime = timestamp;
       }
 
-      // Throttle logic (keep it light)
-      if (timestamp - lastFrameTimeRef.current < FRAME_INTERVAL) {
-        animRef.current = requestAnimationFrame(loop);
-        return;
-      }
-      lastFrameTimeRef.current = timestamp;
+
+
 
       if (mode === 'stars') drawStars();
       else if (mode === 'sunset') {
