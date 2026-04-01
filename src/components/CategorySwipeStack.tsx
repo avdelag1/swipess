@@ -71,16 +71,16 @@ export function CategorySwipeStack() {
 
     return (
         <div className="relative w-full aspect-[4/3] max-w-sm mx-auto mb-16 flex items-center justify-center perspective-[1000px]">
-            {/* Background Atmosphere */}
-            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+            {/* Background Atmosphere - moved outside but kept inside div for relative positioning */}
+            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden contain-strict">
                 <motion.div 
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-brand-accent-1/5 to-brand-accent-2/10 blur-3xl" 
+                    transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-brand-accent-1/10 to-brand-accent-2/20 blur-3xl opacity-30" 
                 />
             </div>
 
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence mode="popLayout" initial={false}>
                 {stack.map((cat, index) => {
                     const isTop = index === 0;
                     const isActive = activeCategory === (cat.id as any);
@@ -194,12 +194,11 @@ function CategoryCard({
         <motion.div
             drag={isTop ? true : false}
             dragConstraints={{ left: -150, right: 150, top: -250, bottom: 0 }} 
-            dragElastic={0.15}
+            dragElastic={0.12}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onClick={() => !isTop && onSelect()}
-            layoutId={category.id || 'all'}
-            initial={{ scale: 0.9, opacity: 0, y: 100 }}
+            initial={{ scale: 0.9, opacity: 0, y: 30 }}
             animate={{ 
                 scale, 
                 opacity: 1, 
@@ -209,24 +208,24 @@ function CategoryCard({
                 zIndex: isTop ? zIndex.get() : zIndexBase,
             }}
             whileHover={!isTop ? { 
-                y: fanY - 20, 
-                scale: scale * 1.05,
-                transition: { duration: 0.2, ease: "easeOut" } 
+                y: fanY - 15, 
+                scale: scale * 1.03,
+                transition: { duration: 0.15, ease: "easeOut" } 
             } : {}}
             onMouseEnter={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, category.id)}
-            onTouchStart={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, category.id)}
+            onPointerDown={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, category.id)}
             exit={{ 
-                x: x.get() > 0 ? 500 : -500, 
-                rotate: x.get() > 0 ? 15 : -15, 
+                x: x.get() > 0 ? 400 : -400, 
+                rotate: x.get() > 0 ? 10 : -10, 
                 opacity: 0, 
-                transition: { duration: 0.3 } 
+                transition: { duration: 0.2 } 
             }}
             className={cn(
                 "absolute flex flex-col items-center justify-center rounded-[32px] p-6 select-none overflow-hidden",
-                "transition-shadow duration-300",
-                isTop ? "cursor-grab active:cursor-grabbing" : "cursor-pointer hover:shadow-2xl",
-                "bg-black border border-white/12 shadow-[0_20px_50px_rgba(0,0,0,0.4)]",
-                isActive && "ring-4 ring-brand-accent-2 ring-offset-4 ring-offset-background backdrop-blur-xl",
+                "transition-all duration-200 gpu-accelerate",
+                isTop ? "cursor-grab active:cursor-grabbing shadow-[0_20px_50px_rgba(0,0,0,0.5)]" : "cursor-pointer",
+                "bg-black border border-white/10",
+                isActive && "ring-4 ring-brand-accent-2/50 ring-offset-4 ring-offset-background shadow-[0_0_40px_rgba(255,107,53,0.3)]",
                 "swipe-card-size"
             )}
             style={{ 
