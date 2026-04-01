@@ -438,11 +438,21 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
     let lastAutoStarTime = 0;
+    let lastFrameTime = 0;
+    const FRAME_INTERVAL = 33; // ~30fps cap — saves 50% CPU vs 60fps
+
     const loop = (timestamp: number) => {
       if (document.visibilityState === 'hidden') {
         animRef.current = requestAnimationFrame(loop);
         return;
       }
+
+      // PERF: Throttle to ~30fps — visual difference is imperceptible for ambient effects
+      if (timestamp - lastFrameTime < FRAME_INTERVAL) {
+        animRef.current = requestAnimationFrame(loop);
+        return;
+      }
+      lastFrameTime = timestamp;
       
       ctx.clearRect(0, 0, w, h);
 
