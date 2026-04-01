@@ -62,8 +62,8 @@ export function useConciergeAI() {
 
       // Load the most recent active conversation
       if (convList && convList.length > 0) {
-        const latest = convList[0];
-        setCurrentConversationId(latest.id);
+        const latest = (convList as any)[0];
+        setCurrentConversationId(latest.id as string);
 
         const { data: msgs } = await supabase
           .from('ai_messages')
