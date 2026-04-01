@@ -1076,8 +1076,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         </AnimatePresence>
       </div>
 
-      {/* Action Buttons */}
-      {deckQueue.length > 0 && currentIndex < deckQueue.length && (
+      {/* Action Buttons — only shown when a specific category is selected (not on the quick-filter deck) */}
+      {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
         <div className="pb-8 pt-2">
            <SwipeActionButtonBar
               onLike={handleButtonLike}

@@ -54,16 +54,12 @@ function SwipessLogoComponent({
         className={cn(
           'w-auto object-contain select-none pointer-events-none transition-all duration-300',
           'transform-gpu',
-          // Premium Glow & Shadow System — simplified on hw-low to save paint cycles
-          'drop-shadow-[0_0_20px_rgba(255,77,0,0.4)]',
-          glow && 'drop-shadow-[0_0_40px_rgba(255,77,0,0.6)]',
           heightMap[size]
         )}
         style={{
-          filter: (glow && !document.body.classList.contains('hw-low')) ? `
+          filter: glow ? `
             drop-shadow(0 0 20px rgba(255, 77, 0, 0.6))
             drop-shadow(0 0 40px rgba(255, 107, 53, 0.3))
-            drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2))
           ` : undefined
         }}
       />
