@@ -32,11 +32,10 @@ export const supabase = createClient<Database>(
       detectSessionInUrl: true,
     },
     global: {
-      // Fetch with 15s timeout — prevents the app from hanging indefinitely
-      // when Supabase is slow/unreachable (e.g. project paused, network issues)
+      // Fetch with 5s timeout — prevent initialization hangs on flaky mobile networks
       fetch: (url: RequestInfo | URL, options?: RequestInit) => {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
         return fetch(url, { ...options, signal: controller.signal })
           .finally(() => clearTimeout(timeoutId));
       },

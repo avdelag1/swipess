@@ -169,7 +169,11 @@
 
   <div id="mount-recovery" style="display:none;position:fixed;bottom:10vh;left:0;right:0;padding:20px;text-align:center;z-index:20000;animation:fade-in-up 0.5s ease-out forwards;">
     <p style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:12px;font-weight:600;letter-spacing:0.05em;">APP INITIALIZATION DELAYED</p>
-    <button onclick="clearAndReload()" style="background:#ff1f1f;color:#fff;border:none;padding:14px 28px;border-radius:50px;font-weight:700;font-size:14px;box-shadow:0 10px 20px rgba(255,31,31,0.3);cursor:pointer;text-transform:uppercase;letter-spacing:0.1em;active:scale(0.95);transition:transform 0.1s;">Reload App</button>
+    <style>
+      .recovery-btn { background:#ff1f1f;color:#fff;border:none;padding:14px 28px;border-radius:50px;font-weight:700;font-size:14px;box-shadow:0 10px 20px rgba(255,31,31,0.3);cursor:pointer;text-transform:uppercase;letter-spacing:0.1em;transition:transform 0.1s; }
+      .recovery-btn:active { transform: scale(0.95); opacity:0.9; }
+    </style>
+    <button class="recovery-btn" onclick="clearAndReload()">Reload App</button>
   </div>
 
     // 🛡️ RECOVERY & FAIL-SAFE SYSTEM
@@ -189,18 +193,30 @@
       }
     }
 
-    // Fail-safe: Always remove splash after 5 seconds
+    // 🚀 SPEED OF LIGHT: Drastically reduced splash timeout for 'Native' feel
     var splashTimeout = setTimeout(function() {
-      console.warn('[Splash] Fail-safe triggered - App taking too long to render');
+      console.warn('[Splash] Mount taking too long - invoking recovery system');
       removeSplash();
-      // Show recovery UI if root is still empty OR after 8s total
+      // Show recovery UI if root is still empty OR after 3s total
       setTimeout(function() {
         var root = document.getElementById('root');
         if (!root || root.innerHTML === "" || !window.__APP_INITIALIZED__) {
+          console.error('[Splash] Fatal: App failed to initialize after 3s');
           document.getElementById('mount-recovery').style.display = 'block';
         }
-      }, 1000);
-    }, 5000);
+      }, 500);
+    }, 3000);
+
+    // Dynamic Network Guard: Catch fatal chunk load errors immediately
+    window.addEventListener('error', function(e) {
+      if (e.target && (e.target.src || e.target.href) && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
+         console.error('[NetworkGuard] Bundle load failed:', e.target.src || e.target.href);
+         document.getElementById('mount-recovery').style.display = 'block';
+         // Suggest hard reload on network failure
+         var btn = document.querySelector('#mount-recovery button');
+         if(btn) btn.textContent = 'Repair & Restart App';
+      }
+    }, true);
 
     // Listen for the app-rendered event
     window.addEventListener('app-rendered', function() {
@@ -247,8 +263,8 @@
 
   <div id="root"></div>
 
-  <!-- MAIN SCRIPT: Let Vite handle the entry point injection -->
-  <script type="module" src="/src/main.tsx"></script>
+  <!-- MAIN SCRIPT: High Priority Entry Point -->
+  <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
 
   <script>
     // RECOVERY FALLBACK: If React fails to mount (chunk error, SW stale cache, etc.)

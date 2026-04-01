@@ -108,9 +108,15 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('src/pages/Discovery')) return 'feature-discovery';
 
             // Core framework: Keep primary libraries together to prevent 'unstable_scheduleCallback' synchronization issues
+            // Core framework: Essential libraries for initial mount
             if (id.includes('react') || id.includes('react-dom') || id.includes('react-router') || id.includes('scheduler')) {
               return 'vendor-core';
             }
+
+            // High-Performance: Move heavy libraries to secondary priority chunks
+            if (id.includes('framer-motion')) return 'vendor-motion';
+            if (id.includes('supabase') || id.includes('tanstack')) return 'vendor-data';
+            if (id.includes('lucide')) return 'vendor-icons';
 
             return 'vendor';
           }
