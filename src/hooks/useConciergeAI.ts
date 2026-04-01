@@ -50,7 +50,7 @@ export function useConciergeAI() {
 
     const initChat = async () => {
       // Fetch recent conversations for the history list
-      const { data: convList } = await supabase
+      const { data: convList } = await (supabase as any)
         .from('ai_conversations')
         .select('id, title, created_at, updated_at')
         .eq('user_id', user.id)
