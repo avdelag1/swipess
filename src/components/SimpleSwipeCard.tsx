@@ -466,18 +466,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         </motion.div>
 
         <div
-          className="absolute left-4 right-4 z-20 pointer-events-none p-5 rounded-[24px]"
+          className="absolute left-0 right-0 z-20 pointer-events-none p-6"
           style={{ 
-            bottom: 'clamp(130px, 22vh, 180px)',
-            background: 'rgba(0,0,0,0.65)', // Slightly darker for better contrast without blur
-            boxShadow: 'var(--shadow-cinematic-md)',
-            // 🚀 PERF BOOST: Disable expensive backdrop-filter during DRAG
-            // A blur moving over a detailed image is the #1 cause of frame-drops
-            backdropFilter: isDragging.current ? 'none' : 'blur(4px)', 
-            WebkitBackdropFilter: isDragging.current ? 'none' : 'blur(4px)', 
-            border: '1px solid rgba(255,255,255,0.08)',
-            contain: 'layout paint', // ISOLATION: No layout leakage
-            transform: 'translateZ(0)', // Force GPU layer
+            bottom: 'clamp(100px, 18vh, 160px)',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 50%, transparent 100%)',
+            borderTop: '1px solid rgba(255,255,255,0.1)',
+            contain: 'layout paint',
+            transform: 'translateZ(0)',
           }}
         >
           <div className="flex items-center gap-2 mb-3 flex-wrap">
@@ -539,15 +534,23 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         </div>
 
         {listing.has_verified_documents && (
-          <div className="absolute top-16 right-4 z-20">
-            <div className="px-2.5 py-1.5 rounded-full flex items-center gap-1.5" style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.45)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-            }}>
-              <VerifiedBadge size="sm" />
-              <span className="text-xs font-medium text-white">Verified</span>
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="absolute top-16 right-5 z-40"
+          >
+            <div className="group relative">
+               {/* Pulsing Outer Ring */}
+               <div className="absolute -inset-1 rounded-full bg-emerald-500/20 animate-ping opacity-75" />
+               
+               <div className="relative px-3 py-1.5 rounded-full flex items-center gap-2 bg-black/60 backdrop-blur-md border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,1)]" />
+                 <span className="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-400 drop-shadow-sm">
+                   Elite Verified
+                 </span>
+               </div>
             </div>
-          </div>
+          </motion.div>
         )}
       </motion.div>
     </div>

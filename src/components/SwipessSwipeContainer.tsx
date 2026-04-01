@@ -1054,7 +1054,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       initial="initial"
       animate="animate"
       exit="exit"
-      className="relative w-full flex flex-col items-center justify-center px-3"
+      className="relative w-full flex flex-col items-center justify-center"
       style={{ height: 'calc(100dvh - 120px)', minHeight: 'calc(100dvh - 120px)', perspective: '1200px' }}
       data-no-swipe-nav
       onMouseEnter={handleDeckHover}
@@ -1069,8 +1069,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         <span>All</span>
       </button>
 
-      {/* Centered card stack container with perspective */}
-      <div className="relative flex-1 w-full max-w-md flex items-center justify-center pt-2" style={{ perspective: '1200px' }}>
+      {/* Centered card stack container with perspective — FULL BLEED ON MOBILE */}
+      <div className="relative flex-1 w-full max-w-2xl flex items-center justify-center -mt-8" style={{ perspective: '1500px' }}>
         {/* THIRD CARD - Deepest in stack for poker hand depth */}
         {(() => {
           const thirdCard = deckQueueRef.current[currentIndexRef.current + 2];
