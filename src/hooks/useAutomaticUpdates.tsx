@@ -293,7 +293,7 @@ export function UpdateNotification() {
                 {/* Text Content */}
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-black text-lg tracking-tight leading-tight uppercase italic italic-brand">
-                    Pulse Updated
+                    New Swipess Update
                   </p>
                   <p className="text-white/50 text-[10px] font-bold mt-1 uppercase tracking-widest leading-snug">
                     New platform version ready

@@ -300,9 +300,7 @@ function TopBarComponent({
                     {title}
                   </span>
                 ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <SwipessLogo size="xs" className="h-[24px] lg:h-[28px] opacity-90 hover:opacity-100 transition-opacity" />
-                  </div>
+                  <div className="w-10 h-full" />
                 )}
               </motion.div>
 
