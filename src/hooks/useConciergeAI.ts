@@ -109,16 +109,16 @@ export function useConciergeAI() {
       // 1. Ensure we have a conversation record
       let convId = currentConversationId;
       if (!convId) {
-        const { data: newConv, error: convErr } = await supabase
+        const { data: newConv, error: convErr } = await (supabase as any)
           .from('ai_conversations')
           .insert({ user_id: user.id, title: userMessage.substring(0, 40) })
           .select()
           .single();
 
         if (convErr) throw convErr;
-        convId = newConv.id;
+        convId = newConv.id as string;
         setCurrentConversationId(convId);
-        setConversations(prev => [newConv, ...prev]);
+        setConversations(prev => [newConv as ConversationSummary, ...prev]);
       }
 
       // 2. Save User Message to DB
