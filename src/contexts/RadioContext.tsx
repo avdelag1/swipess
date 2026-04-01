@@ -118,9 +118,28 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     const handleTrackEnded = () => changeStationRef.current('next');
 
+    let errorCount = 0;
+    let lastErrorTime = 0;
+
     const handleAudioError = (e: Event) => {
       const audio = audioRef.current;
       if (audio?.src) logger.error(`[RadioPlayer] Audio error on ${audio.src}:`, e);
+
+      // PERF FIX: Prevent rapid-fire error loops — if more than 5 errors in 10s, stop trying
+      const now = Date.now();
+      if (now - lastErrorTime < 2000) {
+        errorCount++;
+      } else {
+        errorCount = 1;
+      }
+      lastErrorTime = now;
+
+      if (errorCount > 5) {
+        logger.warn('[RadioPlayer] Too many errors in quick succession, stopping auto-skip');
+        setError('No stations available right now');
+        if (audio) { audio.pause(); audio.src = ''; }
+        return;
+      }
 
       setError('Station unavailable - automatically skipping...');
 
@@ -145,7 +164,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       errorTimeoutRef.current = setTimeout(() => {
         setError(null);
         changeStationRef.current('next');
-      }, 800);
+      }, 2000); // Increased from 800ms to 2000ms to reduce CPU churn
     };
 
     const handleCanPlay = () => {
@@ -453,10 +472,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const isStationFavorite = useCallback((stationId: string) => state.favorites.includes(stationId), [state.favorites]);
 
-  const getFrequencyData = useCallback(() => {
+  const getFrequencyData = useCallback((): Uint8Array => {
     if (analyzerRef.current && dataArrayRef.current) {
-      analyzerRef.current.getByteFrequencyData(dataArrayRef.current);
-      return dataArrayRef.current as any;
+      analyzerRef.current.getByteFrequencyData(dataArrayRef.current as any);
+      return dataArrayRef.current;
     }
     return new Uint8Array(0);
   }, []);

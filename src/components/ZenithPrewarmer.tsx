@@ -48,15 +48,6 @@ export const ZenithPrewarmer = () => {
 
       // 2. Pre-warm Persistent Shared Data
       runIdleTask(() => {
-        queryClient.prefetchQuery({
-          queryKey: ['unread-messages-count', user.id],
-          staleTime: 60 * 1000,
-        });
-        
-        queryClient.prefetchQuery({
-          queryKey: ['event-likes', user.id],
-          staleTime: 5 * 60 * 1000,
-        });
 
         queryClient.prefetchQuery({
           queryKey: ['topbar-token-packages', role === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use'],

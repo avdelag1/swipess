@@ -1,23 +1,22 @@
-import { lazy, Suspense } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { useVisualPreferences } from "@/hooks/useVisualPreferences";
 
-// Lazy-load to keep LandingBackgroundEffects (819ms CPU) off the critical path
-const LandingBackgroundEffects = lazy(() => import("@/components/LandingBackgroundEffects"));
-
+/**
+ * PERF FIX: Removed LandingBackgroundEffects (canvas animation) from global layout.
+ * It was consuming ~10% CPU running drawStars at 60fps on every page.
+ * The background effects should ONLY render on the landing/login page, not globally.
+ * We keep the subtle noise texture for dark mode as it's CSS-only (zero CPU cost).
+ */
 export const VisualEngine = () => {
   const { theme } = useTheme();
   const isLight = theme === "light";
   const { preferences } = useVisualPreferences();
 
-  // If globally disabled or off, show nothing (or just the noise)
   if (!preferences.enable_background_effects) return null;
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-      <div
-        className="absolute inset-0 transition-colors duration-500 bg-background"
-      />
+      <div className="absolute inset-0 transition-colors duration-500 bg-background" />
       {!isLight && (
         <div
           className="absolute inset-0 opacity-[0.015]"
@@ -26,15 +25,6 @@ export const VisualEngine = () => {
           }}
         />
       )}
-      
-      <Suspense fallback={null}>
-        <LandingBackgroundEffects
-          mode={preferences.background_mode || 'stars'}
-          isLightTheme={isLight}
-          disableSounds={true}
-        />
-      </Suspense>
     </div>
   );
 };
-
