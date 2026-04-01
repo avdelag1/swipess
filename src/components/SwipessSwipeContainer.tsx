@@ -986,10 +986,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         </div>
       </div>
 
-      <div className="flex-1 relative flex items-center justify-center p-4">
+      <div className="flex-1 relative flex items-center justify-center p-4 min-h-0">
         <AnimatePresence>
           {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-            <div className="relative w-full h-[calc(100%-40px)] max-w-2xl">
+            <div className="relative w-full h-full max-w-2xl max-h-[750px] mb-8">
+
               {/* Back card (Peek) */}
               {currentIndex + 1 < deckQueue.length && (
                 <motion.div 

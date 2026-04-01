@@ -19,11 +19,10 @@ import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 
 // Get build timestamp from Vite injected environment variable
-// This changes EVERY deployment, ensuring all users get updates
-const BUILD_TIMESTAMP = import.meta.env.VITE_BUILD_TIME || Date.now().toString();
+const BUILD_TIMESTAMP = import.meta.env.VITE_BUILD_TIME || 'v1.0.0';
 
-// Current app version - derived from build timestamp for automatic updates
-export const APP_VERSION = `1.0.${BUILD_TIMESTAMP.slice(-6)}`;
+// Current app version
+export const APP_VERSION = `1.0.${BUILD_TIMESTAMP === 'v1.0.0' ? '999' : BUILD_TIMESTAMP.slice(-8)}`;
 
 // Storage key for version tracking
 const VERSION_STORAGE_KEY = 'Swipess_app_version';
@@ -260,11 +259,11 @@ export function UpdateNotification() {
       {isVisible && (
         <motion.div
           key="update-notification"
-          initial={{ y: 100, opacity: 0, scale: 0.9 }}
+          initial={{ y: -100, opacity: 0, scale: 0.95 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
-          exit={{ y: 100, opacity: 0, scale: 0.8 }}
-          transition={{ type: 'spring', stiffness: 450, damping: 30, mass: 1 }}
-          className="fixed bottom-[104px] left-4 right-4 z-[999] sm:left-auto sm:right-6 sm:w-[360px]"
+          exit={{ y: -100, opacity: 0, scale: 0.9 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 1 }}
+          className="fixed top-24 left-4 right-4 z-[999] sm:left-6 sm:right-auto sm:w-[340px]"
         >
           {/* Main Glass Container */}
           <div 

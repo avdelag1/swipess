@@ -55,6 +55,9 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ['react', 'react-dom', 'react-router-dom'],
   },
+  define: {
+    'import.meta.env.VITE_BUILD_TIME': JSON.stringify(new Date().toISOString()),
+  },
   build: {
     target: 'esnext',
     // PERF: Use terser to drop console.error/warn in production
