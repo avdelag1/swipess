@@ -491,12 +491,8 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         lastAutoStarTime = timestamp;
       }
 
-      // Throttle logic (keep it light)
-      if (timestamp - lastFrameTimeRef.current < FRAME_INTERVAL) {
-        animRef.current = requestAnimationFrame(loop);
-        return;
-      }
-      lastFrameTimeRef.current = timestamp;
+
+
 
       if (mode === 'stars') drawStars();
       else if (mode === 'sunset') {
