@@ -58,7 +58,7 @@ export function useConciergeAI() {
         .order('updated_at', { ascending: false })
         .limit(10);
 
-      if (convList) setConversations(convList);
+      if (convList) setConversations(convList as any);
 
       // Load the most recent active conversation
       if (convList && convList.length > 0) {
