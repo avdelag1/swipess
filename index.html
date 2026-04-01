@@ -82,16 +82,22 @@
     #root{opacity:0;transition:opacity 0.1s cubic-bezier(0.4, 0, 0.2, 1);will-change:opacity}
     #root.hydrated{opacity:1}
     
+    /* 🚀 CRITICAL LAYOUT CONTAINMENT: Tells the browser to skip rendering elements not on screen */
+    .contain-layout { contain: layout paint; }
+    .cv-auto { content-visibility: auto; contain-intrinsic-size: 1px 500px; }
+    
     /* 🚀 CRITICAL LAYOUT SHELL: Ensures header/nav spaces are reserved immediately */
     .app-header {
       position: fixed; top: 0; left: 0; width: 100%; height: calc(56px + var(--safe-top));
       z-index: 1000; transition: opacity 0.1s ease, transform 0.12s cubic-bezier(0.2, 0, 0, 1);
       will-change: transform, opacity;
+      contain: layout size;
     }
     .app-bottom-bar {
       position: fixed; bottom: 0; left: 0; width: 100%; height: calc(84px + var(--safe-bottom));
       z-index: 1000; transition: opacity 0.1s ease, transform 0.12s cubic-bezier(0.2, 0, 0, 1);
       will-change: transform, opacity;
+      contain: layout size;
     }
 
     /* Critical Extension Compatibility Styles */

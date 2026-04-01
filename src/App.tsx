@@ -41,6 +41,7 @@ import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProf
 // SPEED OF LIGHT: Persistent layout wrapper - mounted ONCE, never remounts
 const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDashboardLayout").then(m => ({ default: m.PersistentDashboardLayout })));
 import { ZenithPrewarmer } from "@/components/ZenithPrewarmer";
+import type { QuickFilterCategory } from "@/types/filters";
 
 
 // Non-critical UI elements moved to lazy load for 100/100 performance
@@ -341,10 +342,14 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
   return (
     <GlobalErrorBoundary>
       <ConnectionGuard>
-      <PersistQueryClientProvider 
+        <PersistQueryClientProvider 
          client={queryClient} 
-         persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }} // 24H data retention
-      >
+         persistOptions={{ 
+           persister, 
+           maxAge: 1000 * 60 * 60 * 24, // 24H data retention
+           buster: 'v1.4', // Force refresh on significant asset change
+         }} 
+        >
         <LazyMotion features={domMax} strict>
           {SpeedInsightsComponent && <SpeedInsightsComponent />}
         <BrowserRouter
