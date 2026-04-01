@@ -383,9 +383,9 @@ export const BottomNavigation = memo(({
                     initial={false}
                     transition={{
                       type: 'spring',
-                      stiffness: 550, // Accelerated pill switch
-                      damping: 35,
-                      mass: 0.6
+                      stiffness: 700, // Slingshot tension
+                      damping: 32,
+                      mass: 0.5,
                     }}
                     style={{
                       background: isLight 
