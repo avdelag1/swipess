@@ -216,7 +216,7 @@ export function useConciergeAI() {
       }
 
       // 6. Update conversation updated_at
-      await supabase
+      await (supabase as any)
         .from('ai_conversations')
         .update({ updated_at: new Date().toISOString() })
         .eq('id', convId!);
