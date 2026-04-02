@@ -118,34 +118,46 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     const handleTrackEnded = () => changeStationRef.current('next');
 
+    // CRITICAL: Re-entrant guard prevents infinite error loops.
+    // Setting audio.src = '' fires another 'error' event synchronously,
+    // so without this flag the handler recurses until the stack overflows.
+    let handlingError = false;
     let errorCount = 0;
     let lastErrorTime = 0;
 
     const handleAudioError = (e: Event) => {
-      const audio = audioRef.current;
-      if (audio?.src) logger.error(`[RadioPlayer] Audio error on ${audio.src}:`, e);
+      if (handlingError) return; // prevent re-entrant calls
+      handlingError = true;
 
-      // PERF FIX: Prevent rapid-fire error loops — if more than 5 errors in 10s, stop trying
+      const audio = audioRef.current;
+
       const now = Date.now();
-      if (now - lastErrorTime < 2000) {
+      if (now - lastErrorTime < 5000) {
         errorCount++;
       } else {
         errorCount = 1;
       }
       lastErrorTime = now;
 
-      if (errorCount > 5) {
-        logger.warn('[RadioPlayer] Too many errors in quick succession, stopping auto-skip');
+      if (errorCount > 3) {
         setError('No stations available right now');
-        if (audio) { audio.pause(); audio.src = ''; }
+        if (audio) {
+          audio.removeEventListener('error', handleAudioError);
+          audio.pause();
+          try { audio.src = ''; } catch {}
+          audio.addEventListener('error', handleAudioError);
+        }
+        handlingError = false;
         return;
       }
 
-      setError('Station unavailable - automatically skipping...');
+      setError('Station unavailable - skipping...');
 
       if (audio) {
+        audio.removeEventListener('error', handleAudioError);
         audio.pause();
-        audio.src = '';
+        try { audio.src = ''; } catch {}
+        audio.addEventListener('error', handleAudioError);
       }
 
       // Flag station as potentially dead
@@ -155,7 +167,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         failedStationsCountRef.current[currentId] = fails;
         
         if (fails >= 3) {
-          logger.warn(`[RadioPlayer] Station ${currentId} flagged as DEAD after ${fails} failures`);
           markStationAsDead(currentId);
         }
       }
@@ -164,7 +175,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       errorTimeoutRef.current = setTimeout(() => {
         setError(null);
         changeStationRef.current('next');
-      }, 2000); // Increased from 800ms to 2000ms to reduce CPU churn
+      }, 3000);
+
+      handlingError = false;
     };
 
     const handleCanPlay = () => {
