@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
  * the automatic fading of headers and footers to create an 
  * 'invisible' immersive experience.
  */
-export function useFocusMode(timeout: number = 3000) {
+export function useFocusMode(timeout: number = 7500) {
   const [isFocused, setIsFocused] = useState(false);
   const [isManualOverride, setIsManualOverride] = useState(false);
 

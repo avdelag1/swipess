@@ -355,7 +355,7 @@ export const BottomNavigation = memo(({
                 }}
                 onPointerUp={(e) => handlePointerUp(e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
-                onTouchStart={(e) => e.stopPropagation()}
+                onTouchStart={() => {}} // Propagation removed for instant UI recovery
                 onClick={(e) => handleNavClick(item, e)}
                 whileTap={{ scale: 0.88, transition: TAP_SPRING }}
                 aria-label={item.label}

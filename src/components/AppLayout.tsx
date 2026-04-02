@@ -29,7 +29,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { theme } = useTheme();
   const isLightTheme = theme === 'light';
   const location = useLocation();
-  const { isFocused } = useFocusMode(3500); // Cinematic timeout
+  const { isFocused } = useFocusMode(7500); // Cinematic timeout (+4s per user)
 
   // Initialize app features
   useKeyboardShortcuts();

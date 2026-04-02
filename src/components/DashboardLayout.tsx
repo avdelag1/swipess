@@ -347,7 +347,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // Quick filters are now handled directly by QuickFilterDropdown dispatching to the store
   // No more local handler needed - store is single source of truth
 
-  const { isFocused } = useFocusMode(3500);
+  const { isFocused } = useFocusMode(7500);
 
   // Map quick filter category names to database category names
   const _mapCategoryToDatabase = useCallback((category: QuickFilterCategory): string => {
@@ -460,20 +460,18 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             duration: 1.6, 
             ease: [0.22, 1, 0.36, 1] 
           }}
-          className="z-50 pointer-events-none"
+          className={cn("z-50", isFocused ? "pointer-events-none" : "pointer-events-auto")}
         >
-          <div className="pointer-events-auto">
-            <TopBar
-              onNotificationsClick={() => {}} // Now handled internally by TopBar navigating to /notifications
-              onMessageActivationsClick={handleMessageActivationsClick}
-              showFilters={isOnDiscoveryPage}
-              userRole={userRole}
-              transparent={isImmersiveDashboard || isImmersiveFeed}
-              hideOnScroll={true}
-              title={pageTitle}
-              showBack={!isOnDiscoveryPage}
-            />
-          </div>
+          <TopBar
+            onNotificationsClick={() => {}} // Now handled internally by TopBar navigating to /notifications
+            onMessageActivationsClick={handleMessageActivationsClick}
+            showFilters={isOnDiscoveryPage}
+            userRole={userRole}
+            transparent={isImmersiveDashboard || isImmersiveFeed}
+            hideOnScroll={true}
+            title={pageTitle}
+            showBack={!isOnDiscoveryPage}
+          />
         </motion.div>
       )}
 
@@ -523,23 +521,21 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             duration: 1.6, 
             ease: [0.22, 1, 0.36, 1] 
           }}
-          className="z-50 pointer-events-none"
+          className={cn("z-50", isFocused ? "pointer-events-none" : "pointer-events-auto")}
         >
-          <div className="pointer-events-auto">
-            <BottomNavigation
-              userRole={userRole}
-              onFilterClick={() => modalStore.setModal('showFilters', true)}
-              onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
-              onListingsClick={handleListingsClick}
-              onAISearchClick={() => {
-                if (userRole === 'owner') {
-                  navigate('/owner/listings/new-ai');
-                } else {
-                  modalStore.setModal('isAISearchOpen', true);
-                }
-              }}
-            />
-          </div>
+          <BottomNavigation
+            userRole={userRole}
+            onFilterClick={() => modalStore.setModal('showFilters', true)}
+            onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
+            onListingsClick={handleListingsClick}
+            onAISearchClick={() => {
+              if (userRole === 'owner') {
+                navigate('/owner/listings/new-ai');
+              } else {
+                modalStore.setModal('isAISearchOpen', true);
+              }
+            }}
+          />
         </motion.div>
       )}
 
