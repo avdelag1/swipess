@@ -7,7 +7,7 @@ import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { SwipeDistanceSlider } from './SwipeDistanceSlider';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { CategorySwipeStack } from '@/components/CategorySwipeStack';
-import { Home, Bike, Wrench } from 'lucide-react';
+import { Home, Bike, Wrench, User, Briefcase, Coins, CircleDollarSign } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { cn } from '@/lib/utils';
@@ -134,34 +134,133 @@ export const SwipeExhaustedState = ({
                 <CategorySwipeStack />
               </div>
             ) : (
-              <div className="w-full py-4 mb-4">
-                <div className="flex flex-wrap justify-center gap-3">
+              <div className="w-full py-4 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                {/* 1. Gender & Intent Filters */}
+                <div className="flex flex-col items-center gap-6">
+                  <div className="flex justify-center gap-4">
+                    {/* Gender Filters */}
+                    {[
+                      { id: 'man', label: '♂️', color: 'from-blue-600 to-blue-400' },
+                      { id: 'woman', label: '♀️', color: 'from-pink-600 to-pink-400' },
+                    ].map((g) => {
+                      const isActive = useFilterStore.getState().clientGender === g.id;
+                      return (
+                        <motion.button
+                          key={g.id}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          animate={isActive ? { scale: [1, 1.05, 1] } : {}}
+                          transition={isActive ? { repeat: Infinity, duration: 2.5 } : {}}
+                          onClick={() => {
+                            const current = useFilterStore.getState().clientGender;
+                            useFilterStore.getState().setClientGender(current === g.id ? 'any' : g.id as any);
+                            onRefresh();
+                          }}
+                          className={cn(
+                            "w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-xl text-xl",
+                            isActive 
+                              ? `bg-gradient-to-br ${g.color} text-white shadow-${g.id === 'man' ? 'blue' : 'pink'}-500/30 ring-2 ring-white/50`
+                              : "bg-white/5 border border-white/10 text-white/40 hover:bg-white/10"
+                          )}
+                        >
+                          {g.label}
+                        </motion.button>
+                      );
+                    })}
+
+                    <div className="w-[1px] h-12 bg-white/10 mx-2" />
+
+                    {/* Intent Filters */}
+                    {[
+                      { id: 'rent', icon: Home, color: 'from-emerald-600 to-emerald-400' },
+                      { id: 'buy', icon: CircleDollarSign, color: 'from-amber-600 to-amber-400' },
+                    ].map((st) => {
+                      const isActive = useFilterStore.getState().listingType === st.id || useFilterStore.getState().listingType === 'both';
+                      return (
+                        <motion.button
+                          key={st.id}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          animate={isActive ? { scale: [1, 1.08, 1] } : {}}
+                          transition={isActive ? { repeat: Infinity, duration: 3 } : {}}
+                          onClick={() => {
+                            const current = useFilterStore.getState().listingType;
+                            useFilterStore.getState().setListingType(current === st.id ? 'both' : st.id as any);
+                            onRefresh();
+                          }}
+                          className={cn(
+                            "w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-xl",
+                            isActive 
+                              ? `bg-gradient-to-br ${st.color} text-white shadow-${st.id === 'rent' ? 'emerald' : 'amber'}-500/30 ring-2 ring-white/50`
+                              : "bg-white/5 border border-white/10 text-white/40 hover:bg-white/10"
+                          )}
+                        >
+                          <st.icon className="w-5 h-5" />
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. Human-Centric Category Filters */}
+                <div className="flex flex-wrap justify-center gap-4">
                   {[
-                    { id: 'property', label: 'Property', icon: Home },
-                    { id: 'motorcycle', label: 'Moto', icon: MotorcycleIcon },
-                    { id: 'bicycle', label: 'Bicycle', icon: Bike },
-                    { id: 'services', label: 'Workers', icon: Wrench },
+                    { id: 'property', icon: Home, color: 'from-indigo-600 to-indigo-500' },
+                    { id: 'motorcycle', icon: MotorcycleIcon, color: 'from-orange-600 to-orange-500' },
+                    { id: 'bicycle', icon: Bike, color: 'from-violet-600 to-violet-500' },
+                    { id: 'services', icon: Briefcase, color: 'from-teal-600 to-teal-500' },
                   ].map((cat) => {
                     const isActive = useFilterStore.getState().categories.includes(cat.id as any);
                     return (
                       <motion.button
                         key={cat.id}
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.05, y: -5 }}
                         whileTap={{ scale: 0.95 }}
+                        animate={isActive ? { scale: [1, 1.05, 1] } : {}}
+                        transition={isActive ? { repeat: Infinity, duration: 2.5 } : {}}
                         onClick={() => {
                           const actions = useFilterStore.getState();
                           actions.setCategories([cat.id as any]);
                           onRefresh();
                         }}
                         className={cn(
-                          "flex items-center gap-2 px-4 py-3 rounded-2xl border transition-all shadow-lg font-black uppercase tracking-widest text-[10px]",
+                          "relative group flex flex-col items-center gap-3 p-4 rounded-[2rem] border transition-all duration-500 min-w-[84px]",
                           isActive 
-                            ? "bg-gradient-to-r from-indigo-600 to-indigo-500 border-indigo-400 text-white shadow-indigo-500/30"
-                            : "bg-white/10 border-white/10 text-white hover:bg-white/20"
+                            ? `bg-gradient-to-b ${cat.color} border-white/20 shadow-2xl`
+                            : "bg-white/[0.03] border-white/10 hover:bg-white/[0.07]"
                         )}
+                        style={{
+                           boxShadow: isActive ? '0 20px 40px -10px rgba(0,0,0,0.5)' : 'none'
+                        }}
                       >
-                        <cat.icon className="w-4 h-4" />
-                        <span>{cat.label}</span>
+                        {/* Profile/Human Reference Icon */}
+                        <div className="relative">
+                          <div className={cn(
+                             "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500",
+                             isActive ? "bg-white/20" : "bg-white/5 group-hover:bg-white/10"
+                          )}>
+                             <User className={cn(
+                                "w-6 h-6",
+                                isActive ? "text-white" : "text-white/40"
+                             )} />
+                          </div>
+                          
+                          {/* Small context icon badge */}
+                          <div className={cn(
+                             "absolute -bottom-1 -right-1 w-6 h-6 rounded-lg flex items-center justify-center shadow-lg border",
+                             isActive ? "bg-white text-indigo-600 border-indigo-200" : "bg-zinc-800 text-white/60 border-white/10"
+                          )}>
+                             <cat.icon className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+
+                        {/* Subtle indicator shadow */}
+                        {isActive && (
+                           <motion.div 
+                              layoutId="active-indicator-shadow"
+                              className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-white/40 blur-md rounded-full"
+                           />
+                        )}
                       </motion.button>
                     );
                   })}
