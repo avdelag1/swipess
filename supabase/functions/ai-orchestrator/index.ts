@@ -221,7 +221,7 @@ Deno.serve(async (req) => {
             const targetCity = action.params.city || 'Tulum';
             console.log(`[Vibe Agent] Searching internal listings for: ${query} in ${targetCity}`);
             
-            let propertyCards = [];
+            let propertyCards: any[] = [];
             try {
               const { data, error: searchError } = await supabase
                 .from('listings')

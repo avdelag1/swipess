@@ -9,6 +9,7 @@ import {
   getActiveCategoryInfo,
 } from './swipe/SwipeConstants';
 import { SwipeCardPeek } from './swipe/SwipeCardPeek';
+import { DistanceSlider } from './swipe/DistanceSlider';
 import { CategorySwipeStack } from './CategorySwipeStack';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
