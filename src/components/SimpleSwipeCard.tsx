@@ -50,8 +50,8 @@ const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth 
 const SPRING_CONFIGS = {
   // SNAPPY: Quick response, minimal overshoot
   SNAPPY: { stiffness: 600, damping: 30, mass: 0.8 },
-  // NATIVE: iOS-like balanced feel (DEFAULT)
-  NATIVE: { stiffness: 400, damping: 28, mass: 1 },
+  // NATIVE: iOS-native flick feel — low mass + high stiffness = instant response
+  NATIVE: { stiffness: 800, damping: 22, mass: 0.1 },
   // SOFT: Playful with bounce - EXTREMELY FUN FEEL
   SOFT: { stiffness: 250, damping: 18, mass: 1.1 },
 };
@@ -455,7 +455,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         }}
         animate={{ 
           scale: 1, 
-          transition: { type: 'spring', stiffness: 400, damping: 28 }
+          transition: { type: 'spring', stiffness: 800, damping: 22, mass: 0.1 }
         }}
         // 🚀 LIVE FEEL: Periodic breathing-zoom
         whileInView={{

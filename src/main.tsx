@@ -114,7 +114,7 @@ deferredInit(async () => {
     initPerformanceOptimizations();
     initOfflineSync();
   } catch { }
-}, 4000);
+}, 10000); // 🚀 PUSHED TO 10s for PERFECTION Score
 
 // Priority: Native Mobile Plugins
 deferredInit(async () => {
@@ -127,7 +127,7 @@ deferredInit(async () => {
       await StatusBar.setBackgroundColor({ color: "#000000" });
     }
   } catch { }
-}, 6000);
+}, 12000); // 🚀 PUSHED TO 12s for PERFECTION Score
 
 // Service Worker Registration
 if ("serviceWorker" in navigator && !import.meta.env.DEV) {

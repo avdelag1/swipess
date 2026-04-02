@@ -60,42 +60,41 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
             <X className="w-6 h-6" />
           </motion.button>
 
-          {/* Background Particle Effects */}
+          {/* Flagship Kinetic Sparks System */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[...Array(30)].map((_, i) => (
+            {[...Array(60)].map((_, i) => (
               <motion.div
                 key={i}
                 initial={{ 
                   x: "50%", 
                   y: "50%", 
                   scale: 0, 
-                  opacity: 1,
-                  rotate: Math.random() * 360 
+                  opacity: 1
                 }}
                 animate={{ 
-                  x: `${50 + (Math.random() - 0.5) * 200}%`, 
-                  y: `${50 + (Math.random() - 0.5) * 200}%`,
-                  scale: Math.random() * 2 + 0.5,
-                  opacity: 0,
-                  rotate: Math.random() * 720
+                  x: `${50 + (Math.random() - 0.5) * 400}%`, 
+                  y: `${50 + (Math.random() - 0.5) * 400}%`,
+                  scale: [0, Math.random() * 2.5 + 1.5, 0],
+                  opacity: [1, 1, 0],
+                  rotate: Math.random() * 1080
                 }}
                 transition={{ 
-                  duration: 2 + Math.random() * 2,
-                  delay: i * 0.02,
-                  ease: "easeOut",
-                  repeat: Infinity,
-                  repeatDelay: Math.random() * 3
+                  duration: 1.5 + Math.random() * 2.5,
+                  delay: (i % 10) * 0.05,
+                  ease: [0.23, 1, 0.32, 1]
                 }}
                 className="absolute"
               >
-                {i % 4 === 0 ? (
-                  <Sparkles className="w-4 h-4 text-yellow-500 fill-current" />
-                ) : i % 4 === 1 ? (
-                  <Flame className="w-5 h-5 text-orange-500 fill-current" />
-                ) : i % 4 === 2 ? (
-                  <Zap className="w-3 h-3 text-blue-400 fill-current shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+                {i % 3 === 0 ? (
+                  <Sparkles className="w-5 h-5 text-amber-400 fill-amber-400/50 drop-shadow-[0_0_15px_rgba(251,191,36,0.8)]" />
+                ) : i % 3 === 1 ? (
+                  <Zap className="w-6 h-6 text-cyan-400 fill-cyan-400/30 drop-shadow-[0_0_20px_rgba(34,211,238,0.8)]" />
                 ) : (
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                  <motion.div 
+                    animate={{ backgroundColor: ['#fbbf24', '#f472b6', '#3b82f6'] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                    className="w-2 h-2 rounded-full blur-[2px]" 
+                  />
                 )}
               </motion.div>
             ))}

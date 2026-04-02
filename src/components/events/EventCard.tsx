@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, ChevronUp, Calendar, MapPin, Ticket, Sparkles } from 'lucide-react';
+import { Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, ChevronUp, Calendar, MapPin, Bookmark, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useTheme } from '@/hooks/useTheme';
@@ -61,10 +61,12 @@ const StoryProgressBar = memo(({
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 export const EventCard = memo(({
   event, isActive, isPaused, animKey, onTickComplete, onLike, liked, onChat, onShare, onMiddleTap, onNextEvent, onPrevEvent,
+  activeColor = '#f97316'
 }: {
   event: EventItem; isActive: boolean; isPaused: boolean; animKey: number; onTickComplete: () => void; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
   onNextEvent: () => void; onPrevEvent: () => void;
+  activeColor?: string;
 }) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
@@ -96,12 +98,19 @@ export const EventCard = memo(({
         onComplete={onTickComplete}
       />
       
-      {/* Background photo with breathing-zoom on all cards */}
+      {/* Background photo with breathing-zoom ONLY on high-end devices */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
           animate={isActive ? "active" : "inactive"}
           variants={{
-            active: { scale: [1, 1.06, 1], transition: { duration: 12, repeat: Infinity, ease: "easeInOut" } },
+            active: { 
+              scale: document.body.classList.contains('hw-low') ? 1 : [1, 1.06, 1], 
+              transition: { 
+                duration: 12, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              } 
+            },
             inactive: { scale: 1 }
           }}
           className="w-full h-full"
@@ -167,60 +176,87 @@ export const EventCard = memo(({
             transition={{ duration: 0.6, ease: 'easeOut' }}
             className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
           >
-            <Heart className="w-24 h-24 fill-white text-white drop-shadow-2xl" />
+            <Heart className="w-24 h-24 fill-white text-white drop-shadow-2xl" style={{ color: activeColor, fill: activeColor }} />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Right side action buttons */}
-      <div className="absolute right-4 flex flex-col gap-6 items-center z-30 bottom-[calc(6.5rem+env(safe-area-inset-bottom,0px))]">
+      <div className="absolute right-4 flex flex-col gap-5 items-center z-30 bottom-[calc(6.5rem+env(safe-area-inset-bottom,0px))]">
+        {/* Save / Bookmark button — liking an event saves it */}
+        <button
+          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}
+          className="flex flex-col items-center gap-1"
+          title={liked ? "Saved — tap to unsave" : "Save event"}
+        >
+          <motion.div
+            whileTap={{ scale: 0.85 }}
+            animate={liked ? { scale: [1, 1.25, 1] } : { scale: 1 }}
+            transition={{ duration: 0.35 }}
+            className={cn(
+              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
+              liked
+                ? "bg-orange-500/25 border-orange-500/60 shadow-orange-500/20"
+                : isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
+            )}
+          >
+            <Bookmark className={cn('w-6 h-6 transition-all', liked ? 'fill-orange-400 text-orange-400' : (isLight ? 'text-black' : 'text-white'))} />
+          </motion.div>
+          <span className={cn("text-[10px] font-bold", liked ? "text-orange-400" : isLight ? "text-black/60" : "text-white/60")}>
+            {liked ? 'Saved' : 'Save'}
+          </span>
+        </button>
+
+        {/* Like / Heart button */}
         <button
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}
           className="flex flex-col items-center gap-1"
           title={liked ? "Unlike" : "Like"}
         >
-          <motion.div 
-            whileTap={{ scale: 0.85 }} 
+          <motion.div
+            whileTap={{ scale: 0.85 }}
             className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all",
-              liked ? "bg-red-500/30 border-red-500/50" : (isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15")
+              liked ? "bg-red-500/20 border-red-500/40" : (isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15")
             )}
           >
             <Heart className={cn('w-6 h-6 transition-colors', liked ? 'fill-red-500 text-red-500' : (isLight ? 'text-black' : 'text-white'))} />
           </motion.div>
-          <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Like</span>
+          <span className={cn("text-[10px] font-bold", liked ? "text-red-400" : isLight ? "text-black/60" : "text-white/60")}>Like</span>
         </button>
 
-        <button 
-          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }} 
+        <button
+          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }}
           className="flex flex-col items-center gap-1"
           title="Chat with host"
         >
-          <motion.div 
-            whileTap={{ scale: 0.85 }} 
+          <motion.div
+            whileTap={{ scale: 0.85 }}
             className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
               isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
             )}
+            style={{ borderColor: `${activeColor}30` }}
           >
-            <MessageCircle className={cn("w-6 h-6", isLight ? "text-black" : "text-white")} />
+            <MessageCircle className={cn("w-6 h-6", isLight ? "text-black" : "text-white")} style={{ color: activeColor }} />
           </motion.div>
           <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Chat</span>
         </button>
 
-        <button 
-          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onShare(); }} 
+        <button
+          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onShare(); }}
           className="flex flex-col items-center gap-1"
           title="Share event"
         >
-          <motion.div 
-            whileTap={{ scale: 0.85 }} 
+          <motion.div
+            whileTap={{ scale: 0.85 }}
             className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
               isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
             )}
+            style={{ borderColor: `${activeColor}30` }}
           >
-            <Share2 className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} />
+            <Share2 className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} style={{ color: activeColor }} />
           </motion.div>
           <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Share</span>
         </button>
@@ -277,19 +313,32 @@ export const EventCard = memo(({
                 )}
               </div>
               <div className="flex gap-3 pt-2">
-                <button 
-                  onClick={() => onChat()} 
+                <button
+                  onClick={() => { handleLike(); }}
+                  className={cn(
+                    "py-4 px-5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 border transition-all shrink-0",
+                    liked
+                      ? "bg-orange-500/15 border-orange-500/40 text-orange-500"
+                      : isLight ? "text-black bg-black/5 border-black/10" : "text-white bg-white/10 border-white/15"
+                  )}
+                  title={liked ? "Unsave event" : "Save event"}
+                >
+                  <Bookmark className={cn("w-4 h-4", liked && "fill-orange-500")} />
+                  {liked ? 'Saved' : 'Save'}
+                </button>
+                <button
+                  onClick={() => onChat()}
                   className={cn("flex-1 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 border", isLight ? "text-black bg-black/5 border-black/10" : "text-white bg-white/10 border-white/15")}
                   title="Chat on WhatsApp"
                 >
-                  <MessageCircle className="w-4 h-4" /> Chat on WhatsApp
+                  <MessageCircle className="w-4 h-4" /> Chat
                 </button>
-                <button 
-                  onClick={() => onShare()} 
+                <button
+                  onClick={() => onShare()}
                   className="flex-1 py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2 bg-gradient-to-br from-orange-500 to-purple-600"
                   title="Share event"
                 >
-                  <Share2 className="w-4 h-4" /> Share Event
+                  <Share2 className="w-4 h-4" /> Share
                 </button>
               </div>
             </div>

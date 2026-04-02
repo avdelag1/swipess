@@ -113,8 +113,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      const isAISearchClick = target.closest('#ai-search-button');
+      const target = event.target;
+      const isAISearchClick = (target instanceof Element) && target.closest('#ai-search-button');
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(target) &&

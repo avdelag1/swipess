@@ -2,13 +2,13 @@ import { Sparkles, Waves, Trees, Music, Utensils, Ticket, Heart } from 'lucide-r
 import { EventItem } from '@/types/events';
 
 export const CATEGORIES = [
-  { key: 'all', label: 'All', icon: Sparkles, img: '/images/events/gallery_night.png' },
-  { key: 'beach', label: 'Beach', icon: Waves, img: '/images/events/cacao_ceremony.png' },
-  { key: 'jungle', label: 'Jungle', icon: Trees, img: '/images/events/yoga_sound.png' },
-  { key: 'music', label: 'Music', icon: Music, img: '/images/events/cenote_rave.png' },
-  { key: 'food', label: 'Food', icon: Utensils, img: '/images/events/food_market.png' },
-  { key: 'promo', label: 'Promos', icon: Ticket, img: '/images/events/sunset_session.png' },
-  { key: 'likes', label: 'Saved', icon: Heart, img: '/images/events/gallery_night.png' },
+  { key: 'all', label: 'All', icon: Sparkles, img: '/images/events/gallery_night.png', color: '#f97316' }, 
+  { key: 'beach', label: 'Beach', icon: Waves, img: '/images/events/cacao_ceremony.png', color: '#0ea5e9' }, 
+  { key: 'jungle', label: 'Jungle', icon: Trees, img: '/images/events/yoga_sound.png', color: '#22c55e' }, 
+  { key: 'music', label: 'Music', icon: Music, img: '/images/events/cenote_rave.png', color: '#8b5cf6' }, 
+  { key: 'food', label: 'Restaurants', icon: Utensils, img: '/images/events/food_market.png', color: '#ef4444' }, 
+  { key: 'promo', label: 'Deals', icon: Ticket, img: '/images/events/sunset_session.png', color: '#facc15' }, 
+  { key: 'likes', label: 'My Likes', icon: Heart, img: '/images/events/gallery_night.png', color: '#ec4899' }, 
 ];
 
 export const MOCK_EVENTS: EventItem[] = [

@@ -33,6 +33,31 @@ export function useSmartListingMatching(
     const queryClient = useQueryClient();
     const filtersKey = filters ? JSON.stringify(filters) : '';
 
+    // 🚀 SPEED OF LIGHT: Cache user swipes globally to avoid repeated fetching
+    const { data: userSwipes } = useQuery({
+        queryKey: ['user-swipes', userId],
+        queryFn: async () => {
+            if (!userId) return { liked: new Set<string>(), left: new Map<string, string>() };
+            const { data, error } = await supabase
+                .from('likes')
+                .select('target_id, direction, created_at')
+                .eq('user_id', userId)
+                .eq('target_type', 'listing');
+            
+            if (error) throw error;
+            
+            const liked = new Set<string>();
+            const left = new Map<string, string>();
+            data?.forEach(s => {
+                if (s.direction === 'right') liked.add(s.target_id);
+                else left.set(s.target_id, s.created_at);
+            });
+            return { liked, left };
+        },
+        enabled: !!userId,
+        staleTime: 5 * 60 * 1000, // 5 minutes cache
+    });
+
     useEffect(() => {
         if (!userId) return;
         const channel = supabase
@@ -47,69 +72,64 @@ export function useSmartListingMatching(
 
     return useQuery({
         queryKey: ['smart-listings', userId, filtersKey, page, isRefreshMode],
-        staleTime: 5 * 60 * 1000, // 5 minutes (Real-time channel handles invalidation)
-        gcTime: 1000 * 60 * 60,   // 1 hour
+        staleTime: 2 * 60 * 1000, // 2 minutes
+        gcTime: 15 * 60 * 1000,
         placeholderData: (prev: any) => prev,
         queryFn: async () => {
             if (!userId) return [];
 
             try {
-                // 1. Fetch user context and swiped IDs (Hardened against malformed UUIDs)
-                const [
-                    { data: likedListings },
-                    { data: leftSwipes }
-                ] = await Promise.all([
-                    supabase.from('likes').select('target_id').eq('user_id', userId).eq('target_type', 'listing').eq('direction', 'right'),
-                    supabase.from('likes').select('target_id, created_at').eq('user_id', userId).eq('target_type', 'listing').eq('direction', 'left')
-                ]);
-
-                const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+                // 1. Prepare exclusion list from cache (if available)
                 const swipedListingIds = new Set<string>();
-                likedListings?.forEach(l => swipedListingIds.add(l.target_id));
-                leftSwipes?.forEach(s => {
-                    const isOldSwipe = new Date(s.created_at) < new Date(threeDaysAgo);
+                if (userSwipes) {
+                  userSwipes.liked.forEach(id => swipedListingIds.add(id));
+                  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+                  userSwipes.left.forEach((createdAt, id) => {
+                    const isOldSwipe = new Date(createdAt) < threeDaysAgo;
                     if (isOldSwipe || !isRefreshMode) {
-                        swipedListingIds.add(s.target_id);
+                        swipedListingIds.add(id);
                     }
-                });
-
-                // 2. Build the main query (using is_active for stability)
-                let query = supabase.from('listings').select(SWIPE_CARD_FIELDS)
-                    .eq('is_active', true)
-                    .or(`owner_id.neq.${userId},owner_id.is.null`);
+                  });
+                }
 
                 // 🚀 SPEED OF LIGHT: Attempt database-level filtering (RPC)
-                // This is the "Materialized View" strategy: DB handles exclusion and JOINs in one pass.
+                // This is the fastest path. The RPC already handles basic exclusion.
                 try {
                     const { data: rpcListings, error: rpcError } = await (supabase as any).rpc('get_smart_listings', {
                         p_user_id: userId,
-                        p_category: (filters?.category === 'all' || !filters?.category) ? null : filters.category,
+                        p_category: (filtersKey.includes('"category":"all"') || !filters?.category) ? null : filters.category,
                         p_limit: pageSize,
                         p_offset: page * pageSize
                     });
 
                     if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
-                        return (rpcListings as any[]).map(l => ({
+                        const results = (rpcListings as any[]).map(l => ({
                             ...l,
                             images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
                         }));
+                        
+                        // Prefetch images for the first 3 results to make swipe feel instant
+                        import('@/utils/performance').then(({ prefetchImage }) => {
+                          results.slice(0, 3).forEach(l => {
+                            if (l.images?.[0]) prefetchImage(l.images[0]);
+                          });
+                        });
+
+                        return results;
                     }
-                    if (rpcError) logger.warn('[SmartMatching] RPC Error:', rpcError.message);
                 } catch (e) {
                     logger.warn('[SmartMatching] RPC Fallback to PostgREST');
                 }
 
                 // 2. BUILD SECURE POSTGREST QUERY (Fallback)
-                // Reuse existing query or reset it? The logic below expects a fresh query for PostgREST
-                query = supabase.from('listings').select(SWIPE_CARD_FIELDS);
+                let query = supabase.from('listings').select(SWIPE_CARD_FIELDS)
+                    .eq('status', 'active');
 
-                // 3. Apply excluded IDs (Standard Array Filter - Prevents 400 Errors)
+                // 3. Apply excluded IDs (Fallback path)
                 if (swipedListingIds.size > 0) {
                     const idList = Array.from(swipedListingIds)
-                        .filter(id => id && typeof id === 'string' && id.length > 30)
-                        .map(id => id.trim())
-                        .slice(0, 150); // URL SAFETY: Prevent 400
-                    
+                        .filter(id => id && id.length > 30)
+                        .slice(0, 150);
                     if (idList.length > 0) {
                         query = query.filter('id', 'not.in', `(${idList.join(',')})`);
                     }
@@ -121,44 +141,11 @@ export function useSmartListingMatching(
                     if (normalized) query = query.eq('category', normalized);
                 }
 
-                // Fetch current page
                 const { data: listings, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
-                if (error) {
-                    logger.error('[SmartMatching] PostgREST Query Error:', error);
-                    return [];
-                }
+                if (error) throw error;
 
-                // 5. Discovery Injection (Array Filter Fallback)
-                const discoveryExcludedIds = Array.from(swipedListingIds)
-                    .filter(id => id && id.length > 30)
-                    .map(id => id.trim())
-                    .slice(0, 150); // URL SAFETY: Prevent 400
-                
-                const discoveryList = discoveryExcludedIds.length > 0 
-                  ? `(${discoveryExcludedIds.join(',')})` 
-                  : `(00000000-0000-0000-0000-000000000000)`;
-
-                                const { data: discovery, error: discError } = await supabase.from('listings').select(SWIPE_CARD_FIELDS)
-                    .eq('is_active', true)
-                    .or(`owner_id.neq.${userId},owner_id.is.null`)
-                    .filter('id', 'not.in', discoveryList)
-                    .order('created_at', { ascending: false })
-                    .limit(2);
-
-                if (discError) {
-                    logger.error('[SmartMatching] Discovery fetch failed:', discError);
-                }
-
-                const finalResults = [...(listings || [])];
-                discovery?.forEach(d => {
-                    if (!finalResults.find(l => l.id === d.id)) {
-                        (d as any)._isDiscovery = true;
-                        finalResults.push(d);
-                    }
-                });
-
-                // 6. Scoring & Sorting
-                const matchedResults = finalResults.map(listing => {
+                // 5. Scoring & Sorting
+                const matchedResults = (listings || []).map(listing => {
                     const match = calculateListingMatch((filters || {}) as any, listing as Listing);
                     return {
                         ...listing as Listing,
@@ -168,11 +155,7 @@ export function useSmartListingMatching(
                     };
                 });
 
-                return matchedResults.sort((a, b) => {
-                    if ((a as any)._isDiscovery && !(b as any)._isDiscovery) return -1;
-                    if (!(a as any)._isDiscovery && (b as any)._isDiscovery) return 1;
-                    return b.matchPercentage - a.matchPercentage;
-                });
+                return matchedResults.sort((a, b) => b.matchPercentage - a.matchPercentage);
 
             } catch (err) {
                 logger.error('[SmartMatching] Fatal Exception:', err);
@@ -183,3 +166,4 @@ export function useSmartListingMatching(
         refetchOnWindowFocus: false,
     });
 }
+

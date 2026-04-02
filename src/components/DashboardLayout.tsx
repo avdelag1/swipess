@@ -29,6 +29,8 @@ import { LoadingBar } from './ui/LoadingBar';
 import { GlobalDialogs } from './GlobalDialogs'
 import { useModalStore } from '@/state/modalStore'
 import { SmartSuspense } from './SmartSuspense';
+import { useFocusMode } from '@/hooks/useFocusMode'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // =============================================================================
 // PERFORMANCE FIX: SessionStorage caching for dashboard checks
@@ -307,43 +309,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     return isMatch;
   }, [location.pathname]);
 
-  useSwipeNavigation({
-    paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
-    containerSelector: '#dashboard-scroll-container',
-    enabled: userRole !== 'admin' && !isImmersiveDashboard,
-  });
-
-  // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
-  // This ensures welcome shows only on first signup, never on subsequent sign-ins
-  // (survives localStorage clears from external preview URLs)
-
-
-  const handleMessageClick = useCallback(() => {
-    modalStore.openSubscription(userRole === 'owner' ? 'Unlock messaging to connect with clients!' : 'Unlock messaging to connect with property owners!')
-  }, [userRole, modalStore])
-
-  const handleFilterClick = useCallback(() => {
-    if (userRole === 'owner') {
-      navigate('/owner/filters-explore')
-    } else {
-      modalStore.setModal('showFilters', true)
-    }
-  }, [userRole, navigate, modalStore])
-
-  const handleAddListingClick = useCallback(() => {
-    modalStore.setModal('showCategoryDialog', true)
-  }, [modalStore])
-
-  const handleListingsClick = useCallback(() => {
-    navigate('/owner/properties');
-  }, [navigate])
-
-  const handleMessageActivationsClick = useCallback(() => {
-    modalStore.setModal('showMessageActivations', true);
-  }, [modalStore]);
-
-  // Quick filters are now handled directly by QuickFilterDropdown dispatching to the store
-  // No more local handler needed - store is single source of truth
+  const { isFocused } = useFocusMode(6000); // Optimized timeout: 6s per user preference for Sentient Navigation
 
   // Map quick filter category names to database category names
   const _mapCategoryToDatabase = useCallback((category: QuickFilterCategory): string => {
@@ -381,7 +347,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
   const isRoommatesPage = location.pathname.startsWith('/explore/roommates');
-  const isImmersiveFeed = (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') || isRoommatesPage;
+  const isImmersiveFeed = isRoommatesPage;
 
   // IMMERSIVE MODE: Handled above for swipe navigation dependency
 
@@ -389,18 +355,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // FULLSCREEN MODE: These routes hide the global TopBar and BottomNav entirely
   // and take over the full screen height with 0 padding.
   const isFullScreenRoute = useMemo(() => {
-    // Only Camera and Radio remain fully fullscreen (hiding everything)
-    // Eventos and Roommates now show TopBar/BottomNav per user request
-    // HOWEVER, the Detail page for Eventos should be fullscreen to avoid "double access" X/Back issues
     const isEventoDetail = location.pathname.startsWith('/explore/eventos/') && 
                           location.pathname !== '/explore/eventos' && 
                           location.pathname !== '/explore/eventos/' &&
-                          location.pathname !== '/explore/eventos/likes'; // Likes should have the regular header padding
+                          location.pathname !== '/explore/eventos/likes';
     
-    // User wants header gone from Events to avoid interference
-    const isEventsMain = (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/');
+    const isEventsMain = false; // Restored global UI
 
-    // Rare sub-pages that manage their own navigation/back behavior
     const isSpecialSubPage = [
       '/client/advertise',
       '/explore/prices',
@@ -423,6 +384,18 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
            isEventoDetail || isEventsMain || isRoommatesPage || isSpecialSubPage;
   }, [isCameraRoute, isRadioRoute, location.pathname, isRoommatesPage]);
 
+  const handleMessageActivationsClick = useCallback(() => {
+    navigate('/subscription/packages');
+  }, [navigate]);
+
+  const handleListingsClick = useCallback(() => {
+    if (userRole === 'owner') {
+      navigate('/owner/properties');
+    } else {
+      navigate('/client/liked-properties');
+    }
+  }, [navigate, userRole]);
+
   // Dynamic page titles disabled per user request: "Remove any title or description on the top header"
   // Icons and context already convey location; clear header improves tap-to-dashboard UX.
   const pageTitle = useMemo(() => {
@@ -432,6 +405,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // Calculate responsive layout values
   const topBarHeight = responsive.isMobile ? 52 : 56;
   const bottomNavHeight = responsive.isMobile ? 68 : 72;
+
+  useSwipeNavigation({
+    paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
+    containerSelector: '#dashboard-scroll-container',
+    enabled: userRole !== 'admin' && !isImmersiveDashboard,
+  });
 
   return (
     <div className={cn(
@@ -445,16 +424,29 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and immersive feeds for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
       {!isFullScreenRoute && (
-        <TopBar
-          onNotificationsClick={() => {}} // Now handled internally by TopBar navigating to /notifications
-          onMessageActivationsClick={handleMessageActivationsClick}
-          showFilters={isOnDiscoveryPage}
-          userRole={userRole}
-          transparent={isImmersiveDashboard || isImmersiveFeed}
-          hideOnScroll={true}
-          title={pageTitle}
-          showBack={!isOnDiscoveryPage}
-        />
+        <motion.div
+          animate={{ 
+            opacity: isFocused ? 0 : 1, 
+            y: isFocused ? -20 : 0,
+            filter: isFocused ? "blur(12px)" : "blur(0px)"
+          }}
+          transition={{ 
+            duration: isFocused ? 2.4 : 0.2, // BEAUTIFUL vanish, ULTRA-INSTANT return
+            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.16, 1, 0.3, 1] 
+          }}
+          className={cn("z-50", isFocused ? "pointer-events-none" : "pointer-events-auto")}
+        >
+          <TopBar
+            onNotificationsClick={() => {}} // Now handled internally by TopBar navigating to /notifications
+            onMessageActivationsClick={handleMessageActivationsClick}
+            showFilters={isOnDiscoveryPage}
+            userRole={userRole}
+            transparent={isImmersiveDashboard || isImmersiveFeed}
+            hideOnScroll={true}
+            title={pageTitle}
+            showBack={!isOnDiscoveryPage}
+          />
+        </motion.div>
       )}
 
       {/* Main Content - Scrollable area with safe area spacing for fixed header/footer */}
@@ -492,19 +484,32 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
       {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and all immersive feeds */}
       {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
-        <BottomNavigation
-          userRole={userRole}
-          onFilterClick={() => modalStore.setModal('showFilters', true)}
-          onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
-          onListingsClick={handleListingsClick}
-          onAISearchClick={() => {
-            if (userRole === 'owner') {
-              navigate('/owner/listings/new-ai');
-            } else {
-              modalStore.setModal('isAISearchOpen', true);
-            }
+        <motion.div
+          animate={{ 
+            opacity: isFocused ? 0 : 1, 
+            y: isFocused ? 20 : 0,
+            filter: isFocused ? "blur(12px)" : "blur(0px)"
           }}
-        />
+          transition={{ 
+            duration: isFocused ? 2.4 : 0.2, // BEAUTIFUL vanish, ULTRA-INSTANT return
+            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.16, 1, 0.3, 1] 
+          }}
+          className={cn("z-50", isFocused ? "pointer-events-none" : "pointer-events-auto")}
+        >
+          <BottomNavigation
+            userRole={userRole}
+            onFilterClick={() => modalStore.setModal('showFilters', true)}
+            onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
+            onListingsClick={handleListingsClick}
+            onAISearchClick={() => {
+              if (userRole === 'owner') {
+                navigate('/owner/listings/new-ai');
+              } else {
+                modalStore.setModal('isAISearchOpen', true);
+              }
+            }}
+          />
+        </motion.div>
       )}
 
       {/* PROACTIVE AI BUTLER — Sentient Insights */}

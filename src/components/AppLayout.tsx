@@ -22,12 +22,14 @@ interface AppLayoutProps {
   children: React.ReactNode;
 }
 
+import { useFocusMode } from '@/hooks/useFocusMode';
+import { motion, AnimatePresence } from 'framer-motion';
+
 export function AppLayout({ children }: AppLayoutProps) {
   const { theme } = useTheme();
   const isLightTheme = theme === 'light';
   const location = useLocation();
-  // Full-screen public preview pages manage their own gradient/overlay system
-  const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
+  const { isFocused } = useFocusMode(6000); // Optimized timeout: 6s balance between immersion and access
 
   // Initialize app features
   useKeyboardShortcuts();
@@ -35,10 +37,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   useOfflineDetection();
   useErrorReporting();
 
-  // View Transitions API disabled in favor of Framer Motion AnimatedOutlet
+  // Full-screen public preview pages manage their own gradient/overlay system
+  const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
 
   return (
-    <div className="min-h-screen min-h-dvh w-full bg-background overflow-x-hidden">
+    <div className="min-h-screen min-h-dvh w-full bg-background overflow-x-hidden relative">
       <SkipToMainContent />
       
       <Suspense fallback={null}>
@@ -51,23 +54,62 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
 
       {/* Cinematic depth layers - theme-aware. Skip on full-screen public preview pages. */}
-      {!isPublicPreview && <GlobalVignette intensity={isLightTheme ? 0.4 : 0.8} light={isLightTheme} />}
-      {!isPublicPreview && <GradientMaskTop intensity={isLightTheme ? 0.5 : 0.75} heightPercent={22} zIndex={15} light={isLightTheme} />}
-      {!isPublicPreview && <GradientMaskBottom intensity={isLightTheme ? 0.5 : 0.75} heightPercent={38} zIndex={20} light={isLightTheme} />}
+      {!isPublicPreview && (
+        <motion.div 
+          animate={{ 
+            opacity: isFocused ? 0 : 1,
+            filter: isFocused ? "blur(4px)" : "blur(0px)" 
+          }}
+          transition={{ 
+            duration: isFocused ? 2.4 : 0.4, // BEAUTIFUL vanish, INSTANT return
+            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : "backOut" 
+          }}
+          className="pointer-events-none"
+        >
+          <GlobalVignette intensity={isLightTheme ? 0.4 : 0.8} light={isLightTheme} />
+          <GradientMaskTop intensity={isLightTheme ? 0.5 : 0.75} heightPercent={22} zIndex={15} light={isLightTheme} />
+          <GradientMaskBottom intensity={isLightTheme ? 0.5 : 0.75} heightPercent={38} zIndex={20} light={isLightTheme} />
+        </motion.div>
+      )}
 
       <main
         id="main-content"
         tabIndex={-1}
-        className="outline-none w-full min-h-screen min-h-dvh overflow-x-hidden"
+        className="outline-none w-full min-h-screen min-h-dvh overflow-x-hidden relative z-10"
       >
         {children}
       </main>
 
       {/* Global Radio Mini Player - skip on full-screen public preview pages */}
       {!isPublicPreview && (
-        <Suspense fallback={null}>
-          <RadioMiniPlayer />
-        </Suspense>
+        <AnimatePresence>
+          {!isFocused && (
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ 
+                y: 0, 
+                opacity: 1,
+                filter: "blur(0px)"
+              }}
+              exit={{ 
+                y: 20, 
+                opacity: 0,
+                filter: "blur(12px)"
+              }}
+              transition={{ 
+                duration: isFocused ? 2.4 : 0.45,
+                ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.22, 1, 0.36, 1] 
+              }}
+              className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+12px)] left-4 right-4 z-50 pointer-events-none"
+            >
+              <div className="pointer-events-auto">
+                <Suspense fallback={null}>
+                  <RadioMiniPlayer />
+                </Suspense>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
       
     </div>

@@ -41,7 +41,8 @@ export function useSwipeNavigation({
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
     // Skip if touching an element that opts out of swipe nav
-    const target = e.target as HTMLElement;
+    const target = e.target;
+    if (!(target instanceof Element)) return;
     if (target.closest('[data-no-swipe-nav]')) return;
 
     navigatedRef.current = false;

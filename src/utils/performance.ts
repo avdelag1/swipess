@@ -27,41 +27,32 @@ export function logBundleSize() {
 export async function warmDiscoveryCache(queryClient: QueryClient, userId: string | undefined, userRole: 'client' | 'owner') {
   if (!userId) return;
 
-  // 1. Prefetch Main Listing Categories (Client) or Discovery Targets (Owner)
-  if (userRole === 'client') {
-    // Prefetch properties, vehicles, etc.
-    const categories = ['property', 'moto', 'bicycle', 'worker'];
-    
-    categories.forEach(category => {
-      queryClient.prefetchQuery({
-        queryKey: ['listings', category],
-        queryFn: async () => {
-          const { data } = await supabase
-            .from('listings')
-            .select('*')
-            .eq('category', category)
-            .eq('status', 'active')
-            .limit(20);
-          
-          if (data && data.length > 0) {
-            // MAGIC: Prefetch the first few images to browser cache immediately
-            data.slice(0, 5).forEach((item: any) => {
-              if (item.image_url) prefetchImage(item.image_url);
-              if (Array.isArray(item.image_urls)) {
-                item.image_urls.slice(0, 2).forEach((url: any) => prefetchImage(typeof url === 'string' ? url : url.url));
-              }
-            });
-          }
-          return data || [];
-        },
-        staleTime: 1000 * 60 * 60, // 1 hour
+  // 1. Prefetch Smart Listings (The actual discovery engine)
+  // We prefetch for the 'all' category first as it's the default landing
+  const defaultFilters = JSON.stringify({ category: 'all' });
+  
+  queryClient.prefetchQuery({
+    queryKey: ['smart-listings', userId, defaultFilters, 0, false],
+    queryFn: async () => {
+      const { data } = await (supabase as any).rpc('get_smart_listings', {
+        p_user_id: userId,
+        p_category: null,
+        p_limit: 10,
+        p_offset: 0
       });
-
-      // Also prefetch the first few images of each category to prime the browser cache
-      // This is the "magic" step for "instant" images
-      prefetchImage(`/images/filters/${category === 'motorcycle' ? 'scooter' : category}.png`);
-    });
-  }
+      
+      const listings = data as any[];
+      if (listings && listings.length > 0) {
+        // MAGIC: Prefetch the first 5 images to browser cache immediately
+        listings.slice(0, 5).forEach((item: any) => {
+          const imgUrl = item.images?.[0] || item.image_url;
+          if (imgUrl) prefetchImage(imgUrl, true);
+        });
+      }
+      return data || [];
+    },
+    staleTime: 1000 * 60 * 30, // 30 minutes
+  });
 
   // 2. Prefetch Events (Universal)
   queryClient.prefetchQuery({
@@ -74,7 +65,6 @@ export async function warmDiscoveryCache(queryClient: QueryClient, userId: strin
         .limit(30);
       
       if (data && data.length > 0) {
-        // MAGIC: Prefetch the first few event images
         data.slice(0, 5).forEach((item: any) => {
           if (item.image_url) prefetchImage(item.image_url);
         });
@@ -98,29 +88,32 @@ export async function warmDiscoveryCache(queryClient: QueryClient, userId: strin
 /**
  * PREDICTIVE PREFETCH: Intent-Based Warming
  * Called when a user hovers or starts a touch on a button/link.
- * Gives us a 100-300ms head start to fetch data before the actual click.
  */
-export async function predictivePrefetchCategory(queryClient: QueryClient, category: string) {
-  if (!category) return;
+export async function predictivePrefetchCategory(queryClient: QueryClient, userId: string | undefined, category: string) {
+  if (!category || !userId) return;
+  
+  const filters = JSON.stringify({ category });
   
   queryClient.prefetchQuery({
-    queryKey: ['listings', category],
+    queryKey: ['smart-listings', userId, filters, 0, false],
     queryFn: async () => {
-      const { data } = await supabase
-        .from('listings')
-        .select('id, title, description, category, image_url, price, status, location, features, image_urls')
-        .eq('category', category)
-        .eq('status', 'active')
-        .limit(20);
+      const { data } = await (supabase as any).rpc('get_smart_listings', {
+        p_user_id: userId,
+        p_category: category === 'all' ? null : category,
+        p_limit: 10,
+        p_offset: 0
+      });
       
-      if (data && data.length > 0) {
-        data.slice(0, 3).forEach((item: any) => {
-          if (item.image_url) prefetchImage(item.image_url, true);
+      const listings = data as any[];
+      if (listings && listings.length > 0) {
+        listings.slice(0, 2).forEach((item: any) => {
+          const imgUrl = item.images?.[0] || item.image_url;
+          if (imgUrl) prefetchImage(imgUrl, true);
         });
       }
       return data || [];
     },
-    staleTime: 1000 * 60 * 30, // 30 minutes
+    staleTime: 1000 * 60 * 15, // 15 minutes
   });
 }
 
@@ -150,13 +143,18 @@ export async function predictivePrefetchEvent(queryClient: QueryClient, eventId:
 export function prefetchImage(url: string, highPriority: boolean = false) {
   if (!url || typeof window === 'undefined') return;
   
+  // Skip if already prefetched in this session
+  if (!(window as any).__PREFETCHED_IMAGES__) (window as any).__PREFETCHED_IMAGES__ = new Set();
+  if ((window as any).__PREFETCHED_IMAGES__.has(url)) return;
+  (window as any).__PREFETCHED_IMAGES__.add(url);
+
   const img = new Image();
   if (highPriority) {
     (img as any).fetchPriority = 'high';
   }
   img.decoding = 'async';
   
-  // Also try to pre-decode it to avoid first-frame flash
+  // Pre-decode to avoid frame-drop when it finally mounts
   img.onload = () => {
     if ('decode' in img) {
       img.decode().catch(() => {});
@@ -165,3 +163,4 @@ export function prefetchImage(url: string, highPriority: boolean = false) {
   
   img.src = url;
 }
+
