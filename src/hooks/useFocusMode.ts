@@ -10,7 +10,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
  * UPGRADE: Now uses CAPTURE phase listeners to ensure it detects
  * interactions even if child components call stopPropagation().
  */
-export function useFocusMode(timeout: number = 7500) {
+export function useFocusMode(timeout: number = 6000) {
   const [isFocused, setIsFocused] = useState(false);
   const [isManualOverride, setIsManualOverride] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

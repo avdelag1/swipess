@@ -133,32 +133,38 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
       }
 
       setUploading(true);
-      let uploadedCount = 0;
-
-      for (const file of files) {
+      
+      // 🚀 SPEED OF LIGHT: Parallel uploads for massive speed boost
+      const uploadPromises = files.map(async (file) => {
         const validation = validateImageFile(file);
         if (!validation.isValid) {
           toast.error(`${file.name}: ${validation.error}`);
-          continue;
+          return null;
         }
 
         try {
           const imageUrl = await uploadImageToStorage(file, user.user.id);
-          setImages(prev => [...prev, imageUrl]);
-          uploadedCount++;
+          return imageUrl;
         } catch (_error) {
           toast.error(`Failed to upload ${file.name}`);
+          return null;
         }
-      }
+      });
 
-      if (uploadedCount > 0) {
-        toast.success(`${uploadedCount} photo${uploadedCount > 1 ? 's' : ''} uploaded`);
+      const results = await Promise.all(uploadPromises);
+      const successfulUploads = results.filter((url): url is string => url !== null);
+      
+      if (successfulUploads.length > 0) {
+        setImages(prev => [...prev, ...successfulUploads]);
+        toast.success(`${successfulUploads.length} photo${successfulUploads.length > 1 ? 's' : ''} uploaded`);
       }
+      
       setUploading(false);
     };
 
     input.click();
   }, [images.length]);
+
 
   const handleRemoveImage = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));

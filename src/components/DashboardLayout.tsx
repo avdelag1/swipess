@@ -309,7 +309,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     return isMatch;
   }, [location.pathname]);
 
-  const { isFocused } = useFocusMode(11500); // Cinematic timeout (+4s per user preference)
+  const { isFocused } = useFocusMode(6000); // Optimized timeout: 6s per user preference for Sentient Navigation
 
   // Map quick filter category names to database category names
   const _mapCategoryToDatabase = useCallback((category: QuickFilterCategory): string => {

@@ -29,7 +29,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { theme } = useTheme();
   const isLightTheme = theme === 'light';
   const location = useLocation();
-  const { isFocused } = useFocusMode(11500); // Extended timeout (+4s) for more immersive experience
+  const { isFocused } = useFocusMode(6000); // Optimized timeout: 6s balance between immersion and access
 
   // Initialize app features
   useKeyboardShortcuts();

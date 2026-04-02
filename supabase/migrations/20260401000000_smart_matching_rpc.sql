@@ -30,12 +30,15 @@ BEGIN
       FROM public.likes 
       WHERE user_id = p_user_id 
         AND target_type = 'listing'
+        -- 🚀 SPEED OF LIGHT: Only exclude if it's a Right swipe OR a recent Left swipe (< 3 days)
+        AND (direction = 'right' OR created_at > (NOW() - INTERVAL '3 days'))
     )
   ORDER BY l.created_at DESC
   LIMIT p_limit
   OFFSET p_offset;
 END;
 $$;
+
 
 -- 2. SMART CLIENT MATCHING (For Owners)
 -- Efficiently selects user profiles that the owner hasn't swiped/liked yet.
