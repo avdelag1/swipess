@@ -60,7 +60,10 @@ export function AppLayout({ children }: AppLayoutProps) {
             opacity: isFocused ? 0 : 1,
             filter: isFocused ? "blur(4px)" : "blur(0px)" 
           }}
-          transition={{ duration: 1.6, ease: "easeInOut" }}
+          transition={{ 
+            duration: isFocused ? 1.6 : 0.4, 
+            ease: isFocused ? "easeOut" : "backOut" 
+          }}
           className="pointer-events-none"
         >
           <GlobalVignette intensity={isLightTheme ? 0.4 : 0.8} light={isLightTheme} />
@@ -93,7 +96,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                 opacity: 0,
                 filter: "blur(12px)"
               }}
-              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ 
+                duration: isFocused ? 1.6 : 0.45,
+                ease: isFocused ? "easeOut" : [0.22, 1, 0.36, 1] 
+              }}
               className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+12px)] left-4 right-4 z-50 pointer-events-none"
             >
               <div className="pointer-events-auto">

@@ -1,46 +1,69 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 /**
- * 🧘 FOCUS MODE HOOK
+ * 🧘 FOCUS MODE HOOK (SENTIENT EDITION)
  * This hook manages the 'visibility' state of the UI elements.
- * It detects user activity (touches, clicks, scrolls) and handles 
+ * It detects user activity (touches, clicks, scrolls, moves) and handles 
  * the automatic fading of headers and footers to create an 
  * 'invisible' immersive experience.
+ * 
+ * UPGRADE: Now uses CAPTURE phase listeners to ensure it detects
+ * interactions even if child components call stopPropagation().
  */
 export function useFocusMode(timeout: number = 7500) {
   const [isFocused, setIsFocused] = useState(false);
   const [isManualOverride, setIsManualOverride] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const resetFocus = useCallback(() => {
+  const handleInteraction = useCallback(() => {
+    // ⚡ INSTANT RECOVERY: Clear focus state on first hint of movement
     setIsFocused(false);
-  }, []);
+    
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    
+    // Start the countdown to 'Invisibility'
+    timerRef.current = setTimeout(() => {
+      setIsFocused(true);
+    }, timeout);
+  }, [timeout]);
 
   useEffect(() => {
-    let focusTimer: ReturnType<typeof setTimeout>;
+    // List of events that prove the user is active
+    const events = [
+      'touchstart', 
+      'mousedown', 
+      'mousemove', 
+      'keydown', 
+      'scroll', 
+      'wheel', 
+      'click',
+      'pointerdown'
+    ];
 
-    const handleInteraction = () => {
-      setIsFocused(false);
-      clearTimeout(focusTimer);
-      focusTimer = setTimeout(() => {
-        setIsFocused(true);
-      }, timeout);
-    };
+    // 🛡️ CAPTURE PHASE: We listen at the document level in the capture phase.
+    // This allows us to see events before they reach components that might 
+    // block them (like swipe containers or complex button logic).
+    events.forEach(event => {
+      document.addEventListener(event, handleInteraction, { 
+        capture: true, 
+        passive: true 
+      });
+    });
 
-    // Listen for any user input
-    window.addEventListener('touchstart', handleInteraction, { passive: true });
-    window.addEventListener('mousedown', handleInteraction, { passive: true });
-    window.addEventListener('scroll', handleInteraction, { passive: true });
-
-    // Initial trigger
+    // Initial trigger to start the first timer
     handleInteraction();
 
     return () => {
-      window.removeEventListener('touchstart', handleInteraction);
-      window.removeEventListener('mousedown', handleInteraction);
-      window.removeEventListener('scroll', handleInteraction);
-      clearTimeout(focusTimer);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      events.forEach(event => {
+        document.removeEventListener(event, handleInteraction, { capture: true });
+      });
     };
-  }, [timeout]);
+  }, [handleInteraction]);
 
   return { 
     isFocused: isFocused && !isManualOverride, 
