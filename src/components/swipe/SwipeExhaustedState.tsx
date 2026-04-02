@@ -135,42 +135,7 @@ export const SwipeExhaustedState = ({
               </div>
             ) : (
               <div className="w-full py-4 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                {/* 1. Intent Filters */}
-                <div className="flex flex-col items-center gap-6">
-                  <div className="flex justify-center gap-4">
-                    {/* Intent Filters */}
-                    {[
-                      { id: 'rent', icon: Home, color: 'from-emerald-600 to-emerald-400' },
-                      { id: 'buy', icon: CircleDollarSign, color: 'from-amber-600 to-amber-400' },
-                    ].map((st) => {
-                      const isActive = useFilterStore.getState().listingType === st.id || useFilterStore.getState().listingType === 'both';
-                      return (
-                        <motion.button
-                          key={st.id}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          animate={isActive ? { scale: [1, 1.08, 1] } : {}}
-                          transition={isActive ? { repeat: Infinity, duration: 3 } : {}}
-                          onClick={() => {
-                            const current = useFilterStore.getState().listingType;
-                            useFilterStore.getState().setListingType(current === st.id ? 'both' : st.id as any);
-                            onRefresh();
-                          }}
-                          className={cn(
-                            "w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-xl",
-                            isActive 
-                              ? `bg-gradient-to-br ${st.color} text-white shadow-${st.id === 'rent' ? 'emerald' : 'amber'}-500/30 ring-2 ring-white/50`
-                              : "bg-white/5 border border-white/10 text-white/40 hover:bg-white/10"
-                          )}
-                        >
-                          <st.icon className="w-5 h-5" />
-                        </motion.button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 2. Human-Centric Category Filters */}
+                {/* Category Filters */}
                 <div className="flex flex-wrap justify-center gap-4">
                   {[
                     { id: 'property', icon: Home, color: 'from-indigo-600 to-indigo-500' },
