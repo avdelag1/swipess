@@ -8,7 +8,7 @@ import { ListingFilters } from './types';
 import { calculateListingMatch } from './matchCalculators';
 
 export const SWIPE_CARD_FIELDS = `
-  id, title, description, price, images, city, neighborhood, beds, baths,
+  id, title, description, price, images, video_url, city, neighborhood, beds, baths,
   square_footage, category, listing_type, property_type, vehicle_brand,
   vehicle_model, year, mileage, amenities, pet_friendly, furnished,
   owner_id, user_id, created_at, currency,

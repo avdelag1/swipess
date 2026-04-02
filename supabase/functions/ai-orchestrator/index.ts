@@ -187,6 +187,14 @@ Deno.serve(async (req) => {
             cleanMessages.push({ role: "user", content: `ROI CALC: ${roiPercent}% annually. Payback: ${paybackYears} years. (Estimate assumes 70% net after property management + taxes)` });
             continue;
           }
+          else if (action?.type === "search_listings_by_vibe" && action.params?.query) {
+            const { data } = await supabase.from('listings').select('id, title, description, price, category, neighborhood')
+              .or(`description.ilike.%${action.params.query}%,title.ilike.%${action.params.query}%`)
+              .eq('status', 'active').limit(5);
+            cleanMessages.push({ role: "assistant", content });
+            cleanMessages.push({ role: "user", content: `VIBE RESULTS for "${action.params.query}": ${JSON.stringify(data || [])}. Links: /listing/ID` });
+            continue;
+          }
           else if (action?.type === "create_itinerary") {
             cleanMessages.push({ role: "assistant", content });
             cleanMessages.push({ role: "user", content: "Logic accepted. Now output the Markdown table itinerary." });
@@ -255,6 +263,7 @@ Location Context: ${currentPath} ${listingContext}
 - calculate_roi: For purchase_price vs monthly_rent analysis.
 - save_user_memory: USE THIS FREELY to remember user likes/dislikes/plans for next time.
 - initiate_match: To connect the user with listing owners.
+- search_listings_by_vibe: For finding houses/services based on "Vibe" / "Mood" (Zen, Modern, Party, Jungle, etc).
 - create_itinerary: For planning multi-step schedules.
 - show_listing_card / show_expert_card / show_venue_card: For visual cards.
 

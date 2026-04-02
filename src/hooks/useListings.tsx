@@ -17,6 +17,7 @@ export interface Listing {
   // Mode and category
   category?: string;
   mode?: string;
+  video_url?: string;
 
   // Property fields
   address?: string;
@@ -88,9 +89,6 @@ export interface Listing {
   // Timestamps
   updated_at?: string;
   created_at?: string;
-
-  // Video
-  video_url?: string | null;
 
   // New common fields
   rental_duration_type?: string | null;
@@ -194,14 +192,23 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
   });
 
   // 🚀 ZENITH: SHADOW PREFETCH
-  // Background-preloads the first 5 listing images to eliminate discovery lag
+  // Background-preloads the first 5 listing images and next 3 videos to eliminate discovery lag
   useEffect(() => {
     if (query.data && query.data.length > 0) {
       const nextBatch = query.data.slice(0, 5);
       nextBatch.forEach(listing => {
+        // Image prefetch
         if (listing.images && listing.images.length > 0) {
           const img = new Image();
           img.src = listing.images[0];
+        }
+        
+        // Video pre-warming (limit to top 3 for bandwidth sanity)
+        if (listing.video_url) {
+          const vid = document.createElement('video');
+          vid.preload = 'auto'; // Browser will buffer first few KB
+          vid.muted = true;
+          vid.src = listing.video_url;
         }
       });
     }
