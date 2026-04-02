@@ -294,15 +294,17 @@ function PredictiveBundleLoader() {
     };
 
     if ('requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(() => {
-        prefetchData();
-        prefetchDashboard();
-      });
+      setTimeout(() => {
+        (window as any).requestIdleCallback(() => {
+          prefetchData();
+          prefetchDashboard();
+        });
+      }, 5000); // 🚀 WAIT 5s BEFORE IDLE CALLBACK
     } else {
       setTimeout(() => {
         prefetchData();
         prefetchDashboard();
-      }, 1500);
+      }, 8000); // 🚀 WAIT 8s BEFORE BUNDLE/DATA WARMING
     }
   }, [user, queryClient]);
 

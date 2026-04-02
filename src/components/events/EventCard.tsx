@@ -96,12 +96,19 @@ export const EventCard = memo(({
         onComplete={onTickComplete}
       />
       
-      {/* Background photo with breathing-zoom on all cards */}
+      {/* Background photo with breathing-zoom ONLY on high-end devices */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
           animate={isActive ? "active" : "inactive"}
           variants={{
-            active: { scale: [1, 1.06, 1], transition: { duration: 12, repeat: Infinity, ease: "easeInOut" } },
+            active: { 
+              scale: document.body.classList.contains('hw-low') ? 1 : [1, 1.06, 1], 
+              transition: { 
+                duration: 12, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              } 
+            },
             inactive: { scale: 1 }
           }}
           className="w-full h-full"

@@ -177,107 +177,75 @@
   </div>
 
   <script>
-    // 🛡️ RECOVERY & FAIL-SAFE SYSTEM
+    // 🛡️ ZENITH GUARD: Unified Recovery & SPLASH System
+    // Consolidates multiple fail-safe mechanisms for maximum performance
+    window.__APP_MOUNTED__ = false;
+    window.__APP_INITIALIZED__ = false;
+
     function removeSplash() {
-      console.log('[Splash] Dissolving loader...');
+      console.log('[Zenith] Dissolving loader...');
       var loader = document.getElementById('initial-loader');
       var root = document.getElementById('root');
       if (root) root.classList.add('hydrated');
       if (loader && !loader.classList.contains('dissolving')) {
         loader.classList.add('dissolving');
         setTimeout(function() { 
-          if(loader.parentNode) {
-            loader.remove(); 
-          }
+          if(loader.parentNode) loader.remove(); 
         }, 600);
       }
     }
 
-    // 🚀 SPEED OF LIGHT: Drastically reduced splash timeout for 'Native' feel
-    var splashTimeout = setTimeout(function() {
-      console.warn('[Splash] Mount taking too long - invoking recovery system');
-      removeSplash();
-      setTimeout(function() {
-        var root = document.getElementById('root');
-        if (!root || root.innerHTML === "" || !window.__APP_INITIALIZED__) {
-          console.error('[Splash] Fatal: App failed to initialize after 2s');
-          document.getElementById('mount-recovery').style.display = 'block';
-        }
-      }, 500);
-    }, 2000);
-
-    // Dynamic Network Guard: Catch fatal chunk load errors immediately
+    // High-performance catch for chunk/network errors
     window.addEventListener('error', function(e) {
       if (e.target && (e.target.src || e.target.href) && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
          var src = e.target.src || e.target.href;
-         // Ignore non-critical third-party scripts (Vercel Speed Insights, analytics, etc.)
-         if (src.indexOf('speed-insights') !== -1 || src.indexOf('_vercel') !== -1 || src.indexOf('analytics') !== -1) return;
-         console.error('[NetworkGuard] Bundle load failed:', src);
+         if (src.indexOf('speed-insights') !== -1 || src.indexOf('_vercel') !== -1) return;
+         console.error('[Zenith] Bundle load failed:', src);
          document.getElementById('mount-recovery').style.display = 'block';
-         var btn = document.querySelector('#mount-recovery button');
-         if(btn) btn.textContent = 'Repair & Restart App';
       }
     }, true);
 
-    // Listen for the app-rendered event
+    // Primary recovery timer
+    var initialMountTimeout = setTimeout(function() {
+      if (!window.__APP_INITIALIZED__) {
+        console.warn('[Zenith] Mount taking too long - invoking recovery');
+        removeSplash();
+        setTimeout(function() {
+          var root = document.getElementById('root');
+          if (!root || !root.firstChild) {
+            document.getElementById('mount-recovery').style.display = 'block';
+          }
+        }, 500);
+      }
+    }, 3000); // 3s hard limit for initial render
+
+    // Listen for the app-rendered signal from React
     window.addEventListener('app-rendered', function() {
       window.__APP_INITIALIZED__ = true;
-      console.log('[Splash] App rendered signal received');
-      clearTimeout(splashTimeout);
-      document.getElementById('mount-recovery').style.display = 'none';
+      window.__APP_MOUNTED__ = true;
+      clearTimeout(initialMountTimeout);
       requestAnimationFrame(function() {
         requestAnimationFrame(removeSplash);
       });
     });
 
     function clearAndReload() {
-      console.log('[Recovery] Clearing caches and forcing hard refresh...');
+      console.log('[Zenith] Performing hard repair...');
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(regs) {
-          for(let reg of regs) { 
-            console.log('[Recovery] Unregistering SW:', reg.scope);
-            reg.unregister(); 
-          }
+          for(let reg of regs) reg.unregister(); 
         }).then(function() {
           if ('caches' in window) {
             caches.keys().then(function(keys) {
-              return Promise.all(keys.map(function(k) { 
-                console.log('[Recovery] Deleting cache:', k);
-                return caches.delete(k); 
-              }));
+              return Promise.all(keys.map(function(k) { return caches.delete(k); }));
             }).then(function() {
-              sessionStorage.clear();
-              localStorage.clear();
-              // Cache-bust the reload to circumvent aggressive intermediary proxies/CDN
+              localStorage.clear(); sessionStorage.clear();
               window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
             });
-          } else {
-            window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
-          }
+          } else { window.location.reload(); }
         });
-      } else {
-        window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
-      }
+      } else { window.location.reload(); }
     }
-  </script>
-
-
-  <script>
-    // 🛡️ RECOVERY GUARD
-    // Injected top-level into index.html to ensure it runs even if bundling fails.
-    window.__APP_MOUNTED__ = false;
-    setTimeout(function() {
-      if (!window.__APP_MOUNTED__) {
-        console.error('[Zenith] App mount failure after 4s. Showing Repair UI.');
-        var recovery = document.getElementById('mount-recovery');
-        if (recovery) {
-          recovery.style.display = 'block';
-          recovery.style.opacity = '1';
-        }
-        var splash = document.getElementById('initial-loader');
-        if (splash) splash.style.opacity = '0.3';
-      }
-    }, 4000);
   </script>
 
   <div id="root"></div>
