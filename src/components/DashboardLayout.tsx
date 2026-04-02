@@ -384,6 +384,18 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
            isEventoDetail || isEventsMain || isRoommatesPage || isSpecialSubPage;
   }, [isCameraRoute, isRadioRoute, location.pathname, isRoommatesPage]);
 
+  const handleMessageActivationsClick = useCallback(() => {
+    navigate('/subscription/packages');
+  }, [navigate]);
+
+  const handleListingsClick = useCallback(() => {
+    if (userRole === 'owner') {
+      navigate('/owner/properties');
+    } else {
+      navigate('/client/liked-properties');
+    }
+  }, [navigate, userRole]);
+
   // Dynamic page titles disabled per user request: "Remove any title or description on the top header"
   // Icons and context already convey location; clear header improves tap-to-dashboard UX.
   const pageTitle = useMemo(() => {
