@@ -7,7 +7,7 @@ import { normalizeCategoryName } from '@/types/filters';
 import { ListingFilters } from './types';
 import { calculateListingMatch } from './matchCalculators';
 
-const SWIPE_CARD_FIELDS = `
+export const SWIPE_CARD_FIELDS = `
   id, title, description, price, images, city, neighborhood, beds, baths,
   square_footage, category, listing_type, property_type, vehicle_brand,
   vehicle_model, year, mileage, amenities, pet_friendly, furnished,

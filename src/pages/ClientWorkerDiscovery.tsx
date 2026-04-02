@@ -76,7 +76,7 @@ export default function ClientWorkerDiscovery() {
     count: filteredWorkers.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 450, // Height of a WorkerCard
-    overscan: 3,
+    overscan: 6,
   });
 
   // 🚀 ZENITH: Optimized contact handler with stable reference

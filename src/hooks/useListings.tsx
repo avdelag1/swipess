@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
+import { SWIPE_CARD_FIELDS } from './smartMatching/useSmartListingMatching';
 
 export interface Listing {
   id: string;
@@ -152,7 +153,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
         // 2. BUILD SECURE POSTGREST QUERY (Fallback)
         let query = supabase
           .from('listings')
-          .select('*')
+          .select(SWIPE_CARD_FIELDS)
           .eq('status', 'active')
           .order('created_at', { ascending: false });
 

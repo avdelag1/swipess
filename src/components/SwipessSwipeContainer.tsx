@@ -497,6 +497,19 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   }, [currentIndex, prefetchListingDetails, isDashboard]); // currentIndex updates on each swipe, triggering reliable prefetch
 
+  // PREDICTIVE PRELOAD: When drag starts, bump card N+2 images to high priority.
+  // RecyclingCardStack already preloads N+1 (high) and N+2 (low) after each swipe,
+  // but during the ~260ms exit animation N+2 may still be decoding at low priority.
+  // Firing high-priority decode here gives the full animation window to finish.
+  const handleDragStart = useCallback(() => {
+    const n2Card = deckQueueRef.current[currentIndexRef.current + 2];
+    if (n2Card?.images && Array.isArray(n2Card.images)) {
+      n2Card.images.forEach((imgUrl: string) => {
+        if (imgUrl) imagePreloadController.preload(imgUrl, 'high');
+      });
+    }
+  }, []); // deckQueueRef and currentIndexRef are refs — stable, no deps needed
+
   // CONSTANT-TIME: Append new unique listings to queue AND persist to store
   // PERF FIX: Only run when we have genuinely new listings (not just reference change)
   // Uses listingIdsSignature for stable dependency instead of smartListings array
@@ -1040,6 +1053,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   onInsights={handleInsights}
                   onMessage={handleMessage}
                   onShare={handleShare}
+                  onDragStart={handleDragStart}
                   isTop={true}
                   externalX={topCardX}
                 />

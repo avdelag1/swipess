@@ -100,6 +100,8 @@ interface SimpleSwipeCardProps {
   /** Optional shared MotionValue from parent — lets container animate the card below in real-time */
   externalX?: MotionValue<number>;
   externalY?: MotionValue<number>;
+  /** Called when drag gesture starts — lets parent kick off N+2 image preload */
+  onDragStart?: () => void;
 }
 
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
@@ -111,6 +113,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   isTop = true,
   externalX,
   externalY,
+  onDragStart,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -280,7 +283,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     isDragging.current = true;
     dragStartY.current = info.point.y;
     triggerHaptic('light');
-  }, []);
+    onDragStart?.();
+  }, [onDragStart]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     const sweepX = info.offset.x;

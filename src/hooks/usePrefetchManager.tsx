@@ -22,41 +22,42 @@ export function usePrefetchManager() {
     userId: string,
     filters: any,
     currentPage: number,
-    _pageSize: number = 10
+    pageSize: number = 10
   ) => {
     if (!userId) return;
-    
-    const filtersKey = filters ? JSON.stringify({
-        category: filters.category,
-        categories: filters.categories,
-        listingType: filters.listingType,
-        priceRange: filters.priceRange,
-        propertyType: filters.propertyType,
-        serviceCategory: filters.serviceCategory,
-        workTypes: filters.workTypes,
-        daysAvailable: filters.daysAvailable,
-        experienceLevel: filters.experienceLevel,
-        skills: filters.skills,
-        scheduleTypes: filters.scheduleTypes,
-    }) : '';
+
+    // CRITICAL: must use JSON.stringify(filters) to match useSmartListingMatching's
+    // filtersKey exactly (line 34 of useSmartListingMatching.tsx). A manual key pick
+    // produces a different string whenever filters has extra keys, causing cache misses.
+    const filtersKey = filters ? JSON.stringify(filters) : '';
 
     const nextPage = currentPage + 1;
     const key = `smart-listings-${userId}-${filtersKey}-${nextPage}`;
-    
+
     if (prefetchedKeys.current.has(key)) return;
     prefetchedKeys.current.add(key);
 
-    // This must match useSmartListingMatching's queryKey exactly for it to work
     await queryClient.prefetchQuery({
       queryKey: ['smart-listings', userId, filtersKey, nextPage, false],
-      // We don't need to define the queryFn here if it's already defined 
-      // in the hook, BUT prefetchQuery usually needs it. 
-      // However, we can just use a placeholder or the actual fetcher.
-      // To be safe and actually populate the cache, we need the logic or 
-      // we need to have a global query function (not used here).
-      // Since useSmartListingMatching is complex, the cleanest way to prefetch
-      // is to let the hook mount, but for background prefetching, 
-      // we'll use the queryClient to fetch using the same logic.
+      queryFn: async () => {
+        try {
+          const { data: rpcListings, error: rpcError } = await (supabase as any).rpc('get_smart_listings', {
+            p_user_id: userId,
+            p_category: (filters?.category === 'all' || !filters?.category) ? null : filters.category,
+            p_limit: pageSize,
+            p_offset: nextPage * pageSize,
+          });
+          if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
+            return (rpcListings as any[]).map((l: any) => ({
+              ...l,
+              images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : []),
+            }));
+          }
+        } catch (_e) {
+          // RPC unavailable — return empty; the live hook handles its own fallback
+        }
+        return [];
+      },
       staleTime: 5 * 60 * 1000,
     });
   }, [queryClient]);
