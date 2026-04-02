@@ -212,8 +212,8 @@ export default function EventosFeed() {
     <div className={cn("relative w-full h-[100dvh] overflow-hidden flex flex-col", isLight ? "bg-white" : "bg-black")}>
       
       {/* Zenith HUD */}
-      <div className="absolute top-0 left-0 right-0 z-[100] pt-[calc(env(safe-area-inset-top,0px)+32px)]">
-        <motion.div className="flex items-center gap-3 px-6 pt-16 pb-4" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+      <div className="absolute top-0 left-0 right-0 z-[100] pt-[calc(env(safe-area-inset-top,0px)+8px)]">
+        <motion.div className="flex items-center gap-3 px-6 pt-4 pb-4" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
           <button onClick={() => navigate(-1)} className="w-12 h-12 rounded-[1.25rem] flex items-center justify-center shadow-xl active:scale-90 transition-transform"
             style={{ background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(15,15,16,0.6)', backdropFilter: 'blur(24px)', border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.12)' }}>
             <ArrowLeft className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} />

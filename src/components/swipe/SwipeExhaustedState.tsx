@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { SwipeDistanceSlider } from './SwipeDistanceSlider';
 import { deckFadeVariants } from '@/utils/modernAnimations';
+import { CategorySwipeStack } from '@/components/CategorySwipeStack';
 
 interface SwipeExhaustedStateProps {
   categoryLabel: string;
@@ -122,27 +123,9 @@ export const SwipeExhaustedState = ({
           animate={{ opacity: 1, y: 0 }} 
           className="w-full max-w-sm flex flex-col items-center space-y-10"
         >
-          <div className="relative">
-            <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full scale-150 animate-pulse" />
             <div className="relative">
-              <motion.div
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${iconColor || 'text-primary'} shadow-lg`}
-              >
-                {React.isValidElement(CategoryIcon) ? (
-                  CategoryIcon
-                ) : typeof CategoryIcon === 'function' || (typeof CategoryIcon === 'object' && CategoryIcon !== null) ? (
-                  React.createElement(CategoryIcon as any, { 
-                    className: "w-11 h-11", 
-                    strokeWidth: 1.5 
-                  })
-                ) : (
-                  CategoryIcon
-                )}
-              </motion.div>
+              <CategorySwipeStack />
             </div>
-          </div>
 
           <div className="space-y-4">
             <h3 className="text-xl font-black text-foreground tracking-tight leading-none">{title}</h3>

@@ -342,3 +342,13 @@ body {
 .animate-liquid-drift {
   animation: liquid-drift 15s infinite ease-in-out;
 }
+
+/* 🌬️ BREATHING BLOOM ANIMATION */
+@keyframes breathing-bloom {
+  0%, 100% { transform: scale(1); filter: brightness(1) saturate(1); }
+  50% { transform: scale(1.06); filter: brightness(1.1) saturate(1.15); }
+}
+
+.animate-breathing-bloom {
+  animation: breathing-bloom 12s ease-in-out infinite;
+}

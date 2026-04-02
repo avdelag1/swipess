@@ -874,18 +874,27 @@ const ClientSwipeContainerComponent = ({
             className="absolute -bottom-1/4 -left-1/4 w-[900px] h-[900px] rounded-full blur-[180px]"
           />
         </div>
-        {/* Top Controls Overlay */}
-        <div className="absolute top-4 left-0 right-0 z-50 px-6 flex flex-col items-center gap-4 pointer-events-none">
-          <div className="w-full flex justify-between items-center pointer-events-auto">
-            <DistanceSlider
-              radiusKm={radiusKm}
-              onRadiusChange={setRadiusKm}
-              onDetectLocation={detectLocation}
-              detecting={locationDetecting}
-              detected={locationDetected}
-            />
-          </div>
-        </div>
+        {/* Top Controls Overlay: Only shown when deck is ACTIVE to hide when exhausted (prevent overlap with SwipeExhaustedState) */}
+        <AnimatePresence>
+          {deckQueue.length > 0 && currentIndex < deckQueue.length && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="absolute top-4 left-0 right-0 z-50 px-6 flex flex-col items-center gap-4 pointer-events-none"
+            >
+              <div className="w-full flex justify-between items-center pointer-events-auto">
+                <DistanceSlider
+                  radiusKm={radiusKm}
+                  onRadiusChange={setRadiusKm}
+                  onDetectLocation={detectLocation}
+                  detecting={locationDetecting}
+                  detected={locationDetected}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="flex-1 relative flex items-center justify-center p-4">
           <AnimatePresence>

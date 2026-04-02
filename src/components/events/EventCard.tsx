@@ -98,7 +98,14 @@ export const EventCard = memo(({
       
       {/* Background photo with breathing-zoom on all cards */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="w-full h-full">
+        <motion.div 
+          animate={isActive ? "active" : "inactive"}
+          variants={{
+            active: { scale: [1, 1.06, 1], transition: { duration: 12, repeat: Infinity, ease: "easeInOut" } },
+            inactive: { scale: 1 }
+          }}
+          className="w-full h-full"
+        >
           <CardImage
             src={event.image_url}
             alt={event.title}
@@ -106,7 +113,7 @@ export const EventCard = memo(({
             animate={true}
             priority={isActive} // 🚀 SPEED BOOST: Only the active card gets high priority loading
           />
-        </div>
+        </motion.div>
       </div>
 
       {/* Gradient overlays */}

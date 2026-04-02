@@ -9,7 +9,7 @@ import {
   getActiveCategoryInfo,
 } from './swipe/SwipeConstants';
 import { SwipeCardPeek } from './swipe/SwipeCardPeek';
-import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
+import { CategorySwipeStack } from './CategorySwipeStack';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -977,19 +977,34 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           className="absolute -bottom-1/4 -left-1/4 w-[900px] h-[900px] rounded-full blur-[180px]"
         />
       </div>
-      {/* Top Controls Overlay - Simplified to prevent overlap */}
-      <div className="shrink-0 z-50 px-6 flex flex-col items-center gap-4">
-        <div className="w-full flex justify-between items-center">
-          {/* Dashboard Title or Category Selection can go here */}
-        </div>
-      </div>
+      {/* Top Controls Overlay: Only shown when deck is ACTIVE to prevent overlap with empty/exhausted states */}
+      <AnimatePresence>
+        {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-4 left-0 right-0 z-50 px-6 flex flex-col items-center gap-4 pointer-events-none"
+          >
+            <div className="w-full flex justify-between items-center pointer-events-auto">
+              <DistanceSlider
+                radiusKm={radiusKm}
+                onRadiusChange={setRadiusKm}
+                onDetectLocation={detectLocation}
+                detecting={locationDetecting}
+                detected={locationDetected}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="absolute inset-0 flex items-center justify-center pb-20 lg:pb-24 p-4 z-10 pointer-events-none">
         <div className="w-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="wait">
             {!storeActiveCategory ? (
-              <div className="w-full flex flex-col items-center justify-center">
-                <SwipeAllDashboard setCategories={setCategories} />
+              <div className="w-full flex flex-col items-center justify-center -mt-8">
+                <CategorySwipeStack />
               </div>
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <div className="relative w-full h-[72dvh] max-w-2xl">
