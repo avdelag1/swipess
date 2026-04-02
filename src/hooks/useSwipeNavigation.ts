@@ -35,6 +35,7 @@ export function useSwipeNavigation({
   const navigate = useNavigate();
   const location = useLocation();
   const touchRef = useRef<{ x: number; y: number; t: number; scrollTop: number } | null>(null);
+  const containerRef = useRef<HTMLElement | null>(null);
   const navigatedRef = useRef(false);
 
   const currentIndex = paths.indexOf(location.pathname);
@@ -47,10 +48,13 @@ export function useSwipeNavigation({
 
     navigatedRef.current = false;
     const touch = e.touches[0];
-    // Capture scroll position at touch start so we can guard against
-    // firing swipe-up while the user is scrolling down a page
-    const container = document.querySelector(containerSelector) as HTMLElement | null;
-    const scrollTopAtStart = container?.scrollTop ?? 0;
+    
+    // 🚀 ZENITH: Cached Container Lookup
+    if (!containerRef.current) {
+      containerRef.current = document.querySelector(containerSelector) as HTMLElement | null;
+    }
+    
+    const scrollTopAtStart = containerRef.current?.scrollTop ?? 0;
     touchRef.current = { x: touch.clientX, y: touch.clientY, t: Date.now(), scrollTop: scrollTopAtStart };
   }, [containerSelector]);
 

@@ -60,45 +60,50 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
             <X className="w-6 h-6" />
           </motion.button>
 
-          {/* Flagship Kinetic Sparks System */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[...Array(60)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ 
-                  x: "50%", 
-                  y: "50%", 
-                  scale: 0, 
-                  opacity: 1
-                }}
-                animate={{ 
-                  x: `${50 + (Math.random() - 0.5) * 400}%`, 
-                  y: `${50 + (Math.random() - 0.5) * 400}%`,
-                  scale: [0, Math.random() * 2.5 + 1.5, 0],
-                  opacity: [1, 1, 0],
-                  rotate: Math.random() * 1080
-                }}
-                transition={{ 
-                  duration: 1.5 + Math.random() * 2.5,
-                  delay: (i % 10) * 0.05,
-                  ease: [0.23, 1, 0.32, 1]
-                }}
-                className="absolute"
-              >
-                {i % 3 === 0 ? (
-                  <Sparkles className="w-5 h-5 text-amber-400 fill-amber-400/50 drop-shadow-[0_0_15px_rgba(251,191,36,0.8)]" />
-                ) : i % 3 === 1 ? (
-                  <Zap className="w-6 h-6 text-cyan-400 fill-cyan-400/30 drop-shadow-[0_0_20px_rgba(34,211,238,0.8)]" />
-                ) : (
-                  <motion.div 
-                    animate={{ backgroundColor: ['#fbbf24', '#f472b6', '#3b82f6'] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                    className="w-2 h-2 rounded-full blur-[2px]" 
-                  />
-                )}
-              </motion.div>
-            ))}
-          </div>
+          {/* High-Performance Canvas Particles */}
+          <canvas
+            id="match-celebration-canvas"
+            className="absolute inset-0 pointer-events-none z-0"
+            style={{ width: '100%', height: '100%' }}
+          />
+          <script dangerouslySetInnerHTML={{ __html: `
+            (function() {
+              const canvas = document.getElementById('match-celebration-canvas');
+              if (!canvas) return;
+              const ctx = canvas.getContext('2d');
+              let w = canvas.width = window.innerWidth;
+              let h = canvas.height = window.innerHeight;
+              canvas.width = w * window.devicePixelRatio;
+              canvas.height = h * window.devicePixelRatio;
+              ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+              
+              const particles = [];
+              for (let i = 0; i < 60; i++) {
+                particles.push({
+                  x: w/2, y: h/2,
+                  vx: (Math.random() - 0.5) * 20,
+                  vy: (Math.random() - 0.5) * 20,
+                  size: Math.random() * 3 + 2,
+                  color: ['#fbbf24', '#f472b6', '#3b82f6', '#ffffff'][i % 4],
+                  alpha: 1,
+                  decay: 0.015 + Math.random() * 0.02
+                });
+              }
+              function animate() {
+                ctx.clearRect(0, 0, w, h);
+                particles.forEach(p => {
+                  p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.alpha -= p.decay;
+                  if (p.alpha > 0) {
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+                  }
+                });
+                if (particles.some(p => p.alpha > 0)) requestAnimationFrame(animate);
+              }
+              animate();
+            })();
+          `}} />
 
           {/* Cinematic Title */}
           <div className="relative mb-12">

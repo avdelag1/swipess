@@ -263,7 +263,7 @@ export default function EventoDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-black pb-48">
+    <div className="min-h-screen bg-slate-50 dark:bg-black pb-48" style={{ contain: 'paint layout' }}>
       {/* ── HERO GALLERY ── */}
       <div className="relative h-[65dvh] overflow-hidden">
         <AnimatePresence mode="popLayout">
