@@ -185,12 +185,11 @@
       if (root) root.classList.add('hydrated');
       if (loader && !loader.classList.contains('dissolving')) {
         loader.classList.add('dissolving');
-        // Do NOT remove from DOM immediately so recovery button stays visible if needed
         setTimeout(function() { 
-          if(loader.parentNode && !document.getElementById('mount-recovery').style.display === 'block') {
+          if(loader.parentNode) {
             loader.remove(); 
           }
-        }, 1000);
+        }, 600);
       }
     }
 
