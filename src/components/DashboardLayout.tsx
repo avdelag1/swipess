@@ -309,44 +309,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     return isMatch;
   }, [location.pathname]);
 
-  useSwipeNavigation({
-    paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
-    containerSelector: '#dashboard-scroll-container',
-    enabled: userRole !== 'admin' && !isImmersiveDashboard,
-  });
-
-  // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
-  // This ensures welcome shows only on first signup, never on subsequent sign-ins
-  // (survives localStorage clears from external preview URLs)
-
-
-  const handleMessageClick = useCallback(() => {
-    modalStore.openSubscription(userRole === 'owner' ? 'Unlock messaging to connect with clients!' : 'Unlock messaging to connect with property owners!')
-  }, [userRole, modalStore])
-
-  const handleFilterClick = useCallback(() => {
-    if (userRole === 'owner') {
-      navigate('/owner/filters-explore')
-    } else {
-      modalStore.setModal('showFilters', true)
-    }
-  }, [userRole, navigate, modalStore])
-
-  const handleAddListingClick = useCallback(() => {
-    modalStore.setModal('showCategoryDialog', true)
-  }, [modalStore])
-
-  const handleListingsClick = useCallback(() => {
-    navigate('/owner/properties');
-  }, [navigate])
-
-  const handleMessageActivationsClick = useCallback(() => {
-    modalStore.setModal('showMessageActivations', true);
-  }, [modalStore]);
-
-  // Quick filters are now handled directly by QuickFilterDropdown dispatching to the store
-  // No more local handler needed - store is single source of truth
-
   const { isFocused } = useFocusMode(7500);
 
   // Map quick filter category names to database category names
@@ -385,7 +347,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
   const isRoommatesPage = location.pathname.startsWith('/explore/roommates');
-  const isImmersiveFeed = (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') || isRoommatesPage;
+  const isImmersiveFeed = isRoommatesPage;
 
   // IMMERSIVE MODE: Handled above for swipe navigation dependency
 
@@ -393,18 +355,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // FULLSCREEN MODE: These routes hide the global TopBar and BottomNav entirely
   // and take over the full screen height with 0 padding.
   const isFullScreenRoute = useMemo(() => {
-    // Only Camera and Radio remain fully fullscreen (hiding everything)
-    // Eventos and Roommates now show TopBar/BottomNav per user request
-    // HOWEVER, the Detail page for Eventos should be fullscreen to avoid "double access" X/Back issues
     const isEventoDetail = location.pathname.startsWith('/explore/eventos/') && 
                           location.pathname !== '/explore/eventos' && 
                           location.pathname !== '/explore/eventos/' &&
-                          location.pathname !== '/explore/eventos/likes'; // Likes should have the regular header padding
+                          location.pathname !== '/explore/eventos/likes';
     
-    // User wants header gone from Events to avoid interference
-    const isEventsMain = (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/');
+    const isEventsMain = false; // Restored global UI
 
-    // Rare sub-pages that manage their own navigation/back behavior
     const isSpecialSubPage = [
       '/client/advertise',
       '/explore/prices',
@@ -437,6 +394,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const topBarHeight = responsive.isMobile ? 52 : 56;
   const bottomNavHeight = responsive.isMobile ? 68 : 72;
 
+  useSwipeNavigation({
+    paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
+    containerSelector: '#dashboard-scroll-container',
+    enabled: userRole !== 'admin' && !isImmersiveDashboard,
+  });
+
   return (
     <div className={cn(
       "app-root min-h-screen min-h-dvh overflow-hidden relative w-full max-w-[100vw]",
@@ -448,7 +411,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
       {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and immersive feeds for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
-      {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and immersive feeds for fullscreen UX */}
       {!isFullScreenRoute && (
         <motion.div
           animate={{ 
@@ -508,7 +470,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         </div>
       </main>
 
-      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and all immersive feeds */}
       {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and all immersive feeds */}
       {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
         <motion.div
