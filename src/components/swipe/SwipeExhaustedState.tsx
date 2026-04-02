@@ -135,41 +135,9 @@ export const SwipeExhaustedState = ({
               </div>
             ) : (
               <div className="w-full py-4 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                {/* 1. Gender & Intent Filters */}
+                {/* 1. Intent Filters */}
                 <div className="flex flex-col items-center gap-6">
                   <div className="flex justify-center gap-4">
-                    {/* Gender Filters */}
-                    {[
-                      { id: 'man', label: '♂️', color: 'from-blue-600 to-blue-400' },
-                      { id: 'woman', label: '♀️', color: 'from-pink-600 to-pink-400' },
-                    ].map((g) => {
-                      const isActive = useFilterStore.getState().clientGender === g.id;
-                      return (
-                        <motion.button
-                          key={g.id}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          animate={isActive ? { scale: [1, 1.05, 1] } : {}}
-                          transition={isActive ? { repeat: Infinity, duration: 2.5 } : {}}
-                          onClick={() => {
-                            const current = useFilterStore.getState().clientGender;
-                            useFilterStore.getState().setClientGender(current === g.id ? 'any' : g.id as any);
-                            onRefresh();
-                          }}
-                          className={cn(
-                            "w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-xl text-xl",
-                            isActive 
-                              ? `bg-gradient-to-br ${g.color} text-white shadow-${g.id === 'man' ? 'blue' : 'pink'}-500/30 ring-2 ring-white/50`
-                              : "bg-white/5 border border-white/10 text-white/40 hover:bg-white/10"
-                          )}
-                        >
-                          {g.label}
-                        </motion.button>
-                      );
-                    })}
-
-                    <div className="w-[1px] h-12 bg-white/10 mx-2" />
-
                     {/* Intent Filters */}
                     {[
                       { id: 'rent', icon: Home, color: 'from-emerald-600 to-emerald-400' },
