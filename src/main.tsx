@@ -52,15 +52,15 @@ const removeSplash = () => {
   }
 };
 
-// 4-second hard timeout for splash removal (Fail-safe)
+// 2-second hard timeout for splash removal (Fail-safe)
 const splashTimeout = setTimeout(() => {
   if (!(window as any).__APP_MOUNTED__) {
-    logger.error('[Mount] React mount failed within 4s — keeping splash for recovery');
-    return; // Don't remove splash if we're not mounted — let index.html guard handle it
+    logger.error('[Mount] React mount failed within 2s — keeping splash for recovery');
+    return;
   }
   logger.warn('[Mount] Splash timeout triggered — forcing removal');
   removeSplash();
-}, 4000); // Reduced from 8s for 'Speed of Light' experience
+}, 2000);
 
 // Unified paint signal with 1.5s font-loading race
 Promise.all([
