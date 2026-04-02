@@ -61,10 +61,12 @@ const StoryProgressBar = memo(({
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 export const EventCard = memo(({
   event, isActive, isPaused, animKey, onTickComplete, onLike, liked, onChat, onShare, onMiddleTap, onNextEvent, onPrevEvent,
+  activeColor = '#f97316'
 }: {
   event: EventItem; isActive: boolean; isPaused: boolean; animKey: number; onTickComplete: () => void; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
   onNextEvent: () => void; onPrevEvent: () => void;
+  activeColor?: string;
 }) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
@@ -174,7 +176,7 @@ export const EventCard = memo(({
             transition={{ duration: 0.6, ease: 'easeOut' }}
             className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
           >
-            <Heart className="w-24 h-24 fill-white text-white drop-shadow-2xl" />
+            <Heart className="w-24 h-24 fill-white text-white drop-shadow-2xl" style={{ color: activeColor, fill: activeColor }} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -209,8 +211,9 @@ export const EventCard = memo(({
               "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
               isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
             )}
+            style={{ borderColor: `${activeColor}30` }}
           >
-            <MessageCircle className={cn("w-6 h-6", isLight ? "text-black" : "text-white")} />
+            <MessageCircle className={cn("w-6 h-6", isLight ? "text-black" : "text-white")} style={{ color: activeColor }} />
           </motion.div>
           <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Chat</span>
         </button>
@@ -226,8 +229,9 @@ export const EventCard = memo(({
               "w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border",
               isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/15"
             )}
+            style={{ borderColor: `${activeColor}30` }}
           >
-            <Share2 className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} />
+            <Share2 className={cn("w-5 h-5", isLight ? "text-black" : "text-white")} style={{ color: activeColor }} />
           </motion.div>
           <span className={cn("text-[10px] font-bold", isLight ? "text-black/60" : "text-white/60")}>Share</span>
         </button>

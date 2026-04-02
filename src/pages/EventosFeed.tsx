@@ -233,22 +233,58 @@ export default function EventosFeed() {
           </div>
         </motion.div>
 
-        {/* Categories */}
-        <div className="flex gap-2.5 px-4 pt-4 pb-2.5 overflow-x-auto no-scrollbar scroll-smooth">
-          {CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            const active = activeCategory === cat.key;
-            return (
-              <button key={cat.key} onClick={() => setActiveCategory(cat.key)} className={cn("relative flex flex-col items-center justify-center w-24 h-24 rounded-[1.5rem] shrink-0 overflow-hidden border-2 transition-all", active ? "border-orange-500 scale-105" : "border-transparent opacity-70")}>
-                <img src={cat.img} className="absolute inset-0 w-full h-full object-cover" alt="" />
-                <div className="absolute inset-0 bg-black/40 z-10" />
-                <div className="relative z-20 flex flex-col items-center gap-1">
-                  <Icon className={cn("w-6 h-6", active ? "text-orange-400" : "text-white")} />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white">{cat.label}</span>
-                </div>
-              </button>
-            );
-          })}
+        {/* Categories: Modern Horizontal Pill Selection */}
+        <div className="relative z-50">
+          <div className="flex gap-3 px-6 pt-3 pb-4 overflow-x-auto no-scrollbar scroll-smooth">
+            {CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              const active = activeCategory === cat.key;
+              const catColor = cat.color || '#f97316';
+              
+              return (
+                <button 
+                  key={cat.key} 
+                  onClick={() => {
+                    triggerHaptic('light');
+                    setActiveCategory(cat.key);
+                    // If likes is clicked, navigate explicitly
+                    if (cat.key === 'likes') navigate('/explore/eventos/likes');
+                  }} 
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2.5 rounded-[1.25rem] shrink-0 transition-all duration-300 border backdrop-blur-md relative overflow-hidden group",
+                    active 
+                      ? "scale-105 shadow-lg" 
+                      : "opacity-80 hover:opacity-100"
+                  )}
+                  style={{
+                    backgroundColor: active ? `${catColor}15` : isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.05)',
+                    borderColor: active ? `${catColor}40` : isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
+                  }}
+                >
+                  <Icon className={cn("w-3.5 h-3.5 transition-colors duration-300", active ? "" : isLight ? "text-black/40" : "text-white/40")} style={{ color: active ? catColor : undefined }} />
+                  <span className={cn("text-[10px] font-black uppercase tracking-[0.1em] transition-colors duration-300", active ? "" : isLight ? "text-black/40" : "text-white/40")} style={{ color: active ? catColor : undefined }}>
+                    {cat.label}
+                  </span>
+                  
+                  {active && (
+                    <motion.div 
+                      layoutId="active-pill-glow"
+                      className="absolute inset-0 z-[-1] blur-md opacity-20"
+                      style={{ background: catColor }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          
+          {/* Adaptive Ambient Glow: Changes color based on active category */}
+          <div 
+            className="absolute -top-32 left-1/2 -translate-x-1/2 w-[140%] h-[160px] blur-[100px] opacity-20 pointer-events-none transition-colors duration-1000 z-[-1]"
+            style={{ 
+              background: `radial-gradient(circle, ${CATEGORIES.find(c => c.key === activeCategory)?.color || '#f97316'} 0%, transparent 70%)` 
+            }}
+          />
         </div>
       </div>
 
@@ -270,6 +306,7 @@ export default function EventosFeed() {
                     animKey={animKey}
                     onTickComplete={() => {}} // Controlled by main feed effect
                     liked={likedIds.has(event.id)}
+                    activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
                     onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
                     onChat={() => handleOpenChat(event)}
                     onShare={() => handleShare(event)}
