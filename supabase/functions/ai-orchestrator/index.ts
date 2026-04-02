@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
             const query = action.params.query;
             console.log(`[Vibe Agent] Searching local expert knowledge for: ${query}`);
 
-            let expertCards = [];
+            let expertCards: any[] = [];
             try {
               // Priority 1: Title or Category match
               const { data: directData } = await supabase
