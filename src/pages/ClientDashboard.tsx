@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
+import { useFilterStore } from '@/state/filterStore';
+import { MyHubQuickFilters } from '@/components/MyHubQuickFilters';
 
 interface ClientDashboardProps {
   onPropertyInsights?: (listingId: string) => void;
@@ -8,21 +10,23 @@ interface ClientDashboardProps {
 
 /**
  * SPEED OF LIGHT: Client Dashboard
- * DashboardLayout is now rendered ONCE at route level via PersistentDashboardLayout
- * This component only renders its inner content
- * NotificationBar is rendered globally in AppLayout — no duplicate here
- * 
- * PERF FIX: No longer subscribes to filterVersion or creates filter objects.
- * SwipessSwipeContainer reads filters directly from the Zustand store,
- * eliminating the cascading object recreation that caused React Error #185.
+ * Shows quick filter category cards when no category is selected,
+ * and the swipe deck when a category is active.
  */
 export default function ClientDashboard({
   onPropertyInsights,
   onMessageClick,
 }: ClientDashboardProps) {
+  const activeCategory = useFilterStore(s => s.activeCategory);
+
   const handleListingTap = useCallback((listingId: string) => {
     onPropertyInsights?.(listingId);
   }, [onPropertyInsights]);
+
+  // When no category is selected, show the category picker
+  if (!activeCategory) {
+    return <MyHubQuickFilters />;
+  }
 
   return (
     <SwipessSwipeContainer
