@@ -451,8 +451,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and immersive feeds for fullscreen UX */}
       {!isFullScreenRoute && (
         <motion.div
-          animate={{ opacity: isFocused ? 0 : 1, y: isFocused ? -20 : 0 }}
-          transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+          animate={{ 
+            opacity: isFocused ? 0 : 1, 
+            y: isFocused ? -20 : 0,
+            filter: isFocused ? "blur(12px)" : "blur(0px)"
+          }}
+          transition={{ 
+            duration: 1.6, 
+            ease: [0.22, 1, 0.36, 1] 
+          }}
           className="z-50 pointer-events-none"
         >
           <div className="pointer-events-auto">
@@ -507,8 +514,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and all immersive feeds */}
       {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
         <motion.div
-          animate={{ opacity: isFocused ? 0 : 1, y: isFocused ? 20 : 0 }}
-          transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+          animate={{ 
+            opacity: isFocused ? 0 : 1, 
+            y: isFocused ? 20 : 0,
+            filter: isFocused ? "blur(12px)" : "blur(0px)"
+          }}
+          transition={{ 
+            duration: 1.6, 
+            ease: [0.22, 1, 0.36, 1] 
+          }}
           className="z-50 pointer-events-none"
         >
           <div className="pointer-events-auto">

@@ -56,8 +56,11 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Cinematic depth layers - theme-aware. Skip on full-screen public preview pages. */}
       {!isPublicPreview && (
         <motion.div 
-          animate={{ opacity: isFocused ? 0 : 1 }}
-          transition={{ duration: 1.2, ease: "easeInOut" }}
+          animate={{ 
+            opacity: isFocused ? 0 : 1,
+            filter: isFocused ? "blur(4px)" : "blur(0px)" 
+          }}
+          transition={{ duration: 1.6, ease: "easeInOut" }}
           className="pointer-events-none"
         >
           <GlobalVignette intensity={isLightTheme ? 0.4 : 0.8} light={isLightTheme} />
@@ -80,9 +83,17 @@ export function AppLayout({ children }: AppLayoutProps) {
           {!isFocused && (
             <motion.div
               initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 20, opacity: 0 }}
-              transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+              animate={{ 
+                y: 0, 
+                opacity: 1,
+                filter: "blur(0px)"
+              }}
+              exit={{ 
+                y: 20, 
+                opacity: 0,
+                filter: "blur(12px)"
+              }}
+              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
               className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+12px)] left-4 right-4 z-50 pointer-events-none"
             >
               <div className="pointer-events-auto">
