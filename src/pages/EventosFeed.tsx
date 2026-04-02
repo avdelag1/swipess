@@ -13,6 +13,7 @@ import { predictivePrefetchEvent } from '@/utils/performance';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
+import { useVisualTheme } from '@/contexts/VisualThemeContext';
 
 // Modular Components
 import { EventCard } from '@/components/events/EventCard';
@@ -29,12 +30,18 @@ export default function EventosFeed() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { theme } = useTheme();
+  const { setAmbientColor } = useVisualTheme();
   const isLight = theme === 'light';
   const queryClient = useQueryClient();
   const parentRef = useRef<HTMLDivElement>(null);
   
   const [activeIdx, setActiveIdx] = useState(0);
   const [activeCategory, setActiveCategory] = useState('all');
+
+  useEffect(() => {
+    const color = CATEGORIES.find(c => c.key === activeCategory)?.color || '#f97316';
+    setAmbientColor(color);
+  }, [activeCategory, setAmbientColor]);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareEventData, setShareEventData] = useState<EventItem | null>(null);
 

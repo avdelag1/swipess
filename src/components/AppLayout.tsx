@@ -22,12 +22,14 @@ interface AppLayoutProps {
   children: React.ReactNode;
 }
 
+import { useFocusMode } from '@/hooks/useFocusMode';
+import { motion, AnimatePresence } from 'framer-motion';
+
 export function AppLayout({ children }: AppLayoutProps) {
   const { theme } = useTheme();
   const isLightTheme = theme === 'light';
   const location = useLocation();
-  // Full-screen public preview pages manage their own gradient/overlay system
-  const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
+  const { isFocused } = useFocusMode(3500); // Cinematic timeout
 
   // Initialize app features
   useKeyboardShortcuts();
@@ -35,10 +37,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   useOfflineDetection();
   useErrorReporting();
 
-  // View Transitions API disabled in favor of Framer Motion AnimatedOutlet
+  // Full-screen public preview pages manage their own gradient/overlay system
+  const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
 
   return (
-    <div className="min-h-screen min-h-dvh w-full bg-background overflow-x-hidden">
+    <div className="min-h-screen min-h-dvh w-full bg-background overflow-x-hidden relative">
       <SkipToMainContent />
       
       <Suspense fallback={null}>
@@ -51,23 +54,45 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
 
       {/* Cinematic depth layers - theme-aware. Skip on full-screen public preview pages. */}
-      {!isPublicPreview && <GlobalVignette intensity={isLightTheme ? 0.4 : 0.8} light={isLightTheme} />}
-      {!isPublicPreview && <GradientMaskTop intensity={isLightTheme ? 0.5 : 0.75} heightPercent={22} zIndex={15} light={isLightTheme} />}
-      {!isPublicPreview && <GradientMaskBottom intensity={isLightTheme ? 0.5 : 0.75} heightPercent={38} zIndex={20} light={isLightTheme} />}
+      {!isPublicPreview && (
+        <motion.div 
+          animate={{ opacity: isFocused ? 0 : 1 }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
+          className="pointer-events-none"
+        >
+          <GlobalVignette intensity={isLightTheme ? 0.4 : 0.8} light={isLightTheme} />
+          <GradientMaskTop intensity={isLightTheme ? 0.5 : 0.75} heightPercent={22} zIndex={15} light={isLightTheme} />
+          <GradientMaskBottom intensity={isLightTheme ? 0.5 : 0.75} heightPercent={38} zIndex={20} light={isLightTheme} />
+        </motion.div>
+      )}
 
       <main
         id="main-content"
         tabIndex={-1}
-        className="outline-none w-full min-h-screen min-h-dvh overflow-x-hidden"
+        className="outline-none w-full min-h-screen min-h-dvh overflow-x-hidden relative z-10"
       >
         {children}
       </main>
 
       {/* Global Radio Mini Player - skip on full-screen public preview pages */}
       {!isPublicPreview && (
-        <Suspense fallback={null}>
-          <RadioMiniPlayer />
-        </Suspense>
+        <AnimatePresence>
+          {!isFocused && (
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+              className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+12px)] left-4 right-4 z-50 pointer-events-none"
+            >
+              <div className="pointer-events-auto">
+                <Suspense fallback={null}>
+                  <RadioMiniPlayer />
+                </Suspense>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
       
     </div>

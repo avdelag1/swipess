@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Bot,
   Send,
   X,
   Sparkles,
@@ -17,14 +16,16 @@ import {
   ChevronRight,
   Brain,
   Utensils,
+  MessageCircle as ChatIcon,
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
 import { useUserMemories } from '@/hooks/useUserMemories';
 import { useAIUsage } from '@/hooks/useAIUsage';
 import { formatQuota } from '@/config/aiTiers';
 import ReactMarkdown from 'react-markdown';
-import { SwipessLogo } from './SwipessLogo';
 import { useTheme } from '@/hooks/useTheme';
+import { useVisualTheme } from '@/contexts/VisualThemeContext';
+import { JarvisAura } from './ui/JarvisAura';
 import { useUserSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
@@ -46,18 +47,11 @@ interface ConciergeChatProps {
 // Typing indicator dots
 function TypingIndicator({ isDark }: { isDark: boolean }) {
   return (
-    <div className={cn(
-      "flex items-center gap-1.5 px-4 py-3 rounded-2xl rounded-tl-sm w-fit",
-      isDark ? "bg-zinc-800" : "bg-gray-100"
-    )}>
-      {[0, 1, 2].map(i => (
-        <motion.span
-          key={i}
-          className={cn("w-2 h-2 rounded-full", isDark ? "bg-cyan-400" : "bg-cyan-500")}
-          animate={{ y: [0, -5, 0] }}
-          transition={{ duration: 0.55, delay: i * 0.15, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      ))}
+    <div className="flex items-center gap-3 px-4 py-3">
+      <JarvisAura isThinking size="sm" />
+      <span className={cn("text-[10px] font-black uppercase tracking-widest animate-pulse", isDark ? "text-cyan-400" : "text-cyan-600")}>
+        Vibe is Thinking...
+      </span>
     </div>
   );
 }
@@ -188,8 +182,8 @@ export function ConciergeChat({
                   ? "bg-gradient-to-br from-[#1a2030] to-[#0f1520] border-cyan-500/20 shadow-lg shadow-cyan-500/10"
                   : "bg-gradient-to-br from-cyan-50 to-blue-50 border-cyan-200/60 shadow-sm"
               )}>
-                <SwipessLogo size="sm" className="relative z-10" />
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-blue-500/5" />
+                <JarvisAura size="sm" isThinking={isLoading} />
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
@@ -319,7 +313,7 @@ export function ConciergeChat({
                         ? "bg-gradient-to-br from-cyan-500/15 to-blue-600/15 border-cyan-500/20 shadow-lg shadow-cyan-500/10"
                         : "bg-gradient-to-br from-cyan-100 to-blue-50 border-cyan-200/60"
                     )}>
-                      <Bot className={cn("w-8 h-8", isDark ? "text-cyan-400" : "text-cyan-600")} />
+                      <JarvisAura size="md" isThinking={isLoading} />
                     </div>
                     <div className="relative">
                       <p className={cn("font-black text-lg tracking-tight", isDark ? "text-white" : "text-gray-900")}>
@@ -397,7 +391,7 @@ export function ConciergeChat({
                   >
                     {/* Avatar */}
                     <div className={cn(
-                      "w-8 h-8 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold border",
+                      "w-8 h-8 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold border overflow-hidden",
                       message.role === 'user'
                         ? isDark
                           ? "bg-[#1e2530] border-white/[0.07] text-zinc-300"
@@ -408,7 +402,7 @@ export function ConciergeChat({
                     )}>
                       {message.role === 'user'
                         ? (userName ? userName[0].toUpperCase() : <User className="w-3.5 h-3.5" />)
-                        : <Bot className="w-4 h-4 text-white" />
+                        : <JarvisAura size="sm" className="w-full h-full" />
                       }
                     </div>
 
@@ -583,10 +577,12 @@ export function ConciergeChat({
                     className="flex gap-2.5 items-end"
                   >
                     <div className={cn(
-                      "w-7 h-7 rounded-full flex items-center justify-center shrink-0",
-                      isDark ? "bg-gradient-to-br from-cyan-500 to-blue-600" : "bg-gradient-to-br from-cyan-400 to-blue-500"
+                      "w-8 h-8 rounded-2xl flex items-center justify-center shrink-0 border overflow-hidden",
+                      isDark
+                        ? "bg-gradient-to-br from-cyan-500 to-blue-600 border-cyan-500/30 shadow-sm shadow-cyan-500/20"
+                        : "bg-gradient-to-br from-cyan-400 to-blue-500 border-transparent"
                     )}>
-                      <Bot className="w-3.5 h-3.5 text-white" />
+                      <JarvisAura size="sm" className="w-full h-full" isThinking />
                     </div>
                     <TypingIndicator isDark={isDark} />
                   </motion.div>

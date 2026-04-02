@@ -12,6 +12,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
+import { useVisualTheme } from '@/contexts/VisualThemeContext';
 import CardImage from '@/components/CardImage';
 import { DiscoverySkeleton } from '@/components/ui/DiscoverySkeleton';
 import { CATEGORIES } from '@/data/eventsData';
@@ -32,10 +33,16 @@ export default function EventosLikes() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { theme } = useTheme();
+  const { setAmbientColor } = useVisualTheme();
   const isLight = theme === 'light';
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+
+  useEffect(() => {
+    const color = CATEGORIES.find(c => c.key === selectedCategory)?.color || '#f97316';
+    setAmbientColor(color);
+  }, [selectedCategory, setAmbientColor]);
 
   const { data: likedEvents, isLoading } = useQuery({
     queryKey: ['event-likes-detailed', user?.id],

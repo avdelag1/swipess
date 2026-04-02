@@ -10,6 +10,8 @@ import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
 import { ActiveModeProvider } from "@/hooks/useActiveMode";
 import { PWAProvider } from "@/hooks/usePWAMode";
 import { RadioProvider } from "@/contexts/RadioContext";
+import { VisualThemeProvider, useVisualTheme } from "@/contexts/VisualThemeContext";
+import { AmbientMeshBackground } from "@/components/ui/AmbientMeshBackground";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useForceUpdateOnVersionChange } from "@/hooks/useAutomaticUpdates";
@@ -18,6 +20,15 @@ import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
 import { ZenithPrewarmer } from "@/components/ZenithPrewarmer";
 import { PredictiveBundleLoader } from "@/components/PredictiveBundleLoader";
+
+/**
+ * 🌌 SENTIENT ROOT COMPONENT
+ * Renders the global ambient layers that react to the app state.
+ */
+function SentientBackgroundLayer() {
+  const { ambientColor } = useVisualTheme();
+  return <AmbientMeshBackground color={ambientColor} intensity={0.12} speed={12} />;
+}
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Performance-First Query Client Configuration
@@ -109,25 +120,28 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
       >
         <LazyMotion features={domMax}>
           {SpeedInsights && <SpeedInsights />}
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <AuthProvider authPromise={authPromise}>
-              <ZenithPrewarmer />
-              <PredictiveBundleLoader />
-              <ActiveModeProvider>
-                <ThemeProvider>
-                  <PWAProvider>
-                    <RadioProvider>
-                      <ResponsiveProvider>
-                        <AppLifecycleManager>
-                          {children}
-                        </AppLifecycleManager>
-                      </ResponsiveProvider>
-                    </RadioProvider>
-                  </PWAProvider>
-                </ThemeProvider>
-              </ActiveModeProvider>
-            </AuthProvider>
-          </BrowserRouter>
+          <VisualThemeProvider>
+            <SentientBackgroundLayer />
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <AuthProvider authPromise={authPromise}>
+                <ZenithPrewarmer />
+                <PredictiveBundleLoader />
+                <ActiveModeProvider>
+                  <ThemeProvider>
+                    <PWAProvider>
+                      <RadioProvider>
+                        <ResponsiveProvider>
+                          <AppLifecycleManager>
+                            {children}
+                          </AppLifecycleManager>
+                        </ResponsiveProvider>
+                      </RadioProvider>
+                    </PWAProvider>
+                  </ThemeProvider>
+                </ActiveModeProvider>
+              </AuthProvider>
+            </BrowserRouter>
+          </VisualThemeProvider>
         </LazyMotion>
       </PersistQueryClientProvider>
     </ConnectionGuard>

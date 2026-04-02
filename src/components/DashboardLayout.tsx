@@ -29,6 +29,8 @@ import { LoadingBar } from './ui/LoadingBar';
 import { GlobalDialogs } from './GlobalDialogs'
 import { useModalStore } from '@/state/modalStore'
 import { SmartSuspense } from './SmartSuspense';
+import { useFocusMode } from '@/hooks/useFocusMode'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // =============================================================================
 // PERFORMANCE FIX: SessionStorage caching for dashboard checks
@@ -345,6 +347,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // Quick filters are now handled directly by QuickFilterDropdown dispatching to the store
   // No more local handler needed - store is single source of truth
 
+  const { isFocused } = useFocusMode(3500);
+
   // Map quick filter category names to database category names
   const _mapCategoryToDatabase = useCallback((category: QuickFilterCategory): string => {
     const mapping: Record<QuickFilterCategory, string> = {
@@ -444,17 +448,26 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
       {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and immersive feeds for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
+      {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and immersive feeds for fullscreen UX */}
       {!isFullScreenRoute && (
-        <TopBar
-          onNotificationsClick={() => {}} // Now handled internally by TopBar navigating to /notifications
-          onMessageActivationsClick={handleMessageActivationsClick}
-          showFilters={isOnDiscoveryPage}
-          userRole={userRole}
-          transparent={isImmersiveDashboard || isImmersiveFeed}
-          hideOnScroll={true}
-          title={pageTitle}
-          showBack={!isOnDiscoveryPage}
-        />
+        <motion.div
+          animate={{ opacity: isFocused ? 0 : 1, y: isFocused ? -20 : 0 }}
+          transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+          className="z-50 pointer-events-none"
+        >
+          <div className="pointer-events-auto">
+            <TopBar
+              onNotificationsClick={() => {}} // Now handled internally by TopBar navigating to /notifications
+              onMessageActivationsClick={handleMessageActivationsClick}
+              showFilters={isOnDiscoveryPage}
+              userRole={userRole}
+              transparent={isImmersiveDashboard || isImmersiveFeed}
+              hideOnScroll={true}
+              title={pageTitle}
+              showBack={!isOnDiscoveryPage}
+            />
+          </div>
+        </motion.div>
       )}
 
       {/* Main Content - Scrollable area with safe area spacing for fixed header/footer */}
@@ -491,20 +504,29 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       </main>
 
       {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and all immersive feeds */}
+      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and all immersive feeds */}
       {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
-        <BottomNavigation
-          userRole={userRole}
-          onFilterClick={() => modalStore.setModal('showFilters', true)}
-          onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
-          onListingsClick={handleListingsClick}
-          onAISearchClick={() => {
-            if (userRole === 'owner') {
-              navigate('/owner/listings/new-ai');
-            } else {
-              modalStore.setModal('isAISearchOpen', true);
-            }
-          }}
-        />
+        <motion.div
+          animate={{ opacity: isFocused ? 0 : 1, y: isFocused ? 20 : 0 }}
+          transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+          className="z-50 pointer-events-none"
+        >
+          <div className="pointer-events-auto">
+            <BottomNavigation
+              userRole={userRole}
+              onFilterClick={() => modalStore.setModal('showFilters', true)}
+              onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
+              onListingsClick={handleListingsClick}
+              onAISearchClick={() => {
+                if (userRole === 'owner') {
+                  navigate('/owner/listings/new-ai');
+                } else {
+                  modalStore.setModal('isAISearchOpen', true);
+                }
+              }}
+            />
+          </div>
+        </motion.div>
       )}
 
       {/* PROACTIVE AI BUTLER — Sentient Insights */}
