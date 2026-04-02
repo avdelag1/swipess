@@ -29,7 +29,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { theme } = useTheme();
   const isLightTheme = theme === 'light';
   const location = useLocation();
-  const { isFocused } = useFocusMode(7500); // Cinematic timeout (+4s per user)
+  const { isFocused } = useFocusMode(11500); // Extended timeout (+4s) for more immersive experience
 
   // Initialize app features
   useKeyboardShortcuts();
@@ -61,8 +61,8 @@ export function AppLayout({ children }: AppLayoutProps) {
             filter: isFocused ? "blur(4px)" : "blur(0px)" 
           }}
           transition={{ 
-            duration: isFocused ? 1.6 : 0.4, 
-            ease: isFocused ? "easeOut" : "backOut" 
+            duration: isFocused ? 2.4 : 0.4, // BEAUTIFUL vanish, INSTANT return
+            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : "backOut" 
           }}
           className="pointer-events-none"
         >
@@ -97,8 +97,8 @@ export function AppLayout({ children }: AppLayoutProps) {
                 filter: "blur(12px)"
               }}
               transition={{ 
-                duration: isFocused ? 1.6 : 0.45,
-                ease: isFocused ? "easeOut" : [0.22, 1, 0.36, 1] 
+                duration: isFocused ? 2.4 : 0.45,
+                ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.22, 1, 0.36, 1] 
               }}
               className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+12px)] left-4 right-4 z-50 pointer-events-none"
             >

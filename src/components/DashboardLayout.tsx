@@ -309,7 +309,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     return isMatch;
   }, [location.pathname]);
 
-  const { isFocused } = useFocusMode(7500);
+  const { isFocused } = useFocusMode(11500); // Cinematic timeout (+4s per user preference)
 
   // Map quick filter category names to database category names
   const _mapCategoryToDatabase = useCallback((category: QuickFilterCategory): string => {
@@ -431,8 +431,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             filter: isFocused ? "blur(12px)" : "blur(0px)"
           }}
           transition={{ 
-            duration: isFocused ? 1.6 : 0.3, // FAST return, SLOW fade
-            ease: isFocused ? "easeIn" : [0.22, 1, 0.36, 1] 
+            duration: isFocused ? 2.4 : 0.35, // BEAUTIFUL vanish, INSTANT return
+            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.22, 1, 0.36, 1] 
           }}
           className={cn("z-50", isFocused ? "pointer-events-none" : "pointer-events-auto")}
         >
@@ -491,8 +491,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             filter: isFocused ? "blur(12px)" : "blur(0px)"
           }}
           transition={{ 
-            duration: isFocused ? 1.6 : 0.3, // FAST return, SLOW fade
-            ease: isFocused ? "easeIn" : [0.22, 1, 0.36, 1] 
+            duration: isFocused ? 2.4 : 0.35, // BEAUTIFUL vanish, INSTANT return
+            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.22, 1, 0.36, 1] 
           }}
           className={cn("z-50", isFocused ? "pointer-events-none" : "pointer-events-auto")}
         >
