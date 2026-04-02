@@ -158,35 +158,47 @@ export function ConciergeChat({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           className={cn(
-            "max-w-md w-[calc(100%-16px)] h-[88vh] max-h-[780px] flex flex-col p-0 gap-0 overflow-hidden rounded-[2rem]",
+            "max-w-[520px] w-[calc(100%-20px)] h-[92vh] max-h-[860px] flex flex-col p-0 gap-0 overflow-hidden rounded-[2rem]",
             isDark
-              ? "bg-gradient-to-b from-zinc-900 via-zinc-900 to-zinc-950 border-white/8"
-              : "bg-white border-gray-200/80"
+              ? "bg-gradient-to-b from-[#0f1117] via-[#111318] to-[#0d0f14] border-white/[0.07] shadow-2xl shadow-black/70"
+              : "bg-white border-gray-200/60 shadow-2xl shadow-black/10"
           )}
           hideCloseButton
         >
           {/* ── Header ─────────────────────────────────────────────── */}
           <div className={cn(
-            "flex items-center justify-between px-4 py-3.5 border-b shrink-0",
-            isDark ? "border-white/[0.06]" : "border-gray-100"
+            "relative flex items-center justify-between px-5 py-4 border-b shrink-0 overflow-hidden",
+            isDark
+              ? "border-white/[0.05] bg-gradient-to-r from-[#0f1117] via-[#131620] to-[#0f1117]"
+              : "border-gray-100 bg-gradient-to-r from-white via-cyan-50/30 to-white"
           )}>
+            {/* Subtle glow accent */}
+            <div className={cn(
+              "absolute left-0 top-0 w-40 h-full pointer-events-none",
+              isDark
+                ? "bg-gradient-to-r from-cyan-500/5 to-transparent"
+                : "bg-gradient-to-r from-cyan-400/8 to-transparent"
+            )} />
+
             {/* Left: logo + identity */}
-            <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-3 min-w-0 relative z-10">
               <div className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center relative overflow-hidden shrink-0 border shadow-sm",
-                isDark ? "bg-zinc-900 border-white/8" : "bg-white border-zinc-200"
+                "w-11 h-11 rounded-2xl flex items-center justify-center relative overflow-hidden shrink-0 border",
+                isDark
+                  ? "bg-gradient-to-br from-[#1a2030] to-[#0f1520] border-cyan-500/20 shadow-lg shadow-cyan-500/10"
+                  : "bg-gradient-to-br from-cyan-50 to-blue-50 border-cyan-200/60 shadow-sm"
               )}>
                 <SwipessLogo size="sm" className="relative z-10" />
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-blue-500/5" />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <h2 className={cn("font-bold text-base leading-tight", isDark ? "text-white" : "text-gray-900")}>
+                <div className="flex items-center gap-2">
+                  <h2 className={cn("font-black text-[15px] leading-tight tracking-tight", isDark ? "text-white" : "text-gray-900")}>
                     Vibe
                   </h2>
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className={cn("text-[9px] font-black uppercase tracking-[0.18em]", isDark ? "text-emerald-400" : "text-emerald-600")}>Live</span>
+                    <span className={cn("text-[9px] font-black uppercase tracking-[0.15em]", isDark ? "text-emerald-400" : "text-emerald-600")}>Live</span>
                   </span>
                   {(userRole === 'owner' || subscription?.subscription_packages?.tier === 'premium' || subscription?.subscription_packages?.tier === 'unlimited') && (
                     <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 text-[9px] font-bold uppercase tracking-wider border border-amber-500/20">
@@ -195,16 +207,16 @@ export function ConciergeChat({
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <p className={cn("text-[11px] leading-tight", isDark ? "text-zinc-500" : "text-gray-400")}>
-                    Concierge · {initialCity}
+                <div className="flex items-center gap-2 mt-0.5">
+                  <p className={cn("text-[11px] leading-tight font-medium", isDark ? "text-zinc-500" : "text-gray-400")}>
+                    AI Concierge · {initialCity}
                   </p>
                   {limits.dailyMessages !== Infinity && (
                     <span className={cn(
                       "text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full border",
                       isAtMessageLimit
                         ? isDark ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-red-50 text-red-600 border-red-200"
-                        : isDark ? "bg-white/5 text-zinc-500 border-white/8" : "bg-gray-50 text-gray-400 border-gray-200"
+                        : isDark ? "bg-white/4 text-zinc-600 border-white/6" : "bg-gray-50 text-gray-400 border-gray-200"
                     )}>
                       {formatQuota(messagesUsedToday, limits.dailyMessages)}
                     </span>
@@ -214,7 +226,7 @@ export function ConciergeChat({
             </div>
 
             {/* Right: action buttons */}
-            <div className="flex items-center gap-0.5 shrink-0">
+            <div className="flex items-center gap-0.5 shrink-0 relative z-10">
               {/* Memory button with badge */}
               <Button
                 variant="ghost"
@@ -222,10 +234,10 @@ export function ConciergeChat({
                 onClick={() => { haptics.tap(); setMemoryDrawerOpen(true); }}
                 title={`AI Memory (${memoryCount} stored)`}
                 className={cn(
-                  "h-9 w-9 rounded-lg relative",
+                  "h-9 w-9 rounded-xl relative",
                   memoryCount > 0
                     ? isDark ? "text-cyan-400 hover:bg-cyan-500/10" : "text-cyan-600 hover:bg-cyan-50"
-                    : isDark ? "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800" : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                    : isDark ? "text-zinc-600 hover:text-zinc-300 hover:bg-white/5" : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
                 )}
               >
                 <Brain className="w-4 h-4" />
@@ -256,7 +268,7 @@ export function ConciergeChat({
                   }
                 }}
                 title="Delete conversation"
-                className={cn("h-9 w-9 rounded-lg hover:text-rose-500", isDark ? "text-zinc-500 hover:bg-zinc-800" : "text-gray-400 hover:bg-gray-100")}
+                className={cn("h-9 w-9 rounded-xl hover:text-rose-500", isDark ? "text-zinc-600 hover:bg-white/5" : "text-gray-400 hover:bg-gray-100")}
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -266,7 +278,10 @@ export function ConciergeChat({
                 variant="ghost"
                 size="icon"
                 onClick={() => onOpenChange(false)}
-                className={cn("h-9 w-9 rounded-lg", isDark ? "text-zinc-400 hover:text-white hover:bg-zinc-800" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100")}
+                className={cn(
+                  "h-9 w-9 rounded-xl",
+                  isDark ? "text-zinc-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                )}
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -274,8 +289,8 @@ export function ConciergeChat({
           </div>
 
           {/* ── Messages Area ────────────────────────────────────────── */}
-          <ScrollArea className="flex-1 px-4 py-3">
-            <div ref={scrollRef} className="space-y-3">
+          <ScrollArea className="flex-1 px-5 py-4">
+            <div ref={scrollRef} className="space-y-4">
 
               {/* Empty / Welcome State */}
               {messages.length === 0 && (
@@ -286,23 +301,34 @@ export function ConciergeChat({
                 >
                   {/* Greeting card */}
                   <div className={cn(
-                    "p-5 rounded-2xl text-center space-y-2 border",
-                    isDark ? "bg-zinc-800/40 border-white/[0.04]" : "bg-gradient-to-b from-gray-50 to-white border-gray-100"
+                    "p-6 rounded-2xl text-center space-y-3 border relative overflow-hidden",
+                    isDark
+                      ? "bg-gradient-to-b from-[#151922] to-[#111318] border-white/[0.05]"
+                      : "bg-gradient-to-b from-cyan-50/60 to-white border-cyan-100/80"
                   )}>
+                    {/* Background glow */}
                     <div className={cn(
-                      "w-14 h-14 rounded-2xl flex items-center justify-center mx-auto shadow-inner",
-                      isDark ? "bg-gradient-to-br from-cyan-500/20 to-blue-600/20" : "bg-gradient-to-br from-cyan-50 to-blue-50"
+                      "absolute inset-x-0 top-0 h-20 pointer-events-none",
+                      isDark
+                        ? "bg-gradient-to-b from-cyan-500/5 to-transparent"
+                        : "bg-gradient-to-b from-cyan-400/10 to-transparent"
+                    )} />
+                    <div className={cn(
+                      "w-16 h-16 rounded-2xl flex items-center justify-center mx-auto relative border",
+                      isDark
+                        ? "bg-gradient-to-br from-cyan-500/15 to-blue-600/15 border-cyan-500/20 shadow-lg shadow-cyan-500/10"
+                        : "bg-gradient-to-br from-cyan-100 to-blue-50 border-cyan-200/60"
                     )}>
-                      <Bot className={cn("w-7 h-7", isDark ? "text-cyan-400" : "text-cyan-600")} />
+                      <Bot className={cn("w-8 h-8", isDark ? "text-cyan-400" : "text-cyan-600")} />
                     </div>
-                    <div>
-                      <p className={cn("font-bold text-base", isDark ? "text-white" : "text-gray-900")}>
+                    <div className="relative">
+                      <p className={cn("font-black text-lg tracking-tight", isDark ? "text-white" : "text-gray-900")}>
                         {userName ? `Hey, ${userName}! 👋` : 'Hey! 👋'}
                       </p>
-                      <p className={cn("text-sm mt-1 leading-relaxed", isDark ? "text-zinc-400" : "text-gray-500")}>
+                      <p className={cn("text-sm mt-1.5 leading-relaxed", isDark ? "text-zinc-400" : "text-gray-500")}>
                         {memoryCount > 0
                           ? `I remember ${memoryCount} thing${memoryCount === 1 ? '' : 's'} about you — ready to help.`
-                          : `Your personal Tulum concierge. Ask me anything.`
+                          : `Your personal ${initialCity} concierge. Ask me anything.`
                         }
                       </p>
                     </div>
@@ -310,10 +336,10 @@ export function ConciergeChat({
                       <button
                         onClick={() => setMemoryDrawerOpen(true)}
                         className={cn(
-                          "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-bold border transition-all",
+                          "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border transition-all relative",
                           isDark
                             ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/20"
-                            : "bg-cyan-50 text-cyan-600 border-cyan-100 hover:bg-cyan-100"
+                            : "bg-cyan-50 text-cyan-600 border-cyan-200 hover:bg-cyan-100"
                         )}
                       >
                         <Brain className="w-3 h-3" />
@@ -334,15 +360,17 @@ export function ConciergeChat({
                           sendMessage(suggestion.prompt, { city: initialCity, userRole, listings });
                         }}
                         className={cn(
-                          "flex items-center gap-2.5 p-3 rounded-xl text-left transition-all active:scale-95 group border",
+                          "flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all active:scale-95 group border",
                           isDark
-                            ? "bg-zinc-800/50 hover:bg-zinc-800 border-white/[0.06] hover:border-white/10"
+                            ? "bg-[#151922]/80 hover:bg-[#1a2030] border-white/[0.05] hover:border-white/[0.08]"
                             : "bg-white hover:bg-gray-50 border-gray-100 hover:border-gray-200 shadow-sm"
                         )}
                       >
                         <div className={cn(
-                          "w-8 h-8 flex items-center justify-center rounded-xl shrink-0 transition-colors",
-                          isDark ? "bg-zinc-900 group-hover:bg-zinc-700" : "bg-gray-50 group-hover:bg-gray-100"
+                          "w-8 h-8 flex items-center justify-center rounded-xl shrink-0 transition-colors border",
+                          isDark
+                            ? "bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border-cyan-500/15 group-hover:border-cyan-500/25"
+                            : "bg-gradient-to-br from-cyan-50 to-blue-50 border-cyan-100 group-hover:border-cyan-200"
                         )}>
                           <suggestion.icon className={cn("w-4 h-4", isDark ? "text-cyan-400" : "text-cyan-600")} />
                         </div>
@@ -369,31 +397,37 @@ export function ConciergeChat({
                   >
                     {/* Avatar */}
                     <div className={cn(
-                      "w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold",
+                      "w-8 h-8 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold border",
                       message.role === 'user'
-                        ? isDark ? "bg-zinc-700 text-zinc-300" : "bg-gray-200 text-gray-600"
-                        : isDark ? "bg-gradient-to-br from-cyan-500 to-blue-600" : "bg-gradient-to-br from-cyan-400 to-blue-500"
+                        ? isDark
+                          ? "bg-[#1e2530] border-white/[0.07] text-zinc-300"
+                          : "bg-gray-100 border-gray-200 text-gray-600"
+                        : isDark
+                          ? "bg-gradient-to-br from-cyan-500 to-blue-600 border-cyan-500/30 shadow-sm shadow-cyan-500/20"
+                          : "bg-gradient-to-br from-cyan-400 to-blue-500 border-transparent"
                     )}>
                       {message.role === 'user'
                         ? (userName ? userName[0].toUpperCase() : <User className="w-3.5 h-3.5" />)
-                        : <Bot className="w-3.5 h-3.5 text-white" />
+                        : <Bot className="w-4 h-4 text-white" />
                       }
                     </div>
 
                     {/* Bubble + timestamp */}
-                    <div className={cn("flex flex-col gap-0.5 max-w-[80%]", message.role === 'user' ? "items-end" : "items-start")}>
+                    <div className={cn("flex flex-col gap-1 max-w-[78%]", message.role === 'user' ? "items-end" : "items-start")}>
                       <div className={cn(
-                        "px-3.5 py-2.5 rounded-2xl",
+                        "px-4 py-3 rounded-2xl",
                         message.role === 'user'
                           ? cn(
                               "rounded-tr-sm",
                               isDark
-                                ? "bg-gradient-to-br from-cyan-600 to-blue-700 text-white"
-                                : "bg-gradient-to-br from-cyan-500 to-blue-500 text-white"
+                                ? "bg-gradient-to-br from-cyan-600/90 to-blue-700/90 text-white shadow-sm shadow-cyan-500/10"
+                                : "bg-gradient-to-br from-cyan-500 to-blue-500 text-white shadow-sm"
                             )
                           : cn(
                               "rounded-tl-sm",
-                              isDark ? "bg-zinc-800 text-zinc-100" : "bg-gray-100 text-gray-900"
+                              isDark
+                                ? "bg-[#1a2030] border border-white/[0.05] text-zinc-100"
+                                : "bg-gray-50 border border-gray-100 text-gray-900"
                             )
                       )}>
                         {message.role === 'user' ? (
@@ -570,8 +604,10 @@ export function ConciergeChat({
 
           {/* ── Input Area ───────────────────────────────────────────── */}
           <div className={cn(
-            "px-4 pb-5 pt-2.5 border-t shrink-0",
-            isDark ? "border-white/[0.06]" : "border-gray-100"
+            "px-5 pb-6 pt-3 border-t shrink-0",
+            isDark
+              ? "border-white/[0.05] bg-gradient-to-b from-transparent to-[#0d0f14]/50"
+              : "border-gray-100 bg-gradient-to-b from-transparent to-gray-50/30"
           )}>
             {isAtMessageLimit ? (
               <motion.div
@@ -594,41 +630,48 @@ export function ConciergeChat({
                 </Button>
               </motion.div>
             ) : (
-              <div className="relative flex gap-2">
+              <div className={cn(
+                "relative flex items-end gap-2.5 rounded-2xl p-2 border transition-colors",
+                isDark
+                  ? "bg-[#151922] border-white/[0.07] focus-within:border-cyan-500/30"
+                  : "bg-white border-gray-200 focus-within:border-cyan-300 shadow-sm"
+              )}>
                 <Textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value.slice(0, 500))}
                   onKeyDown={handleKeyDown}
                   placeholder={`Ask Vibe about ${initialCity}…`}
                   className={cn(
-                    "min-h-[46px] max-h-28 resize-none rounded-xl text-sm pr-10",
+                    "flex-1 min-h-[36px] max-h-32 resize-none border-0 bg-transparent text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 py-1.5 px-1",
                     isDark
-                      ? "bg-zinc-800/80 border-white/8 text-white placeholder:text-zinc-600 focus:border-cyan-500/40"
-                      : "bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-cyan-300"
+                      ? "text-white placeholder:text-zinc-600"
+                      : "text-gray-900 placeholder:text-gray-400"
                   )}
                   disabled={isLoading}
                 />
-                {input.length > 350 && (
-                  <span className={cn(
-                    "absolute bottom-2 right-14 text-[9px] font-bold",
-                    input.length > 480 ? "text-rose-400" : isDark ? "text-zinc-600" : "text-gray-400"
-                  )}>
-                    {input.length}/500
-                  </span>
-                )}
-                <Button
-                  onClick={handleSend}
-                  disabled={!input.trim() || isLoading}
-                  size="icon"
-                  className={cn(
-                    "h-11 w-11 rounded-xl shrink-0 shadow-sm transition-all",
-                    isDark
-                      ? "bg-gradient-to-br from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 disabled:opacity-40"
-                      : "bg-gradient-to-br from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 disabled:opacity-40"
+                <div className="flex items-center gap-2 pb-0.5 pr-0.5 shrink-0">
+                  {input.length > 350 && (
+                    <span className={cn(
+                      "text-[9px] font-bold",
+                      input.length > 480 ? "text-rose-400" : isDark ? "text-zinc-600" : "text-gray-400"
+                    )}>
+                      {input.length}/500
+                    </span>
                   )}
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
+                  <Button
+                    onClick={handleSend}
+                    disabled={!input.trim() || isLoading}
+                    size="icon"
+                    className={cn(
+                      "h-9 w-9 rounded-xl shrink-0 transition-all",
+                      isDark
+                        ? "bg-gradient-to-br from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 disabled:opacity-30 shadow-sm shadow-cyan-500/20"
+                        : "bg-gradient-to-br from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 disabled:opacity-40 shadow-sm"
+                    )}
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
               </div>
             )}
           </div>
