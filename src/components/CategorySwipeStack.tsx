@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, PanInfo } from 'framer-motion';
 import { Home, Bike, Briefcase, Search, Check, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -169,8 +169,45 @@ function CategoryCard({
         haptics.tap();
     };
 
+    // 🚀 BEYOND ZENITH: Threshold Haptic Tracking
+    // We only want to pulse ONCE per threshold crossing
+    const hasPulsedRef = useRef<{ left: boolean, right: boolean, up: boolean }>({ left: false, right: false, up: false });
+
+    useEffect(() => {
+        const unsubscribeX = x.on('change', (val) => {
+            if (val > 80 && !hasPulsedRef.current.right) {
+                haptics.tap();
+                hasPulsedRef.current.right = true;
+            } else if (val < 80) {
+                hasPulsedRef.current.right = false;
+            }
+            
+            if (val < -80 && !hasPulsedRef.current.left) {
+                haptics.tap();
+                hasPulsedRef.current.left = true;
+            } else if (val > -80) {
+                hasPulsedRef.current.left = false;
+            }
+        });
+
+        const unsubscribeY = y.on('change', (val) => {
+            if (val < -80 && !hasPulsedRef.current.up) {
+                haptics.tap();
+                hasPulsedRef.current.up = true;
+            } else if (val > -80) {
+                hasPulsedRef.current.up = false;
+            }
+        });
+
+        return () => {
+            unsubscribeX();
+            unsubscribeY();
+        };
+    }, [x, y]);
+
     const handleDragEnd = (_: any, info: PanInfo) => {
         setIsDragging(false);
+        hasPulsedRef.current = { left: false, right: false, up: false };
         const absX = Math.abs(info.offset.x);
         const absY = Math.abs(info.offset.y);
 
