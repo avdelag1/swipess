@@ -61,9 +61,9 @@ interface NavItem {
 
 const TAP_SPRING = {
   type: 'spring' as const,
-  stiffness: 850, // WARP 9
-  damping: 45,
-  mass: 0.4,
+  stiffness: 1000, // OVERCLOCKED
+  damping: 30,
+  mass: 0.3, // LIGHTER
 };
 
 export const BottomNavigation = memo(({
@@ -180,7 +180,8 @@ export const BottomNavigation = memo(({
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!touchState.current) return;
     const dx = Math.abs(e.clientX - touchState.current.x);
-    if (dx > 10) {
+    const dy = Math.abs(e.clientY - touchState.current.y);
+    if (dx > 8 || dy > 8) {
       isDraggingRef.current = true;
     }
   }, []);
@@ -197,6 +198,9 @@ export const BottomNavigation = memo(({
   // Primary navigation handler — fires after pointer events, checks drag state
   const handleNavClick = useCallback(
     (item: NavItem, event?: React.MouseEvent | React.PointerEvent) => {
+      // Immediate haptic on the final click confirmation
+      haptics.tap();
+
       if (isDraggingRef.current) {
         isDraggingRef.current = false;
         return;
@@ -345,9 +349,11 @@ export const BottomNavigation = memo(({
                 key={item.id}
                 id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
                 data-no-cinematic
-                onPointerDown={() => {
-                  haptics.select();
-                  if (item.path) prefetch(item.path);
+                onPointerDown={(e) => {
+                  haptics.select(); // INSTANT HAPTIC
+                  if (item.path) prefetchRoute(item.path); // TOUCH-PRE-WARM
+                  isDraggingRef.current = false;
+                  touchState.current = { x: e.clientX, y: e.clientY };
                 }}
                 onPointerEnter={() => {
                   // HOVER PREFETCH: Gain 100-300ms before they even click
@@ -355,14 +361,14 @@ export const BottomNavigation = memo(({
                 }}
                 onPointerUp={(e) => handlePointerUp(e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
-                onTouchStart={() => {}} // Propagation removed for instant UI recovery
+                onTouchStart={() => {}}
                 onClick={(e) => handleNavClick(item, e)}
-                whileTap={{ scale: 0.88, transition: TAP_SPRING }}
+                whileTap={{ scale: 0.92, transition: TAP_SPRING }}
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 className={cn(
                   'relative flex flex-col items-center justify-center rounded-xl gap-0.5 min-w-0 flex-1',
-                  'touch-manipulation focus-visible:outline-none',
+                  'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                 style={{
                   minWidth: 72,

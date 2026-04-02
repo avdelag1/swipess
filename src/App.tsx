@@ -128,90 +128,88 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <PWAInstallPrompt />
           </Suspense>
 
-          <Suspense fallback={<SuspenseFallback />}>
-            <Routes>
-              <Route path="/" element={<SignupErrorBoundary><Index /></SignupErrorBoundary>} />
-              <Route path="/reset-password" element={<AnimatedPage><ResetPassword /></AnimatedPage>} />
+          <Routes>
+            <Route path="/" element={<SignupErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><Index /></Suspense></SignupErrorBoundary>} />
+            <Route path="/reset-password" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><ResetPassword /></AnimatedPage></Suspense>} />
 
-              <Route element={<ProtectedRoute><PersistentDashboardLayout /></ProtectedRoute>}>
-                {/* Client routes */}
-                <Route path="/client/dashboard" element={<ClientDashboard />} />
-                <Route path="/client/profile" element={<ClientProfile />} />
-                <Route path="/client/settings" element={<ClientSettings />} />
-                <Route path="/client/liked-properties" element={<ClientLikedProperties />} />
-                <Route path="/client/who-liked-you" element={<ClientWhoLikedYou />} />
-                <Route path="/client/saved-searches" element={<ClientSavedSearches />} />
-                <Route path="/client/security" element={<ClientSecurity />} />
-                <Route path="/client/services" element={<ClientWorkerDiscovery />} />
-                <Route path="/client/contracts" element={<ClientContracts />} />
-                <Route path="/client/legal-services" element={<ClientLawyerServices />} />
-                <Route path="/client/camera" element={<ClientSelfieCamera />} />
-                <Route path="/client/filters" element={<ClientFilters />} />
-                <Route path="/client/advertise" element={<AdvertisePage />} />
-                <Route path="/client/maintenance" element={<MaintenanceRequests />} />
+            <Route element={<ProtectedRoute><PersistentDashboardLayout /></ProtectedRoute>}>
+              {/* Individual routes are suspended by the Suspense in PersistentDashboardLayout/AnimatedOutlet */}
+              <Route path="/client/dashboard" element={<ClientDashboard />} />
+              <Route path="/client/profile" element={<ClientProfile />} />
+              <Route path="/client/settings" element={<ClientSettings />} />
+              <Route path="/client/liked-properties" element={<ClientLikedProperties />} />
+              <Route path="/client/who-liked-you" element={<ClientWhoLikedYou />} />
+              <Route path="/client/saved-searches" element={<ClientSavedSearches />} />
+              <Route path="/client/security" element={<ClientSecurity />} />
+              <Route path="/client/services" element={<ClientWorkerDiscovery />} />
+              <Route path="/client/contracts" element={<ClientContracts />} />
+              <Route path="/client/legal-services" element={<ClientLawyerServices />} />
+              <Route path="/client/camera" element={<ClientSelfieCamera />} />
+              <Route path="/client/filters" element={<ClientFilters />} />
+              <Route path="/client/advertise" element={<AdvertisePage />} />
+              <Route path="/client/maintenance" element={<MaintenanceRequests />} />
 
-                {/* Owner routes */}
-                <Route path="/owner/dashboard" element={<EnhancedOwnerDashboard />} />
-                <Route path="/owner/profile" element={<OwnerProfile />} />
-                <Route path="/owner/settings" element={<OwnerSettings />} />
-                <Route path="/owner/properties" element={<OwnerProperties />} />
-                <Route path="/owner/listings/new" element={<OwnerNewListing />} />
-                <Route path="/owner/listings/new-ai" element={<ConversationalListingCreator />} />
-                <Route path="/owner/liked-clients" element={<OwnerLikedClients />} />
-                <Route path="/owner/interested-clients" element={<OwnerInterestedClients />} />
-                <Route path="/owner/clients/property" element={<OwnerPropertyClientDiscovery />} />
-                <Route path="/owner/clients/moto" element={<OwnerMotoClientDiscovery />} />
-                <Route path="/owner/clients/bicycle" element={<OwnerBicycleClientDiscovery />} />
-                <Route path="/owner/view-client/:clientId" element={<OwnerViewClientProfile />} />
-                <Route path="/owner/filters-explore" element={<OwnerFiltersExplore />} />
-                <Route path="/owner/saved-searches" element={<OwnerSavedSearches />} />
-                <Route path="/owner/security" element={<OwnerSecurity />} />
-                <Route path="/owner/contracts" element={<OwnerContracts />} />
-                <Route path="/owner/legal-services" element={<OwnerLawyerServices />} />
-                <Route path="/owner/camera" element={<OwnerProfileCamera />} />
-                <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
-                <Route path="/owner/filters" element={<OwnerFilters />} />
+              {/* Owner routes */}
+              <Route path="/owner/dashboard" element={<EnhancedOwnerDashboard />} />
+              <Route path="/owner/profile" element={<OwnerProfile />} />
+              <Route path="/owner/settings" element={<OwnerSettings />} />
+              <Route path="/owner/properties" element={<OwnerProperties />} />
+              <Route path="/owner/listings/new" element={<OwnerNewListing />} />
+              <Route path="/owner/listings/new-ai" element={<ConversationalListingCreator />} />
+              <Route path="/owner/liked-clients" element={<OwnerLikedClients />} />
+              <Route path="/owner/interested-clients" element={<OwnerInterestedClients />} />
+              <Route path="/owner/clients/property" element={<OwnerPropertyClientDiscovery />} />
+              <Route path="/owner/clients/moto" element={<OwnerMotoClientDiscovery />} />
+              <Route path="/owner/clients/bicycle" element={<OwnerBicycleClientDiscovery />} />
+              <Route path="/owner/view-client/:clientId" element={<OwnerViewClientProfile />} />
+              <Route path="/owner/filters-explore" element={<OwnerFiltersExplore />} />
+              <Route path="/owner/saved-searches" element={<OwnerSavedSearches />} />
+              <Route path="/owner/security" element={<OwnerSecurity />} />
+              <Route path="/owner/contracts" element={<OwnerContracts />} />
+              <Route path="/owner/legal-services" element={<OwnerLawyerServices />} />
+              <Route path="/owner/camera" element={<OwnerProfileCamera />} />
+              <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
+              <Route path="/owner/filters" element={<OwnerFilters />} />
 
-                {/* Shared routes */}
-                <Route path="/messages" element={<MessagingDashboard />} />
-                <Route path="/notifications" element={<NotificationsPage />} />
-                <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
-                <Route path="/radio" element={<DJTurntableRadio />} />
-                <Route path="/radio/playlists" element={<RadioPlaylists />} />
-                <Route path="/radio/favorites" element={<RadioFavorites />} />
+              {/* Shared routes */}
+              <Route path="/messages" element={<MessagingDashboard />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
+              <Route path="/radio" element={<DJTurntableRadio />} />
+              <Route path="/radio/playlists" element={<RadioPlaylists />} />
+              <Route path="/radio/favorites" element={<RadioFavorites />} />
 
-                {/* Explore/Events */}
-                <Route path="/explore/eventos" element={<EventosFeed />} />
-                <Route path="/explore/eventos/likes" element={<EventosLikes />} />
-                <Route path="/explore/eventos/:id" element={<EventoDetail />} />
-                <Route path="/admin/eventos" element={<AdminProtectedRoute><AdminEventos /></AdminProtectedRoute>} />
-                <Route path="/admin/photos" element={<AdminProtectedRoute><AdminPhotos /></AdminProtectedRoute>} />
-                <Route path="/admin/performance" element={<AdminProtectedRoute><AdminPerformanceDashboard /></AdminProtectedRoute>} />
-                <Route path="/explore/prices" element={<PriceTracker />} />
-                <Route path="/explore/tours" element={<VideoTours />} />
-                <Route path="/explore/intel" element={<LocalIntel />} />
-                <Route path="/explore/roommates" element={<RoommateMatching />} />
+              {/* Explore/Events */}
+              <Route path="/explore/eventos" element={<EventosFeed />} />
+              <Route path="/explore/eventos/likes" element={<EventosLikes />} />
+              <Route path="/explore/eventos/:id" element={<EventoDetail />} />
+              <Route path="/admin/eventos" element={<AdminProtectedRoute><AdminEventos /></AdminProtectedRoute>} />
+              <Route path="/admin/photos" element={<AdminProtectedRoute><AdminPhotos /></AdminProtectedRoute>} />
+              <Route path="/admin/performance" element={<AdminProtectedRoute><AdminPerformanceDashboard /></AdminProtectedRoute>} />
+              <Route path="/explore/prices" element={<PriceTracker />} />
+              <Route path="/explore/tours" element={<VideoTours />} />
+              <Route path="/explore/intel" element={<LocalIntel />} />
+              <Route path="/explore/roommates" element={<RoommateMatching />} />
 
-                <Route path="/documents" element={<DocumentVault />} />
-                <Route path="/escrow" element={<EscrowDashboard />} />
-              </Route>
+              <Route path="/documents" element={<DocumentVault />} />
+              <Route path="/escrow" element={<EscrowDashboard />} />
+            </Route>
 
-              {/* Outside Layout */}
-              <Route path="/payment/success" element={<Suspense fallback={<SuspenseFallback />}><AnimatedPage><PaymentSuccess /></AnimatedPage></Suspense>} />
-              <Route path="/payment/cancel" element={<Suspense fallback={<SuspenseFallback />}><AnimatedPage><PaymentCancel /></AnimatedPage></Suspense>} />
-              <Route path="/privacy-policy" element={<AnimatedPage><PrivacyPolicy /></AnimatedPage>} />
-              <Route path="/terms-of-service" element={<AnimatedPage><TermsOfService /></AnimatedPage>} />
-              <Route path="/agl" element={<AnimatedPage><AGLPage /></AnimatedPage>} />
-              <Route path="/legal" element={<AnimatedPage><LegalPage /></AnimatedPage>} />
-              <Route path="/dashboard" element={<DashboardRedirect />} />
-              <Route path="/about" element={<AnimatedPage><AboutPage /></AnimatedPage>} />
-              <Route path="/faq/client" element={<AnimatedPage><FAQClientPage /></AnimatedPage>} />
-              <Route path="/faq/owner" element={<AnimatedPage><FAQOwnerPage /></AnimatedPage>} />
-              <Route path="/profile/:id" element={<AnimatedPage><PublicProfilePreview /></AnimatedPage>} />
-              <Route path="/listing/:id" element={<AnimatedPage><PublicListingPreview /></AnimatedPage>} />
-              <Route path="*" element={<AnimatedPage><NotFound /></AnimatedPage>} />
-            </Routes>
-          </Suspense>
+            {/* Outside Layout */}
+            <Route path="/payment/success" element={<Suspense fallback={<SuspenseFallback />}><AnimatedPage><PaymentSuccess /></AnimatedPage></Suspense>} />
+            <Route path="/payment/cancel" element={<Suspense fallback={<SuspenseFallback />}><AnimatedPage><PaymentCancel /></AnimatedPage></Suspense>} />
+            <Route path="/privacy-policy" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PrivacyPolicy /></AnimatedPage></Suspense>} />
+            <Route path="/terms-of-service" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><TermsOfService /></AnimatedPage></Suspense>} />
+            <Route path="/agl" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><AGLPage /></AnimatedPage></Suspense>} />
+            <Route path="/legal" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><LegalPage /></AnimatedPage></Suspense>} />
+            <Route path="/dashboard" element={<DashboardRedirect />} />
+            <Route path="/about" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><AboutPage /></AnimatedPage></Suspense>} />
+            <Route path="/faq/client" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQClientPage /></AnimatedPage></Suspense>} />
+            <Route path="/faq/owner" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQOwnerPage /></AnimatedPage></Suspense>} />
+            <Route path="/profile/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicProfilePreview /></AnimatedPage></Suspense>} />
+            <Route path="/listing/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicListingPreview /></AnimatedPage></Suspense>} />
+            <Route path="*" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><NotFound /></AnimatedPage></Suspense>} />
+          </Routes>
         </AppLayout>
       </RootProviders>
     </GlobalErrorBoundary>

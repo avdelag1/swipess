@@ -13,7 +13,7 @@ interface SmartSuspenseProps {
  * Tracks lazy-load state in the global loading store and prevents
  * "skeleton flashes" for fast loads by showing a transparent fallback initially.
  */
-export const SmartSuspense = ({ children, fallback, threshold = 250 }: SmartSuspenseProps) => {
+export const SmartSuspense = ({ children, fallback, threshold = 100 }: SmartSuspenseProps) => {
   const { start, finish } = useLoadingStore();
 
   return (

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, PanInfo } from 'framer-motion';
 import { Home, Bike, Briefcase, Search, Check, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 import { QuickFilterCategory } from '@/types/filters';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useTheme } from '@/hooks/useTheme';
+import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { predictivePrefetchCategory } from '@/utils/performance';
 
@@ -23,13 +25,8 @@ export function CategorySwipeStack() {
     const activeCategory = useFilterStore(s => s.activeCategory);
     const { setActiveCategory } = useFilterActions();
     const queryClient = useQueryClient();
-    const navigate = React.useMemo(() => {
-        // Need to import or pass navigate? No, use the function from rrd if needed
-        return (path: string) => window.history.pushState(null, '', path);
-    }, []);
-    // Wait, let's use the actual useNavigate from react-router-dom
-    // I'll add it in the imports below. For now, I'll pass it if needed.
-    // Actually I will import it in CategorySwipeStack
+    const navigate = useNavigate();
+    const { user } = useAuth();
 
     const { theme } = useTheme();
     const isDark = theme === 'dark';
@@ -98,9 +95,10 @@ export function CategorySwipeStack() {
                             onSelect={() => handleSelect(cat.id as any)}
                             onSwipeUp={() => {
                                 haptics.success();
-                                window.location.href = '/explore/eventos'; // Fast and reliable
+                                navigate('/explore/eventos'); // Fast and reliable
                             }}
                             queryClient={queryClient}
+                            userId={user?.id}
                         />
                     );
                 }).reverse()}
@@ -136,8 +134,8 @@ interface CategoryCardProps {
 }
 
 function CategoryCard({
-    category, isTop, index, itemCount: _itemCount, isActive, isDark: _isDark, onSwipeRight, onSwipeLeft, onSwipeUp, onSelect, queryClient
-}: CategoryCardProps) {
+    category, isTop, index, itemCount: _itemCount, isActive, isDark: _isDark, onSwipeRight, onSwipeLeft, onSwipeUp, onSelect, queryClient, userId
+}: CategoryCardProps & { userId?: string }) {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
     
@@ -197,7 +195,7 @@ function CategoryCard({
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onClick={() => !isTop && onSelect()}
-            initial={{ scale: 0.9, opacity: 0, y: 30 }}
+            initial={{ scale: 0.95, opacity: 0, y: 15 }}
             animate={{ 
                 scale, 
                 opacity: 1, 
@@ -206,13 +204,14 @@ function CategoryCard({
                 rotate: isDragging ? tilt.get() : (isActive ? 0 : fanRotation),
                 zIndex: isTop ? zIndex.get() : zIndexBase,
             }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.5 }}
             whileHover={!isTop ? { 
                 y: fanY - 15, 
                 scale: scale * 1.03,
                 transition: { duration: 0.15, ease: "easeOut" } 
             } : {}}
-            onMouseEnter={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, category.id)}
-            onPointerDown={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, category.id)}
+            onMouseEnter={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, userId, category.id)}
+            onPointerDown={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, userId, category.id)}
             exit={{ 
                 x: x.get() > 0 ? 400 : -400, 
                 rotate: x.get() > 0 ? 10 : -10, 

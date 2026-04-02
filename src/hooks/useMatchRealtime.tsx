@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 
-export function useMatchRealtime() {
+export function useMatchRealtime(enabled = true) {
   const { user } = useAuth();
   const [matchCelebration, setMatchCelebration] = useState<{
     isOpen: boolean;
@@ -45,7 +45,7 @@ export function useMatchRealtime() {
   }, [user?.id]);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || !enabled) return;
 
     // Subscribe to new matches where current user is a participant
     const matchesChannel = supabase
@@ -82,7 +82,7 @@ export function useMatchRealtime() {
       matchesChannel.unsubscribe();
       supabase.removeChannel(matchesChannel);
     };
-  }, [user?.id, handleMatch]);
+  }, [user?.id, handleMatch, enabled]);
 
   return {
     matchCelebration,

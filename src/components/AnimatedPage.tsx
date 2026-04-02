@@ -9,18 +9,16 @@ import { ReactNode } from 'react';
  */
 
 const pageVariants = {
-  initial: { opacity: 0, scale: 0.99 },
+  initial: { opacity: 0 },
   animate: {
     opacity: 1,
-    scale: 1,
     transition: {
-      duration: 0.12, // Warp speed
+      duration: 0.1, // SPEED OF LIGHT: 100ms
       ease: [0.23, 1, 0.32, 1],
     }
   },
   exit: {
     opacity: 0,
-    scale: 1,
     transition: {
       duration: 0.08,
       ease: 'circIn',

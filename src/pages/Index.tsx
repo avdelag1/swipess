@@ -122,146 +122,78 @@ const Index = () => {
 
   const isLoadingRole = (profileLoading || isFetching) && userRole === undefined;
 
-  // CRITICAL FIX: Navigate as soon as we have role, don't wait
+  // 🚀 WARP-SPEED REDIRECTION: Jump into the app as fast as possible
   useEffect(() => {
-    // CRITICAL: Complete wait for auth to initialize
-    if (!initialized || loading || hasNavigated.current) return;
+    // 1. Initial Auth Check - must be initialized
+    if (!initialized || hasNavigated.current) return;
 
-    // Not logged in - show landing page (return early, no navigation needed)
+    // 2. Landing Page: If no user, stay here (landing is already being shown)
     if (!user) {
-      logger.log("[Index] No user found, staying on landing page");
+      logger.log("[Index] No user - Staying on landing");
       return;
     }
 
-    // From here on, we have a user and auth is initialized.
-
-    // PRIORITY 1: For new users, use metadata role immediately (don't wait for DB query)
-    // This prevents the loading screen hang after signup
-    if (isNewUser) {
+    const performInstantNav = async () => {
+      // 3. Deep Link Priority: If we have a returnTo, go there IMMEDIATELY
       const returnTo = searchParams.get('returnTo');
       if (returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')) {
-        hasNavigated.current = true;
-        navigate(returnTo, { replace: true });
-        return;
+          hasNavigated.current = true;
+          navigate(returnTo, { replace: true });
+          return;
       }
-      const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
-      if (metadataRole) {
-        hasNavigated.current = true;
-        logger.log("[Index] New user - navigating to unified hub");
-        const target = metadataRole === 'owner' ? "/owner/dashboard" : "/client/dashboard";
-        navigate(target, { replace: true });
-        return;
-      }
-    }
 
-    // PRIORITY 2: Check for active_mode preference (Sticky Mode)
-    // We prioritize the user's last selected mode stored in DB or local storage
-    const fetchActiveMode = async () => {
-      // Try local storage first (fastest)
+      // 4. Sticky Mode Preference: Fastest path (LocalStorage)
       const cachedMode = localStorage.getItem(`swipess_active_mode_${user.id}`);
       if (cachedMode === 'client' || cachedMode === 'owner') {
-        logger.log("[Index] Sticky mode found in localStorage:", cachedMode);
-        return cachedMode;
+          hasNavigated.current = true;
+          logger.log("[Index] Warp-Speed: Navigating to sticky mode", cachedMode);
+          navigate(`/${cachedMode}/dashboard`, { replace: true });
+          return;
       }
 
-      // Try database with a 3-second timeout to prevent getting stuck
-      try {
-        const dbPromise = supabase
-          .from('profiles')
-          .select('active_mode')
-          .eq('user_id', user.id)
-          .maybeSingle();
-        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
-        const result = await Promise.race([dbPromise, timeoutPromise]);
-
-        if (result && 'data' in result && (result.data?.active_mode === 'client' || result.data?.active_mode === 'owner')) {
-          logger.log("[Index] Sticky mode found in database:", result.data.active_mode);
-          return result.data.active_mode as 'client' | 'owner';
-        }
-      } catch {
-        logger.warn("[Index] fetchActiveMode DB query failed, skipping");
+      // 5. Auth Metadata: Reliable second path (In-memory)
+      const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
+      if (metadataRole) {
+          hasNavigated.current = true;
+          logger.log("[Index] Warp-Speed: Navigating to metadata role", metadataRole);
+          navigate(`/${metadataRole}/dashboard`, { replace: true });
+          return;
       }
 
-      return null;
-    };
-
-    // PRIORITY 3: Have role from DB or metadata - combine with sticky mode
-    const performRedirection = async () => {
-      if (hasNavigated.current) return;
-
-      const returnTo = searchParams.get('returnTo');
-      if (returnTo) {
-        hasNavigated.current = true;
-        logger.log("[Index] Deep link detected, navigating to:", returnTo);
-        navigate(returnTo, { replace: true });
-        return;
+      // 6. DB Role Fallback: If we have the role from the query, use it
+      if (userRole === 'client' || userRole === 'owner') {
+          hasNavigated.current = true;
+          logger.log("[Index] Warp-Speed: Navigating to DB role", userRole);
+          navigate(`/${userRole}/dashboard`, { replace: true });
+          return;
       }
-
-      // ADMIN GUARD: Check admin FIRST — admin users must never enter client/owner flow
+      
       if (userRole === 'admin') {
-        hasNavigated.current = true;
-        logger.log("[Index] Admin detected (early guard), navigating to admin panel");
-        navigate('/admin/eventos', { replace: true });
-        return;
+          hasNavigated.current = true;
+          navigate('/admin/eventos', { replace: true });
+          return;
       }
 
-      const activeMode = await fetchActiveMode();
-
-      // If we have an active mode preference, use it
-      if (activeMode) {
-        hasNavigated.current = true;
-        logger.log("[Index] Navigating to unified hub with sticky mode:", activeMode);
-        const target = activeMode === 'owner' ? "/owner/dashboard" : "/client/dashboard";
-        navigate(target, { replace: true });
-        return;
-      }
-
-      // Fallback 1: Admin always goes to admin panel — never mixed with client/owner
-      if (userRole === 'admin') {
-        hasNavigated.current = true;
-        logger.log("[Index] Admin detected, navigating to admin panel");
-        navigate('/admin/eventos', { replace: true });
-        return;
-      }
-
-      // Fallback 2: Primary role or Metadata
-      if (!isNewUser && !isLoadingRole) {
-        hasNavigated.current = true;
-        const metadataRole = user?.user_metadata?.role;
-        // Accept null userRole and fallback to metadata instead of hanging
-        const fallbackRole = (userRole === 'client' || userRole === 'owner') 
-          ? userRole 
-          : (metadataRole === 'client' || metadataRole === 'owner') ? metadataRole : 'client';
-          
-        logger.log("[Index] Last resort navigation to unified hub with role:", fallbackRole);
-        navigate(fallbackRole === 'owner' ? "/owner/dashboard" : "/client/dashboard", { replace: true });
-        return;
-      }
-
-      // Unconditional last resort: never leave user on black screen
-      // Fires when role query is in-flight AND user is new with no metadata role
-      if (!hasNavigated.current) {
-        hasNavigated.current = true;
-        const metadataRole = user?.user_metadata?.role;
-        const fallbackRole = (metadataRole === 'client' || metadataRole === 'owner') ? metadataRole : 'client';
-        logger.warn("[Index] Unconditional fallback navigation to unified hub with role:", fallbackRole);
-        navigate(fallbackRole === 'owner' ? "/owner/dashboard" : "/client/dashboard", { replace: true });
+      // 7. Last Resort: Default to client dashboard (Never block the user)
+      if (!isLoadingRole && !isFetching) {
+          hasNavigated.current = true;
+          logger.warn("[Index] Warp-Speed: Last resort navigation to /client");
+          navigate('/client/dashboard', { replace: true });
       }
     };
 
-    // Safety net: if performRedirection never fires navigation within 5s, force it
-    // IMPORTANT: Do NOT clear this from performRedirection — it must run independently
-    const safetyTimeout = setTimeout(() => {
+    // Safety net: Force navigation after max 1.5s (reduced from 3s)
+    const safetyTimer = setTimeout(() => {
       if (!hasNavigated.current && user) {
         hasNavigated.current = true;
-        logger.warn("[Index] Safety timeout triggered — forcing navigation to unified hub");
-        navigate("/client/dashboard", { replace: true });
+        logger.warn("[Index] Safety timeout — forcing dashboard entry");
+        navigate('/client/dashboard', { replace: true });
       }
-    }, 3000); // Reduced safety net to 3s for native feel
+    }, 1500);
 
-    performRedirection();
-    return () => clearTimeout(safetyTimeout);
-  }, [user, userRole, loading, initialized, isLoadingRole, isNewUser, navigate]);
+    performInstantNav();
+    return () => clearTimeout(safetyTimer);
+  }, [user, userRole, initialized, isLoadingRole, isFetching, navigate, searchParams]);
 
   // Reset navigation flag when user changes
   useEffect(() => {

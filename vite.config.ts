@@ -84,15 +84,17 @@ export default defineConfig(({ mode }) => ({
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            // ONLY isolate the absolute heaviest libraries that aren't core to boot
+            // HIGH-STABILITY CHUNKS: Isolate huge libraries to maximize browser cache persistence across app updates
+            if (id.includes('framer-motion')) return 'vendor-motion';
+            if (id.includes('lucide-react')) return 'vendor-icons';
+            
+            // SPECIALIZED COMPONENT CHUNKS: Absolute heaviest libraries not needed for initial boot
             if (id.includes('recharts') || id.includes('victory')) return 'vendor-viz';
             if (id.includes('lottie')) return 'vendor-lottie';
-            if (id.includes('octokit')) return 'vendor-github';
             if (id.includes('embla-carousel')) return 'vendor-carousel';
             if (id.includes('browser-image-compression')) return 'vendor-img';
             
-            // Keep everything else in a unified vendor chunk to avoid 'unstable_scheduleCallback' 
-            // and 'useState is null' sync issues across fragmented chunks.
+            // CORE VENDOR: React, TanStack, etc.
             return 'vendor-core';
           }
         }

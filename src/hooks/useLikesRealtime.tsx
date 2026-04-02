@@ -10,12 +10,12 @@ import { logger } from '@/utils/prodLogger';
  * Automatically invalidates 'owner-interested-clients' and 'liked-properties'
  * when new likes are detected.
  */
-export function useLikesRealtime() {
+export function useLikesRealtime(enabled = true) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || !enabled) return;
 
     logger.info('[useLikesRealtime] Subscribing to likes table for user:', user.id);
 
@@ -68,7 +68,7 @@ export function useLikesRealtime() {
       likesChannel.unsubscribe();
       supabase.removeChannel(likesChannel);
     };
-  }, [user?.id, queryClient]);
+  }, [user?.id, queryClient, enabled]);
 
   return null;
 }

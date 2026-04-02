@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Brain,
   Utensils,
+  Calendar,
   MessageCircle as ChatIcon,
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
@@ -35,6 +36,7 @@ import { useNavigate } from 'react-router-dom';
 import { MemoryDrawer } from './MemoryDrawer';
 import { ConversationHistoryPopover } from './ConversationHistoryPopover';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
+import { toast } from '@/components/ui/sonner';
 
 interface ConciergeChatProps {
   open: boolean;
@@ -553,6 +555,54 @@ export function ConciergeChat({
                                 )}
                               </div>
                             </div>
+                          </div>
+                        )}
+
+                        {/* NEW: Itinerary Visualizer */}
+                        {message.role === 'assistant' && message.action?.type === 'create_itinerary' && message.action.params?.activities && (
+                          <div className={cn(
+                            "mt-4 p-4 rounded-2xl border shadow-xl relative overflow-hidden",
+                            isDark ? "bg-zinc-900/90 border-white/10" : "bg-blue-50/50 border-blue-100"
+                          )}>
+                            <div className="absolute top-0 right-0 p-3 opacity-10">
+                              <Calendar className="w-12 h-12 rotate-12" />
+                            </div>
+                            <h4 className={cn("font-black text-xs uppercase tracking-[0.2em] mb-4 flex items-center gap-2", isDark ? "text-cyan-400" : "text-blue-600")}>
+                              <Sparkles className="w-3.5 h-3.5" /> Your Saturday Itinerary
+                            </h4>
+                            <div className="space-y-5 relative">
+                              {/* Timeline line */}
+                              <div className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-gradient-to-b from-cyan-500/50 via-blue-500/30 to-transparent rounded-full" />
+                              
+                              {message.action.params.activities.map((act: any, idx: number) => (
+                                <motion.div 
+                                  key={idx}
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={{ opacity: 1, x: 0, transition: { delay: idx * 0.1 } }}
+                                  className="flex gap-4 relative z-10"
+                                >
+                                  <div className="w-3 h-3 rounded-full bg-cyan-500 mt-1 shadow-sm shadow-cyan-500/50 shrink-0 border-2 border-white ring-4 ring-cyan-500/10" />
+                                  <div className="flex-1">
+                                    <div className={cn("text-[10px] font-black uppercase tracking-wider mb-0.5", isDark ? "text-zinc-500" : "text-blue-400")}>
+                                      {act.time || "TBD"}
+                                    </div>
+                                    <h5 className={cn("text-[13px] font-bold leading-tight", isDark ? "text-white" : "text-gray-900")}>
+                                      {act.title}
+                                    </h5>
+                                    <p className={cn("text-[11px] leading-relaxed mt-1 opacity-70", isDark ? "text-zinc-400" : "text-gray-600")}>
+                                      {act.description || act.content}
+                                    </p>
+                                  </div>
+                                </motion.div>
+                              ))}
+                            </div>
+                            <Button 
+                              variant="ghost" 
+                              className={cn("w-full mt-4 h-8 text-[10px] font-black uppercase tracking-widest border transition-all", isDark ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-blue-100/50 border-blue-200/50 hover:bg-blue-100")}
+                              onClick={() => toast.success("Saved to your plans!")}
+                            >
+                              Add to Calendar
+                            </Button>
                           </div>
                         )}
                       </div>

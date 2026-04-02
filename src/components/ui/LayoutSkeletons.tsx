@@ -5,21 +5,16 @@ import { Card } from './card';
 /**
  * 🚀 DashboardSkeleton: Premium placeholder for the main discovery/swipe view
  */
+/**
+ * 🚀 DashboardSkeleton: Premium content-only placeholder
+ * Fits perfectly under the persistent Header/Nav for zero-jump loading.
+ */
 export function DashboardSkeleton() {
   return (
     <div className="flex flex-col h-full w-full max-w-lg mx-auto p-4 space-y-6 animate-pulse">
-      {/* Top Header Placeholder */}
-      <div className="flex items-center justify-between px-2 pt-2">
-        <Skeleton className="h-8 w-32 rounded-lg" />
-        <div className="flex gap-3">
-          <Skeleton className="h-10 w-10 rounded-full" />
-          <Skeleton className="h-10 w-10 rounded-full" />
-        </div>
-      </div>
-
-      {/* Main Swipe Card Placeholder */}
+      {/* Main Swipe Card Placeholder - Full Bleed Design */}
       <Card className="relative flex-1 rounded-[2.5rem] overflow-hidden border-none shadow-2xl bg-black/40 backdrop-blur-xl aspect-[3/4] md:aspect-auto">
-        <div className="absolute inset-x-5 bottom-8 space-y-4">
+        <div className="absolute inset-x-5 bottom-12 space-y-4">
           <div className="flex items-center gap-3">
             <Skeleton className="h-8 w-48 rounded-lg" />
             <Skeleton className="h-6 w-16 rounded-full" />
@@ -29,17 +24,15 @@ export function DashboardSkeleton() {
             <Skeleton className="h-4 w-24 rounded-full" />
             <Skeleton className="h-4 w-16 rounded-full" />
           </div>
-          <Skeleton className="h-12 w-full rounded-2xl" />
+          <Skeleton className="h-12 w-full rounded-2xl opacity-50" />
         </div>
       </Card>
 
-      {/* Action Bar Placeholder */}
-      <div className="flex justify-center items-center gap-6 pb-8">
-        <Skeleton className="h-14 w-14 rounded-full" />
-        <Skeleton className="h-16 w-16 rounded-full" />
-        <Skeleton className="h-20 w-20 rounded-full" />
-        <Skeleton className="h-16 w-16 rounded-full" />
-        <Skeleton className="h-14 w-14 rounded-full" />
+      {/* Subtle indicator of more content below (Swipe Stack feel) */}
+      <div className="h-4 w-full flex justify-center gap-2 opacity-30">
+        <div className="w-2 h-2 rounded-full bg-white/20" />
+        <div className="w-2 h-2 rounded-full bg-white/40" />
+        <div className="w-2 h-2 rounded-full bg-white/20" />
       </div>
     </div>
   );

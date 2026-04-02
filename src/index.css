@@ -192,10 +192,31 @@ body {
   }
 }
 
+/* 🏎️ ZENITH FRAME BUDGET: Pause non-essential animations on touch to guarantee 60fps for interactions */
+@media (hover: none) {
+  html:active *, 
+  body:active * {
+    animation-play-state: paused !important;
+  }
+}
+
 /* Fast interactive states */
-.interactive:active {
+.interactive, button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+  will-change: transform;
+}
+
+/* ZERO-WAIT PRESS: Button responds at 0ms (60fps limit) */
+button:active, [role="button"]:active {
+  transform: scale(0.95) !important;
+  transition-duration: 0ms !important;
+}
+
+.interactive:active, button:active {
   transform: scale(0.96) translateZ(0);
-  transition: transform 50ms ease;
 }
 
 /* 🚀 ZENITH HARDWARE ACCELERATION 🚀 */

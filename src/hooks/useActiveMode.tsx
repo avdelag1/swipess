@@ -25,7 +25,7 @@ const ActiveModeContext = createContext<ActiveModeContextType | undefined>(undef
 
 // Local storage key for persistent mode (survives page refresh)
 const MODE_STORAGE_KEY = 'swipess_active_mode';
-const SWITCH_TIMEOUT_MS = 600; // Timeout to ensure isSwitching is cleared even if navigation hangs
+const SWITCH_TIMEOUT_MS = 100; // Accelerated cooldown for 'Boom' feel
 
 
 // Get cached mode from localStorage (synchronous, instant, persistent)
@@ -237,17 +237,12 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     try {
       const targetPath = getTargetPath(newMode);
       
-      startTransition(() => {
-        // Replace: true for cleaner history during mode jumps
-        navigate(targetPath, { replace: true });
-      });
+      // REPLACED Transitions: Swipess jumps instantly to the new Dashboard.
+      // Mode Switching is now synchronous and Direct-to-Source.
+      navigate(targetPath, { replace: true });
     } catch (navError) {
       logger.error('[ActiveMode] Navigation failed:', navError);
-      try {
-        startTransition(() => {
-          navigate(newMode === 'client' ? '/client/dashboard' : '/owner/dashboard', { replace: true });
-        });
-      } catch (_f) { /* ignore */ }
+      navigate(newMode === 'client' ? '/client/dashboard' : '/owner/dashboard', { replace: true });
     }
 
     // 8. Show success toast (non-blocking)

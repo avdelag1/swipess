@@ -1,5 +1,6 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { getCardImageUrl } from '@/utils/imageOptimization';
+import { imageCache } from '@/lib/swipe/cardImageCache';
 
 interface PrefetchOptions {
   currentIndex: number;
@@ -33,7 +34,6 @@ export function usePrefetchImages({
 }: PrefetchOptions) {
   // FIX: Track by item ID, not index - handles deck truncation correctly
   const prefetchedItemIds = useRef(new Set<string>());
-  const imageCache = useRef(new Map<string, HTMLImageElement>());
 
   // Compute stable profile ID for dependency tracking
   // This ensures effect re-runs when the actual items at these indices change
@@ -91,8 +91,8 @@ export function usePrefetchImages({
           if (imageUrl && imageUrl !== '/placeholder.svg' && imageUrl !== '/placeholder-avatar.svg') {
             const optimizedUrl = getCardImageUrl(imageUrl);
 
-            // Skip if already in cache
-            if (imageCache.current.has(optimizedUrl)) return;
+            // Skip if already in global cache
+            if (imageCache.has(optimizedUrl)) return;
 
             const img = new Image();
 
@@ -101,14 +101,18 @@ export function usePrefetchImages({
             (img as any).fetchPriority = (offset <= 1 && imgIndex === 0) ? 'high' : 'low';
             img.decoding = 'async';
 
-            // Store in cache to prevent re-fetching
-            imageCache.current.set(optimizedUrl, img);
+            img.onload = () => {
+              imageCache.set(optimizedUrl, true);
+            };
+
             img.src = optimizedUrl;
 
             // 🚀 SPEED OF LIGHT: Pre-decode to GPU memory while off-screen
             // This eliminates the 50-100ms 'Decode Lag' when a card first appears
             if ('decode' in img) {
-              img.decode().catch(() => {
+              img.decode().then(() => {
+                imageCache.set(optimizedUrl, true);
+              }).catch(() => {
                 // Ignore decoding errors for non-supported or missing images
               });
             }
@@ -132,13 +136,6 @@ export function usePrefetchImages({
       const idsArray = Array.from(prefetchedItemIds.current);
       const toKeep = new Set(idsArray.slice(-50)); // Keep most recent 50
       prefetchedItemIds.current = toKeep;
-    }
-
-    // Clean up old cached images (keep last 40)
-    if (imageCache.current.size > 40) {
-      const keys = Array.from(imageCache.current.keys());
-      const toRemove = keys.slice(0, keys.length - 40);
-      toRemove.forEach(key => imageCache.current.delete(key));
     }
      
   }, [currentIndex, profiles, prefetchCount, nextProfileIds, trigger]);

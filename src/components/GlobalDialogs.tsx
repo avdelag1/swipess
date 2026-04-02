@@ -26,7 +26,7 @@ const SavedSearchesDialog = lazy(() => import('@/components/SavedSearchesDialog'
 const MessageActivationPackages = lazy(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })));
 const PushNotificationPrompt = lazy(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })));
 const WelcomeNotification = lazy(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })));
-const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })));
+const ConciergeChat = lazy(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
 const LikedListingInsightsModal = lazy(() => import('@/components/LikedListingInsightsModal').then(m => ({ default: m.LikedListingInsightsModal })));
 const LikedClientInsightsModal = lazy(() => import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal })));
 
@@ -160,9 +160,9 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
       </SmartSuspense>
 
       <SmartSuspense fallback={null}>
-        <AISearchDialog
-          isOpen={store.isAISearchOpen}
-          onClose={() => store.setModal('isAISearchOpen', false)}
+        <ConciergeChat
+          open={store.isAISearchOpen}
+          onOpenChange={(val: boolean) => store.setModal('isAISearchOpen', val)}
           userRole={userRole === 'admin' ? 'client' : userRole}
         />
 

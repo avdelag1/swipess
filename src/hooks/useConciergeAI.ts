@@ -19,6 +19,7 @@ interface ConciergeContext {
   city?: string;
   userRole?: 'client' | 'owner';
   listings?: any[];
+  listingId?: string;
 }
 
 interface ConversationSummary {
@@ -121,16 +122,7 @@ export function useConciergeAI() {
         setConversations(prev => [newConv as ConversationSummary, ...prev]);
       }
 
-      // 2. Save User Message to DB
-      const userMsg: ConciergeMessage = {
-        id: Date.now().toString(),
-        role: 'user',
-        content: userMessage,
-        timestamp: new Date(),
-      };
-
-      setMessages(prev => [...prev, userMsg]);
-
+      // 2. Save User Message to DB (Skip local state update here as we already did optimistic)
       await (supabase as any).from('ai_messages').insert({
         conversation_id: convId,
         user_id: user.id,
@@ -163,6 +155,7 @@ export function useConciergeAI() {
               userRole: context?.userRole,
               listings: context?.listings?.slice(0, 5),
               currentPath: location.pathname,
+              listingId: context?.listingId,
             }
           }
         }
@@ -197,21 +190,37 @@ export function useConciergeAI() {
         metadata: aiAction ? { action: aiAction } : {}
       });
 
-      // 5. Handle save_memory action — persist new fact to user_memories table
-      if (aiAction?.type === 'save_memory' && aiAction.params) {
-        const { category, title, content, tags } = aiAction.params;
-        if (title && content) {
-          await (supabase as any).from('user_memories').insert({
-            user_id: user.id,
-            category: category || 'note',
-            title,
-            content,
-            tags: tags || [],
-            source: 'ai',
+      // 5. Handle AI Actions (memory, match, itinerary signalling)
+      if (aiAction) {
+        if (aiAction.type === 'save_memory' && aiAction.params) {
+          const { category, title, content, tags } = aiAction.params;
+          if (title && content) {
+            await (supabase as any).from('user_memories').insert({
+              user_id: user.id,
+              category: category || 'note',
+              title,
+              content,
+              tags: tags || [],
+              source: 'ai',
+            });
+            queryClient.invalidateQueries({ queryKey: MEMORIES_QUERY_KEY(user.id) });
+            toast.success(`Remembered: ${title}`, { duration: 2000 });
+          }
+        }
+        
+        if (aiAction.type === 'initiate_match') {
+          toast.success("Connection request sent! 🚀", {
+            description: "The owner has been notified.",
+            duration: 3000,
           });
-          // Invalidate the memories cache so the memory panel refreshes
-          queryClient.invalidateQueries({ queryKey: MEMORIES_QUERY_KEY(user.id) });
-          toast.success(`Remembered: ${title}`, { duration: 2000 });
+          // Note: we don't need to do DB insert here as the edge function already did it
+        }
+
+        if (aiAction.type === 'create_itinerary') {
+          toast("Generating your personalized itinerary...", {
+            icon: "🗓️",
+            duration: 1500,
+          });
         }
       }
 

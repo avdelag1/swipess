@@ -7,21 +7,38 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="theme-color" content="#0A0A0B">
   <meta name="app-version" content="3.6.3">
+  
+  <!-- 🚀 ATOMIC NETWORK PRE-CONNECTIONS: Eliminate DNS/TLS handshake lag -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://vlt.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://va.vercel-scripts.com" crossorigin>
+  <link rel="preconnect" href="https://vlkndvqukyzjyfmxzqxs.supabase.co" crossorigin> <!-- Supabase Storage Fast-Path -->
+  
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  <link rel="dns-prefetch" href="https://vlt.supabase.co">
+  <link rel="dns-prefetch" href="https://va.vercel-scripts.com">
+  <link rel="dns-prefetch" href="https://vlkndvqukyzjyfmxzqxs.supabase.co">
 
-  <!-- 📱 PWA & MOBILE OPTIMIZATION -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Swipess">
-  <link rel="apple-touch-icon" href="/icons/fire-s-logo.png">
-  <link rel="manifest" href="/manifest.json?v=20260331v1">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/fire-s-logo.png">
-
-  <!-- 🖼️ LCP OPTIMIZATION (Splash Logo) -->
-  <link rel="preload" as="image" href="/icons/fire-s-logo-960.webp" type="image/webp" fetchpriority="high">
-
-  <!-- 🛡️ EXTENSION & ERROR GUARD -->
   <script>
+    /** 🚀 SPEED OF LIGHT: Inline Theme Synchronizer
+     * Prevents 'Flash of White' (FOUC) by applying theme BEFORE DOM parse.
+     */
     (function() {
+      const theme = localStorage.getItem('swipess_theme_preference') || 'light';
+      const root = document.documentElement;
+      root.classList.add(theme);
+      if (theme === 'dark') {
+          root.classList.add('black-matte');
+          root.style.backgroundColor = '#000000';
+          root.style.colorScheme = 'dark';
+      } else {
+          root.style.backgroundColor = '#ffffff';
+          root.style.colorScheme = 'light';
+      }
+      
+      // Error suppression for extensions
       const swallowError = (e) => {
         const stack = (e.reason && e.reason.stack) || (e.error && e.error.stack) || '';
         const isExt = (e.filename && e.filename.includes('chrome-extension://')) || stack.includes('chrome-extension://');

@@ -35,7 +35,19 @@ const CardImage = memo(({
   const blurSrc = useMemo(() => (!isMarketingSlide && src ? getBlurDataUrl(src) : null), [src, isMarketingSlide]);
   const wasInCache = useMemo(() => (src && !isMarketingSlide ? imageCache.has(src) : false), [src, isMarketingSlide]);
 
-  const [loaded, setLoaded] = useState<boolean>(() => !!(src && (isMarketingSlide || imageCache.has(src))));
+  const [loaded, setLoaded] = useState<boolean>(() => {
+    if (!src) return false;
+    if (isMarketingSlide) return true;
+    if (imageCache.has(src)) return true;
+    
+    // NATIVE PRE-CHECK: If browser already has it, don't flicker the blur
+    if (isBrowser()) {
+      const img = new Image();
+      img.src = optimizedSrc || src;
+      return img.complete;
+    }
+    return false;
+  });
   const [error, setError] = useState<boolean>(false);
 
   const prevSrcRef = useRef<string | null | undefined>(null);

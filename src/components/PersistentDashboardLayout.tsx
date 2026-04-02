@@ -3,7 +3,7 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { AnimatedOutlet } from '@/components/AnimatedOutlet';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { useFilterPersistence } from '@/hooks/useFilterPersistence';
-import { useMemo, useEffect, lazy, Suspense } from 'react';
+import { useMemo, useEffect, useState, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useMatchRealtime } from '@/hooks/useMatchRealtime';
 import { useLikesRealtime } from '@/hooks/useLikesRealtime';
@@ -34,14 +34,21 @@ export function PersistentDashboardLayout() {
   const navigate = useNavigate();
   const { activeMode, syncMode } = useActiveMode();
 
+  // 🚀 SPEED OF LIGHT: Defer background systems until after the dashboard is 'Stable'
+  const [isWarmedUp, setIsWarmedUp] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsWarmedUp(true), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
   // FILTER PERSISTENCE: Auto-restore and auto-save filters from/to database
   useFilterPersistence();
 
   // GLOBAL MATCH CELEBRATION: Real-time listener for match events across the entire dashboard
-  const { matchCelebration, closeCelebration } = useMatchRealtime();
+  const { matchCelebration, closeCelebration } = useMatchRealtime(isWarmedUp);
 
   // GLOBAL LIKES SYNC: Ensures saves and favorites stay in sync across tabs and devices
-  useLikesRealtime();
+  useLikesRealtime(isWarmedUp);
 
   // SPEED OF LIGHT: Derive role from path INSTANTLY
   const userRole = useMemo(() => {

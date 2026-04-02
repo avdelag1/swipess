@@ -25,13 +25,11 @@ export function useAppNavigate() {
   const appNavigate = (to: string | number, options?: any) => {
     triggerHaptic('light');
 
-    startTransition(() => {
-      if (typeof to === 'number') {
-        navigate(to);
-      } else {
-        navigate(to, options);
-      }
-    });
+    if (typeof to === 'number') {
+      navigate(to);
+    } else {
+      navigate(to, options);
+    }
   };
 
   return { 

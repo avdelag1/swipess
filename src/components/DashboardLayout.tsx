@@ -6,7 +6,8 @@ import { toast } from '@/components/ui/sonner'
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from "react-router-dom";
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
-import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
+import { prefetchRoleRoutes, createLinkObserver } from '@/utils/routePrefetcher'
+import { useLayoutEffect } from 'react'
 import { logger } from '@/utils/prodLogger'
 import { useTheme } from '@/hooks/useTheme'
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
@@ -278,13 +279,38 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [userId, restoreDrafts]);
 
-  // SCROLL-TO-TOP: Reset after exit completes (exit is 80ms, reset at 100ms)
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // SPEED OF LIGHT: Passive Link Observer - prefetches every link that enters viewport
   useEffect(() => {
-    const id = setTimeout(() => {
-      const el = document.getElementById('dashboard-scroll-container');
-      el?.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-    }, 100);
-    return () => clearTimeout(id);
+    const observer = createLinkObserver();
+    if (!observer || !scrollContainerRef.current) return;
+    
+    // Scan for all local router links
+    const updateObserver = () => {
+      const links = scrollContainerRef.current?.querySelectorAll('a[href^="/"]');
+      links?.forEach(link => observer.observe(link));
+    };
+
+    updateObserver();
+
+    // Re-scan when content changes (very efficient MutationObserver)
+    const mutationObserver = new MutationObserver(updateObserver);
+    mutationObserver.observe(scrollContainerRef.current, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [location.pathname]);
+
+  // SCROLL-TO-TOP: Physically instant reset
+  // useLayoutEffect fires BEFORE paint, ensuring the user NEVER sees the old scroll position
+  useLayoutEffect(() => {
+    const el = scrollContainerRef.current;
+    if (el) {
+      el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    }
   }, [location.pathname]);
 
   // SWIPE NAVIGATION: Horizontal swipe between bottom-nav pages
@@ -460,6 +486,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* Main Content - Scrollable area with safe area spacing for fixed header/footer */}
       {/* On camera, radio route or immersive dashboard: content extends behind TopBar for full-bleed experience */}
       <main
+        ref={scrollContainerRef}
         id="dashboard-scroll-container"
         onPointerDown={() => {
           // 🛡️ HUD EMERGENCY RECOVERY: Any touch on content forces UI back

@@ -57,69 +57,54 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
         }
 
         // 2. BUILD SECURE POSTGREST QUERY (Fallback)
+        // 🚀 SPEED OF LIGHT: Unified Join Query
+        // One pass. Zero round-trips. Zero client-side enrichment lag.
         const { data: profiles, error } = await supabase
           .from('profiles')
           .select(`
-            id, user_id, full_name, avatar_url, age, gender, images, 
+            user_id, full_name, avatar_url, age, gender, images, 
             interests, lifestyle_tags, smoking, city, country, 
-            neighborhood, nationality, bio, created_at
+            neighborhood, bio,
+            client_profiles (
+              name, age, gender, profile_images, bio, interests, nationality, languages
+            )
           `)
           .neq('user_id', user.id)
           .eq('role', 'client')
           .eq('is_active', true)
           .eq('onboarding_completed', true)
           .order('created_at', { ascending: false })
-          .limit(100);
+          .limit(40); // 🚀 SNAPPY: Fetch just enough for the first 30 seconds of swiping
 
         if (error) {
-          logger.error('Error fetching client profiles:', error);
+          logger.error('[ClientProfiles] Fetch error:', error);
           return [];
         }
 
-        if (!profiles || profiles.length === 0) {
-          return [];
-        }
+        if (!profiles || profiles.length === 0) return [];
 
-        // FIX: Also fetch client_profiles for enrichment (same pattern as useSmartMatching)
-        const { data: clientProfileData } = await supabase
-          .from('client_profiles')
-          .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood')
-          .limit(200);
-
-        const clientProfileMap = new Map<string, any>();
-        if (clientProfileData) {
-          for (const cp of clientProfileData) {
-            clientProfileMap.set(cp.user_id, cp);
-          }
-        }
-
-        // Transform profiles to ClientProfile interface with enrichment
-        const transformed: ClientProfile[] = profiles.map((profile: any, index: number) => {
-          const cpData = clientProfileMap.get(profile.user_id);
-          const name = profile.full_name || cpData?.name || 'New User';
-          const profileImages = (profile.images && (profile.images as any[]).length > 0)
-            ? profile.images
-            : (cpData?.profile_images && (cpData.profile_images as any[]).length > 0)
-              ? cpData.profile_images
-              : [];
+        // Transform profiles with zero-latency mapping
+        const transformed: ClientProfile[] = profiles.map((p: any, index: number) => {
+          const cp = p.client_profiles?.[0]; // Supabase returns joins as arrays
+          const profileImages = (p.images?.length > 0) ? p.images : (cp?.profile_images?.length > 0 ? cp.profile_images : []);
 
           return {
             id: index + 1,
-            user_id: profile.user_id,
-            name,
-            age: profile.age || cpData?.age || 0,
-            gender: profile.gender || cpData?.gender || '',
-            interests: (profile.interests?.length > 0 ? profile.interests : cpData?.interests) || [],
+            user_id: p.user_id,
+            name: p.full_name || cp?.name || 'New User',
+            age: p.age || cp?.age || 0,
+            gender: p.gender || cp?.gender || '',
+            interests: (p.interests?.length > 0 ? p.interests : cp?.interests) || [],
             preferred_activities: [],
             profile_images: profileImages,
-            location: (profile.city || cpData?.city) ? { city: profile.city || cpData?.city } : null,
-            city: profile.city || cpData?.city || undefined,
-            avatar_url: profile.avatar_url || profileImages?.[0] || undefined,
+            location: (p.city || cp?.city) ? { city: p.city || cp?.city } : null,
+            city: p.city || cp?.city || undefined,
+            avatar_url: p.avatar_url || profileImages?.[0] || undefined,
             verified: false,
             client_type: [],
-            lifestyle_tags: profile.lifestyle_tags || [],
+            lifestyle_tags: p.lifestyle_tags || [],
             has_pets: false,
-            smoking_preference: profile.smoking ? 'yes' : 'any',
+            smoking_preference: p.smoking ? 'yes' : 'any',
             party_friendly: false,
             budget_min: undefined,
             budget_max: undefined,
