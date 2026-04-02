@@ -90,7 +90,7 @@ function TopBarComponent({
     showAtTop: true,
     resetTrigger: location.pathname
   });
-  const shouldHide = hideOnScroll && !isVisible;
+  const shouldHide = false;
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { t } = useTranslation();

@@ -445,15 +445,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {!isFullScreenRoute && (
         <motion.div
           animate={{ 
-            opacity: isFocused ? 0 : 1, 
-            y: isFocused ? -20 : 0,
-            filter: isFocused ? "blur(12px)" : "blur(0px)"
+            opacity: 1, 
+            y: 0,
+            filter: "blur(0px)"
           }}
-          transition={{ 
-            duration: isFocused ? 2.4 : 0.2, // BEAUTIFUL vanish, ULTRA-INSTANT return
-            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.16, 1, 0.3, 1] 
-          }}
-          className={cn("z-50", isFocused ? "pointer-events-none" : "pointer-events-auto")}
+          transition={{ duration: 0.1 }}
+          className="z-50 pointer-events-auto"
         >
           <TopBar
             onNotificationsClick={() => {}} // Now handled internally by TopBar navigating to /notifications
@@ -509,15 +506,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
         <motion.div
           animate={{ 
-            opacity: isFocused ? 0 : 1, 
-            y: isFocused ? 20 : 0,
-            filter: isFocused ? "blur(12px)" : "blur(0px)"
+            opacity: 1, 
+            y: 0,
+            filter: "blur(0px)"
           }}
-          transition={{ 
-            duration: isFocused ? 2.4 : 0.2, // BEAUTIFUL vanish, ULTRA-INSTANT return
-            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.16, 1, 0.3, 1] 
-          }}
-          className={cn("z-50", isFocused ? "pointer-events-none" : "pointer-events-auto")}
+          transition={{ duration: 0.1 }}
+          className="z-50 pointer-events-auto"
         >
           <BottomNavigation
             userRole={userRole}

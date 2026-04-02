@@ -256,7 +256,7 @@ export const BottomNavigation = memo(({
 
 
   return (
-    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar pointer-events-none px-3 pb-1', !isVisible && 'nav-hidden')}>
+    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar pointer-events-none px-3 pb-1')}>
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
