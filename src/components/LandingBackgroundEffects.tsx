@@ -217,9 +217,11 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
     const handleCanvasPointerDown = (e: PointerEvent) => {
       // Only trigger if we click on background (not buttons/links/interactive or the logo)
-      const target = e.target as HTMLElement;
-      if (
-        !target ||
+      const target = e.target;
+      // 🛡️ HARDEN: Ensure target is an Element before calling .closest()
+      // This prevents runtime crashes on SVG text or other non-element nodes 
+      // that might bubble to this window-level listener.
+      const isInteractive = target instanceof Element && (
         target.tagName === 'BUTTON' ||
         target.tagName === 'A' ||
         target.tagName === 'INPUT' ||
@@ -230,7 +232,9 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         target.closest('[role="button"]') ||
         target.closest('[data-no-bg-sound]') ||
         target.closest('.pointer-events-auto:not(.fixed.inset-0)')
-      ) {
+      );
+
+      if (!target || isInteractive) {
         return;
       }
 

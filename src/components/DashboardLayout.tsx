@@ -105,6 +105,20 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const { restoreDrafts } = useAnonymousDrafts()
   const responsive = useResponsiveContext()
 
+  // 🛡️ HUD MASTER RECOVERY: Ensure UI is visible on mount and every navigation
+  useEffect(() => {
+    // Force recovery on mount/navigation
+    const recoveryEvent = new CustomEvent('sentient-ui-recovery');
+    window.dispatchEvent(recoveryEvent);
+    
+    // Safety net: second attempt after 1.5s to ensure splash has cleared
+    const safetyCheck = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
+    }, 1500);
+
+    return () => clearTimeout(safetyCheck);
+  }, [location.pathname]);
+
   // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects (throttled to ~30fps)
   // PERF: Disabled on PWA/touch devices to save CPU and battery
   useEffect(() => {
@@ -453,6 +467,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* On camera, radio route or immersive dashboard: content extends behind TopBar for full-bleed experience */}
       <main
         id="dashboard-scroll-container"
+        onPointerDown={() => {
+          // 🛡️ HUD EMERGENCY RECOVERY: Any touch on content forces UI back
+          window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
+        }}
         className={cn(
           "absolute inset-0 overflow-x-hidden scroll-area-momentum scrollbar-hide shadow-none",
           isFullScreenRoute ? "overflow-y-hidden" : "overflow-y-auto",
