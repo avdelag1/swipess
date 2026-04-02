@@ -52,15 +52,10 @@ const removeSplash = () => {
   }
 };
 
-// 2-second hard timeout for splash removal (Fail-safe)
+// 3-second hard timeout for splash removal (always force-remove)
 const splashTimeout = setTimeout(() => {
-  if (!(window as any).__APP_MOUNTED__) {
-    logger.error('[Mount] React mount failed within 2s — keeping splash for recovery');
-    return;
-  }
-  logger.warn('[Mount] Splash timeout triggered — forcing removal');
   removeSplash();
-}, 2000);
+}, 3000);
 
 // Splash removal: just wait for app-rendered, skip font race
 window.addEventListener('app-rendered', () => {
