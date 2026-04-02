@@ -69,7 +69,9 @@ export function PersistentDashboardLayout() {
 
   return (
     <DashboardLayout userRole={userRole}>
-      <AnimatedOutlet />
+      <div id="zenith-dashboard-root" style={{ contentVisibility: 'auto', containIntrinsicSize: '1000px' }}>
+        <AnimatedOutlet />
+      </div>
 
       {/* GLOBAL MODALS PORTAL */}
       {createPortal(

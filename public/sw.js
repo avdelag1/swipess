@@ -350,8 +350,10 @@ self.addEventListener('fetch', (event) => {
     if (!url.searchParams.has('width') && !url.searchParams.has('format') && !url.searchParams.has('token')) {
       // Append default high-performance transformation parameters
       // format=avif (Supabase will fallback to webp/jpeg if needed)
+      // width=720 (Optimal for high-density mobile card feeds)
       url.searchParams.set('format', 'avif');
-      url.searchParams.set('quality', '80');
+      url.searchParams.set('quality', '75');
+      url.searchParams.set('width', '720');
       
       const optimizedRequest = new Request(url.toString(), {
         headers: request.headers,

@@ -49,9 +49,13 @@ export function useSwipeNavigation({
     navigatedRef.current = false;
     const touch = e.touches[0];
     
-    // 🚀 ZENITH: Cached Container Lookup
+    // 🚀 ZENITH: Cached Container Lookup + GPU Prep
     if (!containerRef.current) {
       containerRef.current = document.querySelector(containerSelector) as HTMLElement | null;
+    }
+    
+    if (containerRef.current) {
+        containerRef.current.style.willChange = 'transform';
     }
     
     const scrollTopAtStart = containerRef.current?.scrollTop ?? 0;
