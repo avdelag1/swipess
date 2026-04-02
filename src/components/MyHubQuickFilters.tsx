@@ -28,9 +28,9 @@ export function MyHubQuickFilters() {
                 <CategorySwipeStack />
             </div>
 
-            {/* Explore Feature Links */}
-            <div className="mt-8">
-                <ExploreFeatureLinks />
+            {/* Swipeable Stack */}
+            <div className="pt-8">
+                <CategorySwipeStack />
             </div>
         </div>
     );

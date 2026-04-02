@@ -379,9 +379,6 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
                                   <GuidedTourLazy />
                                 </Suspense>
 
-                                {/* Update notification banner */}
-                                <UpdateNotification />
-
                                 {/* PWA install prompt — shown after 45s, respects dismissal */}
                                 <PWAInstallPrompt />
 

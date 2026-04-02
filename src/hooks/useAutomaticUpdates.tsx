@@ -144,24 +144,7 @@ export function useAutomaticUpdates() {
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({ available: false, needsRefresh: false });
   const [isUpdating, setIsUpdating] = useState(false);
   const queryClient = useQueryClient();
-
-  const checkUpdates = useCallback(async () => {
-    // If we've already interacted in this session, don't show again
-    if (sessionStorage.getItem('swipess_update_seen') === 'true') {
-      return;
-    }
-
-    const info = checkForUpdates();
-    
-    // Only update state if info actually changed to prevent unnecessary re-renders
-    setUpdateInfo(prev => {
-      if (prev.available === info.available && prev.version === info.version) {
-        return prev;
-      }
-      return info;
-    });
-  }, []);
-
+ 
   const performUpdate = useCallback(async () => {
     if (isUpdating) return;
     
@@ -195,6 +178,14 @@ export function useAutomaticUpdates() {
     }
   }, [isUpdating, queryClient]);
 
+  const checkUpdates = useCallback(async () => {
+    const info = checkForUpdates();
+    if (info.available) {
+      performUpdate();
+    }
+  }, [performUpdate]);
+
+
   useEffect(() => {
     // Only run the initial check once on mount
     checkUpdates();
@@ -214,11 +205,7 @@ export function useAutomaticUpdates() {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 if (sessionStorage.getItem('swipess_update_seen') !== 'true') {
-                  setUpdateInfo({
-                    available: true,
-                    version: APP_VERSION,
-                    needsRefresh: true,
-                  });
+                  performUpdate();
                 }
               }
             });
