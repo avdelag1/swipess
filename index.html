@@ -209,9 +209,11 @@
     // Dynamic Network Guard: Catch fatal chunk load errors immediately
     window.addEventListener('error', function(e) {
       if (e.target && (e.target.src || e.target.href) && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
-         console.error('[NetworkGuard] Bundle load failed:', e.target.src || e.target.href);
+         var src = e.target.src || e.target.href;
+         // Ignore non-critical third-party scripts (Vercel Speed Insights, analytics, etc.)
+         if (src.indexOf('speed-insights') !== -1 || src.indexOf('_vercel') !== -1 || src.indexOf('analytics') !== -1) return;
+         console.error('[NetworkGuard] Bundle load failed:', src);
          document.getElementById('mount-recovery').style.display = 'block';
-         // Suggest hard reload on network failure
          var btn = document.querySelector('#mount-recovery button');
          if(btn) btn.textContent = 'Repair & Restart App';
       }
