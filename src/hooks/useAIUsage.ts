@@ -82,7 +82,8 @@ export function useAIUsage(): AIUsageState & {
       return (data || []) as AIUsageRow[];
     },
     enabled: !!user?.id,
-    staleTime: 30_000, // 30s
+    staleTime: 120_000, // 🚀 ZENITH: 2m cache stability
+    placeholderData: (prev) => prev, // Predictive UI hydration
   });
 
   // Derive daily message count

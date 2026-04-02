@@ -146,15 +146,15 @@ export default function SubscriptionPackagesPage() {
 
   if (roleLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground font-black uppercase tracking-widest text-[10px]">Loading Hub...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="animate-pulse text-muted-foreground font-black uppercase tracking-widest text-[10px] text-center">Resonating with Hub...</div>
       </div>
     );
   }
 
   return (
     <PaymentErrorBoundary>
-      <div className="min-h-screen bg-background flex flex-col pb-32 overflow-x-hidden">
+      <div className="min-h-screen bg-background flex flex-col pb-32 overflow-x-hidden" style={{ contain: 'layout' }}>
       {/* Background Polish */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-accent-2/5 blur-[120px] rounded-full" />

@@ -103,8 +103,7 @@ export interface Listing {
 
 export function useListings(excludeSwipedIds: string[] = [], options: { enabled?: boolean, category?: string } = {}) {
   const category = options.category || 'all';
-
-  return useQuery({
+  const query = useQuery({
     queryKey: ['listings', excludeSwipedIds, category, 'with-filters'],
     // INSTANT NAVIGATION: Keep previous data during refetch to prevent UI blanking
     placeholderData: (prev) => prev,
@@ -188,11 +187,25 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
     },
     enabled: options.enabled !== false,
     // PERF: Longer stale time for listings since they don't change frequently
-    staleTime: 10 * 60 * 1000, // 10 minutes - listings are stable
-    gcTime: 15 * 60 * 1000, // 15 minutes cache time
     retry: 3,
     retryDelay: 1000,
   });
+
+  // 🚀 ZENITH: SHADOW PREFETCH
+  // Background-preloads the first 5 listing images to eliminate discovery lag
+  useEffect(() => {
+    if (query.data && query.data.length > 0) {
+      const nextBatch = query.data.slice(0, 5);
+      nextBatch.forEach(listing => {
+        if (listing.images && listing.images.length > 0) {
+          const img = new Image();
+          img.src = listing.images[0];
+        }
+      });
+    }
+  }, [query.data]);
+
+  return query;
 }
 
 // Hook for owners to view their own listings (no filtering by listing type)

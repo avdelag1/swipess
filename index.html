@@ -8,22 +8,16 @@
   <meta name="theme-color" content="#0A0A0B">
   <meta name="app-version" content="3.6.3">
   
-  <!-- 🚀 ATOMIC NETWORK PRE-CONNECTIONS: Eliminate DNS/TLS handshake lag -->
+  <!-- 🚀 ATOMIC NETWORK PRE-CONNECTIONS -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://vlt.supabase.co" crossorigin>
-  <link rel="preconnect" href="https://va.vercel-scripts.com" crossorigin>
-  <link rel="preconnect" href="https://vlkndvqukyzjyfmxzqxs.supabase.co" crossorigin> <!-- Supabase Storage Fast-Path -->
-  
+  <link rel="preconnect" href="https://vlkndvqukyzjyfmxzqxs.supabase.co" crossorigin>
   <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-  <link rel="dns-prefetch" href="https://vlt.supabase.co">
-  <link rel="dns-prefetch" href="https://va.vercel-scripts.com">
   <link rel="dns-prefetch" href="https://vlkndvqukyzjyfmxzqxs.supabase.co">
 
   <script>
-    /** 🚀 SPEED OF LIGHT: Inline Theme Synchronizer
-     * Prevents 'Flash of White' (FOUC) by applying theme BEFORE DOM parse.
+    /** 🚀 ZENITH: NATIVE-SPEED GESTURE PROTOCOL
+     * Forces the browser to prioritize responsiveness over JS execution.
      */
     (function() {
       const theme = localStorage.getItem('swipess_theme_preference') || 'light';
@@ -38,7 +32,18 @@
           root.style.colorScheme = 'light';
       }
       
-      // Error suppression for extensions
+      // MONKEY-PATCH: Passive Listeners for 120Hz scrolling feel
+      const originalAddEventListener = window.EventTarget.prototype.addEventListener;
+      window.EventTarget.prototype.addEventListener = function(type, listener, options) {
+        let op = options;
+        if (type === 'touchstart' || type === 'touchmove') {
+          if (typeof options === 'boolean') op = { capture: options, passive: true };
+          else if (typeof options === 'object') op = { ...options, passive: true };
+          else op = { passive: true };
+        }
+        originalAddEventListener.call(this, type, listener, op);
+      };
+
       const swallowError = (e) => {
         const stack = (e.reason && e.reason.stack) || (e.error && e.error.stack) || '';
         const isExt = (e.filename && e.filename.includes('chrome-extension://')) || stack.includes('chrome-extension://');
