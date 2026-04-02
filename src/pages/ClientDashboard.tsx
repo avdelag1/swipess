@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
-import { useFilterStore } from '@/state/filterStore';
-import { MyHubQuickFilters } from '@/components/MyHubQuickFilters';
+import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
+import { ExploreFeatureLinks } from '@/components/ExploreFeatureLinks';
 
 interface ClientDashboardProps {
   onPropertyInsights?: (listingId: string) => void;
@@ -9,23 +10,34 @@ interface ClientDashboardProps {
 }
 
 /**
- * SPEED OF LIGHT: Client Dashboard
- * Shows quick filter category cards when no category is selected,
- * and the swipe deck when a category is active.
+ * Client Dashboard — Poker card fan when no category selected,
+ * full swipe deck when a category is active.
  */
 export default function ClientDashboard({
   onPropertyInsights,
   onMessageClick,
 }: ClientDashboardProps) {
   const activeCategory = useFilterStore(s => s.activeCategory);
+  const { setCategories } = useFilterActions();
 
   const handleListingTap = useCallback((listingId: string) => {
     onPropertyInsights?.(listingId);
   }, [onPropertyInsights]);
 
-  // When no category is selected, show the category picker
+  // When no category is selected, show the poker card fan
   if (!activeCategory) {
-    return <MyHubQuickFilters />;
+    return (
+      <div className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden">
+        <SwipeAllDashboard setCategories={(ids) => {
+          if (ids.length > 0) {
+            setCategories(ids);
+          }
+        }} />
+        <div className="w-full px-4 mt-4">
+          <ExploreFeatureLinks />
+        </div>
+      </div>
+    );
   }
 
   return (
