@@ -62,21 +62,11 @@ const splashTimeout = setTimeout(() => {
   removeSplash();
 }, 2000);
 
-// Unified paint signal with 1.5s font-loading race
-Promise.all([
-  new Promise(resolve => window.addEventListener('app-rendered', resolve, { once: true })),
-  Promise.race([
-    document.fonts.ready,
-    new Promise(resolve => setTimeout(resolve, 1500))
-  ])
-]).then(() => {
+// Splash removal: just wait for app-rendered, skip font race
+window.addEventListener('app-rendered', () => {
   clearTimeout(splashTimeout);
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      removeSplash();
-    });
-  });
-});
+  requestAnimationFrame(() => removeSplash());
+}, { once: true });
 
 // 4. RENDER REACT (Robust)
 const rootElement = document.getElementById("root");
