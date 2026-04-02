@@ -447,16 +447,16 @@ const ClientSwipeContainerComponent = ({
     }
   }, [clientProfiles, isLoading, setOwnerDeck, category, isOwnerReady, markOwnerReady, dismissedIds, user?.id]);
 
-    // INSTANT SWIPE: Update UI immediately, fire DB operations in background
-    const executeSwipe = useCallback((direction: 'left' | 'right') => {
-      const profile = deckQueueRef.current[currentIndexRef.current];
-      // FIX: Add explicit null/undefined check to prevent errors
-      if (!profile || !profile.user_id) {
-        logger.warn('[ClientSwipeContainer] Cannot swipe - no valid profile at current index');
-        return;
-      }
+  // INSTANT SWIPE: Update UI immediately, fire DB operations in background
+  const executeSwipe = useCallback((direction: 'left' | 'right') => {
+    const profile = deckQueueRef.current[currentIndexRef.current];
+    // FIX: Add explicit null/undefined check to prevent errors
+    if (!profile || !profile.user_id) {
+      logger.warn('[ClientSwipeContainer] Cannot swipe - no valid profile at current index');
+      return;
+    }
 
-      const isMockData = profile.user_id?.startsWith('test-') || profile.user_id?.startsWith('client-');
+    const isMockData = profile.user_id?.startsWith('test-') || profile.user_id?.startsWith('client-');
 
     // CRITICAL: Prevent swiping on own profile (should never happen, but defense in depth)
     if (user?.id && profile.user_id === user.id) {
@@ -490,98 +490,98 @@ const ClientSwipeContainerComponent = ({
 
       // Save swipe to DB with match detection - CRITICAL: Must succeed for likes to save
       // Skip DB write for mock data to avoid RLS/FK errors
-      isMockData 
+      isMockData
         ? Promise.resolve({ success: true, direction, targetId: profile.user_id, userId: user?.id })
         : swipeMutation.mutateAsync({
-            targetId: profile.user_id,
-            direction,
-            targetType: 'profile'
-          }).then(() => {
-        // SUCCESS: Like saved successfully
-        logger.info('[ClientSwipeContainer] Swipe saved successfully:', { direction, profileId: profile.user_id });
+          targetId: profile.user_id,
+          direction,
+          targetType: 'profile'
+        }).then(() => {
+          // SUCCESS: Like saved successfully
+          logger.info('[ClientSwipeContainer] Swipe saved successfully:', { direction, profileId: profile.user_id });
 
-        // OPTIMISTIC: Add liked client to cache AFTER DB write succeeds (same pattern as TinderentSwipeContainer)
-        if (direction === 'right' && user?.id) {
-          queryClient.setQueryData(['liked-clients', user.id], (oldData: any[] | undefined) => {
-            const likedClient = {
-              id: profile.user_id,
-              user_id: profile.user_id,
-              full_name: profile.full_name || profile.name || 'Unknown',
-              name: profile.full_name || profile.name || 'Unknown',
-              age: profile.age || 0,
-              bio: profile.bio || '',
-              profile_images: profile.profile_images || profile.images || [],
-              images: profile.profile_images || profile.images || [],
-              location: profile.location,
-              liked_at: new Date().toISOString(),
-              occupation: profile.occupation,
-              nationality: profile.nationality,
-              interests: profile.interests,
-              monthly_income: profile.monthly_income,
-              verified: profile.verified,
-              property_types: profile.preferred_property_types || [],
-              moto_types: [],
-              bicycle_types: [],
-            };
-            if (!oldData) {
-              return [likedClient];
-            }
-            // Check if already in the list to avoid duplicates
-            const exists = oldData.some((item: any) => item.id === likedClient.id || item.user_id === likedClient.user_id);
-            if (exists) {
-              return oldData;
-            }
-            return [likedClient, ...oldData];
-          });
-        }
-      }).catch((err) => {
-        // ERROR: Save failed - log and handle appropriately
-        logger.error('[ClientSwipeContainer] Swipe save error:', err);
+          // OPTIMISTIC: Add liked client to cache AFTER DB write succeeds (same pattern as TinderentSwipeContainer)
+          if (direction === 'right' && user?.id) {
+            queryClient.setQueryData(['liked-clients', user.id], (oldData: any[] | undefined) => {
+              const likedClient = {
+                id: profile.user_id,
+                user_id: profile.user_id,
+                full_name: profile.full_name || profile.name || 'Unknown',
+                name: profile.full_name || profile.name || 'Unknown',
+                age: profile.age || 0,
+                bio: profile.bio || '',
+                profile_images: profile.profile_images || profile.images || [],
+                images: profile.profile_images || profile.images || [],
+                location: profile.location,
+                liked_at: new Date().toISOString(),
+                occupation: profile.occupation,
+                nationality: profile.nationality,
+                interests: profile.interests,
+                monthly_income: profile.monthly_income,
+                verified: profile.verified,
+                property_types: profile.preferred_property_types || [],
+                moto_types: [],
+                bicycle_types: [],
+              };
+              if (!oldData) {
+                return [likedClient];
+              }
+              // Check if already in the list to avoid duplicates
+              const exists = oldData.some((item: any) => item.id === likedClient.id || item.user_id === likedClient.user_id);
+              if (exists) {
+                return oldData;
+              }
+              return [likedClient, ...oldData];
+            });
+          }
+        }).catch((err) => {
+          // ERROR: Save failed - log and handle appropriately
+          logger.error('[ClientSwipeContainer] Swipe save error:', err);
 
-        // Check for specific error types
-        const errorMessage = err?.message?.toLowerCase() || '';
-        const errorCode = err?.code || '';
+          // Check for specific error types
+          const errorMessage = err?.message?.toLowerCase() || '';
+          const errorCode = err?.code || '';
 
-        // Expected errors that we can safely ignore (already handled by the hook)
-        const isExpectedError =
-          errorMessage.includes('cannot like your own') ||
-          errorMessage.includes('your own profile') ||
-          errorMessage.includes('duplicate') ||
-          errorMessage.includes('already exists') ||
-          errorMessage.includes('violates unique constraint') ||
-          errorMessage.includes('profile not found') || // Stale cache data
-          errorMessage.includes('skipped') || // FK violation from stale data
-          errorCode === '23505' || // Unique constraint violation
-          errorCode === '42501' || // RLS policy violation
-          errorCode === '23503';   // FK violation
+          // Expected errors that we can safely ignore (already handled by the hook)
+          const isExpectedError =
+            errorMessage.includes('cannot like your own') ||
+            errorMessage.includes('your own profile') ||
+            errorMessage.includes('duplicate') ||
+            errorMessage.includes('already exists') ||
+            errorMessage.includes('violates unique constraint') ||
+            errorMessage.includes('profile not found') || // Stale cache data
+            errorMessage.includes('skipped') || // FK violation from stale data
+            errorCode === '23505' || // Unique constraint violation
+            errorCode === '42501' || // RLS policy violation
+            errorCode === '23503';   // FK violation
 
-        // Show friendly message for self-likes (shouldn't happen but defense in depth)
-        if (errorMessage.includes('cannot like your own') || errorMessage.includes('your own profile')) {
-          logger.warn('[ClientSwipeContainer] User attempted to like their own profile - this should have been filtered');
-          sonnerToast.error('Oops!', {
-            description: 'You cannot swipe on your own profile'
-          });
-        }
-        // Show specific error messages for profile issues (not available, inactive, etc.)
-        else if (
-          errorMessage.includes('no longer available') ||
-          errorMessage.includes('no longer active') ||
-          errorMessage.includes('unable to save like')
-        ) {
-          sonnerToast.error('Unable to save like', {
-            description: err?.message || 'This profile is no longer available'
-          });
-        }
-        // Show error for unexpected failures (network, auth, server errors)
-        // These need user attention as the like was NOT saved
-        else if (!isExpectedError) {
-          sonnerToast.error('Failed to save your like', {
-            description: 'Your swipe was not saved. Please try again or check your connection.'
-          });
-        }
-        // For expected errors (duplicates, stale data), silently ignore
-        // The user experience is not affected as these are edge cases
-      }),
+          // Show friendly message for self-likes (shouldn't happen but defense in depth)
+          if (errorMessage.includes('cannot like your own') || errorMessage.includes('your own profile')) {
+            logger.warn('[ClientSwipeContainer] User attempted to like their own profile - this should have been filtered');
+            sonnerToast.error('Oops!', {
+              description: 'You cannot swipe on your own profile'
+            });
+          }
+          // Show specific error messages for profile issues (not available, inactive, etc.)
+          else if (
+            errorMessage.includes('no longer available') ||
+            errorMessage.includes('no longer active') ||
+            errorMessage.includes('unable to save like')
+          ) {
+            sonnerToast.error('Unable to save like', {
+              description: err?.message || 'This profile is no longer available'
+            });
+          }
+          // Show error for unexpected failures (network, auth, server errors)
+          // These need user attention as the like was NOT saved
+          else if (!isExpectedError) {
+            sonnerToast.error('Failed to save your like', {
+              description: 'Your swipe was not saved. Please try again or check your connection.'
+            });
+          }
+          // For expected errors (duplicates, stale data), silently ignore
+          // The user experience is not affected as these are edge cases
+        }),
 
       // Track dismissal on left swipe (dislike)
       direction === 'left' ? dismissTarget(profile.user_id).catch(() => { /* silently ignore dismissal errors */ }) : Promise.resolve(),
@@ -609,7 +609,7 @@ const ClientSwipeContainerComponent = ({
     }
 
     // Note: Image preloading is handled in handleSwipe (next 5 cards)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [swipeMutation, recordSwipe, recordProfileView, markOwnerSwiped, category, dismissTarget]);
 
   const handleSwipe = useCallback((direction: 'left' | 'right') => {
@@ -838,45 +838,45 @@ const ClientSwipeContainerComponent = ({
         {/* PREMIUM AMBIENT GLOWS: Dynamic Category-Aware Background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
           <motion.div
-            animate={{ 
+            animate={{
               scale: [1, 1.25, 1],
               opacity: [0.03, 0.06, 0.03],
               rotate: [0, 90, 0],
-              backgroundColor: category === 'property' ? '#3b82f6' : 
-                               category === 'bicycle' ? '#f43f5e' :
-                               category === 'motorcycle' ? '#f59e0b' : 
-                               category === 'services' || category === 'worker' ? '#8b5cf6' : '#ec4899'
+              backgroundColor: category === 'property' ? '#3b82f6' :
+                category === 'bicycle' ? '#f43f5e' :
+                  category === 'motorcycle' ? '#f59e0b' :
+                    category === 'services' || category === 'worker' ? '#8b5cf6' : '#ec4899'
             }}
-            transition={{ 
+            transition={{
               scale: { duration: 25, repeat: Infinity, ease: "easeInOut" },
               opacity: { duration: 25, repeat: Infinity, ease: "easeInOut" },
               rotate: { duration: 40, repeat: Infinity, ease: "linear" },
-              backgroundColor: { duration: 2 } 
+              backgroundColor: { duration: 2 }
             }}
             className="absolute top-1/4 -right-1/4 w-[800px] h-[800px] rounded-full blur-[160px]"
           />
           <motion.div
-            animate={{ 
+            animate={{
               scale: [1, 1.1, 1],
               opacity: [0.02, 0.05, 0.02],
               rotate: [0, -90, 0],
-              backgroundColor: category === 'property' ? '#60a5fa' : 
-                               category === 'bicycle' ? '#e11d48' :
-                               category === 'motorcycle' ? '#fbbf24' : 
-                               category === 'services' || category === 'worker' ? '#a78bfa' : '#f43f5e'
+              backgroundColor: category === 'property' ? '#60a5fa' :
+                category === 'bicycle' ? '#e11d48' :
+                  category === 'motorcycle' ? '#fbbf24' :
+                    category === 'services' || category === 'worker' ? '#a78bfa' : '#f43f5e'
             }}
-            transition={{ 
+            transition={{
               scale: { duration: 30, repeat: Infinity, ease: "easeInOut" },
               opacity: { duration: 30, repeat: Infinity, ease: "easeInOut" },
               rotate: { duration: 50, repeat: Infinity, ease: "linear" },
-              backgroundColor: { duration: 2 } 
+              backgroundColor: { duration: 2 }
             }}
             className="absolute -bottom-1/4 -left-1/4 w-[900px] h-[900px] rounded-full blur-[180px]"
           />
         </div>
         <AnimatePresence>
           {deckQueue.length > 0 && currentIndex < deckQueue.length && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -904,15 +904,15 @@ const ClientSwipeContainerComponent = ({
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (
                   <div className="absolute inset-0 z-10 scale-[0.96] translate-y-2 opacity-50 blur-[2px]">
-                     <SimpleOwnerSwipeCard
+                    <SimpleOwnerSwipeCard
                       key={deckQueue[currentIndex + 1].user_id}
                       profile={deckQueue[currentIndex + 1]}
-                      onSwipe={() => {}}
+                      onSwipe={() => { }}
                       isTop={false}
                     />
                   </div>
                 )}
-                
+
                 {/* Front card */}
                 <SimpleOwnerSwipeCard
                   key={deckQueue[currentIndex].user_id}
@@ -941,9 +941,10 @@ const ClientSwipeContainerComponent = ({
                   detecting={locationDetecting}
                   detected={locationDetected}
                   error={externalError}
+                  role="owner"
                />
             ) : (
-               <SwipeLoadingSkeleton />
+              <SwipeLoadingSkeleton />
             )}
           </AnimatePresence>
         </div>
@@ -951,17 +952,17 @@ const ClientSwipeContainerComponent = ({
         {/* Action Buttons */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
           <div className="pb-8 pt-2">
-             <SwipeActionButtonBar
-                onLike={() => cardRef.current?.triggerSwipe('right')}
-                onDislike={() => cardRef.current?.triggerSwipe('left')}
-                onUndo={undoLastSwipe}
-                canUndo={canUndo}
-             />
+            <SwipeActionButtonBar
+              onLike={() => cardRef.current?.triggerSwipe('right')}
+              onDislike={() => cardRef.current?.triggerSwipe('left')}
+              onUndo={undoLastSwipe}
+              canUndo={canUndo}
+            />
           </div>
         )}
       </div>
 
-      {createPortal(
+      {typeof document !== 'undefined' && document.body && createPortal(
         <Suspense fallback={null}>
           <MessageConfirmationDialog
             open={messageDialogOpen}

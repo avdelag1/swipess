@@ -7,6 +7,10 @@ import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { SwipeDistanceSlider } from './SwipeDistanceSlider';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { CategorySwipeStack } from '@/components/CategorySwipeStack';
+import { Home, Bike, Wrench } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { cn } from '@/lib/utils';
 
 interface SwipeExhaustedStateProps {
   categoryLabel: string;
@@ -21,6 +25,7 @@ interface SwipeExhaustedStateProps {
   detected?: boolean;
   error?: any;
   isInitialLoad?: boolean;
+  role?: 'client' | 'owner';
 }
 
 export const SwipeExhaustedState = ({
@@ -35,7 +40,8 @@ export const SwipeExhaustedState = ({
   detecting,
   detected,
   error,
-  isInitialLoad = false
+  isInitialLoad = false,
+  role = 'client'
 }: SwipeExhaustedStateProps) => {
   const categoryLower = categoryLabel.toLowerCase();
 
@@ -123,9 +129,45 @@ export const SwipeExhaustedState = ({
           animate={{ opacity: 1, y: 0 }} 
           className="w-full max-w-sm flex flex-col items-center space-y-8"
         >
-            <div className="relative w-full scale-[0.85] -mb-8">
-              <CategorySwipeStack />
-            </div>
+            {role === 'client' ? (
+              <div className="relative w-full scale-[0.85] -mb-8">
+                <CategorySwipeStack />
+              </div>
+            ) : (
+              <div className="w-full py-4 mb-4">
+                <div className="flex flex-wrap justify-center gap-3">
+                  {[
+                    { id: 'property', label: 'Property', icon: Home },
+                    { id: 'motorcycle', label: 'Moto', icon: MotorcycleIcon },
+                    { id: 'bicycle', label: 'Bicycle', icon: Bike },
+                    { id: 'services', label: 'Workers', icon: Wrench },
+                  ].map((cat) => {
+                    const isActive = useFilterStore.getState().categories.includes(cat.id as any);
+                    return (
+                      <motion.button
+                        key={cat.id}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          const actions = useFilterStore.getState();
+                          actions.setCategories([cat.id as any]);
+                          onRefresh();
+                        }}
+                        className={cn(
+                          "flex items-center gap-2 px-4 py-3 rounded-2xl border transition-all shadow-lg font-black uppercase tracking-widest text-[10px]",
+                          isActive 
+                            ? "bg-gradient-to-r from-indigo-600 to-indigo-500 border-indigo-400 text-white shadow-indigo-500/30"
+                            : "bg-white/10 border-white/10 text-white hover:bg-white/20"
+                        )}
+                      >
+                        <cat.icon className="w-4 h-4" />
+                        <span>{cat.label}</span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
           <div className="space-y-3">
             <h3 className="text-xl font-black text-foreground tracking-tight leading-none">{title}</h3>

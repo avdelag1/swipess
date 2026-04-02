@@ -260,7 +260,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const nextCardScale = useTransform(
     topCardX,
     [-280, -60, 0, 60, 280],
-    [1.0,  1.0, 0.97, 1.0, 1.0]
+    [1.0, 1.0, 0.97, 1.0, 1.0]
   );
   const nextCardOpacity = useTransform(
     topCardX,
@@ -547,7 +547,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     }
 
     isFetchingMore.current = false;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listingIdsSignature, isLoading, isFetching, smartListings, setClientDeck, isClientReady, markClientReady, dismissedIds]);
 
   // Get current visible cards for 2-card stack (top + next)
@@ -681,7 +681,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         imagePreloadController.preloadBatch(batch);
       }
     }, 200);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordSwipe, recordProfileView, markClientSwiped, queryClient, dismissTarget, swipeMutation, error]);
 
   // PHASE 1: Called when user swipes - ONLY updates refs and triggers animation
@@ -944,36 +944,36 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       {/* PREMIUM AMBIENT GLOWS: Dynamic Category-Aware Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10 bg-[#0a0a0b]">
         <motion.div
-          animate={{ 
+          animate={{
             scale: [1, 1.25, 1],
             opacity: [0.03, 0.06, 0.03],
             rotate: [0, 90, 0],
-            backgroundColor: topCard?.category === 'property' ? '#3b82f6' : 
-                             topCard?.category === 'vehicle' ? '#f59e0b' : 
-                             topCard?.category === 'worker' ? '#8b5cf6' : '#ec4899'
+            backgroundColor: topCard?.category === 'property' ? '#3b82f6' :
+              topCard?.category === 'vehicle' ? '#f59e0b' :
+                topCard?.category === 'worker' ? '#8b5cf6' : '#ec4899'
           }}
-          transition={{ 
+          transition={{
             scale: { duration: 25, repeat: Infinity, ease: "easeInOut" },
             opacity: { duration: 25, repeat: Infinity, ease: "easeInOut" },
             rotate: { duration: 40, repeat: Infinity, ease: "linear" },
-            backgroundColor: { duration: 2 } 
+            backgroundColor: { duration: 2 }
           }}
           className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] rounded-full blur-[160px]"
         />
         <motion.div
-          animate={{ 
+          animate={{
             scale: [1, 1.15, 1],
             opacity: [0.02, 0.05, 0.02],
             rotate: [0, -90, 0],
-            backgroundColor: topCard?.category === 'property' ? '#60a5fa' : 
-                             topCard?.category === 'vehicle' ? '#fbbf24' : 
-                             topCard?.category === 'worker' ? '#a78bfa' : '#f43f5e'
+            backgroundColor: topCard?.category === 'property' ? '#60a5fa' :
+              topCard?.category === 'vehicle' ? '#fbbf24' :
+                topCard?.category === 'worker' ? '#a78bfa' : '#f43f5e'
           }}
-          transition={{ 
+          transition={{
             scale: { duration: 30, repeat: Infinity, ease: "easeInOut" },
             opacity: { duration: 30, repeat: Infinity, ease: "easeInOut" },
             rotate: { duration: 50, repeat: Infinity, ease: "linear" },
-            backgroundColor: { duration: 2 } 
+            backgroundColor: { duration: 2 }
           }}
           className="absolute -bottom-1/4 -left-1/4 w-[900px] h-[900px] rounded-full blur-[180px]"
         />
@@ -981,7 +981,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       {/* Top Controls Overlay: Only shown when deck is ACTIVE to prevent overlap with empty/exhausted states */}
       <AnimatePresence>
         {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -1012,72 +1012,73 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <div className="relative w-full h-[calc(100%-10px)] max-w-2xl">
 
-              {/* Back card (Peek) */}
-              {currentIndex + 1 < deckQueue.length && (
-                <motion.div 
-                  className="absolute inset-0 z-10"
-                  style={{
-                    scale: nextCardScale,
-                    opacity: nextCardOpacity,
-                    willChange: 'transform, opacity',
-                  }}
-                >
-                   <SimpleSwipeCard
-                    key={deckQueue[currentIndex + 1].id}
-                    listing={deckQueue[currentIndex + 1]}
-                    onSwipe={() => {}}
-                    isTop={false}
-                  />
-                </motion.div>
-              )}
-              
-              {/* Front card */}
-              <SimpleSwipeCard
-                key={topCard?.id}
-                ref={cardRef}
-                listing={topCard}
-                onSwipe={handleSwipe}
-                onInsights={handleInsights}
-                onMessage={handleMessage}
-                onShare={handleShare}
-                isTop={true}
-                externalX={topCardX}
+                {/* Back card (Peek) */}
+                {currentIndex + 1 < deckQueue.length && (
+                  <motion.div
+                    className="absolute inset-0 z-10"
+                    style={{
+                      scale: nextCardScale,
+                      opacity: nextCardOpacity,
+                      willChange: 'transform, opacity',
+                    }}
+                  >
+                    <SimpleSwipeCard
+                      key={deckQueue[currentIndex + 1].id}
+                      listing={deckQueue[currentIndex + 1]}
+                      onSwipe={() => { }}
+                      isTop={false}
+                    />
+                  </motion.div>
+                )}
+
+                {/* Front card */}
+                <SimpleSwipeCard
+                  key={topCard?.id}
+                  ref={cardRef}
+                  listing={topCard}
+                  onSwipe={handleSwipe}
+                  onInsights={handleInsights}
+                  onMessage={handleMessage}
+                  onShare={handleShare}
+                  isTop={true}
+                  externalX={topCardX}
+                />
+              </div>
+            ) : !isLoading ? (
+              <SwipeExhaustedState 
+                 onRefresh={handleRefresh}
+                 isRefreshing={isRefreshing}
+                 categoryLabel={storeActiveCategory || 'Listings'}
+                 CategoryIcon={Home}
+                 radiusKm={radiusKm}
+                 onRadiusChange={setRadiusKm}
+                 onDetectLocation={detectLocation}
+                 detecting={locationDetecting}
+                 detected={locationDetected}
+                 error={error}
+                 role="client"
               />
-            </div>
-          ) : !isLoading ? (
-             <SwipeExhaustedState 
-                onRefresh={handleRefresh}
-                isRefreshing={isRefreshing}
-                categoryLabel={storeActiveCategory || 'Listings'}
-                CategoryIcon={Home}
-                radiusKm={radiusKm}
-                onRadiusChange={setRadiusKm}
-                onDetectLocation={detectLocation}
-                detecting={locationDetecting}
-                detected={locationDetected}
-                error={error}
-             />
-          ) : (
-             <SwipeLoadingSkeleton />
-          )}
-        </AnimatePresence>
+            ) : (
+              <SwipeLoadingSkeleton />
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
 
       {/* Action Buttons — only shown when a specific category is selected (not on the quick-filter deck) */}
       {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
         <div className="pb-8 pt-2">
-           <SwipeActionButtonBar
-              onLike={handleButtonLike}
-              onDislike={handleButtonDislike}
-              onUndo={undoLastSwipe}
-              canUndo={canUndo}
-           />
+          <SwipeActionButtonBar
+            onLike={handleButtonLike}
+            onDislike={handleButtonDislike}
+            onUndo={undoLastSwipe}
+            canUndo={canUndo}
+          />
         </div>
       )}
 
       {/* FIX #3: PORTAL ISOLATION - Modals render outside swipe tree */}
-      {typeof document !== 'undefined' && createPortal(
+      {typeof document !== 'undefined' && document.body && createPortal(
         <Suspense fallback={null}>
           {insightsModalOpen && (
             <SwipeInsightsModal
@@ -1095,7 +1096,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               description={topCard.description}
             />
           )}
-          
+
           <MessageConfirmationDialog
             open={messageDialogOpen}
             onOpenChange={setMessageDialogOpen}
