@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
   <meta name="format-detection" content="telephone=no">
   <meta name="theme-color" content="#0A0A0B">
-  <meta name="app-version" content="3.6.2">
+  <meta name="app-version" content="3.6.3">
 
   <!-- 📱 PWA & MOBILE OPTIMIZATION -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -256,7 +256,7 @@
 
   <script>
     // PWA Version Control — runs synchronously but is fast (no network)
-    var V="3.6.2";
+    var V="3.6.3";
     if(localStorage.getItem('pwa_version')!==V){
       if('caches' in window)caches.keys().then(function(n){n.forEach(function(k){caches.delete(k)})}).then(function(){localStorage.setItem('pwa_version',V); window.location.reload();});
     }

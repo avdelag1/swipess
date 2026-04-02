@@ -1,14 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 /**
- * 🧘 FOCUS MODE HOOK (SENTIENT EDITION)
- * This hook manages the 'visibility' state of the UI elements.
- * It detects user activity (touches, clicks, scrolls, moves) and handles 
- * the automatic fading of headers and footers to create an 
- * 'invisible' immersive experience.
+ * 🧘 FOCUS MODE HOOK
+ * Shows the nav bars on load, hides them after `timeout` ms of inactivity.
+ * Any touch, click, or scroll instantly restores them.
+ *
+ * Uses capture-phase listeners so swipe-card stopPropagation() calls
+ * cannot block the wake-up signal.
  * 
- * UPGRADE: Now uses CAPTURE phase listeners to ensure it detects
- * interactions even if child components call stopPropagation().
+ * UPGRADES:
+ * - Window-level listeners for cross-browser stability
+ * - custom 'sentient-ui-recovery' event for manual triggers
+ * - Interaction throttling to prevent focus while active
  */
 export function useFocusMode(timeout: number = 6000) {
   const [isFocused, setIsFocused] = useState(false);
@@ -82,6 +85,7 @@ export function useFocusMode(timeout: number = 6000) {
 
   return { 
     isFocused: isFocused && !isManualOverride, 
-    setIsManualOverride 
+    setIsManualOverride,
+    resetFocus: handleInteraction
   };
 }
