@@ -309,7 +309,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     return isMatch;
   }, [location.pathname]);
 
-  const { isFocused } = useFocusMode(6000); // Optimized timeout: 6s per user preference for Sentient Navigation
+  const { isFocused, resetFocus } = useFocusMode(6000);
+
+  // Reset nav visibility on every route change so buttons always appear on new pages
+  useEffect(() => {
+    resetFocus();
+  }, [location.pathname, resetFocus]);
 
   // Map quick filter category names to database category names
   const _mapCategoryToDatabase = useCallback((category: QuickFilterCategory): string => {

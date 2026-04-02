@@ -66,8 +66,10 @@ export function useFocusMode(timeout: number = 6000) {
     };
   }, [handleInteraction]);
 
-  return { 
-    isFocused: isFocused && !isManualOverride, 
-    setIsManualOverride 
+  return {
+    isFocused: isFocused && !isManualOverride,
+    setIsManualOverride,
+    // Call this on route changes to always show the nav on new pages
+    resetFocus: handleInteraction,
   };
 }
