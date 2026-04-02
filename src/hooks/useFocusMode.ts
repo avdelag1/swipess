@@ -39,17 +39,18 @@ export function useFocusMode(timeout: number = 6000) {
       'scroll', 
       'wheel', 
       'click',
-      'pointerdown'
+      'pointerdown',
+      'deviceorientation',
+      'devicemotion'
     ];
 
     // 🛡️ CAPTURE PHASE: We listen at the document level in the capture phase.
     // This allows us to see events before they reach components that might 
     // block them (like swipe containers or complex button logic).
+    const captureOptions = { capture: true, passive: true };
+    
     events.forEach(event => {
-      document.addEventListener(event, handleInteraction, { 
-        capture: true, 
-        passive: true 
-      });
+      document.addEventListener(event, handleInteraction, captureOptions);
     });
 
     // Initial trigger to start the first timer

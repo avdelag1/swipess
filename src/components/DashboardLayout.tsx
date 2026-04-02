@@ -431,8 +431,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             filter: isFocused ? "blur(12px)" : "blur(0px)"
           }}
           transition={{ 
-            duration: isFocused ? 2.4 : 0.35, // BEAUTIFUL vanish, INSTANT return
-            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.22, 1, 0.36, 1] 
+            duration: isFocused ? 2.4 : 0.2, // BEAUTIFUL vanish, ULTRA-INSTANT return
+            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.16, 1, 0.3, 1] 
           }}
           className={cn("z-50", isFocused ? "pointer-events-none" : "pointer-events-auto")}
         >
@@ -491,8 +491,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             filter: isFocused ? "blur(12px)" : "blur(0px)"
           }}
           transition={{ 
-            duration: isFocused ? 2.4 : 0.35, // BEAUTIFUL vanish, INSTANT return
-            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.22, 1, 0.36, 1] 
+            duration: isFocused ? 2.4 : 0.2, // BEAUTIFUL vanish, ULTRA-INSTANT return
+            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.16, 1, 0.3, 1] 
           }}
           className={cn("z-50", isFocused ? "pointer-events-none" : "pointer-events-auto")}
         >
