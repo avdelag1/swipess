@@ -138,6 +138,7 @@ html {
   color: hsl(var(--foreground));
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --top-bar-height: 52px;
 }
 
 body {

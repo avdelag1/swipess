@@ -1015,11 +1015,27 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         )}
       </AnimatePresence>
 
-      <div className="absolute inset-0 flex items-center justify-center pb-24 lg:pb-28 p-3 z-10 pointer-events-none">
-        <div className="w-full flex items-center justify-center pointer-events-auto">
+      <div className="absolute inset-0 flex flex-col items-center justify-center pb-24 lg:pb-28 p-3 z-10 pointer-events-none">
+        {/* 🚀 DASHBOARD DESCRIPTION: Shows user exactly what they are searching for (Tinder-style) */}
+        {storeActiveCategory && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute top-[calc(var(--top-bar-height)+16px)] left-0 right-0 z-50 flex justify-center pointer-events-none px-6"
+          >
+            <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-2xl shadow-2xl flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-brand-accent-2 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">
+                Searching <span className="text-brand-accent-2">{storeActiveCategory.replace('_', ' ')}</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
+              </span>
+            </div>
+          </motion.div>
+        )}
+
+        <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="wait">
-            {!storeActiveCategory ? (
-              <div className="w-full flex flex-col items-center justify-center -mt-8">
+            {(!storeActiveCategory || storeActiveCategory === 'all' as any) ? (
+              <div className="w-full h-full flex flex-col items-center justify-center -mt-8">
                 <CategorySwipeStack />
               </div>
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
