@@ -75,36 +75,61 @@ export const SentientSLogo = memo(({ size = 'md', className }: SentientSLogoProp
     return () => clearInterval(aliveLoop);
   }, [controls, isVisible]);
 
+  // ── Sentient-Sync: React to global stars ─────────────────────────────
+  useEffect(() => {
+    const handleStar = () => {
+      setMood('shocked');
+      setTimeout(() => setMood('normal'), 1200);
+    };
+    window.addEventListener('STAR_SPAWNED', handleStar as EventListener);
+    return () => window.removeEventListener('STAR_SPAWNED', handleStar as EventListener);
+  }, []);
+
   // ── Interaction Logic ───────────────────────────────────────────────
   const handleTap = useCallback(() => {
     triggerHaptic('heavy');
-    
-    // Cycle modes
     const moods: typeof mood[] = ['happy', 'winking', 'shocked', 'cool'];
     const nextMood = moods[Math.floor(Math.random() * moods.length)];
     setMood(nextMood);
-    
-    // Interaction Animation
     controls.start({
       scale: [1, 1.3, 0.8, 1.1, 1],
       rotate: [0, -15, 15, -10, 0],
       transition: { duration: 0.6 }
     });
-
-    // Sound effects
     if (nextMood === 'happy') playSound('laugh');
     if (nextMood === 'winking') playSound('whistle');
     if (nextMood === 'shocked') playSound('boing');
-
-    // Reset mood after a moment
     setTimeout(() => setMood('normal'), 2000);
   }, [controls]);
+
+  // ── 3D Tilt Logic ───────────────────────────────────────────────────
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const handleMouseMove = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = ('touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX) - rect.left;
+    const y = ('touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY) - rect.top;
+    const px = (x / rect.width) * 2 - 1;
+    const py = (y / rect.height) * 2 - 1;
+    setTilt({ x: px * 15, y: py * -15 });
+  };
+  const resetTilt = () => setTilt({ x: 0, y: 0 });
 
   return (
     <motion.div
       ref={containerRef}
       onClick={handleTap}
-      animate={isVisible ? controls : {}}
+      onMouseMove={handleMouseMove}
+      onTouchMove={handleMouseMove}
+      onMouseLeave={resetTilt}
+      onTouchEnd={resetTilt}
+      animate={{
+        ...(isVisible ? controls : {}),
+        rotateY: tilt.x,
+        rotateX: tilt.y,
+        transition: { type: 'spring', stiffness: 300, damping: 20 }
+      }}
+      style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.9 }}
       className={cn(

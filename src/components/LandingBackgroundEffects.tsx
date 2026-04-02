@@ -186,9 +186,11 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         type: sizeType
       });
 
-      // User triggered stars should ALWAYS play sound
+      // User triggered stars should ALWAYS play sound & notify UI
       if (x !== undefined && y !== undefined && !disableSoundsRef.current) {
         playRandomZen(0.2);
+        // Dispatch event so Sentient UI can react
+        window.dispatchEvent(new CustomEvent('STAR_SPAWNED', { detail: { x, y } }));
       }
     };
 
@@ -277,6 +279,20 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         const depthSpeed = star.size * star.driftSpeed;
         star.baseY -= depthSpeed;
         
+        // 🚀 ZENITH: Star Repulsion
+        // Stars move away from the touch/mouse position
+        if (pointerRef.current.isActive || pointerRef.current.isDown) {
+          const dx = star.x - pointerRef.current.x;
+          const dy = star.y - pointerRef.current.y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < 120) {
+            const force = (120 - dist) / 120;
+            const angle = Math.atan2(dy, dx);
+            star.vx += Math.cos(angle) * force * 1.2;
+            star.vy += Math.sin(angle) * force * 1.2;
+          }
+        }
+
         if (star.baseY < -star.size) {
           star.baseY = window.innerHeight + star.size;
           star.y = star.baseY;
