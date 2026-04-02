@@ -443,26 +443,18 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and immersive feeds for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
       {!isFullScreenRoute && (
-        <motion.div
-          animate={{ 
-            opacity: 1, 
-            y: 0,
-            filter: "blur(0px)"
-          }}
-          transition={{ duration: 0.1 }}
-          className="z-50 pointer-events-auto"
-        >
+        <div className="fixed top-0 left-0 right-0 z-[99999] opacity-100 transform-none">
           <TopBar
-            onNotificationsClick={() => {}} // Now handled internally by TopBar navigating to /notifications
+            onNotificationsClick={() => {}} 
             onMessageActivationsClick={handleMessageActivationsClick}
             showFilters={isOnDiscoveryPage}
             userRole={userRole}
             transparent={isImmersiveDashboard || isImmersiveFeed}
-            hideOnScroll={true}
+            hideOnScroll={false}
             title={pageTitle}
             showBack={!isOnDiscoveryPage}
           />
-        </motion.div>
+        </div>
       )}
 
       {/* Main Content - Scrollable area with safe area spacing for fixed header/footer */}
@@ -504,15 +496,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
       {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and all immersive feeds */}
       {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
-        <motion.div
-          animate={{ 
-            opacity: 1, 
-            y: 0,
-            filter: "blur(0px)"
-          }}
-          transition={{ duration: 0.1 }}
-          className="z-50 pointer-events-auto"
-        >
+        <div className="fixed bottom-0 left-0 right-0 z-[99999] opacity-100 transform-none">
           <BottomNavigation
             userRole={userRole}
             onFilterClick={() => modalStore.setModal('showFilters', true)}
@@ -526,7 +510,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
               }
             }}
           />
-        </motion.div>
+        </div>
       )}
 
       {/* PROACTIVE AI BUTLER — Sentient Insights */}
