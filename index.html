@@ -266,17 +266,16 @@
     window.__APP_MOUNTED__ = false;
     setTimeout(function() {
       if (!window.__APP_MOUNTED__) {
-        console.error('[Zenith] App mount failure after 6s. Showing Repair UI.');
+        console.error('[Zenith] App mount failure after 4s. Showing Repair UI.');
         var recovery = document.getElementById('mount-recovery');
         if (recovery) {
           recovery.style.display = 'block';
           recovery.style.opacity = '1';
         }
-        // Fade the splash so the recovery button is visible
         var splash = document.getElementById('initial-loader');
         if (splash) splash.style.opacity = '0.3';
       }
-    }, 6000);
+    }, 4000);
   </script>
 
   <div id="root"></div>
