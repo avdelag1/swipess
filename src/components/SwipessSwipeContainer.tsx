@@ -940,7 +940,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // The 'Premiums Dashboard' (SwipeAllDashboard) is now the interactive Slide 0
   // of the vertical snap-scrolling reel.
   return (
-    <div className="relative w-full h-full overflow-hidden flex flex-col pt-2 bg-background">
+    <div className="relative w-full h-full overflow-hidden flex flex-col pt-1 bg-background">
       {/* PREMIUM AMBIENT GLOWS: Dynamic Category-Aware Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10 bg-[#0a0a0b]">
         <motion.div
@@ -985,22 +985,24 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-4 left-0 right-0 z-50 px-6 flex flex-col items-center gap-4 pointer-events-none"
+            className="absolute top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none"
           >
-            <div className="w-full flex justify-between items-center pointer-events-auto">
-              <DistanceSlider
-                radiusKm={radiusKm}
-                onRadiusChange={setRadiusKm}
-                onDetectLocation={detectLocation}
-                detecting={locationDetecting}
-                detected={locationDetected}
-              />
+            <div className="w-full pt-4 pb-8 px-6 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
+              <div className="w-full flex justify-between items-center pointer-events-auto">
+                <DistanceSlider
+                  radiusKm={radiusKm}
+                  onRadiusChange={setRadiusKm}
+                  onDetectLocation={detectLocation}
+                  detecting={locationDetecting}
+                  detected={locationDetected}
+                />
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="absolute inset-0 flex items-center justify-center pb-20 lg:pb-24 p-4 z-10 pointer-events-none">
+      <div className="absolute inset-0 flex items-center justify-center pb-24 lg:pb-28 p-3 z-10 pointer-events-none">
         <div className="w-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="wait">
             {!storeActiveCategory ? (
@@ -1008,7 +1010,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 <CategorySwipeStack />
               </div>
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-              <div className="relative w-full h-[72dvh] max-w-2xl">
+              <div className="relative w-full h-[calc(100%-10px)] max-w-2xl">
 
               {/* Back card (Peek) */}
               {currentIndex + 1 < deckQueue.length && (

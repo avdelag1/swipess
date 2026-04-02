@@ -10,12 +10,11 @@ import { useTheme } from '@/hooks/useTheme';
 import { useQueryClient } from '@tanstack/react-query';
 import { predictivePrefetchCategory } from '@/utils/performance';
 
-const CATEGORIES: { id: QuickFilterCategory | 'eventos' | null; label: string; icon: any; color: string; description: string; image: string }[] = [
+const CATEGORIES: { id: QuickFilterCategory | null; label: string; icon: any; color: string; description: string; image: string }[] = [
     { id: 'property', label: 'Property', icon: Home, color: 'from-rose-500 to-rose-400', description: 'Find your next home', image: '/images/filters/property.png' },
     { id: 'motorcycle', label: 'Moto', icon: MotorcycleIcon, color: 'from-orange-500 to-orange-400', description: 'Ride in style', image: '/images/filters/scooter.png' },
     { id: 'bicycle', label: 'Bicycle', icon: Bike, color: 'from-violet-500 to-violet-400', description: 'Eco-friendly travel', image: '/images/filters/bicycle.png' },
     { id: 'services', label: 'Services', icon: Briefcase, color: 'from-amber-500 to-amber-400', description: 'Hire professionals', image: '/images/filters/workers.png' },
-    { id: 'eventos', label: 'Events', icon: Sparkles, color: 'from-fuchsia-500 to-fuchsia-400', description: 'What\'s happening now', image: '/images/events/cenote_rave.png' },
     { id: null, label: 'All', icon: Search, color: 'from-slate-500 to-slate-400', description: 'Explore everything', image: '/images/promo/promo_1.png' },
 ];
 

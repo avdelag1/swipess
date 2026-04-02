@@ -834,7 +834,7 @@ const ClientSwipeContainerComponent = ({
 
   return (
     <>
-      <div className="relative w-full h-full overflow-hidden flex flex-col pt-4 bg-[#0a0a0b]">
+      <div className="relative w-full h-full overflow-hidden flex flex-col pt-2 bg-[#0a0a0b]">
         {/* PREMIUM AMBIENT GLOWS: Dynamic Category-Aware Background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
           <motion.div
@@ -874,32 +874,33 @@ const ClientSwipeContainerComponent = ({
             className="absolute -bottom-1/4 -left-1/4 w-[900px] h-[900px] rounded-full blur-[180px]"
           />
         </div>
-        {/* Top Controls Overlay: Only shown when deck is ACTIVE to hide when exhausted (prevent overlap with SwipeExhaustedState) */}
         <AnimatePresence>
           {deckQueue.length > 0 && currentIndex < deckQueue.length && (
             <motion.div 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute top-4 left-0 right-0 z-50 px-6 flex flex-col items-center gap-4 pointer-events-none"
+              className="absolute top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none"
             >
-              <div className="w-full flex justify-between items-center pointer-events-auto">
-                <DistanceSlider
-                  radiusKm={radiusKm}
-                  onRadiusChange={setRadiusKm}
-                  onDetectLocation={detectLocation}
-                  detecting={locationDetecting}
-                  detected={locationDetected}
-                />
+              <div className="w-full pt-4 pb-8 px-6 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
+                <div className="w-full flex justify-between items-center pointer-events-auto">
+                  <DistanceSlider
+                    radiusKm={radiusKm}
+                    onRadiusChange={setRadiusKm}
+                    onDetectLocation={detectLocation}
+                    detecting={locationDetecting}
+                    detected={locationDetected}
+                  />
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="flex-1 relative flex items-center justify-center p-4">
+        <div className="flex-1 relative flex items-center justify-center p-3 lg:p-4">
           <AnimatePresence>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-              <div className="relative w-full h-[calc(100%-40px)] max-w-2xl">
+              <div className="relative w-full h-[calc(100%-20px)] max-w-2xl">
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (
                   <div className="absolute inset-0 z-10 scale-[0.96] translate-y-2 opacity-50 blur-[2px]">

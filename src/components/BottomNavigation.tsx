@@ -105,7 +105,6 @@ export const BottomNavigation = memo(({
     { id: 'ai-search', icon: Sparkles, label: 'Concierge', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
-    { id: 'eventos', icon: Megaphone, label: t('nav.events'), path: '/explore/eventos', isSpecial: true },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
@@ -117,7 +116,6 @@ export const BottomNavigation = memo(({
     { id: 'ai-search', icon: Sparkles, label: 'Concierge', onClick: onAISearchClick },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-    { id: 'advertise', icon: Megaphone, label: t('nav.advertise'), path: '/client/advertise', isSpecial: true },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
 

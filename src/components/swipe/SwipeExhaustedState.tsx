@@ -116,29 +116,29 @@ export const SwipeExhaustedState = ({
         animate="animate" 
         exit="exit" 
         className="relative w-full flex-1 flex flex-col items-center justify-center p-6 text-center bg-background"
-        style={{ minHeight: 'calc(100dvh - 140px)', paddingTop: '3rem' }}
+        style={{ minHeight: 'calc(100dvh - 120px)', paddingTop: '2.5rem' }}
       >
         <motion.div 
           initial={{ opacity: 0, y: 30 }} 
           animate={{ opacity: 1, y: 0 }} 
-          className="w-full max-w-sm flex flex-col items-center space-y-10"
+          className="w-full max-w-sm flex flex-col items-center space-y-8"
         >
-            <div className="relative">
+            <div className="relative w-full scale-[0.85] -mb-8">
               <CategorySwipeStack />
             </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <h3 className="text-xl font-black text-foreground tracking-tight leading-none">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-[280px] mx-auto leading-relaxed font-medium">
+            <p className="text-muted-foreground text-[13px] max-w-[280px] mx-auto leading-relaxed font-bold uppercase tracking-wider opacity-80">
               {description}
             </p>
           </div>
           
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="pt-2">
             <Button
               onClick={onRefresh}
               disabled={isRefreshing}
-              className="gap-3 rounded-full px-10 py-6 bg-gradient-to-r from-primary to-orange-500 text-white hover:opacity-90 shadow-xl font-black uppercase tracking-[0.15em] text-[11px] border-none"
+              className="gap-3 rounded-2xl px-12 py-7 bg-gradient-to-r from-primary to-orange-500 text-white hover:opacity-90 shadow-2xl font-black uppercase tracking-[0.2em] text-[12px] border-none"
             >
               {isRefreshing ? (
                 <RadarSearchIcon size={20} isActive={true} />
@@ -149,7 +149,7 @@ export const SwipeExhaustedState = ({
             </Button>
           </motion.div>
 
-          <div className="w-full pt-6">
+          <div className="w-full pt-4">
             <SwipeDistanceSlider
               radiusKm={radiusKm}
               onRadiusChange={onRadiusChange}
@@ -157,7 +157,7 @@ export const SwipeExhaustedState = ({
               detecting={detecting}
               detected={detected}
             />
-            <p className="mt-6 text-[11px] font-black uppercase tracking-[0.25em] text-foreground/60">
+            <p className="mt-5 text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40 italic">
               New {categoryLower} are added daily
             </p>
           </div>
