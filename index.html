@@ -197,15 +197,14 @@
     var splashTimeout = setTimeout(function() {
       console.warn('[Splash] Mount taking too long - invoking recovery system');
       removeSplash();
-      // Show recovery UI if root is still empty OR after 3s total
       setTimeout(function() {
         var root = document.getElementById('root');
         if (!root || root.innerHTML === "" || !window.__APP_INITIALIZED__) {
-          console.error('[Splash] Fatal: App failed to initialize after 3s');
+          console.error('[Splash] Fatal: App failed to initialize after 2s');
           document.getElementById('mount-recovery').style.display = 'block';
         }
       }, 500);
-    }, 3000);
+    }, 2000);
 
     // Dynamic Network Guard: Catch fatal chunk load errors immediately
     window.addEventListener('error', function(e) {
