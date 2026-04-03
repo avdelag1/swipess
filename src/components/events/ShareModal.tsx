@@ -21,7 +21,7 @@ export function ShareModal({
       try {
         await navigator.share({
           title: event.title,
-          text: `Check out ${event.title} in Tulum! Sign up on Local Jarvis to get connected 🎉`,
+          text: `Check out ${event.title} in Tulum! Sign up on SwipesS to get connected 🎉`,
           url: url
         });
         onClose();

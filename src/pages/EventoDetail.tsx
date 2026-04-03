@@ -217,7 +217,7 @@ export default function EventoDetail() {
     triggerHaptic('medium');
     if (!event?.organizer_whatsapp) return;
     const phone = event.organizer_whatsapp.replace(/\D/g, '');
-    const message = encodeURIComponent(`Hola, vi tu evento "${event.title}" en Local Jarvis 🔥`);
+    const message = encodeURIComponent(`Hola, vi tu evento "${event.title}" en SwipesS 🔥`);
     window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
   };
 
