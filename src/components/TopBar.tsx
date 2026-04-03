@@ -185,14 +185,19 @@ function TopBarComponent({
           className
         )}
       >
-        {/* Normal header background - Hardware accelerated transitions */}
+        {/* ATMOSPHERIC GRADIENT: Replaces solid frame with a cinematic fade-out haze */}
         <div 
           className={cn(
-            "absolute inset-0 transition-all duration-500 ease-in-out -z-10",
-            isLight ? "bg-white" : "bg-black",
+            "absolute inset-0 transition-opacity duration-700 -z-10 pointer-events-none",
             transparent ? "opacity-0" : "opacity-100"
-          )} 
-          style={{ transform: 'translateZ(0)' }}
+          )}
+          style={{ 
+            background: isLight 
+              ? 'linear-gradient(to bottom, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.4) 60%, transparent 100%)' 
+              : 'linear-gradient(to bottom, rgba(7,7,8,0.98) 0%, rgba(7,7,8,0.3) 60%, transparent 100%)',
+            height: '140%', // Extends past the header for a softer drop-off
+            transform: 'translateZ(0)',
+          }}
         />
 
         <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 pl-1.5 pr-2">
@@ -246,16 +251,16 @@ function TopBarComponent({
               </div>
             )}
 
-            {/* Gradient fade — buttons scroll behind this */}
+            {/* ATMOSPHERIC SCROLL MASK (LEFT) */}
             <div
-              className="absolute top-0 bottom-0 w-8 pointer-events-none z-30"
+              className="absolute top-0 bottom-0 w-10 pointer-events-none z-30"
               style={{
-                right: '-32px',
+                right: '-36px',
                 background: isLight
-                  ? 'linear-gradient(to right, rgb(255,255,255) 30%, transparent)'
-                  : 'linear-gradient(to right, rgb(0,0,0) 30%, transparent)',
-                opacity: transparent ? 0 : 1,
-                transition: 'opacity 0.5s ease',
+                  ? 'linear-gradient(to right, rgba(255,255,255,0.85) 20%, transparent)'
+                  : 'linear-gradient(to right, rgba(7,7,8,0.9) 20%, transparent)',
+                opacity: transparent ? 0 : 0.8,
+                transition: 'opacity 0.6s ease',
               }}
             />
           </div>
@@ -445,15 +450,15 @@ function TopBarComponent({
               <NotificationPopover />
             </div>
           </div>
-          {/* Right gradient fade — rightmost buttons scroll behind this */}
+          {/* ATMOSPHERIC SCROLL MASK (RIGHT) */}
           <div
-            className="absolute top-0 right-0 bottom-0 w-10 pointer-events-none z-30"
+            className="absolute top-0 right-0 bottom-0 w-12 pointer-events-none z-30"
             style={{
               background: isLight
-                ? 'linear-gradient(to left, rgb(255,255,255) 30%, transparent)'
-                : 'linear-gradient(to left, rgb(0,0,0) 30%, transparent)',
+                ? 'linear-gradient(to left, rgba(255,255,255,0.85) 40%, transparent)'
+                : 'linear-gradient(to left, rgba(7,7,8,0.95) 40%, transparent)',
               opacity: transparent ? 0 : 1,
-              transition: 'opacity 0.5s ease',
+              transition: 'opacity 0.6s ease',
             }}
           />
           </div>
