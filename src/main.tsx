@@ -79,6 +79,8 @@ if (rootElement) {
         <App authPromise={authPromise} />
       )
     );
+    // Signal immediately after render call to prevent recovery UI
+    (window as any).__APP_INITIALIZED__ = true;
   } catch (error) {
     logger.error('[Mount] Fatal React Render Error:', error);
     clearTimeout(splashTimeout);

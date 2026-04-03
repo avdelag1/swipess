@@ -38,15 +38,6 @@ export function AnimatedOutlet() {
   const location = useLocation();
   const outlet = useOutlet();
 
-  // 🚀 VIEW TRANSITIONS API: The secret to 'Native' feel on web
-  useLayoutEffect(() => {
-    if ('startViewTransition' in document) {
-      (document as any).startViewTransition(() => {
-        // This effectively tells the browser to capture snapshots
-      });
-    }
-  }, [location.pathname]);
-
   return (
     <AnimatePresence mode="popLayout" initial={false}>
       <motion.div

@@ -82,7 +82,6 @@ function SwipessLogoComponent({
               WebkitMaskImage: `url(/icons/fire-s-logo-960.webp)`,
               maskSize: 'contain',
               maskRepeat: 'no-repeat',
-              WebkitMaskMode: 'luminance',
               maskMode: 'luminance'
             }}
           />

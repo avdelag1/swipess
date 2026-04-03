@@ -296,7 +296,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           currentStation: targetStation,
           currentCity: targetStation.city,
           // 🚀 SENTIENT VISIBILITY: Automatically expand when music starts
-          miniPlayerMode: 'expanded'
+          miniPlayerMode: prev.miniPlayerMode === 'closed' ? 'closed' : 'expanded'
         }));
         savePreferences({ currentStation: targetStation, currentCity: targetStation.city });
       }
