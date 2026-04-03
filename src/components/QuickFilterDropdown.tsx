@@ -404,10 +404,10 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 <AnimatePresence>
                   {clickedCategory === category.id && category.hasSubOptions && category.id !== 'services' && (
                     <motion.div
-                      initial={{ opacity: 0, height: 0, scale: 0.95, filter: 'blur(10px)' }}
-                      animate={{ opacity: 1, height: 'auto', scale: 1, filter: 'blur(0px)' }}
-                      exit={{ opacity: 0, height: 0, scale: 0.95, filter: 'blur(4px)' }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 28, mass: 0.6 }}
+                      initial={{ opacity: 0, height: 0, scale: 0.97 }}
+                      animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                      exit={{ opacity: 0, height: 0, scale: 0.97 }}
+                      transition={{ type: 'spring', stiffness: 550, damping: 32, mass: 0.4 }}
                       className="overflow-hidden origin-top"
                     >
                       <div className="pl-14 sm:pl-16 pr-5 pb-3">
@@ -505,11 +505,11 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
             />
             <motion.div
               ref={dropdownRef}
-              initial={{ opacity: 0, y: -20, scale: 0.9, filter: 'blur(12px)' }}
-              animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -15, scale: 0.95, filter: 'blur(8px)' }}
-              transition={{ type: 'spring', stiffness: 450, damping: 25, mass: 0.5 }}
-              className="fixed left-3 top-20 z-[10002] sm:left-1/2 sm:-translate-x-1/2 origin-top-left sm:origin-top"
+              initial={{ opacity: 0, y: -10, scale: 0.93 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 520, damping: 32, mass: 0.35 }}
+              className="fixed left-3 top-28 z-[10002] sm:left-1/2 sm:-translate-x-1/2 origin-top-left sm:origin-top"
             >
               {userRole === 'owner' ? renderOwnerFilters() : renderClientFilters()}
             </motion.div>

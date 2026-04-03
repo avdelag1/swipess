@@ -24,12 +24,12 @@ export const OwnerAllDashboard = ({ onCardSelect }: OwnerAllDashboardProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Periodic fold → open cycle every 15s
+  // Periodic fold → open cycle every 25s
   useEffect(() => {
     const interval = setInterval(() => {
       setIsCollapsed(true);
       openTimerRef.current = setTimeout(() => setIsCollapsed(false), 1600);
-    }, 15000);
+    }, 25000);
     return () => {
       clearInterval(interval);
       if (openTimerRef.current) clearTimeout(openTimerRef.current);

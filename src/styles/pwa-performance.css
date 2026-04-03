@@ -447,3 +447,77 @@ body.hw-mid .animate-pulse {
     -webkit-user-select: none;
     user-select: none;
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  SPEED BOOST — Snappier interactions across ALL sections             */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Paint containment for card lists — prevents full-page reflows */
+.swipe-card,
+[class*="ClientCard"],
+[class*="WorkerCard"] {
+    contain: layout style paint;
+    transform: translateZ(0);
+}
+
+/* GPU layer for the app header + bottom nav to avoid repaints during scroll */
+.app-header,
+.app-bottom-bar {
+    transform: translateZ(0);
+    contain: layout style paint;
+}
+
+/* Faster Framer Motion spring/tween for all motion elements on mobile */
+@media (max-width: 767px) {
+    /* Reduce Framer Motion exit/enter overhead */
+    [data-framer-portal] * {
+        transition-duration: 80ms !important;
+    }
+
+    /* Cards: instant response to touch — no transition lag */
+    button,
+    [role="button"] {
+        transition: transform 40ms cubic-bezier(0, 0, 0.2, 1) !important;
+    }
+
+    /* Swipe card container: promote to its own layer */
+    .swipe-card-container {
+        isolation: isolate;
+        transform: translateZ(0);
+    }
+}
+
+/* content-visibility: auto on heavy off-screen sections for faster initial paint */
+.dashboard-section,
+.profile-section,
+.settings-section {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
+}
+
+/* Eliminate expensive multi-layer blur on the quick-filter backdrop for mobile */
+@media (max-width: 767px) {
+    .filter-backdrop {
+        -webkit-backdrop-filter: blur(4px) !important;
+        backdrop-filter: blur(4px) !important;
+    }
+}
+
+/* Faster page route transitions — match native-app feel */
+.page-transition-enter,
+.page-transition-exit {
+    animation-duration: 120ms !important;
+    transition-duration: 120ms !important;
+}
+
+/* Reduce radix popover/select animation on mobile */
+@media (max-width: 767px) {
+    [data-radix-popper-content-wrapper] {
+        animation-duration: 80ms !important;
+        transition-duration: 80ms !important;
+    }
+    [data-radix-select-content],
+    [data-radix-popover-content] {
+        animation-duration: 80ms !important;
+    }
+}
