@@ -56,9 +56,9 @@ export const ZenithPrewarmer = () => {
 
       // 3. Pre-warm Critical UI Assets & Branding
       const prefetchImages = [
-         '/icons/fire-s-logo-960.webp',
+         '/icons/fire-s-logo-512.png',
+         '/icons/fire-s-logo-192.png',
          '/placeholder.svg',
-         '/swipess-logo.png'
       ];
       
       prefetchImages.forEach(src => {
