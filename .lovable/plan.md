@@ -1,46 +1,53 @@
 
 
-## Plan: Replace Logo Everywhere with Clean Transparent Version
+## Fix Plan: Buttons Visibility, Logo Background, Radio Consolidation, Speed & Crash Fix
 
-### Problem
-The uploaded Fire S logo has a dark navy background. The current logo assets also have dark backgrounds, requiring CSS mask hacks. We need a truly transparent version used consistently across the entire PWA.
+### Critical Bug: Infinite Recursion Crash (RadioContext)
 
-### Approach
+The **"Maximum call stack size exceeded"** error is the #1 cause of the app feeling slow/broken. `play()` calls `changeStation('next')` synchronously when a station is in `failedStationsRef`, and `changeStation` calls `play()` back — creating infinite recursion when multiple stations fail.
 
-**Step 1: Generate transparent logo asset**
-- Copy the uploaded image to the project
-- Use a Python script (PIL/Pillow) to remove the dark navy background by converting dark pixels to transparent
-- Output a clean transparent PNG at multiple sizes: 960px, 512px, 192px, 96px, 48px, 32px, 16px
-- Also generate favicon.ico from the 32px version
+**Fix**: Add a recursion depth counter ref. If `play()` is called more than 5 times in a row without success, stop and set an error state instead of continuing to recurse.
 
-**Step 2: Update `SwipessLogo.tsx`**
-- Simplify the component — remove the CSS mask hack entirely
-- Use the new transparent PNG directly as an `<img>` tag
-- Keep the glow effects as-is (they work independently)
+### Issue 1: Right-side action buttons (Save, Like, Chat) hidden behind nav bar
 
-**Step 3: Update `index.html`**
-- Replace favicon references to point to new transparent assets
-- Update the splash screen logo to use the new transparent asset directly (remove the CSS mask-based approach)
+In `src/components/events/EventCard.tsx` line 185, the buttons are positioned at `bottom-[calc(6.5rem+env(safe-area-inset-bottom,0px))]`. The bottom nav bar is taller than this offset.
 
-**Step 4: Update manifest files**
-- Update `manifest.json` and `manifest.webmanifest` icon entries to reference the new transparent PNGs
+**Fix**: Increase the bottom offset to `bottom-[calc(9rem+env(safe-area-inset-bottom,0px))]` so buttons sit clearly above the navigation bar.
 
-**Step 5: Update all direct image references**
-- `useAutomaticUpdates.tsx` — uses `fire-s-logo-960.webp` directly as `<img>`
-- `ZenithPrewarmer.tsx` — prefetch list
-- Apple touch icons — regenerate from transparent source
+### Issue 2: Logo "S" watermark showing on all inner pages
+
+In `src/components/DashboardLayout.tsx` line 524-527, there's a fixed full-screen SwipessLogo watermark at 10% opacity that shows on every page transition.
+
+**Fix**: Remove the watermark `div` entirely from DashboardLayout. The logo on the landing page stays untouched.
+
+### Issue 3: Radio button — keep ONLY in header
+
+Currently radio appears in 3 places:
+- **TopBar** (header) — line 444-464 — **KEEP this one**
+- **BottomNavigation** — line 99 (client) and line 112 (owner) — **REMOVE**
+- **ClientProfileNew** — line 294-306 — **REMOVE**
+- **OwnerProfileNew** — line 190-202 — **REMOVE**
+
+**Fix**: Delete the radio nav items from both client and owner arrays in BottomNavigation, and delete the radio buttons from both profile pages.
+
+### Issue 4: Speed — page transitions feel 2-5 seconds
+
+Root causes:
+1. The infinite recursion crash in RadioContext is freezing the main thread
+2. Heavy `AnimatePresence` + `motion.div` wrapping every nav item with spring physics
+
+**Fixes**:
+- Fix the RadioContext crash (primary cause)
+- The `changeStation` useCallback depends on `play` which depends on `state.currentStation` — this causes the callback to be recreated on every station change, potentially causing stale closure issues. Pin it with refs.
 
 ### Files to Edit
+
 | File | Change |
 |---|---|
-| `public/icons/` | New transparent assets at all sizes + favicon |
-| `src/components/SwipessLogo.tsx` | Simplify to direct `<img>`, remove CSS mask |
-| `index.html` | Update favicon + splash logo references |
-| `public/manifest.json` | Update icon paths |
-| `public/manifest.webmanifest` | Update icon paths |
-| `src/components/ZenithPrewarmer.tsx` | Update prefetch paths |
-| `src/hooks/useAutomaticUpdates.tsx` | Update logo img src |
-
-### Technical Detail
-Background removal via Python PIL: flood-fill from corners with tolerance for the navy (#0f172a-ish) color, setting matching pixels to transparent. This gives a clean alpha channel without edge artifacts.
+| `src/contexts/RadioContext.tsx` | Add recursion guard to `play()` to prevent infinite stack overflow |
+| `src/components/events/EventCard.tsx` | Move right-side buttons higher (increase bottom offset) |
+| `src/components/DashboardLayout.tsx` | Remove the SwipessLogo watermark div |
+| `src/components/BottomNavigation.tsx` | Remove radio nav items from client and owner arrays |
+| `src/pages/ClientProfileNew.tsx` | Remove radio button |
+| `src/pages/OwnerProfileNew.tsx` | Remove radio button |
 
