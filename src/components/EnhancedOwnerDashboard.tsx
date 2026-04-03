@@ -1,18 +1,18 @@
-import { useState, useEffect, useRef, memo, useMemo, lazy } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, lazy, useCallback } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
-// Lazy-load: 50kb dialog only needed post-tap, not on initial dashboard render
 const _ClientInsightsDialog = lazy(() =>
   import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
 );
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 import { User, Megaphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ClientFilters } from '@/hooks/useSmartMatching';
+import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
+import { useFilterActions } from '@/state/filterStore';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -24,11 +24,11 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const [_selectedClientId, _setSelectedClientId] = useState<string | null>(null);
   const [_insightsOpen, _setInsightsOpen] = useState(false);
 
-  const [_showCategoryDialog, _setShowCategoryDialog] = useState(false);
-
-  const _navigate = useNavigate();
-  // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user, loading: isAuthLoading } = useAuth();
+
+  // Read activeCategory from store
+  const activeCategory = useFilterStore(s => s.activeCategory);
+  const { setCategories } = useFilterActions();
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs, isLoading: isPrefsLoading } = useOwnerClientPreferences();
@@ -64,31 +64,24 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }, [ownerPrefs, storeGender, setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities]);
 
-  // PERF FIX: Read owner CLIENT filters from store — use getClientFilters() NOT getListingFilters().
-  // getListingFilters() produces listing/category filters for the CLIENT swipe deck.
-  // getClientFilters() produces the correct {clientGender, ageRange, budgetRange, ...} shape
-  // that useSmartClientMatching understands.
   const storeFilterVersion = useFilterStore((s) => s.filterVersion);
   const clientFilters = useMemo(() => {
     return useFilterStore.getState().getClientFilters();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeFilterVersion]);
 
-  // Merge any prop-passed filters with store client filters (store takes precedence)
   const mergedFilters = useMemo(() => {
     return { ...filters, ...clientFilters };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeFilterVersion, filters]);
 
-  // FIX: Pass filters to query so fetched profiles match what container displays
-  // Extract category from filters if available
   const filterCategory = mergedFilters?.categories?.[0] || undefined;
   const { data: clientProfiles = [], isLoading, error } = useSmartClientMatching(
     user?.id,
     filterCategory,
-    0,      // page
-    50,     // limit
-    false,  // isRefreshMode
+    0,
+    50,
+    false,
     mergedFilters as ClientFilters
   );
 
@@ -96,13 +89,13 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     console.error('[EnhancedOwnerDashboard] Profile fetch error:', error);
   }
 
-  const handleClientTap = (clientId: string) => {
+  const handleClientTap = useCallback((clientId: string) => {
     onClientInsights?.(clientId);
-  };
+  }, [onClientInsights]);
 
-  const handleInsights = (clientId: string) => {
+  const handleInsights = useCallback((clientId: string) => {
     onClientInsights?.(clientId);
-  };
+  }, [onClientInsights]);
 
   // Loading state handling
   if (isAuthLoading || isPrefsLoading) {
@@ -116,13 +109,12 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     );
   }
 
-  // Error/Auth state check
   if (error) {
     return (
       <div className="w-full h-full flex items-center justify-center p-8 text-center bg-background/50 backdrop-blur-md">
         <div className="max-w-xs space-y-6">
-          <div className="w-20 h-20 bg-red-500/20 rounded-3xl flex items-center justify-center mx-auto border border-red-500/30">
-            <Megaphone className="w-10 h-10 text-red-500 animate-pulse" />
+          <div className="w-20 h-20 bg-destructive/20 rounded-3xl flex items-center justify-center mx-auto border border-destructive/30">
+            <Megaphone className="w-10 h-10 text-destructive animate-pulse" />
           </div>
           <div className="space-y-2">
             <h2 className="text-xl font-bold tracking-tight">Sync Interrupted</h2>
@@ -146,8 +138,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     return (
       <div className="w-full h-full flex items-center justify-center p-8 text-center">
         <div className="max-w-xs space-y-4">
-          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
-            <User className="w-8 h-8 text-red-500" />
+          <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto">
+            <User className="w-8 h-8 text-destructive" />
           </div>
           <h2 className="text-lg font-bold">Access Required</h2>
           <p className="text-sm text-muted-foreground">Please log in to access the owner dashboard features.</p>
@@ -156,9 +148,21 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     );
   }
 
-  // NotificationBar is rendered globally in AppLayout — no duplicate here
+  // When no category is selected, show the poker card fan (same as client side)
+  if (!activeCategory) {
+    return (
+      <div className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden">
+        <OwnerAllDashboard setCategories={(ids) => {
+          if (ids.length > 0) {
+            setCategories(ids);
+          }
+        }} />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full w-full overflow-hidden">
       <div className="flex-1 min-h-0">
         <ClientSwipeContainer
           onClientTap={handleClientTap}
