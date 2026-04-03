@@ -45,23 +45,50 @@ function SwipessLogoComponent({
         />
       )}
       
-      {/* 🧬 LUMINANCE MASK: Isolates the mark from its black background */}
+      {/* 🚀 ZENITH FLOATING MARK: Mask-Shadow Isolation System */}
       <div
         className={cn(
-          'transition-all duration-500 transform-gpu',
+          'relative transition-all duration-500 transform-gpu overflow-visible',
           heightMap[size]
         )}
-        style={{
-          // Use the high-res source as a luminance mask
-          WebkitMask: `url(/icons/fire-s-logo-960.webp) luminance center/contain no-repeat`,
-          mask: `url(/icons/fire-s-logo-960.webp) luminance center/contain no-repeat`,
-          // Fill the isolated mark with our flagship gradient
-          background: 'linear-gradient(135deg, #ff4d00, #ff6b35, #ff0055)',
-          filter: glow ? `
-            drop-shadow(0 0 30px rgba(255, 77, 0, 0.4))
-          ` : 'none'
-        }}
-      />
+      >
+        {/* The hidden source image to provide bounds - used for its texture and alpha */}
+        <div 
+          className="absolute inset-0 w-full h-full transform-gpu"
+          style={{
+            // DYNAMIC ALPHA RECOVERY:
+            // Uses the optimized asset which contains the definitive brand mark
+            WebkitMask: `url(/icons/fire-s-logo-960.webp) center/contain no-repeat`,
+            maskImage: `url(/icons/fire-s-logo-960.webp)`,
+            maskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            maskPosition: 'center',
+            // Defaulting mask mode to alpha for optimized assets
+            WebkitMaskMode: 'alpha',
+            maskMode: 'alpha',
+            // Flagship Gradient Injection
+            background: 'linear-gradient(135deg, #ff4d00, #ff6b35, #ff0055)',
+            // Internal filter for maximum edge crispness
+            filter: 'contrast(1.1) brightness(1.1)'
+          }}
+        />
+        
+        {/* Detached shadow to prevent the "Square Box" regression in Safari/Chrome mask rendering */}
+        {glow && (
+          <div 
+            className="absolute inset-0 pointer-events-none opacity-40 blur-[30px]"
+            style={{
+              background: 'radial-gradient(circle, rgba(255, 77, 0, 0.8) 0%, transparent 80%)',
+              maskImage: `url(/icons/fire-s-logo-960.webp)`,
+              WebkitMaskImage: `url(/icons/fire-s-logo-960.webp)`,
+              maskSize: 'contain',
+              maskRepeat: 'no-repeat',
+              WebkitMaskMode: 'luminance',
+              maskMode: 'luminance'
+            }}
+          />
+        )}
+      </div>
 
     </div>
   );
