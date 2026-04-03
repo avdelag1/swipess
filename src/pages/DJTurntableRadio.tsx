@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
-import { cityThemes } from '@/data/radioStations';
+import { cityThemes, getStationById } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
@@ -174,8 +174,9 @@ export default function DJTurntableRadio() {
     triggerHaptic('light');
   }, [setCity]);
 
-  const handleStationSelect = useCallback((station: any) => {
-    play(station);
+  const handleStationSelect = useCallback((stationId: string) => {
+    const station = getStationById(stationId);
+    if (station) play(station);
     triggerHaptic('medium');
     setShowDrawer(false);
     setShowFavoritesDrawer(false);
@@ -415,7 +416,7 @@ export default function DJTurntableRadio() {
 
             <motion.button
               whileTap={{ scale: 0.85 }}
-              onClick={() => { navigate('/radio/cassette'); triggerHaptic('light'); }}
+              onClick={() => { navigate('/radio/playlists'); triggerHaptic('light'); }}
               className={cn(
                 "w-16 h-16 rounded-3xl flex items-center justify-center border shadow-2xl transition-all",
                 isDark ? "bg-white/5 backdrop-blur-3xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
