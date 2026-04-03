@@ -64,7 +64,6 @@ function SwipessLogoComponent({
             maskRepeat: 'no-repeat',
             maskPosition: 'center',
             // Defaulting mask mode to alpha for optimized assets
-            WebkitMaskMode: 'alpha',
             maskMode: 'alpha',
             // Flagship Gradient Injection
             background: 'linear-gradient(135deg, #ff4d00, #ff6b35, #ff0055)',
