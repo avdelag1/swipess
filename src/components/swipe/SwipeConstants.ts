@@ -58,6 +58,15 @@ export const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: 
   }
 };
 
+// Generic poker card data shape — used by both POKER_CARDS and OWNER_INTENT_CARDS
+export interface PokerCardData {
+  id: string;
+  label: string;
+  description: string;
+  accent: string;
+  accentRgb: string;
+}
+
 // Primary: local AI-generated images (guaranteed to load, no external dependency).
 // Fallback Unsplash URLs are used for categories without a local asset.
 export const POKER_CARD_PHOTOS: Record<string, string> = {
@@ -66,6 +75,10 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   bicycle:    '/images/filters/bicycle.png',
   services:   '/images/filters/workers.png',
   all:        '/images/filters/workers.png', // Fallback to workers for 'all'
+  // Owner intent cards reuse existing local images
+  buyers:     '/images/filters/property.png',
+  renters:    '/images/filters/property.png',
+  hire:       '/images/filters/workers.png',
 };
 
 // Gradient fallbacks shown when an image fails to load (no broken/black cards).
@@ -75,6 +88,10 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   bicycle:    'linear-gradient(135deg, #1a0030 0%, #0d0018 100%)',
   services:   'linear-gradient(135deg, #0d2600 0%, #061500 100%)',
   all:        'linear-gradient(135deg, #00203f 0%, #001526 100%)',
+  // Owner intent cards — distinct gradients per intent
+  buyers:     'linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%)',
+  renters:    'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
+  hire:       'linear-gradient(135deg, #3b0764 0%, #1e0636 100%)',
 };
 
 export const POKER_CARDS = [
@@ -87,9 +104,60 @@ export const POKER_CARDS = [
 
 export const PK_W = 330;
 export const PK_H = 520;
+// Slightly shorter cards for the owner intent deck so they fit on any screen
+export const OWNER_PK_H = 460;
 export const FOLDER_OFFSET_X = 30;
 export const FOLDER_OFFSET_Y = 0;
 export const POKER_FAN_ROTATION = 8; // degrees per card in the fan
 export const PK_DIST_THRESHOLD = 110;
 export const PK_VEL_THRESHOLD  = 480;
 export const PK_SPRING = { type: 'spring' as const, stiffness: 520, damping: 34, mass: 0.9 };
+
+// ─── Owner quick-filter intent cards ────────────────────────────────────────
+// These replace the category poker cards on the owner side so owners can
+// instantly surface clients by their intent (buy / rent / hire / all).
+export interface OwnerIntentCard extends PokerCardData {
+  clientType?: string;   // maps to filterStore.clientType
+  category?: string;     // maps to filterStore.activeCategory
+  listingType?: string;  // maps to filterStore.listingType
+}
+
+export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
+  {
+    id: 'buyers',
+    label: 'Buyers',
+    description: 'Ready to purchase',
+    accent: '#3b82f6',
+    accentRgb: '59,130,246',
+    clientType: 'buy',
+    category: 'property',
+    listingType: 'sale',
+  },
+  {
+    id: 'renters',
+    label: 'Renters',
+    description: 'Looking to rent',
+    accent: '#10b981',
+    accentRgb: '16,185,129',
+    clientType: 'rent',
+    category: 'property',
+    listingType: 'rent',
+  },
+  {
+    id: 'hire',
+    label: 'Need a Hand',
+    description: 'Seeking workers',
+    accent: '#a855f7',
+    accentRgb: '168,85,247',
+    clientType: 'hire',
+    category: 'services',
+  },
+  {
+    id: 'property',
+    label: 'Properties',
+    description: 'Houses & apartments',
+    accent: '#f97316',
+    accentRgb: '249,115,22',
+    category: 'property',
+  },
+];

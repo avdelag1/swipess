@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { ClientFilters } from '@/hooks/useSmartMatching';
 import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
 import { useFilterActions } from '@/state/filterStore';
+import type { OwnerIntentCard } from '@/components/swipe/SwipeConstants';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -28,7 +29,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   // Read activeCategory from store
   const activeCategory = useFilterStore(s => s.activeCategory);
-  const { setCategories } = useFilterActions();
+  const { setCategories, setClientType, setListingType } = useFilterActions();
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs, isLoading: isPrefsLoading } = useOwnerClientPreferences();
@@ -148,15 +149,19 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     );
   }
 
-  // When no category is selected, show the poker card fan (same as client side)
+  // When no category is selected, show the intent quick-filter card fan
   if (!activeCategory) {
+    const handleCardSelect = (card: OwnerIntentCard) => {
+      // Apply intent-specific filters then reveal the swipe deck
+      if (card.clientType) setClientType(card.clientType as any);
+      if (card.listingType) setListingType(card.listingType as any);
+      const cat = card.category ?? 'property';
+      setCategories([cat as any]);
+    };
+
     return (
       <div className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden">
-        <OwnerAllDashboard setCategories={(ids) => {
-          if (ids.length > 0) {
-            setCategories(ids);
-          }
-        }} />
+        <OwnerAllDashboard onCardSelect={handleCardSelect} />
       </div>
     );
   }

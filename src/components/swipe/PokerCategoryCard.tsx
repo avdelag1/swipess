@@ -5,25 +5,29 @@ import { triggerHaptic } from '@/utils/haptics';
 import {
   PK_W, PK_H, FOLDER_OFFSET_X, FOLDER_OFFSET_Y,
   PK_DIST_THRESHOLD, PK_VEL_THRESHOLD, PK_SPRING,
-  POKER_CARD_PHOTOS, POKER_CARD_GRADIENTS, POKER_CARDS, POKER_FAN_ROTATION
+  POKER_CARD_PHOTOS, POKER_CARD_GRADIENTS, POKER_FAN_ROTATION,
+  PokerCardData,
 } from './SwipeConstants';
 import { cn } from '@/lib/utils';
 
 interface PokerCardProps {
-  card: typeof POKER_CARDS[0];
+  card: PokerCardData;
   index: number;
   total: number;
   isTop: boolean;
   isCollapsed?: boolean;
   onSwipeOut: (id: string) => void;
   onBringToFront: (index: number) => void;
+  /** Override card height (defaults to PK_H) */
+  cardHeight?: number;
 }
 
 /**
  * PokerCategoryCard - A premium, physical-feeling card for category selection.
  * Features realistic shadows, accent glows, and 3D-tilt gestures.
  */
-export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCollapsed = false, onSwipeOut, onBringToFront }: PokerCardProps) => {
+export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCollapsed = false, onSwipeOut, onBringToFront, cardHeight }: PokerCardProps) => {
+  const height = cardHeight ?? PK_H;
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
@@ -112,7 +116,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         top: 0,
         left: 0,
         width: PK_W,
-        height: PK_H,
+        height: height,
         zIndex: 50 - index,
         x: isTop ? x : (Math.ceil(index / 2) * (index % 2 === 0 ? 1 : -1)) * FOLDER_OFFSET_X,
         y: isTop ? y : folderY,

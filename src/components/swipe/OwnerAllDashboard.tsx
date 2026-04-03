@@ -2,21 +2,25 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {
-  POKER_CARDS, PK_W, PK_H,
+  OWNER_INTENT_CARDS,
+  OwnerIntentCard,
+  PK_W,
+  OWNER_PK_H,
 } from './SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { PokerCategoryCard } from './PokerCategoryCard';
 
 export interface OwnerAllDashboardProps {
-  setCategories: (ids: any[]) => void;
+  onCardSelect: (card: OwnerIntentCard) => void;
 }
 
 /**
- * OwnerAllDashboard - The "All" dashboard shown on the owner side when no category is selected.
- * Same poker card fan as the client side, but for discovering clients by interest category.
+ * OwnerAllDashboard — Poker card fan shown on the owner side when no filter
+ * is active. Cards represent CLIENT INTENT (Buyers / Renters / Need a Hand /
+ * Properties) rather than listing categories.
  */
-export const OwnerAllDashboard = ({ setCategories }: OwnerAllDashboardProps) => {
-  const [cards, setCards] = useState([...POKER_CARDS]);
+export const OwnerAllDashboard = ({ onCardSelect }: OwnerAllDashboardProps) => {
+  const [cards, setCards] = useState([...OWNER_INTENT_CARDS]);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -32,11 +36,12 @@ export const OwnerAllDashboard = ({ setCategories }: OwnerAllDashboardProps) => 
     };
   }, []);
 
-  // Swipe out front card: apply filter
+  // Swipe out front card: apply intent filter
   const handleSwipeOut = useCallback((id: string) => {
     triggerHaptic('medium');
-    setCategories([id]);
-  }, [setCategories]);
+    const card = OWNER_INTENT_CARDS.find(c => c.id === id);
+    if (card) onCardSelect(card);
+  }, [onCardSelect]);
 
   // Bring a back card to the front (tap or short drag)
   const handleBringToFront = useCallback((index: number) => {
@@ -51,26 +56,27 @@ export const OwnerAllDashboard = ({ setCategories }: OwnerAllDashboardProps) => 
   return (
     <AnimatePresence mode="popLayout">
       <motion.div
-        key="owner-folder-dashboard"
+        key="owner-intent-dashboard"
         variants={deckFadeVariants}
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent overflow-hidden"
+        className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent"
         style={{
           minHeight: '280px',
-          paddingTop: '20px',
+          paddingTop: '32px',
+          paddingBottom: '16px',
+          overflow: 'hidden',
         }}
       >
-        {/* Folder card stack — symmetrical fanned-out flow */}
+        {/* Poker card stack — symmetrical fan */}
         <div
           className="relative"
           style={{
             width: PK_W,
-            height: PK_H,
+            height: OWNER_PK_H,
           }}
         >
-          {/* Render back-to-front so the front card sits on top */}
           {[...cards].reverse().map((card, reversedIdx) => {
             const index = cards.length - 1 - reversedIdx;
             const isTop = index === 0;
@@ -84,6 +90,7 @@ export const OwnerAllDashboard = ({ setCategories }: OwnerAllDashboardProps) => 
                 isCollapsed={isCollapsed}
                 onSwipeOut={handleSwipeOut}
                 onBringToFront={handleBringToFront}
+                cardHeight={OWNER_PK_H}
               />
             );
           })}
