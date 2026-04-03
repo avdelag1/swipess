@@ -521,10 +521,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           paddingRight: 'max(var(--safe-right), 0px)',
         }}
       >
-        {/* Global Branding Watermark - Vibrant "Elite" feel */}
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[-1] opacity-[0.1] select-none" style={{ contentVisibility: 'auto' }}>
-          <SwipessLogo size="xl" className="w-[80%] max-w-4xl" />
-        </div>
 
         {/* PERF FIX: Removed motion.div key={location.pathname} wrapper.
             AnimatedOutlet already handles page transitions with key={location.key}.

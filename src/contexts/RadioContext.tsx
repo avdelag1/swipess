@@ -272,17 +272,32 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Recursion depth guard to prevent infinite call stack
+  const playDepthRef = useRef(0);
+
   const play = useCallback(async (station?: RadioStation) => {
     const targetStation = station || state.currentStation;
     if (!targetStation || !audioRef.current) return;
+
+    // CRITICAL: Prevent infinite recursion when all stations fail
+    if (playDepthRef.current >= 5) {
+      playDepthRef.current = 0;
+      setError('No stations available right now');
+      setState(prev => ({ ...prev, isPlaying: false }));
+      return;
+    }
 
     if (failedStationsRef.current.has(targetStation.id)) {
       logger.info(`[RadioPlayer] Skipping recently failed station: ${targetStation.id}`);
       setTimeout(() => failedStationsRef.current.delete(targetStation.id), 60000);
       if (failedStationsRef.current.size > 20) { const first = failedStationsRef.current.values().next().value; if (first) failedStationsRef.current.delete(first); }
+      playDepthRef.current++;
       changeStation('next');
       return;
     }
+
+    // Reset depth on successful attempt start
+    playDepthRef.current = 0;
 
     try {
       if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
