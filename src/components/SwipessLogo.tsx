@@ -45,28 +45,24 @@ function SwipessLogoComponent({
         />
       )}
       
-      {/* 🧬 LUMA KEY MASK: Automatically isolates the light brand mark from the black background */}
+      {/* 🧬 LUMINANCE MASK: Isolates the mark from its black background */}
       <div
         className={cn(
-          'transition-all duration-300 transform-gpu',
+          'transition-all duration-500 transform-gpu',
           heightMap[size]
         )}
         style={{
-          maskImage: `url(${logoUrl})`,
-          maskSize: 'contain',
-          maskRepeat: 'no-repeat',
-          maskPosition: 'center',
-          WebkitMaskImage: `url(${logoUrl})`,
-          WebkitMaskSize: 'contain',
-          WebkitMaskRepeat: 'no-repeat',
-          WebkitMaskPosition: 'center',
-          // Fill the mask with our flagship brand gradient
+          // Use the high-res source as a luminance mask
+          WebkitMask: `url(/icons/fire-s-logo-960.webp) luminance center/contain no-repeat`,
+          mask: `url(/icons/fire-s-logo-960.webp) luminance center/contain no-repeat`,
+          // Fill the isolated mark with our flagship gradient
           background: 'linear-gradient(135deg, #ff4d00, #ff6b35, #ff0055)',
           filter: glow ? `
-            drop-shadow(0 0 20px rgba(255, 77, 0, 0.6))
-          ` : undefined
+            drop-shadow(0 0 30px rgba(255, 77, 0, 0.4))
+          ` : 'none'
         }}
       />
+
     </div>
   );
 }

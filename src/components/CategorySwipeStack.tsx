@@ -241,28 +241,42 @@ function CategoryCard({
                 rotate: isDragging ? tilt.get() : (isActive ? 0 : fanRotation),
                 zIndex: isTop ? zIndex.get() : zIndexBase,
             }}
-            transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.5 }}
+            transition={{ 
+                type: 'spring', 
+                stiffness: isDragging ? 800 : 450, 
+                damping: 35, 
+                mass: 0.8
+            }}
             whileHover={!isTop ? { 
-                y: fanY - 15, 
-                scale: scale * 1.03,
-                transition: { duration: 0.15, ease: "easeOut" } 
+                y: fanY - 20, 
+                scale: scale * 1.05,
+                transition: { duration: 0.2, ease: "easeOut" } 
             } : {}}
             onMouseEnter={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, userId, category.id)}
             onPointerDown={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, userId, category.id)}
             exit={{ 
-                x: x.get() > 0 ? 400 : -400, 
-                rotate: x.get() > 0 ? 10 : -10, 
-                opacity: 0, 
-                transition: { duration: 0.2 } 
+                scale: 0.8,
+                opacity: 0,
+                x: x.get() * 0.1, // Minimal rebound
+                y: -50, // Tuck deeper
+                rotate: x.get() > 0 ? 3 : -3,
+                zIndex: -20,
+                transition: { 
+                    duration: 0.5, 
+                    ease: [0.16, 1, 0.3, 1], // Super smooth deceleration
+                    opacity: { duration: 0.25 }
+                } 
             }}
             className={cn(
                 "absolute flex flex-col items-center justify-center rounded-[32px] p-6 select-none overflow-hidden",
-                "transition-all duration-200 gpu-accelerate",
-                isTop ? "cursor-grab active:cursor-grabbing shadow-[0_20px_50px_rgba(0,0,0,0.5)]" : "cursor-pointer",
+                "transition-[filter] duration-500 gpu-accelerate",
+                isTop ? "cursor-grab active:cursor-grabbing shadow-[0_25px_60px_rgba(0,0,0,0.6)]" : "cursor-pointer",
+                !isTop && "blur-[1px] brightness-75", // Depth effect for back cards
                 "bg-black border border-white/10",
-                isActive && "ring-4 ring-brand-accent-2/50 ring-offset-4 ring-offset-background shadow-[0_0_40px_rgba(255,107,53,0.3)]",
+                isActive && "ring-4 ring-brand-accent-2/50 ring-offset-4 ring-offset-background shadow-[0_0_50px_rgba(255,107,53,0.4)]",
                 "swipe-card-size"
             )}
+
             style={{ 
                 transformOrigin: 'center center',
                 '--card-image-url': `url(${category.image})`,
