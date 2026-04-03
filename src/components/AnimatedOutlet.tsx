@@ -1,6 +1,6 @@
 import { useLocation, useOutlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Suspense, useLayoutEffect } from 'react';
+import { Suspense } from 'react';
 import { SuspenseFallback } from './ui/suspense-fallback';
 
 /**
