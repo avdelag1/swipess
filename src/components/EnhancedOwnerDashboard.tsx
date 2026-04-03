@@ -32,7 +32,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs, isLoading: isPrefsLoading } = useOwnerClientPreferences();
-  const { setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities, storeGender, _setCategories, _storeCategories } = useFilterStore(
+  const { setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities, storeGender, setCategories: _setCategories, storeCategories: _storeCategories } = useFilterStore(
     useShallow((s) => ({
       setClientGender: s.setClientGender,
       setClientAgeRange: s.setClientAgeRange,
