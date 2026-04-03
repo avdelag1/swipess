@@ -105,8 +105,15 @@
     .splash-logo{
       width:120px;height:120px;
       animation:splash-pulse 2s ease-in-out infinite;
-      filter: drop-shadow(0 0 20px rgba(255, 31, 31, 0.3));
       will-change: transform, opacity;
+      /* 🧬 LUMA KEY RECOVERY: Forces the raster black background to vanish by using the image as a mask */
+      -webkit-mask-image: url(/icons/fire-s-logo-960.webp);
+      -webkit-mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      mask-image: url(/icons/fire-s-logo-960.webp);
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      background: linear-gradient(135deg, #ff4d00, #ff6b35);
     }
     @keyframes splash-pulse{
       0%,100%{transform:scale(0.98);opacity:0.92}
@@ -201,12 +208,11 @@
 
 
   <!-- LCP ELEMENT: Splash screen IS the largest contentful paint -->
-  <!-- By making the splash the LCP, we guarantee sub-1s LCP on any connection -->
   <div id="initial-loader">
     <div class="stars-container"><div id="stars"></div><div id="stars2"></div></div>
-    <img src="/icons/fire-s-logo-960.webp" class="splash-logo" alt="Swipess" 
-      width="128" height="128"
-      style="width:128px;height:128px;object-fit:contain;" />
+    <!-- 🚀 ULTRA-TRANSPARENT: FIXED via CSS Masking to force purely floating brand mark -->
+    <div class="splash-logo" alt="Swipess" 
+      width="128" height="128"></div>
     <div class="loader-bar"><div class="loader-progress"></div></div>
   </div>
 

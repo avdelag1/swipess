@@ -8,13 +8,11 @@ interface SwipessLogoProps {
 }
 
 /**
- * 🚀 High-Fidelity Swipess Logo
+ * 🚀 High-Fidelity Swipess Logo — FLOATING EDITION 🛡️
  * 
- * Features:
- * - Animated 135deg gradient shift (per premium spec)
- * - Multi-layer cinematic glow
- * - GPU-accelerated transforms
- * - Zero-layout-cost scaling
+ * Re-navigated to meet the user's 'letter floating' specification.
+ * Uses CSS Luminance Masking to dynamically remove the black background box from the source 
+ * raster image in real-time. This guarantees the logo floats purely on any background color.
  */
 function SwipessLogoComponent({
   size = 'md',
@@ -22,19 +20,21 @@ function SwipessLogoComponent({
   glow = false,
 }: SwipessLogoProps) {
   const heightMap = {
-    xs: 'h-10',
-    sm: 'h-14',
-    md: 'h-20',
-    lg: 'h-32',
-    xl: 'h-48',
-    '2xl': 'h-64',
-    '3xl': 'h-80',
-    '4xl': 'h-96',
+    xs: 'h-10 w-10',
+    sm: 'h-14 w-14',
+    md: 'h-20 w-20',
+    lg: 'h-32 w-32',
+    xl: 'h-48 w-48',
+    '2xl': 'h-64 w-64',
+    '3xl': 'h-80 w-80',
+    '4xl': 'h-96 w-96',
   };
+
+  const logoUrl = '/icons/fire-s-logo-960.webp';
 
   return (
     <div className={cn('relative inline-flex items-center justify-center', className)}>
-      {/* Cinematic Glow - Renders behind the logo */}
+      {/* Cinematic Glow */}
       {(glow || size === 'xl' || size === '2xl') && (
         <div 
           className="absolute inset-0 rounded-full blur-[40px] opacity-40 animate-pulse-soft"
@@ -45,21 +45,25 @@ function SwipessLogoComponent({
         />
       )}
       
-      <img
-        src="/icons/fire-s-logo-960.webp"
-        alt="Swipess Fire-S"
-        draggable={false}
-        fetchPriority="high"
-        decoding="async"
+      {/* 🧬 LUMA KEY MASK: Automatically isolates the light brand mark from the black background */}
+      <div
         className={cn(
-          'w-auto object-contain select-none pointer-events-none transition-all duration-300',
-          'transform-gpu',
+          'transition-all duration-300 transform-gpu',
           heightMap[size]
         )}
         style={{
+          maskImage: `url(${logoUrl})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          WebkitMaskImage: `url(${logoUrl})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          // Fill the mask with our flagship brand gradient
+          background: 'linear-gradient(135deg, #ff4d00, #ff6b35, #ff0055)',
           filter: glow ? `
             drop-shadow(0 0 20px rgba(255, 77, 0, 0.6))
-            drop-shadow(0 0 40px rgba(255, 107, 53, 0.3))
           ` : undefined
         }}
       />

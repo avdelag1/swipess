@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {
@@ -15,35 +15,33 @@ export interface OwnerAllDashboardProps {
 }
 
 /**
- * OwnerAllDashboard — Poker card fan shown on the owner side when no filter
- * is active. Cards represent CLIENT INTENT (Buyers / Renters / Need a Hand /
- * Properties) rather than listing categories.
+ * 🃏 OwnerAllDashboard — CYCLIC EDITION 🎰
+ * 
+ * Re-imagined as a continuous carousel of client intents.
+ * Owner-side quick filters now follow the flagship cyclic-carousel interaction model.
+ * Swipe left/right cycle the intent deck; select to filter the client deck.
  */
-export const OwnerAllDashboard = ({ onCardSelect }: OwnerAllDashboardProps) => {
+export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps) => {
   const [cards, setCards] = useState([...OWNER_INTENT_CARDS]);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Periodic fold → open cycle every 25s
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsCollapsed(true);
-      openTimerRef.current = setTimeout(() => setIsCollapsed(false), 1600);
-    }, 25000);
-    return () => {
-      clearInterval(interval);
-      if (openTimerRef.current) clearTimeout(openTimerRef.current);
-    };
+  // Cycle: move the front intent to the back
+  const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
+    triggerHaptic('medium');
+    setCards(prev => {
+      if (prev[0].id !== id) return prev;
+      const next = [...prev];
+      const [current] = next.splice(0, 1);
+      return [...next, current];
+    });
   }, []);
 
-  // Swipe out front card: apply intent filter
-  const handleSwipeOut = useCallback((id: string) => {
+  // Selection is explicit — ensures owners don't trigger accidental filters
+  const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
     const card = OWNER_INTENT_CARDS.find(c => c.id === id);
     if (card) onCardSelect(card);
   }, [onCardSelect]);
 
-  // Bring a back card to the front (tap or short drag)
   const handleBringToFront = useCallback((index: number) => {
     triggerHaptic('light');
     setCards(prev => {
@@ -56,20 +54,16 @@ export const OwnerAllDashboard = ({ onCardSelect }: OwnerAllDashboardProps) => {
   return (
     <AnimatePresence mode="popLayout">
       <motion.div
-        key="owner-intent-dashboard"
+        key="owner-cyclic-dashboard"
         variants={deckFadeVariants}
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent"
+        className="relative w-full flex-grow flex flex-col items-center pt-8 justify-center bg-transparent overflow-hidden"
         style={{
-          minHeight: '280px',
-          paddingTop: '32px',
-          paddingBottom: '16px',
-          overflow: 'hidden',
+          minHeight: '620px', // Larger spec
         }}
       >
-        {/* Poker card stack — symmetrical fan */}
         <div
           className="relative"
           style={{
@@ -77,6 +71,7 @@ export const OwnerAllDashboard = ({ onCardSelect }: OwnerAllDashboardProps) => {
             height: OWNER_PK_H,
           }}
         >
+          {/* Deck rendered back-to-front so the first element sits on top */}
           {[...cards].reverse().map((card, reversedIdx) => {
             const index = cards.length - 1 - reversedIdx;
             const isTop = index === 0;
@@ -87,8 +82,9 @@ export const OwnerAllDashboard = ({ onCardSelect }: OwnerAllDashboardProps) => {
                 index={index}
                 total={cards.length}
                 isTop={isTop}
-                isCollapsed={isCollapsed}
-                onSwipeOut={handleSwipeOut}
+                isCollapsed={false}
+                onCycle={handleCycle}
+                onSelect={handleSelect}
                 onBringToFront={handleBringToFront}
                 cardHeight={OWNER_PK_H}
               />
@@ -96,11 +92,11 @@ export const OwnerAllDashboard = ({ onCardSelect }: OwnerAllDashboardProps) => {
           })}
         </div>
 
-        {/* Subtle ambient glow */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.03] blur-[100px] bg-primary" />
-        </div>
+        {/* Dynamic ambient backdrop shift based on top card */}
+        <div className="absolute inset-x-0 bottom-0 top-1/2 pointer-events-none -z-10 bg-gradient-to-t from-black/5 to-transparent h-1/4" />
       </motion.div>
     </AnimatePresence>
   );
-};
+});
+
+OwnerAllDashboard.displayName = 'OwnerAllDashboard';

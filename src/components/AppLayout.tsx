@@ -23,6 +23,7 @@ interface AppLayoutProps {
 }
 
 import { useFocusMode } from '@/hooks/useFocusMode';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function AppLayout({ children }: AppLayoutProps) {
@@ -30,6 +31,15 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isLightTheme = theme === 'light';
   const location = useLocation();
   const { isFocused } = useFocusMode(6000); // Optimized timeout: 6s balance between immersion and access
+  
+  // 🧘 IMMERSIVE HUD: Root-level scroll detection for global elements (Radio, Masks)
+  const { isVisible: isScrollVisible } = useScrollDirection({
+    threshold: 25,
+    showAtTop: true,
+    resetTrigger: location.pathname
+  });
+
+  const showGlobalHUD = !isFocused && isScrollVisible;
 
   // Initialize app features
   useKeyboardShortcuts();
@@ -57,8 +67,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       {!isPublicPreview && (
         <motion.div 
           animate={{ 
-            opacity: isFocused ? 0 : 1,
-            filter: isFocused ? "blur(4px)" : "blur(0px)" 
+            opacity: showGlobalHUD ? 1 : 0,
+            filter: showGlobalHUD ? "blur(0px)" : "blur(4px)" 
           }}
           transition={{ 
             duration: isFocused ? 2.4 : 0.4, // BEAUTIFUL vanish, INSTANT return
@@ -83,7 +93,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Global Radio Mini Player - skip on full-screen public preview pages */}
       {!isPublicPreview && (
         <AnimatePresence>
-          {!isFocused && (
+          {showGlobalHUD && (
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ 

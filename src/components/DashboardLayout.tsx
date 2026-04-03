@@ -28,6 +28,7 @@ import { LoadingBar } from './ui/LoadingBar';
 import { GlobalDialogs } from './GlobalDialogs'
 import { useModalStore } from '@/state/modalStore'
 import { useFocusMode } from '@/hooks/useFocusMode'
+import { useScrollDirection } from '@/hooks/useScrollDirection'
 
 // =============================================================================
 // PERFORMANCE FIX: SessionStorage caching for dashboard checks
@@ -345,7 +346,18 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     return isMatch;
   }, [location.pathname]);
 
-  const { isFocused: _isFocused, resetFocus } = useFocusMode(6000);
+  const { isFocused, resetFocus } = useFocusMode(6000);
+
+  // 🧘 IMMERSIVE HUD: Combine scroll direction and focus mode for "Sentient Navigation"
+  // UI hides when scrolling down or after inactivity, and restores on scroll up or interaction.
+  const { isVisible: isScrollVisible } = useScrollDirection({
+    threshold: 20,
+    showAtTop: true,
+    targetSelector: '#dashboard-scroll-container',
+    resetTrigger: location.pathname
+  });
+
+  const showHUD = !isFocused && isScrollVisible;
 
   // Reset nav visibility on every route change so buttons always appear on new pages
   useEffect(() => {
@@ -465,7 +477,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and immersive feeds for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
       {!isFullScreenRoute && (
-        <div className="fixed top-0 left-0 right-0 z-[99999] opacity-100 transform-none">
+        <div 
+          className={cn(
+            "fixed top-0 left-0 right-0 z-[99999] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
+            !showHUD ? "opacity-0 -translate-y-full pointer-events-none" : "opacity-100 translate-y-0"
+          )}
+        >
           <TopBar
             onNotificationsClick={() => {}} 
             onMessageActivationsClick={handleMessageActivationsClick}
@@ -519,7 +536,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
       {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and all immersive feeds */}
       {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
-        <div className="fixed bottom-0 left-0 right-0 z-[99999] opacity-100 transform-none">
+        <div 
+          className={cn(
+            "fixed bottom-0 left-0 right-0 z-[99999] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
+            !showHUD ? "opacity-0 translate-y-full pointer-events-none" : "opacity-100 translate-y-0"
+          )}
+        >
           <BottomNavigation
             userRole={userRole}
             onFilterClick={() => modalStore.setModal('showFilters', true)}

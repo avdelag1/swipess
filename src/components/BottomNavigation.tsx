@@ -91,11 +91,6 @@ export const BottomNavigation = memo(({
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const { isVisible: _isVisible } = useScrollDirection({
-    threshold: 15,
-    showAtTop: true,
-    targetSelector: '#dashboard-scroll-container',
-  });
 
   // Client nav items — order: Dashboard, Profile, Likes, AI, Messages, Events, Roommates, Filters
   const clientNavItems: NavItem[] = [

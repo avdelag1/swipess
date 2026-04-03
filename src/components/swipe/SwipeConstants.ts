@@ -67,6 +67,7 @@ export interface PokerCardData {
   accentRgb: string;
 }
 
+// ─── Photo Registry ──────────────────────────────────────────────────────────
 // Primary: local AI-generated images (guaranteed to load, no external dependency).
 // Fallback Unsplash URLs are used for categories without a local asset.
 export const POKER_CARD_PHOTOS: Record<string, string> = {
@@ -75,10 +76,11 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   bicycle:    '/images/filters/bicycle.png',
   services:   '/images/filters/workers.png',
   all:        '/images/filters/workers.png', // Fallback to workers for 'all'
-  // Owner intent cards reuse existing local images
-  buyers:     '/images/filters/property.png',
-  renters:    '/images/filters/property.png',
-  hire:       '/images/filters/workers.png',
+  
+  // Owner intent cards - UNIQUE PREMIUM IMAGERY (Refines owner UX)
+  buyers:     '/images/filters/owner_buyers_card.png',
+  renters:    '/images/filters/owner_renters_card.png',
+  hire:       '/images/filters/owner_hire_card.png',
 };
 
 // Gradient fallbacks shown when an image fails to load (no broken/black cards).
@@ -102,10 +104,7 @@ export const POKER_CARDS = [
   { id: 'all'        as const, label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212'   },
 ];
 
-export const PK_W = 330;
-export const PK_H = 520;
-// Slightly shorter cards for the owner intent deck so they fit on any screen
-export const OWNER_PK_H = 460;
+
 export const FOLDER_OFFSET_X = 30;
 export const FOLDER_OFFSET_Y = 0;
 export const POKER_FAN_ROTATION = 8; // degrees per card in the fan
