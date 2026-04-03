@@ -96,11 +96,11 @@ export const BottomNavigation = memo(({
   const clientNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
+    { id: 'radio', icon: Radio, label: 'Radio', path: '/radio' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
     { id: 'ai-search', icon: Sparkles, label: 'Concierge', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'events', icon: Megaphone, label: 'Events', path: '/explore/eventos' },
-    { id: 'radio', icon: Radio, label: 'Radio', path: '/radio' },
     { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
@@ -109,12 +109,12 @@ export const BottomNavigation = memo(({
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
+    { id: 'radio', icon: Radio, label: 'Radio', path: '/radio' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
     { id: 'ai-search', icon: Sparkles, label: 'Concierge', onClick: onAISearchClick },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'events', icon: Megaphone, label: 'Events', path: '/explore/eventos' },
-    { id: 'radio', icon: Radio, label: 'Radio', path: '/radio' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
 

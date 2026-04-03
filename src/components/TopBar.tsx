@@ -3,7 +3,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Zap, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
+import { Zap, MessageCircle, Crown, FileText, ArrowLeft, Radio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -440,6 +440,28 @@ function TopBarComponent({
                 </div>
               </PopoverContent>
             </Popover>
+
+            {/* Swipess Radio Button */}
+            <Button
+              variant="ghost"
+              className={cn(
+                "relative h-9 w-9 px-0 rounded-xl transition-all duration-200 ease-out",
+                "hover:scale-105 active:scale-95 group bg-card",
+                "touch-manipulation flex items-center justify-center flex-shrink-0",
+              )}
+              style={{
+                boxShadow: cinematicShadow,
+                border: 'none',
+              }}
+              onPointerDown={(e) => {
+                e.preventDefault();
+                haptics.tap();
+                navigate('/radio');
+              }}
+              aria-label="Go to radio"
+            >
+              <Radio strokeWidth={3} className={cn("h-4.5 w-4.5 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.3)]")} />
+            </Button>
 
               {/* Theme Toggle */}
               <ThemeToggle />
