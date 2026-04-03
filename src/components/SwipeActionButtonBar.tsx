@@ -163,7 +163,11 @@ const ActionButton = memo(({
       initial={{ opacity: 0, y: 12, scale: 0.88 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ ...ENTRY_SPRING, delay: index * 0.05 }}
-      whileTap={{ scale: TAP_SCALE }}
+      whileTap={{ 
+        scale: TAP_SCALE,
+        y: 3, // 🚀 PHYSICAL DEPRESS: Simulates button travel distance
+        transition: { type: 'spring', stiffness: 600, damping: 15 }
+      }}
       style={{
         width: btnSizeCss,
         height: btnSizeCss,
@@ -177,26 +181,40 @@ const ActionButton = memo(({
       }}
       className="flex items-center justify-center touch-manipulation select-none"
     >
-      {/* Cinematic Shade — The atmospheric background halo */}
+      {/* 🚀 ATMOSPHERIC DEPTH: Multi-layered cinematic shadows */}
       <div
         className="absolute inset-0 rounded-full transition-all duration-300 pointer-events-none"
         style={{
-          background: isPressed ? cfg.glowIntense : cfg.glow,
-          filter: 'blur(8px)',
-          transform: isPressed ? 'scale(1.15)' : 'scale(1)',
-          opacity: isPressed ? 0.8 : 0.4,
+          background: isPressed ? 'transparent' : cfg.glow,
+          boxShadow: isPressed 
+            ? 'none' 
+            : `0 12px 24px -10px ${cfg.iconColor}66, 0 4px 6px -4px ${cfg.iconColor}44`,
+          filter: 'blur(10px)',
+          transform: isPressed ? 'scale(0.9)' : 'scale(1)',
+          opacity: isPressed ? 0 : 0.45,
         }}
       />
 
+      {/* 🚀 TACTILE MATERIAL: Convex -> Concave Morph */}
       <div
-        className="absolute inset-0 rounded-full pointer-events-none"
+        className="absolute inset-0 rounded-full pointer-events-none border border-white/5"
         style={{
-          background: cfg.circleBg,
-          transform: isPressed ? 'scale(0.95)' : 'scale(1)',
-          transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          background: isPressed 
+            ? `radial-gradient(circle at center, ${cfg.iconColor}33 0%, transparent 100%)` // Concave (Inward)
+            : `linear-gradient(145deg, ${cfg.iconColor}22 0%, ${cfg.iconColor}05 100%)`, // Convex (Outward)
+          boxShadow: isPressed
+            ? `inset 0 4px 10px rgba(0,0,0,0.5), inset 0 -4px 10px rgba(255,255,255,0.05)` // Depressed
+            : `0 8px 16px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)`, // Raised
+          transform: isPressed ? 'scale(0.96)' : 'scale(1)',
+          transition: 'all 0.15s cubic-bezier(0.2, 0, 0, 1)',
         }}
       />
+      
       {/* Icon with deep colored drop-shadow */}
+      <div 
+        className="relative z-10 transition-transform duration-200"
+        style={{ transform: isPressed ? 'scale(0.92) translateY(1px)' : 'scale(1)' }}
+      >
         <AnimatedLottieIcon
           iconId={variant === 'like' ? 'heart' : variant === 'dislike' ? 'dislike' : variant}
           active={isPressed}
@@ -204,6 +222,7 @@ const ActionButton = memo(({
           className="relative z-10"
           inactiveIcon={children}
         />
+      </div>
     </motion.button>
   );
 });

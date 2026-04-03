@@ -417,13 +417,15 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
         toast.success("Welcome back!", { description: "Loading your dashboard..." });
 
+        // 🚀 ONE-SHOT HYDRATION: Await profile setup BEFORE navigating to the dashboard.
+        // This prevents the 'Missing Profile' 404s that crash the dashboard during initial render.
+        try {
+          await createProfileIfMissing(data.user!, actualRole);
+        } catch (setupError) {
+          logger.warn('[Auth] Background profile setup failed or timed out:', setupError);
+        }
+
         navigate(targetPath, { replace: true });
-
-        // Run profile setup in background (non-blocking)
-        setTimeout(() => {
-          createProfileIfMissing(data.user!, actualRole);
-        }, 0);
-
         return { error: null };
       }
 

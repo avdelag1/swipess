@@ -91,9 +91,17 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
   // Update initial mode when user changes; reset on logout
   useEffect(() => {
     if (user?.id) {
+      // 🚀 SPEED OF LIGHT: Deriving from metadata first is more stable than defaulting to 'client'
       const cached = getCachedMode(user.id);
-      if (cached && cached !== localMode) {
-        setLocalMode(cached);
+      const metadataRole = user.user_metadata?.role as ActiveMode | undefined;
+      const initialRole = (cached || metadataRole || 'client') as ActiveMode;
+      
+      if (initialRole !== localMode) {
+        setLocalMode(initialRole);
+        // Persist metadata role to cache if cache was empty
+        if (!cached && metadataRole) {
+          setCachedMode(user.id, metadataRole);
+        }
       }
     } else {
       // User logged out — reset to default and clear stale cache entries
