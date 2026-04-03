@@ -33,7 +33,7 @@ interface EventDetail {
 
 /**
  * BRAND ADVERTISING COMPONENT
- * Shows benefits for brands to advertise in Local Jarvis.
+ * Shows benefits for brands to advertise in SwipesS.
  */
 function BrandBenefitsSection() {
   const { navigate } = useAppNavigate();
