@@ -71,19 +71,19 @@ function TopBarComponent({
   showFilters,
   userRole,
   transparent = false,
-  _hideOnScroll = false,
+  hideOnScroll: _hideOnScroll = false,
   title,
   showBack = false,
 }: TopBarProps) {
   const { unreadCount: _unreadCount } = useUnreadNotifications();
-  const { navigate, _prefetch } = useAppNavigate();
+  const { navigate, prefetch: _prefetch } = useAppNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
   
   const { user } = useAuth();
   const { toast } = useToast();
 
   const location = useLocation();
-  const { _isVisible } = useScrollDirection({ 
+  const { isVisible: _isVisible } = useScrollDirection({ 
     threshold: 25, 
     showAtTop: true,
     resetTrigger: location.pathname

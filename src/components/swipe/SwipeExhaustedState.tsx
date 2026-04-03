@@ -30,8 +30,8 @@ interface SwipeExhaustedStateProps {
 
 export const SwipeExhaustedState = ({
   categoryLabel,
-  _CategoryIcon,
-  _iconColor,
+  CategoryIcon: _CategoryIcon,
+  iconColor: _iconColor,
   isRefreshing,
   onRefresh,
   radiusKm,

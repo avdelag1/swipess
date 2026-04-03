@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
               cleanMessages.push({ role: "user", content: "Error: No user" });
               continue;
             }
-            const { _data, error } = await supabase.from('matches').insert({ user_id: user.id, listing_id: action.params.listing_id, owner_id: action.params.owner_id || 'unknown' }).select().single();
+            const { error } = await supabase.from('matches').insert({ user_id: user.id, listing_id: action.params.listing_id, owner_id: action.params.owner_id || 'unknown' }).select().single();
             cleanMessages.push({ role: "assistant", content });
             cleanMessages.push({ role: "user", content: error ? `Error: ${error.message}` : "SUCCESS: Match initiated." });
             continue;

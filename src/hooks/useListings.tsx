@@ -141,7 +141,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
             return (rpcListings as any[]).map(l => ({
                 ...l,
                 images: (Array.isArray(l.images) ? l.images : (l.images ? [l.images] : []))
-                        .map(img => (typeof img === 'string' && img.includes('supabase.co/storage') && !img.includes('?width=')) 
+                        .map((img: string) => (typeof img === 'string' && img.includes('supabase.co/storage') && !img.includes('?width=')) 
                                     ? `${img}?width=720&quality=75&format=avif` : img)
             })) as Listing[];
           }

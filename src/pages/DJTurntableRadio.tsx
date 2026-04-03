@@ -10,11 +10,11 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import {
   ArrowLeft, ListMusic, Heart, Shuffle,
-  SkipBack, SkipForward, Play, Pause, _Activity
+  SkipBack, SkipForward, Play, Pause, Activity
 } from 'lucide-react';
 
 // ── Stars Canvas ───────────────────────────────────────────────────────────
-function RadioStarsCanvas({ _accentColor }: { accentColor: string }) {
+function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
 
@@ -140,7 +140,7 @@ function RadioVisualizer({ isPlaying, color }: { isPlaying: boolean; color: stri
 export default function DJTurntableRadio() {
   const navigate = useNavigate();
   const {
-    state, _error, play, togglePlayPause, changeStation,
+    state, error: _error, play, togglePlayPause, changeStation,
     setCity, setVolume, toggleShuffle, toggleFavorite, isStationFavorite,
   } = useRadio();
   const { theme } = useTheme();
