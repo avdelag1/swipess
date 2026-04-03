@@ -223,9 +223,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [showErrorDetails, setShowErrorDetails] = useState(false);
-  const [errorDetails, setErrorDetails] = useState<{ message: string; fullError: string } | null>(null);
-
   const { signIn, signUp } = useAuth();
   const _passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
 
@@ -267,7 +264,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         if (!error) {
           if (rememberMe) localStorage.setItem('auth_client_email', validated.email);
           else localStorage.removeItem('auth_client_email');
-        } else throw error;
+        }
       } else {
         if (!agreeToTerms) {
           toast({ title: 'Terms Required', description: 'Please agree to the terms.', variant: 'destructive' });
@@ -275,20 +272,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           return;
         }
         const validated = signupSchema.parse({ name, email, password });
-        const { error } = await signUp(validated.email, validated.password, 'client', validated.name);
-        if (error) throw error;
+        await signUp(validated.email, validated.password, 'client', validated.name);
       }
     } catch (error: any) {
-      const errorInfo = {
-        message: error.message || 'Unknown error',
-        code: error.code || error.status || 'N/A',
-        fullError: JSON.stringify(error, null, 2),
-        timestamp: new Date().toISOString(),
-        action: isLogin ? 'Sign In' : 'Sign Up',
-      };
-      setErrorDetails(errorInfo);
-      setShowErrorDetails(true);
-      toast({ title: 'Authentication Failed', description: error.message, variant: 'destructive' });
+      // Only Zod validation errors reach here; signIn/signUp handle their own error toasts
+      toast({ title: 'Invalid Input', description: error.message, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -482,14 +470,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         </motion.div>
       </div>
 
-      {showErrorDetails && errorDetails && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90">
-          <div className="bg-zinc-900 border border-white/10 rounded-xl max-w-2xl w-full p-6 text-white text-xs overflow-auto max-h-[80vh]">
-            <pre>{errorDetails.fullError}</pre>
-            <Button onClick={() => setShowErrorDetails(false)} className="w-full mt-4">Close</Button>
-          </div>
-        </div>
-      )}
     </motion.div>
   );
 });

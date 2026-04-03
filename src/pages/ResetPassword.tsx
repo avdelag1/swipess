@@ -51,10 +51,10 @@ const ResetPassword = () => {
       return;
     }
 
-    if (password.length < 8) {
+    if (passwordStrength.score < 4) {
       toast({
-        title: "Password too short",
-        description: "Password must be at least 8 characters long.",
+        title: "Password too weak",
+        description: "Password must be at least 8 characters and contain uppercase, lowercase, and a number.",
         variant: "destructive",
       });
       return;
