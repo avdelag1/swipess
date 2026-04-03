@@ -1,71 +1,46 @@
 
 
-## Fix Plan: Build Errors, Radio Mini-Player, and App Boot Speed
+## Plan: Replace Logo Everywhere with Clean Transparent Version
 
-### Problems Identified
+### Problem
+The uploaded Fire S logo has a dark navy background. The current logo assets also have dark backgrounds, requiring CSS mask hacks. We need a truly transparent version used consistently across the entire PWA.
 
-1. **Build errors** in `SwipessLogo.tsx` — `WebkitMaskMode` is not a valid React CSS property. Must be cast or removed.
+### Approach
 
-2. **Radio mini-player won't stay closed** — In `RadioContext.tsx` line 299, when a station src changes, `miniPlayerMode` is unconditionally set to `'expanded'`, overriding the user's explicit `'closed'` choice.
+**Step 1: Generate transparent logo asset**
+- Copy the uploaded image to the project
+- Use a Python script (PIL/Pillow) to remove the dark navy background by converting dark pixels to transparent
+- Output a clean transparent PNG at multiple sizes: 960px, 512px, 192px, 96px, 48px, 32px, 16px
+- Also generate favicon.ico from the 32px version
 
-3. **"Reload App" button still appearing** — The recovery timer in `index.html` fires at 3 seconds, but the `app-rendered` event from `RootProviders` may not fire until after all nested providers (Auth, Radio, etc.) have mounted. The 3-second window is too tight. Additionally, `window.__APP_INITIALIZED__` is only set by the `app-rendered` listener, so the initial timeout at line 261-272 always triggers first.
+**Step 2: Update `SwipessLogo.tsx`**
+- Simplify the component — remove the CSS mask hack entirely
+- Use the new transparent PNG directly as an `<img>` tag
+- Keep the glow effects as-is (they work independently)
 
-4. **Sluggish perceived boot** — The deep provider nesting (11+ levels) delays when `AppLifecycleManager` mounts and fires `app-rendered`. The splash/recovery system fights with this.
+**Step 3: Update `index.html`**
+- Replace favicon references to point to new transparent assets
+- Update the splash screen logo to use the new transparent asset directly (remove the CSS mask-based approach)
 
----
+**Step 4: Update manifest files**
+- Update `manifest.json` and `manifest.webmanifest` icon entries to reference the new transparent PNGs
 
-### Step 1: Fix SwipessLogo Build Errors
-
-Remove the `WebkitMaskMode` properties (lines 67 and 86) — the standard `maskMode` property is sufficient, and `WebkitMask` shorthand already covers the mask definition. Alternatively, cast the style object as `any` to bypass TypeScript.
-
-**Approach**: Remove both `WebkitMaskMode` lines since `maskMode` already handles it.
-
----
-
-### Step 2: Fix Radio Mini-Player Close Persistence
-
-In `RadioContext.tsx` line 294-301, change the `play()` function to respect the user's closed state:
-
-```typescript
-setState(prev => ({
-  ...prev,
-  currentStation: targetStation,
-  currentCity: targetStation.city,
-  miniPlayerMode: prev.miniPlayerMode === 'closed' ? 'closed' : 'expanded'
-}));
-```
-
-This ensures closing the mini-player sticks even when stations change or auto-skip due to errors.
-
----
-
-### Step 3: Fix Recovery UI / "Reload App" Button
-
-**Root cause**: The 3-second timeout in `index.html` (line 261) fires before React can mount through 11+ provider layers. The `app-rendered` event hasn't fired yet, so recovery UI shows.
-
-**Fix**:
-- Increase the initial mount timeout from 3s to 6s in `index.html` (line 272)
-- Fire `__APP_INITIALIZED__ = true` earlier — move the signal from `AppLifecycleManager` (deep in the provider tree) to immediately after `createRoot().render()` in `main.tsx`, since React rendering is synchronous
-- Keep `app-rendered` for splash dissolution, but set `__APP_INITIALIZED__` immediately after render call to prevent recovery UI
-
-Also in `main.tsx`, set `window.__APP_INITIALIZED__ = true` right after the `root.render()` call (line 81) so the recovery timer never triggers.
-
----
-
-### Step 4: Speed Improvements
-
-- In `AnimatedOutlet.tsx`: Remove the `startViewTransition` `useLayoutEffect` — it runs on every navigation and does nothing useful (the callback is empty), but it forces layout recalculation
-- Ensure the `app-rendered` event fires as early as possible by simplifying the `AppLifecycleManager` effect
-
----
+**Step 5: Update all direct image references**
+- `useAutomaticUpdates.tsx` — uses `fire-s-logo-960.webp` directly as `<img>`
+- `ZenithPrewarmer.tsx` — prefetch list
+- Apple touch icons — regenerate from transparent source
 
 ### Files to Edit
-
 | File | Change |
 |---|---|
-| `src/components/SwipessLogo.tsx` | Remove `WebkitMaskMode` properties (2 lines) |
-| `src/contexts/RadioContext.tsx` | Respect `'closed'` miniPlayerMode in `play()` |
-| `index.html` | Increase mount timeout to 6s |
-| `src/main.tsx` | Set `__APP_INITIALIZED__` immediately after render |
-| `src/components/AnimatedOutlet.tsx` | Remove empty `startViewTransition` effect |
+| `public/icons/` | New transparent assets at all sizes + favicon |
+| `src/components/SwipessLogo.tsx` | Simplify to direct `<img>`, remove CSS mask |
+| `index.html` | Update favicon + splash logo references |
+| `public/manifest.json` | Update icon paths |
+| `public/manifest.webmanifest` | Update icon paths |
+| `src/components/ZenithPrewarmer.tsx` | Update prefetch paths |
+| `src/hooks/useAutomaticUpdates.tsx` | Update logo img src |
+
+### Technical Detail
+Background removal via Python PIL: flood-fill from corners with tolerance for the navy (#0f172a-ish) color, setting matching pixels to transparent. This gives a clean alpha channel without edge artifacts.
 
