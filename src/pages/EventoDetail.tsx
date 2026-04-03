@@ -204,7 +204,7 @@ export default function EventoDetail() {
     if (navigator.share && event) {
       await navigator.share({
         title: event.title,
-        text: `Check out ${event.title} on Local Jarvis!`,
+        text: `Check out ${event.title} on SwipesS!`,
         url: window.location.href,
       }).catch(() => {});
     } else {
