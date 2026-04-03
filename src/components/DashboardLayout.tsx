@@ -148,7 +148,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // PERFORMANCE FIX: Welcome state with DB-backed persistence
   // Shows welcome only on first signup, not every login (survives localStorage clears)
-  const { _shouldShowWelcome, _dismissWelcome } = useWelcomeState(userId)
+  const { shouldShowWelcome: _shouldShowWelcome, dismissWelcome: _dismissWelcome } = useWelcomeState(userId)
 
   const queryClient = useQueryClient();
 
