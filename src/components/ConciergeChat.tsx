@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,8 @@ import {
   Utensils,
   Calendar,
   MessageCircle as _ChatIcon,
+  ChevronsUp,
+  ChevronsDown,
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
 import { useUserMemories } from '@/hooks/useUserMemories';
@@ -73,6 +75,16 @@ export function ConciergeChat({
   const [input, setInput] = useState('');
   const [memoryDrawerOpen, setMemoryDrawerOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const topMarkerRef = useRef<HTMLDivElement>(null);
+  const lastUserMsgRef = useRef<HTMLDivElement>(null);
+
+  const scrollToTop = useCallback(() => {
+    topMarkerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  const scrollToLastUserMsg = useCallback(() => {
+    lastUserMsgRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, []);
 
   const {
     messages,
@@ -153,7 +165,7 @@ export function ConciergeChat({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           className={cn(
-            "max-w-[520px] w-[calc(100%-20px)] h-[92vh] max-h-[860px] flex flex-col p-0 gap-0 overflow-hidden rounded-[2rem]",
+            "max-w-[660px] w-[calc(100%-8px)] sm:w-[calc(100%-32px)] h-[96vh] sm:h-[93vh] max-h-[940px] flex flex-col p-0 gap-0 overflow-hidden rounded-[1.5rem] sm:rounded-[2rem]",
             isDark
               ? "bg-gradient-to-b from-[#0f1117] via-[#111318] to-[#0d0f14] border-white/[0.07] shadow-2xl shadow-black/70"
               : "bg-white border-gray-200/60 shadow-2xl shadow-black/10"
@@ -162,7 +174,7 @@ export function ConciergeChat({
         >
           {/* ── Header ─────────────────────────────────────────────── */}
           <div className={cn(
-            "relative flex items-center justify-between px-5 py-4 border-b shrink-0 overflow-hidden",
+            "relative flex items-center justify-between px-4 py-2.5 border-b shrink-0 overflow-hidden",
             isDark
               ? "border-white/[0.05] bg-gradient-to-r from-[#0f1117] via-[#131620] to-[#0f1117]"
               : "border-gray-100 bg-gradient-to-r from-white via-cyan-50/30 to-white"
@@ -178,7 +190,7 @@ export function ConciergeChat({
             {/* Left: logo + identity */}
             <div className="flex items-center gap-3 min-w-0 relative z-10">
               <div className={cn(
-                "w-11 h-11 rounded-2xl flex items-center justify-center relative overflow-hidden shrink-0 border",
+                "w-9 h-9 rounded-xl flex items-center justify-center relative overflow-hidden shrink-0 border",
                 isDark
                   ? "bg-gradient-to-br from-[#1a2030] to-[#0f1520] border-cyan-500/20 shadow-lg shadow-cyan-500/10"
                   : "bg-gradient-to-br from-cyan-50 to-blue-50 border-cyan-200/60 shadow-sm"
@@ -284,8 +296,11 @@ export function ConciergeChat({
           </div>
 
           {/* ── Messages Area ────────────────────────────────────────── */}
-          <ScrollArea className="flex-1 px-5 py-4">
+          <div className="relative flex-1 min-h-0">
+          <ScrollArea className="h-full px-4 py-3 sm:px-5 sm:py-4">
             <div ref={scrollRef} className="space-y-4">
+              {/* Top scroll marker */}
+              <div ref={topMarkerRef} />
 
               {/* Empty / Welcome State */}
               {messages.length === 0 && (
@@ -380,9 +395,14 @@ export function ConciergeChat({
 
               {/* ── Chat Messages ─────────────────────────────────────── */}
               <AnimatePresence>
-                {messages.map((message) => (
+                {messages.map((message, idx) => {
+                  // Find last user message index for ref attachment
+                  const isLastUserMsg = message.role === 'user' &&
+                    !messages.slice(idx + 1).some(m => m.role === 'user');
+                  return (
                   <motion.div
                     key={message.id}
+                    ref={isLastUserMsg ? lastUserMsgRef : undefined}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={cn(
@@ -615,7 +635,8 @@ export function ConciergeChat({
                       </p>
                     </div>
                   </motion.div>
-                ))}
+                  );
+                })}
 
                 {/* Typing indicator */}
                 {isLoading && (
@@ -647,9 +668,40 @@ export function ConciergeChat({
             </div>
           </ScrollArea>
 
+          {/* ── Scroll Navigation Buttons ──────────────────────────── */}
+          {messages.length > 2 && (
+            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-10">
+              <button
+                onClick={scrollToTop}
+                title="Scroll to top"
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center border shadow-lg backdrop-blur-sm transition-all active:scale-90",
+                  isDark
+                    ? "bg-[#1a2030]/90 border-white/10 text-zinc-400 hover:text-white hover:border-white/20"
+                    : "bg-white/90 border-gray-200 text-gray-500 hover:text-gray-900 hover:border-gray-300"
+                )}
+              >
+                <ChevronsUp className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={scrollToLastUserMsg}
+                title="Jump to my last message"
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center border shadow-lg backdrop-blur-sm transition-all active:scale-90",
+                  isDark
+                    ? "bg-cyan-600/80 border-cyan-500/30 text-white hover:bg-cyan-500/90"
+                    : "bg-cyan-500/90 border-cyan-400/40 text-white hover:bg-cyan-500"
+                )}
+              >
+                <ChevronsDown className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+          </div>
+
           {/* ── Input Area ───────────────────────────────────────────── */}
           <div className={cn(
-            "px-5 pb-6 pt-3 border-t shrink-0",
+            "px-4 pb-4 pt-2.5 sm:px-5 sm:pb-5 border-t shrink-0",
             isDark
               ? "border-white/[0.05] bg-gradient-to-b from-transparent to-[#0d0f14]/50"
               : "border-gray-100 bg-gradient-to-b from-transparent to-gray-50/30"
