@@ -269,10 +269,11 @@
   <script>
     // RECOVERY FALLBACK: If React fails to mount (chunk error, SW stale cache, etc.)
     // show a reload button after 10s so the user isn't stuck forever.
-    setTimeout(function() {
+    var recoveryBtnTimeout = setTimeout(function() {
       var root = document.getElementById('root');
-      if (root && !root.firstChild) {
+      if (root && !root.firstChild && !window.__APP_INITIALIZED__) {
         var btn = document.createElement('button');
+        btn.id = 'fallback-reload-btn';
         btn.textContent = 'Reload App';
         btn.style.cssText = 'position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:99999;background:#ff1f1f;color:#fff;border:none;border-radius:999px;padding:14px 32px;font-size:16px;font-weight:600;cursor:pointer;font-family:system-ui,sans-serif;box-shadow:0 4px 20px rgba(255,31,31,0.4)';
         btn.onclick = function() {
@@ -287,6 +288,12 @@
         document.body.appendChild(btn);
       }
     }, 10000);
+    // Clear fallback if app renders
+    window.addEventListener('app-rendered', function() {
+      clearTimeout(recoveryBtnTimeout);
+      var fb = document.getElementById('fallback-reload-btn');
+      if (fb) fb.remove();
+    });
   </script>
 
   <script>
