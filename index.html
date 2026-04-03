@@ -106,18 +106,8 @@
       width:120px;height:120px;
       animation:splash-pulse 2s ease-in-out infinite;
       will-change: transform, opacity;
-      /* 🧬 LUMA KEY RECOVERY: Forces the raster black background to vanish by using the image as a mask */
-      -webkit-mask-image: url(/icons/fire-s-logo-960.webp);
-      -webkit-mask-size: contain;
-      -webkit-mask-repeat: no-repeat;
-      -webkit-mask-mode: luminance;
-      mask-image: url(/icons/fire-s-logo-960.webp);
-      mask-size: contain;
-      mask-repeat: no-repeat;
-      mask-mode: luminance;
-      background: linear-gradient(135deg, #ff4d00, #ff6b35);
-
     }
+    .splash-logo img{width:100%;height:100%;object-fit:contain;}
     @keyframes splash-pulse{
       0%,100%{transform:scale(0.98);opacity:0.92}
       50%{transform:scale(1.02);opacity:1}
@@ -173,13 +163,13 @@
   <link rel="manifest" href="/manifest.json">
 
   <!-- Favicons -->
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
-  <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/fire-s-logo-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/fire-s-logo-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/icons/fire-s-logo-48.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/fire-s-logo-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/fire-s-logo-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/fire-s-logo-512.png">
 
   <!-- Apple iOS / iPadOS -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -200,6 +190,7 @@
 
   <!-- Windows / Microsoft -->
   <meta name="msapplication-TileImage" content="/icons/icon-144.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/fire-s-logo-192.png">
   <meta name="msapplication-TileColor" content="#0A0A0B">
 </head>
 
@@ -214,8 +205,7 @@
   <div id="initial-loader">
     <div class="stars-container"><div id="stars"></div><div id="stars2"></div></div>
     <!-- 🚀 ULTRA-TRANSPARENT: FIXED via CSS Masking to force purely floating brand mark -->
-    <div class="splash-logo" alt="Swipess" 
-      width="128" height="128"></div>
+    <div class="splash-logo"><img src="/icons/fire-s-logo-192.png" alt="Swipess" width="120" height="120"></div>
     <div class="loader-bar"><div class="loader-progress"></div></div>
   </div>
 

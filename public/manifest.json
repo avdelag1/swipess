@@ -14,24 +14,21 @@
   "id": "com.swipes.app.v3",
   "prefer_related_applications": false,
   "icons": [
-    { "src": "/icons/icon-16.png",      "sizes": "16x16",     "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-32.png",      "sizes": "32x32",     "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-48.png",      "sizes": "48x48",     "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-96.png",      "sizes": "96x96",     "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-192.png",     "sizes": "192x192",   "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-512.png",     "sizes": "512x512",   "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-1024.png",    "sizes": "1024x1024", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/fire-s-logo.png",  "sizes": "512x512",   "type": "image/png", "purpose": "any" },
-    { "src": "/icons/fire-s-logo-480.webp", "sizes": "480x480", "type": "image/webp", "purpose": "any" },
-    { "src": "/icons/fire-s-logo-960.webp", "sizes": "960x960", "type": "image/webp", "purpose": "any" },
-    { "src": "/icons/maskable-192.png", "sizes": "192x192",   "type": "image/png", "purpose": "maskable" },
-    { "src": "/icons/maskable-512.png", "sizes": "512x512",   "type": "image/png", "purpose": "maskable" }
+    { "src": "/icons/fire-s-logo-16.png",  "sizes": "16x16",     "type": "image/png", "purpose": "any" },
+    { "src": "/icons/fire-s-logo-32.png",  "sizes": "32x32",     "type": "image/png", "purpose": "any" },
+    { "src": "/icons/fire-s-logo-48.png",  "sizes": "48x48",     "type": "image/png", "purpose": "any" },
+    { "src": "/icons/fire-s-logo-96.png",  "sizes": "96x96",     "type": "image/png", "purpose": "any" },
+    { "src": "/icons/fire-s-logo-192.png", "sizes": "192x192",   "type": "image/png", "purpose": "any" },
+    { "src": "/icons/fire-s-logo-512.png", "sizes": "512x512",   "type": "image/png", "purpose": "any" },
+    { "src": "/icons/fire-s-logo-960.png", "sizes": "960x960",   "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-192.png",    "sizes": "192x192",   "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/maskable-512.png",    "sizes": "512x512",   "type": "image/png", "purpose": "maskable" }
   ],
   "categories": ["lifestyle", "business", "social", "travel"],
   "shortcuts": [
-    { "name": "Discover Feed", "short_name": "Discover", "description": "Explore the elite feed", "url": "/client/dashboard", "icons": [{ "src": "/icons/fire-s-logo.png", "sizes": "192x192" }] },
-    { "name": "AI Concierge", "short_name": "AI Chat", "description": "Talk to your sentient assistant", "url": "/concierge", "icons": [{ "src": "/icons/fire-s-logo.png", "sizes": "192x192" }] },
-    { "name": "Radio & Vibe", "short_name": "Radio", "description": "Listen to the vibration", "url": "/radio", "icons": [{ "src": "/icons/fire-s-logo.png", "sizes": "192x192" }] }
+    { "name": "Discover Feed", "short_name": "Discover", "description": "Explore the elite feed", "url": "/client/dashboard", "icons": [{ "src": "/icons/fire-s-logo-192.png", "sizes": "192x192" }] },
+    { "name": "AI Concierge", "short_name": "AI Chat", "description": "Talk to your sentient assistant", "url": "/concierge", "icons": [{ "src": "/icons/fire-s-logo-192.png", "sizes": "192x192" }] },
+    { "name": "Radio & Vibe", "short_name": "Radio", "description": "Listen to the vibration", "url": "/radio", "icons": [{ "src": "/icons/fire-s-logo-192.png", "sizes": "192x192" }] }
   ],
   "screenshots": [
     { "src": "/images/screenshot-mobile-1.png", "sizes": "1080x1920", "type": "image/png", "form_factor": "narrow" },

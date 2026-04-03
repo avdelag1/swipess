@@ -7,13 +7,6 @@ interface SwipessLogoProps {
   glow?: boolean;
 }
 
-/**
- * 🚀 High-Fidelity Swipess Logo — FLOATING EDITION 🛡️
- * 
- * Re-navigated to meet the user's 'letter floating' specification.
- * Uses CSS Luminance Masking to dynamically remove the black background box from the source 
- * raster image in real-time. This guarantees the logo floats purely on any background color.
- */
 function SwipessLogoComponent({
   size = 'md',
   className,
@@ -30,8 +23,6 @@ function SwipessLogoComponent({
     '4xl': 'h-96 w-96',
   };
 
-  const logoUrl = '/icons/fire-s-logo-960.webp';
-
   return (
     <div className={cn('relative inline-flex items-center justify-center', className)}>
       {/* Cinematic Glow */}
@@ -45,49 +36,25 @@ function SwipessLogoComponent({
         />
       )}
       
-      {/* 🚀 ZENITH FLOATING MARK: Mask-Shadow Isolation System */}
-      <div
+      <img
+        src="/icons/fire-s-logo-512.png"
+        alt="Swipess"
         className={cn(
-          'relative transition-all duration-500 transform-gpu overflow-visible',
+          'relative object-contain transition-all duration-500',
           heightMap[size]
         )}
-      >
-        {/* The hidden source image to provide bounds - used for its texture and alpha */}
+        draggable={false}
+      />
+
+      {/* Detached glow layer */}
+      {glow && (
         <div 
-          className="absolute inset-0 w-full h-full transform-gpu"
+          className="absolute inset-0 pointer-events-none opacity-40 blur-[30px]"
           style={{
-            // DYNAMIC ALPHA RECOVERY:
-            // Uses the optimized asset which contains the definitive brand mark
-            WebkitMask: `url(/icons/fire-s-logo-960.webp) center/contain no-repeat`,
-            maskImage: `url(/icons/fire-s-logo-960.webp)`,
-            maskSize: 'contain',
-            maskRepeat: 'no-repeat',
-            maskPosition: 'center',
-            // Defaulting mask mode to alpha for optimized assets
-            maskMode: 'alpha',
-            // Flagship Gradient Injection
-            background: 'linear-gradient(135deg, #ff4d00, #ff6b35, #ff0055)',
-            // Internal filter for maximum edge crispness
-            filter: 'contrast(1.1) brightness(1.1)'
+            background: 'radial-gradient(circle, rgba(255, 77, 0, 0.8) 0%, transparent 80%)',
           }}
         />
-        
-        {/* Detached shadow to prevent the "Square Box" regression in Safari/Chrome mask rendering */}
-        {glow && (
-          <div 
-            className="absolute inset-0 pointer-events-none opacity-40 blur-[30px]"
-            style={{
-              background: 'radial-gradient(circle, rgba(255, 77, 0, 0.8) 0%, transparent 80%)',
-              maskImage: `url(/icons/fire-s-logo-960.webp)`,
-              WebkitMaskImage: `url(/icons/fire-s-logo-960.webp)`,
-              maskSize: 'contain',
-              maskRepeat: 'no-repeat',
-              maskMode: 'luminance'
-            }}
-          />
-        )}
-      </div>
-
+      )}
     </div>
   );
 }
