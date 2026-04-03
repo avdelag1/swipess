@@ -5,7 +5,7 @@ import {
   Sparkles, X, MapPin,
   Briefcase,
   ShieldCheck, Clock,
-  Eye, EyeOff, Zap, _Search
+  Eye, EyeOff, Zap, Search
 } from 'lucide-react';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { useNavigate } from 'react-router-dom';

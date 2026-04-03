@@ -62,7 +62,7 @@ export default function NotificationsPage() {
     clearAllNotifications,
     markAllAsRead, 
     handleNotificationClick,
-    _unreadCount
+    unreadCount: _unreadCount
   } = useNotificationSystem();
   
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);

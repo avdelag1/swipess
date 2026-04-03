@@ -444,11 +444,11 @@ export function ConciergeChat({
                                     {...props}
                                   />
                                 ),
-                                p: ({ _node, ...props }) => <p className="mb-1.5 last:mb-0" {...props} />,
-                                ul: ({ _node, ...props }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5" {...props} />,
-                                ol: ({ _node, ...props }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5" {...props} />,
-                                li: ({ _node, ...props }) => <li className="pl-0.5" {...props} />,
-                                strong: ({ _node, ...props }) => <strong className="font-bold" {...props} />,
+                                p: ({ node: _node, ...props }) => <p className="mb-1.5 last:mb-0" {...props} />,
+                                ul: ({ node: _node, ...props }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5" {...props} />,
+                                ol: ({ node: _node, ...props }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5" {...props} />,
+                                li: ({ node: _node, ...props }) => <li className="pl-0.5" {...props} />,
+                                strong: ({ node: _node, ...props }) => <strong className="font-bold" {...props} />,
                               }}
                             >
                               {linkify(message.content)}

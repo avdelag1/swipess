@@ -7,7 +7,7 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, RefreshCw, Sparkles, Clock, CalendarDays, X, 
-  _MapPin, _MessageCircle 
+  MapPin, MessageCircle 
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { DiscoverySkeleton } from '@/components/ui/DiscoverySkeleton';

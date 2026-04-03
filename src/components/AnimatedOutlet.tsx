@@ -41,8 +41,7 @@ export function AnimatedOutlet() {
   // 🚀 VIEW TRANSITIONS API: The secret to 'Native' feel on web
   useLayoutEffect(() => {
     if ('startViewTransition' in document) {
-      // @ts-expect-error -- startViewTransition not yet in TS DOM lib
-      document.startViewTransition(() => {
+      (document as any).startViewTransition(() => {
         // This effectively tells the browser to capture snapshots
       });
     }

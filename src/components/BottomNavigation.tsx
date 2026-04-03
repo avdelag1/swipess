@@ -91,7 +91,7 @@ export const BottomNavigation = memo(({
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const { _isVisible } = useScrollDirection({
+  const { isVisible: _isVisible } = useScrollDirection({
     threshold: 15,
     showAtTop: true,
     targetSelector: '#dashboard-scroll-container',

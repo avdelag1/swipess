@@ -39,8 +39,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
       setClientBudgetRange: s.setClientBudgetRange,
       setClientNationalities: s.setClientNationalities,
       storeGender: s.clientGender,
-      setCategories: s.setCategories,
-      storeCategories: s.categories,
+      _setCategories: s.setCategories,
+      _storeCategories: s.categories,
     }))
   );
   const hydratedRef = useRef(false);

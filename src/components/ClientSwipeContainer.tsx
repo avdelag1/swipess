@@ -74,7 +74,7 @@ const ClientSwipeContainerComponent = ({
   profiles: externalProfiles,
   isLoading: externalIsLoading,
   error: externalError,
-  _insightsOpen = false,
+  insightsOpen: _insightsOpen = false,
   category = 'default',
   filters
 }: ClientSwipeContainerProps) => {

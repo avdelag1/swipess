@@ -18,7 +18,7 @@ const CardImage = memo(({
   name, 
   direction: _direction = 'right',
   fullScreen = false,
-  _animate = true,
+  animate: _animate = true,
   priority = false
 }: { 
   src?: string | null; 

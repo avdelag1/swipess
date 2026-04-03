@@ -117,9 +117,9 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
       const isAISearchClick = (target instanceof Element) && target.closest('#ai-search-button');
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(target) &&
+        !dropdownRef.current.contains(target as Node) &&
         buttonRef.current &&
-        !buttonRef.current.contains(target) &&
+        !buttonRef.current.contains(target as Node) &&
         !isAISearchClick
       ) {
         setIsOpen(false);

@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  _Heart, ArrowLeft, _Megaphone, Pause, Play
+  Heart, ArrowLeft, Megaphone, Pause, Play
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';

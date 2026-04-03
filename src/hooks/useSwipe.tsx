@@ -61,7 +61,7 @@ export function useSwipe() {
       const user = session?.user;
       if (!user?.id) throw new Error('Not authenticated');
 
-      const { _data, error } = await supabase
+      const { error } = await supabase
         .from('likes')
         .upsert({
           user_id: user.id,

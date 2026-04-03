@@ -140,7 +140,7 @@ function RadioVisualizer({ isPlaying, color }: { isPlaying: boolean; color: stri
 export default function DJTurntableRadio() {
   const navigate = useNavigate();
   const {
-    state, _error, play, togglePlayPause, changeStation,
+    state, error: _error, play, togglePlayPause, changeStation,
     setCity, setVolume, toggleShuffle, toggleFavorite, isStationFavorite,
   } = useRadio();
   const { theme } = useTheme();
