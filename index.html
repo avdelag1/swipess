@@ -106,18 +106,8 @@
       width:120px;height:120px;
       animation:splash-pulse 2s ease-in-out infinite;
       will-change: transform, opacity;
-      /* 🧬 LUMA KEY RECOVERY: Forces the raster black background to vanish by using the image as a mask */
-      -webkit-mask-image: url(/icons/fire-s-logo-960.webp);
-      -webkit-mask-size: contain;
-      -webkit-mask-repeat: no-repeat;
-      -webkit-mask-mode: luminance;
-      mask-image: url(/icons/fire-s-logo-960.webp);
-      mask-size: contain;
-      mask-repeat: no-repeat;
-      mask-mode: luminance;
-      background: linear-gradient(135deg, #ff4d00, #ff6b35);
-
     }
+    .splash-logo img{width:100%;height:100%;object-fit:contain;}
     @keyframes splash-pulse{
       0%,100%{transform:scale(0.98);opacity:0.92}
       50%{transform:scale(1.02);opacity:1}
