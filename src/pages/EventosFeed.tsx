@@ -200,7 +200,7 @@ export default function EventosFeed() {
   const handleOpenChat = useCallback((event: EventItem) => {
     triggerHaptic('light');
     const clean = (event.organizer_whatsapp || '').replace(/[^+\d]/g, '');
-    const msg = encodeURIComponent(`Hi! I'm interested in "${event.title}" — I found it on Local Jarvis 🎉`);
+    const msg = encodeURIComponent(`Hi! I'm interested in "${event.title}" — I found it on SwipesS 🎉`);
     window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
   }, []);
 
