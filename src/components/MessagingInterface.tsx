@@ -293,10 +293,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
       <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
         {/* Premium Header */}
         <div
-          className="shrink-0 border-b px-3 py-2.5 z-20"
+          className="shrink-0 px-3 py-2.5 z-20"
           style={{
-            background: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(12, 12, 14, 0.92)',
-            borderColor: 'hsl(var(--border))',
+            background: isLight 
+              ? 'linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0))' 
+              : 'linear-gradient(to bottom, rgba(12, 12, 14, 0.85) 0%, rgba(12, 12, 14, 0) 100%)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            borderBottom: '1px solid hsla(var(--border) / 0.1)',
           }}
         >
           <div className="flex items-center gap-2">

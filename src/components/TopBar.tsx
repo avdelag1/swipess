@@ -191,9 +191,9 @@ function TopBarComponent({
           )}
           style={{ 
             background: isLight 
-              ? 'linear-gradient(to bottom, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.4) 60%, transparent 100%)' 
-              : 'linear-gradient(to bottom, rgba(7,7,8,0.98) 0%, rgba(7,7,8,0.3) 60%, transparent 100%)',
-            height: '140%', // Extends past the header for a softer drop-off
+              ? 'linear-gradient(to bottom, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.2) 80%, transparent 100%)' 
+              : 'linear-gradient(to bottom, rgba(7,7,8,0.88) 0%, rgba(7,7,8,0.5) 45%, rgba(7,7,8,0.2) 75%, transparent 100%)',
+            height: '160%', // Extends deeply past the header for a premium cinematic lift
             transform: 'translateZ(0)',
           }}
         />
