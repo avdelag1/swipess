@@ -4,7 +4,7 @@
  * Reads from Supabase `ai_usage` table and merges with the user's
  * subscription tier to provide real-time limit checks.
  */
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useUserSubscription } from './useSubscription';

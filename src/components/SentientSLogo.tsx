@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, memo, useRef } from 'react';
-import { motion, useAnimation, AnimatePresence } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 
@@ -33,7 +33,7 @@ const playSound = (type: keyof typeof sounds) => {
 
 export const SentientSLogo = memo(({ size = 'md', className }: SentientSLogoProps) => {
   const [mood, setMood] = useState<'normal' | 'happy' | 'winking' | 'shocked' | 'cool'>('normal');
-  const [isJumping, setIsJumping] = useState(false);
+  const [_isJumping, setIsJumping] = useState(false);
   const controls = useAnimation();
 
   const [isVisible, setIsVisible] = useState(true);

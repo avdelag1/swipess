@@ -348,7 +348,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
   const activeCategoryLabel = categories.find(c => filters.categories[0] === c.id)?.label ?? '';
 
   // Per-category accent colors (active state) - Ultra Premium Gradients
-  const categoryColors: Record<string, { bg: string; shadow: string; border: string; overlay: string }> = {
+  const _categoryColors: Record<string, { bg: string; shadow: string; border: string; overlay: string }> = {
     property:   { bg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',   shadow: '0 4px 16px rgba(16,185,129,0.5)',   border: 'rgba(16,185,129,0.8)',  overlay: 'linear-gradient(135deg, rgba(16,185,129,0.72) 0%, rgba(5,150,105,0.72) 100%)' },
     motorcycle: { bg: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',   shadow: '0 4px 16px rgba(249,115,22,0.5)',   border: 'rgba(249,115,22,0.8)',  overlay: 'linear-gradient(135deg, rgba(249,115,22,0.72) 0%, rgba(234,88,12,0.72) 100%)' },
     bicycle:    { bg: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',   shadow: '0 4px 16px rgba(168,85,247,0.5)',   border: 'rgba(168,85,247,0.8)', overlay: 'linear-gradient(135deg, rgba(168,85,247,0.72) 0%, rgba(147,51,234,0.72) 100%)' },

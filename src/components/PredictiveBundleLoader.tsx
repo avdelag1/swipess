@@ -20,7 +20,7 @@ export function PredictiveBundleLoader() {
       // If owner -> prefetch dashboard, properties, and listings
       // If client -> prefetch dashboard, profiles, and discovery
       
-      const prefetch = (path: string) => {
+      const _prefetch = (path: string) => {
         const link = document.createElement('link');
         link.rel = 'prefetch';
         link.href = path;

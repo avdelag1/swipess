@@ -14,7 +14,7 @@ interface JarvisAuraProps {
  * It shifts its glow intensity, shape, and pulse rate based on its state.
  */
 export function JarvisAura({ isThinking = false, size = 'md', className }: JarvisAuraProps) {
-  const [pulseScale, setPulseScale] = useState(1);
+  const [_pulseScale, _setPulseScale] = useState(1);
   const controls = useAnimation();
 
   const sizeClasses = {

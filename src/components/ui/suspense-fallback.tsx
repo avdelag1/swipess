@@ -1,4 +1,3 @@
-import { cn } from '@/lib/utils';
 import { PremiumLoader } from '../PremiumLoader';
 import { DashboardSkeleton, ProfileSkeleton, MessageSkeleton } from './LayoutSkeletons';
 
@@ -8,7 +7,7 @@ interface SuspenseFallbackProps {
 }
 
 // Global flag so we only show full loader on true cold start
-let hasCompletedFirstRender = false;
+const _hasCompletedFirstRender = false;
 
 if (typeof window !== 'undefined') {
   setTimeout(() => { hasCompletedFirstRender = true; }, 2000);

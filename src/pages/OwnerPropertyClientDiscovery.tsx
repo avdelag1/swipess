@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { PropertyClientFilters } from '@/components/filters/PropertyClientFilters';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Search, Filter, User, ArrowLeft, Sparkles } from 'lucide-react';

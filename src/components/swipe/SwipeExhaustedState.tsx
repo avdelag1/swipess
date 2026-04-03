@@ -7,9 +7,9 @@ import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { SwipeDistanceSlider } from './SwipeDistanceSlider';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { CategorySwipeStack } from '@/components/CategorySwipeStack';
-import { Home, Bike, Wrench, User, Briefcase, Coins, CircleDollarSign } from 'lucide-react';
+import { Home, Bike, User, Briefcase } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { useFilterStore } from '@/state/filterStore';
 import { cn } from '@/lib/utils';
 
 interface SwipeExhaustedStateProps {
@@ -30,8 +30,8 @@ interface SwipeExhaustedStateProps {
 
 export const SwipeExhaustedState = ({
   categoryLabel,
-  CategoryIcon,
-  iconColor,
+  _CategoryIcon,
+  _iconColor,
   isRefreshing,
   onRefresh,
   radiusKm,

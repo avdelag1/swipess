@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Sparkles, MessageCircle, X, Zap } from 'lucide-react';
+import { MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { playNotificationSound } from '@/utils/notificationSounds';
-import { cn } from '@/lib/utils';
 
 interface MatchCelebrationProps {
   isOpen: boolean;

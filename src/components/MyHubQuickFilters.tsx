@@ -8,7 +8,6 @@ import {
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { QuickFilterCategory } from '@/types/filters';
 import { CategorySwipeStack } from './CategorySwipeStack';
-import { ExploreFeatureLinks } from './ExploreFeatureLinks';
 
 const _categories: { id: QuickFilterCategory; label: string; icon: any; color: string }[] = [
     { id: 'property', label: 'Property', icon: Home, color: 'from-rose-500 to-rose-400' },

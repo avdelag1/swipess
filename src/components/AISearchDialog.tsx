@@ -1,6 +1,6 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight, User, Trash2, Archive } from 'lucide-react';
+import { Loader2, X, Send, MessageCircle, Flame, ArrowRight, User, Trash2, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -137,7 +137,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
     });
   }, [messages, currentSessionId, user]);
 
-  const startNewChat = useCallback(() => {
+  const _startNewChat = useCallback(() => {
     // Collect context from previous session (last 10 messages) if any
     const prevContext = messages.length > 0 ? messages.slice(-10) : [];
     

@@ -8,10 +8,8 @@ import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import {
   getActiveCategoryInfo,
 } from './swipe/SwipeConstants';
-import { SwipeCardPeek } from './swipe/SwipeCardPeek';
 import { DistanceSlider } from './swipe/DistanceSlider';
 import { CategorySwipeStack } from './CategorySwipeStack';
-import { deckFadeVariants } from '@/utils/modernAnimations';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
@@ -110,7 +108,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const radiusKm = useFilterStore((s) => s.radiusKm);
   const setRadiusKm = useFilterStore((s) => s.setRadiusKm);
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
-  const setCategories = useFilterStore((s) => s.setCategories);
+  const _setCategories = useFilterStore((s) => s.setCategories);
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
 
@@ -922,7 +920,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   };
 
   // PREMIUM: Hover-based prefetch - prefetch next batch when user hovers near bottom of deck
-  const handleDeckHover = useCallback(() => {
+  const _handleDeckHover = useCallback(() => {
     // Only prefetch if we're running low and not already fetching
     const remainingCards = deckQueueRef.current.length - currentIndexRef.current;
     // Don't fetch if we're past the end of the deck (remainingCards <= 0)

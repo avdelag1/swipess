@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
-import { ExploreFeatureLinks } from '@/components/ExploreFeatureLinks';
 
 interface ClientDashboardProps {
   onPropertyInsights?: (listingId: string) => void;

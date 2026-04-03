@@ -89,7 +89,7 @@ export function SaveButton({ targetId, targetType, className, variant = 'circula
         if (error) throw error;
         toast.info('Removed from favorites');
       }
-    } catch (err) {
+    } catch (_err) {
       // Rollback UI
       setIsSaved(!nextState);
       toast.error('Could not update favorite');

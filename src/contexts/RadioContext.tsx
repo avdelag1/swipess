@@ -125,7 +125,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     let errorCount = 0;
     let lastErrorTime = 0;
 
-    const handleAudioError = (e: Event) => {
+    const handleAudioError = (_e: Event) => {
       if (handlingError) return; // prevent re-entrant calls
       handlingError = true;
 
@@ -144,7 +144,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         if (audio) {
           audio.removeEventListener('error', handleAudioError);
           audio.pause();
-          try { audio.src = ''; } catch {}
+          try { audio.src = ''; } catch {/* intentional */ }
           audio.addEventListener('error', handleAudioError);
         }
         handlingError = false;
@@ -156,7 +156,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (audio) {
         audio.removeEventListener('error', handleAudioError);
         audio.pause();
-        try { audio.src = ''; } catch {}
+        try { audio.src = ''; } catch {/* intentional */ }
         audio.addEventListener('error', handleAudioError);
       }
 

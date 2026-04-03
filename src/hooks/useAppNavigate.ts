@@ -13,7 +13,7 @@ import { prefetchRoute } from '@/utils/routePrefetcher';
  */
 export function useAppNavigate() {
   const navigate = useNavigate();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, _startTransition] = useTransition();
 
   const prefetch = (to: string) => {
     // 🚀 SPEED OF LIGHT: Integrated with Network-Aware Prefetcher

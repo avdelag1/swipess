@@ -117,7 +117,7 @@ export function useSmartListingMatching(
 
                         return results;
                     }
-                } catch (e) {
+                } catch (_e) {
                     logger.warn('[SmartMatching] RPC Fallback to PostgREST');
                 }
 

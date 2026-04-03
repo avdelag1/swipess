@@ -1,8 +1,7 @@
 import { memo } from 'react';
-import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Briefcase, MapPin, Star, Clock, MessageCircle } from 'lucide-react';
+import { MapPin, Star, Clock, MessageCircle } from 'lucide-react';
 import { findCategory } from '@/data/serviceCategories';
 import { PRICING_UNITS } from '@/components/WorkerListingForm';
 import { SaveButton } from '@/components/SaveButton';

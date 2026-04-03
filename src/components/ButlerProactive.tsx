@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, BrainCircuit, Info } from 'lucide-react';
+import { Sparkles, X, Info } from 'lucide-react';
 import { haptics } from '@/utils/microPolish';
 import { cn } from '@/lib/utils';
 import { useLocation } from 'react-router-dom';

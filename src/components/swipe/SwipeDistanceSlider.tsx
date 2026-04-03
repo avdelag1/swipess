@@ -38,7 +38,7 @@ export const SwipeDistanceSlider = ({
   };
 
   const springPctVal = useTransform(springPct, (v) => `${v}%`);
-  const thumbX = useTransform(springPct, (v) => `${v}%`);
+  const _thumbX = useTransform(springPct, (v) => `${v}%`);
   
   // Transform MotionValue<number> to MotionValue<string> for display
   const displayKmText = useTransform(localKmVal, (v) => `${Math.round(v)} km`);

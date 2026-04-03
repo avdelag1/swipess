@@ -17,7 +17,7 @@ import {
   Brain,
   Utensils,
   Calendar,
-  MessageCircle as ChatIcon,
+  MessageCircle as _ChatIcon,
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
 import { useUserMemories } from '@/hooks/useUserMemories';
@@ -25,7 +25,6 @@ import { useAIUsage } from '@/hooks/useAIUsage';
 import { formatQuota } from '@/config/aiTiers';
 import ReactMarkdown from 'react-markdown';
 import { useTheme } from '@/hooks/useTheme';
-import { useVisualTheme } from '@/contexts/VisualThemeContext';
 import { JarvisAura } from './ui/JarvisAura';
 import { useUserSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/hooks/useAuth';
@@ -80,9 +79,9 @@ export function ConciergeChat({
     isLoading,
     error,
     sendMessage,
-    clearMessages,
+    _clearMessages,
     deletePermanently,
-    userVibe,
+    _userVibe,
     conversations,
     currentConversationId,
     startNewChat,
@@ -432,7 +431,7 @@ export function ConciergeChat({
                           <div className="text-sm max-w-none break-words leading-relaxed space-y-1.5">
                             <ReactMarkdown
                               components={{
-                                a: ({ node, ...props }) => (
+                                a: ({ _node, ...props }) => (
                                   <a
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -445,11 +444,11 @@ export function ConciergeChat({
                                     {...props}
                                   />
                                 ),
-                                p: ({ node, ...props }) => <p className="mb-1.5 last:mb-0" {...props} />,
-                                ul: ({ node, ...props }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5" {...props} />,
-                                ol: ({ node, ...props }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5" {...props} />,
-                                li: ({ node, ...props }) => <li className="pl-0.5" {...props} />,
-                                strong: ({ node, ...props }) => <strong className="font-bold" {...props} />,
+                                p: ({ _node, ...props }) => <p className="mb-1.5 last:mb-0" {...props} />,
+                                ul: ({ _node, ...props }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5" {...props} />,
+                                ol: ({ _node, ...props }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5" {...props} />,
+                                li: ({ _node, ...props }) => <li className="pl-0.5" {...props} />,
+                                strong: ({ _node, ...props }) => <strong className="font-bold" {...props} />,
                               }}
                             >
                               {linkify(message.content)}

@@ -19,7 +19,7 @@ export function useFocusMode(timeout: number = 6000) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastInteractionRef = useRef<number>(Date.now());
 
-  const handleInteraction = useCallback((e?: Event) => {
+  const handleInteraction = useCallback((_e?: Event) => {
     // ⚡ INSTANT RECOVERY: Clear focus state on first hint of movement
     setIsFocused(false);
     lastInteractionRef.current = Date.now();

@@ -24,7 +24,7 @@ export function logBundleSize() {
  * Aggressively prefetches the core discovery feeds for the current user role.
  * Targeted at making the main swipe-up experience instant.
  */
-export async function warmDiscoveryCache(queryClient: QueryClient, userId: string | undefined, userRole: 'client' | 'owner') {
+export async function warmDiscoveryCache(queryClient: QueryClient, userId: string | undefined, _userRole: 'client' | 'owner') {
   if (!userId) return;
 
   // 1. Prefetch Smart Listings (The actual discovery engine)

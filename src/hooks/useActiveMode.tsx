@@ -86,7 +86,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     return getCachedMode(user?.id) || 'client';
   });
   const [isSwitching, setIsSwitching] = useState(false);
-  const [_isPending, startTransition] = useTransition();
+  const [_isPending, _startTransition] = useTransition();
 
   // Update initial mode when user changes; reset on logout
   useEffect(() => {

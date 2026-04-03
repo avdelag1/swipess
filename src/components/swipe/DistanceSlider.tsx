@@ -41,8 +41,8 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
     onRadiusChange(val);
   };
 
-  const springPctVal = useTransform(springPct, (v) => `${v}%`);
-  const thumbLeft = useTransform(springPct, (v) => `${v}%`);
+  const _springPctVal = useTransform(springPct, (v) => `${v}%`);
+  const _thumbLeft = useTransform(springPct, (v) => `${v}%`);
 
   return (
     <div className="w-full max-w-xs mx-auto mt-2 px-4 py-2">

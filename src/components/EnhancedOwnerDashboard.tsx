@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, memo, useMemo, lazy } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
-import { QuickFilterDropdown } from '@/components/QuickFilterDropdown';
 // Lazy-load: 50kb dialog only needed post-tap, not on initial dashboard render
 const _ClientInsightsDialog = lazy(() =>
   import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
@@ -33,7 +32,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs, isLoading: isPrefsLoading } = useOwnerClientPreferences();
-  const { setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities, storeGender, setCategories, storeCategories } = useFilterStore(
+  const { setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities, storeGender, _setCategories, _storeCategories } = useFilterStore(
     useShallow((s) => ({
       setClientGender: s.setClientGender,
       setClientAgeRange: s.setClientAgeRange,

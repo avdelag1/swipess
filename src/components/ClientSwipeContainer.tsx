@@ -31,8 +31,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Users, MapPin, Bike, Wrench, Navigation } from 'lucide-react';
-import { useTheme } from '@/hooks/useTheme';
+import { Users, MapPin, Bike, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -46,7 +45,7 @@ import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { DistanceSlider } from './swipe/DistanceSlider';
 
 // ── Distance Slider Component ─────────────────────────────────────────────────
-interface DistanceSliderProps {
+interface _DistanceSliderProps {
   radiusKm: number;
   onRadiusChange: (km: number) => void;
   onDetectLocation: () => void;
@@ -75,7 +74,7 @@ const ClientSwipeContainerComponent = ({
   profiles: externalProfiles,
   isLoading: externalIsLoading,
   error: externalError,
-  insightsOpen = false,
+  _insightsOpen = false,
   category = 'default',
   filters
 }: ClientSwipeContainerProps) => {
@@ -655,7 +654,7 @@ const ClientSwipeContainerComponent = ({
     }, 200);
   }, [executeSwipe, playSwipeSound]);
 
-  const handleButtonLike = useCallback(() => {
+  const _handleButtonLike = useCallback(() => {
     if (cardRef.current) {
       cardRef.current.triggerSwipe('right');
     } else {
@@ -663,7 +662,7 @@ const ClientSwipeContainerComponent = ({
     }
   }, [handleSwipe]);
 
-  const handleButtonDislike = useCallback(() => {
+  const _handleButtonDislike = useCallback(() => {
     if (cardRef.current) {
       cardRef.current.triggerSwipe('left');
     } else {
@@ -760,7 +759,7 @@ const ClientSwipeContainerComponent = ({
   // FIX: Don't clamp the index - allow topCard to be null when all cards are swiped
   // This ensures the "All Caught Up" screen shows correctly
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
-  const nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
+  const _nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
 
   // Check if we have hydrated data (from store/session) - prevents blank deck flash
   // isReady means we've fully initialized at least once - skip loading UI on return
@@ -770,13 +769,13 @@ const ClientSwipeContainerComponent = ({
 
   // "All Caught Up" — user has swiped through every card in the current deck
   // Only true once past initial load and topCard is exhausted
-  const isDeckFinished = !showLoadingSkeleton && topCard === null && (hasHydratedData || !isLoading);
+  const _isDeckFinished = !showLoadingSkeleton && topCard === null && (hasHydratedData || !isLoading);
 
   // showInitialError: Only show if we have NO cards and a hard error occurred during initial load
   const _showInitialError = !hasHydratedData && error && deckQueue.length === 0;
 
   // showEmptyState: Only show if loading is DONE and we still have no cards
-  const showEmptyState = !isLoading && deckQueue.length === 0 && !error;
+  const _showEmptyState = !isLoading && deckQueue.length === 0 && !error;
 
   // ========================================
   // 🔥 SINGLE RETURN BLOCK - SAFE ORDER

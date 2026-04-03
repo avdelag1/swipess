@@ -113,7 +113,7 @@ deferredInit(async () => {
     checkAppVersion();
     initPerformanceOptimizations();
     initOfflineSync();
-  } catch { }
+  } catch { /* intentional */ }
 }, 10000); // 🚀 PUSHED TO 10s for PERFECTION Score
 
 // Priority: Native Mobile Plugins
@@ -126,7 +126,7 @@ deferredInit(async () => {
       await StatusBar.setStyle({ style: Style.Light });
       await StatusBar.setBackgroundColor({ color: "#000000" });
     }
-  } catch { }
+  } catch { /* intentional */ }
 }, 12000); // 🚀 PUSHED TO 12s for PERFECTION Score
 
 // Service Worker Registration

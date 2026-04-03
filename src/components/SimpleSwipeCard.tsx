@@ -19,12 +19,10 @@ import { Listing } from '@/hooks/useListings';
 import { MatchedListing } from '@/hooks/useSmartMatching';
 import { useMagnifier } from '@/hooks/useMagnifier';
 import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo } from '@/components/ui/CardInfoHierarchy';
-import { VerifiedBadge } from '@/components/ui/TrustSignals';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
-import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
 import { DiscoverySidebar } from '@/components/DiscoverySidebar';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
 
@@ -361,7 +359,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     triggerHaptic(direction === 'right' ? 'success' : 'warning');
 
     const exitX = direction === 'right' ? getExitDistance() : -getExitDistance();
-    const exitY = direction === 'left' && !isDragging.current ? -getExitDistance() : 0; // Vertical lift for passes
+    const _exitY = direction === 'left' && !isDragging.current ? -getExitDistance() : 0; // Vertical lift for passes
 
     let swipeFired = false;
     const fireSwipe = () => {

@@ -409,7 +409,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     dragStartedRef.current = false;
   }, [magnifierPointerHandlers]);
 
-  const handleUnifiedPointerCancel = useCallback((e: React.PointerEvent) => {
+  const _handleUnifiedPointerCancel = useCallback((e: React.PointerEvent) => {
     magnifierPointerHandlers.onPointerCancel(e);
     storedPointerEventRef.current = null;
     dragStartedRef.current = false;

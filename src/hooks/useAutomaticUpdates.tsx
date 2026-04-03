@@ -141,7 +141,7 @@ export async function forceAppUpdate(): Promise<void> {
  * React hook for automatic update checking
  */
 export function useAutomaticUpdates() {
-  const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({ available: false, needsRefresh: false });
+  const [updateInfo, _setUpdateInfo] = useState<UpdateInfo>({ available: false, needsRefresh: false });
   const [isUpdating, setIsUpdating] = useState(false);
   const queryClient = useQueryClient();
  
