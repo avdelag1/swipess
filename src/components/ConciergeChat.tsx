@@ -431,7 +431,7 @@ export function ConciergeChat({
                           <div className="text-sm max-w-none break-words leading-relaxed space-y-1.5">
                             <ReactMarkdown
                               components={{
-                                a: ({ _node, ...props }) => (
+                                a: ({ node: _node, ...props }) => (
                                   <a
                                     target="_blank"
                                     rel="noopener noreferrer"
