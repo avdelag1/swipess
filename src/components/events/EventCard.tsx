@@ -182,7 +182,7 @@ export const EventCard = memo(({
       </AnimatePresence>
 
       {/* Right side action buttons */}
-      <div className="absolute right-4 flex flex-col gap-5 items-center z-30 bottom-[calc(6.5rem+env(safe-area-inset-bottom,0px))]">
+      <div className="absolute right-4 flex flex-col gap-5 items-center z-30 bottom-[calc(9rem+env(safe-area-inset-bottom,0px))]">
         {/* Save / Bookmark button — liking an event saves it */}
         <button
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}

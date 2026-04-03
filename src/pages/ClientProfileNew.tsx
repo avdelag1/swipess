@@ -291,20 +291,6 @@ const ClientProfileNew = () => {
             <span className="relative z-10">Premium Package</span>
           </button>
 
-          {/* Radio Station */}
-          <button
-            onClick={() => { haptics.tap(); navigate('/radio'); }}
-            className={cn(
-              "w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border",
-              isLight
-                ? "bg-card border-border/40 text-foreground shadow-sm"
-                : "bg-white/[0.04] border-white/[0.06] text-foreground"
-            )}
-          >
-            <Radio className="w-5 h-5 text-rose-400" />
-            Radio
-          </button>
-
 
 
           {/* Settings */}
