@@ -234,6 +234,9 @@
       window.__APP_INITIALIZED__ = true;
       window.__APP_MOUNTED__ = true;
       clearTimeout(initialMountTimeout);
+      // Hide recovery UI if it was shown
+      var recovery = document.getElementById('mount-recovery');
+      if (recovery) recovery.style.display = 'none';
       requestAnimationFrame(function() {
         requestAnimationFrame(removeSplash);
       });

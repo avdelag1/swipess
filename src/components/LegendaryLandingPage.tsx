@@ -192,7 +192,7 @@ const LandingView = memo(({
         className="absolute bottom-8 right-8 flex flex-col items-center gap-2 pointer-events-none opacity-40"
       >
         <span className={cn("text-[9px] font-black uppercase tracking-[0.3em]", isDark ? "text-white" : "text-black")}>
-          Local Jarvis
+          SwipesS
         </span>
         <motion.div
           animate={{ y: [0, 5, 0] }}
