@@ -71,7 +71,7 @@ function TopBarComponent({
   showFilters,
   userRole,
   transparent = false,
-  _hideOnScroll = false,
+  hideOnScroll: _hideOnScroll = false,
   title,
   showBack = false,
 }: TopBarProps) {
