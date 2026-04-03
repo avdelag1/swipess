@@ -295,8 +295,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           ...prev,
           currentStation: targetStation,
           currentCity: targetStation.city,
-          // Only expand mini player if it wasn't explicitly closed by the user
-          miniPlayerMode: prev.miniPlayerMode === 'closed' ? 'closed' : 'expanded'
+          // 🚀 SENTIENT VISIBILITY: Automatically expand when music starts
+          miniPlayerMode: 'expanded'
         }));
         savePreferences({ currentStation: targetStation, currentCity: targetStation.city });
       }

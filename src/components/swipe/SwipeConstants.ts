@@ -81,6 +81,7 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   buyers:     '/images/filters/owner_buyers_card.png',
   renters:    '/images/filters/owner_renters_card.png',
   hire:       '/images/filters/owner_hire_card.png',
+  radio:      '/images/filters/radio.png',
 };
 
 // Gradient fallbacks shown when an image fails to load (no broken/black cards).
@@ -94,6 +95,7 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   buyers:     'linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%)',
   renters:    'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
   hire:       'linear-gradient(135deg, #3b0764 0%, #1e0636 100%)',
+  radio:      'linear-gradient(135deg, #4d0000 0%, #1a0000 100%)',
 };
 
 export const POKER_CARDS = [
@@ -101,6 +103,7 @@ export const POKER_CARDS = [
   { id: 'motorcycle' as const, label: 'Motorcycles', description: 'Bikes & scooters',     accent: '#f97316', accentRgb: '249,115,22'  },
   { id: 'bicycle'    as const, label: 'Bicycles',    description: 'City & mountain',      accent: '#f43f5e', accentRgb: '244,63,94'   },
   { id: 'services'   as const, label: 'Workers',     description: 'Skilled freelancers',  accent: '#a855f7', accentRgb: '168,85,247'  },
+  { id: 'radio'      as const, label: 'Radio',       description: 'Tulum Beats & DJ Mixes', accent: '#fb7185', accentRgb: '251,113,133' },
   { id: 'all'        as const, label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212'   },
 ];
 

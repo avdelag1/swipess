@@ -1,4 +1,5 @@
 import { useState, useCallback, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   POKER_CARDS, PK_W, PK_H,
@@ -11,13 +12,10 @@ export interface SwipeAllDashboardProps {
 
 /**
  * 🃏 SwipeAllDashboard — CYCLIC REBORN 🎰
- * 
- * Re-navigated for continuous browsing without accidentally triggering filters.
- * Removed AnimatePresence to solve state racing and ensure the 'Cycle-to-Back' interaction
- * feels as instantaneous and physical as a native deck of cards.
  */
 export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps) => {
   const [cards, setCards] = useState([...POKER_CARDS]);
+  const navigate = useNavigate();
 
   // Faster, more physical cycle: instantaneous array rotation
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
@@ -33,8 +31,12 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
 
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
-    setCategories([id]);
-  }, [setCategories]);
+    if (id === 'radio') {
+      navigate('/radio');
+    } else {
+      setCategories([id]);
+    }
+  }, [setCategories, navigate]);
 
   const handleBringToFront = useCallback((index: number) => {
     triggerHaptic('light');
