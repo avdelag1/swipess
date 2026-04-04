@@ -25,10 +25,17 @@ import type { EffectMode } from './LandingBackgroundEffects';
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
 // Optimized logo with modern format support + fallback
-function LogoImage({ className }: { className?: string }) {
+function LogoWordmark({ className, size = 'hero' }: { className?: string; size?: 'hero' | 'auth' }) {
   return (
-    <div className={cn("relative flex items-center justify-center translate-y-[-2vh]", className)}>
-        <SwipessLogo size="4xl" className="scale-110 md:scale-125 transition-transform duration-700 ease-out" />
+    <div className={cn("relative flex items-center justify-center", className)}>
+      <h1
+        className={cn(
+          "font-black italic tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent select-none",
+          size === 'hero' ? 'text-7xl sm:text-8xl md:text-9xl' : 'text-3xl'
+        )}
+      >
+        Swipess
+      </h1>
     </div>
   );
 }

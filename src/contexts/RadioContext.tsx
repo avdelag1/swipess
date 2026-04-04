@@ -49,7 +49,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const [state, setState] = useState<RadioPlayerState>({
     isPlaying: false,
-    isPoweredOn: true,
+    isPoweredOn: false,
     currentStation: null,
     currentCity: 'tulum',
     volume: 0.7,
