@@ -334,12 +334,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       loadTimeoutRef.current = setTimeout(() => {
         logger.warn(`[RadioPlayer] Station ${targetStation.id} timeout, skipping`);
         failedStationsRef.current.add(targetStation.id);
+        setTimeout(() => failedStationsRef.current.delete(targetStation.id), 30000);
         setError('Station timeout, switching...');
         setTimeout(() => {
           setError(null);
-          changeStation('next');
+          changeStationRef.current('next');
         }, 500);
-      }, 10000);
+      }, 15000);
 
       await audioRef.current.play();
       
