@@ -322,12 +322,12 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 <LogoWordmark size="auth" />
               </div>
               <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand mb-1">
-                {isLogin ? 'Welcome Back' : 'Elite Discovery'}
+                {isLogin ? 'Welcome Back' : 'Join SwipesS'}
               </h1>
               <p className="text-muted-foreground text-sm font-medium leading-relaxed px-4">
                 {isLogin
-                  ? 'Access properties, vehicles, and premium services directly. No commission. All AI.'
-                  : 'The only network you need. Direct access to elite opportunities.'}
+                  ? 'Good luck finding your perfect deal today.'
+                  : 'Your next perfect deal is one swipe away.'}
               </p>
               {!isLogin && (
                 <div className="flex flex-wrap justify-center gap-2 mt-4 max-w-[280px] mx-auto">
