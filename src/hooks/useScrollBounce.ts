@@ -54,7 +54,8 @@ export function useScrollBounce(options: ScrollBounceOptions = {}) {
     const container = scrollRef.current;
     if (!container) return;
 
-    const children = container.querySelectorAll(childSelector) as NodeListOf<HTMLElement>;
+    const scopedSelector = childSelector.startsWith('>') ? `:scope ${childSelector}` : childSelector;
+    const children = container.querySelectorAll(scopedSelector) as NodeListOf<HTMLElement>;
     if (!children.length) return;
 
     const containerRect = container.getBoundingClientRect();
@@ -189,7 +190,8 @@ export function useScrollBounce(options: ScrollBounceOptions = {}) {
       clearTimeout(scrollTimeoutRef.current);
 
       // Reset transforms on unmount
-      const children = container.querySelectorAll(childSelector) as NodeListOf<HTMLElement>;
+      const cleanupSelector = childSelector.startsWith('>') ? `:scope ${childSelector}` : childSelector;
+      const children = container.querySelectorAll(cleanupSelector) as NodeListOf<HTMLElement>;
       children.forEach((child) => {
         child.style.transform = '';
         child.style.transition = '';
