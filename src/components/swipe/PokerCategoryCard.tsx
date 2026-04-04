@@ -73,7 +73,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   return (
     <motion.div
       drag={isTop ? "x" : false}
-      dragConstraints={{ left: -100, right: 100 }}
+      dragConstraints={{ left: -150, right: 150 }}
       dragElastic={0.5}
       onDragEnd={isTop ? handleDragEnd : undefined}
       onClick={!isTop ? () => onBringToFront(index) : undefined}
