@@ -89,7 +89,7 @@ function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
           life: 0,
           maxLife: 40 + Math.random() * 30,
         });
-        nextShoot = 50 + Math.random() * 80;
+        nextShoot = 360 + Math.random() * 240; // 6-10s at 60fps
       }
 
       // Draw shooting stars

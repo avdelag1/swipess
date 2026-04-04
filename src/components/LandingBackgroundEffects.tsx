@@ -505,10 +505,11 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         ctx.fillRect(0, 0, w, h);
       }
 
-      // Automatic Shooting Stars Every 3 Seconds
-      if (mode === 'stars' && timestamp - lastAutoStarTime > 3000) {
+      // Automatic Shooting Stars — random 6-10 second intervals
+      if (mode === 'stars' && timestamp - lastAutoStarTime > nextAutoStarDelay) {
         spawnShootingStar();
         lastAutoStarTime = timestamp;
+        nextAutoStarDelay = 6000 + Math.random() * 4000; // 6-10s
       }
 
 

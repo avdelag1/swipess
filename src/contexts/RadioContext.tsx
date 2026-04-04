@@ -383,7 +383,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
       setTimeout(() => {
         setError(null);
-        changeStation('next');
+        changeStationRef.current('next');
       }, 500);
     }
   }, [state.currentStation]);
