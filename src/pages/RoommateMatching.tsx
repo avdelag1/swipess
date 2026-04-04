@@ -109,13 +109,14 @@ export default function RoommateMatching() {
   useEffect(() => {
     if (!user?.id) return;
     const loadSavedFilters = async () => {
-      const { data } = await (supabase as any)
+      const { data } = await supabase
+        .from('roommate_preferences')
         .select('user_id, preferred_gender, preferred_budget_min, preferred_budget_max, preferred_age_min, preferred_age_max, preferred_cleanliness, preferred_noise_tolerance, preferred_smoking, preferred_drinking, preferred_work_schedule, deal_breakers')
         .eq('user_id', user.id)
         .maybeSingle();
       if (data) {
         setCurrentFilters({
-          preferred_gender: data.preferred_gender || [],
+          preferred_gender: (data.preferred_gender as string[]) || [],
           preferred_budget_min: data.preferred_budget_min,
           preferred_budget_max: data.preferred_budget_max,
           preferred_age_min: data.preferred_age_min,
@@ -125,7 +126,7 @@ export default function RoommateMatching() {
           preferred_smoking: data.preferred_smoking,
           preferred_drinking: data.preferred_drinking,
           preferred_work_schedule: data.preferred_work_schedule,
-          deal_breakers: data.deal_breakers || [],
+          deal_breakers: (data.deal_breakers as string[]) || [],
         });
       }
     };

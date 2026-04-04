@@ -1,11 +1,10 @@
 import { memo, useCallback, useRef, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
-import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
-  PK_W, PK_H, FOLDER_OFFSET_Y,
-  PK_DIST_THRESHOLD, PK_VEL_THRESHOLD, PK_SPRING,
+  PK_W, PK_H,
+  PK_SPRING,
   POKER_CARD_PHOTOS, POKER_CARD_GRADIENTS,
   PokerCardData,
 } from './SwipeConstants';
@@ -40,12 +39,11 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       isCycling.current = true;
       triggerHaptic('medium');
       const direction = info.offset.x > 0 ? 'right' : 'left';
-      const exitX = direction === 'right' ? 300 : -300;
 
-      // Depth exit: shrink + fade as if receding into the distance
-      animate(x, exitX, { 
+      // Recede behind: animate x slightly while scale+opacity handle via useTransform
+      animate(x, direction === 'right' ? 200 : -200, { 
         type: 'tween', 
-        duration: 0.3,
+        duration: 0.35,
         ease: [0.4, 0, 0.2, 1],
         onComplete: () => {
           onCycle(card.id, direction);
@@ -63,14 +61,13 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const gradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
   const [imgError, setImgError] = useState(false);
 
-  const stackY = isCollapsed ? 0 : index * 24;
-  const stackScale = 1 - (index * 0.08);
-  const stackBlur = index * 0.8;
-  const stackBrightness = 1 - (index * 0.12);
+  const stackY = isCollapsed ? 0 : index * 18;
+  const stackScale = 1 - (index * 0.04);
+  const stackBrightness = 1 - (index * 0.08);
 
-  // Derive exit scale/opacity from x position for depth effect
-  const exitScale = useTransform(x, [-300, 0, 300], [0.7, 1, 0.7]);
-  const exitOpacity = useTransform(x, [-300, -150, 0, 150, 300], [0, 0.7, 1, 0.7, 0]);
+  // Depth exit: scale shrinks and opacity fades as card moves away
+  const exitScale = useTransform(x, [-200, -80, 0, 80, 200], [0.6, 0.9, 1, 0.9, 0.6]);
+  const exitOpacity = useTransform(x, [-200, -120, 0, 120, 200], [0, 0.6, 1, 0.6, 0]);
 
   return (
     <motion.div
@@ -78,13 +75,13 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       dragConstraints={{ left: -100, right: 100 }}
       dragElastic={0.5}
       onDragEnd={isTop ? handleDragEnd : undefined}
+      onClick={!isTop ? () => onBringToFront(index) : undefined}
       initial={false}
       animate={{
         y: stackY,
-        scale: isTop ? undefined : stackScale,
         opacity: index > 4 ? 0 : 1,
-        rotateX: isTop ? 0 : 8, 
-        filter: isTop ? undefined : `brightness(${stackBrightness}) blur(${stackBlur}px)`,
+        rotateX: isTop ? 0 : 6, 
+        filter: isTop ? undefined : `brightness(${stackBrightness})`,
       }}
       transition={{ type: 'spring', stiffness: 220, damping: 28, mass: 0.8 }}
       style={{
@@ -101,7 +98,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         touchAction: 'none',
         transformStyle: 'preserve-3d',
       } as any}
-      whileDrag={{ scale: isTop ? 1.05 : 1 }}
+      whileDrag={{ cursor: 'grabbing' }}
       className="touch-manipulation select-none"
     >
       <div
@@ -126,29 +123,26 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
           />
         )}
 
-        {/* Cinematic gradient overlay — replaces white bg */}
+        {/* Cinematic gradient overlay */}
         <div className="absolute inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-        {/* Info section with transparent background */}
+        {/* Info section */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-8 pb-8">
           <div className="flex flex-col gap-0.5">
             <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/50 mb-1">{card.description}</p>
             <h3 className="text-white text-3xl font-black tracking-tight uppercase leading-none">{card.label}</h3>
           </div>
 
-          <AnimatePresence>
-            {isTop && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                onClick={(e) => { e.stopPropagation(); onSelect(card.id); }}
-                className="mt-5 w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] bg-white text-black active:scale-95 transition-transform shadow-[0_12px_24px_rgba(0,0,0,0.3)] flex items-center justify-center"
-              >
-                Launch {card.label}
-              </motion.button>
-            )}
-          </AnimatePresence>
+          {isTop && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              onClick={(e) => { e.stopPropagation(); onSelect(card.id); }}
+              className="mt-5 w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] bg-white/10 backdrop-blur-md text-white border border-white/20 active:scale-95 transition-transform shadow-[0_12px_24px_rgba(0,0,0,0.3)] flex items-center justify-center"
+            >
+              Launch {card.label}
+            </motion.button>
+          )}
         </div>
 
         {/* Small floating tag for background cards */}
@@ -156,18 +150,6 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
           <div className="absolute top-8 left-8 px-4 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-md">
             <p className="text-[10px] font-black uppercase tracking-widest text-white/70">{card.label}</p>
           </div>
-        )}
-
-        {/* Pulsing swipe hint arrows — only on top card */}
-        {isTop && (
-          <>
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 swipe-hint-left pointer-events-none">
-              <ChevronLeft size={20} className="text-white" />
-            </div>
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 swipe-hint-right pointer-events-none">
-              <ChevronRight size={20} className="text-white" />
-            </div>
-          </>
         )}
       </div>
     </motion.div>
