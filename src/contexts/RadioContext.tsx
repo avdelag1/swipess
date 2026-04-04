@@ -167,7 +167,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Flag station as potentially dead
-      const currentId = state.currentStation?.id;
+      const currentId = currentStationRef.current?.id;
       if (currentId) {
         const fails = (failedStationsCountRef.current[currentId] || 0) + 1;
         failedStationsCountRef.current[currentId] = fails;
