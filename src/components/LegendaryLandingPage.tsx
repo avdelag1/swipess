@@ -196,22 +196,6 @@ const LandingView = memo(({
         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </motion.button>
 
-      {/* Benefits Indicator */}
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 1 }}
-        className="absolute bottom-8 right-8 flex flex-col items-center gap-2 pointer-events-none opacity-40"
-      >
-        <span className={cn("text-[9px] font-black uppercase tracking-[0.3em]", isDark ? "text-white" : "text-black")}>
-          SwipesS
-        </span>
-        <motion.div
-          animate={{ y: [0, 5, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className={cn("w-[2px] h-8 rounded-full", isDark ? "bg-white/20" : "bg-black/20")}
-        />
-      </motion.div>
     </motion.div>
   );
 });
