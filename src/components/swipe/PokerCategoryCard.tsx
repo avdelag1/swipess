@@ -27,7 +27,8 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
-  const dragTilt = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
+  const dragTilt = useTransform(x, [-250, 0, 250], [-15, 0, 15]);
+  const exitRotate = useTransform(x, [-250, 0, 250], [-8, 0, 8]);
   const isCycling = useRef(false);
 
   const handleDragEnd = useCallback((_: any, info: any) => {
