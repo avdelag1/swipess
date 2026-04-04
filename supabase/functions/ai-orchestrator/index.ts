@@ -12,7 +12,9 @@ const MINIMAX_ENDPOINTS = [
   "https://api.minimax.io/v1/chat/completions",
 ];
 
-const MODEL = "MiniMax-M2.7";
+// Correct MiniMax model names (in order of preference)
+const MODELS = ["MiniMax-Text-01", "abab6.5s-chat", "abab6-chat"];
+const MODEL = MODELS[0];
 
 // AI Tier → max_tokens mapping
 const TIER_MAX_TOKENS: Record<string, number> = {
@@ -228,13 +230,40 @@ Deno.serve(async (req) => {
 });
 
 async function callMiniMax(messages: any[], key: string, maxTokens: number = 1000) {
-  const url = MINIMAX_ENDPOINTS[0];
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model: MODEL, messages, temperature: 0.7, max_tokens: maxTokens }),
-  });
-  return await res.json();
+  // Try each endpoint + model combination until one succeeds
+  const attempts = [
+    { url: MINIMAX_ENDPOINTS[0], model: MODELS[0] },
+    { url: MINIMAX_ENDPOINTS[1], model: MODELS[0] },
+    { url: MINIMAX_ENDPOINTS[0], model: MODELS[1] },
+    { url: MINIMAX_ENDPOINTS[1], model: MODELS[1] },
+  ];
+
+  let lastError: any = null;
+  for (const attempt of attempts) {
+    try {
+      const res = await fetch(attempt.url, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model: attempt.model, messages, temperature: 0.7, max_tokens: maxTokens }),
+      });
+      const json = await res.json();
+      // Check for API-level errors and skip to next attempt
+      if (json.error || json.base_resp?.status_code > 0) {
+        lastError = json.error || json.base_resp;
+        continue;
+      }
+      if (json.choices?.[0]?.message?.content) {
+        return json;
+      }
+      lastError = { message: "Empty response" };
+    } catch (e) {
+      lastError = e;
+    }
+  }
+
+  // All attempts failed — return a graceful fallback
+  console.error("[AI Orchestrator] All MiniMax attempts failed:", lastError);
+  return { choices: [{ message: { content: "I'm having trouble connecting right now. Please try again in a moment. 🙏" } }] };
 }
 
 function getVibePrompt(task: string, input: any, user: any, profile: any, memories: any[], activeListing?: any, currentPath?: string): string {

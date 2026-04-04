@@ -20,7 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, MessageCircle, User, Building2,
   Search, Users, Sparkles, ShieldCheck,
-  Megaphone, Compass,
+  Megaphone, Compass, Headphones,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -92,27 +92,27 @@ export const BottomNavigation = memo(({
   }, []);
 
 
-  // Client nav items — order: Dashboard, Profile, Likes, AI, Messages, Events, Roommates, Filters
+  // Client nav items — order: Dashboard, Profile, Likes, AI, Radio, Messages, Events, Filters
   const clientNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
     { id: 'ai-search', icon: Sparkles, label: 'Swipess AI', onClick: onAISearchClick },
+    { id: 'radio', icon: Headphones, label: 'Radio', path: '/radio' },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'events', icon: Megaphone, label: 'Events', path: '/explore/eventos' },
-    { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
-  // Owner nav items — order: Dashboard, Profile, Likes, AI, Messages, Promote, Listings, Filters
+  // Owner nav items — order: Dashboard, Profile, Likes, AI, Radio, Listings, Messages, Filters
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
     { id: 'ai-search', icon: Sparkles, label: 'Swipess AI', onClick: onAISearchClick },
+    { id: 'radio', icon: Headphones, label: 'Radio', path: '/radio' },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-    { id: 'events', icon: Megaphone, label: 'Events', path: '/explore/eventos' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
 

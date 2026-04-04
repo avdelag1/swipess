@@ -52,7 +52,7 @@ function TypingIndicator({ isDark }: { isDark: boolean }) {
   return (
     <div className="flex items-center gap-3 px-4 py-3">
       <JarvisAura isThinking size="sm" />
-      <span className={cn("text-[10px] font-black uppercase tracking-widest animate-pulse", isDark ? "text-cyan-400" : "text-cyan-600")}>
+      <span className={cn("text-[10px] font-black uppercase tracking-widest animate-pulse", isDark ? "text-orange-400" : "text-orange-600")}>
         Swipess AI is thinking...
       </span>
     </div>
@@ -167,7 +167,7 @@ export function ConciergeChat({
           className={cn(
             "max-w-[660px] w-[calc(100%-8px)] sm:w-[calc(100%-32px)] h-[96vh] sm:h-[93vh] max-h-[940px] flex flex-col p-0 gap-0 overflow-hidden rounded-[1.5rem] sm:rounded-[2rem]",
             isDark
-              ? "bg-gradient-to-b from-[#0f1117] via-[#111318] to-[#0d0f14] border-white/[0.07] shadow-2xl shadow-black/70"
+              ? "bg-gradient-to-b from-[#0d0010] via-[#100015] to-[#0a000e] border-white/[0.07] shadow-2xl shadow-purple-950/50"
               : "bg-white border-gray-200/60 shadow-2xl shadow-black/10"
           )}
           hideCloseButton
@@ -176,15 +176,15 @@ export function ConciergeChat({
           <div className={cn(
             "relative flex items-center justify-between px-4 py-2.5 border-b shrink-0 overflow-hidden",
             isDark
-              ? "border-white/[0.05] bg-gradient-to-r from-[#0f1117] via-[#131620] to-[#0f1117]"
-              : "border-gray-100 bg-gradient-to-r from-white via-cyan-50/30 to-white"
+              ? "border-white/[0.05] bg-gradient-to-r from-[#0d0010] via-[#150020] to-[#0d0010]"
+              : "border-gray-100 bg-gradient-to-r from-white via-orange-50/30 to-white"
           )}>
             {/* Subtle glow accent */}
             <div className={cn(
               "absolute left-0 top-0 w-40 h-full pointer-events-none",
               isDark
-                ? "bg-gradient-to-r from-cyan-500/5 to-transparent"
-                : "bg-gradient-to-r from-cyan-400/8 to-transparent"
+                ? "bg-gradient-to-r from-orange-600/8 via-rose-700/5 to-transparent"
+                : "bg-gradient-to-r from-orange-400/8 to-transparent"
             )} />
 
             {/* Left: logo + identity */}
@@ -192,23 +192,23 @@ export function ConciergeChat({
               <div className={cn(
                 "w-9 h-9 rounded-xl flex items-center justify-center relative overflow-hidden shrink-0 border",
                 isDark
-                  ? "bg-gradient-to-br from-[#1a2030] to-[#0f1520] border-cyan-500/20 shadow-lg shadow-cyan-500/10"
-                  : "bg-gradient-to-br from-cyan-50 to-blue-50 border-cyan-200/60 shadow-sm"
+                  ? "bg-gradient-to-br from-[#1a0025] to-[#0f0018] border-orange-500/20 shadow-lg shadow-orange-500/10"
+                  : "bg-gradient-to-br from-orange-50 to-rose-50 border-orange-200/60 shadow-sm"
               )}>
                 <JarvisAura size="sm" isThinking={isLoading} />
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-purple-600/10" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h2 className={cn("font-black text-[15px] leading-tight tracking-tight", isDark ? "text-white" : "text-gray-900")}>
                     Swipess AI
                   </h2>
-                  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className={cn("text-[9px] font-black uppercase tracking-[0.15em]", isDark ? "text-emerald-400" : "text-emerald-600")}>Live</span>
+                  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                    <span className={cn("text-[9px] font-black uppercase tracking-[0.15em]", isDark ? "text-orange-400" : "text-orange-600")}>Live</span>
                   </span>
                   {(userRole === 'owner' || subscription?.subscription_packages?.tier === 'premium' || subscription?.subscription_packages?.tier === 'unlimited') && (
-                    <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 text-[9px] font-bold uppercase tracking-wider border border-amber-500/20">
+                    <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-orange-500/15 text-orange-400 text-[9px] font-bold uppercase tracking-wider border border-orange-500/20">
                       <Sparkles className="w-2.5 h-2.5" />
                       {tierName}
                     </span>
@@ -243,13 +243,13 @@ export function ConciergeChat({
                 className={cn(
                   "h-9 w-9 rounded-xl relative",
                   memoryCount > 0
-                    ? isDark ? "text-cyan-400 hover:bg-cyan-500/10" : "text-cyan-600 hover:bg-cyan-50"
+                    ? isDark ? "text-orange-400 hover:bg-orange-500/10" : "text-orange-600 hover:bg-orange-50"
                     : isDark ? "text-zinc-600 hover:text-zinc-300 hover:bg-white/5" : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
                 )}
               >
                 <Brain className="w-4 h-4" />
                 {memoryCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-cyan-500 text-[8px] font-black text-white flex items-center justify-center shadow-sm">
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-orange-500 text-[8px] font-black text-white flex items-center justify-center shadow-sm">
                     {memoryCount > 9 ? '9+' : memoryCount}
                   </span>
                 )}
@@ -313,21 +313,21 @@ export function ConciergeChat({
                   <div className={cn(
                     "p-6 rounded-2xl text-center space-y-3 border relative overflow-hidden",
                     isDark
-                      ? "bg-gradient-to-b from-[#151922] to-[#111318] border-white/[0.05]"
-                      : "bg-gradient-to-b from-cyan-50/60 to-white border-cyan-100/80"
+                       ? "bg-gradient-to-b from-[#150020] to-[#100015] border-orange-500/[0.07]"
+                       : "bg-gradient-to-b from-orange-50/60 to-white border-orange-100/80"
                   )}>
                     {/* Background glow */}
                     <div className={cn(
                       "absolute inset-x-0 top-0 h-20 pointer-events-none",
                       isDark
-                        ? "bg-gradient-to-b from-cyan-500/5 to-transparent"
-                        : "bg-gradient-to-b from-cyan-400/10 to-transparent"
+                        ? "bg-gradient-to-b from-orange-500/5 to-transparent"
+                        : "bg-gradient-to-b from-orange-400/10 to-transparent"
                     )} />
                     <div className={cn(
                       "w-16 h-16 rounded-2xl flex items-center justify-center mx-auto relative border",
                       isDark
-                        ? "bg-gradient-to-br from-cyan-500/15 to-blue-600/15 border-cyan-500/20 shadow-lg shadow-cyan-500/10"
-                        : "bg-gradient-to-br from-cyan-100 to-blue-50 border-cyan-200/60"
+                        ? "bg-gradient-to-br from-orange-500/15 to-purple-600/20 border-orange-500/20 shadow-lg shadow-purple-500/10"
+                        : "bg-gradient-to-br from-orange-100 to-rose-50 border-orange-200/60"
                     )}>
                       <JarvisAura size="md" isThinking={isLoading} />
                     </div>
@@ -348,8 +348,8 @@ export function ConciergeChat({
                         className={cn(
                           "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border transition-all relative",
                           isDark
-                            ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/20"
-                            : "bg-cyan-50 text-cyan-600 border-cyan-200 hover:bg-cyan-100"
+                            ? "bg-orange-500/10 text-orange-400 border-orange-500/20 hover:bg-orange-500/20"
+                            : "bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100"
                         )}
                       >
                         <Brain className="w-3 h-3" />
@@ -372,17 +372,17 @@ export function ConciergeChat({
                         className={cn(
                           "flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all active:scale-95 group border",
                           isDark
-                            ? "bg-[#151922]/80 hover:bg-[#1a2030] border-white/[0.05] hover:border-white/[0.08]"
+                            ? "bg-[#150020]/80 hover:bg-[#1e0030] border-white/[0.05] hover:border-orange-500/10"
                             : "bg-white hover:bg-gray-50 border-gray-100 hover:border-gray-200 shadow-sm"
                         )}
                       >
                         <div className={cn(
                           "w-8 h-8 flex items-center justify-center rounded-xl shrink-0 transition-colors border",
                           isDark
-                            ? "bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border-cyan-500/15 group-hover:border-cyan-500/25"
-                            : "bg-gradient-to-br from-cyan-50 to-blue-50 border-cyan-100 group-hover:border-cyan-200"
+                            ? "bg-gradient-to-br from-orange-500/10 to-purple-500/15 border-orange-500/15 group-hover:border-purple-500/25"
+                            : "bg-gradient-to-br from-orange-50 to-rose-50 border-orange-100 group-hover:border-orange-200"
                         )}>
-                          <suggestion.icon className={cn("w-4 h-4", isDark ? "text-cyan-400" : "text-cyan-600")} />
+                          <suggestion.icon className={cn("w-4 h-4", isDark ? "text-orange-400" : "text-orange-600")} />
                         </div>
                         <span className={cn("text-xs font-semibold leading-tight", isDark ? "text-zinc-300" : "text-gray-700")}>
                           {suggestion.label}
@@ -415,11 +415,11 @@ export function ConciergeChat({
                       "w-8 h-8 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold border overflow-hidden",
                       message.role === 'user'
                         ? isDark
-                          ? "bg-[#1e2530] border-white/[0.07] text-zinc-300"
+                          ? "bg-[#1e0030] border-white/[0.07] text-zinc-300"
                           : "bg-gray-100 border-gray-200 text-gray-600"
                         : isDark
-                          ? "bg-gradient-to-br from-cyan-500 to-blue-600 border-cyan-500/30 shadow-sm shadow-cyan-500/20"
-                          : "bg-gradient-to-br from-cyan-400 to-blue-500 border-transparent"
+                          ? "bg-gradient-to-br from-orange-500 to-rose-600 border-orange-500/30 shadow-sm shadow-orange-500/20"
+                          : "bg-gradient-to-br from-orange-400 to-rose-500 border-transparent"
                     )}>
                       {message.role === 'user'
                         ? (userName ? userName[0].toUpperCase() : <User className="w-3.5 h-3.5" />)
@@ -435,13 +435,13 @@ export function ConciergeChat({
                           ? cn(
                               "rounded-tr-sm",
                               isDark
-                                ? "bg-gradient-to-br from-cyan-600/90 to-blue-700/90 text-white shadow-sm shadow-cyan-500/10"
-                                : "bg-gradient-to-br from-cyan-500 to-blue-500 text-white shadow-sm"
+                                ? "bg-gradient-to-br from-orange-600/90 to-rose-700/90 text-white shadow-sm shadow-orange-500/20"
+                                : "bg-gradient-to-br from-orange-500 to-rose-500 text-white shadow-sm"
                             )
                           : cn(
                               "rounded-tl-sm",
                               isDark
-                                ? "bg-[#1a2030] border border-white/[0.05] text-zinc-100"
+                                ? "bg-[#1a0025] border border-purple-500/10 text-zinc-100"
                                 : "bg-gray-50 border border-gray-100 text-gray-900"
                             )
                       )}>
@@ -458,8 +458,8 @@ export function ConciergeChat({
                                     className={cn(
                                       "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md font-bold no-underline border transition-colors",
                                       isDark
-                                        ? "bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:bg-cyan-500/20"
-                                        : "bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100"
+                                        ? "bg-orange-500/10 text-orange-300 border-orange-500/20 hover:bg-orange-500/20"
+                                        : "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100"
                                     )}
                                     {...props}
                                   />
@@ -689,8 +689,8 @@ export function ConciergeChat({
                 className={cn(
                   "w-8 h-8 rounded-full flex items-center justify-center border shadow-lg backdrop-blur-sm transition-all active:scale-90",
                   isDark
-                    ? "bg-cyan-600/80 border-cyan-500/30 text-white hover:bg-cyan-500/90"
-                    : "bg-cyan-500/90 border-cyan-400/40 text-white hover:bg-cyan-500"
+                    ? "bg-orange-600/80 border-orange-500/30 text-white hover:bg-orange-500/90"
+                    : "bg-orange-500/90 border-orange-400/40 text-white hover:bg-orange-500"
                 )}
               >
                 <ChevronsDown className="w-3.5 h-3.5" />
@@ -730,10 +730,10 @@ export function ConciergeChat({
               <div className={cn(
                 "relative flex items-end gap-2.5 rounded-2xl p-2 border transition-colors",
                 isDark
-                  ? "bg-[#151922] border-white/[0.07] focus-within:border-cyan-500/30"
-                  : "bg-white border-gray-200 focus-within:border-cyan-300 shadow-sm"
+                  ? "bg-[#150020] border-purple-500/[0.12] focus-within:border-orange-500/30"
+                  : "bg-white border-gray-200 focus-within:border-orange-300 shadow-sm"
               )}>
-                <Textarea
+          <Textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value.slice(0, 500))}
                   onKeyDown={handleKeyDown}
@@ -762,8 +762,8 @@ export function ConciergeChat({
                     className={cn(
                       "h-9 w-9 rounded-xl shrink-0 transition-all",
                       isDark
-                        ? "bg-gradient-to-br from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 disabled:opacity-30 shadow-sm shadow-cyan-500/20"
-                        : "bg-gradient-to-br from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 disabled:opacity-40 shadow-sm"
+                        ? "bg-gradient-to-br from-orange-600 to-rose-700 hover:from-orange-500 hover:to-rose-600 disabled:opacity-30 shadow-sm shadow-orange-500/25"
+                        : "bg-gradient-to-br from-orange-500 to-rose-500 hover:from-orange-400 hover:to-rose-400 disabled:opacity-40 shadow-sm"
                     )}
                   >
                     <Send className="w-3.5 h-3.5" />

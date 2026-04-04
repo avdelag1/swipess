@@ -304,13 +304,13 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                     onClick={() => handleCategoryToggle(category.id)}
                     className={cn(
                       smoothButtonClass,
-                      'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200',
+                      'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors duration-75',
                       isActive
                         ? ''
                         : 'bg-muted/50 text-foreground border border-border/50 hover:bg-muted/80 backdrop-blur-md'
                     )}
                     // Inline style guarantees gradient bg + white text always visible
-                    style={isActive ? activeStyle : undefined}
+                    style={isActive ? { ...activeStyle, contain: 'paint' } : { contain: 'paint' }}
                   >
                     {/* Icon inherits white color from parent when active */}
                     <span style={{ display: 'flex', alignItems: 'center', color: isActive ? '#ffffff' : undefined }}>
@@ -385,9 +385,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             }}
             className={cn(
               smoothButtonClass, 
-              'relative flex-shrink-0 w-28 h-36 rounded-[2rem] overflow-hidden border-2 transition-all duration-150 group',
+              'relative flex-shrink-0 w-28 h-36 rounded-[2rem] overflow-hidden border-2 transition-colors duration-75 group',
               clientIsAllSelected ? 'border-orange-500 shadow-xl' : 'border-border/40 opacity-80'
             )}
+            style={{ contain: 'paint', willChange: 'opacity' }}
           >
             <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
             <img 
@@ -417,9 +418,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 onClick={() => handleCategorySelect(category.id)}
                 className={cn(
                   smoothButtonClass, 
-                  'relative flex-shrink-0 w-28 h-36 rounded-[2rem] overflow-hidden border-2 transition-all duration-150 group',
+                  'relative flex-shrink-0 w-28 h-36 rounded-[2rem] overflow-hidden border-2 transition-colors duration-75 group',
                   isActive ? 'border-orange-500 shadow-xl' : 'border-border/40 opacity-80'
                 )}
+                style={{ contain: 'paint', willChange: 'opacity' }}
               >
                 <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
                 <img 
