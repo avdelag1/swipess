@@ -347,6 +347,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       // Initialize AudioContext on first play (user gesture)
       if (!audioContextRef.current && audioRef.current) {
         try {
+          // Set crossOrigin only when we successfully create AudioContext
+          audioRef.current.crossOrigin = "anonymous";
           audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
           analyzerRef.current = audioContextRef.current.createAnalyser();
           analyzerRef.current.fftSize = 256;
@@ -355,6 +357,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           analyzerRef.current.connect(audioContextRef.current.destination);
           dataArrayRef.current = new Uint8Array(analyzerRef.current.frequencyBinCount);
         } catch (e) {
+          // If AudioContext fails, remove crossOrigin so streams still play
+          if (audioRef.current) audioRef.current.crossOrigin = "";
           logger.error('[RadioPlayer] Failed to init AudioContext:', e);
         }
       } else if (audioContextRef.current?.state === 'suspended') {
