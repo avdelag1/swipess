@@ -37,6 +37,7 @@ const pageVariants: any = {
 export function AnimatedOutlet() {
   const location = useLocation();
   const outlet = useOutlet();
+  const isFixedViewportRoute = location.pathname.startsWith('/radio');
 
   return (
     <AnimatePresence mode="popLayout" initial={false}>
@@ -46,12 +47,15 @@ export function AnimatedOutlet() {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="h-full w-full flex flex-col flex-1 gpu-accelerate overflow-hidden"
-        style={{ 
-          willChange: 'opacity',
-          // Ensure we don't have layout artifacts during transition
-          position: 'relative'
-        }}
+        className={isFixedViewportRoute
+          ? "h-full w-full flex flex-col flex-1"
+          : "h-full w-full flex flex-col flex-1 gpu-accelerate overflow-hidden"}
+        style={isFixedViewportRoute
+          ? { position: 'relative' }
+          : {
+              willChange: 'opacity',
+              position: 'relative'
+            }}
       >
         <Suspense fallback={<SuspenseFallback minimal />}>
           {outlet}

@@ -113,7 +113,7 @@ export function ConciergeChat({
   const [userName, setUserName] = useState<string>('');
   useEffect(() => {
     if (!user) return;
-    supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
+    supabase.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle()
       .then(({ data }) => {
         if (data?.full_name) setUserName(data.full_name.split(' ')[0]);
       });

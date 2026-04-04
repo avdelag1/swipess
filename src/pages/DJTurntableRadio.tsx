@@ -192,7 +192,7 @@ export default function DJTurntableRadio() {
   return (
     <div
       className={cn(
-        "fixed inset-0 z-50 flex flex-col overflow-hidden select-none transition-all duration-1000",
+        "absolute inset-0 z-[60] flex flex-col overflow-hidden select-none transition-all duration-1000",
         isDark ? "bg-[#030303]" : "bg-[#f8f9fa]"
       )}
     >
