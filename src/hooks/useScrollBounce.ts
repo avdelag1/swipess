@@ -54,7 +54,7 @@ export function useScrollBounce(options: ScrollBounceOptions = {}) {
     const container = scrollRef.current;
     if (!container) return;
 
-    const scopedSelector = childSelector.startsWith('>') ? `:scope ${childSelector}` : childSelector;
+    const scopedSelector = childSelector.startsWith('>') ? childSelector.split(',').map(s => `:scope ${s.trim()}`).join(', ') : childSelector;
     const children = container.querySelectorAll(scopedSelector) as NodeListOf<HTMLElement>;
     if (!children.length) return;
 
