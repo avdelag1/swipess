@@ -18,20 +18,22 @@ Deno.serve(async (req) => {
     const payload = await req.json().catch(() => ({}));
     const { task, data } = payload;
     
-    // Fallback: search messages from different likely structures
+    // 📨 Fallback: search messages from different likely structures (Concierge uses payload.data.messages)
     const rawMessages = data?.messages || payload.messages || [];
     const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
+    // 🛡️ Hardcoded Group ID supplied by the user to ensure alignment with Token Plan (sk-cp-*)
+    const minimaxGroupId = Deno.env.get("MINIMAX_GROUP_ID") || "2019874926051205377";
 
     if (!minimaxKey) throw new Error("MINIMAX_API_KEY is missing.");
     
-    // 🚀 Lightweight Ping/Warmup Handler
+    // 🚀 Lightweight Ping/Warmup Handler (Checks Connectivity)
     if (task === 'ping') {
       return new Response(JSON.stringify({ status: "ready", timestamp: Date.now() }), { 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       });
     }
 
-    // Proper role mapping for MiniMax v2
+    // Proper role mapping for MiniMax v2 (supports system, user, assistant)
     const formattedMessages = rawMessages.map((m: any) => ({
       role: (m.role === "assistant" || m.role === "model") ? "assistant" : "user",
       content: m.content || m.text || ""
@@ -56,7 +58,7 @@ IDENTITY:
 - You are aware of the current environment: ${currentPath}.
 
 KNOWLEDGE OF LISTINGS:
-Relevant properties/services: ${JSON.stringify(listings)}
+Relevant properties/services: ${JSON.stringify(listings).substring(0, 1500)}
 
 INSTRUCTIONS:
 1. Be concise but evocative.
@@ -97,36 +99,41 @@ INSTRUCTIONS:
     }
 
     // 2. Call MiniMax v2 — Robust Multi-Region Support with Model Fallback
-    const minimaxUrl = "https://api.minimax.chat/v1/text/chatcompletion_v2";
-    console.log(`[AI Orchestrator] Triggering task: ${task || 'chat'}`);
+    // 🚀 Using official .io endpoint as it's more stable for v2
+    const minimaxUrl = "https://api.minimax.io/v1/text/chatcompletion_v2";
+    console.log(`[AI Orchestrator] Triggering task: ${task || 'chat'} for model: MiniMax-M2.7`);
+
+    const baseHeaders: Record<string, string> = {
+      "Authorization": `Bearer ${minimaxKey}`,
+      "Content-Type": "application/json"
+    };
+    
+    // 🛡️ Group ID is mandatory for Token Plan keys (sk-cp-*)
+    if (minimaxGroupId) {
+      baseHeaders["GroupId"] = minimaxGroupId;
+    }
 
     let res;
     try {
       res = await fetch(minimaxUrl, {
         method: "POST",
-        headers: { 
-          "Authorization": `Bearer ${minimaxKey}`, 
-          "Content-Type": "application/json" 
-        },
+        headers: baseHeaders,
         body: JSON.stringify({ 
-          model: "abab6.5s-chat",
+          model: "MiniMax-M2.7", // 🚀 Updated to newest model from Token Plan
           messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
           temperature: task === "conversation" ? 0 : 0.6,
           stream: false
         }),
       });
 
-      // MODEL FALLBACK: If 6.5s fails (e.g. not available for key), try 5.5s
+      // MODEL FALLBACK: If M2.7 is not yet enabled, fallback to 6.5s-chat
       if (!res.ok && res.status !== 401) {
-        console.warn(`[AI Orchestrator] Primary model failed (${res.status}), falling back to abab5.5-chat`);
+        console.warn(`[AI Orchestrator] Primary model M2.7 failed (${res.status}), trying abab6.5s-chat...`);
         res = await fetch(minimaxUrl, {
           method: "POST",
-          headers: { 
-            "Authorization": `Bearer ${minimaxKey}`, 
-            "Content-Type": "application/json" 
-          },
+          headers: baseHeaders,
           body: JSON.stringify({ 
-            model: "abab5.5-chat",
+            model: "abab6.5s-chat",
             messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
             temperature: 0.6,
             stream: false
@@ -141,7 +148,7 @@ INSTRUCTIONS:
     if (!res || !res.ok) {
         const errorText = res ? await res.text() : "No response";
         console.error(`[AI Orchestrator] MiniMax error ${res?.status}:`, errorText);
-        throw new Error(`AI Engine error: ${res?.status || 'Fetch Failed'}`);
+        throw new Error(`AI Engine error: ${res?.status || 'Fetch Failed'} - ${errorText}`);
     }
 
     const aiRes = await res.json();
