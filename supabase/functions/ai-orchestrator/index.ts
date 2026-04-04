@@ -23,6 +23,13 @@ Deno.serve(async (req) => {
     const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
 
     if (!minimaxKey) throw new Error("MINIMAX_API_KEY is missing.");
+    
+    // 🚀 Lightweight Ping/Warmup Handler
+    if (task === 'ping') {
+      return new Response(JSON.stringify({ status: "ready", timestamp: Date.now() }), { 
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
+      });
+    }
 
     // Proper role mapping for MiniMax v2
     const formattedMessages = rawMessages.map((m: any) => ({

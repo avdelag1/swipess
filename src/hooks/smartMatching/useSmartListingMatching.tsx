@@ -6,6 +6,8 @@ import { logger } from '@/utils/prodLogger';
 import { normalizeCategoryName } from '@/types/filters';
 import { ListingFilters } from './types';
 import { calculateListingMatch } from './matchCalculators';
+import { pwaImagePreloader, getCardImageUrl } from '@/utils/imageOptimization';
+import { runIdleTask } from '@/lib/utils';
 
 export const SWIPE_CARD_FIELDS = `
   id, title, description, price, images, video_url, city, neighborhood, beds, baths,
@@ -93,7 +95,6 @@ export function useSmartListingMatching(
                 }
 
                 // 🚀 SPEED OF LIGHT: Attempt database-level filtering (RPC)
-                // This is the fastest path. The RPC already handles basic exclusion.
                 try {
                     const { data: rpcListings, error: rpcError } = await (supabase as any).rpc('get_smart_listings', {
                         p_user_id: userId,
@@ -108,11 +109,10 @@ export function useSmartListingMatching(
                             images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
                         }));
                         
-                        // Prefetch images for the first 3 results to make swipe feel instant
-                        import('@/utils/performance').then(({ prefetchImage }) => {
-                          results.slice(0, 3).forEach(l => {
-                            if (l.images?.[0]) prefetchImage(l.images[0]);
-                          });
+                        // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY
+                        runIdleTask(() => {
+                          const imagesToPrewarm = results.flatMap(l => l.images || []).slice(0, 5);
+                          pwaImagePreloader.batchPreload(imagesToPrewarm.map(url => getCardImageUrl(url)));
                         });
 
                         return results;
@@ -155,7 +155,15 @@ export function useSmartListingMatching(
                     };
                 });
 
-                return matchedResults.sort((a, b) => b.matchPercentage - a.matchPercentage);
+                const finalResults = matchedResults.sort((a, b) => b.matchPercentage - a.matchPercentage);
+
+                // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY
+                runIdleTask(() => {
+                  const imagesToPrewarm = finalResults.flatMap(l => l.images || []).slice(0, 8);
+                  pwaImagePreloader.batchPreload(imagesToPrewarm.map(url => getCardImageUrl(url)));
+                });
+
+                return finalResults;
 
             } catch (err) {
                 logger.error('[SmartMatching] Fatal Exception:', err);
@@ -166,4 +174,3 @@ export function useSmartListingMatching(
         refetchOnWindowFocus: false,
     });
 }
-

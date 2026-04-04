@@ -138,6 +138,10 @@ export function ConciergeChat({
     haptics.tap();
     const messageToSend = input.trim();
     setInput('');
+    // 🚀 SPEED OF LIGHT: Immediately scroll to bottom before the AI starts thinking
+    requestAnimationFrame(() => {
+      if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    });
     await sendMessage(messageToSend, { userRole, listings });
   };
 
@@ -165,10 +169,10 @@ export function ConciergeChat({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           className={cn(
-            "max-w-[660px] w-[calc(100%-8px)] sm:w-[calc(100%-32px)] h-[96vh] sm:h-[93vh] max-h-[940px] flex flex-col p-0 gap-0 overflow-hidden rounded-[1.5rem] sm:rounded-[2rem]",
+            "max-w-[660px] w-[calc(100%-12px)] sm:w-[calc(100%-40px)] h-[92vh] sm:h-[88vh] max-h-[900px] flex flex-col p-0 gap-0 overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] border-0",
             isDark
-              ? "bg-gradient-to-b from-[#0d0010] via-[#100015] to-[#0a000e] border-white/[0.07] shadow-2xl shadow-purple-950/50"
-              : "bg-white border-gray-200/60 shadow-2xl shadow-black/10"
+              ? "bg-[#0a000e]/80 backdrop-blur-2xl shadow-[0_0_80px_rgba(168,85,247,0.15)] ring-1 ring-white/10"
+              : "bg-white/90 backdrop-blur-2xl shadow-[0_0_60px_rgba(0,0,0,0.1)] ring-1 ring-black/5"
           )}
           hideCloseButton
         >
@@ -299,8 +303,13 @@ export function ConciergeChat({
           <div className="relative flex-1 min-h-0">
           <ScrollArea className="h-full px-4 py-3 sm:px-5 sm:py-4">
             <div ref={scrollRef} className="space-y-4">
-              {/* Top scroll marker */}
-              <div ref={topMarkerRef} />
+                <div className="absolute inset-x-0 inset-y-0 pointer-events-none overflow-hidden opacity-30 select-none">
+                  <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-orange-600/10 blur-[120px] animate-pulse" />
+                  <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-purple-700/10 blur-[120px] animate-pulse [animation-delay:1s]" />
+                </div>
+                
+                {/* Top scroll marker */}
+                <div ref={topMarkerRef} />
 
               {/* Empty / Welcome State */}
               {messages.length === 0 && (
@@ -433,16 +442,16 @@ export function ConciergeChat({
                         "px-4 py-3 rounded-2xl",
                         message.role === 'user'
                           ? cn(
-                              "rounded-tr-sm",
+                              "rounded-tr-sm shadow-xl",
                               isDark
-                                ? "bg-gradient-to-br from-orange-600/90 to-rose-700/90 text-white shadow-sm shadow-orange-500/20"
-                                : "bg-gradient-to-br from-orange-500 to-rose-500 text-white shadow-sm"
+                                ? "bg-gradient-to-br from-orange-500/90 via-rose-600/90 to-purple-700/90 text-white ring-1 ring-white/10"
+                                : "bg-gradient-to-br from-orange-500 to-rose-500 text-white shadow-orange-500/20"
                             )
                           : cn(
-                              "rounded-tl-sm",
+                              "rounded-tl-sm backdrop-blur-md shadow-lg",
                               isDark
-                                ? "bg-[#1a0025] border border-purple-500/10 text-zinc-100"
-                                : "bg-gray-50 border border-gray-100 text-gray-900"
+                                ? "bg-white/5 border border-white/10 text-white/95"
+                                : "bg-white/80 border border-black/5 text-gray-900"
                             )
                       )}>
                         {message.role === 'user' ? (
