@@ -13,8 +13,8 @@ import {
   SkipBack, SkipForward, Play, Pause, Activity
 } from 'lucide-react';
 
-// ── Stars Canvas ───────────────────────────────────────────────────────────
-function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }) {
+// ── Stars + Shooting Stars Canvas ──────────────────────────────────────────
+function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
 
@@ -24,10 +24,15 @@ function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
       canvas.style.width = '100%';
       canvas.style.height = '100%';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -35,11 +40,8 @@ function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }
     resize();
     window.addEventListener('resize', resize);
 
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
     interface Star { x: number; y: number; size: number; opacity: number; speed: number; phase: number; glow: boolean; }
-    const count = Math.min(Math.floor((w * h) / 700), 700);
+    const count = Math.min(Math.floor((w * h) / 800), 500);
     const stars: Star[] = Array.from({ length: count }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -50,10 +52,17 @@ function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }
       glow: Math.random() > 0.85,
     }));
 
+    // Shooting stars
+    interface ShootingStar { x: number; y: number; len: number; speed: number; opacity: number; angle: number; life: number; maxLife: number; }
+    const shootingStars: ShootingStar[] = [];
+    let nextShoot = 120 + Math.random() * 200;
+
     let t = 0;
     const draw = () => {
       ctx.clearRect(0, 0, w, h);
       t += 0.12;
+
+      // Static stars
       for (const s of stars) {
         const twinkle = Math.sin(t * s.speed + s.phase) * 0.5 + 0.5;
         const alpha = Math.min(s.opacity * (twinkle * 0.65 + 0.35), 1);
@@ -65,6 +74,61 @@ function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }
         ctx.fill();
         if (s.glow) { ctx.shadowBlur = 0; ctx.shadowColor = 'transparent'; }
       }
+
+      // Spawn shooting stars
+      nextShoot--;
+      if (nextShoot <= 0) {
+        const angle = (Math.PI / 6) + Math.random() * (Math.PI / 4);
+        shootingStars.push({
+          x: Math.random() * w * 0.8,
+          y: Math.random() * h * 0.3,
+          len: 60 + Math.random() * 100,
+          speed: 4 + Math.random() * 6,
+          opacity: 0.7 + Math.random() * 0.3,
+          angle,
+          life: 0,
+          maxLife: 40 + Math.random() * 30,
+        });
+        nextShoot = 180 + Math.random() * 300;
+      }
+
+      // Draw shooting stars
+      for (let i = shootingStars.length - 1; i >= 0; i--) {
+        const ss = shootingStars[i];
+        ss.life++;
+        ss.x += Math.cos(ss.angle) * ss.speed;
+        ss.y += Math.sin(ss.angle) * ss.speed;
+        const progress = ss.life / ss.maxLife;
+        const fadeAlpha = progress < 0.3 ? progress / 0.3 : 1 - ((progress - 0.3) / 0.7);
+        const alpha = ss.opacity * Math.max(0, fadeAlpha);
+
+        const tailX = ss.x - Math.cos(ss.angle) * ss.len;
+        const tailY = ss.y - Math.sin(ss.angle) * ss.len;
+        const grad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+        grad.addColorStop(0, `rgba(255,255,255,0)`);
+        grad.addColorStop(0.6, `rgba(255,255,255,${alpha * 0.3})`);
+        grad.addColorStop(1, `rgba(255,255,255,${alpha})`);
+
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(ss.x, ss.y);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Head glow
+        ctx.beginPath();
+        ctx.arc(ss.x, ss.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = accentColor;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
+
+        if (ss.life >= ss.maxLife) shootingStars.splice(i, 1);
+      }
+
       animRef.current = requestAnimationFrame(draw);
     };
     draw();
@@ -73,7 +137,7 @@ function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
     };
-  }, []);
+  }, [accentColor]);
 
   return (
     <canvas
@@ -394,52 +458,46 @@ export default function DJTurntableRadio() {
               />
             </motion.button>
 
-            <div className={cn(
-              "flex items-center gap-4 rounded-[50px] p-2.5 border shadow-[0_30px_60px_rgba(0,0,0,0.3)] transition-all",
-              isDark ? "bg-white/5 backdrop-blur-3xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
-            )}>
+            <div className="flex items-center gap-5">
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
-                className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
+                className={cn("w-14 h-14 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
               >
-                <SkipBack className={cn("w-7 h-7", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
+                <SkipBack className={cn("w-6 h-6", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
               </motion.button>
 
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
-                className="w-28 h-28 rounded-full flex items-center justify-center relative shadow-[0_20px_50px_rgba(0,0,0,0.6)] border-2 border-white/20"
+                className="w-24 h-24 rounded-full flex items-center justify-center relative shadow-[0_20px_50px_rgba(0,0,0,0.6)] border-2 border-white/20"
                 style={{ 
                   background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
                   boxShadow: `0 0 60px ${primaryColor}33, inset 0 2px 20px rgba(255,255,255,0.5)`
                 }}
               >
-                {state.isPlaying ? <Pause className="w-12 h-12 text-white" fill="white" /> : <Play className="w-12 h-12 text-white ml-2" fill="white" />}
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none" />
+                {state.isPlaying ? <Pause className="w-10 h-10 text-white" fill="white" /> : <Play className="w-10 h-10 text-white ml-1.5" fill="white" />}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/20 to-transparent pointer-events-none" />
               </motion.button>
 
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { changeStation('next'); triggerHaptic('medium'); }}
-                className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
+                className={cn("w-14 h-14 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
               >
-                <SkipForward className={cn("w-7 h-7", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
+                <SkipForward className={cn("w-6 h-6", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
               </motion.button>
             </div>
 
             <motion.button
               whileTap={{ scale: 0.85 }}
-              onClick={() => { navigate('/radio/playlists'); triggerHaptic('light'); }}
+              onClick={() => { setShowFavoritesDrawer(true); triggerHaptic('light'); }}
               className={cn(
                 "w-16 h-16 rounded-3xl flex items-center justify-center border shadow-2xl transition-all",
                 isDark ? "bg-white/5 backdrop-blur-3xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
               )}
             >
-              <div className={cn("w-7 h-7 border-[3px] rounded-full flex items-center justify-center relative", isDark ? "border-white/40" : "border-black/30")}>
-                <div className={cn("w-2.5 h-2.5 rounded-full", isDark ? "bg-white/40" : "bg-black/30")} />
-                <div className={cn("absolute inset-[-6px] border rounded-full", isDark ? "border-white/10" : "border-black/5")} />
-              </div>
+              <ListMusic className={cn("w-7 h-7", isDark ? "text-white/50" : "text-black/40")} />
             </motion.button>
           </div>
 

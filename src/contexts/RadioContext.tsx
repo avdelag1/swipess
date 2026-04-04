@@ -99,6 +99,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const failedStationsCountRef = useRef<Record<string, number>>({});
   const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentStationRef = useRef<RadioStation | null>(null);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    currentStationRef.current = state.currentStation;
+  }, [state.currentStation]);
 
   // Shuffle queue: pre-shuffled list of ALL stations
   const shuffleQueueRef = useRef<RadioStation[]>([]);
@@ -161,7 +167,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Flag station as potentially dead
-      const currentId = state.currentStation?.id;
+      const currentId = currentStationRef.current?.id;
       if (currentId) {
         const fails = (failedStationsCountRef.current[currentId] || 0) + 1;
         failedStationsCountRef.current[currentId] = fails;
@@ -193,10 +199,16 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       setError('Buffering...');
     };
 
+    const handlePlaying = () => {
+      setError(null);
+      errorCount = 0;
+    };
+
     audioRef.current.addEventListener('ended', handleTrackEnded);
     audioRef.current.addEventListener('error', handleAudioError);
     audioRef.current.addEventListener('canplay', handleCanPlay);
     audioRef.current.addEventListener('stalled', handleStalled);
+    audioRef.current.addEventListener('playing', handlePlaying);
 
     return () => {
       if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
@@ -204,6 +216,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       audioRef.current?.removeEventListener('error', handleAudioError);
       audioRef.current?.removeEventListener('canplay', handleCanPlay);
       audioRef.current?.removeEventListener('stalled', handleStalled);
+      audioRef.current?.removeEventListener('playing', handlePlaying);
     };
   }, []);
 
