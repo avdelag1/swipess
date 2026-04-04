@@ -55,12 +55,16 @@ function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
     // Shooting stars
     interface ShootingStar { x: number; y: number; len: number; speed: number; opacity: number; angle: number; life: number; maxLife: number; }
     const shootingStars: ShootingStar[] = [];
-    let nextShoot = 360 + Math.random() * 240; // 6-10s at 60fps
+    
+    // 🚀 SENTIENT TIMING: 6-10s interval regardless of frame rate
+    let lastShootTime = performance.now();
+    let nextShootDelay = 6000 + Math.random() * 4000;
 
     let t = 0;
     const draw = () => {
       ctx.clearRect(0, 0, w, h);
       t += 0.12;
+      const now = performance.now();
 
       // Static stars
       for (const s of stars) {
@@ -75,9 +79,11 @@ function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
         if (s.glow) { ctx.shadowBlur = 0; ctx.shadowColor = 'transparent'; }
       }
 
-      // Spawn shooting stars
-      nextShoot--;
-      if (nextShoot <= 0) {
+      // Spawn shooting stars based on time drift
+      if (now - lastShootTime >= nextShootDelay) {
+        lastShootTime = now;
+        nextShootDelay = 6000 + Math.random() * 4000;
+        
         const angle = (Math.PI / 6) + Math.random() * (Math.PI / 4);
         shootingStars.push({
           x: Math.random() * w * 0.8,
@@ -89,7 +95,6 @@ function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
           life: 0,
           maxLife: 40 + Math.random() * 30,
         });
-        nextShoot = 360 + Math.random() * 240; // 6-10s at 60fps
       }
 
       // Draw shooting stars

@@ -146,9 +146,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
       lastErrorTime = now;
 
-      // Only bail after 8 consecutive rapid errors (not 3)
-      if (errorCount > 8) {
-        setError('No stations available right now');
+      // Only bail after 20 consecutive rapid errors (not 8) to survive regional outages
+      if (errorCount > 20) {
+        setError('Global radio outage — please try again later');
         errorCount = 0;
         if (audio) {
           audio.removeEventListener('error', handleAudioError);
@@ -157,6 +157,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           audio.addEventListener('error', handleAudioError);
         }
         handlingError = false;
+        setState(prev => ({ ...prev, isPlaying: false }));
         return;
       }
 
@@ -341,12 +342,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         }, 500);
       }, 15000);
 
-      await audioRef.current.play();
-      
-      // Initialize AudioContext on first play (user gesture)
-      if (!audioContextRef.current && audioRef.current) {
-        try {
-          // Set crossOrigin only when we successfully create AudioContext
+      try {
+        // Initialize AudioContext on first play (user gesture)
+        if (!audioContextRef.current && audioRef.current) {
+          // Set crossOrigin only for visualizer support; if it fails, we fall back
           audioRef.current.crossOrigin = "anonymous";
           audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
           analyzerRef.current = audioContextRef.current.createAnalyser();
@@ -355,13 +354,20 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           sourceRef.current.connect(analyzerRef.current);
           analyzerRef.current.connect(audioContextRef.current.destination);
           dataArrayRef.current = new Uint8Array(analyzerRef.current.frequencyBinCount);
-        } catch (e) {
-          // If AudioContext fails, remove crossOrigin so streams still play
-          if (audioRef.current) audioRef.current.crossOrigin = "";
-          logger.error('[RadioPlayer] Failed to init AudioContext:', e);
+        } else if (audioContextRef.current?.state === 'suspended') {
+          audioContextRef.current.resume();
         }
-      } else if (audioContextRef.current?.state === 'suspended') {
-        audioContextRef.current.resume();
+        await audioRef.current.play();
+      } catch (playErr) {
+        // CRITICAL FALLBACK: If "anonymous" crossOrigin caused a CORS blockage, 
+        // strip it and play normally (visualizer will be flat, but audio works).
+        if (audioRef.current && audioRef.current.crossOrigin !== "") {
+          logger.warn('[RadioPlayer] CORS play failure — retrying without visualizer support');
+          audioRef.current.crossOrigin = "";
+          await audioRef.current.play();
+        } else {
+          throw playErr;
+        }
       }
 
       setState(prev => ({ ...prev, isPlaying: true }));

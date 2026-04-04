@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
       try {
         const [profileRes, memoriesRes, listingRes] = await Promise.all([
           supabase.from('profiles').select('*').eq('user_id', user.id).maybeSingle(),
-          supabase.from('user_memories').select('*').eq('user_id', user.id).limit(20).then(r => r).catch(() => ({ data: [] })),
+          supabase.from('user_memories').select('*').eq('user_id', user.id).limit(50).then(r => r).catch(() => ({ data: [] })),
           listingId ? supabase.from('listings').select('*').eq('id', listingId).maybeSingle() : Promise.resolve({ data: null }),
         ]);
         profile = profileRes.data;
