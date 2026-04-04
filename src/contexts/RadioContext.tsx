@@ -451,14 +451,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     play(stations[nextIndex]);
   }, [state.currentStation, state.currentCity, state.isShuffle, activeStations, play]);
 
-  // Permanently mark a station as dead
-  const markStationAsDead = useCallback((stationId: string) => {
-    setState(prev => {
-      const newDead = Array.from(new Set([...prev.deadStationIds, stationId]));
-      localStorage.setItem('swipess_radio_dead_stations', JSON.stringify(newDead));
-      return { ...prev, deadStationIds: newDead };
-    });
-  }, []);
+  // markStationAsDead removed — no permanent blacklisting, only temp 30s blacklist
 
   changeStationRef.current = changeStation;
 
