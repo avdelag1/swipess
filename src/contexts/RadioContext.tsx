@@ -306,7 +306,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       // Already in temp blacklist; it auto-clears after 30s
       if (failedStationsRef.current.size > 20) { const first = failedStationsRef.current.values().next().value; if (first) failedStationsRef.current.delete(first); }
       playDepthRef.current++;
-      changeStation('next');
+      changeStationRef.current('next');
       return;
     }
 
