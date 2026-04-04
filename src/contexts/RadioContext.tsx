@@ -183,7 +183,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       errorTimeoutRef.current = setTimeout(() => {
         setError(null);
         changeStationRef.current('next');
-      }, 3000);
+      }, 800);
 
       handlingError = false;
     };
