@@ -294,7 +294,18 @@ Deno.serve(async (req) => {
           break;
         }
       } else {
-        finalContent = content.trim();
+        // Check for malformed tool call patterns and retry
+        const hasToolCallPattern = /\[TOOL_CALL\]|<minimax:|<invoke|tool\s*=>/i.test(content);
+        if (hasToolCallPattern && loopCount < maxLoops) {
+          cleanMessages.push({ role: "assistant", content });
+          cleanMessages.push({ role: "user", content: "Please respond with a direct answer in plain text. Do not use tool calls or XML syntax." });
+          continue;
+        }
+        // Strip any leftover tool markup from final response
+        finalContent = content
+          .replace(/\[TOOL_CALL\][\s\S]*?\[\/TOOL_CALL\]/g, '')
+          .replace(/<minimax:tool_call>[\s\S]*?<\/minimax:tool_call>/g, '')
+          .trim();
         break;
       }
     }
