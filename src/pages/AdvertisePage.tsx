@@ -417,7 +417,7 @@ export default function AdvertisePage() {
             style={{ background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.35)" }}
           >
             <Flame className="w-3.5 h-3.5 text-orange-400" />
-            <span className="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em]">Tulum's #1 Discovery App</span>
+            <span className="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em]">#1 Discovery App</span>
           </motion.div>
 
           {/* Headline */}
