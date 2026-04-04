@@ -27,7 +27,8 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
-  const dragTilt = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
+  const dragTilt = useTransform(x, [-250, 0, 250], [-15, 0, 15]);
+  const exitRotate = useTransform(x, [-250, 0, 250], [-8, 0, 8]);
   const isCycling = useRef(false);
 
   const handleDragEnd = useCallback((_: any, info: any) => {
@@ -41,9 +42,9 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       const direction = info.offset.x > 0 ? 'right' : 'left';
 
       // Recede behind: animate x slightly while scale+opacity handle via useTransform
-      animate(x, direction === 'right' ? 200 : -200, { 
+      animate(x, direction === 'right' ? 250 : -250, { 
         type: 'tween', 
-        duration: 0.35,
+        duration: 0.4,
         ease: [0.4, 0, 0.2, 1],
         onComplete: () => {
           onCycle(card.id, direction);
@@ -66,13 +67,13 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const stackBrightness = 1 - (index * 0.08);
 
   // Depth exit: scale shrinks and opacity fades as card moves away
-  const exitScale = useTransform(x, [-200, -80, 0, 80, 200], [0.6, 0.9, 1, 0.9, 0.6]);
-  const exitOpacity = useTransform(x, [-200, -120, 0, 120, 200], [0, 0.6, 1, 0.6, 0]);
+  const exitScale = useTransform(x, [-250, -100, 0, 100, 250], [0.5, 0.85, 1, 0.85, 0.5]);
+  const exitOpacity = useTransform(x, [-250, -180, 0, 180, 250], [0, 0.5, 1, 0.5, 0]);
 
   return (
     <motion.div
       drag={isTop ? "x" : false}
-      dragConstraints={{ left: -100, right: 100 }}
+      dragConstraints={{ left: -150, right: 150 }}
       dragElastic={0.5}
       onDragEnd={isTop ? handleDragEnd : undefined}
       onClick={!isTop ? () => onBringToFront(index) : undefined}
@@ -93,6 +94,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         zIndex: 50 - index,
         x: isTop ? x : 0,
         scale: isTop ? exitScale : stackScale,
+        rotate: isTop ? exitRotate : 0,
         opacity: isTop ? exitOpacity : (index > 4 ? 0 : 1),
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
