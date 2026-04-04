@@ -55,7 +55,7 @@ function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
     // Shooting stars
     interface ShootingStar { x: number; y: number; len: number; speed: number; opacity: number; angle: number; life: number; maxLife: number; }
     const shootingStars: ShootingStar[] = [];
-    let nextShoot = 120 + Math.random() * 200;
+    let nextShoot = 40 + Math.random() * 60;
 
     let t = 0;
     const draw = () => {
