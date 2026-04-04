@@ -6,33 +6,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
   <meta name="format-detection" content="telephone=no">
   <meta name="theme-color" content="#0A0A0B">
-  <meta name="app-version" content="3.6.3">
+  <meta name="app-version" content="3.6.4">
   
-  <!-- 🚀 ATOMIC NETWORK PRE-CONNECTIONS -->
+  <!-- 🚀 CRITICAL RESOURCE PRELOADS -->
+  <link rel="preload" href="/icons/fire-s-logo-960.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://vlkndvqukyzjyfmxzqxs.supabase.co" crossorigin>
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-  <link rel="dns-prefetch" href="https://vlkndvqukyzjyfmxzqxs.supabase.co">
 
   <script>
-    /** 🚀 ZENITH: NATIVE-SPEED GESTURE PROTOCOL
-     * Forces the browser to prioritize responsiveness over JS execution.
-     */
+    /** 🚀 ZENITH: CORE PERFORMANCE PROTOCOL */
     (function() {
       const theme = localStorage.getItem('swipess_theme_preference') || 'light';
       const root = document.documentElement;
       root.classList.add(theme);
-      if (theme === 'dark') {
-          root.classList.add('black-matte');
-          root.style.backgroundColor = '#000000';
-          root.style.colorScheme = 'dark';
-      } else {
-          root.style.backgroundColor = '#ffffff';
-          root.style.colorScheme = 'light';
-      }
+      root.style.backgroundColor = theme === 'dark' ? '#000000' : '#ffffff';
+      root.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
       
-      // MONKEY-PATCH: Passive Listeners for 120Hz scrolling feel
+      // PASSIVE LISTENERS: Ensure scrolling is never blocked by JS
       const originalAddEventListener = window.EventTarget.prototype.addEventListener;
       window.EventTarget.prototype.addEventListener = function(type, listener, options) {
         let op = options;
@@ -46,8 +37,7 @@
 
       const swallowError = (e) => {
         const stack = (e.reason && e.reason.stack) || (e.error && e.error.stack) || '';
-        const isExt = (e.filename && e.filename.includes('chrome-extension://')) || stack.includes('chrome-extension://');
-        if (isExt) { e.stopImmediatePropagation?.(); return true; }
+        if (stack.includes('chrome-extension://')) { e.stopImmediatePropagation?.(); return true; }
         return false;
       };
       window.addEventListener('error', swallowError, true);
@@ -55,121 +45,78 @@
     })();
   </script>
 
-  <!-- High-Efficiency Font Loading: display=block prevents layout shift -->
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=block" fetchpriority="high" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=block" rel="stylesheet"></noscript>
+  <!-- High-Efficiency Font Loading: swap prevents invisible text while loading -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet"></noscript>
 
   <title>Swipess | The High-Frequency Discovery Network</title>
   <meta name="description" content="Tulum's elite marketplace for luxury real estate, high-performance vehicles, and world-class service professionals. Swipe. Match. Dominate.">
   
-  <!-- 🚀 SOCIAL ADVERTISING PROTOCOL (Open Graph) -->
-  <meta property="og:title" content="Swipess | High-Frequency Discovery">
-  <meta property="og:description" content="Discover elite real estate, luxury yachts, and world-class experts in Tulum. Swipe right on your next lifestyle upgrade.">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="/images/promo/promo_4.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:site_name" content="Swipess">
-  
-  <!-- 🚀 VIRAL REACH PROTOCOL (Twitter / X) -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Swipess | High-Frequency Discovery">
-  <meta name="twitter:description" content="Swipe right on your next lifestyle upgrade in Tulum. Elite listings, instant matches.">
-  <meta name="twitter:image" content="/images/promo/promo_4.png">
-  <meta name="twitter:site" content="@swipessapp">
-
-  <!-- Critical styles for Instant App feel -->
   <style>
-    /* 🚀 INSTANT RESPONSE SYSTEM: Removes Tap Delay (300ms) globally */
+    /* 🚀 ZENITH CORE STYLES */
     *{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
     input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;user-select:text;touch-action:auto}
-    
     :root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
     html,body{margin:0;padding:0;overflow:hidden;background:#000;width:100%;height:100%;color:#fff;font-family:system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
 
-    /* SPLASH: Unified High-Fidelity Splash (Dark Theme) */
     #initial-loader{
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       width:100vw;height:100dvh;background:#000;
       position:fixed;top:0;left:0;z-index:9999;
-      transition: opacity 0.1s cubic-bezier(0.4, 0, 0.2, 1), 
-                  -webkit-backdrop-filter 0.15s ease-out,
-                  backdrop-filter 0.15s ease-out;
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    #initial-loader.dissolving {
-      opacity: 0;
-      -webkit-backdrop-filter: blur(20px);
-      backdrop-filter: blur(20px);
-      pointer-events: none;
-    }
+    #initial-loader.dissolving { opacity: 0; pointer-events: none; }
+    
     .splash-logo{
-      width:120px;height:120px;
-      animation:splash-pulse 2s ease-in-out infinite;
+      width:105px;height:105px;
+      animation:heartbeat 2s ease-in-out infinite;
       will-change: transform, opacity;
+      -webkit-mask: url(/icons/fire-s-logo-960.webp) center/contain no-repeat;
+      mask: url(/icons/fire-s-logo-960.webp) center/contain no-repeat;
+      background: linear-gradient(135deg, #ff4d00, #ff6b35);
     }
-    .splash-logo img{width:100%;height:100%;object-fit:contain;}
-    @keyframes splash-pulse{
-      0%,100%{transform:scale(0.98);opacity:0.92}
-      50%{transform:scale(1.02);opacity:1}
+    @keyframes heartbeat{
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      10%, 30% { transform: scale(1.06); opacity: 1; }
+      20% { transform: scale(1); opacity: 0.9; }
+      40% { transform: scale(1); opacity: 0.9; }
     }
-    .loader-bar{
-      width:160px;height:2px;background:rgba(255,255,255,0.05);
-      border-radius:10px;margin-top:24px;position:relative;overflow:hidden;
-    }
-    .loader-progress{
-      position:absolute;inset:0;width:100%;
-      background:linear-gradient(90deg,transparent 0%,#ff1f1f 50%,transparent 100%);
-      animation:loader-slide 1.5s ease-in-out infinite;
-    }
+    .loader-bar{width:160px;height:2px;background:rgba(255,255,255,0.05);border-radius:10px;margin-top:24px;position:relative;overflow:hidden;}
+    .loader-progress{position:absolute;inset:0;width:100%;background:linear-gradient(90deg,transparent 0%,#ff4d00 50%,transparent 100%);animation:loader-slide 1.5s ease-in-out infinite;}
     @keyframes loader-slide{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 
+    /* GPU-OPTIMIZED STARS */
+    .stars-lite{position:absolute;inset:0;background:radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)), radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(1px 1px at 50px 160px, #fff, rgba(0,0,0,0));background-size: 200px 200px;opacity: 0.1;animation: stars-drift 100s linear infinite;}
+    @keyframes stars-drift{from{background-position:0 0}to{background-position:0 -1000px}}
 
-    /* CSS Star Field — renders instantly, no JS needed */
-    .stars-container{position:absolute;top:0;left:0;width:100%;height:200%}
-    #stars{position:absolute;inset:0;width:1px;height:1px;
-      box-shadow:5vw 15vh #000,15vw 55vh #000,25vw 35vh #000,35vw 75vh #000,45vw 5vh #000,55vw 45vh #000,65vw 85vh #000,75vw 25vh #000,85vw 65vh #000,95vw 90vh #000,10vw 70vh #000,40vw 50vh #000,60vw 20vh #000,80vw 40vh #000,20vw 95vh #000,50vw 30vh #000,70vw 10vh #000,30vw 60vh #000,90vw 50vh #000,8vw 80vh #000,5vw 115vh #000,25vw 135vh #000,45vw 105vh #000,65vw 185vh #000,85vw 165vh #000;
-      animation:animStar 80s linear infinite;opacity:0.05}
-    #stars2{position:absolute;inset:0;width:2px;height:2px;
-      box-shadow:8vw 30vh #000,28vw 10vh #000,48vw 90vh #000,68vw 60vh #000,88vw 80vh #000,32vw 85vh #000,52vw 5vh #000,72vw 55vh #000,2vw 55vh #000,18vw 170vh #000,38vw 150vh #000,58vw 120vh #000,78vw 140vh #000;
-      animation:animStar 120s linear infinite;opacity:0.08}
-    @keyframes animStar{from{transform:translateY(0)}to{transform:translateY(-50%)}}
-
-    /* HIDE root until React paints — prevents flash of empty div */
-    #root{opacity:0;transition:opacity 0.1s cubic-bezier(0.4, 0, 0.2, 1);will-change:opacity}
+    #root{opacity:0;transition:opacity 0.4s ease-out;will-change:opacity}
     #root.hydrated{opacity:1}
     
-    /* 🚀 CRITICAL LAYOUT CONTAINMENT */
+    /* CRITICAL LAYOUT CONTEXT */
     .contain-layout { contain: layout paint; }
     .cv-auto { content-visibility: auto; contain-intrinsic-size: 1px 500px; }
-    
-    /* 🚀 CRITICAL LAYOUT SHELL */
-    .app-header {
-      position: fixed; top: 0; left: 0; width: 100%; height: calc(56px + var(--safe-top));
-      z-index: 1000; transition: opacity 0.1s ease, transform 0.12s cubic-bezier(0.2, 0, 0, 1);
-      will-change: transform, opacity;
-      contain: layout size;
-    }
-    .app-bottom-bar {
-      position: fixed; bottom: 0; left: 0; width: 100%; height: calc(84px + var(--safe-bottom));
-      z-index: 1000; transition: opacity 0.1s ease, transform 0.12s cubic-bezier(0.2, 0, 0, 1);
-      will-change: transform, opacity;
-      contain: layout size;
-    }
-
-    .skeleton-hidden { display: none !important; visibility: hidden; pointer-events: none; }
   </style>
 
-  <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.json">
 
   <!-- Favicons -->
   <link rel="icon" type="image/png" href="/favicon.png">
+<<<<<<< HEAD
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png">
   <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
+=======
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/fire-s-logo-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/fire-s-logo-32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/icons/fire-s-logo-48.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/icons/fire-s-logo-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/fire-s-logo-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/fire-s-logo-512.png">
+>>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
 
   <!-- Apple iOS / iPadOS -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -195,110 +142,74 @@
 </head>
 
 <body>
-  <!-- EXTENSION COMPATIBILITY SKELETON: Satisfies extensions searching for basic structure -->
-  <header id="zenith-compat-header" class="skeleton-hidden" aria-hidden="true"></header>
-  <main id="zenith-compat-main" class="skeleton-hidden" aria-hidden="true"></main>
-  <footer id="zenith-compat-footer" class="skeleton-hidden" aria-hidden="true"></footer>
-
-
-  <!-- LCP ELEMENT: Splash screen IS the largest contentful paint -->
   <div id="initial-loader">
+<<<<<<< HEAD
     <div class="stars-container"><div id="stars"></div><div id="stars2"></div></div>
     <!-- 🚀 ULTRA-TRANSPARENT: FIXED via CSS Masking to force purely floating brand mark -->
     <div class="splash-logo"><img src="/icons/icon-192.png" alt="SwipesS" width="120" height="120"></div>
+=======
+    <div class="stars-lite"></div>
+    <div class="splash-logo"></div>
+>>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
     <div class="loader-bar"><div class="loader-progress"></div></div>
   </div>
 
-  <div id="mount-recovery" style="display:none;position:fixed;bottom:10vh;left:0;right:0;padding:20px;text-align:center;z-index:20000;animation:fade-in-up 0.5s ease-out forwards;">
+  <div id="mount-recovery" style="display:none;position:fixed;bottom:10vh;left:0;right:0;padding:20px;text-align:center;z-index:20000;">
     <p style="color:rgba(255,255,255,0.6);font-size:12px;margin-bottom:12px;font-weight:600;letter-spacing:0.05em;">APP INITIALIZATION DELAYED</p>
-    <style>
-      .recovery-btn { background:#ff1f1f;color:#fff;border:none;padding:14px 28px;border-radius:50px;font-weight:700;font-size:14px;box-shadow:0 10px 20px rgba(255,31,31,0.3);cursor:pointer;text-transform:uppercase;letter-spacing:0.1em;transition:transform 0.1s; }
-      .recovery-btn:active { transform: scale(0.95); opacity:0.9; }
-    </style>
-    <button class="recovery-btn" onclick="clearAndReload()">Reload App</button>
+    <button style="background:#ff4d00;color:#fff;border:none;padding:14px 28px;border-radius:50px;font-weight:700;font-size:14px;cursor:pointer;text-transform:uppercase;" onclick="location.reload()">Reload App</button>
   </div>
 
   <script>
-    // 🛡️ ZENITH GUARD: Unified Recovery & SPLASH System
-    // Consolidates multiple fail-safe mechanisms for maximum performance
-    window.__APP_MOUNTED__ = false;
+    // 🛡️ ZENITH GUARD: Unified Recovery System
     window.__APP_INITIALIZED__ = false;
 
     function removeSplash() {
-      console.log('[Zenith] Dissolving loader...');
       var loader = document.getElementById('initial-loader');
       var root = document.getElementById('root');
       if (root) root.classList.add('hydrated');
       if (loader && !loader.classList.contains('dissolving')) {
         loader.classList.add('dissolving');
-        setTimeout(function() { 
-          if(loader.parentNode) loader.remove(); 
-        }, 600);
+        setTimeout(function() { if(loader.parentNode) loader.remove(); }, 600);
       }
     }
 
-    // High-performance catch for chunk/network errors
-    window.addEventListener('error', function(e) {
-      if (e.target && (e.target.src || e.target.href) && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
-         var src = e.target.src || e.target.href;
-         if (src.indexOf('speed-insights') !== -1 || src.indexOf('_vercel') !== -1) return;
-         console.error('[Zenith] Bundle load failed:', src);
-         document.getElementById('mount-recovery').style.display = 'block';
-      }
-    }, true);
-
-    // Primary recovery timer
-    var initialMountTimeout = setTimeout(function() {
+    // 1. Hard timeout for splash
+    var mountTimer = setTimeout(function() {
       if (!window.__APP_INITIALIZED__) {
-        console.warn('[Zenith] Mount taking too long - invoking recovery');
         removeSplash();
         setTimeout(function() {
           var root = document.getElementById('root');
-          if (!root || !root.firstChild) {
-            document.getElementById('mount-recovery').style.display = 'block';
-          }
-        }, 500);
+          if (!root || !root.firstChild) document.getElementById('mount-recovery').style.display = 'block';
+        }, 1000);
       }
-    }, 6000); // 6s hard limit for initial render
+    }, 5000);
 
-    // Listen for the app-rendered signal from React
+    // 2. Listen for app-rendered signal
     window.addEventListener('app-rendered', function() {
       window.__APP_INITIALIZED__ = true;
-      window.__APP_MOUNTED__ = true;
-      clearTimeout(initialMountTimeout);
-      // Hide recovery UI if it was shown
-      var recovery = document.getElementById('mount-recovery');
-      if (recovery) recovery.style.display = 'none';
+      clearTimeout(mountTimer);
       requestAnimationFrame(function() {
         requestAnimationFrame(removeSplash);
       });
     });
 
-    function clearAndReload() {
-      console.log('[Zenith] Performing hard repair...');
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(regs) {
-          for(let reg of regs) reg.unregister(); 
-        }).then(function() {
-          if ('caches' in window) {
-            caches.keys().then(function(keys) {
-              return Promise.all(keys.map(function(k) { return caches.delete(k); }));
-            }).then(function() {
-              localStorage.clear(); sessionStorage.clear();
-              window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
-            });
-          } else { window.location.reload(); }
-        });
-      } else { window.location.reload(); }
-    }
+    // 3. PWA Version Control (Deferred)
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        var V = "3.6.4";
+        if(localStorage.getItem('pwa_version') !== V) {
+          if('caches' in window) caches.keys().then(function(n){n.forEach(function(k){caches.delete(k)})}).then(function(){localStorage.setItem('pwa_version',V);});
+        }
+      }, 10000);
+    });
   </script>
 
   <div id="root"></div>
 
-  <!-- MAIN SCRIPT: High Priority Entry Point -->
   <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
 
   <script>
+<<<<<<< HEAD
     // RECOVERY FALLBACK: If React fails to mount (chunk error, SW stale cache, etc.)
     // show a reload button after 10s so the user isn't stuck forever.
     var recoveryBtnTimeout = setTimeout(function() {
@@ -330,19 +241,32 @@
 
   <script>
     // PWA Version Control — runs synchronously but is fast (no network)
-    var V="3.6.3";
+    var V="3.6.4";
     if(localStorage.getItem('pwa_version')!==V){
       if('caches' in window)caches.keys().then(function(n){n.forEach(function(k){caches.delete(k)})}).then(function(){localStorage.setItem('pwa_version',V); window.location.reload();});
     }
 
-    // SW: graceful registration — suppress fetch errors from console
-    if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('/sw.js').catch(function(e){
-        // Silently fail on sw fetch error (common on first deploy or cache bust)
-        console.warn('[SW] Registration skipped:', e.message);
+    // Never allow service workers in Lovable preview or iframe contexts.
+    (function () {
+      var isInIframe = false;
+      try { isInIframe = window.self !== window.top; } catch (e) { isInIframe = true; }
+      var host = window.location.hostname || '';
+      var isPreviewHost = host.indexOf('id-preview--') !== -1 || host.indexOf('lovableproject.com') !== -1;
+
+      if ('serviceWorker' in navigator && (isPreviewHost || isInIframe)) {
+        navigator.serviceWorker.getRegistrations().then(function(regs){
+          regs.forEach(function(reg){ reg.unregister(); });
+        });
+      }
+    })();
+=======
+    // SW registration
+    if('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').catch(function(e){});
       });
     }
+>>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
   </script>
 </body>
-
 </html>

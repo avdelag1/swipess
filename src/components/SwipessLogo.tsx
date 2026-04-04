@@ -7,6 +7,9 @@ interface SwipessLogoProps {
   glow?: boolean;
 }
 
+/**
+ * 🚀 High-Fidelity Swipess Logo — FLOATING EDITION 🛡️
+ */
 function SwipessLogoComponent({
   size = 'md',
   className,
@@ -27,14 +30,22 @@ function SwipessLogoComponent({
     <div className={cn('relative inline-flex items-center justify-center', className)}>
       {(glow || size === 'xl' || size === '2xl') && (
         <div 
+<<<<<<< HEAD
           className="absolute inset-0 rounded-full blur-[40px] opacity-20 animate-pulse-soft"
           style={{
             background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)',
             transform: 'scale(1.5)',
+=======
+          className="absolute inset-0 rounded-full blur-[35px] opacity-30"
+          style={{
+            background: 'radial-gradient(circle, var(--color-brand-primary) 0%, transparent 70%)',
+            transform: 'scale(1.4)',
+>>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
           }}
         />
       )}
       
+<<<<<<< HEAD
       <span
         className={cn(
           'relative font-black uppercase select-none text-foreground leading-none',
@@ -46,6 +57,43 @@ function SwipessLogoComponent({
       >
         SwipesS
       </span>
+=======
+      {/* 🚀 ZENITH FLOATING MARK: Mask-Shadow Isolation System */}
+      <div
+        className={cn(
+          'relative transition-all duration-500 transform-gpu overflow-visible',
+          heightMap[size]
+        )}
+      >
+        <div 
+          className="absolute inset-0 w-full h-full transform-gpu"
+          style={{
+            WebkitMask: `url(/icons/fire-s-logo-960.webp) center/contain no-repeat`,
+            maskImage: `url(/icons/fire-s-logo-960.webp)`,
+            maskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            maskPosition: 'center',
+            maskMode: 'alpha',
+            background: 'linear-gradient(135deg, #ff4d00, #ff6b35, #ff0055)',
+            filter: 'contrast(1.1) brightness(1.1)'
+          } as React.CSSProperties}
+        />
+        
+        {glow && (
+          <div 
+            className="absolute inset-0 pointer-events-none opacity-40 blur-[30px]"
+            style={{
+              background: 'radial-gradient(circle, rgba(255, 77, 0, 0.8) 0%, transparent 80%)',
+              maskImage: `url(/icons/fire-s-logo-960.webp)`,
+              WebkitMaskImage: `url(/icons/fire-s-logo-960.webp)`,
+              maskSize: 'contain',
+              maskRepeat: 'no-repeat',
+              maskMode: 'luminance'
+            } as React.CSSProperties}
+          />
+        )}
+      </div>
+>>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
     </div>
   );
 }

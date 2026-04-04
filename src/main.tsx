@@ -8,7 +8,6 @@ import "./index.css";
 import "./styles/responsive.css";
 import "./styles/PremiumShine.css";
 import { supabase } from "@/integrations/supabase/client";
-import { logger } from "@/utils/prodLogger";
 
 (function() {
   // 🚀 SPEED OF LIGHT: Hardware & Network Awareness
@@ -22,74 +21,27 @@ import { logger } from "@/utils/prodLogger";
   const body = document.body;
   if (isLowEnd || isSlowNet) {
     body.classList.add('hw-low', 'perf-lite');
-    if (isSlowNet) body.classList.add('net-slow');
     body.style.setProperty('--backdrop-blur-intensity', '0px');
   } else {
     body.classList.add('hw-high', 'perf-ultra');
-    body.style.setProperty('--backdrop-blur-intensity', '32px');
+    body.style.setProperty('--backdrop-blur-intensity', '24px');
   }
 })();
 
 // 1. START AUTH CHECK BEFORE RENDERING (Parallel process)
-// We fire this immediately so it's happening while React chunks download.
-// Ensure we always return a valid object structure even on failure to prevent destructuring crashes.
 const authPromise = supabase.auth.getSession()
   .then(res => res || { data: { session: null }, error: null })
   .catch(() => ({ data: { session: null }, error: null }));
 
-
-
-// 3. REMOVE SPLASH ONLY AFTER HYDRATION
-// We use a double RAF + a tiny delay to ensure the browser has painted the React tree.
-// 3. SPLASH REMOVAL (Robust with Timeout)
-const removeSplash = () => {
-  const loader = document.getElementById('initial-loader');
-  const root = document.getElementById('root');
-  if (root) root.classList.add('hydrated');
-  if (loader && !loader.classList.contains('dissolving')) {
-    loader.classList.add('dissolving');
-    setTimeout(() => loader.remove(), 600);
-  }
-};
-
-// 3-second hard timeout for splash removal (always force-remove)
-const splashTimeout = setTimeout(() => {
-  removeSplash();
-}, 3000);
-
-// Splash removal: just wait for app-rendered, skip font race
-window.addEventListener('app-rendered', () => {
-  clearTimeout(splashTimeout);
-  requestAnimationFrame(() => removeSplash());
-}, { once: true });
-
-// 4. RENDER REACT (Robust)
+// 2. RENDER REACT (Robust)
 const rootElement = document.getElementById("root");
 if (rootElement) {
   const root = createRoot(rootElement as HTMLElement);
-
-  try {
-    // 🔥 ZENITH FIX: StrictMode ONLY in development
-    root.render(
-      import.meta.env.DEV ? (
-        <React.StrictMode>
-          <App authPromise={authPromise} />
-        </React.StrictMode>
-      ) : (
-        <App authPromise={authPromise} />
-      )
-    );
-    // Signal immediately after render call to prevent recovery UI
-    (window as any).__APP_INITIALIZED__ = true;
-  } catch (error) {
-    logger.error('[Mount] Fatal React Render Error:', error);
-    clearTimeout(splashTimeout);
-    removeSplash(); // Ensure user can see something even if it's a crash screen
-  }
+  root.render(<App authPromise={authPromise} />);
 }
 
-// 4. DEFERRED INITIALIZATION (Background tasks)
-const deferredInit = (callback: () => void, timeout = 3000) => {
+// 3. DEFERRED INITIALIZATION (Quiet Background)
+const deferredInit = (callback: () => void, timeout = 5000) => {
   if ("requestIdleCallback" in window) {
     (window as any).requestIdleCallback(callback, { timeout });
   } else {
@@ -97,28 +49,22 @@ const deferredInit = (callback: () => void, timeout = 3000) => {
   }
 };
 
-// Priority: Perf tools, Updates, Offline Sync
+// Secondary Tools: Pushed to 12s+ to ensure 0% main-thread noise during boot
 deferredInit(async () => {
   try {
     const [
-      { logBundleSize },
-      { checkAppVersion },
       { initPerformanceOptimizations },
       { initOfflineSync },
     ] = (await Promise.all([
-      import("@/utils/performance"),
-      import("@/utils/cacheManager"),
       import("@/utils/performanceMonitor"),
       import("@/utils/offlineSwipeQueue"),
     ])) as any;
-    logBundleSize();
-    checkAppVersion();
     initPerformanceOptimizations();
     initOfflineSync();
   } catch { /* intentional */ }
-}, 10000); // 🚀 PUSHED TO 10s for PERFECTION Score
+}, 12000);
 
-// Priority: Native Mobile Plugins
+// Native Plugins
 deferredInit(async () => {
   try {
     const { Capacitor } = await import("@capacitor/core");
@@ -129,18 +75,39 @@ deferredInit(async () => {
       await StatusBar.setBackgroundColor({ color: "#000000" });
     }
   } catch { /* intentional */ }
+<<<<<<< HEAD
 }, 12000); // 🚀 PUSHED TO 12s for PERFECTION Score
 
 // Service Worker Registration
-if ("serviceWorker" in navigator && !import.meta.env.DEV) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js", { updateViaCache: 'none' })
-      .then((reg) => {
-        reg.update();
-        navigator.serviceWorker.addEventListener("controllerchange", () => {
-          window.dispatchEvent(new CustomEvent('sw-controller-changed'));
-        });
-      })
-      .catch((err) => logger.error('[SW] Error:', err));
-  });
+const isInIframe = (() => {
+  try {
+    return window.self !== window.top;
+  } catch (_e) {
+    return true;
+  }
+})();
+const isPreviewHost =
+  window.location.hostname.includes('id-preview--') ||
+  window.location.hostname.includes('lovableproject.com');
+
+if ('serviceWorker' in navigator) {
+  if (import.meta.env.DEV || isPreviewHost || isInIframe) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => registration.unregister());
+    }).catch(() => undefined);
+  } else {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+        .then((reg) => {
+          reg.update();
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            window.dispatchEvent(new CustomEvent('sw-controller-changed'));
+          });
+        })
+        .catch((err) => logger.error('[SW] Error:', err));
+    });
+  }
 }
+=======
+}, 15000);
+>>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
