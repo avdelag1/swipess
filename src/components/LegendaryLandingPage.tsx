@@ -27,18 +27,33 @@ const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects')
 // Optimized wordmark matching the SwipesS brand identity
 function LogoWordmark({ className, size = 'hero', isDark = true }: { className?: string; size?: 'hero' | 'auth'; isDark?: boolean }) {
   return (
-    <div className={cn("relative flex flex-col items-center justify-center gap-3", className)}>
+    <div className={cn("relative flex flex-col items-center justify-center", size === 'hero' ? 'gap-4' : 'gap-2', className)}>
       <span
         className={cn(
-          "font-black uppercase select-none",
-          isDark ? "text-white" : "text-black",
-          size === 'hero' ? 'text-5xl sm:text-6xl md:text-7xl tracking-[0.25em]' : 'text-2xl tracking-[0.25em]'
+          "font-black uppercase select-none leading-none",
+          size === 'hero' ? 'text-5xl sm:text-6xl md:text-7xl tracking-[0.18em]' : 'text-2xl tracking-[0.18em]'
         )}
+        style={{
+          color: isDark ? '#FFFFFF' : '#0a0a0a',
+          textShadow: isDark
+            ? '0 0 40px rgba(255,255,255,0.15), 0 2px 8px rgba(0,0,0,0.4)'
+            : '0 1px 3px rgba(0,0,0,0.1)',
+          letterSpacing: size === 'hero' ? '0.18em' : '0.15em',
+        }}
       >
         SwipesS
       </span>
       {size === 'hero' && (
-        <div className={cn("w-[2px] h-10 rounded-full", isDark ? "bg-white/30" : "bg-black/20")} />
+        <div
+          className="rounded-full mx-auto"
+          style={{
+            width: '2.5px',
+            height: '3rem',
+            background: isDark
+              ? 'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.08) 100%)'
+              : 'linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 100%)',
+          }}
+        />
       )}
     </div>
   );
