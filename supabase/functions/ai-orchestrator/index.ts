@@ -92,6 +92,93 @@ Deno.serve(async (req) => {
       const content = rawContent.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
       if (!content) break;
 
+      // ── Handle MiniMax XML tool_call format ──
+      const xmlToolMatch = content.match(/<minimax:tool_call>\s*<invoke\s+name="([^"]+)">([\s\S]*?)<\/invoke>\s*<\/minimax:tool_call>/);
+      if (xmlToolMatch) {
+        const toolName = xmlToolMatch[1];
+        const paramsBlock = xmlToolMatch[2];
+        // Extract parameters from <parameter name="key">value</parameter>
+        const params: Record<string, string> = {};
+        const paramRegex = /<parameter\s+name="([^"]+)">([^<]*)<\/parameter>/g;
+        let paramMatch;
+        while ((paramMatch = paramRegex.exec(paramsBlock)) !== null) {
+          params[paramMatch[1]] = paramMatch[2];
+        }
+        // Convert to the JSON action format the loop already handles
+        const syntheticAction = JSON.stringify({ action: { type: toolName, params }, message: "" });
+        const fakeContent = syntheticAction;
+        // Re-inject as if the model returned JSON
+        const parsed = JSON.parse(fakeContent);
+        const action = parsed.action;
+        // Feed it back into the existing action handling below
+        // by constructing a content string with the JSON
+        cleanMessages.push({ role: "assistant", content: fakeContent });
+        
+        // Execute the action inline (same logic as below)
+        if (action?.type === "search_local_expert_knowledge" && action.params?.query) {
+          const { data } = await supabase.from('expert_knowledge').select('*').ilike('content', `%${action.params.query}%`).limit(5);
+          cleanMessages.push({ role: "user", content: `RESULTS: ${JSON.stringify(data || [])}` });
+          continue;
+        }
+        else if (action?.type === "search_events" && action.params?.query) {
+          const { data } = await supabase.from('events').select('*').or(`title.ilike.%${action.params.query}%,description.ilike.%${action.params.query}%`).eq('is_published', true).limit(5);
+          cleanMessages.push({ role: "user", content: `EVENTS: ${JSON.stringify(data || [])}. Links: /events?id=ID` });
+          continue;
+        }
+        else if (action?.type === "search_internal_listings" && action.params?.query) {
+          const { data } = await supabase.from('listings').select('*').ilike('title', `%${action.params.query}%`).limit(5);
+          cleanMessages.push({ role: "user", content: `LISTINGS: ${JSON.stringify(data || [])}` });
+          continue;
+        }
+        else if (action?.type === "search_web" && action.params?.query) {
+          const tavilyKey = Deno.env.get("TAVILY_API_KEY");
+          if (!tavilyKey) {
+            cleanMessages.push({ role: "user", content: "Error: Web search disabled." });
+            continue;
+          }
+          const tvRes = await fetch("https://api.tavily.com/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ api_key: tavilyKey, query: action.params.query, search_depth: "basic" })
+          });
+          const tvJson = await tvRes.json();
+          const webResults = tvJson.results?.map((r: any) => ({ title: r.title, content: r.content, url: r.url })) || [];
+          cleanMessages.push({ role: "user", content: `WEB SEARCH RESULTS: ${JSON.stringify(webResults)}` });
+          continue;
+        }
+        else if (action?.type === "search_listings_by_vibe" && action.params?.query) {
+          const { data } = await supabase.from('listings').select('id, title, description, price, category, neighborhood')
+            .or(`description.ilike.%${action.params.query}%,title.ilike.%${action.params.query}%`)
+            .eq('status', 'active').limit(5);
+          cleanMessages.push({ role: "user", content: `VIBE RESULTS for "${action.params.query}": ${JSON.stringify(data || [])}. Links: /listing/ID` });
+          continue;
+        }
+        else if (action?.type === "save_user_memory" && action.params?.content) {
+          if (user) {
+            await supabase.from('user_memories').insert({ user_id: user.id, content: action.params.content, importance: 1 });
+            cleanMessages.push({ role: "user", content: "SUCCESS: Memory saved." });
+          } else {
+            cleanMessages.push({ role: "user", content: "Error: No user." });
+          }
+          continue;
+        }
+        else if (action?.type === "get_market_averages" && action.params?.neighborhood) {
+          const { data } = await supabase.from('listings').select('price').eq('neighborhood', action.params.neighborhood).eq('category', action.params.category || 'property');
+          const prices = data?.map(l => l.price).filter(Boolean) || [];
+          const avg = prices.length ? (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(0) : "N/A";
+          cleanMessages.push({ role: "user", content: `MARKET DATA for ${action.params.neighborhood}: Avg Price $${avg} (based on ${prices.length} samples)` });
+          continue;
+        }
+        else if (action?.type === "search_experts" && action.params?.query) {
+          const { data } = await supabase.from('profiles').select('id, full_name, bio, lifestyle_tags').or(`full_name.ilike.%${action.params.query}%,bio.ilike.%${action.params.query}%`).limit(5);
+          cleanMessages.push({ role: "user", content: `EXPERTS FOUND: ${JSON.stringify(data || [])}. Links: /profile/ID` });
+          continue;
+        }
+        // Unknown tool — ask model to respond naturally
+        cleanMessages.push({ role: "user", content: `Tool "${toolName}" is not available. Please answer the user's question directly without using tools.` });
+        continue;
+      }
+
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
