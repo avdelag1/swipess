@@ -29,8 +29,8 @@ function SwipessLogoComponent({
 
   return (
     <div className={cn(
-      'relative inline-flex items-center justify-center overflow-hidden px-4 py-1.5 rounded-xl transition-all duration-300',
-      variant === 'black' ? 'bg-black text-white' : 'bg-transparent text-foreground',
+      'relative inline-flex items-center justify-center transition-all duration-300',
+      variant === 'black' ? 'text-black' : variant === 'white' ? 'text-white' : 'text-foreground',
       className
     )}>
       <span
