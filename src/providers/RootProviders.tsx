@@ -4,7 +4,7 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import { createIDBPersister } from "@/lib/persister";
 import { BrowserRouter } from "react-router-dom";
 import { LazyMotion, domMax } from "framer-motion";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
 import { ActiveModeProvider } from "@/hooks/useActiveMode";
@@ -57,17 +57,25 @@ function LifecycleHooks({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function AuthReadySignal() {
+  const { initialized } = useAuth();
+
+  useEffect(() => {
+    if (initialized) {
+      (window as any).__APP_INITIALIZED__ = true;
+      (window as any).__APP_MOUNTED__ = true;
+      window.dispatchEvent(new CustomEvent('app-rendered'));
+    }
+  }, [initialized]);
+
+  return null;
+}
+
 function AppLifecycleManager({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setActive(true), 3000);
-    const trigger = () => {
-      (window as any).__APP_MOUNTED__ = true;
-      window.dispatchEvent(new CustomEvent('app-rendered'));
-    };
-    if (document.readyState === 'complete') trigger();
-    else window.addEventListener('load', trigger, { once: true });
     return () => clearTimeout(timer);
   }, []);
 
@@ -105,6 +113,7 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
           <VisualThemeProvider>
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <AuthProvider authPromise={authPromise}>
+                <AuthReadySignal />
                 <ZenithPrewarmer />
                 <ActiveModeProvider>
                   <ThemeProvider>
