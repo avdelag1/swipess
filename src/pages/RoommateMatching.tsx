@@ -126,7 +126,7 @@ export default function RoommateMatching() {
           preferred_smoking: data.preferred_smoking,
           preferred_drinking: data.preferred_drinking,
           preferred_work_schedule: data.preferred_work_schedule,
-          deal_breakers: data.deal_breakers || [],
+          deal_breakers: (data.deal_breakers as string[]) || [],
         });
       }
     };
