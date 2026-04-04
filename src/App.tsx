@@ -40,6 +40,7 @@ const ClientLawyerServices = lazy(() => import("./pages/ClientLawyerServices"));
 const ClientSelfieCamera = lazy(() => import("./pages/ClientSelfieCamera"));
 const ClientFilters = lazy(() => import("./pages/ClientFilters"));
 const MaintenanceRequests = lazy(() => import("./pages/MaintenanceRequests"));
+const AdvertisePage = lazy(() => import("./pages/AdvertisePage"));
 
 // OWNER PAGES
 const EnhancedOwnerDashboard = lazy(() => import("./components/EnhancedOwnerDashboard"));
@@ -145,6 +146,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/client/filters" element={<ClientFilters />} />
 
               <Route path="/client/maintenance" element={<MaintenanceRequests />} />
+              <Route path="/client/advertise" element={<AdvertisePage />} />
 
               {/* Owner routes */}
               <Route path="/owner/dashboard" element={<EnhancedOwnerDashboard />} />

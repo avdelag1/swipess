@@ -10,7 +10,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme === 'dark' ? 'dark' : 'light'}
       className="toaster group"
-      position="top-center"
+      position="bottom-center"
+      style={{ bottom: 'calc(var(--safe-bottom, 0px) + 84px)', zIndex: 10005 }}
       // Only show 1 toast at a time — no stack-up
       visibleToasts={1}
       // Default swipe to dismiss

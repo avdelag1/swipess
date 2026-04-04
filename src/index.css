@@ -134,9 +134,9 @@ html {
   -webkit-overflow-scrolling: touch;
   background-color: unset;
   color: unset;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --top-bar-height: 52px;
+  --safe-top: env(safe-area-inset-top, 12px);
+  --safe-bottom: env(safe-area-inset-bottom, 12px);
+  --top-bar-height: 60px;
 }
 
 body {
@@ -163,6 +163,9 @@ body {
   right: 0;
   z-index: 1000;
   padding-top: var(--safe-top);
+  height: calc(var(--top-bar-height) + var(--safe-top));
+  display: flex;
+  align-items: center;
   transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
   will-change: transform, opacity;
 }
@@ -286,7 +289,7 @@ button:active, [role="button"]:active {
 
 /* ─── Layout Utils (Safe Areas) ─── */
 .layout-padding-top {
-  padding-top: calc(52px + var(--safe-top, 0px));
+  padding-top: calc(var(--top-bar-height) + var(--safe-top, 12px) + 8px);
 }
 
 .layout-padding-bottom {

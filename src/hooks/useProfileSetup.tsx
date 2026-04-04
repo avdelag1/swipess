@@ -177,6 +177,11 @@ export function useProfileSetup() {
           }
 
           lastRoleError = roleError;
+          if (roleError.name === 'AbortError' || roleError.message?.includes('AbortError')) {
+            profileCreationInProgress.delete(user.id);
+            setIsCreatingProfile(false);
+            return null;
+          }
           if (import.meta.env.DEV) logger.error(`[ProfileSetup] Role upsert attempt ${attempt}/3 failed:`, roleError.message);
 
           if (attempt < 3) {
@@ -296,6 +301,11 @@ export function useProfileSetup() {
         }
 
         lastProfileError = error;
+        if (error.name === 'AbortError' || error.message?.includes('AbortError')) {
+          profileCreationInProgress.delete(user.id);
+          setIsCreatingProfile(false);
+          return null;
+        }
         if (import.meta.env.DEV) logger.error(`[ProfileSetup] Profile creation attempt ${attempt}/3 failed:`, {
           message: error.message,
           code: error.code,
