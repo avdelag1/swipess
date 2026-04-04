@@ -737,7 +737,7 @@ export function ConciergeChat({
                   value={input}
                   onChange={(e) => setInput(e.target.value.slice(0, 500))}
                   onKeyDown={handleKeyDown}
-                  placeholder={`Ask Vibe about ${initialCity}…`}
+                  placeholder="Ask Swipess AI…"
                   className={cn(
                     "flex-1 min-h-[36px] max-h-32 resize-none border-0 bg-transparent text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 py-1.5 px-1",
                     isDark
