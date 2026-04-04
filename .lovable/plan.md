@@ -1,58 +1,49 @@
 
 
-# Fix 3 Critical Issues: AI Concierge, Splash Logos, Radio
+# Clean Up Visual Noise + Smoother Theme Toggle + PWA Install
 
-## Problem Summary
+## Problems Found
 
-1. **AI Concierge broken**: The `ConciergeChat` component (via `useConciergeAI.ts`) tries to read/write to 3 database tables that don't exist: `user_memories`, `ai_conversations`, `ai_messages`. The edge function `ai-orchestrator` also queries `user_memories`. Every interaction crashes silently.
+1. **Theme transition flash**: The CSS `theme-ripple-reveal` animation applies `filter: brightness(1.2) contrast(1.1)` at frame 0, creating a visible white/bright flash during the clip-path expansion. Combined with `startViewTransition`, this causes the jarring black-to-white burst.
 
-2. **Three different splash logos**: During app load, the user sees up to 3 sequential logos with different fonts/sizes/animations:
-   - `index.html` splash: `system-ui` font at `4.5rem` with CSS `heartbeat` keyframes
-   - `PremiumLoader` (React fallback): `SwipessLogo` component with Tailwind `font-black` at `text-5xl` with framer-motion `scale` breathing
-   - These use different font families and different animation styles, creating a jarring "3 different logos" effect
+2. **Header lines/shades**: The TopBar has a gradient overlay div (lines 187-199) extending to `height: 160%` with visible opacity stops. On top of that, `AppLayout` renders `GradientMaskTop`, `GradientMaskBottom`, AND `GlobalVignette` -- three separate fixed gradient layers. That's 4 gradient overlays stacking, creating visible "lines" where opacity bands intersect.
 
-3. **Radio inaccessible**: The radio page uses `fixed inset-0 z-50`, but its parent `app-root` div has `overflow-hidden` which creates a containing block that traps fixed-position children on some browsers/devices.
+3. **Too many cinematic layers**: The vignette + top mask + bottom mask + header gradient = visual noise on a simple card-based UI. The floating buttons already have their own shadows; they don't need 4 gradient layers behind them.
 
----
-
-## Fix 1: Create Missing AI Tables
-
-Create a database migration with 3 tables:
-
-**`ai_conversations`**: `id` (uuid PK), `user_id` (uuid, references auth.users), `title` (text), `is_archived` (boolean default false), `created_at`, `updated_at`
-
-**`ai_messages`**: `id` (uuid PK), `conversation_id` (uuid FK → ai_conversations), `user_id` (uuid), `role` (text), `content` (text), `metadata` (jsonb default '{}'), `created_at`
-
-**`user_memories`**: `id` (uuid PK), `user_id` (uuid), `category` (text default 'note'), `title` (text), `content` (text), `tags` (text[]), `source` (text), `created_at`, `updated_at`
-
-All with RLS policies allowing users to CRUD their own rows only. Enable realtime on `ai_messages`.
-
-**Also fix `ai-orchestrator` edge function**: Add a try-catch around the `user_memories` query so it gracefully returns empty if the table query fails (defensive).
+4. **PWA is already configured** -- manifest.json, service worker, and icons all exist. The app is already installable from the browser. No additional setup needed.
 
 ---
 
-## Fix 2: Single Splash Logo
+## Changes
 
-**Goal**: One logo, one font, one animation, from first paint to React mount.
+### 1. Simplify Theme Transition (no flash)
+**File: `src/index.css`**
+- Remove `filter: brightness(1.2) contrast(1.1)` from the `theme-ripple-reveal` keyframe at 0%
+- Remove `transform: scale(0.995)` / `scale(1)` (unnecessary micro-scale causes compositing work)
+- Keep the clip-path reveal but make it a clean opacity-only transition:
+```css
+@keyframes theme-ripple-reveal {
+  0% { clip-path: circle(0% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%)); }
+  100% { clip-path: circle(150% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%)); }
+}
+```
 
-**`index.html`**: Change the splash wordmark font to match the React `SwipessLogo` exactly:
-- Use the same `font-weight: 900` (already matches)
-- Match the React component's text size: change from `4.5rem` to `3rem` (matching the `text-5xl` / `2xl` SwipessLogo used in PremiumLoader)
-- Keep the CSS `heartbeat` animation (scale 1→1.03→1) since it matches the framer-motion breathing
+### 2. Remove Cinematic Gradient Layers from AppLayout
+**File: `src/components/AppLayout.tsx`**
+- Remove the entire `GradientMaskTop`, `GradientMaskBottom`, and `GlobalVignette` block (lines 53-62). The floating buttons already have their own shadows -- these 3 fixed gradient overlays just add visual noise and the "line" artifacts the user sees.
+- Remove the imports for these components.
 
-**`src/components/ui/suspense-fallback.tsx`**: Change the fallback to return `null` instead of `PremiumLoader`. The `index.html` splash already covers the loading state. Showing a second React-rendered logo creates the duplicate. The splash dissolves via the `app-rendered` event, so there's no gap.
+### 3. Simplify TopBar Header Gradient  
+**File: `src/components/TopBar.tsx`**
+- Remove the "ATMOSPHERIC GRADIENT" div (lines 186-199). It creates a visible haze/line behind the header. The buttons are floating with shadows already -- they don't need a 160%-height gradient behind them.
+- The header becomes fully transparent, buttons float naturally over the content.
 
-This eliminates logo #2 entirely. The user sees one splash (index.html) which dissolves cleanly into the app.
+### 4. PWA Install Info
+The app already has a complete PWA setup (manifest.json, service worker, icons). Users can install it to their phone's home screen right now:
+- **iPhone**: Safari → Share button → "Add to Home Screen"  
+- **Android**: Chrome menu → "Install app" or "Add to Home Screen"
 
----
-
-## Fix 3: Radio Page Accessibility
-
-**`src/components/DashboardLayout.tsx` line 470**: The `app-root` div has `overflow-hidden` which traps `position: fixed` children when combined with transforms or `will-change` on ancestor elements.
-
-Fix: Remove `overflow-hidden` from the `app-root` div. Replace with `overflow-x-hidden` (still prevents horizontal overflow from wide content) but allows fixed-position children to escape to the viewport.
-
-Additionally, verify the `<main>` for fullscreen routes already uses `overflow-visible` (confirmed from line 509).
+Once installed, it runs fullscreen like a native app.
 
 ---
 
@@ -60,9 +51,7 @@ Additionally, verify the `<main>` for fullscreen routes already uses `overflow-v
 
 | File | Change |
 |------|--------|
-| **Database migration** | Create `ai_conversations`, `ai_messages`, `user_memories` tables with RLS |
-| `supabase/functions/ai-orchestrator/index.ts` | Wrap `user_memories` query in try-catch |
-| `index.html` | Reduce splash wordmark size to `3rem` to match React logo |
-| `src/components/ui/suspense-fallback.tsx` | Return `null` for the generic fallback (no second logo) |
-| `src/components/DashboardLayout.tsx` | Change `app-root` from `overflow-hidden` to `overflow-x-hidden` |
+| `src/index.css` | Remove brightness/contrast/scale from theme-ripple-reveal |
+| `src/components/AppLayout.tsx` | Remove GradientMaskTop, GradientMaskBottom, GlobalVignette |
+| `src/components/TopBar.tsx` | Remove atmospheric gradient div |
 
