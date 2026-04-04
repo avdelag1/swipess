@@ -303,8 +303,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     if (failedStationsRef.current.has(targetStation.id)) {
       logger.info(`[RadioPlayer] Skipping recently failed station: ${targetStation.id}`);
-      // Clear after 30s instead of 60s for faster recovery
-      setTimeout(() => failedStationsRef.current.delete(targetStation.id), 30000);
+      // Already in temp blacklist; it auto-clears after 30s
       if (failedStationsRef.current.size > 20) { const first = failedStationsRef.current.values().next().value; if (first) failedStationsRef.current.delete(first); }
       playDepthRef.current++;
       changeStation('next');
