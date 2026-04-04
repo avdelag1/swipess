@@ -12,49 +12,37 @@ function SwipessLogoComponent({
   className,
   glow = false,
 }: SwipessLogoProps) {
-  const heightMap = {
-    xs: 'h-10 w-10',
-    sm: 'h-14 w-14',
-    md: 'h-20 w-20',
-    lg: 'h-32 w-32',
-    xl: 'h-48 w-48',
-    '2xl': 'h-64 w-64',
-    '3xl': 'h-80 w-80',
-    '4xl': 'h-96 w-96',
+  const textSizeMap = {
+    xs: 'text-xs tracking-[0.2em]',
+    sm: 'text-sm tracking-[0.2em]',
+    md: 'text-lg tracking-[0.25em]',
+    lg: 'text-2xl tracking-[0.25em]',
+    xl: 'text-3xl tracking-[0.25em]',
+    '2xl': 'text-4xl tracking-[0.25em]',
+    '3xl': 'text-5xl tracking-[0.25em]',
+    '4xl': 'text-6xl tracking-[0.3em]',
   };
 
   return (
     <div className={cn('relative inline-flex items-center justify-center', className)}>
-      {/* Cinematic Glow */}
       {(glow || size === 'xl' || size === '2xl') && (
         <div 
-          className="absolute inset-0 rounded-full blur-[40px] opacity-40 animate-pulse-soft"
+          className="absolute inset-0 rounded-full blur-[40px] opacity-30 animate-pulse-soft"
           style={{
-            background: 'radial-gradient(circle, var(--color-brand-primary) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%)',
             transform: 'scale(1.5)',
           }}
         />
       )}
       
-      <img
-        src="/icons/fire-s-logo-512.png"
-        alt="Swipess"
+      <span
         className={cn(
-          'relative object-contain transition-all duration-500',
-          heightMap[size]
+          'relative font-black uppercase select-none text-foreground',
+          textSizeMap[size]
         )}
-        draggable={false}
-      />
-
-      {/* Detached glow layer */}
-      {glow && (
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-40 blur-[30px]"
-          style={{
-            background: 'radial-gradient(circle, rgba(255, 77, 0, 0.8) 0%, transparent 80%)',
-          }}
-        />
-      )}
+      >
+        SwipesS
+      </span>
     </div>
   );
 }
