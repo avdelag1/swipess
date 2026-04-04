@@ -66,10 +66,9 @@ function TinderTopNavComponent({
   return (
     <div
       className={cn(
-        'flex items-center w-full px-2 py-2 gap-2',
+        'flex items-center w-full px-2 py-2 gap-2 tinder-top-nav-container',
         className
       )}
-      style={{ WebkitTapHighlightColor: 'transparent' }}
     >
       {/* Filter / Sliders — use provided slot if available, else default icon button */}
       {filterSlot ? (
@@ -98,13 +97,8 @@ function TinderTopNavComponent({
       <div
         ref={mergedRef}
         className="tinder-nav-scroll flex-1 overflow-x-auto flex items-center gap-2 py-0.5"
-        style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-          WebkitOverflowScrolling: 'touch',
-        }}
       >
-        <style>{`.tinder-nav-scroll::-webkit-scrollbar { display: none; }`}</style>
+
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab;
           return (

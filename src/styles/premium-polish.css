@@ -942,3 +942,20 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: rgba(255, 255, 255, 0.6) !important;
 }
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  12. TINDER TOP NAV POLISH                                            */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.tinder-top-nav-container {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tinder-nav-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tinder-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
