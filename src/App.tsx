@@ -91,7 +91,7 @@ const PublicProfilePreview = lazy(() => import("./pages/PublicProfilePreview"));
 const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 
 // UI HELPERS
-import { PersistentDashboardLayout } from '@/components/PersistentDashboardLayout';
+const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDashboardLayout").then(m => ({ default: m.PersistentDashboardLayout })));
 const Toaster = lazy(() => import("@/components/ui/toaster").then(m => ({ default: m.Toaster })));
 const Sonner = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
 const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));

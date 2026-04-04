@@ -140,7 +140,7 @@ export function useConciergeAI() {
       const userName = profile?.full_name || 'Friend';
       const userTier = subscription?.subscription_packages?.tier || 'Basic';
 
-      const history = messages.slice(-15).map(m => ({ role: m.role, content: m.content }));
+      const history = [...messages.slice(-14), optimisticUserMsg].map(m => ({ role: m.role, content: m.content }));
 
       const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {

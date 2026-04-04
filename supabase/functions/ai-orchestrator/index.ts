@@ -62,11 +62,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    const messages = input.messages || [];
-    const cleanMessages = messages.map((m: any) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content || m.text || "" }]
-    }));
+    const messages = Array.isArray(input.messages) ? input.messages : [];
+    const queryText = typeof input.query === "string" ? input.query.trim() : "";
+    const cleanMessages = messages
+      .map((m: any) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content || m.text || "" }]
+      }))
+      .filter((m: any) => (m.parts[0]?.text || "").trim().length > 0);
 
     // Filter out messages with tool call leaks from previous broken responses
     const filteredMessages = cleanMessages.filter((m: any) => {
@@ -75,6 +78,13 @@ Deno.serve(async (req) => {
       if (text === "I'm having trouble connecting right now. Please try again in a moment. 🙏") return false;
       return true;
     });
+
+    if (queryText) {
+      const lastText = filteredMessages[filteredMessages.length - 1]?.parts?.[0]?.text?.trim() || "";
+      if (lastText !== queryText) {
+        filteredMessages.push({ role: "user", parts: [{ text: queryText }] });
+      }
+    }
 
     const maxTokens = TIER_MAX_TOKENS[profile?.ai_tier || "free"] || 600;
     const systemPrompt = getVibePrompt(task, input, user, profile, memories, activeListing, currentPath);
@@ -90,7 +100,7 @@ Deno.serve(async (req) => {
 
     while (loopCount < maxLoops) {
       loopCount++;
-      const content = await callGemini(systemPrompt, conversationParts, maxTokens);
+      const content = await callPrimaryModel(systemPrompt, conversationParts, maxTokens);
       
       if (!content) break;
 
@@ -238,67 +248,80 @@ async function executeAction(action: any, supabase: any, user: any): Promise<str
   return null; // Unknown action — let the model try again
 }
 
-// ── Call Gemini API (primary) with MiniMax fallback ──
-async function callGemini(systemPrompt: string, messages: any[], maxTokens: number): Promise<string> {
-  const googleKey = Deno.env.get("GOOGLE_API_KEY");
-  
-  if (googleKey) {
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${googleKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: systemPrompt }] },
-            contents: messages,
-            generationConfig: {
-              maxOutputTokens: maxTokens,
-              temperature: 0.7,
-            },
-          }),
-        }
-      );
-      const json = await res.json();
-      const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text) {
-        // Strip thinking tags
-        return text.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
-      }
-      console.error("[AI Orchestrator] Gemini empty response:", JSON.stringify(json).substring(0, 500));
-    } catch (e) {
-      console.error("[AI Orchestrator] Gemini error:", e);
+async function callPrimaryModel(systemPrompt: string, messages: any[], maxTokens: number): Promise<string> {
+  const minimaxResult = await callMiniMax(systemPrompt, messages, maxTokens);
+  if (minimaxResult) return minimaxResult;
+  return await callGeminiFallback(systemPrompt, messages, maxTokens);
+}
+
+async function callMiniMax(systemPrompt: string, messages: any[], maxTokens: number): Promise<string> {
+  const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
+  if (!minimaxKey) return "";
+
+  try {
+    const openaiMessages = [
+      { role: "system", content: systemPrompt },
+      ...messages.map((m: any) => ({
+        role: m.role === "model" ? "assistant" : "user",
+        content: m.parts?.[0]?.text || ""
+      }))
+    ];
+
+    const res = await fetch("https://api.minimax.io/v1/text/chatcompletion_v2", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${minimaxKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "MiniMax-M2.5", messages: openaiMessages, temperature: 0.7, max_tokens: maxTokens }),
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      console.error("[AI Orchestrator] MiniMax error:", json);
+      return "";
     }
+
+    const rawContent = json.choices?.[0]?.message?.content;
+    const content = Array.isArray(rawContent)
+      ? rawContent.map((part: any) => part?.text || part?.content || "").join("\n")
+      : String(rawContent || "");
+
+    return content
+      .replace(/<think>[\s\S]*?<\/think>\s*/g, "")
+      .replace(/<minimax:tool_call>[\s\S]*?<\/minimax:tool_call>/g, "")
+      .trim();
+  } catch (e) {
+    console.error("[AI Orchestrator] MiniMax primary error:", e);
   }
 
-  // Fallback: MiniMax
-  const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
-  if (minimaxKey) {
-    try {
-      // Convert Gemini format back to OpenAI format for MiniMax
-      const openaiMessages = [
-        { role: "system", content: systemPrompt },
-        ...messages.map((m: any) => ({
-          role: m.role === "model" ? "assistant" : "user",
-          content: m.parts?.[0]?.text || ""
-        }))
-      ];
-      
-      const res = await fetch("https://api.minimax.io/v1/text/chatcompletion_v2", {
+  return "";
+}
+
+async function callGeminiFallback(systemPrompt: string, messages: any[], maxTokens: number): Promise<string> {
+  const googleKey = Deno.env.get("GOOGLE_API_KEY");
+  if (!googleKey) return "";
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${googleKey}`,
+      {
         method: "POST",
-        headers: { "Authorization": `Bearer ${minimaxKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "MiniMax-M2.5", messages: openaiMessages, temperature: 0.7, max_tokens: maxTokens }),
-      });
-      const json = await res.json();
-      const content = json.choices?.[0]?.message?.content || "";
-      // Strip thinking and tool call XML
-      return content
-        .replace(/<think>[\s\S]*?<\/think>\s*/g, "")
-        .replace(/<minimax:tool_call>[\s\S]*?<\/minimax:tool_call>/g, "")
-        .trim();
-    } catch (e) {
-      console.error("[AI Orchestrator] MiniMax fallback error:", e);
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: messages,
+          generationConfig: {
+            maxOutputTokens: maxTokens,
+            temperature: 0.7,
+          },
+        }),
+      }
+    );
+    const json = await res.json();
+    const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (text) {
+      return text.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
     }
+    console.error("[AI Orchestrator] Gemini fallback empty response:", JSON.stringify(json).substring(0, 500));
+  } catch (e) {
+    console.error("[AI Orchestrator] Gemini fallback error:", e);
   }
 
   return "";
