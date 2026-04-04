@@ -50,10 +50,9 @@ export function SuspenseFallback({ className, minimal = false }: SuspenseFallbac
     );
   }
 
-  // FALLBACK: Generic PremiumLoader for cold starts or unknown routes
-  // ALWAYS return the PremiumLoader centered for consistent 'alive' feel
-  // If not minimal, make it full-screen fixed to match splash perfectly
-  return <PremiumLoader size="lg" full={!minimal} className={className} />;
+  // FALLBACK: Return null — the index.html CSS splash already covers loading.
+  // Showing a second React-rendered logo creates a jarring duplicate.
+  return null;
 }
 
 export default SuspenseFallback;

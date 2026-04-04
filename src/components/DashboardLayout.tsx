@@ -467,7 +467,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className={cn(
-      "app-root min-h-screen min-h-dvh overflow-hidden relative w-full max-w-[100vw]",
+      "app-root min-h-screen min-h-dvh overflow-x-hidden relative w-full max-w-[100vw]",
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
 
