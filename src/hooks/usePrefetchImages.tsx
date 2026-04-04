@@ -1,6 +1,7 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { imageCache } from '@/lib/swipe/cardImageCache';
+import { getNetworkProfile } from '@/utils/networkAware';
 
 interface PrefetchOptions {
   currentIndex: number;
@@ -8,23 +9,17 @@ interface PrefetchOptions {
   prefetchCount?: number;
   /**
    * PERF FIX: State-driven trigger to force effect re-run.
-   * Parent components using refs for currentIndex/profiles must pass
-   * a state value (like renderKey) that updates on each swipe.
-   * Without this, the effect won't re-run because refs don't trigger re-renders.
    */
   trigger?: number;
 }
 
 /**
- * Optimized image prefetching - ensures next 2-3 cards are always ready
+ * Network-aware image prefetching — adapts depth and decode strategy
+ * based on connection quality and device memory.
  *
- * PERFORMANCE FIXES:
- * - Preload next 3 profiles (current visible + 2 backup) with HIGH priority
- * - First 2 images per profile (hero + next)
- * - First 2 cards load immediately, 3rd uses requestIdleCallback
- * - Tracks by item ID (not index) to handle deck truncation correctly
- * - Aggressive priority for next 2 cards to prevent swipe delays
- * - Added trigger parameter to ensure effect runs when refs change
+ * - 4g + 4GB+: prefetch 5 cards, pre-decode all
+ * - 3g or <4GB: prefetch 2 cards, pre-decode hero only
+ * - 2g / save-data: prefetch 1 card, no decode
  */
 export function usePrefetchImages({
   currentIndex,
@@ -32,11 +27,8 @@ export function usePrefetchImages({
   prefetchCount = 3,
   trigger = 0
 }: PrefetchOptions) {
-  // FIX: Track by item ID, not index - handles deck truncation correctly
   const prefetchedItemIds = useRef(new Set<string>());
 
-  // Compute stable profile ID for dependency tracking
-  // This ensures effect re-runs when the actual items at these indices change
   const nextProfileIds = useMemo(() => {
     return profiles
       .slice(currentIndex + 1, currentIndex + 1 + prefetchCount)
@@ -46,58 +38,42 @@ export function usePrefetchImages({
   }, [profiles, currentIndex, prefetchCount]);
 
   useEffect(() => {
-    // Skip if no profiles to prefetch
     if (!profiles.length || currentIndex >= profiles.length) return;
 
-    // Get next N profiles to prefetch
+    // 🚀 Network-aware: dynamically scale prefetch depth
+    const netProfile = getNetworkProfile();
+    const effectiveCount = Math.min(prefetchCount, netProfile.prefetchDepth);
+
     const profilesToPrefetch = profiles.slice(
       currentIndex + 1,
-      currentIndex + 1 + prefetchCount
+      currentIndex + 1 + effectiveCount
     );
 
-    // Prefetch images for each profile
     profilesToPrefetch.forEach((profile, offset) => {
       if (!profile) return;
 
-      // FIX: Use item ID for tracking, not index
       const itemId = profile.id || profile.user_id;
       if (!itemId) return;
-
-      // Skip if already prefetched this item
       if (prefetchedItemIds.current.has(itemId)) return;
-
-      // Mark as prefetched
       prefetchedItemIds.current.add(itemId);
 
-      // Only collect first 2 images (hero + next), not ALL images
       const imagesToPrefetch: string[] = [];
 
-      // For property listings - only first 2 images
       if (profile.images && Array.isArray(profile.images)) {
         imagesToPrefetch.push(...profile.images.slice(0, 2));
-      }
-      // For client profiles - check profile_images array
-      else if (profile.profile_images && Array.isArray(profile.profile_images)) {
+      } else if (profile.profile_images && Array.isArray(profile.profile_images)) {
         imagesToPrefetch.push(...profile.profile_images.slice(0, 2));
-      }
-      // Fallback to avatar if no property images
-      else if (profile.avatar_url) {
+      } else if (profile.avatar_url) {
         imagesToPrefetch.push(profile.avatar_url);
       }
 
-      // Prefetch function
       const prefetchImages = () => {
         imagesToPrefetch.forEach((imageUrl, imgIndex) => {
           if (imageUrl && imageUrl !== '/placeholder.svg' && imageUrl !== '/placeholder-avatar.svg') {
             const optimizedUrl = getCardImageUrl(imageUrl);
-
-            // Skip if already in global cache
             if (imageCache.has(optimizedUrl)) return;
 
             const img = new Image();
-
-            // HIGH priority for next 2 cards to ensure they're always ready
-            // This prevents any delay when swiping
             (img as any).fetchPriority = (offset <= 1 && imgIndex === 0) ? 'high' : 'low';
             img.decoding = 'async';
 
@@ -107,35 +83,28 @@ export function usePrefetchImages({
 
             img.src = optimizedUrl;
 
-            // 🚀 SPEED OF LIGHT: Pre-decode to GPU memory while off-screen
-            // This eliminates the 50-100ms 'Decode Lag' when a card first appears
-            if ('decode' in img) {
+            // Only pre-decode if network profile allows it
+            if (netProfile.enablePreDecode && 'decode' in img) {
               img.decode().then(() => {
                 imageCache.set(optimizedUrl, true);
-              }).catch(() => {
-                // Ignore decoding errors for non-supported or missing images
-              });
+              }).catch(() => {});
             }
           }
         });
       };
 
-      // First 2 profiles prefetch immediately (next card + backup), 3rd uses idle time
       if (offset <= 1) {
         prefetchImages();
       } else if ('requestIdleCallback' in window) {
         (window as any).requestIdleCallback(prefetchImages, { timeout: 2000 });
       } else {
-        // Fallback: delay non-critical prefetches
         setTimeout(prefetchImages, 100 * offset);
       }
     });
 
-    // FIX: Clean up old prefetched IDs to prevent memory leak (keep last 100)
     if (prefetchedItemIds.current.size > 100) {
       const idsArray = Array.from(prefetchedItemIds.current);
-      const toKeep = new Set(idsArray.slice(-50)); // Keep most recent 50
-      prefetchedItemIds.current = toKeep;
+      prefetchedItemIds.current = new Set(idsArray.slice(-50));
     }
      
   }, [currentIndex, profiles, prefetchCount, nextProfileIds, trigger]);

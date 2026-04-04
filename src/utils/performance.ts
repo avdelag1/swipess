@@ -1,10 +1,10 @@
 import { QueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getNetworkProfile } from "@/utils/networkAware";
 
 /**
  * SPEED OF LIGHT Performance Utility
- * Handles aggressive prefetching and resource warming to ensure the app
- * feels like all data is "already there".
+ * Network-aware prefetching and resource warming.
  */
 
 export function logBundleSize() {
@@ -20,15 +20,16 @@ export function logBundleSize() {
 }
 
 /**
- * WARM DISCOVERY CACHE
- * Aggressively prefetches the core discovery feeds for the current user role.
- * Targeted at making the main swipe-up experience instant.
+ * WARM DISCOVERY CACHE — network-aware
+ * Scales image prefetch count based on connection quality.
  */
 export async function warmDiscoveryCache(queryClient: QueryClient, userId: string | undefined, _userRole: 'client' | 'owner') {
   if (!userId) return;
 
-  // 1. Prefetch Smart Listings (The actual discovery engine)
-  // We prefetch for the 'all' category first as it's the default landing
+  const netProfile = getNetworkProfile();
+  const imagePrefetchCount = Math.min(5, netProfile.prefetchDepth);
+
+  // 1. Prefetch Smart Listings
   const defaultFilters = JSON.stringify({ category: 'all' });
   
   queryClient.prefetchQuery({
@@ -43,55 +44,60 @@ export async function warmDiscoveryCache(queryClient: QueryClient, userId: strin
       
       const listings = data as any[];
       if (listings && listings.length > 0) {
-        // MAGIC: Prefetch the first 5 images to browser cache immediately
-        listings.slice(0, 5).forEach((item: any) => {
+        listings.slice(0, imagePrefetchCount).forEach((item: any) => {
           const imgUrl = item.images?.[0] || item.image_url;
           if (imgUrl) prefetchImage(imgUrl, true);
         });
       }
       return data || [];
     },
-    staleTime: 1000 * 60 * 30, // 30 minutes
+    staleTime: 1000 * 60 * 30,
   });
 
-  // 2. Prefetch Events (Universal)
-  queryClient.prefetchQuery({
-    queryKey: ['eventos', 'v4'],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('events')
-        .select('id, title, description, category, image_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
-        .order('event_date', { ascending: true })
-        .limit(30);
-      
-      if (data && data.length > 0) {
-        data.slice(0, 5).forEach((item: any) => {
-          if (item.image_url) prefetchImage(item.image_url);
-        });
-      }
-      return data || [];
-    },
-    staleTime: 1000 * 60 * 60,
-  });
+  // 2. Prefetch Events — skip on slow connections
+  if (netProfile.prefetchDepth >= 2) {
+    queryClient.prefetchQuery({
+      queryKey: ['eventos', 'v4'],
+      queryFn: async () => {
+        const { data } = await supabase
+          .from('events')
+          .select('id, title, description, category, image_url, event_date, location, location_detail, organizer_name, organizer_whatsapp, promo_text, discount_tag, is_free, price_text')
+          .order('event_date', { ascending: true })
+          .limit(30);
+        
+        if (data && data.length > 0) {
+          const eventImgCount = Math.min(imagePrefetchCount, 3);
+          data.slice(0, eventImgCount).forEach((item: any) => {
+            if (item.image_url) prefetchImage(item.image_url);
+          });
+        }
+        return data || [];
+      },
+      staleTime: 1000 * 60 * 60,
+    });
+  }
 
-  // 3. Prefetch User Profile
+  // 3. Prefetch User Profile (always — tiny payload)
   queryClient.prefetchQuery({
     queryKey: ['profile', userId],
     queryFn: async () => {
       const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
       return data;
     },
-    staleTime: 1000 * 60 * 60 * 24, // 1 Day
+    staleTime: 1000 * 60 * 60 * 24,
   });
 }
 
 /**
  * PREDICTIVE PREFETCH: Intent-Based Warming
- * Called when a user hovers or starts a touch on a button/link.
  */
 export async function predictivePrefetchCategory(queryClient: QueryClient, userId: string | undefined, category: string) {
   if (!category || !userId) return;
   
+  const netProfile = getNetworkProfile();
+  // Skip predictive prefetch on very slow connections
+  if (netProfile.prefetchDepth < 2) return;
+
   const filters = JSON.stringify({ category });
   
   queryClient.prefetchQuery({
@@ -113,7 +119,7 @@ export async function predictivePrefetchCategory(queryClient: QueryClient, userI
       }
       return data || [];
     },
-    staleTime: 1000 * 60 * 15, // 15 minutes
+    staleTime: 1000 * 60 * 15,
   });
 }
 
@@ -138,29 +144,29 @@ export async function predictivePrefetchEvent(queryClient: QueryClient, eventId:
 
 /**
  * UTILITY: Prefetch image into browser memory
- * Upgraded with high priority and decoding for "instant" appearance
+ * Network-aware: skips pre-decode on slow connections.
  */
 export function prefetchImage(url: string, highPriority: boolean = false) {
   if (!url || typeof window === 'undefined') return;
   
-  // Skip if already prefetched in this session
   if (!(window as any).__PREFETCHED_IMAGES__) (window as any).__PREFETCHED_IMAGES__ = new Set();
   if ((window as any).__PREFETCHED_IMAGES__.has(url)) return;
   (window as any).__PREFETCHED_IMAGES__.add(url);
 
+  const netProfile = getNetworkProfile();
   const img = new Image();
+  
   if (highPriority) {
     (img as any).fetchPriority = 'high';
   }
   img.decoding = 'async';
   
-  // Pre-decode to avoid frame-drop when it finally mounts
   img.onload = () => {
-    if ('decode' in img) {
+    // Only pre-decode on good connections to save CPU/battery
+    if (netProfile.enablePreDecode && 'decode' in img) {
       img.decode().catch(() => {});
     }
   };
   
   img.src = url;
 }
-
