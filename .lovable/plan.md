@@ -1,57 +1,38 @@
 
 
-## Plan: Remove Tulum Branding, Rebrand AI Chat to "Swipess AI", Improve Chat UI
+## Plan: Rebrand to "Swipess" Wordmark Logo + Stop Radio Auto-Start
 
-### What's Changing
+### 1. Replace Fire S icon with "Swipess" wordmark on the landing page
 
-**1. Remove all Tulum-specific branding from UI text** (keep mock data like event locations untouched)
+The main landing page currently shows the Fire S flame icon (`SwipessLogo` component using `fire-s-logo-512.png`). The user wants the **text wordmark "Swipess"** — same style as the bottom-right corner text (italic, gradient orange-to-pink, bold) — to be the hero branding element instead.
 
-Files with hardcoded "Tulum" branding to clean:
-- `src/components/ConciergeChat.tsx` — line 65: default `initialCity = 'Tulum'` → remove city display from header (line 219: `AI Concierge · {initialCity}`) 
-- `src/components/ConciergeChat.tsx` — line 159: quick suggestion mentions "Tulum tonight" → make generic
-- `src/components/AISearchDialog.tsx` — line 103: welcome message "your sharp, market-savvy guide to Tulum" → generic
-- `src/hooks/useConciergeAI.ts` — line 154: default city fallback `'Tulum'` → remove or use empty
-- `src/pages/RoommateMatching.tsx` — line 234: hardcoded "Tulum" label in header → remove
-- `src/pages/RoommateMatching.tsx` — line 293: `t('roommates.tulumVibesOnly')` → change translation key
-- `src/i18n/locales/en.json` — line 288: `"tulumVibesOnly": "Tulum Vibes Only"` → `"No More Matches"`
-- `src/i18n/locales/es.json` — line 235: same → `"Sin Más Matches"`
-- `src/pages/VideoTours.tsx` — line 82: "their Tulum spaces" → "their spaces"
-- `src/components/ButlerProactive.tsx` — line 22: "The ultimate Tulum vibe" → "The ultimate vibe"
-- `src/pages/AdvertisePage.tsx` — lines 199, 420, 434, 768: "Tulum" mentions → generic or "your city"
-- `src/components/ConversationalListingCreator.tsx` — line 268: "Expert help for your Tulum marketplace" → generic
-- `src/components/WorkerListingForm.tsx` — line 310: placeholder "e.g., Tulum" → "e.g., Your City"
+**Changes:**
+- **`src/components/LegendaryLandingPage.tsx`**: Replace the `LogoImage` component (which renders `SwipessLogo size="4xl"`) with a styled text wordmark: large italic font-black gradient text reading "Swipess". Same orange→rose→pink gradient already used in the auth heading. Remove the `SwipessLogo` from the auth view header (line 325) and replace with the wordmark too.
+- The `SwipessLogo` component (Fire S icon) stays intact for use in smaller UI spots (settings pages, AI chat avatars, etc.) — only the landing page hero gets the wordmark treatment.
 
-**2. Rebrand "Vibe" → "Swipess AI" everywhere**
+**Wordmark design:**
+- Text: "Swipess" (no capital second S)
+- Style: `font-black italic tracking-tight`, gradient `from-orange-300 via-rose-400 to-pink-500`
+- Size on landing: ~`text-7xl` to `text-8xl` for dramatic hero impact
+- Size on auth card: `text-3xl`
 
-- `src/components/ConciergeChat.tsx` line 56: `"Vibe is Thinking..."` → `"Swipess AI is thinking..."`
-- `src/components/ConciergeChat.tsx` line 204: header title `"Vibe"` → `"Swipess AI"`
-- `src/components/ConciergeChat.tsx` line 219: `"AI Concierge · {initialCity}"` → `"Your AI Concierge"`
-- `src/components/AISearchDialog.tsx` line 325: `'Concierge'` → `'Swipess AI'`
-- `src/components/AISearchDialog.tsx` line 497: `"Concierge is thinking..."` → `"Swipess AI is thinking..."`
-- `src/components/BottomNavigation.tsx` lines 100, 112: label `'Concierge'` → `'Swipess AI'`
-- `src/hooks/useConciergeAI.ts` line 32: storage key prefix stays (internal, no UI impact)
+### 2. Stop radio from auto-starting
 
-**3. Improve ConciergeChat UI design** — make it look premium
+The radio defaults to `isPoweredOn: true` in `RadioContext.tsx` line 52. This means every time the provider mounts (page load, sign-in), the radio is "on" and ready to play — and certain interactions trigger `play()` automatically.
 
-- Redesign the quick suggestion buttons: larger, bolder, with gradient borders and icon emphasis
-- Improve the input area: stronger contrast, bigger send button with glow effect
-- Make the header more striking with the Swipess logo instead of JarvisAura
-- Better message bubbles: slightly larger text, more breathing room, premium shadow on AI messages
+**Changes:**
+- **`src/contexts/RadioContext.tsx`**: Change default `isPoweredOn` from `true` to `false` (line 52). Radio only activates when the user explicitly taps the radio button.
+- The `loadUserPreferences` function (line 253) already respects the saved `radio_is_powered_on` preference — so returning users who turned it on will still have it on. New/fresh sessions default to off.
+
+### 3. Fix useState crash (App.tsx line 224)
+
+The runtime error shows `Cannot read properties of null (reading 'useState')` at `App.tsx:224`. This is likely a React import/bundling issue that will be investigated and resolved during implementation.
 
 ### Files to Edit
 
 | File | Change |
 |---|---|
-| `src/components/ConciergeChat.tsx` | Rebrand Vibe → Swipess AI, remove city, upgrade UI |
-| `src/components/AISearchDialog.tsx` | Rebrand Concierge → Swipess AI, remove Tulum from welcome |
-| `src/components/BottomNavigation.tsx` | Label change |
-| `src/hooks/useConciergeAI.ts` | Remove Tulum default city |
-| `src/pages/RoommateMatching.tsx` | Remove "Tulum" header label, fix empty state text |
-| `src/pages/VideoTours.tsx` | Remove "Tulum" from description |
-| `src/pages/AdvertisePage.tsx` | Generic branding (remove Tulum specifics) |
-| `src/components/ButlerProactive.tsx` | Remove "Tulum vibe" |
-| `src/components/ConversationalListingCreator.tsx` | Remove "Tulum marketplace" |
-| `src/components/WorkerListingForm.tsx` | Generic placeholder |
-| `src/i18n/locales/en.json` | Update `tulumVibesOnly` translation |
-| `src/i18n/locales/es.json` | Update `tulumVibesOnly` translation |
+| `src/components/LegendaryLandingPage.tsx` | Replace `LogoImage`/`SwipessLogo` with "Swipess" text wordmark on both landing and auth views |
+| `src/contexts/RadioContext.tsx` | Default `isPoweredOn: false` to prevent auto-start |
+| `src/App.tsx` | Investigate and fix the useState crash at line 224 |
 
