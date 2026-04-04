@@ -132,21 +132,23 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     let lastErrorTime = 0;
 
     const handleAudioError = (_e: Event) => {
-      if (handlingError) return; // prevent re-entrant calls
+      if (handlingError) return;
       handlingError = true;
 
       const audio = audioRef.current;
 
       const now = Date.now();
-      if (now - lastErrorTime < 5000) {
+      if (now - lastErrorTime < 3000) {
         errorCount++;
       } else {
         errorCount = 1;
       }
       lastErrorTime = now;
 
-      if (errorCount > 3) {
+      // Only bail after 8 consecutive rapid errors (not 3)
+      if (errorCount > 8) {
         setError('No stations available right now');
+        errorCount = 0;
         if (audio) {
           audio.removeEventListener('error', handleAudioError);
           audio.pause();
@@ -166,13 +168,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         audio.addEventListener('error', handleAudioError);
       }
 
-      // Flag station as potentially dead
+      // Flag station as potentially dead — require 6 fails before permanent blacklist
       const currentId = currentStationRef.current?.id;
       if (currentId) {
         const fails = (failedStationsCountRef.current[currentId] || 0) + 1;
         failedStationsCountRef.current[currentId] = fails;
         
-        if (fails >= 3) {
+        if (fails >= 6) {
           markStationAsDead(currentId);
         }
       }
@@ -181,7 +183,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       errorTimeoutRef.current = setTimeout(() => {
         setError(null);
         changeStationRef.current('next');
-      }, 3000);
+      }, 800);
 
       handlingError = false;
     };
@@ -293,8 +295,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     if (!targetStation || !audioRef.current) return;
 
     // CRITICAL: Prevent infinite recursion when all stations fail
-    if (playDepthRef.current >= 5) {
+    if (playDepthRef.current >= 10) {
       playDepthRef.current = 0;
+      // Clear failed stations cache so they can be retried
+      failedStationsRef.current.clear();
       setError('No stations available right now');
       setState(prev => ({ ...prev, isPlaying: false }));
       return;
@@ -302,7 +306,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     if (failedStationsRef.current.has(targetStation.id)) {
       logger.info(`[RadioPlayer] Skipping recently failed station: ${targetStation.id}`);
-      setTimeout(() => failedStationsRef.current.delete(targetStation.id), 60000);
+      // Clear after 30s instead of 60s for faster recovery
+      setTimeout(() => failedStationsRef.current.delete(targetStation.id), 30000);
       if (failedStationsRef.current.size > 20) { const first = failedStationsRef.current.values().next().value; if (first) failedStationsRef.current.delete(first); }
       playDepthRef.current++;
       changeStation('next');

@@ -505,8 +505,8 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         ctx.fillRect(0, 0, w, h);
       }
 
-      // Automatic Shooting Stars Every 9 Seconds (Visual Only)
-      if (mode === 'stars' && timestamp - lastAutoStarTime > 9000) {
+      // Automatic Shooting Stars Every 3 Seconds
+      if (mode === 'stars' && timestamp - lastAutoStarTime > 3000) {
         spawnShootingStar();
         lastAutoStarTime = timestamp;
       }
