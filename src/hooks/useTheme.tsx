@@ -139,18 +139,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.style.setProperty('--theme-reveal-x', coords ? `${coords.x}px` : '50%');
     root.style.setProperty('--theme-reveal-y', coords ? `${coords.y}px` : '50%');
 
-    // Freeze transitions or start View Transition
     const doc = document as any;
     if (doc.startViewTransition) {
       doc.startViewTransition(() => {
+        flushSync(() => {
+          applyThemeToDOM(newTheme);
+          setThemeState(newTheme);
+          localStorage.setItem(STORAGE_KEY, newTheme);
+        });
+      });
+    } else {
+      flushSync(() => {
         applyThemeToDOM(newTheme);
         setThemeState(newTheme);
         localStorage.setItem(STORAGE_KEY, newTheme);
       });
-    } else {
-      applyThemeToDOM(newTheme);
-      setThemeState(newTheme);
-      localStorage.setItem(STORAGE_KEY, newTheme);
     }
 
     if (user?.id) {
