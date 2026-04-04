@@ -132,21 +132,23 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     let lastErrorTime = 0;
 
     const handleAudioError = (_e: Event) => {
-      if (handlingError) return; // prevent re-entrant calls
+      if (handlingError) return;
       handlingError = true;
 
       const audio = audioRef.current;
 
       const now = Date.now();
-      if (now - lastErrorTime < 5000) {
+      if (now - lastErrorTime < 3000) {
         errorCount++;
       } else {
         errorCount = 1;
       }
       lastErrorTime = now;
 
-      if (errorCount > 3) {
+      // Only bail after 8 consecutive rapid errors (not 3)
+      if (errorCount > 8) {
         setError('No stations available right now');
+        errorCount = 0;
         if (audio) {
           audio.removeEventListener('error', handleAudioError);
           audio.pause();
