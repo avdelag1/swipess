@@ -62,7 +62,7 @@ function TypingIndicator({ isDark }: { isDark: boolean }) {
 export function ConciergeChat({
   open,
   onOpenChange,
-  initialCity = 'Tulum',
+  initialCity: _initialCity,
   userRole = 'client',
   listings = []
 }: ConciergeChatProps) {
