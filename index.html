@@ -101,22 +101,12 @@
 
   <!-- Favicons -->
   <link rel="icon" type="image/png" href="/favicon.png">
-<<<<<<< HEAD
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
   <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png">
   <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
-=======
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/fire-s-logo-16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/fire-s-logo-32.png">
-  <link rel="icon" type="image/png" sizes="48x48" href="/icons/fire-s-logo-48.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="/icons/fire-s-logo-96.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/icons/fire-s-logo-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/icons/fire-s-logo-512.png">
->>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
 
   <!-- Apple iOS / iPadOS -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -143,14 +133,8 @@
 
 <body>
   <div id="initial-loader">
-<<<<<<< HEAD
-    <div class="stars-container"><div id="stars"></div><div id="stars2"></div></div>
-    <!-- 🚀 ULTRA-TRANSPARENT: FIXED via CSS Masking to force purely floating brand mark -->
-    <div class="splash-logo"><img src="/icons/icon-192.png" alt="SwipesS" width="120" height="120"></div>
-=======
     <div class="stars-lite"></div>
     <div class="splash-logo"></div>
->>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
     <div class="loader-bar"><div class="loader-progress"></div></div>
   </div>
 
@@ -209,7 +193,6 @@
   <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
 
   <script>
-<<<<<<< HEAD
     // RECOVERY FALLBACK: If React fails to mount (chunk error, SW stale cache, etc.)
     // show a reload button after 10s so the user isn't stuck forever.
     var recoveryBtnTimeout = setTimeout(function() {
@@ -259,14 +242,6 @@
         });
       }
     })();
-=======
-    // SW registration
-    if('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js').catch(function(e){});
-      });
-    }
->>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
   </script>
 </body>
 </html>

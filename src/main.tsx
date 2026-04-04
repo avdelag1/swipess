@@ -75,8 +75,7 @@ deferredInit(async () => {
       await StatusBar.setBackgroundColor({ color: "#000000" });
     }
   } catch { /* intentional */ }
-<<<<<<< HEAD
-}, 12000); // 🚀 PUSHED TO 12s for PERFECTION Score
+}, 12000);
 
 // Service Worker Registration
 const isInIframe = (() => {
@@ -104,10 +103,7 @@ if ('serviceWorker' in navigator) {
             window.dispatchEvent(new CustomEvent('sw-controller-changed'));
           });
         })
-        .catch((err) => logger.error('[SW] Error:', err));
+        .catch(() => undefined);
     });
   }
 }
-=======
-}, 15000);
->>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
