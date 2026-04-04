@@ -20,8 +20,10 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 🏎️ GPU DEPTH ISOLATION: Prevents 'Ghosting' during high-speed transitions */
-* {
+/* GPU acceleration only where needed — not universal */
+.gpu-accelerate,
+.swipe-card,
+.modal-overlay {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }

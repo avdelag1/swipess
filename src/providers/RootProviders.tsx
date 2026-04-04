@@ -75,7 +75,7 @@ function AppLifecycleManager({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setActive(true), 3000);
+    const timer = setTimeout(() => setActive(true), 1500);
     return () => clearTimeout(timer);
   }, []);
 

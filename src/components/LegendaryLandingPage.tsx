@@ -167,9 +167,9 @@ const LandingView = memo(({
       key="landing"
       className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4"
       style={{ paddingBottom: '10vh' }}
-      initial={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
-      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }}
-      exit={{ opacity: 0, scale: 0.94, filter: 'blur(12px)', transition: { duration: 0.4, ease: [0.7, 0, 0.84, 0] } }}
+      initial={{ opacity: 0, scale: 1.02 }}
+      animate={{ opacity: 1, scale: 1, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }}
+      exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.2, ease: [0.7, 0, 0.84, 0] } }}
     >
       <motion.div
         drag="x"
@@ -186,11 +186,11 @@ const LandingView = memo(({
         whileTap={{ scale: 0.97 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none relative"
       >
-        <div className="relative">
+        <div className="relative rounded-3xl px-8 py-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
           <SwipessLogo 
-            size="2xl" 
+            size="3xl" 
             glow={true}
-            className="w-[85vw] max-w-[340px] sm:max-w-[420px] md:max-w-[500px]" 
+            className="w-[85vw] max-w-[380px] sm:max-w-[460px] md:max-w-[540px]" 
           />
         </div>
       </motion.div>
