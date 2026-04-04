@@ -58,19 +58,18 @@ Deno.serve(async (req) => {
     const currentPath = context.currentPath || "/";
 
     if (user) {
-      const promises: any[] = [
-        supabase.from('profiles').select('*').eq('id', user.id).single(),
-        supabase.from('user_memories').select('*').eq('user_id', user.id).limit(20)
-      ];
+      try {
+        const profilePromise = supabase.from('profiles').select('*').eq('id', user.id).single();
+        const memoriesPromise = supabase.from('user_memories').select('*').eq('user_id', user.id).limit(20).then(r => r).catch(() => ({ data: [] }));
+        const listingPromise = listingId ? supabase.from('listings').select('*').eq('id', listingId).maybeSingle() : Promise.resolve({ data: null });
 
-      if (listingId) {
-        promises.push(supabase.from('listings').select('*').eq('id', listingId).maybeSingle());
+        const [profileRes, memoriesRes, listingRes] = await Promise.all([profilePromise, memoriesPromise, listingPromise]);
+        profile = profileRes.data;
+        memories = memoriesRes.data || [];
+        activeListing = listingRes.data;
+      } catch (e) {
+        console.error("[AI Orchestrator] Context fetch error:", e);
       }
-
-      const results = await Promise.all(promises);
-      profile = results[0].data;
-      memories = results[1].data || [];
-      if (listingId) activeListing = results[2]?.data;
     }
 
     const messages = input.messages || [];
