@@ -42,9 +42,9 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       const direction = info.offset.x > 0 ? 'right' : 'left';
 
       // Recede behind: animate x slightly while scale+opacity handle via useTransform
-      animate(x, direction === 'right' ? 200 : -200, { 
+      animate(x, direction === 'right' ? 250 : -250, { 
         type: 'tween', 
-        duration: 0.35,
+        duration: 0.4,
         ease: [0.4, 0, 0.2, 1],
         onComplete: () => {
           onCycle(card.id, direction);
