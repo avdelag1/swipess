@@ -24,18 +24,22 @@ import type { EffectMode } from './LandingBackgroundEffects';
 // Lazy-load heavy deps that aren't needed for first paint
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
-// Optimized logo with modern format support + fallback
-function LogoWordmark({ className, size = 'hero' }: { className?: string; size?: 'hero' | 'auth' }) {
+// Optimized wordmark matching the SwipesS brand identity
+function LogoWordmark({ className, size = 'hero', isDark = true }: { className?: string; size?: 'hero' | 'auth'; isDark?: boolean }) {
   return (
-    <div className={cn("relative flex items-center justify-center", className)}>
-      <h1
+    <div className={cn("relative flex flex-col items-center justify-center gap-3", className)}>
+      <span
         className={cn(
-          "font-black italic tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent select-none",
-          size === 'hero' ? 'text-7xl sm:text-8xl md:text-9xl' : 'text-3xl'
+          "font-black uppercase select-none",
+          isDark ? "text-white" : "text-black",
+          size === 'hero' ? 'text-5xl sm:text-6xl md:text-7xl tracking-[0.25em]' : 'text-2xl tracking-[0.25em]'
         )}
       >
-        Swipess
-      </h1>
+        SwipesS
+      </span>
+      {size === 'hero' && (
+        <div className={cn("w-[2px] h-10 rounded-full", isDark ? "bg-white/30" : "bg-black/20")} />
+      )}
     </div>
   );
 }
@@ -148,6 +152,7 @@ const LandingView = memo(({
           <LogoWordmark
             className="mx-auto"
             size="hero"
+            isDark={isDark}
           />
         </div>
       </motion.div>
@@ -192,22 +197,6 @@ const LandingView = memo(({
         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </motion.button>
 
-      {/* Benefits Indicator */}
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 1 }}
-        className="absolute bottom-8 right-8 flex flex-col items-center gap-2 pointer-events-none opacity-40"
-      >
-        <span className={cn("text-[9px] font-black uppercase tracking-[0.3em]", isDark ? "text-white" : "text-black")}>
-          SwipesS
-        </span>
-        <motion.div
-          animate={{ y: [0, 5, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className={cn("w-[2px] h-8 rounded-full", isDark ? "bg-white/20" : "bg-black/20")}
-        />
-      </motion.div>
     </motion.div>
   );
 });
