@@ -20,6 +20,8 @@ import {
   MessageCircle as _ChatIcon,
   ChevronsUp,
   ChevronsDown,
+  Copy,
+  RefreshCcw,
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
 import { useUserMemories } from '@/hooks/useUserMemories';
@@ -642,13 +644,48 @@ export function ConciergeChat({
                         )}
                       </div>
 
-                      {/* Timestamp */}
-                      <p className={cn(
-                        "text-[9px] px-1",
-                        isDark ? "text-zinc-700" : "text-gray-300"
+                      {/* Timestamp & Actions */}
+                      <div className={cn(
+                        "flex items-center gap-2 mt-1",
+                        message.role === 'user' ? "justify-end" : "justify-start"
                       )}>
-                        {formatDistanceToNow(message.timestamp)}
-                      </p>
+                        <p className={cn(
+                          "text-[9px] px-1",
+                          isDark ? "text-zinc-700" : "text-gray-300"
+                        )}>
+                          {formatDistanceToNow(message.timestamp)}
+                        </p>
+
+                        <div className="flex items-center gap-0.5 opacity-40 hover:opacity-100 transition-opacity">
+                            <button
+                                aria-label="Copy message"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(message.content);
+                                    toast.success("Copied to clipboard!", { className: "text-xs" });
+                                    haptics.tap();
+                                }}
+                                className={cn("p-1.5 rounded-md transition-colors mix-blend-luminosity", isDark ? "hover:bg-white/5 text-zinc-400" : "hover:bg-black/5 text-gray-500")}
+                                title="Copy to clipboard"
+                            >
+                                <Copy className="w-[11px] h-[11px]" />
+                            </button>
+                            {message.role === 'user' && (idx >= messages.length - 2) && (
+                                <button
+                                    aria-label="Retry message"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        haptics.tap();
+                                        sendMessage(message.content, { userRole, listings });
+                                    }}
+                                    className={cn("p-1.5 rounded-md transition-colors mix-blend-luminosity", isDark ? "hover:bg-white/5 text-zinc-400" : "hover:bg-black/5 text-gray-500")}
+                                    title="Reload message"
+                                >
+                                    <RefreshCcw className="w-[11px] h-[11px]" />
+                                </button>
+                            )}
+                        </div>
+                      </div>
                     </div>
                   </motion.div>
                   );
