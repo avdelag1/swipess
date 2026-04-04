@@ -216,6 +216,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       audioRef.current?.removeEventListener('error', handleAudioError);
       audioRef.current?.removeEventListener('canplay', handleCanPlay);
       audioRef.current?.removeEventListener('stalled', handleStalled);
+      audioRef.current?.removeEventListener('playing', handlePlaying);
     };
   }, []);
 
