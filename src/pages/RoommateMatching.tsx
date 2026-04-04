@@ -116,7 +116,7 @@ export default function RoommateMatching() {
         .maybeSingle();
       if (data) {
         setCurrentFilters({
-          preferred_gender: data.preferred_gender || [],
+          preferred_gender: (data.preferred_gender as string[]) || [],
           preferred_budget_min: data.preferred_budget_min,
           preferred_budget_max: data.preferred_budget_max,
           preferred_age_min: data.preferred_age_min,
