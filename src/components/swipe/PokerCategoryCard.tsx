@@ -67,8 +67,8 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const stackBrightness = 1 - (index * 0.08);
 
   // Depth exit: scale shrinks and opacity fades as card moves away
-  const exitScale = useTransform(x, [-200, -80, 0, 80, 200], [0.6, 0.9, 1, 0.9, 0.6]);
-  const exitOpacity = useTransform(x, [-200, -120, 0, 120, 200], [0, 0.6, 1, 0.6, 0]);
+  const exitScale = useTransform(x, [-250, -100, 0, 100, 250], [0.5, 0.85, 1, 0.85, 0.5]);
+  const exitOpacity = useTransform(x, [-250, -180, 0, 180, 250], [0, 0.5, 1, 0.5, 0]);
 
   return (
     <motion.div
