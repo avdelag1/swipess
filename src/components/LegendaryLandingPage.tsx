@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })));
-import { SwipessLogo } from './SwipessLogo';
+
 
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -25,10 +25,17 @@ import type { EffectMode } from './LandingBackgroundEffects';
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
 // Optimized logo with modern format support + fallback
-function LogoImage({ className }: { className?: string }) {
+function LogoWordmark({ className, size = 'hero' }: { className?: string; size?: 'hero' | 'auth' }) {
   return (
-    <div className={cn("relative flex items-center justify-center translate-y-[-2vh]", className)}>
-        <SwipessLogo size="4xl" className="scale-110 md:scale-125 transition-transform duration-700 ease-out" />
+    <div className={cn("relative flex items-center justify-center", className)}>
+      <h1
+        className={cn(
+          "font-black italic tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent select-none",
+          size === 'hero' ? 'text-7xl sm:text-8xl md:text-9xl' : 'text-3xl'
+        )}
+      >
+        Swipess
+      </h1>
     </div>
   );
 }
@@ -138,8 +145,9 @@ const LandingView = memo(({
       >
 
         <div className="relative">
-          <LogoImage
-            className="w-[85vw] max-w-[480px] sm:max-w-[580px] md:max-w-[680px] aspect-video mx-auto"
+          <LogoWordmark
+            className="mx-auto"
+            size="hero"
           />
         </div>
       </motion.div>
@@ -322,7 +330,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
             <div className="text-center mb-6">
               <div className="flex justify-center mb-4">
-                <SwipessLogo size="md" className="scale-125" />
+                <LogoWordmark size="auth" />
               </div>
               <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand mb-1">
                 {isLogin ? 'Welcome Back' : 'Elite Discovery'}
