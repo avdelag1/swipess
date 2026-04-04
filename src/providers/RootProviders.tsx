@@ -57,17 +57,25 @@ function LifecycleHooks({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function AuthReadySignal() {
+  const { initialized } = useAuth();
+
+  useEffect(() => {
+    if (initialized) {
+      (window as any).__APP_INITIALIZED__ = true;
+      (window as any).__APP_MOUNTED__ = true;
+      window.dispatchEvent(new CustomEvent('app-rendered'));
+    }
+  }, [initialized]);
+
+  return null;
+}
+
 function AppLifecycleManager({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setActive(true), 3000);
-    const trigger = () => {
-      (window as any).__APP_MOUNTED__ = true;
-      window.dispatchEvent(new CustomEvent('app-rendered'));
-    };
-    if (document.readyState === 'complete') trigger();
-    else window.addEventListener('load', trigger, { once: true });
     return () => clearTimeout(timer);
   }, []);
 

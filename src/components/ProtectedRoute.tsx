@@ -13,7 +13,8 @@ import { PremiumLoader } from "@/components/PremiumLoader";
  * Matches index.html splash exactly for a seamless transition
  */
 function ProtectedRouteLoadingSkeleton() {
-  return <PremiumLoader size="lg" full />;
+  // Return null — the index.html splash screen covers this period
+  return null;
 }
 
 
