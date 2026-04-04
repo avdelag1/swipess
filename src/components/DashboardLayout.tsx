@@ -510,7 +510,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           isFullScreenRoute ? "overflow-y-hidden" : "overflow-y-auto",
           // Events feed is always dark/immersive — match its bg to prevent white flash on transition
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background",
-          "w-full max-w-[100vw] box-border z-0 transform-gpu touch-pan-y"
+          "w-full max-w-[100vw] box-border z-0 touch-pan-y"
         )}
         style={{
           paddingTop: (isFullScreenRoute || isImmersiveDashboard || isImmersiveFeed)

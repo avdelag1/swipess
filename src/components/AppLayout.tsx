@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -6,11 +6,10 @@ import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
 import { GradientMaskTop, GradientMaskBottom, GlobalVignette } from '@/components/ui/GradientMasks';
 import { useTheme } from '@/hooks/useTheme';
+import { useFocusMode } from '@/hooks/useFocusMode';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
+import { AnimatePresence, motion } from 'framer-motion';
 
-// Lazy-load sub-components to reduce initial main-thread work
-const VisualEngine = lazy(() =>
-  import('@/visual/VisualEngine').then(m => ({ default: m.VisualEngine }))
-);
 const RadioMiniPlayer = lazy(() =>
   import('@/components/RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer }))
 );
@@ -22,17 +21,12 @@ interface AppLayoutProps {
   children: React.ReactNode;
 }
 
-import { useFocusMode } from '@/hooks/useFocusMode';
-import { useScrollDirection } from '@/hooks/useScrollDirection';
-import { motion, AnimatePresence } from 'framer-motion';
-
 export function AppLayout({ children }: AppLayoutProps) {
   const { theme } = useTheme();
   const isLightTheme = theme === 'light';
   const location = useLocation();
-  const { isFocused } = useFocusMode(6000); // Optimized timeout: 6s balance between immersion and access
+  const { isFocused } = useFocusMode(6000);
   
-  // 🧘 IMMERSIVE HUD: Root-level scroll detection for global elements (Radio, Masks)
   const { isVisible: isScrollVisible } = useScrollDirection({
     threshold: 25,
     showAtTop: true,
@@ -41,13 +35,11 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const showGlobalHUD = !isFocused && isScrollVisible;
 
-  // Initialize app features
   useKeyboardShortcuts();
   useFocusManagement();
   useOfflineDetection();
   useErrorReporting();
 
-  // Full-screen public preview pages manage their own gradient/overlay system
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
 
   return (
@@ -58,28 +50,16 @@ export function AppLayout({ children }: AppLayoutProps) {
         <NotificationSystem />
       </Suspense>
 
-      {/* Lazy-loaded visual engine - does not block first paint */}
-      <Suspense fallback={null}>
-        <VisualEngine />
-      </Suspense>
-
-      {/* Cinematic depth layers - theme-aware. Skip on full-screen public preview pages. */}
+      {/* Cinematic depth layers — static CSS transitions instead of framer blur */}
       {!isPublicPreview && (
-        <motion.div 
-          animate={{ 
-            opacity: showGlobalHUD ? 1 : 0,
-            filter: showGlobalHUD ? "blur(0px)" : "blur(4px)" 
-          }}
-          transition={{ 
-            duration: isFocused ? 2.4 : 0.4, // BEAUTIFUL vanish, INSTANT return
-            ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : "backOut" 
-          }}
-          className="pointer-events-none"
+        <div 
+          className="pointer-events-none transition-opacity duration-400 ease-out"
+          style={{ opacity: showGlobalHUD ? 1 : 0 }}
         >
           <GlobalVignette intensity={isLightTheme ? 0.4 : 0.8} light={isLightTheme} />
           <GradientMaskTop intensity={isLightTheme ? 0.5 : 0.75} heightPercent={22} zIndex={15} light={isLightTheme} />
           <GradientMaskBottom intensity={isLightTheme ? 0.5 : 0.75} heightPercent={38} zIndex={20} light={isLightTheme} />
-        </motion.div>
+        </div>
       )}
 
       <main
@@ -90,26 +70,15 @@ export function AppLayout({ children }: AppLayoutProps) {
         {children}
       </main>
 
-      {/* Global Radio Mini Player - skip on full-screen public preview pages */}
+      {/* Global Radio Mini Player */}
       {!isPublicPreview && (
         <AnimatePresence>
           {showGlobalHUD && (
             <motion.div
               initial={{ y: 20, opacity: 0 }}
-              animate={{ 
-                y: 0, 
-                opacity: 1,
-                filter: "blur(0px)"
-              }}
-              exit={{ 
-                y: 20, 
-                opacity: 0,
-                filter: "blur(12px)"
-              }}
-              transition={{ 
-                duration: isFocused ? 2.4 : 0.45,
-                ease: isFocused ? [0.43, 0.13, 0.23, 0.96] : [0.22, 1, 0.36, 1] 
-              }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+12px)] left-4 right-4 z-50 pointer-events-none"
             >
               <div className="pointer-events-auto">
@@ -121,7 +90,6 @@ export function AppLayout({ children }: AppLayoutProps) {
           )}
         </AnimatePresence>
       )}
-      
     </div>
   );
 }
