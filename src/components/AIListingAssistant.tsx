@@ -254,8 +254,8 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
         {/* Header - Premium Minimal */}
         <div className="flex items-center justify-between px-8 py-6 border-b border-white/5 bg-card/10 backdrop-blur-xl">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-[1.5rem] bg-primary/20 flex items-center justify-center shadow-inner">
-              <Sparkles className="w-6 h-6 text-primary" />
+            <div className="w-12 h-12 rounded-[1.5rem] bg-orange-500/20 flex items-center justify-center shadow-inner">
+              <Sparkles className="w-6 h-6 text-orange-500" />
             </div>
             <div>
               <DialogTitle className="text-xl font-black tracking-tight text-foreground">Swipess Concierge</DialogTitle>
@@ -344,16 +344,16 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                     disabled={uploading}
                     className={cn(
                       "w-full p-16 rounded-[3rem] border-3 border-dashed transition-all flex flex-col items-center justify-center gap-6 group",
-                      "border-white/10 hover:border-primary/50 hover:bg-primary/5 bg-white/2",
+                      "border-white/10 hover:border-orange-500/50 hover:bg-orange-500/5 bg-white/2",
                       uploading && "opacity-50 cursor-not-allowed"
                     )}
                   >
                     {uploading ? (
-                      <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                      <Loader2 className="w-12 h-12 animate-spin text-orange-500" />
                     ) : (
                       <>
-                        <div className="w-24 h-24 rounded-[2.2rem] bg-primary/10 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-inner">
-                          <Camera className="w-10 h-10 text-primary" />
+                        <div className="w-24 h-24 rounded-[2.2rem] bg-orange-500/10 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-inner">
+                          <Camera className="w-10 h-10 text-orange-500" />
                         </div>
                         <div className="text-center">
                           <p className="text-xl font-black tracking-tight">Select Photos</p>
@@ -441,9 +441,9 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                   className="flex flex-col items-center justify-center py-20 text-center gap-6"
                 >
                   <div className="relative">
-                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse" />
-                    <div className="relative w-24 h-24 rounded-[2.5rem] bg-primary flex items-center justify-center">
-                      <Zap className="w-12 h-12 text-primary-foreground" />
+                    <div className="absolute inset-0 bg-orange-500/40 rounded-full blur-2xl animate-pulse" />
+                    <div className="relative w-24 h-24 rounded-[2.5rem] bg-gradient-to-br from-orange-500 via-red-500 to-purple-600 flex items-center justify-center shadow-lg">
+                      <Zap className="w-12 h-12 text-white" />
                     </div>
                   </div>
                   <div>
@@ -481,7 +481,7 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                       <div className="space-y-2">
                         <p className="font-semibold text-lg">{generatedData.title as string}</p>
                         {generatedData.price ? (
-                          <p className="text-primary font-bold">
+                          <p className="text-orange-500 font-bold">
                             ${(generatedData.price as number).toLocaleString()}/month
                           </p>
                         ) : null}
@@ -514,7 +514,7 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
             )}
             {step !== 'generating' && (
               <Button
-                className="flex-1 rounded-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-xl shadow-primary/20"
+                className="flex-1 rounded-full h-14 bg-gradient-to-r from-orange-500 via-red-500 to-purple-600 hover:opacity-90 text-white font-bold shadow-xl shadow-orange-500/20 border-none"
                 onClick={() => {
                   if (step === 'category') setStep('photos');
                   else if (step === 'photos') setStep('details');

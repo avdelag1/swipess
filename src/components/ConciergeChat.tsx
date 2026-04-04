@@ -203,9 +203,9 @@ export function ConciergeChat({
                   <h2 className={cn("font-black text-[15px] leading-tight tracking-tight", isDark ? "text-white" : "text-gray-900")}>
                     Swipess AI
                   </h2>
-                  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                    <span className={cn("text-[9px] font-black uppercase tracking-[0.15em]", isDark ? "text-orange-400" : "text-orange-600")}>Live</span>
+                  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-red-500/10 border border-red-500/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                    <span className={cn("text-[9px] font-black uppercase tracking-[0.15em]", isDark ? "text-red-400" : "text-red-600")}>Live</span>
                   </span>
                   {(userRole === 'owner' || subscription?.subscription_packages?.tier === 'premium' || subscription?.subscription_packages?.tier === 'unlimited') && (
                     <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-orange-500/15 text-orange-400 text-[9px] font-bold uppercase tracking-wider border border-orange-500/20">
@@ -479,7 +479,7 @@ export function ConciergeChat({
                         {/* Venue card */}
                         {message.role === 'assistant' && message.action?.type === 'show_venue_card' && (
                           <div className={cn("mt-3 overflow-hidden rounded-xl border shadow-lg", isDark ? "border-white/8 bg-zinc-900/80" : "border-gray-200 bg-white")}>
-                            <div className="h-20 w-full relative bg-gradient-to-br from-indigo-500/40 via-purple-500/20 to-pink-500/40 flex items-center justify-center overflow-hidden">
+                            <div className="h-20 w-full relative bg-gradient-to-br from-orange-500/40 via-red-500/20 to-purple-500/40 flex items-center justify-center overflow-hidden">
                               <div className="absolute inset-0 bg-black/30 mix-blend-overlay" />
                               <Sparkles className="w-7 h-7 text-white/30 relative z-10 animate-pulse" />
                               <div className="absolute bottom-2.5 left-3 right-3 text-white z-10">
@@ -513,13 +513,13 @@ export function ConciergeChat({
                         {/* Listing card */}
                         {message.role === 'assistant' && message.action?.type === 'show_listing_card' && (
                           <div
-                            className={cn("mt-3 overflow-hidden rounded-xl border shadow-lg cursor-pointer hover:border-cyan-500/40 transition-colors", isDark ? "border-white/8 bg-zinc-900/80" : "border-gray-200 bg-white")}
+                            className={cn("mt-3 overflow-hidden rounded-xl border shadow-lg cursor-pointer hover:border-orange-500/40 transition-colors", isDark ? "border-white/8 bg-zinc-900/80" : "border-gray-200 bg-white")}
                             onClick={() => {
                               onOpenChange(false);
                               setTimeout(() => navigate(`/properties/${message.action.params?.id}`), 100);
                             }}
                           >
-                            <div className="h-20 w-full relative bg-gradient-to-br from-cyan-500/40 via-blue-500/20 to-emerald-500/40 flex items-center justify-center overflow-hidden">
+                            <div className="h-20 w-full relative bg-gradient-to-br from-orange-500/40 via-red-500/20 to-purple-500/40 flex items-center justify-center overflow-hidden">
                               <div className="absolute inset-0 bg-black/30 mix-blend-overlay" />
                               <Building2 className="w-7 h-7 text-white/30 relative z-10 animate-pulse" />
                               <div className="absolute bottom-2.5 left-3 right-3 text-white z-10">
@@ -541,11 +541,11 @@ export function ConciergeChat({
                             <div className="p-3.5">
                               <div className="flex items-center gap-3 mb-2.5">
                                 <div className={cn("w-10 h-10 rounded-full flex items-center justify-center border shrink-0", isDark ? "bg-zinc-800 border-white/10" : "bg-gray-100 border-gray-200")}>
-                                  <User className={cn("w-5 h-5", isDark ? "text-cyan-400" : "text-cyan-600")} />
+                                  <User className={cn("w-5 h-5", isDark ? "text-orange-400" : "text-orange-600")} />
                                 </div>
                                 <div>
                                   <h4 className={cn("font-bold text-sm leading-tight", isDark ? "text-white" : "text-gray-900")}>{message.action.params?.title}</h4>
-                                  <p className="text-[10px] font-black tracking-widest text-cyan-500 uppercase">{message.action.params?.category || 'Expert'}</p>
+                                  <p className="text-[10px] font-black tracking-widest text-orange-500 uppercase">{message.action.params?.category || 'Expert'}</p>
                                 </div>
                               </div>
                               {message.action.params?.description && (
@@ -586,12 +586,12 @@ export function ConciergeChat({
                             <div className="absolute top-0 right-0 p-3 opacity-10">
                               <Calendar className="w-12 h-12 rotate-12" />
                             </div>
-                            <h4 className={cn("font-black text-xs uppercase tracking-[0.2em] mb-4 flex items-center gap-2", isDark ? "text-cyan-400" : "text-blue-600")}>
+                            <h4 className={cn("font-black text-xs uppercase tracking-[0.2em] mb-4 flex items-center gap-2", isDark ? "text-orange-400" : "text-red-600")}>
                               <Sparkles className="w-3.5 h-3.5" /> Your Saturday Itinerary
                             </h4>
                             <div className="space-y-5 relative">
                               {/* Timeline line */}
-                              <div className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-gradient-to-b from-cyan-500/50 via-blue-500/30 to-transparent rounded-full" />
+                              <div className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-gradient-to-b from-orange-500/50 via-purple-500/30 to-transparent rounded-full" />
                               
                               {message.action.params.activities.map((act: any, idx: number) => (
                                 <motion.div 
@@ -600,9 +600,9 @@ export function ConciergeChat({
                                   animate={{ opacity: 1, x: 0, transition: { delay: idx * 0.1 } }}
                                   className="flex gap-4 relative z-10"
                                 >
-                                  <div className="w-3 h-3 rounded-full bg-cyan-500 mt-1 shadow-sm shadow-cyan-500/50 shrink-0 border-2 border-white ring-4 ring-cyan-500/10" />
+                                  <div className="w-3 h-3 rounded-full bg-orange-500 mt-1 shadow-sm shadow-orange-500/50 shrink-0 border-2 border-white ring-4 ring-orange-500/10" />
                                   <div className="flex-1">
-                                    <div className={cn("text-[10px] font-black uppercase tracking-wider mb-0.5", isDark ? "text-zinc-500" : "text-blue-400")}>
+                                    <div className={cn("text-[10px] font-black uppercase tracking-wider mb-0.5", isDark ? "text-zinc-500" : "text-red-400")}>
                                       {act.time || "TBD"}
                                     </div>
                                     <h5 className={cn("text-[13px] font-bold leading-tight", isDark ? "text-white" : "text-gray-900")}>
@@ -649,8 +649,8 @@ export function ConciergeChat({
                     <div className={cn(
                       "w-8 h-8 rounded-2xl flex items-center justify-center shrink-0 border overflow-hidden",
                       isDark
-                        ? "bg-gradient-to-br from-cyan-500 to-blue-600 border-cyan-500/30 shadow-sm shadow-cyan-500/20"
-                        : "bg-gradient-to-br from-cyan-400 to-blue-500 border-transparent"
+                        ? "bg-gradient-to-br from-orange-500 to-red-600 border-orange-500/30 shadow-sm shadow-orange-500/20"
+                        : "bg-gradient-to-br from-orange-400 to-red-500 border-transparent"
                     )}>
                       <JarvisAura size="sm" className="w-full h-full" isThinking />
                     </div>

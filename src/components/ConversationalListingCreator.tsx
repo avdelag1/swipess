@@ -262,7 +262,7 @@ export function ConversationalListingCreator() {
         <div className="max-w-4xl mx-auto py-8">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <Sparkles className="w-8 h-8 text-primary" />
+              <Sparkles className="w-8 h-8 text-orange-500" />
               <h1 className="text-3xl font-bold">Swipess Concierge</h1>
             </div>
             <p className="text-muted-foreground">Expert help for your marketplace listings</p>
@@ -320,7 +320,7 @@ export function ConversationalListingCreator() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div
-                className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors"
+                className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-orange-500 transition-colors"
                 onClick={() => fileInputRef.current?.click()}
               >
                 <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
@@ -373,12 +373,12 @@ export function ConversationalListingCreator() {
               <Button
                 onClick={handleContinueToConversation}
                 disabled={images.length === 0 || isUploading}
-                className="w-full"
+                className="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-white font-bold"
                 size="lg"
               >
                 {isUploading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin text-white" />
                     Uploading...
                   </>
                 ) : (
@@ -408,8 +408,8 @@ export function ConversationalListingCreator() {
             <CardHeader className="border-b border-white/5 py-8 px-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center shadow-inner">
-                    <MessageSquare className="w-7 h-7 text-primary" />
+                  <div className="w-14 h-14 rounded-2xl bg-orange-500/20 flex items-center justify-center shadow-inner">
+                    <MessageSquare className="w-7 h-7 text-orange-500" />
                   </div>
                   <div>
                     <CardTitle className="text-2xl font-black tracking-tight">Concierge</CardTitle>
@@ -450,7 +450,7 @@ export function ConversationalListingCreator() {
                   {isLoading && (
                     <div className="flex justify-start">
                       <div className="bg-white/10 backdrop-blur-xl rounded-[1.5rem] px-6 py-4 flex items-center gap-3">
-                        <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                        <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
                         <span className="text-xs font-black uppercase tracking-widest opacity-60">Concierge is thinking...</span>
                       </div>
                     </div>
@@ -476,7 +476,7 @@ export function ConversationalListingCreator() {
                   <Button
                     onClick={handleSendMessage}
                     disabled={isLoading || !messageInput.trim()}
-                    className="aspect-square h-14 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl shadow-primary/20 transition-all hover:scale-105"
+                    className="aspect-square h-14 rounded-full bg-gradient-to-br from-orange-500 to-rose-600 hover:opacity-90 text-white shadow-2xl shadow-orange-500/20 transition-all hover:scale-105"
                   >
                     <Send className="w-6 h-6" />
                   </Button>

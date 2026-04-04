@@ -328,7 +328,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                 {view === 'history' ? (
                   <>History Archive <Flame className="w-2.5 h-2.5 text-orange-500" /></>
                 ) : (
-                  <>Active Connection <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /></>
+                  <>Active Connection <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /></>
                 )}
               </DialogDescription>
             </div>

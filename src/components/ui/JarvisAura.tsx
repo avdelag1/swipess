@@ -52,7 +52,7 @@ export function JarvisAura({ isThinking = false, size = 'md', className }: Jarvi
       {/* Outer Glow 1 */}
       <motion.div
         animate={controls}
-        className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl"
+        className="absolute inset-0 bg-orange-500/20 rounded-full blur-xl"
       />
       
       {/* Outer Glow 2 */}
@@ -66,7 +66,7 @@ export function JarvisAura({ isThinking = false, size = 'md', className }: Jarvi
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        className="absolute inset-0 bg-cyan-400/10 rounded-full blur-3xl"
+        className="absolute inset-0 bg-red-400/10 rounded-full blur-3xl"
       />
 
       {/* The Core Orb */}
@@ -74,7 +74,7 @@ export function JarvisAura({ isThinking = false, size = 'md', className }: Jarvi
         animate={controls}
         className={cn(
           "relative z-10 w-full h-full rounded-full border border-white/20 backdrop-blur-md overflow-hidden",
-          "bg-gradient-to-br from-blue-400/30 via-indigo-500/20 to-purple-600/30 shadow-inner"
+          "bg-gradient-to-br from-orange-400/30 via-rose-500/20 to-purple-600/30 shadow-inner"
         )}
       >
         {/* Internal Pulsing Particles */}
@@ -95,7 +95,7 @@ export function JarvisAura({ isThinking = false, size = 'md', className }: Jarvi
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-[-10%] border border-dotted border-blue-400/30 rounded-full"
+        className="absolute inset-[-10%] border border-dotted border-orange-400/30 rounded-full"
       />
     </div>
   );
