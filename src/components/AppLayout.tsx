@@ -1,14 +1,18 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
+import { useAuth } from '@/hooks/useAuth';
 
 import { useTheme } from '@/hooks/useTheme';
-import { useFocusMode } from '@/hooks/useFocusMode';
-import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { AnimatePresence, motion } from 'framer-motion';
+import { SentientHud } from './SentientHud';
+import { TopBar } from './TopBar';
+import { BottomNavigation } from './BottomNavigation';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useModalStore } from '@/state/modalStore';
 
 const RadioMiniPlayer = lazy(() =>
   import('@/components/RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer }))
@@ -23,17 +27,12 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { theme } = useTheme();
-  const isLightTheme = theme === 'light';
   const location = useLocation();
-  const { isFocused } = useFocusMode(6000);
-  
-  const { isVisible: isScrollVisible } = useScrollDirection({
-    threshold: 25,
-    showAtTop: true,
-    resetTrigger: location.pathname
-  });
+  const { user } = useAuth();
+  const { navigate } = useAppNavigate();
+  const modalStore = useModalStore();
 
-  const showGlobalHUD = !isFocused && isScrollVisible;
+  const userRole = (user?.user_metadata?.role as 'client' | 'owner' | 'admin') || 'client';
 
   useKeyboardShortcuts();
   useFocusManagement();
@@ -41,6 +40,26 @@ export function AppLayout({ children }: AppLayoutProps) {
   useErrorReporting();
 
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
+  const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';
+  const isCameraRoute = location.pathname.includes('/camera');
+  const isRadioRoute = location.pathname.includes('/radio');
+  
+  // Immersive sections where header starts transparent
+  const isImmersive = useMemo(() => {
+    const immersiveRoutes = ['/client/dashboard', '/owner/dashboard', '/client/profile', '/owner/profile'];
+    return immersiveRoutes.some(r => location.pathname.startsWith(r)) || 
+           location.pathname.includes('discovery') || 
+           location.pathname.includes('eventos');
+  }, [location.pathname]);
+
+  // Fullscreen routes hide HUD entirely
+  const isFullScreen = isCameraRoute || isRadioRoute || location.pathname.includes('/camera');
+
+  const handleMessageActivationsClick = () => navigate('/subscription/packages');
+  const handleListingsClick = () => {
+    if (userRole === 'owner') navigate('/owner/properties');
+    else navigate('/client/liked-properties');
+  };
 
   return (
     <div className="min-h-screen min-h-dvh w-full bg-background overflow-x-hidden relative">
@@ -50,6 +69,20 @@ export function AppLayout({ children }: AppLayoutProps) {
         <NotificationSystem />
       </Suspense>
 
+      {/* 🧘 GLOBAL UNIVERSAL HUD (Sentient Header) */}
+      {!isAuthRoute && !isFullScreen && !isPublicPreview && (
+        <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[99999]">
+          <TopBar
+            onNotificationsClick={() => {}} 
+            onMessageActivationsClick={handleMessageActivationsClick}
+            showFilters={false} // Managed by specific pages
+            userRole={userRole}
+            transparent={isImmersive}
+            title=""
+            showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
+          />
+        </SentientHud>
+      )}
 
       <main
         id="main-content"
@@ -59,25 +92,33 @@ export function AppLayout({ children }: AppLayoutProps) {
         {children}
       </main>
 
-      {/* Global Radio Mini Player */}
-      {!isPublicPreview && (
-        <AnimatePresence>
-          {showGlobalHUD && (
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 20, opacity: 0 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+12px)] left-4 right-4 z-50 pointer-events-none"
-            >
+      {/* 🧘 GLOBAL UNIVERSAL HUD (Sentient Footer) */}
+      {!isAuthRoute && !isFullScreen && !isPublicPreview && (
+        <>
+          <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[99999]">
+            <BottomNavigation
+              userRole={userRole}
+              onFilterClick={() => modalStore.setModal('showFilters', true)}
+              onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
+              onListingsClick={handleListingsClick}
+              onAISearchClick={() => {
+                if (userRole === 'owner') navigate('/owner/listings/new-ai');
+                else modalStore.setModal('isAISearchOpen', true);
+              }}
+            />
+          </SentientHud>
+
+          {/* Radio Mini Player follows HUD state */}
+          <AnimatePresence>
+            <SentientHud side="bottom" mode="fade" className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+80px)] left-4 right-4 z-50 pointer-events-none">
               <div className="pointer-events-auto">
                 <Suspense fallback={null}>
                   <RadioMiniPlayer />
                 </Suspense>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </SentientHud>
+          </AnimatePresence>
+        </>
       )}
     </div>
   );

@@ -2,26 +2,29 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { SentientHud } from "@/components/SentientHud";
 
 export default function PrivacyPolicy() {
   const navigate = useNavigate();
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Sticky Header */}
-      <div className="flex-shrink-0 sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b px-4 pt-[calc(var(--safe-top)+0.75rem)] pb-3">
-        <div className="max-w-4xl mx-auto flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(-1)}
-            className="rounded-full"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-lg font-semibold">Privacy Policy</h1>
+      {/* 🧘 IMMERSIVE HUD HEADER */}
+      <SentientHud className="fixed top-0 left-0 right-0 z-50">
+        <div className="flex-shrink-0 bg-background/95 backdrop-blur-sm border-b px-4 pt-[calc(var(--safe-top)+0.75rem)] pb-3">
+          <div className="max-w-4xl mx-auto flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="rounded-full"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-lg font-semibold">Privacy Policy</h1>
+          </div>
         </div>
-      </div>
+      </SentientHud>
 
       {/* Scrollable Content */}
       <ScrollArea className="flex-1">
@@ -182,18 +185,20 @@ export default function PrivacyPolicy() {
         </div>
       </ScrollArea>
 
-      {/* Sticky Footer Button */}
-      <div className="flex-shrink-0 sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
-        <div className="max-w-4xl mx-auto">
-          <Button
-            onClick={() => navigate(-1)}
-            className="w-full rounded-xl h-12"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Go Back
-          </Button>
+      {/* 🧘 IMMERSIVE HUD FOOTER */}
+      <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-50">
+        <div className="flex-shrink-0 bg-background/95 backdrop-blur-sm border-t p-4">
+          <div className="max-w-4xl mx-auto">
+            <Button
+              onClick={() => navigate(-1)}
+              className="w-full rounded-xl h-12"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Go Back
+            </Button>
+          </div>
         </div>
-      </div>
+      </SentientHud>
     </div>
   );
 }

@@ -57,14 +57,8 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-3xl mx-auto px-4 pt-4 pb-32">
-        <PageHeader
-          title="About Swipess"
-          subtitle="Connecting property owners with the perfect tenants"
-          showBack={true}
-        />
-
-        {/* Mission Statement */}
+      <div className="max-w-3xl mx-auto px-4 pt-20 pb-32">
+        {/* Missions Statement */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

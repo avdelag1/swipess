@@ -68,20 +68,20 @@ export interface PokerCardData {
 }
 
 // ─── Photo Registry ──────────────────────────────────────────────────────────
-// Primary: local AI-generated images (guaranteed to load, no external dependency).
-// Fallback Unsplash URLs are used for categories without a local asset.
+// Primary: Curated high-fidelity lifestyle photos that represent the Swipess demographic.
+// These are chosen to be premium, diverse, and human-centric (Tulum/European/American).
 export const POKER_CARD_PHOTOS: Record<string, string> = {
-  property:   '/images/filters/property.png',
-  motorcycle: '/images/filters/scooter.png',
-  bicycle:    '/images/filters/bicycle.png',
-  services:   '/images/filters/workers.png',
-  all:        '/images/filters/workers.png', // Fallback to workers for 'all'
+  property:   'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=800&auto=format&fit=crop',
+  motorcycle: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?q=80&w=800&auto=format&fit=crop',
+  bicycle:    'https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=800&auto=format&fit=crop',
+  services:   'https://images.unsplash.com/photo-1600880212340-02d956ea0a0c?q=80&w=800&auto=format&fit=crop',
+  all:        'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=800&auto=format&fit=crop',
   
-  // Owner intent cards - UNIQUE PREMIUM IMAGERY (Refines owner UX)
-  buyers:     '/images/filters/owner_buyers_card.png',
-  renters:    '/images/filters/owner_renters_card.png',
-  hire:       '/images/filters/owner_hire_card.png',
-  radio:      '/images/filters/radio.png',
+  // Owner intent cards - REFINED HUMAN-CENTRIC UX
+  buyers:     'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=800&auto=format&fit=crop',
+  renters:    'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop',
+  hire:       'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=800&auto=format&fit=crop',
+  radio:      'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800&auto=format&fit=crop',
 };
 
 // Gradient fallbacks shown when an image fails to load (no broken/black cards).

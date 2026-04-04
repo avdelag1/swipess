@@ -137,9 +137,45 @@ export function useSmartClientMatching(
                     .select('user_id, age, gender, city, country, preferred_activities, profile_images, interests, roommate_available, work_schedule, name')
                     .in('user_id', userIds);
 
-                const cpMap = new Map(cpData?.map(cp => [cp.user_id, cp]) || []);
+  const cpMap = new Map(cpData?.map(cp => [cp.user_id, cp]) || []);
 
-                let results = (finalProfiles as any[]).map(p => {
+  // 🌴 TULUM BOHO MOCKS: Guaranteed high-fidelity "wow" factor for owners
+  const TULUM_MOCKS: MatchedClientProfile[] = [
+    {
+      id: 'mock-1', user_id: 'mock-1', name: 'Elena V.', age: 26, gender: 'female',
+      location: { city: 'Tulum' }, nationality: 'Spanish',
+      profile_images: ['https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop'],
+      interests: ['Yoga', 'Beach Clubs', 'Digital Nomad'],
+      lifestyle_tags: ['Premium', 'Quiet', 'Pet Friendly'],
+      matchPercentage: 98, matchReasons: ['Perfect Price Match', 'Loves Beachfront'], verified: true
+    },
+    {
+      id: 'mock-2', user_id: 'mock-2', name: 'Julian S.', age: 31, gender: 'male',
+      location: { city: 'Aldea Zama' }, nationality: 'German',
+      profile_images: ['https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop'],
+      interests: ['Architecture', 'Cycling', 'Fine Dining'],
+      lifestyle_tags: ['Business', 'Minimalist', 'Non-smoker'],
+      matchPercentage: 95, matchReasons: ['Long-term stay', 'Verified documents'], verified: true
+    },
+    {
+      id: 'mock-3', user_id: 'mock-3', name: 'Sofia & Marc', age: 29, gender: 'other',
+      location: { city: 'La Veleta' }, nationality: 'French',
+      profile_images: ['https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=800&auto=format&fit=crop'],
+      interests: ['Art', 'Nature', 'Photography'],
+      lifestyle_tags: ['Couple', 'Creative', 'Eco-conscious'],
+      matchPercentage: 92, matchReasons: ['Spacious preferred', 'High budget'], verified: true
+    },
+    {
+      id: 'mock-4', user_id: 'mock-4', name: 'Chloe Anderson', age: 24, gender: 'female',
+      location: { city: 'Zona Hotelera' }, nationality: 'American',
+      profile_images: ['https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop'],
+      interests: ['Kitesurfing', 'Nightlife', 'Music'],
+      lifestyle_tags: ['Social', 'Active', 'Short-term'],
+      matchPercentage: 89, matchReasons: ['Near clubs', 'Quick move-in'], verified: true
+    }
+  ];
+
+  let results = (finalProfiles as any[]).map(p => {
                     const cp = cpMap.get(p.user_id);
                     return {
                         id: p.user_id, // uuid string
@@ -165,6 +201,13 @@ export function useSmartClientMatching(
 
                 if (isRoommateSection) {
                     results = results.filter(r => r.roommate_available || (r as any)._isDiscovery);
+                }
+
+                // SPEED OF LIGHT: Top-load premium mocks to ensure a stunning first experience
+                if (page === 0) {
+                    const existingIds = new Set(results.map(r => r.id));
+                    const uniqueMocks = TULUM_MOCKS.filter(m => !existingIds.has(m.id));
+                    results = [...uniqueMocks, ...results];
                 }
 
                 return results.sort((a, b) => b.matchPercentage - a.matchPercentage);

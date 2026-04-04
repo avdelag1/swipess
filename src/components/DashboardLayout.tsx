@@ -471,33 +471,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
 
-      {/* Speed of Light Global Loading Bar */}
-      <LoadingBar />
-
-      {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and immersive feeds for fullscreen UX */}
-      {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
-      {!isFullScreenRoute && (
-        <div 
-          className={cn(
-            "fixed top-0 left-0 right-0 z-[99999] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
-            !showHUD ? "opacity-0 -translate-y-full pointer-events-none" : "opacity-100 translate-y-0"
-          )}
-        >
-          <TopBar
-            onNotificationsClick={() => {}} 
-            onMessageActivationsClick={handleMessageActivationsClick}
-            showFilters={isOnDiscoveryPage}
-            userRole={userRole}
-            transparent={isImmersiveDashboard || isImmersiveFeed}
-            hideOnScroll={false}
-            title={pageTitle}
-            showBack={!isOnDiscoveryPage}
-          />
-        </div>
-      )}
+    {/* HUD is now managed globally in AppLayout.tsx to ensure a universal immersive experience */}
 
       {/* Main Content - Scrollable area with safe area spacing for fixed header/footer */}
-      {/* On camera, radio route or immersive dashboard: content extends behind TopBar for full-bleed experience */}
       <main
         ref={scrollContainerRef}
         id="dashboard-scroll-container"
@@ -508,7 +484,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         className={cn(
           isFullScreenRoute ? "fixed inset-0 overflow-visible" : "absolute inset-0 overflow-x-hidden overflow-y-auto",
           "scroll-area-momentum scrollbar-hide shadow-none",
-          // Events feed is always dark/immersive — match its bg to prevent white flash on transition
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background",
           "w-full max-w-[100vw] box-border z-0 touch-pan-y"
         )}
@@ -519,40 +494,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           paddingBottom: (isFullScreenRoute) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
+          // 🚀 SPEED OF LIGHT: Optimized layout containment
+          contentVisibility: 'auto',
+          containIntrinsicSize: '100dvh',
         }}
       >
-
-        {/* PERF FIX: Removed motion.div key={location.pathname} wrapper.
-            AnimatedOutlet already handles page transitions with key={location.key}.
-            The double wrapper was causing unnecessary unmount/remount cycles. */}
         <div className="min-h-full w-full flex flex-col">
           {enhancedChildren}
         </div>
       </main>
-
-      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and all immersive feeds */}
-      {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
-        <div 
-          className={cn(
-            "fixed bottom-0 left-0 right-0 z-[99999] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
-            !showHUD ? "opacity-0 translate-y-full pointer-events-none" : "opacity-100 translate-y-0"
-          )}
-        >
-          <BottomNavigation
-            userRole={userRole}
-            onFilterClick={() => modalStore.setModal('showFilters', true)}
-            onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
-            onListingsClick={handleListingsClick}
-            onAISearchClick={() => {
-              if (userRole === 'owner') {
-                navigate('/owner/listings/new-ai');
-              } else {
-                modalStore.setModal('isAISearchOpen', true);
-              }
-            }}
-          />
-        </div>
-      )}
 
       {/* PROACTIVE AI BUTLER — Sentient Insights */}
       <ButlerProactive />
