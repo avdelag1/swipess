@@ -33,6 +33,7 @@ import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
+import { useModalStore } from '@/state/modalStore';
 
 const ICON_SIZE = 24;
 const ICON_SIZE_COMPACT = 22;
@@ -81,6 +82,7 @@ export const BottomNavigation = memo(({
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { theme } = useTheme();
   const isLight = theme === 'light';
+  const isAISearchOpen = useModalStore(s => s.isAISearchOpen);
   const { t } = useTranslation();
 
   // Detect narrow screens for icon-only compact mode
@@ -260,7 +262,12 @@ export const BottomNavigation = memo(({
     [navigate],
   );
 
-  const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
+  const isActive = (item: NavItem) => {
+    if (item.id === 'ai-search') {
+      return isAISearchOpen || location.pathname.includes('new-ai');
+    }
+    return item.path ? location.pathname === item.path : false;
+  };
 
   const iconColorInactive = isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.55)';
   const activeColor = 'var(--color-brand-primary)';
@@ -280,8 +287,8 @@ export const BottomNavigation = memo(({
         style={{
           // LAYER 1: Solid glass base with Heavy Backdrop Blur
           backgroundColor: isLight ? 'rgba(255,255,255,0.88)' : 'rgba(8, 8, 10, 0.85)',
-          backdropFilter: 'blur(32px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(32px) saturate(180%)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
           // No hard borders — defined by shadows and a subtle rim light
           border: isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.12)',
           borderRadius: '32px',
