@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useRef, useMemo } from 'react';
+import { flushSync } from 'react-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
