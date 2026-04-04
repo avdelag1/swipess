@@ -3,59 +3,141 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-  "Access-Control-Allow-Headers": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+/**
+ * 🚀 SWIPESS AI ORCHESTRATOR
+ * The sentient brain behind the Swipess PWA.
+ * Handles both Chat (Concierge) and Listing Creation (Conversation).
+ */
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
     const payload = await req.json().catch(() => ({}));
-    // Accept messages from 'data' property or top level
-    const rawMessages = payload.data?.messages || payload.messages || [];
+    const { task, data } = payload;
+    
+    // Fallback: search messages from different likely structures
+    const rawMessages = data?.messages || payload.messages || [];
     const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
 
     if (!minimaxKey) throw new Error("MINIMAX_API_KEY is missing.");
 
-    // Mapping messages correctly to MiniMax format
+    // Proper role mapping for MiniMax v2
     const formattedMessages = rawMessages.map((m: any) => ({
       role: (m.role === "assistant" || m.role === "model") ? "assistant" : "user",
       content: m.content || m.text || ""
     })).filter((m: any) => m.content.trim() !== "");
 
-    // Default system prompt
-    const systemMessage = { 
-      role: "system", 
-      content: "You are the Swipess AI Concierge. You helping people find property and services in Tulum. Be short, professional, and sophisticated." 
-    };
+    let systemPrompt = "";
 
+    // ─────────────────────────────────────────────────────────────────────────────
+    // 🎭 TASK: chat (The Concierge)
+    // ─────────────────────────────────────────────────────────────────────────────
+    if (task === "chat" || !task) {
+      const { userName = "Friend", userTier = "Basic", context = {} } = data || {};
+      const { city = "Tulum", listings = [], currentPath = "/" } = context;
+
+      systemPrompt = `
+You are the Swipess AI Concierge, a sentient, sophisticated digital assistant helping people find their vibe in ${city}.
+Your tone is premium, professional, yet warmly approachable (like a high-end luxury hotel concierge).
+
+IDENTITY:
+- You are not just a chatbot; you are Swipess AI.
+- You are currently helping ${userName} (Tier: ${userTier}).
+- You are aware of the current environment: ${currentPath}.
+
+KNOWLEDGE OF LISTINGS:
+Relevant properties/services: ${JSON.stringify(listings)}
+
+INSTRUCTIONS:
+1. Be concise but evocative.
+2. If the user asks for properties/vibe/activities, use your knowledge of ${city}.
+3. ACTION TRIGGERING: You can trigger UI actions by appending a JSON block at the very end of your response.
+   ONLY USE THESE ACTIONS:
+   - {"action": {"type": "show_listing_card", "params": {"id": "...", "title": "...", "price": 0, "location": "..."}}}
+   - {"action": {"type": "show_venue_card", "params": {"title": "...", "category": "...", "whatsapp": "...", "instagram": "..."}}}
+   - {"action": {"type": "save_memory", "params": {"title": "...", "content": "...", "category": "note"}}} (Use this when the user shares personal preferences)
+   - {"action": {"type": "create_itinerary", "params": {"activities": [{"time": "...", "title": "...", "description": "..."}]}}}
+
+IMPORTANT: Your response must be natural text, followed by the action JSON if relevant. Do not repeat the JSON block if not needed.
+      `.trim();
+    } 
+    // ─────────────────────────────────────────────────────────────────────────────
+    // 🏗️ TASK: conversation (Listing Creator)
+    // ─────────────────────────────────────────────────────────────────────────────
+    else if (task === "conversation") {
+      const { category, imageCount, extractedData = {} } = data;
+      
+      systemPrompt = `
+You are the Swipess Listing Architect. Your goal is to help the user create a high-quality ${category} listing.
+The user has already uploaded ${imageCount} photo(s).
+
+CURRENT EXTRACTED DATA:
+${JSON.stringify(extractedData)}
+
+INSTRUCTIONS:
+1. Ask helpful, professional questions to fill in missing fields (title, price, location/city, description, and category-specific details).
+2. ONLY output a JSON object in this exact format:
+   {
+     "message": "Your professional response to the user",
+     "extractedData": { ...updated data including new info... },
+     "isComplete": boolean (true if all key info is present)
+   }
+3. Do not include any text outside the JSON block.
+      `.trim();
+    }
+
+    // Call MiniMax v2
     const res = await fetch("https://api.minimax.io/v1/text/chatcompletion_v2", {
       method: "POST",
       headers: { "Authorization": `Bearer ${minimaxKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({ 
-        model: "abab6.5s-chat", // The gold standard for MiniMax v2
-        messages: [systemMessage, ...formattedMessages],
-        temperature: 0.1, // Lower temperature for more stable responses
+        model: "abab6.5s-chat",
+        messages: [{ role: "system", content: systemPrompt }, ...formattedMessages],
+        temperature: task === "conversation" ? 0 : 0.2, // 0 for strict extraction, higher for conversational concierge
       }),
     });
 
-    const data = await res.json();
-    
-    // Support multiple MiniMax response formats
-    const aiText = data.choices?.[0]?.message?.content || 
-                   data.choices?.[0]?.text || 
-                   data.reply || 
-                   "";
+    const aiRes = await res.json();
+    const rawAiText = aiRes.choices?.[0]?.message?.content || 
+                    aiRes.choices?.[0]?.text || 
+                    aiRes.reply || 
+                    "";
 
-    if (!aiText) {
-        console.error("MiniMax Empty Response:", JSON.stringify(data));
-        return new Response(JSON.stringify({ 
-            result: { text: "I'm here, but I'm having trouble thinking of the right words. Try asking again!" } 
-        }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!rawAiText) {
+        throw new Error("Empty response from AI engine.");
+    }
+
+    let finalResult: any;
+
+    if (task === "conversation") {
+        try {
+            // Strict JSON parsing for conversation task
+            finalResult = JSON.parse(rawAiText.trim().replace(/^```json/, '').replace(/```$/, ''));
+        } catch (e) {
+            console.error("JSON Parse Error:", rawAiText);
+            finalResult = { 
+                message: "I'm having a technical glitch parsing your details. Could you repeat that?",
+                extractedData,
+                isComplete: false
+            };
+        }
+    } else {
+        // Concierge Task: Parse for actions
+        const actionMatch = rawAiText.match(/(\{\s*"action"\s*:[\s\S]*?\}\s*)$/m);
+        const aiText = actionMatch ? rawAiText.substring(0, actionMatch.index).trim() : rawAiText.trim();
+        const aiAction = actionMatch ? JSON.parse(actionMatch[0])?.action : null;
+
+        finalResult = {
+            text: aiText,
+            action: aiAction
+        };
     }
 
     return new Response(JSON.stringify({
-      result: { text: aiText.trim() },
+      result: finalResult,
       status: "success"
     }), {
       status: 200,
@@ -63,6 +145,7 @@ Deno.serve(async (req) => {
     });
 
   } catch (err: any) {
+    console.error("Orchestrator Error:", err);
     return new Response(JSON.stringify({ error: err.message }), { 
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } 
     });

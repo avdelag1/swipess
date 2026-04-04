@@ -20,23 +20,30 @@ export function useFocusMode(timeout: number = 6000) {
   const lastInteractionRef = useRef<number>(Date.now());
 
   const handleInteraction = useCallback((_e?: Event) => {
-    // ⚡ INSTANT RECOVERY: Clear focus state on first hint of movement
-    setIsFocused(false);
-    lastInteractionRef.current = Date.now();
+    const now = Date.now();
+    // ⚡ SPEED OF LIGHT: Throttle high-frequency updates to 100ms
+    // to prevent CPU thrashing during smooth scrolls or fast pointer moves.
+    if (now - lastInteractionRef.current < 100 && !isFocused) {
+      return;
+    }
+    
+    lastInteractionRef.current = now;
+    
+    // Bailout if already in the desired state (Visible)
+    setIsFocused(prev => {
+      if (!prev) return false;
+      return false;
+    });
     
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
     
-    // Start the countdown to 'Invisibility'
+    // Start the countdown to 'Invisibility' (Focus Mode)
     timerRef.current = setTimeout(() => {
-      // Don't focus if user is actively interacting (e.g. holding a long press or scrolling)
-      // but the timer somehow fired. Check time since last interaction.
-      if (Date.now() - lastInteractionRef.current >= timeout - 100) {
-        setIsFocused(true);
-      }
+      setIsFocused(true);
     }, timeout);
-  }, [timeout]);
+  }, [timeout, isFocused]);
 
   useEffect(() => {
     // List of events that prove the user is active

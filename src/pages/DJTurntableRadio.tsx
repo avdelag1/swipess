@@ -186,16 +186,15 @@ function RadioVisualizer({ isPlaying, color }: { isPlaying: boolean; color: stri
   return (
     <div className="flex items-end justify-center gap-[3px] h-12 w-full mt-4 px-12">
       {bars.map((v, i) => (
-        <motion.div
+        <div
           key={i}
-          className="w-1 rounded-full"
+          className="w-1 rounded-full transition-all duration-[80ms] ease-out"
           style={{ 
+            height: `${Math.max(8, v * 100)}%`,
             background: `linear-gradient(to top, ${color}22, ${color})`, 
             boxShadow: v > 0.6 ? `0 0 12px ${color}88` : 'none',
-            opacity: 0.4 + (v * 0.6)
+            opacity: 0.3 + (v * 0.7)
           }}
-          animate={{ height: `${Math.max(6, v * 100)}%` }}
-          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
         />
       ))}
     </div>
@@ -314,9 +313,10 @@ export default function DJTurntableRadio() {
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           <motion.button
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => { toggleShuffle(); triggerHaptic('light'); }}
             className={cn(
               "w-12 h-12 rounded-2xl backdrop-blur-2xl flex items-center justify-center transition-all border", 
@@ -328,15 +328,28 @@ export default function DJTurntableRadio() {
             <Shuffle className={cn("w-5 h-5", state.isShuffle ? (isDark ? "text-white" : "text-black") : (isDark ? "text-white/40" : "text-black/30"))} />
           </motion.button>
           
+          {/* 📡 ALL STATIONS: Hexagonal Scanner Look */}
           <motion.button
+            whileHover={{ scale: 1.08, rotate: 5 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => setShowDrawer(true)}
+            onClick={() => { setShowDrawer(true); triggerHaptic('medium'); }}
             className={cn(
-              "w-12 h-12 rounded-2xl flex items-center justify-center border shadow-2xl transition-all",
-              isDark ? "bg-white/5 backdrop-blur-2xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
+              "relative w-14 h-14 flex items-center justify-center group",
+              "before:absolute before:inset-0 before:bg-white/5 before:backdrop-blur-3xl before:rounded-[35%] before:rotate-45 before:border before:border-white/10 before:transition-transform group-hover:before:rotate-[135deg]",
+              "after:absolute after:inset-1 after:border-t after:border-l after:border-orange-500/40 after:rounded-[30%] after:rotate-45 after:transition-all group-hover:after:border-orange-400"
             )}
           >
-            <ListMusic className={cn("w-5 h-5", isDark ? "text-white/70" : "text-black/60")} />
+            <div className="relative z-10 flex flex-col items-center gap-0.5">
+              <ListMusic className={cn("w-6 h-6", isDark ? "text-white" : "text-black")} />
+              <span className="text-[7px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Stations</span>
+            </div>
+            
+            {/* Pulsing scan line */}
+            <motion.div 
+              animate={{ top: ['20%', '80%', '20%'] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              className="absolute left-1/4 right-1/4 h-[1px] bg-orange-500/30 blur-[1px] z-10 pointer-events-none"
+            />
           </motion.button>
         </div>
       </motion.div>
@@ -445,66 +458,105 @@ export default function DJTurntableRadio() {
         </div>
 
         {/* Playback Controls Container */}
-        <div className="mt-auto mb-6 flex flex-col items-center gap-5 w-full max-w-[440px] stagger-enter">
+        <div className="mt-auto mb-10 flex flex-col items-center gap-5 w-full max-w-[440px] stagger-enter">
           <div className="flex items-center gap-6">
+            
+            {/* ❤️ SENTIENT PULSAR: Save the Likes/Lights */}
             <motion.button
+              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.85 }}
-              onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('light'); } }}
+              onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('success'); } }}
               className={cn(
-                "w-16 h-16 rounded-3xl flex items-center justify-center border shadow-2xl transition-all",
-                isDark ? "bg-white/5 backdrop-blur-3xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
+                "relative w-16 h-16 rounded-full flex items-center justify-center group overflow-hidden transition-all duration-700",
+                isStationFavorite(state.currentStation?.id || '') 
+                  ? "bg-transparent ring-2 ring-orange-500/40" 
+                  : "bg-white/5 backdrop-blur-3xl border border-white/10"
               )}
             >
+              <AnimatePresence>
+                {state.currentStation && isStationFavorite(state.currentStation.id) && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0 }}
+                    className="absolute inset-0 bg-gradient-to-br from-orange-600 via-rose-600 to-red-700"
+                  />
+                )}
+              </AnimatePresence>
+              
+              {/* Internal breathing core */}
+              <motion.div 
+                animate={state.isPlaying ? { scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] } : {}}
+                transition={{ duration: 2, repeat: Infinity }}
+                className={cn(
+                  "absolute inset-2 rounded-full blur-md z-0",
+                  state.currentStation && isStationFavorite(state.currentStation.id) ? "bg-white/30" : "bg-orange-500/10"
+                )}
+              />
+
               <Heart 
-                className="w-7 h-7 transition-all duration-500" 
-                fill={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : 'none'} 
-                stroke={state.currentStation && isStationFavorite(state.currentStation.id) ? primaryColor : (isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.3)')} 
-                style={state.currentStation && isStationFavorite(state.currentStation.id) ? { filter: `drop-shadow(0 0 20px ${primaryColor})` } : {}}
+                className={cn("w-8 h-8 relative z-10 transition-all duration-700", isStationFavorite(state.currentStation?.id || '') ? "scale-110" : "scale-100")} 
+                fill={state.currentStation && isStationFavorite(state.currentStation.id) ? "white" : "none"} 
+                stroke={state.currentStation && isStationFavorite(state.currentStation.id) ? "white" : (isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)')} 
               />
             </motion.button>
 
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-6">
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
-                className={cn("w-14 h-14 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
+                className={cn("w-14 h-14 rounded-full flex items-center justify-center transition-all", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
               >
-                <SkipBack className={cn("w-6 h-6", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
+                <SkipBack className={cn("w-7 h-7", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
               </motion.button>
 
               <motion.button
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
-                className="w-24 h-24 rounded-full flex items-center justify-center relative shadow-[0_20px_50px_rgba(0,0,0,0.6)] border-2 border-white/20"
+                className="w-24 h-24 rounded-full flex items-center justify-center relative shadow-[0_30px_60px_rgba(0,0,0,0.6)] group"
                 style={{ 
                   background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
-                  boxShadow: `0 0 60px ${primaryColor}33, inset 0 2px 20px rgba(255,255,255,0.5)`
+                  boxShadow: state.isPlaying ? `0 0 80px ${primaryColor}44, inset 0 2px 20px rgba(255,255,255,0.5)` : `0 15px 30px rgba(0,0,0,0.4)`
                 }}
               >
-                {state.isPlaying ? <Pause className="w-10 h-10 text-white" fill="white" /> : <Play className="w-10 h-10 text-white ml-1.5" fill="white" />}
+                <div className="absolute inset-0 rounded-full border-2 border-white/20 group-hover:border-white/40 transition-colors" />
+                {state.isPlaying ? <Pause className="w-12 h-12 text-white" fill="white" /> : <Play className="w-12 h-12 text-white ml-2" fill="white" />}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/20 to-transparent pointer-events-none" />
               </motion.button>
 
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { changeStation('next'); triggerHaptic('medium'); }}
-                className={cn("w-14 h-14 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
+                className={cn("w-14 h-14 rounded-full flex items-center justify-center transition-all", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
               >
-                <SkipForward className={cn("w-6 h-6", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
+                <SkipForward className={cn("w-7 h-7", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
               </motion.button>
             </div>
 
+            {/* 💎 MEMORY CRYSTAL: Favorites List Trigger */}
             <motion.button
+              whileHover={{ scale: 1.1, rotate: -5 }}
               whileTap={{ scale: 0.85 }}
-              onClick={() => { setShowFavoritesDrawer(true); triggerHaptic('light'); }}
+              onClick={() => { setShowFavoritesDrawer(true); triggerHaptic('medium'); }}
               className={cn(
-                "w-16 h-16 rounded-3xl flex items-center justify-center border shadow-2xl transition-all",
-                isDark ? "bg-white/5 backdrop-blur-3xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
+                "relative w-16 h-16 flex items-center justify-center overflow-hidden transition-all duration-500",
+                "bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[1.8rem]"
               )}
             >
-              <ListMusic className={cn("w-7 h-7", isDark ? "text-white/50" : "text-black/40")} />
+              <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/10 to-purple-500/10 pointer-events-none" />
+              <div className="relative z-10 flex flex-col items-center gap-1">
+                <div className="relative">
+                  <ListMusic className={cn("w-8 h-8", isDark ? "text-white/60" : "text-black/40")} />
+                  {state.favorites.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full ring-2 ring-[#030303]" />
+                  )}
+                </div>
+                <span className="text-[6px] font-black uppercase tracking-[0.2em] opacity-40">Favorites</span>
+              </div>
             </motion.button>
           </div>
+
 
           {/* Master Volume Bar */}
           <div className="w-full px-8 pb-2">

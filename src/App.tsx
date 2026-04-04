@@ -69,8 +69,6 @@ const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const SubscriptionPackagesPage = lazy(() => import("./pages/SubscriptionPackagesPage"));
 const DJTurntableRadio = lazy(() => import("./pages/DJTurntableRadio"));
-const RadioPlaylists = lazy(() => import("./pages/RadioPlaylists"));
-const RadioFavorites = lazy(() => import("./pages/RadioFavorites"));
 const EventosFeed = lazy(() => import("./pages/EventosFeed"));
 const EventoDetail = lazy(() => import("./pages/EventoDetail"));
 const EventosLikes = lazy(() => import("./pages/EventosLikes"));
@@ -176,8 +174,6 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
               <Route path="/radio" element={<DJTurntableRadio />} />
-              <Route path="/radio/playlists" element={<RadioPlaylists />} />
-              <Route path="/radio/favorites" element={<RadioFavorites />} />
 
               {/* Explore/Events */}
               <Route path="/explore/eventos" element={<EventosFeed />} />
