@@ -152,6 +152,7 @@ const LandingView = memo(({
           <LogoWordmark
             className="mx-auto"
             size="hero"
+            isDark={isDark}
           />
         </div>
       </motion.div>
