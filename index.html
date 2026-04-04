@@ -61,14 +61,11 @@
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       width:100vw;height:100dvh;background:#000;
       position:fixed;top:0;left:0;z-index:9999;
-      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
     #initial-loader.dissolving { opacity: 0; pointer-events: none; }
     
-    .splash-logo{
-      display:flex;flex-direction:column;align-items:center;gap:20px;
-    }
-    .splash-logo .splash-text{
+    .splash-wordmark{
       font-family: system-ui, -apple-system, sans-serif;
       font-weight: 900;
       font-size: 4.5rem;
@@ -77,28 +74,17 @@
       color: #FFFFFF;
       text-shadow: 0 1px 0 rgba(255,255,255,0.25), 0 4px 12px rgba(0,0,0,0.5), 0 0 60px rgba(255,255,255,0.08), 0 -1px 2px rgba(255,255,255,0.1);
       -webkit-text-stroke: 0.3px rgba(255,255,255,0.08);
-      animation: heartbeat 2s ease-in-out infinite;
-      will-change: transform, opacity;
+      animation: heartbeat 2.2s ease-in-out infinite;
+      will-change: transform;
+      -webkit-user-select: none;
       user-select: none;
     }
-    .splash-logo .splash-line{
-      width:1.5px;height:5rem;border-radius:1px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.02) 100%);
-    }
     @keyframes heartbeat{
-      0%, 100% { transform: scale(1); opacity: 0.9; }
-      10%, 30% { transform: scale(1.04); opacity: 1; }
-      20% { transform: scale(1); opacity: 0.9; }
-      40% { transform: scale(1); opacity: 0.9; }
+      0%, 100% { transform: scale(1); }
+      45%, 55% { transform: scale(1.03); }
     }
-    .loader-bar{width:180px;height:2px;background:rgba(255,255,255,0.05);border-radius:10px;margin-top:32px;position:relative;overflow:hidden;}
-    .loader-progress{position:absolute;inset:0;width:100%;background:linear-gradient(90deg,transparent 0%,#ff4d00 50%,transparent 100%);animation:loader-slide 1.5s ease-in-out infinite;}
-    @keyframes loader-slide{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 
-    .stars-lite{position:absolute;inset:0;background:radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)), radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(1px 1px at 50px 160px, #fff, rgba(0,0,0,0));background-size: 200px 200px;opacity: 0.1;animation: stars-drift 100s linear infinite;}
-    @keyframes stars-drift{from{background-position:0 0}to{background-position:0 -1000px}}
-
-    #root{opacity:0;transition:opacity 0.4s ease-out;will-change:opacity}
+    #root{opacity:0;transition:opacity 0.35s ease-out;will-change:opacity}
     #root.hydrated{opacity:1}
   </style>
 
@@ -124,9 +110,7 @@
 
 <body>
   <div id="initial-loader">
-    <div class="stars-lite"></div>
-    <div class="splash-logo"><span class="splash-text">SwipesS</span><div class="splash-line"></div></div>
-    <div class="loader-bar"><div class="loader-progress"></div></div>
+    <span class="splash-wordmark">SwipesS</span>
   </div>
 
 
