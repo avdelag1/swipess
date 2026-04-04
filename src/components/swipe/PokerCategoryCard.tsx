@@ -2,6 +2,7 @@ import { memo, useCallback, useRef, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   PK_W, PK_H, FOLDER_OFFSET_Y,
   PK_DIST_THRESHOLD, PK_VEL_THRESHOLD, PK_SPRING,
@@ -22,13 +23,6 @@ interface PokerCardProps {
   cardHeight?: number;
 }
 
-/**
- * 🃏 PokerCategoryCard — CYCLIC REBORN 🎰
- * 
- * Re-imagined for high-frequency browsing.
- * Features a 'Deep Perspective Stack' so you can see all the filters waiting on the back.
- * Narrower and Taller cards provide a modern 'Story/Reel' feel optimally scaled for mobile.
- */
 export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCollapsed = false, onCycle, onSelect, onBringToFront, cardHeight }: PokerCardProps) => {
   const height = cardHeight ?? PK_H;
   const { theme } = useTheme();
@@ -37,7 +31,6 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const dragTilt = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
   const isCycling = useRef(false);
 
-  // High-performance cycle logic
   const handleDragEnd = useCallback((_: any, info: any) => {
     if (isCycling.current) return;
     const dist = Math.abs(info.offset.x);
@@ -47,13 +40,13 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       isCycling.current = true;
       triggerHaptic('medium');
       const direction = info.offset.x > 0 ? 'right' : 'left';
-      const exitX = direction === 'right' ? 700 : -700;
+      const exitX = direction === 'right' ? 300 : -300;
 
-      // Zenith Cycle: Fly out then rotate to back state
+      // Depth exit: shrink + fade as if receding into the distance
       animate(x, exitX, { 
         type: 'tween', 
-        duration: 0.22, // High-frequency snap
-        ease: [0.32, 0, 0.67, 0], 
+        duration: 0.3,
+        ease: [0.4, 0, 0.2, 1],
         onComplete: () => {
           onCycle(card.id, direction);
           x.set(0); 
@@ -70,12 +63,14 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const gradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
   const [imgError, setImgError] = useState(false);
 
-  // 🚀 ZENITH DEPTH: Dynamic stack perspective
-  // Cards behind the front one are physically stacked with clear visibility
-  const stackY = isCollapsed ? 0 : index * 24; // Increased Y-shift for 'larger' feel
-  const stackScale = 1 - (index * 0.08); // More pronounced scale difference
+  const stackY = isCollapsed ? 0 : index * 24;
+  const stackScale = 1 - (index * 0.08);
   const stackBlur = index * 0.8;
   const stackBrightness = 1 - (index * 0.12);
+
+  // Derive exit scale/opacity from x position for depth effect
+  const exitScale = useTransform(x, [-300, 0, 300], [0.7, 1, 0.7]);
+  const exitOpacity = useTransform(x, [-300, -150, 0, 150, 300], [0, 0.7, 1, 0.7, 0]);
 
   return (
     <motion.div
@@ -85,13 +80,11 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       onDragEnd={isTop ? handleDragEnd : undefined}
       initial={false}
       animate={{
-        x: isTop ? x.get() : 0,
         y: stackY,
-        scale: stackScale,
+        scale: isTop ? undefined : stackScale,
         opacity: index > 4 ? 0 : 1,
-        // Tilt the deck slightly for a physical fanned-out book feel
         rotateX: isTop ? 0 : 8, 
-        filter: `brightness(${stackBrightness}) blur(${stackBlur}px)`,
+        filter: isTop ? undefined : `brightness(${stackBrightness}) blur(${stackBlur}px)`,
       }}
       transition={{ type: 'spring', stiffness: 220, damping: 28, mass: 0.8 }}
       style={{
@@ -102,6 +95,8 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         height: height,
         zIndex: 50 - index,
         x: isTop ? x : 0,
+        scale: isTop ? exitScale : stackScale,
+        opacity: isTop ? exitOpacity : (index > 4 ? 0 : 1),
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
         transformStyle: 'preserve-3d',
@@ -111,8 +106,8 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     >
       <div
         className={cn(
-          "w-full h-full relative overflow-hidden rounded-[48px] bg-white transition-all duration-300",
-          isTop ? "border-2 border-black/5 shadow-[0_45px_100px_rgba(0,0,0,0.25)]" : "border border-black/10 shadow-xl"
+          "w-full h-full relative overflow-hidden rounded-[48px] transition-all duration-300",
+          isTop ? "border-2 border-white/10 shadow-[0_45px_100px_rgba(0,0,0,0.25)]" : "border border-white/5 shadow-xl"
         )}
       >
         {/* Flagship Imagery */}
@@ -120,22 +115,25 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
           <motion.img
             src={photo}
             alt={card.label}
-            className="absolute inset-x-0 top-0 w-full h-[88%] object-cover"
+            className="absolute inset-0 w-full h-full object-cover"
             draggable={false}
             onError={() => setImgError(true)}
           />
         ) : (
           <motion.div
-            className="absolute inset-x-0 top-0 w-full h-[88%]"
+            className="absolute inset-0 w-full h-full"
             style={{ background: gradient }}
           />
         )}
 
-        {/* Info section anchors the bottom with premium typography */}
-        <div className="absolute inset-x-0 bottom-0 h-[25%] bg-white/95 backdrop-blur-md flex flex-col justify-center px-8 pb-8">
+        {/* Cinematic gradient overlay — replaces white bg */}
+        <div className="absolute inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+
+        {/* Info section with transparent background */}
+        <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-8 pb-8">
           <div className="flex flex-col gap-0.5">
-            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-black/35 mb-1">{card.description}</p>
-            <h3 className="text-black text-3xl font-black tracking-tight uppercase leading-none">{card.label}</h3>
+            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/50 mb-1">{card.description}</p>
+            <h3 className="text-white text-3xl font-black tracking-tight uppercase leading-none">{card.label}</h3>
           </div>
 
           <AnimatePresence>
@@ -145,10 +143,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 onClick={(e) => { e.stopPropagation(); onSelect(card.id); }}
-                className="mt-5 w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] bg-black text-white active:scale-95 transition-transform shadow-[0_12px_24px_rgba(0,0,0,0.2)] flex items-center justify-center"
-                style={{
-                  background: isDark ? '#000' : '#111',
-                }}
+                className="mt-5 w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] bg-white text-black active:scale-95 transition-transform shadow-[0_12px_24px_rgba(0,0,0,0.3)] flex items-center justify-center"
               >
                 Launch {card.label}
               </motion.button>
@@ -156,11 +151,23 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
           </AnimatePresence>
         </div>
 
-        {/* Small floating tag for background cards visibility */}
+        {/* Small floating tag for background cards */}
         {!isTop && (
-          <div className="absolute top-8 left-8 px-4 py-1.5 bg-white/90 backdrop-blur-sm rounded-full border border-black/5 shadow-md">
-            <p className="text-[10px] font-black uppercase tracking-widest text-black/60">{card.label}</p>
+          <div className="absolute top-8 left-8 px-4 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-md">
+            <p className="text-[10px] font-black uppercase tracking-widest text-white/70">{card.label}</p>
           </div>
+        )}
+
+        {/* Pulsing swipe hint arrows — only on top card */}
+        {isTop && (
+          <>
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 swipe-hint-left pointer-events-none">
+              <ChevronLeft size={20} className="text-white" />
+            </div>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 swipe-hint-right pointer-events-none">
+              <ChevronRight size={20} className="text-white" />
+            </div>
+          </>
         )}
       </div>
     </motion.div>

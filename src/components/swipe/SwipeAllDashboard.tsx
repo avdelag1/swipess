@@ -49,9 +49,9 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
 
   return (
     <div
-      className="relative w-full flex-grow flex flex-col items-center pt-12 pb-24 justify-center bg-transparent overflow-hidden"
+      className="relative w-full flex-grow flex flex-col items-center pt-4 pb-8 justify-center bg-transparent overflow-hidden"
       style={{
-        minHeight: '700px', // Extended for 'Larger' card spec and depth visibility
+        minHeight: 'auto',
       }}
     >
       {/* 🚀 ZENITH DEPTH SYSTEM: Cards stack vertically with a deep perspective shift */}

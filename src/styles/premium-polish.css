@@ -856,10 +856,24 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
 }
 
 .swipe-card-size {
-  width: 240px;
-  height: 320px;
-  left: calc(50% - 120px);
-  top: calc(50% - 160px);
+  width: 310px;
+  height: 420px;
+  left: calc(50% - 155px);
+  top: calc(50% - 210px);
+}
+
+/* Pulsing swipe hint arrows */
+@keyframes swipe-hint-pulse {
+  0%, 100% { opacity: 0.12; }
+  50% { opacity: 0.45; }
+}
+
+.swipe-hint-left {
+  animation: swipe-hint-pulse 2s ease-in-out infinite;
+}
+
+.swipe-hint-right {
+  animation: swipe-hint-pulse 2s ease-in-out 1s infinite;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
