@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
 import { toast } from '@/components/ui/sonner';
 import { useState, useEffect, useCallback, memo } from 'react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { logger } from '@/utils/prodLogger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -70,9 +72,9 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       const { error } = await supabase
         .from('likes')
         .delete()
-        .eq('user_id', user.user.id)
-        .eq('target_id', listing.id)
-        .eq('target_type', 'listing');
+        .eq("user_id", user.user.id)
+        .eq("target_id", listing?.id)
+        .eq("target_type", "listing");
 
       if (error) throw error;
     },
@@ -291,6 +293,8 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                   {/* Close Button */}
                   <button
                     onClick={() => onOpenChange(false)}
+                    title="Close Details"
+                    aria-label="Close Details"
                     className="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm z-10"
                   >
                     <X className="w-5 h-5" />
@@ -301,12 +305,16 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                     <>
                       <button
                         onClick={handlePrevImage}
+                        title="Previous Image"
+                        aria-label="Previous Image"
                         className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm"
                       >
                         <ChevronLeft className="w-6 h-6" />
                       </button>
                       <button
                         onClick={handleNextImage}
+                        title="Next Image"
+                        aria-label="Next Image"
                         className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm"
                       >
                         <ChevronRight className="w-6 h-6" />
@@ -401,42 +409,53 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                   )}
                 </div>
 
-                {/* Description */}
+                {/* Description - Sentient Cascade */}
                 {listing.description && (
-                  <div className="space-y-2">
+                  <motion.div 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1, duration: 0.5 }}
+                    className="space-y-2"
+                  >
                     <h4 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">About</h4>
-                    <p className="text-sm leading-relaxed">{listing.description}</p>
-                  </div>
+                    <p className="text-sm leading-relaxed font-medium text-foreground/90">{listing.description}</p>
+                  </motion.div>
                 )}
 
-                {/* Features */}
-                <div className="space-y-2">
+                {/* Features - Staggered Chips */}
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.15, duration: 0.4 }}
+                  className="space-y-2"
+                >
                   <h4 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Features</h4>
                   <div className="flex flex-wrap gap-2">
                     {listing.property_type && (
-                      <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-0">
+                      <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-0 font-black">
                         {listing.property_type}
                       </Badge>
                     )}
                     {listing.furnished && (
-                      <Badge variant="secondary" className="bg-purple-500/10 text-purple-600 dark:text-purple-400 border-0">
-                        Furnished
+                      <Badge variant="secondary" className="bg-purple-500/10 text-purple-600 dark:text-purple-400 border-0 font-black">
+                        {listing.furnished}
                       </Badge>
                     )}
                     {listing.pet_friendly && (
-                      <Badge variant="secondary" className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-0">
+                      <Badge variant="secondary" className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-0 font-black">
                         Pet Friendly
                       </Badge>
                     )}
-                    <Badge variant="secondary" className={`border-0 ${
+                    <Badge variant="secondary" className={cn(
+                      "border-0 font-black tracking-widest uppercase",
                       listing.status === 'available'
                         ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
                         : 'bg-muted text-muted-foreground'
-                    }`}>
+                    )}>
                       {listing.status}
                     </Badge>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Amenities */}
                 {listing.amenities && listing.amenities.length > 0 && (

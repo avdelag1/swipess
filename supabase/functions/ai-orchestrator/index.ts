@@ -7,10 +7,16 @@ const corsHeaders = {
 };
 
 /**
- * 🚀 SWIPESS AI ORCHESTRATOR
- * The sentient brain behind the Swipess PWA.
- * Handles both Chat (Concierge) and Listing Creation (Conversation).
+ * 🔔 SWIPESS AI PROTECTION SENTINEL
+ * ─────────────────────────────────────────────────────────────────────────────
+ * HARDWARE: MiniMax Token Plan (sk-cp-*)
+ * CONFIG: Model set to MiniMax-M2.7 | GroupID: 2019874926051205377
+ * ─────────────────────────────────────────────────────────────────────────────
+ * WARNING: DO NOT revert to abab-series or remove the GroupId header. 
+ * This specific configuration is required for the user's starter Token Plan.
+ * Modifying these values will break the AI connectivity.
  */
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 

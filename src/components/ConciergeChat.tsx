@@ -119,12 +119,17 @@ export function ConciergeChat({
       });
   }, [user]);
 
-  // Auto-scroll to bottom when new messages arrive
+  const endOfMessagesRef = useRef<HTMLDivElement>(null);
+
+  // 🚀 Auto-scroll to bottom when new messages arrive or loading starts
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (messages.length > 0 || isLoading) {
+      const timer = setTimeout(() => {
+        endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   // Pre-warm the Edge Function to avoid cold-start delays
   useEffect(() => {
@@ -138,10 +143,12 @@ export function ConciergeChat({
     haptics.tap();
     const messageToSend = input.trim();
     setInput('');
-    // 🚀 SPEED OF LIGHT: Immediately scroll to bottom before the AI starts thinking
-    requestAnimationFrame(() => {
-      if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    });
+    
+    // 🚀 SPEED OF LIGHT: Instant scroll to bottom the moment you send
+    setTimeout(() => {
+      endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 10);
+
     await sendMessage(messageToSend, { userRole, listings });
   };
 
@@ -668,12 +675,16 @@ export function ConciergeChat({
                 )}
               </AnimatePresence>
 
-              {/* Error */}
-              {error && (
-                <div className={cn("p-3 rounded-xl text-center text-sm border", isDark ? "bg-red-900/20 text-red-400 border-red-500/20" : "bg-red-50 text-red-600 border-red-100")}>
-                  {error}
-                </div>
-              )}
+                {/* Error */}
+                {error && (
+                  <div className={cn("p-3 rounded-xl text-center text-sm border", isDark ? "bg-red-900/20 text-red-400 border-red-500/20" : "bg-red-50 text-red-600 border-red-100")}>
+                    {error}
+                  </div>
+                )}
+
+                {/* ⚓ Bottom Anchor for Auto-Scroll */}
+                <div ref={endOfMessagesRef} className="h-2 w-full mt-2" />
+              </div>
             </div>
           </ScrollArea>
 

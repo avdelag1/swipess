@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
 import { toast } from "sonner";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
+import { pwaImagePreloader, getCardImageUrl } from "@/utils/imageOptimization";
 import { cn } from "@/lib/utils";
 import {
   AlertDialog,
@@ -93,12 +94,28 @@ const OwnerInterestedClients = () => {
     enabled: !!user?.id,
   });
 
+  // 🚀 SPEED OF LIGHT: Preload profile images instantly
+  useEffect(() => {
+    if (interestedClients.length > 0) {
+      const urls = interestedClients
+        .slice(0, 10)
+        .map(c => {
+          const profile = c as Record<string, any>;
+          const images = profile.images || profile.profile_images || [];
+          return getCardImageUrl(images[0] || profile.avatar_url);
+        })
+        .filter(Boolean) as string[];
+      pwaImagePreloader.batchPreload(urls);
+    }
+  }, [interestedClients]);
+
   const removeLikeMutation = useMutation({
     mutationFn: async (clientId: string) => {
+      if (!user?.id) throw new Error("Not authenticated");
       const { data: listings } = await supabase
         .from("listings")
         .select("id")
-        .eq("owner_id", user?.id ?? "");
+        .eq("owner_id", user.id);
 
       const listingIds = listings?.map((l) => l.id) || [];
       if (listingIds.length === 0) return;
@@ -114,6 +131,7 @@ const OwnerInterestedClients = () => {
       queryClient.invalidateQueries({ queryKey: ["owner-interested-clients", user?.id] });
       toast.success("Client dismissed");
       setShowDeleteDialog(false);
+      setClientToDelete(null);
     },
   });
 

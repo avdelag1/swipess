@@ -15,7 +15,9 @@ import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
 import { DashboardSkeleton } from "@/components/ui/LayoutSkeletons";
+import { pwaImagePreloader, getCardImageUrl } from "@/utils/imageOptimization";
 import type { Listing } from "@/hooks/useListings";
+import { useEffect } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,11 +61,25 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
+  // 🚀 SPEED OF LIGHT: Preload images as soon as they are loaded from the database
+  useEffect(() => {
+    if (likedProperties.length > 0) {
+      const urlsToPreload = likedProperties
+        .slice(0, 10) // Focus on the first 10 for maximum efficiency
+        .map(p => getCardImageUrl(p.images?.[0] || p.image_url))
+        .filter(Boolean);
+      
+      if (urlsToPreload.length > 0) {
+        pwaImagePreloader.batchPreload(urlsToPreload);
+      }
+    }
+  }, [likedProperties]);
+
   const storageKey = user?.id ? `liked-properties-order-${user.id}` : "";
 
   const removeLikeMutation = useMutation({
     mutationFn: async (propertyId: string) => {
-      if (!user?.id) throw new Error("Not authenticated");
+      if (!user?.id || !propertyId) throw new Error("Not authenticated or missing ID");
       const { error } = await supabase
         .from("likes")
         .delete()
@@ -278,7 +294,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => propertyToDelete?.id && removeLikeMutation.mutate(propertyToDelete.id)}
+              onClick={() => propertyToDelete?.id && removeLikeMutation.mutate(propertyToDelete.id!)}
               className="bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white rounded-xl font-black"
             >
               REMOVE
