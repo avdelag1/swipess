@@ -1,53 +1,57 @@
 
 
-## Fix Plan: Buttons Visibility, Logo Background, Radio Consolidation, Speed & Crash Fix
+## Plan: Remove Tulum Branding, Rebrand AI Chat to "Swipess AI", Improve Chat UI
 
-### Critical Bug: Infinite Recursion Crash (RadioContext)
+### What's Changing
 
-The **"Maximum call stack size exceeded"** error is the #1 cause of the app feeling slow/broken. `play()` calls `changeStation('next')` synchronously when a station is in `failedStationsRef`, and `changeStation` calls `play()` back — creating infinite recursion when multiple stations fail.
+**1. Remove all Tulum-specific branding from UI text** (keep mock data like event locations untouched)
 
-**Fix**: Add a recursion depth counter ref. If `play()` is called more than 5 times in a row without success, stop and set an error state instead of continuing to recurse.
+Files with hardcoded "Tulum" branding to clean:
+- `src/components/ConciergeChat.tsx` — line 65: default `initialCity = 'Tulum'` → remove city display from header (line 219: `AI Concierge · {initialCity}`) 
+- `src/components/ConciergeChat.tsx` — line 159: quick suggestion mentions "Tulum tonight" → make generic
+- `src/components/AISearchDialog.tsx` — line 103: welcome message "your sharp, market-savvy guide to Tulum" → generic
+- `src/hooks/useConciergeAI.ts` — line 154: default city fallback `'Tulum'` → remove or use empty
+- `src/pages/RoommateMatching.tsx` — line 234: hardcoded "Tulum" label in header → remove
+- `src/pages/RoommateMatching.tsx` — line 293: `t('roommates.tulumVibesOnly')` → change translation key
+- `src/i18n/locales/en.json` — line 288: `"tulumVibesOnly": "Tulum Vibes Only"` → `"No More Matches"`
+- `src/i18n/locales/es.json` — line 235: same → `"Sin Más Matches"`
+- `src/pages/VideoTours.tsx` — line 82: "their Tulum spaces" → "their spaces"
+- `src/components/ButlerProactive.tsx` — line 22: "The ultimate Tulum vibe" → "The ultimate vibe"
+- `src/pages/AdvertisePage.tsx` — lines 199, 420, 434, 768: "Tulum" mentions → generic or "your city"
+- `src/components/ConversationalListingCreator.tsx` — line 268: "Expert help for your Tulum marketplace" → generic
+- `src/components/WorkerListingForm.tsx` — line 310: placeholder "e.g., Tulum" → "e.g., Your City"
 
-### Issue 1: Right-side action buttons (Save, Like, Chat) hidden behind nav bar
+**2. Rebrand "Vibe" → "Swipess AI" everywhere**
 
-In `src/components/events/EventCard.tsx` line 185, the buttons are positioned at `bottom-[calc(6.5rem+env(safe-area-inset-bottom,0px))]`. The bottom nav bar is taller than this offset.
+- `src/components/ConciergeChat.tsx` line 56: `"Vibe is Thinking..."` → `"Swipess AI is thinking..."`
+- `src/components/ConciergeChat.tsx` line 204: header title `"Vibe"` → `"Swipess AI"`
+- `src/components/ConciergeChat.tsx` line 219: `"AI Concierge · {initialCity}"` → `"Your AI Concierge"`
+- `src/components/AISearchDialog.tsx` line 325: `'Concierge'` → `'Swipess AI'`
+- `src/components/AISearchDialog.tsx` line 497: `"Concierge is thinking..."` → `"Swipess AI is thinking..."`
+- `src/components/BottomNavigation.tsx` lines 100, 112: label `'Concierge'` → `'Swipess AI'`
+- `src/hooks/useConciergeAI.ts` line 32: storage key prefix stays (internal, no UI impact)
 
-**Fix**: Increase the bottom offset to `bottom-[calc(9rem+env(safe-area-inset-bottom,0px))]` so buttons sit clearly above the navigation bar.
+**3. Improve ConciergeChat UI design** — make it look premium
 
-### Issue 2: Logo "S" watermark showing on all inner pages
-
-In `src/components/DashboardLayout.tsx` line 524-527, there's a fixed full-screen SwipessLogo watermark at 10% opacity that shows on every page transition.
-
-**Fix**: Remove the watermark `div` entirely from DashboardLayout. The logo on the landing page stays untouched.
-
-### Issue 3: Radio button — keep ONLY in header
-
-Currently radio appears in 3 places:
-- **TopBar** (header) — line 444-464 — **KEEP this one**
-- **BottomNavigation** — line 99 (client) and line 112 (owner) — **REMOVE**
-- **ClientProfileNew** — line 294-306 — **REMOVE**
-- **OwnerProfileNew** — line 190-202 — **REMOVE**
-
-**Fix**: Delete the radio nav items from both client and owner arrays in BottomNavigation, and delete the radio buttons from both profile pages.
-
-### Issue 4: Speed — page transitions feel 2-5 seconds
-
-Root causes:
-1. The infinite recursion crash in RadioContext is freezing the main thread
-2. Heavy `AnimatePresence` + `motion.div` wrapping every nav item with spring physics
-
-**Fixes**:
-- Fix the RadioContext crash (primary cause)
-- The `changeStation` useCallback depends on `play` which depends on `state.currentStation` — this causes the callback to be recreated on every station change, potentially causing stale closure issues. Pin it with refs.
+- Redesign the quick suggestion buttons: larger, bolder, with gradient borders and icon emphasis
+- Improve the input area: stronger contrast, bigger send button with glow effect
+- Make the header more striking with the Swipess logo instead of JarvisAura
+- Better message bubbles: slightly larger text, more breathing room, premium shadow on AI messages
 
 ### Files to Edit
 
 | File | Change |
 |---|---|
-| `src/contexts/RadioContext.tsx` | Add recursion guard to `play()` to prevent infinite stack overflow |
-| `src/components/events/EventCard.tsx` | Move right-side buttons higher (increase bottom offset) |
-| `src/components/DashboardLayout.tsx` | Remove the SwipessLogo watermark div |
-| `src/components/BottomNavigation.tsx` | Remove radio nav items from client and owner arrays |
-| `src/pages/ClientProfileNew.tsx` | Remove radio button |
-| `src/pages/OwnerProfileNew.tsx` | Remove radio button |
+| `src/components/ConciergeChat.tsx` | Rebrand Vibe → Swipess AI, remove city, upgrade UI |
+| `src/components/AISearchDialog.tsx` | Rebrand Concierge → Swipess AI, remove Tulum from welcome |
+| `src/components/BottomNavigation.tsx` | Label change |
+| `src/hooks/useConciergeAI.ts` | Remove Tulum default city |
+| `src/pages/RoommateMatching.tsx` | Remove "Tulum" header label, fix empty state text |
+| `src/pages/VideoTours.tsx` | Remove "Tulum" from description |
+| `src/pages/AdvertisePage.tsx` | Generic branding (remove Tulum specifics) |
+| `src/components/ButlerProactive.tsx` | Remove "Tulum vibe" |
+| `src/components/ConversationalListingCreator.tsx` | Remove "Tulum marketplace" |
+| `src/components/WorkerListingForm.tsx` | Generic placeholder |
+| `src/i18n/locales/en.json` | Update `tulumVibesOnly` translation |
+| `src/i18n/locales/es.json` | Update `tulumVibesOnly` translation |
 
