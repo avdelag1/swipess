@@ -146,7 +146,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/client/legal-services" element={<ClientLawyerServices />} />
               <Route path="/client/camera" element={<ClientSelfieCamera />} />
               <Route path="/client/filters" element={<ClientFilters />} />
-              <Route path="/client/advertise" element={<AdvertisePage />} />
+
               <Route path="/client/maintenance" element={<MaintenanceRequests />} />
 
               {/* Owner routes */}

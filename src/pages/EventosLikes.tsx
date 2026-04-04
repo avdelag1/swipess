@@ -279,29 +279,7 @@ export default function EventosLikes() {
         )}
       </div>
       
-      {/* 🚀 Premium Promoter CTA */}
-      {filtered.length > 0 && (
-        <div className="p-4 pt-12 relative z-10">
-          <motion.div 
-            whileTap={{ scale: 0.98 }}
-            onClick={() => navigate('/client/advertise')}
-            className="p-8 rounded-[2.5rem] bg-indigo-600 relative overflow-hidden group shadow-2xl"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-600 to-rose-500 opacity-90" />
-            <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 blur-[60px] rounded-full group-hover:scale-150 transition-transform duration-1000" />
-            <div className="relative z-10 flex items-center justify-between">
-              <div className="space-y-1.5 focus:outline-none">
-                <p className="text-[9px] font-black text-white/50 uppercase tracking-[0.2em]">Business Growth</p>
-                <h4 className="text-2xl font-black text-white italic uppercase tracking-tighter leading-none">Promote Your Event</h4>
-                <p className="text-[10px] text-white/70 font-medium">Reach the entire Tulum community instantly.</p>
-              </div>
-              <div className="w-14 h-14 rounded-[1.5rem] bg-white/10 flex items-center justify-center border border-white/20 backdrop-blur-xl">
-                <Sparkles className="w-7 h-7 text-white" />
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
+
     </div>
   );
 }

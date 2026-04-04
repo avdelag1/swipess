@@ -9,24 +9,10 @@ import "./styles/responsive.css";
 import "./styles/PremiumShine.css";
 import { supabase } from "@/integrations/supabase/client";
 
-(function() {
-  // 🚀 SPEED OF LIGHT: Hardware & Network Awareness
-  const memory = (navigator as any).deviceMemory || 4;
-  const cores = navigator.hardwareConcurrency || 4;
-  const connection = (navigator as any).connection || {};
-  
-  const isLowEnd = memory < 4 || cores < 4;
-  const isSlowNet = connection.saveData || (connection.effectiveType && ['slow-2g', '2g', '3g'].includes(connection.effectiveType));
-  
   const body = document.body;
-  if (isLowEnd || isSlowNet) {
-    body.classList.add('hw-low', 'perf-lite');
-    body.style.setProperty('--backdrop-blur-intensity', '0px');
-  } else {
-    body.classList.add('hw-high', 'perf-ultra');
-    body.style.setProperty('--backdrop-blur-intensity', '24px');
-  }
-})();
+  // 🚀 SPEED OF LIGHT: Force high-fidelity "sentient" UI for maximum "wow" factor
+  body.classList.add('hw-high', 'perf-ultra');
+  body.style.setProperty('--backdrop-blur-intensity', '24px');
 
 // 1. START AUTH CHECK BEFORE RENDERING (Parallel process)
 const authPromise = supabase.auth.getSession()

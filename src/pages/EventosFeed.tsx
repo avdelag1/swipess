@@ -130,7 +130,14 @@ export default function EventosFeed() {
     placeholderData: MOCK_EVENTS,
   });
 
-  const allEvents = rawEvents || MOCK_EVENTS;
+  // 🏎️ SPEED OF LIGHT: Force high-fidelity mock data to ensure "sentient" breathing photos always exist
+  const allEvents = useMemo(() => {
+    const real = rawEvents || [];
+    // Ensure mock data is always present at the end for the "full" experience
+    // Remove duplicates by ID just in case
+    const mockUnique = MOCK_EVENTS.filter(m => !real.some(r => r.id === m.id));
+    return [...real, ...mockUnique];
+  }, [rawEvents]);
 
   const filteredEvents = useMemo(() => {
     if (activeCategory === 'all') return allEvents;
@@ -157,7 +164,7 @@ export default function EventosFeed() {
   }, [activeIdx, filteredEvents.length]);
 
   const rowVirtualizer = useVirtualizer({
-    count: filteredEvents.length + 1,
+    count: filteredEvents.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => window.innerHeight,
     overscan: 2,
@@ -234,9 +241,6 @@ export default function EventosFeed() {
             <button onClick={() => setAutoPlay(p => !p)} className={cn("w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border", isLight ? "bg-white/70 border-black/10" : "bg-black/40 border-white/10")}>
               {autoPlay ? <Pause className="w-4 h-4 text-orange-400" /> : <Play className="w-4 h-4 text-orange-400 ml-0.5" />}
             </button>
-            <button onClick={() => navigate('/client/advertise')} className="px-4 h-10 rounded-full text-[11px] font-black uppercase tracking-widest text-white shadow-lg" style={{ background: 'linear-gradient(135deg, #f97316, #ef4444)' }}>
-              Promote
-            </button>
           </div>
         </motion.div>
 
@@ -299,29 +303,24 @@ export default function EventosFeed() {
       <div ref={parentRef} className="w-full h-full overflow-y-scroll scroll-smooth no-scrollbar" style={{ scrollSnapType: 'y mandatory', overscrollBehavior: 'contain' }}>
         <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
           {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-            const isLast = virtualRow.index === filteredEvents.length;
             const event = filteredEvents[virtualRow.index];
             return (
               <div key={virtualRow.key} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100dvh', transform: `translateY(${virtualRow.start}px)`, scrollSnapAlign: 'start', scrollSnapStop: 'always' }}>
-                {isLast ? (
-                  <PromoteCTACard onPromote={() => navigate('/client/advertise')} />
-                ) : (
-                  <EventCard
-                    event={event}
-                    isActive={virtualRow.index === activeIdx}
-                    isPaused={isPaused}
-                    animKey={animKey}
-                    onTickComplete={() => {}} // Controlled by main feed effect
-                    liked={likedIds.has(event.id)}
-                    activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
-                    onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
-                    onChat={() => handleOpenChat(event)}
-                    onShare={() => handleShare(event)}
-                    onMiddleTap={() => handleMiddleTap(event)}
-                    onNextEvent={() => parentRef.current?.scrollBy({ top: window.innerHeight, behavior: 'smooth' })}
-                    onPrevEvent={() => parentRef.current?.scrollBy({ top: -window.innerHeight, behavior: 'smooth' })}
-                  />
-                )}
+                <EventCard
+                  event={event}
+                  isActive={virtualRow.index === activeIdx}
+                  isPaused={isPaused}
+                  animKey={animKey}
+                  onTickComplete={() => {}} // Controlled by main feed effect
+                  liked={likedIds.has(event.id)}
+                  activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
+                  onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
+                  onChat={() => handleOpenChat(event)}
+                  onShare={() => handleShare(event)}
+                  onMiddleTap={() => handleMiddleTap(event)}
+                  onNextEvent={() => parentRef.current?.scrollBy({ top: window.innerHeight, behavior: 'smooth' })}
+                  onPrevEvent={() => parentRef.current?.scrollBy({ top: -window.innerHeight, behavior: 'smooth' })}
+                />
               </div>
             );
           })}
