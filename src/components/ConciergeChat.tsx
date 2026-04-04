@@ -201,7 +201,7 @@ export function ConciergeChat({
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h2 className={cn("font-black text-[15px] leading-tight tracking-tight", isDark ? "text-white" : "text-gray-900")}>
-                    Vibe
+                    Swipess AI
                   </h2>
                   <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
