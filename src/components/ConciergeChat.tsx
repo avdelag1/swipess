@@ -216,7 +216,7 @@ export function ConciergeChat({
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <p className={cn("text-[11px] leading-tight font-medium", isDark ? "text-zinc-500" : "text-gray-400")}>
-                    AI Concierge · {initialCity}
+                    Your AI Concierge
                   </p>
                   {limits.dailyMessages !== Infinity && (
                     <span className={cn(
