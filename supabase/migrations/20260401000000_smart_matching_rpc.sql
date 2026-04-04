@@ -8,7 +8,7 @@
 -- 1. SMART LISTING MATCHING
 -- Efficiently selects active listings that the user hasn't swiped/liked yet.
 CREATE OR REPLACE FUNCTION get_smart_listings(
-  p_user_id UUID,
+  p_user_id UUID DEFAULT NULL,
   p_category TEXT DEFAULT NULL,
   p_limit INTEGER DEFAULT 20,
   p_offset INTEGER DEFAULT 0
@@ -71,7 +71,7 @@ $$;
 -- 3. SMART EVENT MATCHING
 -- Efficiently selects events that are upcoming and not yet liked (optional, but good for speed).
 CREATE OR REPLACE FUNCTION get_smart_events(
-  p_user_id UUID,
+  p_user_id UUID DEFAULT NULL,
   p_category TEXT DEFAULT NULL,
   p_limit INTEGER DEFAULT 30
 )
@@ -90,6 +90,6 @@ END;
 $$;
 
 -- Grant permissions for authenticated users to execute these functions
-GRANT EXECUTE ON FUNCTION get_smart_listings(UUID, TEXT, INTEGER, INTEGER) TO authenticated;
+GRANT EXECUTE ON FUNCTION get_smart_listings(UUID, TEXT, INTEGER, INTEGER) TO authenticated, anon;
 GRANT EXECUTE ON FUNCTION get_smart_clients(UUID, INTEGER, INTEGER) TO authenticated;
-GRANT EXECUTE ON FUNCTION get_smart_events(UUID, TEXT, INTEGER) TO authenticated;
+GRANT EXECUTE ON FUNCTION get_smart_events(UUID, TEXT, INTEGER) TO authenticated, anon;
