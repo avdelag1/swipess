@@ -181,7 +181,7 @@ export function LikedClients() {
   );
 
   return (
-    <div className="w-full bg-background min-h-screen pb-32" data-no-swipe-nav="true">
+    <div className="w-full bg-background min-h-[101dvh] pb-32 touch-pan-y" data-no-swipe-nav="true">
       <div className="p-4 pt-4 sm:p-8 sm:pt-8 max-w-7xl mx-auto">
         <div className="flex items-center justify-end mb-6">
               <div className="flex items-center gap-3">

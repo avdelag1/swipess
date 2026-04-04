@@ -95,9 +95,9 @@ export default function EventosLikes() {
 
   return (
     <div className={cn(
-      "min-h-[100dvh] pb-24 transition-colors duration-700 relative overflow-x-hidden",
+      "min-h-[101dvh] pb-24 transition-colors duration-700 relative overflow-x-hidden touch-pan-y",
       isLight ? "bg-white text-zinc-900" : "bg-[#0a0a0b] text-white"
-    )}>
+    )} data-no-swipe-nav="true">
       {/* 🏎️ Adaptive Ambient Background: Shifts color based on filter */}
       <div 
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[400px] blur-[120px] opacity-[0.12] pointer-events-none transition-colors duration-1000 z-0"

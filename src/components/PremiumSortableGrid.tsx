@@ -296,9 +296,9 @@ function SortableItem({
       onPointerCancel={handlePointerCancel}
       className={cn(
         "list-none select-none rounded-[2rem] relative",
-        // CRITICAL: Use touch-auto so normal page scroll continues to work!
+        // CRITICAL: Use touch-pan-y so normal page scroll continues to work reliably!
         // Only switch to touch-none when drag is actively enabled
-        dragEnabled ? "touch-none cursor-grabbing z-50" : "touch-auto cursor-default z-0",
+        dragEnabled ? "touch-none cursor-grabbing z-50" : "touch-pan-y cursor-default z-0",
         className
       )}
     >

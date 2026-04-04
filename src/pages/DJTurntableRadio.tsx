@@ -576,6 +576,7 @@ export default function DJTurntableRadio() {
                     background: `linear-gradient(90deg, ${primaryColor}77, ${primaryColor})`,
                     boxShadow: state.isPlaying ? `0 0 20px ${primaryColor}` : 'none'
                   }}
+                  transition={{ duration: 0 }} // Raw speed: no lag for the volume line
                 />
               </div>
               
@@ -585,7 +586,14 @@ export default function DJTurntableRadio() {
                 max="1"
                 step="0.01"
                 value={state.volume}
-                onChange={(e) => setVolume(parseFloat(e.target.value))}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  setVolume(val);
+                  // 🚀 SENTIENT FEEDBACK: Light tick every 5% for physical feel
+                  if (Math.floor(val * 20) !== Math.floor(state.volume * 20)) {
+                    triggerHaptic('light');
+                  }
+                }}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 title="Master Volume"
                 aria-label="Master Volume"
@@ -597,6 +605,7 @@ export default function DJTurntableRadio() {
                   left: `calc(${state.volume * 100}% - 16px)`,
                   boxShadow: isDark ? `0 0 30px ${primaryColor}aa, 0 10px 20px rgba(0,0,0,0.8)` : `0 0 20px ${primaryColor}66, 0 4px 12px rgba(0,0,0,0.1)`
                 }}
+                transition={{ duration: 0 }} // Raw speed: no lag for the handle
               />
             </div>
           </div>

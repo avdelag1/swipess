@@ -408,13 +408,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // FULLSCREEN MODE: These routes hide the global TopBar and BottomNav entirely
   // and take over the full screen height with 0 padding.
   const isFullScreenRoute = useMemo(() => {
-    const isEventoDetail = location.pathname.startsWith('/explore/eventos/') && 
-                          location.pathname !== '/explore/eventos' && 
-                          location.pathname !== '/explore/eventos/' &&
-                          location.pathname !== '/explore/eventos/likes';
-    
-    const isEventsMain = false; // Restored global UI
+    // 🚀 SPEED OF LIGHT: Standard scrollable discovery/likes pages MUST NOT be fixed
+    const scrollExclusions = ['likes', 'interested', 'liked'];
+    if (scrollExclusions.some(path => location.pathname.includes(path))) return false;
 
+    const isCameraRoute = location.pathname.includes('/camera');
+    const isRadioRoute = location.pathname.includes('/radio');
+    const isRoommatesPage = location.pathname.startsWith('/explore/roommates');
+    
+    // Admin and helper subpages should also be scrollable (not fixed)
     const isSpecialSubPage = [
       '/client/advertise',
       '/explore/prices',
@@ -433,9 +435,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/notifications'
     ].some(path => location.pathname === path || location.pathname === path + '/');
 
-    return isCameraRoute || isRadioRoute || 
-           isEventoDetail || isEventsMain || isRoommatesPage || isSpecialSubPage;
-  }, [isCameraRoute, isRadioRoute, location.pathname, isRoommatesPage]);
+    // Only truly immersive non-scroll pages should be fixed
+    return isCameraRoute || isRadioRoute || isRoommatesPage || isSpecialSubPage;
+  }, [location.pathname]);
 
   const handleMessageActivationsClick = useCallback(() => {
     navigate('/subscription/packages');

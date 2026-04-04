@@ -279,6 +279,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       const dbUpdates: any = {};
       if (updates.currentStation !== undefined) dbUpdates.radio_current_station_id = updates.currentStation?.id || null;
       if (updates.isPoweredOn !== undefined) dbUpdates.radio_is_powered_on = updates.isPoweredOn;
+      if (updates.volume !== undefined) dbUpdates.radio_volume = updates.volume;
+      if (updates.isShuffle !== undefined) dbUpdates.radio_is_shuffle = updates.isShuffle;
+      if (updates.favorites !== undefined) dbUpdates.radio_favorites = updates.favorites;
+      
       await supabase.from('profiles').update(dbUpdates).eq('user_id', user.id);
     } catch (err) {
       logger.info('[RadioPlayer] Error saving preferences:', err);
@@ -470,9 +474,17 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const setVolume = useCallback((volume: number) => {
     const clamped = Math.max(0, Math.min(1, volume));
+    // 🚀 SPEED OF LIGHT: Apply local state IMMEDIATELY for zero lag
     setState(prev => ({ ...prev, volume: clamped }));
-    savePreferences({ volume: clamped });
+    
+    // Debounce DB sync to prevent network congestion during slider dragging
+    if (volSyncTimeoutRef.current) clearTimeout(volSyncTimeoutRef.current);
+    volSyncTimeoutRef.current = setTimeout(() => {
+      savePreferences({ volume: clamped });
+    }, 1000);
   }, []);
+
+  const volSyncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const toggleShuffle = useCallback(() => {
     const newShuffle = !state.isShuffle;
