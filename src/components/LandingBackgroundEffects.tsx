@@ -458,6 +458,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
     let lastAutoStarTime = 0;
+    let nextAutoStarDelay = 6000 + Math.random() * 4000; // 6-10s
 
     const loop = (timestamp: number) => {
       if (document.visibilityState === 'hidden') {
