@@ -1033,7 +1033,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="wait">
             {(!storeActiveCategory || storeActiveCategory === 'all' as any) ? (
-              <div className="w-full h-full flex flex-col items-center justify-center -mt-8">
+              <div className="w-full h-full flex flex-col items-center justify-center pt-4">
                 <CategorySwipeStack />
               </div>
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
