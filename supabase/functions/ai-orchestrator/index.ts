@@ -126,32 +126,11 @@ INSTRUCTIONS:
         headers: baseHeaders,
         body: JSON.stringify({ 
           model: "MiniMax-M2.7", // 🚀 Updated to newest model from Token Plan
-          bot_setting: [
-            { plugin_id: "plugin_web_search" }
-          ],
           messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
           temperature: task === "conversation" ? 0 : 0.6,
           stream: false
         }),
       });
-
-      // MODEL FALLBACK: If M2.7 is not yet enabled, fallback to 6.5s-chat
-      if (!res.ok && res.status !== 401) {
-        console.warn(`[AI Orchestrator] Primary model M2.7 failed (${res.status}), trying abab6.5s-chat...`);
-        res = await fetch(minimaxUrl, {
-          method: "POST",
-          headers: baseHeaders,
-          body: JSON.stringify({ 
-            model: "abab6.5s-chat",
-            bot_setting: [
-              { plugin_id: "plugin_web_search" }
-            ],
-            messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
-            temperature: 0.6,
-            stream: false
-          }),
-        });
-      }
     } catch (fetchErr) {
       console.error("[AI Orchestrator] Fetch failed:", fetchErr);
       throw fetchErr;
@@ -160,10 +139,17 @@ INSTRUCTIONS:
     if (!res || !res.ok) {
         const errorText = res ? await res.text() : "No response";
         console.error(`[AI Orchestrator] MiniMax error ${res?.status}:`, errorText);
-        throw new Error(`AI Engine error: ${res?.status || 'Fetch Failed'} - ${errorText}`);
+        throw new Error(`AI Engine HTTP error: ${res?.status || 'Fetch Failed'} - ${errorText}`);
     }
 
     const aiRes = await res.json();
+    
+    // Check for native API errors returned as HTTP 200
+    if (aiRes.base_resp && aiRes.base_resp.status_code !== 0) {
+      console.error(`[AI Orchestrator] MiniMax API Error:`, aiRes.base_resp);
+      throw new Error(`AI API Error: ${aiRes.base_resp.status_msg || aiRes.base_resp.status_code}`);
+    }
+
     console.log("[AI Orchestrator] Raw Engine Response Received");
     const rawAiText = aiRes.choices?.[0]?.message?.content || 
                     aiRes.choices?.[0]?.text || 
@@ -219,18 +205,12 @@ INSTRUCTIONS:
   } catch (err: any) {
     console.error("Orchestrator Error:", err);
     
-    // 🎭 SENTIENT RECOVERY: Never return a raw error to the UI
-    const recoveryResponse = {
-      result: {
-        text: "I'm experiencing a brief shift in my matrix, but I'm still tuned into your frequency. Could you try that again? I want to make sure I get it perfect.",
-        action: null
-      },
+    // Transparent error instead of fake answers
+    return new Response(JSON.stringify({
       error: err.message,
-      status: "recovered"
-    };
-
-    return new Response(JSON.stringify(recoveryResponse), { 
-      status: 200, // Return 200 so the UI can gracefully show the recovery text
+      status: "error"
+    }), { 
+      status: 500, // Return 500 to clearly indicate failure to the client
       headers: { ...corsHeaders, "Content-Type": "application/json" } 
     });
   }

@@ -247,15 +247,8 @@ export function useConciergeAI() {
       logger.error('[useConciergeAI] Execution error:', err);
       setError(err instanceof Error ? err.message : 'Service momentarily unavailable');
       
-      // Sentient Fallback
-      const fallbackMsg: ConciergeMessage = {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: "I'm detecting a slight atmospheric disturbance in my neural net. Could you try that again? I want to make sure I'm fully tuned to your vibe.",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, fallbackMsg]);
-    } finally {
+      // No sentient fallback message injected into chat stream anymore.
+      // We rely on the `error` state and let user see the error + use the retry button.
       setIsLoading(false);
     }
   }, [messages, user, currentConversationId, subscription, location.pathname, queryClient]);
