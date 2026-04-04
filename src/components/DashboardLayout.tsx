@@ -506,7 +506,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
         }}
         className={cn(
-          isFullScreenRoute ? "fixed inset-0 overflow-hidden" : "absolute inset-0 overflow-x-hidden overflow-y-auto",
+          isFullScreenRoute ? "fixed inset-0 overflow-visible" : "absolute inset-0 overflow-x-hidden overflow-y-auto",
           "scroll-area-momentum scrollbar-hide shadow-none",
           // Events feed is always dark/immersive — match its bg to prevent white flash on transition
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background",

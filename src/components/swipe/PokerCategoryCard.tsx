@@ -94,6 +94,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         zIndex: 50 - index,
         x: isTop ? x : 0,
         scale: isTop ? exitScale : stackScale,
+        rotate: isTop ? exitRotate : 0,
         opacity: isTop ? exitOpacity : (index > 4 ? 0 : 1),
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
