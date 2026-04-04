@@ -338,7 +338,7 @@ export function ConciergeChat({
                       <p className={cn("text-sm mt-1.5 leading-relaxed", isDark ? "text-zinc-400" : "text-gray-500")}>
                         {memoryCount > 0
                           ? `I remember ${memoryCount} thing${memoryCount === 1 ? '' : 's'} about you — ready to help.`
-                          : `Your personal ${initialCity} concierge. Ask me anything.`
+                          : `Your personal AI concierge. Ask me anything.`
                         }
                       </p>
                     </div>
