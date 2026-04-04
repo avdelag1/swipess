@@ -79,7 +79,7 @@ export default function VideoTours() {
         <div className="space-y-2">
           <h2 className="text-2xl font-black text-white italic tracking-tight uppercase">No Tours Available</h2>
           <p className="text-xs text-white/40 font-medium leading-relaxed">
-            Property video tours will appear here as owners upload immersive walkthroughs of their Tulum spaces.
+            Property video tours will appear here as owners upload immersive walkthroughs of their spaces.
           </p>
         </div>
         <motion.button

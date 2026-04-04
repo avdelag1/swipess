@@ -151,7 +151,7 @@ export function useConciergeAI() {
             userTier,
             messages: history,
             context: {
-              city: context?.city || 'Tulum',
+              city: context?.city || '',
               userRole: context?.userRole,
               listings: context?.listings?.slice(0, 5),
               currentPath: location.pathname,

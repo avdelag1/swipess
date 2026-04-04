@@ -367,7 +367,7 @@ export function ConciergeChat({
                         animate={{ opacity: 1, y: 0, transition: { delay: 0.1 + index * 0.07 } }}
                         onClick={() => {
                           haptics.tap();
-                          sendMessage(suggestion.prompt, { city: initialCity, userRole, listings });
+                          sendMessage(suggestion.prompt, { userRole, listings });
                         }}
                         className={cn(
                           "flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all active:scale-95 group border",

@@ -290,7 +290,7 @@ export default function RoommateMatching() {
                 </div>
                 <div className="space-y-4">
                   <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase", isLight ? "text-slate-900" : "text-white")}>
-                    {t('roommates.tulumVibesOnly')}
+                    {t('roommates.noMoreMatches')}
                   </h2>
                   <p className={cn("text-sm font-bold uppercase tracking-widest leading-relaxed opacity-50", isLight ? "text-slate-600" : "text-white/50")}>
                     Everyone has been matched. Check back later for new arrivals.

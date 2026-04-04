@@ -765,7 +765,7 @@ export default function AdvertisePage() {
                 >
                   <Shield className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#eab308" }} />
                   <p className="text-xs leading-relaxed" style={{ color: th.textMuted }}>
-                    All submissions are reviewed to ensure events are <span style={{ color: th.text, fontWeight: 700 }}>appropriate, legal, and relevant to the Tulum area</span>. We reserve the right to decline submissions that don't meet our guidelines — no payment is charged until approval.
+                    All submissions are reviewed to ensure events are <span style={{ color: th.text, fontWeight: 700 }}>appropriate, legal, and relevant to your area</span>. We reserve the right to decline submissions that don't meet our guidelines — no payment is charged until approval.
                   </p>
                 </motion.div>
 

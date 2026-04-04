@@ -494,7 +494,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                       </div>
                       <div className="bg-gradient-to-r from-orange-500/5 to-rose-500/5 border border-orange-500/10 px-5 py-4 rounded-[1.8rem] rounded-tl-sm text-xs font-bold text-orange-500 flex items-center gap-2 shadow-sm italic">
                         <Loader2 className="w-3.5 h-3.5 animate-spin text-orange-500" />
-                        Concierge is thinking...
+                        Swipess AI is thinking...
                       </div>
                     </motion.div>
                   )}
