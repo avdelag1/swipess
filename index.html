@@ -330,18 +330,24 @@
 
   <script>
     // PWA Version Control — runs synchronously but is fast (no network)
-    var V="3.6.3";
+    var V="3.6.4";
     if(localStorage.getItem('pwa_version')!==V){
       if('caches' in window)caches.keys().then(function(n){n.forEach(function(k){caches.delete(k)})}).then(function(){localStorage.setItem('pwa_version',V); window.location.reload();});
     }
 
-    // SW: graceful registration — suppress fetch errors from console
-    if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('/sw.js').catch(function(e){
-        // Silently fail on sw fetch error (common on first deploy or cache bust)
-        console.warn('[SW] Registration skipped:', e.message);
-      });
-    }
+    // Never allow service workers in Lovable preview or iframe contexts.
+    (function () {
+      var isInIframe = false;
+      try { isInIframe = window.self !== window.top; } catch (e) { isInIframe = true; }
+      var host = window.location.hostname || '';
+      var isPreviewHost = host.indexOf('id-preview--') !== -1 || host.indexOf('lovableproject.com') !== -1;
+
+      if ('serviceWorker' in navigator && (isPreviewHost || isInIframe)) {
+        navigator.serviceWorker.getRegistrations().then(function(regs){
+          regs.forEach(function(reg){ reg.unregister(); });
+        });
+      }
+    })();
   </script>
 </body>
 

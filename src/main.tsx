@@ -132,15 +132,32 @@ deferredInit(async () => {
 }, 12000); // 🚀 PUSHED TO 12s for PERFECTION Score
 
 // Service Worker Registration
-if ("serviceWorker" in navigator && !import.meta.env.DEV) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js", { updateViaCache: 'none' })
-      .then((reg) => {
-        reg.update();
-        navigator.serviceWorker.addEventListener("controllerchange", () => {
-          window.dispatchEvent(new CustomEvent('sw-controller-changed'));
-        });
-      })
-      .catch((err) => logger.error('[SW] Error:', err));
-  });
+const isInIframe = (() => {
+  try {
+    return window.self !== window.top;
+  } catch (_e) {
+    return true;
+  }
+})();
+const isPreviewHost =
+  window.location.hostname.includes('id-preview--') ||
+  window.location.hostname.includes('lovableproject.com');
+
+if ('serviceWorker' in navigator) {
+  if (import.meta.env.DEV || isPreviewHost || isInIframe) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => registration.unregister());
+    }).catch(() => undefined);
+  } else {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+        .then((reg) => {
+          reg.update();
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            window.dispatchEvent(new CustomEvent('sw-controller-changed'));
+          });
+        })
+        .catch((err) => logger.error('[SW] Error:', err));
+    });
+  }
 }
