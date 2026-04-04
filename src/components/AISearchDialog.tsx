@@ -100,7 +100,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
       if (!currentSessionId) {
         const welcome: Message = {
           role: 'ai',
-          content: "Welcome. I am the Swipess Concierge — your sharp, market-savvy guide to Tulum. ✨\n\nI can help you find your dream space, refine your listing, or answer local secrets.\n\nWhat's on your mind today?",
+          content: "Welcome. I'm Swipess AI — your sharp, market-savvy concierge. ✨\n\nI can help you find your dream space, refine your listing, or answer local secrets.\n\nWhat's on your mind today?",
           timestamp: Date.now()
         };
         setMessages([welcome]);
