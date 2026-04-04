@@ -167,9 +167,9 @@ const LandingView = memo(({
       key="landing"
       className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4"
       style={{ paddingBottom: '10vh' }}
-      initial={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
-      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }}
-      exit={{ opacity: 0, scale: 0.94, filter: 'blur(12px)', transition: { duration: 0.4, ease: [0.7, 0, 0.84, 0] } }}
+      initial={{ opacity: 0, scale: 1.02 }}
+      animate={{ opacity: 1, scale: 1, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }}
+      exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.2, ease: [0.7, 0, 0.84, 0] } }}
     >
       <motion.div
         drag="x"
