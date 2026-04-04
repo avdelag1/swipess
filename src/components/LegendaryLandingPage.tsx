@@ -47,6 +47,7 @@ function LogoImage({ className }: { className?: string }) {
             className="transition-all duration-700 ease-out" 
           />
         </motion.div>
+<<<<<<< HEAD
     </div>
   );
 }
@@ -82,6 +83,8 @@ function LogoWordmark({ className, size = 'hero', isDark = true }: { className?:
           }}
         />
       )}
+=======
+>>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
     </div>
   );
 }
