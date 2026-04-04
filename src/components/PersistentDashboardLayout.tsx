@@ -69,7 +69,12 @@ export function PersistentDashboardLayout() {
 
   return (
     <DashboardLayout userRole={userRole}>
-      <div id="zenith-dashboard-root" style={{ contentVisibility: 'auto', containIntrinsicSize: '1000px' }}>
+      <div
+        id="zenith-dashboard-root"
+        style={location.pathname.startsWith('/radio')
+          ? undefined
+          : { contentVisibility: 'auto', containIntrinsicSize: '1000px' }}
+      >
         <AnimatedOutlet />
       </div>
 
