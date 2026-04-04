@@ -330,7 +330,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
             <div className="text-center mb-6">
               <div className="flex justify-center mb-4">
-                <SwipessLogo size="md" className="scale-125" />
+                <LogoWordmark size="auth" />
               </div>
               <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand mb-1">
                 {isLogin ? 'Welcome Back' : 'Elite Discovery'}
