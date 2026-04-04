@@ -59,9 +59,9 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative w-full flex-grow flex flex-col items-center pt-8 justify-center bg-transparent overflow-hidden"
+        className="relative w-full flex-grow flex flex-col items-center pt-4 justify-center bg-transparent overflow-hidden"
         style={{
-          minHeight: '620px', // Larger spec
+          minHeight: 'auto',
         }}
       >
         <div
