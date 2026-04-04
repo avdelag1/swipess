@@ -1,6 +1,7 @@
 import { useState, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   OWNER_INTENT_CARDS,
   OwnerIntentCard,
@@ -14,17 +15,9 @@ export interface OwnerAllDashboardProps {
   onCardSelect: (card: OwnerIntentCard) => void;
 }
 
-/**
- * 🃏 OwnerAllDashboard — CYCLIC EDITION 🎰
- * 
- * Re-imagined as a continuous carousel of client intents.
- * Owner-side quick filters now follow the flagship cyclic-carousel interaction model.
- * Swipe left/right cycle the intent deck; select to filter the client deck.
- */
 export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps) => {
   const [cards, setCards] = useState([...OWNER_INTENT_CARDS]);
 
-  // Cycle: move the front intent to the back
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
     triggerHaptic('medium');
     setCards(prev => {
@@ -35,7 +28,6 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
     });
   }, []);
 
-  // Selection is explicit — ensures owners don't trigger accidental filters
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
     const card = OWNER_INTENT_CARDS.find(c => c.id === id);
@@ -51,6 +43,24 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
     });
   }, []);
 
+  const cycleLeft = useCallback(() => {
+    triggerHaptic('light');
+    setCards(prev => {
+      const next = [...prev];
+      const [current] = next.splice(0, 1);
+      return [...next, current];
+    });
+  }, []);
+
+  const cycleRight = useCallback(() => {
+    triggerHaptic('light');
+    setCards(prev => {
+      const next = [...prev];
+      const last = next.pop()!;
+      return [last, ...next];
+    });
+  }, []);
+
   return (
     <AnimatePresence mode="popLayout">
       <motion.div
@@ -59,41 +69,53 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative w-full flex-grow flex flex-col items-center pt-4 justify-center bg-transparent overflow-hidden"
-        style={{
-          minHeight: 'auto',
-        }}
+        className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent overflow-hidden"
+        style={{ minHeight: 'auto' }}
       >
-        <div
-          className="relative"
-          style={{
-            width: PK_W,
-            height: OWNER_PK_H,
-          }}
-        >
-          {/* Deck rendered back-to-front so the first element sits on top */}
-          {[...cards].reverse().map((card, reversedIdx) => {
-            const index = cards.length - 1 - reversedIdx;
-            const isTop = index === 0;
-            return (
-              <PokerCategoryCard
-                key={card.id}
-                card={card}
-                index={index}
-                total={cards.length}
-                isTop={isTop}
-                isCollapsed={false}
-                onCycle={handleCycle}
-                onSelect={handleSelect}
-                onBringToFront={handleBringToFront}
-                cardHeight={OWNER_PK_H}
-              />
-            );
-          })}
-        </div>
+        <div className="relative flex items-center justify-center gap-3">
+          {/* External left arrow */}
+          <button
+            onClick={cycleLeft}
+            className="swipe-hint-left z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm active:scale-90 transition-transform"
+            aria-label="Previous filter"
+          >
+            <ChevronLeft size={20} className="text-white/60" />
+          </button>
 
-        {/* Dynamic ambient backdrop shift based on top card */}
-        <div className="absolute inset-x-0 bottom-0 top-1/2 pointer-events-none -z-10 bg-gradient-to-t from-black/5 to-transparent h-1/4" />
+          {/* Card stack */}
+          <div
+            className="relative"
+            style={{ width: PK_W, height: OWNER_PK_H }}
+          >
+            {[...cards].reverse().map((card, reversedIdx) => {
+              const index = cards.length - 1 - reversedIdx;
+              const isTop = index === 0;
+              return (
+                <PokerCategoryCard
+                  key={card.id}
+                  card={card}
+                  index={index}
+                  total={cards.length}
+                  isTop={isTop}
+                  isCollapsed={false}
+                  onCycle={handleCycle}
+                  onSelect={handleSelect}
+                  onBringToFront={handleBringToFront}
+                  cardHeight={OWNER_PK_H}
+                />
+              );
+            })}
+          </div>
+
+          {/* External right arrow */}
+          <button
+            onClick={cycleRight}
+            className="swipe-hint-right z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm active:scale-90 transition-transform"
+            aria-label="Next filter"
+          >
+            <ChevronRight size={20} className="text-white/60" />
+          </button>
+        </div>
       </motion.div>
     </AnimatePresence>
   );

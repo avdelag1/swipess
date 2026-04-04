@@ -146,10 +146,6 @@
     var mountTimer = setTimeout(function() {
       if (!window.__APP_INITIALIZED__) {
         removeSplash();
-        setTimeout(function() {
-          var root = document.getElementById('root');
-          if (!root || !root.firstChild) document.getElementById('mount-recovery').style.display = 'block';
-        }, 1000);
       }
     }, 5000);
 
