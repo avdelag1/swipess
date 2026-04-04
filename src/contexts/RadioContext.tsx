@@ -199,10 +199,16 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       setError('Buffering...');
     };
 
+    const handlePlaying = () => {
+      setError(null);
+      errorCount = 0;
+    };
+
     audioRef.current.addEventListener('ended', handleTrackEnded);
     audioRef.current.addEventListener('error', handleAudioError);
     audioRef.current.addEventListener('canplay', handleCanPlay);
     audioRef.current.addEventListener('stalled', handleStalled);
+    audioRef.current.addEventListener('playing', handlePlaying);
 
     return () => {
       if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
