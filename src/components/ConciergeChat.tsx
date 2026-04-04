@@ -53,7 +53,7 @@ function TypingIndicator({ isDark }: { isDark: boolean }) {
     <div className="flex items-center gap-3 px-4 py-3">
       <JarvisAura isThinking size="sm" />
       <span className={cn("text-[10px] font-black uppercase tracking-widest animate-pulse", isDark ? "text-cyan-400" : "text-cyan-600")}>
-        Vibe is Thinking...
+        Swipess AI is thinking...
       </span>
     </div>
   );
