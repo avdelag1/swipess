@@ -30,13 +30,11 @@ function LogoImage({ className }: { className?: string }) {
     <div className={cn("relative flex items-center justify-center translate-y-[-2vh]", className)}>
         <motion.div
           animate={{
-            scale: [1, 1.05, 1, 1.05, 1],
+            scale: [1, 1.03, 1],
           }}
           transition={{
-            duration: 1.5,
+            duration: 2.2,
             repeat: Infinity,
-            repeatDelay: 2,
-            times: [0, 0.15, 0.3, 0.45, 1],
             ease: "easeInOut"
           }}
           className="relative flex items-center justify-center"
@@ -47,12 +45,11 @@ function LogoImage({ className }: { className?: string }) {
             className="transition-all duration-700 ease-out" 
           />
         </motion.div>
-<<<<<<< HEAD
     </div>
   );
 }
 
-// Optimized wordmark matching the SwipesS brand identity
+// Optimized wordmark matching the Swipess brand identity
 function LogoWordmark({ className, size = 'hero', isDark = true }: { className?: string; size?: 'hero' | 'auth'; isDark?: boolean }) {
   return (
     <div className={cn("relative flex flex-col items-center justify-center", size === 'hero' ? 'gap-4' : 'gap-2', className)}>
@@ -83,8 +80,6 @@ function LogoWordmark({ className, size = 'hero', isDark = true }: { className?:
           }}
         />
       )}
-=======
->>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
     </div>
   );
 }
@@ -189,8 +184,10 @@ const LandingView = memo(({
         className="cursor-grab active:cursor-grabbing touch-none select-none relative"
       >
         <div className="relative">
-          <LogoImage
-            className="w-[70vw] max-w-[280px] sm:max-w-[340px] md:max-w-[400px] aspect-video mx-auto"
+          <SwipessLogo 
+            size="2xl" 
+            glow={true}
+            className="w-[85vw] max-w-[340px] sm:max-w-[420px] md:max-w-[500px]" 
           />
         </div>
       </motion.div>
@@ -258,6 +255,7 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
   const [isLoading, setIsLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const { signIn, signUp } = useAuth();
+  const _passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
 
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('auth_client_email') || '';
@@ -342,6 +340,7 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
         animate={{ opacity: 1, x: 0 }} 
         transition={{ delay: 0.15, duration: 0.3 }}
         title="Go back to landing"
+        aria-label="Go back to landing"
         className="absolute top-4 left-4 z-20 text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted"
         style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
       >
@@ -349,57 +348,77 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
       </motion.button>
 
       <div className="h-full flex flex-col justify-center p-4 sm:p-5 relative z-10">
-        <motion.div className="w-full max-sm mx-auto" variants={containerVariants} initial="hidden" animate="visible">
+        <motion.div className="w-full max-w-sm mx-auto" variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
             <div className="text-center mb-6">
-              <div className="flex justify-center mb-4">
-                <LogoWordmark size="auth" isDark={isDark} />
+              <div className="flex justify-center mb-6">
+                <SwipessLogo size="md" glow={false} />
               </div>
-              <h1 className="text-4xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand mb-1">
-                {isLogin ? 'Welcome Back' : 'Join SwipesS'}
+              <h1 className="text-3xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand mb-1">
+                {isLogin ? 'Welcome Back' : 'Join Swipess'}
               </h1>
               <p className="text-muted-foreground text-sm font-medium leading-relaxed px-4">
-                {isLogin ? 'Good luck finding your perfect deal today.' : 'Your next perfect deal is one swipe away.'}
+                {isLogin
+                  ? 'Good luck finding your perfect deal today.'
+                  : 'Your next perfect deal is one swipe away.'}
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants}>
-                  <GlowingField>
+                  <GlowingField className="relative group">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-10 h-11" />
                   </GlowingField>
                 </motion.div>
               )}
+
               <motion.div variants={itemVariants}>
-                <GlowingField>
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <GlowingField className="relative group">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
                   <Input type="email" name="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-10 h-11" />
                 </GlowingField>
               </motion.div>
+
               {!isForgotPassword && (
                 <motion.div variants={itemVariants}>
-                  <GlowingField>
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <GlowingField className="relative group">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
                     <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-10 pr-10 h-11" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} title={showPassword ? "Hide password" : "Show password"} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <button 
+                      type="button" 
+                      onClick={() => setShowPassword(!showPassword)} 
+                      title={showPassword ? "Hide password" : "Show password"}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </GlowingField>
                 </motion.div>
               )}
+
               <motion.div variants={itemVariants}>
-                <Button type="submit" disabled={isLoading} className="w-full h-12 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-pink-500 shadow-lg group">
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-12 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:shadow-[0_0_30px_rgba(249,115,22,0.5)] transition-all relative overflow-hidden group"
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-sweep"
+                  />
                   {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Join the Club'}
                 </Button>
               </motion.div>
             </form>
 
-            <motion.div variants={itemVariants} className="mt-4 text-center">
+            <motion.div variants={itemVariants} className="mt-4 space-y-2 text-center">
               {isLogin && !isForgotPassword && (
-                <p className="text-xs text-muted-foreground mb-2">
-                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-orange-400">Forgot password?</button>
+                <p className="text-xs text-muted-foreground">
+                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-orange-400/80 hover:text-orange-400">
+                    Forgot password?
+                  </button>
                 </p>
               )}
               <p className="text-xs text-muted-foreground">
@@ -410,10 +429,12 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
           </motion.div>
         </motion.div>
       </div>
+
     </motion.div>
   );
 });
 
+/* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
   const { theme, setTheme } = useTheme();
   const [view, setView] = useState<View>('landing');
@@ -430,19 +451,40 @@ function LegendaryLandingPage() {
 
   return (
     <motion.div 
-      className={cn("h-screen h-dvh relative overflow-hidden transition-colors duration-300", isDark ? "dark black-matte" : "light white-matte text-zinc-900")} 
+      className={cn(
+        "h-screen h-dvh relative overflow-hidden transition-colors duration-300",
+        isDark ? "dark black-matte" : "light white-matte text-zinc-900"
+      )} 
       animate={{ backgroundColor: bgColor }}
     >
-      <Suspense fallback={null}><LandingBackgroundEffects mode={activeMode} isLightTheme={!isDark} /></Suspense>
+      <Suspense fallback={null}>
+        <LandingBackgroundEffects
+          mode={activeMode}
+          isLightTheme={!isDark}
+        />
+      </Suspense>
+
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
-          <LandingView key="landing" onEnterAuth={() => setView('auth')} isDark={isDark} onToggleDark={toggleTheme} />
+          <LandingView
+            key="landing"
+            onEnterAuth={() => setView('auth')}
+            isDark={isDark}
+            onToggleDark={toggleTheme}
+          />
         ) : (
           <AuthView key="auth" onBack={() => setView('landing')} isDark={isDark} />
         )}
       </AnimatePresence>
-      <Suspense fallback={null}><AISearchDialog isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} userRole="client" /></Suspense>
-    </motion.div>
+
+      <Suspense fallback={null}>
+        <AISearchDialog 
+          isOpen={isAIOpen} 
+          onClose={() => setIsAIOpen(false)} 
+          userRole="client" 
+        />
+      </Suspense>
+      </motion.div>
   );
 }
 

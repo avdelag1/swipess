@@ -6,10 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
   <meta name="format-detection" content="telephone=no">
   <meta name="theme-color" content="#0A0A0B">
-  <meta name="app-version" content="3.6.4">
+  <meta name="app-version" content="3.7.0">
   
   <!-- 🚀 CRITICAL RESOURCE PRELOADS -->
-  <link rel="preload" href="/icons/fire-s-logo-960.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" href="/icons/swipess-wordmark-512.png" as="image" type="image/png" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://vlkndvqukyzjyfmxzqxs.supabase.co" crossorigin>
@@ -23,7 +23,6 @@
       root.style.backgroundColor = theme === 'dark' ? '#000000' : '#ffffff';
       root.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
       
-      // PASSIVE LISTENERS: Ensure scrolling is never blocked by JS
       const originalAddEventListener = window.EventTarget.prototype.addEventListener;
       window.EventTarget.prototype.addEventListener = function(type, listener, options) {
         let op = options;
@@ -45,7 +44,6 @@
     })();
   </script>
 
-  <!-- High-Efficiency Font Loading: swap prevents invisible text while loading -->
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Poppins:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet"></noscript>
 
@@ -53,7 +51,7 @@
   <meta name="description" content="Tulum's elite marketplace for luxury real estate, high-performance vehicles, and world-class service professionals. Swipe. Match. Dominate.">
   
   <style>
-    /* 🚀 ZENITH CORE STYLES */
+    /** 🚀 ZENITH CORE STYLES */
     *{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
     input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;user-select:text;touch-action:auto}
     :root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
@@ -68,76 +66,47 @@
     #initial-loader.dissolving { opacity: 0; pointer-events: none; }
     
     .splash-logo{
-      width:105px;height:105px;
+      width:220px;height:45px;
       animation:heartbeat 2s ease-in-out infinite;
       will-change: transform, opacity;
-      -webkit-mask: url(/icons/fire-s-logo-960.webp) center/contain no-repeat;
-      mask: url(/icons/fire-s-logo-960.webp) center/contain no-repeat;
+      -webkit-mask: url(/icons/swipess-wordmark-512.png) center/contain no-repeat;
+      mask: url(/icons/swipess-wordmark-512.png) center/contain no-repeat;
       background: linear-gradient(135deg, #ff4d00, #ff6b35);
     }
     @keyframes heartbeat{
       0%, 100% { transform: scale(1); opacity: 0.9; }
-      10%, 30% { transform: scale(1.06); opacity: 1; }
+      10%, 30% { transform: scale(1.04); opacity: 1; }
       20% { transform: scale(1); opacity: 0.9; }
       40% { transform: scale(1); opacity: 0.9; }
     }
-    .loader-bar{width:160px;height:2px;background:rgba(255,255,255,0.05);border-radius:10px;margin-top:24px;position:relative;overflow:hidden;}
+    .loader-bar{width:180px;height:2px;background:rgba(255,255,255,0.05);border-radius:10px;margin-top:32px;position:relative;overflow:hidden;}
     .loader-progress{position:absolute;inset:0;width:100%;background:linear-gradient(90deg,transparent 0%,#ff4d00 50%,transparent 100%);animation:loader-slide 1.5s ease-in-out infinite;}
     @keyframes loader-slide{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 
-    /* GPU-OPTIMIZED STARS */
     .stars-lite{position:absolute;inset:0;background:radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)), radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(1px 1px at 50px 160px, #fff, rgba(0,0,0,0));background-size: 200px 200px;opacity: 0.1;animation: stars-drift 100s linear infinite;}
     @keyframes stars-drift{from{background-position:0 0}to{background-position:0 -1000px}}
 
     #root{opacity:0;transition:opacity 0.4s ease-out;will-change:opacity}
     #root.hydrated{opacity:1}
-    
-    /* CRITICAL LAYOUT CONTEXT */
-    .contain-layout { contain: layout paint; }
-    .cv-auto { content-visibility: auto; contain-intrinsic-size: 1px 500px; }
   </style>
 
   <link rel="manifest" href="/manifest.json">
 
-  <!-- Favicons -->
+  <!-- Unified Brand Favicons -->
   <link rel="icon" type="image/png" href="/favicon.png">
-<<<<<<< HEAD
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
-  <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png">
-=======
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/fire-s-logo-16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/fire-s-logo-32.png">
-  <link rel="icon" type="image/png" sizes="48x48" href="/icons/fire-s-logo-48.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="/icons/fire-s-logo-96.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/icons/fire-s-logo-192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/icons/fire-s-logo-512.png">
->>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/swipess-wordmark-512.png">
 
   <!-- Apple iOS / iPadOS -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="SwipesS">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-  <link rel="apple-touch-icon" sizes="57x57"   href="/icons/apple-touch-icon-57x57.png">
-  <link rel="apple-touch-icon" sizes="60x60"   href="/icons/apple-touch-icon-60x60.png">
-  <link rel="apple-touch-icon" sizes="72x72"   href="/icons/apple-touch-icon-72x72.png">
-  <link rel="apple-touch-icon" sizes="76x76"   href="/icons/apple-touch-icon-76x76.png">
-  <link rel="apple-touch-icon" sizes="114x114" href="/icons/apple-touch-icon-114x114.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120x120.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="/icons/apple-touch-icon-144x144.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="/icons/apple-touch-icon-167x167.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180x180.png">
-  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/apple-touch-icon-1024x1024.png">
 
   <!-- Windows / Microsoft -->
-  <meta name="msapplication-TileImage" content="/icons/icon-144.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <meta name="msapplication-TileImage" content="/icons/swipess-wordmark-512.png">
   <meta name="msapplication-TileColor" content="#0A0A0B">
 </head>
 
@@ -154,7 +123,6 @@
   </div>
 
   <script>
-    // 🛡️ ZENITH GUARD: Unified Recovery System
     window.__APP_INITIALIZED__ = false;
 
     function removeSplash() {
@@ -167,7 +135,6 @@
       }
     }
 
-    // 1. Hard timeout for splash
     var mountTimer = setTimeout(function() {
       if (!window.__APP_INITIALIZED__) {
         removeSplash();
@@ -178,7 +145,6 @@
       }
     }, 5000);
 
-    // 2. Listen for app-rendered signal
     window.addEventListener('app-rendered', function() {
       window.__APP_INITIALIZED__ = true;
       clearTimeout(mountTimer);
@@ -187,10 +153,9 @@
       });
     });
 
-    // 3. PWA Version Control (Deferred)
     window.addEventListener('load', function() {
       setTimeout(function() {
-        var V = "3.6.4";
+        var V = "3.7.0";
         if(localStorage.getItem('pwa_version') !== V) {
           if('caches' in window) caches.keys().then(function(n){n.forEach(function(k){caches.delete(k)})}).then(function(){localStorage.setItem('pwa_version',V);});
         }
@@ -199,68 +164,14 @@
   </script>
 
   <div id="root"></div>
-
   <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
 
   <script>
-<<<<<<< HEAD
-    // RECOVERY FALLBACK: If React fails to mount (chunk error, SW stale cache, etc.)
-    // show a reload button after 10s so the user isn't stuck forever.
-    var recoveryBtnTimeout = setTimeout(function() {
-      var root = document.getElementById('root');
-      if (root && !root.firstChild && !window.__APP_INITIALIZED__) {
-        var btn = document.createElement('button');
-        btn.id = 'fallback-reload-btn';
-        btn.textContent = 'Reload App';
-        btn.style.cssText = 'position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:99999;background:#ff1f1f;color:#fff;border:none;border-radius:999px;padding:14px 32px;font-size:16px;font-weight:600;cursor:pointer;font-family:system-ui,sans-serif;box-shadow:0 4px 20px rgba(255,31,31,0.4)';
-        btn.onclick = function() {
-          if ('caches' in window) {
-            caches.keys().then(function(names) {
-              return Promise.all(names.map(function(n) { return caches.delete(n); }));
-            }).then(function() { window.location.reload(); });
-          } else {
-            window.location.reload();
-          }
-        };
-        document.body.appendChild(btn);
-      }
-    }, 10000);
-    // Clear fallback if app renders
-    window.addEventListener('app-rendered', function() {
-      clearTimeout(recoveryBtnTimeout);
-      var fb = document.getElementById('fallback-reload-btn');
-      if (fb) fb.remove();
-    });
-  </script>
-
-  <script>
-    // PWA Version Control — runs synchronously but is fast (no network)
-    var V="3.6.4";
-    if(localStorage.getItem('pwa_version')!==V){
-      if('caches' in window)caches.keys().then(function(n){n.forEach(function(k){caches.delete(k)})}).then(function(){localStorage.setItem('pwa_version',V); window.location.reload();});
-    }
-
-    // Never allow service workers in Lovable preview or iframe contexts.
-    (function () {
-      var isInIframe = false;
-      try { isInIframe = window.self !== window.top; } catch (e) { isInIframe = true; }
-      var host = window.location.hostname || '';
-      var isPreviewHost = host.indexOf('id-preview--') !== -1 || host.indexOf('lovableproject.com') !== -1;
-
-      if ('serviceWorker' in navigator && (isPreviewHost || isInIframe)) {
-        navigator.serviceWorker.getRegistrations().then(function(regs){
-          regs.forEach(function(reg){ reg.unregister(); });
-        });
-      }
-    })();
-=======
-    // SW registration
     if('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('/sw.js').catch(function(e){});
       });
     }
->>>>>>> df25a7bb ( Performance Perfection & Heartbeat Branding: Optimized initial load, deferred heavy JS, and refined the flagship logo heartbeat animation.)
   </script>
 </body>
 </html>
