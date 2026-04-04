@@ -186,11 +186,11 @@ const LandingView = memo(({
         whileTap={{ scale: 0.97 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none relative"
       >
-        <div className="relative">
+        <div className="relative rounded-3xl px-8 py-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
           <SwipessLogo 
-            size="2xl" 
+            size="3xl" 
             glow={true}
-            className="w-[85vw] max-w-[340px] sm:max-w-[420px] md:max-w-[500px]" 
+            className="w-[85vw] max-w-[380px] sm:max-w-[460px] md:max-w-[540px]" 
           />
         </div>
       </motion.div>

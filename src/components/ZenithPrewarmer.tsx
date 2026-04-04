@@ -54,11 +54,9 @@ export const ZenithPrewarmer = () => {
         });
       });
 
-      // 3. Pre-warm Critical UI Assets & Branding
+      // 3. Pre-warm Critical UI Assets & Branding (only essential)
       const prefetchImages = [
-         '/icons/icon-512.png',
          '/icons/icon-192.png',
-         '/placeholder.svg',
       ];
       
       prefetchImages.forEach(src => {
