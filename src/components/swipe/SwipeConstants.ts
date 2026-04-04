@@ -68,21 +68,8 @@ export interface PokerCardData {
 }
 
 // ─── Photo Registry ──────────────────────────────────────────────────────────
-// Primary: Curated high-fidelity lifestyle photos that represent the Swipess demographic.
-// These are chosen to be premium, diverse, and human-centric (Tulum/European/American).
-export const POKER_CARD_PHOTOS: Record<string, string> = {
-  property:   'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=800&auto=format&fit=crop&v=1.5',
-  motorcycle: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop&v=1.5',
-  bicycle:    'https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=800&auto=format&fit=crop&v=1.5',
-  services:   'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop&v=1.5',
-  all:        'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=800&auto=format&fit=crop&v=1.5',
-  
-  // Owner intent cards - REFINED HUMAN-CENTRIC UX
-  buyers:     'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=800&auto=format&fit=crop&v=1.5',
-  renters:    'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop&v=1.5',
-  hire:       'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=800&auto=format&fit=crop&v=1.5',
-  radio:      'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800&auto=format&fit=crop&v=1.5',
-};
+// High-fidelity lifestyle photos that represent the Swipess demographic.
+// These are chosen to be premium, diverse, and human-centric.
 
 // Gradient fallbacks shown when an image fails to load (no broken/black cards).
 export const POKER_CARD_GRADIENTS: Record<string, string> = {
@@ -109,8 +96,8 @@ export const POKER_CARDS = [
 
 // Zenith Spec: Professional-grade card dimensions for flagship smartphones
 export const PK_W = 310;
-export const PK_H = 520;
-export const OWNER_PK_H = 520;
+export const PK_H = 580;
+export const OWNER_PK_H = 580;
 
 export const FOLDER_OFFSET_X = 30;
 export const FOLDER_OFFSET_Y = 0;
@@ -118,6 +105,24 @@ export const POKER_FAN_ROTATION = 8; // degrees per card in the fan
 export const PK_DIST_THRESHOLD = 110;
 export const PK_VEL_THRESHOLD  = 480;
 export const PK_SPRING = { type: 'spring' as const, stiffness: 520, damping: 34, mass: 0.9 };
+
+// ─── Photo Registry ──────────────────────────────────────────────────────────
+// Primary: Curated high-fidelity lifestyle photos that represent the Swipess demographic.
+// These are chosen to be premium, diverse, and human-centric (Tulum/European/American).
+// UPDATED: Standardizing on Flagship Human-Centric Aesthetic.
+export const POKER_CARD_PHOTOS: Record<string, string> = {
+  property:   'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=800&auto=format&fit=crop',
+  motorcycle: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop',
+  bicycle:    'https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?q=80&w=800&auto=format&fit=crop',
+  services:   'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format&fit=crop',
+  all:        'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=800&auto=format&fit=crop',
+  
+  // Owner intent cards - REFINED HUMAN-CENTRIC UX
+  buyers:     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop',
+  renters:    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=800&auto=format&fit=crop',
+  hire:       'https://images.unsplash.com/photo-1522071823991-b9671f9cf38f?q=80&w=800&auto=format&fit=crop',
+  radio:      'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800&auto=format&fit=crop',
+};
 
 // ─── Owner quick-filter intent cards ────────────────────────────────────────
 // These replace the category poker cards on the owner side so owners can
@@ -132,7 +137,7 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
   {
     id: 'buyers',
     label: 'Buyers',
-    description: 'Ready to purchase',
+    description: 'Purchase Ready',
     accent: '#3b82f6',
     accentRgb: '59,130,246',
     clientType: 'buy',
@@ -142,7 +147,7 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
   {
     id: 'renters',
     label: 'Renters',
-    description: 'Looking to rent',
+    description: 'Looking to Move',
     accent: '#10b981',
     accentRgb: '16,185,129',
     clientType: 'rent',
@@ -151,8 +156,8 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
   },
   {
     id: 'hire',
-    label: 'Need a Hand',
-    description: 'Seeking workers',
+    label: 'Inquire',
+    description: 'Service Seeking',
     accent: '#a855f7',
     accentRgb: '168,85,247',
     clientType: 'hire',
@@ -160,8 +165,8 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
   },
   {
     id: 'property',
-    label: 'Properties',
-    description: 'Houses & apartments',
+    label: 'Property',
+    description: 'Browse Estates',
     accent: '#f97316',
     accentRgb: '249,115,22',
     category: 'property',

@@ -96,28 +96,52 @@ INSTRUCTIONS:
       `.trim();
     }
 
-    // Call MiniMax v2 — Robust Multi-Region Support
+    // 2. Call MiniMax v2 — Robust Multi-Region Support with Model Fallback
     const minimaxUrl = "https://api.minimax.chat/v1/text/chatcompletion_v2";
-    console.log(`[AI Orchestrator] Triggering task: ${task || 'chat'} for model: abab6.5s-chat`);
+    console.log(`[AI Orchestrator] Triggering task: ${task || 'chat'}`);
 
-    const res = await fetch(minimaxUrl, {
-      method: "POST",
-      headers: { 
-        "Authorization": `Bearer ${minimaxKey}`, 
-        "Content-Type": "application/json" 
-      },
-      body: JSON.stringify({ 
-        model: "abab6.5s-chat",
-        messages: [{ role: "system", content: systemPrompt }, ...formattedMessages],
-        temperature: task === "conversation" ? 0 : 0.6, // Higher temp for concierge vibey responses
-        stream: false
-      }),
-    });
+    let res;
+    try {
+      res = await fetch(minimaxUrl, {
+        method: "POST",
+        headers: { 
+          "Authorization": `Bearer ${minimaxKey}`, 
+          "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({ 
+          model: "abab6.5s-chat",
+          messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
+          temperature: task === "conversation" ? 0 : 0.6,
+          stream: false
+        }),
+      });
 
-    if (!res.ok) {
-        const errorText = await res.text();
-        console.error(`[AI Orchestrator] MiniMax error ${res.status}:`, errorText);
-        throw new Error(`AI Engine error: ${res.status}`);
+      // MODEL FALLBACK: If 6.5s fails (e.g. not available for key), try 5.5s
+      if (!res.ok && res.status !== 401) {
+        console.warn(`[AI Orchestrator] Primary model failed (${res.status}), falling back to abab5.5-chat`);
+        res = await fetch(minimaxUrl, {
+          method: "POST",
+          headers: { 
+            "Authorization": `Bearer ${minimaxKey}`, 
+            "Content-Type": "application/json" 
+          },
+          body: JSON.stringify({ 
+            model: "abab5.5-chat",
+            messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
+            temperature: 0.6,
+            stream: false
+          }),
+        });
+      }
+    } catch (fetchErr) {
+      console.error("[AI Orchestrator] Fetch failed:", fetchErr);
+      throw fetchErr;
+    }
+
+    if (!res || !res.ok) {
+        const errorText = res ? await res.text() : "No response";
+        console.error(`[AI Orchestrator] MiniMax error ${res?.status}:`, errorText);
+        throw new Error(`AI Engine error: ${res?.status || 'Fetch Failed'}`);
     }
 
     const aiRes = await res.json();
@@ -136,12 +160,13 @@ INSTRUCTIONS:
     if (task === "conversation") {
         try {
             // Strict JSON parsing for conversation task
-            finalResult = JSON.parse(rawAiText.trim().replace(/^```json/, '').replace(/```$/, ''));
+            const cleaned = rawAiText.trim().replace(/^```json/, '').replace(/```$/, '').trim();
+            finalResult = JSON.parse(cleaned);
         } catch (e) {
             console.error("JSON Parse Error:", rawAiText);
             finalResult = { 
-                message: "I'm having a technical glitch parsing your details. Could you repeat that?",
-                extractedData,
+                message: "I'm having a small technical glitch parsing the details. Could you repeat that?",
+                extractedData: data?.extractedData || {},
                 isComplete: false
             };
         }
@@ -152,7 +177,7 @@ INSTRUCTIONS:
         const aiAction = actionMatch ? JSON.parse(actionMatch[0])?.action : null;
 
         finalResult = {
-            text: aiText,
+            text: aiText || "I'm processing that for you...",
             action: aiAction
         };
     }
@@ -167,8 +192,20 @@ INSTRUCTIONS:
 
   } catch (err: any) {
     console.error("Orchestrator Error:", err);
-    return new Response(JSON.stringify({ error: err.message }), { 
-      status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } 
+    
+    // 🎭 SENTIENT RECOVERY: Never return a raw error to the UI
+    const recoveryResponse = {
+      result: {
+        text: "I'm experiencing a brief shift in my matrix, but I'm still tuned into your frequency. Could you try that again? I want to make sure I get it perfect.",
+        action: null
+      },
+      error: err.message,
+      status: "recovered"
+    };
+
+    return new Response(JSON.stringify(recoveryResponse), { 
+      status: 200, // Return 200 so the UI can gracefully show the recovery text
+      headers: { ...corsHeaders, "Content-Type": "application/json" } 
     });
   }
 });

@@ -12,12 +12,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { predictivePrefetchCategory } from '@/utils/performance';
 
+import { POKER_CARD_PHOTOS } from './swipe/SwipeConstants';
+
 const CATEGORIES: { id: QuickFilterCategory | null; label: string; icon: any; color: string; description: string; image: string }[] = [
-    { id: 'property', label: 'Property', icon: Home, color: 'from-rose-500 to-rose-400', description: 'Find your next home', image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=800&auto=format&fit=crop&v=1.3' },
-    { id: 'motorcycle', label: 'Moto', icon: MotorcycleIcon, color: 'from-orange-500 to-orange-400', description: 'Ride in style', image: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop&v=1.3' },
-    { id: 'bicycle', label: 'Bicycle', icon: Bike, color: 'from-violet-500 to-violet-400', description: 'Eco-friendly travel', image: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=800&auto=format&fit=crop&v=1.3' },
-    { id: 'services', label: 'Services', icon: Briefcase, color: 'from-amber-500 to-amber-400', description: 'Hire professionals', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop&v=1.3' },
-    { id: null, label: 'All', icon: Search, color: 'from-slate-500 to-slate-400', description: 'Explore everything', image: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=800&auto=format&fit=crop&v=1.3' },
+    { id: 'property', label: 'Property', icon: Home, color: 'from-rose-500 to-rose-400', description: 'Real Estate & Living', image: POKER_CARD_PHOTOS.property },
+    { id: 'motorcycle', label: 'Moto', icon: MotorcycleIcon, color: 'from-orange-500 to-orange-400', description: 'Ride & Adventure', image: POKER_CARD_PHOTOS.motorcycle },
+    { id: 'bicycle', label: 'Bicycle', icon: Bike, color: 'from-violet-500 to-violet-400', description: 'Active Lifestyle', image: POKER_CARD_PHOTOS.bicycle },
+    { id: 'services', label: 'Services', icon: Briefcase, color: 'from-amber-500 to-amber-400', description: 'Hire & Consult', image: POKER_CARD_PHOTOS.services },
+    { id: null, label: 'All', icon: Search, color: 'from-slate-500 to-slate-400', description: 'Complete Discovery', image: POKER_CARD_PHOTOS.all },
 ];
 
 export function CategorySwipeStack() {
@@ -30,6 +32,14 @@ export function CategorySwipeStack() {
 
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+
+    // PERF: Prefetch all category images on mount for zero-latency filter discovery
+    useEffect(() => {
+        CATEGORIES.forEach(cat => {
+            const img = new Image();
+            img.src = cat.image;
+        });
+    }, []);
 
     const handleSwipeRight = (id: QuickFilterCategory | null) => {
         haptics.success();
@@ -66,7 +76,7 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full aspect-[4/3] max-w-sm mx-auto mb-16 flex items-center justify-center perspective-[1000px]">
+        <div className="relative w-full h-[600px] max-w-sm mx-auto mb-16 flex items-center justify-center perspective-[1000px] overflow-visible">
             {/* Background Atmosphere - moved outside but kept inside div for relative positioning */}
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden contain-strict">
                 <motion.div 

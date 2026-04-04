@@ -26,7 +26,7 @@ export default function ClientDashboard({
   // When no category is selected, show the poker card fan
   if (!activeCategory) {
     return (
-      <div className="relative flex flex-col items-center justify-center h-[100dvh] w-full overflow-hidden">
+      <div className="relative flex flex-col items-center justify-center min-h-[100dvh] w-full py-12">
         <SwipeAllDashboard setCategories={(ids) => {
           if (ids.length > 0) {
             setCategories(ids);

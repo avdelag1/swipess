@@ -160,7 +160,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     };
 
     return (
-      <div className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden pt-12">
+      <div className="relative flex flex-col items-center justify-center min-h-[100dvh] w-full py-12">
         <OwnerAllDashboard onCardSelect={handleCardSelect} />
       </div>
     );

@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast as sonnerToast } from 'sonner';
 import { useAuth } from './useAuth';
 import { useUserSubscription } from './useSubscription';
 import { useLocation } from 'react-router-dom';
 import { MEMORIES_QUERY_KEY } from './useUserMemories';
+import { logger } from '@/utils/prodLogger';
 
 interface ConciergeMessage {
   id: string;
@@ -42,7 +43,6 @@ export function useConciergeAI() {
   const location = useLocation();
   const queryClient = useQueryClient();
 
-  const _storageKey = user ? `${STORAGE_KEY_PREFIX}${user.id}` : null;
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
 
   // Load conversation list + latest active conversation on mount
@@ -51,7 +51,6 @@ export function useConciergeAI() {
 
     const initChat = async () => {
       try {
-        // Fetch recent conversations for the history list
         const { data: convList, error: convErr } = await (supabase as any)
           .from('ai_conversations')
           .select('id, title, created_at, updated_at')
@@ -61,13 +60,12 @@ export function useConciergeAI() {
           .limit(10);
 
         if (convErr) {
-          console.warn('[ConciergeAI] ai_conversations table not ready yet — running in memory-only mode.');
+          logger.warn('[ConciergeAI] ai_conversations table not ready yet.');
           return;
         }
 
         if (convList) setConversations(convList as any);
 
-        // Load the most recent active conversation
         if (convList && convList.length > 0) {
           const latest = (convList as any)[0];
           setCurrentConversationId(latest.id as string);
@@ -89,7 +87,7 @@ export function useConciergeAI() {
           }
         }
       } catch (e) {
-        console.warn('[ConciergeAI] DB init skipped — tables may not be provisioned yet:', e);
+        logger.warn('[ConciergeAI] DB init skipped:', e);
       }
     };
 
@@ -97,69 +95,70 @@ export function useConciergeAI() {
   }, [user]);
 
   const sendMessage = useCallback(async (userMessage: string, context?: ConciergeContext) => {
-    if (!user) {
-      toast.error('Please sign in to use the Concierge');
-      return;
-    }
+    if (!userMessage.trim()) return;
 
     setIsLoading(true);
     setError(null);
 
+    // Optimistic UI: Add user message immediately
+    const tempId = crypto.randomUUID();
+    const optimisticUserMsg: ConciergeMessage = {
+      id: tempId,
+      role: 'user',
+      content: userMessage,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, optimisticUserMsg]);
+
     try {
-      // Optimistic UI: Add user message immediately
-      const tempId = crypto.randomUUID();
-      const optimisticUserMsg: ConciergeMessage = {
-        id: tempId,
-        role: 'user',
-        content: userMessage,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, optimisticUserMsg]);
-      
-      // 1. Ensure we have a conversation record (DB optional — memory-only fallback)
+      // 1. Database Persistence Logic (Conditional on Auth)
       let convId = currentConversationId;
-      try {
-        if (!convId) {
-          const { data: newConv, error: convErr } = await (supabase as any)
-            .from('ai_conversations')
-            .insert({ user_id: user.id, title: userMessage.substring(0, 40) })
-            .select()
-            .single();
+      if (user) {
+        try {
+          if (!convId) {
+            const { data: newConv, error: convErr } = await (supabase as any)
+              .from('ai_conversations')
+              .insert({ user_id: user.id, title: userMessage.substring(0, 40) })
+              .select()
+              .single();
 
-          if (!convErr && newConv) {
-            convId = newConv.id as string;
-            setCurrentConversationId(convId);
-            setConversations(prev => [newConv as ConversationSummary, ...prev]);
-          } else {
-            console.warn('[ConciergeAI] Could not create conversation record — running in memory-only mode.');
+            if (!convErr && newConv) {
+              convId = newConv.id as string;
+              setCurrentConversationId(convId);
+              setConversations(prev => [newConv as ConversationSummary, ...prev]);
+            }
           }
-        }
 
-        // 2. Save User Message to DB
-        if (convId) {
-          await (supabase as any).from('ai_messages').insert({
-            conversation_id: convId,
-            user_id: user.id,
-            role: 'user',
-            content: userMessage
-          });
+          if (convId) {
+            await (supabase as any).from('ai_messages').insert({
+              conversation_id: convId,
+              user_id: user.id,
+              role: 'user',
+              content: userMessage
+            });
+          }
+        } catch (dbErr) {
+          logger.warn('[ConciergeAI] DB persistence skipped:', dbErr);
         }
-      } catch (dbErr) {
-        console.warn('[ConciergeAI] DB persistence skipped:', dbErr);
       }
 
-      // 3. Fetch profile for userName (light query — heavy data is fetched server-side)
-      const { data: profile } = await supabase
+      // 2. Fetch profile data for persona consistency
+      const { data: profile } = user ? await supabase
         .from('profiles')
         .select('full_name, bio, interests, lifestyle_tags')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .maybeSingle() : { data: null };
 
-      const userName = profile?.full_name || 'Friend';
-      const userTier = subscription?.subscription_packages?.tier || 'Basic';
+      const userName = (profile as any)?.full_name || 'Friend';
+      const userTier = (subscription as any)?.subscription_packages?.tier || 'Basic';
 
-      const history = [...messages.slice(-14), optimisticUserMsg].map(m => ({ role: m.role, content: m.content }));
+      // 3. Prepare Orchestration Payload
+      const history = [...messages.slice(-10), optimisticUserMsg].map(m => ({ 
+        role: m.role, 
+        content: m.content 
+      }));
 
+      // 4. Invoke Edge Function
       const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {
           task: 'chat',
@@ -186,7 +185,7 @@ export function useConciergeAI() {
       const aiAction = data?.result?.action;
 
       const assistantMsg: ConciergeMessage = {
-        id: (Date.now() + 1).toString(),
+        id: crypto.randomUUID(),
         role: 'assistant',
         content: aiText,
         timestamp: new Date(),
@@ -199,9 +198,9 @@ export function useConciergeAI() {
         setUserVibe(data.vibe);
       }
 
-      // 4. Save AI Response to DB (optional)
-      try {
-        if (convId) {
+      // 5. Persist AI Response if Auth'd
+      if (user && convId) {
+        try {
           await (supabase as any).from('ai_messages').insert({
             conversation_id: convId,
             user_id: user.id,
@@ -210,19 +209,18 @@ export function useConciergeAI() {
             metadata: aiAction ? { action: aiAction } : {}
           });
 
-          // Update conversation updated_at
           await (supabase as any)
             .from('ai_conversations')
             .update({ updated_at: new Date().toISOString() })
             .eq('id', convId);
+        } catch (dbErr) {
+          logger.warn('[ConciergeAI] AI response persistence skipped:', dbErr);
         }
-      } catch (dbErr) {
-        console.warn('[ConciergeAI] AI message persistence skipped:', dbErr);
       }
 
-      // 5. Handle AI Actions (memory, match, itinerary signalling)
+      // 6. Execute AI-triggered UI Actions
       if (aiAction) {
-        if (aiAction.type === 'save_memory' && aiAction.params) {
+        if (aiAction.type === 'save_memory' && aiAction.params && user) {
           const { category, title, content, tags } = aiAction.params;
           if (title && content) {
             await (supabase as any).from('user_memories').insert({
@@ -234,69 +232,65 @@ export function useConciergeAI() {
               source: 'ai',
             });
             queryClient.invalidateQueries({ queryKey: MEMORIES_QUERY_KEY(user.id) });
-            toast.success(`Remembered: ${title}`, { duration: 2000 });
+            sonnerToast.success(`Remembered: ${title}`, { duration: 2000 });
           }
         }
         
         if (aiAction.type === 'initiate_match') {
-          toast.success("Connection request sent! 🚀", {
+          sonnerToast.success("Connection request sent! 🚀", {
             description: "The owner has been notified.",
-            duration: 3000,
-          });
-        }
-
-        if (aiAction.type === 'create_itinerary') {
-          toast("Generating your personalized itinerary...", {
-            icon: "🗓️",
-            duration: 1500,
           });
         }
       }
 
     } catch (err) {
-      console.error('Concierge Error:', err);
-      setError(err instanceof Error ? err.message : 'Service unavailable');
+      logger.error('[useConciergeAI] Execution error:', err);
+      setError(err instanceof Error ? err.message : 'Service momentarily unavailable');
+      
+      // Sentient Fallback
+      const fallbackMsg: ConciergeMessage = {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: "I'm detecting a slight atmospheric disturbance in my neural net. Could you try that again? I want to make sure I'm fully tuned to your vibe.",
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, fallbackMsg]);
     } finally {
       setIsLoading(false);
     }
-  }, [messages, user, currentConversationId, subscription, location.pathname]);
+  }, [messages, user, currentConversationId, subscription, location.pathname, queryClient]);
 
-  // Start a fresh conversation (archives current)
-  const startNewChat = useCallback(async () => {
-    if (currentConversationId && user) {
-      await (supabase as any)
-        .from('ai_conversations')
-        .update({ is_archived: true })
-        .eq('id', currentConversationId);
-      setConversations(prev => prev.filter(c => c.id !== currentConversationId));
-    }
+  // Utility Actions
+  const startNewChat = useCallback(() => {
     setMessages([]);
     setCurrentConversationId(null);
-  }, [currentConversationId, user]);
+  }, []);
 
-  // Switch to a different conversation from history
   const switchConversation = useCallback(async (convId: string) => {
     if (!user) return;
     setCurrentConversationId(convId);
 
-    const { data: msgs } = await (supabase as any)
-      .from('ai_messages')
-      .select('*')
-      .eq('conversation_id', convId)
-      .order('created_at', { ascending: true });
+    try {
+      const { data: msgs } = await (supabase as any)
+        .from('ai_messages')
+        .select('*')
+        .eq('conversation_id', convId)
+        .order('created_at', { ascending: true });
 
-    if (msgs) {
-      setMessages((msgs as any[]).map((m: any) => ({
-        id: String(m.id),
-        role: m.role as any,
-        content: m.content,
-        timestamp: new Date(m.created_at),
-        action: m.metadata?.action,
-      })));
+      if (msgs) {
+        setMessages((msgs as any[]).map((m: any) => ({
+          id: String(m.id),
+          role: m.role as any,
+          content: m.content,
+          timestamp: new Date(m.created_at),
+          action: m.metadata?.action,
+        })));
+      }
+    } catch (err) {
+      logger.error('[ConciergeAI] Switch error:', err);
     }
   }, [user]);
 
-  // Archive current conversation
   const clearMessages = useCallback(async () => {
     if (!currentConversationId || !user) {
       setMessages([]);
@@ -312,28 +306,9 @@ export function useConciergeAI() {
       setConversations(prev => prev.filter(c => c.id !== currentConversationId));
       setMessages([]);
       setCurrentConversationId(null);
-      toast.success('Conversation archived');
+      sonnerToast.success('Conversation archived');
     } catch (err) {
-      console.error('Failed to clear messages:', err);
-    }
-  }, [currentConversationId, user]);
-
-  // Permanently delete current conversation
-  const deletePermanently = useCallback(async () => {
-    if (!currentConversationId || !user) return;
-
-    try {
-      await (supabase as any)
-        .from('ai_conversations')
-        .delete()
-        .eq('id', currentConversationId);
-
-      setConversations(prev => prev.filter(c => c.id !== currentConversationId));
-      setMessages([]);
-      setCurrentConversationId(null);
-      toast.success('Conversation deleted');
-    } catch (err) {
-      console.error('Failed to delete:', err);
+      logger.error('[ConciergeAI] Clear error:', err);
     }
   }, [currentConversationId, user]);
 
@@ -347,7 +322,6 @@ export function useConciergeAI() {
     startNewChat,
     switchConversation,
     clearMessages,
-    deletePermanently,
     userVibe,
     isConfigured: true,
   };

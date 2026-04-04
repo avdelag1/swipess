@@ -396,10 +396,34 @@ button:active, [role="button"]:active {
   backface-visibility: hidden;
 }
 
-/* Low-end hardware: disable bounce physics entirely (static transforms) */
-body.hw-low [data-no-swipe-nav] > button,
-body.hw-low .tinder-nav-scroll > button {
-  transform: none !important;
-  transition: none !important;
-  will-change: auto !important;
+
+/* 🚀 SPEED OF LIGHT: Deck Layout Constants */
+.swipe-card-size {
+  width: 310px; /* PK_W */
+  height: 580px; /* PK_H - Immersive Height */
+  max-height: 80vh;
+}
+
+.glass-matte-surface {
+  background: rgba(10, 10, 11, 0.6);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-height: 700px) {
+  .swipe-card-size {
+    height: 480px;
+  }
+}
+
+/* 🏎️ PERFORMANCE: Zero-latency hover transitions */
+.interactive-hover {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), filter 0.2s ease;
+}
+
+.interactive-hover:hover {
+  transform: translateY(-4px) scale(1.02);
+  filter: brightness(1.1);
 }
