@@ -113,6 +113,7 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
           <VisualThemeProvider>
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <AuthProvider authPromise={authPromise}>
+                <AuthReadySignal />
                 <ZenithPrewarmer />
                 <ActiveModeProvider>
                   <ThemeProvider>
