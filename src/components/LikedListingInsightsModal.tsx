@@ -350,6 +350,8 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                         <button
                           key={idx}
                           onClick={() => setCurrentImageIndex(idx)}
+                          title={`View image ${idx + 1}`}
+                          aria-label={`View image ${idx + 1}`}
                           className={`h-1.5 rounded-full transition-all duration-200 ${
                             idx === currentImageIndex
                               ? 'w-6 bg-primary'

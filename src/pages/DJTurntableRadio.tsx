@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import {
   ArrowLeft, ListMusic, Heart, Shuffle,
-  SkipBack, SkipForward, Play, Pause, Activity
+  SkipBack, SkipForward, Play, Pause
 } from 'lucide-react';
 
 // ── Stars + Shooting Stars Canvas ──────────────────────────────────────────

@@ -39,7 +39,6 @@ const ClientContracts = lazy(() => import("./pages/ClientContracts"));
 const ClientLawyerServices = lazy(() => import("./pages/ClientLawyerServices"));
 const ClientSelfieCamera = lazy(() => import("./pages/ClientSelfieCamera"));
 const ClientFilters = lazy(() => import("./pages/ClientFilters"));
-const AdvertisePage = lazy(() => import("./pages/AdvertisePage"));
 const MaintenanceRequests = lazy(() => import("./pages/MaintenanceRequests"));
 
 // OWNER PAGES

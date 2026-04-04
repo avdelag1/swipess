@@ -17,7 +17,6 @@ import { useVisualTheme } from '@/contexts/VisualThemeContext';
 
 // Modular Components
 import { EventCard } from '@/components/events/EventCard';
-import { PromoteCTACard } from '@/components/events/PromoteCTACard';
 import { ShareModal } from '@/components/events/ShareModal';
 
 // Static Data
