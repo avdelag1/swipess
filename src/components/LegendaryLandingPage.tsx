@@ -51,32 +51,35 @@ function LogoImage({ className }: { className?: string }) {
 
 // Optimized wordmark matching the Swipess brand identity
 function LogoWordmark({ className, size = 'hero', isDark = true }: { className?: string; size?: 'hero' | 'auth'; isDark?: boolean }) {
+  const isHero = size === 'hero';
   return (
-    <div className={cn("relative flex flex-col items-center justify-center", size === 'hero' ? 'gap-4' : 'gap-2', className)}>
+    <div className={cn("relative flex flex-col items-center justify-center", isHero ? 'gap-5' : 'gap-2', className)}>
       <span
         className={cn(
-          "font-black uppercase select-none leading-none",
-          size === 'hero' ? 'text-5xl sm:text-6xl md:text-7xl tracking-[0.18em]' : 'text-2xl tracking-[0.18em]'
+          "font-black uppercase select-none leading-none relative",
+          isHero ? 'text-7xl sm:text-8xl md:text-[7rem] tracking-[0.14em]' : 'text-3xl tracking-[0.14em]'
         )}
         style={{
           color: isDark ? '#FFFFFF' : '#0a0a0a',
           textShadow: isDark
-            ? '0 0 40px rgba(255,255,255,0.15), 0 2px 8px rgba(0,0,0,0.4)'
-            : '0 1px 3px rgba(0,0,0,0.1)',
-          letterSpacing: size === 'hero' ? '0.18em' : '0.15em',
-        }}
+            ? '0 1px 0 rgba(255,255,255,0.25), 0 4px 12px rgba(0,0,0,0.5), 0 0 60px rgba(255,255,255,0.08), 0 -1px 2px rgba(255,255,255,0.1)'
+            : '0 1px 0 rgba(255,255,255,0.8), 0 2px 6px rgba(0,0,0,0.12)',
+          letterSpacing: isHero ? '0.14em' : '0.12em',
+          WebkitTextStroke: isDark ? '0.3px rgba(255,255,255,0.08)' : 'none',
+        } as React.CSSProperties}
       >
         SwipesS
       </span>
-      {size === 'hero' && (
+      {isHero && (
         <div
-          className="rounded-full mx-auto"
+          className="mx-auto"
           style={{
-            width: '2.5px',
-            height: '3rem',
+            width: '1.5px',
+            height: '5rem',
             background: isDark
-              ? 'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.08) 100%)'
-              : 'linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 100%)',
+              ? 'linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.02) 100%)'
+              : 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.05) 100%)',
+            borderRadius: '1px',
           }}
         />
       )}
