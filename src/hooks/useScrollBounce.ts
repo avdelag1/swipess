@@ -190,7 +190,8 @@ export function useScrollBounce(options: ScrollBounceOptions = {}) {
       clearTimeout(scrollTimeoutRef.current);
 
       // Reset transforms on unmount
-      const children = container.querySelectorAll(childSelector) as NodeListOf<HTMLElement>;
+      const cleanupSelector = childSelector.startsWith('>') ? `:scope ${childSelector}` : childSelector;
+      const children = container.querySelectorAll(cleanupSelector) as NodeListOf<HTMLElement>;
       children.forEach((child) => {
         child.style.transform = '';
         child.style.transition = '';
