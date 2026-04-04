@@ -4,58 +4,72 @@ import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
 
 /**
- * SIMPLE SWIPE LIKE HANDLER
+ * OPTIMISTIC SWIPE HANDLER — Instagram-speed mutations
  * 
- * Uses the unified `likes` table with direction column:
- * - Left swipe = direction: 'left' (dislike/dismiss)
- * - Right swipe = direction: 'right' (like/superlike)
- * 
- * Schema: likes(id, user_id, target_id, target_type, direction, created_at)
- * Unique constraint: (user_id, target_id, target_type)
+ * Enhancements:
+ * - Optimistic removal from deck cache on BOTH directions (not just right)
+ * - Silent retry (2 attempts) before showing error
+ * - Removes swiped item from listings/profiles cache to prevent flicker-back
  */
 export function useSwipe() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    onMutate: async ({ targetId, targetType = 'listing', targetObject }) => {
-      // Cancel any in-flight refetches
-      await queryClient.cancelQueries({ queryKey: [targetType === 'listing' ? 'listings' : 'client-profiles'] });
-      await queryClient.cancelQueries({ queryKey: [targetType === 'listing' ? 'liked-properties' : 'liked-clients'] });
+    retry: 2, // Silent retry on failure
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
+    onMutate: async ({ targetId, direction, targetType = 'listing', targetObject }) => {
+      const listingsKey = targetType === 'listing' ? 'listings' : 'client-profiles';
+      const likedKey = targetType === 'listing' ? 'liked-properties' : 'liked-clients';
 
-      // Snapshot current data for rollback
-      const prevData = queryClient.getQueryData([targetType === 'listing' ? 'listings' : 'client-profiles']);
-      const prevLiked = queryClient.getQueryData([targetType === 'listing' ? 'liked-properties' : 'liked-clients']);
+      // Cancel in-flight refetches
+      await queryClient.cancelQueries({ queryKey: [listingsKey] });
+      await queryClient.cancelQueries({ queryKey: [likedKey] });
 
-      // 🚀 SPEED OF LIGHT: Optimistic UI Update
-      // Add the liked item to the cache IMMEDIATELY if it's a right swipe
-      if (targetObject && targetObject.direction === 'right') {
-        queryClient.setQueryData([targetType === 'listing' ? 'liked-properties' : 'liked-clients'], (old: any[] | undefined) => {
+      // Snapshot for rollback
+      const prevData = queryClient.getQueryData([listingsKey]);
+      const prevLiked = queryClient.getQueryData([likedKey]);
+
+      // 🚀 Optimistic: Remove swiped item from deck cache (BOTH directions)
+      // This prevents the card from flickering back into view
+      queryClient.setQueryData([listingsKey], (old: any[] | undefined) => {
+        if (!old || !Array.isArray(old)) return old;
+        return old.filter(item => (item.id || item.user_id) !== targetId);
+      });
+
+      // Also filter from smart-listings queries
+      queryClient.setQueriesData({ queryKey: ['smart-listings'] }, (old: any) => {
+        if (!old || !Array.isArray(old)) return old;
+        return old.filter((item: any) => (item.id || item.user_id) !== targetId);
+      });
+
+      // Add to liked cache if right swipe
+      if (direction === 'right' && targetObject) {
+        queryClient.setQueryData([likedKey], (old: any[] | undefined) => {
           if (!old) return [targetObject];
-          // Avoid duplicates
           if (old.some(item => item.id === targetId)) return old;
           return [targetObject, ...old];
         });
       }
 
-      return { prevData, prevLiked };
+      return { prevData, prevLiked, listingsKey, likedKey };
     },
     onError: (_err, vars, context) => {
-      // Roll back
+      // Roll back all optimistic updates
       if (context?.prevData) {
-        queryClient.setQueryData([vars.targetType === 'listing' ? 'listings' : 'client-profiles'], context.prevData);
+        queryClient.setQueryData([context.listingsKey], context.prevData);
       }
       if (context?.prevLiked) {
-        queryClient.setQueryData([vars.targetType === 'listing' ? 'liked-properties' : 'liked-clients'], context.prevLiked);
+        queryClient.setQueryData([context.likedKey], context.prevLiked);
       }
       
-      logger.error('[useSwipe] Error:', _err);
-      toast.error('Could not save choice. Retrying in background...');
+      logger.error('[useSwipe] Error after retries:', _err);
+      toast.error('Could not save choice. Please try again.');
     },
     mutationFn: async ({ targetId, direction, targetType = 'listing' }: {
       targetId: string;
       direction: 'left' | 'right';
       targetType?: 'listing' | 'profile';
-      targetObject?: any; // Full object for optimistic UI
+      targetObject?: any;
     }) => {
       const { data: { session } } = await supabase.auth.getSession();
       const user = session?.user;
@@ -77,8 +91,8 @@ export function useSwipe() {
       if (error) throw error;
       return { success: true, direction, targetId, userId: user.id };
     },
-    onSuccess: (data, variables) => {
-      // Invalidate to ensure sync with server
+    onSuccess: (_data, variables) => {
+      // Background invalidation to sync with server
       queryClient.invalidateQueries({ queryKey: [variables.targetType === 'listing' ? 'liked-properties' : 'liked-clients'] });
       queryClient.invalidateQueries({ queryKey: ['matches'] });
     },
