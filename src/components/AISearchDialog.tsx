@@ -322,7 +322,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
             </motion.button>
             <div className="flex flex-col">
               <DialogTitle className={cn("text-[13px] font-black uppercase tracking-[0.2em] italic-brand italic", isDark ? "text-white" : "text-gray-900")}>
-                {view === 'history' ? 'Conversation Vault' : 'Concierge'}
+                {view === 'history' ? 'Conversation Vault' : 'Swipess AI'}
               </DialogTitle>
               <DialogDescription className="text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1 italic flex items-center gap-1.5 leading-none">
                 {view === 'history' ? (
