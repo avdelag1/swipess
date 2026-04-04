@@ -138,7 +138,7 @@ export function ConciergeChat({
     haptics.tap();
     const messageToSend = input.trim();
     setInput('');
-    await sendMessage(messageToSend, { city: initialCity, userRole, listings });
+    await sendMessage(messageToSend, { userRole, listings });
   };
 
   const linkify = (text: string) => {
