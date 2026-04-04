@@ -67,8 +67,8 @@ IMPORTANT: Your response must be natural text, followed by the action JSON if re
     // ─────────────────────────────────────────────────────────────────────────────
     // 🏗️ TASK: conversation (Listing Creator)
     // ─────────────────────────────────────────────────────────────────────────────
-    else if (task === "conversation") {
-      const { category, imageCount, extractedData = {} } = data;
+    const { category, imageCount, extractedData = {} } = data || {};
+    if (task === "conversation") {
       
       systemPrompt = `
 You are the Swipess Listing Architect. Your goal is to help the user create a high-quality ${category} listing.
@@ -89,18 +89,32 @@ INSTRUCTIONS:
       `.trim();
     }
 
-    // Call MiniMax v2
-    const res = await fetch("https://api.minimax.io/v1/text/chatcompletion_v2", {
+    // Call MiniMax v2 — Robust Multi-Region Support
+    const minimaxUrl = "https://api.minimax.chat/v1/text/chatcompletion_v2";
+    console.log(`[AI Orchestrator] Triggering task: ${task || 'chat'} for model: abab6.5s-chat`);
+
+    const res = await fetch(minimaxUrl, {
       method: "POST",
-      headers: { "Authorization": `Bearer ${minimaxKey}`, "Content-Type": "application/json" },
+      headers: { 
+        "Authorization": `Bearer ${minimaxKey}`, 
+        "Content-Type": "application/json" 
+      },
       body: JSON.stringify({ 
         model: "abab6.5s-chat",
         messages: [{ role: "system", content: systemPrompt }, ...formattedMessages],
-        temperature: task === "conversation" ? 0 : 0.2, // 0 for strict extraction, higher for conversational concierge
+        temperature: task === "conversation" ? 0 : 0.6, // Higher temp for concierge vibey responses
+        stream: false
       }),
     });
 
+    if (!res.ok) {
+        const errorText = await res.text();
+        console.error(`[AI Orchestrator] MiniMax error ${res.status}:`, errorText);
+        throw new Error(`AI Engine error: ${res.status}`);
+    }
+
     const aiRes = await res.json();
+    console.log("[AI Orchestrator] Raw Engine Response Received");
     const rawAiText = aiRes.choices?.[0]?.message?.content || 
                     aiRes.choices?.[0]?.text || 
                     aiRes.reply || 

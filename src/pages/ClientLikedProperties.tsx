@@ -152,7 +152,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                   selectedCategory === id
                     ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-lg shadow-[var(--color-brand-accent-2)]/20"
                     : isLight
-                    ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
+                    ? "bg-white border-border/60 text-slate-900 hover:bg-slate-50 shadow-sm"
                     : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
                 )}
               >
@@ -188,7 +188,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             className={cn(
               "w-full h-16 rounded-3xl pl-14 pr-6 font-bold focus:border-[var(--color-brand-accent-2)] transition-all outline-none",
               isLight
-                ? "bg-white border border-border/40 text-foreground placeholder-muted-foreground shadow-sm"
+                ? "bg-white border border-slate-200 text-slate-900 placeholder-slate-400 shadow-sm"
                 : "bg-white/[0.04] border border-white/[0.08] text-white placeholder-muted-foreground"
             )}
           />

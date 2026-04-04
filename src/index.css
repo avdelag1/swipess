@@ -132,8 +132,8 @@ html {
   touch-action: manipulation;
   overscroll-behavior-y: none; /* Prevents PWA pull-to-refresh jank */
   -webkit-overflow-scrolling: touch;
-  background-color: #000000 !important;
-  color: #FFFFFF !important;
+  background-color: unset;
+  color: unset;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --top-bar-height: 52px;
@@ -146,7 +146,8 @@ body {
   min-height: 100dvh;
   overflow-x: hidden;
   overscroll-behavior: none; /* Zenith Protocol: Lock viewport */
-  background-color: #000000 !important;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 #root {
