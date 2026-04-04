@@ -140,7 +140,7 @@ function RadioVisualizer({ isPlaying, color }: { isPlaying: boolean; color: stri
 export default function DJTurntableRadio() {
   const navigate = useNavigate();
   const {
-    state, error: _error, play, togglePlayPause, changeStation,
+    state, error: _error, play, togglePlayPause, togglePower, changeStation,
     setCity, setVolume, toggleShuffle, toggleFavorite, isStationFavorite,
   } = useRadio();
   const { theme } = useTheme();
@@ -148,6 +148,13 @@ export default function DJTurntableRadio() {
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [showFavoritesDrawer, setShowFavoritesDrawer] = useState(false);
+
+  // Auto-power-on when visiting /radio directly
+  useEffect(() => {
+    if (!state.isPoweredOn) {
+      togglePower();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const cityTheme = cityThemes[state.currentCity] || cityThemes['tulum'];
   const primaryColor = cityTheme.primaryColor;
