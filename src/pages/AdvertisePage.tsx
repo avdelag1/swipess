@@ -196,7 +196,7 @@ const _FEATURES = [
     color: "#3b82f6",
     colorRgb: "59,130,246",
     title: "High-Value Audience",
-    desc: "Property owners, motorcycle & bicycle renters, service providers, digital nomads and expats — people who actively spend money in Tulum every day",
+    desc: "Property owners, motorcycle & bicycle renters, service providers, digital nomads and expats — people who actively spend money every day",
   },
   {
     icon: <Phone className="w-5 h-5" />,
@@ -417,7 +417,7 @@ export default function AdvertisePage() {
             style={{ background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.35)" }}
           >
             <Flame className="w-3.5 h-3.5 text-orange-400" />
-            <span className="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em]">Tulum's #1 Discovery App</span>
+            <span className="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em]">#1 Discovery App</span>
           </motion.div>
 
           {/* Headline */}
@@ -431,7 +431,7 @@ export default function AdvertisePage() {
             <span className="brand-gradient-text">
               Your Brand
             </span>{" "}
-            in Tulum
+            on Swipess
           </motion.h1>
 
           <motion.p
@@ -765,7 +765,7 @@ export default function AdvertisePage() {
                 >
                   <Shield className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "#eab308" }} />
                   <p className="text-xs leading-relaxed" style={{ color: th.textMuted }}>
-                    All submissions are reviewed to ensure events are <span style={{ color: th.text, fontWeight: 700 }}>appropriate, legal, and relevant to the Tulum area</span>. We reserve the right to decline submissions that don't meet our guidelines — no payment is charged until approval.
+                    All submissions are reviewed to ensure events are <span style={{ color: th.text, fontWeight: 700 }}>appropriate, legal, and relevant to your area</span>. We reserve the right to decline submissions that don't meet our guidelines — no payment is charged until approval.
                   </p>
                 </motion.div>
 

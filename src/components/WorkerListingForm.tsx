@@ -307,7 +307,7 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
         <div className="grid grid-cols-2 gap-4">
           <div>
             <FormLabel>City</FormLabel>
-            <Input {...register('city')} placeholder="e.g., Tulum" />
+            <Input {...register('city')} placeholder="e.g., Your City" />
           </div>
           <div>
             <FormLabel>Country</FormLabel>

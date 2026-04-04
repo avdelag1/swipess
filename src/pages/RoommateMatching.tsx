@@ -231,7 +231,7 @@ export default function RoommateMatching() {
               <ChevronLeft className="w-5 h-5" />
             </motion.button>
             <div className="flex flex-col">
-              <span className={cn("text-[9px] font-black uppercase tracking-[0.25em] opacity-50", isLight ? "text-slate-900" : "text-white")}>Tulum</span>
+              <span className={cn("text-[9px] font-black uppercase tracking-[0.25em] opacity-50", isLight ? "text-slate-900" : "text-white")}>Swipess</span>
               <span className={cn("text-sm font-black italic tracking-tight uppercase leading-none", isLight ? "text-slate-900" : "text-white")}>{t('nav.roommates')}</span>
             </div>
           </div>
@@ -290,7 +290,7 @@ export default function RoommateMatching() {
                 </div>
                 <div className="space-y-4">
                   <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase", isLight ? "text-slate-900" : "text-white")}>
-                    {t('roommates.tulumVibesOnly')}
+                    {t('roommates.noMoreMatches')}
                   </h2>
                   <p className={cn("text-sm font-bold uppercase tracking-widest leading-relaxed opacity-50", isLight ? "text-slate-600" : "text-white/50")}>
                     Everyone has been matched. Check back later for new arrivals.

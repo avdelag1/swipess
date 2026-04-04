@@ -265,7 +265,7 @@ export function ConversationalListingCreator() {
               <Sparkles className="w-8 h-8 text-primary" />
               <h1 className="text-3xl font-bold">Swipess Concierge</h1>
             </div>
-            <p className="text-muted-foreground">Expert help for your Tulum marketplace listings</p>
+            <p className="text-muted-foreground">Expert help for your marketplace listings</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

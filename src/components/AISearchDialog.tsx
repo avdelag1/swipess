@@ -100,7 +100,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
       if (!currentSessionId) {
         const welcome: Message = {
           role: 'ai',
-          content: "Welcome. I am the Swipess Concierge — your sharp, market-savvy guide to Tulum. ✨\n\nI can help you find your dream space, refine your listing, or answer local secrets.\n\nWhat's on your mind today?",
+          content: "Welcome. I'm Swipess AI — your sharp, market-savvy concierge. ✨\n\nI can help you find your dream space, refine your listing, or answer local secrets.\n\nWhat's on your mind today?",
           timestamp: Date.now()
         };
         setMessages([welcome]);
@@ -322,7 +322,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
             </motion.button>
             <div className="flex flex-col">
               <DialogTitle className={cn("text-[13px] font-black uppercase tracking-[0.2em] italic-brand italic", isDark ? "text-white" : "text-gray-900")}>
-                {view === 'history' ? 'Conversation Vault' : 'Concierge'}
+                {view === 'history' ? 'Conversation Vault' : 'Swipess AI'}
               </DialogTitle>
               <DialogDescription className="text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1 italic flex items-center gap-1.5 leading-none">
                 {view === 'history' ? (
@@ -494,7 +494,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                       </div>
                       <div className="bg-gradient-to-r from-orange-500/5 to-rose-500/5 border border-orange-500/10 px-5 py-4 rounded-[1.8rem] rounded-tl-sm text-xs font-bold text-orange-500 flex items-center gap-2 shadow-sm italic">
                         <Loader2 className="w-3.5 h-3.5 animate-spin text-orange-500" />
-                        Concierge is thinking...
+                        Swipess AI is thinking...
                       </div>
                     </motion.div>
                   )}

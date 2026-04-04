@@ -53,7 +53,7 @@ function TypingIndicator({ isDark }: { isDark: boolean }) {
     <div className="flex items-center gap-3 px-4 py-3">
       <JarvisAura isThinking size="sm" />
       <span className={cn("text-[10px] font-black uppercase tracking-widest animate-pulse", isDark ? "text-cyan-400" : "text-cyan-600")}>
-        Vibe is Thinking...
+        Swipess AI is thinking...
       </span>
     </div>
   );
@@ -62,7 +62,7 @@ function TypingIndicator({ isDark }: { isDark: boolean }) {
 export function ConciergeChat({
   open,
   onOpenChange,
-  initialCity = 'Tulum',
+  initialCity: _initialCity,
   userRole = 'client',
   listings = []
 }: ConciergeChatProps) {
@@ -138,7 +138,7 @@ export function ConciergeChat({
     haptics.tap();
     const messageToSend = input.trim();
     setInput('');
-    await sendMessage(messageToSend, { city: initialCity, userRole, listings });
+    await sendMessage(messageToSend, { userRole, listings });
   };
 
   const linkify = (text: string) => {
@@ -156,7 +156,7 @@ export function ConciergeChat({
   const quickSuggestions = [
     { icon: MapPin,     label: 'Beach Clubs',    prompt: `What are the best beach clubs in the Hotel Zone with free access?` },
     { icon: Building2,  label: 'Find a Villa',   prompt: 'Find me a 2-bedroom property under $5,000/mo near the beach' },
-    { icon: Utensils,   label: 'Best Dinner',    prompt: 'What are the best restaurants for a romantic dinner in Tulum tonight?' },
+    { icon: Utensils,   label: 'Best Dinner',    prompt: 'What are the best restaurants for a romantic dinner tonight?' },
     { icon: Car,        label: 'Rent a Car',     prompt: 'What car rental options are available near the airport?' },
   ];
 
@@ -201,7 +201,7 @@ export function ConciergeChat({
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h2 className={cn("font-black text-[15px] leading-tight tracking-tight", isDark ? "text-white" : "text-gray-900")}>
-                    Vibe
+                    Swipess AI
                   </h2>
                   <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -216,7 +216,7 @@ export function ConciergeChat({
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <p className={cn("text-[11px] leading-tight font-medium", isDark ? "text-zinc-500" : "text-gray-400")}>
-                    AI Concierge · {initialCity}
+                    Your AI Concierge
                   </p>
                   {limits.dailyMessages !== Infinity && (
                     <span className={cn(
@@ -338,7 +338,7 @@ export function ConciergeChat({
                       <p className={cn("text-sm mt-1.5 leading-relaxed", isDark ? "text-zinc-400" : "text-gray-500")}>
                         {memoryCount > 0
                           ? `I remember ${memoryCount} thing${memoryCount === 1 ? '' : 's'} about you — ready to help.`
-                          : `Your personal ${initialCity} concierge. Ask me anything.`
+                          : `Your personal AI concierge. Ask me anything.`
                         }
                       </p>
                     </div>
@@ -367,7 +367,7 @@ export function ConciergeChat({
                         animate={{ opacity: 1, y: 0, transition: { delay: 0.1 + index * 0.07 } }}
                         onClick={() => {
                           haptics.tap();
-                          sendMessage(suggestion.prompt, { city: initialCity, userRole, listings });
+                          sendMessage(suggestion.prompt, { userRole, listings });
                         }}
                         className={cn(
                           "flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all active:scale-95 group border",
@@ -737,7 +737,7 @@ export function ConciergeChat({
                   value={input}
                   onChange={(e) => setInput(e.target.value.slice(0, 500))}
                   onKeyDown={handleKeyDown}
-                  placeholder={`Ask Vibe about ${initialCity}…`}
+                  placeholder="Ask Swipess AI…"
                   className={cn(
                     "flex-1 min-h-[36px] max-h-32 resize-none border-0 bg-transparent text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 py-1.5 px-1",
                     isDark

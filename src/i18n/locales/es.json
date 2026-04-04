@@ -222,7 +222,7 @@
     "apply": "Aplicar"
   },
   "roommates": {
-    "findYour": "Encuentra tu compañero ideal en Tulum",
+    "findYour": "Encuentra tu compañero ideal",
     "noRoommatesFound": "No se encontraron compañeros que coincidan con tus filtros.",
     "noRoommatesDesc": "¡Intenta ajustar tus filtros o vuelve más tarde!",
     "loadingRoommates": "Buscando nómadas...",
@@ -232,7 +232,7 @@
     "swipeLeft": "Desliza a la izquierda para saltar",
     "itsAMatch": "¡Es un Match!",
     "messageRoommate": "Mensajea a tu nuevo compañero ahora",
-    "tulumVibesOnly": "Solo Tulum Vibes",
+    "noMoreMatches": "Sin Más Matches",
     "noCandidatesLeft": "No quedan más candidatos. Intenta ajustar tus parámetros.",
     "genderPreference": "PREFERENCIA DE GÉNERO",
     "workVibe": "VIBRA LABORAL"

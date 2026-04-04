@@ -19,7 +19,7 @@ const PAGE_DESCRIPTIONS: Record<string, string> = {
   '/owner/properties': "My Listings: Review and edit your active offers. Keep prices updated to stay at the top of client searches.",
   '/client/filters': "Smart Filters: Narrow down your search by category, price, and location to find exactly what you need in seconds.",
   '/subscription-packages': "Premium: Unlock God-Mode for unlimited swipes, priority matching, and exclusive AI insights.",
-  '/radio': "Swipess Radio: Tune into local beats and curated playlists while you browse. The ultimate Tulum vibe.",
+  '/radio': "Swipess Radio: Tune into local beats and curated playlists while you browse. The ultimate vibe.",
   '/explore/roommates': "Roommates: Looking for someone to share a space? Find compatible partners based on lifestyle and interests.",
 };
 
