@@ -11,7 +11,7 @@ const MINIMAX_ENDPOINTS = [
   "https://api.minimax.io/v1/chat/completions",
 ];
 
-const MODELS = ["MiniMax-Text-01", "abab6.5s-chat", "abab6-chat"];
+const MODELS = ["MiniMax-M2.5", "MiniMax-M2.7", "MiniMax-M2"];
 
 const TIER_MAX_TOKENS: Record<string, number> = {
   free: 400,
