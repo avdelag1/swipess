@@ -18,7 +18,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
 import { haptics } from '@/utils/microPolish';
 
-import { QuickFilterDropdown } from './QuickFilterDropdown';
+
 import { ModeSwitcher } from './ModeSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 import { NotificationPopover } from './NotificationPopover';
@@ -279,12 +279,6 @@ function TopBarComponent({
                 <ModeSwitcher variant="icon" size="sm" />
               </div>
 
-              {/* Quick filters (discovery pages) */}
-              {showFilters && userRole && (
-                <div className="flex-shrink-0">
-                  <QuickFilterDropdown userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'} />
-                </div>
-              )}
 
               {/* Page title — centered spacer (Tap to go Dashboard) */}
               <motion.div 
