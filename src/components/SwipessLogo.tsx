@@ -4,52 +4,47 @@ import { cn } from '@/lib/utils';
 interface SwipessLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
   className?: string;
-  glow?: boolean;
+  variant?: 'white' | 'black' | 'outline';
 }
 
 /**
- * 🚀 SwipesS Logo — Premium CSS Wordmark with depth & glow
+ * 🚀 SwipesS Logo — Speed of Light Ultra-Minimalist Design
+ * Clean, razor-sharp typography with a premium brand background.
  */
 function SwipessLogoComponent({
   size = 'md',
   className,
-  glow = false,
+  variant = 'white',
 }: SwipessLogoProps) {
   const textSizeMap = {
-    xs: 'text-sm tracking-[0.12em]',
-    sm: 'text-base tracking-[0.12em]',
-    md: 'text-2xl tracking-[0.14em]',
-    lg: 'text-4xl tracking-[0.14em]',
-    xl: 'text-5xl tracking-[0.14em]',
-    '2xl': 'text-6xl tracking-[0.14em]',
-    '3xl': 'text-7xl tracking-[0.14em]',
-    '4xl': 'text-8xl tracking-[0.14em]',
+    xs: 'text-sm tracking-[0.16em]',
+    sm: 'text-base tracking-[0.16em]',
+    md: 'text-2xl tracking-[0.18em]',
+    lg: 'text-4xl tracking-[0.2em]',
+    xl: 'text-5xl tracking-[0.2em]',
+    '2xl': 'text-6xl tracking-[0.22em]',
+    '3xl': 'text-7xl tracking-[0.22em]',
+    '4xl': 'text-8xl tracking-[0.24em]',
   };
 
-  const showGlow = glow || size === 'xl' || size === '2xl' || size === '3xl' || size === '4xl';
-
   return (
-    <div className={cn('relative inline-flex items-center justify-center', className)}>
-      {showGlow && (
-        <div
-          className="absolute inset-0 rounded-full opacity-15"
-          style={{
-            background: 'radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.15) 40%, transparent 70%)',
-            transform: 'scale(1.6, 0.8)',
-            filter: 'blur(40px)',
-          }}
-        />
-      )}
-
+    <div className={cn(
+      'relative inline-flex items-center justify-center overflow-hidden px-4 py-1.5 rounded-xl transition-all duration-300',
+      variant === 'black' ? 'bg-black text-white' : 'bg-transparent text-foreground',
+      className
+    )}>
       <span
         className={cn(
-          'relative font-[900] uppercase select-none leading-none text-foreground',
+          'relative font-[950] uppercase select-none leading-none italic tracking-tighter', 
+          'transition-transform duration-300 hover:scale-[1.02] active:scale-[0.98]',
           textSizeMap[size]
         )}
         style={{
-          textShadow: '0 1px 0 rgba(255,255,255,0.3), 0 4px 16px rgba(0,0,0,0.6), 0 0 80px rgba(255,255,255,0.12), 0 0 120px rgba(255,255,255,0.06)',
-          WebkitTextStroke: '0.4px rgba(255,255,255,0.1)',
-        } as React.CSSProperties}
+          // Zero shade, pure sharpness
+          textRendering: 'optimizeLegibility',
+          fontFamily: "'Inter', 'Outfit', system-ui, sans-serif",
+          letterSpacing: '-0.02em',
+        }}
       >
         SwipesS
       </span>

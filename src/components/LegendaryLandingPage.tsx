@@ -49,43 +49,7 @@ function LogoImage({ className }: { className?: string }) {
   );
 }
 
-// Optimized wordmark matching the Swipess brand identity
-function LogoWordmark({ className, size = 'hero', isDark = true }: { className?: string; size?: 'hero' | 'auth'; isDark?: boolean }) {
-  const isHero = size === 'hero';
-  return (
-    <div className={cn("relative flex flex-col items-center justify-center", isHero ? 'gap-5' : 'gap-2', className)}>
-      <span
-        className={cn(
-          "font-black uppercase select-none leading-none relative",
-          isHero ? 'text-7xl sm:text-8xl md:text-[7rem] tracking-[0.14em]' : 'text-3xl tracking-[0.14em]'
-        )}
-        style={{
-          color: isDark ? '#FFFFFF' : '#0a0a0a',
-          textShadow: isDark
-            ? '0 1px 0 rgba(255,255,255,0.25), 0 4px 12px rgba(0,0,0,0.5), 0 0 60px rgba(255,255,255,0.08), 0 -1px 2px rgba(255,255,255,0.1)'
-            : '0 1px 0 rgba(255,255,255,0.8), 0 2px 6px rgba(0,0,0,0.12)',
-          letterSpacing: isHero ? '0.14em' : '0.12em',
-          WebkitTextStroke: isDark ? '0.3px rgba(255,255,255,0.08)' : 'none',
-        } as React.CSSProperties}
-      >
-        SwipesS
-      </span>
-      {isHero && (
-        <div
-          className="mx-auto"
-          style={{
-            width: '1.5px',
-            height: '5rem',
-            background: isDark
-              ? 'linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.02) 100%)'
-              : 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.05) 100%)',
-            borderRadius: '1px',
-          }}
-        />
-      )}
-    </div>
-  );
-}
+
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
@@ -189,7 +153,7 @@ const LandingView = memo(({
         <div className="relative rounded-3xl px-8 py-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
           <SwipessLogo 
             size="3xl" 
-            glow={true}
+            variant="black"
             className="w-[85vw] max-w-[380px] sm:max-w-[460px] md:max-w-[540px]" 
           />
         </div>
@@ -357,7 +321,7 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
               <div className="flex justify-center mb-6">
                 <SwipessLogo size="md" glow={false} />
               </div>
-              <h1 className="text-3xl font-black tracking-tight bg-gradient-to-br from-orange-300 via-rose-400 to-pink-500 bg-clip-text text-transparent italic font-brand mb-1">
+              <h1 className="text-3xl font-black tracking-tighter bg-gradient-to-br from-orange-400 via-rose-500 to-pink-600 bg-clip-text text-transparent italic mb-1">
                 {isLogin ? 'Welcome Back' : 'Join Swipess'}
               </h1>
               <p className="text-muted-foreground text-sm font-medium leading-relaxed px-4">
