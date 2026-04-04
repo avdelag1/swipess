@@ -192,7 +192,7 @@ export default function DJTurntableRadio() {
   return (
     <div
       className={cn(
-        "absolute inset-0 z-[60] flex flex-col overflow-hidden select-none transition-all duration-1000",
+        "fixed inset-0 z-[9999] flex flex-col overflow-hidden select-none transition-all duration-1000",
         isDark ? "bg-[#030303]" : "bg-[#f8f9fa]"
       )}
     >
@@ -213,7 +213,14 @@ export default function DJTurntableRadio() {
       >
         <motion.button
           whileTap={{ scale: 0.9 }}
-          onClick={() => navigate(-1)}
+      onClick={() => {
+            // Reliable back navigation — always go to the dashboard if no history
+            if (window.history.length > 2) {
+              navigate(-1);
+            } else {
+              navigate('/client/dashboard');
+            }
+          }}
           className={cn(
             "w-12 h-12 rounded-2xl flex items-center justify-center border shadow-2xl transition-all",
             isDark ? "bg-white/5 backdrop-blur-2xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"

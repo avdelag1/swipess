@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +24,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { NotificationPopover } from './NotificationPopover';
 
 import { useScrollDirection } from '@/hooks/useScrollDirection';
+import { useScrollBounce } from '@/hooks/useScrollBounce';
 
 
 // Tier styling for package cards
@@ -92,6 +93,15 @@ function TopBarComponent({
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { t } = useTranslation();
+
+  // ── LIQUID MOMENTUM: Bounce physics on horizontal header scroll ──
+  const headerBounceRef = useScrollBounce({
+    maxTilt: 4,
+    maxBounce: 2,
+    damping: 0.2,
+    edgeScale: 0.97,
+    childSelector: '> div, > button',
+  });
 
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
   const cinematicShadow = isLight ? 'var(--shadow-cinematic-sm)' : 'var(--shadow-cinematic-md)';
@@ -252,6 +262,7 @@ function TopBarComponent({
           {/* ── Horizontally scrollable row: all other buttons ── */}
           <div className="flex-1 min-w-0 relative">
           <div
+            ref={headerBounceRef}
             className="overflow-x-auto"
             style={{
               scrollbarWidth: 'none',

@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
+import { useScrollBounce } from '@/hooks/useScrollBounce';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
@@ -125,8 +126,23 @@ export const BottomNavigation = memo(({
   const navItems = userRole === 'admin' ? adminNavItems : userRole === 'client' ? clientNavItems : ownerNavItems;
   const _isScrollable = true; // Always scrollable for both roles
 
-  // Auto-scroll active item into view
+  // ── LIQUID MOMENTUM: Bounce physics on horizontal scroll ──────────
+  const bounceRef = useScrollBounce({
+    maxTilt: 5,
+    maxBounce: 2.5,
+    damping: 0.18,
+    edgeScale: 0.97,
+    childSelector: '> button',
+  });
+
+  // Merge bounceRef with our local scrollRef for auto-scroll-to-active
   const scrollRef = useRef<HTMLDivElement>(null);
+  const mergedScrollRef = useCallback((node: HTMLDivElement | null) => {
+    (scrollRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+    (bounceRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+  }, [bounceRef]);
+
+  // Auto-scroll active item into view
   useEffect(() => {
     if (!scrollRef.current) return;
     const activeBtn = scrollRef.current.querySelector('[aria-current="page"]') as HTMLElement;
@@ -320,7 +336,7 @@ export const BottomNavigation = memo(({
 
         {/* Nav items row */}
         <div
-          ref={scrollRef}
+          ref={mergedScrollRef}
           data-no-swipe-nav
           onScroll={updateScrollFades}
           onPointerMove={handlePointerMove}

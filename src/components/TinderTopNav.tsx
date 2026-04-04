@@ -1,9 +1,10 @@
-import { useRef, useEffect, memo } from 'react';
+import { useRef, useEffect, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
 import { SlidersHorizontal, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
+import { useScrollBounce } from '@/hooks/useScrollBounce';
 
 interface TinderTopNavTab {
   id: string;
@@ -35,6 +36,21 @@ function TinderTopNavComponent({
   const isLight = theme === 'light';
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeTabRef = useRef<HTMLButtonElement>(null);
+
+  // ── LIQUID MOMENTUM: Bounce physics on pill scroll ──────────────
+  const bounceRef = useScrollBounce({
+    maxTilt: 4,
+    maxBounce: 2,
+    damping: 0.2,
+    edgeScale: 0.97,
+    childSelector: '> button',
+  });
+
+  // Merge refs so both auto-scroll and bounce physics work together
+  const mergedRef = useCallback((node: HTMLDivElement | null) => {
+    (scrollRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+    (bounceRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+  }, [bounceRef]);
 
   // Scroll active pill into view when it changes
   useEffect(() => {
@@ -80,7 +96,7 @@ function TinderTopNavComponent({
 
       {/* Scrollable pill buttons */}
       <div
-        ref={scrollRef}
+        ref={mergedRef}
         className="tinder-nav-scroll flex-1 overflow-x-auto flex items-center gap-2 py-0.5"
         style={{
           scrollbarWidth: 'none',

@@ -370,3 +370,32 @@ button:active, [role="button"]:active {
 .animate-breathing-bloom {
   animation: breathing-bloom 12s ease-in-out infinite;
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  ⚡ SCROLL BOUNCE PHYSICS — Liquid Momentum Foundation          */
+/*  GPU-isolated 3D transforms for navigation bounce effects       */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* 3D perspective context for tilt/skew physics */
+[data-no-swipe-nav],
+.tinder-nav-scroll {
+  perspective: 800px;
+  transform-style: preserve-3d;
+}
+
+/* Children need their own composite layer for jank-free transforms */
+[data-no-swipe-nav] > button,
+.tinder-nav-scroll > button {
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Low-end hardware: disable bounce physics entirely (static transforms) */
+body.hw-low [data-no-swipe-nav] > button,
+body.hw-low .tinder-nav-scroll > button {
+  transform: none !important;
+  transition: none !important;
+  will-change: auto !important;
+}
