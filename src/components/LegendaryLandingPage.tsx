@@ -113,8 +113,8 @@ const LandingView = memo(({
       triggerHaptic('success');
       onEnterAuth();
     } else {
-      animate(x, 0, { type: 'spring', stiffness: 400, damping: 28, mass: 1 });
-      animate(torchBoost, 0, { duration: 0.3 });
+      animate(x, 0, { type: 'spring', stiffness: 600, damping: 32, mass: 0.5 });
+      animate(torchBoost, 0, { duration: 0.22 });
     }
     setTimeout(() => { isDragging.current = false; }, 100);
   };
@@ -138,7 +138,7 @@ const LandingView = memo(({
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={{ left: 0.05, right: 0.82 }}
+        dragElastic={{ left: 0.05, right: 0.95 }}
         dragMomentum={false}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerRelease}
@@ -147,57 +147,27 @@ const LandingView = memo(({
         onDragEnd={handleDragEnd}
         onTap={handleTap}
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
-        whileTap={{ scale: 0.97 }}
+        whileTap={{ scale: 0.98 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none relative"
       >
-        <div className="relative rounded-3xl px-8 py-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="relative">
           <SwipessLogo 
             size="3xl" 
-            variant="black"
             className="w-[85vw] max-w-[380px] sm:max-w-[460px] md:max-w-[540px]" 
           />
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0.4, 0] }}
+            transition={{ duration: 4, repeat: Infinity, repeatDelay: 1 }}
+            className="mt-6 text-[10px] uppercase tracking-[0.4em] font-medium text-white/40 select-none pointer-events-none"
+          >
+            Swipe right to enter
+          </motion.div>
         </div>
       </motion.div>
 
-      {/* Theme toggle — bottom-left corner */}
-      <motion.button
-        whileTap={{ scale: 0.85 }}
-        onClick={(e) => { e.stopPropagation(); onToggleDark(e); triggerHaptic('light'); }}
-        data-testid="button-star-filter"
-        className={cn(
-          "absolute bottom-8 left-8 flex items-center justify-center w-14 h-14 rounded-full transition-colors duration-200 z-50 shadow-2xl overflow-hidden group border",
-          isDark ? "bg-white/10 border-white/20 text-white" : "bg-black/5 border-black/10 text-black"
-        )}
-        style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
-        title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-      >
-        <AnimatePresence mode="wait">
-          {isDark ? (
-            <motion.div
-              key="sun"
-              initial={{ scale: 0, rotate: -90 }}
-              animate={{ scale: 1, rotate: 0 }}
-              exit={{ scale: 0, rotate: 90 }}
-              className="relative z-10"
-            >
-              <Sun className="w-6 h-6 fill-white" />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="stars"
-              initial={{ scale: 0, rotate: 90 }}
-              animate={{ scale: 1, rotate: 0 }}
-              exit={{ scale: 0, rotate: -90 }}
-              className="relative z-10"
-            >
-              <Sparkles className="w-6 h-6 fill-black" />
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        {/* Hover Shine Effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      </motion.button>
+      {/* Theme toggle removed for true 'Always Black' performance if user wants it everywhere */}
+
     </motion.div>
   );
 });
@@ -407,9 +377,9 @@ function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [isAIOpen, setIsAIOpen] = useState(false);
 
-  const isDark = theme === 'dark' || theme === 'cheers';
+  const isDark = true; // FORCE DARK EVERYWHERE
   const activeMode: EffectMode = view === 'auth' ? 'off' : 'stars';
-  const bgColor = isDark ? '#050505' : '#f5f5f5';
+  const bgColor = '#000000';
 
   const toggleTheme = (e?: React.MouseEvent) => {
     const nextTheme = isDark ? 'light' : 'dark';

@@ -49,13 +49,13 @@
 
 /* THEME 2: BLACK MATTE (Deep dark mode - like ChatGPT / Tinder) */
 .black-matte {
-    /* Background colors - Tinder's rich charcoal palette */
-    --background: 216 15% 9%;
-    /* Deep premium charcoal */
+    /* Background colors - Pure AMOLED Black */
+    --background: 0 0% 0%;
+    /* Deep pure black */
     --foreground: 0 0% 100%;
     /* Pure white text */
-    --card: 216 15% 15%;
-    /* Lighter charcoal for cards */
+    --card: 0 0% 5%;
+    /* Subtle grey for cards */
     --card-foreground: 0 0% 100%;
     --primary: 343 99% 62%;
     /* Tinder Signature Pink-Red */
@@ -69,13 +69,13 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 216 15% 18%;
-    --input: 216 15% 18%;
+    --input: 0 0% 8%;
     --ring: 352 83% 58%;
 
     /* Modern theme variables */
-    --bg-primary: 216 15% 9%;
-    --bg-secondary: 216 15% 12%;
-    --bg-tertiary: 216 15% 16%;
+    --bg-primary: 0 0% 0%;
+    --bg-secondary: 0 0% 4%;
+    --bg-tertiary: 0 0% 8%;
     --text-primary: 0 0% 100%;
     --text-secondary: 216 10% 70%;
     --text-tertiary: 216 10% 55%;

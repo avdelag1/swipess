@@ -78,8 +78,9 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
   const lastFrameTimeRef = useRef(0);
 
   const initStars = useCallback((w: number, h: number) => {
-    const count = Math.floor((w * h) / 700);
-    starsRef.current = Array.from({ length: Math.min(count, 700) }, () => {
+    // 💨 Speed of Light optimization: Reduced particle density for higher FPS
+    const count = Math.floor((w * h) / 1200);
+    starsRef.current = Array.from({ length: Math.min(count, 450) }, () => {
       const x = Math.random() * w;
       const y = Math.random() * h;
       return {

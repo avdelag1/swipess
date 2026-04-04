@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
   <meta name="format-detection" content="telephone=no">
   <meta name="theme-color" content="#000000">
-  <meta name="app-version" content="3.8.0">
-  
+  <meta name="msapplication-TileColor" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://vlkndvqukyzjyfmxzqxs.supabase.co" crossorigin>
@@ -33,9 +33,9 @@
         window.__PREDICTED_ROLE = lastRole;
       } catch(e) {}
       
-      const theme = localStorage.getItem('swipess_theme_preference') || 'dark';
+      const theme = 'dark'; // Force dark for initial paint
       const root = document.documentElement;
-      root.classList.add(theme);
+      root.classList.add(theme, 'black-matte');
       root.style.backgroundColor = '#000000';
       root.style.colorScheme = 'dark';
       
