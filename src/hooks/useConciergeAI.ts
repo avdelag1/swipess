@@ -50,37 +50,46 @@ export function useConciergeAI() {
     if (!user) return;
 
     const initChat = async () => {
-      // Fetch recent conversations for the history list
-      const { data: convList } = await (supabase as any)
-        .from('ai_conversations')
-        .select('id, title, created_at, updated_at')
-        .eq('user_id', user.id)
-        .eq('is_archived', false)
-        .order('updated_at', { ascending: false })
-        .limit(10);
+      try {
+        // Fetch recent conversations for the history list
+        const { data: convList, error: convErr } = await (supabase as any)
+          .from('ai_conversations')
+          .select('id, title, created_at, updated_at')
+          .eq('user_id', user.id)
+          .eq('is_archived', false)
+          .order('updated_at', { ascending: false })
+          .limit(10);
 
-      if (convList) setConversations(convList as any);
-
-      // Load the most recent active conversation
-      if (convList && convList.length > 0) {
-        const latest = (convList as any)[0];
-        setCurrentConversationId(latest.id as string);
-
-        const { data: msgs } = await (supabase as any)
-          .from('ai_messages')
-          .select('*')
-          .eq('conversation_id', latest.id)
-          .order('created_at', { ascending: true });
-
-        if (msgs) {
-          setMessages((msgs as any[]).map((m: any) => ({
-            id: String(m.id),
-            role: m.role as any,
-            content: m.content,
-            timestamp: new Date(m.created_at),
-            action: m.metadata?.action,
-          })));
+        if (convErr) {
+          console.warn('[ConciergeAI] ai_conversations table not ready yet — running in memory-only mode.');
+          return;
         }
+
+        if (convList) setConversations(convList as any);
+
+        // Load the most recent active conversation
+        if (convList && convList.length > 0) {
+          const latest = (convList as any)[0];
+          setCurrentConversationId(latest.id as string);
+
+          const { data: msgs } = await (supabase as any)
+            .from('ai_messages')
+            .select('*')
+            .eq('conversation_id', latest.id)
+            .order('created_at', { ascending: true });
+
+          if (msgs) {
+            setMessages((msgs as any[]).map((m: any) => ({
+              id: String(m.id),
+              role: m.role as any,
+              content: m.content,
+              timestamp: new Date(m.created_at),
+              action: m.metadata?.action,
+            })));
+          }
+        }
+      } catch (e) {
+        console.warn('[ConciergeAI] DB init skipped — tables may not be provisioned yet:', e);
       }
     };
 
@@ -107,28 +116,37 @@ export function useConciergeAI() {
       };
       setMessages(prev => [...prev, optimisticUserMsg]);
       
-      // 1. Ensure we have a conversation record
+      // 1. Ensure we have a conversation record (DB optional — memory-only fallback)
       let convId = currentConversationId;
-      if (!convId) {
-        const { data: newConv, error: convErr } = await (supabase as any)
-          .from('ai_conversations')
-          .insert({ user_id: user.id, title: userMessage.substring(0, 40) })
-          .select()
-          .single();
+      try {
+        if (!convId) {
+          const { data: newConv, error: convErr } = await (supabase as any)
+            .from('ai_conversations')
+            .insert({ user_id: user.id, title: userMessage.substring(0, 40) })
+            .select()
+            .single();
 
-        if (convErr) throw convErr;
-        convId = newConv.id as string;
-        setCurrentConversationId(convId);
-        setConversations(prev => [newConv as ConversationSummary, ...prev]);
+          if (!convErr && newConv) {
+            convId = newConv.id as string;
+            setCurrentConversationId(convId);
+            setConversations(prev => [newConv as ConversationSummary, ...prev]);
+          } else {
+            console.warn('[ConciergeAI] Could not create conversation record — running in memory-only mode.');
+          }
+        }
+
+        // 2. Save User Message to DB
+        if (convId) {
+          await (supabase as any).from('ai_messages').insert({
+            conversation_id: convId,
+            user_id: user.id,
+            role: 'user',
+            content: userMessage
+          });
+        }
+      } catch (dbErr) {
+        console.warn('[ConciergeAI] DB persistence skipped:', dbErr);
       }
-
-      // 2. Save User Message to DB (Skip local state update here as we already did optimistic)
-      await (supabase as any).from('ai_messages').insert({
-        conversation_id: convId,
-        user_id: user.id,
-        role: 'user',
-        content: userMessage
-      });
 
       // 3. Fetch profile for userName (light query — heavy data is fetched server-side)
       const { data: profile } = await supabase
@@ -181,14 +199,26 @@ export function useConciergeAI() {
         setUserVibe(data.vibe);
       }
 
-      // 4. Save AI Response to DB
-      await (supabase as any).from('ai_messages').insert({
-        conversation_id: convId!,
-        user_id: user.id,
-        role: 'assistant',
-        content: aiText,
-        metadata: aiAction ? { action: aiAction } : {}
-      });
+      // 4. Save AI Response to DB (optional)
+      try {
+        if (convId) {
+          await (supabase as any).from('ai_messages').insert({
+            conversation_id: convId,
+            user_id: user.id,
+            role: 'assistant',
+            content: aiText,
+            metadata: aiAction ? { action: aiAction } : {}
+          });
+
+          // Update conversation updated_at
+          await (supabase as any)
+            .from('ai_conversations')
+            .update({ updated_at: new Date().toISOString() })
+            .eq('id', convId);
+        }
+      } catch (dbErr) {
+        console.warn('[ConciergeAI] AI message persistence skipped:', dbErr);
+      }
 
       // 5. Handle AI Actions (memory, match, itinerary signalling)
       if (aiAction) {
@@ -213,7 +243,6 @@ export function useConciergeAI() {
             description: "The owner has been notified.",
             duration: 3000,
           });
-          // Note: we don't need to do DB insert here as the edge function already did it
         }
 
         if (aiAction.type === 'create_itinerary') {
@@ -223,12 +252,6 @@ export function useConciergeAI() {
           });
         }
       }
-
-      // 6. Update conversation updated_at
-      await (supabase as any)
-        .from('ai_conversations')
-        .update({ updated_at: new Date().toISOString() })
-        .eq('id', convId!);
 
     } catch (err) {
       console.error('Concierge Error:', err);

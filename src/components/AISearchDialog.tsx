@@ -186,7 +186,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
       const { data: profile } = await supabase
         .from('profiles')
         .select('full_name, bio, interests, lifestyle_tags')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       const userName = profile?.full_name || user.user_metadata?.full_name || 'Friend';
