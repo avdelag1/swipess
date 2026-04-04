@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })));
-import { SwipessLogo } from './SwipessLogo';
+
 
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
