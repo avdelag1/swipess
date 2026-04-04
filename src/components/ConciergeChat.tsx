@@ -685,38 +685,37 @@ export function ConciergeChat({
                 {/* ⚓ Bottom Anchor for Auto-Scroll */}
                 <div ref={endOfMessagesRef} className="h-2 w-full mt-2" />
               </div>
-            </div>
-          </ScrollArea>
+            </ScrollArea>
 
-          {/* ── Scroll Navigation Buttons ──────────────────────────── */}
-          {messages.length > 2 && (
-            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-10">
-              <button
-                onClick={scrollToTop}
-                title="Scroll to top"
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center border shadow-lg backdrop-blur-sm transition-all active:scale-90",
-                  isDark
-                    ? "bg-[#1a2030]/90 border-white/10 text-zinc-400 hover:text-white hover:border-white/20"
-                    : "bg-white/90 border-gray-200 text-gray-500 hover:text-gray-900 hover:border-gray-300"
-                )}
-              >
-                <ChevronsUp className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={scrollToLastUserMsg}
-                title="Jump to my last message"
-                className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center border shadow-lg backdrop-blur-sm transition-all active:scale-90",
-                  isDark
-                    ? "bg-orange-600/80 border-orange-500/30 text-white hover:bg-orange-500/90"
-                    : "bg-orange-500/90 border-orange-400/40 text-white hover:bg-orange-500"
-                )}
-              >
-                <ChevronsDown className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
+            {/* ── Scroll Navigation Buttons ──────────────────────────── */}
+            {messages.length > 2 && (
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 z-10">
+                <button
+                  onClick={scrollToTop}
+                  title="Scroll to top"
+                  className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center border shadow-lg backdrop-blur-sm transition-all active:scale-90",
+                    isDark
+                      ? "bg-[#1a2030]/90 border-white/10 text-zinc-400 hover:text-white hover:border-white/20"
+                      : "bg-white/90 border-gray-200 text-gray-500 hover:text-gray-900 hover:border-gray-300"
+                  )}
+                >
+                  <ChevronsUp className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={scrollToLastUserMsg}
+                  title="Jump to my last message"
+                  className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center border shadow-lg backdrop-blur-sm transition-all active:scale-90",
+                    isDark
+                      ? "bg-orange-600/80 border-orange-500/30 text-white hover:bg-orange-500/90"
+                      : "bg-orange-500/90 border-orange-400/40 text-white hover:bg-orange-500"
+                  )}
+                >
+                  <ChevronsDown className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* ── Input Area ───────────────────────────────────────────── */}
@@ -753,7 +752,7 @@ export function ConciergeChat({
                   ? "bg-[#150020] border-purple-500/[0.12] focus-within:border-orange-500/30"
                   : "bg-white border-gray-200 focus-within:border-orange-300 shadow-sm"
               )}>
-          <Textarea
+                <Textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value.slice(0, 500))}
                   onKeyDown={handleKeyDown}
