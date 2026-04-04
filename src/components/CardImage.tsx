@@ -150,14 +150,16 @@ const CardImage = memo(({
               src={blurSrc}
               alt=""
               aria-hidden="true"
+              loading="eager"
+              decoding="async"
               style={{
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                filter: 'blur(20px)',
+                filter: 'blur(10px)', // Lower blur for less GPU effort
                 transform: 'scale(1.1)',
                 opacity: 0.6,
-                transition: 'opacity 0.4s ease',
+                transition: 'opacity 0.3s ease', // Faster crossfade
               }}
             />
           )}

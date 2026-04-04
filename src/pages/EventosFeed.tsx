@@ -133,10 +133,17 @@ export default function EventosFeed() {
   // 🏎️ SPEED OF LIGHT: Force high-fidelity mock data to ensure "sentient" breathing photos always exist
   const allEvents = useMemo(() => {
     const real = rawEvents || [];
-    // Ensure mock data is always present at the end for the "full" experience
-    // Remove duplicates by ID just in case
     const mockUnique = MOCK_EVENTS.filter(m => !real.some(r => r.id === m.id));
-    return [...real, ...mockUnique];
+    const combined = [...real, ...mockUnique];
+    
+    // 🚀 WARP SPEED: Pre-warm first 3 photos immediately on data ready
+    if (combined.length > 0 && typeof window !== 'undefined') {
+      import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
+        const first3 = combined.slice(0, 3).map(e => getCardImageUrl(e.image_url || ''));
+        pwaImagePreloader.batchPreload(first3);
+      });
+    }
+    return combined;
   }, [rawEvents]);
 
   const filteredEvents = useMemo(() => {
@@ -186,22 +193,34 @@ export default function EventosFeed() {
 
     const timeout = setTimeout(() => {
       const height = el.clientHeight || window.innerHeight || 1;
-      if (activeIdx < filteredEvents.length) {
+      if (activeIdx < filteredEvents.length - 1) {
         const nextIdx = activeIdx + 1;
         el.scrollTo({ top: nextIdx * height, behavior: 'smooth' });
-        
-        // Predictive prefetch next 3 items
-        for (let i = 1; i <= 3; i++) {
-          const preIdx = (nextIdx + i) % (filteredEvents.length + 1);
-          const preId = filteredEvents[preIdx]?.id;
-          if (preId) predictivePrefetchEvent(queryClient, preId);
-        }
       }
       setAnimKey(k => k + 1);
     }, AUTOPLAY_DURATION);
 
     return () => clearTimeout(timeout);
-  }, [autoPlay, isPaused, activeIdx, filteredEvents.length, animKey, queryClient]);
+  }, [autoPlay, isPaused, activeIdx, filteredEvents.length, animKey]);
+
+  // 🏎️ SPEED OF LIGHT: Aggressive Image Warmup
+  useEffect(() => {
+    // Prefetch next 5 items' images whenever index changes
+    const nextBatch = filteredEvents.slice(activeIdx + 1, activeIdx + 6);
+    if (nextBatch.length > 0) {
+      import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
+        const urls = nextBatch.map(e => getCardImageUrl(e.image_url || ''));
+        pwaImagePreloader.batchPreload(urls);
+      });
+    }
+
+    // Also prefetch data for next 3 items
+    for (let i = 1; i <= 3; i++) {
+      const preIdx = (activeIdx + i) % (filteredEvents.length + 1);
+      const preId = filteredEvents[preIdx]?.id;
+      if (preId) predictivePrefetchEvent(queryClient, preId);
+    }
+  }, [activeIdx, filteredEvents, queryClient]);
 
   // Handlers
   const handleOpenChat = useCallback((event: EventItem) => {
