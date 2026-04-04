@@ -87,7 +87,9 @@ Deno.serve(async (req) => {
     while (loopCount < maxLoops) {
       loopCount++;
       const res = await callMiniMax(cleanMessages, key, maxTokens);
-      const content = res.choices?.[0]?.message?.content || "";
+      const rawContent = res.choices?.[0]?.message?.content || "";
+      // Strip MiniMax thinking tags
+      const content = rawContent.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
       if (!content) break;
 
       const jsonMatch = content.match(/\{[\s\S]*\}/);
