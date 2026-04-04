@@ -13,8 +13,8 @@ import {
   SkipBack, SkipForward, Play, Pause, Activity
 } from 'lucide-react';
 
-// ── Stars Canvas ───────────────────────────────────────────────────────────
-function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }) {
+// ── Stars + Shooting Stars Canvas ──────────────────────────────────────────
+function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
 
@@ -24,10 +24,15 @@ function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
       canvas.style.width = '100%';
       canvas.style.height = '100%';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -35,11 +40,8 @@ function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }
     resize();
     window.addEventListener('resize', resize);
 
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
     interface Star { x: number; y: number; size: number; opacity: number; speed: number; phase: number; glow: boolean; }
-    const count = Math.min(Math.floor((w * h) / 700), 700);
+    const count = Math.min(Math.floor((w * h) / 800), 500);
     const stars: Star[] = Array.from({ length: count }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -50,10 +52,17 @@ function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }
       glow: Math.random() > 0.85,
     }));
 
+    // Shooting stars
+    interface ShootingStar { x: number; y: number; len: number; speed: number; opacity: number; angle: number; life: number; maxLife: number; }
+    const shootingStars: ShootingStar[] = [];
+    let nextShoot = 120 + Math.random() * 200;
+
     let t = 0;
     const draw = () => {
       ctx.clearRect(0, 0, w, h);
       t += 0.12;
+
+      // Static stars
       for (const s of stars) {
         const twinkle = Math.sin(t * s.speed + s.phase) * 0.5 + 0.5;
         const alpha = Math.min(s.opacity * (twinkle * 0.65 + 0.35), 1);
@@ -65,6 +74,61 @@ function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }
         ctx.fill();
         if (s.glow) { ctx.shadowBlur = 0; ctx.shadowColor = 'transparent'; }
       }
+
+      // Spawn shooting stars
+      nextShoot--;
+      if (nextShoot <= 0) {
+        const angle = (Math.PI / 6) + Math.random() * (Math.PI / 4);
+        shootingStars.push({
+          x: Math.random() * w * 0.8,
+          y: Math.random() * h * 0.3,
+          len: 60 + Math.random() * 100,
+          speed: 4 + Math.random() * 6,
+          opacity: 0.7 + Math.random() * 0.3,
+          angle,
+          life: 0,
+          maxLife: 40 + Math.random() * 30,
+        });
+        nextShoot = 180 + Math.random() * 300;
+      }
+
+      // Draw shooting stars
+      for (let i = shootingStars.length - 1; i >= 0; i--) {
+        const ss = shootingStars[i];
+        ss.life++;
+        ss.x += Math.cos(ss.angle) * ss.speed;
+        ss.y += Math.sin(ss.angle) * ss.speed;
+        const progress = ss.life / ss.maxLife;
+        const fadeAlpha = progress < 0.3 ? progress / 0.3 : 1 - ((progress - 0.3) / 0.7);
+        const alpha = ss.opacity * Math.max(0, fadeAlpha);
+
+        const tailX = ss.x - Math.cos(ss.angle) * ss.len;
+        const tailY = ss.y - Math.sin(ss.angle) * ss.len;
+        const grad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+        grad.addColorStop(0, `rgba(255,255,255,0)`);
+        grad.addColorStop(0.6, `rgba(255,255,255,${alpha * 0.3})`);
+        grad.addColorStop(1, `rgba(255,255,255,${alpha})`);
+
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(ss.x, ss.y);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Head glow
+        ctx.beginPath();
+        ctx.arc(ss.x, ss.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = accentColor;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = 'transparent';
+
+        if (ss.life >= ss.maxLife) shootingStars.splice(i, 1);
+      }
+
       animRef.current = requestAnimationFrame(draw);
     };
     draw();
@@ -73,7 +137,7 @@ function RadioStarsCanvas({ accentColor: _accentColor }: { accentColor: string }
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
     };
-  }, []);
+  }, [accentColor]);
 
   return (
     <canvas
