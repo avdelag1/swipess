@@ -4,7 +4,7 @@ import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
-import { GradientMaskTop, GradientMaskBottom, GlobalVignette } from '@/components/ui/GradientMasks';
+
 import { useTheme } from '@/hooks/useTheme';
 import { useFocusMode } from '@/hooks/useFocusMode';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
@@ -50,17 +50,6 @@ export function AppLayout({ children }: AppLayoutProps) {
         <NotificationSystem />
       </Suspense>
 
-      {/* Cinematic depth layers — static CSS transitions instead of framer blur */}
-      {!isPublicPreview && (
-        <div 
-          className="pointer-events-none transition-opacity duration-400 ease-out"
-          style={{ opacity: showGlobalHUD ? 1 : 0 }}
-        >
-          <GlobalVignette intensity={isLightTheme ? 0.4 : 0.8} light={isLightTheme} />
-          <GradientMaskTop intensity={isLightTheme ? 0.5 : 0.75} heightPercent={22} zIndex={15} light={isLightTheme} />
-          <GradientMaskBottom intensity={isLightTheme ? 0.5 : 0.75} heightPercent={38} zIndex={20} light={isLightTheme} />
-        </div>
-      )}
 
       <main
         id="main-content"

@@ -183,20 +183,6 @@ function TopBarComponent({
           className
         )}
       >
-        {/* ATMOSPHERIC GRADIENT: Replaces solid frame with a cinematic fade-out haze */}
-        <div 
-          className={cn(
-            "absolute inset-0 transition-opacity duration-700 -z-10 pointer-events-none",
-            transparent ? "opacity-0" : "opacity-100"
-          )}
-          style={{ 
-            background: isLight 
-              ? 'linear-gradient(to bottom, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.2) 80%, transparent 100%)' 
-              : 'linear-gradient(to bottom, rgba(7,7,8,0.88) 0%, rgba(7,7,8,0.5) 45%, rgba(7,7,8,0.2) 75%, transparent 100%)',
-            height: '160%', // Extends deeply past the header for a premium cinematic lift
-            transform: 'translateZ(0)',
-          }}
-        />
 
         <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 pl-1.5 pr-2">
 
