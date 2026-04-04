@@ -359,10 +359,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
 
   // Category preview photos for breathing effect (using high-end assets)
   const categoryPhotos: Record<string, string> = {
-    property:   '/images/filters/property.png',
-    motorcycle: '/images/filters/scooter.png',
-    bicycle:    '/images/filters/bicycle.png',
-    services:   '/images/filters/workers.png',
+    property:   'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=800&auto=format&fit=crop',
+    motorcycle: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop',
+    bicycle:    'https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=800&auto=format&fit=crop',
+    services:   'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop',
   };
 
   return (
@@ -392,7 +392,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
           >
             <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
             <img 
-              src="/images/filters/property.png" 
+              src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=800&auto=format&fit=crop" 
               className="absolute inset-0 w-full h-full object-cover" 
               alt="All"
             />
