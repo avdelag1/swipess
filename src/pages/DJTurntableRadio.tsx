@@ -458,52 +458,46 @@ export default function DJTurntableRadio() {
               />
             </motion.button>
 
-            <div className={cn(
-              "flex items-center gap-4 rounded-[50px] p-2.5 border shadow-[0_30px_60px_rgba(0,0,0,0.3)] transition-all",
-              isDark ? "bg-white/5 backdrop-blur-3xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
-            )}>
+            <div className="flex items-center gap-5">
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
-                className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
+                className={cn("w-14 h-14 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
               >
-                <SkipBack className={cn("w-7 h-7", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
+                <SkipBack className={cn("w-6 h-6", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
               </motion.button>
 
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => { togglePlayPause(); triggerHaptic('heavy'); }}
-                className="w-28 h-28 rounded-full flex items-center justify-center relative shadow-[0_20px_50px_rgba(0,0,0,0.6)] border-2 border-white/20"
+                className="w-24 h-24 rounded-full flex items-center justify-center relative shadow-[0_20px_50px_rgba(0,0,0,0.6)] border-2 border-white/20"
                 style={{ 
                   background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
                   boxShadow: `0 0 60px ${primaryColor}33, inset 0 2px 20px rgba(255,255,255,0.5)`
                 }}
               >
-                {state.isPlaying ? <Pause className="w-12 h-12 text-white" fill="white" /> : <Play className="w-12 h-12 text-white ml-2" fill="white" />}
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none" />
+                {state.isPlaying ? <Pause className="w-10 h-10 text-white" fill="white" /> : <Play className="w-10 h-10 text-white ml-1.5" fill="white" />}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/20 to-transparent pointer-events-none" />
               </motion.button>
 
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { changeStation('next'); triggerHaptic('medium'); }}
-                className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
+                className={cn("w-14 h-14 rounded-full flex items-center justify-center transition-colors", isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10")}
               >
-                <SkipForward className={cn("w-7 h-7", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
+                <SkipForward className={cn("w-6 h-6", isDark ? "text-white/50" : "text-black/40")} fill="currentColor" />
               </motion.button>
             </div>
 
             <motion.button
               whileTap={{ scale: 0.85 }}
-              onClick={() => { navigate('/radio/playlists'); triggerHaptic('light'); }}
+              onClick={() => { setShowFavoritesDrawer(true); triggerHaptic('light'); }}
               className={cn(
                 "w-16 h-16 rounded-3xl flex items-center justify-center border shadow-2xl transition-all",
                 isDark ? "bg-white/5 backdrop-blur-3xl border-white/10" : "bg-black/5 backdrop-blur-md border-black/5"
               )}
             >
-              <div className={cn("w-7 h-7 border-[3px] rounded-full flex items-center justify-center relative", isDark ? "border-white/40" : "border-black/30")}>
-                <div className={cn("w-2.5 h-2.5 rounded-full", isDark ? "bg-white/40" : "bg-black/30")} />
-                <div className={cn("absolute inset-[-6px] border rounded-full", isDark ? "border-white/10" : "border-black/5")} />
-              </div>
+              <ListMusic className={cn("w-7 h-7", isDark ? "text-white/50" : "text-black/40")} />
             </motion.button>
           </div>
 
