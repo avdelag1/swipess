@@ -99,6 +99,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const failedStationsCountRef = useRef<Record<string, number>>({});
   const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentStationRef = useRef<RadioStation | null>(null);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    currentStationRef.current = state.currentStation;
+  }, [state.currentStation]);
 
   // Shuffle queue: pre-shuffled list of ALL stations
   const shuffleQueueRef = useRef<RadioStation[]>([]);
