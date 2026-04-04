@@ -73,7 +73,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
-      audioRef.current.crossOrigin = "anonymous"; // Important for visualizer!
+      // Don't set crossOrigin here — it causes CORS failures on many streams.
+      // We'll set it only after AudioContext is successfully created.
       audioRef.current.volume = state.volume;
       audioRef.current.preload = 'auto';
     }
