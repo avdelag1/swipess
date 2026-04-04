@@ -431,7 +431,7 @@ export default function AdvertisePage() {
             <span className="brand-gradient-text">
               Your Brand
             </span>{" "}
-            in Tulum
+            on Swipess
           </motion.h1>
 
           <motion.p
