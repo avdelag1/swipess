@@ -169,15 +169,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         audio.addEventListener('error', handleAudioError);
       }
 
-      // Flag station as potentially dead — require 6 fails before permanent blacklist
+      // Add to temporary blacklist only (30s) — no permanent kills
       const currentId = currentStationRef.current?.id;
       if (currentId) {
-        const fails = (failedStationsCountRef.current[currentId] || 0) + 1;
-        failedStationsCountRef.current[currentId] = fails;
-        
-        if (fails >= 6) {
-          markStationAsDead(currentId);
-        }
+        failedStationsRef.current.add(currentId);
+        setTimeout(() => failedStationsRef.current.delete(currentId), 30000);
       }
 
       if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
