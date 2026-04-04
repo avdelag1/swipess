@@ -4,7 +4,7 @@ import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
-import { GradientMaskTop, GradientMaskBottom, GlobalVignette } from '@/components/ui/GradientMasks';
+
 import { useTheme } from '@/hooks/useTheme';
 import { useFocusMode } from '@/hooks/useFocusMode';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
