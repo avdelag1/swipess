@@ -18,7 +18,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
 import { haptics } from '@/utils/microPolish';
 
-import { QuickFilterDropdown } from './QuickFilterDropdown';
+
 import { ModeSwitcher } from './ModeSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 import { NotificationPopover } from './NotificationPopover';
