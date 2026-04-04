@@ -56,7 +56,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     isShuffle: false,
     skin: 'turntable',
     favorites: [],
-    deadStationIds: JSON.parse(localStorage.getItem('swipess_radio_dead_stations') || '[]'),
+    deadStationIds: [], // Fresh start each session — no permanent blacklist
     miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
   });
 
