@@ -168,13 +168,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         audio.addEventListener('error', handleAudioError);
       }
 
-      // Flag station as potentially dead
+      // Flag station as potentially dead — require 6 fails before permanent blacklist
       const currentId = currentStationRef.current?.id;
       if (currentId) {
         const fails = (failedStationsCountRef.current[currentId] || 0) + 1;
         failedStationsCountRef.current[currentId] = fails;
         
-        if (fails >= 3) {
+        if (fails >= 6) {
           markStationAsDead(currentId);
         }
       }
