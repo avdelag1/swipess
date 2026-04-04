@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { runIdleTask } from '@/lib/utils';
 import { logger } from '@/utils/prodLogger';
 import { prefetchRoute } from '@/utils/routePrefetcher';
+import { warmDiscoveryCache } from '@/utils/performance';
 
 /**
  * 🚀 ZenithPrewarmer: Predictive data & asset pre-fetching
@@ -34,15 +35,7 @@ export const ZenithPrewarmer = () => {
       // 1. Pre-warm Discover Data (High Priority)
       // We use the exact key structure from useSmartListingMatching for 'Default' filter state
       if (role === 'client') {
-        queryClient.prefetchQuery({
-          queryKey: ['smart-listings', user.id, '', 0, false],
-          staleTime: 5 * 60 * 1000,
-        });
-      } else if (role === 'owner') {
-        queryClient.prefetchQuery({
-          queryKey: ['smart-clients', user.id, '', 0, false],
-          staleTime: 5 * 60 * 1000,
-        });
+        await warmDiscoveryCache(queryClient, user.id, 'client');
       }
 
       // 2. Pre-warm Persistent Shared Data
