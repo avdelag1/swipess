@@ -279,12 +279,6 @@ function TopBarComponent({
                 <ModeSwitcher variant="icon" size="sm" />
               </div>
 
-              {/* Quick filters (discovery pages) */}
-              {showFilters && userRole && (
-                <div className="flex-shrink-0">
-                  <QuickFilterDropdown userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'} />
-                </div>
-              )}
 
               {/* Page title — centered spacer (Tap to go Dashboard) */}
               <motion.div 
