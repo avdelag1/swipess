@@ -92,6 +92,93 @@ Deno.serve(async (req) => {
       const content = rawContent.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
       if (!content) break;
 
+      // ── Handle MiniMax XML tool_call format ──
+      const xmlToolMatch = content.match(/<minimax:tool_call>\s*<invoke\s+name="([^"]+)">([\s\S]*?)<\/invoke>\s*<\/minimax:tool_call>/);
+      if (xmlToolMatch) {
+        const toolName = xmlToolMatch[1];
+        const paramsBlock = xmlToolMatch[2];
+        // Extract parameters from <parameter name="key">value</parameter>
+        const params: Record<string, string> = {};
+        const paramRegex = /<parameter\s+name="([^"]+)">([^<]*)<\/parameter>/g;
+        let paramMatch;
+        while ((paramMatch = paramRegex.exec(paramsBlock)) !== null) {
+          params[paramMatch[1]] = paramMatch[2];
+        }
+        // Convert to the JSON action format the loop already handles
+        const syntheticAction = JSON.stringify({ action: { type: toolName, params }, message: "" });
+        const fakeContent = syntheticAction;
+        // Re-inject as if the model returned JSON
+        const parsed = JSON.parse(fakeContent);
+        const action = parsed.action;
+        // Feed it back into the existing action handling below
+        // by constructing a content string with the JSON
+        cleanMessages.push({ role: "assistant", content: fakeContent });
+        
+        // Execute the action inline (same logic as below)
+        if (action?.type === "search_local_expert_knowledge" && action.params?.query) {
+          const { data } = await supabase.from('expert_knowledge').select('*').ilike('content', `%${action.params.query}%`).limit(5);
+          cleanMessages.push({ role: "user", content: `RESULTS: ${JSON.stringify(data || [])}` });
+          continue;
+        }
+        else if (action?.type === "search_events" && action.params?.query) {
+          const { data } = await supabase.from('events').select('*').or(`title.ilike.%${action.params.query}%,description.ilike.%${action.params.query}%`).eq('is_published', true).limit(5);
+          cleanMessages.push({ role: "user", content: `EVENTS: ${JSON.stringify(data || [])}. Links: /events?id=ID` });
+          continue;
+        }
+        else if (action?.type === "search_internal_listings" && action.params?.query) {
+          const { data } = await supabase.from('listings').select('*').ilike('title', `%${action.params.query}%`).limit(5);
+          cleanMessages.push({ role: "user", content: `LISTINGS: ${JSON.stringify(data || [])}` });
+          continue;
+        }
+        else if (action?.type === "search_web" && action.params?.query) {
+          const tavilyKey = Deno.env.get("TAVILY_API_KEY");
+          if (!tavilyKey) {
+            cleanMessages.push({ role: "user", content: "Error: Web search disabled." });
+            continue;
+          }
+          const tvRes = await fetch("https://api.tavily.com/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ api_key: tavilyKey, query: action.params.query, search_depth: "basic" })
+          });
+          const tvJson = await tvRes.json();
+          const webResults = tvJson.results?.map((r: any) => ({ title: r.title, content: r.content, url: r.url })) || [];
+          cleanMessages.push({ role: "user", content: `WEB SEARCH RESULTS: ${JSON.stringify(webResults)}` });
+          continue;
+        }
+        else if (action?.type === "search_listings_by_vibe" && action.params?.query) {
+          const { data } = await supabase.from('listings').select('id, title, description, price, category, neighborhood')
+            .or(`description.ilike.%${action.params.query}%,title.ilike.%${action.params.query}%`)
+            .eq('status', 'active').limit(5);
+          cleanMessages.push({ role: "user", content: `VIBE RESULTS for "${action.params.query}": ${JSON.stringify(data || [])}. Links: /listing/ID` });
+          continue;
+        }
+        else if (action?.type === "save_user_memory" && action.params?.content) {
+          if (user) {
+            await supabase.from('user_memories').insert({ user_id: user.id, content: action.params.content, importance: 1 });
+            cleanMessages.push({ role: "user", content: "SUCCESS: Memory saved." });
+          } else {
+            cleanMessages.push({ role: "user", content: "Error: No user." });
+          }
+          continue;
+        }
+        else if (action?.type === "get_market_averages" && action.params?.neighborhood) {
+          const { data } = await supabase.from('listings').select('price').eq('neighborhood', action.params.neighborhood).eq('category', action.params.category || 'property');
+          const prices = data?.map(l => l.price).filter(Boolean) || [];
+          const avg = prices.length ? (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(0) : "N/A";
+          cleanMessages.push({ role: "user", content: `MARKET DATA for ${action.params.neighborhood}: Avg Price $${avg} (based on ${prices.length} samples)` });
+          continue;
+        }
+        else if (action?.type === "search_experts" && action.params?.query) {
+          const { data } = await supabase.from('profiles').select('id, full_name, bio, lifestyle_tags').or(`full_name.ilike.%${action.params.query}%,bio.ilike.%${action.params.query}%`).limit(5);
+          cleanMessages.push({ role: "user", content: `EXPERTS FOUND: ${JSON.stringify(data || [])}. Links: /profile/ID` });
+          continue;
+        }
+        // Unknown tool — ask model to respond naturally
+        cleanMessages.push({ role: "user", content: `Tool "${toolName}" is not available. Please answer the user's question directly without using tools.` });
+        continue;
+      }
+
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
@@ -207,7 +294,18 @@ Deno.serve(async (req) => {
           break;
         }
       } else {
-        finalContent = content.trim();
+        // Check for malformed tool call patterns and retry
+        const hasToolCallPattern = /\[TOOL_CALL\]|<minimax:|<invoke|tool\s*=>/i.test(content);
+        if (hasToolCallPattern && loopCount < maxLoops) {
+          cleanMessages.push({ role: "assistant", content });
+          cleanMessages.push({ role: "user", content: "Please respond with a direct answer in plain text. Do not use tool calls or XML syntax." });
+          continue;
+        }
+        // Strip any leftover tool markup from final response
+        finalContent = content
+          .replace(/\[TOOL_CALL\][\s\S]*?\[\/TOOL_CALL\]/g, '')
+          .replace(/<minimax:tool_call>[\s\S]*?<\/minimax:tool_call>/g, '')
+          .trim();
         break;
       }
     }
@@ -266,7 +364,7 @@ function getVibePrompt(task: string, input: any, user: any, profile: any, memori
 
   return `
 ### IDENTITY
-You are the Swipess Sentient Concierge, known as "Vibe". 
+You are the Swipess AI Concierge. 
 You are a Tulum local legend—direct, sophisticated, and deeply connected.
 User: ${name} | Memories: ${memories.map(m => m.content).join('; ')}
 Location Context: ${currentPath} ${listingContext}
@@ -277,24 +375,30 @@ Location Context: ${currentPath} ${listingContext}
 - **Hotel Zone / Beach**: Know the beach clubs and the "road" traffic reality.
 - **Vibe Checks**: You don't just find houses; you find lifestyles.
 
-### TOOLS
-- search_local_expert_knowledge: For pre-vetted Tulum bars, restaurants, and hidden spots.
-- search_web: FOR ANY OTHER QUESTION (Weather, traffic, general news, specific laws).
-- search_experts: For professional services (Coaches, Chefs, DJs, Lawyers).
-- search_internal_listings: For houses, scooters, cars.
-- get_market_averages: Instant real-estate market analysis.
-- calculate_roi: For purchase_price vs monthly_rent analysis.
-- save_user_memory: USE THIS FREELY to remember user likes/dislikes/plans for next time.
-- initiate_match: To connect the user with listing owners.
-- search_listings_by_vibe: For finding houses/services based on "Vibe" / "Mood" (Zen, Modern, Party, Jungle, etc).
-- create_itinerary: For planning multi-step schedules.
-- show_listing_card / show_expert_card / show_venue_card: For visual cards.
+### TOOL USAGE FORMAT
+When you need to use a tool, respond ONLY with a JSON object in this exact format:
+{"action": {"type": "TOOL_NAME", "params": {"query": "your query"}}, "message": ""}
+
+Available tools:
+- search_local_expert_knowledge: params: {query}. For pre-vetted Tulum bars, restaurants, hidden spots.
+- search_web: params: {query}. FOR ANY OTHER QUESTION (Weather, traffic, general news).
+- search_experts: params: {query}. Professional services (Coaches, Chefs, DJs, Lawyers).
+- search_internal_listings: params: {query}. Houses, scooters, cars.
+- get_market_averages: params: {neighborhood, category}. Real-estate market analysis.
+- calculate_roi: params: {purchase_price, monthly_rent}. Investment analysis.
+- save_user_memory: params: {content}. Remember user preferences.
+- initiate_match: params: {listing_id, owner_id}. Connect user with listing owners.
+- search_listings_by_vibe: params: {query}. Find by mood (Zen, Modern, Party, Jungle).
+- create_itinerary: For planning schedules.
+
+IMPORTANT: Do NOT use XML tags, do NOT use [TOOL_CALL] syntax. ONLY use the JSON format above.
+When NOT using a tool, just respond with plain text directly. No JSON wrapping needed for normal responses.
 
 ### RULES (ZERO-EXCUSE PROTOCOL)
 - **Direct to Source**: Your first word must be the answer.
 - **Solution Oriented**: If a user is confused, use web search or find an expert.
 - **Sentient Evolution**: If a user states a preference, call save_user_memory automatically.
 - **Financial Savvy**: If a user looks at a property for investment, call calculate_roi.
-- **Authenticity**: Be the ultimate Tulum guide.
+- **Authenticity**: Be the ultimate Tulum guide. Never mention your model name or provider.
 `;
 }
