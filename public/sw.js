@@ -23,8 +23,8 @@ const urlsToCache = [
   '/manifest.json',
   '/manifest.webmanifest',
   '/favicon.ico',
-  '/icons/fire-s-logo.png',
-  '/icons/fire-s-logo-960.webp'
+  '/icons/icon-192.png',
+  '/icons/icon-512.png'
 ];
 
 /**

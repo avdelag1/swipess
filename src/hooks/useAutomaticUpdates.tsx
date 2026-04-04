@@ -274,7 +274,7 @@ export function UpdateNotification() {
                 {/* Logo Frame — Deep Glass */}
                 <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center relative overflow-hidden shadow-inner">
                   <div className="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-orange-500/10" />
-                  <img src="/icons/fire-s-logo-96.png" className="w-9 h-9 object-contain relative z-10" alt="S" />
+                  <img src="/icons/icon-96.png" className="w-9 h-9 object-contain relative z-10" alt="S" />
                 </div>
 
                 {/* Text Content */}
