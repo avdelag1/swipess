@@ -100,6 +100,17 @@ interface RootProvidersProps {
   authPromise?: Promise<any>;
 }
 
+function WarpPrefetcher() {
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).__PREDICTED_ROLE) {
+      import('@/utils/routePrefetcher').then(m => {
+        m.prefetchRoleRoutes((window as any).__PREDICTED_ROLE);
+      });
+    }
+  }, []);
+  return null;
+}
+
 export function RootProviders({ children, authPromise }: RootProvidersProps) {
   const content = React.useMemo(() => children, [children]);
 
@@ -110,6 +121,7 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
         persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24, buster: 'v1.5' }}
       >
         <LazyMotion features={domMax}>
+          <WarpPrefetcher />
           <VisualThemeProvider>
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <AuthProvider authPromise={authPromise}>

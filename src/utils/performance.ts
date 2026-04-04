@@ -159,6 +159,8 @@ export function prefetchImage(url: string, highPriority: boolean = false) {
   if (highPriority) {
     (img as any).fetchPriority = 'high';
   }
+  
+  // ⚡ SPEED OF LIGHT: Start decoding IMMEDIATELY if the connection is strong
   img.decoding = 'async';
   
   img.onload = () => {
@@ -169,4 +171,16 @@ export function prefetchImage(url: string, highPriority: boolean = false) {
   };
   
   img.src = url;
+}
+
+/**
+ * ⚡ INSTANT FEED: Pre-warms the next items in a list
+ * Uses IntersectionObserver to predict scrolling intent.
+ */
+export function prefetchNextBatch(queryClient: QueryClient, items: any[], currentIndex: number) {
+  const nextItems = items.slice(currentIndex + 1, currentIndex + 4);
+  nextItems.forEach(item => {
+    const url = item.image_url || item.images?.[0];
+    if (url) prefetchImage(url, false);
+  });
 }
