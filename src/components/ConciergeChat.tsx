@@ -156,7 +156,7 @@ export function ConciergeChat({
   const quickSuggestions = [
     { icon: MapPin,     label: 'Beach Clubs',    prompt: `What are the best beach clubs in the Hotel Zone with free access?` },
     { icon: Building2,  label: 'Find a Villa',   prompt: 'Find me a 2-bedroom property under $5,000/mo near the beach' },
-    { icon: Utensils,   label: 'Best Dinner',    prompt: 'What are the best restaurants for a romantic dinner in Tulum tonight?' },
+    { icon: Utensils,   label: 'Best Dinner',    prompt: 'What are the best restaurants for a romantic dinner tonight?' },
     { icon: Car,        label: 'Rent a Car',     prompt: 'What car rental options are available near the airport?' },
   ];
 
