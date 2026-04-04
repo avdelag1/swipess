@@ -453,8 +453,9 @@ function TopBarComponent({
                 boxShadow: cinematicShadow,
                 border: 'none',
               }}
-              onPointerDown={(e) => {
+              onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 haptics.tap();
                 navigate('/radio');
               }}
