@@ -45,14 +45,18 @@ Deno.serve(async (req) => {
 
     if (user) {
       try {
-        const [profileRes, memoriesRes, listingRes] = await Promise.all([
+        const [profileRes, listingRes] = await Promise.all([
           supabase.from('profiles').select('*').eq('user_id', user.id).maybeSingle(),
-          supabase.from('user_memories').select('*').eq('user_id', user.id).limit(50).then(r => r).catch(() => ({ data: [] })),
           listingId ? supabase.from('listings').select('*').eq('id', listingId).maybeSingle() : Promise.resolve({ data: null }),
         ]);
         profile = profileRes.data;
-        memories = memoriesRes.data || [];
         activeListing = listingRes.data;
+
+        // Separate call for memories (table may not exist for all users)
+        try {
+          const memoriesRes = await supabase.from('user_memories').select('*').eq('user_id', user.id).limit(50);
+          memories = memoriesRes.data || [];
+        } catch { memories = []; }
       } catch (e) {
         console.error("[AI Orchestrator] Context fetch error:", e);
       }
