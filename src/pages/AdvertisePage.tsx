@@ -196,7 +196,7 @@ const _FEATURES = [
     color: "#3b82f6",
     colorRgb: "59,130,246",
     title: "High-Value Audience",
-    desc: "Property owners, motorcycle & bicycle renters, service providers, digital nomads and expats — people who actively spend money in Tulum every day",
+    desc: "Property owners, motorcycle & bicycle renters, service providers, digital nomads and expats — people who actively spend money every day",
   },
   {
     icon: <Phone className="w-5 h-5" />,
