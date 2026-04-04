@@ -145,8 +145,9 @@ const LandingView = memo(({
       >
 
         <div className="relative">
-          <LogoImage
-            className="w-[85vw] max-w-[480px] sm:max-w-[580px] md:max-w-[680px] aspect-video mx-auto"
+          <LogoWordmark
+            className="mx-auto"
+            size="hero"
           />
         </div>
       </motion.div>
