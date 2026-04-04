@@ -126,6 +126,9 @@ INSTRUCTIONS:
         headers: baseHeaders,
         body: JSON.stringify({ 
           model: "MiniMax-M2.7", // 🚀 Updated to newest model from Token Plan
+          bot_setting: [
+            { plugin_id: "plugin_web_search" }
+          ],
           messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
           temperature: task === "conversation" ? 0 : 0.6,
           stream: false
@@ -140,6 +143,9 @@ INSTRUCTIONS:
           headers: baseHeaders,
           body: JSON.stringify({ 
             model: "abab6.5s-chat",
+            bot_setting: [
+              { plugin_id: "plugin_web_search" }
+            ],
             messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
             temperature: 0.6,
             stream: false
@@ -187,7 +193,14 @@ INSTRUCTIONS:
         // Concierge Task: Parse for actions
         const actionMatch = rawAiText.match(/(\{\s*"action"\s*:[\s\S]*?\}\s*)$/m);
         const aiText = actionMatch ? rawAiText.substring(0, actionMatch.index).trim() : rawAiText.trim();
-        const aiAction = actionMatch ? JSON.parse(actionMatch[0])?.action : null;
+        let aiAction = null;
+        if (actionMatch) {
+            try {
+                aiAction = JSON.parse(actionMatch[0])?.action;
+            } catch (e) {
+                console.warn("[AI Orchestrator] Failed to parse hallucinated action block:", actionMatch[0]);
+            }
+        }
 
         finalResult = {
             text: aiText || "I'm processing that for you...",

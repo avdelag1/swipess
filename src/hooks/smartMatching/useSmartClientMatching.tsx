@@ -64,6 +64,31 @@ export function useSmartClientMatching(
     const queryClient = useQueryClient();
     const filtersKey = useMemo(() => filters ? JSON.stringify(filters) : '', [filters]);
 
+    // 🚀 SPEED OF LIGHT: Cache user swipes globally to avoid repeated fetching
+    const { data: userSwipes } = useQuery({
+        queryKey: ['user-client-swipes', userId],
+        queryFn: async () => {
+            if (!userId) return { liked: new Set<string>(), left: new Map<string, string>() };
+            const { data, error } = await supabase
+                .from('likes')
+                .select('target_id, direction, created_at')
+                .eq('user_id', userId)
+                .eq('target_type', 'profile');
+            
+            if (error) throw error;
+            
+            const liked = new Set<string>();
+            const left = new Map<string, string>();
+            data?.forEach(s => {
+                if (s.direction === 'right') liked.add(s.target_id);
+                else left.set(s.target_id, s.created_at);
+            });
+            return { liked, left };
+        },
+        enabled: !!userId,
+        staleTime: 5 * 60 * 1000, // 5 minutes cache
+    });
+
     useEffect(() => {
         if (!userId) return;
         const channel = supabase
@@ -78,32 +103,25 @@ export function useSmartClientMatching(
 
     return useQuery<MatchedClientProfile[]>({
         queryKey: ['smart-clients', userId, _category, page, isRefreshMode, filtersKey, isRoommateSection],
-        staleTime: 10 * 60 * 1000,
+        staleTime: 2 * 60 * 1000,
         gcTime: 15 * 60 * 1000,
         placeholderData: (prev: any) => prev,
         queryFn: async () => {
             if (!userId) return [] as MatchedClientProfile[];
 
             try {
-                const [
-                    { data: likedRecords },
-                    { data: leftSwipes }
-                ] = await Promise.all([
-                    supabase.from('likes').select('target_id').eq('user_id', userId).eq('target_type', 'profile').eq('direction', 'right'),
-                    supabase.from('likes').select('target_id, created_at').eq('user_id', userId).eq('target_type', 'profile').eq('direction', 'left')
-                ]);
-
-                const likedIds = new Set(likedRecords?.map(r => r.target_id) || []);
-                const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+                // 1. Prepare exclusion list from cache (if available)
                 const swipedProfileIds = new Set<string>();
-                likedIds.forEach(id => swipedProfileIds.add(id));
-                leftSwipes?.forEach(swipe => {
-                    if (new Date(swipe.created_at) < new Date(threeDaysAgo)) {
-                        swipedProfileIds.add(swipe.target_id);
-                    } else if (!isRefreshMode) {
-                        swipedProfileIds.add(swipe.target_id);
-                    }
-                });
+                if (userSwipes) {
+                    userSwipes.liked.forEach(id => swipedProfileIds.add(id));
+                    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+                    userSwipes.left.forEach((createdAt, id) => {
+                        const isOldSwipe = new Date(createdAt) < threeDaysAgo;
+                        if (isOldSwipe || !isRefreshMode) {
+                            swipedProfileIds.add(id);
+                        }
+                    });
+                }
 
                 // 🚀 SPEED OF LIGHT: Attempt database-level filtering (RPC)
                 try {
