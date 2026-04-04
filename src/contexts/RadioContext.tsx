@@ -56,7 +56,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     isShuffle: false,
     skin: 'turntable',
     favorites: [],
-    deadStationIds: JSON.parse(localStorage.getItem('swipess_radio_dead_stations') || '[]'),
+    deadStationIds: [], // Fresh start each session — no permanent blacklist
     miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
   });
 
@@ -73,7 +73,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
-      audioRef.current.crossOrigin = "anonymous"; // Important for visualizer!
+      // Don't set crossOrigin here — it causes CORS failures on many streams.
+      // We'll set it only after AudioContext is successfully created.
       audioRef.current.volume = state.volume;
       audioRef.current.preload = 'auto';
     }
@@ -168,15 +169,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         audio.addEventListener('error', handleAudioError);
       }
 
-      // Flag station as potentially dead — require 6 fails before permanent blacklist
+      // Add to temporary blacklist only (30s) — no permanent kills
       const currentId = currentStationRef.current?.id;
       if (currentId) {
-        const fails = (failedStationsCountRef.current[currentId] || 0) + 1;
-        failedStationsCountRef.current[currentId] = fails;
-        
-        if (fails >= 6) {
-          markStationAsDead(currentId);
-        }
+        failedStationsRef.current.add(currentId);
+        setTimeout(() => failedStationsRef.current.delete(currentId), 30000);
       }
 
       if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
@@ -306,11 +303,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     if (failedStationsRef.current.has(targetStation.id)) {
       logger.info(`[RadioPlayer] Skipping recently failed station: ${targetStation.id}`);
-      // Clear after 30s instead of 60s for faster recovery
-      setTimeout(() => failedStationsRef.current.delete(targetStation.id), 30000);
+      // Already in temp blacklist; it auto-clears after 30s
       if (failedStationsRef.current.size > 20) { const first = failedStationsRef.current.values().next().value; if (first) failedStationsRef.current.delete(first); }
       playDepthRef.current++;
-      changeStation('next');
+      changeStationRef.current('next');
       return;
     }
 
@@ -337,18 +333,21 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       loadTimeoutRef.current = setTimeout(() => {
         logger.warn(`[RadioPlayer] Station ${targetStation.id} timeout, skipping`);
         failedStationsRef.current.add(targetStation.id);
+        setTimeout(() => failedStationsRef.current.delete(targetStation.id), 30000);
         setError('Station timeout, switching...');
         setTimeout(() => {
           setError(null);
-          changeStation('next');
+          changeStationRef.current('next');
         }, 500);
-      }, 10000);
+      }, 15000);
 
       await audioRef.current.play();
       
       // Initialize AudioContext on first play (user gesture)
       if (!audioContextRef.current && audioRef.current) {
         try {
+          // Set crossOrigin only when we successfully create AudioContext
+          audioRef.current.crossOrigin = "anonymous";
           audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
           analyzerRef.current = audioContextRef.current.createAnalyser();
           analyzerRef.current.fftSize = 256;
@@ -357,6 +356,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           analyzerRef.current.connect(audioContextRef.current.destination);
           dataArrayRef.current = new Uint8Array(analyzerRef.current.frequencyBinCount);
         } catch (e) {
+          // If AudioContext fails, remove crossOrigin so streams still play
+          if (audioRef.current) audioRef.current.crossOrigin = "";
           logger.error('[RadioPlayer] Failed to init AudioContext:', e);
         }
       } else if (audioContextRef.current?.state === 'suspended') {
@@ -382,7 +383,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
       setTimeout(() => {
         setError(null);
-        changeStation('next');
+        changeStationRef.current('next');
       }, 500);
     }
   }, [state.currentStation]);
@@ -449,14 +450,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     play(stations[nextIndex]);
   }, [state.currentStation, state.currentCity, state.isShuffle, activeStations, play]);
 
-  // Permanently mark a station as dead
-  const markStationAsDead = useCallback((stationId: string) => {
-    setState(prev => {
-      const newDead = Array.from(new Set([...prev.deadStationIds, stationId]));
-      localStorage.setItem('swipess_radio_dead_stations', JSON.stringify(newDead));
-      return { ...prev, deadStationIds: newDead };
-    });
-  }, []);
+  // markStationAsDead removed — no permanent blacklisting, only temp 30s blacklist
 
   changeStationRef.current = changeStation;
 
