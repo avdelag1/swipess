@@ -6,14 +6,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// MiniMax fallback config
 const MINIMAX_ENDPOINTS = [
   "https://api.minimax.io/v1/text/chatcompletion_v2",
   "https://api.minimax.io/v1/chat/completions",
 ];
-const MODELS = ["MiniMax-Text-01", "abab6.5s-chat"];
 
-// AI Tier → max_tokens mapping
+const MODELS = ["MiniMax-Text-01", "abab6.5s-chat", "abab6-chat"];
+
 const TIER_MAX_TOKENS: Record<string, number> = {
   free: 400,
   basic: 500,
@@ -25,6 +24,9 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
+    const key = Deno.env.get("MINIMAX_API_KEY");
+    if (!key) return new Response(JSON.stringify({ error: "Missing API Key." }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
     const payload = await req.json().catch(() => ({}));
     const task = payload.task || "chat";
     const input = payload.data || payload;
@@ -84,16 +86,7 @@ Deno.serve(async (req) => {
 
     while (loopCount < maxLoops) {
       loopCount++;
-      const res = await callAI(cleanMessages, maxTokens);
-
-      // Check for rate-limit / payment errors from the AI call
-      if (res._error) {
-        return new Response(JSON.stringify({ error: res._error }), {
-          status: res._status || 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" }
-        });
-      }
-
+      const res = await callMiniMax(cleanMessages, key, maxTokens);
       const content = res.choices?.[0]?.message?.content || "";
       if (!content) break;
 
@@ -103,7 +96,6 @@ Deno.serve(async (req) => {
           const parsed = JSON.parse(jsonMatch[0]);
           const action = parsed.action;
 
-          // Action mapping logic
           if (action?.type === "search_local_expert_knowledge" && action.params?.query) {
             const { data } = await supabase.from('expert_knowledge').select('*').ilike('content', `%${action.params.query}%`).limit(5);
             cleanMessages.push({ role: "assistant", content });
@@ -227,61 +219,12 @@ Deno.serve(async (req) => {
     });
 
   } catch (err: any) {
-    console.error("[AI Orchestrator] Top-level error:", err);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    console.error("[AI Orchestrator] Error:", err);
+    return new Response(JSON.stringify({ error: err.message }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
 
-// ── PRIMARY: Lovable AI Gateway  ──  FALLBACK: MiniMax ──
-async function callAI(messages: any[], maxTokens: number): Promise<any> {
-  // 1) Try Lovable AI Gateway (primary)
-  const lovableKey = Deno.env.get("LOVABLE_API_KEY");
-  if (lovableKey) {
-    try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${lovableKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages,
-          max_tokens: maxTokens,
-          temperature: 0.7,
-        }),
-      });
-
-      if (res.status === 429) {
-        console.error("[AI Orchestrator] Gateway rate limited");
-        return { _error: "Rate limit reached. Please try again in a moment.", _status: 429 };
-      }
-      if (res.status === 402) {
-        console.error("[AI Orchestrator] Gateway credits exhausted");
-        return { _error: "AI credits exhausted. Please add funds to continue.", _status: 402 };
-      }
-
-      if (res.ok) {
-        const json = await res.json();
-        if (json.choices?.[0]?.message?.content) {
-          console.log("[AI Orchestrator] Gateway success");
-          return json;
-        }
-      }
-      // If gateway returned non-ok but not 429/402, fall through to MiniMax
-      console.warn("[AI Orchestrator] Gateway returned non-ok, falling back to MiniMax");
-    } catch (e) {
-      console.warn("[AI Orchestrator] Gateway error, falling back:", e);
-    }
-  }
-
-  // 2) Fallback: MiniMax
-  const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
-  if (!minimaxKey) {
-    console.error("[AI Orchestrator] No MINIMAX_API_KEY and gateway failed");
-    return { choices: [{ message: { content: "I'm having trouble connecting right now. Please try again in a moment. 🙏" } }] };
-  }
-
+async function callMiniMax(messages: any[], key: string, maxTokens: number = 1000) {
   const attempts = [
     { url: MINIMAX_ENDPOINTS[0], model: MODELS[0] },
     { url: MINIMAX_ENDPOINTS[1], model: MODELS[0] },
@@ -294,7 +237,7 @@ async function callAI(messages: any[], maxTokens: number): Promise<any> {
     try {
       const res = await fetch(attempt.url, {
         method: "POST",
-        headers: { "Authorization": `Bearer ${minimaxKey}`, "Content-Type": "application/json" },
+        headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
         body: JSON.stringify({ model: attempt.model, messages, temperature: 0.7, max_tokens: maxTokens }),
       });
       const json = await res.json();
@@ -303,7 +246,6 @@ async function callAI(messages: any[], maxTokens: number): Promise<any> {
         continue;
       }
       if (json.choices?.[0]?.message?.content) {
-        console.log("[AI Orchestrator] MiniMax fallback success");
         return json;
       }
       lastError = { message: "Empty response" };
@@ -312,7 +254,7 @@ async function callAI(messages: any[], maxTokens: number): Promise<any> {
     }
   }
 
-  console.error("[AI Orchestrator] All attempts failed:", lastError);
+  console.error("[AI Orchestrator] All MiniMax attempts failed:", lastError);
   return { choices: [{ message: { content: "I'm having trouble connecting right now. Please try again in a moment. 🙏" } }] };
 }
 
