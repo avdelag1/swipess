@@ -186,6 +186,7 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -239,6 +240,11 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
           setIsLoading(false);
           return;
         }
+        if (password !== confirmPassword) {
+          toast({ title: 'Passwords do not match', description: 'Please make sure both passwords match perfectly.', variant: 'destructive' });
+          setIsLoading(false);
+          return;
+        }
         const validated = signupSchema.parse({ name, email, password });
         await signUp(validated.email, validated.password, 'client', validated.name);
       }
@@ -251,7 +257,7 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
 
   const switchMode = () => {
     setIsLogin(!isLogin);
-    setEmail(''); setPassword(''); setName('');
+    setEmail(''); setPassword(''); setConfirmPassword(''); setName('');
     setShowPassword(false); setAgreeToTerms(false);
   };
 
@@ -333,6 +339,31 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </GlowingField>
+                </motion.div>
+              )}
+
+              {!isLogin && !isForgotPassword && (
+                <motion.div variants={itemVariants}>
+                  <GlowingField className="relative group">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
+                    <Input type={showPassword ? 'text' : 'password'} name="confirmPassword" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" className="pl-10 pr-10 h-11" />
+                  </GlowingField>
+                </motion.div>
+              )}
+
+              {!isLogin && !isForgotPassword && (
+                <motion.div variants={itemVariants} className="flex items-center space-x-2 px-1 pt-1">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    checked={agreeToTerms}
+                    onChange={(e) => setAgreeToTerms(e.target.checked)}
+                    className="w-4 h-4 rounded border border-white/20 bg-black/40 text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0"
+                    required
+                  />
+                  <label htmlFor="terms" className="text-xs text-muted-foreground leading-snug cursor-pointer select-none">
+                    I agree to the <a href="#" onClick={e=>e.preventDefault()} className="text-orange-400 hover:text-orange-300 font-medium transition-colors">Terms of Service</a> and <a href="#" onClick={e=>e.preventDefault()} className="text-orange-400 hover:text-orange-300 font-medium transition-colors">Privacy Policy</a>
+                  </label>
                 </motion.div>
               )}
 
