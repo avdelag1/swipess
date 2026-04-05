@@ -146,7 +146,7 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full h-[min(60dvh,480px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-[min(58dvh,460px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
 
             <AnimatePresence mode="popLayout" initial={false}>
                 {stack.map((cat, index) => {
@@ -157,7 +157,7 @@ export function CategorySwipeStack() {
 
                     return (
                         <CategoryCard
-                            key={cat.id}
+                            key={`${cat.id}-${userRole}`} // Force clean remount when role changes
                             category={cat}
                             isTop={isTop}
                             index={index}
@@ -182,7 +182,7 @@ export function CategorySwipeStack() {
             <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="absolute -bottom-12 left-0 right-0 text-center"
+                className="absolute -bottom-10 left-0 right-0 text-center"
             >
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[10px] font-bold text-muted-foreground tracking-[0.1em] uppercase">
                     <Sparkles className="w-3 h-3 text-brand-accent-2" />
@@ -329,16 +329,16 @@ function CategoryCard({
             onMouseEnter={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, userId, category.id)}
             onPointerDown={() => !isTop && category.id && queryClient && predictivePrefetchCategory(queryClient, userId, category.id)}
             exit={{ 
-                scale: 0.8,
+                scale: 0.82,
                 opacity: 0,
-                x: x.get() * 0.1, // Minimal rebound
-                y: -50, // Tuck deeper
-                rotate: x.get() > 0 ? 3 : -3,
-                zIndex: -20,
+                x: x.get() * 0.1,
+                y: -40,
+                rotate: x.get() > 0 ? 2 : -2,
+                zIndex: -10,
                 transition: { 
-                    duration: 0.5, 
-                    ease: [0.16, 1, 0.3, 1], // Super smooth deceleration
-                    opacity: { duration: 0.25 }
+                    duration: 0.35, // Accelerated for "Speed of Light" feel
+                    ease: "anticipate",
+                    opacity: { duration: 0.2 }
                 } 
             }}
             className={cn(

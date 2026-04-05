@@ -504,7 +504,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             : `calc(${topBarHeight}px + var(--safe-top))`,
           paddingBottom: (isFullScreenRoute) 
             ? '0px' 
-            : `calc(${bottomNavHeight}px + var(--safe-bottom) + 12px)`,
+            : `calc(${bottomNavHeight}px + var(--safe-bottom) + 32px)`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           // 🚀 SPEED OF LIGHT: Optimized layout containment
