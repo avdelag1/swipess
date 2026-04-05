@@ -179,17 +179,17 @@ export function ConciergeChat({
           className={cn(
             "max-w-[660px] w-[calc(100%-12px)] sm:w-[calc(100%-40px)] h-[92vh] sm:h-[88vh] max-h-[900px] flex flex-col p-0 gap-0 overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] border-0",
             isDark
-              ? "bg-[#0a000e]/80 backdrop-blur-2xl shadow-[0_0_80px_rgba(168,85,247,0.15)] ring-1 ring-white/10"
-              : "bg-white/90 backdrop-blur-2xl shadow-[0_0_60px_rgba(0,0,0,0.1)] ring-1 ring-black/5"
+              ? "bg-[#0c0c10] backdrop-blur-2xl shadow-[0_0_80px_rgba(0,0,0,0.6)] ring-1 ring-white/[0.06]"
+              : "bg-[#fafafa] backdrop-blur-2xl shadow-[0_0_60px_rgba(0,0,0,0.12)] ring-1 ring-black/5"
           )}
           hideCloseButton
         >
           {/* ── Header ─────────────────────────────────────────────── */}
           <div className={cn(
-            "relative flex items-center justify-between px-4 py-2.5 border-b shrink-0 overflow-hidden",
+            "relative flex items-center justify-between px-5 py-3.5 border-b shrink-0 overflow-hidden",
             isDark
-              ? "border-white/[0.05] bg-gradient-to-r from-[#0d0010] via-[#150020] to-[#0d0010]"
-              : "border-gray-100 bg-gradient-to-r from-white via-orange-50/30 to-white"
+              ? "border-white/[0.04] bg-[#111115]"
+              : "border-gray-100 bg-white"
           )}>
             {/* Subtle glow accent */}
             <div className={cn(
@@ -245,7 +245,7 @@ export function ConciergeChat({
             </div>
 
             {/* Right: action buttons */}
-            <div className="flex items-center gap-0.5 shrink-0 relative z-10">
+            <div className="flex items-center gap-1.5 shrink-0 relative z-10">
               {/* Memory button with badge */}
               <Button
                 variant="ghost"
@@ -309,12 +309,8 @@ export function ConciergeChat({
 
           {/* ── Messages Area ────────────────────────────────────────── */}
           <div className="relative flex-1 min-h-0">
-          <ScrollArea className="h-full px-4 py-3 sm:px-5 sm:py-4">
-            <div ref={scrollRef} className="space-y-4">
-                <div className="absolute inset-x-0 inset-y-0 pointer-events-none overflow-hidden opacity-30 select-none">
-                  <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-orange-600/10 blur-[120px] animate-pulse" />
-                  <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-purple-700/10 blur-[120px] animate-pulse [animation-delay:1s]" />
-                </div>
+          <ScrollArea className="h-full px-5 py-4 sm:px-6 sm:py-5">
+            <div ref={scrollRef} className="space-y-5">
                 
                 {/* Top scroll marker */}
                 <div ref={topMarkerRef} />
@@ -387,9 +383,9 @@ export function ConciergeChat({
                           sendMessage(suggestion.prompt, { userRole, listings });
                         }}
                         className={cn(
-                          "flex items-center gap-3 p-3.5 rounded-2xl text-left transition-all active:scale-95 group border",
+                          "flex items-center gap-3 p-4 rounded-2xl text-left transition-all active:scale-95 group border",
                           isDark
-                            ? "bg-[#150020]/80 hover:bg-[#1e0030] border-white/[0.05] hover:border-orange-500/10"
+                            ? "bg-[#16161a] hover:bg-[#1c1c22] border-white/[0.04] hover:border-orange-500/10"
                             : "bg-white hover:bg-gray-50 border-gray-100 hover:border-gray-200 shadow-sm"
                         )}
                       >
@@ -423,7 +419,7 @@ export function ConciergeChat({
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={cn(
-                      "flex gap-2.5",
+                      "flex gap-3",
                       message.role === 'user' ? "flex-row-reverse" : "flex-row"
                     )}
                   >
@@ -445,21 +441,21 @@ export function ConciergeChat({
                     </div>
 
                     {/* Bubble + timestamp */}
-                    <div className={cn("flex flex-col gap-1 max-w-[78%]", message.role === 'user' ? "items-end" : "items-start")}>
+                    <div className={cn("flex flex-col gap-1.5 max-w-[78%]", message.role === 'user' ? "items-end" : "items-start")}>
                       <div className={cn(
-                        "px-4 py-3 rounded-2xl",
+                        "px-4 py-3.5 rounded-2xl",
                         message.role === 'user'
                           ? cn(
-                              "rounded-tr-sm shadow-xl",
+                              "rounded-tr-md shadow-lg",
                               isDark
-                                ? "bg-gradient-to-br from-orange-500/90 via-rose-600/90 to-purple-700/90 text-white ring-1 ring-white/10"
-                                : "bg-gradient-to-br from-orange-500 to-rose-500 text-white shadow-orange-500/20"
+                                ? "bg-gradient-to-br from-orange-500 to-rose-600 text-white"
+                                : "bg-gradient-to-br from-orange-500 to-rose-500 text-white shadow-orange-500/15"
                             )
                           : cn(
-                              "rounded-tl-sm backdrop-blur-md shadow-lg",
+                              "rounded-tl-md shadow-sm",
                               isDark
-                                ? "bg-white/5 border border-white/10 text-white/95"
-                                : "bg-white/80 border border-black/5 text-gray-900"
+                                ? "bg-[#18181c] border border-white/[0.06] text-white/90"
+                                : "bg-white border border-gray-100 text-gray-900"
                             )
                       )}>
                         {message.role === 'user' ? (
@@ -756,10 +752,10 @@ export function ConciergeChat({
 
           {/* ── Input Area ───────────────────────────────────────────── */}
           <div className={cn(
-            "px-4 pb-4 pt-2.5 sm:px-5 sm:pb-5 border-t shrink-0",
+            "px-5 pb-5 pt-3 sm:px-6 sm:pb-6 border-t shrink-0",
             isDark
-              ? "border-white/[0.05] bg-gradient-to-b from-transparent to-[#0d0f14]/50"
-              : "border-gray-100 bg-gradient-to-b from-transparent to-gray-50/30"
+              ? "border-white/[0.04] bg-[#111115]"
+              : "border-gray-100 bg-white"
           )}>
             {isAtMessageLimit ? (
               <motion.div
@@ -783,9 +779,9 @@ export function ConciergeChat({
               </motion.div>
             ) : (
               <div className={cn(
-                "relative flex items-end gap-2.5 rounded-2xl p-2 border transition-colors",
+                "relative flex items-end gap-3 rounded-2xl p-2.5 border transition-colors",
                 isDark
-                  ? "bg-[#150020] border-purple-500/[0.12] focus-within:border-orange-500/30"
+                  ? "bg-[#16161a] border-white/[0.06] focus-within:border-orange-500/20"
                   : "bg-white border-gray-200 focus-within:border-orange-300 shadow-sm"
               )}>
                 <Textarea
