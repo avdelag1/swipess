@@ -73,11 +73,8 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   // Dynamic Title Logic
   const getPageTitle = () => {
-    if (location.pathname.includes('roommates')) return 'Roommates';
-    if (location.pathname.includes('eventos')) return 'Events';
-    if (location.pathname.includes('liked')) return 'Liked';
-    if (location.pathname.includes('advertise')) return 'Promote';
-    if (location.pathname.includes('filters')) return 'Filters';
+    // 🚀 CLEAN HUD PROTOCOL: Per user request, titles are removed globally to eliminate clutter.
+    // "remove it is stupid it's useless we already know where we are"
     return '';
   };
 

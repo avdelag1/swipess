@@ -270,26 +270,8 @@ function TopBarComponent({
                 )}
 
 
-              {/* Page title — centered spacer (Tap to go Dashboard) */}
-              <motion.div 
-                whileTap={{ scale: 0.95 }}
-                onPointerDown={handleGoHome}
-                className="flex-1 flex items-center justify-center cursor-pointer min-w-[60px] h-full z-50 py-1"
-                title="Go to Dashboard"
-              >
-                {title ? (
-                  <span className={cn(
-                    "font-black text-xl uppercase tracking-tighter leading-none select-none whitespace-nowrap",
-                    isLight
-                      ? "!text-black drop-shadow-[0_1px_2px_rgba(255,255,255,0.4)]"
-                      : "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
-                  )}>
-                    {title}
-                  </span>
-                ) : (
-                  <div className="w-10 h-full" />
-                )}
-              </motion.div>
+              {/* 🚀 CLEAN HUD: Title node removed per user request for a distraction-free, floating HUD aesthetic. */}
+              <div className="flex-1 min-w-0" aria-hidden="true" />
 
                 {!minimal && (
                 <>
@@ -456,10 +438,7 @@ function TopBarComponent({
                 </>
               )}
 
-              {/* Minimal Mode Centering Spacer: Balances the back button on the left */}
-              {minimal && showBack && (
-                <div className="w-9 h-9 flex-shrink-0 pointer-events-none" aria-hidden="true" />
-              )}
+              {/* Minimal Mode Centering Spacer: Balances the back button on the left - REMOVED for clean HUD */}
             </div>
           </div>
           {/* Atmospheric right mask removed */}
