@@ -105,7 +105,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       <div
         className={cn(
           "w-full h-full relative overflow-hidden rounded-[48px] transition-all duration-300",
-          isTop ? "border-2 border-white/10 shadow-[0_45px_100px_rgba(0,0,0,0.25)]" : "border border-white/5 shadow-xl"
+          isTop ? "border-2 border-white/10 shadow-2xl" : "border border-white/5 shadow-xl"
         )}
       >
         {/* Flagship Imagery */}

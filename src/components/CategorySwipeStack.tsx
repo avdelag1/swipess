@@ -139,7 +139,7 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full h-full max-h-[600px] max-w-sm mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-full max-h-[650px] max-w-md mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
 
             <AnimatePresence mode="popLayout" initial={false}>
                 {stack.map((cat, index) => {
@@ -337,10 +337,10 @@ function CategoryCard({
             className={cn(
                 "absolute flex flex-col items-center justify-center rounded-[32px] p-6 select-none overflow-hidden",
                 "transition-[filter] duration-500 gpu-accelerate",
-                isTop ? "cursor-grab active:cursor-grabbing shadow-[0_25px_60px_rgba(0,0,0,0.6)]" : "cursor-pointer",
+                isTop ? "cursor-grab active:cursor-grabbing shadow-2xl" : "cursor-pointer",
                 !isTop && "blur-[1px] brightness-75", // Depth effect for back cards
-                "bg-black border border-white/10",
-                isActive && "ring-4 ring-brand-accent-2/50 ring-offset-4 ring-offset-background shadow-[0_0_50px_rgba(255,107,53,0.4)]",
+                "bg-black border border-white/10 rounded-[32px]",
+                isActive && "ring-4 ring-brand-accent-2/50 ring-offset-4 ring-offset-background",
                 "swipe-card-size"
             )}
 

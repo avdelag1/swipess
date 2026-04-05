@@ -1,4 +1,4 @@
-import { Home, Bike, Briefcase } from 'lucide-react';
+import { Home, Bike, Briefcase, Sparkles, Users, ShoppingBag, Key, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ListingFilters } from '@/hooks/useSmartMatching';
 import { logger } from '@/utils/prodLogger';
@@ -86,7 +86,7 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   radio:      'linear-gradient(135deg, #4d0000 0%, #1a0000 100%)',
 };
 
-import { Home, Bike, Briefcase, Sparkles, Users, ShoppingBag, Key, Tool } from 'lucide-react';
+// Icon imports consolidated at top.
 
 export const POKER_CARDS = [
   { id: 'property'   as const, label: 'Properties',  description: 'Houses & apts',       accent: '#3b82f6', accentRgb: '59,130,246', icon: Home  },
@@ -97,9 +97,9 @@ export const POKER_CARDS = [
 ];
 
 // Zenith Spec: Professional-grade card dimensions for flagship smartphones
-export const PK_W = 280;
-export const PK_H = 500;
-export const OWNER_PK_H = 500;
+export const PK_W = 320;
+export const PK_H = 580;
+export const OWNER_PK_H = 580;
 
 export const FOLDER_OFFSET_X = 30;
 export const FOLDER_OFFSET_Y = 0;
@@ -170,6 +170,6 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
     accent: '#a855f7',
     accentRgb: '168,85,247',
     clientType: 'hire',
-    icon: Tool,
+    icon: Wrench,
   },
 ];

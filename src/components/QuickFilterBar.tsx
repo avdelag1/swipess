@@ -246,8 +246,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
       <div
         data-no-swipe-nav
         className={cn(
-          isDark ? 'bg-background/60' : 'bg-white/85',
-          'backdrop-blur-xl border-b border-border px-3 pt-2 pb-3',
+          'bg-transparent px-3 pt-2 pb-3',
           className
         )}
       >
@@ -269,7 +268,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                   className={cn(
                     smoothButtonClass, 
                     'relative flex-shrink-0 w-32 h-44 rounded-[2.5rem] overflow-hidden border-2 transition-transform duration-200 group',
-                    isActive ? 'border-orange-500 shadow-2xl scale-[1.02]' : 'border-border/40 opacity-90'
+                    isActive ? 'border-orange-500 shadow-lg scale-[1.02]' : 'border-border/40 opacity-90'
                   )}
                   style={{ contain: 'paint', willChange: 'opacity' }}
                 >
@@ -332,8 +331,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     <div
       data-no-swipe-nav
       className={cn(
-        isDark ? 'bg-background/60' : 'bg-white/85',
-        'backdrop-blur-xl border-b border-border px-3 pt-2 pb-3',
+        'bg-transparent px-3 pt-2 pb-3',
         className
       )}
     >
@@ -349,7 +347,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             className={cn(
               smoothButtonClass, 
               'relative flex-shrink-0 w-32 h-44 rounded-[2.5rem] overflow-hidden border-2 transition-transform duration-200 group',
-              clientIsAllSelected ? 'border-orange-500 shadow-2xl scale-[1.02]' : 'border-border/40 opacity-90'
+              clientIsAllSelected ? 'border-orange-500 shadow-lg scale-[1.02]' : 'border-border/40 opacity-90'
             )}
             style={{ contain: 'paint', willChange: 'opacity' }}
           >
@@ -382,7 +380,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 className={cn(
                   smoothButtonClass, 
                   'relative flex-shrink-0 w-32 h-44 rounded-[2.5rem] overflow-hidden border-2 transition-transform duration-200 group',
-                  isActive ? 'border-orange-500 shadow-2xl scale-[1.02]' : 'border-border/40 opacity-90'
+                  isActive ? 'border-orange-500 shadow-lg scale-[1.02]' : 'border-border/40 opacity-90'
                 )}
                 style={{ contain: 'paint', willChange: 'opacity' }}
               >

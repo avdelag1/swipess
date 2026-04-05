@@ -498,7 +498,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           "w-full max-w-[100vw] box-border z-0 touch-pan-y"
         )}
         style={{
-          paddingTop: (isFullScreenRoute || (isImmersiveDashboard && !isZeroScrollDashboard) || isImmersiveFeed)
+          paddingTop: (isFullScreenRoute || isImmersiveDashboard || isImmersiveFeed)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
           paddingBottom: (isFullScreenRoute) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,

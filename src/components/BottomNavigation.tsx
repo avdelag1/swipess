@@ -21,7 +21,7 @@ import {
   Flame, MessageCircle, CircleUser, Building2,
   Search, Users2, Sparkles, ShieldCheck,
   Megaphone, Compass, Headphones, PlusCircle,
-  Zap, Ticket, MixerHorizontal, Heart, MessageSquare,
+  Zap, Ticket, SlidersHorizontal, Heart, MessageSquare,
   LayoutDashboard, LayoutGrid, Rocket, PartyPopper, Settings2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -274,9 +274,7 @@ export const BottomNavigation = memo(({
   const iconColorInactive = isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.55)';
   const activeColor = 'var(--color-brand-primary)';
 
-  const barShadow = isLight
-    ? '0 -1px 0 rgba(0,0,0,0.06), 0 -4px 12px rgba(0,0,0,0.08)'
-    : 'var(--shadow-cinematic-lg)';
+  const barShadow = 'none';
 
 
   return (
@@ -292,7 +290,7 @@ export const BottomNavigation = memo(({
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
           // No hard borders — defined by shadows and a subtle rim light
-          border: isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.12)',
+          border: 'none',
           borderRadius: '32px',
           boxShadow: barShadow,
           // GPU acceleration
