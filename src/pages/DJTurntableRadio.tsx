@@ -208,7 +208,7 @@ function RadioVisualizer({ isPlaying, color }: { isPlaying: boolean; color: stri
 export default function DJTurntableRadio() {
   const navigate = useNavigate();
   const {
-    state, error: _error, play, togglePlayPause, togglePower, changeStation,
+    state, loading, error: _error, play, togglePlayPause, togglePower, changeStation,
     setCity, setVolume, toggleShuffle, toggleFavorite, isStationFavorite,
   } = useRadio();
   const { theme } = useTheme();
@@ -217,16 +217,25 @@ export default function DJTurntableRadio() {
   const [showDrawer, setShowDrawer] = useState(false);
   const [showFavoritesDrawer, setShowFavoritesDrawer] = useState(false);
 
-  // Auto-power-on when visiting /radio directly
-  useEffect(() => {
-    if (!state.isPoweredOn) {
-      togglePower();
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const cityTheme = (state.currentCity && cityThemes[state.currentCity]) ? cityThemes[state.currentCity] : cityThemes['tulum'];
+  const primaryColor = cityTheme?.primaryColor || '#FF4D00';
+  const secondaryColor = cityTheme?.secondaryColor || '#FFB347';
 
-  const cityTheme = cityThemes[state.currentCity] || cityThemes['tulum'];
-  const primaryColor = cityTheme.primaryColor;
-  const secondaryColor = cityTheme.secondaryColor;
+  // POWER ON / INITIALIZATION GUARD
+  useEffect(() => {
+    let powerTimer: ReturnType<typeof setTimeout>;
+    
+    const initRadio = () => {
+      if (!state.isPoweredOn) {
+        togglePower();
+        triggerHaptic('medium');
+      }
+    };
+
+    // Delay slightly to allow context to hydrate
+    powerTimer = setTimeout(initRadio, 500);
+    return () => clearTimeout(powerTimer);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -264,6 +273,19 @@ export default function DJTurntableRadio() {
         isDark ? "bg-[#030303]" : "bg-[#f8f9fa]"
       )}
     >
+      <AnimatePresence>
+        {loading && (
+          <motion.div 
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-[10000] bg-black flex flex-col items-center justify-center p-8 text-center"
+          >
+            <div className="w-16 h-16 rounded-full border-4 border-orange-500/20 border-t-orange-500 animate-spin mb-6" />
+            <h2 className="text-xl font-black text-white uppercase tracking-widest animate-pulse">Initializing Radio...</h2>
+            <p className="text-sm text-white/40 mt-2 font-black uppercase tracking-[0.2em]">Synchronizing Stream</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Background gradients for liquid feel */}
       <div className="absolute inset-0 opacity-50 pointer-events-none" style={{
         background: `radial-gradient(circle at 50% -10%, ${primaryColor}33 0%, transparent 60%), 

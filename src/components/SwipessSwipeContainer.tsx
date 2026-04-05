@@ -1034,14 +1034,27 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         )}
 
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout" initial={false}>
             {(!storeActiveCategory || storeActiveCategory === 'all' as any) ? (
-              <div className="w-full h-full flex flex-col items-center justify-center">
+              <motion.div 
+                key="category-stack"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="w-full h-full flex flex-col items-center justify-center"
+              >
                 <CategorySwipeStack />
-              </div>
+              </motion.div>
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-              <div className="relative w-full h-[calc(100%-10px)] max-w-2xl">
-
+              <motion.div 
+                key={`deck-${storeActiveCategory}`}
+                initial={{ opacity: 0, scale: 1.1, filter: 'blur(20px)' }}
+                animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, scale: 0.9, filter: 'blur(20px)' }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="relative w-full h-[calc(100%-10px)] max-w-2xl"
+              >
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (
                   <motion.div
@@ -1074,9 +1087,25 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   isTop={true}
                   externalX={topCardX}
                 />
-              </div>
-            ) : !isLoading ? (
-              <SwipeExhaustedState 
+              </motion.div>
+            ) : isLoading ? (
+              <motion.div 
+                key="loading-skeleton"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="w-full h-full flex items-center justify-center"
+              >
+                <SwipeLoadingSkeleton />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="exhausted-state"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="w-full h-full"
+              >
+                <SwipeExhaustedState 
                  onRefresh={handleRefresh}
                  isRefreshing={isRefreshing}
                  categoryLabel={storeActiveCategory || 'Listings'}
@@ -1088,9 +1117,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                  detected={locationDetected}
                  error={error}
                  role="client"
-              />
-            ) : (
-              <SwipeLoadingSkeleton />
+                />
+              </motion.div>
             )}
           </AnimatePresence>
         </div>

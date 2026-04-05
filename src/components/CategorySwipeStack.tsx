@@ -376,18 +376,14 @@ function CategoryCard({
                 fetchPriority="high"
                 decoding="sync" // Faster for pre-warmed images
                 className={cn(
-                    "absolute inset-0 w-full h-full object-cover transition-all duration-300",
+                    "absolute inset-0 w-full h-full object-cover transition-opacity duration-300",
                     isDragging ? "scale-105" : "scale-100"
                 )}
-                onLoad={(e) => {
-                    const img = e.currentTarget;
-                    img.style.opacity = '1';
-                    img.style.filter = 'blur(0px)';
-                }}
+                onError={() => {}}
                 style={{ 
-                    opacity: (window as any).__swipess_cache?.[category.image] ? 1 : 0, 
-                    filter: (window as any).__swipess_cache?.[category.image] ? 'none' : 'blur(8px)', 
-                    transition: 'opacity 0.4s ease-out, filter 0.5s ease-out, transform 0.4s ease-out',
+                    opacity: 1, 
+                    filter: 'none',
+                    transform: 'translateZ(0)', // Force GPU layer
                     willChange: 'transform, opacity'
                 }}
             />
