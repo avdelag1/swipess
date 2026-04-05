@@ -1,12 +1,7 @@
 /**
  * ai-assistant – Proxy to ai-orchestrator
- *
- * All AI tasks are now handled by ai-orchestrator which includes:
- *   - Gemini (primary) + MiniMax (fallback)
- *   - Tasks: listing, profile, search, enhance, conversation
- *
- * This function forwards all requests to ai-orchestrator for backward compatibility.
- * Do NOT call this function directly in new code — use ai-orchestrator instead.
+ * Forwards all requests to ai-orchestrator for backward compatibility.
+ * Optimized for streaming vs non-streaming logic.
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -26,10 +21,12 @@ serve(async (req) => {
     const authHeader = req.headers.get("Authorization") || "";
     const body = await req.json();
 
-    // Normalize: ai-assistant used { type, data } – ai-orchestrator uses { task, data }
+    // 🚀 NEW: Standardize tasks for orchestrator
     const normalized = {
-      task: body.task || body.type,
+      task: body.task || body.type || 'chat',
       data: body.data || body,
+      // Legacy proxies usually want JSON, but they can request stream
+      stream: body.stream || false, 
     };
 
     const orchestratorUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/ai-orchestrator`;
@@ -44,11 +41,15 @@ serve(async (req) => {
       body: JSON.stringify(normalized),
     });
 
-    const data = await response.json();
-    return new Response(JSON.stringify(data), {
+    // 🚀 Bridge the stream OR JSON response directly
+    return new Response(response.body, {
       status: response.status,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { 
+        ...corsHeaders, 
+        "Content-Type": response.headers.get("Content-Type") || "application/json" 
+      },
     });
+
   } catch (err) {
     console.error("ai-assistant proxy error:", err);
     return new Response(

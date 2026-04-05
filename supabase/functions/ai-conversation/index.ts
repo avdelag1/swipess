@@ -1,10 +1,6 @@
 /**
  * ai-conversation – Proxy to ai-orchestrator
- *
- * Conversational listing creation is now handled inside ai-orchestrator
- * using task='conversation'. This proxy provides backward compatibility.
- *
- * Do NOT call this function directly in new code — use ai-orchestrator instead.
+ * Forwards conversational tasks to ai-orchestrator for backward compatibility.
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -24,10 +20,12 @@ serve(async (req) => {
     const authHeader = req.headers.get("Authorization") || "";
     const body = await req.json();
 
-    // Forward as a conversation task to ai-orchestrator
+    // 🛡️ Forward as a conversation task with EXPLICIT non-streaming
+    // because legacy components calling this usually expect a single JSON response
     const normalized = {
       task: "conversation",
-      data: body,
+      data: body.data || body,
+      stream: body.stream || false,
     };
 
     const orchestratorUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/ai-orchestrator`;
@@ -42,11 +40,15 @@ serve(async (req) => {
       body: JSON.stringify(normalized),
     });
 
-    const data = await response.json();
-    return new Response(JSON.stringify(data), {
+    // Pipe the response body and match headers (important for streaming proxies)
+    return new Response(response.body, {
       status: response.status,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { 
+        ...corsHeaders, 
+        "Content-Type": response.headers.get("Content-Type") || "application/json" 
+      },
     });
+
   } catch (err) {
     console.error("ai-conversation proxy error:", err);
     return new Response(

@@ -164,10 +164,14 @@ export function useConciergeAI() {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') || 'https://vplgtcguxujxwrgguxqq.supabase.co';
       const functionUrl = `${supabaseUrl}/functions/v1/ai-orchestrator`;
       const session = (await supabase.auth.getSession()).data.session;
-      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      // 🛡️ Robust environment detection - try all common Supabase key names
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 
+                     import.meta.env.VITE_SUPABASE_ANON_KEY || 
+                     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
       
       if (!anonKey) {
-        throw new Error("Supabase ANON key is missing. Check your environment.");
+        throw new Error("Supabase authentication key is missing. Re-initializing...");
       }
 
       const response = await fetch(functionUrl, {
@@ -227,16 +231,17 @@ export function useConciergeAI() {
           
           const rawChunk = decoder.decode(value, { stream: true });
           
-          // 🚀 SSE STREAM PARSING: Extract content from data: {...} blocks
-          const lines = rawChunk.split('\n');
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const dataStr = line.slice(6).trim();
-              if (dataStr === '[DONE]') continue;
-              
-              try {
-                const parsed = JSON.parse(dataStr);
-                const token = parsed.choices?.[0]?.delta?.content || "";
+            // 🚀 SSE STREAM PARSING: Extract content from data: {...} blocks
+            const lines = rawChunk.split('\n');
+            for (const line of lines) {
+              const trimmedLine = line.trim();
+              if (trimmedLine.startsWith('data: ')) {
+                const dataStr = trimmedLine.slice(6).trim();
+                if (dataStr === '[DONE]') continue;
+                
+                try {
+                  const parsed = JSON.parse(dataStr);
+                  const token = parsed.choices?.[0]?.delta?.content || "";
                 
                 if (token) {
                   // 🚀 First token received: Stop 'thinking'

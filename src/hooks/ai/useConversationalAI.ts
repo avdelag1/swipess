@@ -69,6 +69,7 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
             messages: apiMessages,
             extractedData,
           },
+          stream: false,
         },
       });
 

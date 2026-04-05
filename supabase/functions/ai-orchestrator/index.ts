@@ -69,7 +69,10 @@ Keep your tone sophisticated and extremely concise.`;
 
     console.log(`[AI] Processing task: ${task || 'chat'} with ${formattedMessages.length} messages`);
 
-    const response = await fetch("https://api.minimax.io/v1/text/chatcompletion_v2", {
+    // Streaming is default for chat, but can be disabled for legacy components
+    const stream = payload.stream !== false;
+
+    const minimaxResponse = await fetch("https://api.minimax.io/v1/text/chatcompletion_v2", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${minimaxKey}`,
@@ -80,26 +83,34 @@ Keep your tone sophisticated and extremely concise.`;
         model: "minimax-text-01",
         messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-20)],
         temperature: 0.7,
-        stream: true, // ALWAYS stream for instant UX
+        stream: stream,
         max_tokens: 1024
       }),
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error(`[AI ENGINE ERROR] ${response.status}: ${errText}`);
-      throw new Error(`MiniMax Engine Error: ${response.status}`);
+    if (!minimaxResponse.ok) {
+      const errText = await minimaxResponse.text();
+      console.error(`[AI ENGINE ERROR] ${minimaxResponse.status}: ${errText}`);
+      throw new Error(`MiniMax Engine Error: ${minimaxResponse.status}`);
     }
 
-    // Direct SSE Stream Bridge
-    return new Response(response.body, {
-      headers: { 
-        ...corsHeaders, 
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive"
-      }
-    });
+    if (stream) {
+      // Direct SSE Stream Bridge
+      return new Response(minimaxResponse.body, {
+        headers: { 
+          ...corsHeaders, 
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive"
+        }
+      });
+    } else {
+      // Return full JSON for legacy invoke() calls (Conversational AI, AI Listing etc)
+      const data = await minimaxResponse.json();
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
 
   } catch (err: any) {
     console.error("[CRITICAL]", err);

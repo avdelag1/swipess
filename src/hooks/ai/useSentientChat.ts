@@ -46,7 +46,8 @@ export function useSentientChat() {
               userName,
               messages: history,
               currentPath: window.location.pathname
-            }
+            },
+            stream: false
           },
           headers: {
             'x-client-timeout': '25000'

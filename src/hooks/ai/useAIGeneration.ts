@@ -50,7 +50,7 @@ export function useAIGeneration() {
       }
 
       const { data: fnData, error: fnError } = await supabase.functions.invoke('ai-orchestrator', {
-        body: { task: type, data },
+        body: { task: type, data, stream: false },
       });
 
       if (fnError) {
