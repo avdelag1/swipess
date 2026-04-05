@@ -475,7 +475,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className={cn(
-      "app-root h-full w-full overflow-hidden relative",
+      "dashboard-root w-full min-h-full bg-background relative",
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
 

@@ -83,34 +83,35 @@ export function AppLayout({ children }: AppLayoutProps) {
   };
 
   return (
-    <div className="h-dvh w-full bg-background overflow-hidden relative selection:bg-brand-primary/30">
+    <div className="flex flex-col h-full w-full bg-background overflow-hidden relative selection:bg-brand-primary/30">
       <SkipToMainContent />
       
       <Suspense fallback={null}>
         <NotificationSystem />
       </Suspense>
-
-      {/* 🚀 PERMANENT HUD: Universal and stable header/footer architecture */}
-      {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
-        <TopBar
-          userRole={userRole}
-          onMessageActivationsClick={handleMessageActivationsClick}
-          transparent={false} // Force background for button visibility contrast
-          showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
-          className="z-[9999]"
-        />
-      )}
-
-      {/* Primary content area: fills available space between bars */}
-      <main
-        id="main-content"
-        tabIndex={-1}
-        className={cn(
-          "w-full h-full relative z-0 touch-pan-y overflow-y-auto"
+ 
+      <div className="flex flex-col flex-1 h-full w-full min-h-0 overflow-hidden relative">
+        {/* 🚀 PERMANENT HUD: Universal and stable header/footer architecture */}
+        {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
+          <TopBar
+            userRole={userRole}
+            onMessageActivationsClick={handleMessageActivationsClick}
+            transparent={false} // Force background for button visibility contrast
+            showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
+            className="z-[9999]"
+          />
         )}
-      >
-        {children}
-      </main>
+ 
+        {/* Primary content area: fills available space between bars */}
+        <main
+          id="main-content"
+          className={cn(
+            "flex-1 w-full h-full relative z-0 touch-pan-y overflow-y-auto scroll-smooth"
+          )}
+        >
+          {children}
+        </main>
+      </div>
 
       {/* 🚀 PERMANENT HUD: Always visible footer per user request */}
       {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
