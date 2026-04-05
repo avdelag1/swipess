@@ -76,7 +76,7 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full h-[600px] max-w-sm mx-auto mb-16 flex items-center justify-center perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-full max-h-[600px] max-w-sm mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
             {/* Background Atmosphere - moved outside but kept inside div for relative positioning */}
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden contain-strict">
                 <motion.div 

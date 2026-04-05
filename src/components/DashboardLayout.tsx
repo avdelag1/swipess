@@ -439,6 +439,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     return isCameraRoute || isRadioRoute || isRoommatesPage || isSpecialSubPage;
   }, [location.pathname]);
 
+  const isZeroScrollDashboard = useMemo(() => {
+    const path = location.pathname;
+    return path === '/client/dashboard' || path === '/owner/dashboard' || path === '/client/dashboard/' || path === '/owner/dashboard/';
+  }, [location.pathname]);
+
   const handleMessageActivationsClick = useCallback(() => {
     navigate('/subscription/packages');
   }, [navigate]);
@@ -484,13 +489,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
         }}
         className={cn(
-          isFullScreenRoute ? "fixed inset-0 overflow-visible" : "absolute inset-0 overflow-x-hidden overflow-y-auto",
+          isFullScreenRoute ? "fixed inset-0 overflow-visible" : 
+          isZeroScrollDashboard ? "fixed inset-0 overflow-hidden flex flex-col justify-center" : 
+          "absolute inset-0 overflow-x-hidden overflow-y-auto",
           "scroll-area-momentum scrollbar-hide shadow-none",
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background",
           "w-full max-w-[100vw] box-border z-0 touch-pan-y"
         )}
         style={{
-          paddingTop: (isFullScreenRoute || isImmersiveDashboard || isImmersiveFeed)
+          paddingTop: (isFullScreenRoute || (isImmersiveDashboard && !isZeroScrollDashboard) || isImmersiveFeed)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
           paddingBottom: (isFullScreenRoute) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,

@@ -1013,7 +1013,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         )}
       </AnimatePresence>
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center pb-24 lg:pb-28 p-3 z-10 pointer-events-none">
+      <div className={cn(
+        "absolute inset-0 flex flex-col items-center justify-center p-3 z-10 pointer-events-none",
+        (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? "pb-24 lg:pb-28" : ""
+      )}>
         {/* 🚀 DASHBOARD DESCRIPTION: Shows user exactly what they are searching for (Tinder-style) */}
         {storeActiveCategory && (
           <motion.div 
@@ -1033,7 +1036,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="wait">
             {(!storeActiveCategory || storeActiveCategory === 'all' as any) ? (
-              <div className="w-full h-full flex flex-col items-center justify-center pt-4">
+              <div className="w-full h-full flex flex-col items-center justify-center">
                 <CategorySwipeStack />
               </div>
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
