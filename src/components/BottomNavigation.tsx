@@ -103,9 +103,9 @@ export const BottomNavigation = memo(({
     { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Heart, label: 'Likes', path: '/client/liked-properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'ai-search', icon: MessageSquare, label: 'AI Chat', onClick: onAISearchClick },
-    { id: 'roommates', icon: Users, label: 'Meet', path: '/explore/roommates' },
-    { id: 'events', icon: Calendar, label: 'Rotates', path: '/explore/eventos' },
+    { id: 'ai-search', icon: Sparkles, label: 'AI Chat', onClick: onAISearchClick },
+    { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
+    { id: 'events', icon: Calendar, label: 'Events', path: '/explore/eventos' },
     { id: 'search', icon: Search, label: 'Filters', onClick: onFilterClick },
   ];
 

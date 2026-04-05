@@ -143,7 +143,10 @@ export function useSmartClientMatching(
                 } catch (_e) {}
 
                 // FALLBACK TO POSTGREST
-                let query = supabase.from('profiles').select(CLIENT_FIELDS);
+                let query = supabase.from('profiles')
+                    .select(CLIENT_FIELDS)
+                    .eq('role', 'client')
+                    .eq('is_active', true);;
                 if (_category) {
                     const mappedCategory = _category === 'worker' ? 'services' : _category;
                     query = query.contains('preferred_listing_types', [mappedCategory]);
@@ -181,6 +184,11 @@ export function useSmartClientMatching(
                         roommate_available: !!cp?.roommate_available, city: p.city || cp?.city, country: p.country || cp?.country, work_schedule: p.work_schedule || cp?.work_schedule
                     } as MatchedClientProfile;
                 });
+
+                // Filter for roommate section if needed
+                if (isRoommateSection) {
+                    results = results.filter(r => r.roommate_available);
+                }
 
                 if (page === 0) {
                     const existingIds = new Set(results.map(r => r.id));

@@ -694,7 +694,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           />
 
           {imageCount > 1 && (
-            <div className="absolute top-[64px] left-3 right-3 z-30 flex gap-1.5" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
+            <div className="absolute top-[100px] left-3 right-3 z-30 flex gap-1.5" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
               {images.map((_, idx) => (
                 <div
                   key={idx}
@@ -715,7 +715,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         </div>
 
         <motion.div
-          className="absolute top-8 left-8 z-30 pointer-events-none"
+          className="absolute top-28 left-8 z-30 pointer-events-none"
           style={{ opacity: likeOpacity }}
         >
           <div className="px-6 py-3 rounded-xl border-4 border-rose-500 text-rose-500 font-black text-3xl tracking-wider" style={{ transform: 'rotate(-12deg)' }}>
@@ -724,7 +724,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         </motion.div>
 
         <motion.div
-          className="absolute top-8 right-8 z-30 pointer-events-none"
+          className="absolute top-28 right-8 z-30 pointer-events-none"
           style={{ opacity: passOpacity }}
         >
           <div className="px-6 py-3 rounded-xl border-4 border-red-500 text-red-500 font-black text-3xl tracking-wider" style={{ transform: 'rotate(12deg)' }}>

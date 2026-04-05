@@ -270,7 +270,7 @@ export default function RoommateMatching() {
       </motion.div>
 
       {/* ── CARD STACK AREA ── */}
-      <div className="flex-1 relative w-full h-full">
+      <div className="flex-1 relative w-full h-full pt-20">
         <div className="absolute inset-0 z-0">
           <AnimatePresence mode="popLayout" initial={false}>
             {!topCard ? (
@@ -329,7 +329,7 @@ export default function RoommateMatching() {
                     />
 
                     {/* OVERLAY: COMPATIBILITY BADGE — top-right, below header */}
-                    <div className="absolute top-[calc(var(--safe-top)+72px)] right-4 z-30 pointer-events-none">
+                    <div className="absolute top-[calc(var(--safe-top)+100px)] right-4 z-30 pointer-events-none">
                        <motion.div 
                          initial={{ opacity: 0, x: 20 }}
                          animate={{ opacity: 1, x: 0 }}
