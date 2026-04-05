@@ -25,10 +25,21 @@ export function useAppNavigate() {
   const appNavigate = (to: string | number, options?: any) => {
     triggerHaptic('light');
 
-    if (typeof to === 'number') {
-      navigate(to);
+    const performNavigation = () => {
+      if (typeof to === 'number') {
+        navigate(to);
+      } else {
+        navigate(to, options);
+      }
+    };
+
+    // 🚀 MEGAMHERTZ INSTANT SPEED: GPU View Transitions API bypasses JS frame latency
+    if (document.startViewTransition) {
+      document.startViewTransition(() => {
+        performNavigation();
+      });
     } else {
-      navigate(to, options);
+      performNavigation();
     }
   };
 
