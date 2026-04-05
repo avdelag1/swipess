@@ -213,7 +213,7 @@ export function useAccountLinking() {
         }
       });
 
-      toast.success("Welcome to Swipess!", {
+      toast.success("Welcome aboard!", {
         description: `Your ${oauthUser.app_metadata?.provider} account has been connected successfully.`,
       });
 

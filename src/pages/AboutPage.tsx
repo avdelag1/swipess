@@ -68,7 +68,7 @@ export default function AboutPage() {
             <CardContent className="p-6">
               <h2 className="text-xl font-semibold text-foreground mb-3">Our Mission</h2>
               <p className="text-muted-foreground leading-relaxed">
-                Swipess is revolutionizing how people find and rent properties. We believe finding
+                Our platform is revolutionizing how people find and rent properties. We believe finding
                 your next home or the perfect tenant should be simple, safe, and even enjoyable.
                 By combining the familiar swipe interface with powerful matching technology, we
                 connect the right people with the right properties faster than ever before.
@@ -187,7 +187,9 @@ export default function AboutPage() {
         {/* App Version */}
         <div className="text-center mt-8">
           <p className="text-xs text-muted-foreground">
-            <span className="swipess-text text-sm">Swipess</span> <span className="opacity-60">v1.0</span>
+          <p className="text-xs text-muted-foreground">
+            <span className="opacity-60">Version 1.0</span>
+          </p>
           </p>
         </div>
       </div>

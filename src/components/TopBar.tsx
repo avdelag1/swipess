@@ -265,7 +265,7 @@ function TopBarComponent({
 
 
               <div className="flex-1 flex justify-center">
-                <SwipessLogo size="sm" variant="gradient" className="translate-x-[-12px]" />
+                 {/* Branding removed except for Entry/Auth pages per user requirements */}
               </div>
 
                 {!minimal && (

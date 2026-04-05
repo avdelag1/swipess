@@ -101,7 +101,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
       if (!currentSessionId) {
         const welcome: Message = {
           role: 'ai',
-          content: "Welcome. I'm Swipess AI — your sharp, market-savvy concierge. ✨\n\nI can help you find your **Direct Deal** or answer local secrets.\n\nWhat's on your mind today?",
+          content: "Welcome. I'm your Neural Assistant — your sharp, market-savvy concierge. ✨\n\nI can help you find your **Direct Deal** or answer local secrets.\n\nWhat's on your mind today?",
           timestamp: Date.now()
         };
         setMessages([welcome]);
@@ -469,7 +469,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                       </div>
                       <div className="bg-gradient-to-r from-orange-500/5 to-rose-500/5 border border-orange-500/10 px-5 py-4 rounded-[1.8rem] rounded-tl-sm text-xs font-bold text-orange-500 flex items-center gap-2 shadow-sm italic">
                         <Loader2 className="w-3.5 h-3.5 animate-spin text-orange-500" />
-                        Swipess AI is thinking...
+                        Thinking...
                       </div>
                     </motion.div>
                   )}

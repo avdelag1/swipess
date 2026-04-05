@@ -89,8 +89,8 @@
     "legalDesc": "Obtén ayuda legal para temas de alquiler",
     "faq": "FAQ y Ayuda",
     "faqDesc": "Preguntas frecuentes y soporte",
-    "about": "Sobre Swipess",
-    "aboutDesc": "Conoce nuestra plataforma",
+    "about": "Sobre la Plataforma",
+    "aboutDesc": "Conoce más sobre nosotros",
     "legalPage": "Legal",
     "legalPageDesc": "Términos de servicio y política de privacidad",
     "maintenance": "Mantenimiento",
@@ -154,7 +154,7 @@
     "dismiss": "Entendido",
     "dontShow": "No mostrar de nuevo",
     "onboarding": {
-      "screen1": { "title": "¡Bienvenido a Swipess! 🎉", "body": "Casas, motos y chamba — todo en un lugar.\nDesliza y encuentra lo tuyo." },
+      "screen1": { "title": "¡Bienvenido! 🎉", "body": "Casas, motos y chamba — todo en un lugar.\nDesliza y encuentra lo tuyo." },
       "screen2": { "title": "Aquí estás protegido 🛡️", "body": "Cada anuncio es de una persona real.\nDetectamos fraudes rápido — tú estás seguro." },
       "screen3": { "title": "¡Ya casi! 🚀", "body": "Completa tu perfil — consigues mejores matches.\nSolo tarda 60 segundos." }
     },

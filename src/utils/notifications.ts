@@ -133,7 +133,7 @@ export const notifications = {
     }),
     signUpSuccess: () => showSuccess({
       title: 'Account Created',
-      description: 'Welcome to Swipess!',
+      description: 'Welcome aboard!',
       duration: 2000,
     }),
     signOutSuccess: () => showInfo({

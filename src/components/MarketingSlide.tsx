@@ -191,11 +191,6 @@ const MarketingSlideComponent = ({ slideId }: MarketingSlideProps) => {
                     </p>
                 </div>
             </motion.div>
-
-            {/* Swipess Branding Bottom */}
-            <div className="absolute bottom-10 left-0 right-0 flex justify-center opacity-50 z-10">
-                <h1 className="text-2xl font-black italic tracking-tighter">SWIPESS</h1>
-            </div>
         </div>
     );
 };
