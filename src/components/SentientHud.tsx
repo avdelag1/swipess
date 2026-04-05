@@ -59,14 +59,20 @@ export function SentientHud({
     <div 
       className={cn(
         "transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
-        !isVisible && isFade && "opacity-0 pointer-events-none",
+        // 🚀 ZENITH: Pointer-events Bypass Pattern
+        // The container is fixed but must NEVER block touches to the content behind it.
+        // We set pointer-events-none on the wrapper and pointer-events-auto on the children.
+        "pointer-events-none",
+        !isVisible && isFade && "opacity-0",
         !isVisible && isTranslate && side === 'top' && "-translate-y-full",
         !isVisible && isTranslate && side === 'bottom' && "translate-y-full",
         isVisible && "opacity-100 translate-y-0",
         className
       )}
     >
-      {children}
+      <div className="pointer-events-auto">
+        {children}
+      </div>
     </div>
   );
 }

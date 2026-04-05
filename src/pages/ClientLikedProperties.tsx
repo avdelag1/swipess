@@ -153,7 +153,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   };
 
   return (
-    <div className="w-full min-h-[101dvh] pb-32 bg-background touch-pan-y" data-no-swipe-nav="true">
+    <div className="w-full relative overflow-visible pb-32 bg-background" data-no-swipe-nav="true">
       <div className="p-4 pt-4 sm:p-8 sm:pt-4 max-w-7xl mx-auto">
         {/* Category tabs and Sync button */}
         <div className="flex items-center justify-between gap-4 mb-8 pb-2 pt-6">

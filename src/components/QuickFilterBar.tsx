@@ -268,8 +268,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                   }}
                   className={cn(
                     smoothButtonClass, 
-                    'relative flex-shrink-0 w-32 h-44 rounded-[2.5rem] overflow-hidden border-2 transition-transform duration-200 group',
-                    isActive ? 'border-orange-500 shadow-lg scale-[1.02]' : 'border-border/40 opacity-90'
+                    'relative flex-shrink-0 w-36 h-52 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
+                    isActive ? 'border-orange-500 shadow-lg scale-[1.03]' : 'border-border/40 opacity-90'
                   )}
                   style={{ contain: 'paint', willChange: 'opacity' }}
                 >
@@ -347,8 +347,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             }}
             className={cn(
               smoothButtonClass, 
-              'relative flex-shrink-0 w-32 h-44 rounded-[2.5rem] overflow-hidden border-2 transition-transform duration-200 group',
-              clientIsAllSelected ? 'border-orange-500 shadow-lg scale-[1.02]' : 'border-border/40 opacity-90'
+              'relative flex-shrink-0 w-36 h-52 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
+              clientIsAllSelected ? 'border-orange-500 shadow-lg scale-[1.03]' : 'border-border/40 opacity-90'
             )}
             style={{ contain: 'paint', willChange: 'opacity' }}
           >
@@ -380,8 +380,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 onClick={() => handleCategorySelect(category.id)}
                 className={cn(
                   smoothButtonClass, 
-                  'relative flex-shrink-0 w-32 h-44 rounded-[2.5rem] overflow-hidden border-2 transition-transform duration-200 group',
-                  isActive ? 'border-orange-500 shadow-lg scale-[1.02]' : 'border-border/40 opacity-90'
+                  'relative flex-shrink-0 w-36 h-52 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
+                  isActive ? 'border-orange-500 shadow-lg scale-[1.03]' : 'border-border/40 opacity-90'
                 )}
                 style={{ contain: 'paint', willChange: 'opacity' }}
               >

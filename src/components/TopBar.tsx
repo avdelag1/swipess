@@ -191,8 +191,8 @@ function TopBarComponent({
       <header
         className={cn(
           'app-header',
-          transparent ? 'bg-transparent' : 'bg-background/80 backdrop-blur-xl shadow-sm',
-          shouldHide && 'header-hidden',
+          transparent ? 'bg-transparent' : 'bg-background/80 backdrop-blur-xl',
+          !isFocused && isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full',
           className
         )}
       >

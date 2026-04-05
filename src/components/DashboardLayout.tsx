@@ -495,7 +495,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           "absolute inset-0 overflow-x-hidden overflow-y-auto",
           "scroll-area-momentum scrollbar-hide shadow-none",
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background",
-          "w-full max-w-[100vw] box-border z-0 touch-pan-y"
+          // 🚀 SPEED OF LIGHT: Removed restrictive z-0 which could cause stacking collisions
+          "w-full max-w-[100vw] box-border relative z-0 touch-pan-y"
         )}
         style={{
           paddingTop: (isFullScreenRoute)
