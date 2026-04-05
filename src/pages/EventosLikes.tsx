@@ -110,16 +110,6 @@ export default function EventosLikes() {
         isLight ? "bg-white/80 border-black/[0.03]" : "bg-black/60 border-white/[0.03]"
       )}>
         <div className="flex items-center gap-4 py-4 px-2">
-          <button 
-            onClick={() => navigate(-1)}
-            aria-label="Go back"
-            className={cn(
-              "w-11 h-11 rounded-2xl flex items-center justify-center active:scale-90 transition-all border",
-              isLight ? "bg-white border-black/5 text-black shadow-sm" : "bg-zinc-900 border-white/5 text-white shadow-xl"
-            )}
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
           <div className="flex-1">
             <h1 className="text-xl font-black font-brand tracking-tight leading-tight">My Favorites</h1>
             <div className="flex items-center gap-1.5 mt-0.5">

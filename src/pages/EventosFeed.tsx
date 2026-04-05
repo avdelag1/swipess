@@ -264,30 +264,34 @@ export default function EventosFeed() {
                   onClick={() => {
                     triggerHaptic('light');
                     setActiveCategory(cat.key);
-                    // If likes is clicked, navigate explicitly
                     if (cat.key === 'likes') navigate('/explore/eventos/likes');
                   }} 
                   className={cn(
-                    "flex items-center gap-1.5 px-4 py-2.5 rounded-[1.25rem] shrink-0 transition-all duration-300 border backdrop-blur-md relative overflow-hidden group",
+                    "flex items-center gap-2 px-5 py-3 rounded-2xl shrink-0 transition-all duration-500 border relative overflow-hidden group",
                     active 
-                      ? "scale-105 shadow-lg" 
-                      : "opacity-80 hover:opacity-100"
+                      ? "scale-105 shadow-xl shadow-black/20" 
+                      : "opacity-70 hover:opacity-100 backdrop-blur-md"
                   )}
                   style={{
-                    backgroundColor: active ? `${catColor}15` : isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.05)',
-                    borderColor: active ? `${catColor}40` : isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
+                    backgroundColor: active ? catColor : isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.06)',
+                    borderColor: active ? 'transparent' : isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
                   }}
                 >
-                  <Icon className={cn("w-3.5 h-3.5 transition-colors duration-300", active ? "" : isLight ? "text-black/40" : "text-white/40")} style={{ color: active ? catColor : undefined }} />
-                  <span className={cn("text-[10px] font-black uppercase tracking-[0.1em] transition-colors duration-300", active ? "" : isLight ? "text-black/40" : "text-white/40")} style={{ color: active ? catColor : undefined }}>
+                  <Icon 
+                    className={cn("w-4 h-4 transition-all duration-300 relative z-10", active ? "scale-110" : "text-white/40")} 
+                    style={{ color: active ? '#fff' : undefined }} 
+                  />
+                  <span 
+                    className={cn("text-[11px] font-black uppercase tracking-[0.12em] transition-all duration-300 relative z-10", active ? "" : "text-white/40")}
+                    style={{ color: active ? '#fff' : undefined }}
+                  >
                     {cat.label}
                   </span>
                   
                   {active && (
                     <motion.div 
-                      layoutId="active-pill-glow"
-                      className="absolute inset-0 z-[-1] blur-md opacity-20"
-                      style={{ background: catColor }}
+                      layoutId="active-pill-shimmer"
+                      className="absolute inset-0 z-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none"
                     />
                   )}
                 </button>

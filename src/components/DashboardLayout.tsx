@@ -400,7 +400,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
   const isRoommatesPage = location.pathname.startsWith('/explore/roommates');
-  const isImmersiveFeed = isRoommatesPage;
+  const isImmersiveFeed = isRoommatesPage || location.pathname.startsWith('/explore/eventos');
 
   // IMMERSIVE MODE: Handled above for swipe navigation dependency
 
@@ -432,7 +432,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/legal',
       '/agl',
       '/subscription/packages',
-      '/notifications'
+      '/notifications',
+      '/explore/eventos'
     ].some(path => location.pathname === path || location.pathname === path + '/');
 
     // Only truly immersive non-scroll pages should be fixed

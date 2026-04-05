@@ -20,8 +20,8 @@ const PACKAGES = [
     name: "Starter",
     icon: <Zap className="w-5 h-5" />,
     emoji: "⚡",
-    color: "#ef4444",
-    colorRgb: "239,68,68",
+    color: "var(--color-brand-accent)",
+    colorRgb: "236,72,153",
     price: 4.99,
     duration: "week",
     durationLabel: "/ week",
@@ -40,8 +40,8 @@ const PACKAGES = [
     name: "Growth",
     icon: <Star className="w-5 h-5" />,
     emoji: "🔥",
-    color: "#f97316",
-    colorRgb: "249,115,22",
+    color: "var(--color-brand-primary)",
+    colorRgb: "255,77,0",
     price: 6.99,
     duration: "3months",
     durationLabel: "/ 3 months",
@@ -62,8 +62,8 @@ const PACKAGES = [
     name: "Premium",
     icon: <Crown className="w-5 h-5" />,
     emoji: "👑",
-    color: "#a855f7",
-    colorRgb: "168,85,247",
+    color: "#8B5CF6",
+    colorRgb: "139,92,246",
     price: 9.99,
     duration: "6months",
     durationLabel: "/ 6 months",
@@ -294,13 +294,13 @@ export default function AdvertisePage() {
     backBtn:      isLight ? "rgba(0,0,0,0.07)"               : "rgba(255,255,255,0.10)",
     backBtnBorder:isLight ? "rgba(0,0,0,0.12)"               : "rgba(255,255,255,0.15)",
     text:         isLight ? "#0a0a0a"                        : "#ffffff",
-    textMuted:    isLight ? "rgba(0,0,0,0.50)"               : "rgba(255,255,255,0.50)",
-    textDim:      isLight ? "rgba(0,0,0,0.35)"               : "rgba(255,255,255,0.35)",
-    textFaint:    isLight ? "rgba(0,0,0,0.25)"               : "rgba(255,255,255,0.25)",
-    divider:      isLight ? "rgba(0,0,0,0.08)"               : "rgba(255,255,255,0.10)",
-    progressBg:   isLight ? "rgba(0,0,0,0.06)"               : "rgba(255,255,255,0.06)",
-    backFormBtn:  isLight ? "rgba(0,0,0,0.05)"               : "rgba(255,255,255,0.05)",
-    backFormBorder:isLight ? "rgba(0,0,0,0.10)"              : "rgba(255,255,255,0.10)",
+    textMuted:    isLight ? "rgba(0,0,0,0.65)"               : "rgba(255,255,255,0.75)",
+    textDim:      isLight ? "rgba(0,0,0,0.45)"               : "rgba(255,255,255,0.55)",
+    textFaint:    isLight ? "rgba(0,0,0,0.35)"               : "rgba(255,255,255,0.40)",
+    divider:      isLight ? "rgba(0,0,0,0.08)"               : "rgba(255,255,255,0.12)",
+    progressBg:   isLight ? "rgba(0,0,0,0.06)"               : "rgba(255,255,255,0.10)",
+    backFormBtn:  isLight ? "rgba(0,0,0,0.05)"               : "rgba(255,255,255,0.08)",
+    backFormBorder:isLight ? "rgba(0,0,0,0.12)"              : "rgba(255,255,255,0.15)",
   };
 
   const goTo = (s: Step) => {
@@ -396,19 +396,8 @@ export default function AdvertisePage() {
             style={{ background: "radial-gradient(circle, #a855f7, transparent)", opacity: isLight ? 0.08 : 0.18 }} />
         </div>
 
-        {/* Back button */}
-        <div className="absolute top-0 left-0 right-0 z-50 pt-safe px-4 pt-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ background: th.backBtn, backdropFilter: "blur(16px)", border: `1px solid ${th.backBtnBorder}` }}
-          >
-            <ArrowLeft className="w-5 h-5" style={{ color: th.text }} />
-          </button>
-        </div>
-
         {/* ── COMPACT HERO ── */}
-        <div className="relative px-5 pt-16 pb-3 text-center">
+        <div className="relative px-5 pt-28 pb-3 text-center">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: -12 }}
@@ -425,10 +414,10 @@ export default function AdvertisePage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
-            className="text-4xl font-black leading-[0.95] tracking-tighter mb-2 text-foreground"
+            className="text-4xl sm:text-5xl font-black leading-[0.95] tracking-tighter mb-4 text-foreground"
           >
             Promote{" "}
-            <span className="brand-gradient-text">
+            <span className="brand-gradient-text uppercase italic">
               Your Brand
             </span>{" "}
             on Swipess
@@ -438,9 +427,9 @@ export default function AdvertisePage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="text-sm max-w-xs mx-auto leading-relaxed font-medium text-muted-foreground"
+            className="text-sm max-w-sm mx-auto leading-relaxed font-bold text-muted-foreground/80"
           >
-            Reach <span className="text-white font-bold">15k+ property owners</span>, renters &amp; tourists — direct, zero middlemen
+            Reach <span className="text-white">15k+ property owners</span>, renters & tourists — direct, zero middlemen
           </motion.p>
         </div>
 
@@ -478,7 +467,7 @@ export default function AdvertisePage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="grid grid-cols-4 gap-2 px-5 mb-4"
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-5 mb-8 max-w-5xl mx-auto"
         >
           {STATS.map(stat => {
             const Icon = stat.icon;
@@ -493,18 +482,17 @@ export default function AdvertisePage() {
           })}
         </motion.div>
 
-        {/* ── PRICING CARDS (horizontal scroll) ── */}
-        <div className="px-5 mb-4">
-          <div className="flex items-baseline justify-between mb-2">
-            <h2 className="text-base font-black" style={{ color: th.text }}>Choose your plan</h2>
-            <span className="text-[10px]" style={{ color: th.textDim }}>Pay only after review</span>
+        {/* ── PRICING CARDS ── */}
+        <div className="px-5 mb-8 max-w-6xl mx-auto">
+          <div className="flex items-baseline justify-between mb-4 px-2">
+            <h2 className="text-xl font-black uppercase tracking-tighter" style={{ color: th.text }}>Choose your plan</h2>
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-40" style={{ color: th.textDim }}>Pay only after review</span>
           </div>
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="flex gap-3 overflow-x-auto pb-2"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as any}
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-2"
           >
             {PACKAGES.map((pkg, idx) => (
               <motion.div 
@@ -512,12 +500,11 @@ export default function AdvertisePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + (idx * 0.1) }}
-                className="flex-shrink-0 w-64 p-6 rounded-[2.5rem] relative flex flex-col group overflow-hidden"
+                className="w-full max-w-[320px] md:max-w-none p-6 rounded-[2.5rem] relative flex flex-col group overflow-hidden"
                 style={{ 
                   background: `rgba(${pkg.colorRgb}, 0.08)`, 
                   backdropFilter: "blur(20px)",
                   border: `1.5px solid rgba(${pkg.colorRgb}, ${pkg.popular ? "0.4" : "0.1"})`, 
-                  minWidth: 220,
                   boxShadow: pkg.popular ? `0 20px 50px rgba(${pkg.colorRgb}, 0.15)` : "none"
                 }}
               >
@@ -658,15 +645,8 @@ export default function AdvertisePage() {
   return (
     <div className="min-h-[100dvh] flex flex-col pb-10" style={{ background: th.pageBg }}>
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 pt-safe pt-4 pb-3 sticky top-0 z-10"
-        style={{ background: th.headerBg, backdropFilter: "blur(20px)", borderBottom: `1px solid ${th.headerBorder}` }}>
-        <button
-          onClick={() => stepIdx === 0 ? setView("landing") : back()}
-          className="w-10 h-10 rounded-full flex items-center justify-center"
-          style={{ background: th.backBtn, border: `1px solid ${th.backBtnBorder}` }}
-        >
-          <ArrowLeft className="w-5 h-5" style={{ color: th.text }} />
-        </button>
+      <div className="flex items-center gap-3 px-4 pt-20 pb-3"
+        style={{ borderBottom: `1px solid ${th.headerBorder}` }}>
         <div className="flex-1">
           <h1 className="text-sm font-black" style={{ color: th.text }}>Promote Your Event</h1>
           <p className="text-[11px]" style={{ color: th.textDim }}>Step {stepIdx + 1} of {steps.length}</p>
