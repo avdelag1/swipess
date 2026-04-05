@@ -161,15 +161,21 @@ export function useConciergeAI() {
       }));
 
       // 4. Invoke Edge Function with Streaming
-      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-orchestrator`;
+      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL.replace(/\/$/, '')}/functions/v1/ai-orchestrator`;
       const session = (await supabase.auth.getSession()).data.session;
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       
+      if (!anonKey) {
+        throw new Error("Supabase ANON key is missing. Check your environment.");
+      }
+
       const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${session?.access_token || anonKey}`,
+          'apikey': anonKey,
+          'X-Client-Info': 'swipess-pwa-concierge'
         },
         body: JSON.stringify({
           task: 'chat',
@@ -190,8 +196,17 @@ export function useConciergeAI() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `AI Engine Error: ${response.status}`);
+        let errorMessage = `AI Engine Error: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) errorMessage = `AI Engine Error: ${errorData.error}`;
+        } catch (e) {
+          // If 405, it might be a method issue or CORS preflight rejection
+          if (response.status === 405) {
+            errorMessage = "AI Engine Connection Refused (405). Please retry in a moment.";
+          }
+        }
+        throw new Error(errorMessage);
       }
 
       // Check if response is streaming (text/event-stream) or JSON
