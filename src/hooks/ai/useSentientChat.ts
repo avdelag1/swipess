@@ -33,6 +33,10 @@ export function useSentientChat() {
     setError(null);
     
     const attemptSend = async (count: number): Promise<ChatResponse | null> => {
+      // 🛡️ SENTIENT WATCHDOG: 25s race to prevent UI deadlocks during congestion
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 25000);
+
       try {
         const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
           body: {
@@ -43,9 +47,13 @@ export function useSentientChat() {
               messages: history,
               currentPath: window.location.pathname
             }
+          },
+          headers: {
+            'x-client-timeout': '25000'
           }
         });
 
+        clearTimeout(timeoutId);
         if (funcError) throw funcError;
         if (data?.error) throw new Error(data.error);
 
@@ -65,9 +73,11 @@ export function useSentientChat() {
           } : undefined
         };
       } catch (err: any) {
-        logger.error(`[SentientChat] Attempt ${count + 1} failed:`, err);
+        clearTimeout(timeoutId);
+        const isTimeout = err.name === 'AbortError' || err.message?.includes('timeout');
+        logger.error(`[SentientChat] Attempt ${count + 1} failed ${isTimeout ? '(TIMEOUT)' : ''}:`, err);
         
-        if (count < MAX_RETRIES) {
+        if (count < MAX_RETRIES && !isTimeout) {
           // Linear backoff: 1s, 2s
           await new Promise(resolve => setTimeout(resolve, (count + 1) * 1000));
           return attemptSend(count + 1);

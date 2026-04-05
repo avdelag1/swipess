@@ -42,10 +42,14 @@ Deno.serve(async (req) => {
     }
 
     // Role mapping for MiniMax v2 (supports system, user, assistant)
-    const formattedMessages = rawMessages.map((m: any) => ({
-      role: (m.role === "assistant" || m.role === "model") ? "assistant" : "user",
-      content: m.content || m.text || ""
-    })).filter((m: any) => m.content.trim() !== "");
+    const formattedMessages = rawMessages.map((m: any) => {
+      const role = (m.role === "assistant" || m.role === "ai" || m.role === "model") ? "assistant" : 
+                   (m.role === "system") ? "system" : "user";
+      return {
+        role,
+        content: m.content || m.text || ""
+      };
+    }).filter((m: any) => m.content.trim() !== "");
 
     let systemPrompt = "";
 
@@ -109,34 +113,37 @@ OUTPUT REQUIREMENT:
       model: "minimax-text-01",
       messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
       temperature: task === "conversation" ? 0.1 : 0.7,
-      stream: false, // Standardize on JSON for maximum reliable connection success
+      stream: false, 
       max_tokens: 1024
     };
 
-    console.log(`[AI Orchestrator] Invoking ${config.model} (Mode: ${config.stream ? 'Stream' : 'JSON'})`);
+    console.log(`[AI Orchestrator] Invoking ${config.model}...`);
 
-    const response = await fetch(minimaxUrl, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(config),
-    });
-
-    // 🛡️ FALLBACK LOGIC: If v2 optimized model fails, fall back to M2.7
-    if (!response.ok) {
-      console.warn(`[AI Orchestrator] Primary model error (${response.status}). Attempting MiniMax-M2.7 fallback...`);
-      const fallbackConfig = { ...config, model: "MiniMax-M2.7" };
-      const fallbackResponse = await fetch(minimaxUrl, {
+    const attemptRequest = async (modelName: string) => {
+      return await fetch(minimaxUrl, {
         method: "POST",
         headers,
-        body: JSON.stringify(fallbackConfig),
+        body: JSON.stringify({ ...config, model: modelName }),
       });
+    };
 
-      if (!fallbackResponse.ok) {
-        const errText = await fallbackResponse.text();
-        console.error(`[AI Orchestrator] Full Pipeline Failure:`, errText);
-        throw new Error(`MiniMax Engine Failure: ${fallbackResponse.status}`);
+    let response = await attemptRequest("minimax-text-01");
+
+    // 🛡️ FALLBACK PIPELINE: Try secondary models if primary fails
+    const fallbacks = ["MiniMax-M2.7", "abab6.5-s-chat", "abab6.5-chat"];
+    
+    if (!response.ok) {
+      for (const fallbackModel of fallbacks) {
+        console.warn(`[AI Orchestrator] ${config.model} failed (${response.status}). Trying ${fallbackModel}...`);
+        response = await attemptRequest(fallbackModel);
+        if (response.ok) break;
       }
-      return handleResponse(fallbackResponse, config.stream, corsHeaders, task, data);
+    }
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`[AI Orchestrator] Critical Failure across all models:`, errText);
+      throw new Error(`MiniMax Engine Failure (${response.status}): ${errText.substring(0, 50)}`);
     }
 
     return handleResponse(response, config.stream, corsHeaders, task, data);
