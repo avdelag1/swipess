@@ -173,7 +173,7 @@ export default function EventosFeed() {
     count: filteredEvents.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => window.innerHeight,
-    overscan: 2,
+    overscan: 5, // Increased for smoother scrolling
   });
 
   // 5. Auto-play Logic
@@ -243,6 +243,23 @@ export default function EventosFeed() {
   return (
     <div className={cn("relative w-full h-[100dvh] overflow-hidden flex flex-col", isLight ? "bg-white" : "bg-black")}>
       
+      {/* 🏎️ IMMERSIVE BACK BRIDGE */}
+      <div 
+        className="absolute left-6 z-[110] transform-gpu"
+        style={{ top: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 12px) + 20px)' }}
+      >
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => { triggerHaptic('light'); navigate(-1); }}
+          className={cn(
+            "w-11 h-11 rounded-[1.25rem] border backdrop-blur-3xl flex items-center justify-center transition-all shadow-2xl",
+            isLight ? "bg-white/80 border-slate-200 text-slate-900" : "bg-black/40 border-white/10 text-white"
+          )}
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </motion.button>
+      </div>
+
       {/* Immersive Controls (Floating below global HUD) */}
       <div 
         className="absolute left-0 right-0 z-[100] transform-gpu"

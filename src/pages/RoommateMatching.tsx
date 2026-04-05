@@ -139,6 +139,19 @@ export default function RoommateMatching() {
     return realCandidates || [];
   }, [realCandidates]);
 
+  // 🚀 SPEED OF LIGHT: Aggressive Asset Pre-Warming
+  useEffect(() => {
+    if (candidates.length > 0) {
+      import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
+        // Pre-warm the carousel/deck for the next 5 candidates
+        const nextBatch = candidates.slice(currentIndex, currentIndex + 5)
+          .map(c => getCardImageUrl(c.profile_images?.[0] || ''));
+        
+        pwaImagePreloader.batchPreload(nextBatch);
+      });
+    }
+  }, [candidates, currentIndex]);
+
   const handleSwipe = useCallback((_direction: 'left' | 'right') => {
     setCurrentIndex(prev => prev + 1);
     setCanUndo(true);
@@ -207,6 +220,24 @@ export default function RoommateMatching() {
         isLight ? "bg-slate-50" : "bg-[#0A0A0B]"
       )}
     >
+      {/* ── IMMERSIVE BACK BRIDGE ── */}
+      <motion.div 
+        animate={{ y: uiVisible ? 0 : -150 }}
+        className="absolute left-4 z-[110] transform-gpu"
+        style={{ top: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 12px) + 20px)' }}
+      >
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => { triggerHaptic('light'); navigate(-1); }}
+          className={cn(
+            "w-11 h-11 rounded-[1.25rem] border backdrop-blur-3xl flex items-center justify-center transition-all shadow-2xl",
+            isLight ? "bg-white/80 border-slate-200 text-slate-900" : "bg-black/40 border-white/10 text-white"
+          )}
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </motion.button>
+      </motion.div>
+
       {/* ── IMMERSIVE CONTROLS (Floating below global HUD) ── */}
       <motion.div 
         animate={{ y: uiVisible ? 0 : -150 }}
