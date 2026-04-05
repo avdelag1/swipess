@@ -109,7 +109,7 @@ export const BottomNavigation = memo(({
     { id: 'ai-search', icon: Sparkles, label: 'AI Chat', onClick: onAISearchClick },
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
-    { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
+    { id: 'search', icon: SlidersHorizontal, label: 'Discovery', onClick: onFilterClick },
   ];
 
   // Owner nav items (8 buttons)
@@ -120,7 +120,7 @@ export const BottomNavigation = memo(({
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI Listing', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'promote', icon: Rocket, label: 'Promote', path: '/client/advertise' },
+    { id: 'radar', icon: Search, label: 'Radar', path: '/owner/clients/property' },
     { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
   ];
 
@@ -337,7 +337,7 @@ export const BottomNavigation = memo(({
           onScroll={updateScrollFades}
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full justify-start gap-1.5 px-2.5 py-1.5 nav-scroll-hide transform-gpu',
+            'relative flex items-center w-full justify-start gap-1 px-2 py-1.5 nav-scroll-hide transform-gpu',
           )}
           style={{
             zIndex: 2,
@@ -377,14 +377,14 @@ export const BottomNavigation = memo(({
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center rounded-xl gap-1.5 w-auto flex-shrink-0 h-full',
+                  'relative flex flex-col items-center justify-center rounded-xl gap-1 w-auto flex-shrink-0 h-full',
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                   style={{
-                    minWidth: '64px',
+                    minWidth: '60px',
                     scrollSnapAlign: 'start', // Ensure item lands nicely
                     minHeight: TOUCH_TARGET, // RESTORED THICKNESS
-                    padding: '6px 8px', // Balanced spacing per user request
+                    padding: '4px 6px', // Balanced spacing per user request
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
