@@ -26,11 +26,14 @@ export function useAppNavigate() {
     triggerHaptic('light');
 
     const performNavigation = () => {
-      if (typeof to === 'number') {
-        navigate(to);
-      } else {
-        navigate(to, options);
-      }
+      // 🚀 REACT 18 TRANSITION: Mark navigation as non-blocking
+      _startTransition(() => {
+        if (typeof to === 'number') {
+          navigate(to);
+        } else {
+          navigate(to, options);
+        }
+      });
     };
 
     // 🚀 MEGAMHERTZ INSTANT SPEED: GPU View Transitions API bypasses JS frame latency

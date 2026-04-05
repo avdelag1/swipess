@@ -53,11 +53,15 @@ export function AppLayout({ children }: AppLayoutProps) {
     const immersiveRoutes = ['/client/dashboard', '/owner/dashboard', '/client/profile', '/owner/profile'];
     return immersiveRoutes.some(r => location.pathname.startsWith(r)) || 
            location.pathname.includes('discovery') || 
-           location.pathname.includes('eventos');
+           location.pathname.includes('eventos') ||
+           location.pathname.includes('roommates');
   }, [location.pathname]);
 
   // Fullscreen routes hide HUD entirely
   const isFullScreen = isCameraRoute || isRadioRoute || location.pathname.includes('/camera');
+
+  // Minimal HUD for specific discovery pages (Events/Roommates)
+  const isMinimalHUD = location.pathname.includes('eventos') || location.pathname.includes('roommates');
 
   const handleMessageActivationsClick = () => navigate('/subscription/packages');
   const handleListingsClick = () => {
@@ -96,6 +100,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             transparent={isImmersive}
             title={getPageTitle()}
             showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
+            minimal={isMinimalHUD}
           />
         </SentientHud>
       )}
@@ -109,7 +114,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </main>
 
       {/* 🧘 GLOBAL UNIVERSAL HUD (Sentient Footer) */}
-      {!isAuthRoute && !isFullScreen && !isPublicPreview && !isModalOpen && (
+      {!isAuthRoute && !isFullScreen && !isPublicPreview && !isModalOpen && !isMinimalHUD && (
         <>
           <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[1000]">
             <BottomNavigation

@@ -350,7 +350,7 @@ export const BottomNavigation = memo(({
           onScroll={updateScrollFades}
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full justify-start gap-2.5 px-4 py-3 nav-scroll-hide',
+            'relative flex items-center w-full justify-start gap-0.5 px-2.5 py-2 nav-scroll-hide transform-gpu',
           )}
           style={{
             zIndex: 2,
@@ -359,6 +359,8 @@ export const BottomNavigation = memo(({
             scrollSnapType: 'x proximity', // Premium app landing feel
             scrollbarWidth: 'none' as const,
             WebkitOverflowScrolling: 'touch',
+            contentVisibility: 'auto',
+            containIntrinsicSize: '60px',
           }}
         >
           {navItems.map((item) => {
@@ -392,15 +394,16 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                   style={{
-                    minWidth: '64px',
+                    minWidth: '56px',
                     scrollSnapAlign: 'start', // Ensure item lands nicely
-                    minHeight: TOUCH_TARGET + 8,
-                    padding: '10px 10px', // Standard generous spacing
+                    minHeight: TOUCH_TARGET + 2,
+                    padding: '6px 2px', // Ultra-compact spacing per user request
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
                   cursor: 'pointer',
                   flexShrink: 0,
+                  willChange: 'transform',
                 }}
               >
                 {/* Active Indicator — Slingshot-Morph Pill */}

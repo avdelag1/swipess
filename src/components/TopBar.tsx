@@ -63,6 +63,7 @@ interface TopBarProps {
   hideOnScroll?: boolean;
   title?: string;
   showBack?: boolean;
+  minimal?: boolean;
 }
 
 function TopBarComponent({
@@ -75,6 +76,7 @@ function TopBarComponent({
   hideOnScroll: _hideOnScroll = false,
   title,
   showBack = false,
+  minimal = false,
 }: TopBarProps) {
   const { unreadCount: _unreadCount } = useUnreadNotifications();
   const { navigate, prefetch: _prefetch } = useAppNavigate();
@@ -210,40 +212,40 @@ function TopBarComponent({
               </motion.button>
             )}
 
-            {user && (
-              <div className="flex items-center gap-2">
-                <motion.button
-                  whileTap={{ scale: 0.92 }}
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    haptics.select();
-                    const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
-                    navigate(profilePath);
-                  }}
-                  className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0"
-                  style={{ WebkitTapHighlightColor: 'transparent' }}
-                  aria-label="Go to profile"
-                >
-                  <Avatar className="h-[42px] w-[42px] rounded-full overflow-hidden cursor-pointer border-[1.5px] border-white/10 ring-0 shadow-sm">
-                    <AvatarImage 
-                      src={profile?.avatar_url || ''} 
-                      className="object-cover w-full h-full rounded-full" 
-                      loading="eager"
-                      fetchPriority="high"
-                    />
-                    <AvatarFallback className={cn(
-                      "text-sm font-black uppercase rounded-full w-full h-full flex items-center justify-center",
-                      isLight
-                        ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/90"
-                        : "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
-                    )}>
-                      {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </motion.button>
-              </div>
-            )}
+            {user && !minimal && (
+                <div className="flex items-center gap-2">
+                  <motion.button
+                    whileTap={{ scale: 0.92 }}
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      haptics.select();
+                      const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
+                      navigate(profilePath);
+                    }}
+                    className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0"
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
+                    aria-label="Go to profile"
+                  >
+                    <Avatar className="h-[42px] w-[42px] rounded-full overflow-hidden cursor-pointer border-[1.5px] border-white/10 ring-0 shadow-sm">
+                      <AvatarImage 
+                        src={profile?.avatar_url || ''} 
+                        className="object-cover w-full h-full rounded-full" 
+                        loading="eager"
+                        fetchPriority="high"
+                      />
+                      <AvatarFallback className={cn(
+                        "text-sm font-black uppercase rounded-full w-full h-full flex items-center justify-center",
+                        isLight
+                          ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/90"
+                          : "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
+                      )}>
+                        {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </motion.button>
+                </div>
+              )}
 
             {/* Atmospheric mask removed per user request for floating simple buttons */}
           </div>
@@ -261,9 +263,11 @@ function TopBarComponent({
           >
             <div className="flex items-center gap-1 flex-nowrap pl-2 pr-1">
               {/* Mode switcher */}
-              <div className="flex-shrink-0">
-                <ModeSwitcher variant="icon" size="sm" />
-              </div>
+                {!minimal && (
+                  <div className="flex-shrink-0">
+                    <ModeSwitcher variant="icon" size="sm" />
+                  </div>
+                )}
 
 
               {/* Page title — centered spacer (Tap to go Dashboard) */}
@@ -287,166 +291,175 @@ function TopBarComponent({
                 )}
               </motion.div>
 
-              {/* Token Packages Button with Popover */}
-            <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "relative h-9 w-9 px-0 transition-all duration-200 ease-out bg-transparent",
-                    "hover:scale-105 active:scale-95 group",
-                    "touch-manipulation flex items-center gap-1 flex-shrink-0",
-                  )}
-                  style={{
-                    border: 'none',
-                  }}
-                  onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
-                  onClick={(e) => e.preventDefault()}
-                  aria-label="Token Packages"
-                >
-                  <Zap strokeWidth={3} className={cn("h-4 w-4", isLight ? "text-amber-500" : "text-amber-300")} />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="end"
-                sideOffset={8}
-                className="w-[min(calc(100vw-1.5rem),420px)] p-0 rounded-2xl bg-card border border-border shadow-2xl"
-              >
-                {/* Popover Header */}
-                <div className="px-4 pt-4 pb-3 border-b border-border">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-foreground text-base">{t('topbar.tokenPackages')}</h3>
-                    <span className="text-xs text-muted-foreground">
-                      {userRole === 'owner' ? t('topbar.provider') : t('topbar.explorer')}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {userRole === 'owner'
-                      ? t('topbar.connectExplorers')
-                      : t('topbar.startConversations')}
-                  </p>
-                </div>
-
-                {/* Three Package Token Cards */}
-                <div className="p-3 space-y-2">
-                  {packages && packages.length > 0 ? (
-                    packages.slice(0, 3).map((pkg, index) => {
-                      const tier = tierNames[index] || 'starter';
-                      const config = tierConfig[tier];
-                      const Icon = config.icon;
-                      const isPopular = tier === 'standard';
-                      const tokens = pkg.message_activations || 0;
-                      const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
-
-                      return (
-                        <motion.div
-                          key={pkg.id}
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          className={cn(
-                            "relative rounded-xl border p-3 bg-gradient-to-r transition-all duration-200",
-                            config.gradient,
-                            config.border,
-                            isPopular && "ring-1 ring-blue-500/30"
-                          )}
-                        >
-                          {isPopular && (
-                            <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full whitespace-nowrap">
-                              {t('topbar.bestValue')}
-                            </span>
-                          )}
-                          <div className="flex items-center gap-3">
-                            {/* Icon */}
-                            <div className={cn("flex-shrink-0 p-2 rounded-lg", config.iconBg)}>
-                              <Icon className="w-5 h-5" />
-                            </div>
-
-                            {/* Info */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-baseline gap-1.5">
-                                <span className="font-bold text-foreground text-sm capitalize">{tier}</span>
-                                <span className="text-muted-foreground text-xs">{tokens} {t('topbar.tokens')}</span>
-                              </div>
-                              <div className="flex items-baseline gap-1 mt-0.5">
-                                <span className="font-bold text-foreground text-base">{formatPriceMXN(pkg.price)}</span>
-                                <span className="text-muted-foreground text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
-                              </div>
-                            </div>
-
-                            {/* Buy Button */}
-                            <Button
-                              size="sm"
-                              className={cn(
-                                "flex-shrink-0 h-8 px-3 rounded-lg font-semibold text-xs",
-                                config.button
-                              )}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleQuickPurchase(pkg, tier);
-                              }}
-                            >
-                              <FileText className="w-3.5 h-3.5 mr-1" />
-                              {t('topbar.buy')}
-                            </Button>
-                          </div>
-                        </motion.div>
-                      );
-                    })
-                  ) : (
-                    <div className="py-6 text-center">
-                      <div className="flex justify-center gap-2 mb-3">
-                        {[0, 1, 2].map((i) => (
-                          <div key={i} className="h-12 w-full rounded-lg bg-muted animate-pulse" />
-                        ))}
+                {!minimal && (
+                <>
+                  {/* Token Packages Button with Popover */}
+                  <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className={cn(
+                          "relative h-9 w-9 px-0 transition-all duration-200 ease-out bg-transparent",
+                          "hover:scale-105 active:scale-95 group",
+                          "touch-manipulation flex items-center gap-1 flex-shrink-0",
+                        )}
+                        style={{
+                          border: 'none',
+                        }}
+                        onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
+                        onClick={(e) => e.preventDefault()}
+                        aria-label="Token Packages"
+                      >
+                        <Zap strokeWidth={3} className={cn("h-4 w-4", isLight ? "text-amber-500" : "text-amber-300")} />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      align="end"
+                      sideOffset={8}
+                      className="w-[min(calc(100vw-1.5rem),420px)] p-0 rounded-2xl bg-card border border-border shadow-2xl"
+                    >
+                      {/* Popover Header */}
+                      <div className="px-4 pt-4 pb-3 border-b border-border">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-bold text-foreground text-base">{t('topbar.tokenPackages')}</h3>
+                          <span className="text-xs text-muted-foreground">
+                            {userRole === 'owner' ? t('topbar.provider') : t('topbar.explorer')}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {userRole === 'owner'
+                            ? t('topbar.connectExplorers')
+                            : t('topbar.startConversations')}
+                        </p>
                       </div>
-                      <p className="text-muted-foreground text-xs">{t('topbar.loadingPackages')}</p>
-                    </div>
-                  )}
-                </div>
 
-                {/* Footer: View All link */}
-                <div className="px-4 pb-3 pt-1 border-t border-border">
-                  <button
-                    className="w-full text-center text-xs text-blue-500 hover:text-blue-400 font-medium py-1.5 transition-colors"
-                    onClick={() => {
-                      setTokensOpen(false);
-                      onMessageActivationsClick?.();
+                      {/* Three Package Token Cards */}
+                      <div className="p-3 space-y-2">
+                        {packages && packages.length > 0 ? (
+                          packages.slice(0, 3).map((pkg, index) => {
+                            const tier = tierNames[index] || 'starter';
+                            const config = tierConfig[tier];
+                            const Icon = config.icon;
+                            const isPopular = tier === 'standard';
+                            const tokens = pkg.message_activations || 0;
+                            const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
+
+                            return (
+                              <motion.div
+                                key={pkg.id}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                                className={cn(
+                                  "relative rounded-xl border p-3 bg-gradient-to-r transition-all duration-200",
+                                  config.gradient,
+                                  config.border,
+                                  isPopular && "ring-1 ring-blue-500/30"
+                                )}
+                              >
+                                {isPopular && (
+                                  <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full whitespace-nowrap">
+                                    {t('topbar.bestValue')}
+                                  </span>
+                                )}
+                                <div className="flex items-center gap-3">
+                                  {/* Icon */}
+                                  <div className={cn("flex-shrink-0 p-2 rounded-lg", config.iconBg)}>
+                                    <Icon className="w-5 h-5" />
+                                  </div>
+
+                                  {/* Info */}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-baseline gap-1.5">
+                                      <span className="font-bold text-foreground text-sm capitalize">{tier}</span>
+                                      <span className="text-muted-foreground text-xs">{tokens} {t('topbar.tokens')}</span>
+                                    </div>
+                                    <div className="flex items-baseline gap-1 mt-0.5">
+                                      <span className="font-bold text-foreground text-base">{formatPriceMXN(pkg.price)}</span>
+                                      <span className="text-muted-foreground text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
+                                    </div>
+                                  </div>
+
+                                  {/* Buy Button */}
+                                  <Button
+                                    size="sm"
+                                    className={cn(
+                                      "flex-shrink-0 h-8 px-3 rounded-lg font-semibold text-xs",
+                                      config.button
+                                    )}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleQuickPurchase(pkg, tier);
+                                    }}
+                                  >
+                                    <FileText className="w-3.5 h-3.5 mr-1" />
+                                    {t('topbar.buy')}
+                                  </Button>
+                                </div>
+                              </motion.div>
+                            );
+                          })
+                        ) : (
+                          <div className="py-6 text-center">
+                            <div className="flex justify-center gap-2 mb-3">
+                              {[0, 1, 2].map((i) => (
+                                <div key={i} className="h-12 w-full rounded-lg bg-muted animate-pulse" />
+                              ))}
+                            </div>
+                            <p className="text-muted-foreground text-xs">{t('topbar.loadingPackages')}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Footer: View All link */}
+                      <div className="px-4 pb-3 pt-1 border-t border-border">
+                        <button
+                          className="w-full text-center text-xs text-blue-500 hover:text-blue-400 font-medium py-1.5 transition-colors"
+                          onClick={() => {
+                            setTokensOpen(false);
+                            onMessageActivationsClick?.();
+                          }}
+                        >
+                          {t('topbar.viewAllPackages')}
+                        </button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
+                  {/* Swipess Radio Button */}
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "relative h-9 w-9 px-0 transition-all duration-200 ease-out bg-transparent",
+                      "hover:scale-105 active:scale-95 group",
+                      "touch-manipulation flex items-center justify-center flex-shrink-0",
+                    )}
+                    style={{
+                      border: 'none',
                     }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      haptics.tap();
+                      navigate('/radio');
+                    }}
+                    aria-label="Go to radio"
                   >
-                    {t('topbar.viewAllPackages')}
-                  </button>
-                </div>
-              </PopoverContent>
-            </Popover>
+                    <Radio strokeWidth={3} className={cn("h-4.5 w-4.5 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.3)]")} />
+                  </Button>
 
-            {/* Swipess Radio Button */}
-            <Button
-              variant="ghost"
-              className={cn(
-                "relative h-9 w-9 px-0 transition-all duration-200 ease-out bg-transparent",
-                "hover:scale-105 active:scale-95 group",
-                "touch-manipulation flex items-center justify-center flex-shrink-0",
+                  {/* Theme Toggle */}
+                  <ThemeToggle />
+
+                  {/* Notifications Button */}
+                  <NotificationPopover />
+                </>
               )}
-              style={{
-                border: 'none',
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                haptics.tap();
-                navigate('/radio');
-              }}
-              aria-label="Go to radio"
-            >
-              <Radio strokeWidth={3} className={cn("h-4.5 w-4.5 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.3)]")} />
-            </Button>
 
-              {/* Theme Toggle */}
-              <ThemeToggle />
-
-              {/* Notifications Button */}
-              <NotificationPopover />
+              {/* Minimal Mode Centering Spacer: Balances the back button on the left */}
+              {minimal && showBack && (
+                <div className="w-9 h-9 flex-shrink-0 pointer-events-none" aria-hidden="true" />
+              )}
             </div>
           </div>
           {/* Atmospheric right mask removed */}
