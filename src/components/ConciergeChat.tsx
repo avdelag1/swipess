@@ -311,10 +311,6 @@ export function ConciergeChat({
           <div className="relative flex-1 min-h-0">
           <ScrollArea className="h-full px-5 py-4 sm:px-6 sm:py-5">
             <div ref={scrollRef} className="space-y-5">
-                <div className="absolute inset-x-0 inset-y-0 pointer-events-none overflow-hidden opacity-30 select-none">
-                  <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-orange-600/10 blur-[120px] animate-pulse" />
-                  <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-purple-700/10 blur-[120px] animate-pulse [animation-delay:1s]" />
-                </div>
                 
                 {/* Top scroll marker */}
                 <div ref={topMarkerRef} />
