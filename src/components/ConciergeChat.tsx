@@ -93,8 +93,7 @@ export function ConciergeChat({
     isLoading,
     error,
     sendMessage,
-    clearMessages: _clearMessages,
-    deletePermanently,
+    clearMessages,
     userVibe: _userVibe,
     conversations,
     currentConversationId,
@@ -284,7 +283,7 @@ export function ConciergeChat({
                 onClick={() => {
                   haptics.error();
                   if (window.confirm('Delete this conversation permanently?')) {
-                    deletePermanently();
+                    clearMessages();
                   }
                 }}
                 title="Delete conversation"

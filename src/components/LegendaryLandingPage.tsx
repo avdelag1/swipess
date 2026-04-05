@@ -41,7 +41,7 @@ function LogoImage({ className }: { className?: string }) {
         >
           <SwipessLogo 
             size="2xl" 
-            glow={true}
+            
             className="transition-all duration-700 ease-out" 
           />
         </motion.div>
@@ -295,7 +295,7 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
             <div className="text-center mb-6">
               <div className="flex justify-center mb-6">
-                <SwipessLogo size="md" glow={false} />
+                <SwipessLogo size="md" />
               </div>
               <h1 className="text-3xl font-black tracking-tighter bg-gradient-to-br from-orange-400 via-rose-500 to-pink-600 bg-clip-text text-transparent italic mb-1">
                 {isLogin ? 'Welcome Back' : 'Join Swipess'}

@@ -66,7 +66,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
     if (likedProperties.length > 0) {
       const urlsToPreload = likedProperties
         .slice(0, 10) // Focus on the first 10 for maximum efficiency
-        .map(p => getCardImageUrl(p.images?.[0] || p.image_url))
+        .map(p => getCardImageUrl(p.images?.[0] || p.image_url || ''))
         .filter(Boolean);
       
       if (urlsToPreload.length > 0) {
