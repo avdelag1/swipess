@@ -20,7 +20,6 @@ import { QuickFilterCategory } from '@/types/filters'
 import { TopBar } from '@/components/TopBar'
 import { SwipessLogo } from '@/components/SwipessLogo'
 import { BottomNavigation } from '@/components/BottomNavigation'
-import { ButlerProactive } from '@/components/ButlerProactive'
 
 // SPEED OF LIGHT HOOKS
 import { useWelcomeState } from "@/hooks/useWelcomeState"
@@ -512,9 +511,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           {enhancedChildren}
         </div>
       </main>
-
-      {/* PROACTIVE AI BUTLER — Sentient Insights */}
-      <ButlerProactive />
 
       {/* ZENITH GLOBAL DIALOGS — Decoupled lifecycle */}
       <GlobalDialogs userRole={userRole} />
