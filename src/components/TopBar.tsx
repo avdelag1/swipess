@@ -228,7 +228,7 @@ function TopBarComponent({
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                     aria-label="Go to profile"
                   >
-                    <Avatar className="h-[42px] w-[42px] rounded-full overflow-hidden cursor-pointer border-[1.5px] border-white/10 ring-0 shadow-sm">
+                    <Avatar className="h-[42px] w-[42px] rounded-full overflow-hidden cursor-pointer border-[1.5px] border-white/10 ring-0">
                       <AvatarImage 
                         src={profile?.avatar_url || ''} 
                         className="object-cover w-full h-full rounded-full" 
