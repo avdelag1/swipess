@@ -446,9 +446,10 @@ button:active, [role="button"]:active {
 
 /* 🚀 SPEED OF LIGHT: Deck Layout Constants */
 .swipe-card-size {
-  width: 310px; /* PK_W */
-  height: 580px; /* PK_H - Immersive Height */
-  max-height: 80vh;
+  width: 360px; /* PK_W */
+  height: 650px; /* PK_H - Immersive Height */
+  max-height: 75vh;
+  aspect-ratio: 9/16;
 }
 
 .glass-matte-surface {

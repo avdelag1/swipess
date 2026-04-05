@@ -78,12 +78,15 @@ export function CategorySwipeStack() {
         setStack(getInitialStack());
     }, [userRole]);
 
-    // PERF: Prefetch images
+    // PERF: Aggressive Preloading
     useEffect(() => {
         const photos = userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS;
         photos.forEach(cat => {
             const img = new Image();
             img.src = POKER_CARD_PHOTOS[cat.id] || POKER_CARD_PHOTOS.all;
+            // 🚀 Force priority decoding and pre-warming
+            img.loading = 'eager';
+            (img as any).fetchPriority = 'high';
         });
     }, [userRole]);
 
@@ -139,7 +142,7 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full h-full max-h-[650px] max-w-md mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-[75vh] max-h-[700px] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
 
             <AnimatePresence mode="popLayout" initial={false}>
                 {stack.map((cat, index) => {
@@ -350,12 +353,25 @@ function CategoryCard({
                 ...({ x: springX, y: springY, zIndex } as any)
             } as React.CSSProperties}
         >
-            {/* Background Photo - static for performance */}
-            <div
-                className="absolute inset-0 bg-cover bg-center bg-[image:var(--card-image-url)]"
+            {/* 🚀 SPEED OF LIGHT: Optimized high-priority image pipeline */}
+            <img 
+                src={category.image} 
+                alt={category.label}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                className={cn(
+                    "absolute inset-0 w-full h-full object-cover transition-opacity duration-300",
+                    isDragging ? "scale-105" : "scale-100"
+                )}
+                onLoad={(e) => {
+                    const img = e.currentTarget;
+                    img.style.opacity = '1';
+                }}
+                style={{ opacity: 0 }}
             />
             {/* Dark overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-[5]" />
 
             {/* Icon Container - static for performance */}
             <motion.div
@@ -378,7 +394,7 @@ function CategoryCard({
             </motion.div>
 
             {/* Labels */}
-            <div className="mt-6 text-center z-10">
+            <div className="mt-6 text-center z-10 relative">
                 <h3 className="text-lg font-black tracking-tight leading-none text-white drop-shadow-lg">
                     {category.label}
                 </h3>
