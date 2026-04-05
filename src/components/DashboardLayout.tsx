@@ -492,8 +492,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         className={cn(
           isFullScreenRoute ? "fixed inset-0 overflow-visible" : 
           isZeroScrollDashboard ? "fixed inset-0 overflow-hidden flex flex-col justify-center" : 
-          "absolute inset-0 overflow-x-hidden overflow-y-auto",
-          "scroll-area-momentum scrollbar-hide shadow-none",
+          "absolute inset-0 overflow-x-hidden overflow-y-auto scroll-smooth",
+          "scroll-area-momentum scrollbar-hide shadow-none overscroll-contain",
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background",
           // 🚀 SPEED OF LIGHT: Removed restrictive z-0 which could cause stacking collisions
           "w-full max-w-[100vw] box-border relative z-0 touch-pan-y"

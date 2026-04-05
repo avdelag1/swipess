@@ -104,7 +104,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <main
         id="main-content"
         tabIndex={-1}
-        className="outline-none w-full h-full relative z-10 overflow-hidden"
+        className="outline-none w-full h-full relative z-10 overflow-visible"
       >
         {children}
       </main>
