@@ -166,46 +166,15 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     };
 
     return (
-      <div className="relative flex flex-col items-center justify-center min-h-[100dvh] w-full pt-8 pb-12">
+      <div className="relative flex flex-col items-center justify-center min-h-0 h-full w-full pt-0 pb-4 overflow-hidden">
         <OwnerAllDashboard onCardSelect={handleCardSelect} />
-        
-        {/* ACTION HUB: Quick access to Listing Management */}
-        <div className="mt-10 flex flex-col sm:flex-row gap-5 w-full px-6 max-w-lg">
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileTap={{ scale: 0.92 }}
-            onClick={() => modalStore.setModal('showCategoryDialog', true)}
-            className={cn(
-              "flex-1 group flex items-center justify-center gap-4 h-16 rounded-3xl font-black uppercase tracking-widest text-[12px]",
-              "bg-[var(--color-brand-accent-2)] text-white shadow-[0_12px_32px_rgba(228,0,124,0.35)] transition-all"
-            )}
-          >
-            <Plus className="w-5 h-5" strokeWidth={4} />
-            Add New Listing
-          </motion.button>
-
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileTap={{ scale: 0.92 }}
-            onClick={() => navigate('/owner/properties')}
-            className={cn(
-              "flex-1 group flex items-center justify-center gap-4 h-16 rounded-3xl font-black uppercase tracking-widest text-[12px]",
-              "bg-white/5 border border-white/10 backdrop-blur-2xl text-white/80 hover:text-white hover:bg-white/10 transition-all shadow-xl"
-            )}
-          >
-            <Building2 className="w-5 h-5 text-orange-400" strokeWidth={3} />
-            My Portfolio
-          </motion.button>
-        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden">
-      <div className="flex-1 min-h-0">
+    <div className="flex flex-col h-full w-full overflow-hidden bg-background">
+      <div className="flex-1 min-h-0 relative">
         <ClientSwipeContainer
           onClientTap={handleClientTap}
           onInsights={handleInsights}

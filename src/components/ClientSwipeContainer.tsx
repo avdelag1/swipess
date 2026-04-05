@@ -881,7 +881,7 @@ const ClientSwipeContainerComponent = ({
               exit={{ opacity: 0, y: -20 }}
               className="absolute top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none"
             >
-              <div className="w-full pt-4 pb-8 px-6 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
+              <div className="w-full pt-1 pb-4 px-6 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
                 <div className="w-full flex justify-between items-center pointer-events-auto">
                   <DistanceSlider
                     radiusKm={radiusKm}
@@ -896,7 +896,7 @@ const ClientSwipeContainerComponent = ({
           )}
         </AnimatePresence>
 
-        <div className="flex-1 relative flex items-center justify-center p-3 lg:p-4">
+        <div className="flex-1 relative flex items-center justify-center p-2 lg:p-4">
           <AnimatePresence>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <div className="relative w-full h-[calc(100%-20px)] max-w-2xl">
@@ -950,7 +950,7 @@ const ClientSwipeContainerComponent = ({
 
         {/* Action Buttons */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
-          <div className="pb-8 pt-2">
+          <div className="pb-4 pt-1">
             <SwipeActionButtonBar
               onLike={() => cardRef.current?.triggerSwipe('right')}
               onDislike={() => cardRef.current?.triggerSwipe('left')}

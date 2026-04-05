@@ -109,14 +109,14 @@ export const BottomNavigation = memo(({
 
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
-    { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
-    { id: 'add', icon: PlusCircle, label: 'Add', onClick: onAddListingClick, isCenter: true },
-    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties', onClick: onListingsClick },
-    { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
+    { id: 'listings', icon: Building2, label: 'Portfolio', path: '/owner/properties', onClick: onListingsClick },
+    { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
+    { id: 'add', icon: PlusCircle, label: 'Add', onClick: onAddListingClick, isSpecial: true },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'ai-search', icon: Sparkles, label: 'Swipess AI', onClick: onAISearchClick },
     { id: 'radio', icon: Headphones, label: 'Radio', path: '/radio' },
-    { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
+    { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
+    { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
   ];
 
   // Admin nav items — admin panel + messaging
@@ -485,6 +485,10 @@ export const BottomNavigation = memo(({
                   </span>
                 )}
 
+                {/* IS_SPECIAL GLOW: Subtle heartbeat pulse for high-impact actions like 'Add' */}
+                {item.isSpecial && (
+                  <div className="absolute inset-0 rounded-2xl bg-[var(--color-brand-accent-2)]/8 blur-xl animate-pulse -z-10" />
+                )}
               </motion.button>
             );
           })}
