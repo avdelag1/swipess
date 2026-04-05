@@ -77,14 +77,6 @@ export function CategorySwipeStack() {
 
     return (
         <div className="relative w-full h-full max-h-[600px] max-w-sm mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
-            {/* Background Atmosphere - moved outside but kept inside div for relative positioning */}
-            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden contain-strict">
-                <motion.div 
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-brand-accent-1/10 to-brand-accent-2/20 blur-3xl opacity-30" 
-                />
-            </div>
 
             <AnimatePresence mode="popLayout" initial={false}>
                 {stack.map((cat, index) => {

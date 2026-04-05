@@ -98,25 +98,25 @@ export const BottomNavigation = memo(({
 
   // Client nav items
   const clientNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
+    { id: 'browse', icon: Compass, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
-    { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
-    { id: 'ai-search', icon: Sparkles, label: 'Swipess AI', onClick: onAISearchClick, isSpecial: true },
+    { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
+    { id: 'ai-search', icon: Sparkles, label: 'AI Chat', onClick: onAISearchClick },
     { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'events', icon: Calendar, label: 'Events', path: '/explore/eventos' },
     { id: 'filters', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Owner nav items
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
+    { id: 'browse', icon: Compass, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/owner/profile' },
-    { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
-    { id: 'ai-search', icon: Sparkles, label: 'Swipess AI', onClick: onAISearchClick, isSpecial: true },
+    { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties', onClick: onListingsClick },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-    { id: 'promote-events', icon: Megaphone, label: 'Promote', path: '/admin/eventos' },
+    { id: 'ai-search', icon: Sparkles, label: 'AI Listing', onClick: onAISearchClick },
+    { id: 'promote-events', icon: Megaphone, label: 'Promote Event', path: '/admin/eventos' },
     { id: 'filters', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
   ];
 
@@ -490,29 +490,7 @@ export const BottomNavigation = memo(({
           })}
         </div>
 
-        {/* ── Edge fade indicators ──────────────────────────────────────── */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-0 left-0 bottom-0 transition-opacity duration-200"
-          style={{
-            width: 24,
-            zIndex: 10,
-            borderRadius: 'inherit',
-            opacity: canScrollLeft ? 1 : 0,
-            background: `linear-gradient(to right, ${isLight ? 'rgba(255,255,255,0.96)' : 'rgba(12,12,14,0.92)'} 0%, transparent 100%)`,
-          }}
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-0 right-0 bottom-0 transition-opacity duration-200"
-          style={{
-            width: 24,
-            zIndex: 10,
-            borderRadius: 'inherit',
-            opacity: canScrollRight ? 1 : 0,
-            background: `linear-gradient(to left, ${isLight ? 'rgba(255,255,255,0.96)' : 'rgba(12,12,14,0.92)'} 0%, transparent 100%)`,
-          }}
-        />
+        {/* Edge fade indicators removed by user request (Weird shade color on edges) */}
       </div>
 
       {/* SVG gradient defs for active icon */}
