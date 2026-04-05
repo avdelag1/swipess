@@ -475,7 +475,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className={cn(
-      "app-root min-h-screen min-h-dvh overflow-x-hidden relative w-full max-w-[100vw]",
+      "app-root h-full w-full overflow-hidden relative",
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
 
@@ -501,10 +501,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         style={{
           paddingTop: (isFullScreenRoute)
             ? '0px'
-            : (isImmersiveDashboard || isImmersiveFeed)
-            ? `calc(${topBarHeight}px + var(--safe-top))`
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isFullScreenRoute) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingBottom: (isFullScreenRoute) 
+            ? '0px' 
+            : `calc(${bottomNavHeight}px + var(--safe-bottom) + 12px)`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           // 🚀 SPEED OF LIGHT: Optimized layout containment

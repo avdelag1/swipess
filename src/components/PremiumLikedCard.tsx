@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { MessageCircle, MapPin, Trash2, Eye, Bed, User, Home, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface PremiumLikedCardProps {
     type: 'listing' | 'profile';

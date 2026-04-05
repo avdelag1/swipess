@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo } from 'react';
+import { Suspense, lazy, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -7,8 +7,6 @@ import { useErrorReporting } from '@/hooks/useErrorReporting';
 import { useAuth } from '@/hooks/useAuth';
 
 import { useTheme } from '@/hooks/useTheme';
-import { AnimatePresence, motion } from 'framer-motion';
-import { SentientHud } from './SentientHud';
 import { TopBar } from './TopBar';
 import { BottomNavigation } from './BottomNavigation';
 import { useActiveMode } from '@/hooks/useActiveMode';
@@ -43,6 +41,13 @@ export function AppLayout({ children }: AppLayoutProps) {
   useErrorReporting();
   useInstantReactivity(); // ZERO-LATENCY GLOBAL BINDINGS
 
+  useEffect(() => {
+    const recover = () => window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
+    recover();
+    const safety = setTimeout(recover, 10);
+    return () => clearTimeout(safety);
+  }, [location.pathname]);
+
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
   const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';
   const isCameraRoute = location.pathname.includes('/camera');
@@ -60,80 +65,60 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Fullscreen routes hide HUD entirely
   const isFullScreen = isCameraRoute || isRadioRoute || location.pathname.includes('/camera');
 
-  // Minimal HUD for specific discovery pages (Events/Roommates)
-  const isMinimalHUD = location.pathname.includes('eventos') || location.pathname.includes('roommates');
-
   const handleMessageActivationsClick = () => navigate('/subscription/packages');
   const handleListingsClick = () => {
     if (userRole === 'owner') navigate('/owner/properties');
     else navigate('/client/liked-properties');
   };
 
-  const isModalOpen = modalStore.isAISearchOpen || modalStore.showFilters || modalStore.showProfile;
+  const handleFilterClick = () => {
+    if (userRole === 'owner') navigate('/owner/filters');
+    else navigate('/client/filters');
+  };
 
-  // Dynamic Title Logic
-  const getPageTitle = () => {
-    // 🚀 CLEAN HUD PROTOCOL: Per user request, titles are removed globally to eliminate clutter.
-    // "remove it is stupid it's useless we already know where we are"
-    return '';
+  const handleAIInteraction = () => {
+    if (userRole === 'owner') navigate('/owner/listings/new-ai');
+    else modalStore.setModal('isAISearchOpen', true);
   };
 
   return (
-    <div className="min-h-screen min-h-dvh w-full bg-background overflow-x-hidden relative">
+    <div className="h-dvh w-full bg-background overflow-hidden relative selection:bg-brand-primary/30">
       <SkipToMainContent />
       
       <Suspense fallback={null}>
         <NotificationSystem />
       </Suspense>
 
-      {/* 🚀 PERMANENT HUD: Always visible header per user request */}
-      {!isAuthRoute && !isFullScreen && !isPublicPreview && (
-        <div className="fixed top-0 left-0 right-0 z-[1000] pointer-events-none">
-          <div className="pointer-events-auto">
-            <TopBar
-              onNotificationsClick={() => {}} 
-              onMessageActivationsClick={handleMessageActivationsClick}
-              showFilters={false}
-              userRole={userRole}
-              transparent={isImmersive}
-              title={getPageTitle()}
-              showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
-            />
-          </div>
-        </div>
+      {/* 🚀 PERMANENT HUD: Universal and stable header/footer architecture */}
+      {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
+        <TopBar
+          userRole={userRole}
+          onMessageActivationsClick={handleMessageActivationsClick}
+          transparent={false} // Force background for button visibility contrast
+          showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
+          className="z-[9999]"
+        />
       )}
 
+      {/* Primary content area: fills available space between bars */}
       <main
         id="main-content"
         tabIndex={-1}
-        className="outline-none w-full min-h-screen min-h-dvh overflow-x-hidden relative z-10"
+        className="outline-none w-full h-full relative z-10 overflow-hidden"
       >
         {children}
       </main>
 
       {/* 🚀 PERMANENT HUD: Always visible footer per user request */}
-      {!isAuthRoute && !isFullScreen && !isPublicPreview && (
+      {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
         <>
-          <div className="fixed bottom-0 left-0 right-0 z-[1000] pointer-events-none">
-            <div className="pointer-events-auto">
-              <BottomNavigation
-                userRole={userRole}
-                onFilterClick={() => {
-                  if (userRole === 'owner') navigate('/owner/filters');
-                  else navigate('/client/filters');
-                }}
-                onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
-                onListingsClick={() => {
-                  if (userRole === 'owner') navigate('/owner/properties');
-                  else navigate('/client/liked-properties');
-                }}
-                onAISearchClick={() => {
-                  if (userRole === 'owner') navigate('/owner/listings/new-ai');
-                  else modalStore.setModal('isAISearchOpen', true);
-                }}
-              />
-            </div>
-          </div>
+          <BottomNavigation
+            userRole={userRole}
+            onFilterClick={handleFilterClick}
+            onAISearchClick={handleAIInteraction}
+            onListingsClick={handleListingsClick}
+            className="z-[9999]"
+          />
 
           {/* Radio Mini Player */}
           <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+80px)] left-4 right-4 z-50 pointer-events-none">

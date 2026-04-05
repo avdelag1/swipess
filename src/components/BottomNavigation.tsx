@@ -48,6 +48,7 @@ interface BottomNavigationProps {
   onAddListingClick?: () => void;
   onListingsClick?: () => void;
   onAISearchClick?: () => void;
+  className?: string; // High-stability HUD support
 }
 
 interface NavItem {
@@ -76,6 +77,7 @@ export const BottomNavigation = memo(({
   onAddListingClick,
   onListingsClick,
   onAISearchClick,
+  className,
 }: BottomNavigationProps) => {
   const { navigate, prefetch } = useAppNavigate();
   const location = useLocation();
@@ -278,7 +280,7 @@ export const BottomNavigation = memo(({
 
 
   return (
-    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar px-3 pb-2 pt-1')}>
+    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar px-3 pb-2 pt-1', className)}>
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}

@@ -4,7 +4,6 @@ import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Zap, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
-import { useFocusMode } from '@/hooks/useFocusMode';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -23,8 +22,6 @@ import { haptics } from '@/utils/microPolish';
 import { ModeSwitcher } from './ModeSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 import { NotificationPopover } from './NotificationPopover';
-
-import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { useScrollBounce } from '@/hooks/useScrollBounce';
 
 
@@ -87,12 +84,6 @@ function TopBarComponent({
   const { toast } = useToast();
 
   const location = useLocation();
-  const { isFocused } = useFocusMode(7000);
-  const { isVisible } = useScrollDirection({ 
-    threshold: 25, 
-    showAtTop: true,
-    resetTrigger: location.pathname
-  });
   const shouldHide = false;
   const { theme } = useTheme();
   const isLight = theme === 'light';
@@ -192,9 +183,8 @@ function TopBarComponent({
     <>
       <header
         className={cn(
-          'app-header',
+          'app-header opacity-100 translate-y-0',
           transparent ? 'bg-transparent' : 'bg-background/80 backdrop-blur-xl',
-          !isFocused && isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full',
           className
         )}
       >

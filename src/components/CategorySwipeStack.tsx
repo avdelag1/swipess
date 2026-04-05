@@ -71,24 +71,28 @@ export function CategorySwipeStack() {
         }));
     };
 
-    const [stack, setStack] = useState<CategoryCardData[]>(getInitialStack);
+    // 🚀 SPEED OF LIGHT: Memoized stack derivation to prevent "cranky" switching flickers
+    const currentStackBase = useMemo(getInitialStack, [userRole]);
+    const [stack, setStack] = useState<CategoryCardData[]>(currentStackBase);
 
-    // Re-sync stack when role changes
+    // Sync stack ONLY when base definition changes (role switch)
     useEffect(() => {
-        setStack(getInitialStack());
-    }, [userRole]);
+        setStack(currentStackBase);
+    }, [currentStackBase]);
 
-    // PERF: Aggressive Preloading
+    // PERF: Universal Aggressive Preloading - Warms EVERYTHING for instant switching
     useEffect(() => {
-        const photos = userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS;
-        photos.forEach(cat => {
+        const allPhotos = [...POKER_CARDS, ...OWNER_INTENT_CARDS];
+        allPhotos.forEach(cat => {
             const img = new Image();
-            img.src = POKER_CARD_PHOTOS[cat.id] || POKER_CARD_PHOTOS.all;
-            // 🚀 Force priority decoding and pre-warming
-            img.loading = 'eager';
-            (img as any).fetchPriority = 'high';
+            const src = POKER_CARD_PHOTOS[cat.id] || POKER_CARD_PHOTOS.all;
+            if (src) {
+                img.src = src;
+                img.loading = 'eager';
+                (img as any).fetchPriority = 'high';
+            }
         });
-    }, [userRole]);
+    }, []); // Run once on mount to warm entire discovery cache
 
     const applyFilter = (card: CategoryCardData) => {
         if (userRole === 'owner' && card.ownerData) {
@@ -142,7 +146,7 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full h-[75vh] max-h-[700px] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-[min(65dvh,520px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
 
             <AnimatePresence mode="popLayout" initial={false}>
                 {stack.map((cat, index) => {
@@ -354,6 +358,12 @@ function CategoryCard({
             } as React.CSSProperties}
         >
             {/* 🚀 SPEED OF LIGHT: Optimized high-priority image pipeline */}
+            <div 
+                className={cn(
+                    "absolute inset-0 bg-gradient-to-br opacity-40 transition-opacity duration-700",
+                    category.color
+                )} 
+            />
             <img 
                 src={category.image} 
                 alt={category.label}
@@ -361,14 +371,15 @@ function CategoryCard({
                 fetchPriority="high"
                 decoding="async"
                 className={cn(
-                    "absolute inset-0 w-full h-full object-cover transition-opacity duration-300",
+                    "absolute inset-0 w-full h-full object-cover transition-all duration-500",
                     isDragging ? "scale-105" : "scale-100"
                 )}
                 onLoad={(e) => {
                     const img = e.currentTarget;
                     img.style.opacity = '1';
+                    img.style.filter = 'blur(0px)';
                 }}
-                style={{ opacity: 0 }}
+                style={{ opacity: 0, filter: 'blur(10px)', transition: 'opacity 0.6s ease-out, filter 0.8s ease-out, transform 0.5s ease-out' }}
             />
             {/* Dark overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-[5]" />
