@@ -9,7 +9,7 @@ interface SwipessLogoProps {
 
 /**
  * 🚀 SwipesS Logo — Speed of Light Ultra-Minimalist Design
- * Focuses on tight, sharp typography that fits any frame.
+ * Upgraded with breathable margins to prevent italic clipping in various frames.
  */
 function SwipessLogoComponent({
   size = 'md',
@@ -42,10 +42,12 @@ function SwipessLogoComponent({
         style={{
           textRendering: 'optimizeLegibility',
           fontFamily: "'Inter', 'Outfit', system-ui, sans-serif",
-          letterSpacing: '-0.05em', // Tighter for better frame fitting
+          letterSpacing: '-0.02em', // Slightly relaxed for better visual breathing
           display: 'inline-block',
           width: 'auto',
           maxWidth: '100%',
+          paddingRight: '0.15em', // CRITICAL: Prevents italic 'S' from clipping in tight containers
+          paddingLeft: '0.05em',  // Balanced alignment
         }}
       >
         SwipesS

@@ -102,11 +102,11 @@ export const BottomNavigation = memo(({
 
   // Client nav items (8 buttons)
   const clientNavItems: NavItem[] = [
-    { id: 'dashboard', icon: LayoutGrid, label: 'Dashboard', path: '/client/dashboard' },
+    { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'ai-search', icon: Eye, label: 'AI Chat', onClick: onAISearchClick },
+    { id: 'ai-search', icon: Sparkles, label: 'AI Chat', onClick: onAISearchClick },
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
     { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
@@ -114,7 +114,7 @@ export const BottomNavigation = memo(({
 
   // Owner nav items (8 buttons)
   const ownerNavItems: NavItem[] = [
-    { id: 'dashboard', icon: Cpu, label: 'System', path: '/owner/dashboard' },
+    { id: 'dashboard', icon: Zap, label: 'System', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
