@@ -1,7 +1,11 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Home, Bike, Briefcase, RotateCcw, Zap } from 'lucide-react';
+import { 
+  Sparkles, Home, Bike, Briefcase, RotateCcw, Zap,
+  ChevronLeft, Search, Filter, Layers, CreditCard,
+  Target, Rocket, MapPin
+} from 'lucide-react';
 import { AISearchDialog } from '@/components/AISearchDialog';
 import { Button } from '@/components/ui/button';
 import { useFilterStore } from '@/state/filterStore';
@@ -9,6 +13,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { useSaveClientFilterPreferences, useClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
+import { haptics } from '@/utils/microPolish';
 import type { QuickFilterCategory, QuickFilterListingType } from '@/types/filters';
 
 type ListingType = QuickFilterListingType;
@@ -16,49 +21,37 @@ type ListingType = QuickFilterListingType;
 const categories: {
   id: QuickFilterCategory;
   label: string;
+  emoji: string;
   description: string;
-  icon: React.ReactNode;
   gradient: string;
-  glow: string;
 }[] = [
   {
     id: 'property',
     label: 'Properties',
+    emoji: '🏡',
     description: 'Homes & Rentals',
-    icon: <Home className="w-8 h-8" />,
-    gradient: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
-    glow: 'rgba(59,130,246,0.4)',
+    gradient: 'from-blue-500/20 to-indigo-600/20',
   },
   {
     id: 'motorcycle',
-    label: 'Motorcycles',
+    label: 'Motos',
+    emoji: '🏍️',
     description: 'Bikes & Scooters',
-    icon: (
-      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <circle cx="5" cy="17" r="3" />
-        <circle cx="19" cy="17" r="3" />
-        <path d="M9 17h6M19 17l-2-5h-4l-3-4H6l1 4" />
-        <path d="M14 7h3l2 5" />
-      </svg>
-    ),
-    gradient: 'linear-gradient(135deg, #7c2d12 0%, #f97316 100%)',
-    glow: 'rgba(249,115,22,0.4)',
+    gradient: 'from-orange-500/20 to-rose-600/20',
   },
   {
     id: 'bicycle',
     label: 'Bicycles',
+    emoji: '🚲',
     description: 'Cycles & E-bikes',
-    icon: <Bike className="w-8 h-8" />,
-    gradient: 'linear-gradient(135deg, #064e3b 0%, #10b981 100%)',
-    glow: 'rgba(16,185,129,0.4)',
+    gradient: 'from-emerald-500/20 to-teal-600/20',
   },
   {
     id: 'services',
     label: 'Services',
+    emoji: '💼',
     description: 'Workers & Pros',
-    icon: <Briefcase className="w-8 h-8" />,
-    gradient: 'linear-gradient(135deg, #4c1d95 0%, #a855f7 100%)',
-    glow: 'rgba(168,85,247,0.4)',
+    gradient: 'from-purple-500/20 to-violet-600/20',
   },
 ];
 
@@ -68,6 +61,7 @@ export default function ClientFilters() {
   const [showAISearch, setShowAISearch] = useState(false);
   const queryClient = useQueryClient();
   const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   const urlParams = new URLSearchParams(location.search);
   const aiCategory = urlParams.get('category');
@@ -101,12 +95,14 @@ export default function ClientFilters() {
   const hasChanges = activeFilterCount > 0;
 
   const toggleCategory = useCallback((id: QuickFilterCategory) => {
+    haptics.tap();
     setSelectedCategories((prev) =>
       prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
     );
   }, []);
 
   const handleApply = useCallback(() => {
+    haptics.success();
     setCategories(selectedCategories);
     setListingType(selectedListingType);
     queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
@@ -120,68 +116,59 @@ export default function ClientFilters() {
   }, [selectedCategories, selectedListingType, setCategories, setListingType, queryClient, navigate, savePrefs]);
 
   const handleReset = useCallback(() => {
+    haptics.tap();
     setSelectedCategories([]);
     setSelectedListingType('both');
     resetFilters();
   }, [resetFilters]);
 
   return (
-    <div className="w-full bg-background transition-colors duration-500 pb-20">
-      <div className="px-4 py-6 space-y-8 pb-4">
-        {/* Quick Actions */}
-        <div className="flex items-center justify-between px-1">
-          <div />
+    <div className="min-h-screen bg-background text-foreground pb-32">
+      {/* Liquid Header */}
+      <div className="sticky top-0 z-50 px-6 py-8 bg-background/80 backdrop-blur-2xl border-b border-border/10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => navigate(-1)}
+              className="p-3 rounded-2xl bg-secondary/50 border border-border/50 text-muted-foreground"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </motion.button>
+            <div>
+              <h1 className="text-xl font-black tracking-tight flex items-center gap-2">
+                Discover
+                <Sparkles className="w-4 h-4 text-primary fill-primary/20" />
+              </h1>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">Global Listing Filters</p>
+            </div>
+          </div>
           <AnimatePresence>
             {hasChanges && (
               <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
                 onClick={handleReset}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/80 border border-border/50 text-[10px] font-black text-foreground hover:bg-secondary transition-colors shadow-sm"
+                className="text-[10px] font-black uppercase tracking-widest text-primary px-4 py-2 bg-primary/10 rounded-full"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                RESET ALL
+                Reset All
               </motion.button>
             )}
           </AnimatePresence>
         </div>
+      </div>
 
-        {/* AI Suggestions Banner - M3 Tonal Style */}
-        <section>
-          <div className="relative overflow-hidden rounded-[2.5rem] bg-secondary/30 border border-border/50 p-6">
-            <div className="relative z-10 flex items-start justify-between gap-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-primary">
-                  <Sparkles className="w-4 h-4 fill-primary/20" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em]">{theme === 'dark' ? 'Neural' : 'Smart'} Assistant</span>
-                </div>
-                <h3 className="text-lg font-black tracking-tight">Need something very specific?</h3>
-                <p className="text-sm text-muted-foreground font-medium leading-relaxed max-w-[240px]">
-                  Tell our AI exactly what you're looking for, and we'll compute it.
-                </p>
-                <Button 
-                  onClick={() => setShowAISearch(true)}
-                  variant="default" 
-                  size="sm" 
-                  className="mt-4 h-10 px-6 rounded-full font-black text-xs gap-2 shadow-lg shadow-primary/20"
-                >
-                  <Zap className="w-3.5 h-3.5 fill-current" />
-                  START AI SEARCH
-                </Button>
-              </div>
-              <div className="hidden sm:block absolute top-0 right-0 h-full w-1/3 opacity-20 pointer-events-none">
-                 <div className="absolute inset-0 bg-gradient-to-l from-primary/40 to-transparent" />
-              </div>
+      <div className="px-6 py-10 space-y-12 max-w-2xl mx-auto">
+        {/* Sector Selection */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Layers className="w-4 h-4 text-primary" />
             </div>
+            <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/80">Active Sectors</h2>
           </div>
-        </section>
-
-        {/* Categories Grid */}
-        <section className="space-y-4">
-          <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60 px-1">Active Sectors</h2>
+          
           <div className="grid grid-cols-2 gap-3">
             {categories.map((cat) => {
               const isActive = selectedCategories.includes(cat.id);
@@ -192,73 +179,138 @@ export default function ClientFilters() {
                   whileTap={{ scale: 0.98 }}
                   onClick={() => toggleCategory(cat.id)}
                   className={cn(
-                    "relative p-4 rounded-[2rem] text-left overflow-hidden transition-all duration-300 border-2",
-                    isActive ? "border-primary shadow-lg shadow-primary/10" : "border-border/40 bg-secondary/20 hover:bg-secondary/40"
+                    "relative p-5 rounded-[2.5rem] text-left transition-all duration-300 border-2 overflow-hidden",
+                    isActive 
+                      ? "border-primary bg-primary/5 shadow-xl shadow-primary/10" 
+                      : "border-border/40 bg-secondary/20 grayscale-[0.8] opacity-60 hover:opacity-100 hover:grayscale-0"
                   )}
-                  data-no-swipe-nav="true"
                 >
                   <div className="relative z-10 flex flex-col gap-3">
-                    <div className={cn(
-                      "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors",
-                      isActive ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground/70"
-                    )}>
-                      {cat.icon}
-                    </div>
+                    <span className="text-3xl">{cat.emoji}</span>
                     <div>
                       <div className="font-black text-sm">{cat.label}</div>
-                      <div className="text-[10px] text-muted-foreground/80 font-bold">{cat.description}</div>
+                      <div className="text-[10px] font-bold opacity-60 leading-none">{cat.description}</div>
                     </div>
                   </div>
+                  {isActive && (
+                    <motion.div 
+                      layoutId="client-category-glow"
+                      className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"
+                    />
+                  )}
                 </motion.button>
               );
             })}
           </div>
         </section>
 
-        {/* Listing Type */}
-        <section className="space-y-4">
-          <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60 px-1">Transaction Mode</h2>
-          <div className="flex gap-3">
+        {/* Transaction Mode */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+              <CreditCard className="w-4 h-4 text-emerald-500" />
+            </div>
+            <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/80">Transaction Mode</h2>
+          </div>
+
+          <div className="flex gap-4 p-2 bg-secondary/20 rounded-[2rem] border border-border/40">
             {(['rent', 'sale'] as ListingType[]).map((type) => {
               const isActive = selectedListingType === type;
               return (
                 <motion.button
                   key={type}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setSelectedListingType(prev => prev === type ? 'both' : type)}
+                  onClick={() => { haptics.tap(); setSelectedListingType(prev => prev === type ? 'both' : type); }}
                   className={cn(
-                    "flex-1 h-14 rounded-3xl font-black text-sm border-2 transition-all duration-300 capitalize",
-                    isActive 
-                      ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/10" 
-                      : "bg-secondary/20 border-border/40 text-muted-foreground"
+                    "flex-1 relative py-4 rounded-[1.5rem] flex items-center justify-center gap-2 transition-all duration-300 capitalize",
+                    isActive ? "text-primary font-black" : "text-muted-foreground hover:text-foreground font-bold"
                   )}
-                  data-no-swipe-nav="true"
                 >
-                  {type}
+                  {isActive && (
+                    <motion.div
+                      layoutId="listing-type-pill"
+                      className="absolute inset-0 bg-background shadow-lg rounded-[1.5rem] z-0"
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{type}</span>
                 </motion.button>
               );
             })}
           </div>
         </section>
+
+        {/* AI Discovery Prompt */}
+        <section className="relative group">
+          <motion.div 
+            whileHover={{ scale: 1.01 }}
+            className="relative overflow-hidden rounded-[3rem] bg-slate-900 border border-slate-800 p-8 shadow-2xl"
+          >
+            <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-40 transition-opacity">
+              <Rocket className="w-24 h-24 text-primary animate-pulse" />
+            </div>
+
+            <div className="relative z-10 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+                  <Zap className="w-5 h-5 text-white animate-bounce" />
+                </div>
+                <h3 className="text-lg font-black tracking-tight text-white">Hyper-Discovery AI</h3>
+              </div>
+              
+              <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[280px]">
+                Seeking a loft with sunset views or a workspace near the beach? Describe it perfectly.
+              </p>
+
+              <Button 
+                onClick={() => { haptics.select(); setShowAISearch(true); }}
+                className="h-14 px-8 rounded-2xl font-black text-sm gap-3 shadow-2xl bg-white text-black hover:bg-slate-200"
+              >
+                Launch Semantic Search
+                <Target className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* Glowing accents */}
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/20 rounded-full blur-[80px]" />
+          </motion.div>
+        </section>
       </div>
 
-      {/* Sticky Apply Button Bar - Premium ergonomic position above bottom nav */}
-      <div className="sticky bottom-0 z-20 p-4 bg-background/80 backdrop-blur-xl border-t border-border/10">
+      {/* Primary Apply Button */}
+      <div className="fixed bottom-10 left-0 right-0 px-6 z-50">
         <div className="max-w-md mx-auto">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleApply}
             className={cn(
-              "w-full h-14 rounded-full text-base font-bold shadow-xl transition-all duration-300",
-              hasChanges
-                ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-primary/20"
-                : "bg-secondary text-muted-foreground border border-border/50"
+              "w-full h-18 rounded-[2rem] flex items-center justify-between px-8 text-lg font-black transition-all duration-500 shadow-2xl relative overflow-hidden group",
+              hasChanges 
+                ? "bg-primary text-primary-foreground shadow-primary/30" 
+                : "bg-slate-800 text-slate-400 border border-slate-700 backdrop-blur-xl"
             )}
-            data-no-swipe-nav="true"
           >
-            {hasChanges ? `Apply ${activeFilterCount} Filter${activeFilterCount > 1 ? 's' : ''}` : 'Apply Filters'}
+            {hasChanges && (
+              <motion.div 
+                animate={{ x: [-100, 100], opacity: [0.1, 0.3, 0.1] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-30"
+              />
+            )}
+            
+            <div className="relative z-10 flex items-center gap-3">
+              <Search className="w-6 h-6" />
+              <span>Target Listings</span>
+            </div>
+
+            <div className="relative z-10 flex items-center gap-2">
+              {activeFilterCount > 0 && (
+                <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-black">
+                  {activeFilterCount}
+                </span>
+              )}
+              <Filter className="w-6 h-6" />
+            </div>
           </motion.button>
         </div>
       </div>

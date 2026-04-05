@@ -97,27 +97,28 @@ export const BottomNavigation = memo(({
   }, []);
 
 
-  // Client nav items (7 buttons)
+  // Client nav items (8 buttons)
   const clientNavItems: NavItem[] = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Heart, label: 'Likes', path: '/client/liked-properties' },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'ai-search', icon: MessageSquare, label: 'AI Chat', onClick: onAISearchClick },
-    { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
-    { id: 'events', icon: Calendar, label: 'Events', path: '/explore/eventos' },
-    { id: 'search', icon: Search, label: 'Search', onClick: onFilterClick },
+    { id: 'roommates', icon: Users, label: 'Meet', path: '/explore/roommates' },
+    { id: 'events', icon: Calendar, label: 'Rotates', path: '/explore/eventos' },
+    { id: 'search', icon: Search, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Owner nav items (8 buttons)
   const ownerNavItems: NavItem[] = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/owner/profile' },
-    { id: 'likes', icon: Heart, label: 'Likes', path: '/owner/liked-clients' },
+    { id: 'likes', icon: Heart, label: 'Clients', path: '/owner/liked-clients' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
-    { id: 'ai-search', icon: Sparkles, label: 'AI Assistant', onClick: onAISearchClick },
-    { id: 'promote-events', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
+    { id: 'add-listing', icon: PlusCircle, label: 'Create', onClick: onAddListingClick },
+    { id: 'ai-search', icon: Sparkles, label: 'AI Pilot', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'search', icon: Search, label: 'Search', onClick: onFilterClick },
+    { id: 'search', icon: Search, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Admin nav items — admin panel + messaging

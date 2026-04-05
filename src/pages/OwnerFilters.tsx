@@ -1,87 +1,85 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Check, RotateCcw, UserCircle, Baby, Briefcase, ShoppingBag, Building2, Globe } from 'lucide-react';
+import { 
+  Users, Check, RotateCcw, UserCircle, Baby, 
+  Briefcase, ShoppingBag, Building2, Globe,
+  Sparkles, DollarSign, Activity, Target,
+  ChevronLeft, Filter, Search
+} from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
-
+import { Button } from '@/components/ui/button';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
+import { haptics } from '@/utils/microPolish';
 import type { ClientGender, ClientType } from '@/types/filters';
 
 const genderOptions: {
   id: ClientGender;
   label: string;
+  emoji: string;
   description: string;
-  icon: React.ReactNode;
   gradient: string;
-  glow: string;
 }[] = [
-    {
-      id: 'any',
-      label: 'Everyone',
-      description: 'All genders',
-      icon: <Users className="w-7 h-7" />,
-      gradient: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-      glow: 'rgba(51,65,85,0.3)',
-    },
-    {
-      id: 'female',
-      label: 'Women',
-      description: 'Female clients',
-      icon: (
-        <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-          <circle cx="12" cy="8" r="4" />
-          <path d="M12 12v8M9 17h6" />
-        </svg>
-      ),
-      gradient: 'linear-gradient(135deg, #831843 0%, #be185d 100%)',
-      glow: 'rgba(190,24,93,0.35)',
-    },
-    {
-      id: 'male',
-      label: 'Men',
-      description: 'Male clients',
-      icon: (
-        <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-          <circle cx="10" cy="14" r="4" />
-          <path d="M14 10l5-5M14 5h5v5" />
-        </svg>
-      ),
-      gradient: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)',
-      glow: 'rgba(29,78,216,0.35)',
-    },
-    {
-      id: 'other',
-      label: 'Non-Binary',
-      description: 'All identities',
-      icon: <UserCircle className="w-7 h-7" />,
-      gradient: 'linear-gradient(135deg, #4c1d95 0%, #6d28d9 100%)',
-      glow: 'rgba(109,40,217,0.35)',
-    },
-  ];
+  {
+    id: 'any',
+    label: 'Everyone',
+    emoji: '🌍',
+    description: 'All genders',
+    gradient: 'from-slate-500/20 to-slate-600/20',
+  },
+  {
+    id: 'female',
+    label: 'Women',
+    emoji: '👩',
+    description: 'Female clients',
+    gradient: 'from-pink-500/20 to-rose-600/20',
+  },
+  {
+    id: 'male',
+    label: 'Men',
+    emoji: '👨',
+    description: 'Male clients',
+    gradient: 'from-blue-500/20 to-indigo-600/20',
+  },
+  {
+    id: 'other',
+    label: 'Non-Binary',
+    emoji: '🧑',
+    description: 'All identities',
+    gradient: 'from-purple-500/20 to-violet-600/20',
+  },
+];
 
 const clientTypeOptions: {
   id: ClientType;
   label: string;
+  emoji: string;
   description: string;
-  icon: React.ReactNode;
-  accentClass: string;
+  color: string;
 }[] = [
-    { id: 'all', label: 'All Types', description: 'Show everyone', icon: <Users className="w-5 h-5" />, accentClass: 'text-orange-500' },
-    { id: 'hire', label: 'Hiring', description: 'Need workers', icon: <Briefcase className="w-5 h-5" />, accentClass: 'text-rose-500' },
-    { id: 'rent', label: 'Renting', description: 'Looking to rent', icon: <ShoppingBag className="w-5 h-5" />, accentClass: 'text-blue-500' },
-    { id: 'buy', label: 'Buying', description: 'Looking to buy', icon: <Building2 className="w-5 h-5" />, accentClass: 'text-amber-500' },
-    { id: 'individual', label: 'Individual', description: 'Single person', icon: <UserCircle className="w-5 h-5" />, accentClass: 'text-pink-500' },
-    { id: 'family', label: 'Family', description: 'Family group', icon: <Baby className="w-5 h-5" />, accentClass: 'text-purple-500' },
-    { id: 'business', label: 'Business', description: 'Corporate needs', icon: <Building2 className="w-5 h-5" />, accentClass: 'text-cyan-500' },
-  ];
+  { id: 'all', label: 'All Types', emoji: '👥', description: 'Show everyone', color: 'bg-orange-500' },
+  { id: 'individual', label: 'Individual', emoji: '👤', description: 'Single person', color: 'bg-pink-500' },
+  { id: 'family', label: 'Family', emoji: '👨‍👩‍👧', description: 'Family group', color: 'bg-purple-500' },
+  { id: 'business', label: 'Business', emoji: '🏢', description: 'Corporate needs', color: 'bg-cyan-500' },
+  { id: 'hire', label: 'Hiring', emoji: '💼', description: 'Need workers', color: 'bg-rose-500' },
+  { id: 'rent', label: 'Renting', emoji: '🔑', description: 'Looking to rent', color: 'bg-blue-500' },
+  { id: 'buy', label: 'Buying', emoji: '🏡', description: 'Looking to buy', color: 'bg-amber-500' },
+];
 
 const nationalityOptions = [
-  'Mexican', 'American', 'Canadian', 'Colombian', 'Brazilian',
-  'Argentine', 'European', 'Asian', 'Other',
+  { name: 'Mexican', flag: '🇲🇽' },
+  { name: 'American', flag: '🇺🇸' },
+  { name: 'Canadian', flag: '🇨🇦' },
+  { name: 'Colombian', flag: '🇨🇴' },
+  { name: 'Brazilian', flag: '🇧🇷' },
+  { name: 'Argentine', flag: '🇦🇷' },
+  { name: 'European', flag: '🇪🇺' },
+  { name: 'Asian', flag: '🌏' },
+  { name: 'Other', flag: '🌐' },
 ];
 
 const AGE_MIN = 18;
@@ -92,7 +90,8 @@ const BUDGET_MAX = 50000;
 export default function OwnerFilters() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { theme: _theme } = useTheme();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   const storeGender = useFilterStore((state) => state.clientGender);
   const storeClientType = useFilterStore((state) => state.clientType);
@@ -103,10 +102,7 @@ export default function OwnerFilters() {
   const setClientBudgetRange = useFilterStore((state) => state.setClientBudgetRange);
   const setClientNationalities = useFilterStore((state) => state.setClientNationalities);
 
-  // DB persistence
   const { preferences: dbPrefs, updatePreferences } = useOwnerClientPreferences();
-
-  // Hydrate from DB on mount if store is at defaults
   const [hydrated, setHydrated] = useState(false);
 
   const [selectedGender, setSelectedGender] = useState<ClientGender>(storeGender);
@@ -152,19 +148,20 @@ export default function OwnerFilters() {
   const hasChanges = activeFilterCount > 0;
 
   const toggleNationality = (nat: string) => {
+    haptics.tap();
     setSelectedNationalities((prev) =>
       prev.includes(nat) ? prev.filter((n) => n !== nat) : [...prev, nat]
     );
   };
 
   const handleApply = useCallback(() => {
+    haptics.success();
     setClientGender(selectedGender);
     setClientType(selectedClientType);
     setClientAgeRange(isAgeChanged ? ageRange : null);
     setClientBudgetRange(isBudgetChanged ? budgetRange : null);
     setClientNationalities(selectedNationalities);
 
-    // Persist to DB (background, non-blocking)
     updatePreferences({
       selected_genders: selectedGender === 'any' ? [] : [selectedGender],
       min_age: isAgeChanged ? ageRange[0] : null,
@@ -180,6 +177,7 @@ export default function OwnerFilters() {
   }, [selectedGender, selectedClientType, ageRange, budgetRange, selectedNationalities, isAgeChanged, isBudgetChanged, setClientGender, setClientType, setClientAgeRange, setClientBudgetRange, setClientNationalities, updatePreferences, queryClient, navigate]);
 
   const handleReset = useCallback(() => {
+    haptics.tap();
     setSelectedGender('any');
     setSelectedClientType('all');
     setAgeRange([AGE_MIN, AGE_MAX]);
@@ -189,238 +187,197 @@ export default function OwnerFilters() {
   }, [resetOwnerFilters]);
 
   return (
-    <div className="w-full bg-background transition-colors duration-500 pb-20">
-      <div className="px-4 py-6 space-y-8 pb-4">
-        {/* Quick Actions */}
-        <div className="flex items-center justify-between px-1">
-          <div />
+    <div className="min-h-screen bg-background text-foreground pb-32">
+      {/* Premium Sticky Header */}
+      <div className="sticky top-0 z-50 px-6 py-8 bg-background/80 backdrop-blur-2xl border-b border-border/10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => navigate(-1)}
+              className="p-3 rounded-2xl bg-secondary/50 border border-border/50 text-muted-foreground"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </motion.button>
+            <div>
+              <h1 className="text-xl font-black tracking-tight flex items-center gap-2">
+                Find Clients
+                <Sparkles className="w-4 h-4 text-primary fill-primary/20" />
+              </h1>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">Ideal Profile Config</p>
+            </div>
+          </div>
           <AnimatePresence>
             {hasChanges && (
               <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
                 onClick={handleReset}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/80 border border-border/50 text-[10px] font-black text-foreground hover:bg-secondary transition-colors shadow-sm"
+                className="text-[10px] font-black uppercase tracking-widest text-primary px-4 py-2 bg-primary/10 rounded-full"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                RESET ALL
+                Reset All
               </motion.button>
             )}
           </AnimatePresence>
         </div>
+      </div>
 
-        {/* Gender Section */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
-              <div className="w-1.5 h-1.5 rounded-full bg-pink-500" />
-              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                Gender
-              </span>
+      <div className="px-6 py-10 space-y-12 max-w-2xl mx-auto">
+        {/* Client Categories (Sentient Pill Grid) */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-orange-500/10 flex items-center justify-center">
+              <Users className="w-4 h-4 text-orange-500" />
             </div>
+            <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/80">Client Identity</h2>
           </div>
-
+          
           <div className="grid grid-cols-2 gap-3">
-            {genderOptions.map((option) => {
-              const isSelected = selectedGender === option.id;
-              return (
-                <motion.button
-                  key={option.id}
-                  onClick={() => setSelectedGender(option.id)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={cn(
-                    "relative overflow-hidden rounded-[2rem] text-left transition-all duration-300",
-                    isSelected
-                      ? "border-2 border-primary/30 ring-4 ring-primary/5 shadow-lg"
-                      : "border border-border/50 bg-card/40 hover:bg-card/60"
-                  )}
-                  style={{
-                    height: '110px',
-                    background: isSelected ? option.gradient : undefined,
-                  }}
-                >
-                  <div className="relative p-4 flex flex-col justify-between h-full">
-                    <div className={cn(
-                      "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors",
-                      isSelected ? "bg-white/20 text-white" : "bg-secondary text-muted-foreground"
-                    )}>
-                      {option.icon}
-                    </div>
-                    <div>
-                      <p className={cn("text-sm font-bold", isSelected ? "text-white" : "text-foreground")}>{option.label}</p>
-                      <p className={cn("text-[10px] font-medium opacity-70", isSelected ? "text-white" : "text-muted-foreground")}>
-                        {option.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  <AnimatePresence>
-                    {isSelected && (
-                      <motion.div
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        className="absolute top-3 right-3 w-6 h-6 rounded-full bg-background flex items-center justify-center shadow-lg"
-                      >
-                        <Check className="w-3.5 h-3.5 text-primary" />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.button>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Age Range Section */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
-              <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                Age Range
-              </span>
-            </div>
-            <span className="text-sm font-bold text-foreground">
-              {ageRange[0]} – {ageRange[1] === AGE_MAX ? '65+' : ageRange[1]}
-            </span>
-          </div>
-
-          <div className="px-2">
-            <Slider
-              min={AGE_MIN}
-              max={AGE_MAX}
-              step={1}
-              value={ageRange}
-              onValueChange={(val) => setAgeRange(val as [number, number])}
-              className="w-full"
-            />
-            <div className="flex justify-between mt-2">
-              <span className="text-[10px] font-medium text-muted-foreground">{AGE_MIN}</span>
-              <span className="text-[10px] font-medium text-muted-foreground">65+</span>
-            </div>
-          </div>
-        </section>
-
-        {/* Budget Range Section */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                Budget Range
-              </span>
-            </div>
-            <span className="text-sm font-bold text-foreground">
-              ${budgetRange[0].toLocaleString()} – ${budgetRange[1] === BUDGET_MAX ? '50k+' : budgetRange[1].toLocaleString()}
-            </span>
-          </div>
-
-          <div className="px-2">
-            <Slider
-              min={BUDGET_MIN}
-              max={BUDGET_MAX}
-              step={500}
-              value={budgetRange}
-              onValueChange={(val) => setBudgetRange(val as [number, number])}
-              className="w-full"
-            />
-            <div className="flex justify-between mt-2">
-              <span className="text-[10px] font-medium text-muted-foreground">$0</span>
-              <span className="text-[10px] font-medium text-muted-foreground">$50k+</span>
-            </div>
-          </div>
-        </section>
-
-        {/* Nationality Section */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                Nationality
-              </span>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {nationalityOptions.map((nat) => {
-              const isSelected = selectedNationalities.includes(nat);
-              return (
-                <motion.button
-                  key={nat}
-                  onClick={() => toggleNationality(nat)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={cn(
-                    "flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold transition-all duration-200 border",
-                    isSelected
-                      ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/10"
-                      : "bg-card/40 text-foreground/70 border-border/50 hover:bg-card/60"
-                  )}
-                >
-                  <Globe className="w-3.5 h-3.5" />
-                  {nat}
-                  {isSelected && <Check className="w-3 h-3 ml-0.5" />}
-                </motion.button>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Client Type Section */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
-              <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                Client Type
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
             {clientTypeOptions.map((type) => {
               const isSelected = selectedClientType === type.id;
               return (
                 <motion.button
                   key={type.id}
-                  onClick={() => setSelectedClientType(type.id)}
-                  whileHover={{ scale: 1.01, x: 4 }}
-                  whileTap={{ scale: 0.99 }}
+                  onClick={() => { haptics.tap(); setSelectedClientType(type.id); }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   className={cn(
-                    "w-full flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300",
-                    isSelected
-                      ? "bg-primary/5 border-primary/20 shadow-md shadow-primary/5"
-                      : "bg-card/30 border-border/40"
+                    "relative p-4 rounded-3xl text-left transition-all duration-300 border-2 overflow-hidden",
+                    isSelected 
+                      ? "border-primary bg-primary/5 shadow-xl shadow-primary/10" 
+                      : "border-border/40 bg-secondary/20 grayscale-[0.8] opacity-60 hover:opacity-100"
                   )}
                 >
-                  <div className={cn(
-                    "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors shadow-sm",
-                    isSelected ? "bg-primary text-primary-foreground" : "bg-secondary " + type.accentClass
-                  )}>
-                    {type.icon}
+                  <div className="relative z-10 flex flex-col gap-2">
+                    <span className="text-2xl">{type.emoji}</span>
+                    <div>
+                      <div className="font-black text-sm">{type.label}</div>
+                      <div className="text-[10px] font-bold opacity-60 leading-none">{type.description}</div>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <span className={cn("text-sm font-bold block", isSelected ? "text-primary" : "text-foreground")}>{type.label}</span>
-                    <span className="text-[10px] font-medium text-muted-foreground">{type.description}</span>
-                  </div>
-                  <AnimatePresence>
-                    {isSelected && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        className="w-6 h-6 rounded-full bg-primary flex items-center justify-center"
-                      >
-                        <Check className="w-3.5 h-3.5 text-primary-foreground" />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {isSelected && (
+                    <motion.div 
+                      layoutId="choice-glow"
+                      className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"
+                    />
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Gender Selection (Glass Segmented) */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-pink-500/10 flex items-center justify-center">
+              <UserCircle className="w-4 h-4 text-pink-500" />
+            </div>
+            <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/80">Gender Preference</h2>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2 bg-secondary/20 p-1.5 rounded-[2rem] border border-border/40">
+            {genderOptions.map((opt) => {
+              const isSelected = selectedGender === opt.id;
+              return (
+                <motion.button
+                  key={opt.id}
+                  onClick={() => { haptics.tap(); setSelectedGender(opt.id); }}
+                  className={cn(
+                    "relative py-4 rounded-[1.5rem] flex flex-col items-center justify-center gap-1 transition-all duration-300",
+                    isSelected ? "text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {isSelected && (
+                    <motion.div
+                      layoutId="gender-pill"
+                      className="absolute inset-0 bg-background shadow-lg rounded-[1.5rem] z-0 px-2"
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10 text-xl">{opt.emoji}</span>
+                  <span className="relative z-10 text-[9px] font-black uppercase">{opt.label}</span>
+                </motion.button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Age & Budget (Sentient Sliders) */}
+        <section className="space-y-8">
+          <div className="space-y-6 p-6 rounded-[2.5rem] bg-secondary/20 border border-border/40">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-rose-500" />
+                  <span className="text-xs font-black uppercase tracking-widest">Age Window</span>
+                </div>
+                <span className="text-sm font-black text-primary px-3 py-1 bg-primary/10 rounded-lg">
+                  {ageRange[0]} — {ageRange[1] === AGE_MAX ? '65+' : ageRange[1]}
+                </span>
+              </div>
+              <Slider
+                min={AGE_MIN}
+                max={AGE_MAX}
+                step={1}
+                value={ageRange}
+                onValueChange={(val) => { haptics.select(); setAgeRange(val as [number, number]); }}
+                className="py-4"
+              />
+            </div>
+
+            <div className="h-px bg-border/20 w-full" />
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-emerald-500" />
+                  <span className="text-xs font-black uppercase tracking-widest">Client Budget</span>
+                </div>
+                <span className="text-sm font-black text-primary px-3 py-1 bg-primary/10 rounded-lg">
+                  ${budgetRange[0].toLocaleString()} — ${budgetRange[1] === BUDGET_MAX ? '50k+' : budgetRange[1].toLocaleString()}
+                </span>
+              </div>
+              <Slider
+                min={BUDGET_MIN}
+                max={BUDGET_MAX}
+                step={500}
+                value={budgetRange}
+                onValueChange={(val) => { haptics.select(); setBudgetRange(val as [number, number]); }}
+                className="py-4"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Nationality (Flow Tags) */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center">
+              <Globe className="w-4 h-4 text-blue-500" />
+            </div>
+            <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/80">Global Origin</h2>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {nationalityOptions.map((nat) => {
+              const isSelected = selectedNationalities.includes(nat.name);
+              return (
+                <motion.button
+                  key={nat.name}
+                  onClick={() => toggleNationality(nat.name)}
+                  whileTap={{ scale: 0.95 }}
+                  className={cn(
+                    "flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold transition-all duration-300 border-2",
+                    isSelected 
+                      ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/20" 
+                      : "bg-secondary/20 border-border/10 text-muted-foreground hover:border-border/40"
+                  )}
+                >
+                  <span className="text-base">{nat.flag}</span>
+                  {nat.name}
+                  {isSelected && <Check className="w-3 h-3 ml-1" />}
                 </motion.button>
               );
             })}
@@ -428,22 +385,45 @@ export default function OwnerFilters() {
         </section>
       </div>
 
-      {/* Sticky Apply Button Bar - Premium ergonomic position above bottom nav */}
-      <div className="sticky bottom-0 z-20 p-4 bg-background/80 backdrop-blur-xl border-t border-border/10">
+      {/* Floating Action Button - Liquid Glass */}
+      <div className="fixed bottom-10 left-0 right-0 px-6 z-50">
         <div className="max-w-md mx-auto">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleApply}
             className={cn(
-              "w-full h-14 rounded-full text-base font-bold shadow-xl transition-all duration-300",
-              hasChanges
-                ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-primary/20"
-                : "bg-secondary text-muted-foreground border border-border/50"
+              "w-full h-18 rounded-[2rem] flex items-center justify-between px-8 text-lg font-black transition-all duration-500 shadow-2xl relative overflow-hidden group",
+              hasChanges 
+                ? "bg-primary text-primary-foreground shadow-primary/30" 
+                : "bg-slate-800 text-slate-400 border border-slate-700 backdrop-blur-xl"
             )}
-            data-no-swipe-nav="true"
           >
-            {hasChanges ? `Apply ${activeFilterCount} Filter${activeFilterCount > 1 ? 's' : ''}` : 'Apply Filters'}
+            {/* Animated liquid background for active button */}
+            {hasChanges && (
+              <motion.div 
+                animate={{ 
+                  x: [-100, 100],
+                  opacity: [0.1, 0.3, 0.1]
+                }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-30"
+              />
+            )}
+            
+            <div className="relative z-10 flex items-center gap-3">
+              <Search className="w-6 h-6" />
+              <span>Apply Filters</span>
+            </div>
+
+            <div className="relative z-10 flex items-center gap-2">
+              {activeFilterCount > 0 && (
+                <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-black">
+                  {activeFilterCount}
+                </span>
+              )}
+              <Check className="w-6 h-6" />
+            </div>
           </motion.button>
         </div>
       </div>

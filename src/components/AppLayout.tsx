@@ -106,7 +106,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               userRole={userRole}
               onFilterClick={() => {
                 if (userRole === 'owner') navigate('/owner/filters');
-                else modalStore.setModal('showFilters', true);
+                else navigate('/client/filters');
               }}
               onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
               onListingsClick={() => {
