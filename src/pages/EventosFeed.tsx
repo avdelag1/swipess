@@ -244,7 +244,10 @@ export default function EventosFeed() {
     <div className={cn("relative w-full h-[100dvh] overflow-hidden flex flex-col", isLight ? "bg-white" : "bg-black")}>
       
       {/* Immersive Controls (Floating below global HUD) */}
-      <div className="absolute top-24 left-0 right-0 z-[100]">
+      <div 
+        className="absolute left-0 right-0 z-[100] transform-gpu"
+        style={{ top: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 12px) + 12px)' }}
+      >
 
 
         {/* Categories: Modern Horizontal Pill Selection */}

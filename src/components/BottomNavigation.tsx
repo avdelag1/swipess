@@ -21,7 +21,7 @@ import {
   Flame, MessageCircle, User, Building2,
   Search, Users, Sparkles, ShieldCheck,
   Megaphone, Compass, Headphones, PlusCircle,
-  Ticket, SlidersHorizontal, Heart, MessageSquare,
+  Zap, Ticket, SlidersHorizontal, Heart, MessageSquare,
   LayoutDashboard, LayoutGrid
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -101,12 +101,12 @@ export const BottomNavigation = memo(({
   const clientNavItems: NavItem[] = [
     { id: 'dashboard', icon: LayoutGrid, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
-    { id: 'likes', icon: Heart, label: 'Likes', path: '/client/liked-properties' },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
+    { id: 'likes', icon: Flame, label: 'Liked', path: '/client/liked-properties' },
+    { id: 'messages', icon: MessageSquare, label: 'Messages', path: '/messages' },
     { id: 'ai-search', icon: Sparkles, label: 'AI Chat', onClick: onAISearchClick },
     { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: Ticket, label: 'Events', path: '/explore/eventos' },
-    { id: 'search', icon: Search, label: 'Filters', onClick: onFilterClick },
+    { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Owner nav items (8 buttons)
@@ -116,9 +116,9 @@ export const BottomNavigation = memo(({
     { id: 'likes', icon: Flame, label: 'Liked', path: '/owner/liked-clients' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI Listing', onClick: onAISearchClick },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
-    { id: 'search', icon: Search, label: 'Filters', onClick: onFilterClick },
+    { id: 'messages', icon: MessageSquare, label: 'Messages', path: '/messages' },
+    { id: 'promote', icon: Zap, label: 'Promote', path: '/client/advertise' },
+    { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Admin nav items — admin panel + messaging
@@ -350,7 +350,7 @@ export const BottomNavigation = memo(({
           onScroll={updateScrollFades}
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full justify-start gap-4 px-6 py-3 nav-scroll-hide',
+            'relative flex items-center w-full justify-start gap-2.5 px-4 py-3 nav-scroll-hide',
           )}
           style={{
             zIndex: 2,
@@ -391,11 +391,11 @@ export const BottomNavigation = memo(({
                   'relative flex flex-col items-center justify-center rounded-xl gap-1.5 w-auto flex-shrink-0 h-full',
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
-                style={{
-                  minWidth: '70px',
-                  scrollSnapAlign: 'start', // Ensure item lands nicely
-                  minHeight: TOUCH_TARGET + 8,
-                  padding: '10px 14px', // Standard generous spacing
+                  style={{
+                    minWidth: '64px',
+                    scrollSnapAlign: 'start', // Ensure item lands nicely
+                    minHeight: TOUCH_TARGET + 8,
+                    padding: '10px 10px', // Standard generous spacing
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
