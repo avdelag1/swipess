@@ -191,7 +191,7 @@ function TopBarComponent({
       <header
         className={cn(
           'app-header',
-          transparent ? 'bg-transparent' : 'bg-background/80 backdrop-blur-xl border-b border-border shadow-sm',
+          transparent ? 'bg-transparent' : 'bg-background/80 backdrop-blur-xl shadow-sm',
           shouldHide && 'header-hidden',
           className
         )}
@@ -302,7 +302,7 @@ function TopBarComponent({
                       className="w-[min(calc(100vw-1.5rem),420px)] p-0 rounded-2xl bg-card border border-border shadow-2xl"
                     >
                       {/* Popover Header */}
-                      <div className="px-4 pt-4 pb-3 border-b border-border">
+                      <div className="px-4 pt-4 pb-3">
                         <div className="flex items-center justify-between">
                           <h3 className="font-bold text-foreground text-base">{t('topbar.tokenPackages')}</h3>
                           <span className="text-xs text-muted-foreground">

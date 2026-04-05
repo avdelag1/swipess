@@ -417,7 +417,7 @@ export default function AdvertisePage() {
             className="text-4xl sm:text-5xl font-black leading-[0.95] tracking-tighter mb-4 text-foreground"
           >
             Promote{" "}
-            <span className="brand-gradient-text uppercase italic">
+            <span className="brand-gradient-text uppercase italic inline-block px-1">
               Your Brand
             </span>{" "}
             on Swipess
@@ -645,8 +645,7 @@ export default function AdvertisePage() {
   return (
     <div className="min-h-[100dvh] flex flex-col pb-10" style={{ background: th.pageBg }}>
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 pt-20 pb-3"
-        style={{ borderBottom: `1px solid ${th.headerBorder}` }}>
+      <div className="flex items-center gap-3 px-4 pt-20 pb-3">
         <div className="flex-1">
           <h1 className="text-sm font-black" style={{ color: th.text }}>Promote Your Event</h1>
           <p className="text-[11px]" style={{ color: th.textDim }}>Step {stepIdx + 1} of {steps.length}</p>

@@ -303,21 +303,7 @@ export const BottomNavigation = memo(({
         }}
       >
         {/* LAYER 3: Animated liquid highlight — the bar "shines" like glass */}
-        <div
-          aria-hidden="true"
-          className="liquid-glass-highlight--animated pointer-events-none absolute inset-0"
-          style={{
-            borderRadius: 'inherit',
-            background: isLight ? 'transparent' : `
-              radial-gradient(ellipse 160% 50% at 15% 0%,
-                rgba(255,255,255,${isLight ? 0.55 : 0.14}) 0%, transparent 60%),
-              radial-gradient(ellipse 100% 60% at 85% 100%,
-                rgba(255,255,255,${isLight ? 0.22 : 0.06}) 0%, transparent 55%)
-            `,
-            backgroundSize: '220% 220%, 100% 100%',
-            zIndex: 1,
-          }}
-        />
+        {/* Atmospheric rim removed per user request for pure floating look */}
 
         {/* Liquid Ripple FX */}
         <AnimatePresence>
@@ -420,9 +406,6 @@ export const BottomNavigation = memo(({
                       background: isLight 
                         ? 'rgba(236,72,153,0.08)' 
                         : 'rgba(255,107,53,0.12)',
-                      border: isLight 
-                        ? '1px solid rgba(236,72,153,0.15)' 
-                        : '1px solid rgba(255,107,53,0.25)',
                       boxShadow: 'inset 0 0 20px rgba(255,107,53,0.05)',
                     }}
                   >
