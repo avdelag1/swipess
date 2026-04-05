@@ -111,7 +111,7 @@ export const BottomNavigation = memo(({
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
     { id: 'add', icon: PlusCircle, label: 'Add', onClick: onAddListingClick, isCenter: true },
-    { id: 'listings', icon: Building2, label: 'Listings', onClick: onListingsClick || (() => navigate('/owner/properties')) },
+    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties', onClick: onListingsClick },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
     { id: 'ai-search', icon: Sparkles, label: 'Swipess AI', onClick: onAISearchClick },
     { id: 'radio', icon: Headphones, label: 'Radio', path: '/radio' },
