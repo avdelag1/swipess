@@ -21,6 +21,7 @@ import {
   Flame, MessageCircle, User, Building2,
   Search, Users, Sparkles, ShieldCheck,
   Megaphone, Compass, Headphones, PlusCircle,
+  Calendar, SlidersHorizontal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -95,22 +96,28 @@ export const BottomNavigation = memo(({
   }, []);
 
 
-  // Client nav items - EXACTLY 5 for perfect mobile zero-scroll
+  // Client nav items
   const clientNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
+    { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
     { id: 'ai-search', icon: Sparkles, label: 'Swipess AI', onClick: onAISearchClick, isSpecial: true },
-    { id: 'radio', icon: Headphones, label: 'Radio', path: '/radio' },
+    { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
+    { id: 'events', icon: Calendar, label: 'Events', path: '/explore/eventos' },
+    { id: 'filters', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
   ];
 
-  // Owner nav items - Same 5-item alignment for consistency
+  // Owner nav items
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
+    { id: 'profile', icon: User, label: 'Profile', path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
-    { id: 'add', icon: PlusCircle, label: 'Add AI', onClick: onAISearchClick, isSpecial: true },
+    { id: 'ai-search', icon: Sparkles, label: 'Swipess AI', onClick: onAISearchClick, isSpecial: true },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties', onClick: onListingsClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
+    { id: 'promote-events', icon: Megaphone, label: 'Promote', path: '/admin/eventos' },
+    { id: 'filters', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Admin nav items — admin panel + messaging
