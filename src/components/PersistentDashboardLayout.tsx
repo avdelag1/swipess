@@ -1,15 +1,16 @@
+import { lazyWithRetry } from '@/utils/lazyRetry';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { AnimatedOutlet } from '@/components/AnimatedOutlet';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { useFilterPersistence } from '@/hooks/useFilterPersistence';
-import { useMemo, useEffect, useState, lazy, Suspense } from 'react';
+import { useMemo, useEffect, useState, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useMatchRealtime } from '@/hooks/useMatchRealtime';
 import { useLikesRealtime } from '@/hooks/useLikesRealtime';
 
 // Global match celebration modal
-const MatchCelebration = lazy(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
+const MatchCelebration = lazyWithRetry(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
 
 /**
  * SPEED OF LIGHT: Persistent Dashboard Layout

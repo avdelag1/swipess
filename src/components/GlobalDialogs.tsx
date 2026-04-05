@@ -1,4 +1,5 @@
-import { lazy, memo } from 'react';
+import { lazyWithRetry } from '@/utils/lazyRetry';
+import { memo } from 'react';
 import { useModalStore } from '@/state/modalStore';
 import { SmartSuspense } from './SmartSuspense';
 import { useAuth } from '@/hooks/useAuth';
@@ -7,27 +8,27 @@ import { useListings } from '@/hooks/useListings';
 import { useClientProfiles } from '@/hooks/useClientProfiles';
 import { useWelcomeState } from '@/hooks/useWelcomeState';
 
-// Lazy-loaded Dialogs
-const AdvancedFiltersDialog = lazy(() => import('@/components/AdvancedFiltersDialog'));
-const SubscriptionPackages = lazy(() => import("@/components/SubscriptionPackages").then(m => ({ default: m.SubscriptionPackages })));
-const LegalDocumentsDialog = lazy(() => import("@/components/LegalDocumentsDialog").then(m => ({ default: m.LegalDocumentsDialog })));
-const ClientProfileDialog = lazy(() => import("@/components/ClientProfileDialog").then(m => ({ default: m.ClientProfileDialog })));
-const PropertyDetails = lazy(() => import("@/components/PropertyDetails").then(m => ({ default: m.PropertyDetails })));
-const PropertyInsightsDialog = lazy(() => import("@/components/PropertyInsightsDialog").then(m => ({ default: m.PropertyInsightsDialog })));
-const ClientInsightsDialog = lazy(() => import("@/components/ClientInsightsDialog").then(m => ({ default: m.ClientInsightsDialog })));
-const OwnerSettingsDialog = lazy(() => import('@/components/OwnerSettingsDialog').then(m => ({ default: m.OwnerSettingsDialog })));
-const OwnerProfileDialog = lazy(() => import('@/components/OwnerProfileDialog').then(m => ({ default: m.OwnerProfileDialog })));
-const OwnerClientSwipeDialog = lazy(() => import('@/components/OwnerClientSwipeDialog'));
-const SupportDialog = lazy(() => import('@/components/SupportDialog').then(m => ({ default: m.SupportDialog })));
-const OnboardingFlow = lazy(() => import('@/components/OnboardingFlow').then(m => ({ default: m.OnboardingFlow })));
-const CategorySelectionDialog = lazy(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
-const SavedSearchesDialog = lazy(() => import('@/components/SavedSearchesDialog').then(m => ({ default: m.SavedSearchesDialog })));
-const MessageActivationPackages = lazy(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })));
-const PushNotificationPrompt = lazy(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })));
-const WelcomeNotification = lazy(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })));
-const ConciergeChat = lazy(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
-const LikedListingInsightsModal = lazy(() => import('@/components/LikedListingInsightsModal').then(m => ({ default: m.LikedListingInsightsModal })));
-const LikedClientInsightsModal = lazy(() => import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal })));
+// 🚀 SPEED OF LIGHT: LAZY WITH RETRY HARDENING
+const AdvancedFiltersDialog = lazyWithRetry(() => import('@/components/AdvancedFiltersDialog'));
+const SubscriptionPackages = lazyWithRetry(() => import("@/components/SubscriptionPackages").then(m => ({ default: m.SubscriptionPackages })));
+const LegalDocumentsDialog = lazyWithRetry(() => import("@/components/LegalDocumentsDialog").then(m => ({ default: m.LegalDocumentsDialog })));
+const ClientProfileDialog = lazyWithRetry(() => import("@/components/ClientProfileDialog").then(m => ({ default: m.ClientProfileDialog })));
+const PropertyDetails = lazyWithRetry(() => import("@/components/PropertyDetails").then(m => ({ default: m.PropertyDetails })));
+const PropertyInsightsDialog = lazyWithRetry(() => import("@/components/PropertyInsightsDialog").then(m => ({ default: m.PropertyInsightsDialog })));
+const ClientInsightsDialog = lazyWithRetry(() => import("@/components/ClientInsightsDialog").then(m => ({ default: m.ClientInsightsDialog })));
+const OwnerSettingsDialog = lazyWithRetry(() => import('@/components/OwnerSettingsDialog').then(m => ({ default: m.OwnerSettingsDialog })));
+const OwnerProfileDialog = lazyWithRetry(() => import('@/components/OwnerProfileDialog').then(m => ({ default: m.OwnerProfileDialog })));
+const OwnerClientSwipeDialog = lazyWithRetry(() => import('@/components/OwnerClientSwipeDialog'));
+const SupportDialog = lazyWithRetry(() => import('@/components/SupportDialog').then(m => ({ default: m.SupportDialog })));
+const OnboardingFlow = lazyWithRetry(() => import('@/components/OnboardingFlow').then(m => ({ default: m.OnboardingFlow })));
+const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
+const SavedSearchesDialog = lazyWithRetry(() => import('@/components/SavedSearchesDialog').then(m => ({ default: m.SavedSearchesDialog })));
+const MessageActivationPackages = lazyWithRetry(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })));
+const PushNotificationPrompt = lazyWithRetry(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })));
+const WelcomeNotification = lazyWithRetry(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })));
+const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
+const LikedListingInsightsModal = lazyWithRetry(() => import('@/components/LikedListingInsightsModal').then(m => ({ default: m.LikedListingInsightsModal })));
+const LikedClientInsightsModal = lazyWithRetry(() => import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal })));
 
 interface GlobalDialogsProps {
   userRole: 'client' | 'owner' | 'admin';
