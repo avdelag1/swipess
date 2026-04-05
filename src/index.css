@@ -152,6 +152,10 @@ body {
   width: 100%;
   min-height: 100dvh;
   position: relative;
+  /* 🚀 ZENITH GLOBAL ISOLATION */
+  contain: layout style;
+  isolation: isolate;
+  transform: translateZ(0);
 }
 
 .app-header {

@@ -350,7 +350,7 @@ export const BottomNavigation = memo(({
           onScroll={updateScrollFades}
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full justify-start gap-0.5 px-2.5 py-2 nav-scroll-hide transform-gpu',
+            'relative flex items-center w-full justify-start gap-1.5 px-2.5 py-1 nav-scroll-hide transform-gpu',
           )}
           style={{
             zIndex: 2,
@@ -394,10 +394,10 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                   style={{
-                    minWidth: '56px',
+                    minWidth: '62px',
                     scrollSnapAlign: 'start', // Ensure item lands nicely
-                    minHeight: TOUCH_TARGET + 2,
-                    padding: '6px 2px', // Ultra-compact spacing per user request
+                    minHeight: TOUCH_TARGET - 2, // Slightly thinner button height
+                    padding: '4px 6px', // Balanced spacing per user request
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
