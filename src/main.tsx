@@ -14,6 +14,18 @@ import { supabase } from "@/integrations/supabase/client";
   body.classList.add('hw-high', 'perf-ultra');
   body.style.setProperty('--backdrop-blur-intensity', '24px');
 
+  // 🚀 ZENITH: ZERO-LATENCY HAPTIC PROTOCOL
+  // Triggers haptics on pointerdown (capture phase) to guarantee 
+  // immediate physical feedback before React even starts a render cycle.
+  document.addEventListener('pointerdown', (e) => {
+    const target = (e.target as HTMLElement).closest('button, [role="button"], .interactive, .swipe-card');
+    if (target && !target.hasAttribute('data-haptics-fired')) {
+      target.setAttribute('data-haptics-fired', 'true');
+      setTimeout(() => target.removeAttribute('data-haptics-fired'), 200);
+      if ('vibrate' in navigator) navigator.vibrate(10);
+    }
+  }, { capture: true, passive: true });
+
 // 1. START AUTH CHECK BEFORE RENDERING (Parallel process)
 const authPromise = supabase.auth.getSession()
   .then(res => res || { data: { session: null }, error: null })

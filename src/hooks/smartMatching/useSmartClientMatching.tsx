@@ -188,9 +188,10 @@ export function useSmartClientMatching(
                     results = [...uniqueMocks, ...results];
                 }
 
-                // 🔥 PRE-WARM IMAGES IMMEDIATELY
+                // 🔥 PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
                 runIdleTask(() => {
-                    const imagesToPrewarm = results.flatMap(p => p.profile_images || []).slice(0, 10);
+                    const isHighPerformance = (navigator as any).deviceMemory >= 4 || !('deviceMemory' in navigator);
+                    const imagesToPrewarm = results.flatMap(p => p.profile_images || []).slice(0, isHighPerformance ? 25 : 10);
                     pwaImagePreloader.batchPreload(imagesToPrewarm.map(url => getCardImageUrl(url)));
                 });
 

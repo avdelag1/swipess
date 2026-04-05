@@ -235,6 +235,24 @@ button:active, [role="button"]:active {
   isolation: isolate;
 }
 
+/* 🚀 INSTANT REALITY: Content Isolation Protocol */
+.zenith-content-node {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 100px; /* Skips rendering for off-screen nodes */
+}
+
+.zenith-interaction-isolation {
+  contain: layout style paint;
+}
+
+.gpu-ultra {
+  transform: translate3d(0,0,0);
+  will-change: transform, opacity;
+  image-rendering: high-quality;
+  backface-visibility: hidden;
+}
+
+
 /* ─── Premium Animations ─── */
 @keyframes sweep {
   0% { transform: translateX(-100%); }

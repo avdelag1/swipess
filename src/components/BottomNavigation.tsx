@@ -21,7 +21,8 @@ import {
   Flame, MessageCircle, User, Building2,
   Search, Users, Sparkles, ShieldCheck,
   Megaphone, Compass, Headphones, PlusCircle,
-  Calendar, SlidersHorizontal
+  Calendar, SlidersHorizontal, Heart, MessageSquare,
+  LayoutDashboard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -96,28 +97,27 @@ export const BottomNavigation = memo(({
   }, []);
 
 
-  // Client nav items
+  // Client nav items (7 buttons)
   const clientNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: 'Dashboard', path: '/client/dashboard' },
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
-    { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'ai-search', icon: Sparkles, label: 'AI Chat', onClick: onAISearchClick },
+    { id: 'likes', icon: Heart, label: 'Likes', path: '/client/liked-properties' },
+    { id: 'ai-search', icon: MessageSquare, label: 'AI Chat', onClick: onAISearchClick },
     { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: Calendar, label: 'Events', path: '/explore/eventos' },
-    { id: 'filters', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
+    { id: 'search', icon: Search, label: 'Search', onClick: onFilterClick },
   ];
 
-  // Owner nav items
+  // Owner nav items (8 buttons)
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: 'Dashboard', path: '/owner/dashboard' },
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/owner/profile' },
-    { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
+    { id: 'likes', icon: Heart, label: 'Likes', path: '/owner/liked-clients' },
+    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
+    { id: 'ai-search', icon: Sparkles, label: 'AI Assistant', onClick: onAISearchClick },
+    { id: 'promote-events', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties', onClick: onListingsClick },
-    { id: 'ai-search', icon: Sparkles, label: 'AI Listing', onClick: onAISearchClick },
-    { id: 'promote-events', icon: Megaphone, label: 'Promote Event', path: '/admin/eventos' },
-    { id: 'filters', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
+    { id: 'search', icon: Search, label: 'Search', onClick: onFilterClick },
   ];
 
   // Admin nav items — admin panel + messaging
@@ -224,7 +224,7 @@ export const BottomNavigation = memo(({
       if (item.path === location.pathname) {
         haptics.tap();
         // Tapping Dashboard while already on dashboard resets to category selection grid
-        if (item.id === 'browse') {
+        if (item.id === 'dashboard') {
           setCategories([]);
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });

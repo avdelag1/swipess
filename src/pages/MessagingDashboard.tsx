@@ -265,6 +265,7 @@ export function MessagingDashboard() {
                 return (
                   <motion.div 
                     key={conversation.id} 
+                    className="zenith-content-node"
                     initial={{ opacity: 0, y: 16, scale: 0.98 }} 
                     animate={{ opacity: 1, y: 0, scale: 1 }} 
                     transition={{ 

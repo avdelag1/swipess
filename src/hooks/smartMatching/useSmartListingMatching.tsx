@@ -109,9 +109,10 @@ export function useSmartListingMatching(
                             images: Array.isArray(l.images) ? l.images : (l.images ? [l.images] : [])
                         }));
                         
-                        // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY
+                        // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
                         runIdleTask(() => {
-                          const imagesToPrewarm = results.flatMap(l => l.images || []).slice(0, 5);
+                          const isHighPerformance = (navigator as any).deviceMemory >= 4 || !('deviceMemory' in navigator);
+                          const imagesToPrewarm = results.flatMap(l => l.images || []).slice(0, isHighPerformance ? 25 : 10);
                           pwaImagePreloader.batchPreload(imagesToPrewarm.map(url => getCardImageUrl(url)));
                         });
 
@@ -157,9 +158,10 @@ export function useSmartListingMatching(
 
                 const finalResults = matchedResults.sort((a, b) => b.matchPercentage - a.matchPercentage);
 
-                // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY
+                // 🔥 SPEED OF LIGHT: PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
                 runIdleTask(() => {
-                  const imagesToPrewarm = finalResults.flatMap(l => l.images || []).slice(0, 8);
+                  const isHighPerformance = (navigator as any).deviceMemory >= 4 || !('deviceMemory' in navigator);
+                  const imagesToPrewarm = finalResults.flatMap(l => l.images || []).slice(0, isHighPerformance ? 25 : 10);
                   pwaImagePreloader.batchPreload(imagesToPrewarm.map(url => getCardImageUrl(url)));
                 });
 

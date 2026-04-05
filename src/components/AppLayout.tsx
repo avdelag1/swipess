@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { SentientHud } from './SentientHud';
 import { TopBar } from './TopBar';
 import { BottomNavigation } from './BottomNavigation';
+import { useActiveMode } from '@/hooks/useActiveMode';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useModalStore } from '@/state/modalStore';
 import { useInstantReactivity } from '@/hooks/useInstantReactivity';
@@ -32,8 +33,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
   const modalStore = useModalStore();
+  const { activeMode } = useActiveMode();
 
-  const userRole = (user?.user_metadata?.role as 'client' | 'owner' | 'admin') || 'client';
+  const userRole = user?.user_metadata?.role === 'admin' ? 'admin' : activeMode;
 
   useKeyboardShortcuts();
   useFocusManagement();
@@ -102,9 +104,15 @@ export function AppLayout({ children }: AppLayoutProps) {
           <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[1000]">
             <BottomNavigation
               userRole={userRole}
-              onFilterClick={() => modalStore.setModal('showFilters', true)}
+              onFilterClick={() => {
+                if (userRole === 'owner') navigate('/owner/filters');
+                else modalStore.setModal('showFilters', true);
+              }}
               onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
-              onListingsClick={handleListingsClick}
+              onListingsClick={() => {
+                if (userRole === 'owner') navigate('/owner/properties');
+                else navigate('/client/liked-properties');
+              }}
               onAISearchClick={() => {
                 if (userRole === 'owner') navigate('/owner/listings/new-ai');
                 else modalStore.setModal('isAISearchOpen', true);

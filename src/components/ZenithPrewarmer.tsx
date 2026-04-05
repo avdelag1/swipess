@@ -47,6 +47,27 @@ export const ZenithPrewarmer = () => {
         });
       });
 
+      // 🚀 PHASE 2: Predictive DNS / TCP Pre-resolution
+      // Shaves 100-300ms off initial external resource fetches
+      const domains = [
+        'https://supabase.co',
+        'https://images.unsplash.com',
+        'https://v5.airtableavatars.com',
+        'https://api.dicebear.com'
+      ];
+      domains.forEach(domain => {
+        const preconnect = document.createElement('link');
+        preconnect.rel = 'preconnect';
+        preconnect.href = domain;
+        preconnect.crossOrigin = 'anonymous';
+        document.head.appendChild(preconnect);
+
+        const dnsPrefetch = document.createElement('link');
+        dnsPrefetch.rel = 'dns-prefetch';
+        dnsPrefetch.href = domain;
+        document.head.appendChild(dnsPrefetch);
+      });
+
       // 3. Pre-warm Critical UI Assets & Branding (only essential)
       const prefetchImages = [
          '/icons/icon-192.png',

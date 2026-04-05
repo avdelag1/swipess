@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -71,6 +71,13 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
 
   const { isAtListingLimit, listingsUsedThisMonth, limits } = useAIUsage();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isOpen) {
+      // 🚀 SPEED OF LIGHT: Pre-warm the edge function to eliminate cold starts
+      supabase.functions.invoke('ai-orchestrator', { body: { task: 'ping' } }).catch(() => {});
+    }
+  }, [isOpen]);
 
   const resetState = () => {
     setStep('category');

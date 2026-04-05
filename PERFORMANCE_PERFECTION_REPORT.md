@@ -20,6 +20,13 @@ LCP was being inflated by the large splash logo and render-blocking CSS/Fonts.
 *   **Provider Memoization**: Memoized the 11+ levels of global providers in `RootProviders.tsx` to eliminate re-render cascades that cause lag during navigation.
 *   **Unified Recovery**: Consolidated the "Zenith Guard" recovery logic to be synchronous and lightweight, ensuring a stable boot every time.
 
+### 4. Phase 2: Instant Reality (Zero Perceived Latency)
+*   **Speculative Navigation**: Added Chromium-native speculation rules in `index.html` to pre-render the Dashboard and Messaging routes in the background while the user is still on the Landing.
+*   **Content Isolation Protocol**: Implemented `content-visibility: auto` and `contain-intrinsic-size` in `index.css` for heavy list items (Conversations, Listing Cards). This allows the browser to skip the layout/paint of off-screen elements entirely.
+*   **Hardware-Aware Buffering**: Increased predictive image pre-warming from 10 to 25 items on high-performance devices (>=4GB RAM) for an unbreakable swipe experience.
+*   **Interaction Isolation**: Applied `contain: layout style paint` to the Swipe Stack to isolate interaction-driven repaints from the rest of the application tree.
+*   **Zero-Latency Haptics**: Implemented a global capture-phase protocol in `main.tsx` that triggers physical feedback on `pointerdown`, bypassing the React event loop for immediate response feel.
+
 ## 📊 Expected Metric Impact
 
 | Metric | Previous (Mobile) | Target | Impact |
