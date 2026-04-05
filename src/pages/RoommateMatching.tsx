@@ -96,7 +96,7 @@ export default function RoommateMatching() {
   const { isVisible: uiVisible, onScroll: handleScroll } = useHideOnScroll();
 
   // REAL DATA HOOK
-  const { data: realCandidates, isLoading: _isLoading } = useSmartClientMatching(
+  const { data: realCandidates, isLoading } = useSmartClientMatching(
     user?.id,
     undefined,
     0,
@@ -209,8 +209,9 @@ export default function RoommateMatching() {
     >
       {/* ── IMMERSIVE CONTROLS (Floating below global HUD) ── */}
       <motion.div 
-        animate={{ y: uiVisible ? 0 : -100 }}
-        className="absolute top-24 right-4 z-[90] flex items-center gap-2"
+        animate={{ y: uiVisible ? 0 : -150 }}
+        className="absolute right-4 z-[90] flex items-center gap-2 transform-gpu"
+        style={{ top: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 12px) + 20px)' }}
       >
          {/* VISIBILITY STATUS BUBBLE */}
          <motion.button
@@ -222,6 +223,7 @@ export default function RoommateMatching() {
                ? isLight ? "bg-rose-50/90 border-rose-200 text-rose-600" : "bg-rose-500/15 border-rose-500/40 text-rose-400"
                : isLight ? "bg-white/80 border-slate-200 text-slate-400" : "bg-white/5 border-white/10 text-white/40"
            )}
+           style={{ willChange: 'transform, opacity' }}
          >
            {roommateVisible
              ? <Eye className="w-4 h-4 shrink-0" />
@@ -239,6 +241,7 @@ export default function RoommateMatching() {
              "w-11 h-11 rounded-2xl flex items-center justify-center border backdrop-blur-xl shadow-xl transition-all",
              isLight ? "bg-white/80 border-slate-200 text-slate-600" : "bg-white/10 border-white/20 text-white"
            )}
+           style={{ willChange: 'transform, opacity' }}
          >
            <SlidersHorizontal className="w-4 h-4" />
          </motion.button>
@@ -248,7 +251,23 @@ export default function RoommateMatching() {
       <div className="flex-1 relative w-full h-full pt-20">
         <div className="absolute inset-0 z-0">
           <AnimatePresence mode="popLayout" initial={false}>
-            {!topCard ? (
+            {isLoading ? (
+               <motion.div
+                 key="loading"
+                 initial={{ opacity: 0 }}
+                 animate={{ opacity: 1 }}
+                 exit={{ opacity: 0 }}
+                 className="absolute inset-0 flex flex-col items-center justify-center p-8"
+               >
+                 <div className="w-full max-w-[340px] aspect-[3/4] rounded-[2.5rem] bg-muted/20 animate-shimmer overflow-hidden relative border border-white/5">
+                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent animate-sweep" />
+                 </div>
+                 <div className="mt-8 space-y-4 w-full max-w-[200px]">
+                    <div className="h-4 bg-muted/20 rounded-full animate-pulse" />
+                    <div className="h-4 bg-muted/20 rounded-full animate-pulse w-2/3" />
+                 </div>
+               </motion.div>
+            ) : !topCard ? (
               <motion.div
                 key="empty"
                 initial={{ opacity: 0, y: 20 }}
@@ -304,11 +323,15 @@ export default function RoommateMatching() {
                     />
 
                     {/* OVERLAY: COMPATIBILITY BADGE — top-right, below header */}
-                    <div className="absolute top-[calc(var(--safe-top)+100px)] right-4 z-30 pointer-events-none">
+                    <div 
+                      className="absolute right-4 z-30 pointer-events-none transform-gpu"
+                      style={{ top: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 12px) + 80px)' }}
+                    >
                        <motion.div 
                          initial={{ opacity: 0, x: 20 }}
                          animate={{ opacity: 1, x: 0 }}
                          className="px-4 py-2 rounded-2xl bg-black/60 backdrop-blur-md border border-white/15 shadow-lg flex items-center gap-2"
+                         style={{ willChange: 'transform, opacity' }}
                        >
                          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                          <span className="text-[11px] font-black text-white uppercase tracking-[0.15em]">{(topCard as any).compatibility ?? 85}%</span>
