@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Zap, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
+import { useFocusMode } from '@/hooks/useFocusMode';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -86,7 +87,8 @@ function TopBarComponent({
   const { toast } = useToast();
 
   const location = useLocation();
-  const { isVisible: _isVisible } = useScrollDirection({ 
+  const { isFocused } = useFocusMode(7000);
+  const { isVisible } = useScrollDirection({ 
     threshold: 25, 
     showAtTop: true,
     resetTrigger: location.pathname
