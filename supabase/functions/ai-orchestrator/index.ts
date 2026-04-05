@@ -104,21 +104,21 @@ INSTRUCTIONS:
       `.trim();
     }
 
-    // 🚀 Using official .io endpoint for International v2 (sk-cp keys)
+    // 🚀 ULTRA-FAST: We prioritize 'minimax-text-01' for v2 plans, falling back to 'minimax-m2.7'
     const minimaxUrl = "https://api.minimax.io/v1/text/chatcompletion_v2";
     const group_id = minimaxGroupId;
     
-    console.log(`[AI Orchestrator] Triggering task: ${task || 'chat'} for model: MiniMax-M2.7`);
+    console.log(`[AI Orchestrator] Stream-Pass: Task ${task || 'chat'}`);
 
     const headers: Record<string, string> = {
       "Authorization": `Bearer ${minimaxKey}`,
       "Content-Type": "application/json",
-      "x-group-id": group_id, // 🛡️ Ensure header-based routing for specific plan types
+      "x-group-id": group_id,
     };
     
     const body = { 
-      model: "MiniMax-M2.7",
-      group_id: group_id, // 🛡️ Also include in body for v2 parity
+      model: "minimax-text-01", // Preferred v2 model name
+      group_id: group_id,
       messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
       temperature: task === "conversation" ? 0 : 0.6,
       stream: task === "chat" || !task,
@@ -131,95 +131,90 @@ INSTRUCTIONS:
       body: JSON.stringify(body),
     });
 
-    if (!res.ok) {
-        const errorText = await res.text();
-        console.error(`[AI Orchestrator] MiniMax error ${res.status}:`, errorText);
-        throw new Error(`AI Engine HTTP error: ${res.status} - ${errorText}`);
-    }
-
-    // 🌊 STREAMING HANDLER: For Concierge Chat
-    if (body.stream) {
-      const { readable, writable } = new TransformStream();
-      const writer = writable.getWriter();
-      const reader = res.body?.getReader();
-      const encoder = new TextEncoder();
-      const decoder = new TextDecoder();
-
-      if (!reader) throw new Error("Could not initialize stream reader");
-
-      (async () => {
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            
-            const chunk = decoder.decode(value);
-            const lines = chunk.split('\n');
-            
-            for (const line of lines) {
-              if (line.startsWith('data: ')) {
-                const dataStr = line.slice(6).trim();
-                if (dataStr === '[DONE]') continue;
-                
-                try {
-                  const data = JSON.parse(dataStr);
-                  const content = data.choices?.[0]?.delta?.content || "";
-                  if (content) {
-                    await writer.write(encoder.encode(content));
-                  }
-                } catch (e) {
-                  // Skip invalid JSON lines (might be HEARTBEAT or partial chunks)
-                }
-              }
-            }
-          }
-        } catch (e) {
-          console.error("[AI Orchestrator] Streaming Error:", e);
-        } finally {
-          await writer.close();
-        }
-      })();
-
-      return new Response(readable, {
-        headers: { ...corsHeaders, "Content-Type": "text/event-stream" }
+    // 🛡️ INTELLIGENT FALLBACK: If preferred model fails, try M2.7 verbatim
+    if (!res.ok && res.status === 400) {
+      console.warn(`[AI Orchestrator] Primary model failed, trying M2.7 fallback...`);
+      body.model = "MiniMax-M2.7";
+      const resFallback = await fetch(minimaxUrl, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
       });
+      if (!resFallback.ok) {
+        const errorText = await resFallback.text();
+        throw new Error(`AI Engine Error: ${resFallback.status} - ${errorText}`);
+      }
+      return handleApiResponse(resFallback, body.stream, task, data, corsHeaders);
+    } else if (!res.ok) {
+      const errorText = await res.text();
+      console.error(`[AI Orchestrator] MiniMax error ${res.status}:`, errorText);
+      throw new Error(`AI Engine HTTP error: ${res.status} - ${errorText}`);
     }
 
-    // 🧊 NON-STREAMING: For conversation/Listing Architect
-    const aiRes = await res.json();
-    if (aiRes.base_resp && aiRes.base_resp.status_code !== 0) {
-      throw new Error(`AI API Error: ${aiRes.base_resp.status_msg || aiRes.base_resp.status_code}`);
-    }
+    return handleApiResponse(res, body.stream, task, data, corsHeaders);
 
-    const rawAiText = aiRes.choices?.[0]?.message?.content || "";
-    let finalResult: any;
-
-    if (task === "conversation") {
-        try {
-            const cleaned = rawAiText.trim().replace(/^```json/, '').replace(/```$/, '').trim();
-            finalResult = JSON.parse(cleaned);
-        } catch (e) {
-            finalResult = { 
-                message: "I'm having a technical glitch. Could you repeat that?",
-                extractedData: data?.extractedData || {},
-                isComplete: false
-            };
-        }
-    } else {
-        const actionMatch = rawAiText.match(/(\{\s*"action"\s*:[\s\S]*?\}\s*)$/m);
-        const aiText = actionMatch ? rawAiText.substring(0, actionMatch.index).trim() : rawAiText.trim();
-        let aiAction = null;
-        if (actionMatch) {
-            try {
-                aiAction = JSON.parse(actionMatch[0])?.action;
-            } catch (e) {}
-        }
-        finalResult = { text: aiText, action: aiAction };
-    }
-
-    return new Response(JSON.stringify({ result: finalResult, status: "success" }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
+  } catch (err: any) {
+    console.error("Orchestrator Error:", err);
+    return new Response(JSON.stringify({ error: err.message, status: "error" }), { 
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" } 
     });
+  }
+});
+
+/**
+ * 🌊 ZERO-LATENCY STREAM PIPELINE
+ * Directly pipes the response body to the client after standardizing for SSE.
+ */
+async function handleApiResponse(res: Response, isStream: boolean, task: string, data: any, corsHeaders: any) {
+  if (isStream) {
+    // 🚀 SPEED OF LIGHT: Direct stream pass-through with CORS headers
+    // Using a TransformStream ensures we can pipe the reader directly while maintaining SSE integrity
+    const { readable, writable } = new TransformStream();
+    res.body?.pipeTo(writable).catch(e => console.error("[Stream Pipe Error]", e));
+
+    return new Response(readable, {
+      headers: { 
+        ...corsHeaders, 
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive"
+      }
+    });
+  }
+
+  // 🧊 JSON Buffer for Logic Tasks
+  const aiRes = await res.json();
+  const rawAiText = aiRes.choices?.[0]?.message?.content || "";
+  let finalResult: any;
+
+  if (task === "conversation") {
+    try {
+      const cleaned = rawAiText.trim().replace(/^```json/, '').replace(/```$/, '').trim();
+      finalResult = JSON.parse(cleaned);
+    } catch (e) {
+      finalResult = { 
+        message: "I'm having a technical glitch. Could you repeat that?",
+        extractedData: data?.extractedData || {},
+        isComplete: false
+      };
+    }
+  } else {
+    const actionMatch = rawAiText.match(/(\{\s*"action"\s*:[\s\S]*?\}\s*)$/m);
+    const aiText = actionMatch ? rawAiText.substring(0, actionMatch.index).trim() : rawAiText.trim();
+    let aiAction = null;
+    if (actionMatch) {
+      try {
+        aiAction = JSON.parse(actionMatch[0])?.action;
+      } catch (e) {}
+    }
+    finalResult = { text: aiText, action: aiAction };
+  }
+
+  return new Response(JSON.stringify({ result: finalResult, status: "success" }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" }
+  });
+}
 
   } catch (err: any) {
     console.error("Orchestrator Error:", err);

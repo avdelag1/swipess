@@ -209,25 +209,44 @@ export function useConciergeAI() {
           const { done, value } = await reader.read();
           if (done) break;
           
-          const chunk = decoder.decode(value, { stream: true });
+          const rawChunk = decoder.decode(value, { stream: true });
           
-          // 🚀 First token received: Stop 'thinking' and start 'streaming'
-          if (accumulatedText === '') {
-            setIsThinking(false);
-            setMessages(prev => [...prev, {
-              id: assistantId,
-              role: 'assistant',
-              content: '',
-              timestamp: new Date()
-            }]);
+          // 🚀 SSE STREAM PARSING: Extract content from data: {...} blocks
+          const lines = rawChunk.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const dataStr = line.slice(6).trim();
+              if (dataStr === '[DONE]') continue;
+              
+              try {
+                const parsed = JSON.parse(dataStr);
+                const token = parsed.choices?.[0]?.delta?.content || "";
+                
+                if (token) {
+                  // 🚀 First token received: Stop 'thinking'
+                  if (accumulatedText === '') {
+                    setIsThinking(false);
+                    const aid = assistantId;
+                    setMessages(prev => [...prev, {
+                      id: aid,
+                      role: 'assistant',
+                      content: '',
+                      timestamp: new Date()
+                    }]);
+                  }
+                  
+                  accumulatedText += token;
+
+                  // Update UI in real-time
+                  setMessages(prev => prev.map(m => 
+                    m.id === assistantId ? { ...m, content: accumulatedText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() } : m
+                  ));
+                }
+              } catch (e) {
+                // Ignore partial JSON or heartbeats
+              }
+            }
           }
-
-          accumulatedText += chunk;
-
-          // Update UI in real-time
-          setMessages(prev => prev.map(m => 
-            m.id === assistantId ? { ...m, content: accumulatedText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() } : m
-          ));
         }
 
         const finalRawText = accumulatedText;
