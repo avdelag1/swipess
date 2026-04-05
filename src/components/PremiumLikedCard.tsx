@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { memo } from "react";
 import { MessageCircle, MapPin, Trash2, Eye, Bed, User, Home, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -9,7 +9,7 @@ interface PremiumLikedCardProps {
     isLight?: boolean;
 }
 
-export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLikedCardProps) {
+export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: PremiumLikedCardProps) => {
     const imageUrl = type === 'listing'
         ? (data.images?.[0] || data.image_url)
         : (data.images?.[0] || data.avatar_url || data.profile_images?.[0]);
@@ -27,7 +27,7 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ y: -4 }}
             className={cn(
-                "group relative rounded-[2rem] overflow-hidden transition-all duration-300",
+                "group relative rounded-[2rem] overflow-hidden transition-all duration-300 touch-pan-y",
                 isLight
                   ? "bg-white border border-border/50 shadow-xl hover:shadow-2xl"
                   : "bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] shadow-2xl hover:border-white/[0.12]"
@@ -35,7 +35,7 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
         >
             {/* Visual Header / Image */}
             <div 
-                className="relative h-48 sm:h-56 overflow-hidden cursor-pointer"
+                className="relative h-48 sm:h-56 overflow-hidden cursor-pointer touch-pan-y"
                 onClick={() => onAction('view', data)}
             >
                 {imageUrl ? (
@@ -62,10 +62,10 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
                 </div>
 
                 <button
-                    onClick={() => onAction('remove', data)}
+                    onClick={(e) => { e.stopPropagation(); onAction('remove', data); }}
                     aria-label="Remove from favorites"
                     title="Remove from favorites"
-                    className="absolute top-4 right-4 h-11 w-11 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:text-rose-500 transition-all active:scale-95 shadow-lg group/trash"
+                    className="absolute top-4 right-4 h-11 w-11 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:text-rose-500 transition-all active:scale-95 shadow-lg group/trash z-20"
                 >
                     <Trash2 className="w-5 h-5 transition-transform group-hover/trash:scale-110" />
                 </button>
@@ -144,4 +144,6 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
             </div>
         </motion.div>
     );
-}
+});
+
+PremiumLikedCard.displayName = 'PremiumLikedCard';

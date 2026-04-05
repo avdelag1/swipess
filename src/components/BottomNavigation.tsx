@@ -115,7 +115,6 @@ export const BottomNavigation = memo(({
     { id: 'profile', icon: User, label: 'Profile', path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: 'Liked', path: '/owner/liked-clients' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
-    { id: 'add-listing', icon: PlusCircle, label: 'Create', onClick: onAddListingClick },
     { id: 'ai-search', icon: Sparkles, label: 'AI Listing', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
@@ -351,7 +350,7 @@ export const BottomNavigation = memo(({
           onScroll={updateScrollFades}
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full px-1 py-2.5 nav-scroll-hide',
+            'relative flex items-center w-full justify-between px-2 py-3 nav-scroll-hide',
           )}
           style={{
             zIndex: 2,
@@ -388,11 +387,12 @@ export const BottomNavigation = memo(({
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center rounded-xl gap-0.5 min-w-0 flex-1',
+                  'relative flex flex-col items-center justify-center rounded-xl gap-1.5 min-w-[56px] flex-1 h-full',
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                 style={{
-                  minWidth: 'auto', // Allow buttons to organically size to their words
+                  minWidth: '56px', // Give every word a chance to breathe
+                  maxWidth: '80px', // Prevent extreme spreading on tablets
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT + 6 : TOUCH_TARGET + 8,
                   padding: isNarrow ? '8px 10px' : '10px 14px', // Giving every button their own space
                   background: 'none',
@@ -469,23 +469,25 @@ export const BottomNavigation = memo(({
                   />
                 </motion.div>
                 
-                {/* Label */}
+                {/* Label Container: Fixed height to prevent icon shifting */}
                 {!isNarrow && (
-                  <span
-                    className={cn(
-                      'text-[10px] tracking-wide transition-all duration-300 relative font-black uppercase italic',
-                    )}
-                    style={{
-                      color: active
-                        ? 'var(--color-brand-primary)'
+                  <div className="h-3 flex items-center justify-center w-full overflow-hidden">
+                    <span
+                      className={cn(
+                        'text-[9px] tracking-tight transition-all duration-300 relative font-black uppercase italic whitespace-nowrap',
+                      )}
+                      style={{
+                        color: active
+                          ? 'var(--color-brand-primary)'
                         : (isLight ? 'rgba(0,0,0,0.72)' : 'rgba(255,255,255,0.55)'),
                       opacity: 1,
                       zIndex: 1,
                       textShadow: 'none',
-                    }}
-                  >
-                    {item.label}
-                  </span>
+                      }}
+                    >
+                      {item.label}
+                    </span>
+                  </div>
                 )}
               </motion.button>
             );
