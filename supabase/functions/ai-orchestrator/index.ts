@@ -1,5 +1,3 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
@@ -7,14 +5,14 @@ const corsHeaders = {
 };
 
 /**
- * 🛰️ SWIPESS AI CONCIERGE: MINIMALIST RESET
+ * 🛰️ SWIPESS AI CONCIERGE: MODERN RESET
  * ─────────────────────────────────────────────────────────────────────────────
  * HUB: minimax-text-01 (High-Performance Chat Completion V2)
  * SCHEMA: Logic-only - No fallbacks, no filler, maximum speed.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   // 🛡️ Preflight handler
   if (req.method === "OPTIONS") {
     return new Response(null, { 
@@ -56,7 +54,7 @@ serve(async (req) => {
     })).filter((m: any) => m.content.trim() !== "");
 
     // ── CORE IDENTITY RESET ───────────────────────────────────────
-    let systemPrompt = `You are the Swipess AI Concierge, a premium Tulum digital local expert. 
+    const systemPrompt = `You are the Swipess AI Concierge, a premium Tulum digital local expert. 
 Your goal is to provide elite, detailed, and personalized recommendations for Tulum. 
 You specialize in EVERYTHING local: 
 - Elite property rentals and sales.
@@ -80,7 +78,7 @@ Keep your tone sophisticated and extremely concise.`;
       },
       body: JSON.stringify({
         model: "minimax-text-01",
-        messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-20)], // Increased context
+        messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-20)],
         temperature: 0.7,
         stream: true, // ALWAYS stream for instant UX
         max_tokens: 1024
@@ -111,4 +109,3 @@ Keep your tone sophisticated and extremely concise.`;
     });
   }
 });
-
