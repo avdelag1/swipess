@@ -22,7 +22,8 @@ import {
   Search, Users2, Sparkles, ShieldCheck,
   Megaphone, Compass, Headphones, PlusCircle,
   Zap, Ticket, SlidersHorizontal, Heart, MessageSquare,
-  LayoutDashboard, LayoutGrid, Rocket, PartyPopper, Settings2
+  LayoutDashboard, LayoutGrid, Rocket, PartyPopper, Settings2,
+  Eye
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -105,7 +106,7 @@ export const BottomNavigation = memo(({
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'ai-search', icon: Sparkles, label: 'AI Chat', onClick: onAISearchClick },
+    { id: 'ai-search', icon: Eye, label: 'AI Chat', onClick: onAISearchClick },
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
     { id: 'search', icon: Search, label: 'Filters', onClick: onFilterClick },

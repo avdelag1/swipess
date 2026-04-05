@@ -3,7 +3,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Zap, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
+import { Zap, MessageCircle, Crown, FileText, ArrowLeft, Search, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
 import { haptics } from '@/utils/microPolish';
+import { SwipessLogo } from './SwipessLogo';
 
 
 import { ModeSwitcher } from './ModeSwitcher';
@@ -263,8 +264,9 @@ function TopBarComponent({
                 )}
 
 
-              {/* 🚀 CLEAN HUD: Title node removed per user request for a distraction-free, floating HUD aesthetic. */}
-              <div className="flex-1 min-w-0" aria-hidden="true" />
+              <div className="flex-1 flex justify-center">
+                <SwipessLogo size="sm" variant="gradient" className="translate-x-[-12px]" />
+              </div>
 
                 {!minimal && (
                 <>

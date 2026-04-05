@@ -109,7 +109,7 @@ OUTPUT REQUIREMENT:
       model: "minimax-text-01",
       messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
       temperature: task === "conversation" ? 0.1 : 0.7,
-      stream: task === "chat" || !task,
+      stream: false, // Standardize on JSON for maximum reliable connection success
       max_tokens: 1024
     };
 

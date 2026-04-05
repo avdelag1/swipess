@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 interface SwipessLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
   className?: string;
-  variant?: 'white' | 'black' | 'outline';
+  variant?: 'white' | 'black' | 'outline' | 'gradient';
 }
 
 /**
@@ -14,7 +14,7 @@ interface SwipessLogoProps {
 function SwipessLogoComponent({
   size = 'md',
   className,
-  variant = 'white',
+  variant = 'gradient',
 }: SwipessLogoProps) {
   const textSizeMap = {
     xs: 'text-sm tracking-[0.16em]',
@@ -36,6 +36,7 @@ function SwipessLogoComponent({
       <span
         className={cn(
           'relative font-[950] uppercase select-none leading-none italic tracking-tighter', 
+          variant === 'gradient' ? "bg-gradient-to-br from-orange-400 via-rose-500 to-pink-600 bg-clip-text text-transparent" : "text-white",
           textSizeMap[size]
         )}
         style={{
