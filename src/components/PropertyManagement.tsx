@@ -51,7 +51,6 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   const [editingProperty, setEditingProperty] = useState<Partial<Listing> | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [sharingListing, setSharingListing] = useState<Listing | null>(null);
-  const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [availabilityStatus, setAvailabilityStatus] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
 
@@ -101,16 +100,6 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
     setShowCategoryDialog(true);
   };
 
-  const handleAIComplete = (data: { category: string; images: string[]; formData: Record<string, unknown> }) => {
-    setEditingProperty({
-      category: data.category,
-      mode: (data.formData.mode as string) || 'rent',
-      images: data.images,
-      ...data.formData,
-    });
-    setShowAIAssistant(false);
-    setIsFormOpen(true);
-  };
 
   const handleCategorySelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => {
     setEditingProperty({ category, mode });
@@ -285,7 +274,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                 "border border-[var(--color-brand-accent-2)]/30 text-[var(--color-brand-accent-2)] hover:bg-[var(--color-brand-accent-2)]/10",
                 isLight ? "bg-white" : "bg-white/[0.04]"
               )}
-              onClick={() => setShowAIAssistant(true)}
+              onClick={() => navigate('/owner/listings/new-ai')}
             >
               <Sparkles className="w-4 h-4" />
               <span>AI</span>
@@ -627,11 +616,6 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         description={`${sharingListing?.title} - $${sharingListing?.price?.toLocaleString() || ''}`}
       />
 
-      <AIListingAssistant
-        isOpen={showAIAssistant}
-        onClose={() => setShowAIAssistant(false)}
-        onComplete={handleAIComplete}
-      />
     </div>
   );
 });

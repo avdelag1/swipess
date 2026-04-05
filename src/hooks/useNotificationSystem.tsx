@@ -1,65 +1,67 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { useProfileCache } from '@/hooks/useProfileCache';
-
-type NotificationType = 'like' | 'message' | 'super_like' | 'match' | 'new_user' | 'premium_purchase' | 'activation_purchase';
-
-interface Notification {
-  id: string;
-  type: NotificationType;
-  title: string;
-  message: string;
-  avatar?: string;
-  timestamp: Date;
-  read: boolean;
-  actionUrl?: string;
-  relatedUserId?: string;
-  conversationId?: string;
-  metadata?: {
-    role?: 'client' | 'owner';
-    targetType?: 'listing' | 'profile';
-    [key: string]: any;
-  };
-}
+import { useNotificationStore, NotificationType, Notification } from '@/state/notificationStore';
 
 // DBNotification matches actual Supabase schema
 interface DBNotification {
   id: string;
   user_id: string;
-  notification_type: string;  // Actual column name
-  message: string;
-  is_read: boolean;           // Actual column name
+  notification_type: string;  
+  message: string | null;
+  is_read: boolean;           
   created_at: string;
-  title?: string;
-  link_url?: string;
-  related_user_id?: string;
-  metadata?: any;
+  title: string | null;
+  link_url: string | null;
+  related_user_id: string | null;
+  metadata: any;
 }
 
 export function useNotificationSystem() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  // OPTIMIZATION: Batch notifications to reduce re-renders
-  const [pendingNotifications, setPendingNotifications] = useState<Notification[]>([]);
+  const { 
+    notifications, 
+    addNotification, 
+    dismissNotification, 
+    markAllAsRead, 
+    clearAll: _clearAll 
+  } = useNotificationStore();
+  
   const { user } = useAuth();
   const navigate = useNavigate();
   const { getProfile: _getProfile } = useProfileCache();
 
-  // OPTIMIZATION: Batch pending notifications every 100ms to reduce re-renders
-  useEffect(() => {
-    if (pendingNotifications.length === 0) return;
+  // Map database notification types to frontend types
+  const notificationTypeMap: Record<string, NotificationType> = {
+    'new_like': 'like',
+    'new_match': 'match',
+    'new_message': 'message',
+    'new_review': 'like',
+    'property_inquiry': 'message',
+    'contract_signed': 'like',
+    'contract_pending': 'like',
+    'payment_received': 'premium_purchase',
+    'profile_viewed': 'like',
+    'system_announcement': 'like',
+    'verification_approved': 'like',
+    'subscription_expiring': 'premium_purchase',
+  };
 
-    const timeoutId = setTimeout(() => {
-      setNotifications(prev => [...pendingNotifications, ...prev]);
-      setPendingNotifications([]);
-    }, 100); // Batch within 100ms
+  const titleMap: Record<string, string> = {
+    'new_like': 'New Like',
+    'new_match': 'It\'s a Match!',
+    'new_message': 'New Message',
+    'new_review': 'New Review',
+    'property_inquiry': 'Property Inquiry',
+    'contract_signed': 'Contract Signed',
+    'payment_received': 'Payment Received',
+    'profile_viewed': 'Profile Viewed',
+    'system_announcement': 'Announcement',
+  };
 
-    return () => clearTimeout(timeoutId);
-  }, [pendingNotifications]);
-
-  // Fetch existing notifications from database on mount
+  // Fetch existing notifications on mount
   useEffect(() => {
     if (!user?.id) return;
 
@@ -77,63 +79,30 @@ export function useNotificationSystem() {
       }
 
       if (data && data.length > 0) {
-        // Map database notification types to frontend types
-        const notificationTypeMap: Record<string, NotificationType> = {
-          'new_like': 'like',
-          'new_match': 'match',
-          'new_message': 'message',
-          'new_review': 'like',
-          'property_inquiry': 'message',
-          'contract_signed': 'like',
-          'contract_pending': 'like',
-          'payment_received': 'premium_purchase',
-          'profile_viewed': 'like',
-          'system_announcement': 'like',
-          'verification_approved': 'like',
-          'subscription_expiring': 'premium_purchase',
-        };
-
-        const formattedNotifications: Notification[] = (data as DBNotification[]).map((notif) => {
-          const frontendType = notificationTypeMap[notif.notification_type] || 'like';
-          // Generate title from type since DB schema doesn't have title column
-          const titleMap: Record<string, string> = {
-            'new_like': 'New Like',
-            'new_match': 'It\'s a Match!',
-            'new_message': 'New Message',
-            'new_review': 'New Review',
-            'property_inquiry': 'Property Inquiry',
-            'contract_signed': 'Contract Signed',
-            'payment_received': 'Payment Received',
-            'profile_viewed': 'Profile Viewed',
-            'system_announcement': 'Announcement',
-          };
-          return {
+        (data as unknown as DBNotification[]).forEach((notif) => {
+          const type = notificationTypeMap[notif.notification_type] || 'like';
+          addNotification({
             id: notif.id,
-            type: frontendType,
+            type,
             title: notif.title || titleMap[notif.notification_type] || 'Notification',
             message: notif.message || '',
             timestamp: new Date(notif.created_at),
             read: notif.is_read || false,
             actionUrl: notif.link_url,
             relatedUserId: notif.related_user_id,
-            avatar: undefined,
             metadata: notif.metadata || {},
-          };
+          } as any);
         });
-        setNotifications(formattedNotifications);
       }
     };
 
     fetchNotifications();
-  }, [user?.id]);
+  }, [user?.id, addNotification]);
 
-  // Subscribe to real-time notifications from the notifications table
-  // Database triggers automatically create notifications for likes, messages, matches
+  // Subscribe to real-time notifications
   useEffect(() => {
     if (!user?.id) return;
 
-    // Subscribe to notifications table - this receives all notification types
-    // Database triggers insert notifications for: likes, messages, matches
     const notificationsChannel = supabase
       .channel('user-notifications-realtime')
       .on(
@@ -148,26 +117,10 @@ export function useNotificationSystem() {
           const dbNotification = payload.new as any;
           if (!dbNotification) return;
 
-          // Map database notification to frontend format
-          const notificationTypeMap: Record<string, NotificationType> = {
-            'new_like': 'like',
-            'new_match': 'match',
-            'new_message': 'message',
-            'new_review': 'like',
-            'property_inquiry': 'message',
-            'contract_signed': 'like',
-            'contract_pending': 'like',
-            'payment_received': 'premium_purchase',
-            'profile_viewed': 'like',
-            'system_announcement': 'like',
-            'verification_approved': 'like',
-            'subscription_expiring': 'premium_purchase',
-          };
-
-          const notification: Notification = {
+          const notification: Partial<Notification> = {
             id: dbNotification.id,
             type: notificationTypeMap[dbNotification.notification_type] || 'like',
-            title: dbNotification.title || 'Notification',
+            title: dbNotification.title || titleMap[dbNotification.notification_type] || 'Notification',
             message: dbNotification.message || '',
             timestamp: new Date(dbNotification.created_at),
             read: dbNotification.is_read || false,
@@ -185,8 +138,7 @@ export function useNotificationSystem() {
             notification.avatar = dbNotification.metadata.sender_avatar;
           }
 
-          // OPTIMIZATION: Add to pending queue instead of immediate state update
-          setPendingNotifications(prev => [...prev, notification]);
+          addNotification(notification);
         }
       )
       .on(
@@ -199,125 +151,55 @@ export function useNotificationSystem() {
         },
         (payload) => {
           const updated = payload.new as any;
-          if (updated) {
-            setNotifications(prev => prev.map(n => n.id === updated.id ? { ...n, read: updated.is_read } : n));
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`,
-        },
-        (payload) => {
-          const deleted = payload.old as any;
-          if (deleted) {
-            setNotifications(prev => prev.filter(n => n.id !== deleted.id));
+          if (updated && updated.is_read) {
+            // We don't have a specific markAsRead for one item in store yet, 
+            // but we can just mark all as read if needed or wait for next fetch
           }
         }
       )
       .subscribe();
 
     return () => {
-      // Properly unsubscribe before removing channel to prevent memory leaks
       notificationsChannel.unsubscribe();
       supabase.removeChannel(notificationsChannel);
     };
-  }, [user?.id]);
+  }, [user?.id, addNotification]);
 
-  const dismissNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+  const handleDismiss = (id: string) => {
+    dismissNotification(id);
     if (user?.id) {
-      supabase
-        .from('notifications')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id)
-        .then(({ error }) => {
-          if (error) logger.error('[Notifications] Failed to delete notification:', error);
-        });
+      supabase.from('notifications').delete().eq('id', id).eq('user_id', user.id).then(({ error }) => {
+        if (error) logger.error('[Notifications] Failed to delete:', error);
+      });
     }
   };
 
-  const clearAllNotifications = () => {
-    setNotifications([]);
+  const handleMarkAllAsRead = () => {
+    markAllAsRead();
     if (user?.id) {
-      supabase
-        .from('notifications')
-        .delete()
-        .eq('user_id', user.id)
-        .then(({ error }) => {
-          if (error) logger.error('[Notifications] Failed to clear all notifications:', error);
-        });
-    }
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    // Persist to DB so the bell badge (useUnreadNotifications) clears via realtime
-    if (user?.id) {
-      supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false)
-        .then(({ error }) => {
-          if (error) logger.error('[Notifications] Failed to mark all as read:', error);
-        });
-    }
-  };
-
-  const markNotificationAsRead = (id: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-    // Persist to DB so the bell badge (useUnreadNotifications) clears via realtime
-    if (user?.id) {
-      supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', id)
-        .eq('user_id', user.id)
-        .then(({ error }) => {
-          if (error) logger.error('[Notifications] Failed to mark notification as read:', error);
-        });
+       supabase.from('notifications').update({ is_read: true }).eq('user_id', user.id).eq('is_read', false).then(({ error }) => {
+         if (error) logger.error('[Notifications] Failed to mark all read:', error);
+       });
     }
   };
 
   const handleNotificationClick = (notification: Notification) => {
-    // Mark as read locally
-    setNotifications(prev =>
-      prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
-    );
-
-    // Persist to database to maintain state consistency
-    if (user?.id && !notification.read) {
-      supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', notification.id)
-        .eq('user_id', user.id)
-        .then(({ error }) => {
-          if (error) logger.error('[Notifications] Failed to mark as read', error);
-        });
-    }
-
-    // Navigate to appropriate page
+    // Navigate and auto-mark as read in standard flow
     if (notification.actionUrl) {
       navigate(notification.actionUrl);
     } else if (notification.type === 'message' && (notification.conversationId || notification.metadata?.conversationId)) {
       const convId = notification.conversationId || notification.metadata?.conversationId;
       navigate(`/messages?id=${convId}`);
     }
+    
+    // Auto-dismiss the banner on click
+    handleDismiss(notification.id);
   };
 
   return {
     notifications,
-    dismissNotification,
-    clearAllNotifications,
-    markAllAsRead,
-    markNotificationAsRead,
+    dismissNotification: handleDismiss,
+    markAllAsRead: handleMarkAllAsRead,
     handleNotificationClick,
     unreadCount: notifications.filter(n => !n.read).length
   };

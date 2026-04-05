@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
-import { User, Megaphone, Building2, Plus } from 'lucide-react';
+import { User, Megaphone } from 'lucide-react';
 import { useModalStore } from '@/state/modalStore';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -166,7 +166,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     };
 
     return (
-      <div className="relative flex flex-col items-center justify-center min-h-0 h-full w-full pt-0 pb-4 overflow-hidden">
+      <div className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden">
         <OwnerAllDashboard onCardSelect={handleCardSelect} />
       </div>
     );

@@ -35,10 +35,10 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 
-const ICON_SIZE = 24;
-const ICON_SIZE_COMPACT = 22;
-const TOUCH_TARGET = 48;
-const TOUCH_TARGET_COMPACT = 44;
+const ICON_SIZE = 26;
+const ICON_SIZE_COMPACT = 23;
+const TOUCH_TARGET = 52;
+const TOUCH_TARGET_COMPACT = 46;
 
 interface BottomNavigationProps {
   userRole: 'client' | 'owner' | 'admin';
@@ -95,28 +95,22 @@ export const BottomNavigation = memo(({
   }, []);
 
 
-  // Client nav items 
+  // Client nav items - EXACTLY 5 for perfect mobile zero-scroll
   const clientNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
-    { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
-    { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
-    { id: 'ai-search', icon: Sparkles, label: 'Swipess AI', onClick: onAISearchClick },
-    { id: 'radio', icon: Headphones, label: 'Radio', path: '/radio' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
+    { id: 'ai-search', icon: Sparkles, label: 'Swipess AI', onClick: onAISearchClick, isSpecial: true },
+    { id: 'radio', icon: Headphones, label: 'Radio', path: '/radio' },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-    { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
+  // Owner nav items - Same 5-item alignment for consistency
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
-    { id: 'listings', icon: Building2, label: 'Portfolio', path: '/owner/properties', onClick: onListingsClick },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
-    { id: 'add', icon: PlusCircle, label: 'Add', onClick: onAddListingClick, isSpecial: true },
+    { id: 'add', icon: PlusCircle, label: 'Add AI', onClick: onAISearchClick, isSpecial: true },
+    { id: 'listings', icon: Building2, label: 'Portfolio', path: '/owner/properties', onClick: onListingsClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-    { id: 'ai-search', icon: Sparkles, label: 'Swipess AI', onClick: onAISearchClick },
-    { id: 'radio', icon: Headphones, label: 'Radio', path: '/radio' },
-    { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
-    { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
   ];
 
   // Admin nav items — admin panel + messaging
@@ -389,7 +383,7 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                 style={{
-                  minWidth: 84, // Larger horizontal footprint for easier tapping
+                  minWidth: 64, // Reduced from 84 to prevent overflow on mobile with 5+ items
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT + 6 : TOUCH_TARGET + 8,
                   padding: isNarrow ? '8px 4px' : '10px 6px',
                   background: 'none',

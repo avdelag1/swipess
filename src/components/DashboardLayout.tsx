@@ -333,6 +333,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     // Core routes that should go full-bleed behind the header ONLY for hero effects.
     // Standard dashboards should now have padding to prevent button overlap.
     const immersiveRoutes = [
+      '/client/dashboard',
+      '/owner/dashboard',
       '/client/profile',
       '/owner/profile',
     ];

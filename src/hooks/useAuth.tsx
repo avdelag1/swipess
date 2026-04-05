@@ -524,20 +524,30 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       // Dispatch sign out event
       window.dispatchEvent(new CustomEvent('user-signout'));
 
-      // Clear localStorage
+      // 🛑 HARD SESSION CLEAR: Purely eliminate all traces of the previous user
+      // Clear Supabase-specific localStorage keys
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth'))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+
+      // Clear other relevant keys
       localStorage.removeItem('pendingOAuthRole');
       localStorage.removeItem('rememberMe');
+      localStorage.removeItem('onboarding_step');
+      localStorage.removeItem('has_seen_welcome');
 
-      // Clear React Query cache AFTER navigation to avoid components crashing mid-render
-      setTimeout(() => {
-        queryClient.clear();
-      }, 500);
+      // Clear all session storage
+      sessionStorage.clear();
 
-      // Clear local state
-      setUser(null);
-      setSession(null);
-
-      // Sign out from Supabase
+      // Clear React Query cache IMMEDIATELY
+      queryClient.clear();
+      
+      // Sign out from Supabase (Global Scope)
       const { error } = await supabase.auth.signOut();
 
       if (error) {
@@ -546,10 +556,16 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
       toast.success("Signed out", { description: "You have been signed out successfully." });
 
+      // 🚀 FORCED REBOOT: The only way to be 100% sure memory is clean and no race conditions occur
+      // during the next login.
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
+
     } catch (error) {
       logger.error('[Auth] Unexpected sign out error:', error);
       toast.error("Sign Out Error", { description: "An unexpected error occurred during sign out." });
-      navigate('/', { replace: true });
+      window.location.href = '/';
     }
   };
 
