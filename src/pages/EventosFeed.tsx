@@ -246,7 +246,7 @@ export default function EventosFeed() {
       {/* Immersive Controls (Floating below global HUD) */}
       <div 
         className="absolute left-0 right-0 z-[100] transform-gpu"
-        style={{ top: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 12px) + 12px)' }}
+        style={{ top: 'calc(var(--safe-top, 12px) + 12px)' }}
       >
 
 

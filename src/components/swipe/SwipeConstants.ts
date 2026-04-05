@@ -83,7 +83,6 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   buyers:     'linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%)',
   renters:    'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
   hire:       'linear-gradient(135deg, #3b0764 0%, #1e0636 100%)',
-  radio:      'linear-gradient(135deg, #4d0000 0%, #1a0000 100%)',
 };
 
 // Icon imports consolidated at top.
@@ -117,13 +116,13 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   motorcycle: '/images/filters/scooter.png',
   bicycle:    '/images/filters/bicycle.png',
   services:   '/images/filters/workers.png',
-  all:        '/images/filters/property.png', // Fallback to property for now
+  all:        '/images/filters/all.png',
   
   // Owner intent cards - REFINED UX
-  buyers:     '/images/filters/owner_buyers_card.png',
-  renters:    '/images/filters/owner_renters_card.png',
-  hire:       '/images/filters/owner_hire_card.png',
-  'all-clients': '/images/filters/workers.png',
+  buyers:        '/images/filters/owner_buyers_card.png',
+  renters:       '/images/filters/owner_renters_card.png',
+  hire:          '/images/filters/owner_hire_card.png',
+  'all-clients': '/images/filters/all.png',
 };
 
 // ─── Owner quick-filter intent cards ────────────────────────────────────────

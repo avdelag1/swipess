@@ -114,11 +114,6 @@ INSTRUCTIONS:
       "Content-Type": "application/json"
     };
     
-    // 🛡️ Group ID is mandatory for Token Plan keys (sk-cp-*)
-    if (minimaxGroupId) {
-      baseHeaders["GroupId"] = minimaxGroupId;
-    }
-
     let res;
     try {
       res = await fetch(minimaxUrl, {
@@ -126,6 +121,7 @@ INSTRUCTIONS:
         headers: baseHeaders,
         body: JSON.stringify({ 
           model: "MiniMax-M2.7", // 🚀 Updated to newest model from Token Plan
+          group_id: minimaxGroupId, // 🛡️ Group ID passed in body for v2 compatibility
           messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
           temperature: task === "conversation" ? 0 : 0.6,
           stream: false

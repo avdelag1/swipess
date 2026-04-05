@@ -22,6 +22,7 @@ import {
   ChevronsDown,
   Copy,
   RefreshCcw,
+  Shield,
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
 import { useUserMemories } from '@/hooks/useUserMemories';
@@ -92,6 +93,7 @@ export function ConciergeChat({
     messages,
     isLoading,
     error,
+    setError,
     sendMessage,
     clearMessages,
     userVibe: _userVibe,
@@ -707,11 +709,34 @@ export function ConciergeChat({
                 )}
               </AnimatePresence>
 
-                {/* Error */}
+                {/* Error State with Recovery */}
                 {error && (
-                  <div className={cn("p-3 rounded-xl text-center text-sm border", isDark ? "bg-red-900/20 text-red-400 border-red-500/20" : "bg-red-50 text-red-600 border-red-100")}>
-                    {error}
-                  </div>
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className={cn(
+                      "mx-5 my-4 p-4 rounded-2xl border flex flex-col items-center gap-3 text-center",
+                      isDark ? "bg-red-500/5 border-red-500/20 text-red-400" : "bg-red-50 border-red-100 text-red-600"
+                    )}
+                  >
+                    <div className="flex items-center gap-2 font-black uppercase tracking-widest text-[10px]">
+                      <Shield className="w-3.5 h-3.5" />
+                      Connectivity Issue
+                    </div>
+                    <p className="text-xs font-medium opacity-80">{error}</p>
+                    <Button
+                      onClick={() => {
+                        setError(null);
+                        handleSend();
+                      }}
+                      className={cn(
+                        "h-8 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                        isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-black/5 hover:bg-black/10 text-black"
+                      )}
+                    >
+                      Retry Connection
+                    </Button>
+                  </motion.div>
                 )}
 
                 {/* ⚓ Bottom Anchor for Auto-Scroll */}

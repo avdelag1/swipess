@@ -8,6 +8,8 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
+import { POKER_CARDS, POKER_CARD_PHOTOS, PK_SPRING, PK_W, PK_H } from './swipe/SwipeConstants';
+import { haptics } from '@/utils/microPolish';
 
 // Re-export from CascadeFilterButton for backwards compatibility
 export { CascadeFilterButton } from './CascadeFilterButton';
@@ -230,14 +232,13 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     renters:    '/images/filters/owner_renters_card.png',
     hire:       '/images/filters/owner_hire_card.png',
   };
-
   // Owner Quick Filters - Specialized for client intent
   if (userRole === 'owner') {
     const ownerOptions = [
-      { id: 'all', label: 'All Clients', description: 'Global View', icon: <Globe className="w-7 h-7 mb-1" />, image: categoryPhotos.services },
-      { id: 'buy', label: 'Buyers', description: 'Purchase Ready', icon: <ShoppingBag className="w-7 h-7 mb-1" />, image: categoryPhotos.buyers },
-      { id: 'rent', label: 'Renters', description: 'Looking to Move', icon: <Key className="w-7 h-7 mb-1" />, image: categoryPhotos.renters },
-      { id: 'hire', label: 'Services', description: 'Inbound Inquiries', icon: <Briefcase className="w-7 h-7 mb-1" />, image: categoryPhotos.hire },
+      { id: 'all', label: 'All Clients', description: 'Global View', icon: <Globe className="w-7 h-7 mb-1" />, image: POKER_CARD_PHOTOS['all-clients'] },
+      { id: 'buy', label: 'Buyers', description: 'Purchase Ready', icon: <ShoppingBag className="w-7 h-7 mb-1" />, image: POKER_CARD_PHOTOS.buyers },
+      { id: 'rent', label: 'Renters', description: 'Looking to Move', icon: <Key className="w-7 h-7 mb-1" />, image: POKER_CARD_PHOTOS.renters },
+      { id: 'hire', label: 'Services', description: 'Inbound Inquiries', icon: <Briefcase className="w-7 h-7 mb-1" />, image: POKER_CARD_PHOTOS.hire },
     ];
 
     const currentClientType = filters.clientType || 'all';

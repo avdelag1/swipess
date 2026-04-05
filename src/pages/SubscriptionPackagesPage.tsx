@@ -195,8 +195,8 @@ export default function SubscriptionPackagesPage() {
       </div>
 
       {/* Cards Section */}
-      <div className="relative z-10 flex-1 flex flex-col px-4 sm:px-6">
-        <div className="flex-1 flex flex-col lg:flex-row gap-6 items-stretch max-w-6xl w-full mx-auto">
+      <div className="relative z-10 flex-1 flex flex-col px-4 sm:px-8">
+        <div className="flex-1 flex flex-col lg:flex-row gap-8 items-stretch max-w-7xl w-full mx-auto justify-center">
           {clientPremiumPlans.map((plan, index) => {
             const style = accentStyles[plan.accent];
             const isHighlight = plan.highlight;
