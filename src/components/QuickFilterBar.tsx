@@ -1,6 +1,9 @@
 import { memo, useCallback, useState, useRef, useEffect } from 'react';
 
-import { Home, Bike, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Check, Globe } from 'lucide-react';
+import { 
+  Home, Bike, RotateCcw, Briefcase, Users, User, 
+  ChevronDown, Wrench, Check, Globe, ShoppingBag, Key 
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
@@ -216,127 +219,93 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     ? filters.categories.length > 0 || filters.listingType !== 'both'
     : (filters.clientGender && filters.clientGender !== 'any') || (filters.clientType && filters.clientType !== 'all');
 
-  // Owner Quick Filters - gender, client type, categories, and listing type
-  if (userRole === 'owner') {
-    const ownerIsAllSelected = filters.categories.length === 0 &&
-      (!filters.clientGender || filters.clientGender === 'any') &&
-      (!filters.clientType || filters.clientType === 'all') &&
-      filters.listingType === 'both';
-    const ownerHasActiveFilters = !ownerIsAllSelected;
+  // Category preview photos for breathing effect (using high-end assets)
+  const categoryPhotos: Record<string, string> = {
+    property:   '/images/filters/property.png',
+    motorcycle: '/images/filters/scooter.png',
+    bicycle:    '/images/filters/bicycle.png',
+    services:   '/images/filters/workers.png',
+    all:        '/images/filters/property.png',
+    buyers:     '/images/filters/owner_buyers_card.png',
+    renters:    '/images/filters/owner_renters_card.png',
+    hire:       '/images/filters/owner_hire_card.png',
+  };
 
-    // Inline gradient styles per category — avoids Tailwind dynamic class purging
-    // and guarantees text stays visible on the gradient background
-    const catActiveStyles: Record<string, React.CSSProperties> = {
-      property:   { background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', color: 'currentColor' },
-      motorcycle: { background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', color: 'currentColor' },
-      bicycle:    { background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', color: 'currentColor' },
-      services:   { background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', color: 'currentColor' },
-    };
+  // Owner Quick Filters - Specialized for client intent
+  if (userRole === 'owner') {
+    const ownerOptions = [
+      { id: 'all', label: 'All Clients', description: 'Global View', icon: <Globe className="w-7 h-7 mb-1" />, image: categoryPhotos.services },
+      { id: 'buy', label: 'Buyers', description: 'Purchase Ready', icon: <ShoppingBag className="w-7 h-7 mb-1" />, image: categoryPhotos.buyers },
+      { id: 'rent', label: 'Renters', description: 'Looking to Move', icon: <Key className="w-7 h-7 mb-1" />, image: categoryPhotos.renters },
+      { id: 'hire', label: 'Services', description: 'Inbound Inquiries', icon: <Briefcase className="w-7 h-7 mb-1" />, image: categoryPhotos.hire },
+    ];
+
+    const currentClientType = filters.clientType || 'all';
 
     return (
       <div
         data-no-swipe-nav
         className={cn(
-          isDark ? 'bg-background/50' : 'bg-white/80',
-          'backdrop-blur-xl border-b border-border px-3 py-2',
+          isDark ? 'bg-background/60' : 'bg-white/85',
+          'backdrop-blur-xl border-b border-border px-3 pt-2 pb-3',
           className
         )}
       >
-        <div className="max-w-screen-xl mx-auto">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            {/* "All" button — first, auto-active when no filters */}
-            <button
-              onClick={handleReset}
-              className={cn(
-                smoothButtonClass,
-                'flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold flex-shrink-0 transition-all duration-200',
-                ownerIsAllSelected
-                  ? ''
-                  : 'bg-muted/50 text-foreground border border-border/50 hover:bg-muted/80 backdrop-blur-md'
+        <div className="max-w-screen-xl mx-auto pt-1">
+          <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide pb-4 stagger-enter">
+            {ownerOptions.map((option) => {
+              const isActive = currentClientType === option.id;
+              
+              return (
+                <button
+                  key={option.id}
+                  onClick={() => {
+                    if (option.id === 'all') {
+                      onChange({ ...filters, clientType: 'all', clientGender: 'any' });
+                    } else {
+                      onChange({ ...filters, clientType: option.id as any });
+                    }
+                  }}
+                  className={cn(
+                    smoothButtonClass, 
+                    'relative flex-shrink-0 w-32 h-44 rounded-[2.5rem] overflow-hidden border-2 transition-transform duration-200 group',
+                    isActive ? 'border-orange-500 shadow-2xl scale-[1.02]' : 'border-border/40 opacity-90'
+                  )}
+                  style={{ contain: 'paint', willChange: 'opacity' }}
+                >
+                  <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
+                  <img 
+                    src={option.image} 
+                    className="absolute inset-0 w-full h-full object-cover" 
+                    alt={option.label}
+                  />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
+                    <div className={cn("mb-1 transition-transform duration-150", isActive && "scale-105")}>
+                      {option.icon}
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-widest">{option.description}</span>
+                    <span className="text-sm font-black whitespace-nowrap">{option.label}</span>
+                  </div>
+                  {isActive && (
+                    <div className="absolute top-2 right-2 z-30 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
+                      <Check className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          
+          <div className="px-1 pt-1 text-center sm:text-left">
+            <p className={cn(
+                'font-black transition-all duration-150 bg-clip-text text-transparent bg-gradient-to-r',
+                'from-orange-500 via-pink-500 to-rose-500 text-[10px] uppercase tracking-widest'
               )}
-              style={ownerIsAllSelected ? {
-                background: 'linear-gradient(135deg, #f97316 0%, #ec4899 55%, #8b5cf6 100%)',
-                color: '#ffffff',
-                border: 'none',
-                boxShadow: '0 4px 14px rgba(249,115,22,0.45)',
-              } : undefined}
             >
-              <Globe className="w-3.5 h-3.5" />
-              <span>All</span>
-              {ownerIsAllSelected && <Check className="w-3 h-3" style={{ color: '#ffffff' }} />}
-            </button>
-
-            {/* Divider */}
-            <div className="w-[2px] h-6 bg-border/50 rounded-full flex-shrink-0" />
-
-            {/* Gender dropdown */}
-            <FilterDropdown
-              label="Gender"
-              icon={<Users className="w-3.5 h-3.5" />}
-              options={genderOptions}
-              value={filters.clientGender || 'any'}
-              onChange={(id) => handleGenderChange(id as OwnerClientGender)}
-              isActive={filters.clientGender !== undefined && filters.clientGender !== 'any'}
-            />
-
-            {/* Client type dropdown */}
-            <FilterDropdown
-              label="Looking For"
-              icon={<Briefcase className="w-3.5 h-3.5" />}
-              options={clientTypeOptions}
-              value={filters.clientType || 'all'}
-              onChange={(id) => handleClientTypeChange(id as OwnerClientType)}
-              isActive={filters.clientType !== undefined && filters.clientType !== 'all'}
-            />
-
-            {/* Divider */}
-            <div className="w-[2px] h-6 bg-border/50 rounded-full flex-shrink-0" />
-
-            {/* Category chips */}
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              {categories.map((category) => {
-                const isActive = filters.categories.includes(category.id);
-                const activeStyle = catActiveStyles[category.id];
-
-                return (
-                  <button
-                    key={category.id}
-                    onClick={() => handleCategoryToggle(category.id)}
-                    className={cn(
-                      smoothButtonClass,
-                      'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors duration-75',
-                      isActive
-                        ? ''
-                        : 'bg-muted/50 text-foreground border border-border/50 hover:bg-muted/80 backdrop-blur-md'
-                    )}
-                    // Inline style guarantees gradient bg + white text always visible
-                    style={isActive ? { ...activeStyle, contain: 'paint' } : { contain: 'paint' }}
-                  >
-                    {/* Icon inherits white color from parent when active */}
-                    <span style={{ display: 'flex', alignItems: 'center', color: isActive ? '#ffffff' : undefined }}>
-                      {category.icon}
-                    </span>
-                    {/* Label always shown — no hidden sm:inline */}
-                    <span style={{ color: isActive ? '#ffffff' : undefined }}>{category.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Clear button — only show when filters are active */}
-            {ownerHasActiveFilters && (
-              <button
-                onClick={handleReset}
-                className={cn(
-                  smoothButtonClass,
-                  'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold flex-shrink-0',
-                  'bg-red-500/10 text-red-500 border border-red-500/30 hover:bg-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.15)] transition-all'
-                )}
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Clear</span>
-              </button>
-            )}
+              {currentClientType === 'all' 
+                ? '✨ Filtering ALL Active Client Intents ✨' 
+                : `Showing clients looking to ${currentClientType} ✨`}
+            </p>
           </div>
         </div>
       </div>
@@ -357,13 +326,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
 
   const _allSelectedShadow = '0 4px 20px rgba(236,72,153,0.55)';
 
-  // Category preview photos for breathing effect (using high-end assets)
-  const categoryPhotos: Record<string, string> = {
-    property:   'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=800&auto=format&fit=crop&v=1.5',
-    motorcycle: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop&v=1.5',
-    bicycle:    'https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=800&auto=format&fit=crop&v=1.5',
-    services:   'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop&v=1.5',
-  };
+
 
   return (
     <div

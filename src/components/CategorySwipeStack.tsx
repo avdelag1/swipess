@@ -12,62 +12,125 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { predictivePrefetchCategory } from '@/utils/performance';
 
-import { POKER_CARD_PHOTOS } from './swipe/SwipeConstants';
+import { POKER_CARDS, OWNER_INTENT_CARDS, POKER_CARD_PHOTOS } from './swipe/SwipeConstants';
+import { useActiveMode } from '@/hooks/useActiveMode';
 
-const CATEGORIES: { id: QuickFilterCategory | null; label: string; icon: any; color: string; description: string; image: string }[] = [
-    { id: 'property', label: 'Property', icon: Home, color: 'from-rose-500 to-rose-400', description: 'Real Estate & Living', image: POKER_CARD_PHOTOS.property },
-    { id: 'motorcycle', label: 'Moto', icon: MotorcycleIcon, color: 'from-orange-500 to-orange-400', description: 'Ride & Adventure', image: POKER_CARD_PHOTOS.motorcycle },
-    { id: 'bicycle', label: 'Bicycle', icon: Bike, color: 'from-violet-500 to-violet-400', description: 'Active Lifestyle', image: POKER_CARD_PHOTOS.bicycle },
-    { id: 'services', label: 'Services', icon: Briefcase, color: 'from-amber-500 to-amber-400', description: 'Hire & Consult', image: POKER_CARD_PHOTOS.services },
-    { id: null, label: 'All', icon: Search, color: 'from-slate-500 to-slate-400', description: 'Complete Discovery', image: POKER_CARD_PHOTOS.all },
-];
+interface CategoryCardData {
+    id: string;
+    label: string;
+    icon: any;
+    color: string;
+    description: string;
+    image: string;
+    categoryId?: QuickFilterCategory | null;
+    ownerData?: {
+        clientType?: string;
+    };
+}
 
 export function CategorySwipeStack() {
-    const [stack, setStack] = useState(CATEGORIES);
+    const { activeMode: userRole } = useActiveMode();
     const activeCategory = useFilterStore(s => s.activeCategory);
-    const { setActiveCategory } = useFilterActions();
+    const { 
+        setActiveCategory, 
+        setClientType, 
+        setListingType,
+        setClientGender
+    } = useFilterActions();
+    
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const { user } = useAuth();
-
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
-    // PERF: Prefetch all category images on mount for zero-latency filter discovery
-    useEffect(() => {
-        CATEGORIES.forEach(cat => {
-            const img = new Image();
-            img.src = cat.image;
-        });
-    }, []);
+    // 🚀 SPEED OF LIGHT: Standardize category shape for both roles
+    const getInitialStack = (): CategoryCardData[] => {
+        if (userRole === 'owner') {
+            return OWNER_INTENT_CARDS.map(card => ({
+                id: card.id,
+                label: card.label,
+                icon: card.icon,
+                color: `from-${card.accent.replace('#', '')} to-${card.accent.replace('#', '')}40`,
+                description: card.description,
+                image: POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.all,
+                ownerData: {
+                    clientType: card.clientType,
+                }
+            }));
+        }
 
-    const handleSwipeRight = (id: QuickFilterCategory | null) => {
+        return POKER_CARDS.map(card => ({
+            id: card.id,
+            label: card.label,
+            icon: card.icon,
+            color: `from-[${card.accent}] to-[${card.accent}]/40`,
+            description: card.description,
+            image: POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.all,
+            categoryId: card.id === 'all' ? null : card.id as QuickFilterCategory
+        }));
+    };
+
+    const [stack, setStack] = useState<CategoryCardData[]>(getInitialStack);
+
+    // Re-sync stack when role changes
+    useEffect(() => {
+        setStack(getInitialStack());
+    }, [userRole]);
+
+    // PERF: Prefetch images
+    useEffect(() => {
+        const photos = userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS;
+        photos.forEach(cat => {
+            const img = new Image();
+            img.src = POKER_CARD_PHOTOS[cat.id] || POKER_CARD_PHOTOS.all;
+        });
+    }, [userRole]);
+
+    const applyFilter = (card: CategoryCardData) => {
+        if (userRole === 'owner' && card.ownerData) {
+            // Owner Side: Filter by Client Intent
+            if (card.ownerData.clientType === 'all') {
+                setClientType('all');
+                setClientGender('any');
+            } else {
+                setClientType(card.ownerData.clientType as any);
+            }
+            setActiveCategory(null);
+        } else if (card.categoryId !== undefined) {
+            // Client Side: Filter by Property/Service Category
+            setActiveCategory(card.categoryId);
+        }
+    };
+
+    const handleSwipeRight = (card: CategoryCardData) => {
         haptics.success();
-        setActiveCategory(id);
+        applyFilter(card);
+        
         // Move swiped card to the back of the stack
         setStack(prev => {
-            const index = prev.findIndex(c => c.id === id);
+            const index = prev.findIndex(c => c.id === card.id);
             const newStack = [...prev];
             const [removed] = newStack.splice(index, 1);
             return [...newStack, removed];
         });
     };
 
-    const handleSwipeLeft = (id: QuickFilterCategory | null) => {
+    const handleSwipeLeft = (card: CategoryCardData) => {
         haptics.tap();
         // Just move to the back without activating
         setStack(prev => {
-            const index = prev.findIndex(c => c.id === id);
+            const index = prev.findIndex(c => c.id === card.id);
             const newStack = [...prev];
             const [removed] = newStack.splice(index, 1);
             return [...newStack, removed];
         });
     };
 
-    const handleSelect = (id: QuickFilterCategory | null) => {
+    const handleSelect = (card: CategoryCardData) => {
         haptics.select();
         setStack(prev => {
-            const index = prev.findIndex(c => c.id === id);
+            const index = prev.findIndex(c => c.id === card.id);
             if (index === 0) return prev;
             const newStack = [...prev];
             const [removed] = newStack.splice(index, 1);
@@ -81,23 +144,25 @@ export function CategorySwipeStack() {
             <AnimatePresence mode="popLayout" initial={false}>
                 {stack.map((cat, index) => {
                     const isTop = index === 0;
-                    const isActive = activeCategory === (cat.id as any);
+                    const isActive = userRole === 'owner' 
+                        ? false 
+                        : activeCategory === cat.categoryId;
 
                     return (
                         <CategoryCard
-                            key={cat.id || 'all'}
+                            key={cat.id}
                             category={cat}
                             isTop={isTop}
                             index={index}
                             itemCount={stack.length}
                             isActive={isActive}
                             isDark={isDark}
-                            onSwipeRight={() => handleSwipeRight(cat.id as any)}
-                            onSwipeLeft={() => handleSwipeLeft(cat.id as any)}
-                            onSelect={() => handleSelect(cat.id as any)}
+                            onSwipeRight={() => handleSwipeRight(cat)}
+                            onSwipeLeft={() => handleSwipeLeft(cat)}
+                            onSelect={() => handleSelect(cat)}
                             onSwipeUp={() => {
                                 haptics.success();
-                                navigate('/explore/eventos'); // Fast and reliable
+                                navigate('/explore/eventos');
                             }}
                             queryClient={queryClient}
                             userId={user?.id}
@@ -106,7 +171,7 @@ export function CategorySwipeStack() {
                 }).reverse()}
             </AnimatePresence>
             
-            {/* Instruction text with better styling */}
+            {/* Instruction text */}
             <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

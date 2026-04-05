@@ -65,6 +65,7 @@ export interface PokerCardData {
   description: string;
   accent: string;
   accentRgb: string;
+  icon?: any;
 }
 
 // ─── Photo Registry ──────────────────────────────────────────────────────────
@@ -85,13 +86,14 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   radio:      'linear-gradient(135deg, #4d0000 0%, #1a0000 100%)',
 };
 
+import { Home, Bike, Briefcase, Sparkles, Users, ShoppingBag, Key, Tool } from 'lucide-react';
+
 export const POKER_CARDS = [
-  { id: 'property'   as const, label: 'Properties',  description: 'Houses & apts',       accent: '#3b82f6', accentRgb: '59,130,246'  },
-  { id: 'motorcycle' as const, label: 'Motorcycles', description: 'Bikes & scooters',     accent: '#f97316', accentRgb: '249,115,22'  },
-  { id: 'bicycle'    as const, label: 'Bicycles',    description: 'City & mountain',      accent: '#f43f5e', accentRgb: '244,63,94'   },
-  { id: 'services'   as const, label: 'Workers',     description: 'Skilled freelancers',  accent: '#a855f7', accentRgb: '168,85,247'  },
-  { id: 'radio'      as const, label: 'Radio',       description: 'Tulum Beats & DJ Mixes', accent: '#fb7185', accentRgb: '251,113,133' },
-  { id: 'all'        as const, label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212'   },
+  { id: 'property'   as const, label: 'Properties',  description: 'Houses & apts',       accent: '#3b82f6', accentRgb: '59,130,246', icon: Home  },
+  { id: 'motorcycle' as const, label: 'Motorcycles', description: 'Bikes & scooters',     accent: '#f97316', accentRgb: '249,115,22', icon: MotorcycleIcon  },
+  { id: 'bicycle'    as const, label: 'Bicycles',    description: 'City & mountain',      accent: '#f43f5e', accentRgb: '244,63,94', icon: Bike   },
+  { id: 'services'   as const, label: 'Workers',     description: 'Skilled freelancers',  accent: '#a855f7', accentRgb: '168,85,247', icon: Briefcase  },
+  { id: 'all'        as const, label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212', icon: Sparkles   },
 ];
 
 // Zenith Spec: Professional-grade card dimensions for flagship smartphones
@@ -111,17 +113,17 @@ export const PK_SPRING = { type: 'spring' as const, stiffness: 520, damping: 34,
 // These are chosen to be premium, diverse, and human-centric (Tulum/European/American).
 // UPDATED: Standardizing on Flagship Human-Centric Aesthetic.
 export const POKER_CARD_PHOTOS: Record<string, string> = {
-  property:   'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=800&auto=format&fit=crop',
-  motorcycle: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop',
-  bicycle:    'https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?q=80&w=800&auto=format&fit=crop',
-  services:   'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format&fit=crop',
-  all:        'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=800&auto=format&fit=crop',
+  property:   '/images/filters/property.png',
+  motorcycle: '/images/filters/scooter.png',
+  bicycle:    '/images/filters/bicycle.png',
+  services:   '/images/filters/workers.png',
+  all:        '/images/filters/property.png', // Fallback to property for now
   
-  // Owner intent cards - REFINED HUMAN-CENTRIC UX
-  buyers:     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop',
-  renters:    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=800&auto=format&fit=crop',
-  hire:       'https://images.unsplash.com/photo-1522071823991-b9671f9cf38f?q=80&w=800&auto=format&fit=crop',
-  radio:      'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800&auto=format&fit=crop',
+  // Owner intent cards - REFINED UX
+  buyers:     '/images/filters/owner_buyers_card.png',
+  renters:    '/images/filters/owner_renters_card.png',
+  hire:       '/images/filters/owner_hire_card.png',
+  'all-clients': '/images/filters/workers.png',
 };
 
 // ─── Owner quick-filter intent cards ────────────────────────────────────────
@@ -135,14 +137,22 @@ export interface OwnerIntentCard extends PokerCardData {
 
 export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
   {
+    id: 'all-clients',
+    label: 'All Clients',
+    description: 'Everyone Seeking',
+    accent: '#06b6d4',
+    accentRgb: '6,182,212',
+    clientType: 'all',
+    icon: Users,
+  },
+  {
     id: 'buyers',
     label: 'Buyers',
     description: 'Purchase Ready',
     accent: '#3b82f6',
     accentRgb: '59,130,246',
     clientType: 'buy',
-    category: 'property',
-    listingType: 'sale',
+    icon: ShoppingBag,
   },
   {
     id: 'renters',
@@ -151,24 +161,15 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
     accent: '#10b981',
     accentRgb: '16,185,129',
     clientType: 'rent',
-    category: 'property',
-    listingType: 'rent',
+    icon: Key,
   },
   {
     id: 'hire',
-    label: 'Inquire',
-    description: 'Service Seeking',
+    label: 'Services',
+    description: 'Worker Seeking',
     accent: '#a855f7',
     accentRgb: '168,85,247',
     clientType: 'hire',
-    category: 'services',
-  },
-  {
-    id: 'property',
-    label: 'Property',
-    description: 'Browse Estates',
-    accent: '#f97316',
-    accentRgb: '249,115,22',
-    category: 'property',
+    icon: Tool,
   },
 ];
