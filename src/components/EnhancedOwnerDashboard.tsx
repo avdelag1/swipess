@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, memo, useMemo, lazy, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 const _ClientInsightsDialog = lazy(() =>
   import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
@@ -8,8 +9,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
-import { User, Megaphone } from 'lucide-react';
+import { User, Megaphone, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ClientFilters } from '@/hooks/useSmartMatching';
 import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
 import { useFilterActions } from '@/state/filterStore';
@@ -26,6 +29,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const [_insightsOpen, _setInsightsOpen] = useState(false);
 
   const { user, loading: isAuthLoading } = useAuth();
+  const { navigate } = useAppNavigate();
 
   // Read activeCategory from store
   const activeCategory = useFilterStore(s => s.activeCategory);
@@ -162,6 +166,21 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     return (
       <div className="relative flex flex-col items-center justify-center min-h-[100dvh] w-full py-12">
         <OwnerAllDashboard onCardSelect={handleCardSelect} />
+        
+        {/* FAST TRACK: Manage Listings Button */}
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileTap={{ scale: 0.92 }}
+          onClick={() => navigate('/owner/properties')}
+          className={cn(
+            "mt-12 group flex items-center gap-3 px-6 h-14 rounded-2xl font-black uppercase tracking-widest text-[11px]",
+            "bg-white/5 border border-white/10 backdrop-blur-xl text-white/70 hover:text-white hover:bg-white/10 transition-all shadow-2xl"
+          )}
+        >
+          <Building2 className="w-4 h-4 text-orange-400" strokeWidth={3} />
+          Manage My Listings
+        </motion.button>
       </div>
     );
   }

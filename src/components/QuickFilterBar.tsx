@@ -374,9 +374,9 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
         className
       )}
     >
-      <div className="max-w-screen-xl mx-auto">
+      <div className="max-w-screen-xl mx-auto pt-1">
         {/* Main filter cards — horizontal scroll */}
-        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2 stagger-enter" style={{ willChange: 'scroll-position' }}>
+        <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide pb-4 stagger-enter" style={{ willChange: 'scroll-position' }}>
           {/* ALL card */}
           <button
             onClick={() => {
@@ -385,8 +385,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             }}
             className={cn(
               smoothButtonClass, 
-              'relative flex-shrink-0 w-28 h-36 rounded-[2rem] overflow-hidden border-2 transition-colors duration-75 group',
-              clientIsAllSelected ? 'border-orange-500 shadow-xl' : 'border-border/40 opacity-80'
+              'relative flex-shrink-0 w-32 h-44 rounded-[2.5rem] overflow-hidden border-2 transition-transform duration-200 group',
+              clientIsAllSelected ? 'border-orange-500 shadow-2xl scale-[1.02]' : 'border-border/40 opacity-90'
             )}
             style={{ contain: 'paint', willChange: 'opacity' }}
           >
@@ -418,8 +418,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 onClick={() => handleCategorySelect(category.id)}
                 className={cn(
                   smoothButtonClass, 
-                  'relative flex-shrink-0 w-28 h-36 rounded-[2rem] overflow-hidden border-2 transition-colors duration-75 group',
-                  isActive ? 'border-orange-500 shadow-xl' : 'border-border/40 opacity-80'
+                  'relative flex-shrink-0 w-32 h-44 rounded-[2.5rem] overflow-hidden border-2 transition-transform duration-200 group',
+                  isActive ? 'border-orange-500 shadow-2xl scale-[1.02]' : 'border-border/40 opacity-90'
                 )}
                 style={{ contain: 'paint', willChange: 'opacity' }}
               >

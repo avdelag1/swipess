@@ -330,11 +330,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // On these routes, TopBar becomes transparent and content extends behind it
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
-    // Core routes that should go full-bleed behind the header
-    // Only the discovery dashboard remains immersive for the 'hero' card effect
+    // Core routes that should go full-bleed behind the header ONLY for hero effects.
+    // Standard dashboards should now have padding to prevent button overlap.
     const immersiveRoutes = [
-      '/client/dashboard',
-      '/owner/dashboard',
       '/client/profile',
       '/owner/profile',
     ];

@@ -139,7 +139,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
               initial={{ opacity: 0, scale: 0.9, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               onClick={(e) => { e.stopPropagation(); onSelect(card.id); }}
-              className="mt-5 w-full h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] bg-white/10 backdrop-blur-md text-white border border-white/20 active:scale-95 transition-transform shadow-[0_12px_24px_rgba(0,0,0,0.3)] flex items-center justify-center"
+              className="mt-6 w-full h-16 rounded-[1.5rem] font-black text-[13px] uppercase tracking-[0.25em] bg-white/10 backdrop-blur-xl text-white border border-white/30 active:scale-95 transition-transform shadow-[0_16px_32px_rgba(0,0,0,0.4)] flex items-center justify-center"
             >
               Launch {card.label}
             </motion.button>

@@ -113,10 +113,12 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMa
   const Icon   = config.icon;
   const unreadCount = unread.length;
 
-  // Animation: enters from left, exits right (default) or up (swipe up)
-  const exitVariant = exitDir === 'up'
-    ? { y: '-130%', opacity: 0, transition: { type: 'spring' as const, stiffness: 500, damping: 38 } }
-    : { x: '115%',  opacity: 0, transition: { type: 'spring' as const, stiffness: 420, damping: 36 } };
+  // Animation: enters from left, exits right (default)
+  const exitVariant = { 
+    x: '115%',  
+    opacity: 0, 
+    transition: { type: 'spring' as const, stiffness: 420, damping: 36 } 
+  };
 
   return (
     <div className="fixed top-16 left-0 right-0 z-[150] px-3 flex justify-center pointer-events-none">
@@ -134,20 +136,18 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMa
               opacity: { type: 'tween', duration: 0.12, ease: 'easeOut' },
             }}
             // ── SWIPE TO DISMISS ─────────────────────────────────────────────
-            drag
-            dragDirectionLock={false}
-            dragConstraints={{ left: -16, right: 600, top: -600, bottom: 16 }}
-            dragElastic={{ left: 0.03, right: 0.12, top: 0.18, bottom: 0.02 }}
+            drag="x"
+            dragDirectionLock
+            dragConstraints={{ left: -16, right: 600 }}
+            dragElastic={{ left: 0.03, right: 0.12 }}
             dragMomentum={false}
             onDrag={(_, info) => {
               if (isExiting.current) return;
-              if (info.offset.y < -24) startDismiss('up');
-              else if (info.offset.x > 44) startDismiss('right');
+              if (info.offset.x > 44) startDismiss('right');
             }}
             onDragEnd={(_, info) => {
               if (isExiting.current) return;
-              if (info.offset.y < -14) startDismiss('up');
-              else if (info.offset.x > 20) startDismiss('right');
+              if (info.offset.x > 20) startDismiss('right');
             }}
             whileTap={{ scale: 0.978 }}
             className="pointer-events-auto w-full max-w-[400px] rounded-2xl overflow-hidden cursor-pointer"

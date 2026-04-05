@@ -389,9 +389,9 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                 style={{
-                  minWidth: 72,
-                  minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
-                  padding: isNarrow ? '6px 2px' : '8px 4px',
+                  minWidth: 84, // Larger horizontal footprint for easier tapping
+                  minHeight: isNarrow ? TOUCH_TARGET_COMPACT + 6 : TOUCH_TARGET + 8,
+                  padding: isNarrow ? '8px 4px' : '10px 6px',
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
