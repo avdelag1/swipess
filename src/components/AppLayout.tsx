@@ -13,6 +13,7 @@ import { useActiveMode } from '@/hooks/useActiveMode';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useModalStore } from '@/state/modalStore';
 import { useInstantReactivity } from '@/hooks/useInstantReactivity';
+import { cn } from '@/lib/utils';
 
 const RadioMiniPlayer = lazy(() =>
   import('@/components/RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer }))
@@ -104,7 +105,9 @@ export function AppLayout({ children }: AppLayoutProps) {
       <main
         id="main-content"
         tabIndex={-1}
-        className="outline-none w-full h-full relative z-10 overflow-visible"
+        className={cn(
+          "w-full h-full relative z-0 touch-pan-y overflow-y-auto"
+        )}
       >
         {children}
       </main>
