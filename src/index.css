@@ -452,10 +452,9 @@ button:active, [role="button"]:active {
 
 /* 🚀 SPEED OF LIGHT: Deck Layout Constants */
 .swipe-card-size {
-  width: 360px; /* PK_W */
-  height: 650px; /* PK_H - Immersive Height */
-  max-height: 75vh;
-  aspect-ratio: 9/16;
+  width: min(340px, 92vw); /* PK_W optimized for mobile */
+  height: 100%; /* Fill the component's calculated height container */
+  aspect-ratio: auto;
 }
 
 .glass-matte-surface {
@@ -466,11 +465,7 @@ button:active, [role="button"]:active {
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
 }
 
-@media (max-height: 700px) {
-  .swipe-card-size {
-    height: 480px;
-  }
-}
+/* Removed fixed height media queries to let component h-dvh decide */
 
 /* 🏎️ PERFORMANCE: Zero-latency hover transitions */
 .interactive-hover {

@@ -146,7 +146,7 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full h-[min(58dvh,460px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-[min(54dvh,420px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
 
             <AnimatePresence mode="popLayout" initial={false}>
                 {stack.map((cat, index) => {
