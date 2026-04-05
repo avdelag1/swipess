@@ -9,7 +9,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
-import { User, Megaphone, Building2 } from 'lucide-react';
+import { User, Megaphone, Building2, Plus } from 'lucide-react';
+import { useModalStore } from '@/state/modalStore';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
@@ -28,6 +29,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const [_selectedClientId, _setSelectedClientId] = useState<string | null>(null);
   const [_insightsOpen, _setInsightsOpen] = useState(false);
 
+  const modalStore = useModalStore();
   const { user, loading: isAuthLoading } = useAuth();
   const { navigate } = useAppNavigate();
 
@@ -164,23 +166,39 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     };
 
     return (
-      <div className="relative flex flex-col items-center justify-center min-h-[100dvh] w-full py-12">
+      <div className="relative flex flex-col items-center justify-center min-h-[100dvh] w-full pt-8 pb-12">
         <OwnerAllDashboard onCardSelect={handleCardSelect} />
         
-        {/* FAST TRACK: Manage Listings Button */}
-        <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileTap={{ scale: 0.92 }}
-          onClick={() => navigate('/owner/properties')}
-          className={cn(
-            "mt-12 group flex items-center gap-3 px-6 h-14 rounded-2xl font-black uppercase tracking-widest text-[11px]",
-            "bg-white/5 border border-white/10 backdrop-blur-xl text-white/70 hover:text-white hover:bg-white/10 transition-all shadow-2xl"
-          )}
-        >
-          <Building2 className="w-4 h-4 text-orange-400" strokeWidth={3} />
-          Manage My Listings
-        </motion.button>
+        {/* ACTION HUB: Quick access to Listing Management */}
+        <div className="mt-10 flex flex-col sm:flex-row gap-5 w-full px-6 max-w-lg">
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileTap={{ scale: 0.92 }}
+            onClick={() => modalStore.setModal('showCategoryDialog', true)}
+            className={cn(
+              "flex-1 group flex items-center justify-center gap-4 h-16 rounded-3xl font-black uppercase tracking-widest text-[12px]",
+              "bg-[var(--color-brand-accent-2)] text-white shadow-[0_12px_32px_rgba(228,0,124,0.35)] transition-all"
+            )}
+          >
+            <Plus className="w-5 h-5" strokeWidth={4} />
+            Add New Listing
+          </motion.button>
+
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileTap={{ scale: 0.92 }}
+            onClick={() => navigate('/owner/properties')}
+            className={cn(
+              "flex-1 group flex items-center justify-center gap-4 h-16 rounded-3xl font-black uppercase tracking-widest text-[12px]",
+              "bg-white/5 border border-white/10 backdrop-blur-2xl text-white/80 hover:text-white hover:bg-white/10 transition-all shadow-xl"
+            )}
+          >
+            <Building2 className="w-5 h-5 text-orange-400" strokeWidth={3} />
+            My Portfolio
+          </motion.button>
+        </div>
       </div>
     );
   }

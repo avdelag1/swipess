@@ -8,7 +8,7 @@ import { useClientProfiles } from '@/hooks/useClientProfiles';
 import { useWelcomeState } from '@/hooks/useWelcomeState';
 
 // Lazy-loaded Dialogs
-const AdvancedFilters = lazy(() => import('@/components/AdvancedFilters').then(m => ({ default: m.AdvancedFilters })));
+const AdvancedFiltersDialog = lazy(() => import('@/components/AdvancedFiltersDialog'));
 const SubscriptionPackages = lazy(() => import("@/components/SubscriptionPackages").then(m => ({ default: m.SubscriptionPackages })));
 const LegalDocumentsDialog = lazy(() => import("@/components/LegalDocumentsDialog").then(m => ({ default: m.LegalDocumentsDialog })));
 const ClientProfileDialog = lazy(() => import("@/components/ClientProfileDialog").then(m => ({ default: m.ClientProfileDialog })));
@@ -53,7 +53,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
   return (
     <>
       <SmartSuspense fallback={null}>
-        <AdvancedFilters
+        <AdvancedFiltersDialog
           isOpen={store.showFilters}
           onClose={() => store.setModal('showFilters', false)}
           onApplyFilters={() => {}} // Store handles filters internally via filterStore

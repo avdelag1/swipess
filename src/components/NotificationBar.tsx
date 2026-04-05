@@ -51,7 +51,7 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMa
   const [current, setCurrent] = useState<Notification | null>(null);
   const [visible, setVisible] = useState(false);
   // Track exit direction — default is always 'right' (slides out to the right)
-  const [exitDir, setExitDir] = useState<'up' | 'right'>('right');
+  const [exitDir, setExitDir] = useState<'right'>('right');
 
   const timerRef   = useRef<ReturnType<typeof setTimeout>>();
   const isExiting  = useRef(false);
@@ -87,7 +87,7 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMa
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const startDismiss = useCallback((dir: 'up' | 'right' = 'right') => {
+  const startDismiss = useCallback((dir: 'right' = 'right') => {
     if (isExiting.current) return;
     isExiting.current = true;
     setExitDir(dir);

@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -313,3 +312,4 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
     </Dialog>
   );
 }
+export default AdvancedFilters;
