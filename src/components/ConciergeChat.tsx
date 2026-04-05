@@ -92,6 +92,7 @@ export function ConciergeChat({
   const {
     messages,
     isLoading,
+    isThinking,
     error,
     setError,
     sendMessage,
@@ -688,8 +689,8 @@ export function ConciergeChat({
                   );
                 })}
 
-                {/* Typing indicator */}
-                {isLoading && (
+                {/* Typing indicator (only shown while thinking, before stream starts) */}
+                {isThinking && (
                   <motion.div
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}

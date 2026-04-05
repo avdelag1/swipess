@@ -35,6 +35,7 @@ const STORAGE_KEY_PREFIX = 'Swipess_vibe_chat_';
 export function useConciergeAI() {
   const [messages, setMessages] = useState<ConciergeMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userVibe, setUserVibe] = useState<string | null>(null);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
@@ -98,6 +99,7 @@ export function useConciergeAI() {
     if (!userMessage.trim()) return;
 
     setIsLoading(true);
+    setIsThinking(true);
     setError(null);
 
     // Optimistic UI: Add user message immediately
@@ -158,9 +160,18 @@ export function useConciergeAI() {
         content: m.content 
       }));
 
-      // 4. Invoke Edge Function
-      const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
-        body: {
+      // 4. Invoke Edge Function with Streaming
+      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-orchestrator`;
+      const session = (await supabase.auth.getSession()).data.session;
+      
+      const response = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
           task: 'chat',
           data: {
             query: userMessage,
@@ -175,84 +186,147 @@ export function useConciergeAI() {
               listingId: context?.listingId,
             }
           }
-        }
+        })
       });
 
-      if (funcError) throw funcError;
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `AI Engine Error: ${response.status}`);
+      }
 
-      const rawText = data?.result?.text || 'I am processing that...';
-      const aiText = rawText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || rawText;
-      const aiAction = data?.result?.action;
-
-      const assistantMsg: ConciergeMessage = {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: aiText,
-        timestamp: new Date(),
-        action: aiAction,
-      };
-
-      setMessages(prev => [...prev, assistantMsg]);
+      // Check if response is streaming (text/event-stream) or JSON
+      const contentType = response.headers.get('Content-Type');
       
-      if (data?.vibe) {
-        setUserVibe(data.vibe);
-      }
+      if (contentType?.includes('text/event-stream') || response.body) {
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let accumulatedText = '';
+        const assistantId = crypto.randomUUID();
 
-      // 5. Persist AI Response if Auth'd
-      if (user && convId) {
-        try {
-          await (supabase as any).from('ai_messages').insert({
-            conversation_id: convId,
-            user_id: user.id,
-            role: 'assistant',
-            content: aiText,
-            metadata: aiAction ? { action: aiAction } : {}
-          });
+        if (!reader) throw new Error("Stream reader failed");
 
-          await (supabase as any)
-            .from('ai_conversations')
-            .update({ updated_at: new Date().toISOString() })
-            .eq('id', convId);
-        } catch (dbErr) {
-          logger.warn('[ConciergeAI] AI response persistence skipped:', dbErr);
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          
+          // 🚀 First token received: Stop 'thinking' and start 'streaming'
+          if (accumulatedText === '') {
+            setIsThinking(false);
+            setMessages(prev => [...prev, {
+              id: assistantId,
+              role: 'assistant',
+              content: '',
+              timestamp: new Date()
+            }]);
+          }
+
+          accumulatedText += chunk;
+
+          // Update UI in real-time
+          setMessages(prev => prev.map(m => 
+            m.id === assistantId ? { ...m, content: accumulatedText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() } : m
+          ));
         }
-      }
 
-      // 6. Execute AI-triggered UI Actions
-      if (aiAction) {
-        if (aiAction.type === 'save_memory' && aiAction.params && user) {
-          const { category, title, content, tags } = aiAction.params;
-          if (title && content) {
-            await (supabase as any).from('user_memories').insert({
-              user_id: user.id,
-              category: category || 'note',
-              title,
-              content,
-              tags: tags || [],
-              source: 'ai',
-            });
-            queryClient.invalidateQueries({ queryKey: MEMORIES_QUERY_KEY(user.id) });
-            sonnerToast.success(`Remembered: ${title}`, { duration: 2000 });
+        const finalRawText = accumulatedText;
+        const aiText = finalRawText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || finalRawText;
+        const actionMatch = finalRawText.match(/(\{\s*"action"\s*:[\s\S]*?\}\s*)$/m);
+        let aiAction = null;
+        if (actionMatch) {
+          try {
+            aiAction = JSON.parse(actionMatch[0])?.action;
+          } catch (e) {
+            logger.warn('[ConciergeAI] Action parse failed:', e);
           }
         }
-        
-        if (aiAction.type === 'initiate_match') {
-          sonnerToast.success("Connection request sent! 🚀", {
-            description: "The owner has been notified.",
-          });
+
+        // Final UI Update with processed actions
+        setMessages(prev => prev.map(m => 
+          m.id === assistantId ? { ...m, content: aiText, action: aiAction } : m
+        ));
+
+        // 5. Persist AI Response if Auth'd
+        if (user && convId) {
+          try {
+            await (supabase as any).from('ai_messages').insert({
+              conversation_id: convId,
+              user_id: user.id,
+              role: 'assistant',
+              content: aiText,
+              metadata: aiAction ? { action: aiAction } : {}
+            });
+
+            await (supabase as any)
+              .from('ai_conversations')
+              .update({ updated_at: new Date().toISOString() })
+              .eq('id', convId);
+          } catch (dbErr) {
+            logger.warn('[ConciergeAI] AI response persistence skipped:', dbErr);
+          }
         }
+
+        // 6. Execute AI-triggered UI Actions
+        if (aiAction) {
+          handleAiAction(aiAction);
+        }
+
+      } else {
+        // Fallback for non-streaming responses
+        setIsThinking(false);
+        const data = await response.json();
+        const rawText = data?.result?.text || 'I am processing that...';
+        const aiText = rawText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || rawText;
+        const aiAction = data?.result?.action;
+
+        const assistantMsg: ConciergeMessage = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: aiText,
+          timestamp: new Date(),
+          action: aiAction,
+        };
+
+        setMessages(prev => [...prev, assistantMsg]);
+        if (aiAction) handleAiAction(aiAction);
       }
 
     } catch (err) {
       logger.error('[useConciergeAI] Execution error:', err);
       setError(err instanceof Error ? err.message : 'Service momentarily unavailable');
-      
-      // No sentient fallback message injected into chat stream anymore.
-      // We rely on the `error` state and let user see the error + use the retry button.
     } finally {
       setIsLoading(false);
+      setIsThinking(false);
     }
   }, [messages, user, currentConversationId, subscription, location.pathname, queryClient]);
+
+  // Dedicated action handler to reduce complexity in sendMessage
+  const handleAiAction = useCallback(async (aiAction: any) => {
+    if (!aiAction || !user) return;
+    
+    if (aiAction.type === 'save_memory' && aiAction.params) {
+      const { category, title, content, tags } = aiAction.params;
+      if (title && content) {
+        await (supabase as any).from('user_memories').insert({
+          user_id: user.id,
+          category: category || 'note',
+          title,
+          content,
+          tags: tags || [],
+          source: 'ai',
+        });
+        queryClient.invalidateQueries({ queryKey: MEMORIES_QUERY_KEY(user.id) });
+        sonnerToast.success(`Remembered: ${title}`, { duration: 2000 });
+      }
+    }
+    
+    if (aiAction.type === 'initiate_match') {
+      sonnerToast.success("Connection request sent! 🚀", {
+        description: "The owner has been notified.",
+      });
+    }
+  }, [user, queryClient]);
 
   // Utility Actions
   const startNewChat = useCallback(() => {

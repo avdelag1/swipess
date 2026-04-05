@@ -104,110 +104,129 @@ INSTRUCTIONS:
       `.trim();
     }
 
-    // 2. Call MiniMax v2 — Robust Multi-Region Support with Model Fallback
-    // 🚀 Using official .io endpoint as it's more stable for v2
+    // 🚀 Using official .io endpoint for International v2 (sk-cp keys)
     const minimaxUrl = "https://api.minimax.io/v1/text/chatcompletion_v2";
+    const group_id = minimaxGroupId;
+    
     console.log(`[AI Orchestrator] Triggering task: ${task || 'chat'} for model: MiniMax-M2.7`);
 
-    const baseHeaders: Record<string, string> = {
+    const headers: Record<string, string> = {
       "Authorization": `Bearer ${minimaxKey}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "x-group-id": group_id, // 🛡️ Ensure header-based routing for specific plan types
     };
     
-    let res;
-    try {
-      res = await fetch(minimaxUrl, {
-        method: "POST",
-        headers: baseHeaders,
-        body: JSON.stringify({ 
-          model: "MiniMax-M2.7", // 🚀 Updated to newest model from Token Plan
-          group_id: minimaxGroupId, // 🛡️ Group ID passed in body for v2 compatibility
-          messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
-          temperature: task === "conversation" ? 0 : 0.6,
-          stream: false
-        }),
+    const body = { 
+      model: "MiniMax-M2.7",
+      group_id: group_id, // 🛡️ Also include in body for v2 parity
+      messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
+      temperature: task === "conversation" ? 0 : 0.6,
+      stream: task === "chat" || !task,
+      max_tokens: 1024
+    };
+
+    const res = await fetch(minimaxUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+        const errorText = await res.text();
+        console.error(`[AI Orchestrator] MiniMax error ${res.status}:`, errorText);
+        throw new Error(`AI Engine HTTP error: ${res.status} - ${errorText}`);
+    }
+
+    // 🌊 STREAMING HANDLER: For Concierge Chat
+    if (body.stream) {
+      const { readable, writable } = new TransformStream();
+      const writer = writable.getWriter();
+      const reader = res.body?.getReader();
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+
+      if (!reader) throw new Error("Could not initialize stream reader");
+
+      (async () => {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n');
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const dataStr = line.slice(6).trim();
+                if (dataStr === '[DONE]') continue;
+                
+                try {
+                  const data = JSON.parse(dataStr);
+                  const content = data.choices?.[0]?.delta?.content || "";
+                  if (content) {
+                    await writer.write(encoder.encode(content));
+                  }
+                } catch (e) {
+                  // Skip invalid JSON lines (might be HEARTBEAT or partial chunks)
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.error("[AI Orchestrator] Streaming Error:", e);
+        } finally {
+          await writer.close();
+        }
+      })();
+
+      return new Response(readable, {
+        headers: { ...corsHeaders, "Content-Type": "text/event-stream" }
       });
-    } catch (fetchErr) {
-      console.error("[AI Orchestrator] Fetch failed:", fetchErr);
-      throw fetchErr;
     }
 
-    if (!res || !res.ok) {
-        const errorText = res ? await res.text() : "No response";
-        console.error(`[AI Orchestrator] MiniMax error ${res?.status}:`, errorText);
-        throw new Error(`AI Engine HTTP error: ${res?.status || 'Fetch Failed'} - ${errorText}`);
-    }
-
+    // 🧊 NON-STREAMING: For conversation/Listing Architect
     const aiRes = await res.json();
-    
-    // Check for native API errors returned as HTTP 200
     if (aiRes.base_resp && aiRes.base_resp.status_code !== 0) {
-      console.error(`[AI Orchestrator] MiniMax API Error:`, aiRes.base_resp);
       throw new Error(`AI API Error: ${aiRes.base_resp.status_msg || aiRes.base_resp.status_code}`);
     }
 
-    console.log("[AI Orchestrator] Raw Engine Response Received");
-    const rawAiText = aiRes.choices?.[0]?.message?.content || 
-                    aiRes.choices?.[0]?.text || 
-                    aiRes.reply || 
-                    "";
-
-    if (!rawAiText) {
-        throw new Error("Empty response from AI engine.");
-    }
-
+    const rawAiText = aiRes.choices?.[0]?.message?.content || "";
     let finalResult: any;
 
     if (task === "conversation") {
         try {
-            // Strict JSON parsing for conversation task
             const cleaned = rawAiText.trim().replace(/^```json/, '').replace(/```$/, '').trim();
             finalResult = JSON.parse(cleaned);
         } catch (e) {
-            console.error("JSON Parse Error:", rawAiText);
             finalResult = { 
-                message: "I'm having a small technical glitch parsing the details. Could you repeat that?",
+                message: "I'm having a technical glitch. Could you repeat that?",
                 extractedData: data?.extractedData || {},
                 isComplete: false
             };
         }
     } else {
-        // Concierge Task: Parse for actions
         const actionMatch = rawAiText.match(/(\{\s*"action"\s*:[\s\S]*?\}\s*)$/m);
         const aiText = actionMatch ? rawAiText.substring(0, actionMatch.index).trim() : rawAiText.trim();
         let aiAction = null;
         if (actionMatch) {
             try {
                 aiAction = JSON.parse(actionMatch[0])?.action;
-            } catch (e) {
-                console.warn("[AI Orchestrator] Failed to parse hallucinated action block:", actionMatch[0]);
-            }
+            } catch (e) {}
         }
-
-        finalResult = {
-            text: aiText || "I'm processing that for you...",
-            action: aiAction
-        };
+        finalResult = { text: aiText, action: aiAction };
     }
 
-    return new Response(JSON.stringify({
-      result: finalResult,
-      status: "success"
-    }), {
-      status: 200,
+    return new Response(JSON.stringify({ result: finalResult, status: "success" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
 
   } catch (err: any) {
     console.error("Orchestrator Error:", err);
-    
-    // Transparent error instead of fake answers
-    return new Response(JSON.stringify({
-      error: err.message,
-      status: "error"
-    }), { 
-      status: 500, // Return 500 to clearly indicate failure to the client
+    return new Response(JSON.stringify({ error: err.message, status: "error" }), { 
+      status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" } 
     });
   }
 });
+
