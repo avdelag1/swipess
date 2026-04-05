@@ -33,3 +33,27 @@ yarn-error.log*
 android/
 ios/
 supabase/.temp/
+
+# Audit & Debug Artifacts
+*audit.log
+*_audit.log
+*debug.txt
+*log.txt
+*build_output.txt
+*lint_errors*
+error_list*
+errors*.json
+lint_results.json
+ACTION_ITEMS.md
+AUDIT_REPORT*.md
+AUDIT_SUMMARY.md
+FULL_AUDIT*.md
+FULL_CODEBASE_AUDIT.md
+PERFORMANCE_PERFECTION*.md
+PREMIUM_POLISH*.md
+QUICK_REFERENCE.md
+replit.md
+parse_errors.py
+push_error.txt
+app_layout_lint.txt
+dump.sql
