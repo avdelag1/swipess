@@ -13,6 +13,7 @@ import { TopBar } from './TopBar';
 import { BottomNavigation } from './BottomNavigation';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useModalStore } from '@/state/modalStore';
+import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 
 const RadioMiniPlayer = lazy(() =>
   import('@/components/RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer }))
@@ -38,6 +39,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   useFocusManagement();
   useOfflineDetection();
   useErrorReporting();
+  useInstantReactivity(); // ZERO-LATENCY GLOBAL BINDINGS
 
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
   const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';

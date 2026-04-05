@@ -521,3 +521,13 @@ body.hw-mid .animate-pulse {
         animation-duration: 80ms !important;
     }
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  SPEED OF LIGHT: Global 0ms Reactivity Engine                       */
+/*  Bypasses React loop. Applied instantly via JS on pointerdown      */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.instant-active-element {
+    transform: scale(0.96) translateZ(0) !important;
+    transition: transform 0.05s cubic-bezier(0.2, 0, 0, 1) !important;
+    filter: brightness(0.95);
+}

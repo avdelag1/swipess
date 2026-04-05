@@ -20,7 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, MessageCircle, User, Building2,
   Search, Users, Sparkles, ShieldCheck,
-  Megaphone, Compass, Headphones,
+  Megaphone, Compass, Headphones, PlusCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -70,9 +70,9 @@ const TAP_SPRING = {
 
 export const BottomNavigation = memo(({
   userRole,
-  onFilterClick: _onFilterClick,
-  onAddListingClick: _onAddListingClick,
-  onListingsClick: _onListingsClick,
+  onFilterClick,
+  onAddListingClick,
+  onListingsClick,
   onAISearchClick,
 }: BottomNavigationProps) => {
   const { navigate, prefetch } = useAppNavigate();
@@ -107,11 +107,11 @@ export const BottomNavigation = memo(({
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
-  // Owner nav items — order: Dashboard, Profile, Listings, Promote, AI, Radio...
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
-    { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
+    { id: 'add', icon: PlusCircle, label: 'Add', onClick: onAddListingClick, isCenter: true },
+    { id: 'listings', icon: Building2, label: 'Listings', onClick: onListingsClick || (() => navigate('/owner/properties')) },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
     { id: 'ai-search', icon: Sparkles, label: 'Swipess AI', onClick: onAISearchClick },
     { id: 'radio', icon: Headphones, label: 'Radio', path: '/radio' },
