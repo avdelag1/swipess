@@ -21,9 +21,9 @@ import {
   Flame, MessageCircle, CircleUser, Building2,
   Search, Users2, Sparkles, ShieldCheck,
   Megaphone, Compass, Headphones, PlusCircle,
-  Zap, Ticket, SlidersHorizontal, Heart, MessageSquare,
+  Zap, Ticket, Heart, MessageSquare,
   LayoutDashboard, LayoutGrid, Rocket, PartyPopper, Settings2,
-  Eye
+  Eye, Cpu, SlidersHorizontal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -102,26 +102,26 @@ export const BottomNavigation = memo(({
 
   // Client nav items (8 buttons)
   const clientNavItems: NavItem[] = [
-    { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/client/dashboard' },
+    { id: 'dashboard', icon: LayoutGrid, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'ai-search', icon: Eye, label: 'AI Chat', onClick: onAISearchClick },
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
-    { id: 'search', icon: Search, label: 'Filters', onClick: onFilterClick },
+    { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Owner nav items (8 buttons)
   const ownerNavItems: NavItem[] = [
-    { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/owner/dashboard' },
+    { id: 'dashboard', icon: Cpu, label: 'System', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI Listing', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'promote', icon: Rocket, label: 'Promote', path: '/client/advertise' },
-    { id: 'search', icon: Search, label: 'Filters', onClick: onFilterClick },
+    { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Admin nav items — admin panel + messaging

@@ -12,6 +12,7 @@ import { SwipessLogo } from './SwipessLogo';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
+import { useSentientChat, ChatMessage } from '@/hooks/ai/useSentientChat';
 
 const MarkdownLink = ({ href, children, isDark }: { href?: string; children: React.ReactNode; isDark?: boolean }) => (
   <a 
@@ -60,7 +61,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
   const [query, setQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
+  const { sendMessage, isSearching, error: apiError } = useSentientChat();
   const [messages, setMessages] = useState<Message[]>([]);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
@@ -100,7 +101,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
       if (!currentSessionId) {
         const welcome: Message = {
           role: 'ai',
-          content: "Welcome. I'm Swipess AI — your sharp, market-savvy concierge. ✨\n\nI can help you find your dream space, refine your listing, or answer local secrets.\n\nWhat's on your mind today?",
+          content: "Welcome. I'm Swipess AI — your sharp, market-savvy concierge. ✨\n\nI can help you find your **Direct Deal** or answer local secrets.\n\nWhat's on your mind today?",
           timestamp: Date.now()
         };
         setMessages([welcome]);
@@ -171,7 +172,6 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
     }
 
     // LOCK IMMEDIATELY to prevent double sends
-    setIsSearching(true);
     setIsTyping(true);
     setQuery('');
 
@@ -180,69 +180,44 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
     setMessages(newMessages);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Session expired');
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name, bio, interests, lifestyle_tags')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      const userName = profile?.full_name || user.user_metadata?.full_name || 'Friend';
-      
       // Sanitize context for API (History + System context if it exists)
       const sanitizedHistory = newMessages
-        .slice(-12) // Keep a slightly larger window for better multi-turn
+        .slice(-12)
         .map(m => ({
           role: m.role === 'ai' ? 'assistant' : (m.role === 'system' ? 'system' : 'user'),
           content: m.content
-        }));
+        })) as ChatMessage[];
 
-      const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
-        body: {
-          task: 'chat',
-          data: {
-            query: trimmedQuery,
-            userName,
-            messages: sanitizedHistory,
-            currentPath: '/ai-search'
-          }
-        }
-      });
+      const profileName = (clientProfile as any)?.name || (clientProfile as any)?.full_name || user.user_metadata?.full_name || 'Friend';
+      
+      const response = await sendMessage(trimmedQuery, sanitizedHistory, profileName);
 
-      if (funcError) throw funcError;
-      if (data?.error) throw new Error(data.error);
-
-      const rawContent = data?.result?.text || data?.result?.message || 'I am focused. Say again?';
-      // Strip any leaked JSON action blocks — user should only ever see the human-readable message
-      const responseContent = rawContent.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || rawContent;
-
-      setMessages(prev => [...prev, {
-        role: 'ai',
-        content: responseContent,
-        timestamp: Date.now(),
-        showAction: !!data?.result?.action,
-        actionLabel: data?.result?.action?.label,
-        actionRoute: data?.result?.action?.params?.path || data?.result?.action?.route,
-      }]);
+      if (response) {
+        setMessages(prev => [...prev, {
+          role: 'ai',
+          content: response.text,
+          timestamp: Date.now(),
+          showAction: !!response.action,
+          actionLabel: response.action?.label,
+          actionRoute: response.action?.route,
+        }]);
+      } else {
+        // useSentientChat already shows a toast and sets error state
+        setMessages(prev => [...prev, {
+          role: 'ai',
+          content: "⚠️ Connection disrupted. I'm standing by to retry once your signal stabilizes.",
+          timestamp: Date.now()
+        }]);
+      }
     } catch (error) {
-      console.error('[Concierge] Error:', error);
-      toast.error('Concierge connection disrupted. Re-sending...');
-      setMessages(prev => [...prev, {
-        role: 'ai',
-        content: "⚠️ I encountered a brief disruption in my connection. Could you please repeat that? I've archived our progress so far.",
-        timestamp: Date.now()
-      }]);
+      console.error('[Concierge] Fatal Error:', error);
     } finally {
-      setIsSearching(false);
       setIsTyping(false);
     }
-  }, [query, isSearching, isTyping, messages, user]);
+  }, [query, isSearching, isTyping, messages, user, clientProfile, sendMessage]);
 
   const handleClose = useCallback(() => {
     onClose();
-    setIsSearching(false);
     setIsTyping(false);
   }, [onClose]);
 
@@ -328,7 +303,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                 {view === 'history' ? (
                   <>History Archive <Flame className="w-2.5 h-2.5 text-orange-500" /></>
                 ) : (
-                  <>Active Connection <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /></>
+                  <>Sentient Connection <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" /></>
                 )}
               </DialogDescription>
             </div>

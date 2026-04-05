@@ -381,6 +381,23 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         clearTimeout(loadTimeoutRef.current);
         loadTimeoutRef.current = null;
       }
+
+      // 🚀 SPEED OF LIGHT: PWA Media Session Marketing Integration
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: targetStation.name,
+          artist: "Swipess: Find Your Direct Deal",
+          album: "Swipe & Save Big",
+          artwork: [
+            { src: targetStation.albumArt || 'https://ivfdbmbevemvpkqukmdy.supabase.co/storage/v1/object/public/app-assets/swipess_logo_square.png', sizes: '512x512', type: 'image/png' },
+          ]
+        });
+
+        navigator.mediaSession.setActionHandler('play', () => { audioRef.current?.play(); setState(prev => ({ ...prev, isPlaying: true })); });
+        navigator.mediaSession.setActionHandler('pause', () => { audioRef.current?.pause(); setState(prev => ({ ...prev, isPlaying: false })); });
+        navigator.mediaSession.setActionHandler('previoustrack', () => changeStationRef.current('prev'));
+        navigator.mediaSession.setActionHandler('nexttrack', () => changeStationRef.current('next'));
+      }
     } catch (err) {
       logger.error('[RadioPlayer] Playback error:', err);
       failedStationsRef.current.add(targetStation.id);

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Scale, Bike, Wrench, Star, MessageCircle, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, Scale, Bike, Wrench, Star, MessageCircle, AlertTriangle, Zap } from 'lucide-react';
 import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 
 interface MarketingSlideProps {
@@ -127,6 +127,13 @@ const slideData: Record<string, {
         icon: MessageCircle,
         gradient: 'from-purple-500/80 to-pink-800/80',
         badge: 'Instant Comm'
+    },
+    'marketing:direct:deal': {
+        title: 'Direct Deals',
+        subtitle: 'Swipe and get your best offer today. No middlemen, no junk, just results.',
+        icon: Zap,
+        gradient: 'from-orange-500/80 to-rose-900/80',
+        badge: 'Top Value'
     }
 };
 
