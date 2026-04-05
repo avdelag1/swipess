@@ -44,8 +44,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   useEffect(() => {
     const recover = () => window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
     recover();
-    const safety = setTimeout(recover, 10);
-    return () => clearTimeout(safety);
+    const frame = requestAnimationFrame(recover);
+    return () => cancelAnimationFrame(frame);
   }, [location.pathname]);
 
   const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');

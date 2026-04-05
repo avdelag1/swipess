@@ -183,7 +183,7 @@ function TopBarComponent({
     <>
       <header
         className={cn(
-          'app-header opacity-100 translate-y-0',
+          'app-header opacity-100 translate-y-0 transform-gpu will-change-transform',
           transparent ? 'bg-transparent' : 'bg-background/80 backdrop-blur-xl',
           className
         )}
