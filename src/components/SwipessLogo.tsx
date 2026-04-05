@@ -30,7 +30,7 @@ function SwipessLogoComponent({
   return (
     <div className={cn(
       'relative inline-flex items-center justify-center transition-all duration-300',
-      'text-white',
+      variant === 'white' ? 'text-white' : 'text-foreground',
       className
     )}>
       <span
@@ -42,12 +42,13 @@ function SwipessLogoComponent({
         style={{
           textRendering: 'optimizeLegibility',
           fontFamily: "'Inter', 'Outfit', system-ui, sans-serif",
-          letterSpacing: '-0.02em', // Slightly relaxed for better visual breathing
+          letterSpacing: '-0.02em',
           display: 'inline-block',
           width: 'auto',
           maxWidth: '100%',
-          paddingRight: '0.15em', // CRITICAL: Prevents italic 'S' from clipping in tight containers
-          paddingLeft: '0.05em',  // Balanced alignment
+          paddingRight: '0.25em', // Increased to absolute safety against clipping
+          paddingLeft: '0.05em',
+          paddingBottom: '0.05em', // Breathability for descenders
         }}
       >
         SwipesS

@@ -75,13 +75,13 @@
     .splash-wordmark{
       font-family: 'Inter', 'Outfit', sans-serif;
       font-weight: 950;
-      font-size: 4rem;
+      font-size: 3.5rem; /* Slightly smaller for better framing on mobile */
       text-transform: uppercase;
       letter-spacing: -0.04em;
-      background: linear-gradient(135deg, #fb923c 0%, #f43f5e 50%, #db2777 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #FFFFFF;
       font-style: italic;
+      padding-right: 0.25em; /* CRITICAL: Prevents italic clipping */
+      display: inline-block;
       animation: heartbeat 2s ease-in-out infinite;
       -webkit-user-select: none;
       user-select: none;
