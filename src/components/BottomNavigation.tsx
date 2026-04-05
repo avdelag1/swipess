@@ -109,7 +109,7 @@ export const BottomNavigation = memo(({
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
     { id: 'add', icon: PlusCircle, label: 'Add AI', onClick: onAISearchClick, isSpecial: true },
-    { id: 'listings', icon: Building2, label: 'Portfolio', path: '/owner/properties', onClick: onListingsClick },
+    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties', onClick: onListingsClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
   ];
 
