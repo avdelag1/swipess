@@ -18,11 +18,11 @@ import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Flame, MessageCircle, User, Building2,
-  Search, Users, Sparkles, ShieldCheck,
+  Flame, MessageCircle, CircleUser, Building2,
+  Search, Users2, Sparkles, ShieldCheck,
   Megaphone, Compass, Headphones, PlusCircle,
-  Zap, Ticket, SlidersHorizontal, Heart, MessageSquare,
-  LayoutDashboard, LayoutGrid
+  Zap, Ticket, MixerHorizontal, Heart, MessageSquare,
+  LayoutDashboard, LayoutGrid, Rocket, PartyPopper, Settings2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -99,26 +99,26 @@ export const BottomNavigation = memo(({
 
   // Client nav items (8 buttons)
   const clientNavItems: NavItem[] = [
-    { id: 'dashboard', icon: LayoutGrid, label: 'Dashboard', path: '/client/dashboard' },
-    { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
-    { id: 'likes', icon: Flame, label: 'Liked', path: '/client/liked-properties' },
-    { id: 'messages', icon: MessageSquare, label: 'Messages', path: '/messages' },
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/client/dashboard' },
+    { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
+    { id: 'likes', icon: Heart, label: 'Liked', path: '/client/liked-properties' },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'ai-search', icon: Sparkles, label: 'AI Chat', onClick: onAISearchClick },
-    { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
-    { id: 'events', icon: Ticket, label: 'Events', path: '/explore/eventos' },
-    { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
+    { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
+    { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
+    { id: 'search', icon: Settings2, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Owner nav items (8 buttons)
   const ownerNavItems: NavItem[] = [
-    { id: 'dashboard', icon: LayoutGrid, label: 'Dashboard', path: '/owner/dashboard' },
-    { id: 'profile', icon: User, label: 'Profile', path: '/owner/profile' },
-    { id: 'likes', icon: Flame, label: 'Liked', path: '/owner/liked-clients' },
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/owner/dashboard' },
+    { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
+    { id: 'likes', icon: Heart, label: 'Liked', path: '/owner/liked-clients' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI Listing', onClick: onAISearchClick },
-    { id: 'messages', icon: MessageSquare, label: 'Messages', path: '/messages' },
-    { id: 'promote', icon: Zap, label: 'Promote', path: '/client/advertise' },
-    { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
+    { id: 'promote', icon: Rocket, label: 'Promote', path: '/client/advertise' },
+    { id: 'search', icon: Settings2, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Admin nav items — admin panel + messaging
@@ -280,7 +280,7 @@ export const BottomNavigation = memo(({
 
 
   return (
-    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar px-3 pb-1')}>
+    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar px-3 pb-2 pt-1')}>
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
@@ -350,7 +350,7 @@ export const BottomNavigation = memo(({
           onScroll={updateScrollFades}
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full justify-start gap-1.5 px-2.5 py-1 nav-scroll-hide transform-gpu',
+            'relative flex items-center w-full justify-start gap-1.5 px-2.5 py-1.5 nav-scroll-hide transform-gpu',
           )}
           style={{
             zIndex: 2,
@@ -394,10 +394,10 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                   style={{
-                    minWidth: '62px',
+                    minWidth: '64px',
                     scrollSnapAlign: 'start', // Ensure item lands nicely
-                    minHeight: TOUCH_TARGET - 2, // Slightly thinner button height
-                    padding: '4px 6px', // Balanced spacing per user request
+                    minHeight: TOUCH_TARGET, // RESTORED THICKNESS
+                    padding: '6px 8px', // Balanced spacing per user request
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',

@@ -158,6 +158,24 @@ body {
   transform: translateZ(0);
 }
 
+.swipe-card {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  /* 🚀 ZENITH CONTENT ISOLATION */
+  contain: layout style;
+  content-visibility: auto;
+  contain-intrinsic-size: 100%;
+}
+
+.discovery-grid {
+  display: grid;
+  gap: 1.25rem;
+  /* 🚀 ZENITH GRID ISOLATION */
+  contain: layout style;
+  content-visibility: auto;
+  contain-intrinsic-size: 500px;
+}
+
 .app-header {
   position: fixed;
   top: 0;

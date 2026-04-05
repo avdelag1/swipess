@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ChevronLeft, Users, SlidersHorizontal,
+  ChevronLeft, Users, Settings2,
   Sparkles, X, MapPin,
   Briefcase,
   Heart, Check, Info, 
@@ -243,7 +243,7 @@ export default function RoommateMatching() {
            )}
            style={{ willChange: 'transform, opacity' }}
          >
-           <SlidersHorizontal className="w-4 h-4" />
+           <Settings2 className="w-4 h-4" />
          </motion.button>
       </motion.div>
 
