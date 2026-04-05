@@ -86,20 +86,21 @@ export function AppLayout({ children }: AppLayoutProps) {
         <NotificationSystem />
       </Suspense>
 
-      {/* 🧘 GLOBAL UNIVERSAL HUD (Sentient Header) */}
-      {!isAuthRoute && !isFullScreen && !isPublicPreview && !isModalOpen && (
-        <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[1000]">
-          <TopBar
-            onNotificationsClick={() => {}} 
-            onMessageActivationsClick={handleMessageActivationsClick}
-            showFilters={false} // Managed by specific pages
-            userRole={userRole}
-            transparent={isImmersive}
-            title={getPageTitle()}
-            showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
-            minimal={isMinimalHUD}
-          />
-        </SentientHud>
+      {/* 🚀 PERMANENT HUD: Always visible header per user request */}
+      {!isAuthRoute && !isFullScreen && !isPublicPreview && (
+        <div className="fixed top-0 left-0 right-0 z-[1000] pointer-events-none">
+          <div className="pointer-events-auto">
+            <TopBar
+              onNotificationsClick={() => {}} 
+              onMessageActivationsClick={handleMessageActivationsClick}
+              showFilters={false}
+              userRole={userRole}
+              transparent={isImmersive}
+              title={getPageTitle()}
+              showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
+            />
+          </div>
+        </div>
       )}
 
       <main
@@ -110,38 +111,38 @@ export function AppLayout({ children }: AppLayoutProps) {
         {children}
       </main>
 
-      {/* 🧘 GLOBAL UNIVERSAL HUD (Sentient Footer) */}
-      {!isAuthRoute && !isFullScreen && !isPublicPreview && !isModalOpen && (
+      {/* 🚀 PERMANENT HUD: Always visible footer per user request */}
+      {!isAuthRoute && !isFullScreen && !isPublicPreview && (
         <>
-          <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[1000]">
-            <BottomNavigation
-              userRole={userRole}
-              onFilterClick={() => {
-                if (userRole === 'owner') navigate('/owner/filters');
-                else navigate('/client/filters');
-              }}
-              onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
-              onListingsClick={() => {
-                if (userRole === 'owner') navigate('/owner/properties');
-                else navigate('/client/liked-properties');
-              }}
-              onAISearchClick={() => {
-                if (userRole === 'owner') navigate('/owner/listings/new-ai');
-                else modalStore.setModal('isAISearchOpen', true);
-              }}
-            />
-          </SentientHud>
+          <div className="fixed bottom-0 left-0 right-0 z-[1000] pointer-events-none">
+            <div className="pointer-events-auto">
+              <BottomNavigation
+                userRole={userRole}
+                onFilterClick={() => {
+                  if (userRole === 'owner') navigate('/owner/filters');
+                  else navigate('/client/filters');
+                }}
+                onAddListingClick={() => modalStore.setModal('showCategoryDialog', true)}
+                onListingsClick={() => {
+                  if (userRole === 'owner') navigate('/owner/properties');
+                  else navigate('/client/liked-properties');
+                }}
+                onAISearchClick={() => {
+                  if (userRole === 'owner') navigate('/owner/listings/new-ai');
+                  else modalStore.setModal('isAISearchOpen', true);
+                }}
+              />
+            </div>
+          </div>
 
-          {/* Radio Mini Player follows HUD state */}
-          <AnimatePresence>
-            <SentientHud side="bottom" mode="fade" className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+80px)] left-4 right-4 z-50 pointer-events-none">
-              <div className="pointer-events-auto">
-                <Suspense fallback={null}>
-                  <RadioMiniPlayer />
-                </Suspense>
-              </div>
-            </SentientHud>
-          </AnimatePresence>
+          {/* Radio Mini Player */}
+          <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+80px)] left-4 right-4 z-50 pointer-events-none">
+            <div className="pointer-events-auto">
+              <Suspense fallback={null}>
+                <RadioMiniPlayer />
+              </Suspense>
+            </div>
+          </div>
         </>
       )}
     </div>

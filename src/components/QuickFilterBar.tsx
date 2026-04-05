@@ -268,10 +268,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                   }}
                   className={cn(
                     smoothButtonClass, 
-                    'relative flex-shrink-0 w-40 h-64 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
+                    'relative flex-shrink-0 w-36 h-56 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
                     isActive ? 'border-orange-500 shadow-lg scale-[1.03]' : 'border-border/40 opacity-90'
                   )}
-                  style={{ contain: 'paint', willChange: 'opacity' }}
+                  style={{ contain: 'paint', willChange: 'transform, opacity' }}
                 >
                   <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
                   <img 
@@ -347,10 +347,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             }}
             className={cn(
               smoothButtonClass, 
-              'relative flex-shrink-0 w-40 h-64 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
+              'relative flex-shrink-0 w-36 h-56 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
               clientIsAllSelected ? 'border-orange-500 shadow-lg scale-[1.03]' : 'border-border/40 opacity-90'
             )}
-            style={{ contain: 'paint', willChange: 'opacity' }}
+            style={{ contain: 'paint', willChange: 'transform, opacity' }}
           >
             <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
             <img 
@@ -380,10 +380,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 onClick={() => handleCategorySelect(category.id)}
                 className={cn(
                   smoothButtonClass, 
-                  'relative flex-shrink-0 w-40 h-64 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
+                  'relative flex-shrink-0 w-36 h-56 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
                   isActive ? 'border-orange-500 shadow-lg scale-[1.03]' : 'border-border/40 opacity-90'
                 )}
-                style={{ contain: 'paint', willChange: 'opacity' }}
+                style={{ contain: 'paint', willChange: 'transform, opacity' }}
               >
                 <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
                 <img 
