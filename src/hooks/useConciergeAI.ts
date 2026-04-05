@@ -249,6 +249,7 @@ export function useConciergeAI() {
       
       // No sentient fallback message injected into chat stream anymore.
       // We rely on the `error` state and let user see the error + use the retry button.
+    } finally {
       setIsLoading(false);
     }
   }, [messages, user, currentConversationId, subscription, location.pathname, queryClient]);
