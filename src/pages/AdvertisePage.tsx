@@ -414,10 +414,10 @@ export default function AdvertisePage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
-            className="text-4xl sm:text-5xl font-black leading-[0.95] tracking-tighter mb-4 text-foreground"
+            className="text-4xl sm:text-5xl font-black leading-[1.1] tracking-tighter mb-4 text-foreground text-center"
           >
             Promote{" "}
-            <span className="brand-gradient-text uppercase italic inline-block px-1">
+            <span className="brand-gradient-text uppercase italic relative px-2 py-1">
               Your Brand
             </span>{" "}
             on Swipess

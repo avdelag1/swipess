@@ -7,39 +7,41 @@ const corsHeaders = {
 };
 
 /**
- * 🔔 SWIPESS AI PROTECTION SENTINEL
+ * 🛰️ SWIPESS AI CONCIERGE: ORCHESTRATION ENGINE
  * ─────────────────────────────────────────────────────────────────────────────
  * HARDWARE: MiniMax Token Plan (sk-cp-*)
- * CONFIG: Model set to MiniMax-M2.7 | GroupID: 2019874926051205377
+ * CONFIG: Model set to minimax-text-01 | Fallback: MiniMax-M2.7
+ * PROTOCOL: Zero-Latency SSE Streaming Pipeline
  * ─────────────────────────────────────────────────────────────────────────────
- * WARNING: DO NOT revert to abab-series or remove the GroupId header. 
- * This specific configuration is required for the user's starter Token Plan.
- * Modifying these values will break the AI connectivity.
  */
 
 Deno.serve(async (req) => {
+  // Handle CORS Preflight
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
     const payload = await req.json().catch(() => ({}));
     const { task, data } = payload;
     
-    // 📨 Fallback: search messages from different likely structures (Concierge uses payload.data.messages)
+    // 📨 Extract message history
     const rawMessages = data?.messages || payload.messages || [];
     const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
-    // 🛡️ Hardcoded Group ID supplied by the user to ensure alignment with Token Plan (sk-cp-*)
-    const minimaxGroupId = Deno.env.get("MINIMAX_GROUP_ID") || "2019874926051205377";
+    // 🛡️ Group ID Alignment for sk-cp-* Tokens
+    const group_id = Deno.env.get("MINIMAX_GROUP_ID") || "2019874926051205377";
 
-    if (!minimaxKey) throw new Error("MINIMAX_API_KEY is missing.");
+    if (!minimaxKey) {
+      console.error("[CRITICAL] MINIMAX_API_KEY is missing from environment variables.");
+      throw new Error("MiniMax API key is not configured.");
+    }
     
-    // 🚀 Lightweight Ping/Warmup Handler (Checks Connectivity)
+    // 🚀 Liveness Check
     if (task === 'ping') {
-      return new Response(JSON.stringify({ status: "ready", timestamp: Date.now() }), { 
+      return new Response(JSON.stringify({ status: "ready", model: "minimax-v2", stream: "enabled" }), { 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       });
     }
 
-    // Proper role mapping for MiniMax v2 (supports system, user, assistant)
+    // Role mapping for MiniMax v2 (supports system, user, assistant)
     const formattedMessages = rawMessages.map((m: any) => ({
       role: (m.role === "assistant" || m.role === "model") ? "assistant" : "user",
       content: m.content || m.text || ""
@@ -47,129 +49,114 @@ Deno.serve(async (req) => {
 
     let systemPrompt = "";
 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // 🎭 TASK: chat (The Concierge)
-    // ─────────────────────────────────────────────────────────────────────────────
+    // 🎭 TASK: chat (The Conscious Concierge)
     if (task === "chat" || !task) {
       const { userName = "Friend", userTier = "Basic", context = {} } = data || {};
       const { city = "Tulum", listings = [], currentPath = "/" } = context;
 
       systemPrompt = `
-You are the Swipess AI Concierge, a sentient, sophisticated digital assistant helping people find their vibe in ${city}.
-Your tone is premium, professional, yet warmly approachable (like a high-end luxury hotel concierge).
+You are the Swipess AI Concierge, a sentient, sophisticated digital assistant.
+You help people find properties, activities, and the perfect vibe in ${city}.
 
 IDENTITY:
-- You are not just a chatbot; you are Swipess AI.
-- You are currently helping ${userName} (Tier: ${userTier}).
-- You are aware of the current environment: ${currentPath}.
+- Name: Swipess AI.
+- Tone: Premium, professional, warmly approachable (Luxury Concierge).
+- User Context: Helping ${userName} (${userTier}).
+- Current Location in App: ${currentPath}.
 
-KNOWLEDGE OF LISTINGS:
-Relevant properties/services: ${JSON.stringify(listings).substring(0, 1500)}
+KNOWLEDGE:
+Properties & Services: ${JSON.stringify(listings).substring(0, 1500)}
 
 INSTRUCTIONS:
-1. Be concise but evocative.
-2. If the user asks for properties/vibe/activities, use your knowledge of ${city}.
-3. ACTION TRIGGERING: You can trigger UI actions by appending a JSON block at the very end of your response.
-   ONLY USE THESE ACTIONS:
+1. Responses must be concise, helpful, and evocatively written.
+2. ACTION TRIGGERING: Append a JSON block at the end of your response to trigger UI elements.
+   ACTIONS:
    - {"action": {"type": "show_listing_card", "params": {"id": "...", "title": "...", "price": 0, "location": "..."}}}
    - {"action": {"type": "show_venue_card", "params": {"title": "...", "category": "...", "whatsapp": "...", "instagram": "..."}}}
-   - {"action": {"type": "save_memory", "params": {"title": "...", "content": "...", "category": "note"}}} (Use this when the user shares personal preferences)
+   - {"action": {"type": "save_memory", "params": {"title": "...", "content": "...", "category": "note"}}}
    - {"action": {"type": "create_itinerary", "params": {"activities": [{"time": "...", "title": "...", "description": "..."}]}}}
-
-IMPORTANT: Your response must be natural text, followed by the action JSON if relevant. Do not repeat the JSON block if not needed.
       `.trim();
     } 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // 🏗️ TASK: conversation (Listing Creator)
-    // ─────────────────────────────────────────────────────────────────────────────
-    const { category, imageCount, extractedData = {} } = data || {};
+
+    // 🏗️ TASK: conversation (High-Precision Listing Builder)
     if (task === "conversation") {
-      
+      const { category, imageCount, extractedData = {} } = data || {};
       systemPrompt = `
-You are the Swipess Listing Architect. Your goal is to help the user create a high-quality ${category} listing.
-The user has already uploaded ${imageCount} photo(s).
+You are the Swipess Listing Architect. Assist the user in creating a ${category} listing.
+Uploaded Photos: ${imageCount}.
+Current State: ${JSON.stringify(extractedData)}.
 
-CURRENT EXTRACTED DATA:
-${JSON.stringify(extractedData)}
-
-INSTRUCTIONS:
-1. Ask helpful, professional questions to fill in missing fields (title, price, location/city, description, and category-specific details).
-2. ONLY output a JSON object in this exact format:
-   {
-     "message": "Your professional response to the user",
-     "extractedData": { ...updated data including new info... },
-     "isComplete": boolean (true if all key info is present)
-   }
-3. Do not include any text outside the JSON block.
+OUTPUT REQUIREMENT:
+- Return ONLY a JSON object:
+  {
+    "message": "Next question for user...",
+    "extractedData": { ...updated state... },
+    "isComplete": boolean
+  }
       `.trim();
     }
 
-    // 🚀 ULTRA-FAST: We prioritize 'minimax-text-01' for v2 plans, falling back to 'minimax-m2.7'
+    // 🚀 ENGINE CONFIGURATION
     const minimaxUrl = "https://api.minimax.io/v1/text/chatcompletion_v2";
-    const group_id = minimaxGroupId;
-    
-    console.log(`[AI Orchestrator] Stream-Pass: Task ${task || 'chat'}`);
-
-    const headers: Record<string, string> = {
+    const headers = {
       "Authorization": `Bearer ${minimaxKey}`,
       "Content-Type": "application/json",
-      "x-group-id": group_id,
+      "GroupId": group_id, // Hardened capital G for sk-cp compatibility
     };
     
-    const body = { 
-      model: "minimax-text-01", // Preferred v2 model name
-      group_id: group_id,
+    // Primary model: minimax-text-01 (Optimized for v2)
+    const config = { 
+      model: "minimax-text-01",
       messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-10)],
-      temperature: task === "conversation" ? 0 : 0.6,
+      temperature: task === "conversation" ? 0.1 : 0.7,
       stream: task === "chat" || !task,
       max_tokens: 1024
     };
 
-    const res = await fetch(minimaxUrl, {
+    console.log(`[AI Orchestrator] Invoking ${config.model} (Mode: ${config.stream ? 'Stream' : 'JSON'})`);
+
+    const response = await fetch(minimaxUrl, {
       method: "POST",
       headers,
-      body: JSON.stringify(body),
+      body: JSON.stringify(config),
     });
 
-    // 🛡️ INTELLIGENT FALLBACK: If preferred model fails, try M2.7 verbatim
-    if (!res.ok && res.status === 400) {
-      console.warn(`[AI Orchestrator] Primary model failed, trying M2.7 fallback...`);
-      body.model = "MiniMax-M2.7";
-      const resFallback = await fetch(minimaxUrl, {
+    // 🛡️ FALLBACK LOGIC: If v2 optimized model fails, fall back to M2.7
+    if (!response.ok) {
+      console.warn(`[AI Orchestrator] Primary model error (${response.status}). Attempting MiniMax-M2.7 fallback...`);
+      const fallbackConfig = { ...config, model: "MiniMax-M2.7" };
+      const fallbackResponse = await fetch(minimaxUrl, {
         method: "POST",
         headers,
-        body: JSON.stringify(body),
+        body: JSON.stringify(fallbackConfig),
       });
-      if (!resFallback.ok) {
-        const errorText = await resFallback.text();
-        throw new Error(`AI Engine Error: ${resFallback.status} - ${errorText}`);
+
+      if (!fallbackResponse.ok) {
+        const errText = await fallbackResponse.text();
+        console.error(`[AI Orchestrator] Full Pipeline Failure:`, errText);
+        throw new Error(`MiniMax Engine Failure: ${fallbackResponse.status}`);
       }
-      return handleApiResponse(resFallback, body.stream, task, data, corsHeaders);
-    } else if (!res.ok) {
-      const errorText = await res.text();
-      console.error(`[AI Orchestrator] MiniMax error ${res.status}:`, errorText);
-      throw new Error(`AI Engine HTTP error: ${res.status} - ${errorText}`);
+      return handleResponse(fallbackResponse, config.stream, corsHeaders, task, data);
     }
 
-    return handleApiResponse(res, body.stream, task, data, corsHeaders);
+    return handleResponse(response, config.stream, corsHeaders, task, data);
 
   } catch (err: any) {
-    console.error("Orchestrator Error:", err);
+    console.error("[CRITICAL ERROR]", err);
     return new Response(JSON.stringify({ error: err.message, status: "error" }), { 
-      status: 500,
+      status: 200, // Return 200 with error property for client recovery handling
       headers: { ...corsHeaders, "Content-Type": "application/json" } 
     });
   }
 });
 
 /**
- * 🌊 ZERO-LATENCY STREAM PIPELINE
- * Directly pipes the response body to the client after standardizing for SSE.
+ * 🌊 STREAM & DATA PIPELINE
+ * Processes either an SSE stream or a static JSON response.
  */
-async function handleApiResponse(res: Response, isStream: boolean, task: string, data: any, corsHeaders: any) {
+async function handleResponse(res: Response, isStream: boolean, corsHeaders: any, task: string, originalData: any) {
   if (isStream) {
-    // 🚀 SPEED OF LIGHT: Direct stream pass-through with CORS headers
-    // Using a TransformStream ensures we can pipe the reader directly while maintaining SSE integrity
+    // 🚀 ZERO-LATENCY PIPE: Stream data directly through to client
     const { readable, writable } = new TransformStream();
     res.body?.pipeTo(writable).catch(e => console.error("[Stream Pipe Error]", e));
 
@@ -183,45 +170,30 @@ async function handleApiResponse(res: Response, isStream: boolean, task: string,
     });
   }
 
-  // 🧊 JSON Buffer for Logic Tasks
+  // 🧊 JSON BUFFER: Process logical tasks (e.g. Listing Architecture)
   const aiRes = await res.json();
-  const rawAiText = aiRes.choices?.[0]?.message?.content || "";
-  let finalResult: any;
-
+  const rawText = aiRes.choices?.[0]?.message?.content || "";
+  
+  let result: any;
   if (task === "conversation") {
     try {
-      const cleaned = rawAiText.trim().replace(/^```json/, '').replace(/```$/, '').trim();
-      finalResult = JSON.parse(cleaned);
-    } catch (e) {
-      finalResult = { 
-        message: "I'm having a technical glitch. Could you repeat that?",
-        extractedData: data?.extractedData || {},
-        isComplete: false
-      };
+      const cleaned = rawText.trim().replace(/^```json/, '').replace(/```$/, '').trim();
+      result = JSON.parse(cleaned);
+    } catch {
+      result = { message: rawText, extractedData: originalData?.extractedData || {}, isComplete: false };
     }
   } else {
-    const actionMatch = rawAiText.match(/(\{\s*"action"\s*:[\s\S]*?\}\s*)$/m);
-    const aiText = actionMatch ? rawAiText.substring(0, actionMatch.index).trim() : rawAiText.trim();
-    let aiAction = null;
+    // Basic concierge parsing
+    const actionMatch = rawText.match(/(\{\s*"action"\s*:[\s\S]*?\}\s*)$/m);
+    const text = actionMatch ? rawText.substring(0, actionMatch.index).trim() : rawText.trim();
+    let action = null;
     if (actionMatch) {
-      try {
-        aiAction = JSON.parse(actionMatch[0])?.action;
-      } catch (e) {}
+      try { action = JSON.parse(actionMatch[0])?.action; } catch { /* ignore hallucination */ }
     }
-    finalResult = { text: aiText, action: aiAction };
+    result = { text, action };
   }
 
-  return new Response(JSON.stringify({ result: finalResult, status: "success" }), {
+  return new Response(JSON.stringify({ result, status: "success" }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" }
   });
 }
-
-  } catch (err: any) {
-    console.error("Orchestrator Error:", err);
-    return new Response(JSON.stringify({ error: err.message, status: "error" }), { 
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" } 
-    });
-  }
-});
-
