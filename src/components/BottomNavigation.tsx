@@ -390,9 +390,9 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                 style={{
-                  minWidth: 64, // Reduced from 84 to prevent overflow on mobile with 5+ items
+                  minWidth: 'auto', // Allow buttons to organically size to their words
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT + 6 : TOUCH_TARGET + 8,
-                  padding: isNarrow ? '8px 4px' : '10px 6px',
+                  padding: isNarrow ? '8px 10px' : '10px 14px', // Giving every button their own space
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
@@ -484,11 +484,6 @@ export const BottomNavigation = memo(({
                   >
                     {item.label}
                   </span>
-                )}
-
-                {/* IS_SPECIAL GLOW: Subtle heartbeat pulse for high-impact actions like 'Add' */}
-                {item.isSpecial && (
-                  <div className="absolute inset-0 rounded-2xl bg-[var(--color-brand-accent-2)]/8 blur-xl animate-pulse -z-10" />
                 )}
               </motion.button>
             );

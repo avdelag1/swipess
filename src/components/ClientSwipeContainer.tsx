@@ -834,45 +834,8 @@ const ClientSwipeContainerComponent = ({
   return (
     <>
       <div className="relative w-full h-full overflow-hidden flex flex-col pt-2 bg-[#0a0a0b]">
-        {/* PREMIUM AMBIENT GLOWS: Dynamic Category-Aware Background */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-          <motion.div
-            animate={{
-              scale: [1, 1.25, 1],
-              opacity: [0.03, 0.06, 0.03],
-              rotate: [0, 90, 0],
-              backgroundColor: category === 'property' ? '#3b82f6' :
-                category === 'bicycle' ? '#f43f5e' :
-                  category === 'motorcycle' ? '#f59e0b' :
-                    category === 'services' || category === 'worker' ? '#8b5cf6' : '#ec4899'
-            }}
-            transition={{
-              scale: { duration: 25, repeat: Infinity, ease: "easeInOut" },
-              opacity: { duration: 25, repeat: Infinity, ease: "easeInOut" },
-              rotate: { duration: 40, repeat: Infinity, ease: "linear" },
-              backgroundColor: { duration: 2 }
-            }}
-            className="absolute top-1/4 -right-1/4 w-[800px] h-[800px] rounded-full blur-[160px]"
-          />
-          <motion.div
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.02, 0.05, 0.02],
-              rotate: [0, -90, 0],
-              backgroundColor: category === 'property' ? '#60a5fa' :
-                category === 'bicycle' ? '#e11d48' :
-                  category === 'motorcycle' ? '#fbbf24' :
-                    category === 'services' || category === 'worker' ? '#a78bfa' : '#f43f5e'
-            }}
-            transition={{
-              scale: { duration: 30, repeat: Infinity, ease: "easeInOut" },
-              opacity: { duration: 30, repeat: Infinity, ease: "easeInOut" },
-              rotate: { duration: 50, repeat: Infinity, ease: "linear" },
-              backgroundColor: { duration: 2 }
-            }}
-            className="absolute -bottom-1/4 -left-1/4 w-[900px] h-[900px] rounded-full blur-[180px]"
-          />
-        </div>
+        {/* Ambient glows removed per user request for simplicity */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10" />
         <AnimatePresence>
           {deckQueue.length > 0 && currentIndex < deckQueue.length && (
             <motion.div

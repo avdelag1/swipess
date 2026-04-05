@@ -202,8 +202,8 @@ function TopBarComponent({
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={handleBack}
-                className="flex-shrink-0 w-9 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation rounded-xl bg-card transition-all"
-                style={{ boxShadow: cinematicShadow, border: 'none' }}
+                className="flex-shrink-0 w-9 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation transition-all"
+                style={{ border: 'none' }}
                 aria-label="Go back"
               >
                 <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground" : "text-white/90")} strokeWidth={2.8} />
@@ -245,18 +245,7 @@ function TopBarComponent({
               </div>
             )}
 
-            {/* ATMOSPHERIC SCROLL MASK (LEFT) */}
-            <div
-              className="absolute top-0 bottom-0 w-10 pointer-events-none z-30"
-              style={{
-                right: '-36px',
-                background: isLight
-                  ? 'linear-gradient(to right, rgba(255,255,255,0.85) 20%, transparent)'
-                  : 'linear-gradient(to right, rgba(7,7,8,0.9) 20%, transparent)',
-                opacity: transparent ? 0 : 0.8,
-                transition: 'opacity 0.6s ease',
-              }}
-            />
+            {/* Atmospheric mask removed per user request for floating simple buttons */}
           </div>
 
           {/* ── Horizontally scrollable row: all other buttons ── */}
@@ -304,12 +293,11 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-9 w-9 px-0 rounded-xl transition-all duration-200 ease-out",
-                    "hover:scale-105 active:scale-95 group bg-card",
+                    "relative h-9 w-9 px-0 transition-all duration-200 ease-out bg-transparent",
+                    "hover:scale-105 active:scale-95 group",
                     "touch-manipulation flex items-center gap-1 flex-shrink-0",
                   )}
                   style={{
-                    boxShadow: cinematicShadow,
                     border: 'none',
                   }}
                   onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
@@ -436,12 +424,11 @@ function TopBarComponent({
             <Button
               variant="ghost"
               className={cn(
-                "relative h-9 w-9 px-0 rounded-xl transition-all duration-200 ease-out",
-                "hover:scale-105 active:scale-95 group bg-card",
+                "relative h-9 w-9 px-0 transition-all duration-200 ease-out bg-transparent",
+                "hover:scale-105 active:scale-95 group",
                 "touch-manipulation flex items-center justify-center flex-shrink-0",
               )}
               style={{
-                boxShadow: cinematicShadow,
                 border: 'none',
               }}
               onClick={(e) => {
@@ -462,17 +449,7 @@ function TopBarComponent({
               <NotificationPopover />
             </div>
           </div>
-          {/* ATMOSPHERIC SCROLL MASK (RIGHT) */}
-          <div
-            className="absolute top-0 right-0 bottom-0 w-12 pointer-events-none z-30"
-            style={{
-              background: isLight
-                ? 'linear-gradient(to left, rgba(255,255,255,0.85) 40%, transparent)'
-                : 'linear-gradient(to left, rgba(7,7,8,0.95) 40%, transparent)',
-              opacity: transparent ? 0 : 1,
-              transition: 'opacity 0.6s ease',
-            }}
-          />
+          {/* Atmospheric right mask removed */}
           </div>
         </div>
       </header>
