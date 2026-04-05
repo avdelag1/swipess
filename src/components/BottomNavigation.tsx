@@ -101,7 +101,7 @@ export const BottomNavigation = memo(({
   const clientNavItems: NavItem[] = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
-    { id: 'likes', icon: Heart, label: 'Liked', path: '/client/liked-properties' },
+    { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'ai-search', icon: Sparkles, label: 'AI Chat', onClick: onAISearchClick },
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
@@ -113,7 +113,7 @@ export const BottomNavigation = memo(({
   const ownerNavItems: NavItem[] = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
-    { id: 'likes', icon: Heart, label: 'Liked', path: '/owner/liked-clients' },
+    { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI Listing', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },

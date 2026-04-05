@@ -41,7 +41,7 @@ export function SentientHud({
   className
 }: SentientHudProps) {
   const location = useLocation();
-  const { isFocused } = useFocusMode(6000);
+  const { isFocused } = useFocusMode(7000);
   
   const { isVisible: isScrollVisible } = useScrollDirection({
     threshold,

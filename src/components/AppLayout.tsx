@@ -87,7 +87,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
 
       {/* 🧘 GLOBAL UNIVERSAL HUD (Sentient Header) */}
-      {!isAuthRoute && !isFullScreen && !isPublicPreview && !isModalOpen && (
+      {!isAuthRoute && !isFullScreen && !isPublicPreview && !isModalOpen && !isMinimalHUD && (
         <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[1000]">
           <TopBar
             onNotificationsClick={() => {}} 
