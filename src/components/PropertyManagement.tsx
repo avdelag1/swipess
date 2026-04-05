@@ -10,7 +10,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { Home, Plus, Edit, Trash2, Eye, MapPin, Search, Bike, LayoutGrid, Sparkles, ImageIcon, Share2, Briefcase, CheckCircle, ThumbsUp } from 'lucide-react';
+import { Home, Plus, Edit, Trash2, Eye, MapPin, Search, Bike, Zap, Sparkles, ImageIcon, Share2, Briefcase, CheckCircle, ThumbsUp } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ListingPreviewDialog } from '@/components/ListingPreviewDialog';
 import { UnifiedListingForm } from '@/components/UnifiedListingForm';
@@ -208,7 +208,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   };
 
   const tabItems = [
-    { id: 'all', label: 'All', icon: LayoutGrid, count: listings.length },
+    { id: 'all', label: 'All', icon: Zap, count: listings.length },
     { id: 'property', label: 'Properties', icon: Home, count: listings.filter(l => !l.category || l.category === 'property').length },
     { id: 'motorcycle', label: 'Motorcycles', icon: MotorcycleIcon, count: listings.filter(l => l.category === 'motorcycle').length },
     { id: 'bicycle', label: 'Bicycles', icon: Bike, count: listings.filter(l => l.category === 'bicycle').length },
@@ -259,7 +259,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         >
           <div className="flex items-center gap-4">
             <div className="p-4 rounded-full bg-[var(--color-brand-accent-2)]/10 border border-[var(--color-brand-accent-2)]/20 shadow-[0_0_15px_rgba(228,0,124,0.15)]">
-              <LayoutGrid className="w-7 h-7 text-[var(--color-brand-accent-2)]" />
+              <Zap className="w-7 h-7 text-[var(--color-brand-accent-2)]" />
             </div>
             <div>
               <h1 className="text-2xl font-black tracking-tighter text-foreground">My Listings</h1>

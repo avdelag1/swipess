@@ -21,14 +21,9 @@ export function MyHubQuickFilters() {
     const { setActiveCategory: _setActiveCategory } = useFilterActions();
 
     return (
-        <div className="relative mb-8 px-4">
+        <div className="relative mb-2 px-4">
             {/* Swipeable Stack */}
-            <div className="pt-8">
-                <CategorySwipeStack />
-            </div>
-
-            {/* Swipeable Stack */}
-            <div className="pt-8">
+            <div className="pt-2">
                 <CategorySwipeStack />
             </div>
         </div>

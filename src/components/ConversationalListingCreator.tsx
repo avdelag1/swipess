@@ -107,8 +107,10 @@ export function ConversationalListingCreator() {
   }, [step, isInitialized, initializeConversation]);
 
   const handleCategorySelect = (category: Category) => {
-    setSelectedCategory(category);
-    setStep('photos');
+    setTimeout(() => {
+      setSelectedCategory(category);
+      setStep('photos');
+    }, 50);
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,7 +168,9 @@ export function ConversationalListingCreator() {
       toast.error('Please upload at least one photo');
       return;
     }
-    setStep('conversation');
+    setTimeout(() => {
+      setStep('conversation');
+    }, 50);
   };
 
   const handleSendMessage = async () => {

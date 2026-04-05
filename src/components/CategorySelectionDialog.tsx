@@ -128,7 +128,7 @@ export function CategorySelectionDialog({
       resetTimeoutRef.current = setTimeout(() => {
         setSelectedCategory(null);
         setStep('category');
-      }, 300);
+      }, 150);
       return;
     }
     setStep('mode');
@@ -151,7 +151,7 @@ export function CategorySelectionDialog({
     resetTimeoutRef.current = setTimeout(() => {
       setSelectedCategory(null);
       setStep('category');
-    }, 300);
+    }, 150);
   };
 
   const handleBack = () => {
@@ -166,7 +166,7 @@ export function CategorySelectionDialog({
       resetTimeoutRef.current = setTimeout(() => {
         setSelectedCategory(null);
         setStep('category');
-      }, 300);
+      }, 150);
     }
   };
 
@@ -205,17 +205,18 @@ export function CategorySelectionDialog({
               {step === 'category' ? (
                 <motion.div
                   key="category"
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -15 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
+                  exit={{ opacity: 0, x: 15 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
                   className="grid grid-cols-1 gap-3"
                 >
                   {categories.map((category, index) => (
                     <motion.button
                       key={category.id}
-                      initial={{ opacity: 0, y: 12 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.04 }}
+                      transition={{ delay: index * 0.025, duration: 0.2 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleCategorySelect(category)}
                       className={cn(
@@ -254,9 +255,10 @@ export function CategorySelectionDialog({
               ) : (
                 <motion.div
                   key="mode"
-                  initial={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, x: 15 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  exit={{ opacity: 0, x: -15 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
                   className="space-y-3 sm:space-y-4"
                 >
                   <Button

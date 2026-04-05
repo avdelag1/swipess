@@ -38,6 +38,7 @@ export function CategorySwipeStack() {
         setClientGender
     } = useFilterActions();
     
+
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -84,12 +85,16 @@ export function CategorySwipeStack() {
     useEffect(() => {
         const allPhotos = [...POKER_CARDS, ...OWNER_INTENT_CARDS];
         allPhotos.forEach(cat => {
-            const img = new Image();
             const src = POKER_CARD_PHOTOS[cat.id] || POKER_CARD_PHOTOS.all;
             if (src) {
+                const img = new Image();
                 img.src = src;
-                img.loading = 'eager';
-                (img as any).fetchPriority = 'high';
+                // 🚀 GPU PRE-WARM: Force the browser to decode the image in the background
+                // so it's already in memory when the user swipes to it.
+                img.decode().then(() => {
+                    (window as any).__swipess_cache = (window as any).__swipess_cache || {};
+                    (window as any).__swipess_cache[src] = true;
+                }).catch(() => {});
             }
         });
     }, []); // Run once on mount to warm entire discovery cache
@@ -146,7 +151,7 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full h-[min(54dvh,420px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-[min(42dvh,340px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
 
             <AnimatePresence mode="popLayout" initial={false}>
                 {stack.map((cat, index) => {
@@ -180,9 +185,9 @@ export function CategorySwipeStack() {
             
             {/* Instruction text */}
             <motion.div 
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="absolute -bottom-10 left-0 right-0 text-center"
+                className="absolute -bottom-6 left-0 right-0 text-center"
             >
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[10px] font-bold text-muted-foreground tracking-[0.1em] uppercase">
                     <Sparkles className="w-3 h-3 text-brand-accent-2" />
@@ -221,7 +226,7 @@ function CategoryCard({
     // No "Poker Hand" fan to avoid the "mess"
     const fanRotation = 0; // Vertical stack, no rotation
     const fanX = 0; 
-    const fanY = index * -10; // Stack vertically upwards
+    const fanY = index * -8; // Tighter vertical stack to save space
     
     // Drag transformations
     const tilt = useTransform(x, [-150, 0, 150], [-10, 0, 10]);
@@ -343,10 +348,10 @@ function CategoryCard({
             }}
             className={cn(
                 "absolute flex flex-col items-center justify-center rounded-[32px] p-6 select-none overflow-hidden",
-                "transition-[filter] duration-500 gpu-accelerate",
+                "transition-[filter,transform] duration-300 gpu-ultra isolation-isolate",
                 isTop ? "cursor-grab active:cursor-grabbing shadow-2xl" : "cursor-pointer",
                 !isTop && "blur-[1px] brightness-75", // Depth effect for back cards
-                "bg-black border border-white/10 rounded-[32px]",
+                "bg-black border border-white/10 rounded-[32px] transform-gpu",
                 isActive && "ring-4 ring-brand-accent-2/50 ring-offset-4 ring-offset-background",
                 "swipe-card-size"
             )}
@@ -369,9 +374,9 @@ function CategoryCard({
                 alt={category.label}
                 loading="eager"
                 fetchPriority="high"
-                decoding="async"
+                decoding="sync" // Faster for pre-warmed images
                 className={cn(
-                    "absolute inset-0 w-full h-full object-cover transition-all duration-500",
+                    "absolute inset-0 w-full h-full object-cover transition-all duration-300",
                     isDragging ? "scale-105" : "scale-100"
                 )}
                 onLoad={(e) => {
@@ -379,7 +384,12 @@ function CategoryCard({
                     img.style.opacity = '1';
                     img.style.filter = 'blur(0px)';
                 }}
-                style={{ opacity: 0, filter: 'blur(10px)', transition: 'opacity 0.6s ease-out, filter 0.8s ease-out, transform 0.5s ease-out' }}
+                style={{ 
+                    opacity: (window as any).__swipess_cache?.[category.image] ? 1 : 0, 
+                    filter: (window as any).__swipess_cache?.[category.image] ? 'none' : 'blur(8px)', 
+                    transition: 'opacity 0.4s ease-out, filter 0.5s ease-out, transform 0.4s ease-out',
+                    willChange: 'transform, opacity'
+                }}
             />
             {/* Dark overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-[5]" />

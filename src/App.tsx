@@ -12,6 +12,7 @@ import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SpeedOfLightPreloader } from "@/components/SpeedOfLightPreloader";
 import '@/i18n';
 
 // 🚀 SPEED OF LIGHT: LAZY PAGES
@@ -112,6 +113,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
   return (
     <GlobalErrorBoundary>
       <RootProviders authPromise={authPromise}>
+        <SpeedOfLightPreloader />
         <AppLayout>
           <WelcomeBonusModal />
           <TooltipProvider>

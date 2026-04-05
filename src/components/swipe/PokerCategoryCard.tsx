@@ -98,9 +98,10 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
         transformStyle: 'preserve-3d',
+        willChange: 'transform, opacity',
       } as any}
       whileDrag={{ cursor: 'grabbing' }}
-      className="touch-manipulation select-none"
+      className="touch-manipulation select-none gpu-ultra isolation-isolate"
     >
       <div
         className={cn(
@@ -115,7 +116,23 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
             alt={card.label}
             className="absolute inset-0 w-full h-full object-cover"
             draggable={false}
+            loading="eager"
+            decoding="sync"
+            initial={false}
+            animate={{ 
+              opacity: (window as any).__swipess_cache?.[photo] ? 1 : 1, 
+              filter: (window as any).__swipess_cache?.[photo] ? 'none' : 'none' 
+            }}
+            style={{ 
+              opacity: (window as any).__swipess_cache?.[photo] ? 1 : 0,
+              filter: (window as any).__swipess_cache?.[photo] ? 'none' : 'blur(8px)',
+              transition: 'opacity 0.4s ease-out, filter 0.5s ease-out'
+            }}
             onError={() => setImgError(true)}
+            onLoad={(e) => {
+              e.currentTarget.style.opacity = '1';
+              e.currentTarget.style.filter = 'none';
+            }}
           />
         ) : (
           <motion.div
