@@ -227,10 +227,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     // Inline gradient styles per category — avoids Tailwind dynamic class purging
     // and guarantees text stays visible on the gradient background
     const catActiveStyles: Record<string, React.CSSProperties> = {
-      property:   { background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', boxShadow: '0 4px 12px rgba(16,185,129,0.4)', color: '#ffffff', border: 'none' },
-      motorcycle: { background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', boxShadow: '0 4px 12px rgba(249,115,22,0.4)',  color: '#ffffff', border: 'none' },
-      bicycle:    { background: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)', boxShadow: '0 4px 12px rgba(168,85,247,0.4)', color: '#ffffff', border: 'none' },
-      services:   { background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', boxShadow: '0 4px 12px rgba(245,158,11,0.4)', color: '#ffffff', border: 'none' },
+      property:   { background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', color: 'currentColor' },
+      motorcycle: { background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', color: 'currentColor' },
+      bicycle:    { background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', color: 'currentColor' },
+      services:   { background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', color: 'currentColor' },
     };
 
     return (

@@ -4,8 +4,9 @@ import {
   ChevronLeft, Users, SlidersHorizontal,
   Sparkles, X, MapPin,
   Briefcase,
-  ShieldCheck, Clock,
-  Eye, EyeOff, Zap
+  Heart, Check, Info, 
+  Eye, EyeOff, Ticket,
+  ShieldCheck, Clock, Zap
 } from 'lucide-react';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { useNavigate } from 'react-router-dom';
@@ -206,67 +207,41 @@ export default function RoommateMatching() {
         isLight ? "bg-slate-50" : "bg-[#0A0A0B]"
       )}
     >
-      {/* ── IMMERSIVE HEADER (Liquid Glass) ── */}
+      {/* ── IMMERSIVE CONTROLS (Floating below global HUD) ── */}
       <motion.div 
-        animate={{ y: uiVisible ? 0 : -120 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-        className="absolute top-0 left-0 right-0 z-[100] pt-[var(--safe-top)] pb-6 px-4"
+        animate={{ y: uiVisible ? 0 : -100 }}
+        className="absolute top-24 right-4 z-[90] flex items-center gap-2"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => {
-                triggerHaptic('light');
-                if (window.history.length > 2) {
-                  navigate(-1);
-                } else {
-                  navigate('/client/dashboard');
-                }
-              }}
-              className={cn(
-                "w-11 h-11 rounded-[1.2rem] flex items-center justify-center border backdrop-blur-md transition-all",
-                isLight ? "bg-white/80 border-slate-200 text-slate-900 shadow-sm" : "bg-black/30 border-white/10 text-white"
-              )}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </motion.button>
-            <div className="flex flex-col">
-              <span className={cn("text-[9px] font-black uppercase tracking-[0.25em] opacity-50", isLight ? "text-slate-900" : "text-white")}>Swipess</span>
-              <span className={cn("text-sm font-black italic tracking-tight uppercase leading-none", isLight ? "text-slate-900" : "text-white")}>{t('nav.roommates')}</span>
-            </div>
-          </div>
+         {/* VISIBILITY STATUS BUBBLE */}
+         <motion.button
+           whileTap={{ scale: 0.95 }}
+           onClick={() => { triggerHaptic('light'); setRoommateVisible(!roommateVisible); }}
+           className={cn(
+             "px-4 h-11 rounded-2xl border backdrop-blur-xl flex items-center gap-2 transition-all shadow-xl",
+             roommateVisible
+               ? isLight ? "bg-rose-50/90 border-rose-200 text-rose-600" : "bg-rose-500/15 border-rose-500/40 text-rose-400"
+               : isLight ? "bg-white/80 border-slate-200 text-slate-400" : "bg-white/5 border-white/10 text-white/40"
+           )}
+         >
+           {roommateVisible
+             ? <Eye className="w-4 h-4 shrink-0" />
+             : <EyeOff className="w-4 h-4 shrink-0" />
+           }
+           <span className="text-[10px] font-black uppercase tracking-widest">
+             {roommateVisible ? 'Visible' : 'Hidden'}
+           </span>
+         </motion.button>
 
-          <div className="flex items-center gap-3">
-             {/* VISIBILITY STATUS BUBBLE */}
-             <motion.button
-               whileTap={{ scale: 0.95 }}
-               onClick={() => { triggerHaptic('light'); setRoommateVisible(!roommateVisible); }}
-               className={cn(
-                 "px-3.5 h-11 rounded-[1.2rem] border backdrop-blur-md flex items-center gap-2 transition-all shadow-sm",
-                 roommateVisible
-                   ? isLight ? "bg-rose-50/90 border-rose-300 text-rose-700" : "bg-rose-500/10 border-rose-500/30 text-rose-400"
-                   : isLight ? "bg-white/80 border-slate-200 text-slate-400" : "bg-white/5 border-white/10 text-white/40"
-               )}
-             >
-               {roommateVisible
-                 ? <Eye className="w-4 h-4 shrink-0" />
-                 : <EyeOff className="w-4 h-4 shrink-0" />
-               }
-               <span className="text-[10px] font-black uppercase tracking-widest">
-                 {roommateVisible ? 'Visible' : 'Hidden'}
-               </span>
-             </motion.button>
-
-             <motion.button
-               whileTap={{ scale: 0.88 }}
-               onClick={() => setShowFilters(true)}
-               className="w-11 h-11 rounded-[1.2rem] flex items-center justify-center bg-white/10 dark:bg-white/10 border border-white/20 backdrop-blur-md shadow-[0_4px_14px_rgba(0,0,0,0.4)] active:shadow-inner"
-             >
-               <SlidersHorizontal className="w-4 h-4 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" />
-             </motion.button>
-          </div>
-        </div>
+         <motion.button
+           whileTap={{ scale: 0.88 }}
+           onClick={() => setShowFilters(true)}
+           className={cn(
+             "w-11 h-11 rounded-2xl flex items-center justify-center border backdrop-blur-xl shadow-xl transition-all",
+             isLight ? "bg-white/80 border-slate-200 text-slate-600" : "bg-white/10 border-white/20 text-white"
+           )}
+         >
+           <SlidersHorizontal className="w-4 h-4" />
+         </motion.button>
       </motion.div>
 
       {/* ── CARD STACK AREA ── */}

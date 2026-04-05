@@ -21,8 +21,8 @@ import {
   Flame, MessageCircle, User, Building2,
   Search, Users, Sparkles, ShieldCheck,
   Megaphone, Compass, Headphones, PlusCircle,
-  Calendar, SlidersHorizontal, Heart, MessageSquare,
-  LayoutDashboard
+  Ticket, SlidersHorizontal, Heart, MessageSquare,
+  LayoutDashboard, LayoutGrid
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -99,26 +99,26 @@ export const BottomNavigation = memo(({
 
   // Client nav items (8 buttons)
   const clientNavItems: NavItem[] = [
-    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/client/dashboard' },
+    { id: 'dashboard', icon: LayoutGrid, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Heart, label: 'Likes', path: '/client/liked-properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'ai-search', icon: Sparkles, label: 'AI Chat', onClick: onAISearchClick },
     { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
-    { id: 'events', icon: Calendar, label: 'Events', path: '/explore/eventos' },
+    { id: 'events', icon: Ticket, label: 'Events', path: '/explore/eventos' },
     { id: 'search', icon: Search, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Owner nav items (8 buttons)
   const ownerNavItems: NavItem[] = [
-    { id: 'dashboard', icon: Search, label: 'Dashboard', path: '/owner/dashboard' },
+    { id: 'dashboard', icon: LayoutGrid, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: 'Liked', path: '/owner/liked-clients' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI Listing', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
-    { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
+    { id: 'search', icon: Search, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Admin nav items — admin panel + messaging
@@ -343,19 +343,20 @@ export const BottomNavigation = memo(({
           )}
         </AnimatePresence>
 
-        {/* Nav items row */}
+        {/* Nav items row — SCROLLABLE ZENITH ARCHITECTURE */}
         <div
           ref={mergedScrollRef}
           data-no-swipe-nav
           onScroll={updateScrollFades}
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full justify-between px-2 py-3 nav-scroll-hide',
+            'relative flex items-center w-full justify-start gap-4 px-6 py-3 nav-scroll-hide',
           )}
           style={{
             zIndex: 2,
             transform: 'translateZ(0)',
             overflowX: 'auto',
+            scrollSnapType: 'x proximity', // Premium app landing feel
             scrollbarWidth: 'none' as const,
             WebkitOverflowScrolling: 'touch',
           }}
@@ -387,14 +388,14 @@ export const BottomNavigation = memo(({
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center rounded-xl gap-1.5 min-w-[56px] flex-1 h-full',
+                  'relative flex flex-col items-center justify-center rounded-xl gap-1.5 w-auto flex-shrink-0 h-full',
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                 style={{
-                  minWidth: '56px', // Give every word a chance to breathe
-                  maxWidth: '80px', // Prevent extreme spreading on tablets
-                  minHeight: isNarrow ? TOUCH_TARGET_COMPACT + 6 : TOUCH_TARGET + 8,
-                  padding: isNarrow ? '8px 10px' : '10px 14px', // Giving every button their own space
+                  minWidth: '70px',
+                  scrollSnapAlign: 'start', // Ensure item lands nicely
+                  minHeight: TOUCH_TARGET + 8,
+                  padding: '10px 14px', // Standard generous spacing
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
@@ -440,7 +441,7 @@ export const BottomNavigation = memo(({
                   )}
 
                   {/* Notification badge */}
-                  <AnimatePresence>
+                  <AnimatePresence mode="popLayout">
                     {item.badge && item.badge > 0 && (
                       <motion.span
                         initial={{ scale: 0 }}
@@ -468,10 +469,9 @@ export const BottomNavigation = memo(({
                     }}
                   />
                 </motion.div>
-                
-                {/* Label Container: Fixed height to prevent icon shifting */}
+                {/* Label: Natural height, no clipping */}
                 {!isNarrow && (
-                  <div className="h-3 flex items-center justify-center w-full overflow-hidden">
+                  <div className="flex items-center justify-center w-full min-h-[14px]">
                     <span
                       className={cn(
                         'text-[9px] tracking-tight transition-all duration-300 relative font-black uppercase italic whitespace-nowrap',
@@ -480,9 +480,8 @@ export const BottomNavigation = memo(({
                         color: active
                           ? 'var(--color-brand-primary)'
                         : (isLight ? 'rgba(0,0,0,0.72)' : 'rgba(255,255,255,0.55)'),
-                      opacity: 1,
-                      zIndex: 1,
-                      textShadow: 'none',
+                        opacity: 1,
+                        zIndex: 1,
                       }}
                     >
                       {item.label}

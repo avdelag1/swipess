@@ -67,6 +67,16 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const isModalOpen = modalStore.isAISearchOpen || modalStore.showFilters || modalStore.showProfile;
 
+  // Dynamic Title Logic
+  const getPageTitle = () => {
+    if (location.pathname.includes('roommates')) return 'Roommates';
+    if (location.pathname.includes('eventos')) return 'Events';
+    if (location.pathname.includes('liked')) return 'Liked';
+    if (location.pathname.includes('advertise')) return 'Promote';
+    if (location.pathname.includes('filters')) return 'Filters';
+    return '';
+  };
+
   return (
     <div className="min-h-screen min-h-dvh w-full bg-background overflow-x-hidden relative">
       <SkipToMainContent />
@@ -84,7 +94,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             showFilters={false} // Managed by specific pages
             userRole={userRole}
             transparent={isImmersive}
-            title=""
+            title={getPageTitle()}
             showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
           />
         </SentientHud>

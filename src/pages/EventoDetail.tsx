@@ -313,14 +313,8 @@ export default function EventoDetail() {
 
         {/* Floating Controls — Adjusted lower to clear 'S' Logo */}
         <div className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] left-4 right-4 flex justify-between items-center z-50 py-4">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => navigate(-1)}
-            aria-label="Go back"
-            className="w-12 h-12 rounded-2xl bg-black/30 backdrop-blur-2xl border border-white/15 flex items-center justify-center text-white shadow-2xl"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </motion.button>
+          {/* Floating Controls Pruned (Global HUD handles navigation) */}
+          <div />
           
           <div className="flex gap-2">
             <motion.button

@@ -132,7 +132,13 @@ export function useSmartClientMatching(
                     });
 
                     if (!rpcError && rpcClients && Array.isArray(rpcClients) && rpcClients.length > 0) {
-                        const finalClients = rpcClients as any[];
+                        let finalClients = rpcClients as any[];
+                        
+                        // 🚀 ZENITH: Explicit Roommate Gate (No leaks)
+                        if (isRoommateSection) {
+                          finalClients = finalClients.filter(c => c.roommate_available || (c as any).roommate_active);
+                        }
+
                         // 🔥 PRE-WARM IMAGES IMMEDIATELY
                         runIdleTask(() => {
                             const imagesToPrewarm = finalClients.flatMap(p => p.profile_images || p.images || []).slice(0, 5);
