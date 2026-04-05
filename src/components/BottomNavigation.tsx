@@ -111,14 +111,15 @@ export const BottomNavigation = memo(({
 
   // Owner nav items (8 buttons)
   const ownerNavItems: NavItem[] = [
-    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/owner/dashboard' },
+    { id: 'dashboard', icon: Search, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/owner/profile' },
-    { id: 'likes', icon: Heart, label: 'Clients', path: '/owner/liked-clients' },
+    { id: 'likes', icon: Flame, label: 'Liked', path: '/owner/liked-clients' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'add-listing', icon: PlusCircle, label: 'Create', onClick: onAddListingClick },
-    { id: 'ai-search', icon: Sparkles, label: 'AI Pilot', onClick: onAISearchClick },
+    { id: 'ai-search', icon: Sparkles, label: 'AI Listing', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'search', icon: Search, label: 'Filters', onClick: onFilterClick },
+    { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
+    { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
   ];
 
   // Admin nav items — admin panel + messaging
