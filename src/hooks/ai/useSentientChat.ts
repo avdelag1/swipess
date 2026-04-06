@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
 
@@ -21,7 +20,7 @@ export interface ChatResponse {
 export function useSentientChat() {
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const retryCountRef = useRef(0);
+  const abortRef = useRef<AbortController | null>(null);
   const MAX_RETRIES = 2;
 
   const sendMessage = useCallback(async (
@@ -31,15 +30,27 @@ export function useSentientChat() {
   ): Promise<ChatResponse | null> => {
     setIsSearching(true);
     setError(null);
+
+    // Abort any in-flight request
+    abortRef.current?.abort();
     
     const attemptSend = async (count: number): Promise<ChatResponse | null> => {
-      // 🛡️ SENTIENT WATCHDOG: 25s race to prevent UI deadlocks during congestion
       const controller = new AbortController();
+      abortRef.current = controller;
       const timeoutId = setTimeout(() => controller.abort(), 25000);
 
       try {
-        const { data, error: funcError } = await supabase.functions.invoke('ai-orchestrator', {
-          body: {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+        const response = await fetch(`${supabaseUrl}/functions/v1/ai-orchestrator`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseKey}`,
+            'apikey': supabaseKey,
+          },
+          body: JSON.stringify({
             task: 'chat',
             data: {
               query,
@@ -48,24 +59,33 @@ export function useSentientChat() {
               currentPath: window.location.pathname
             },
             stream: false
-          },
-          headers: {
-            'x-client-timeout': '25000'
-          }
+          }),
+          signal: controller.signal,
         });
 
         clearTimeout(timeoutId);
-        if (funcError) throw funcError;
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
         if (data?.error) throw new Error(data.error);
 
-        // Reset retry count on success
-        retryCountRef.current = 0;
-        
-        const rawContent = data?.result?.text || data?.result?.message || '';
+        let rawContent = data?.result?.text || data?.result?.message || '';
         const action = data?.result?.action;
 
+        // Strip <think> blocks
+        rawContent = rawContent.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+        // Strip trailing JSON action blocks
+        rawContent = rawContent.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim();
+
+        if (!rawContent) {
+          throw new Error('Empty response from AI');
+        }
+
         return {
-          text: rawContent.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || rawContent,
+          text: rawContent,
           action: action ? {
             type: action.type,
             label: action.label,
@@ -75,11 +95,10 @@ export function useSentientChat() {
         };
       } catch (err: any) {
         clearTimeout(timeoutId);
-        const isTimeout = err.name === 'AbortError' || err.message?.includes('timeout');
-        logger.error(`[SentientChat] Attempt ${count + 1} failed ${isTimeout ? '(TIMEOUT)' : ''}:`, err);
+        const isAbort = err.name === 'AbortError';
+        logger.error(`[SentientChat] Attempt ${count + 1} failed ${isAbort ? '(TIMEOUT/ABORT)' : ''}:`, err);
         
-        if (count < MAX_RETRIES && !isTimeout) {
-          // Linear backoff: 1s, 2s
+        if (count < MAX_RETRIES && !isAbort) {
           await new Promise(resolve => setTimeout(resolve, (count + 1) * 1000));
           return attemptSend(count + 1);
         }

@@ -1,5 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Loader2, X, Send, MessageCircle, Flame, ArrowRight, User, Trash2, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -70,6 +69,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
   
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prevMessageCountRef = useRef(0);
   const { data: clientProfile } = useClientProfile();
   const { theme } = useTheme();
   const isDark = theme === 'dark' || theme === 'cheers';
@@ -94,10 +94,9 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
   // Handle initial greeting or restore active session
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      // Auto-focus input
-      setTimeout(() => inputRef.current?.focus(), 300);
+      // Fast focus
+      setTimeout(() => inputRef.current?.focus(), 50);
 
-      // If no current session, start one
       if (!currentSessionId) {
         const welcome: Message = {
           role: 'ai',
@@ -108,17 +107,35 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
         setCurrentSessionId(Math.random().toString(36).substring(7));
       }
 
-      // Pre-warm the edge function
+      // Pre-warm
       supabase.functions.invoke('ai-orchestrator', { body: { task: 'ping' } }).catch(() => {});
     }
   }, [isOpen, messages.length, currentSessionId]);
 
-  // Auto-scroll
+  // Instant scroll on open
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && view === 'chat') {
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'instant' as ScrollBehavior });
+      });
+    }
+  }, [isOpen, view]);
+
+  // Smooth scroll on new messages
+  useEffect(() => {
+    const count = messages.length;
+    if (isOpen && count > prevMessageCountRef.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, isTyping, isOpen]);
+    prevMessageCountRef.current = count;
+  }, [messages.length, isOpen]);
+
+  // Scroll when typing indicator appears
+  useEffect(() => {
+    if (isTyping && isOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isTyping, isOpen]);
 
   // Persistence: Save sessions to localStorage
   useEffect(() => {
@@ -139,7 +156,6 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
   }, [messages, currentSessionId, user]);
 
   const _startNewChat = useCallback(() => {
-    // Collect context from previous session (last 10 messages) if any
     const prevContext = messages.length > 0 ? messages.slice(-10) : [];
     
     setMessages([{
@@ -159,7 +175,6 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
     const trimmedQuery = query.trim();
     if (!trimmedQuery || isSearching || isTyping) return;
     
-    // Check limit (only user + ai pairs, ignoring system messages)
     const interactionCount = messages.filter(m => m.role !== 'system').length;
     if (interactionCount >= MAX_MESSAGES) {
       toast.error('Session limit reached. Please start a new chat.');
@@ -171,7 +186,6 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
       return;
     }
 
-    // LOCK IMMEDIATELY to prevent double sends
     setIsTyping(true);
     setQuery('');
 
@@ -180,7 +194,6 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
     setMessages(newMessages);
 
     try {
-      // Sanitize context for API (History + System context if it exists)
       const sanitizedHistory = newMessages
         .slice(-12)
         .map(m => ({
@@ -202,7 +215,6 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
           actionRoute: response.action?.route,
         }]);
       } else {
-        // useSentientChat already shows a toast and sets error state
         setMessages(prev => [...prev, {
           role: 'ai',
           content: "⚠️ Connection disrupted. I'm standing by to retry once your signal stabilizes.",
@@ -264,6 +276,12 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
 
   const interactionCount = messages.filter(m => m.role !== 'system').length;
   const isLimitReached = interactionCount >= MAX_MESSAGES;
+  const isSendDisabled = !query.trim() || isSearching || isTyping;
+
+  const visibleMessages = useMemo(
+    () => messages.filter(m => m.role !== 'system'),
+    [messages]
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
@@ -275,26 +293,24 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
         hideCloseButton={true}
       >
         {/* Header */}
-        <div className={cn("relative px-6 py-5 border-b flex items-center justify-between z-50", isDark ? "border-white/[0.08] bg-black/40" : "border-gray-100 bg-white/80")}>
+        <div className={cn("relative px-6 py-5 border-b flex items-center justify-between z-50 flex-shrink-0", isDark ? "border-white/[0.08] bg-black/40" : "border-gray-100 bg-white/80")}>
           <div className="flex items-center gap-4">
-            <motion.button 
-               whileHover={{ scale: 1.05 }}
-               whileTap={{ scale: 0.95 }}
+            <button 
                onClick={() => setView(view === 'chat' ? 'history' : 'chat')}
                className={cn(
-                 "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 relative group border",
+                 "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 relative group border active:scale-95",
                  view === 'history' 
                    ? "bg-orange-500 border-orange-400 shadow-xl shadow-orange-500/40" 
                    : (isDark ? "bg-zinc-900 border-white/10" : "bg-white border-gray-100 shadow-sm")
                )}
             >
-              <SwipessLogo size="xs" className={cn("transition-transform duration-300", view === 'history' ? "scale-125" : "scale-110")} />
+              <SwipessLogo size="xs" className={cn("transition-transform duration-200", view === 'history' ? "scale-125" : "scale-110")} />
               {sessions.length > 0 && view === 'chat' && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 border-2 border-white rounded-full flex items-center justify-center text-[9px] font-black text-white shadow-xl">
                   {sessions.length}
                 </span>
               )}
-            </motion.button>
+            </button>
             <div className="flex flex-col">
               <DialogTitle className={cn("text-[13px] font-black uppercase tracking-[0.2em] italic-brand italic", isDark ? "text-white" : "text-gray-900")}>
                 {view === 'history' ? 'Conversation Vault' : 'Swipess AI'}
@@ -327,7 +343,7 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
                 variant="ghost" 
                 size="icon"
                 onClick={handleClose}
-                className="w-11 h-11 rounded-xl hover:bg-rose-500/10 text-muted-foreground transition-all duration-300 group"
+                className="w-11 h-11 rounded-xl hover:bg-rose-500/10 text-muted-foreground transition-all duration-200 group"
              >
                 <X className="w-5.5 h-5.5 group-hover:text-rose-500 transition-colors" />
              </Button>
@@ -336,193 +352,181 @@ export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client'
 
         {/* Content Area */}
         <div className="flex-1 min-h-0 flex flex-col relative overflow-hidden">
-          <AnimatePresence mode="wait">
-            {view === 'history' ? (
-              <motion.div
-                key="history"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="flex-1 overflow-y-auto px-6 py-6 space-y-4"
-              >
-                {sessions.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center opacity-30 italic text-sm">
-                    No archived conversations yet.
-                  </div>
-                ) : (
-                  sessions.filter(s => !s.isArchived).map((s) => (
-                    <div key={s.id} className="group relative">
-                      <button
-                        onClick={() => restoreSession(s)}
-                        className={cn(
-                          "w-full text-left p-4 pr-24 rounded-3xl border transition-all flex items-start gap-4 hover:scale-[1.01] active:scale-[0.99]",
-                          isDark ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-gray-50 border-gray-100 hover:bg-gray-100"
-                        )}
-                      >
-                        <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0 text-orange-500">
-                          <MessageCircle className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1 min-w-0 text-foreground">
-                          <p className="font-bold text-sm truncate mb-1">{s.title}</p>
-                          <p className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">
-                            {new Date(s.timestamp).toLocaleDateString()} • {s.messages.length} messages
-                          </p>
-                        </div>
-                      </button>
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => { e.stopPropagation(); archiveSession(s.id); }}
-                          className="h-9 w-9 rounded-xl hover:bg-orange-500/10 text-muted-foreground hover:text-orange-500"
-                        >
-                          <Archive className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => { e.stopPropagation(); deleteSession(s.id); }}
-                          className="h-9 w-9 rounded-xl hover:bg-rose-500/10 text-muted-foreground hover:text-rose-500"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </motion.div>
-            ) : (
-              <motion.div
-                key="chat"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="flex-1 flex flex-col min-h-0"
-              >
-                <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 scrollbar-none">
-                  {messages.filter(m => m.role !== 'system').map((message, idx) => (
-                    <motion.div
-                      key={`${message.timestamp}-${idx}`}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={cn("flex flex-col gap-2", message.role === 'user' && "items-end")}
-                    >
-                      <div className={cn("flex gap-3", message.role === 'user' && "flex-row-reverse")}>
-                        <div className={cn(
-                          "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 border shadow-sm",
-                          message.role === 'ai'
-                            ? (isDark ? "bg-zinc-900 border-white/10" : "bg-gray-100 border-black/8")
-                            : "bg-muted border-border"
-                        )}>
-                          {message.role === 'ai' ? (
-                            <SwipessLogo size="xs" />
-                          ) : (
-                            userAvatar ? (
-                              <img src={userAvatar} alt="Me" className="w-full h-full object-cover rounded-xl" />
-                            ) : (
-                              <User className="w-4 h-4 text-muted-foreground" />
-                            )
-                          )}
-                        </div>
-
-                        <div className={cn(
-                          "max-w-[85%] px-5 py-4 text-[14px] font-bold leading-relaxed shadow-xl",
-                          message.role === 'user'
-                            ? "bg-gradient-to-br from-orange-500 to-rose-500 text-white rounded-[1.5rem] rounded-tr-sm shadow-orange-500/20 whitespace-pre-line"
-                            : cn(
-                                "rounded-[1.5rem] rounded-tl-sm border shadow-lg",
-                                isDark ? "bg-zinc-900/80 border-white/10 text-foreground" : "bg-white border-gray-300 !text-black"
-                              )
-                        )}>
-                          {message.role === 'user' ? (
-                            message.content
-                          ) : (
-                            <div className={cn("markdown-content font-bold", !isDark && "!text-black")}>
-                              <ReactMarkdown components={{ a: (props: any) => <MarkdownLink {...props} isDark={isDark} /> as any }}>
-                                {message.content}
-                              </ReactMarkdown>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {message.role === 'ai' && message.showAction && message.actionRoute && (
-                        <Button
-                          size="sm"
-                          onClick={() => { navigate(message.actionRoute!); handleClose(); }}
-                          className="flex items-center gap-2 px-6 h-11 rounded-full text-white shadow-lg ml-12 uppercase tracking-widest text-[10px] bg-gradient-to-r from-orange-500 to-rose-500"
-                        >
-                          {message.actionLabel || 'Explore'}
-                          <ArrowRight className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </motion.div>
-                  ))}
-                  
-                  {isTyping && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-4 pl-3">
-                      <div className={cn(
-                        "w-11 h-11 rounded-2xl flex items-center justify-center",
-                        isDark ? "bg-zinc-900 border border-white/10" : "bg-gray-100 border border-black/8 shadow-sm"
-                      )}>
-                        <SwipessLogo size="xs" className="animate-pulse" />
-                      </div>
-                      <div className="bg-gradient-to-r from-orange-500/5 to-rose-500/5 border border-orange-500/10 px-5 py-4 rounded-[1.8rem] rounded-tl-sm text-xs font-bold text-orange-500 flex items-center gap-2 shadow-sm italic">
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-orange-500" />
-                        Thinking...
-                      </div>
-                    </motion.div>
-                  )}
-                  <div ref={messagesEndRef} />
+          {view === 'history' ? (
+            <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6 space-y-4">
+              {sessions.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center opacity-30 italic text-sm">
+                  No archived conversations yet.
                 </div>
-
-                {/* Footer */}
-                <div className={cn("p-5 border-t relative", isDark ? "border-white/5 bg-black/40" : "border-gray-100 bg-gray-50/50")}>
-                  {isLimitReached && (
-                    <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="absolute -top-12 left-5 right-5 flex justify-center">
-                       <div className="bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg">
-                         Memory Full — Consider Starting New Chat
-                       </div>
-                    </motion.div>
-                  )}
-                   <div className={cn(
-                    "relative rounded-[2.2rem] border-2 transition-all duration-300 group overflow-hidden shadow-2xl",
-                    isDark 
-                      ? "bg-[#0c0c0e] border-white/10 focus-within:border-orange-500/50" 
-                      : "bg-white border-gray-400 focus-within:border-orange-500"
-                  )}>
-                      <textarea
-                        ref={inputRef}
-                        placeholder="Ask the expert..."
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        rows={1}
-                        disabled={isSearching}
-                        className={cn(
-                          "w-full resize-none bg-transparent px-6 py-[18px] pr-14 text-sm font-bold outline-none leading-tight",
-                          "min-h-[56px] max-h-[160px]",
-                          isDark ? "text-white placeholder:text-muted-foreground/30" : "!text-black placeholder:text-zinc-600 font-extrabold"
-                        )}
-                      />
+              ) : (
+                sessions.filter(s => !s.isArchived).map((s) => (
+                  <div key={s.id} className="group relative">
+                    <button
+                      onClick={() => restoreSession(s)}
+                      className={cn(
+                        "w-full text-left p-4 pr-24 rounded-3xl border transition-all flex items-start gap-4 hover:scale-[1.01] active:scale-[0.99]",
+                        isDark ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-gray-50 border-gray-100 hover:bg-gray-100"
+                      )}
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0 text-orange-500">
+                        <MessageCircle className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0 text-foreground">
+                        <p className="font-bold text-sm truncate mb-1">{s.title}</p>
+                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">
+                          {new Date(s.timestamp).toLocaleDateString()} • {s.messages.length} messages
+                        </p>
+                      </div>
+                    </button>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
                       <Button
+                        variant="ghost"
                         size="icon"
-                        onClick={handleSend}
-                        disabled={!query.trim() || isSearching || isTyping}
-                        className={cn(
-                          "absolute right-2 top-2 h-10 w-10 rounded-[1.1rem] transition-all",
-                          query.trim() 
-                            ? "bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg active:scale-90" 
-                            : "bg-muted text-muted-foreground opacity-50"
-                        )}
+                        onClick={(e) => { e.stopPropagation(); archiveSession(s.id); }}
+                        className="h-9 w-9 rounded-xl hover:bg-orange-500/10 text-muted-foreground hover:text-orange-500"
                       >
-                        <Send className="h-4 w-4" />
+                        <Archive className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => { e.stopPropagation(); deleteSession(s.id); }}
+                        className="h-9 w-9 rounded-xl hover:bg-rose-500/10 text-muted-foreground hover:text-rose-500"
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                </motion.div>
+                ))
               )}
-            </AnimatePresence>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col min-h-0">
+              <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 scrollbar-none">
+                {visibleMessages.map((message, idx) => (
+                  <div
+                    key={`${message.timestamp}-${idx}`}
+                    className={cn(
+                      "flex flex-col gap-2 animate-in fade-in-0 slide-in-from-bottom-2 duration-200",
+                      message.role === 'user' && "items-end"
+                    )}
+                  >
+                    <div className={cn("flex gap-3", message.role === 'user' && "flex-row-reverse")}>
+                      <div className={cn(
+                        "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 border shadow-sm",
+                        message.role === 'ai'
+                          ? (isDark ? "bg-zinc-900 border-white/10" : "bg-gray-100 border-black/8")
+                          : "bg-muted border-border"
+                      )}>
+                        {message.role === 'ai' ? (
+                          <SwipessLogo size="xs" />
+                        ) : (
+                          userAvatar ? (
+                            <img src={userAvatar} alt="Me" className="w-full h-full object-cover rounded-xl" />
+                          ) : (
+                            <User className="w-4 h-4 text-muted-foreground" />
+                          )
+                        )}
+                      </div>
+
+                      <div className={cn(
+                        "max-w-[85%] px-5 py-4 text-[14px] font-bold leading-relaxed shadow-xl",
+                        message.role === 'user'
+                          ? "bg-gradient-to-br from-orange-500 to-rose-500 text-white rounded-[1.5rem] rounded-tr-sm shadow-orange-500/20 whitespace-pre-line"
+                          : cn(
+                              "rounded-[1.5rem] rounded-tl-sm border shadow-lg",
+                              isDark ? "bg-zinc-900/80 border-white/10 text-foreground" : "bg-white border-gray-300 !text-black"
+                            )
+                      )}>
+                        {message.role === 'user' ? (
+                          message.content
+                        ) : (
+                          <div className={cn("markdown-content font-bold", !isDark && "!text-black")}>
+                            <ReactMarkdown components={{ a: (props: any) => <MarkdownLink {...props} isDark={isDark} /> as any }}>
+                              {message.content}
+                            </ReactMarkdown>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {message.role === 'ai' && message.showAction && message.actionRoute && (
+                      <Button
+                        size="sm"
+                        onClick={() => { navigate(message.actionRoute!); handleClose(); }}
+                        className="flex items-center gap-2 px-6 h-11 rounded-full text-white shadow-lg ml-12 uppercase tracking-widest text-[10px] bg-gradient-to-r from-orange-500 to-rose-500"
+                      >
+                        {message.actionLabel || 'Explore'}
+                        <ArrowRight className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                
+                {isTyping && (
+                  <div className="flex items-center gap-4 pl-3 animate-in fade-in-0 duration-150">
+                    <div className={cn(
+                      "w-11 h-11 rounded-2xl flex items-center justify-center",
+                      isDark ? "bg-zinc-900 border border-white/10" : "bg-gray-100 border border-black/8 shadow-sm"
+                    )}>
+                      <SwipessLogo size="xs" className="animate-pulse" />
+                    </div>
+                    <div className="bg-gradient-to-r from-orange-500/5 to-rose-500/5 border border-orange-500/10 px-5 py-4 rounded-[1.8rem] rounded-tl-sm text-xs font-bold text-orange-500 flex items-center gap-2 shadow-sm italic">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-orange-500" />
+                      Thinking...
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Footer */}
+              <div className={cn("p-5 border-t relative flex-shrink-0", isDark ? "border-white/5 bg-black/40" : "border-gray-100 bg-gray-50/50")}>
+                {isLimitReached && (
+                  <div className="absolute -top-12 left-5 right-5 flex justify-center animate-in fade-in-0 slide-in-from-bottom-1 duration-200">
+                     <div className="bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg">
+                       Memory Full — Consider Starting New Chat
+                     </div>
+                  </div>
+                )}
+                 <div className={cn(
+                  "relative rounded-[2.2rem] border-2 transition-all duration-200 group overflow-hidden shadow-2xl",
+                  isDark 
+                    ? "bg-[#0c0c0e] border-white/10 focus-within:border-orange-500/50" 
+                    : "bg-white border-gray-400 focus-within:border-orange-500"
+                )}>
+                    <textarea
+                      ref={inputRef}
+                      placeholder="Ask the expert..."
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      rows={1}
+                      autoFocus
+                      disabled={isSearching}
+                      className={cn(
+                        "w-full resize-none bg-transparent px-6 py-[18px] pr-14 text-sm font-bold outline-none leading-tight",
+                        "min-h-[56px] max-h-[160px]",
+                        isDark ? "text-white placeholder:text-muted-foreground/30" : "!text-black placeholder:text-zinc-600 font-extrabold"
+                      )}
+                    />
+                    <Button
+                      size="icon"
+                      onClick={handleSend}
+                      disabled={isSendDisabled}
+                      className={cn(
+                        "absolute right-2 top-2 h-10 w-10 rounded-[1.1rem] transition-all",
+                        query.trim() 
+                          ? "bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg active:scale-90" 
+                          : "bg-muted text-muted-foreground opacity-50"
+                      )}
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
       </DialogContent>
     </Dialog>
