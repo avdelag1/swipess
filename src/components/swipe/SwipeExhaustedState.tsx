@@ -79,6 +79,12 @@ export const SwipeExhaustedState = ({
         description: 'New professionals join every day.'
       };
     }
+    if (categoryLower === 'all') {
+      return {
+        title: 'Refresh to discover Everything',
+        description: 'Combined feed of all active categories.'
+      };
+    }
     return {
       title: `Refresh to discover more ${categoryLabel}`,
       description: `New ${categoryLower} added regularly.`

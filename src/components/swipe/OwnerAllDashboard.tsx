@@ -1,5 +1,7 @@
-import { useState, useCallback, memo } from 'react';
+import { useState, useCallback, memo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/hooks/useAuth';
 import { triggerHaptic } from '@/utils/haptics';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
@@ -17,6 +19,29 @@ export interface OwnerAllDashboardProps {
 
 export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps) => {
   const [cards, setCards] = useState([...OWNER_INTENT_CARDS]);
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  // 🚀 SPEED OF LIGHT: Pre-fetch top card clients in background
+  useEffect(() => {
+    if (!user?.id || cards.length === 0) return;
+    const topCard = cards[0];
+    
+    // Construct the filter key exactly as useSmartClientMatching does
+    const tempFilters = {
+      clientType: topCard.clientType || 'all',
+      listingType: topCard.listingType || 'all',
+      categories: [topCard.category || 'property']
+    };
+    const filtersKey = JSON.stringify(tempFilters);
+    const category = topCard.category || 'property';
+
+    // Pre-seed the query cache
+    queryClient.prefetchQuery({
+      queryKey: ['smart-clients', user.id, category, 0, false, filtersKey, false],
+      staleTime: 2 * 60 * 1000,
+    });
+  }, [cards, user?.id, queryClient]);
 
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
     triggerHaptic('medium');

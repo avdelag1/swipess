@@ -1,5 +1,7 @@
-import { useState, useCallback, memo } from 'react';
+import { useState, useCallback, memo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/hooks/useAuth';
 import { triggerHaptic } from '@/utils/haptics';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
@@ -14,6 +16,25 @@ export interface SwipeAllDashboardProps {
 export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps) => {
   const [cards, setCards] = useState([...POKER_CARDS]);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  // 🚀 SPEED OF LIGHT: Pre-fetch top card listings on hover/bringToFront
+  useEffect(() => {
+    if (!user?.id || cards.length === 0) return;
+    const topId = cards[0].id as string;
+    if (topId === 'radio') return;
+
+    // Build the exact filter object useSmartListingMatching expects
+    const filters = topId === 'all' ? {} : { category: topId };
+    const filtersKey = JSON.stringify(filters);
+
+    // Pre-seed the query cache so SwipessSwipeContainer finds data instantly
+    queryClient.prefetchQuery({
+      queryKey: ['smart-listings', user.id, filtersKey, 0, false],
+      staleTime: 2 * 60 * 1000,
+    });
+  }, [cards, user?.id, queryClient]);
 
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
     triggerHaptic('medium');

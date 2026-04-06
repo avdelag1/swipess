@@ -1036,7 +1036,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="popLayout" initial={false}>
-            {(!storeActiveCategory || storeActiveCategory === 'all' as any) ? (
+            {!storeActiveCategory ? (
               <motion.div 
                 key="category-stack"
                 initial={{ opacity: 0, scale: 0.95 }}

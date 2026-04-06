@@ -68,7 +68,7 @@ export function CategorySwipeStack() {
             color: `from-[${card.accent}] to-[${card.accent}]/40`,
             description: card.description,
             image: POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.all,
-            categoryId: card.id === 'all' ? null : card.id as QuickFilterCategory
+            categoryId: card.id as QuickFilterCategory
         }));
     };
 
