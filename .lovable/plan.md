@@ -1,69 +1,55 @@
 
 
-# Fix Radio Page + Add Tavily Web Search + Fix Stale Cache
+# Fix AI Chat — Strip MiniMax `<think>` Tags + Ensure Published Site Works
 
-## Problem Summary
+## What Happened
 
-1. **Radio page shows blank** — The `/radio` route uses plain `lazy()` instead of `lazyWithRetry()`, so if the chunk fails to load (common after deploys), users see nothing. The route is inside `PersistentDashboardLayout` which has its own Suspense, but chunk failures aren't recovered.
+After adding the Tavily API key, MiniMax M2.7 started returning `<think>...</think>` reasoning blocks in its streaming output. The browser renders these as invisible HTML elements, making AI responses appear as **empty bubbles**. The actual answer text comes after `</think>`, but during streaming it looks blank until the thinking phase finishes — and even then, ReactMarkdown can swallow the tags.
 
-2. **Tavily API key not integrated** — The key `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` is not stored as a secret and the `ai-orchestrator` edge function has no Tavily code.
-
-3. **Old version showing in other browsers** — The PWA service worker + Cache API are caching old assets. Need to ensure the auto-update mechanism and cache-busting are working aggressively on the published site.
-
----
+The backend is fully functional (confirmed via direct API test — returns full responses). This is purely a **frontend rendering issue**.
 
 ## Changes
 
-### 1. Harden Radio Route (src/App.tsx)
+### 1. Strip `<think>` blocks from AI responses (src/hooks/useConciergeAI.ts)
 
-- Replace `lazy(() => import("./pages/DJTurntableRadio"))` with `lazyWithRetry(() => import("./pages/DJTurntableRadio"))`
-- Add `lazyWithRetry` import at top
-- This ensures chunk load failures trigger a page reload instead of a blank screen
+Add a `stripThinkingTokens` helper that removes `<think>...</think>` blocks from streamed content in real-time:
 
-### 2. Add Tavily Secret
+```typescript
+function stripThinkingTokens(text: string): string {
+  // Remove completed <think>...</think> blocks
+  let cleaned = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+  // Remove incomplete <think>... (still streaming)
+  cleaned = cleaned.replace(/<think>[\s\S]*$/g, '').trim();
+  return cleaned;
+}
+```
 
-- Store the Tavily API key (`tvly-dev-...`) as a backend secret named `TAVILY_API_KEY`
+Apply this in three places:
+- **Streaming token callback**: Clean the accumulated `fullText` before updating the message state
+- **Stream completion callback**: Clean `fullText` before passing to `extractAction`
+- **JSON fallback**: Clean `rawText` before processing
 
-### 3. Add Tavily Web Search to AI Orchestrator (supabase/functions/ai-orchestrator/index.ts)
+### 2. Strip `<think>` on the edge function side too (supabase/functions/ai-orchestrator/index.ts)
 
-Add a `searchWeb()` helper function:
-- Calls `https://api.tavily.com/search` with the user's query
-- Returns formatted results (title, URL, snippet)
-- Only triggered when `concierge_knowledge` returns fewer than 2 results, giving curated data priority
-- Results injected into system prompt as `--- LIVE WEB RESULTS ---` block after the knowledge block
+In `handleJSON`, strip `<think>` blocks from MiniMax response text before returning. This ensures non-streaming responses are also clean:
 
-Update `buildSystemPrompt()` to accept an optional web results block.
+```typescript
+// After extracting text from MiniMax
+text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+```
 
-Update the main handler flow:
-- Fetch knowledge first
-- If knowledge results are sparse, also call Tavily
-- Pass both blocks to `buildSystemPrompt()`
+### 3. Redeploy edge function
 
-### 4. Fix Stale Version in Other Browsers
+Deploy `ai-orchestrator` with the server-side fix.
 
-- Add aggressive cache-control headers to the service worker registration
-- Add a version meta tag bump mechanism — update the `<meta name="app-version">` in `index.html` with current build timestamp
-- Ensure the `useForceUpdateOnVersionChange` hook compares versions and forces reload when mismatch detected
-- The existing `clearAllCaches` + `forceReload` utilities already handle this — the issue is the published site needs a fresh deploy after code changes. Will verify the publish flow is triggered.
+## About the Published Site
 
-### 5. Deploy Edge Function
-
-- Redeploy `ai-orchestrator` after adding Tavily integration
-
----
+The backend (edge function) deploys automatically and is already live. The **frontend** fix from the previous message (fixing the `/undefined/` URL) requires you to click **Publish → Update** in the Lovable dashboard. This plan's frontend changes will also need publishing after implementation.
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/App.tsx` | Switch radio import to `lazyWithRetry` |
-| `supabase/functions/ai-orchestrator/index.ts` | Add Tavily web search helper, integrate into prompt pipeline |
-| Secret: `TAVILY_API_KEY` | Store the provided API key |
-| `index.html` | Bump app-version meta tag to force cache refresh |
-
-## About the "old version" issue
-
-When you publish from Lovable, frontend changes only go live after clicking "Update" in the publish dialog. Backend changes (edge functions, database) deploy immediately. If you're seeing an old version in another browser, it means either:
-- The latest frontend hasn't been published yet (click Publish → Update)
-- The other browser has a cached service worker — the cache-busting improvements will handle this going forward
+| `src/hooks/useConciergeAI.ts` | Add `stripThinkingTokens()`, apply to streaming + JSON paths |
+| `supabase/functions/ai-orchestrator/index.ts` | Strip `<think>` blocks in `handleJSON` before returning |
 
