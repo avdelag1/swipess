@@ -114,6 +114,13 @@ async function parseSSEStream(
   }
 }
 
+// ── Strip <think> reasoning tokens from MiniMax ───────────────
+function stripThinkingTokens(text: string): string {
+  let cleaned = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+  cleaned = cleaned.replace(/<think>[\s\S]*$/g, '').trim();
+  return cleaned;
+}
+
 // ── Extract Action Block ───────────────────────────────────────
 function extractAction(text: string): { cleanText: string; action: any } {
   const actionMatch = text.match(/(\{\s*"action"\s*:[\s\S]*?\})\s*$/m);
@@ -345,13 +352,13 @@ export function useConciergeAI() {
             setIsThinking(false);
           }
           fullText += token;
-          const current = fullText;
+          const current = stripThinkingTokens(fullText);
           setMessages((prev) =>
             prev.map((m) => (m.id === assistantId ? { ...m, content: current } : m))
           );
         },
         () => {
-          const { cleanText, action } = extractAction(fullText);
+          const { cleanText, action } = extractAction(stripThinkingTokens(fullText));
           setMessages((prev) =>
             prev.map((m) =>
               m.id === assistantId ? { ...m, content: cleanText, action } : m
@@ -389,11 +396,12 @@ export function useConciergeAI() {
   const handleJSONResponse = useCallback(
     (data: any, convId: string | null) => {
       setIsThinking(false);
-      const rawText =
+      const rawText = stripThinkingTokens(
         data?.result?.text ||
         data?.choices?.[0]?.message?.content ||
         data?.message ||
-        'I am processing that...';
+        'I am processing that...'
+      );
       const { cleanText: aiText, action: aiAction } = extractAction(rawText);
 
       const assistantMsg: ConciergeMessage = {

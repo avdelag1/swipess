@@ -272,6 +272,8 @@ async function handleJSON(messagesPayload: any[]) {
       if (mmResponse.ok) {
         const mmResult = await mmResponse.json();
         text = mmResult.content?.find((b: any) => b.type === "text")?.text || "";
+        // Strip <think> reasoning blocks from MiniMax output
+        text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
         if (text) {
           provider = "minimax";
           console.log(`[AI] ✅ MiniMax success (${text.length} chars)`);
