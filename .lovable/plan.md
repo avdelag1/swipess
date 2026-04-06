@@ -1,91 +1,69 @@
 
-# Upgrade Swipess AI Concierge — Expert Mode
 
-## What You're Getting
+# Implementation: Swipess AI Concierge Expert Mode
 
-A fully upgraded AI concierge that: speaks any language the user writes in, knows everything about the app and Tulum, generates clickable Google Maps itinerary routes, links to real places with phone numbers, learns from an admin-managed knowledge base, and responds faster with streaming.
+## Summary
+Upgrading the AI concierge with: admin knowledge base, multilingual responses, SSE streaming for instant feel, Google Maps route cards, in-app navigation, and proactive behavior.
 
----
+## Step 1: Database Migration — `concierge_knowledge` table
 
-## Plan (5 Parts)
+Create table for admin-managed local knowledge (FAQs, venues, beaches, restaurants):
 
-### 1. Create `concierge_knowledge` Table (Admin Knowledge Base)
-
-A new database table where you (and admins) can add curated local knowledge — FAQs, venue info, free beach entrances, restaurant recommendations, Google Maps links, phone numbers, etc. The AI will query this table before every response to ground its answers in real, verified data.
-
-**Table structure:**
-- `id`, `category` (e.g. "beaches", "restaurants", "transport", "faq", "app_help")
-- `title`, `content` (the actual knowledge text)
-- `google_maps_url`, `phone`, `website_url` (optional structured data)
-- `tags[]`, `language` (default "en", supports "es", "zh", etc.)
-- `is_active` (admin can toggle entries on/off)
-- `created_by` (admin user_id)
-
-RLS: All authenticated users can read active entries. Only admins can insert/update/delete.
-
-### 2. Upgrade Edge Function System Prompt + Knowledge Injection
-
-**File: `supabase/functions/ai-orchestrator/index.ts`**
-
-Major changes:
-- **Query `concierge_knowledge`** at the start of every chat request. Pull the top 10-15 most relevant entries (filtered by category/tags matching the user's query) and inject them into the system prompt as grounding context.
-- **Multilingual instruction**: Add to system prompt: *"Always respond in the same language the user writes in. If they write in Chinese, respond in Chinese. If Spanish, respond in Spanish."*
-- **Google Maps + itinerary**: Instruct the AI to always include Google Maps links when recommending places. When building itineraries, use a structured `create_itinerary` action with Google Maps URLs per stop.
-- **Proactive behavior**: Instruct the AI to ask follow-up questions, offer to send the route, suggest alternatives, and remember preferences.
-- **App navigation**: Include a map of all app routes/pages so the AI can direct users (e.g., "Go to Properties → tap the filter icon").
-- **Increase `max_tokens` to 2048** for richer itinerary responses.
-
-### 3. Streaming Responses (Instant Feel)
-
-**Files: `ai-orchestrator/index.ts` + `useConciergeAI.ts` + `ConciergeChat.tsx`**
-
-Switch from synchronous JSON to **SSE streaming** so tokens appear as the AI types them:
-
-- **Edge function**: When `stream: true`, pipe the MiniMax/Lovable AI stream directly back as `text/event-stream`.
-- **Hook**: Use `fetch` with `ReadableStream` reader, parse SSE line-by-line, and update the assistant message content progressively via `setMessages`.
-- **UI**: The existing `ReactMarkdown` rendering will naturally update as content grows. The "thinking" indicator shows only until the first token arrives.
-
-This gives the "instant" feel — you see the first word within ~200ms instead of waiting 3-5 seconds for the full response.
-
-### 4. Richer Action Cards (Google Maps Routes)
-
-**File: `ConciergeChat.tsx`**
-
-Add a new action card type `show_route` that renders:
-- A list of stops with Google Maps links (clickable, opens in new tab)
-- Phone numbers as clickable `tel:` links
-- Distance/time estimates between stops (if the AI provides them)
-- A "Send me the full route" button that copies all Google Maps links
-
-The existing `create_itinerary` card will be enhanced to include Google Maps links per activity.
-
-### 5. In-App Navigation Links
-
-**File: `ai-orchestrator/index.ts` (system prompt)**
-
-Add a route map to the system prompt so the AI can generate in-app navigation actions:
-
-```
-App pages: /client/dashboard, /properties, /properties/:id, /events, /profile, /settings, /messages
+```sql
+CREATE TABLE public.concierge_knowledge (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  category text NOT NULL DEFAULT 'general',
+  title text NOT NULL,
+  content text NOT NULL,
+  google_maps_url text,
+  phone text,
+  website_url text,
+  tags text[] DEFAULT '{}',
+  language text NOT NULL DEFAULT 'en',
+  is_active boolean NOT NULL DEFAULT true,
+  created_by uuid,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
 ```
 
-New action type `navigate_to` that the frontend handles by calling `navigate(path)` — so the AI can say "Let me take you to the properties page" and it actually navigates.
+RLS: All authenticated can read active entries. Only admins can insert/update/delete (using `has_role()`).
 
----
+## Step 2: Edge Function — `ai-orchestrator/index.ts`
 
-## Files to Change
+Full rewrite with these additions:
+- **Knowledge injection**: Query `concierge_knowledge` table using service role key, inject matched entries into system prompt
+- **Multilingual prompt**: "ALWAYS respond in the SAME LANGUAGE the user writes in"
+- **Streaming support**: When `stream: true` in payload, pipe SSE stream directly from MiniMax/Lovable AI to client
+- **Richer system prompt**: Budget planning, Google Maps links, app navigation map, proactive follow-ups
+- **Increased `max_tokens`**: 1024 → 2048 for richer itinerary responses
+- **New action types**: `show_route`, `navigate_to`, enhanced `create_itinerary` with Google Maps URLs
+- **Rate limit handling**: Return proper 429/402 errors
+
+## Step 3: Frontend Hook — `useConciergeAI.ts`
+
+Add SSE streaming support alongside existing JSON path:
+- Send `stream: true` in payload
+- Use `fetch()` with the full Supabase functions URL for streaming (can't use `supabase.functions.invoke` for streams)
+- Parse SSE line-by-line: extract `delta.content` tokens
+- Update assistant message progressively via `setMessages`
+- Show thinking indicator only until first token arrives
+- Fall back to JSON path if streaming fails
+- Handle `navigate_to` action by calling `window.location` or exposing a callback
+
+## Step 4: Chat UI — `ConciergeChat.tsx`
+
+- **Route card**: New `show_route` action renders a list of stops with clickable Google Maps links, phone numbers as `tel:` links, and a "Copy all links" button
+- **Enhanced itinerary**: Add `google_maps_url` per activity as clickable map pins
+- **Navigate action**: Handle `navigate_to` by calling `navigate(path)` and closing the chat dialog
+- **Instant feel**: Streaming already handles this — first token shows within ~200ms
+
+## Files Changed
 
 | File | Change |
 |------|--------|
-| **Migration SQL** | Create `concierge_knowledge` table + RLS policies |
-| `supabase/functions/ai-orchestrator/index.ts` | Knowledge query, multilingual prompt, streaming, richer system prompt, increased max_tokens |
-| `src/hooks/useConciergeAI.ts` | SSE streaming parser, progressive message updates |
-| `src/components/ConciergeChat.tsx` | Google Maps route cards, `navigate_to` action handler, enhanced itinerary cards |
+| Migration SQL | New `concierge_knowledge` table + RLS + indexes |
+| `supabase/functions/ai-orchestrator/index.ts` | Knowledge query, multilingual, streaming, richer prompt |
+| `src/hooks/useConciergeAI.ts` | SSE streaming parser, progressive rendering |
+| `src/components/ConciergeChat.tsx` | Route cards, navigate_to handler, enhanced itinerary |
 
-## Expected Results
-- AI responds in the user's language automatically
-- Answers grounded in admin-curated local knowledge (no hallucinated phone numbers)
-- Clickable Google Maps links in itineraries and recommendations
-- First token appears in ~200ms (streaming)
-- AI proactively asks follow-ups and offers to build routes
-- Admins can update knowledge without touching code
