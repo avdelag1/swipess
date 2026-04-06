@@ -151,33 +151,41 @@ export function LikedClients() {
     }
   };
 
-  // Category + search filter
-  const baseFiltered = likedClients.filter((client) => {
-    const occupations = (client as any).occupation?.toLowerCase() || "";
-    const name = (client.full_name || "").toLowerCase();
-    const bio = (client as any).bio?.toLowerCase() || "";
-    
-    const matchesSearch = name.includes(searchTerm.toLowerCase()) || occupations.includes(searchTerm.toLowerCase());
-    
-    if (filterSafeOnly && (client as any).has_criminal_record) return false;
-    
-    if (selectedCategory === "renter")
-      return matchesSearch && (occupations.includes("rent") || bio.includes("rent"));
-      
-    if (selectedCategory === "worker")
-      return matchesSearch && (occupations.includes("work") || occupations.includes("service") || bio.includes("work") || bio.includes("service"));
-      
-    if (selectedCategory === "buyer")
-      return matchesSearch && (occupations.includes("buy") || occupations.includes("hire") || bio.includes("buy") || bio.includes("hire") || bio.includes("looking to"));
-      
-    return matchesSearch;
-  });
+  // Category + search + sort filter
+  const filteredClients = useMemo(() => {
+    const lowerSearch = searchTerm.toLowerCase();
 
-  // Persistent drag-reorder
-  const { orderedItems: filteredClients, handleReorder } = usePersistentReorder(
-    baseFiltered,
-    storageKey
-  );
+    let result = likedClients.filter((client) => {
+      const occupations = (client as any).occupation?.toLowerCase() || "";
+      const name = (client.full_name || "").toLowerCase();
+      const bio = (client as any).bio?.toLowerCase() || "";
+      
+      const matchesSearch = !lowerSearch || name.includes(lowerSearch) || occupations.includes(lowerSearch) || bio.includes(lowerSearch);
+      
+      if (filterSafeOnly && (client as any).has_criminal_record) return false;
+      
+      if (selectedCategory === "renter")
+        return matchesSearch && (occupations.includes("rent") || bio.includes("rent"));
+      if (selectedCategory === "worker")
+        return matchesSearch && (occupations.includes("work") || occupations.includes("service") || bio.includes("work") || bio.includes("service"));
+      if (selectedCategory === "buyer")
+        return matchesSearch && (occupations.includes("buy") || occupations.includes("hire") || bio.includes("buy") || bio.includes("hire") || bio.includes("looking to"));
+        
+      return matchesSearch;
+    });
+
+    // Sort
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case "oldest": return new Date(a.liked_at || "").getTime() - new Date(b.liked_at || "").getTime();
+        case "az": return (a.full_name || "").localeCompare(b.full_name || "");
+        case "newest":
+        default: return new Date(b.liked_at || "").getTime() - new Date(a.liked_at || "").getTime();
+      }
+    });
+
+    return result;
+  }, [likedClients, selectedCategory, searchTerm, filterSafeOnly, sortBy]);
 
   return (
     <div className="w-full relative overflow-visible pb-32 bg-background" data-no-swipe-nav="true">
