@@ -1,54 +1,66 @@
 
+Goal: fully restore real AI chat so the concierge answers the user’s actual question with MiniMax-backed responses, not a canned fallback.
 
-# Fix Build Errors + AI Chat
+What I verified
+- The frontend is reaching the correct backend function URL. Network requests go to the current backend project, not the old one.
+- The ping call works: `{"status":"ready"}`.
+- The actual chat call returns HTTP 200, but the body is a generic reply:
+  `{"result":{"text":"I'm here! What can I help you with? 🦎","action":null},"status":"success"}`
+- That canned reply does not exist in the current repo code I inspected.
+- The deployed backend logs for `ai-orchestrator` show a different implementation is running in production: it is still trying Gemini and failing with `API key expired`.
+- The current repo’s `supabase/functions/ai-orchestrator/index.ts` is MiniMax-based, but the live backend behavior/logs do not match that file.
 
-## Problem Summary
-There are 4 build errors preventing the app from compiling, plus the AI chat is silently failing because it bypasses the Supabase client and uses hardcoded credentials from the wrong project.
+Most likely root cause
+- The live backend function is out of sync with the repo and is still serving an older/stale AI orchestrator.
+- There is also a frontend/backend contract mismatch: `useConciergeAI.ts` sends `stream: true`, but the observed response is plain JSON, not a real stream.
+- Result: the app appears to “think”, then falls back into a generic auto-reply instead of returning a real model answer.
 
-## Build Fixes
+Fix plan
+1. Replace the live backend with one single source of truth
+- Redeploy `ai-orchestrator` so the deployed function matches the repo version.
+- Remove any old Gemini fallback logic from the live function path for concierge chat.
+- Keep MiniMax as the only active provider for this flow, per your requirement.
 
-### 1. `SwipeExhaustedState.tsx` — 3 errors
-- **Line 3**: `UserGroup` doesn't exist in lucide-react. Remove it (it's not used in the JSX).
-- **Line 54**: `triggerHaptic` is not imported. Add `import { triggerHaptic } from '@/utils/haptics';`
-- **Line 96**: `isError` doesn't exist on one branch of the return type union. Use optional chaining: `const isError = getEmptyMessage().isError ?? false;` or restructure to always include `isError`.
+2. Normalize the backend response contract
+- Make the concierge route use one stable response mode only.
+- Best immediate fix: use non-streaming JSON for the concierge chat, since the project memory already says this flow was stabilized with `stream: false`.
+- Ensure the backend always returns a predictable shape like:
+  `result.text`, optional `result.action`, and real error messages on failure.
 
-### 2. `SwipessSwipeContainer.tsx` — 1 error
-- **Line 1123**: `userRole` is referenced but never declared. Import `useUserRole` from `@/hooks/useUserRole` and call it with `user?.id` to get the role value. Add near the other hooks (around line 133):
-  ```ts
-  const { data: userRole } = useUserRole(user?.id);
-  ```
+3. Align the frontend hook with that contract
+- Update `src/hooks/useConciergeAI.ts` so it stops requesting streaming for concierge chat.
+- Use the backend function invocation path consistently instead of mixing streaming fetch behavior with JSON fallback behavior.
+- Remove the “thinking but no answer” ambiguity by handling:
+  - success with real text
+  - backend error with visible error
+  - empty response with explicit failure message, not a fake concierge reply
 
-## AI Chat Fix (Critical)
+4. Eliminate the hidden canned-response path
+- Find and remove the fallback branch that is generating `I'm here! What can I help you with?`
+- Since that string is not in the current repo, I would specifically inspect the deployed function version / stale proxy path and any compatibility wrappers around `ai-orchestrator`.
 
-**Root cause**: `useConciergeAI.ts` (lines 164-167) bypasses the Supabase client and makes a raw `fetch()` call with:
-- A fallback URL pointing to the **old** Supabase project (`vplgtcguxujxwrgguxqq`)
-- A hardcoded anon key for that old project
+5. Verify end-to-end with real prompts
+- Test with prompts that prove model reasoning is live, for example:
+  - “Best tacos in Tulum and why?”
+  - “Give me 3 options by vibe and budget”
+- Confirm the response is query-specific, not generic.
+- Confirm backend logs no longer mention Gemini expired-key errors.
+- Confirm network response contains MiniMax-generated content and not the canned message.
 
-The edge functions are deployed on the **current** Lovable Cloud project (`qegyisokrxdsszzswsqk`), so the credentials mismatch causes auth failure.
+Files/areas to fix
+- `supabase/functions/ai-orchestrator/index.ts`
+- `src/hooks/useConciergeAI.ts`
+- Possibly proxy wrappers if they still point to stale logic:
+  - `supabase/functions/ai-assistant/index.ts`
+  - `supabase/functions/ai-conversation/index.ts`
 
-**Fix**: Replace the raw `fetch()` with `supabase.functions.invoke()` which automatically uses the correct URL and key. For streaming support, construct the URL from `import.meta.env.VITE_SUPABASE_URL` and use the env-based anon key (`import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY`), removing all hardcoded old credentials.
+Important security note
+- Do not paste API keys or backend tokens in chat again.
+- I do not need the pasted secrets from your message for the fix plan; the backend already has stored secrets configured.
+- The issue is not “missing key in the repo”; it is that the live AI function behavior does not match the code you expect.
 
-Specifically in `useConciergeAI.ts`:
-- **Line 164**: Remove the hardcoded fallback URL to the old project
-- **Line 167**: Remove the hardcoded `targetAnonKey` constant
-- Replace with env-based values:
-  ```ts
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-  const functionUrl = `${supabaseUrl}/functions/v1/ai-orchestrator`;
-  ```
-- Update the `fetch` headers to use `anonKey` instead of `targetAnonKey`
-
-I confirmed the orchestrator is working (ping returns `ready`, chat returns valid responses). The only issue is the client sending the wrong credentials.
-
-## Files to Edit
-
-| File | Change |
-|------|--------|
-| `src/components/swipe/SwipeExhaustedState.tsx` | Remove `UserGroup` import, add `triggerHaptic` import, fix `isError` type |
-| `src/components/SwipessSwipeContainer.tsx` | Add `useUserRole` hook call |
-| `src/hooks/useConciergeAI.ts` | Remove hardcoded old-project credentials, use env vars |
-
-## Verification
-After fixes, the app should compile and the AI chat should respond when messages are sent.
-
+Expected result after implementation
+- The concierge will answer the actual user question.
+- No more fake auto-replies.
+- No more Gemini-expired log noise on the live concierge path.
+- Frontend and backend will use one stable, matching protocol instead of mixed streaming/JSON behavior.
