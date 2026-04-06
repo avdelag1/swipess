@@ -596,7 +596,7 @@ export function ConciergeChat({
                           </div>
                         )}
 
-                        {/* NEW: Itinerary Visualizer */}
+                        {/* Itinerary Visualizer */}
                         {message.role === 'assistant' && message.action?.type === 'create_itinerary' && message.action.params?.activities && (
                           <div className={cn(
                             "mt-4 p-4 rounded-2xl border shadow-xl relative overflow-hidden",
@@ -606,12 +606,10 @@ export function ConciergeChat({
                               <Calendar className="w-12 h-12 rotate-12" />
                             </div>
                             <h4 className={cn("font-black text-xs uppercase tracking-[0.2em] mb-4 flex items-center gap-2", isDark ? "text-orange-400" : "text-red-600")}>
-                              <Sparkles className="w-3.5 h-3.5" /> Your Saturday Itinerary
+                              <Sparkles className="w-3.5 h-3.5" /> Your Itinerary
                             </h4>
                             <div className="space-y-5 relative">
-                              {/* Timeline line */}
                               <div className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-gradient-to-b from-orange-500/50 via-purple-500/30 to-transparent rounded-full" />
-                              
                               {message.action.params.activities.map((act: any, idx: number) => (
                                 <motion.div 
                                   key={idx}
@@ -630,6 +628,12 @@ export function ConciergeChat({
                                     <p className={cn("text-[11px] leading-relaxed mt-1 opacity-70", isDark ? "text-zinc-400" : "text-gray-600")}>
                                       {act.description || act.content}
                                     </p>
+                                    {act.google_maps_url && (
+                                      <a href={act.google_maps_url} target="_blank" rel="noopener noreferrer"
+                                        className={cn("inline-flex items-center gap-1 mt-1.5 text-[10px] font-bold", isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-500")}>
+                                        <MapPin className="w-3 h-3" /> Open in Maps
+                                      </a>
+                                    )}
                                   </div>
                                 </motion.div>
                               ))}
@@ -642,6 +646,101 @@ export function ConciergeChat({
                               Add to Calendar
                             </Button>
                           </div>
+                        )}
+
+                        {/* Route Card */}
+                        {message.role === 'assistant' && message.action?.type === 'show_route' && message.action.params?.stops && (
+                          <div className={cn(
+                            "mt-4 p-4 rounded-2xl border shadow-xl relative overflow-hidden",
+                            isDark ? "bg-zinc-900/90 border-white/10" : "bg-emerald-50/50 border-emerald-100"
+                          )}>
+                            <h4 className={cn("font-black text-xs uppercase tracking-[0.2em] mb-4 flex items-center gap-2", isDark ? "text-emerald-400" : "text-emerald-700")}>
+                              <Navigation className="w-3.5 h-3.5" /> {message.action.params.title || 'Your Route'}
+                            </h4>
+                            <div className="space-y-3 relative">
+                              <div className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-gradient-to-b from-emerald-500/50 via-blue-500/30 to-transparent rounded-full" />
+                              {message.action.params.stops.map((stop: any, idx: number) => (
+                                <motion.div
+                                  key={idx}
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={{ opacity: 1, x: 0, transition: { delay: idx * 0.08 } }}
+                                  className="flex gap-4 relative z-10"
+                                >
+                                  <div className={cn(
+                                    "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5 border-2",
+                                    isDark ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" : "bg-emerald-100 text-emerald-700 border-emerald-200"
+                                  )}>
+                                    {idx + 1}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h5 className={cn("text-[13px] font-bold leading-tight", isDark ? "text-white" : "text-gray-900")}>
+                                      {stop.name}
+                                    </h5>
+                                    {stop.description && (
+                                      <p className={cn("text-[11px] leading-relaxed mt-0.5 opacity-70", isDark ? "text-zinc-400" : "text-gray-600")}>
+                                        {stop.description}
+                                      </p>
+                                    )}
+                                    {stop.estimated_cost && (
+                                      <span className={cn("text-[10px] font-bold", isDark ? "text-amber-400" : "text-amber-600")}>
+                                        {stop.estimated_cost}
+                                      </span>
+                                    )}
+                                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                      {stop.google_maps_url && (
+                                        <a href={stop.google_maps_url} target="_blank" rel="noopener noreferrer"
+                                          className={cn("inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg border transition-colors",
+                                            isDark ? "bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20" : "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
+                                          )}>
+                                          <MapPin className="w-3 h-3" /> Maps
+                                        </a>
+                                      )}
+                                      {stop.phone && (
+                                        <a href={`tel:${stop.phone}`}
+                                          className={cn("inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg border transition-colors",
+                                            isDark ? "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20" : "bg-green-50 text-green-600 border-green-200 hover:bg-green-100"
+                                          )}>
+                                          <Phone className="w-3 h-3" /> Call
+                                        </a>
+                                      )}
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              ))}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              className={cn("w-full mt-4 h-8 text-[10px] font-black uppercase tracking-widest border transition-all", isDark ? "bg-white/5 border-white/5 hover:bg-white/10" : "bg-emerald-100/50 border-emerald-200/50 hover:bg-emerald-100")}
+                              onClick={() => {
+                                const links = message.action.params.stops
+                                  .filter((s: any) => s.google_maps_url)
+                                  .map((s: any) => `${s.name}: ${s.google_maps_url}`)
+                                  .join('\n');
+                                navigator.clipboard.writeText(links);
+                                toast.success('All map links copied!');
+                              }}
+                            >
+                              <Copy className="w-3 h-3 mr-1.5" /> Copy All Links
+                            </Button>
+                          </div>
+                        )}
+
+                        {/* Navigate To action */}
+                        {message.role === 'assistant' && message.action?.type === 'navigate_to' && message.action.params?.path && (
+                          <Button
+                            variant="ghost"
+                            className={cn(
+                              "mt-3 w-full h-10 rounded-xl text-[11px] font-black uppercase tracking-widest border transition-all gap-2",
+                              isDark ? "bg-orange-500/10 border-orange-500/20 text-orange-400 hover:bg-orange-500/20" : "bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
+                            )}
+                            onClick={() => {
+                              onOpenChange(false);
+                              setTimeout(() => navigate(message.action.params.path), 150);
+                            }}
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            {message.action.params.label || 'Go to page'}
+                          </Button>
                         )}
                       </div>
 
