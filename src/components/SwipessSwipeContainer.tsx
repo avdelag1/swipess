@@ -1001,13 +1001,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           >
             <div className="w-full pt-4 pb-8 px-6 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
               <div className="w-full flex justify-between items-center pointer-events-auto">
-                <DistanceSlider
-                  radiusKm={radiusKm}
-                  onRadiusChange={setRadiusKm}
-                  onDetectLocation={detectLocation}
-                  detecting={locationDetecting}
-                  detected={locationDetected}
-                />
+                {(!storeActiveCategory || (deckQueue.length > 0 && currentIndex < deckQueue.length)) && (
+                  <DistanceSlider
+                    radiusKm={radiusKm}
+                    onRadiusChange={setRadiusKm}
+                    onDetectLocation={detectLocation}
+                    detecting={locationDetecting}
+                    detected={locationDetected}
+                  />
+                )}
               </div>
             </div>
           </motion.div>

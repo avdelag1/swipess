@@ -127,9 +127,19 @@ export const SwipeExhaustedState = ({
         initial="initial" 
         animate="animate" 
         exit="exit" 
-        className="relative w-full flex-1 flex flex-col items-center justify-center p-6 text-center bg-background"
-        style={{ minHeight: 'calc(100dvh - 120px)', paddingTop: '2.5rem' }}
+        className="relative w-full flex-1 flex flex-col items-center justify-center p-6 text-center overflow-hidden"
+        style={{ 
+          minHeight: 'calc(100dvh - 120px)', 
+          paddingTop: '2.5rem',
+          backgroundColor: '#0a0a0b', // Deep flagship black
+        }}
       >
+        {/* 🚀 VISUAL DEPTH: Discovery Protocol Ambient Auras */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-[120px] opacity-40 animate-pulse" />
+          <div className="absolute -top-24 -left-24 w-96 h-96 bg-brand-accent-2/5 rounded-full blur-[100px] opacity-30" />
+          <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-brand-primary/5 rounded-full blur-[100px] opacity-30" />
+        </div>
         <motion.div 
           initial={{ opacity: 0, y: 30 }} 
           animate={{ opacity: 1, y: 0 }} 
