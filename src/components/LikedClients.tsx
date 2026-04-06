@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Flame, Users, Search, ThumbsUp, ShieldCheck, ShieldAlert,
-  Home, Briefcase, DollarSign, GripVertical,
+  Home, Briefcase, DollarSign, ArrowUpDown,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,7 +13,6 @@ import { useTheme } from "@/hooks/useTheme";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikedClientInsightsModal } from "@/components/LikedClientInsightsModal";
-import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
 
 import { cn } from "@/lib/utils";
 import {
@@ -32,7 +31,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { usePersistentReorder } from "@/hooks/usePersistentReorder";
+
+type SortOption = "newest" | "oldest" | "az";
 
 const clientCategories = [
   { id: "all", label: "All Talents", icon: Flame },

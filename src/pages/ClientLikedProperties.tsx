@@ -1,23 +1,23 @@
 import { LikedListingInsightsModal } from "@/components/LikedListingInsightsModal";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
 import { useStartConversation } from "@/hooks/useConversations";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Flame, Home, Bike, Briefcase, RefreshCw, Car, GripVertical, Search } from "lucide-react";
+import { Flame, Home, Bike, Briefcase, RefreshCw, Car, Search, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/useTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
-import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
 import { DashboardSkeleton } from "@/components/ui/LayoutSkeletons";
 import { pwaImagePreloader, getCardImageUrl } from "@/utils/imageOptimization";
 import type { Listing } from "@/hooks/useListings";
 import { useEffect } from "react";
+import { MotorcycleIcon } from "@/components/icons/MotorcycleIcon";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +28,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { usePersistentReorder } from "@/hooks/usePersistentReorder";
+
+type SortOption = "newest" | "oldest" | "price_low" | "price_high" | "az";
 
 const categories = [
   { id: "all", label: "All Favorites", icon: Flame, title: "Your World", subtitle: "Reorder and filter your top essentials" },
