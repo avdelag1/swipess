@@ -957,31 +957,29 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     <div className="relative w-full h-full overflow-hidden flex flex-col pt-1 bg-background">
       {/* Static ambient background — GPU-friendly, no infinite animations */}
       <div className="absolute inset-0 pointer-events-none -z-10 bg-[#0a0a0b]" />
-      {/* Top Controls Overlay: Only shown when deck is ACTIVE to prevent overlap with empty/exhausted states */}
-      <AnimatePresence>
-        {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none"
-          >
-            <div className="w-full pt-8 pb-8 px-6 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
-              <div className="w-full flex justify-between items-center pointer-events-auto">
-                {(!storeActiveCategory || (deckQueue.length > 0 && currentIndex < deckQueue.length)) && (
-                  <DistanceSlider
-                    radiusKm={radiusKm}
-                    onRadiusChange={setRadiusKm}
-                    onDetectLocation={detectLocation}
-                    detecting={locationDetecting}
-                    detected={locationDetected}
-                  />
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Top Controls Overlay: CSS transition instead of AnimatePresence for speed */}
+      <div
+        className="absolute top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none transition-all duration-200"
+        style={{
+          opacity: (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? 1 : 0,
+          transform: (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? 'translateY(0)' : 'translateY(-16px)',
+          pointerEvents: 'none',
+        }}
+      >
+        <div className="w-full pt-8 pb-8 px-6 bg-gradient-to-b from-black/60 to-transparent">
+          <div className="w-full flex justify-between items-center" style={{ pointerEvents: 'auto' }}>
+            {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
+              <DistanceSlider
+                radiusKm={radiusKm}
+                onRadiusChange={setRadiusKm}
+                onDetectLocation={detectLocation}
+                detecting={locationDetecting}
+                detected={locationDetected}
+              />
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className={cn(
         "absolute inset-0 flex flex-col items-center justify-center p-3 z-10 pointer-events-none",
