@@ -295,6 +295,54 @@ export type Database = {
         }
         Relationships: []
       }
+      concierge_knowledge: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          created_by: string | null
+          google_maps_url: string | null
+          id: string
+          is_active: boolean
+          language: string
+          phone: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          category?: string
+          content: string
+          created_at?: string
+          created_by?: string | null
+          google_maps_url?: string | null
+          id?: string
+          is_active?: boolean
+          language?: string
+          phone?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          google_maps_url?: string | null
+          id?: string
+          is_active?: boolean
+          language?: string
+          phone?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       content_flags: {
         Row: {
           content_text: string
