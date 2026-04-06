@@ -5,24 +5,18 @@ const corsHeaders = {
 };
 
 /**
- * 🛰️ SWIPESS AI CONCIERGE: MODERN RESET
+ * 🛰️ SWIPESS AI CONCIERGE — Powered by Lovable AI
  * ─────────────────────────────────────────────────────────────────────────────
- * HUB: minimax-text-01 (High-Performance Chat Completion V2)
- * SCHEMA: Logic-only - No fallbacks, no filler, maximum speed.
+ * Uses Lovable AI gateway (OpenAI-compatible) for reliable, no-key-needed AI.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
 Deno.serve(async (req) => {
-  // 🛡️ Preflight handler
   if (req.method === "OPTIONS") {
-    return new Response(null, { 
-      status: 204, 
-      headers: corsHeaders 
-    });
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
   try {
-    // 🛡️ Method check
     if (req.method !== "POST" && req.method !== "GET") {
       return new Response(JSON.stringify({ error: "Method not allowed" }), {
         status: 405,
@@ -33,13 +27,6 @@ Deno.serve(async (req) => {
     const payload = await req.json().catch(() => ({}));
     const { task, data } = payload;
     const rawMessages = data?.messages || payload.messages || [];
-    const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
-    const group_id = Deno.env.get("MINIMAX_GROUP_ID") || "2019874926051205377";
-
-    if (!minimaxKey) {
-      console.error("[ERROR] MiniMax API key is missing.");
-      throw new Error("AI service configuration error.");
-    }
 
     if (task === 'ping') {
       return new Response(JSON.stringify({ status: "ready", timestamp: Date.now() }), { 
@@ -47,13 +34,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Role mapping for MiniMax v2
+    // Role mapping
     const formattedMessages = rawMessages.map((m: any) => ({
       role: (m.role === "assistant" || m.role === "ai" || m.role === "model") ? "assistant" : "user",
       content: m.content || m.text || ""
     })).filter((m: any) => m.content.trim() !== "");
 
-    // ── CORE IDENTITY RESET ───────────────────────────────────────
     const systemPrompt = `You are the Swipess AI Concierge, an elite Tulum local expert and digital curator. 
 Your tone is sophisticated, welcoming, and extremely precise. You provide the level of service one would expect from a 5-star resort concierge.
 
@@ -69,58 +55,65 @@ Guidelines:
 - Always conclude with a single JSON action block if it enhances the recommendation (e.g. {"action": {"type": "show_venue_card", "params": {...}}}).
 - Never use placeholders. If you don't know something exactly, be honest but suggest the nearest elite alternative.`;
 
-    console.log(`[AI] Processing task: ${task || 'chat'} for model: MiniMax-Text-01`);
+    console.log(`[AI] Processing task: ${task || 'chat'} | messages: ${formattedMessages.length}`);
 
-    // Streaming is default for chat, but can be disabled for legacy components
-    const stream = payload.stream !== false;
+    // Use Lovable AI gateway — no API key needed, uses LOVABLE_API_KEY secret
+    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+    if (!lovableApiKey) {
+      console.error("[ERROR] LOVABLE_API_KEY is missing.");
+      throw new Error("AI service configuration error.");
+    }
 
-    const minimaxResponse = await fetch("https://api.minimax.chat/v1/text/chatcompletion_v2", {
+    const aiResponse = await fetch("https://ai.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${minimaxKey}`,
+        "Authorization": `Bearer ${lovableApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "MiniMax-Text-01",
+        model: "google/gemini-2.5-flash",
         messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-20)],
         temperature: 0.7,
-        stream: stream,
-        max_tokens: 1024
+        max_tokens: 1024,
       }),
     });
 
-    if (!minimaxResponse.ok) {
-      const errText = await minimaxResponse.text();
-      console.error(`[AI ENGINE ERROR] ${minimaxResponse.status}: ${errText}`);
-      throw new Error(`MiniMax Engine Error: ${minimaxResponse.status}. ${errText.substring(0, 50)}`);
+    if (!aiResponse.ok) {
+      const errText = await aiResponse.text();
+      console.error(`[AI ENGINE ERROR] ${aiResponse.status}: ${errText}`);
+      throw new Error(`AI Engine Error: ${aiResponse.status}`);
     }
 
-    if (stream) {
-      // Direct SSE Stream Bridge
-      return new Response(minimaxResponse.body, {
-        headers: { 
-          ...corsHeaders, 
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          "Connection": "keep-alive"
-        }
-      });
-    } else {
-      // Return full JSON for legacy invoke() calls (Conversational AI, AI Listing etc)
-      const data = await minimaxResponse.json();
-      return new Response(JSON.stringify(data), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
+    const result = await aiResponse.json();
+    const text = result.choices?.[0]?.message?.content || "";
+    
+    // Extract action block if present
+    let cleanText = text;
+    let action = null;
+    const actionMatch = text.match(/(\{\s*"action"\s*:[\s\S]*?\})\s*$/m);
+    if (actionMatch) {
+      try {
+        action = JSON.parse(actionMatch[0])?.action || null;
+        cleanText = text.replace(actionMatch[0], '').trim();
+      } catch (e) {
+        // keep full text if action parsing fails
+      }
     }
+
+    return new Response(JSON.stringify({
+      result: { text: cleanText || text, action },
+      status: "success"
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
 
   } catch (err: any) {
     console.error("[CRITICAL AI ERROR]", err);
     return new Response(JSON.stringify({ 
       error: err.message, 
       status: "error",
-      suggestion: "Check your MiniMax API Key and Quota."
     }), { 
-      status: 500, // IMPORTANT: Return 500 so frontend catches it as an error
+      status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" } 
     });
   }
