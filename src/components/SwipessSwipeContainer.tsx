@@ -987,10 +987,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       )}>
         {/* 🚀 DASHBOARD DESCRIPTION: Shows user exactly what they are searching for (Tinder-style) */}
         {storeActiveCategory && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="absolute top-[calc(var(--top-bar-height)+24px)] left-0 right-0 z-50 flex justify-center pointer-events-none px-6"
+          <div 
+            className="absolute top-[calc(var(--top-bar-height)+24px)] left-0 right-0 z-50 flex justify-center pointer-events-none px-6 animate-fade-in"
           >
             <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-2xl shadow-2xl flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-brand-accent-2 animate-pulse" />
@@ -998,7 +996,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 Searching <span className="text-brand-accent-2">{storeActiveCategory.replace('_', ' ')}</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
               </span>
             </div>
-          </motion.div>
+          </div>
         )}
 
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
@@ -1008,8 +1006,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 key="category-stack"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                exit={{ opacity: 0, scale: 1.05 }}
+                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                 className="w-full h-full flex flex-col items-center justify-center"
               >
                 <CategorySwipeStack />
@@ -1017,10 +1015,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <motion.div 
                 key={`deck-${storeActiveCategory}`}
-                initial={{ opacity: 0, scale: 1.1, filter: 'blur(20px)' }}
-                animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                exit={{ opacity: 0, scale: 0.9, filter: 'blur(20px)' }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                 className="relative w-full h-[calc(100%-10px)] max-w-2xl"
               >
                 {/* Back card (Peek) */}
