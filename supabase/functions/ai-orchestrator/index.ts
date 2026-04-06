@@ -74,15 +74,14 @@ Guidelines:
     // Streaming is default for chat, but can be disabled for legacy components
     const stream = payload.stream !== false;
 
-    const minimaxResponse = await fetch("https://api.minimax.io/v1/text/chatcompletion_v2", {
+    const minimaxResponse = await fetch("https://api.minimax.chat/v1/text/chatcompletion_v2", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${minimaxKey}`,
         "Content-Type": "application/json",
-        "GroupId": group_id,
       },
       body: JSON.stringify({
-        model: "abab6.5s-chat",
+        model: "MiniMax-Text-01",
         messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-20)],
         temperature: 0.7,
         stream: stream,
