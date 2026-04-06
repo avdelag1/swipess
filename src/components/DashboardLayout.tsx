@@ -489,7 +489,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
         }}
         className={cn(
-          "w-full min-h-full bg-background relative z-0 touch-pan-y overflow-visible",
+          "w-full min-h-full bg-background relative z-0 touch-pan-y",
+          isRadioRoute ? "overflow-visible" : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
         )}
@@ -502,9 +503,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             : `calc(${bottomNavHeight}px + var(--safe-bottom) + 32px)`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
-          // 🚀 SPEED OF LIGHT: Optimized layout containment
-          contentVisibility: 'auto',
-          containIntrinsicSize: '100dvh',
+          // Skip contentVisibility on radio route — it creates a containing block that breaks fixed positioning
+          ...(isRadioRoute ? {} : { contentVisibility: 'auto' as any, containIntrinsicSize: '100dvh' }),
         }}
       >
         <div className="min-h-full w-full flex flex-col">
