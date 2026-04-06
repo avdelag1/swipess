@@ -221,7 +221,7 @@ export default function DJTurntableRadio() {
   const primaryColor = cityTheme?.primaryColor || '#FF4D00';
   const secondaryColor = cityTheme?.secondaryColor || '#FFB347';
 
-  // POWER ON / INITIALIZATION GUARD
+  // POWER ON / INITIALIZATION GUARD — auto-power AND auto-play
   useEffect(() => {
     let powerTimer: ReturnType<typeof setTimeout>;
     
@@ -230,6 +230,12 @@ export default function DJTurntableRadio() {
         togglePower();
         triggerHaptic('medium');
       }
+      // Always attempt to play after a short hydration delay
+      setTimeout(() => {
+        if (!state.isPlaying) {
+          play();
+        }
+      }, 800);
     };
 
     // Delay slightly to allow context to hydrate
