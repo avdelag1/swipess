@@ -1,82 +1,52 @@
 
 
-# Fix AI Chat Responses, Scroll, Input Speed & Auto-Scroll
+# Plan: Full Backend Alignment + Build Error Fixes
 
-## Root Causes Found
+## Directive (Locked In)
 
-### 1. AI Not Replying — Broken Timeout + No Real Abort
-The `useSentientChat` hook creates an `AbortController` with a 25-second timeout, but **never passes it to the fetch call**. `supabase.functions.invoke` does not accept an AbortController. So:
-- If MiniMax hangs, the request hangs forever
-- The "timeout" fires but does nothing — the UI stays stuck on "Thinking..."
-- No actual cancellation happens
-
-Additionally, the `useSentientChat` hook uses `stream: false` which means only the JSON path runs on the backend. If MiniMax fails silently and the Lovable fallback also has an issue, the user gets nothing.
-
-### 2. Chat History Window Not Scrollable
-The `ConversationHistoryPopover` uses `ScrollArea` with `max-h-52` (208px) which is correct, but the history view inside `AISearchDialog` (the "Conversation Vault") uses `overflow-y-auto` directly — this should work but may be clipped by the parent `overflow-hidden` on the `DialogContent`.
-
-### 3. Input Feels Slow
-The `handleSend` callback depends on `[query, isSearching, isTyping, messages, user, clientProfile, sendMessage]` — every time `messages` changes (which is every token during streaming in other contexts), the callback re-creates. The `disabled={!query.trim() || isSearching || isTyping}` on the Send button causes a re-render evaluation on every keystroke. The `AnimatePresence` wrapping chat/history view adds mounting overhead.
-
-### 4. No Auto-Scroll to Bottom on Chat Open
-The auto-scroll effect fires on `[messages, isTyping, isOpen]` with `behavior: 'smooth'` — this creates a visible animation delay. When opening an existing conversation, the user should instantly see the latest message without a scroll animation.
+**Your real backend (`vplgtcguxujxwrgguxqq`) is the ONLY backend I will target.** Lovable Cloud (`qegyisokrxdsszzswsqk`) will not be touched unless you explicitly say so. Every table, edge function call, and connection in the codebase will point to your real project. The AI system will not be modified.
 
 ---
 
-## Plan
+## Current State
 
-### 1. Fix AI Reply — Replace `supabase.functions.invoke` with Direct Fetch + Real Abort
-**File**: `src/hooks/ai/useSentientChat.ts`
+The `client.ts` file already hardcodes your production project ID as the fallback, which means **when deployed to Vercel, everything already connects to your real backend**. In the Lovable preview, the `.env` is auto-managed and points to Cloud -- this cannot be changed (Lovable limitation), but the code is identical.
 
-- Replace `supabase.functions.invoke` with a direct `fetch()` call (same pattern as `callAiOrchestrator` in `useConciergeAI`)
-- Pass the `AbortController.signal` to the fetch so the 25s timeout actually cancels the request
-- If JSON response has no text content, throw an error to trigger retry/fallback
-- Strip `<think>` tokens from the response (currently not done in this hook)
+There are **no references** to the Lovable Cloud project ID (`qegyisokrxdsszzswsqk`) anywhere in the source code. The isolation is already clean.
 
-### 2. Fix Chat History Scrolling
-**File**: `src/components/AISearchDialog.tsx`
+## Build Errors to Fix
 
-- The history view (`view === 'history'`) container has `overflow-y-auto` but is inside `AnimatePresence` + `motion.div` which may interfere. Add explicit `min-h-0` to the motion container to ensure flex overflow works correctly.
-- The main chat message area also needs `min-h-0` on its flex parent to allow proper overflow scrolling.
+There are 7 missing modules causing build failures. None are AI-related.
 
-### 3. Speed Up Input Responsiveness
-**File**: `src/components/AISearchDialog.tsx`
+### 1. Create missing filter components (3 files)
+- `src/components/filters/PropertyClientFilters.tsx`
+- `src/components/filters/MotoClientFilters.tsx`
+- `src/components/filters/BicycleClientFilters.tsx`
 
-- Move the `disabled` check for the Send button into a derived variable so it doesn't re-evaluate inside JSX
-- Remove `AnimatePresence mode="wait"` — this delays view transitions. Use simple conditional rendering with CSS opacity transitions instead
-- Remove individual `motion.div` wrappers on each message bubble — these add mount animations for every message. Use CSS `@keyframes` for the latest message only.
+These are imported by `AdvancedFiltersDialog.tsx`. I'll create them as simple filter form components matching the existing `WorkerClientFilters` pattern, with typed `onApply` callbacks (no `any` parameters).
 
-### 4. Instant Scroll to Bottom on Open + New Messages
-**File**: `src/components/AISearchDialog.tsx`
+### 2. Create missing page stubs (4 files)
+- `src/pages/ClientProfileNew.tsx` — referenced by `PredictiveBundleLoader.tsx` for prefetching. Will re-export or redirect to existing `ClientProfile`.
+- `src/pages/OwnerPropertyClientDiscovery.tsx` — referenced by `routePrefetcher.ts`. Will re-export `OwnerDiscovery` with property category preset.
+- `src/pages/OwnerMotoClientDiscovery.tsx` — same pattern, moto category.
+- `src/pages/OwnerBicycleClientDiscovery.tsx` — same pattern, bicycle category.
 
-- On dialog open: use `behavior: 'instant'` (not 'smooth') for the initial scroll — user should see the latest message immediately
-- On new message arrival: keep `behavior: 'smooth'` for the live-typing feel
-- Add a separate `useEffect` for initial open vs ongoing messages:
-  ```
-  // Instant on open
-  useEffect(() => {
-    if (isOpen) messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
-  }, [isOpen]);
-  
-  // Smooth on new messages
-  useEffect(() => {
-    if (isOpen && messages.length > 0) 
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length]);
-  ```
+### 3. Create missing hook
+- `src/hooks/useTokens.ts` — imported by `OwnerDiscovery.tsx`. Will create a simple hook that reads from `message_activations` table (which already exists in your DB).
 
-### 5. Focus Input Immediately
-**File**: `src/components/AISearchDialog.tsx`
+### 4. Create missing page
+- `src/pages/OwnerFilters.tsx` — referenced by `routePrefetcher.ts`. Will wrap `NewOwnerFilters` component which already exists.
 
-- Reduce the `setTimeout` for `inputRef.current?.focus()` from 300ms to 50ms — the dialog animation completes quickly
-- Add `autoFocus` to the textarea as a backup
+### What I will NOT touch
+- The AI system (orchestrator, concierge, sentient chat) -- per your instruction
+- `src/integrations/supabase/client.ts` -- auto-generated, already correct
+- `.env` -- auto-managed
+- Any Lovable Cloud backend operations
 
----
+## Technical Details
 
-## Files Changed
-
-| File | Change |
-|------|--------|
-| `src/hooks/ai/useSentientChat.ts` | Direct fetch with real AbortController, `<think>` stripping, empty-response detection |
-| `src/components/AISearchDialog.tsx` | Fix scroll containers, instant scroll-to-bottom on open, faster input focus, remove animation overhead |
+All new components will:
+- Import from `@/integrations/supabase/client` (the existing client that already falls back to your real project)
+- Follow existing TypeScript patterns, no `any` types on the filter callbacks
+- Use existing UI primitives (Slider, Select, etc.) from the project's component library
 
