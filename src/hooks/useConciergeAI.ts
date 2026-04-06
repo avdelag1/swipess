@@ -161,25 +161,18 @@ export function useConciergeAI() {
       }));
 
       // 4. Invoke Edge Function with Streaming
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') || 'https://vplgtcguxujxwrgguxqq.supabase.co';
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') || 'https://qegyisokrxdsszzswsqk.supabase.co';
       const functionUrl = `${supabaseUrl}/functions/v1/ai-orchestrator`;
-      const session = (await supabase.auth.getSession()).data.session;
       
-      // 🛡️ Robust environment detection - try all common Supabase key names
-      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 
-                     import.meta.env.VITE_SUPABASE_ANON_KEY || 
-                     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
+      // Use the project-specific anon key for qegyisokrxdsszzswsqk if calling that project
+      const targetAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
       
-      if (!anonKey) {
-        throw new Error("Supabase authentication key is missing. Re-initializing...");
-      }
-
       const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || anonKey}`,
-          'apikey': anonKey,
+          'Authorization': `Bearer ${targetAnonKey}`,
+          'apikey': targetAnonKey,
           'X-Client-Info': 'swipess-pwa-concierge'
         },
         body: JSON.stringify({
@@ -239,8 +232,8 @@ export function useConciergeAI() {
             const lines = rawChunk.split('\n');
             for (const line of lines) {
               const trimmedLine = line.trim();
-              if (trimmedLine.startsWith('data: ')) {
-                const dataStr = trimmedLine.slice(6).trim();
+              if (trimmedLine.startsWith('data:')) {
+                const dataStr = trimmedLine.slice(trimmedLine.startsWith('data: ') ? 6 : 5).trim();
                 if (dataStr === '[DONE]') continue;
                 
                 try {
