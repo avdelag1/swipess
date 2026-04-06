@@ -131,6 +131,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
+  const { data: userRole } = useUserRole(user?.id);
   const queryClient = useQueryClient();
 
   // PERF: Use selective subscriptions to prevent re-renders on unrelated store changes
