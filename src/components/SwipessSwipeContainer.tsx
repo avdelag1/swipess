@@ -954,21 +954,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // The 'Premiums Dashboard' (SwipeAllDashboard) is now the interactive Slide 0
   // of the vertical snap-scrolling reel.
   return (
-    <div className="relative w-full h-full overflow-hidden flex flex-col pt-1 bg-background">
+    <div className="relative w-full h-full overflow-hidden flex flex-col bg-background">
       {/* Static ambient background — GPU-friendly, no infinite animations */}
       <div className="absolute inset-0 pointer-events-none -z-10 bg-[#0a0a0b]" />
-      {/* Top Controls Overlay: CSS transition instead of AnimatePresence for speed */}
-      <div
-        className="absolute top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none transition-all duration-200"
-        style={{
-          opacity: (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? 1 : 0,
-          transform: (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? 'translateY(0)' : 'translateY(-16px)',
-          pointerEvents: 'none',
-        }}
-      >
-        <div className="w-full pt-8 pb-8 px-6 bg-gradient-to-b from-black/60 to-transparent">
-          <div className="w-full flex justify-between items-center" style={{ pointerEvents: 'auto' }}>
-            {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
+
+      {/* Top Controls — IN FLOW, not absolute */}
+      {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
+        <div className="relative z-50 w-full flex flex-col items-center shrink-0">
+          <div className="w-full pt-3 pb-2 px-4">
+            <div className="w-full flex justify-between items-center">
               <DistanceSlider
                 radiusKm={radiusKm}
                 onRadiusChange={setRadiusKm}
@@ -976,28 +970,25 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 detecting={locationDetecting}
                 detected={locationDetected}
               />
-            )}
+            </div>
           </div>
-        </div>
-      </div>
-
-      <div className={cn(
-        "absolute inset-0 flex flex-col items-center justify-center p-3 z-10 pointer-events-none",
-        (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? "pb-24 lg:pb-28" : ""
-      )}>
-        {/* 🚀 DASHBOARD DESCRIPTION: Shows user exactly what they are searching for (Tinder-style) */}
-        {storeActiveCategory && (
-          <div 
-            className="absolute top-[calc(var(--top-bar-height)+24px)] left-0 right-0 z-50 flex justify-center pointer-events-none px-6 animate-fade-in"
-          >
-            <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-2xl shadow-2xl flex items-center gap-3">
+          {/* Searching badge */}
+          <div className="pb-2 flex justify-center">
+            <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-4 py-1.5 rounded-2xl shadow-2xl flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-brand-accent-2 animate-pulse" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">
                 Searching <span className="text-brand-accent-2">{storeActiveCategory.replace('_', ' ')}</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
               </span>
             </div>
           </div>
-        )}
+        </div>
+      )}
+
+      {/* Card area — flex-1 fills remaining space */}
+      <div className={cn(
+        "flex-1 relative flex flex-col items-center justify-center p-3 z-10 pointer-events-none min-h-0",
+        (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? "pb-24 lg:pb-28" : ""
+      )}>
 
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="popLayout" initial={false}>
