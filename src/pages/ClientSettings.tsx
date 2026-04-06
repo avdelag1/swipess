@@ -42,7 +42,7 @@ type SettingsGroup = {
 
 // settingsGroups is now built inside the component to support translations
 
-const ClientSettingsNew = () => {
+const ClientSettings = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -293,4 +293,4 @@ const ClientSettingsNew = () => {
   );
 };
 
-export default ClientSettingsNew;
+export default ClientSettings;

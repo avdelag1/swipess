@@ -22,7 +22,7 @@ import { haptics } from "@/utils/microPolish";
 import { LanguageToggle } from "@/components/LanguageToggle";
 
 
-const ClientProfileNew = () => {
+const ClientProfile = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
@@ -52,20 +52,18 @@ const ClientProfileNew = () => {
 
   const completionPercent = calculateCompletion();
 
-  // SPEED OF LIGHT: Skip skeleton if data is already in cache
   if (isLoading && !profile) {
     return <ProfileSkeleton />;
   }
 
   return (
     <div className="w-full">
-      {/* Spacer for immersive header - perfectly matches TopBar height */}
       <div className="h-[calc(56px+var(--safe-top))]" />
       <div className="w-full max-w-lg mx-auto p-4 pt-2 pb-32 space-y-6 bg-background relative overflow-y-auto">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="w-[84px] h-[84px] rounded-full p-[2.5px]" style={{ background: 'linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-accent-2))' }}>
+            <div className="w-[84px] h-[84px] rounded-full p-[2.5px] bg-gradient-to-br from-primary to-orange-500">
               <div
                 className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
                 onClick={() => { haptics.tap(); if (profile?.profile_images?.length) { handlePhotoClick(0); } else { setShowEditDialog(true); } }}
@@ -105,22 +103,19 @@ const ClientProfileNew = () => {
               key={i}
               className={cn(
                 "rounded-xl p-4 text-center border",
-                isLight
-                  ? "bg-card border-border/30 shadow-sm"
-                  : "bg-white/[0.03] border-white/[0.06]"
+                isLight ? "bg-card border-border/30 shadow-sm" : "bg-white/[0.03] border-white/[0.06]"
               )}
             >
               <stat.icon className={cn("w-4 h-4 mx-auto mb-2", stat.color)} />
-              <div
-                className="text-lg font-black leading-none mb-1"
-                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
-              >{stat.value}</div>
+              <div className="text-lg font-black leading-none mb-1 bg-gradient-to-br from-pink-500 to-orange-500 bg-clip-text text-transparent">
+                {stat.value}
+              </div>
               <div className="text-[10px] font-medium text-muted-foreground">{stat.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Edit Profile Button */}
+        {/* Action Buttons */}
         <div>
           <Button
             variant="gradient"
@@ -133,50 +128,42 @@ const ClientProfileNew = () => {
             Edit Profile
           </Button>
 
-          {/* Promote/Advertise Buttons */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 mt-3">
             <Button
               variant="outline"
               size="lg"
               elastic
               onClick={() => { haptics.success(); navigate('/client/advertise'); }}
-              className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-primary/20 hover:border-primary/40 bg-white/5 shadow-sm transition-all"
-              style={{
-                background: 'linear-gradient(135deg, rgba(228,0,124,0.08) 0%, rgba(249,115,22,0.08) 100%)'
-              }}
+              className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-primary/20 hover:border-primary/40 bg-gradient-to-br from-primary/10 to-orange-500/10 shadow-sm transition-all"
             >
               <Megaphone className="w-5 h-5 text-primary mr-2 shrink-0" />
               <span className="bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent font-black uppercase tracking-tight">
                 Promote Your Event
               </span>
             </Button>
-
           </div>
         </div>
 
         {/* Profile Completion */}
         {profile && completionPercent < 100 && (
-          <div>
-            <div
-              className="rounded-2xl p-5 cursor-pointer border transition-all hover:bg-muted/50"
-              style={{
-                background: isLight ? 'rgba(228,0,124,0.03)' : 'rgba(228,0,124,0.05)',
-                borderColor: 'rgba(228,0,124,0.15)',
-              }}
-              onClick={() => { haptics.select(); setShowEditDialog(true); }}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium text-foreground">Profile completion</span>
-                </div>
-                <span className="text-sm font-semibold text-primary">{completionPercent}%</span>
+          <div
+            className={cn(
+              "rounded-2xl p-5 cursor-pointer border transition-all hover:bg-muted/50",
+              isLight ? "bg-primary/[0.03] border-primary/15" : "bg-primary/[0.05] border-primary/15"
+            )}
+            onClick={() => { haptics.select(); setShowEditDialog(true); }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-foreground">Profile completion</span>
               </div>
-              <Progress value={completionPercent} className="h-2 rounded-full" />
-              <p className="text-xs font-normal text-muted-foreground mt-3 leading-relaxed">
-                Complete profiles get 3x more interest. Tap to finish.
-              </p>
+              <span className="text-sm font-semibold text-primary">{completionPercent}%</span>
             </div>
+            <Progress value={completionPercent} className="h-2 rounded-full" />
+            <p className="text-xs font-normal text-muted-foreground mt-3 leading-relaxed">
+              Complete profiles get 3x more interest. Tap to finish.
+            </p>
           </div>
         )}
 
@@ -187,9 +174,7 @@ const ClientProfileNew = () => {
             onClick={() => { haptics.tap(); navigate('/client/liked-properties'); }}
             className={cn(
               "rounded-2xl p-5 flex flex-col gap-3 text-left transition-all",
-              isLight
-                ? "bg-card border border-border/40 hover:border-border shadow-sm"
-                : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
+              isLight ? "bg-card border border-border/40 hover:border-border shadow-sm" : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
             )}
           >
             <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10">
@@ -206,9 +191,7 @@ const ClientProfileNew = () => {
             onClick={() => { haptics.tap(); navigate('/client/who-liked-you'); }}
             className={cn(
               "rounded-2xl p-5 flex flex-col gap-3 text-left transition-all",
-              isLight
-                ? "bg-card border border-border/40 hover:border-border shadow-sm"
-                : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
+              isLight ? "bg-card border border-border/40 hover:border-border shadow-sm" : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
             )}
           >
             <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10">
@@ -245,9 +228,7 @@ const ClientProfileNew = () => {
                   key={interest}
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all",
-                    isLight
-                      ? "bg-muted/60 text-foreground/80 border border-border/30"
-                      : "bg-white/[0.06] text-foreground/80 border border-white/[0.08]"
+                    isLight ? "bg-muted/60 text-foreground/80 border border-border/30" : "bg-white/[0.06] text-foreground/80 border border-white/[0.08]"
                   )}
                 >
                   {interest}
@@ -257,31 +238,20 @@ const ClientProfileNew = () => {
           </div>
         )}
 
-        {/* Recent Activity */}
         <div>
-          <h3 className="text-xs font-medium text-muted-foreground mb-3 px-1">
-            Recent Activity
-          </h3>
+          <h3 className="text-xs font-medium text-muted-foreground mb-3 px-1">Recent Activity</h3>
           <ActivityFeed />
         </div>
 
-        {/* Share Profile */}
         <div>
-          <SharedProfileSection
-            profileId={user?.id}
-            profileName={profile?.name || 'Your Profile'}
-            isClient={true}
-          />
+          <SharedProfileSection profileId={user?.id} profileName={profile?.name || 'Your Profile'} isClient={true} />
         </div>
 
-        {/* Language Selection */}
         <div>
           <LanguageToggle />
         </div>
 
-        {/* Action Buttons - unified compact stack */}
         <div className="space-y-2">
-          {/* Premium Package */}
           <button
             onClick={() => { haptics.success(); navigate('/subscription-packages'); }}
             className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl mexican-pink-premium relative overflow-hidden active:scale-[0.97] transition-transform shadow-lg font-bold text-sm"
@@ -291,23 +261,17 @@ const ClientProfileNew = () => {
             <span className="relative z-10">Premium Package</span>
           </button>
 
-
-
-          {/* Settings */}
           <button
             onClick={() => { haptics.tap(); navigate('/client/settings'); }}
             className={cn(
               "w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border",
-              isLight
-                ? "bg-card border-border/40 text-foreground shadow-sm"
-                : "bg-white/[0.04] border-white/[0.06] text-foreground"
+              isLight ? "bg-card border-border/40 text-foreground shadow-sm" : "bg-white/[0.04] border-white/[0.06] text-foreground"
             )}
           >
             <Settings className="w-5 h-5 opacity-70" />
             Settings
           </button>
 
-          {/* Sign Out */}
           <button
             onClick={() => { haptics.warning(); signOut(); }}
             className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border border-red-500/20 bg-red-500/5 text-red-500"
@@ -332,4 +296,4 @@ const ClientProfileNew = () => {
   );
 };
 
-export default ClientProfileNew;
+export default ClientProfile;

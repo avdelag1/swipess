@@ -30,8 +30,8 @@ const FAQOwnerPage = lazy(() => import("./pages/FAQOwnerPage"));
 
 // CLIENT PAGES
 const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
-const ClientProfile = lazy(() => import("./pages/ClientProfileNew"));
-const ClientSettings = lazy(() => import("./pages/ClientSettingsNew"));
+const ClientProfile = lazy(() => import("./pages/ClientProfile"));
+const ClientSettings = lazy(() => import("./pages/ClientSettings"));
 const ClientLikedProperties = lazy(() => import("./pages/ClientLikedProperties"));
 const ClientWhoLikedYou = lazy(() => import("./pages/ClientWhoLikedYou"));
 const ClientSavedSearches = lazy(() => import("./pages/ClientSavedSearches"));
@@ -46,25 +46,21 @@ const AdvertisePage = lazy(() => import("./pages/AdvertisePage"));
 
 // OWNER PAGES
 const EnhancedOwnerDashboard = lazy(() => import("./components/EnhancedOwnerDashboard"));
-const OwnerProfile = lazy(() => import("./pages/OwnerProfileNew"));
-const OwnerSettings = lazy(() => import("./pages/OwnerSettingsNew"));
+const OwnerProfile = lazy(() => import("./pages/OwnerProfile"));
+const OwnerSettings = lazy(() => import("./pages/OwnerSettings"));
 const OwnerProperties = lazy(() => import("./pages/OwnerProperties"));
 const OwnerNewListing = lazy(() => import("./pages/OwnerNewListing"));
 const ConversationalListingCreator = lazy(() => import("./components/ConversationalListingCreator").then(m => ({ default: m.ConversationalListingCreator })));
 const OwnerLikedClients = lazy(() => import("./pages/OwnerLikedClients"));
 const OwnerInterestedClients = lazy(() => import("./pages/OwnerInterestedClients"));
-const OwnerPropertyClientDiscovery = lazy(() => import("./pages/OwnerPropertyClientDiscovery"));
-const OwnerMotoClientDiscovery = lazy(() => import("./pages/OwnerMotoClientDiscovery"));
-const OwnerBicycleClientDiscovery = lazy(() => import("./pages/OwnerBicycleClientDiscovery"));
+const OwnerDiscovery = lazy(() => import("./pages/OwnerDiscovery"));
 const OwnerViewClientProfile = lazy(() => import("./pages/OwnerViewClientProfile"));
-const OwnerFiltersExplore = lazy(() => import("./pages/OwnerFiltersExplore"));
 const OwnerLawyerServices = lazy(() => import("./pages/OwnerLawyerServices"));
 const OwnerSecurity = lazy(() => import("./pages/OwnerSecurity"));
 const OwnerSavedSearches = lazy(() => import("./pages/OwnerSavedSearches"));
 const OwnerContracts = lazy(() => import("./pages/OwnerContracts"));
 const OwnerProfileCamera = lazy(() => import("./pages/OwnerProfileCamera"));
 const OwnerListingCamera = lazy(() => import("./pages/OwnerListingCamera"));
-const OwnerFilters = lazy(() => import("./pages/OwnerFilters"));
 
 // SHARED PAGES
 const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
@@ -160,18 +156,18 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/owner/listings/new-ai" element={<ConversationalListingCreator />} />
               <Route path="/owner/liked-clients" element={<OwnerLikedClients />} />
               <Route path="/owner/interested-clients" element={<OwnerInterestedClients />} />
-              <Route path="/owner/clients/property" element={<OwnerPropertyClientDiscovery />} />
-              <Route path="/owner/clients/moto" element={<OwnerMotoClientDiscovery />} />
-              <Route path="/owner/clients/bicycle" element={<OwnerBicycleClientDiscovery />} />
+              <Route path="/owner/discovery" element={<OwnerDiscovery />} />
+              <Route path="/owner/filters" element={<OwnerDiscovery />} />
+              <Route path="/owner/clients/property" element={<OwnerDiscovery />} />
+              <Route path="/owner/clients/moto" element={<OwnerDiscovery />} />
+              <Route path="/owner/clients/bicycle" element={<OwnerDiscovery />} />
               <Route path="/owner/view-client/:clientId" element={<OwnerViewClientProfile />} />
-              <Route path="/owner/filters-explore" element={<OwnerFiltersExplore />} />
               <Route path="/owner/saved-searches" element={<OwnerSavedSearches />} />
               <Route path="/owner/security" element={<OwnerSecurity />} />
               <Route path="/owner/contracts" element={<OwnerContracts />} />
               <Route path="/owner/legal-services" element={<OwnerLawyerServices />} />
               <Route path="/owner/camera" element={<OwnerProfileCamera />} />
               <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
-              <Route path="/owner/filters" element={<OwnerFilters />} />
 
               {/* Shared routes */}
               <Route path="/messages" element={<MessagingDashboard />} />

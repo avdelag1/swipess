@@ -41,7 +41,7 @@ type SettingsGroup = {
 
 // settingsGroups is now built inside the component to support translations
 
-const OwnerSettingsNew = () => {
+const OwnerSettings = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -279,4 +279,4 @@ const OwnerSettingsNew = () => {
   );
 };
 
-export default OwnerSettingsNew;
+export default OwnerSettings;

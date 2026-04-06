@@ -45,8 +45,8 @@ const optimizedTimeout = (function() {
 const routeImports: Record<string, RouteImport> = {
   // Client routes
   '/client/dashboard': () => import('@/pages/ClientDashboard'),
-  '/client/profile': () => import('@/pages/ClientProfileNew'),
-  '/client/settings': () => import('@/pages/ClientSettingsNew'),
+  '/client/profile': () => import('@/pages/ClientProfile'),
+  '/client/settings': () => import('@/pages/ClientSettings'),
   '/client/liked-properties': () => import('@/pages/ClientLikedProperties'),
   '/client/contracts': () => import('@/pages/ClientContracts'),
   '/client/services': () => import('@/pages/ClientWorkerDiscovery'),
@@ -54,8 +54,8 @@ const routeImports: Record<string, RouteImport> = {
   '/client/security': () => import('@/pages/ClientSecurity'),
   // Owner routes
   '/owner/dashboard': () => import('@/components/EnhancedOwnerDashboard'),
-  '/owner/profile': () => import('@/pages/OwnerProfileNew'),
-  '/owner/settings': () => import('@/pages/OwnerSettingsNew'),
+  '/owner/profile': () => import('@/pages/OwnerProfile'),
+  '/owner/settings': () => import('@/pages/OwnerSettings'),
   '/owner/properties': () => import('@/pages/OwnerProperties'),
   '/owner/listings/new': () => import('@/pages/OwnerNewListing'),
   '/owner/liked-clients': () => import('@/pages/OwnerLikedClients'),

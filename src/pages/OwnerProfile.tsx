@@ -19,7 +19,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { cn } from "@/lib/utils";
 
 
-const OwnerProfileNew = () => {
+const OwnerProfile = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const { user, signOut } = useAuth();
   const { data: stats, isLoading: statsLoading } = useOwnerStats();
@@ -43,7 +43,7 @@ const OwnerProfileNew = () => {
         {/* Profile Header */}
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="w-[84px] h-[84px] rounded-full p-[2.5px]" style={{ background: 'linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-accent-2))' }}>
+            <div className="w-[84px] h-[84px] rounded-full p-[2.5px] bg-gradient-to-br from-primary to-orange-500">
               <div
                 className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
                 onClick={() => { haptics.tap(); setShowEditDialog(true); }}
@@ -89,10 +89,9 @@ const OwnerProfileNew = () => {
               )}
             >
               <stat.icon className={cn("w-4 h-4 mx-auto mb-2", stat.color)} />
-              <div
-                className="text-lg font-black leading-none mb-1"
-                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
-              >{stat.value}</div>
+              <div className="text-lg font-black leading-none mb-1 bg-gradient-to-br from-pink-500 to-orange-500 bg-clip-text text-transparent">
+                {stat.value}
+              </div>
               <div className="text-[10px] font-medium text-muted-foreground">{stat.label}</div>
             </div>
           ))}
@@ -105,10 +104,7 @@ const OwnerProfileNew = () => {
             size="lg"
             elastic
             onClick={() => { haptics.success(); navigate('/client/advertise'); }}
-            className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-primary/20 hover:border-primary/40 bg-white/5 shadow-sm transition-all"
-            style={{
-              background: 'linear-gradient(135deg, rgba(228,0,124,0.08) 0%, rgba(249,115,22,0.08) 100%)'
-            }}
+            className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-primary/20 hover:border-primary/40 bg-gradient-to-br from-primary/10 to-orange-500/10 shadow-sm transition-all"
           >
             <Megaphone className="w-5 h-5 text-primary mr-2 shrink-0" />
             <span className="bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent font-black uppercase tracking-tight">
@@ -219,4 +215,4 @@ const OwnerProfileNew = () => {
   );
 };
 
-export default OwnerProfileNew;
+export default OwnerProfile;
