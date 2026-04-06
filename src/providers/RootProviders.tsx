@@ -84,11 +84,17 @@ function AppLifecycleManager({ children }: { children: React.ReactNode }) {
 }
 
 function ConnectionGuard({ children }: { children: React.ReactNode }) {
-  const { status, retryCount, retry } = useConnectionHealth();
-  if (status === 'disconnected') {
-    return <ConnectionErrorScreen status={status} retryCount={retryCount} onRetry={retry} />;
+  try {
+    const { status, retryCount, retry } = useConnectionHealth();
+    if (status === 'disconnected') {
+      return <ConnectionErrorScreen status={status} retryCount={retryCount} onRetry={retry} />;
+    }
+    return <>{children}</>;
+  } catch (err) {
+    // If the hook crashes, don't block the entire app — just render children
+    console.warn('[ConnectionGuard] Health check failed, rendering app anyway:', err);
+    return <>{children}</>;
   }
-  return <>{children}</>;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

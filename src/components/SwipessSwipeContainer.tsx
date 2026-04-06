@@ -961,7 +961,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       {/* Top Controls — IN FLOW, not absolute */}
       {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
         <div className="relative z-50 w-full flex flex-col items-center shrink-0">
-          <div className="w-full pt-3 pb-2 px-4">
+          <div className="w-full pt-1 pb-1 px-4">
             <div className="w-full flex justify-between items-center">
               <DistanceSlider
                 radiusKm={radiusKm}
@@ -972,11 +972,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               />
             </div>
           </div>
-          {/* Searching badge */}
-          <div className="pb-2 flex justify-center">
-            <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-4 py-1.5 rounded-2xl shadow-2xl flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-brand-accent-2 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">
+          {/* Searching badge — compact */}
+          <div className="pb-1 flex justify-center">
+            <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-3 py-1 rounded-2xl shadow-2xl flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2 animate-pulse" />
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/90">
                 Searching <span className="text-brand-accent-2">{storeActiveCategory.replace('_', ' ')}</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
               </span>
             </div>
@@ -1084,11 +1084,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
       {/* Action Buttons — only shown when a specific category is selected (not on the quick-filter deck) */}
       {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
-        <div className="pb-8 pt-2">
+        <div className="pb-[calc(12px+env(safe-area-inset-bottom))] pt-1">
           <SwipeActionButtonBar
             onLike={handleButtonLike}
             onDislike={handleButtonDislike}
             onUndo={undoLastSwipe}
+            onShare={handleShare}
+            onMessage={handleMessage}
             canUndo={canUndo}
           />
         </div>
