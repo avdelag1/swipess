@@ -1,35 +1,69 @@
 
 
-# Fix ModeSwitcher Icons + Legal Services Title
+# Fix Radio Page + Add Tavily Web Search + Fix Stale Cache
 
-## Issues Found
+## Problem Summary
 
-1. **ModeSwitcher icon**: `Building2` (building icon) is confusing for "Owner" mode. User wants two person-shaped icons — one for client, one for owner. Icons also not perfectly centered due to `gap-3` being too wide for the pill width.
+1. **Radio page shows blank** — The `/radio` route uses plain `lazy()` instead of `lazyWithRetry()`, so if the chunk fails to load (common after deploys), users see nothing. The route is inside `PersistentDashboardLayout` which has its own Suspense, but chunk failures aren't recovered.
 
-2. **Legal Services page title**: Says "What's Your Issue?" — sounds aggressive/confusing. Should be softer like "How Can We Help?" or "Select Your Legal Need".
+2. **Tavily API key not integrated** — The key `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` is not stored as a secret and the `ai-orchestrator` edge function has no Tavily code.
 
-3. **`/servics` 404**: This was a user typo in the URL bar — no broken link in the app. The correct route `/client/services` exists and works.
+3. **Old version showing in other browsers** — The PWA service worker + Cache API are caching old assets. Need to ensure the auto-update mechanism and cache-busting are working aggressively on the published site.
+
+---
 
 ## Changes
 
-### 1. ModeSwitcher — Replace Building2 with UserCheck icon
-**File:** `src/components/ModeSwitcher.tsx`
+### 1. Harden Radio Route (src/App.tsx)
 
-- Replace `Building2` import with `UserCheck` (or `UserCog`) — a person icon with a checkmark, clearly distinguishable from the plain `User` icon but still person-shaped
-- Reduce `gap-3` to `gap-2` for tighter centering
-- Adjust the sliding highlight positioning to match the tighter gap
-- Keep everything else (colors, pill shape, transitions) the same
+- Replace `lazy(() => import("./pages/DJTurntableRadio"))` with `lazyWithRetry(() => import("./pages/DJTurntableRadio"))`
+- Add `lazyWithRetry` import at top
+- This ensures chunk load failures trigger a page reload instead of a blank screen
 
-### 2. Legal Services title cleanup
-**File:** `src/pages/ClientLawyerServices.tsx`
+### 2. Add Tavily Secret
 
-- Change "What's Your Issue?" → "How Can We Help?"
-- Change "Select the category that best describes your problem" → "Select the category that best describes your situation"
+- Store the Tavily API key (`tvly-dev-...`) as a backend secret named `TAVILY_API_KEY`
+
+### 3. Add Tavily Web Search to AI Orchestrator (supabase/functions/ai-orchestrator/index.ts)
+
+Add a `searchWeb()` helper function:
+- Calls `https://api.tavily.com/search` with the user's query
+- Returns formatted results (title, URL, snippet)
+- Only triggered when `concierge_knowledge` returns fewer than 2 results, giving curated data priority
+- Results injected into system prompt as `--- LIVE WEB RESULTS ---` block after the knowledge block
+
+Update `buildSystemPrompt()` to accept an optional web results block.
+
+Update the main handler flow:
+- Fetch knowledge first
+- If knowledge results are sparse, also call Tavily
+- Pass both blocks to `buildSystemPrompt()`
+
+### 4. Fix Stale Version in Other Browsers
+
+- Add aggressive cache-control headers to the service worker registration
+- Add a version meta tag bump mechanism — update the `<meta name="app-version">` in `index.html` with current build timestamp
+- Ensure the `useForceUpdateOnVersionChange` hook compares versions and forces reload when mismatch detected
+- The existing `clearAllCaches` + `forceReload` utilities already handle this — the issue is the published site needs a fresh deploy after code changes. Will verify the publish flow is triggered.
+
+### 5. Deploy Edge Function
+
+- Redeploy `ai-orchestrator` after adding Tavily integration
+
+---
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/components/ModeSwitcher.tsx` | Replace `Building2` with `UserCheck`, tighten icon gap for better centering |
-| `src/pages/ClientLawyerServices.tsx` | Soften title text |
+| `src/App.tsx` | Switch radio import to `lazyWithRetry` |
+| `supabase/functions/ai-orchestrator/index.ts` | Add Tavily web search helper, integrate into prompt pipeline |
+| Secret: `TAVILY_API_KEY` | Store the provided API key |
+| `index.html` | Bump app-version meta tag to force cache refresh |
+
+## About the "old version" issue
+
+When you publish from Lovable, frontend changes only go live after clicking "Update" in the publish dialog. Backend changes (edge functions, database) deploy immediately. If you're seeing an old version in another browser, it means either:
+- The latest frontend hasn't been published yet (click Publish → Update)
+- The other browser has a cached service worker — the cache-busting improvements will handle this going forward
 
