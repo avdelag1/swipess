@@ -343,10 +343,23 @@ export function useConciergeAI() {
 
       const reader = response.body.getReader();
       let firstTokenReceived = false;
+      let errorDetected = false;
 
       await parseSSEStream(
         reader,
         (token) => {
+          // Detect provider-side error payloads masquerading as SSE content
+          if (!firstTokenReceived && (
+            token.includes('status_msg') ||
+            token.includes('not support model') ||
+            token.includes('unsupported')
+          )) {
+            errorDetected = true;
+            logger.warn('[ConciergeAI] Provider error detected in stream:', token);
+            return;
+          }
+          if (errorDetected) return;
+
           if (!firstTokenReceived) {
             firstTokenReceived = true;
             setIsThinking(false);
@@ -358,6 +371,12 @@ export function useConciergeAI() {
           );
         },
         () => {
+          if (errorDetected || !fullText.trim()) {
+            // Remove the empty assistant bubble
+            setMessages((prev) => prev.filter((m) => m.id !== assistantId));
+            return;
+          }
+
           const { cleanText, action } = extractAction(stripThinkingTokens(fullText));
           setMessages((prev) =>
             prev.map((m) =>
@@ -365,13 +384,16 @@ export function useConciergeAI() {
             )
           );
 
-          if (user && convId) {
+          if (user && convId && cleanText.trim()) {
             persistAssistantMessage(convId, cleanText, action);
           }
 
           if (action) handleAiAction(action);
         }
       );
+
+      // If error detected or no content, signal failure so JSON fallback runs
+      if (errorDetected || !fullText.trim()) return false;
 
       return true;
     },
