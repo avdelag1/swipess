@@ -176,7 +176,7 @@ export function useConciergeAI() {
         },
         body: JSON.stringify({
           task: 'chat',
-          stream: true,
+          stream: false,
           data: {
             query: userMessage,
             userName,
