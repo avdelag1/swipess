@@ -70,7 +70,7 @@ Guidelines:
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "abab5.5-chat",
+            model: "MiniMax-M1-80k",
             messages: messagesPayload,
             temperature: 0.7,
             max_tokens: 1024,
