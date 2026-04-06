@@ -1,55 +1,72 @@
 
 
-# Fix AI Chat — Strip MiniMax `<think>` Tags + Ensure Published Site Works
+# Fix Liked Pages Scrolling + Add Filters + Fix Dashboard Layout Compression
 
-## What Happened
+## Problems Identified
 
-After adding the Tavily API key, MiniMax M2.7 started returning `<think>...</think>` reasoning blocks in its streaming output. The browser renders these as invisible HTML elements, making AI responses appear as **empty bubbles**. The actual answer text comes after `</think>`, but during streaming it looks blank until the thinking phase finishes — and even then, ReactMarkdown can swallow the tags.
+1. **Liked pages steal touch gestures**: Both client and owner Liked pages use `PremiumSortableGrid` with long-press drag-and-drop reordering. This interferes with normal scrolling — the gesture gating (400ms hold) still creates friction and confusion on mobile.
 
-The backend is fully functional (confirmed via direct API test — returns full responses). This is purely a **frontend rendering issue**.
+2. **No useful filters on Liked pages**: The existing category tabs are basic. There's no price range filter, no text search by description/keywords (e.g. searching "cleaning lady"), and no pipeline-style filtering to narrow down saved items.
 
-## Changes
+3. **Dashboard swipe area is compressed**: The `DistanceSlider` + "SEARCHING PROPERTY IN 50KM" label + action buttons are all stacked at the top with `absolute` positioning and overlapping z-indices, making the swipe card area feel shrunk and cramped (visible in the screenshot).
 
-### 1. Strip `<think>` blocks from AI responses (src/hooks/useConciergeAI.ts)
+---
 
-Add a `stripThinkingTokens` helper that removes `<think>...</think>` blocks from streamed content in real-time:
+## Plan
 
-```typescript
-function stripThinkingTokens(text: string): string {
-  // Remove completed <think>...</think> blocks
-  let cleaned = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-  // Remove incomplete <think>... (still streaming)
-  cleaned = cleaned.replace(/<think>[\s\S]*$/g, '').trim();
-  return cleaned;
-}
-```
+### 1. Remove Drag-and-Drop from Both Liked Pages
 
-Apply this in three places:
-- **Streaming token callback**: Clean the accumulated `fullText` before updating the message state
-- **Stream completion callback**: Clean `fullText` before passing to `extractAction`
-- **JSON fallback**: Clean `rawText` before processing
+**Files**: `src/pages/ClientLikedProperties.tsx`, `src/components/LikedClients.tsx`
 
-### 2. Strip `<think>` on the edge function side too (supabase/functions/ai-orchestrator/index.ts)
+- Replace `PremiumSortableGrid` with a simple `motion.div` grid (no drag, no reorder)
+- Remove `usePersistentReorder` hook usage
+- Remove `GripVertical` icon and "Drag to reorder" hint
+- Remove `PremiumSortableGrid` import
+- Keep the existing `PremiumLikedCard` rendering — just in a plain scrollable grid
+- Ensure the container scrolls naturally with `overflow-y-auto` / normal flow
 
-In `handleJSON`, strip `<think>` blocks from MiniMax response text before returning. This ensures non-streaming responses are also clean:
+### 2. Add Smart Filter Pipeline to Client Liked Page
 
-```typescript
-// After extracting text from MiniMax
-text = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-```
+**File**: `src/pages/ClientLikedProperties.tsx`
 
-### 3. Redeploy edge function
+Add filter controls below the category tabs:
 
-Deploy `ai-orchestrator` with the server-side fix.
+- **Price range filter**: Min/Max price inputs or a dual-thumb slider, filtering by `property.price`
+- **Search by title + description**: Expand the existing search to also match against `property.description`, so searching "cleaning" or "limpieza" finds relevant workers/services
+- **Sort options**: Dropdown to sort by Date Liked (newest/oldest), Price (low/high), Title (A-Z)
+- Keep existing category tabs (Properties, Motorcycles, Bicycles, Workers)
 
-## About the Published Site
+The filter pipeline: Category → Search text (title + description + location) → Price range → Sort
 
-The backend (edge function) deploys automatically and is already live. The **frontend** fix from the previous message (fixing the `/undefined/` URL) requires you to click **Publish → Update** in the Lovable dashboard. This plan's frontend changes will also need publishing after implementation.
+### 3. Add Smart Filter Pipeline to Owner Liked Page  
+
+**File**: `src/components/LikedClients.tsx`
+
+Add filter controls:
+
+- **Search by name + occupation + bio**: Already partially exists, enhance to search across all text fields
+- **Sort options**: Date liked (newest/oldest), Name (A-Z)
+- Keep existing category tabs (Renters, Workers, Buyers) and Safe filter toggle
+
+### 4. Fix Dashboard Layout Compression
+
+**File**: `src/components/SwipessSwipeContainer.tsx`
+
+The issue: The `DistanceSlider` overlay (lines 961-982) uses `absolute top-0` positioning with `pt-8 pb-8` padding, creating a tall overlay that pushes into the card area. Combined with the "SEARCHING PROPERTY" badge (also absolute, at `top-[calc(var(--top-bar-height)+24px)]`), and the action buttons at the bottom, the actual card area gets squeezed.
+
+Fix:
+- Move the `DistanceSlider` from the absolute overlay into a proper flow-based position above the card area (not overlapping)
+- Give the "SEARCHING X IN Ykm" badge proper spacing so it doesn't overlap the slider
+- Ensure the card area gets `flex-1` to fill remaining space naturally instead of being squeezed by absolute overlays
+- Adjust the card container from `absolute inset-0` to a flex child that respects the controls above it
+
+---
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/hooks/useConciergeAI.ts` | Add `stripThinkingTokens()`, apply to streaming + JSON paths |
-| `supabase/functions/ai-orchestrator/index.ts` | Strip `<think>` blocks in `handleJSON` before returning |
+| `src/pages/ClientLikedProperties.tsx` | Remove drag-and-drop, add price filter + description search + sort |
+| `src/components/LikedClients.tsx` | Remove drag-and-drop, add enhanced search + sort |
+| `src/components/SwipessSwipeContainer.tsx` | Fix layout — move controls out of absolute overlays into normal flow |
 
