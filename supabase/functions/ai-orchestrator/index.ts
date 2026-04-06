@@ -10,17 +10,17 @@ const corsHeaders = {
  * 🛰️ SWIPESS AI CONCIERGE — Expert Mode
  * MiniMax Primary, Lovable AI Fallback
  * Knowledge-grounded, multilingual, streaming-capable
+ * Tavily web search for live verification
  */
 
 // ── Knowledge Base Lookup ──────────────────────────────────────
-async function fetchKnowledge(query: string): Promise<string> {
+async function fetchKnowledge(query: string): Promise<{ block: string; count: number }> {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!supabaseUrl || !serviceKey) return "";
+  if (!supabaseUrl || !serviceKey) return { block: "", count: 0 };
 
   try {
     const sb = createClient(supabaseUrl, serviceKey);
-    // Extract keywords (3+ chars) for search
     const keywords = query
       .toLowerCase()
       .replace(/[^a-záéíóúñü0-9\s]/gi, "")
@@ -28,18 +28,16 @@ async function fetchKnowledge(query: string): Promise<string> {
       .filter((w) => w.length >= 3)
       .slice(0, 8);
 
-    if (keywords.length === 0) return "";
+    if (keywords.length === 0) return { block: "", count: 0 };
 
-    // Text search with OR logic
     const tsQuery = keywords.join(" | ");
-    const { data, error } = await sb
+    const { data } = await sb
       .from("concierge_knowledge")
       .select("title, content, category, google_maps_url, phone, website_url, tags")
       .eq("is_active", true)
       .textSearch("title", tsQuery, { type: "plain", config: "english" })
       .limit(5);
 
-    // Fallback: also search content via ilike on top keywords
     let results = data || [];
     if (results.length < 2 && keywords.length > 0) {
       const { data: fallback } = await sb
@@ -54,7 +52,7 @@ async function fetchKnowledge(query: string): Promise<string> {
       }
     }
 
-    if (!results.length) return "";
+    if (!results.length) return { block: "", count: 0 };
 
     const formatted = results
       .map((r: any) => {
@@ -66,15 +64,66 @@ async function fetchKnowledge(query: string): Promise<string> {
       })
       .join("\n");
 
-    return `\n\n--- VERIFIED LOCAL KNOWLEDGE (use this data to ground your answer) ---\n${formatted}\n--- END KNOWLEDGE ---\n`;
+    return {
+      block: `\n\n--- VERIFIED LOCAL KNOWLEDGE (use this data to ground your answer) ---\n${formatted}\n--- END KNOWLEDGE ---\n`,
+      count: results.length,
+    };
   } catch (e) {
     console.warn("[AI] Knowledge fetch error:", e);
+    return { block: "", count: 0 };
+  }
+}
+
+// ── Tavily Web Search ──────────────────────────────────────────
+async function searchWeb(query: string): Promise<string> {
+  const tavilyKey = Deno.env.get("TAVILY_API_KEY");
+  if (!tavilyKey) {
+    console.warn("[AI] No TAVILY_API_KEY configured, skipping web search");
+    return "";
+  }
+
+  try {
+    console.log(`[AI] Tavily search: "${query.slice(0, 60)}..."`);
+    const response = await fetch("https://api.tavily.com/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        api_key: tavilyKey,
+        query: `${query} Tulum Mexico`,
+        search_depth: "basic",
+        max_results: 5,
+        include_answer: true,
+      }),
+    });
+
+    if (!response.ok) {
+      console.warn(`[AI] Tavily failed ${response.status}`);
+      return "";
+    }
+
+    const data = await response.json();
+    const results = data.results || [];
+    if (!results.length && !data.answer) return "";
+
+    let block = "\n\n--- LIVE WEB RESULTS (secondary source, verify before citing) ---\n";
+    if (data.answer) {
+      block += `Summary: ${data.answer}\n\n`;
+    }
+    for (const r of results.slice(0, 5)) {
+      block += `• ${r.title}: ${r.content?.slice(0, 200) || ""}\n  URL: ${r.url}\n`;
+    }
+    block += "--- END WEB RESULTS ---\n";
+
+    console.log(`[AI] Tavily returned ${results.length} results`);
+    return block;
+  } catch (e: any) {
+    console.warn(`[AI] Tavily error: ${e.message}`);
     return "";
   }
 }
 
 // ── System Prompt ──────────────────────────────────────────────
-function buildSystemPrompt(knowledgeBlock: string): string {
+function buildSystemPrompt(knowledgeBlock: string, webBlock: string): string {
   return `You are the Swipess AI Concierge — an elite, multilingual local expert for Tulum, Mexico.
 
 🌍 LANGUAGE RULE (CRITICAL): ALWAYS respond in the SAME LANGUAGE the user writes in. If they write in Chinese, respond in Chinese. If Spanish, respond in Spanish. If German, German. Auto-detect and match perfectly.
@@ -120,7 +169,12 @@ When a user wants to go to a section, include: {"action": {"type": "navigate_to"
 
 🎭 TONE: Sophisticated, warm, precise. 5-star concierge level. Never use placeholders — if unsure, honestly say so and suggest the nearest alternative.
 
-${knowledgeBlock}
+📡 SOURCE PRIORITY:
+1. VERIFIED LOCAL KNOWLEDGE (curated, trusted) — always prefer this
+2. LIVE WEB RESULTS (fresh but unverified) — use to supplement, always cite URLs
+3. Your training data — use as last resort, clearly mark as general knowledge
+
+${knowledgeBlock}${webBlock}
 
 📌 ACTION BLOCKS: When your response benefits from an interactive UI element, append ONE JSON action block at the very end. Types:
 - show_venue_card: {"action":{"type":"show_venue_card","params":{"title":"...","category":"...","whatsapp":"...","instagram":"..."}}}
@@ -161,23 +215,26 @@ Deno.serve(async (req) => {
       }))
       .filter((m: any) => m.content.trim() !== "");
 
-    // Get the latest user query for knowledge lookup
     const latestQuery = data?.query || formattedMessages.filter((m: any) => m.role === "user").pop()?.content || "";
 
-    // Fetch knowledge in parallel
-    const knowledgeBlock = await fetchKnowledge(latestQuery);
+    // Fetch knowledge first
+    const { block: knowledgeBlock, count: knowledgeCount } = await fetchKnowledge(latestQuery);
 
-    const systemPrompt = buildSystemPrompt(knowledgeBlock);
+    // If knowledge is sparse, supplement with Tavily web search
+    let webBlock = "";
+    if (knowledgeCount < 2 && latestQuery.length > 3) {
+      webBlock = await searchWeb(latestQuery);
+    }
+
+    const systemPrompt = buildSystemPrompt(knowledgeBlock, webBlock);
     const messagesPayload = [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-20)];
 
-    console.log(`[AI] Processing | messages: ${formattedMessages.length} | knowledge: ${knowledgeBlock ? "yes" : "none"} | stream: ${!!stream}`);
+    console.log(`[AI] Processing | messages: ${formattedMessages.length} | knowledge: ${knowledgeCount} | web: ${webBlock ? "yes" : "no"} | stream: ${!!stream}`);
 
-    // ─── STREAMING PATH ──────────────────────────────────────
     if (stream) {
       return await handleStreaming(messagesPayload);
     }
 
-    // ─── JSON PATH (existing stable flow) ────────────────────
     return await handleJSON(messagesPayload);
   } catch (err: any) {
     console.error("[CRITICAL AI ERROR]", err);
@@ -288,7 +345,6 @@ async function handleStreaming(messagesPayload: any[]) {
   const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
   const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
-  // Try MiniMax streaming first (OpenAI-compatible endpoint)
   if (minimaxKey) {
     try {
       console.log("[AI] Trying MiniMax streaming...");
@@ -324,7 +380,6 @@ async function handleStreaming(messagesPayload: any[]) {
     }
   }
 
-  // Fallback: Lovable AI streaming
   if (lovableApiKey) {
     console.log("[AI] Falling back to Lovable AI streaming...");
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
