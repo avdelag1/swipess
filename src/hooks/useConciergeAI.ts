@@ -14,6 +14,7 @@ interface ConciergeMessage {
   content: string;
   timestamp: Date;
   action?: any;
+  model?: string;
 }
 
 interface ConciergeContext {
@@ -184,6 +185,7 @@ export function useConciergeAI() {
                   content: m.content,
                   timestamp: new Date(m.created_at),
                   action: m.metadata?.action,
+                  model: m.metadata?.model,
                 }))
             );
           }
@@ -322,7 +324,7 @@ export function useConciergeAI() {
       const contentType = response.headers.get('content-type') || '';
       if (!contentType.includes('text/event-stream')) {
         const data = await response.json();
-        handleJSONResponse(data, convId);
+        handleJSONResponse(data, convId, response.headers.get('X-AI-Model') || 'Assistant');
         return true;
       }
 
@@ -331,7 +333,7 @@ export function useConciergeAI() {
 
       setMessages((prev) => [
         ...prev,
-        { id: assistantId, role: 'assistant', content: '', timestamp: new Date() },
+        { id: assistantId, role: 'assistant', content: '', timestamp: new Date(), model: response.headers.get('X-AI-Model') || 'Assistant' },
       ]);
       setIsThinking(false);
 
@@ -379,7 +381,7 @@ export function useConciergeAI() {
           );
 
           if (user && convId && cleanText.trim()) {
-            persistAssistantMessage(convId, cleanText, action);
+            persistAssistantMessage(convId, cleanText, action, response.headers.get('X-AI-Model') || 'Assistant');
           }
 
           if (action) handleAiAction(action);
@@ -403,14 +405,15 @@ export function useConciergeAI() {
       if (!response.ok) {
         throw new Error(`AI Engine Error: ${response.status}`);
       }
-
-      handleJSONResponse(data, convId);
+      
+      const modelName = response.headers.get('X-AI-Model') || data?.model || 'Assistant';
+      handleJSONResponse(data, convId, modelName);
     },
     [user]
   );
 
   const handleJSONResponse = useCallback(
-    (data: any, convId: string | null) => {
+    (data: any, convId: string | null, modelName: string) => {
       setIsThinking(false);
       const rawText = stripThinkingTokens(
         data?.result?.text ||
@@ -426,12 +429,13 @@ export function useConciergeAI() {
         content: aiText,
         timestamp: new Date(),
         action: aiAction,
+        model: modelName,
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
 
       if (user && convId) {
-        persistAssistantMessage(convId, aiText, aiAction);
+        persistAssistantMessage(convId, aiText, aiAction, modelName);
       }
 
       if (aiAction) handleAiAction(aiAction);
@@ -441,7 +445,7 @@ export function useConciergeAI() {
 
   // ── DB Persistence ───────────────────────────────────────────
   const persistAssistantMessage = useCallback(
-    async (convId: string, content: string, action?: any) => {
+    async (convId: string, content: string, action?: any, model?: string) => {
       if (!user) return;
       try {
         await (supabase as any).from('ai_messages').insert({
@@ -449,7 +453,10 @@ export function useConciergeAI() {
           user_id: user.id,
           role: 'assistant',
           content,
-          metadata: action ? { action } : {},
+          metadata: { 
+            ...(action ? { action } : {}),
+            ...(model ? { model } : {})
+          },
         });
 
         await (supabase as any)

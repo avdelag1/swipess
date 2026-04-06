@@ -293,36 +293,10 @@ async function handleJSON(messagesPayload: any[]) {
     }
   }
 
-  // Fallback: Lovable AI
+  // Fallback: Disabled to prevent environment contamination
   if (!text) {
-    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!lovableApiKey) throw new Error("No AI provider available.");
-
-    console.log("[AI] Falling back to Lovable AI...");
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${lovableApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: messagesPayload,
-        temperature: 0.7,
-        max_tokens: 2048,
-      }),
-    });
-
-    if (!aiResponse.ok) {
-      const errText = await aiResponse.text();
-      console.error(`[AI] Lovable AI failed ${aiResponse.status}: ${errText}`);
-      throw new Error(`AI Engine Error: ${aiResponse.status}`);
-    }
-
-    const result = await aiResponse.json();
-    text = result.choices?.[0]?.message?.content || "";
-    provider = "lovable-gemini";
-    console.log(`[AI] ✅ Lovable AI success (${text.length} chars)`);
+    console.error("[AI] MiniMax primary failed and fallback is disabled.");
+    throw new Error("MiniMax AI Service failed. Please check your API key in Supabase Secrets.");
   }
 
   // Extract action block
@@ -341,6 +315,7 @@ async function handleJSON(messagesPayload: any[]) {
   return new Response(
     JSON.stringify({
       result: { text: cleanText || text, action },
+      model: provider === 'minimax' ? 'MiniMax-M2.7' : 'Gemini-2.5-Flash',
       provider,
       status: "success",
     }),
@@ -412,6 +387,7 @@ async function handleStreaming(messagesPayload: any[]) {
                 "Cache-Control": "no-cache",
                 Connection: "keep-alive",
                 "X-AI-Provider": "minimax",
+                "X-AI-Model": "MiniMax-M2.7",
               },
             });
           }
@@ -424,36 +400,7 @@ async function handleStreaming(messagesPayload: any[]) {
     }
   }
 
-  if (lovableApiKey) {
-    console.log("[AI] Falling back to Lovable AI streaming...");
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${lovableApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: messagesPayload,
-        temperature: 0.7,
-        max_tokens: 2048,
-        stream: true,
-      }),
-    });
-
-    if (aiResponse.ok && aiResponse.body) {
-      console.log("[AI] ✅ Lovable AI streaming started");
-      return new Response(aiResponse.body, {
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          Connection: "keep-alive",
-          "X-AI-Provider": "lovable-gemini",
-        },
-      });
-    }
-  }
-
-  throw new Error("No streaming provider available.");
+  // Fallback: Disabled to ensure strict backend isolation
+  console.error("[AI] MiniMax streaming failed and fallback is disabled.");
+  throw new Error("MiniMax streaming unavailable. Please verify your Supabase Secrets.");
 }

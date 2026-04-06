@@ -3,15 +3,17 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { logger } from '@/utils/prodLogger';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://vplgtcguxujxwrgguxqq.supabase.co';
+const PRODUCTION_PROJECT_ID = 'vplgtcguxujxwrgguxqq';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || `https://${PRODUCTION_PROJECT_ID}.supabase.co`;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
 
-// Validation — only logs in development (prodLogger suppresses non-errors in production)
-if (!SUPABASE_URL || SUPABASE_URL === 'https://placeholder.supabase.co') {
-  logger.error('[Supabase] Invalid or missing VITE_SUPABASE_URL. Check your .env file.');
-} else {
-  const projectRef = SUPABASE_URL.match(/https:\/\/(.*?)\.supabase\.co/)?.[1];
-  logger.log(`[Supabase] Initializing for project: ${projectRef || 'unknown'}`);
+// Backend Isolation Lockdown — Detect and warn if Lovable Cloud is "hijacking" our connection
+const currentProject = SUPABASE_URL.match(/https:\/\/(.*?)\.supabase\.co/)?.[1];
+if (currentProject && currentProject !== PRODUCTION_PROJECT_ID) {
+  logger.error(`[CRITICAL] BACKEND HIJACK DETECTED! 🛑`);
+  logger.error(`The app is trying to connect to a SHADOW BACKEND: ${currentProject}`);
+  logger.error(`This happens in Lovable Cloud. Your data and AI will NOT work correctly here.`);
+  logger.error(`Falling back to PROD PROJECT: ${PRODUCTION_PROJECT_ID}`);
 }
 
 if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === 'placeholder-key') {

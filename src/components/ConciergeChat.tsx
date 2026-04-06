@@ -749,6 +749,17 @@ export function ConciergeChat({
                         "flex items-center gap-2 mt-1",
                         message.role === 'user' ? "justify-end" : "justify-start"
                       )}>
+                        {message.role === 'assistant' && message.model && (
+                          <span className={cn(
+                            "text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest leading-none border transition-colors flex items-center gap-1 shrink-0",
+                            message.model.toLowerCase().includes('minimax')
+                              ? isDark ? "bg-orange-500/10 text-orange-400 border-orange-500/20" : "bg-orange-50 text-orange-600 border-orange-200"
+                              : isDark ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "bg-blue-50 text-blue-600 border-blue-200"
+                          )}>
+                            <Brain className="w-2.5 h-2.5" />
+                            {message.model === 'MiniMax-M2.7' ? 'MiniMax ⚡' : message.model}
+                          </span>
+                        )}
                         <p className={cn(
                           "text-[9px] px-1",
                           isDark ? "text-zinc-700" : "text-gray-300"
