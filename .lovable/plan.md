@@ -1,64 +1,143 @@
 
 
-# Fix Liked Pages Scrolling + Add Filters + Fix Dashboard Layout Compression
+# Fix Dashboard Layout, Action Buttons, Radio Visibility + Full Page Directory
 
-## Problems Identified
+## Issues Identified
 
-1. **Liked pages steal touch gestures**: Both client and owner Liked pages use `PremiumSortableGrid` with long-press drag-and-drop reordering. This interferes with normal scrolling — the gesture gating (400ms hold) still creates friction and confusion on mobile.
+1. **Only 3 action buttons showing** — `SwipessSwipeContainer` passes `onLike`, `onDislike`, and `onUndo` to `SwipeActionButtonBar` but does NOT pass `onShare` or `onMessage`. Since the bar conditionally renders those buttons only when their callbacks are provided, they never appear. The handlers `handleShare` and `handleMessage` exist in the component but are not wired to the bar.
 
-2. **No useful filters on Liked pages**: The existing category tabs are basic. There's no price range filter, no text search by description/keywords (e.g. searching "cleaning lady"), and no pipeline-style filtering to narrow down saved items.
+2. **Dashboard layout compression** — The distance slider + "Searching" badge + card area still feel cramped. The Tinder reference screenshot shows a clean layout: card area gets most of the space, controls are minimal and well-spaced, and the action buttons sit at the bottom with breathing room.
 
-3. **Dashboard swipe area is compressed**: The `DistanceSlider` + "SEARCHING PROPERTY IN 50KM" label + action buttons are all stacked at the top with `absolute` positioning and overlapping z-indices, making the swipe card area feel shrunk and cramped (visible in the screenshot).
+3. **Radio page not showing controls/skin** — The radio page (`DJTurntableRadio.tsx`) uses `fixed inset-0 z-[9999]` which should overlay everything. The code looks correct with turntable, controls, and volume bar all rendering. The runtime error `Cannot read properties of null (reading 'useState')` in `useConnectionHealth.ts` (called by `ConnectionGuard`) may be crashing the entire app tree before the radio page can mount. This needs to be fixed first.
+
+4. **Runtime crash** — `ConnectionGuard` in `RootProviders.tsx` wraps the entire app. If `useConnectionHealth` crashes (React context issue), nothing renders — including the radio page.
 
 ---
 
 ## Plan
 
-### 1. Remove Drag-and-Drop from Both Liked Pages
+### 1. Fix Runtime Crash (ConnectionGuard)
+**File**: `src/providers/RootProviders.tsx`
 
-**Files**: `src/pages/ClientLikedProperties.tsx`, `src/components/LikedClients.tsx`
+Wrap `ConnectionGuard` in an error boundary or make `useConnectionHealth` defensive so a null React internals issue doesn't crash the entire app tree. Add a try-catch or move `ConnectionGuard` inside the provider tree where React context is fully available.
 
-- Replace `PremiumSortableGrid` with a simple `motion.div` grid (no drag, no reorder)
-- Remove `usePersistentReorder` hook usage
-- Remove `GripVertical` icon and "Drag to reorder" hint
-- Remove `PremiumSortableGrid` import
-- Keep the existing `PremiumLikedCard` rendering — just in a plain scrollable grid
-- Ensure the container scrolls naturally with `overflow-y-auto` / normal flow
-
-### 2. Add Smart Filter Pipeline to Client Liked Page
-
-**File**: `src/pages/ClientLikedProperties.tsx`
-
-Add filter controls below the category tabs:
-
-- **Price range filter**: Min/Max price inputs or a dual-thumb slider, filtering by `property.price`
-- **Search by title + description**: Expand the existing search to also match against `property.description`, so searching "cleaning" or "limpieza" finds relevant workers/services
-- **Sort options**: Dropdown to sort by Date Liked (newest/oldest), Price (low/high), Title (A-Z)
-- Keep existing category tabs (Properties, Motorcycles, Bicycles, Workers)
-
-The filter pipeline: Category → Search text (title + description + location) → Price range → Sort
-
-### 3. Add Smart Filter Pipeline to Owner Liked Page  
-
-**File**: `src/components/LikedClients.tsx`
-
-Add filter controls:
-
-- **Search by name + occupation + bio**: Already partially exists, enhance to search across all text fields
-- **Sort options**: Date liked (newest/oldest), Name (A-Z)
-- Keep existing category tabs (Renters, Workers, Buyers) and Safe filter toggle
-
-### 4. Fix Dashboard Layout Compression
-
+### 2. Wire All 5 Action Buttons
 **File**: `src/components/SwipessSwipeContainer.tsx`
 
-The issue: The `DistanceSlider` overlay (lines 961-982) uses `absolute top-0` positioning with `pt-8 pb-8` padding, creating a tall overlay that pushes into the card area. Combined with the "SEARCHING PROPERTY" badge (also absolute, at `top-[calc(var(--top-bar-height)+24px)]`), and the action buttons at the bottom, the actual card area gets squeezed.
+Pass the missing `onShare` and `onMessage` handlers to `SwipeActionButtonBar`:
 
-Fix:
-- Move the `DistanceSlider` from the absolute overlay into a proper flow-based position above the card area (not overlapping)
-- Give the "SEARCHING X IN Ykm" badge proper spacing so it doesn't overlap the slider
-- Ensure the card area gets `flex-1` to fill remaining space naturally instead of being squeezed by absolute overlays
-- Adjust the card container from `absolute inset-0` to a flex child that respects the controls above it
+```tsx
+<SwipeActionButtonBar
+  onLike={handleButtonLike}
+  onDislike={handleButtonDislike}
+  onUndo={undoLastSwipe}
+  onShare={handleShare}       // ← ADD
+  onMessage={handleMessage}   // ← ADD
+  canUndo={canUndo}
+/>
+```
+
+This immediately enables all 5 buttons: Undo, Dislike, Share, Like, Message.
+
+### 3. Improve Dashboard Card Area Layout
+**File**: `src/components/SwipessSwipeContainer.tsx`
+
+Inspired by the Tinder reference (not copying, just the spacing philosophy):
+- Reduce the top controls area padding so the card gets more vertical space
+- Give the action buttons proper bottom spacing with safe-area awareness
+- Ensure the card area uses `flex-1 min-h-0` to fill available space without compression
+
+### 4. Verify Radio Page Renders
+After fixing the runtime crash in step 1, the radio page should render correctly since the component code (`DJTurntableRadio.tsx`) is complete with turntable, controls, volume bar, and station drawer. If additional issues remain, we'll debug the radio context initialization.
+
+---
+
+## All Pages Directory
+
+Here is every page in the app and what it does:
+
+### Public Pages
+| Route | Page | Purpose |
+|-------|------|---------|
+| `/` | Index | Landing/signup page |
+| `/reset-password` | ResetPassword | Password recovery |
+| `/privacy-policy` | PrivacyPolicy | Privacy policy |
+| `/terms-of-service` | TermsOfService | Terms of service |
+| `/legal` | LegalPage | Legal information |
+| `/agl` | AGLPage | AGL legal page |
+| `/about` | AboutPage | About the platform |
+| `/faq/client` | FAQClientPage | FAQ for clients |
+| `/faq/owner` | FAQOwnerPage | FAQ for owners |
+| `/profile/:id` | PublicProfilePreview | Public user profile view |
+| `/listing/:id` | PublicListingPreview | Public listing preview |
+
+### Client Pages (require login)
+| Route | Page | Purpose |
+|-------|------|---------|
+| `/client/dashboard` | ClientDashboard | Main swipe deck for discovering listings |
+| `/client/profile` | ClientProfile | Edit your client profile |
+| `/client/settings` | ClientSettings | Account settings, subscription |
+| `/client/liked-properties` | ClientLikedProperties | View all listings you liked |
+| `/client/who-liked-you` | ClientWhoLikedYou | See which owners liked your profile |
+| `/client/saved-searches` | ClientSavedSearches | Saved search filters |
+| `/client/security` | ClientSecurity | Security & password settings |
+| `/client/services` | ClientWorkerDiscovery | Discover workers/services |
+| `/client/contracts` | ClientContracts | View contracts |
+| `/client/legal-services` | ClientLawyerServices | Legal/lawyer services |
+| `/client/camera` | ClientSelfieCamera | Take profile selfie |
+| `/client/filters` | ClientFilters | Advanced search filters |
+| `/client/maintenance` | MaintenanceRequests | Submit maintenance requests |
+| `/client/advertise` | AdvertisePage | Advertise on the platform |
+
+### Owner Pages (require login)
+| Route | Page | Purpose |
+|-------|------|---------|
+| `/owner/dashboard` | EnhancedOwnerDashboard | Main swipe deck for discovering clients |
+| `/owner/profile` | OwnerProfile | Edit owner profile |
+| `/owner/settings` | OwnerSettings | Account settings |
+| `/owner/properties` | OwnerProperties | Manage your listings |
+| `/owner/listings/new` | OwnerNewListing | Create new listing |
+| `/owner/listings/new-ai` | ConversationalListingCreator | AI-assisted listing creation |
+| `/owner/liked-clients` | OwnerLikedClients | View clients you liked |
+| `/owner/interested-clients` | OwnerInterestedClients | See interested clients |
+| `/owner/clients/property` | OwnerPropertyClientDiscovery | Discover property clients |
+| `/owner/clients/moto` | OwnerMotoClientDiscovery | Discover motorcycle clients |
+| `/owner/clients/bicycle` | OwnerBicycleClientDiscovery | Discover bicycle clients |
+| `/owner/view-client/:clientId` | OwnerViewClientProfile | View a specific client's profile |
+| `/owner/filters-explore` | OwnerFiltersExplore | Explore filter options |
+| `/owner/saved-searches` | OwnerSavedSearches | Saved search filters |
+| `/owner/security` | OwnerSecurity | Security settings |
+| `/owner/contracts` | OwnerContracts | View contracts |
+| `/owner/legal-services` | OwnerLawyerServices | Legal services |
+| `/owner/camera` | OwnerProfileCamera | Take profile photo |
+| `/owner/camera/listing` | OwnerListingCamera | Take listing photos |
+| `/owner/filters` | OwnerFilters | Advanced client filters |
+
+### Shared Pages (require login)
+| Route | Page | Purpose |
+|-------|------|---------|
+| `/messages` | MessagingDashboard | All conversations/chats |
+| `/notifications` | NotificationsPage | Push/in-app notifications |
+| `/subscription-packages` | SubscriptionPackagesPage | View subscription tiers |
+| `/radio` | DJTurntableRadio | DJ turntable radio player |
+| `/explore/eventos` | EventosFeed | Browse local events |
+| `/explore/eventos/likes` | EventosLikes | Events you liked |
+| `/explore/eventos/:id` | EventoDetail | Single event detail |
+| `/explore/prices` | PriceTracker | Track property prices |
+| `/explore/tours` | VideoTours | Video property tours |
+| `/explore/intel` | LocalIntel | Local area intelligence |
+| `/explore/roommates` | RoommateMatching | Find roommates |
+| `/documents` | DocumentVault | Store/manage documents |
+| `/escrow` | EscrowDashboard | Escrow payment management |
+| `/payment/success` | PaymentSuccess | Payment confirmation |
+| `/payment/cancel` | PaymentCancel | Payment cancellation |
+
+### Admin Pages (require admin role)
+| Route | Page | Purpose |
+|-------|------|---------|
+| `/admin/eventos` | AdminEventos | Manage events |
+| `/admin/photos` | AdminPhotos | Manage photos |
+| `/admin/performance` | AdminPerformanceDashboard | Performance analytics |
 
 ---
 
@@ -66,7 +145,6 @@ Fix:
 
 | File | Change |
 |------|--------|
-| `src/pages/ClientLikedProperties.tsx` | Remove drag-and-drop, add price filter + description search + sort |
-| `src/components/LikedClients.tsx` | Remove drag-and-drop, add enhanced search + sort |
-| `src/components/SwipessSwipeContainer.tsx` | Fix layout — move controls out of absolute overlays into normal flow |
+| `src/providers/RootProviders.tsx` | Make ConnectionGuard resilient to prevent full-app crash |
+| `src/components/SwipessSwipeContainer.tsx` | Wire `onShare` + `onMessage` to button bar, improve card area spacing |
 
