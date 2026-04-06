@@ -161,7 +161,7 @@ export function useConciergeAI() {
       }));
 
       // 4. Invoke Edge Function with Streaming
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') || 'https://qegyisokrxdsszzswsqk.supabase.co';
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') || 'https://vplgtcguxujxwrgguxqq.supabase.co';
       const functionUrl = `${supabaseUrl}/functions/v1/ai-orchestrator`;
       const session = (await supabase.auth.getSession()).data.session;
       
