@@ -85,7 +85,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           <>
             <ClientProfileDialog
               open={store.showProfile}
-              onOpenChange={(val) => store.setModal('showProfile', val)}
+              onOpenChange={(val: boolean) => store.setModal('showProfile', val)}
             />
             <PropertyDetails
               listingId={store.selectedListingId}
@@ -97,12 +97,12 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
             />
             <PropertyInsightsDialog
               open={store.showPropertyInsights}
-              onOpenChange={(val) => store.setModal('showPropertyInsights', val)}
+              onOpenChange={(val: boolean) => store.setModal('showPropertyInsights', val)}
               listing={selectedListing || null}
             />
             <SavedSearchesDialog
               open={store.showSavedSearches}
-              onOpenChange={(val) => store.setModal('showSavedSearches', val)}
+              onOpenChange={(val: boolean) => store.setModal('showSavedSearches', val)}
             />
           </>
         </SmartSuspense>
@@ -113,29 +113,29 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           <>
             <ClientInsightsDialog
               open={store.showClientInsights}
-              onOpenChange={(val) => store.setModal('showClientInsights', val)}
+              onOpenChange={(val: boolean) => store.setModal('showClientInsights', val)}
               profile={selectedProfile || null}
             />
             <OwnerSettingsDialog
               open={store.showOwnerSettings}
-              onOpenChange={(val) => store.setModal('showOwnerSettings', val)}
+              onOpenChange={(val: boolean) => store.setModal('showOwnerSettings', val)}
             />
             <OwnerProfileDialog
               open={store.showOwnerProfile}
-              onOpenChange={(val) => store.setModal('showOwnerProfile', val)}
+              onOpenChange={(val: boolean) => store.setModal('showOwnerProfile', val)}
             />
             <OwnerClientSwipeDialog
               open={store.showOwnerSwipe}
-              onOpenChange={(val) => store.setModal('showOwnerSwipe', val)}
+              onOpenChange={(val: boolean) => store.setModal('showOwnerSwipe', val)}
             />
             <LegalDocumentsDialog
               open={store.showLegalDocuments}
-              onOpenChange={(val) => store.setModal('showLegalDocuments', val)}
+              onOpenChange={(val: boolean) => store.setModal('showLegalDocuments', val)}
             />
             <CategorySelectionDialog
               open={store.showCategoryDialog}
-              onOpenChange={(val) => store.setModal('showCategoryDialog', val)}
-              onCategorySelect={(category, mode) => {
+              onOpenChange={(val: boolean) => store.setModal('showCategoryDialog', val)}
+              onCategorySelect={(category: string, mode: string) => {
                 store.setModal('showCategoryDialog', false);
                 // ZENITH FIX: Navigate to the specialized creation form, not the list
                 navigate(`/owner/listings/new?category=${category}&mode=${mode}`);
@@ -170,13 +170,13 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         {/* LIKED ITEM MODALS */}
         <LikedListingInsightsModal
           open={store.showPropertyInsights}
-          onOpenChange={(open) => store.setModal('showPropertyInsights', open)}
+          onOpenChange={(open: boolean) => store.setModal('showPropertyInsights', open)}
           listing={selectedListing}
         />
 
         <LikedClientInsightsModal
           open={store.showClientInsights}
-          onOpenChange={(open) => store.setModal('showClientInsights', open)}
+          onOpenChange={(open: boolean) => store.setModal('showClientInsights', open)}
           client={selectedProfile as any}
         />
       </SmartSuspense>
