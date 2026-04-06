@@ -1103,10 +1103,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               </motion.div>
             ) : (
               <motion.div
-                key="exhausted-state"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="w-full h-full"
+                key={`exhausted-${storeActiveCategory}`}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.05 }}
+                className="absolute inset-0 z-50 overflow-hidden"
               >
                 <SwipeExhaustedState 
                  onRefresh={handleRefresh}
@@ -1119,7 +1120,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                  detecting={locationDetecting}
                  detected={locationDetected}
                  error={error}
-                 role="client"
+                 role={userRole === 'owner' ? 'owner' : 'client'}
                 />
               </motion.div>
             )}
