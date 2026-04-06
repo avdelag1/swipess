@@ -365,18 +365,54 @@ async function handleStreaming(messagesPayload: any[]) {
       });
 
       if (mmResponse.ok && mmResponse.body) {
-        console.log("[AI] ✅ MiniMax streaming started");
-        return new Response(mmResponse.body, {
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "text/event-stream",
-            "Cache-Control": "no-cache",
-            Connection: "keep-alive",
-            "X-AI-Provider": "minimax",
-          },
-        });
+        // Read the first chunk to verify it's actually valid SSE with token content
+        const reader = mmResponse.body.getReader();
+        const { done, value } = await reader.read();
+        
+        if (!done && value) {
+          const firstChunk = new TextDecoder().decode(value);
+          
+          // Check if MiniMax returned an error payload inside a 200 response
+          const isError = firstChunk.includes('status_msg') || 
+                          firstChunk.includes('not support model') ||
+                          firstChunk.includes('unsupported') ||
+                          firstChunk.includes('"error"');
+          
+          if (isError) {
+            console.warn(`[AI] ⚠️ MiniMax stream contains error payload: ${firstChunk.slice(0, 200)}`);
+            reader.cancel();
+            // Fall through to Lovable AI fallback below
+          } else {
+            console.log("[AI] ✅ MiniMax streaming verified & started");
+            // Re-assemble the stream: prepend the first chunk we already read
+            const firstChunkStream = new ReadableStream({
+              start(controller) {
+                controller.enqueue(value);
+                const pump = () => {
+                  reader.read().then(({ done, value }) => {
+                    if (done) { controller.close(); return; }
+                    controller.enqueue(value);
+                    pump();
+                  }).catch((e) => controller.error(e));
+                };
+                pump();
+              },
+            });
+
+            return new Response(firstChunkStream, {
+              headers: {
+                ...corsHeaders,
+                "Content-Type": "text/event-stream",
+                "Cache-Control": "no-cache",
+                Connection: "keep-alive",
+                "X-AI-Provider": "minimax",
+              },
+            });
+          }
+        }
+      } else {
+        console.warn(`[AI] MiniMax stream failed ${mmResponse.status}`);
       }
-      console.warn(`[AI] MiniMax stream failed ${mmResponse.status}`);
     } catch (e: any) {
       console.warn(`[AI] MiniMax stream error: ${e.message}`);
     }
