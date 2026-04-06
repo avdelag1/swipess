@@ -1,67 +1,47 @@
 
 
-# Fix AI Chat: Messages Disappearing + Explain AI Choice
+# Fix AI Chat — Root Cause Found + MiniMax Primary
 
-## What's Actually Happening (Diagnosis)
+## The Bug (Confirmed)
 
-The AI **is working**. I verified it live — the backend returns real, intelligent answers about Tulum dining, properties, etc. The network request I captured shows a full response with proper content. The problem is twofold:
+The network capture shows the smoking gun:
 
-1. **Assistant messages are not being saved to the database.** Looking at the `ai_messages` table, recent assistant responses have **empty content** or are missing entirely. This means when you reload the chat or switch conversations, only your messages appear — the AI answers vanish.
-
-2. **The non-streaming response path doesn't persist to DB.** In `useConciergeAI.ts`, the streaming path (lines 310-328) has DB persistence code, but the non-streaming fallback path (lines 335-353) **does not save the assistant message to the database at all**. Since the backend returns `Content-Type: application/json` (not `text/event-stream`), the code always takes the non-streaming path — which skips persistence.
-
-## Why Lovable AI Instead of MiniMax
-
-To clarify: **Lovable AI does NOT consume your development credits.** It's a separate AI gateway service included with Lovable Cloud. Your development credits are for building the app with me (the editor). Lovable AI is for powering features *inside* your app (like the concierge chat). They are completely separate.
-
-I switched from MiniMax because:
-- The MiniMax API key you provided was returning authentication errors (invalid/expired)
-- Lovable AI uses a pre-configured `LOVABLE_API_KEY` that's always available — no key management needed
-- It uses Google Gemini under the hood, which provides high-quality responses
-- It has its own usage allowance (separate from your dev credits)
-
-If you'd prefer to use MiniMax, we'd need a valid API key. I can switch back once you confirm the key works.
-
-## Fix Plan
-
-### 1. Add DB persistence to the non-streaming response path
-In `useConciergeAI.ts`, after the assistant message is added to state (around line 351), add the same DB persistence logic that exists in the streaming path:
-
-```ts
-// After setMessages(prev => [...prev, assistantMsg]);
-if (user && convId) {
-  await supabase.from('ai_messages').insert({
-    conversation_id: convId,
-    user_id: user.id,
-    role: 'assistant',
-    content: aiText,
-    metadata: aiAction ? { action: aiAction } : {}
-  });
-  await supabase.from('ai_conversations')
-    .update({ updated_at: new Date().toISOString() })
-    .eq('id', convId);
-}
+```text
+Request: POST undefined/functions/v1/ai-orchestrator
+Headers:
+  apikey: undefined
+  authorization: Bearer undefined
 ```
 
-### 2. Fix the `convId` scoping issue
-The `convId` variable is declared inside the streaming block's scope but needs to be accessible in the non-streaming path too. Move the conversation creation logic before the fetch call so both paths can use it.
+The **ping** works because it uses `supabase.functions.invoke()` (which reads the URL from the initialized client). But the **chat** call uses `import.meta.env.VITE_SUPABASE_URL` directly via raw `fetch` — and that env var is resolving to `undefined` in the preview runtime. So the chat request goes to `undefined/functions/v1/ai-orchestrator`, which hits the app's own HTML page, returning `<!DOCTYPE html>` instead of JSON — hence the error: `Unexpected token '<'`.
 
-### 3. Clean up stale empty messages from DB
-The old broken assistant messages with empty content pollute the conversation history on reload. Add a filter when loading messages to skip empty ones:
+## Fix Plan (2 changes)
 
-```ts
-// When loading messages from DB, filter out empty assistant messages
-.filter(m => m.content && m.content.trim() !== '')
-```
+### 1. Frontend: Switch chat call to `supabase.functions.invoke()`
 
-## Files to Edit
+**File:** `src/hooks/useConciergeAI.ts` (lines 165-196)
 
-| File | Change |
-|------|--------|
-| `src/hooks/useConciergeAI.ts` | Add DB persistence to non-streaming path, fix convId scope, filter empty messages on load |
+Replace the raw `fetch` with `supabase.functions.invoke('ai-orchestrator', { body: payload })` — the exact same pattern the ping already uses successfully. This eliminates the `undefined` URL problem entirely because the Supabase client already has the correct URL configured.
+
+### 2. Backend: MiniMax primary, Lovable AI fallback
+
+**File:** `supabase/functions/ai-orchestrator/index.ts`
+
+Update the edge function to:
+1. Try MiniMax first using the `MINIMAX_API_KEY` secret (OpenAI-compatible endpoint at `https://api.minimaxi.chat/v1/chat/completions`)
+2. If MiniMax fails (auth error, timeout, etc.), fall back to Lovable AI gateway
+3. Log which provider was used for debugging
+
+Then redeploy the function.
+
+### 3. Update MiniMax API key
+
+Use the secret tool to update `MINIMAX_API_KEY` with the new key you provided (`sk-cp-884UMyEXo3k400H8oLOzMUQIUWReSoWpuwt1MMjAUYewLe21v-Ul5dVVCMr9eAxVg5J-xiJ1xa6iDT37Myyd8l-_aPQa7xTh4zUKr-QxwahTOGN4j1g4f7g`).
 
 ## Expected Result
-- AI responses persist across page reloads
-- Conversation history shows both user and assistant messages
-- No more "disappearing" answers
+
+- Chat requests route through the correct backend URL (no more `undefined`)
+- MiniMax generates responses as primary provider
+- If MiniMax ever fails, Lovable AI kicks in as backup
+- Messages persist to database and survive reloads
 
