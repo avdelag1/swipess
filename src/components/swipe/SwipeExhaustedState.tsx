@@ -142,10 +142,13 @@ export const SwipeExhaustedState = ({
               categoryLower === 'all' ? "bg-gradient-to-br from-brand-accent-2/20 to-brand-primary/20" : "bg-white/5"
             )}>
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 text-transparent pointer-events-none" />
-              {typeof _CategoryIcon === 'object' ? (
+              {React.isValidElement(_CategoryIcon) ? (
                 _CategoryIcon
               ) : (
-                <_CategoryIcon className={cn("w-10 h-10 transition-all duration-500 group-hover:scale-110", _iconColor || "text-white/60")} strokeWidth={2.5} />
+                (() => {
+                  const IconComp = _CategoryIcon as React.ComponentType<any>;
+                  return <IconComp className={cn("w-10 h-10 transition-all duration-500 group-hover:scale-110", _iconColor || "text-white/60")} strokeWidth={2.5} />;
+                })()
               )}
             </div>
             
