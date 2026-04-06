@@ -218,17 +218,29 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             ))}
           </div>
 
-          <button
-            onClick={() => {
-              queryClient.invalidateQueries({ queryKey: ["liked-properties"] });
-              refreshLikedProperties();
-            }}
-            disabled={isLoading || isFetching}
-            className="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-secondary/80 border border-border/50 text-muted-foreground hover:text-foreground transition-all active:scale-95 disabled:opacity-50 flex-shrink-0 shadow-sm"
-          >
-            <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
-            <span className="text-[10px] font-black uppercase tracking-widest text-[var(--color-brand-accent-2)]">Sync</span>
-          </button>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={cn(
+                "flex items-center justify-center w-12 h-12 rounded-2xl transition-all active:scale-95",
+                showFilters
+                  ? "bg-[var(--color-brand-accent-2)] text-white shadow-lg shadow-[var(--color-brand-accent-2)]/20"
+                  : "bg-secondary/80 border border-border/50 text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => {
+                queryClient.invalidateQueries({ queryKey: ["liked-properties"] });
+                refreshLikedProperties();
+              }}
+              disabled={isLoading || isFetching}
+              className="flex items-center justify-center w-12 h-12 rounded-2xl bg-secondary/80 border border-border/50 text-muted-foreground hover:text-foreground transition-all active:scale-95 disabled:opacity-50 shadow-sm"
+            >
+              <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
+            </button>
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -242,23 +254,12 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={cn(
-              "w-full h-14 rounded-2xl pl-14 pr-14 font-bold focus:border-[var(--color-brand-accent-2)] transition-all outline-none text-sm",
+              "w-full h-14 rounded-2xl pl-14 pr-6 font-bold focus:border-[var(--color-brand-accent-2)] transition-all outline-none text-sm",
               isLight
                 ? "bg-card border border-border/60 text-foreground placeholder-muted-foreground shadow-sm"
                 : "bg-white/[0.04] border border-white/[0.08] text-foreground placeholder-muted-foreground"
             )}
           />
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={cn(
-              "absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-xl transition-all active:scale-95",
-              showFilters
-                ? "bg-[var(--color-brand-accent-2)] text-white"
-                : "bg-secondary text-muted-foreground"
-            )}
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-          </button>
         </div>
 
         {/* Filter Panel */}
