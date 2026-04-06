@@ -30,24 +30,18 @@ interface ConversationSummary {
   updated_at: string;
 }
 
-const FALLBACK_SUPABASE_PROJECT_ID = 'qegyisokrxdsszzswsqk';
-const FALLBACK_SUPABASE_URL = `https://${FALLBACK_SUPABASE_PROJECT_ID}.supabase.co`;
-const FALLBACK_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjY0NTIsImV4cCI6MjA4NTg0MjQ1Mn0.4tdJ82fDnFXaJ6SHpfveCiGxGm2S4II6NNIbGUnT2ZU';
-
+/**
+ * getBackendConfig — always derives URL/key from the Supabase client instance,
+ * which is already configured per-environment (Cloud in Lovable, original in Vercel).
+ * No hardcoded fallback IDs — prevents cross-backend contamination.
+ */
 function getBackendConfig() {
-  const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
   const clientUrl = (supabase as any)?.supabaseUrl as string | undefined;
   const clientKey = (supabase as any)?.supabaseKey as string | undefined;
 
   return {
-    url:
-      import.meta.env.VITE_SUPABASE_URL ||
-      clientUrl ||
-      (projectId ? `https://${projectId}.supabase.co` : FALLBACK_SUPABASE_URL),
-    anonKey:
-      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-      clientKey ||
-      FALLBACK_SUPABASE_ANON_KEY,
+    url: import.meta.env.VITE_SUPABASE_URL || clientUrl || '',
+    anonKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || clientKey || '',
   };
 }
 
