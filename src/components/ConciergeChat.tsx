@@ -23,6 +23,9 @@ import {
   Copy,
   RefreshCcw,
   Shield,
+  Navigation,
+  Phone,
+  ExternalLink,
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
 import { useUserMemories } from '@/hooks/useUserMemories';
