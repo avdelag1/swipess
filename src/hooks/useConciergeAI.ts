@@ -184,6 +184,7 @@ export function useConciergeAI() {
         },
         body: JSON.stringify({
           task: 'chat',
+          stream: false,
           data: {
             query: userMessage,
             userName,
@@ -215,9 +216,10 @@ export function useConciergeAI() {
       }
 
       // Check if response is streaming (text/event-stream) or JSON
-      const contentType = response.headers.get('Content-Type');
+      const contentType = response.headers.get('Content-Type')?.toLowerCase() || '';
+      const isEventStream = contentType.includes('text/event-stream');
       
-      if (contentType?.includes('text/event-stream') || response.body) {
+      if (isEventStream) {
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let accumulatedText = '';
@@ -316,7 +318,7 @@ export function useConciergeAI() {
         // Fallback for non-streaming responses
         setIsThinking(false);
         const data = await response.json();
-        const rawText = data?.result?.text || 'I am processing that...';
+        const rawText = data?.result?.text || data?.result?.message || data?.message || 'I am processing that...';
         const aiText = rawText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || rawText;
         const aiAction = data?.result?.action;
 
