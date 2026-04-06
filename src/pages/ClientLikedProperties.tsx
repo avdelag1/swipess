@@ -55,6 +55,10 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [selectedPropertyForModal, setSelectedPropertyForModal] = useState<Listing | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [showFilters, setShowFilters] = useState(false);
 
   const { data: likedProperties = [], isLoading, refetch: refreshLikedProperties, isFetching } = useLikedProperties();
   const startConversation = useStartConversation();
@@ -66,7 +70,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   useEffect(() => {
     if (likedProperties.length > 0) {
       const urlsToPreload = likedProperties
-        .slice(0, 10) // Focus on the first 10 for maximum efficiency
+        .slice(0, 10)
         .map(p => getCardImageUrl(p.images?.[0] || p.image_url || ''))
         .filter(Boolean);
       
@@ -76,55 +80,52 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
     }
   }, [likedProperties]);
 
-  const storageKey = user?.id ? `liked-properties-order-${user.id}` : "";
+  const filteredAndSorted = useMemo(() => {
+    const lowerSearch = searchTerm.toLowerCase();
+    const minPrice = priceMin ? Number(priceMin) : null;
+    const maxPrice = priceMax ? Number(priceMax) : null;
 
-  const removeLikeMutation = useMutation({
-    mutationFn: async (propertyId: string) => {
-      if (!user?.id || !propertyId) throw new Error("Not authenticated or missing ID");
-      const { error } = await supabase
-        .from("likes")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("target_id", propertyId)
-        .eq("target_type", "listing");
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["liked-properties"] });
-      toast.success("Property removed from your likes");
-      setShowDeleteDialog(false);
-      setPropertyToDelete(null);
-    },
-    onError: () => {
-      toast.error("Failed to remove from likes");
-    },
-  });
+    let result = likedProperties.filter((property) => {
+      // Category filter
+      if (selectedCategory !== "all") {
+        const cat = (property.category || "").toLowerCase();
+        const sel = selectedCategory.toLowerCase();
+        if (sel === "property") {
+          if (cat !== "property" && property.category) return false;
+        } else if (cat !== sel) return false;
+      }
 
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
-    setSearchParams({ category });
-  };
+      // Search filter — title + description + location
+      if (lowerSearch) {
+        const title = (property.title || "").toLowerCase();
+        const desc = (property.description || "").toLowerCase();
+        const loc = ((property as any).location || property.address || property.city || "").toLowerCase();
+        if (!title.includes(lowerSearch) && !desc.includes(lowerSearch) && !loc.includes(lowerSearch)) return false;
+      }
 
-  const filteredProperties = likedProperties.filter((property) => {
-    const matchesCategory = (() => {
-      if (selectedCategory === "all") return true;
-      const propertyCategory = (property.category || "").toLowerCase();
-      const selectedCat = selectedCategory.toLowerCase();
-      if (selectedCat === "property") return propertyCategory === "property" || !property.category;
-      if (selectedCat === "event") return propertyCategory === "event";
-      return propertyCategory === selectedCat;
-    })();
+      // Price filter
+      if (minPrice !== null && (property.price ?? 0) < minPrice) return false;
+      if (maxPrice !== null && (property.price ?? 0) > maxPrice) return false;
 
-    const matchesSearch = (property.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ((property as any).location || property.address || property.city || "").toLowerCase().includes(searchTerm.toLowerCase());
+      return true;
+    });
 
-    return matchesCategory && matchesSearch;
-  });
+    // Sort
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case "oldest": return 0; // original order is newest, keep as-is for oldest
+        case "price_low": return (a.price ?? 0) - (b.price ?? 0);
+        case "price_high": return (b.price ?? 0) - (a.price ?? 0);
+        case "az": return (a.title || "").localeCompare(b.title || "");
+        case "newest":
+        default: return 0; // data is already newest-first
+      }
+    });
 
-  const { orderedItems: orderedFilteredProperties, handleReorder } = usePersistentReorder(
-    filteredProperties,
-    `${storageKey}-${selectedCategory}`
-  );
+    if (sortBy === "oldest") result.reverse();
+
+    return result;
+  }, [likedProperties, selectedCategory, searchTerm, priceMin, priceMax, sortBy]);
 
   const handleAction = async (action: "message" | "view" | "remove", property: any) => {
     if (action === "remove") {
