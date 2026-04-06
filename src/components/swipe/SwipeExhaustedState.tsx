@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RefreshCw, RotateCcw, Compass, MapPin, Zap, Home, Bike, UserGroup, Car, Briefcase, Settings2 } from 'lucide-react';
+import { RefreshCw, RotateCcw, Compass, MapPin, Zap, Home, Bike, Car, Briefcase, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
@@ -9,6 +9,7 @@ import { deckFadeVariants } from '@/utils/modernAnimations';
 import { cn } from '@/lib/utils';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { OWNER_INTENT_CARDS } from './SwipeConstants';
+import { triggerHaptic } from '@/utils/haptics';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
@@ -93,7 +94,9 @@ export const SwipeExhaustedState = ({
     return base;
   };
 
-  const { title, description, isError } = getEmptyMessage();
+  const emptyMsg = getEmptyMessage();
+  const { title, description } = emptyMsg;
+  const isError = 'isError' in emptyMsg ? emptyMsg.isError : false;
 
   // 🚀 SPEED: Manual category selection icons
   const getCategoryIcon = (cat: string) => {
