@@ -1,61 +1,84 @@
 
-Goal: fix the broken AI reply flow immediately, change the browser title away from “Speed of Light Discovery,” and unblock the current build.
 
-What I found:
-- The website title is hardcoded in `index.html` as `Swipess | Speed of Light Discovery`.
-- The build is currently broken in `src/pages/Index.tsx` because `lazy` and `Suspense` are used but not imported.
-- The AI chat issue is not just cosmetic now: the request is reaching the backend, but the streaming response can return a MiniMax error payload inside an SSE `200` response:
-  `status_msg: "your current token plan not support model, MiniMax-Text-01"`.
-- The frontend `useConciergeAI` currently treats any SSE response as success, so that provider error becomes a blank/non-answer instead of triggering fallback.
+# Fix Scroll Isolation, Likes Filter Layout, Radio Visibility, Owner Nav Restructure
 
-Implementation plan:
+## Problems Identified
 
-1. Fix the build first
-- Update `src/pages/Index.tsx` to import `lazy` and `Suspense` from React.
-- Keep the lazy-loaded landing page, just make the file compile again.
+1. **Shared scroll state between pages** — `DashboardLayout` uses `overflow-visible` on the `<main>` container. Since all pages share the same scrolling context (the browser viewport), scrolling on Profile bleeds into Likes when navigating. Each page needs its own scroll container.
 
-2. Change the website/browser title
-- Update `index.html` title from `Swipess | Speed of Light Discovery` to a more deal-focused message.
-- Best fit based on your request and current brand tone:
-  `Swipess | Find Your Best Deal`
-- If needed, I can also tune related empty-state copy later so the product feels more consistent.
+2. **Likes page filter button overlaps search bar** — The `SlidersHorizontal` filter toggle is positioned inside the search input (`absolute right-3`), overlapping with text. Move the filter button next to the Sync button, and remove the "Sync" text label — keep only the refresh icon to save space.
 
-3. Fix AI streaming failure handling in `src/hooks/useConciergeAI.ts`
-- Harden the SSE parser so it detects provider-side error payloads inside `data:` chunks, not only normal token deltas.
-- If the stream contains:
-  - `status_msg`
-  - `error`
-  - no usable token content
-  then treat streaming as failed instead of successful.
-- Return `false` from `attemptStreaming()` in those cases so the hook automatically falls back to JSON mode.
+3. **Radio page invisible** — The radio component uses `fixed inset-0 z-[9999]` which should overlay everything. However, `AppLayout.tsx` marks radio as `isFullScreen` (line 70: `isRadioRoute`), which hides TopBar/BottomNav — good. But the issue is likely that the `<main>` in `AppLayout` has `overflow-y-auto` creating a containing block that traps the `fixed` positioning. Also, `DashboardLayout`'s `contentVisibility: 'auto'` may cause the radio's fixed container to be invisible. The fix: when on radio route, the main content wrapper must not clip or create a containing block.
 
-4. Make the JSON fallback actually recover
-- Preserve the current fallback path in `useConciergeAI`, but ensure it runs when stream startup is “fake-success.”
-- Surface a human-readable error only if both streaming and JSON fail.
-- Avoid saving blank assistant messages to chat history.
+4. **Owner nav: Merge Radar + Filters, add Promote & Events** — The Radar page (`/owner/clients/property`) already has inline `PropertyClientFilters`. The separate OwnerFilters page (`/owner/filters`) has gender, age, budget, nationality filters. Merge the OwnerFilters content into the Radar page, rename "Radar" to "Filters" in the nav, remove the separate Filters nav item and route. Add "Promote" and "Events" buttons to owner bottom nav.
 
-5. Harden the backend provider fallback in `supabase/functions/ai-orchestrator/index.ts`
-- In `handleStreaming`, detect MiniMax “unsupported plan / unsupported model” responses before proxying them to the client.
-- If MiniMax returns an error body or non-token SSE payload, do not pass that stream through as success.
-- Immediately fall back to the secondary AI provider for streaming.
-- Keep the existing `<think>` sanitization intact.
+---
 
-6. QA after implementation
-- Verify build passes again.
-- Verify the browser title shows the new wording.
-- Test the AI chat end-to-end with a simple prompt like “Hello” and a property query to confirm:
-  - no blank bubble
-  - response text appears
-  - fallback works when MiniMax is unavailable
-  - chat history stores real assistant text only
+## Plan
 
-Files to update:
-- `index.html`
-- `src/pages/Index.tsx`
-- `src/hooks/useConciergeAI.ts`
-- `supabase/functions/ai-orchestrator/index.ts`
+### 1. Fix Scroll Isolation Per Page
 
-Technical notes:
-- Root cause of AI failure: provider-plan/model mismatch being returned as a streamed SSE error payload with HTTP 200, which bypasses normal `response.ok` checks.
-- Root cause of build failure: missing named React imports after introducing lazy loading.
-- Lowest-risk fix: add stream error detection + provider fallback rather than redesigning the chat UI.
+**File**: `src/components/DashboardLayout.tsx`
+
+- Change `<main>` from `overflow-visible` to `overflow-y-auto` so it becomes the scroll container
+- Add a `useEffect` that resets `scrollTop = 0` on `location.pathname` change — this ensures each page starts at the top when navigated to
+- This isolates scroll position per navigation event
+
+### 2. Restructure Likes Page Filter/Sync Bar
+
+**File**: `src/pages/ClientLikedProperties.tsx`
+
+- Move the filter `SlidersHorizontal` button OUT of the search input overlay
+- Place it inline next to the Sync button (which becomes icon-only: remove "Sync" text, keep `RefreshCw` icon)
+- Both buttons sit side-by-side after the category tabs, same row
+- Search bar becomes clean with no overlapping button
+
+**File**: `src/components/LikedClients.tsx`
+
+- Apply the same pattern: filter button next to refresh button, not overlapping search
+
+### 3. Fix Radio Page Visibility
+
+**Files**: `src/components/AppLayout.tsx`, `src/components/DashboardLayout.tsx`
+
+The radio uses `fixed inset-0 z-[9999]` which should work, but two things block it:
+
+- In `AppLayout.tsx`: the outer `<div>` has `overflow-hidden` (line 93). A parent with `overflow-hidden` can clip fixed children in some mobile browser contexts. For radio routes, remove this restriction.
+- In `DashboardLayout.tsx`: the `<main>` has `contentVisibility: 'auto'` and `containIntrinsicSize` (lines 506-507). CSS `content-visibility: auto` applies `contain: layout style paint` which creates a containing block that breaks `position: fixed` inside it. For radio routes, skip `contentVisibility`.
+- Ensure `PersistentDashboardLayout.tsx` already skips `contentVisibility` for radio (it does — line 75-77). Confirm `DashboardLayout` does the same.
+
+### 4. Merge Owner Filters Into Radar + Update Nav
+
+**File**: `src/pages/OwnerPropertyClientDiscovery.tsx`
+
+- Import the filter controls from OwnerFilters (gender, age range, budget range, nationality) directly into this page's mobile Sheet and desktop sidebar
+- Use the same `useFilterStore` actions and `useOwnerClientPreferences` hook
+- Rename page title from "Live Radar / Top Prospects" to "Client Filters"
+- This becomes the single owner filter + discovery page
+
+**File**: `src/components/BottomNavigation.tsx`
+
+- Change `ownerNavItems` "Radar" entry to label "Filters" pointing to `/owner/clients/property`
+- Remove the "Filters" (`SlidersHorizontal`) entry that calls `onFilterClick`
+- Add "Promote" entry with `Megaphone` icon pointing to `/client/advertise` (shared page)
+- Add "Events" entry with `PartyPopper` icon pointing to `/explore/eventos`
+
+**File**: `src/App.tsx`
+
+- Keep the `/owner/filters` route for backward compat but it can redirect to `/owner/clients/property`
+- Or simply remove it
+
+---
+
+## Files Changed
+
+| File | Change |
+|------|--------|
+| `src/components/DashboardLayout.tsx` | Scroll isolation: `overflow-y-auto` + scroll reset on nav, skip `contentVisibility` for radio |
+| `src/components/AppLayout.tsx` | Remove `overflow-hidden` clipping for radio route |
+| `src/pages/ClientLikedProperties.tsx` | Move filter button next to icon-only refresh button |
+| `src/components/LikedClients.tsx` | Same filter button restructure |
+| `src/pages/OwnerPropertyClientDiscovery.tsx` | Merge OwnerFilters content (gender/age/budget/nationality) into Radar page |
+| `src/components/BottomNavigation.tsx` | Owner nav: rename Radar→Filters, remove separate Filters, add Promote + Events |
+| `src/App.tsx` | Optional: redirect `/owner/filters` to `/owner/clients/property` |
+
