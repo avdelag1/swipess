@@ -196,24 +196,40 @@ export function useNotificationSystem() {
     handleDismiss(notification.id);
   };
 
+  const markNotificationAsRead = (id: string) => {
+    // Mark single notification as read locally + in DB
+    const store = useNotificationStore.getState();
+    store.notifications.forEach(n => { if (n.id === id) n.read = true; });
+    
+    if (user?.id) {
+      supabase.from('notifications')
+        .update({ is_read: true })
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .then(({ error }) => {
+          if (error) logger.error('[Notifications] Failed to mark read:', error);
+        });
+    }
+  };
+
+  const clearAllNotifications = () => {
+    _clearAll();
+    if (user?.id) {
+      supabase.from('notifications')
+        .delete()
+        .eq('user_id', user.id)
+        .then(({ error }) => {
+          if (error) logger.error('[Notifications] Failed to clear all:', error);
+        });
+    }
+  };
+
   return {
     notifications,
     dismissNotification: handleDismiss,
-    markNotificationAsRead: (id: string) => {
-      // Mark single notification as read locally + in DB
-      const store = useNotificationStore.getState();
-      store.notifications.forEach(n => { if (n.id === id) n.read = true; });
-      if (user?.id) {
-        supabase.from('notifications').update({ is_read: true }).eq('id', id).eq('user_id', user.id);
-      }
-    },
+    markNotificationAsRead,
     markAllAsRead: handleMarkAllAsRead,
-    clearAllNotifications: () => {
-      _clearAll();
-      if (user?.id) {
-        supabase.from('notifications').delete().eq('user_id', user.id);
-      }
-    },
+    clearAllNotifications,
     handleNotificationClick,
     unreadCount: notifications.filter(n => !n.read).length
   };

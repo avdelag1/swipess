@@ -67,7 +67,7 @@ If asked about car rentals, provide specific local car rental companies or areas
 Include a single JSON action block at the end (e.g. {"action": {"type": "show_venue_card", "params": {...}}}) if you have a specific place to show.
 Keep your tone sophisticated and extremely concise.`;
 
-    console.log(`[AI] Processing task: ${task || 'chat'} with ${formattedMessages.length} messages`);
+    console.log(`[AI] Processing task: ${task || 'chat'} for model: MiniMax-Text-01`);
 
     // Streaming is default for chat, but can be disabled for legacy components
     const stream = payload.stream !== false;
@@ -80,7 +80,7 @@ Keep your tone sophisticated and extremely concise.`;
         "GroupId": group_id,
       },
       body: JSON.stringify({
-        model: "minimax-text-01",
+        model: "MiniMax-Text-01",
         messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-20)],
         temperature: 0.7,
         stream: stream,
@@ -91,7 +91,7 @@ Keep your tone sophisticated and extremely concise.`;
     if (!minimaxResponse.ok) {
       const errText = await minimaxResponse.text();
       console.error(`[AI ENGINE ERROR] ${minimaxResponse.status}: ${errText}`);
-      throw new Error(`MiniMax Engine Error: ${minimaxResponse.status}`);
+      throw new Error(`MiniMax Engine Error: ${minimaxResponse.status}. ${errText.substring(0, 50)}`);
     }
 
     if (stream) {
@@ -113,9 +113,13 @@ Keep your tone sophisticated and extremely concise.`;
     }
 
   } catch (err: any) {
-    console.error("[CRITICAL]", err);
-    return new Response(JSON.stringify({ error: err.message, status: "error" }), { 
-      status: 200, // Return 200 so the frontend can display the error gracefully
+    console.error("[CRITICAL AI ERROR]", err);
+    return new Response(JSON.stringify({ 
+      error: err.message, 
+      status: "error",
+      suggestion: "Check your MiniMax API Key and Quota."
+    }), { 
+      status: 500, // IMPORTANT: Return 500 so frontend catches it as an error
       headers: { ...corsHeaders, "Content-Type": "application/json" } 
     });
   }

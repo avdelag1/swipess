@@ -161,14 +161,14 @@ export function useConciergeAI() {
       }));
 
       // 4. Invoke Edge Function with Streaming
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') || 'https://vplgtcguxujxwrgguxqq.supabase.co';
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') || 'https://qegyisokrxdsszzswsqk.supabase.co';
       const functionUrl = `${supabaseUrl}/functions/v1/ai-orchestrator`;
       const session = (await supabase.auth.getSession()).data.session;
       
       // 🛡️ Robust environment detection - try all common Supabase key names
       const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 
                      import.meta.env.VITE_SUPABASE_ANON_KEY || 
-                     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
+                     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
       
       if (!anonKey) {
         throw new Error("Supabase authentication key is missing. Re-initializing...");
@@ -215,25 +215,27 @@ export function useConciergeAI() {
         throw new Error(errorMessage);
       }
 
-      // Check if response is streaming (text/event-stream) or JSON
+      // Check if response is streaming (text/event-stream)
       const contentType = response.headers.get('Content-Type')?.toLowerCase() || '';
-      const isEventStream = contentType.includes('text/event-stream');
+      const isStream = contentType.includes('text/event-stream');
       
-      if (isEventStream) {
+      if (isStream && response.body) {
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let accumulatedText = '';
         const assistantId = crypto.randomUUID();
+        let firstTokenReceived = false;
 
         if (!reader) throw new Error("Stream reader failed");
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          const rawChunk = decoder.decode(value, { stream: true });
-          
-            // 🚀 SSE STREAM PARSING: Extract content from data: {...} blocks
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const rawChunk = decoder.decode(value, { stream: true });
+            
+            // 🚀 ROBUST SSE STREAM PARSING: Handle potential multi-line chunks
             const lines = rawChunk.split('\n');
             for (const line of lines) {
               const trimmedLine = line.trim();
@@ -245,31 +247,42 @@ export function useConciergeAI() {
                   const parsed = JSON.parse(dataStr);
                   const token = parsed.choices?.[0]?.delta?.content || "";
                 
-                if (token) {
-                  // 🚀 First token received: Stop 'thinking'
-                  if (accumulatedText === '') {
-                    setIsThinking(false);
-                    const aid = assistantId;
-                    setMessages(prev => [...prev, {
-                      id: aid,
-                      role: 'assistant',
-                      content: '',
-                      timestamp: new Date()
-                    }]);
-                  }
-                  
-                  accumulatedText += token;
+                  if (token) {
+                    if (!firstTokenReceived) {
+                      firstTokenReceived = true;
+                      setIsThinking(false);
+                      setMessages(prev => [...prev, {
+                        id: assistantId,
+                        role: 'assistant',
+                        content: '',
+                        timestamp: new Date()
+                      }]);
+                    }
+                    
+                    accumulatedText += token;
 
-                  // Update UI in real-time
-                  setMessages(prev => prev.map(m => 
-                    m.id === assistantId ? { ...m, content: accumulatedText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() } : m
-                  ));
+                    // Update UI in real-time
+                    setMessages(prev => prev.map(m => 
+                      m.id === assistantId ? { ...m, content: accumulatedText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() } : m
+                    ));
+                  }
+                } catch (e) {
+                  // Ignore partial JSON or heartbeats
                 }
-              } catch (e) {
-                // Ignore partial JSON or heartbeats
+              } else if (trimmedLine.startsWith('{') && !firstTokenReceived) {
+                // 🛡️ JSON DETECTED IN STREAM BLOCK: Major hint of a backend error response (status 200 but error JSON)
+                try {
+                  const parsed = JSON.parse(trimmedLine);
+                  if (parsed.error) {
+                    throw new Error(parsed.error);
+                  }
+                } catch (e) { /* not JSON error, continue */ }
               }
             }
           }
+        } catch (streamErr: any) {
+          logger.error('[ConciergeAI] Stream broken:', streamErr);
+          throw streamErr;
         }
 
         const finalRawText = accumulatedText;
@@ -284,10 +297,23 @@ export function useConciergeAI() {
           }
         }
 
-        // Final UI Update with processed actions
-        setMessages(prev => prev.map(m => 
-          m.id === assistantId ? { ...m, content: aiText, action: aiAction } : m
-        ));
+        // Ensure we stop thinking if the stream ended without tokens
+        if (!firstTokenReceived) {
+          setIsThinking(false);
+          const fallbackText = "I encountered a processing glitch. Please try again.";
+          const aid = assistantId;
+          setMessages(prev => [...prev, {
+            id: aid,
+            role: 'assistant',
+            content: fallbackText,
+            timestamp: new Date()
+          }]);
+        } else {
+          // Final UI Update with processed actions
+          setMessages(prev => prev.map(m => 
+            m.id === assistantId ? { ...m, content: aiText, action: aiAction } : m
+          ));
+        }
 
         // 5. Persist AI Response if Auth'd
         if (user && convId) {
@@ -336,7 +362,13 @@ export function useConciergeAI() {
 
     } catch (err) {
       logger.error('[useConciergeAI] Execution error:', err);
-      setError(err instanceof Error ? err.message : 'Service momentarily unavailable');
+      const msg = err instanceof Error ? err.message : 'Service momentarily unavailable';
+      
+      if (msg.includes('402') || msg.includes('credits') || msg.includes('limit')) {
+        setError('Your message quota is exhausted. Please upgrade your plan.');
+      } else {
+        setError(msg);
+      }
     } finally {
       setIsLoading(false);
       setIsThinking(false);

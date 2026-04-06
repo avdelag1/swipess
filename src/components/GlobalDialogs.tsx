@@ -135,7 +135,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
             <CategorySelectionDialog
               open={store.showCategoryDialog}
               onOpenChange={(val: boolean) => store.setModal('showCategoryDialog', val)}
-              onCategorySelect={(category: string, mode: string) => {
+              onCategorySelect={(category: string, mode: 'buy' | 'rent') => {
                 store.setModal('showCategoryDialog', false);
                 // ZENITH FIX: Navigate to the specialized creation form, not the list
                 navigate(`/owner/listings/new?category=${category}&mode=${mode}`);
