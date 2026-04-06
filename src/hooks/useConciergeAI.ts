@@ -184,7 +184,7 @@ export function useConciergeAI() {
         },
         body: JSON.stringify({
           task: 'chat',
-          stream: false,
+          stream: true,
           data: {
             query: userMessage,
             userName,
@@ -344,7 +344,7 @@ export function useConciergeAI() {
         // Fallback for non-streaming responses
         setIsThinking(false);
         const data = await response.json();
-        const rawText = data?.result?.text || data?.result?.message || data?.message || 'I am processing that...';
+        const rawText = data?.result?.text || data?.choices?.[0]?.message?.content || data?.message || 'I am processing that...';
         const aiText = rawText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || rawText;
         const aiAction = data?.result?.action;
 
