@@ -276,13 +276,10 @@ function TopBarComponent({
                       <Button
                         variant="ghost"
                         className={cn(
-                          "relative h-9 w-9 px-0 transition-all duration-200 ease-out bg-transparent",
-                          "hover:scale-105 active:scale-95 group",
-                          "touch-manipulation flex items-center gap-1 flex-shrink-0",
+                          "relative h-9 w-9 px-0 transition-all duration-200 ease-out !bg-transparent !border-none !shadow-none",
+                          "hover:scale-110 active:scale-90 group",
+                          "touch-manipulation flex items-center justify-center flex-shrink-0",
                         )}
-                        style={{
-                          border: 'none',
-                        }}
                         onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
                         onClick={(e) => e.preventDefault()}
                         aria-label="Token Packages"
@@ -408,13 +405,10 @@ function TopBarComponent({
                    <Button
                     variant="ghost"
                     className={cn(
-                      "relative h-9 w-9 px-0 transition-all duration-200 ease-out bg-transparent",
-                      "hover:scale-105 active:scale-95 group",
+                      "relative h-9 w-9 px-0 transition-all duration-200 ease-out !bg-transparent !border-none !shadow-none",
+                      "hover:scale-110 active:scale-90 group",
                       "touch-manipulation flex items-center justify-center flex-shrink-0",
                     )}
-                    style={{
-                      border: 'none',
-                    }}
                     onPointerDown={(e) => {
                       e.preventDefault();
                       e.stopPropagation();

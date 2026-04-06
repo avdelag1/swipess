@@ -45,9 +45,9 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
                 className
             )}
             style={{
-                backgroundColor: glassBg,
-                border: glassBorder,
-                boxShadow: floatingShadow,
+                backgroundColor: 'transparent',
+                border: 'none',
+                boxShadow: 'none',
             }}
             aria-label={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} mode`}
             title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} mode`}
