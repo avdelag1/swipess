@@ -73,7 +73,7 @@ Guidelines:
             "anthropic-version": "2023-06-01",
           },
           body: JSON.stringify({
-            model: "MiniMax-M2.7-highspeed",
+            model: "MiniMax-M2",
             max_tokens: 1024,
             system: messagesPayload[0].content,
             messages: messagesPayload.slice(1).map((m: any) => ({
