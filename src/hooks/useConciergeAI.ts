@@ -161,17 +161,17 @@ export function useConciergeAI() {
       }));
 
       // 4. Invoke Edge Function with Streaming
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') || 'https://vplgtcguxujxwrgguxqq.supabase.co';
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '');
       const functionUrl = `${supabaseUrl}/functions/v1/ai-orchestrator`;
       
-      const targetAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       
       const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${targetAnonKey}`,
-          'apikey': targetAnonKey,
+          'Authorization': `Bearer ${anonKey}`,
+          'apikey': anonKey,
           'X-Client-Info': 'swipess-pwa-concierge'
         },
         body: JSON.stringify({

@@ -22,6 +22,7 @@ const SwipeInsightsModal = lazy(() => import('./SwipeInsightsModal').then(m => (
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
 import { useSmartListingMatching, ListingFilters } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { useCanAccessMessaging } from '@/hooks/useMessaging';
