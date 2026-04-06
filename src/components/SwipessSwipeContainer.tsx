@@ -41,7 +41,6 @@ import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
-import { cn } from '@/lib/utils';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
