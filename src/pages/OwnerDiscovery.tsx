@@ -14,7 +14,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { Badge } from '@/components/ui/badge';
 import { ClientCard } from '@/components/discovery/ClientCard';
 import { DiscoverySkeleton } from '@/components/ui/DiscoverySkeleton';
-import { useTokens } from '@/hooks/useTokens';
+import { useMessagingQuota } from '@/hooks/useMessagingQuota';
 import OwnerInterestedClients from './OwnerInterestedClients';
 import OwnerLikedClients from './OwnerLikedClients';
 import { cn } from '@/lib/utils';
@@ -26,7 +26,7 @@ export default function OwnerDiscovery() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { tokens } = useTokens();
+  const { tokenBalance: tokens } = useMessagingQuota();
   
   const initialCategory = useMemo(() => {
     if (location.pathname.includes('/moto')) return 'motorcycle';
