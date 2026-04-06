@@ -7,7 +7,7 @@ import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 
-import LegendaryLandingPage from "@/components/LegendaryLandingPage";
+const LegendaryLandingPage = lazy(() => import("@/components/LegendaryLandingPage"));
 
 const Index = () => {
   const { user, loading, initialized } = useAuth();
@@ -246,7 +246,9 @@ const Index = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-[#050505] overflow-hidden">
-        <LegendaryLandingPage />
+        <Suspense fallback={<SuspenseFallback />}>
+          <LegendaryLandingPage />
+        </Suspense>
       </div>
     );
   }

@@ -9,14 +9,13 @@ import "./styles/responsive.css";
 import "./styles/PremiumShine.css";
 import { supabase } from "@/integrations/supabase/client";
 
-  const body = document.body;
-  // 🚀 SPEED OF LIGHT: Force high-fidelity "sentient" UI for maximum "wow" factor
-  body.classList.add('hw-high', 'perf-ultra');
-  body.style.setProperty('--backdrop-blur-intensity', '24px');
+// 1. START AUTH CHECK BEFORE RENDERING (Parallel process)
+const authPromise = supabase.auth.getSession()
+  .then(res => res || { data: { session: null }, error: null })
+  .catch(() => ({ data: { session: null }, error: null }));
 
-  // 🚀 ZENITH: ZERO-LATENCY HAPTIC PROTOCOL
-  // Triggers haptics on pointerdown (capture phase) to guarantee 
-  // immediate physical feedback before React even starts a render cycle.
+// 🚀 ZENITH: ZERO-LATENCY HAPTIC PROTOCOL (Optimized)
+const initHaptics = () => {
   document.addEventListener('pointerdown', (e) => {
     const target = (e.target as HTMLElement).closest('button, [role="button"], .interactive, .swipe-card');
     if (target && !target.hasAttribute('data-haptics-fired')) {
@@ -25,11 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
       if ('vibrate' in navigator) navigator.vibrate(10);
     }
   }, { capture: true, passive: true });
-
-// 1. START AUTH CHECK BEFORE RENDERING (Parallel process)
-const authPromise = supabase.auth.getSession()
-  .then(res => res || { data: { session: null }, error: null })
-  .catch(() => ({ data: { session: null }, error: null }));
+};
 
 // 2. RENDER REACT (Robust)
 const rootElement = document.getElementById("root");
@@ -50,6 +45,12 @@ const deferredInit = (callback: () => void, timeout = 5000) => {
 // Secondary Tools: Pushed to 12s+ to ensure 0% main-thread noise during boot
 deferredInit(async () => {
   try {
+    // Apply theme optimizations quietely
+    const body = document.body;
+    body.classList.add('hw-high', 'perf-ultra');
+    body.style.setProperty('--backdrop-blur-intensity', '24px');
+    initHaptics();
+
     const [
       { initPerformanceOptimizations },
       { initOfflineSync },

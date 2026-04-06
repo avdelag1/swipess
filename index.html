@@ -141,7 +141,7 @@
         setTimeout(function() { if(loader.parentNode) loader.remove(); }, 300);
       }
     }
-    var mountTimer = setTimeout(removeSplash, 4000);
+    var mountTimer = setTimeout(removeSplash, 1500);
     window.addEventListener('app-rendered', function() {
       window.__APP_INITIALIZED__ = true;
       clearTimeout(mountTimer);
