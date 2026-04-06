@@ -236,7 +236,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
       max_age: maxAge !== 65 ? maxAge : null,
       preferred_nationalities: null, // preserve existing or clear
     });
-    toast.success("Filters Applied", { description: "Client cards will refresh with your preferences." });
+    toast({ title: "Filters Applied", description: "Client cards will refresh with your preferences." });
     onOpenChange(false);
   };
 
@@ -267,7 +267,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
       min_age: minAge !== 18 ? minAge : null,
       max_age: maxAge !== 65 ? maxAge : null,
     });
-    toast.success("Filter Saved!", { description: `"${filterName}" saved successfully.` });
+    toast({ title: "Filter Saved!", description: `"${filterName}" saved successfully.` });
     setFilterName('');
     setShowSaveAs(false);
     onOpenChange(false);

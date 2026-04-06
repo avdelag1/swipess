@@ -423,7 +423,9 @@ export function useConciergeAI() {
   return {
     messages,
     isLoading,
+    isThinking,
     error,
+    setError,
     conversations,
     currentConversationId,
     sendMessage,

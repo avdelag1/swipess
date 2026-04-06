@@ -199,7 +199,21 @@ export function useNotificationSystem() {
   return {
     notifications,
     dismissNotification: handleDismiss,
+    markNotificationAsRead: (id: string) => {
+      // Mark single notification as read locally + in DB
+      const store = useNotificationStore.getState();
+      store.notifications.forEach(n => { if (n.id === id) n.read = true; });
+      if (user?.id) {
+        supabase.from('notifications').update({ is_read: true }).eq('id', id).eq('user_id', user.id);
+      }
+    },
     markAllAsRead: handleMarkAllAsRead,
+    clearAllNotifications: () => {
+      _clearAll();
+      if (user?.id) {
+        supabase.from('notifications').delete().eq('user_id', user.id);
+      }
+    },
     handleNotificationClick,
     unreadCount: notifications.filter(n => !n.read).length
   };
