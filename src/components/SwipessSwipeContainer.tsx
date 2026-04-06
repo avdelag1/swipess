@@ -986,8 +986,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
       {/* Card area — flex-1 fills remaining space */}
       <div className={cn(
-        "flex-1 relative flex flex-col items-center justify-center p-3 z-10 pointer-events-none min-h-0",
-        (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? "pb-24 lg:pb-28" : ""
+        "flex-1 relative flex flex-col items-center justify-center px-3 pt-1 z-10 pointer-events-none min-h-0",
+        (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? "pb-2" : ""
       )}>
 
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
