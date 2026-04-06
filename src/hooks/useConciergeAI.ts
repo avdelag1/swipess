@@ -30,8 +30,47 @@ interface ConversationSummary {
   updated_at: string;
 }
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const FALLBACK_SUPABASE_PROJECT_ID = 'qegyisokrxdsszzswsqk';
+const FALLBACK_SUPABASE_URL = `https://${FALLBACK_SUPABASE_PROJECT_ID}.supabase.co`;
+const FALLBACK_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjY0NTIsImV4cCI6MjA4NTg0MjQ1Mn0.4tdJ82fDnFXaJ6SHpfveCiGxGm2S4II6NNIbGUnT2ZU';
+
+function getBackendConfig() {
+  const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+  const clientUrl = (supabase as any)?.supabaseUrl as string | undefined;
+  const clientKey = (supabase as any)?.supabaseKey as string | undefined;
+
+  return {
+    url:
+      import.meta.env.VITE_SUPABASE_URL ||
+      clientUrl ||
+      (projectId ? `https://${projectId}.supabase.co` : FALLBACK_SUPABASE_URL),
+    anonKey:
+      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+      clientKey ||
+      FALLBACK_SUPABASE_ANON_KEY,
+  };
+}
+
+async function callAiOrchestrator(payload: any) {
+  const { url, anonKey } = getBackendConfig();
+  const { data: sessionData } = await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    apikey: anonKey,
+  };
+
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  return fetch(`${url}/functions/v1/ai-orchestrator`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload),
+  });
+}
 
 // ── SSE Stream Parser ──────────────────────────────────────────
 async function parseSSEStream(
@@ -273,23 +312,7 @@ export function useConciergeAI() {
   // ── Streaming Attempt ────────────────────────────────────────
   const attemptStreaming = useCallback(
     async (payload: any, convId: string | null): Promise<boolean> => {
-      // Get session token for auth
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData?.session?.access_token;
-
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        apikey: SUPABASE_ANON_KEY,
-      };
-      if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-      }
-
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/ai-orchestrator`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload),
-      });
+      const response = await callAiOrchestrator(payload);
 
       if (!response.ok || !response.body) {
         return false;
@@ -297,13 +320,11 @@ export function useConciergeAI() {
 
       const contentType = response.headers.get('content-type') || '';
       if (!contentType.includes('text/event-stream')) {
-        // Server returned JSON instead of stream — parse as JSON fallback
         const data = await response.json();
         handleJSONResponse(data, convId);
         return true;
       }
 
-      // Stream! Create assistant message placeholder
       const assistantId = crypto.randomUUID();
       let fullText = '';
 
@@ -311,7 +332,7 @@ export function useConciergeAI() {
         ...prev,
         { id: assistantId, role: 'assistant', content: '', timestamp: new Date() },
       ]);
-      setIsThinking(false); // Hide thinking as soon as first token logic starts
+      setIsThinking(false);
 
       const reader = response.body.getReader();
       let firstTokenReceived = false;
@@ -330,7 +351,6 @@ export function useConciergeAI() {
           );
         },
         () => {
-          // Done — extract action and finalize
           const { cleanText, action } = extractAction(fullText);
           setMessages((prev) =>
             prev.map((m) =>
@@ -338,7 +358,6 @@ export function useConciergeAI() {
             )
           );
 
-          // Persist to DB
           if (user && convId) {
             persistAssistantMessage(convId, cleanText, action);
           }
@@ -355,16 +374,14 @@ export function useConciergeAI() {
   // ── JSON Fallback ────────────────────────────────────────────
   const attemptJSON = useCallback(
     async (payload: any, convId: string | null) => {
-      const { data: invokeData, error: invokeError } = await supabase.functions.invoke(
-        'ai-orchestrator',
-        { body: payload }
-      );
+      const response = await callAiOrchestrator(payload);
+      const data = await response.json().catch(() => ({}));
 
-      if (invokeError) {
-        throw new Error(`AI Engine Error: ${invokeError.message}`);
+      if (!response.ok) {
+        throw new Error(`AI Engine Error: ${response.status}`);
       }
 
-      handleJSONResponse(invokeData, convId);
+      handleJSONResponse(data, convId);
     },
     [user]
   );
