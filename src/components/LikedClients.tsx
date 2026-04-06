@@ -53,11 +53,10 @@ export function LikedClients() {
   const [clientToDelete, setClientToDelete] = useState<{ user_id: string; full_name?: string } | null>(null);
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [selectedClientForView, setSelectedClientForView] = useState<any>(null);
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
 
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
-
-  const storageKey = user?.id ? `liked-clients-order-${user.id}` : "";
 
   const { data: likedClients = [], isLoading } = useQuery({
     queryKey: ["liked-clients", user?.id],
