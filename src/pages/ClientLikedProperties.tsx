@@ -1,23 +1,23 @@
 import { LikedListingInsightsModal } from "@/components/LikedListingInsightsModal";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
 import { useStartConversation } from "@/hooks/useConversations";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Flame, Home, Bike, Briefcase, RefreshCw, Car, GripVertical, Search } from "lucide-react";
+import { Flame, Home, Bike, Briefcase, RefreshCw, Car, Search, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/useTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
-import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
 import { DashboardSkeleton } from "@/components/ui/LayoutSkeletons";
 import { pwaImagePreloader, getCardImageUrl } from "@/utils/imageOptimization";
 import type { Listing } from "@/hooks/useListings";
 import { useEffect } from "react";
+import { MotorcycleIcon } from "@/components/icons/MotorcycleIcon";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +28,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { usePersistentReorder } from "@/hooks/usePersistentReorder";
+
+type SortOption = "newest" | "oldest" | "price_low" | "price_high" | "az";
 
 const categories = [
   { id: "all", label: "All Favorites", icon: Flame, title: "Your World", subtitle: "Reorder and filter your top essentials" },
@@ -54,6 +55,10 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [selectedPropertyForModal, setSelectedPropertyForModal] = useState<Listing | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [showFilters, setShowFilters] = useState(false);
 
   const { data: likedProperties = [], isLoading, refetch: refreshLikedProperties, isFetching } = useLikedProperties();
   const startConversation = useStartConversation();
@@ -65,7 +70,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   useEffect(() => {
     if (likedProperties.length > 0) {
       const urlsToPreload = likedProperties
-        .slice(0, 10) // Focus on the first 10 for maximum efficiency
+        .slice(0, 10)
         .map(p => getCardImageUrl(p.images?.[0] || p.image_url || ''))
         .filter(Boolean);
       
@@ -75,55 +80,52 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
     }
   }, [likedProperties]);
 
-  const storageKey = user?.id ? `liked-properties-order-${user.id}` : "";
+  const filteredAndSorted = useMemo(() => {
+    const lowerSearch = searchTerm.toLowerCase();
+    const minPrice = priceMin ? Number(priceMin) : null;
+    const maxPrice = priceMax ? Number(priceMax) : null;
 
-  const removeLikeMutation = useMutation({
-    mutationFn: async (propertyId: string) => {
-      if (!user?.id || !propertyId) throw new Error("Not authenticated or missing ID");
-      const { error } = await supabase
-        .from("likes")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("target_id", propertyId)
-        .eq("target_type", "listing");
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["liked-properties"] });
-      toast.success("Property removed from your likes");
-      setShowDeleteDialog(false);
-      setPropertyToDelete(null);
-    },
-    onError: () => {
-      toast.error("Failed to remove from likes");
-    },
-  });
+    let result = likedProperties.filter((property) => {
+      // Category filter
+      if (selectedCategory !== "all") {
+        const cat = (property.category || "").toLowerCase();
+        const sel = selectedCategory.toLowerCase();
+        if (sel === "property") {
+          if (cat !== "property" && property.category) return false;
+        } else if (cat !== sel) return false;
+      }
 
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
-    setSearchParams({ category });
-  };
+      // Search filter — title + description + location
+      if (lowerSearch) {
+        const title = (property.title || "").toLowerCase();
+        const desc = (property.description || "").toLowerCase();
+        const loc = ((property as any).location || property.address || property.city || "").toLowerCase();
+        if (!title.includes(lowerSearch) && !desc.includes(lowerSearch) && !loc.includes(lowerSearch)) return false;
+      }
 
-  const filteredProperties = likedProperties.filter((property) => {
-    const matchesCategory = (() => {
-      if (selectedCategory === "all") return true;
-      const propertyCategory = (property.category || "").toLowerCase();
-      const selectedCat = selectedCategory.toLowerCase();
-      if (selectedCat === "property") return propertyCategory === "property" || !property.category;
-      if (selectedCat === "event") return propertyCategory === "event";
-      return propertyCategory === selectedCat;
-    })();
+      // Price filter
+      if (minPrice !== null && (property.price ?? 0) < minPrice) return false;
+      if (maxPrice !== null && (property.price ?? 0) > maxPrice) return false;
 
-    const matchesSearch = (property.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ((property as any).location || property.address || property.city || "").toLowerCase().includes(searchTerm.toLowerCase());
+      return true;
+    });
 
-    return matchesCategory && matchesSearch;
-  });
+    // Sort
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case "oldest": return 0; // original order is newest, keep as-is for oldest
+        case "price_low": return (a.price ?? 0) - (b.price ?? 0);
+        case "price_high": return (b.price ?? 0) - (a.price ?? 0);
+        case "az": return (a.title || "").localeCompare(b.title || "");
+        case "newest":
+        default: return 0; // data is already newest-first
+      }
+    });
 
-  const { orderedItems: orderedFilteredProperties, handleReorder } = usePersistentReorder(
-    filteredProperties,
-    `${storageKey}-${selectedCategory}`
-  );
+    if (sortBy === "oldest") result.reverse();
+
+    return result;
+  }, [likedProperties, selectedCategory, searchTerm, priceMin, priceMax, sortBy]);
 
   const handleAction = async (action: "message" | "view" | "remove", property: any) => {
     if (action === "remove") {
@@ -152,6 +154,41 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
     }
   };
 
+  const removeLikeMutation = useMutation({
+    mutationFn: async (propertyId: string) => {
+      if (!user?.id || !propertyId) throw new Error("Not authenticated or missing ID");
+      const { error } = await supabase
+        .from("likes")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("target_id", propertyId)
+        .eq("target_type", "listing");
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["liked-properties"] });
+      toast.success("Property removed from your likes");
+      setShowDeleteDialog(false);
+      setPropertyToDelete(null);
+    },
+    onError: () => {
+      toast.error("Failed to remove from likes");
+    },
+  });
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setSearchParams({ category });
+  };
+
+  const sortOptions: { value: SortOption; label: string }[] = [
+    { value: "newest", label: "Newest" },
+    { value: "oldest", label: "Oldest" },
+    { value: "price_low", label: "Price ↑" },
+    { value: "price_high", label: "Price ↓" },
+    { value: "az", label: "A → Z" },
+  ];
+
   return (
     <div 
       className="w-full min-h-[101dvh] relative overflow-x-hidden pb-32 bg-background flex flex-col" 
@@ -159,7 +196,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
     >
       <div className="flex-1 flex flex-col p-4 pt-4 sm:p-8 sm:pt-4 max-w-7xl mx-auto w-full">
         {/* Category tabs and Sync button */}
-        <div className="flex items-center justify-between gap-4 mb-8 pb-2 pt-6">
+        <div className="flex items-center justify-between gap-4 mb-6 pb-2 pt-6">
           <div className="flex-1 flex gap-3 overflow-x-auto scrollbar-hide no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             {categories.map(({ id, label, icon: Icon }) => (
               <motion.button
@@ -171,8 +208,8 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                   selectedCategory === id
                     ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-lg shadow-[var(--color-brand-accent-2)]/20"
                     : isLight
-                    ? "bg-white border-border/60 text-slate-900 hover:bg-slate-50 shadow-sm"
-                    : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
+                    ? "bg-card border-border/60 text-foreground hover:bg-secondary shadow-sm"
+                    : "bg-white/[0.04] border-white/[0.08] text-muted-foreground hover:text-foreground hover:bg-white/[0.08]"
                 )}
               >
                 <Icon className="w-4 h-4" />
@@ -194,53 +231,145 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
           </button>
         </div>
 
-        {/* Search Bar — New: matches Owner Side standard */}
-        <div className="relative mb-8">
+        {/* Search Bar */}
+        <div className="relative mb-4">
           <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-muted-foreground" />
           </div>
           <input
             type="text"
-            placeholder="Search your favorites..."
+            placeholder="Search title, description, location..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={cn(
-              "w-full h-16 rounded-3xl pl-14 pr-6 font-bold focus:border-[var(--color-brand-accent-2)] transition-all outline-none",
+              "w-full h-14 rounded-2xl pl-14 pr-14 font-bold focus:border-[var(--color-brand-accent-2)] transition-all outline-none text-sm",
               isLight
-                ? "bg-white border border-slate-200 text-slate-900 placeholder-slate-400 shadow-sm"
-                : "bg-white/[0.04] border border-white/[0.08] text-white placeholder-muted-foreground"
+                ? "bg-card border border-border/60 text-foreground placeholder-muted-foreground shadow-sm"
+                : "bg-white/[0.04] border border-white/[0.08] text-foreground placeholder-muted-foreground"
             )}
           />
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={cn(
+              "absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-xl transition-all active:scale-95",
+              showFilters
+                ? "bg-[var(--color-brand-accent-2)] text-white"
+                : "bg-secondary text-muted-foreground"
+            )}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Count + drag hint */}
-        <div className="flex items-center gap-3 mb-8 px-2">
+        {/* Filter Panel */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden mb-4"
+            >
+              <div className={cn(
+                "rounded-2xl p-4 flex flex-col gap-4 border",
+                isLight ? "bg-card border-border/50" : "bg-white/[0.03] border-white/[0.06]"
+              )}>
+                {/* Price Range */}
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2 block">Price Range</span>
+                  <div className="flex gap-3">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={priceMin}
+                      onChange={(e) => setPriceMin(e.target.value)}
+                      className={cn(
+                        "flex-1 h-11 rounded-xl px-4 text-sm font-bold outline-none border transition-all",
+                        isLight
+                          ? "bg-background border-border/50 text-foreground placeholder-muted-foreground"
+                          : "bg-white/[0.04] border-white/[0.08] text-foreground placeholder-muted-foreground"
+                      )}
+                    />
+                    <span className="flex items-center text-muted-foreground text-xs font-black">TO</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={priceMax}
+                      onChange={(e) => setPriceMax(e.target.value)}
+                      className={cn(
+                        "flex-1 h-11 rounded-xl px-4 text-sm font-bold outline-none border transition-all",
+                        isLight
+                          ? "bg-background border-border/50 text-foreground placeholder-muted-foreground"
+                          : "bg-white/[0.04] border-white/[0.08] text-foreground placeholder-muted-foreground"
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Sort */}
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2 block">Sort By</span>
+                  <div className="flex gap-2 flex-wrap">
+                    {sortOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => setSortBy(opt.value)}
+                        className={cn(
+                          "px-4 py-2 rounded-xl text-xs font-black border transition-all active:scale-95",
+                          sortBy === opt.value
+                            ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white"
+                            : isLight
+                            ? "bg-background border-border/50 text-foreground"
+                            : "bg-white/[0.04] border-white/[0.08] text-muted-foreground"
+                        )}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Count */}
+        <div className="flex items-center gap-3 mb-6 px-2">
           <div className="w-2 h-2 rounded-full bg-[var(--color-brand-accent-2)] shadow-[0_0_10px_var(--color-brand-accent-2)]" />
           <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
-            {orderedFilteredProperties.length} Saved Essentials
+            {filteredAndSorted.length} Saved Essentials
           </span>
-          {orderedFilteredProperties.length > 1 && (
-            <span className="ml-auto flex items-center gap-1 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
-              <GripVertical className="w-3 h-3" />
-              Drag to reorder
-            </span>
+          {(searchTerm || priceMin || priceMax || sortBy !== "newest") && (
+            <button
+              onClick={() => { setSearchTerm(""); setPriceMin(""); setPriceMax(""); setSortBy("newest"); }}
+              className="ml-auto text-[10px] font-black uppercase tracking-widest text-[var(--color-brand-accent-2)] active:scale-95"
+            >
+              Clear Filters
+            </button>
           )}
         </div>
 
         {isLoading ? (
           <DashboardSkeleton />
-        ) : orderedFilteredProperties.length > 0 ? (
-          <PremiumSortableGrid
-            items={orderedFilteredProperties}
-            onReorder={handleReorder}
-            renderItem={(property) => (
-              <PremiumLikedCard
-                type="listing"
-                data={property}
-                onAction={(action) => handleAction(action, property)}
-              />
-            )}
-          />
+        ) : filteredAndSorted.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {filteredAndSorted.map((property, index) => (
+              <motion.div
+                key={property.id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.03, duration: 0.3 }}
+                className="rounded-[2rem]"
+              >
+                <PremiumLikedCard
+                  type="listing"
+                  data={property}
+                  onAction={(action) => handleAction(action, property)}
+                />
+              </motion.div>
+            ))}
+          </div>
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}

@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Flame, Users, Search, ThumbsUp, ShieldCheck, ShieldAlert,
-  Home, Briefcase, DollarSign, GripVertical,
+  Home, Briefcase, DollarSign, ArrowUpDown,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,7 +13,6 @@ import { useTheme } from "@/hooks/useTheme";
 import { useStartConversation } from "@/hooks/useConversations";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikedClientInsightsModal } from "@/components/LikedClientInsightsModal";
-import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
 
 import { cn } from "@/lib/utils";
 import {
@@ -32,7 +31,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { usePersistentReorder } from "@/hooks/usePersistentReorder";
+
+type SortOption = "newest" | "oldest" | "az";
 
 const clientCategories = [
   { id: "all", label: "All Talents", icon: Flame },
@@ -53,11 +53,10 @@ export function LikedClients() {
   const [clientToDelete, setClientToDelete] = useState<{ user_id: string; full_name?: string } | null>(null);
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [selectedClientForView, setSelectedClientForView] = useState<any>(null);
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
 
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
-
-  const storageKey = user?.id ? `liked-clients-order-${user.id}` : "";
 
   const { data: likedClients = [], isLoading } = useQuery({
     queryKey: ["liked-clients", user?.id],
@@ -152,33 +151,41 @@ export function LikedClients() {
     }
   };
 
-  // Category + search filter
-  const baseFiltered = likedClients.filter((client) => {
-    const occupations = (client as any).occupation?.toLowerCase() || "";
-    const name = (client.full_name || "").toLowerCase();
-    const bio = (client as any).bio?.toLowerCase() || "";
-    
-    const matchesSearch = name.includes(searchTerm.toLowerCase()) || occupations.includes(searchTerm.toLowerCase());
-    
-    if (filterSafeOnly && (client as any).has_criminal_record) return false;
-    
-    if (selectedCategory === "renter")
-      return matchesSearch && (occupations.includes("rent") || bio.includes("rent"));
-      
-    if (selectedCategory === "worker")
-      return matchesSearch && (occupations.includes("work") || occupations.includes("service") || bio.includes("work") || bio.includes("service"));
-      
-    if (selectedCategory === "buyer")
-      return matchesSearch && (occupations.includes("buy") || occupations.includes("hire") || bio.includes("buy") || bio.includes("hire") || bio.includes("looking to"));
-      
-    return matchesSearch;
-  });
+  // Category + search + sort filter
+  const filteredClients = useMemo(() => {
+    const lowerSearch = searchTerm.toLowerCase();
 
-  // Persistent drag-reorder
-  const { orderedItems: filteredClients, handleReorder } = usePersistentReorder(
-    baseFiltered,
-    storageKey
-  );
+    let result = likedClients.filter((client) => {
+      const occupations = (client as any).occupation?.toLowerCase() || "";
+      const name = (client.full_name || "").toLowerCase();
+      const bio = (client as any).bio?.toLowerCase() || "";
+      
+      const matchesSearch = !lowerSearch || name.includes(lowerSearch) || occupations.includes(lowerSearch) || bio.includes(lowerSearch);
+      
+      if (filterSafeOnly && (client as any).has_criminal_record) return false;
+      
+      if (selectedCategory === "renter")
+        return matchesSearch && (occupations.includes("rent") || bio.includes("rent"));
+      if (selectedCategory === "worker")
+        return matchesSearch && (occupations.includes("work") || occupations.includes("service") || bio.includes("work") || bio.includes("service"));
+      if (selectedCategory === "buyer")
+        return matchesSearch && (occupations.includes("buy") || occupations.includes("hire") || bio.includes("buy") || bio.includes("hire") || bio.includes("looking to"));
+        
+      return matchesSearch;
+    });
+
+    // Sort
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case "oldest": return new Date(a.liked_at || "").getTime() - new Date(b.liked_at || "").getTime();
+        case "az": return (a.full_name || "").localeCompare(b.full_name || "");
+        case "newest":
+        default: return new Date(b.liked_at || "").getTime() - new Date(a.liked_at || "").getTime();
+      }
+    });
+
+    return result;
+  }, [likedClients, selectedCategory, searchTerm, filterSafeOnly, sortBy]);
 
   return (
     <div className="w-full relative overflow-visible pb-32 bg-background" data-no-swipe-nav="true">
@@ -254,29 +261,56 @@ export function LikedClients() {
           </div>
           <input
             type="text"
-            placeholder="Search liked clients..."
+            placeholder="Search name, occupation, bio..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={cn(
-              "w-full h-16 rounded-3xl pl-14 pr-6 font-bold focus:border-primary transition-all outline-none",
+              "w-full h-14 rounded-2xl pl-14 pr-6 font-bold focus:border-primary transition-all outline-none text-sm",
               isLight
-                ? "bg-white border border-slate-200 text-slate-900 placeholder-slate-400 shadow-sm"
+                ? "bg-card border border-border/60 text-foreground placeholder-muted-foreground shadow-sm"
                 : "bg-muted/30 border border-border text-foreground placeholder-muted-foreground"
             )}
           />
         </div>
 
-        {/* Count + drag hint */}
-        <div className="flex items-center gap-3 mb-8 px-2">
+        {/* Sort options */}
+        <div className="flex items-center gap-2 mb-4 px-2 overflow-x-auto no-scrollbar">
+          <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+          {([
+            { value: "newest" as SortOption, label: "Newest" },
+            { value: "oldest" as SortOption, label: "Oldest" },
+            { value: "az" as SortOption, label: "A → Z" },
+          ]).map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setSortBy(opt.value)}
+              className={cn(
+                "px-3 py-1.5 rounded-xl text-[10px] font-black border transition-all active:scale-95 whitespace-nowrap",
+                sortBy === opt.value
+                  ? "bg-primary border-primary text-primary-foreground"
+                  : isLight
+                  ? "bg-card border-border/50 text-foreground"
+                  : "bg-white/[0.04] border-white/[0.08] text-muted-foreground"
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Count */}
+        <div className="flex items-center gap-3 mb-6 px-2">
           <div className="w-2 h-2 rounded-full bg-primary shadow-md" />
           <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
             {filteredClients.length} Potential Professionals
           </span>
-          {filteredClients.length > 1 && (
-            <span className="ml-auto flex items-center gap-1 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
-              <GripVertical className="w-3 h-3" />
-              Drag to reorder
-            </span>
+          {searchTerm && (
+            <button
+              onClick={() => { setSearchTerm(""); setSortBy("newest"); }}
+              className="ml-auto text-[10px] font-black uppercase tracking-widest text-primary active:scale-95"
+            >
+              Clear
+            </button>
           )}
         </div>
 
@@ -287,17 +321,24 @@ export function LikedClients() {
             ))}
           </div>
         ) : filteredClients.length > 0 ? (
-          <PremiumSortableGrid
-            items={filteredClients}
-            onReorder={handleReorder}
-            renderItem={(client) => (
-              <PremiumLikedCard
-                type="profile"
-                data={client}
-                onAction={(action) => handleAction(action, client)}
-              />
-            )}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {filteredClients.map((client: any, index: number) => (
+              <motion.div
+                key={client.id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.03, duration: 0.3 }}
+                className="rounded-[2rem]"
+              >
+                <PremiumLikedCard
+                  type="profile"
+                  data={client}
+                  onAction={(action) => handleAction(action, client)}
+                />
+              </motion.div>
+            ))}
+          </div>
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
