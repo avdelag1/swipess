@@ -78,13 +78,15 @@ export function useConciergeAI() {
             .order('created_at', { ascending: true });
 
           if (msgs) {
-            setMessages((msgs as any[]).map((m: any) => ({
-              id: String(m.id),
-              role: m.role as any,
-              content: m.content,
-              timestamp: new Date(m.created_at),
-              action: m.metadata?.action,
-            })));
+            setMessages((msgs as any[])
+              .filter((m: any) => m.content && m.content.trim() !== '')
+              .map((m: any) => ({
+                id: String(m.id),
+                role: m.role as any,
+                content: m.content,
+                timestamp: new Date(m.created_at),
+                action: m.metadata?.action,
+              })));
           }
         }
       } catch (e) {
@@ -349,6 +351,27 @@ export function useConciergeAI() {
         };
 
         setMessages(prev => [...prev, assistantMsg]);
+
+        // Persist AI response to DB (mirrors streaming path)
+        if (user && convId) {
+          try {
+            await (supabase as any).from('ai_messages').insert({
+              conversation_id: convId,
+              user_id: user.id,
+              role: 'assistant',
+              content: aiText,
+              metadata: aiAction ? { action: aiAction } : {}
+            });
+
+            await (supabase as any)
+              .from('ai_conversations')
+              .update({ updated_at: new Date().toISOString() })
+              .eq('id', convId);
+          } catch (dbErr) {
+            logger.warn('[ConciergeAI] Non-stream AI response persistence skipped:', dbErr);
+          }
+        }
+
         if (aiAction) handleAiAction(aiAction);
       }
 
@@ -412,13 +435,15 @@ export function useConciergeAI() {
         .order('created_at', { ascending: true });
 
       if (msgs) {
-        setMessages((msgs as any[]).map((m: any) => ({
-          id: String(m.id),
-          role: m.role as any,
-          content: m.content,
-          timestamp: new Date(m.created_at),
-          action: m.metadata?.action,
-        })));
+        setMessages((msgs as any[])
+          .filter((m: any) => m.content && m.content.trim() !== '')
+          .map((m: any) => ({
+            id: String(m.id),
+            role: m.role as any,
+            content: m.content,
+            timestamp: new Date(m.created_at),
+            action: m.metadata?.action,
+          })));
       }
     } catch (err) {
       logger.error('[ConciergeAI] Switch error:', err);
