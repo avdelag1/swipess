@@ -1,4 +1,5 @@
-import { lazy, Suspense, useState } from "react";
+import { Suspense, useState } from "react";
+import { lazyWithRetry } from "@/utils/lazyRetry";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { RootProviders } from "./providers/RootProviders";
 import { useAuth } from "@/hooks/useAuth";
@@ -69,7 +70,7 @@ const OwnerFilters = lazy(() => import("./pages/OwnerFilters"));
 const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const SubscriptionPackagesPage = lazy(() => import("./pages/SubscriptionPackagesPage"));
-const DJTurntableRadio = lazy(() => import("./pages/DJTurntableRadio"));
+const DJTurntableRadio = lazyWithRetry(() => import("./pages/DJTurntableRadio"));
 const EventosFeed = lazy(() => import("./pages/EventosFeed"));
 const EventoDetail = lazy(() => import("./pages/EventoDetail"));
 const EventosLikes = lazy(() => import("./pages/EventosLikes"));
