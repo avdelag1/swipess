@@ -35,6 +35,10 @@ const typeConfigs: Record<NotificationType, { icon: any; accentColor: string; bg
   new_user:            { icon: UserPlus,      accentColor: '#10b981', bg: 'rgba(16,185,129,0.12)' },
   premium_purchase:    { icon: Crown,         accentColor: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
   activation_purchase: { icon: Zap,           accentColor: '#f97316', bg: 'rgba(249,115,22,0.12)' },
+  info:                { icon: MessageCircle, accentColor: '#3b82f6', bg: 'rgba(59,130,246,0.12)' },
+  success:             { icon: ThumbsUp,      accentColor: '#10b981', bg: 'rgba(16,185,129,0.12)' },
+  error:               { icon: X,             accentColor: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
+  warning:             { icon: Zap,           accentColor: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
 };
 
 function SparklesIcon(props: any) {
