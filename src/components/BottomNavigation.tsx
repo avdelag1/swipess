@@ -381,10 +381,10 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                   style={{
-                    minWidth: '60px',
-                    scrollSnapAlign: 'start', // Ensure item lands nicely
-                    minHeight: TOUCH_TARGET, // RESTORED THICKNESS
-                    padding: '4px 6px', // Balanced spacing per user request
+                    minWidth: '68px',
+                    scrollSnapAlign: 'start',
+                    minHeight: TOUCH_TARGET,
+                    padding: '6px 8px',
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
@@ -405,10 +405,10 @@ export const BottomNavigation = memo(({
                       damping: 38,
                       mass: 0.6,
                     }}
-                    style={{
-                      background: 'none',
-                      boxShadow: 'none',
-                    }}
+                     style={{
+                       background: isLight ? 'rgba(255,107,53,0.1)' : 'rgba(255,107,53,0.15)',
+                       boxShadow: 'none',
+                     }}
                   >
                      {/* Liquid highlight catch-light */}
                      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />

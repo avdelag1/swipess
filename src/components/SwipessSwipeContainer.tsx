@@ -955,43 +955,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // of the vertical snap-scrolling reel.
   return (
     <div className="relative w-full h-full overflow-hidden flex flex-col pt-1 bg-background">
-      {/* PREMIUM AMBIENT GLOWS: Dynamic Category-Aware Background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10 bg-[#0a0a0b]">
-        <motion.div
-          animate={{
-            scale: [1, 1.25, 1],
-            opacity: [0.03, 0.06, 0.03],
-            rotate: [0, 90, 0],
-            backgroundColor: topCard?.category === 'property' ? '#3b82f6' :
-              topCard?.category === 'vehicle' ? '#f59e0b' :
-                topCard?.category === 'worker' ? '#8b5cf6' : '#ec4899'
-          }}
-          transition={{
-            scale: { duration: 25, repeat: Infinity, ease: "easeInOut" },
-            opacity: { duration: 25, repeat: Infinity, ease: "easeInOut" },
-            rotate: { duration: 40, repeat: Infinity, ease: "linear" },
-            backgroundColor: { duration: 2 }
-          }}
-          className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] rounded-full blur-[160px]"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.15, 1],
-            opacity: [0.02, 0.05, 0.02],
-            rotate: [0, -90, 0],
-            backgroundColor: topCard?.category === 'property' ? '#60a5fa' :
-              topCard?.category === 'vehicle' ? '#fbbf24' :
-                topCard?.category === 'worker' ? '#a78bfa' : '#f43f5e'
-          }}
-          transition={{
-            scale: { duration: 30, repeat: Infinity, ease: "easeInOut" },
-            opacity: { duration: 30, repeat: Infinity, ease: "easeInOut" },
-            rotate: { duration: 50, repeat: Infinity, ease: "linear" },
-            backgroundColor: { duration: 2 }
-          }}
-          className="absolute -bottom-1/4 -left-1/4 w-[900px] h-[900px] rounded-full blur-[180px]"
-        />
-      </div>
+      {/* Static ambient background — GPU-friendly, no infinite animations */}
+      <div className="absolute inset-0 pointer-events-none -z-10 bg-[#0a0a0b]" />
       {/* Top Controls Overlay: Only shown when deck is ACTIVE to prevent overlap with empty/exhausted states */}
       <AnimatePresence>
         {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
@@ -1001,7 +966,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             exit={{ opacity: 0, y: -20 }}
             className="absolute top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none"
           >
-            <div className="w-full pt-4 pb-8 px-6 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
+            <div className="w-full pt-8 pb-8 px-6 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
               <div className="w-full flex justify-between items-center pointer-events-auto">
                 {(!storeActiveCategory || (deckQueue.length > 0 && currentIndex < deckQueue.length)) && (
                   <DistanceSlider
@@ -1027,7 +992,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute top-[calc(var(--top-bar-height)+16px)] left-0 right-0 z-50 flex justify-center pointer-events-none px-6"
+            className="absolute top-[calc(var(--top-bar-height)+24px)] left-0 right-0 z-50 flex justify-center pointer-events-none px-6"
           >
             <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-2xl shadow-2xl flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-brand-accent-2 animate-pulse" />
