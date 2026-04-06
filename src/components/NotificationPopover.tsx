@@ -359,7 +359,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
       size="icon"
       className={cn(
         "relative h-9 w-9 rounded-xl transition-all duration-200",
-        "hover:scale-105 active:scale-95 group bg-card border-0",
+        "hover:scale-105 active:scale-95 group bg-transparent border-0",
         "touch-manipulation"
       )}
       onClick={() => {
@@ -393,14 +393,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
         </AnimatePresence>
       </div>
 
-      {/* Subtle pulse animation when there are unread */}
-      {unreadCount > 0 && (
-        <motion.span
-          className="absolute inset-0 rounded-xl bg-primary/20"
-          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0, 0.3] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-      )}
+      {/* Subtle indicator shadow removed per user request for simplicity */}
     </Button>
   );
 

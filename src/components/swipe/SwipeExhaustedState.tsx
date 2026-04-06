@@ -133,103 +133,42 @@ export const SwipeExhaustedState = ({
         <motion.div 
           initial={{ opacity: 0, y: 30 }} 
           animate={{ opacity: 1, y: 0 }} 
-          className="w-full max-w-sm flex flex-col items-center space-y-8"
+          className="w-full max-w-sm flex flex-col items-center space-y-10"
         >
-            {role === 'client' ? (
-              <div className="relative w-full scale-[0.85] -mb-8">
-                <CategorySwipeStack />
-              </div>
-            ) : (
-              <div className="w-full py-4 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                {/* Category Filters */}
-                <div className="flex flex-wrap justify-center gap-4">
-                  {[
-                    { id: 'property', icon: Home, color: 'from-indigo-600 to-indigo-500' },
-                    { id: 'motorcycle', icon: MotorcycleIcon, color: 'from-orange-600 to-orange-500' },
-                    { id: 'bicycle', icon: Bike, color: 'from-violet-600 to-violet-500' },
-                    { id: 'services', icon: Briefcase, color: 'from-teal-600 to-teal-500' },
-                  ].map((cat) => {
-                    const isActive = useFilterStore.getState().categories.includes(cat.id as any);
-                    return (
-                      <motion.button
-                        key={cat.id}
-                        whileHover={{ scale: 1.05, y: -5 }}
-                        whileTap={{ scale: 0.95 }}
-                        animate={isActive ? { scale: [1, 1.05, 1] } : {}}
-                        transition={isActive ? { repeat: Infinity, duration: 2.5 } : {}}
-                        onClick={() => {
-                          const actions = useFilterStore.getState();
-                          actions.setCategories([cat.id as any]);
-                          onRefresh();
-                        }}
-                        className={cn(
-                          "relative group flex flex-col items-center gap-3 p-4 rounded-[2rem] border transition-all duration-500 min-w-[84px]",
-                          isActive 
-                            ? `bg-gradient-to-b ${cat.color} border-white/20 shadow-2xl`
-                            : "bg-white/[0.03] border-white/10 hover:bg-white/[0.07]"
-                        )}
-                        style={{
-                           boxShadow: isActive ? '0 20px 40px -10px rgba(0,0,0,0.5)' : 'none'
-                        }}
-                      >
-                        {/* Profile/Human Reference Icon */}
-                        <div className="relative">
-                          <div className={cn(
-                             "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500",
-                             isActive ? "bg-white/20" : "bg-white/5 group-hover:bg-white/10"
-                          )}>
-                             <User className={cn(
-                                "w-6 h-6",
-                                isActive ? "text-white" : "text-white/40"
-                             )} />
-                          </div>
-                          
-                          {/* Small context icon badge */}
-                          <div className={cn(
-                             "absolute -bottom-1 -right-1 w-6 h-6 rounded-lg flex items-center justify-center shadow-lg border",
-                             isActive ? "bg-white text-indigo-600 border-indigo-200" : "bg-zinc-800 text-white/60 border-white/10"
-                          )}>
-                             <cat.icon className="w-3.5 h-3.5" />
-                          </div>
-                        </div>
-
-                        {/* Subtle indicator shadow */}
-                        {isActive && (
-                           <motion.div 
-                              layoutId="active-indicator-shadow"
-                              className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-white/40 blur-md rounded-full"
-                           />
-                        )}
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-          <div className="space-y-3">
-            <h3 className="text-xl font-black text-foreground tracking-tight leading-none">{title}</h3>
-            <p className="text-muted-foreground text-[13px] max-w-[280px] mx-auto leading-relaxed font-bold uppercase tracking-wider opacity-80">
-              {description}
-            </p>
-          </div>
-          
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="pt-2">
-            <Button
-              onClick={onRefresh}
-              disabled={isRefreshing}
-              className="gap-3 rounded-2xl px-12 py-7 bg-gradient-to-r from-primary to-orange-500 text-white hover:opacity-90 shadow-2xl font-black uppercase tracking-[0.2em] text-[12px] border-none"
-            >
-              {isRefreshing ? (
-                <RadarSearchIcon size={20} isActive={true} />
+          {/* 🚀 WELL DONE DESIGN: Information Hub Header */}
+          <div className="flex flex-col items-center gap-6">
+            <div className={cn(
+              "w-24 h-24 rounded-[2.5rem] flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 relative overflow-hidden group",
+              categoryLower === 'all' ? "bg-gradient-to-br from-brand-accent-2/20 to-brand-primary/20" : "bg-white/5"
+            )}>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 text-transparent pointer-events-none" />
+              {typeof _CategoryIcon === 'object' ? (
+                _CategoryIcon
               ) : (
-                <RefreshCw className="w-5 h-5" />
+                <_CategoryIcon className={cn("w-10 h-10 transition-all duration-500 group-hover:scale-110", _iconColor || "text-white/60")} strokeWidth={2.5} />
               )}
-              {isRefreshing ? 'Scanning...' : `Refresh ${categoryLabel}`}
-            </Button>
-          </motion.div>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex flex-col gap-1.5">
+               <h3 className="text-3xl font-black text-foreground tracking-tighter uppercase leading-none">{title}</h3>
+               <div className="flex items-center justify-center animate-pulse gap-2">
+                 <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2" />
+                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">Ready for scanning</p>
+               </div>
+              </div>
+              <p className="text-muted-foreground text-[14px] max-w-[280px] mx-auto leading-relaxed font-medium opacity-80 decoration-brand-accent-2/20 underline-offset-8">
+                {description}
+              </p>
+            </div>
+          </div>
 
-          <div className="w-full pt-4">
+          {/* 🚀 DISTANCE SELECTOR NAVIGATION */}
+          <div className="w-full bg-white/[0.03] backdrop-blur-3xl border border-white/5 rounded-[2.5rem] p-8 shadow-2xl relative">
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-black px-4 py-1 rounded-full border border-white/10">
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-accent-2">{radiusKm} KM RADIUS</span>
+            </div>
+            
             <SwipeDistanceSlider
               radiusKm={radiusKm}
               onRadiusChange={onRadiusChange}
@@ -237,10 +176,36 @@ export const SwipeExhaustedState = ({
               detecting={detecting}
               detected={detected}
             />
-            <p className="mt-5 text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40 italic">
-              New {categoryLower} are added daily
-            </p>
+            
+            <div className="mt-8 flex items-center justify-center gap-2 py-2 px-4 bg-white/5 rounded-2xl border border-white/5">
+              <RadarSearchIcon size={12} isActive={true} />
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 italic">Searching {categoryLabel} near you</span>
+            </div>
           </div>
+          
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="pt-2 w-full">
+            <Button
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              className="w-full h-20 rounded-[2rem] bg-gradient-to-r from-primary via-orange-500 to-brand-accent-2 text-white hover:opacity-90 shadow-[0_20px_40px_rgba(244,63,94,0.3)] font-black uppercase tracking-[0.3em] text-[13px] border-none"
+            >
+              {isRefreshing ? (
+                <div className="flex items-center gap-4">
+                  <div className="w-5 h-5 rounded-full border-4 border-white/20 border-t-white animate-spin" />
+                  <span>Scanning Field...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <RefreshCw className="w-5 h-5" />
+                  <span>Refresh {categoryLabel}</span>
+                </div>
+              )}
+            </Button>
+          </motion.div>
+
+          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-foreground/20 italic pt-4">
+            Sentient Discovery Protocol v4.0
+          </p>
         </motion.div>
       </motion.div>
     </AnimatePresence>

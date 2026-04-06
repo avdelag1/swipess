@@ -1,4 +1,4 @@
-import { Home, Bike, Briefcase, Sparkles, Users, ShoppingBag, Key, Wrench } from 'lucide-react';
+import { Home, Bike, Briefcase, Sparkles, Users, ShoppingBag, Key, Wrench, Radio as RadioIcon } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ListingFilters } from '@/hooks/useSmartMatching';
 import { logger } from '@/utils/prodLogger';
@@ -92,6 +92,7 @@ export const POKER_CARDS = [
   { id: 'motorcycle' as const, label: 'Motorcycles', description: 'Bikes & scooters',     accent: '#f97316', accentRgb: '249,115,22', icon: MotorcycleIcon  },
   { id: 'bicycle'    as const, label: 'Bicycles',    description: 'City & mountain',      accent: '#f43f5e', accentRgb: '244,63,94', icon: Bike   },
   { id: 'services'   as const, label: 'Workers',     description: 'Skilled freelancers',  accent: '#a855f7', accentRgb: '168,85,247', icon: Briefcase  },
+  { id: 'radio'      as const, label: 'Radio',       description: 'Sentient Beats',       accent: '#f43f5e', accentRgb: '244,63,94',  icon: RadioIcon },
   { id: 'all'        as const, label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212', icon: Sparkles   },
 ];
 
@@ -117,6 +118,7 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   bicycle:    '/images/filters/bicycle.png',
   services:   '/images/filters/workers.png',
   all:        '/images/filters/all.png',
+  radio:      '/images/filters/radio.png',
   
   // Owner intent cards - REFINED UX
   buyers:        '/images/filters/owner_buyers_card.png',

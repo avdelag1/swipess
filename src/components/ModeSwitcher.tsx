@@ -82,9 +82,9 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         style={{
           height: btnH,
           width: iconW * 2,
-          backgroundColor: glassBg,
-          border: glassBorder,
-          boxShadow: floatingShadow,
+          background: 'none',
+          border: 'none',
+          boxShadow: 'none',
         }}
         aria-label={`Switch to ${activeMode === 'client' ? 'Business Side' : 'Client Side'} mode`}
       >

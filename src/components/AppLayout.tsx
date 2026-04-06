@@ -103,7 +103,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <TopBar
             userRole={userRole}
             onMessageActivationsClick={handleMessageActivationsClick}
-            transparent={false} // Force background for button visibility contrast
+            transparent={isImmersive} // Respect immersive transparency for discovery
             showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
             className="z-[9999]"
           />
