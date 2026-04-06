@@ -192,171 +192,43 @@ export function useConciergeAI() {
       // Wrap in a synthetic response-like object for compatibility with existing parsing
       const data = invokeData;
 
-      // Check if response is streaming (text/event-stream)
-      const contentType = response.headers.get('Content-Type')?.toLowerCase() || '';
-      const isStream = contentType.includes('text/event-stream');
-      
-      if (isStream && response.body) {
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        let accumulatedText = '';
-        const assistantId = crypto.randomUUID();
-        let firstTokenReceived = false;
+      // Parse non-streaming JSON response from supabase.functions.invoke
+      setIsThinking(false);
+      const rawText = data?.result?.text || data?.choices?.[0]?.message?.content || data?.message || 'I am processing that...';
+      const aiText = rawText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || rawText;
+      const aiAction = data?.result?.action;
 
-        if (!reader) throw new Error("Stream reader failed");
+      const assistantMsg: ConciergeMessage = {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: aiText,
+        timestamp: new Date(),
+        action: aiAction,
+      };
 
+      setMessages(prev => [...prev, assistantMsg]);
+
+      // Persist AI response to DB
+      if (user && convId) {
         try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            
-            const rawChunk = decoder.decode(value, { stream: true });
-            
-            // 🚀 ROBUST SSE STREAM PARSING: Handle potential multi-line chunks
-            const lines = rawChunk.split('\n');
-            for (const line of lines) {
-              const trimmedLine = line.trim();
-              if (trimmedLine.startsWith('data:')) {
-                const dataStr = trimmedLine.slice(trimmedLine.startsWith('data: ') ? 6 : 5).trim();
-                if (dataStr === '[DONE]') continue;
-                
-                try {
-                  const parsed = JSON.parse(dataStr);
-                  const token = parsed.choices?.[0]?.delta?.content || "";
-                
-                  if (token) {
-                    if (!firstTokenReceived) {
-                      firstTokenReceived = true;
-                      setIsThinking(false);
-                      setMessages(prev => [...prev, {
-                        id: assistantId,
-                        role: 'assistant',
-                        content: '',
-                        timestamp: new Date()
-                      }]);
-                    }
-                    
-                    accumulatedText += token;
-
-                    // Update UI in real-time
-                    setMessages(prev => prev.map(m => 
-                      m.id === assistantId ? { ...m, content: accumulatedText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() } : m
-                    ));
-                  }
-                } catch (e) {
-                  // Ignore partial JSON or heartbeats
-                }
-              } else if (trimmedLine.startsWith('{') && !firstTokenReceived) {
-                // 🛡️ JSON DETECTED IN STREAM BLOCK: Major hint of a backend error response (status 200 but error JSON)
-                try {
-                  const parsed = JSON.parse(trimmedLine);
-                  if (parsed.error) {
-                    throw new Error(parsed.error);
-                  }
-                } catch (e) { /* not JSON error, continue */ }
-              }
-            }
-          }
-        } catch (streamErr: any) {
-          logger.error('[ConciergeAI] Stream broken:', streamErr);
-          throw streamErr;
-        }
-
-        const finalRawText = accumulatedText;
-        const aiText = finalRawText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || finalRawText;
-        const actionMatch = finalRawText.match(/(\{\s*"action"\s*:[\s\S]*?\}\s*)$/m);
-        let aiAction = null;
-        if (actionMatch) {
-          try {
-            aiAction = JSON.parse(actionMatch[0])?.action;
-          } catch (e) {
-            logger.warn('[ConciergeAI] Action parse failed:', e);
-          }
-        }
-
-        // Ensure we stop thinking if the stream ended without tokens
-        if (!firstTokenReceived) {
-          setIsThinking(false);
-          const fallbackText = "I encountered a processing glitch. Please try again.";
-          const aid = assistantId;
-          setMessages(prev => [...prev, {
-            id: aid,
+          await (supabase as any).from('ai_messages').insert({
+            conversation_id: convId,
+            user_id: user.id,
             role: 'assistant',
-            content: fallbackText,
-            timestamp: new Date()
-          }]);
-        } else {
-          // Final UI Update with processed actions
-          setMessages(prev => prev.map(m => 
-            m.id === assistantId ? { ...m, content: aiText, action: aiAction } : m
-          ));
+            content: aiText,
+            metadata: aiAction ? { action: aiAction } : {}
+          });
+
+          await (supabase as any)
+            .from('ai_conversations')
+            .update({ updated_at: new Date().toISOString() })
+            .eq('id', convId);
+        } catch (dbErr) {
+          logger.warn('[ConciergeAI] AI response persistence skipped:', dbErr);
         }
-
-        // 5. Persist AI Response if Auth'd
-        if (user && convId) {
-          try {
-            await (supabase as any).from('ai_messages').insert({
-              conversation_id: convId,
-              user_id: user.id,
-              role: 'assistant',
-              content: aiText,
-              metadata: aiAction ? { action: aiAction } : {}
-            });
-
-            await (supabase as any)
-              .from('ai_conversations')
-              .update({ updated_at: new Date().toISOString() })
-              .eq('id', convId);
-          } catch (dbErr) {
-            logger.warn('[ConciergeAI] AI response persistence skipped:', dbErr);
-          }
-        }
-
-        // 6. Execute AI-triggered UI Actions
-        if (aiAction) {
-          handleAiAction(aiAction);
-        }
-
-      } else {
-        // Fallback for non-streaming responses
-        setIsThinking(false);
-        const data = await response.json();
-        const rawText = data?.result?.text || data?.choices?.[0]?.message?.content || data?.message || 'I am processing that...';
-        const aiText = rawText.replace(/\{\s*"action"\s*:[\s\S]*?\}\s*$/m, '').trim() || rawText;
-        const aiAction = data?.result?.action;
-
-        const assistantMsg: ConciergeMessage = {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: aiText,
-          timestamp: new Date(),
-          action: aiAction,
-        };
-
-        setMessages(prev => [...prev, assistantMsg]);
-
-        // Persist AI response to DB (mirrors streaming path)
-        if (user && convId) {
-          try {
-            await (supabase as any).from('ai_messages').insert({
-              conversation_id: convId,
-              user_id: user.id,
-              role: 'assistant',
-              content: aiText,
-              metadata: aiAction ? { action: aiAction } : {}
-            });
-
-            await (supabase as any)
-              .from('ai_conversations')
-              .update({ updated_at: new Date().toISOString() })
-              .eq('id', convId);
-          } catch (dbErr) {
-            logger.warn('[ConciergeAI] Non-stream AI response persistence skipped:', dbErr);
-          }
-        }
-
-        if (aiAction) handleAiAction(aiAction);
       }
+
+      if (aiAction) handleAiAction(aiAction);
 
     } catch (err) {
       logger.error('[useConciergeAI] Execution error:', err);
