@@ -46,7 +46,13 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
   const [languages, setLanguages] = useState<string[]>((initialFilters.languages as string[]) || []);
   const [ageRange, setAgeRange] = useState([(initialFilters.age_min as number) || 18, (initialFilters.age_max as number) || 65]);
 
+  const [relationshipStatus, setRelationshipStatus] = useState<string[]>((initialFilters.relationship_status as string[]) || []);
+  const [hasPetsFilter, setHasPetsFilter] = useState<string>((initialFilters.has_pets_filter as string) || 'any');
+
   // Location
+  const [locationCountry, setLocationCountry] = useState<string>((initialFilters.location_country as string) || '');
+  const [locationCity, setLocationCity] = useState<string>((initialFilters.location_city as string) || '');
+  const [locationNeighborhood, setLocationNeighborhood] = useState<string>((initialFilters.location_neighborhood as string) || '');
   const [locationCountries, setLocationCountries] = useState<string[]>((initialFilters.location_countries as string[]) || []);
   const [locationCities, setLocationCities] = useState<string[]>((initialFilters.location_cities as string[]) || []);
   const [locationNeighborhoods, setLocationNeighborhoods] = useState<string[]>((initialFilters.location_neighborhoods as string[]) || []);
@@ -146,12 +152,19 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
 
       {/* Location */}
       <EmbeddedLocationFilter
-        locationCountries={locationCountries}
-        locationCities={locationCities}
-        locationNeighborhoods={locationNeighborhoods}
-        onCountriesChange={setLocationCountries}
-        onCitiesChange={setLocationCities}
-        onNeighborhoodsChange={setLocationNeighborhoods}
+        country={locationCountry}
+        setCountry={setLocationCountry}
+        city={locationCity}
+        setCity={setLocationCity}
+        neighborhood={locationNeighborhood}
+        setNeighborhood={setLocationNeighborhood}
+        countries={locationCountries}
+        setCountries={setLocationCountries}
+        cities={locationCities}
+        setCities={setLocationCities}
+        neighborhoods={locationNeighborhoods}
+        setNeighborhoods={setLocationNeighborhoods}
+        multiSelect
       />
 
       {/* Demographics */}
@@ -164,6 +177,10 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
         setLanguages={setLanguages}
         ageRange={ageRange}
         setAgeRange={setAgeRange}
+        relationshipStatus={relationshipStatus}
+        setRelationshipStatus={setRelationshipStatus}
+        hasPetsFilter={hasPetsFilter}
+        setHasPetsFilter={setHasPetsFilter}
       />
     </div>
   );
