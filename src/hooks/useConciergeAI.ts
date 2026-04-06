@@ -162,52 +162,35 @@ export function useConciergeAI() {
         content: m.content 
       }));
 
-      // 4. Invoke Edge Function with Streaming
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '');
-      const functionUrl = `${supabaseUrl}/functions/v1/ai-orchestrator`;
-      
-      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      
-      const response = await fetch(functionUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${anonKey}`,
-          'apikey': anonKey,
-          'X-Client-Info': 'swipess-pwa-concierge'
-        },
-        body: JSON.stringify({
-          task: 'chat',
-          stream: false,
-          data: {
-            query: userMessage,
-            userName,
-            userTier,
-            messages: history,
-            context: {
-              city: context?.city || '',
-              userRole: context?.userRole,
-              listings: context?.listings?.slice(0, 5),
-              currentPath: location.pathname,
-              listingId: context?.listingId,
-            }
-          }
-        })
-      });
-
-      if (!response.ok) {
-        let errorMessage = `AI Engine Error: ${response.status}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.error) errorMessage = `AI Engine Error: ${errorData.error}`;
-        } catch (e) {
-          // If 405, it might be a method issue or CORS preflight rejection
-          if (response.status === 405) {
-            errorMessage = "AI Engine Connection Refused (405). Please retry in a moment.";
+      // 4. Invoke Edge Function via supabase client (correct URL + auth automatically)
+      const payload = {
+        task: 'chat',
+        stream: false,
+        data: {
+          query: userMessage,
+          userName,
+          userTier,
+          messages: history,
+          context: {
+            city: context?.city || '',
+            userRole: context?.userRole,
+            listings: context?.listings?.slice(0, 5),
+            currentPath: location.pathname,
+            listingId: context?.listingId,
           }
         }
-        throw new Error(errorMessage);
+      };
+
+      const { data: invokeData, error: invokeError } = await supabase.functions.invoke('ai-orchestrator', {
+        body: payload,
+      });
+
+      if (invokeError) {
+        throw new Error(`AI Engine Error: ${invokeError.message}`);
       }
+
+      // Wrap in a synthetic response-like object for compatibility with existing parsing
+      const data = invokeData;
 
       // Check if response is streaming (text/event-stream)
       const contentType = response.headers.get('Content-Type')?.toLowerCase() || '';
