@@ -62,24 +62,31 @@ Guidelines:
 
     if (minimaxKey) {
       try {
-        console.log("[AI] Trying MiniMax primary...");
-        const mmResponse = await fetch("https://api.minimaxi.chat/v1/chat/completions", {
+        console.log("[AI] Trying MiniMax primary (Anthropic-compatible)...");
+        
+        // MiniMax Anthropic-compatible API
+        const mmResponse = await fetch("https://api.minimax.io/anthropic/v1/messages", {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${minimaxKey}`,
+            "x-api-key": minimaxKey,
             "Content-Type": "application/json",
+            "anthropic-version": "2023-06-01",
           },
           body: JSON.stringify({
-            model: "MiniMax-M1-80k",
-            messages: messagesPayload,
-            temperature: 0.7,
+            model: "MiniMax-M2.7-highspeed",
             max_tokens: 1024,
+            system: messagesPayload[0].content,
+            messages: messagesPayload.slice(1).map((m: any) => ({
+              role: m.role,
+              content: m.content,
+            })),
           }),
         });
 
         if (mmResponse.ok) {
           const mmResult = await mmResponse.json();
-          text = mmResult.choices?.[0]?.message?.content || "";
+          // Anthropic format: result.content[0].text
+          text = mmResult.content?.find((b: any) => b.type === "text")?.text || "";
           if (text) {
             provider = "minimax";
             console.log(`[AI] ✅ MiniMax success (${text.length} chars)`);
