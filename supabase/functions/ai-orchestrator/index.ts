@@ -82,7 +82,7 @@ Guidelines:
         "GroupId": group_id,
       },
       body: JSON.stringify({
-        model: "MiniMax-Text-01",
+        model: "abab6.5s-chat",
         messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-20)],
         temperature: 0.7,
         stream: stream,
