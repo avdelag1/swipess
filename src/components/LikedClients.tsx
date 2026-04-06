@@ -261,29 +261,56 @@ export function LikedClients() {
           </div>
           <input
             type="text"
-            placeholder="Search liked clients..."
+            placeholder="Search name, occupation, bio..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={cn(
-              "w-full h-16 rounded-3xl pl-14 pr-6 font-bold focus:border-primary transition-all outline-none",
+              "w-full h-14 rounded-2xl pl-14 pr-6 font-bold focus:border-primary transition-all outline-none text-sm",
               isLight
-                ? "bg-white border border-slate-200 text-slate-900 placeholder-slate-400 shadow-sm"
+                ? "bg-card border border-border/60 text-foreground placeholder-muted-foreground shadow-sm"
                 : "bg-muted/30 border border-border text-foreground placeholder-muted-foreground"
             )}
           />
         </div>
 
-        {/* Count + drag hint */}
-        <div className="flex items-center gap-3 mb-8 px-2">
+        {/* Sort options */}
+        <div className="flex items-center gap-2 mb-4 px-2 overflow-x-auto no-scrollbar">
+          <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+          {([
+            { value: "newest" as SortOption, label: "Newest" },
+            { value: "oldest" as SortOption, label: "Oldest" },
+            { value: "az" as SortOption, label: "A → Z" },
+          ]).map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setSortBy(opt.value)}
+              className={cn(
+                "px-3 py-1.5 rounded-xl text-[10px] font-black border transition-all active:scale-95 whitespace-nowrap",
+                sortBy === opt.value
+                  ? "bg-primary border-primary text-primary-foreground"
+                  : isLight
+                  ? "bg-card border-border/50 text-foreground"
+                  : "bg-white/[0.04] border-white/[0.08] text-muted-foreground"
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Count */}
+        <div className="flex items-center gap-3 mb-6 px-2">
           <div className="w-2 h-2 rounded-full bg-primary shadow-md" />
           <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
             {filteredClients.length} Potential Professionals
           </span>
-          {filteredClients.length > 1 && (
-            <span className="ml-auto flex items-center gap-1 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
-              <GripVertical className="w-3 h-3" />
-              Drag to reorder
-            </span>
+          {searchTerm && (
+            <button
+              onClick={() => { setSearchTerm(""); setSortBy("newest"); }}
+              className="ml-auto text-[10px] font-black uppercase tracking-widest text-primary active:scale-95"
+            >
+              Clear
+            </button>
           )}
         </div>
 
@@ -294,17 +321,24 @@ export function LikedClients() {
             ))}
           </div>
         ) : filteredClients.length > 0 ? (
-          <PremiumSortableGrid
-            items={filteredClients}
-            onReorder={handleReorder}
-            renderItem={(client) => (
-              <PremiumLikedCard
-                type="profile"
-                data={client}
-                onAction={(action) => handleAction(action, client)}
-              />
-            )}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {filteredClients.map((client: any, index: number) => (
+              <motion.div
+                key={client.id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.03, duration: 0.3 }}
+                className="rounded-[2rem]"
+              >
+                <PremiumLikedCard
+                  type="profile"
+                  data={client}
+                  onAction={(action) => handleAction(action, client)}
+                />
+              </motion.div>
+            ))}
+          </div>
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
