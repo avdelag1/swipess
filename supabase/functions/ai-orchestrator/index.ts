@@ -5,10 +5,7 @@ const corsHeaders = {
 };
 
 /**
- * 🛰️ SWIPESS AI CONCIERGE — Powered by Lovable AI
- * ─────────────────────────────────────────────────────────────────────────────
- * Uses Lovable AI gateway (OpenAI-compatible) for reliable, no-key-needed AI.
- * ─────────────────────────────────────────────────────────────────────────────
+ * 🛰️ SWIPESS AI CONCIERGE — MiniMax Primary, Lovable AI Fallback
  */
 
 Deno.serve(async (req) => {
@@ -34,7 +31,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Role mapping
     const formattedMessages = rawMessages.map((m: any) => ({
       role: (m.role === "assistant" || m.role === "ai" || m.role === "model") ? "assistant" : "user",
       content: m.content || m.text || ""
@@ -55,38 +51,84 @@ Guidelines:
 - Always conclude with a single JSON action block if it enhances the recommendation (e.g. {"action": {"type": "show_venue_card", "params": {...}}}).
 - Never use placeholders. If you don't know something exactly, be honest but suggest the nearest elite alternative.`;
 
+    const messagesPayload = [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-20)];
+
     console.log(`[AI] Processing task: ${task || 'chat'} | messages: ${formattedMessages.length}`);
 
-    // Use Lovable AI gateway — no API key needed, uses LOVABLE_API_KEY secret
-    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!lovableApiKey) {
-      console.error("[ERROR] LOVABLE_API_KEY is missing.");
-      throw new Error("AI service configuration error.");
+    // ─── ATTEMPT 1: MiniMax ───
+    const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
+    let text = "";
+    let provider = "unknown";
+
+    if (minimaxKey) {
+      try {
+        console.log("[AI] Trying MiniMax primary...");
+        const mmResponse = await fetch("https://api.minimaxi.chat/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${minimaxKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "MiniMax-Text-01",
+            messages: messagesPayload,
+            temperature: 0.7,
+            max_tokens: 1024,
+          }),
+        });
+
+        if (mmResponse.ok) {
+          const mmResult = await mmResponse.json();
+          text = mmResult.choices?.[0]?.message?.content || "";
+          if (text) {
+            provider = "minimax";
+            console.log(`[AI] ✅ MiniMax success (${text.length} chars)`);
+          }
+        } else {
+          const errText = await mmResponse.text();
+          console.warn(`[AI] ⚠️ MiniMax failed ${mmResponse.status}: ${errText}`);
+        }
+      } catch (mmErr: any) {
+        console.warn(`[AI] ⚠️ MiniMax exception: ${mmErr.message}`);
+      }
+    } else {
+      console.warn("[AI] No MINIMAX_API_KEY set, skipping MiniMax.");
     }
 
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${lovableApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [{ role: "system", content: systemPrompt }, ...formattedMessages.slice(-20)],
-        temperature: 0.7,
-        max_tokens: 1024,
-      }),
-    });
+    // ─── ATTEMPT 2: Lovable AI Fallback ───
+    if (!text) {
+      const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+      if (!lovableApiKey) {
+        throw new Error("No AI provider available (both MiniMax and Lovable AI missing).");
+      }
 
-    if (!aiResponse.ok) {
-      const errText = await aiResponse.text();
-      console.error(`[AI ENGINE ERROR] ${aiResponse.status}: ${errText}`);
-      throw new Error(`AI Engine Error: ${aiResponse.status}`);
+      console.log("[AI] Falling back to Lovable AI (Gemini)...");
+      const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${lovableApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: messagesPayload,
+          temperature: 0.7,
+          max_tokens: 1024,
+        }),
+      });
+
+      if (!aiResponse.ok) {
+        const errText = await aiResponse.text();
+        console.error(`[AI] Lovable AI failed ${aiResponse.status}: ${errText}`);
+        throw new Error(`AI Engine Error: ${aiResponse.status}`);
+      }
+
+      const result = await aiResponse.json();
+      text = result.choices?.[0]?.message?.content || "";
+      provider = "lovable-gemini";
+      console.log(`[AI] ✅ Lovable AI success (${text.length} chars)`);
     }
 
-    const result = await aiResponse.json();
-    const text = result.choices?.[0]?.message?.content || "";
-    
     // Extract action block if present
     let cleanText = text;
     let action = null;
@@ -95,13 +137,14 @@ Guidelines:
       try {
         action = JSON.parse(actionMatch[0])?.action || null;
         cleanText = text.replace(actionMatch[0], '').trim();
-      } catch (e) {
+      } catch (_e) {
         // keep full text if action parsing fails
       }
     }
 
     return new Response(JSON.stringify({
       result: { text: cleanText || text, action },
+      provider,
       status: "success"
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
