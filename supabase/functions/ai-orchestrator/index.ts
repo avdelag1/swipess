@@ -217,6 +217,12 @@ Deno.serve(async (req) => {
 
     const latestQuery = data?.query || formattedMessages.filter((m: any) => m.role === "user").pop()?.content || "";
 
+    // Ensure the current query is in the messages array (handles first message / empty history)
+    const lastUserMsg = formattedMessages[formattedMessages.length - 1];
+    if (latestQuery && (!lastUserMsg || lastUserMsg.content !== latestQuery)) {
+      formattedMessages.push({ role: "user", content: latestQuery });
+    }
+
     // Fetch knowledge first
     const { block: knowledgeBlock, count: knowledgeCount } = await fetchKnowledge(latestQuery);
 
