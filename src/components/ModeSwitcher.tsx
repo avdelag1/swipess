@@ -1,5 +1,5 @@
 import { memo, useCallback, useRef } from 'react';
-import { User, Building2, Loader2 } from 'lucide-react';
+import { User, UserCheck, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useActiveMode, ActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
@@ -56,7 +56,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
       onClick={handleToggle}
       disabled={isSwitching || !canSwitchMode}
       className={cn(
-        'relative flex items-center justify-center gap-3 rounded-full overflow-hidden',
+        'relative flex items-center justify-center gap-2 rounded-full overflow-hidden',
         'transition-all duration-100 ease-out',
         'active:scale-[0.92]',
         'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -94,7 +94,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             className="relative z-10 h-4 w-4 transition-colors duration-150"
             style={{ color: clientColor }}
           />
-          <Building2
+          <UserCheck
             strokeWidth={2.5}
             className="relative z-10 h-4 w-4 transition-colors duration-150"
             style={{ color: ownerColor }}

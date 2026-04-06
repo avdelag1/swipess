@@ -223,9 +223,9 @@ const ClientLawyerServices = () => {
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-orange-400" />
-                  What's Your Issue?
+                  How Can We Help?
                 </CardTitle>
-                <CardDescription>Select the category that best describes your problem</CardDescription>
+                <CardDescription>Select the category that best describes your situation</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
                 <ScrollArea className="max-h-[400px]">
@@ -364,8 +364,8 @@ const ClientLawyerServices = () => {
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center shrink-0 text-blue-400 font-semibold">1</div>
                 <div>
-                  <h4 className="font-medium text-white">Select Your Issue</h4>
-                  <p className="text-sm text-gray-400">Choose the category that best matches your problem</p>
+                   <h4 className="font-medium text-white">How Can We Help?</h4>
+                   <p className="text-sm text-gray-400">Choose the category that best matches your situation</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
