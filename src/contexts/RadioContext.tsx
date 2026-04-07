@@ -60,7 +60,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
   });
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Audio Context for Visualizer
@@ -73,10 +73,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
-      // Don't set crossOrigin here — it causes CORS failures on many streams.
-      // We'll set it only after AudioContext is successfully created.
       audioRef.current.volume = state.volume;
       audioRef.current.preload = 'auto';
+      audioRef.current.crossOrigin = "anonymous";
     }
 
     return () => {
@@ -146,8 +145,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
       lastErrorTime = now;
 
-      // Only bail after 20 consecutive rapid errors (not 8) to survive regional outages
-      if (errorCount > 20) {
+      // ⚡ TURBO BLACKOUT: Bail after 12 consecutive rapid errors (survive localized glitches)
+      if (errorCount > 12) {
         setError('Global radio outage — please try again later');
         errorCount = 0;
         if (audio) {
@@ -181,7 +180,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       errorTimeoutRef.current = setTimeout(() => {
         setError(null);
         changeStationRef.current('next');
-      }, 800);
+      }, 400); // ⚡ SPEED OF LIGHT: Half the recovery time
 
       handlingError = false;
     };
@@ -292,9 +291,18 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   // Recursion depth guard to prevent infinite call stack
   const playDepthRef = useRef(0);
 
+  // Concurrency guard for play attempts
+  const isPlayingRef = useRef(false);
+
   const play = useCallback(async (station?: RadioStation) => {
+    if (isPlayingRef.current) return;
+    isPlayingRef.current = true;
+    
     const targetStation = station || state.currentStation;
-    if (!targetStation || !audioRef.current) return;
+    if (!targetStation || !audioRef.current) {
+      isPlayingRef.current = false;
+      return;
+    }
 
     // CRITICAL: Prevent infinite recursion when all stations fail
     if (playDepthRef.current >= 10) {
@@ -303,6 +311,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       failedStationsRef.current.clear();
       setError('No stations available right now');
       setState(prev => ({ ...prev, isPlaying: false }));
+      isPlayingRef.current = false;
       return;
     }
 
@@ -311,6 +320,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       // Already in temp blacklist; it auto-clears after 30s
       if (failedStationsRef.current.size > 20) { const first = failedStationsRef.current.values().next().value; if (first) failedStationsRef.current.delete(first); }
       playDepthRef.current++;
+      isPlayingRef.current = false;
       changeStationRef.current('next');
       return;
     }
@@ -335,29 +345,36 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         savePreferences({ currentStation: targetStation, currentCity: targetStation.city });
       }
 
+      // 📡 TURBO TIMEOUT: 7s is plenty for modern streams
       loadTimeoutRef.current = setTimeout(() => {
         logger.warn(`[RadioPlayer] Station ${targetStation.id} timeout, skipping`);
         failedStationsRef.current.add(targetStation.id);
-        setTimeout(() => failedStationsRef.current.delete(targetStation.id), 30000);
+        setTimeout(() => failedStationsRef.current.delete(targetStation.id), 20000);
         setError('Station timeout, switching...');
         setTimeout(() => {
           setError(null);
           changeStationRef.current('next');
-        }, 500);
-      }, 15000);
+        }, 300);
+      }, 7000);
 
       try {
-        // Initialize AudioContext on first play (user gesture)
+        // ⚡ TURBO ENGINE: Immediate AudioContext creation on first play
         if (!audioContextRef.current && audioRef.current) {
-          // Set crossOrigin only for visualizer support; if it fails, we fall back
-          audioRef.current.crossOrigin = "anonymous";
-          audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-          analyzerRef.current = audioContextRef.current.createAnalyser();
-          analyzerRef.current.fftSize = 256;
-          sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
-          sourceRef.current.connect(analyzerRef.current);
-          analyzerRef.current.connect(audioContextRef.current.destination);
-          dataArrayRef.current = new Uint8Array(analyzerRef.current.frequencyBinCount);
+          try {
+            audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({
+              latencyHint: 'interactive'
+            });
+            analyzerRef.current = audioContextRef.current.createAnalyser();
+            analyzerRef.current.fftSize = 256;
+            analyzerRef.current.smoothingTimeConstant = 0.7; // Smoother visualizer, less CPU
+            
+            sourceRef.current = audioContextRef.current.createMediaElementSource(audioRef.current);
+            sourceRef.current.connect(analyzerRef.current);
+            analyzerRef.current.connect(audioContextRef.current.destination);
+            dataArrayRef.current = new Uint8Array(analyzerRef.current.frequencyBinCount);
+          } catch (e) {
+            logger.error('[RadioTurbo] Context init failed:', e);
+          }
         } else if (audioContextRef.current?.state === 'suspended') {
           audioContextRef.current.resume();
         }
@@ -376,6 +393,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
       setState(prev => ({ ...prev, isPlaying: true }));
       setError(null);
+      isPlayingRef.current = false;
 
       if (loadTimeoutRef.current) {
         clearTimeout(loadTimeoutRef.current);
@@ -399,6 +417,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         navigator.mediaSession.setActionHandler('nexttrack', () => changeStationRef.current('next'));
       }
     } catch (err) {
+      isPlayingRef.current = false;
       logger.error('[RadioPlayer] Playback error:', err);
       failedStationsRef.current.add(targetStation.id);
       setError('Failed to play station, switching...');

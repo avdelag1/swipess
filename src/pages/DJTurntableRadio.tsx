@@ -52,6 +52,25 @@ function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
       glow: Math.random() > 0.85,
     }));
 
+    // 🎨 TURBO CACHE: Pre-render stars to offscreen canvas
+    const offscreen = document.createElement('canvas');
+    offscreen.width = w;
+    offscreen.height = h;
+    const octx = offscreen.getContext('2d');
+    if (octx) {
+      for (const s of stars) {
+        octx.beginPath();
+        octx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        octx.fillStyle = `rgba(255,255,255,${s.opacity * 0.5})`;
+        octx.fill();
+        if (s.glow) {
+          octx.shadowBlur = 4;
+          octx.shadowColor = 'rgba(255,255,255,0.8)';
+          octx.stroke();
+        }
+      }
+    }
+
     // Shooting stars
     interface ShootingStar { x: number; y: number; len: number; speed: number; opacity: number; angle: number; life: number; maxLife: number; }
     const shootingStars: ShootingStar[] = [];
@@ -63,20 +82,21 @@ function RadioStarsCanvas({ accentColor }: { accentColor: string }) {
     let t = 0;
     const draw = () => {
       ctx.clearRect(0, 0, w, h);
+      
+      // ⚡ DRAW CACHED STARS
+      ctx.drawImage(offscreen, 0, 0);
+
       t += 0.12;
       const now = performance.now();
 
-      // Static stars
-      for (const s of stars) {
+      // Individual twinkle for a few "hero" stars only (CPU optimization)
+      const heroStars = stars.slice(0, 30); 
+      for (const s of heroStars) {
         const twinkle = Math.sin(t * s.speed + s.phase) * 0.5 + 0.5;
-        const alpha = Math.min(s.opacity * (twinkle * 0.65 + 0.35), 1);
-        if (alpha < 0.02) continue;
-        if (s.glow) { ctx.shadowBlur = 4; ctx.shadowColor = 'rgba(255,255,255,0.85)'; }
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.arc(s.x, s.y, s.size * 1.2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${s.opacity * twinkle})`;
         ctx.fill();
-        if (s.glow) { ctx.shadowBlur = 0; ctx.shadowColor = 'transparent'; }
       }
 
       // Spawn shooting stars based on time drift
@@ -230,17 +250,14 @@ export default function DJTurntableRadio() {
         togglePower();
         triggerHaptic('medium');
       }
-      // Always attempt to play after a short hydration delay
-      setTimeout(() => {
-        if (!state.isPlaying) {
-          play();
-        }
-      }, 800);
+      // 🚀 SPEED OF LIGHT: Instant playback attempt
+      if (!state.isPlaying) {
+        play();
+      }
     };
 
-    // Delay slightly to allow context to hydrate
-    powerTimer = setTimeout(initRadio, 500);
-    return () => clearTimeout(powerTimer);
+    initRadio();
+    return () => {};
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keyboard shortcuts
@@ -415,7 +432,7 @@ export default function DJTurntableRadio() {
               
               {/* Record Platter */}
               <motion.div
-                className="absolute inset-[3%] rounded-full shadow-[inset_0_0_80px_rgba(0,0,0,1),0_20px_50px_rgba(0,0,0,1)] flex items-center justify-center"
+                className="absolute inset-[3%] rounded-full shadow-[inset_0_0_80px_rgba(0,0,0,1),0_20px_50px_rgba(0,0,0,1)] flex items-center justify-center will-change-transform"
                 style={{
                   background: `
                     radial-gradient(circle at center, #050505 0%, #000 100%),
