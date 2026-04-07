@@ -8,18 +8,42 @@ const corsHeaders = {
 };
 
 /**
- * 🛰️ SWIPESS AI CONCIERGE — STARTER PLAN RECOVERY (v3.0)
+ * 🛰️ SWIPESS AI ORCHESTRATOR — GLOBAL SOVEREIGN ENGINE (v4.0)
  * ─────────────────────────────────────────────────────────────────────────────
- * HUB: abab6.5s-chat (V1 Legacy Engine - Plan Authorized)
- * RELIABILITY: Restored backward compatibility for Starter Tier
+ * PROTOCOL: OpenAI-Compatible Pipeline
+ * PROVIDER: MiniMax / OpenRouter Bridge
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
 async function getUserId(supabase: any, authHeader: string) {
   if (!authHeader) return null;
-  const { data: { user } } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
-  return user?.id || null;
+  try {
+    const { data: { user } } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
+    return user?.id || null;
+  } catch {
+    return null;
+  }
 }
+
+// ── Task Specific System Prompts ────────────────────────────────
+const SYSTEM_PROMPTS: Record<string, string> = {
+  chat: `You are the Swipess AI Concierge — an elite, multilingual local expert for Tulum, Mexico. Responder en el idioma del usuario. Provide helpful, concise, and luxurious advice.`,
+  
+  conversation: `You are the Swipess Listing Creator. Your goal is to extract property details through conversation. 
+  Always respond in JSON format: { "message": "friendly chat response", "extractedData": { "title": "...", "price": 0, ... }, "isComplete": false }.
+  Extract the following: title, description, price, city, property_type, mode (rent/buy), beds, baths.`,
+  
+  listing: `Generate a high-converting property listing based on the provided details. 
+  Respond in JSON format: { "title": "Stunning Luxury Villa", "description": "Full description here..." }.`,
+  
+  profile: `Enhance this user profile for Swipess. 
+  Respond in JSON format: { "bio": "...", "lifestyle": "...", "interests_enhanced": ["...", "..."] }.`,
+  
+  search: `Analyze this search query and extract filters.
+  Respond in JSON format: { "category": "...", "priceMin": 0, "priceMax": 1000, "keywords": ["..."], "suggestion": "Try searching for..." }.`,
+  
+  enhance: `Improve the spelling, grammar and tone of this text while keeping it natural. Respond ONLY with the enhanced text.`,
+};
 
 // ── Knowledge Base Lookup ──────────────────────────────────────
 async function fetchKnowledge(supabase: any, query: string): Promise<{ block: string; count: number }> {
@@ -42,33 +66,14 @@ async function fetchKnowledge(supabase: any, query: string): Promise<{ block: st
       .limit(5);
 
     let results = data || [];
-    if (results.length < 2 && keywords.length > 0) {
-      const { data: fallback } = await supabase
-        .from("concierge_knowledge")
-        .select("title, content, category, google_maps_url, phone, website_url, tags")
-        .eq("is_active", true)
-        .or(keywords.slice(0, 3).map((k: string) => `content.ilike.%${k}%`).join(","))
-        .limit(5);
-      if (fallback) {
-        const existingIds = new Set(results.map((r: any) => r.title));
-        results = [...results, ...fallback.filter((r: any) => !existingIds.has(r.title))];
-      }
-    }
-
     if (!results.length) return { block: "", count: 0 };
 
     const formatted = results
-      .map((r: any) => {
-        let entry = `• ${r.title} [${r.category}]: ${r.content}`;
-        if (r.google_maps_url) entry += ` | Maps: ${r.google_maps_url}`;
-        if (r.phone) entry += ` | Phone: ${r.phone}`;
-        if (r.website_url) entry += ` | Web: ${r.website_url}`;
-        return entry;
-      })
+      .map((r: any) => `• ${r.title} [${r.category}]: ${r.content} ${r.google_maps_url || ''}`)
       .join("\n");
 
     return {
-      block: `\n\n--- VERIFIED LOCAL KNOWLEDGE ---\n${formatted}\n--- END KNOWLEDGE ---\n`,
+      block: `\n\nLOCAL CONTEXT:\n${formatted}\n`,
       count: results.length,
     };
   } catch (e) {
@@ -77,135 +82,130 @@ async function fetchKnowledge(supabase: any, query: string): Promise<{ block: st
   }
 }
 
-// ── Tavily Web Search ──────────────────────────────────────────
-async function searchWeb(query: string): Promise<string> {
-  const tavilyKey = Deno.env.get("TAVILY_API_KEY");
-  if (!tavilyKey) return "";
-
-  try {
-    const response = await fetch("https://api.tavily.com/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        api_key: tavilyKey,
-        query: `${query} Tulum Mexico`,
-        search_depth: "basic",
-        max_results: 3,
-        include_answer: true,
-      }),
-    });
-
-    if (!response.ok) return "";
-    const data = await response.json();
-    const results = data.results || [];
-    if (!results.length && !data.answer) return "";
-
-    let block = "\n\n--- LIVE WEB RESULTS ---\n";
-    if (data.answer) block += `Summary: ${data.answer}\n\n`;
-    for (const r of results.slice(0, 3)) {
-      block += `• ${r.title}: ${r.content?.slice(0, 200) || ""}\n  URL: ${r.url}\n`;
-    }
-    block += "--- END WEB RESULTS ---\n";
-    return block;
-  } catch (e) {
-    console.warn(`[AI] Tavily error: ${(e as Error).message}`);
-    return "";
-  }
-}
-
-function buildSystemPrompt(knowledgeBlock: string, webBlock: string): string {
-  return `You are the Swipess AI Concierge — an elite, multilingual local expert for Tulum, Mexico. Responder en el idioma del usuario. Sources: ${knowledgeBlock}${webBlock}`;
-}
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
-    const groupId = Deno.env.get("MINIMAX_GROUP_ID") || "2019874926051205377";
-    
-    if (!supabaseUrl || !serviceKey || !minimaxKey) throw new Error("Missing Secrets");
-    const sb = createClient(supabaseUrl, serviceKey);
 
-    const authHeader = req.headers.get("Authorization");
-    const userId = await getUserId(sb, authHeader || "");
+    if (!minimaxKey) {
+        console.error("[AI] Error: MINIMAX_API_KEY is missing from environment variables.");
+        throw new Error("AI provider key not configured (MINIMAX_API_KEY)");
+    }
+    if (!supabaseUrl || !serviceKey) {
+        console.error("[AI] Error: Supabase credentials missing from environment.");
+        throw new Error("Internal infrastructure error (Supabase)");
+    }
 
     const payload = await req.json().catch(() => ({}));
-    const { task, data, stream } = payload;
+    const { task = 'chat', data = {}, stream = false } = payload;
+    
     if (task === "ping") return new Response(JSON.stringify({ status: "ready" }), { headers: corsHeaders });
 
-    const rawMessages = data?.messages || payload.messages || [];
-    const latestQuery = data?.query || rawMessages[rawMessages.length - 1]?.content || "";
+    const sb = createClient(supabaseUrl, serviceKey);
+    const authHeader = req.headers.get("Authorization") || "";
+    const userId = await getUserId(sb, authHeader);
 
-    // 1. Context Enhancement
-    const { block: kBlock, count: kCount } = await fetchKnowledge(sb, latestQuery);
-    let wBlock = "";
-    if (kCount < 2 && latestQuery.length > 5) wBlock = await searchWeb(latestQuery);
+    // 1. Context & Prompt Assembly
+    let systemPrompt = SYSTEM_PROMPTS[task] || SYSTEM_PROMPTS.chat;
+    const rawMessages = data.messages || payload.messages || [];
+    const latestQuery = data.query || (rawMessages.length > 0 ? rawMessages[rawMessages.length - 1]?.content : "");
 
-    const systemPrompt = buildSystemPrompt(kBlock, wBlock);
+    if (latestQuery && (task === 'chat' || task === 'conversation')) {
+      try {
+        const { block: kBlock } = await fetchKnowledge(sb, latestQuery);
+        systemPrompt += kBlock;
+      } catch (e) {
+        console.warn("[AI] Knowledge context injection failed:", e);
+      }
+    }
 
-    // 2. MiniMax V1 Call (The one authorized for your plan)
-    const minimaxResponse = await fetch(`https://api.minimax.io/v1/text/chatcompletion?GroupId=${groupId}`, {
+    // 2. OPENAI-COMPATIBLE CALL
+    const endpoint = "https://api.minimax.io/v1/chat/completions";
+    const body = {
+      model: "abab6.5s-chat",
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...rawMessages.map((m: any) => ({
+           role: m.role || 'user',
+           content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content)
+        })).slice(-15) // Slightly larger history window
+      ],
+      stream: !!stream,
+      temperature: 0.1,
+    };
+
+    const response = await fetch(endpoint, {
       method: "POST",
-      headers: { "Authorization": `Bearer ${minimaxKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "abab6.5s-chat",
-        messages: [{ sender_type: "USER", sender_name: "System", text: systemPrompt }, ...rawMessages.map((m: any) => ({ sender_type: m.role === 'user' ? 'USER' : 'BOT', sender_name: m.role === 'user' ? 'User' : 'Assistant', text: m.content || m.text || "" })).slice(-10)],
-        tokens_to_generate: 1024,
-        reply_constraints: { sender_type: "BOT", sender_name: "Assistant" },
-        stream: !!stream,
-      }),
+      headers: {
+        "Authorization": `Bearer ${minimaxKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body),
     });
 
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error("[AI] MiniMax Provider Error:", errorText);
+        // Throw detailed error so it shows in the catch block response
+        throw new Error(`MiniMax Provider (${response.status}): ${errorText}`);
+    }
+
+    // 3. STREAMING BRIDGE
     if (stream) {
-      return new Response(minimaxResponse.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
+      return new Response(response.body, { 
+        headers: { ...corsHeaders, "Content-Type": "text/event-stream" } 
+      });
     }
 
-    const result = await minimaxResponse.json();
-    
-    // 🛡️ TRUTH PROTOCOL: Error check
-    if (result.base_resp?.status_msg && result.base_resp?.status_code !== 0) {
-      throw new Error(`MiniMax Provider Error: ${result.base_resp.status_msg}`);
+    // 4. JSON RESPONSE PROCESSING
+    const result = await response.json();
+    const content = result.choices?.[0]?.message?.content || "";
+
+    if (!content) {
+        console.error("[AI] Result was empty. Full JSON:", JSON.stringify(result));
+        throw new Error("AI returned an empty response.");
     }
 
-    const text = result.reply || "";
-    const cleanText = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-
-    if (!cleanText) throw new Error("MiniMax returned an empty response.");
-
-    // 3. PERSISTENCE
-    if (userId && cleanText) {
+    // Handle extraction for structured tasks
+    let parsedResult = content;
+    if (['listing', 'profile', 'search', 'conversation'].includes(task)) {
        try {
-          let convId = data?.conversationId;
-          if (!convId) {
-            const { data: conv } = await sb.from('ai_conversations').insert({ user_id: userId, title: latestQuery.substring(0, 50) }).select().single();
-            convId = conv?.id;
-          }
-          if (convId) {
-             await sb.from('ai_messages').insert([
-               { conversation_id: convId, user_id: userId, role: 'user', content: latestQuery },
-               { conversation_id: convId, user_id: userId, role: 'assistant', content: cleanText, metadata: { model: 'abab6.5s-chat' } }
-             ]);
-          }
+         const jsonMatch = content.match(/\{[\s\S]*\}/);
+         if (jsonMatch) {
+            parsedResult = JSON.parse(jsonMatch[0]);
+         } else {
+            console.warn("[AI] Task expected JSON but no braces found. Content:", content);
+         }
        } catch (e) {
-         console.warn("[PERSISTENCE] Error saving history:", e);
+         console.warn("[AI] JSON extraction failed for task", task, e);
        }
     }
 
+    // Standardize result keys for frontend hook compatibility
+    const finalResult = typeof parsedResult === 'object' 
+        ? { 
+            ...parsedResult, 
+            text: parsedResult.text || parsedResult.message || content, 
+            message: parsedResult.message || parsedResult.text || content 
+          }
+        : { text: content, message: content };
+
     return new Response(JSON.stringify({ 
-      result: { text: cleanText }, 
+      result: finalResult, 
       model: "abab6.5s-chat",
-      version: "Sovereign-v3.1"
+      version: "v4.1-diagnostics"
     }), { 
-      headers: { ...corsHeaders, "X-AI-Sovereign": "v3.1" } 
+      headers: { ...corsHeaders, "X-AI-Model": "abab6.5s-chat" } 
     });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: (err as Error).message, version: "Sovereign-v3.1" }), { 
+    console.error("[ORCHESTRATOR ERROR]", err);
+    return new Response(JSON.stringify({ error: (err as Error).message }), { 
       status: 500, 
-      headers: { ...corsHeaders, "X-AI-Sovereign": "v3.1" } 
+      headers: corsHeaders 
     });
   }
 });

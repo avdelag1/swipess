@@ -88,19 +88,28 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
         throw new Error(data.error);
       }
 
-      const response: ConversationalAIResponse = data.result;
+      const result = data.result || {};
+      const aiContent = result.message || result.text || "";
+
+      if (!aiContent) {
+        throw new Error("AI returned an empty response");
+      }
 
       const aiMessage: Message = {
         role: 'assistant',
-        content: response.message,
+        content: aiContent,
         timestamp: Date.now(),
       };
 
       setMessages(prev => [...prev, aiMessage]);
-      setExtractedData(response.extractedData || {});
-      setIsComplete(response.isComplete || false);
+      setExtractedData(result.extractedData || {});
+      setIsComplete(result.isComplete || false);
 
-      return response;
+      return {
+        message: aiContent,
+        extractedData: result.extractedData || {},
+        isComplete: result.isComplete || false,
+      } as ConversationalAIResponse;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to communicate with AI';
       setError(errorMessage);
