@@ -41,8 +41,8 @@ function getBackendConfig() {
   const clientKey = (supabase as any)?.supabaseKey as string | undefined;
 
   return {
-    url: import.meta.env.VITE_SUPABASE_URL || clientUrl || '',
-    anonKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || clientKey || '',
+    url: clientUrl || '',
+    anonKey: clientKey || '',
   };
 }
 
