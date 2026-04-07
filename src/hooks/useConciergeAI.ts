@@ -289,15 +289,25 @@ export function useConciergeAI() {
           streamSuccess = await attemptStreaming(payload, convId);
         } catch (streamErr) {
           logger.warn('[ConciergeAI] Streaming failed, falling back to JSON:', streamErr);
+          // 🛡️ RPM PROTECTION: If we hit a rate limit error, wait a moment
+          if (streamErr instanceof Error && streamErr.message.toLowerCase().includes('rate limit')) {
+            await new Promise(r => setTimeout(r, 1500));
+          }
         }
 
         // 5. Fallback to JSON if streaming failed
         if (!streamSuccess) {
+          // Intelligent delay to prevent double-spamming the provider
+          await new Promise(r => setTimeout(r, 800));
           await attemptJSON({ ...payload, stream: false }, convId);
         }
       } catch (err) {
         logger.error('[useConciergeAI] Execution error:', err);
-        const msg = err instanceof Error ? err.message : 'Service momentarily unavailable';
+        let msg = err instanceof Error ? err.message : 'Service momentarily unavailable';
+
+        if (msg.toLowerCase().includes('rate limit')) {
+          msg = "MiniMax is catching its breath (Rate limit). Try again in a moment.";
+        }
 
         if (msg.includes('402') || msg.includes('credits') || msg.includes('limit')) {
           setError('Your message quota is exhausted. Please upgrade your plan.');
