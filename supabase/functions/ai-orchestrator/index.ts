@@ -108,7 +108,7 @@ async function searchWeb(query: string): Promise<string> {
     block += "--- END WEB RESULTS ---\n";
     return block;
   } catch (e) {
-    console.warn(`[AI] Tavily error: ${e.message}`);
+    console.warn(`[AI] Tavily error: ${(e as Error).message}`);
     return "";
   }
 }
@@ -207,6 +207,6 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ result: { text: cleanText }, model: "abab6.5s-chat" }), { headers: corsHeaders });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
+    return new Response(JSON.stringify({ error: (err as Error).message }), { status: 500, headers: corsHeaders });
   }
 });
