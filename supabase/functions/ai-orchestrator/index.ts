@@ -8,10 +8,10 @@ const corsHeaders = {
 };
 
 /**
- * 🛰️ SWIPESS AI CONCIERGE — SOVEREIGN HYBRID MASTERPIECE (v2.0)
+ * 🛰️ SWIPESS AI CONCIERGE — STARTER PLAN RECOVERY (v3.0)
  * ─────────────────────────────────────────────────────────────────────────────
- * HUB: MiniMax-Text-01 (Native V2 API)
- * PERSISTENCE: Automatic server-side history tracking
+ * HUB: abab6.5s-chat (V1 Legacy Engine - Plan Authorized)
+ * RELIABILITY: Restored backward compatibility for Starter Tier
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -114,15 +114,7 @@ async function searchWeb(query: string): Promise<string> {
 }
 
 function buildSystemPrompt(knowledgeBlock: string, webBlock: string): string {
-  return `You are the Swipess AI Concierge — an elite, multilingual local expert for Tulum, Mexico.
-
-🌍 LANGUAGE RULE: ALWAYS respond in the USER'S LANGUAGE. 
-
-🚦 IN-APP NAVIGATION:
-At the end of your response, you MAY append ONE JSON block if it helps the user (e.g. {"action": {"type": "navigate_to", "params": {"path": "/properties", "label": "Browse List"}}}).
-
-📡 SOURCES:
-${knowledgeBlock}${webBlock}`;
+  return `You are the Swipess AI Concierge — an elite, multilingual local expert for Tulum, Mexico. Responder en el idioma del usuario. Sources: ${knowledgeBlock}${webBlock}`;
 }
 
 Deno.serve(async (req) => {
@@ -154,15 +146,16 @@ Deno.serve(async (req) => {
 
     const systemPrompt = buildSystemPrompt(kBlock, wBlock);
 
-    // 2. MiniMax V2 Call
-    const minimaxResponse = await fetch("https://api.minimax.io/v1/text/chatcompletion_v2", {
+    // 2. MiniMax V1 Call (The one authorized for your plan)
+    const minimaxResponse = await fetch(`https://api.minimax.io/v1/text/chatcompletion?GroupId=${groupId}`, {
       method: "POST",
-      headers: { "Authorization": `Bearer ${minimaxKey}`, "Content-Type": "application/json", "GroupId": groupId },
+      headers: { "Authorization": `Bearer ${minimaxKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "MiniMax-M2.7",
-        messages: [{ role: "system", content: systemPrompt }, ...rawMessages.map((m: any) => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content || m.text || "" })).slice(-10)],
+        model: "abab6.5s-chat",
+        messages: [{ sender_type: "USER", sender_name: "System", text: systemPrompt }, ...rawMessages.map((m: any) => ({ sender_type: m.role === 'user' ? 'USER' : 'BOT', sender_name: m.role === 'user' ? 'User' : 'Assistant', text: m.content || m.text || "" })).slice(-10)],
+        tokens_to_generate: 1024,
+        reply_constraints: { sender_type: "BOT", sender_name: "Assistant" },
         stream: !!stream,
-        max_tokens: 1024
       }),
     });
 
@@ -172,22 +165,19 @@ Deno.serve(async (req) => {
 
     const result = await minimaxResponse.json();
     
-    // 🛡️ TRUTH PROTOCOL: Detect plan/model errors instead of pretending success
+    // 🛡️ TRUTH PROTOCOL: Error check
     if (result.base_resp?.status_msg && result.base_resp?.status_code !== 0) {
       throw new Error(`MiniMax Provider Error: ${result.base_resp.status_msg}`);
     }
 
-    const text = result.choices?.[0]?.message?.content || "";
+    const text = result.reply || "";
     const cleanText = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
-    // 🛡️ TRUTH PROTOCOL: If response is empty, do not treat as success
-    if (!cleanText) {
-      throw new Error("MiniMax returned an empty response. Verify your plan and model availability.");
-    }
-    // 3. PERSISTENCE (Safe server-side save)
+    if (!cleanText) throw new Error("MiniMax returned an empty response.");
+
+    // 3. PERSISTENCE
     if (userId && cleanText) {
        try {
-          // Find or create conversation
           let convId = data?.conversationId;
           if (!convId) {
             const { data: conv } = await sb.from('ai_conversations').insert({ user_id: userId, title: latestQuery.substring(0, 50) }).select().single();
@@ -196,7 +186,7 @@ Deno.serve(async (req) => {
           if (convId) {
              await sb.from('ai_messages').insert([
                { conversation_id: convId, user_id: userId, role: 'user', content: latestQuery },
-               { conversation_id: convId, user_id: userId, role: 'assistant', content: cleanText, metadata: { model: 'MiniMax-M2.7' } }
+               { conversation_id: convId, user_id: userId, role: 'assistant', content: cleanText, metadata: { model: 'abab6.5s-chat' } }
              ]);
           }
        } catch (e) {
@@ -204,7 +194,7 @@ Deno.serve(async (req) => {
        }
     }
 
-    return new Response(JSON.stringify({ result: { text: cleanText }, model: "MiniMax-M2.7" }), { headers: corsHeaders });
+    return new Response(JSON.stringify({ result: { text: cleanText }, model: "abab6.5s-chat" }), { headers: corsHeaders });
 
   } catch (err) {
     return new Response(JSON.stringify({ error: (err as Error).message }), { status: 500, headers: corsHeaders });
