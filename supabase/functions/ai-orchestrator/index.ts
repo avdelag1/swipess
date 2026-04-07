@@ -194,9 +194,18 @@ Deno.serve(async (req) => {
        }
     }
 
-    return new Response(JSON.stringify({ result: { text: cleanText }, model: "abab6.5s-chat" }), { headers: corsHeaders });
+    return new Response(JSON.stringify({ 
+      result: { text: cleanText }, 
+      model: "abab6.5s-chat",
+      version: "Sovereign-v3.1"
+    }), { 
+      headers: { ...corsHeaders, "X-AI-Sovereign": "v3.1" } 
+    });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: (err as Error).message }), { status: 500, headers: corsHeaders });
+    return new Response(JSON.stringify({ error: (err as Error).message, version: "Sovereign-v3.1" }), { 
+      status: 500, 
+      headers: { ...corsHeaders, "X-AI-Sovereign": "v3.1" } 
+    });
   }
 });
