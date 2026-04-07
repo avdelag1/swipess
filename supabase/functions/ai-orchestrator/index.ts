@@ -159,7 +159,7 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: { "Authorization": `Bearer ${minimaxKey}`, "Content-Type": "application/json", "GroupId": groupId },
       body: JSON.stringify({
-        model: "MiniMax-Text-01",
+        model: "abab6.5s-chat",
         messages: [{ role: "system", content: systemPrompt }, ...rawMessages.map((m: any) => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content || m.text || "" })).slice(-10)],
         stream: !!stream,
         max_tokens: 1024
@@ -196,7 +196,7 @@ Deno.serve(async (req) => {
           if (convId) {
              await sb.from('ai_messages').insert([
                { conversation_id: convId, user_id: userId, role: 'user', content: latestQuery },
-               { conversation_id: convId, user_id: userId, role: 'assistant', content: cleanText, metadata: { model: 'MiniMax-Text-01' } }
+               { conversation_id: convId, user_id: userId, role: 'assistant', content: cleanText, metadata: { model: 'abab6.5s-chat' } }
              ]);
           }
        } catch (e) {
@@ -204,7 +204,7 @@ Deno.serve(async (req) => {
        }
     }
 
-    return new Response(JSON.stringify({ result: { text: cleanText }, model: "MiniMax-Text-01" }), { headers: corsHeaders });
+    return new Response(JSON.stringify({ result: { text: cleanText }, model: "abab6.5s-chat" }), { headers: corsHeaders });
 
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: corsHeaders });
