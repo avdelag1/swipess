@@ -492,6 +492,27 @@ export function ConciergeChat({
                             >
                               {linkify(message.content)}
                             </ReactMarkdown>
+
+                            {message.role === 'assistant' && (
+                              <div className={cn(
+                                "flex items-center gap-1.5 mt-3 pt-2.5 border-t",
+                                isDark ? "border-white/[0.04] text-zinc-600" : "border-gray-100 text-gray-400"
+                              )}>
+                                <Zap className={cn("w-2.5 h-2.5", (message.model?.toLowerCase().includes('minimax') || message.model?.toLowerCase().includes('abab')) ? "text-orange-500 animate-pulse" : "text-blue-400")} />
+                                <span className={cn(
+                                  "text-[9px] font-black uppercase tracking-[0.15em] leading-none",
+                                  (message.model?.toLowerCase().includes('minimax') || message.model?.toLowerCase().includes('abab')) && "text-orange-500/80"
+                                )}>
+                                  {(message.model?.toLowerCase().includes('minimax') || message.model?.toLowerCase().includes('abab')) ? 'MiniMax ⚡' : (message.model || 'Autonomous')}
+                                </span>
+                                {(message.model?.toLowerCase().includes('minimax') || message.model?.toLowerCase().includes('abab')) && (
+                                  <div className="ml-auto flex items-center gap-1 opacity-60">
+                                    <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
+                                    <span className="text-[8px] font-bold">Ultra-Low Latency</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         )}
 
