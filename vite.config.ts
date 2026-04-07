@@ -66,13 +66,8 @@ export default defineConfig(({ mode }) => ({
     target: 'esnext',
     // PERF: Use terser to drop console.error/warn in production
     // This fixes Lighthouse Best Practices "browser errors logged to console"
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
+    minify: 'esbuild',
+
     cssMinify: true,
     // PERF: Enable CSS code-splitting — only load CSS needed for the current route
     // Eliminates ~39 KiB of unused CSS on landing page
