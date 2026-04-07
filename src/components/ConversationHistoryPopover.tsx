@@ -82,7 +82,7 @@ export function ConversationHistoryPopover({
             <p className={cn("px-3 py-1 text-[9px] font-black uppercase tracking-widest", isDark ? "text-zinc-600" : "text-gray-400")}>
               Recent
             </p>
-            <ScrollArea className="max-h-52">
+            <ScrollArea className="max-h-80 pr-1">
               <div className="space-y-0.5">
                 {conversations.map(conv => (
                   <button

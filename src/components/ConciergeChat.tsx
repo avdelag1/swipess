@@ -770,17 +770,26 @@ export function ConciergeChat({
                         "flex items-center gap-2 mt-1",
                         message.role === 'user' ? "justify-end" : "justify-start"
                       )}>
-                        {message.role === 'assistant' && message.model && (
-                          <span className={cn(
-                            "text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest leading-none border transition-colors flex items-center gap-1 shrink-0",
-                            message.model.toLowerCase().includes('minimax')
-                              ? isDark ? "bg-orange-500/10 text-orange-400 border-orange-500/20" : "bg-orange-50 text-orange-600 border-orange-200"
-                              : isDark ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "bg-blue-50 text-blue-600 border-blue-200"
-                          )}>
-                            <Brain className="w-2.5 h-2.5" />
-                            {message.model === 'MiniMax-M2.7' ? 'MiniMax ⚡' : message.model}
-                          </span>
-                        )}
+                            {message.role === 'assistant' && (
+                              <div className={cn(
+                                "flex items-center gap-1.5 mt-3 pt-2.5 border-t",
+                                isDark ? "border-white/[0.04] text-zinc-600" : "border-gray-100 text-gray-400"
+                              )}>
+                                <Zap className={cn("w-2.5 h-2.5 shadow-sm shadow-orange-500/20", (message.model?.toLowerCase().includes('minimax') || message.model?.toLowerCase().includes('abab')) ? "text-orange-500 animate-pulse" : "text-blue-400")} />
+                                <span className={cn(
+                                  "text-[9px] font-black uppercase tracking-[0.16em] leading-none",
+                                  (message.model?.toLowerCase().includes('minimax') || message.model?.toLowerCase().includes('abab')) && "text-orange-500/90 drop-shadow-sm"
+                                )}>
+                                  {(message.model?.toLowerCase().includes('minimax') || message.model?.toLowerCase().includes('abab')) ? 'MiniMax ⚡' : (message.model || 'Autonomous')}
+                                </span>
+                                {(message.model?.toLowerCase().includes('minimax') || message.model?.toLowerCase().includes('abab')) && (
+                                  <div className="ml-auto flex items-center gap-1 opacity-70">
+                                    <div className="w-1 h-1 rounded-full bg-orange-500 animate-ping" style={{ animationDuration: '0.6s' }} />
+                                    <span className="text-[8px] font-black tracking-tighter uppercase">Native V2 Engine</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                         <p className={cn(
                           "text-[9px] px-1",
                           isDark ? "text-zinc-700" : "text-gray-300"
@@ -946,11 +955,13 @@ export function ConciergeChat({
               )}>
                 <Textarea
                   value={input}
-                  onChange={(e) => setInput(e.target.value.slice(0, 500))}
+                  onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask Swipess AI…"
+                  spellCheck={false}
+                  autoCorrect="off"
                   className={cn(
-                    "flex-1 min-h-[36px] max-h-32 resize-none border-0 bg-transparent text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 py-1.5 px-1",
+                    "flex-1 min-h-[38px] max-h-36 resize-none border-0 bg-transparent text-[15px] sm:text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 py-2 px-1 transition-colors",
                     isDark
                       ? "text-white placeholder:text-zinc-600"
                       : "text-gray-900 placeholder:text-gray-400"
