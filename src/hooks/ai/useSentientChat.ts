@@ -1,3 +1,4 @@
+import { supabase } from '@/integrations/supabase/client';
 import { useState, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
@@ -40,8 +41,8 @@ export function useSentientChat() {
       const timeoutId = setTimeout(() => controller.abort(), 25000);
 
       try {
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
+        const supabaseUrl = (supabase as any)?.supabaseUrl;
+        const supabaseKey = (supabase as any)?.supabaseKey;
 
         const response = await fetch(`${supabaseUrl}/functions/v1/ai-orchestrator`, {
           method: 'POST',

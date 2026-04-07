@@ -275,7 +275,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       }
 
       // Use current origin as fallback to support all environments (dev, staging, production)
-      const redirectUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+      const redirectUrl = window.location.origin;
 
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -453,8 +453,11 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
   const signInWithOAuth = async (provider: 'google', role: 'client' | 'owner' = 'client') => {
     try {
-      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
-        throw new Error('Supabase configuration is missing. Please check your environment variables.');
+      const clientUrl = (supabase as any)?.supabaseUrl;
+      const clientKey = (supabase as any)?.supabaseKey;
+      
+      if (!clientUrl || !clientKey) {
+        throw new Error('Supabase configuration is missing. Please check your client setup.');
       }
 
       // Store role before OAuth redirect

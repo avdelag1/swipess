@@ -189,7 +189,7 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
       }
 
       // Get the Supabase URL to construct the edge function URL
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseUrl = (supabase as any)?.supabaseUrl;
       if (!supabaseUrl) {
         throw new Error('Supabase URL not configured');
       }

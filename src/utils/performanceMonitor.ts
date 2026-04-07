@@ -11,14 +11,15 @@ let isInitialized = false;
  * - Preconnect to common domains
  * - Set up resource hints
  */
-export function initPerformanceOptimizations() {
+export async function initPerformanceOptimizations() {
   if (isInitialized || typeof document === 'undefined') {
     return;
   }
   isInitialized = true;
 
   // Preconnect to Supabase (if used)
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const { supabase } = await import('@/integrations/supabase/client');
+  const supabaseUrl = (supabase as any)?.supabaseUrl;
   if (supabaseUrl) {
     addPreconnect(supabaseUrl);
   }

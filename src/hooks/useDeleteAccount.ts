@@ -41,8 +41,9 @@ export function useDeleteAccount() {
       }
 
       // Call edge function with user's auth token
+      const clientUrl = (supabase as any)?.supabaseUrl;
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`,
+        `${clientUrl}/functions/v1/delete-user`,
         {
           method: 'POST',
           headers: {
