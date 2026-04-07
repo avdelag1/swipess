@@ -771,31 +771,17 @@ export function ConciergeChat({
                         "flex items-center gap-2 mt-1",
                         message.role === 'user' ? "justify-end" : "justify-start"
                       )}>
-                            {message.role === 'assistant' && (
-                              <div className={cn(
-                                "flex items-center gap-1.5 mt-3 pt-2.5 border-t",
-                                isDark ? "border-white/[0.04] text-zinc-600" : "border-gray-100 text-gray-400"
-                              )}>
-                                <Zap className={cn("w-2.5 h-2.5 shadow-sm shadow-orange-500/20", (message.model?.toLowerCase().includes('minimax') || message.model?.toLowerCase().includes('abab')) ? "text-orange-500 animate-pulse" : "text-blue-400")} />
-                                <span className={cn(
-                                  "text-[9px] font-black uppercase tracking-[0.16em] leading-none",
-                                  (message.model?.toLowerCase().includes('minimax') || message.model?.toLowerCase().includes('abab')) && "text-orange-500/90 drop-shadow-sm"
-                                )}>
-                                  {(message.model?.toLowerCase().includes('minimax') || message.model?.toLowerCase().includes('abab')) ? 'MiniMax ⚡' : (message.model || 'Autonomous')}
-                                </span>
-                                {(message.model?.toLowerCase().includes('minimax') || message.model?.toLowerCase().includes('abab')) && (
-                                  <div className="ml-auto flex items-center gap-1 opacity-70">
-                                    <div className="w-1 h-1 rounded-full bg-orange-500 animate-ping" style={{ animationDuration: '0.6s' }} />
-                                    <span className="text-[8px] font-black tracking-tighter uppercase">Native V2 Engine</span>
-                                  </div>
-                                )}
-                              </div>
-                            )}
                         <p className={cn(
-                          "text-[9px] px-1",
-                          isDark ? "text-zinc-700" : "text-gray-300"
+                          "text-[9px] px-1 font-semibold tracking-tight",
+                          isDark ? "text-zinc-600" : "text-gray-400"
                         )}>
-                          {formatDistanceToNow(message.timestamp)}
+                          {message.timestamp.toLocaleString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            hour: 'numeric', 
+                            minute: '2-digit', 
+                            hour12: true 
+                          })}
                         </p>
 
                         <div className="flex items-center gap-0.5 opacity-40 hover:opacity-100 transition-opacity">

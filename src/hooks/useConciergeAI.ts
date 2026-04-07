@@ -419,9 +419,15 @@ export function useConciergeAI() {
         data?.result?.text ||
         data?.choices?.[0]?.message?.content ||
         data?.message ||
-        'I am processing that...'
+        ""
       );
       const { cleanText: aiText, action: aiAction } = extractAction(rawText);
+
+      // 🛡️ TRUTH PROTOCOL: Do not show or save empty/fake replies
+      if (!aiText || aiText.includes("plan not support model")) {
+        setError("The AI provider is currently unavailable. Please try again in a moment.");
+        return;
+      }
 
       const assistantMsg: ConciergeMessage = {
         id: crypto.randomUUID(),
@@ -434,7 +440,7 @@ export function useConciergeAI() {
 
       setMessages((prev) => [...prev, assistantMsg]);
 
-      if (user && convId) {
+      if (user && convId && aiText.length > 5) {
         persistAssistantMessage(convId, aiText, aiAction, modelName);
       }
 

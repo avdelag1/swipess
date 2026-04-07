@@ -171,9 +171,19 @@ Deno.serve(async (req) => {
     }
 
     const result = await minimaxResponse.json();
+    
+    // 🛡️ TRUTH PROTOCOL: Detect plan/model errors instead of pretending success
+    if (result.base_resp?.status_msg && result.base_resp?.status_code !== 0) {
+      throw new Error(`MiniMax Provider Error: ${result.base_resp.status_msg}`);
+    }
+
     const text = result.choices?.[0]?.message?.content || "";
     const cleanText = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
+    // 🛡️ TRUTH PROTOCOL: If response is empty, do not treat as success
+    if (!cleanText) {
+      throw new Error("MiniMax returned an empty response. Verify your plan and model availability.");
+    }
     // 3. PERSISTENCE (Safe server-side save)
     if (userId && cleanText) {
        try {
