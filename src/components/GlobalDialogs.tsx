@@ -26,7 +26,6 @@ const SavedSearchesDialog = lazyWithRetry(() => import('@/components/SavedSearch
 const MessageActivationPackages = lazyWithRetry(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })));
 const PushNotificationPrompt = lazyWithRetry(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })));
 const WelcomeNotification = lazyWithRetry(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })));
-const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
 const LikedListingInsightsModal = lazyWithRetry(() => import('@/components/LikedListingInsightsModal').then(m => ({ default: m.LikedListingInsightsModal })));
 const LikedClientInsightsModal = lazyWithRetry(() => import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal })));
 
@@ -161,11 +160,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
       </SmartSuspense>
 
       <SmartSuspense fallback={null}>
-        <ConciergeChat
-          open={store.isAISearchOpen}
-          onOpenChange={(val: boolean) => store.setModal('isAISearchOpen', val)}
-          userRole={userRole === 'admin' ? 'client' : userRole}
-        />
+
 
         {/* LIKED ITEM MODALS */}
         <LikedListingInsightsModal

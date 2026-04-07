@@ -48,7 +48,7 @@ interface BottomNavigationProps {
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
   onListingsClick?: () => void;
-  onAISearchClick?: () => void;
+
   className?: string; // High-stability HUD support
 }
 
@@ -77,7 +77,7 @@ export const BottomNavigation = memo(({
   onFilterClick,
   onAddListingClick,
   onListingsClick,
-  onAISearchClick,
+
   className,
 }: BottomNavigationProps) => {
   const { navigate, prefetch } = useAppNavigate();
@@ -87,7 +87,7 @@ export const BottomNavigation = memo(({
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { theme } = useTheme();
   const isLight = theme === 'light';
-  const isAISearchOpen = useModalStore(s => s.isAISearchOpen);
+
   const { t } = useTranslation();
 
   // Detect narrow screens for icon-only compact mode
@@ -106,7 +106,7 @@ export const BottomNavigation = memo(({
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'ai-search', icon: Sparkles, label: 'AI Chat', onClick: onAISearchClick },
+
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
     { id: 'search', icon: SlidersHorizontal, label: 'Discovery', onClick: onFilterClick },
@@ -118,7 +118,7 @@ export const BottomNavigation = memo(({
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
-    { id: 'ai-search', icon: Sparkles, label: 'AI Listing', onClick: onAISearchClick },
+
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
@@ -269,9 +269,7 @@ export const BottomNavigation = memo(({
   );
 
   const isActive = (item: NavItem) => {
-    if (item.id === 'ai-search') {
-      return isAISearchOpen || location.pathname.includes('new-ai');
-    }
+
     return item.path ? location.pathname === item.path : false;
   };
 

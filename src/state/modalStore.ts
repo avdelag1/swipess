@@ -33,7 +33,7 @@ interface ModalState {
   showSupport: boolean;
   showMessageActivations: boolean;
   showFilters: boolean;
-  isAISearchOpen: boolean;
+
 
   // Actions
   setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason'>, value: boolean) => void;
@@ -64,7 +64,7 @@ export const useModalStore = create<ModalState>((set) => ({
   showSupport: false,
   showMessageActivations: false,
   showFilters: false,
-  isAISearchOpen: false,
+
 
   setModal: (key, value) => set({ [key]: value }),
   
@@ -88,6 +88,6 @@ export const useModalStore = create<ModalState>((set) => ({
     showSupport: false,
     showMessageActivations: false,
     showFilters: false,
-    isAISearchOpen: false,
+
   }),
 }));

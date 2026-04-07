@@ -9,7 +9,7 @@ import {
   ArrowLeft, Sun, Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-const AISearchDialog = lazy(() => import('@/components/AISearchDialog').then(m => ({ default: m.AISearchDialog })));
+
 import { SwipessLogo } from './SwipessLogo';
 
 import { Input } from '@/components/ui/input';
@@ -407,7 +407,7 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
 function LegendaryLandingPage() {
   const { theme, setTheme } = useTheme();
   const [view, setView] = useState<View>('landing');
-  const [isAIOpen, setIsAIOpen] = useState(false);
+
 
   const isDark = true; // FORCE DARK EVERYWHERE
   const activeMode: EffectMode = view === 'auth' ? 'off' : 'stars';
@@ -446,13 +446,7 @@ function LegendaryLandingPage() {
         )}
       </AnimatePresence>
 
-      <Suspense fallback={null}>
-        <AISearchDialog 
-          isOpen={isAIOpen} 
-          onClose={() => setIsAIOpen(false)} 
-          userRole="client" 
-        />
-      </Suspense>
+
       </motion.div>
   );
 }

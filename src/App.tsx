@@ -50,7 +50,7 @@ const OwnerProfile = lazy(() => import("./pages/OwnerProfile"));
 const OwnerSettings = lazy(() => import("./pages/OwnerSettings"));
 const OwnerProperties = lazy(() => import("./pages/OwnerProperties"));
 const OwnerNewListing = lazy(() => import("./pages/OwnerNewListing"));
-const ConversationalListingCreator = lazy(() => import("./components/ConversationalListingCreator").then(m => ({ default: m.ConversationalListingCreator })));
+
 const OwnerLikedClients = lazy(() => import("./pages/OwnerLikedClients"));
 const OwnerInterestedClients = lazy(() => import("./pages/OwnerInterestedClients"));
 const OwnerDiscovery = lazy(() => import("./pages/OwnerDiscovery"));
@@ -153,7 +153,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/owner/settings" element={<OwnerSettings />} />
               <Route path="/owner/properties" element={<OwnerProperties />} />
               <Route path="/owner/listings/new" element={<OwnerNewListing />} />
-              <Route path="/owner/listings/new-ai" element={<ConversationalListingCreator />} />
+
               <Route path="/owner/liked-clients" element={<OwnerLikedClients />} />
               <Route path="/owner/interested-clients" element={<OwnerInterestedClients />} />
               <Route path="/owner/discovery" element={<OwnerDiscovery />} />
