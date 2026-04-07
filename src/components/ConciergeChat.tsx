@@ -26,6 +26,7 @@ import {
   Navigation,
   Phone,
   ExternalLink,
+  Zap,
 } from 'lucide-react';
 import { useConciergeAI } from '@/hooks/useConciergeAI';
 import { useUserMemories } from '@/hooks/useUserMemories';
