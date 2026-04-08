@@ -881,7 +881,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     const { validateContent: vc } = await import('@/utils/contactInfoValidation');
     const result = vc(message);
     if (!result.isClean) {
-      appToast.error('Content blocked', result.message);
+      appToast.error('Content blocked', result.message || undefined);
       return;
     }
 
