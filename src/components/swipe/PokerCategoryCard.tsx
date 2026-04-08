@@ -83,7 +83,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         rotateX: isTop ? 0 : 6, 
         filter: isTop ? undefined : `brightness(${stackBrightness})`,
       }}
-      transition={{ type: 'spring', stiffness: 220, damping: 28, mass: 0.8 }}
+      transition={{ type: 'spring', stiffness: 180, damping: 26, mass: 1.2 }}
       style={{
         position: 'absolute',
         top: 0,
@@ -101,7 +101,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         willChange: 'transform, opacity',
       } as any}
       whileDrag={{ cursor: 'grabbing' }}
-      className="touch-manipulation select-none gpu-ultra isolation-isolate"
+      className={cn("touch-manipulation select-none gpu-ultra isolation-isolate", isTop && "card-breathe")}
     >
       <div
         className={cn(

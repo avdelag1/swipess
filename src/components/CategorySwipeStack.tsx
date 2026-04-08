@@ -322,9 +322,9 @@ function CategoryCard({
             }}
             transition={{ 
                 type: 'spring', 
-                stiffness: isDragging ? 800 : 450, 
-                damping: 35, 
-                mass: 0.8
+                stiffness: isDragging ? 800 : 180, 
+                damping: isDragging ? 35 : 26, 
+                mass: isDragging ? 0.8 : 1.2
             }}
             whileHover={!isTop ? { 
                 y: fanY - 20, 
@@ -353,7 +353,8 @@ function CategoryCard({
                 !isTop && "blur-[1px] brightness-75", // Depth effect for back cards
                 "bg-black border border-white/10 rounded-[32px] transform-gpu",
                 isActive && "ring-4 ring-brand-accent-2/50 ring-offset-4 ring-offset-background",
-                "swipe-card-size"
+                "swipe-card-size",
+                isTop && !isDragging && "card-breathe"
             )}
 
             style={{ 

@@ -476,3 +476,13 @@ button:active, [role="button"]:active {
   transform: translateY(-4px) scale(1.02);
   filter: brightness(1.1);
 }
+
+/* 🫁 CARD BREATHING: Subtle alive presence for top cards */
+@keyframes card-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+}
+
+.card-breathe {
+  animation: card-breathe 4s ease-in-out infinite;
+}
