@@ -815,10 +815,13 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     className={cn(
                       "w-10 h-10 rounded-xl transition-all relative",
                       isListening && "bg-red-500/20 border-red-500/50 text-red-400 animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.4)]",
-                      countdown !== null && "border-primary/50 bg-primary/10"
+                      countdown !== null && "border-primary/50 bg-primary/10",
+                      ignitionFlash && "border-primary bg-primary/30 shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
                     )}
                   >
-                    {countdown !== null ? (
+                    {ignitionFlash ? (
+                      <span className="text-sm">🚀</span>
+                    ) : countdown !== null ? (
                       <span className="text-xs font-bold text-primary">{countdown}</span>
                     ) : isListening ? (
                       <MicOff className="w-4 h-4" />
