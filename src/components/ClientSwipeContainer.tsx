@@ -734,7 +734,6 @@ const ClientSwipeContainerComponent = ({
       }
     } catch (error) {
       appToast.error('Could not start conversation', error instanceof Error ? error.message : 'Try again');
-      });
     } finally {
       setIsCreatingConversation(false);
     }
