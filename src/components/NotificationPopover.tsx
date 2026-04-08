@@ -370,10 +370,10 @@ export function NotificationPopover({ className, children }: NotificationPopover
     >
       <div className="relative">
         <Bell
-          strokeWidth={3}
+          strokeWidth={1.5}
           className={cn(
             "h-5 w-5 transition-colors duration-150",
-            isDark ? "text-white/80" : "text-foreground/80",
+            isDark ? "text-white/70" : "text-foreground/80",
             "group-hover:text-foreground"
           )}
         />
