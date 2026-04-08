@@ -561,7 +561,7 @@ export function useConciergeAI() {
       setIsLoading(false);
       abortRef.current = null;
     }
-  }, [activeConversationId, conversations, isLoading, updateConversations, updateConversationsLive, flushStreamBuffer, activeCharacter, egoLevel, setEgoLevel]);
+  }, [activeConversationId, conversations, isLoading, canUseAI, updateConversations, updateConversationsLive, flushStreamBuffer, activeCharacter, egoLevel, setEgoLevel]);
 
   const resendMessage = useCallback(async (messageId: string) => {
     if (!activeConversation || isLoading) return;
@@ -611,5 +611,7 @@ export function useConciergeAI() {
     setActiveCharacter,
     egoLevel,
     setEgoLevel,
+    canUseAI,
+    isPremium,
   };
 }
