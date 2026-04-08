@@ -381,8 +381,8 @@ export const BottomNavigation = memo(({
                       mass: 0.6,
                     }}
                      style={{
-                       background: isLight ? 'rgba(255,107,53,0.12)' : 'rgba(255,107,53,0.22)',
-                       boxShadow: isLight ? '0 0 12px rgba(255,107,53,0.15)' : '0 0 16px rgba(255,107,53,0.2)',
+                       background: isLight ? 'rgba(255,107,53,0.14)' : 'rgba(255,107,53,0.30)',
+                       boxShadow: isLight ? '0 0 14px rgba(255,107,53,0.18)' : '0 0 20px rgba(255,107,53,0.35)',
                      }}
                   >
                      {/* Liquid highlight catch-light */}

@@ -12,31 +12,31 @@
     --foreground: 0 0% 91%;
     --card: 0 0% 23%;
     --card-foreground: 0 0% 91%;
-    --primary: 0 100% 50%;
+    --primary: 18 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 27%;
+    --secondary: 0 0% 30%;
     --secondary-foreground: 0 0% 91%;
     --muted: 0 0% 27%;
-    --muted-foreground: 0 0% 72%;
-    --accent: 0 100% 50%;
+    --muted-foreground: 0 0% 78%;
+    --accent: 18 100% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 29%;
     --input: 0 0% 29%;
-    --ring: 0 100% 50%;
+    --ring: 18 100% 50%;
 
     /* Modern theme variables */
     --bg-primary: 0 0% 18%;
     --bg-secondary: 0 0% 23%;
     --bg-tertiary: 0 0% 27%;
     --text-primary: 0 0% 91%;
-    --text-secondary: 0 0% 72%;
+    --text-secondary: 0 0% 78%;
     --text-tertiary: 0 0% 53%;
     --border-primary: 0 0% 29%;
     --border-secondary: 0 0% 35%;
-    --accent-primary: 0 100% 50%;
-    --accent-secondary: 0 100% 60%;
+    --accent-primary: 18 100% 50%;
+    --accent-secondary: 18 100% 60%;
 
     /* Shadows - Subtle depth for floating cards */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12);
@@ -54,35 +54,35 @@
     /* Deep pure black */
     --foreground: 0 0% 100%;
     /* Pure white text */
-    --card: 0 0% 5%;
+    --card: 0 0% 7%;
     /* Subtle grey for cards */
     --card-foreground: 0 0% 100%;
-    --primary: 343 99% 62%;
+    --primary: 343 99% 65%;
     /* Tinder Signature Pink-Red */
     --primary-foreground: 0 0% 100%;
-    --secondary: 212 14% 19%;
+    --secondary: 212 14% 22%;
     --secondary-foreground: 0 0% 100%;
     --muted: 212 14% 19%;
-    --muted-foreground: 212 10% 80%;
-    --accent: 343 99% 62%;
+    --muted-foreground: 212 10% 82%;
+    --accent: 343 99% 65%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 216 15% 18%;
     --input: 0 0% 8%;
-    --ring: 352 83% 58%;
+    --ring: 352 83% 62%;
 
     /* Modern theme variables */
     --bg-primary: 0 0% 0%;
     --bg-secondary: 0 0% 4%;
     --bg-tertiary: 0 0% 8%;
     --text-primary: 0 0% 100%;
-    --text-secondary: 216 10% 70%;
+    --text-secondary: 216 10% 78%;
     --text-tertiary: 216 10% 55%;
     --border-primary: 216 15% 18%;
     --border-secondary: 216 15% 23%;
-    --accent-primary: 352 83% 58%;
-    --accent-secondary: 352 83% 68%;
+    --accent-primary: 352 83% 62%;
+    --accent-secondary: 352 83% 72%;
 
     /* Shadows - Deep shadows for maximum depth */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -99,19 +99,19 @@
     --foreground: 0 0% 7%;
     --card: 0 0% 99%;
     --card-foreground: 0 0% 7%;
-    --primary: 343 99% 62%;
+    --primary: 343 99% 65%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 10%;
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 35%;
-    --accent: 343 99% 62%;
+    --accent: 343 99% 65%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 343 99% 62%;
+    --ring: 343 99% 65%;
 
     --bg-primary: 0 0% 100%;
     --bg-secondary: 0 0% 97%;
@@ -121,7 +121,7 @@
     --text-tertiary: 0 0% 45%;
     --border-primary: 0 0% 90%;
     --border-secondary: 0 0% 85%;
-    --accent-primary: 343 99% 62%;
+    --accent-primary: 343 99% 65%;
     --accent-secondary: 343 99% 72%;
 
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -181,31 +181,31 @@
     --foreground: 0 0% 95%;
     --card: 0 0% 6%;
     --card-foreground: 0 0% 95%;
-    --primary: 0 100% 58%;
+    --primary: 18 100% 55%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 10%;
+    --secondary: 0 0% 13%;
     --secondary-foreground: 0 0% 95%;
     --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 70%;
-    --accent: 0 100% 58%;
+    --muted-foreground: 0 0% 78%;
+    --accent: 18 100% 55%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 12%;
     --input: 0 0% 12%;
-    --ring: 0 100% 58%;
+    --ring: 18 100% 55%;
 
     /* Modern theme variables */
     --bg-primary: 0 0% 0%;
     --bg-secondary: 0 0% 6%;
     --bg-tertiary: 0 0% 10%;
     --text-primary: 0 0% 95%;
-    --text-secondary: 0 0% 70%;
+    --text-secondary: 0 0% 78%;
     --text-tertiary: 0 0% 45%;
     --border-primary: 0 0% 12%;
     --border-secondary: 0 0% 18%;
-    --accent-primary: 0 100% 58%;
-    --accent-secondary: 0 100% 68%;
+    --accent-primary: 18 100% 55%;
+    --accent-secondary: 18 100% 65%;
 
     /* Shadows - Maximum depth for AMOLED */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
