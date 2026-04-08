@@ -442,6 +442,7 @@ export function useConciergeAI() {
                 role: 'assistant' as const,
                 content: '',
                 timestamp: assistantTimestamp,
+                provider: aiProvider,
               }],
               updatedAt: new Date(),
             };
@@ -506,6 +507,7 @@ export function useConciergeAI() {
           role: 'assistant',
           content: finalCleaned,
           timestamp: assistantTimestamp,
+          provider: aiProvider,
         };
 
         updateConversations(prev =>
@@ -539,6 +541,7 @@ export function useConciergeAI() {
           role: 'assistant',
           content: stripThinkBlocks(reply),
           timestamp: new Date(),
+          provider: aiProvider,
         };
 
         updateConversations(prev =>
