@@ -700,6 +700,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 onCopy={() => handleCopy(msg.content)}
                 onResend={msg.role === 'user' ? () => resendMessage(msg.id) : undefined}
                 onTranslate={msg.role === 'assistant' ? handleTranslate : undefined}
+                onNavigate={msg.role === 'assistant' ? handleNavigate : undefined}
               />
             ))}
 
