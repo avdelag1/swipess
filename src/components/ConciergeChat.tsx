@@ -319,8 +319,21 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const [autoSend, setAutoSend] = useState(() => {
     try { return localStorage.getItem('concierge-auto-send') === 'true'; } catch { return false; }
   });
+  const [countdown, setCountdown] = useState<number | null>(null);
   const recognitionRef = useRef<any>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countdownTranscriptRef = useRef<string>('');
   const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+
+  const COUNTDOWN_SECONDS = 7;
+
+  const clearCountdown = useCallback(() => {
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
+    }
+    setCountdown(null);
+  }, []);
 
   const toggleAutoSend = useCallback(() => {
     setAutoSend(prev => {
@@ -331,17 +344,18 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   }, []);
 
   const stopListening = useCallback(() => {
+    clearCountdown();
     if (recognitionRef.current) {
-      // Signal that user intentionally stopped so onend doesn't restart
       (recognitionRef.current as any)._userStop?.();
       recognitionRef.current.stop();
       recognitionRef.current = null;
     }
     setIsListening(false);
-  }, []);
+  }, [clearCountdown]);
 
   const startListening = useCallback(() => {
     if (!speechSupported) return;
+    clearCountdown();
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
@@ -349,10 +363,12 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     recognition.lang = 'en-US';
 
     let finalTranscript = '';
-    // Track whether the user intentionally stopped
     let userStopped = false;
 
     recognition.onresult = (event: any) => {
+      // Cancel any active countdown when user speaks again
+      clearCountdown();
+
       let interim = '';
       finalTranscript = '';
       for (let i = 0; i < event.results.length; i++) {
@@ -363,51 +379,71 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
         }
       }
       setInput(finalTranscript + interim);
+      countdownTranscriptRef.current = finalTranscript;
     };
 
     recognition.onend = () => {
-      // If the user didn't manually stop, restart to keep listening
       if (!userStopped && recognitionRef.current) {
+        // If auto-send is ON and we have text, start countdown instead of restarting
+        if (autoSend && finalTranscript.trim()) {
+          countdownTranscriptRef.current = finalTranscript.trim();
+          setCountdown(COUNTDOWN_SECONDS);
+          countdownRef.current = setInterval(() => {
+            setCountdown(prev => {
+              if (prev === null || prev <= 1) {
+                // Countdown reached 0 — auto-send
+                clearInterval(countdownRef.current!);
+                countdownRef.current = null;
+                const textToSend = countdownTranscriptRef.current;
+                if (textToSend) {
+                  sendMessage(textToSend);
+                  setInput('');
+                }
+                setIsListening(false);
+                recognitionRef.current = null;
+                return null;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+          return;
+        }
+
+        // No auto-send or no text — just restart recognition
         try {
           recognition.start();
           return;
         } catch {
-          // Failed to restart, fall through to cleanup
+          // Failed to restart, fall through
         }
       }
       setIsListening(false);
       recognitionRef.current = null;
-      if (autoSend && finalTranscript.trim()) {
-        setTimeout(() => {
-          sendMessage(finalTranscript.trim());
-          setInput('');
-        }, 100);
-      }
     };
 
     recognition.onerror = (e: any) => {
-      // 'no-speech' is normal — just let onend restart
       if (e.error === 'no-speech') return;
       userStopped = true;
       setIsListening(false);
       recognitionRef.current = null;
+      clearCountdown();
     };
 
-    // Expose a way to flag user-stop from stopListening
     (recognition as any)._userStop = () => { userStopped = true; };
 
     recognitionRef.current = recognition;
     recognition.start();
     setIsListening(true);
-  }, [speechSupported, autoSend, sendMessage]);
+  }, [speechSupported, autoSend, sendMessage, clearCountdown]);
 
   const toggleListening = useCallback(() => {
-    if (isListening) {
+    if (isListening || countdown !== null) {
+      clearCountdown();
       stopListening();
     } else {
       startListening();
     }
-  }, [isListening, stopListening, startListening]);
+  }, [isListening, countdown, stopListening, startListening, clearCountdown]);
 
   // Auto-scroll to bottom on new messages, loading state, opening chat, or switching conversation
   const scrollToBottom = useCallback(() => {
