@@ -54,7 +54,7 @@ export const DiscoverySidebar = memo(({
         className="absolute inset-0 rounded-2xl opacity-0 group-active:opacity-100 transition-opacity blur-md"
         style={{ backgroundColor: glowColor }}
       />
-      <Icon className={cn("w-6 h-6 relative z-10", colorClass)} strokeWidth={2.2} />
+      <Icon className={cn("w-6 h-6 relative z-10", colorClass)} strokeWidth={1.5} />
       <span className="text-[8px] font-black uppercase tracking-tighter mt-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
         {label}
       </span>

@@ -136,7 +136,7 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full h-[min(42dvh,340px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-[min(38dvh,320px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
 
             <AnimatePresence mode="sync" initial={false}>
                 {stack.map((cat, index) => {
@@ -373,14 +373,14 @@ function CategoryCard({
                 )}
                 whileHover={{ scale: 1.1, rotate: 5 }}
             >
-                <category.icon className="w-10 h-10" strokeWidth={2.5} />
+                <category.icon className="w-10 h-10" strokeWidth={1.5} />
                 {isActive && (
                     <motion.div 
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         className="absolute -top-3 -right-3 bg-brand-accent-2 rounded-full p-1.5 shadow-lg border-2 border-white dark:border-black"
                     >
-                        <Check className="w-3.5 h-3.5 text-white" strokeWidth={4} />
+                        <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
                     </motion.div>
                 )}
             </motion.div>
@@ -421,8 +421,6 @@ function CategoryCard({
                 )}
             </AnimatePresence>
 
-            {/* Bottom Glass Indicator (for that premium feel) */}
-            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50" />
         </motion.div>
     );
 }

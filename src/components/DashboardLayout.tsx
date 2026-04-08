@@ -492,7 +492,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           "flex-1 w-full min-h-0 bg-background relative z-0 touch-pan-y overscroll-y-contain",
           isRadioRoute ? "overflow-visible" 
             : (location.pathname.includes('liked') || location.pathname.includes('interested')) 
-              ? "overflow-y-auto overflow-x-hidden" 
+              ? "overflow-hidden" 
               : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"

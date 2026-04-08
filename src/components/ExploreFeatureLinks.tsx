@@ -30,7 +30,7 @@ export function ExploreFeatureLinks({ isClient: _isClient = true }: ExploreFeatu
         }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,rgba(255,255,255,0.2),transparent_60%)] rounded-2xl pointer-events-none" />
-        <Megaphone className="w-4 h-4 text-white relative z-10" strokeWidth={2.5} />
+        <Megaphone className="w-4 h-4 text-white relative z-10" strokeWidth={1.5} />
         <span className="text-[11px] font-black uppercase tracking-widest relative z-10">Promote Your Event</span>
       </motion.button>
 

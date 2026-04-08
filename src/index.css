@@ -497,3 +497,12 @@ button:active, [role="button"]:active {
 .card-breathe {
   animation: card-breathe 4s ease-in-out infinite;
 }
+
+/* ─── Instant Tap Responsiveness ─── */
+button:active,
+a:active,
+[role="button"]:active,
+.interactive:active {
+  transform: scale(0.97);
+  transition: transform 40ms cubic-bezier(0.2, 0, 0, 1);
+}

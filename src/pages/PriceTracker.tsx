@@ -109,7 +109,7 @@ export default function PriceTracker() {
               </div>
            </div>
            <div className="absolute -right-4 -bottom-4 opacity-10">
-              <BarChart3 className="w-24 h-24 text-primary" strokeWidth={3} />
+              <BarChart3 className="w-24 h-24 text-primary" strokeWidth={1.5} />
            </div>
         </div>
 

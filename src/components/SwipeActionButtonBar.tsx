@@ -266,7 +266,7 @@ function SwipeActionButtonBarComponent({
           ariaLabel="Undo last swipe"
           index={0}
         >
-          <RotateCcw className="w-full h-full" strokeWidth={2.8} />
+          <RotateCcw className="w-full h-full" strokeWidth={1.5} />
         </ActionButton>
 
         <ActionButton
@@ -277,7 +277,7 @@ function SwipeActionButtonBarComponent({
           ariaLabel="Pass on this listing"
           index={1}
         >
-          <ThumbsDown className="w-full h-full" strokeWidth={2.4} />
+          <ThumbsDown className="w-full h-full" strokeWidth={1.8} />
         </ActionButton>
 
         {onShare && (
@@ -289,7 +289,7 @@ function SwipeActionButtonBarComponent({
             ariaLabel="Share this listing"
             index={2}
           >
-            <Share2 className="w-full h-full" strokeWidth={2.8} />
+            <Share2 className="w-full h-full" strokeWidth={1.5} />
           </ActionButton>
         )}
 
@@ -301,7 +301,7 @@ function SwipeActionButtonBarComponent({
           ariaLabel="Like this listing"
           index={3}
         >
-          <Flame className="w-full h-full" strokeWidth={2.4} />
+          <Flame className="w-full h-full" strokeWidth={1.8} />
         </ActionButton>
 
         {onMessage && (
@@ -313,7 +313,7 @@ function SwipeActionButtonBarComponent({
             ariaLabel="Message the owner"
             index={4}
           >
-            <MessageCircle className="w-full h-full" strokeWidth={2.8} />
+            <MessageCircle className="w-full h-full" strokeWidth={1.5} />
           </ActionButton>
         )}
 
@@ -326,7 +326,7 @@ function SwipeActionButtonBarComponent({
             ariaLabel="AI Speed Meet"
             index={5}
           >
-            <Sparkles className="w-full h-full" strokeWidth={2.2} />
+            <Sparkles className="w-full h-full" strokeWidth={1.8} />
           </ActionButton>
         )}
       </div>
