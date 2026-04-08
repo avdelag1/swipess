@@ -17,7 +17,7 @@ const MessageConfirmationDialog = lazy(() => import('./MessageConfirmationDialog
 
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
-import { useSwipe } from '@/hooks/useSwipe';
+import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
 import { useCanAccessMessaging } from '@/hooks/useMessaging';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
