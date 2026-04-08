@@ -362,7 +362,7 @@ export default function AdvertisePage() {
           <div className="absolute inset-0 bg-orange-500/30 blur-[60px] rounded-full scale-150 animate-pulse" />
           <div className="w-28 h-28 rounded-[2.5rem] flex items-center justify-center relative z-10"
             style={{ background: "linear-gradient(135deg,#f97316,#a855f7)", boxShadow: "0 20px 60px rgba(249,115,22,0.4)" }}>
-            <Check className="w-14 h-14 text-white" strokeWidth={3} />
+            <Check className="w-14 h-14 text-white" strokeWidth={2} />
           </div>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
