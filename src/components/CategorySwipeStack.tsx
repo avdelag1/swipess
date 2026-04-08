@@ -322,9 +322,9 @@ function CategoryCard({
             }}
             transition={{ 
                 type: 'spring', 
-                stiffness: isDragging ? 800 : 450, 
-                damping: 35, 
-                mass: 0.8
+                stiffness: isDragging ? 800 : 180, 
+                damping: isDragging ? 35 : 26, 
+                mass: isDragging ? 0.8 : 1.2
             }}
             whileHover={!isTop ? { 
                 y: fanY - 20, 
