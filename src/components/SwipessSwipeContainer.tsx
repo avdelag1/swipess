@@ -1075,7 +1075,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.05 }}
-                className="absolute inset-0 z-50 overflow-hidden"
+                className="w-full h-full z-50 overflow-hidden"
               >
                 <SwipeExhaustedState 
                  onRefresh={handleRefresh}
