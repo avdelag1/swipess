@@ -17,7 +17,7 @@ import { UnifiedListingForm } from '@/components/UnifiedListingForm';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
 import { OwnerListingsStats } from '@/components/OwnerListingsStats';
 import { ShareDialog } from '@/components/ShareDialog';
-import { AIListingAssistant } from '@/components/AIListingAssistant';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 

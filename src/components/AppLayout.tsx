@@ -84,10 +84,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     else navigate('/client/filters');
   };
 
-  const handleAIInteraction = () => {
-    if (userRole === 'owner') navigate('/owner/listings/new-ai');
-    else modalStore.setModal('isAISearchOpen', true);
-  };
 
   return (
     <div className={cn("flex flex-col h-full w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
@@ -126,7 +122,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <BottomNavigation
             userRole={userRole}
             onFilterClick={handleFilterClick}
-            onAISearchClick={handleAIInteraction}
+            
             onListingsClick={handleListingsClick}
             className="z-[9999]"
           />
