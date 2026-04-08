@@ -314,7 +314,7 @@ const ClientSwipeContainerComponent = ({
     });
   }, [externalProfiles, internalProfiles, isLoading, error, category]);
 
-  const swipeMutation = useSwipe();
+  const swipeMutation = useSwipeWithMatch();
   const { canAccess: _hasPremiumMessaging, needsUpgrade: _needsUpgrade } = useCanAccessMessaging();
   const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
   const startConversation = useStartConversation();

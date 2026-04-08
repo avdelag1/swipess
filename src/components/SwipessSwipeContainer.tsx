@@ -309,7 +309,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const { canAccess: hasPremiumMessaging, needsUpgrade } = useCanAccessMessaging();
   const navigate = useNavigate();
   const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
-  const swipeMutation = useSwipe();
+  const swipeMutation = useSwipeWithMatch();
   const startConversation = useStartConversation();
 
   // Swipe dismissal tracking
