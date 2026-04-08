@@ -57,6 +57,91 @@ async function searchKnowledge(query: string): Promise<string> {
   }
 }
 
+// ─── Real-Time Context ──────────────────────────────────────────────────────
+
+function getCurrentTimeContext(): string {
+  const now = new Date();
+  const utc = now.toISOString();
+  // Tulum is UTC-6 (CST) — no DST in Quintana Roo
+  const tulumOffset = -6 * 60;
+  const tulumDate = new Date(now.getTime() + tulumOffset * 60 * 1000);
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const dayName = days[tulumDate.getUTCDay()];
+  const monthName = months[tulumDate.getUTCMonth()];
+  const day = tulumDate.getUTCDate();
+  const year = tulumDate.getUTCFullYear();
+  const hours = tulumDate.getUTCHours();
+  const minutes = tulumDate.getUTCMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const h12 = hours % 12 || 12;
+  return `## Current Date & Time\nUTC: ${utc}\nTulum (CST): ${dayName}, ${monthName} ${day}, ${year} — ${h12}:${minutes} ${ampm}`;
+}
+
+// ─── Profile Search ─────────────────────────────────────────────────────────
+
+function detectProfileIntent(query: string): boolean {
+  const q = query.toLowerCase();
+  return /\b(find (people|users|someone|roommates?)|show me (people|users|profiles)|who (wants|is looking|needs)|people looking|users looking|anyone (looking|searching)|match me with)\b/.test(q);
+}
+
+async function searchProfiles(query: string): Promise<string> {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return "";
+  try {
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const q = query.toLowerCase();
+
+    // Build profile query — only public-safe fields
+    let profileQuery = supabase
+      .from("profiles")
+      .select("user_id, full_name, age, nationality, city, neighborhood, active_mode, avatar_url")
+      .eq("is_active", true)
+      .not("full_name", "is", null)
+      .limit(10)
+      .order("updated_at", { ascending: false });
+
+    // Extract filters from query
+    const neighborhoods = ['aldea zama', 'la veleta', 'region 15', 'tulum centro', 'tulum town', 'beach zone', 'zona hotelera', 'tumben-ha', 'selvamar'];
+    const matchedNeighborhood = neighborhoods.find(n => q.includes(n));
+    if (matchedNeighborhood) {
+      profileQuery = profileQuery.ilike("neighborhood", `%${matchedNeighborhood}%`);
+    }
+
+    const { data: profiles, error } = await profileQuery;
+    if (error || !profiles || profiles.length === 0) return "";
+
+    // Also check client_profiles for more detail
+    const userIds = profiles.map(p => p.user_id);
+    const { data: clientProfiles } = await supabase
+      .from("client_profiles")
+      .select("user_id, nationality, languages, interests, intentions")
+      .in("user_id", userIds);
+
+    const clientMap = new Map((clientProfiles ?? []).map(cp => [cp.user_id, cp]));
+
+    return profiles.map(p => {
+      const cp = clientMap.get(p.user_id);
+      const name = p.full_name || "Anonymous";
+      const firstName = name.split(" ")[0];
+      let desc = `👤 **${firstName}`;
+      if (p.age) desc += `, ${p.age}`;
+      desc += `**`;
+      if (p.nationality || cp?.nationality) desc += ` — ${p.nationality || cp?.nationality}`;
+      if (p.neighborhood || p.city) desc += ` in ${p.neighborhood || p.city}`;
+      if (p.active_mode) desc += ` (${p.active_mode} mode)`;
+      if (cp?.intentions) {
+        const intentions = Array.isArray(cp.intentions) ? cp.intentions.join(", ") : "";
+        if (intentions) desc += ` | Looking for: ${intentions}`;
+      }
+      desc += ` → [View Profile](/profile/${p.user_id})`;
+      return desc;
+    }).join("\n");
+  } catch (e) {
+    console.error("[AI] Profile search error:", e);
+    return "";
+  }
+}
+
 // ─── Listing Search ─────────────────────────────────────────────────────────
 
 function detectListingIntent(query: string): { isListing: boolean; category?: string; maxPrice?: number; minBedrooms?: number; location?: string } {
@@ -664,6 +749,18 @@ RULES:
 - Use markdown: **bold** for emphasis, bullet points for lists, [text](url) for links.
 - Never mention you're MiniMax, Gemini, or any specific AI model. You are "Swipess AI".
 - Never make up specific listing prices or addresses unless from verified data below.
+
+IN-APP NAVIGATION:
+When suggesting the user navigate somewhere in the app, include a navigation action tag on its own line. The app will render these as tappable buttons. Available actions:
+[NAV:/client/filters] — Open search filters
+[NAV:/radio] — Open Radio player
+[NAV:/client/profile] — Go to profile
+[NAV:/client/settings] — Open settings
+[NAV:/subscription/packages] — View subscription packages
+[NAV:/client/liked] — View liked properties
+[NAV:/owner/listings] — View my listings
+[NAV:/legal] — Open legal section
+[NAV:/events] — Browse events
 
 TONE EXAMPLES:
 "Oye, based on what you said, this beach club in Sian Ka'an is gonna be your new spot — IG @kaan__tulum, low-key party vibe, no crazy min spend. Want me to pull their listing?"
