@@ -67,25 +67,23 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
         />
       </div>
 
-      {/* Logo with animated nebula inside */}
+      {/* Logo with living internal light */}
       <motion.div
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
         onClick={handleLogoTap}
-        className="cursor-default select-none mb-5 relative z-10"
+        className="cursor-default select-none mb-6 relative z-10"
         aria-label="Swipess logo"
       >
         <div className="relative inline-flex items-center justify-center">
-          {/* SVG text with animated gradient fill — "nebula clouds" inside letters */}
           <svg
             viewBox="0 0 420 70"
-            className="w-[280px] sm:w-[340px] h-auto"
+            className="h-auto w-[340px] max-w-[88vw] sm:w-[460px]"
             aria-hidden="true"
           >
             <defs>
-              {/* Animated nebula gradient */}
-              <linearGradient id="nebula-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="logo-base" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#f97316">
                   <animate attributeName="stop-color" values="#f97316;#ec4899;#a855f7;#f97316" dur="6s" repeatCount="indefinite" />
                 </stop>
@@ -97,23 +95,18 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
                 </stop>
               </linearGradient>
 
-              {/* Soft cloud/smoke filter */}
-              <filter id="nebula-turbulence" x="-20%" y="-20%" width="140%" height="140%">
-                <feTurbulence
-                  type="fractalNoise"
-                  baseFrequency="0.015"
-                  numOctaves="3"
-                  seed="5"
-                  result="noise"
-                >
-                  <animate attributeName="seed" values="1;8;3;6;1" dur="10s" repeatCount="indefinite" />
-                </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G" />
-              </filter>
+              <linearGradient id="logo-sheen" x1="-50%" y1="0%" x2="50%" y2="0%">
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
+                <stop offset="45%" stopColor="#ffffff" stopOpacity="0" />
+                <stop offset="50%" stopColor="#ffffff" stopOpacity="0.95" />
+                <stop offset="55%" stopColor="#ffffff" stopOpacity="0" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                <animate attributeName="x1" values="-50%;90%;-50%" dur="5s" repeatCount="indefinite" />
+                <animate attributeName="x2" values="0%;140%;0%" dur="5s" repeatCount="indefinite" />
+              </linearGradient>
 
-              {/* Glow effect */}
-              <filter id="text-glow">
-                <feGaussianBlur stdDeviation="3" result="blur" />
+              <filter id="logo-glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
                 <feMerge>
                   <feMergeNode in="blur" />
                   <feMergeNode in="SourceGraphic" />
@@ -121,14 +114,13 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
               </filter>
             </defs>
 
-            {/* Background glow layer */}
             <text
               x="210"
               y="55"
               textAnchor="middle"
-              fill="url(#nebula-grad)"
-              opacity="0.4"
-              filter="url(#text-glow)"
+              fill="url(#logo-base)"
+              opacity="0.32"
+              filter="url(#logo-glow)"
               style={{
                 fontSize: '58px',
                 fontWeight: 950,
@@ -141,13 +133,30 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
               SwipesS
             </text>
 
-            {/* Main text with nebula fill + subtle displacement */}
             <text
               x="210"
               y="55"
               textAnchor="middle"
-              fill="url(#nebula-grad)"
-              filter="url(#nebula-turbulence)"
+              fill="url(#logo-base)"
+              style={{
+                fontSize: '58px',
+                fontWeight: 950,
+                fontStyle: 'italic',
+                fontFamily: "'Inter', 'Outfit', system-ui, sans-serif",
+                letterSpacing: '-0.02em',
+                textTransform: 'uppercase',
+              }}
+            >
+              SwipesS
+            </text>
+
+            <text
+              x="210"
+              y="55"
+              textAnchor="middle"
+              fill="url(#logo-sheen)"
+              opacity="0.7"
+              filter="url(#logo-glow)"
               style={{
                 fontSize: '58px',
                 fontWeight: 950,
@@ -194,7 +203,7 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
         <span className="relative flex h-3 w-3">
           {/* Outer breathing glow ring */}
           <motion.span
-            className="absolute inline-flex h-full w-full rounded-full bg-orange-400"
+            className="absolute inline-flex h-full w-full rounded-full bg-primary/70"
             animate={{
               opacity: [0, 0.7, 0],
               scale: [1, 2.2, 1],
@@ -207,13 +216,13 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
           />
           {/* Inner dot — blinks on/off */}
           <motion.span
-            className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"
+            className="relative inline-flex h-3 w-3 rounded-full bg-primary"
             animate={{
               opacity: [1, 0.3, 1],
               boxShadow: [
-                '0 0 8px 2px rgba(249,115,22,0.6)',
-                '0 0 2px 0px rgba(249,115,22,0.1)',
-                '0 0 8px 2px rgba(249,115,22,0.6)',
+                '0 0 8px 2px hsl(var(--primary) / 0.6)',
+                '0 0 2px 0px hsl(var(--primary) / 0.12)',
+                '0 0 8px 2px hsl(var(--primary) / 0.6)',
               ],
             }}
             transition={{
