@@ -321,15 +321,14 @@ export function LikedClients() {
             ))}
           </div>
         ) : filteredClients.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 touch-pan-y">
             {filteredClients.map((client: any, index: number) => (
               <motion.div
                 key={client.id}
-                layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03, duration: 0.3 }}
-                className="rounded-[2rem]"
+                className="rounded-[2rem] touch-pan-y"
               >
                 <PremiumLikedCard
                   type="profile"
