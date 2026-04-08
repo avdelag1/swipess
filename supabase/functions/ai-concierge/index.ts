@@ -35,7 +35,7 @@ async function callMiniMax(messages: ChatMessage[]): Promise<string> {
       "Authorization": `Bearer ${MINIMAX_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "MiniMax-Text-01",
+      model: "MiniMax-M2.7",
       messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
       max_tokens: 1024,
       temperature: 0.7,
@@ -63,7 +63,7 @@ async function callMiniMax(messages: ChatMessage[]): Promise<string> {
 async function callLovableAI(messages: ChatMessage[]): Promise<string> {
   if (!LOVABLE_API_KEY) throw new Error("No fallback AI key configured");
 
-  const res = await fetch("https://ai-gateway.lovable.dev/chat/completions", {
+  const res = await fetch("https://ai-gateway.lovablecloud.com/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
