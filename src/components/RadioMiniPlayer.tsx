@@ -2,38 +2,13 @@ import { useCallback, useRef, useState } from 'react';
 import { m, AnimatePresence, PanInfo } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
 import { Play, Pause, SkipBack, SkipForward, X } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 
-// Safe navigation hook that won't crash outside Router context
-function useSafeNavigate() {
-  try {
-    const { useNavigate, useLocation } = require('react-router-dom');
-    const nav = useNavigate();
-    const loc = useLocation();
-    return { navigate: nav, location: loc };
-  } catch {
-    return { navigate: (_: string) => {}, location: { pathname: '/' } };
-  }
-}
-
-export function RadioMiniPlayer() {
+function RadioMiniPlayerInner() {
   const { state, togglePlayPause, changeStation, pause, setMiniPlayerMode } = useRadio();
-  
-  // Use react-router hooks with an inline safe pattern
-  let navigate: (path: string) => void;
-  let location: { pathname: string };
-  try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const nav = require('react-router-dom').useNavigate();
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const loc = require('react-router-dom').useLocation();
-    navigate = nav;
-    location = loc;
-  } catch {
-    navigate = () => {};
-    location = { pathname: '/' };
-  }
-
+  const navigate = useNavigate();
+  const location = useLocation();
   const constraintsRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
@@ -83,7 +58,6 @@ export function RadioMiniPlayer() {
 
   return (
     <>
-      {/* Invisible full-screen drag constraints */}
       <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-40" />
 
       <AnimatePresence>
@@ -99,11 +73,9 @@ export function RadioMiniPlayer() {
           exit={{ y: 100, opacity: 0, scale: 0.8 }}
           className="fixed bottom-24 right-4 z-50 group cursor-grab active:cursor-grabbing touch-none"
         >
-          {/* Floating Glow */}
           <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-2xl -z-10 group-hover:bg-blue-400/30 transition-colors" />
 
           <div className="flex items-center gap-2 px-2.5 py-1.5 bg-black/60 backdrop-blur-2xl rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.6)] border border-white/20 max-w-[300px] ring-1 ring-white/10">
-            {/* Close Button */}
             <button
               onClick={handleClose}
               className="w-8 h-8 rounded-full flex items-center justify-center bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all active:scale-90"
@@ -112,7 +84,6 @@ export function RadioMiniPlayer() {
               <X className="w-4.5 h-4.5" />
             </button>
 
-            {/* Album Art / Station Orb */}
             <div className="relative w-9 h-9 rounded-full p-[1.5px] bg-gradient-to-br from-blue-400 to-purple-500 shadow-lg">
               <div className="w-full h-full rounded-full bg-black overflow-hidden flex items-center justify-center">
                 {state.currentStation.albumArt ? (
@@ -126,7 +97,6 @@ export function RadioMiniPlayer() {
               )}
             </div>
 
-            {/* Station info */}
             <button
               onClick={handleNavigateToRadio}
               className="flex flex-col min-w-0 flex-1 text-left px-1"
@@ -139,7 +109,6 @@ export function RadioMiniPlayer() {
               </span>
             </button>
 
-            {/* Controls */}
             <div className="flex items-center gap-0.5 pr-0.5">
               <button
                 onClick={handlePrev}
@@ -170,5 +139,23 @@ export function RadioMiniPlayer() {
         </m.div>
       </AnimatePresence>
     </>
+  );
+}
+
+// Error-safe wrapper — if Router context is missing during lazy-load race, silently skip
+import { Component, type ReactNode } from 'react';
+
+class RadioErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch() { /* silently swallow — will re-mount on next render cycle */ }
+  render() { return this.state.hasError ? null : this.props.children; }
+}
+
+export function RadioMiniPlayer() {
+  return (
+    <RadioErrorBoundary>
+      <RadioMiniPlayerInner />
+    </RadioErrorBoundary>
   );
 }
