@@ -17,7 +17,7 @@ export interface Conversation {
   updatedAt: Date;
 }
 
-export type AiCharacter = 'default' | 'kyle' | 'beaugosse';
+export type AiCharacter = 'default' | 'kyle' | 'beaugosse' | 'donajkiin';
 
 const STORAGE_KEY = 'swipess-ai-conversations';
 const CHARACTER_KEY = 'swipess-ai-character';
@@ -372,8 +372,8 @@ export function useConciergeAI() {
         content: m.content,
       }));
 
-      // Adjust ego/charm based on user message content (Kyle & Beau Gosse)
-      if (activeCharacter === 'kyle' || activeCharacter === 'beaugosse') {
+      // Adjust ego/charm/wisdom based on user message content
+      if (activeCharacter === 'kyle' || activeCharacter === 'beaugosse' || activeCharacter === 'donajkiin') {
         if (AGREE_PATTERN.test(content)) setEgoLevel(egoLevel + 1);
         else if (CHALLENGE_PATTERN.test(content)) setEgoLevel(egoLevel - 1);
       }
@@ -388,6 +388,7 @@ export function useConciergeAI() {
           messages: apiMessages,
           ...(activeCharacter === 'kyle' ? { character: 'kyle', egoLevel } : {}),
           ...(activeCharacter === 'beaugosse' ? { character: 'beaugosse', charmLevel: egoLevel } : {}),
+          ...(activeCharacter === 'donajkiin' ? { character: 'donajkiin', wisdomLevel: egoLevel } : {}),
         }),
         signal: abortController.signal,
       });
