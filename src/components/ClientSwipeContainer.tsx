@@ -833,33 +833,39 @@ const ClientSwipeContainerComponent = ({
 
   return (
     <>
-      <div className="relative w-full h-full overflow-hidden flex flex-col pt-2 bg-[#0a0a0b]">
-        {/* Ambient glows removed per user request for simplicity */}
+      <div className="relative w-full h-full overflow-hidden flex flex-col bg-[#0a0a0b]">
+        {/* Static ambient background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10" />
-        <AnimatePresence>
-          {deckQueue.length > 0 && currentIndex < deckQueue.length && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none"
-            >
-              <div className="w-full pt-1 pb-4 px-6 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
-                <div className="w-full flex justify-between items-center pointer-events-auto">
-                  <DistanceSlider
-                    radiusKm={radiusKm}
-                    onRadiusChange={setRadiusKm}
-                    onDetectLocation={detectLocation}
-                    detecting={locationDetecting}
-                    detected={locationDetected}
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        <div className="flex-1 relative flex items-center justify-center p-2 lg:p-4">
+        {/* Top Controls — IN FLOW, not absolute (matches client-side pattern) */}
+        {deckQueue.length > 0 && currentIndex < deckQueue.length && (
+          <div className="relative z-50 w-full flex flex-col items-center shrink-0">
+            <div className="w-full pt-1 pb-1 px-4">
+              <div className="w-full flex justify-between items-center">
+                <DistanceSlider
+                  radiusKm={radiusKm}
+                  onRadiusChange={setRadiusKm}
+                  onDetectLocation={detectLocation}
+                  detecting={locationDetecting}
+                  detected={locationDetected}
+                />
+              </div>
+            </div>
+            {/* Searching badge */}
+            <div className="pb-1 flex justify-center">
+              <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-3 py-1 rounded-2xl shadow-2xl flex items-center gap-2">
+                <Users className="w-3 h-3 text-brand-accent-2" strokeWidth={2.5} />
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2 animate-pulse" />
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/90">
+                  Searching <span className="text-brand-accent-2">clients</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Card area — flex-1 fills remaining space */}
+        <div className="flex-1 relative flex flex-col items-center justify-center px-3 pt-1 z-10 min-h-0">
           <AnimatePresence>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <div className="relative w-full h-[calc(100%-20px)] max-w-2xl">
