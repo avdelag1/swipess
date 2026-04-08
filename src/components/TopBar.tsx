@@ -201,7 +201,7 @@ function TopBarComponent({
                 style={{ border: 'none' }}
                 aria-label="Go back"
               >
-                <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground" : "text-white/90")} strokeWidth={2.8} />
+                <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground" : "text-white/90")} strokeWidth={1.8} />
               </motion.button>
             )}
 
@@ -283,7 +283,7 @@ function TopBarComponent({
                         onClick={(e) => e.preventDefault()}
                         aria-label="Token Packages"
                       >
-                        <Zap strokeWidth={2.5} className={cn("h-4 w-4", isLight ? "text-amber-500" : "text-amber-300")} style={{ filter: isLight ? 'drop-shadow(0 0 4px rgba(245,158,11,0.3))' : 'drop-shadow(0 0 6px rgba(252,211,77,0.4))' }} />
+                        <Zap strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-amber-500" : "text-white/70")} style={{ filter: isLight ? 'drop-shadow(0 0 4px rgba(245,158,11,0.3))' : 'none' }} />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent
@@ -416,7 +416,7 @@ function TopBarComponent({
                     }}
                     aria-label="Go to radio"
                   >
-                    <RadioIcon strokeWidth={2.5} className="h-4 w-4 text-rose-500" style={{ filter: 'drop-shadow(0 0 6px rgba(244,63,94,0.35))' }} />
+                    <RadioIcon strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-rose-500" : "text-white/70")} style={{ filter: isLight ? 'drop-shadow(0 0 6px rgba(244,63,94,0.35))' : 'none' }} />
                   </Button>
 
                   {/* Theme Toggle */}

@@ -122,7 +122,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
 
             <div className="flex-1 flex items-center justify-center relative z-10">
               <User
-                strokeWidth={isClient ? 3 : 2}
+                strokeWidth={isClient ? 2 : 1.5}
                 className="h-[18px] w-[18px] transition-all duration-200"
                 style={{ color: clientColor, transform: isClient ? 'scale(1.1)' : 'scale(1)' }}
               />
@@ -130,7 +130,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             
             <div className="flex-1 flex items-center justify-center relative z-10">
               <UserCheck
-                strokeWidth={!isClient ? 3 : 2}
+                strokeWidth={!isClient ? 2 : 1.5}
                 className="h-[18px] w-[18px] transition-all duration-200"
                 style={{ color: ownerColor, transform: !isClient ? 'scale(1.1)' : 'scale(1)' }}
               />
