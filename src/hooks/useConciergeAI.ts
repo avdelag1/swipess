@@ -1,6 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useUserSubscription } from '@/hooks/useSubscription';
+import { useTokens } from '@/hooks/useTokens';
 
 export interface ChatMessage {
   id: string;
