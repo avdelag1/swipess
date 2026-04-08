@@ -20,7 +20,7 @@ export interface Conversation {
   updatedAt: Date;
 }
 
-export type AiCharacter = 'default' | 'kyle' | 'beaugosse' | 'donajkiin' | 'botbetter' | 'lunashanti';
+export type AiCharacter = 'default' | 'kyle' | 'beaugosse' | 'donajkiin' | 'botbetter' | 'lunashanti' | 'ezriyah';
 
 const STORAGE_KEY = 'swipess-ai-conversations';
 const CHARACTER_KEY = 'swipess-ai-character';
@@ -407,6 +407,7 @@ export function useConciergeAI() {
           ...(activeCharacter === 'donajkiin' ? { character: 'donajkiin', wisdomLevel: egoLevel } : {}),
           ...(activeCharacter === 'botbetter' ? { character: 'botbetter', sassLevel: egoLevel } : {}),
           ...(activeCharacter === 'lunashanti' ? { character: 'lunashanti', zenLevel: egoLevel } : {}),
+          ...(activeCharacter === 'ezriyah' ? { character: 'ezriyah', flowLevel: egoLevel } : {}),
         }),
         signal: abortController.signal,
       });

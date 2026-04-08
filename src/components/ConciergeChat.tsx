@@ -288,6 +288,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const isDonAjKiin = activeCharacter === 'donajkiin';
   const isBotBetter = activeCharacter === 'botbetter';
   const isLunaShanti = activeCharacter === 'lunashanti';
+  const isEzriyah = activeCharacter === 'ezriyah';
 
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
 
@@ -298,6 +299,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     { key: 'donajkiin', label: 'Don Aj K\'iin', subtitle: 'Mayan Guardian 🌿', icon: Sun, color: 'text-emerald-400', bgColor: 'bg-emerald-500/20', glowColor: 'shadow-[0_0_12px_rgba(52,211,153,0.3)]', toast: 'Don Aj K\'iin activated. Mmm... sit down, hermano... 🌿', meterLabel: 'WISDOM' },
     { key: 'botbetter', label: 'Bot Better', subtitle: 'Luxury Queen 👑', icon: Crown, color: 'text-pink-400', bgColor: 'bg-pink-500/20', glowColor: 'shadow-[0_0_12px_rgba(236,72,153,0.3)]', toast: 'The Bot Better activated. Mmm… let\'s upgrade this 😌👑', meterLabel: 'SASS' },
     { key: 'lunashanti', label: 'Luna Shanti', subtitle: 'Boho Guide 🌙', icon: Moon, color: 'text-violet-300', bgColor: 'bg-violet-500/20', glowColor: 'shadow-[0_0_12px_rgba(167,139,250,0.3)]', toast: 'Luna Shanti activated. Mmm… breathe… feel into it… ✨🌙', meterLabel: 'ZEN' },
+    { key: 'ezriyah', label: 'Ezriyah Suave', subtitle: 'Manbodiment Coach 🧘‍♂️', icon: Sun, color: 'text-teal-400', bgColor: 'bg-teal-500/20', glowColor: 'shadow-[0_0_12px_rgba(45,212,191,0.3)]', toast: 'Ezriyah activated. Brother… let\'s integrate. 🔥', meterLabel: 'FLOW' },
   ];
 
   const currentChar = CHARACTER_OPTIONS.find(c => c.key === activeCharacter) || CHARACTER_OPTIONS[0];
