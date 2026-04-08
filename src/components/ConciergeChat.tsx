@@ -205,7 +205,8 @@ MessageBubble.displayName = 'MessageBubble';
       </div>
     </div>
   </div>
-));
+  );
+});
 MessageBubble.displayName = 'MessageBubble';
 
 /* ─── Wave Typing Indicator ─── */
