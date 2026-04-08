@@ -995,7 +995,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 </div>
               );
             })()}
-            </div>
           </div>
         </div>
       )}
