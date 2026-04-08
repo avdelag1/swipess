@@ -319,8 +319,21 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const [autoSend, setAutoSend] = useState(() => {
     try { return localStorage.getItem('concierge-auto-send') === 'true'; } catch { return false; }
   });
+  const [countdown, setCountdown] = useState<number | null>(null);
   const recognitionRef = useRef<any>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countdownTranscriptRef = useRef<string>('');
   const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+
+  const COUNTDOWN_SECONDS = 7;
+
+  const clearCountdown = useCallback(() => {
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
+    }
+    setCountdown(null);
+  }, []);
 
   const toggleAutoSend = useCallback(() => {
     setAutoSend(prev => {
@@ -331,17 +344,18 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   }, []);
 
   const stopListening = useCallback(() => {
+    clearCountdown();
     if (recognitionRef.current) {
-      // Signal that user intentionally stopped so onend doesn't restart
       (recognitionRef.current as any)._userStop?.();
       recognitionRef.current.stop();
       recognitionRef.current = null;
     }
     setIsListening(false);
-  }, []);
+  }, [clearCountdown]);
 
   const startListening = useCallback(() => {
     if (!speechSupported) return;
+    clearCountdown();
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
@@ -349,10 +363,12 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     recognition.lang = 'en-US';
 
     let finalTranscript = '';
-    // Track whether the user intentionally stopped
     let userStopped = false;
 
     recognition.onresult = (event: any) => {
+      // Cancel any active countdown when user speaks again
+      clearCountdown();
+
       let interim = '';
       finalTranscript = '';
       for (let i = 0; i < event.results.length; i++) {
@@ -363,51 +379,71 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
         }
       }
       setInput(finalTranscript + interim);
+      countdownTranscriptRef.current = finalTranscript;
     };
 
     recognition.onend = () => {
-      // If the user didn't manually stop, restart to keep listening
       if (!userStopped && recognitionRef.current) {
+        // If auto-send is ON and we have text, start countdown instead of restarting
+        if (autoSend && finalTranscript.trim()) {
+          countdownTranscriptRef.current = finalTranscript.trim();
+          setCountdown(COUNTDOWN_SECONDS);
+          countdownRef.current = setInterval(() => {
+            setCountdown(prev => {
+              if (prev === null || prev <= 1) {
+                // Countdown reached 0 — auto-send
+                clearInterval(countdownRef.current!);
+                countdownRef.current = null;
+                const textToSend = countdownTranscriptRef.current;
+                if (textToSend) {
+                  sendMessage(textToSend);
+                  setInput('');
+                }
+                setIsListening(false);
+                recognitionRef.current = null;
+                return null;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+          return;
+        }
+
+        // No auto-send or no text — just restart recognition
         try {
           recognition.start();
           return;
         } catch {
-          // Failed to restart, fall through to cleanup
+          // Failed to restart, fall through
         }
       }
       setIsListening(false);
       recognitionRef.current = null;
-      if (autoSend && finalTranscript.trim()) {
-        setTimeout(() => {
-          sendMessage(finalTranscript.trim());
-          setInput('');
-        }, 100);
-      }
     };
 
     recognition.onerror = (e: any) => {
-      // 'no-speech' is normal — just let onend restart
       if (e.error === 'no-speech') return;
       userStopped = true;
       setIsListening(false);
       recognitionRef.current = null;
+      clearCountdown();
     };
 
-    // Expose a way to flag user-stop from stopListening
     (recognition as any)._userStop = () => { userStopped = true; };
 
     recognitionRef.current = recognition;
     recognition.start();
     setIsListening(true);
-  }, [speechSupported, autoSend, sendMessage]);
+  }, [speechSupported, autoSend, sendMessage, clearCountdown]);
 
   const toggleListening = useCallback(() => {
-    if (isListening) {
+    if (isListening || countdown !== null) {
+      clearCountdown();
       stopListening();
     } else {
       startListening();
     }
-  }, [isListening, stopListening, startListening]);
+  }, [isListening, countdown, stopListening, startListening, clearCountdown]);
 
   // Auto-scroll to bottom on new messages, loading state, opening chat, or switching conversation
   const scrollToBottom = useCallback(() => {
@@ -689,6 +725,16 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   <Zap className="w-3 h-3" />
                   Auto-send {autoSend ? 'ON' : 'OFF'}
                 </button>
+                {countdown !== null && (
+                  <motion.span
+                    initial={{ opacity: 0, x: -5 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-[10px] font-medium text-primary/70"
+                  >
+                    Sending in {countdown}…
+                  </motion.span>
+                )}
               </div>
             )}
             <div className="flex items-end gap-2">
@@ -702,19 +748,49 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 className="flex-1 resize-none bg-muted/50 border border-border/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 max-h-32"
                 style={{ minHeight: '40px' }}
               />
-              {/* Mic button */}
+              {/* Mic button with countdown ring */}
               {speechSupported && (
-                <Button
-                  onClick={toggleListening}
-                  size="icon"
-                  variant="outline"
-                  className={cn(
-                    "w-10 h-10 rounded-xl shrink-0 transition-all",
-                    isListening && "bg-red-500/20 border-red-500/50 text-red-400 animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.4)]"
+                <div className="relative shrink-0">
+                  {/* SVG countdown ring */}
+                  {countdown !== null && (
+                    <svg className="absolute inset-0 w-10 h-10 -rotate-90 pointer-events-none" viewBox="0 0 40 40">
+                      <circle
+                        cx="20" cy="20" r="17"
+                        fill="none"
+                        stroke="hsl(var(--primary) / 0.3)"
+                        strokeWidth="2.5"
+                      />
+                      <circle
+                        cx="20" cy="20" r="17"
+                        fill="none"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeDasharray={`${2 * Math.PI * 17}`}
+                        strokeDashoffset={`${2 * Math.PI * 17 * (1 - countdown / COUNTDOWN_SECONDS)}`}
+                        className="transition-all duration-1000 ease-linear"
+                      />
+                    </svg>
                   )}
-                >
-                  {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                </Button>
+                  <Button
+                    onClick={toggleListening}
+                    size="icon"
+                    variant="outline"
+                    className={cn(
+                      "w-10 h-10 rounded-xl transition-all relative",
+                      isListening && "bg-red-500/20 border-red-500/50 text-red-400 animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.4)]",
+                      countdown !== null && "border-primary/50 bg-primary/10"
+                    )}
+                  >
+                    {countdown !== null ? (
+                      <span className="text-xs font-bold text-primary">{countdown}</span>
+                    ) : isListening ? (
+                      <MicOff className="w-4 h-4" />
+                    ) : (
+                      <Mic className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
               )}
               {isLoading ? (
                 <Button onClick={stopGeneration} size="icon" variant="outline" className="w-10 h-10 rounded-xl shrink-0">
