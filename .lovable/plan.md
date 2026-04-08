@@ -1,76 +1,60 @@
 
 
-## Plan: Add "The Bot Better" + "Luna Shanti" Characters, Character Selector UI, and Fix History Dismiss
+## Plan: Scroll-Hide Nav, Remove Owner Events, Center Cards, Add Voice Input
 
-Three things to build:
-1. Two new AI personas (characters 5 and 6)
-2. Replace the cycle-toggle with a character selection panel inside the chat
-3. Fix the conversation history sidebar to close when tapping outside
+Four changes to implement.
 
-### Changes
+### 1. Scroll-aware hide/show for TopBar and BottomNavigation
 
-#### 1. Edge function — Two new persona prompts
+**Problem**: TopBar and BottomNavigation are rendered statically in `AppLayout.tsx` — they never hide on scroll.
 
-**File**: `supabase/functions/ai-concierge/index.ts`
+**Solution**: Wrap both in the existing `SentientHud` component, which already uses `useScrollDirection` to hide on scroll-down and show on scroll-up/touch.
 
-**Add `buildBotBetterPrompt(sassLevel)`**:
-- Sass 1-3: Boss Mode — focused, efficient, high-value, less playful
-- Sass 4-6: Classic Bot Better — smooth confidence, light sass, charming pushback then solution
-- Sass 7-10: Full Sassy Queen — maximum attitude, playful sarcasm, teasing, strong pushback before helping
-- Core: stunning luxury concierge, Tulum nightlife/villa expert, signature "sass first → then solve" pattern
-- Flirt engine: subtle, confident, classy. Never explicit.
-- Pink/gold theme energy
+**File**: `src/components/AppLayout.tsx`
+- Import `SentientHud`
+- Wrap `<TopBar>` in `<SentientHud side="top">` with fixed positioning
+- Wrap `<BottomNavigation>` in `<SentientHud side="bottom">` with fixed positioning
+- The existing `useScrollDirection` hook handles: scroll down = hide, scroll up = show, touch = show, at top = always visible
 
-**Add `buildLunaShantiPrompt(zenLevel)`**:
-- Zen 1-3: Playful Mystic — fun, light astrology comments, casual spiritual references
-- Zen 4-6: Classic Luna — calm, flowing, energy-reading engine, soft guidance with humor
-- Zen 7-10: Deep Healer — reflective, supportive, emotional depth, breathwork/ceremony references
-- Core: boho spiritual guide, yoga/breathwork/astrology, interprets user emotion as "energy"
-- Astrology engine: occasionally asks zodiac sign, makes playful star-sign comments
-- Teal/lavender theme energy
+### 2. Remove Events button from owner bottom nav only
 
-**Add branches** in `buildSystemPrompt()` for `"botbetter"` and `"lunashanti"`. Add `sassLevel` and `zenLevel` to opts type.
+**File**: `src/components/BottomNavigation.tsx`
+- Remove the `{ id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' }` entry from `ownerNavItems` array (line ~120)
+- Client nav keeps its Events button untouched
 
-#### 2. Hook — Expand type + send params
+### 3. Center dashboard category cards responsively
 
-**File**: `src/hooks/useConciergeAI.ts`
+**Problem**: `PK_W` is hardcoded at 360px which can cause the card stack + arrow buttons to not center properly on different screen widths.
 
-- Expand `AiCharacter` to include `'botbetter' | 'lunashanti'`
-- Add fetch body spreads:
-  - `botbetter` → `{ character: 'botbetter', sassLevel: egoLevel }`
-  - `lunashanti` → `{ character: 'lunashanti', zenLevel: egoLevel }`
+**File**: `src/components/swipe/SwipeAllDashboard.tsx` and `src/components/swipe/OwnerAllDashboard.tsx`
+- Change the outer container to use `items-center justify-center w-full` with proper centering
+- Make card width responsive: `min(PK_W, calc(100vw - 120px))` to account for the two arrow buttons + padding, ensuring the stack is always centered
 
-#### 3. UI — Character selector buttons + history fix
+**File**: `src/components/swipe/SwipeConstants.ts`
+- Optionally reduce `PK_W` or keep it but let the container clamp it
+
+### 4. Voice-to-text mic button in AI Concierge Chat
+
+**Problem**: The voice input feature was discussed and approved but never implemented.
 
 **File**: `src/components/ConciergeChat.tsx`
+- Add a `Mic` icon button next to the text input (between textarea and send button)
+- Use the browser's native `webkitSpeechRecognition` / `SpeechRecognition` API
+- Tap to start: button pulses with a red glow, transcription fills the textarea in real-time via `onresult`
+- Tap to stop: recognition ends, text stays in input for review
+- Add an "auto-send" toggle (small switch/icon near the mic) that when ON, automatically sends the message after recognition ends
+- Auto-send toggle state persisted in localStorage
+- Graceful fallback: if browser doesn't support Speech API, hide the mic button
 
-**Character Selector Panel** (replaces the cycle-toggle button):
-- Replace the single toggle button in the header with a button that opens a character selection panel
-- Panel shows 6 character buttons in a horizontal scrollable strip or grid below the header:
-  - Default (Sparkles icon) — primary color
-  - Kyle (Flame icon, orange)
-  - Beau Gosse (Sparkles icon, purple)
-  - Don Aj K'iin (Sun icon, emerald)
-  - The Bot Better (Crown/Diamond icon, pink/rose-gold)
-  - Luna Shanti (Moon icon, teal/lavender)
-- Each button shows the character name + a small icon
-- Active character is highlighted with its theme color
-- Tapping a character selects it, shows the appropriate toast, and closes the panel
-- Meter label adapts: EGO / CHARM / WISDOM / SASS / ZEN
-
-**The Bot Better theme**: Pink/rose-gold colors, `Crown` or `Diamond` icon, meter label "SASS"
-
-**Luna Shanti theme**: Teal/lavender colors, `Moon` icon, meter label "ZEN"
-
-**History sidebar fix**: Add an overlay/backdrop behind the `ConversationSidebar` that closes it when tapped. When `sidebarOpen` is true, render a transparent touch target covering the rest of the screen that calls `setSidebarOpen(false)` on click.
+**New hook** (optional, can be inline): `useSpeechRecognition` — manages start/stop/transcript state
 
 ### Files to change
 
 | File | Change |
 |------|--------|
-| `supabase/functions/ai-concierge/index.ts` | Add `buildBotBetterPrompt()`, `buildLunaShantiPrompt()`, two new branches in `buildSystemPrompt()` |
-| `src/hooks/useConciergeAI.ts` | Add `'botbetter' \| 'lunashanti'` to type, send params in fetch |
-| `src/components/ConciergeChat.tsx` | Character selector UI, two new themes, sidebar dismiss-on-tap-outside |
-
-No changes to existing characters. Pure addition.
+| `src/components/AppLayout.tsx` | Wrap TopBar + BottomNav in `SentientHud` |
+| `src/components/BottomNavigation.tsx` | Remove Events from `ownerNavItems` |
+| `src/components/swipe/SwipeAllDashboard.tsx` | Responsive centering for card stack |
+| `src/components/swipe/OwnerAllDashboard.tsx` | Responsive centering for card stack |
+| `src/components/ConciergeChat.tsx` | Add mic button, auto-send toggle, Web Speech API integration |
 
