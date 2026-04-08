@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 
 export type DismissalTargetType = 'listing' | 'client';
 
@@ -101,11 +101,7 @@ export function useSwipeDismissal(targetType: DismissalTargetType) {
     },
     onError: (error) => {
       logger.error('[useSwipeDismissal] Error in dismiss mutation:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to dismiss item. Please try again.',
-        variant: 'destructive',
-      });
+      appToast.error('Error', 'Failed to dismiss item. Please try again.');
     },
   });
 

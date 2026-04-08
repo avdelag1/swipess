@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 
@@ -346,7 +346,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
       }
       // Only show error toast for critical failures (auth, network), not for edge cases
       if (error instanceof Error && (error.message.includes('auth') || error.message.includes('network'))) {
-        toast.error("Something went wrong. Please try again.");
+        appToast.error("Something went wrong. Please try again.");
       }
     }
   });
@@ -487,7 +487,7 @@ async function detectAndCreateMatch({
 
     if (!matchCreated) {
       logger.error('[detectAndCreateMatch] Failed to create match after 3 attempts');
-      toast.error("Match creation failed. Please try again.");
+      appToast.error("Match creation failed. Please try again.");
       return;
     }
 
@@ -527,14 +527,10 @@ async function detectAndCreateMatch({
           onMatch(clientProfile.data, ownerProfile.data);
         }
 
-        toast.success("🎉 It's a Match!", {
-          description: "You both liked each other!"
-        });
+        appToast.match("🎉 It's a Match!", "You both liked each other!");
       } catch (profileError) {
         logger.error('Error fetching profiles for match:', profileError);
-        toast.success("🎉 It's a Match!", {
-          description: "You both liked each other!"
-        });
+        appToast.match("🎉 It's a Match!", "You both liked each other!");
       }
     }
   }

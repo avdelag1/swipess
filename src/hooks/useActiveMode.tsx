@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
@@ -254,12 +254,12 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     }
 
     // 8. Show success toast (non-blocking)
-    toast({
-      title: newMode === 'client' ? 'Client Dashboard' : 'Owner Dashboard',
-      description: newMode === 'client'
+    appToast.info(
+      newMode === 'client' ? 'Client Dashboard' : 'Owner Dashboard',
+      newMode === 'client'
         ? 'Browsing deals, services and properties'
-        : 'Managing listings and discovering clients',
-    });
+        : 'Managing listings and discovering clients'
+    );
 
     // 9. Success haptic
     triggerHaptic('success');

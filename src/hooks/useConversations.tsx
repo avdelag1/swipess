@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 
 export interface Conversation {
@@ -448,7 +448,7 @@ export function useStartConversation() {
     onSuccess: async () => {
       await queryClient.refetchQueries({ queryKey: ['conversations'] });
       await queryClient.invalidateQueries({ queryKey: ['conversations-started-count'] });
-      toast({ title: '💬 Conversation Started', description: 'Redirecting to chat...' });
+      appToast.success('💬 Conversation Started', 'Redirecting to chat...');
     }
   });
 }
@@ -530,7 +530,7 @@ export function useSendMessage() {
       if (context?.prevConversations) {
         queryClient.setQueryData(['conversations', user?.id], context.prevConversations);
       }
-      toast.error('Failed to send message. Please try again.');
+      appToast.error('Failed to send message. Please try again.');
     },
     onSettled: (data, error, variables) => {
       // Refetch to ensure everything is in sync after the real update
@@ -557,7 +557,7 @@ export function useDeleteConversation() {
         if (!oldData) return [];
         return oldData.filter(c => c.id !== conversationId);
       });
-      toast({ title: '🗑️ Conversation deleted', description: 'The chat has been removed.' });
+      appToast.success('🗑️ Conversation deleted', 'The chat has been removed.');
     }
   });
 }
@@ -578,7 +578,7 @@ export function useUpdateConversationStatus() {
         if (!oldData) return [];
         return oldData.map(c => c.id === data.id ? { ...c, status: data.status } : c);
       });
-      toast({ title: data.status === 'archived' ? '📁 Chat archived' : '🔓 Chat unarchived' });
+      appToast.info(data.status === 'archived' ? '📁 Chat archived' : '🔓 Chat unarchived');
     }
   });
 }

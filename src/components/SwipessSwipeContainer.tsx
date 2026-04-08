@@ -47,7 +47,7 @@ const CATEGORY_ICON_MAP: Record<string, any> = {
   services: Briefcase,
   worker: Briefcase,
 };
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
@@ -809,13 +809,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       await refetchSmart();
       const refreshCategoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
       const refreshLabel = String(refreshCategoryInfo?.plural || 'Listings').toLowerCase();
-      toast.success(`${String(refreshCategoryInfo?.plural || 'Listings')} Refreshed`, {
-        description: `Showing ${refreshLabel} you passed on. Liked ones stay saved!`,
-      });
+      appToast.success(`${String(refreshCategoryInfo?.plural || 'Listings')} Refreshed`, `Showing ${refreshLabel} you passed on. Liked ones stay saved!`);
     } catch (_err) {
-      toast.error('Refresh Failed', {
-        description: 'Please try again.',
-      });
+      appToast.error('Refresh Failed', 'Please try again.');
     } finally {
       setIsRefreshing(false);
     }
@@ -838,9 +834,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     if (!canNavigate()) return;
 
     if (!listing?.owner_id) {
-      toast.error('Cannot Start Conversation', {
-        description: 'Owner information not available.',
-      });
+      appToast.error('Cannot Start Conversation', 'Owner information not available.');
       return;
     }
 
@@ -861,9 +855,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     if (needsUpgrade) {
       startNavigation();
       navigate('/client/settings#subscription');
-      toast('Subscription Required', {
-        description: 'Upgrade to message property owners.',
-      });
+      appToast.info('Subscription Required', 'Upgrade to message property owners.');
       setTimeout(endNavigation, 500);
       return;
     }
@@ -889,7 +881,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     const { validateContent: vc } = await import('@/utils/contactInfoValidation');
     const result = vc(message);
     if (!result.isClean) {
-      toast.error('Content blocked', { description: result.message });
+      appToast.error('Content blocked', result.message || undefined);
       return;
     }
 
@@ -897,9 +889,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     startNavigation();
 
     try {
-      toast('Creating conversation...', {
-        description: 'Please wait'
-      });
+      appToast.info('Creating conversation...', 'Please wait');
 
       const result = await startConversation.mutateAsync({
         otherUserId: selectedListing.owner_id,
@@ -909,9 +899,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       });
 
       if (result?.conversationId) {
-        toast.success('Conversation created!', {
-          description: 'Opening chat...'
-        });
+        appToast.success('Conversation created!', 'Opening chat...');
         setMessageDialogOpen(false);
         setDirectMessageDialogOpen(false);
         await new Promise(resolve => setTimeout(resolve, 300));
@@ -921,9 +909,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       if (import.meta.env.DEV) {
         logger.error('[SwipessSwipe] Error starting conversation:', err);
       }
-      toast.error('Error', {
-        description: err instanceof Error ? err.message : 'Could not start conversation'
-      });
+      appToast.error('Error', err instanceof Error ? err.message : 'Could not start conversation');
     } finally {
       setIsCreatingConversation(false);
       endNavigation();

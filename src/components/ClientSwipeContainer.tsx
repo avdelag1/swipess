@@ -33,7 +33,7 @@ import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users, MapPin, Bike, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import { toast as sonnerToast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
@@ -460,7 +460,7 @@ const ClientSwipeContainerComponent = ({
     // CRITICAL: Prevent swiping on own profile (should never happen, but defense in depth)
     if (user?.id && profile.user_id === user.id) {
       logger.error('[ClientSwipeContainer] BLOCKED: Attempted to swipe on own profile!', { userId: user.id });
-      sonnerToast.error('Oops!', { description: 'You cannot swipe on your own profile' });
+      appToast.error('Oops!', 'You cannot swipe on your own profile');
       return;
     }
 
@@ -557,9 +557,7 @@ const ClientSwipeContainerComponent = ({
           // Show friendly message for self-likes (shouldn't happen but defense in depth)
           if (errorMessage.includes('cannot like your own') || errorMessage.includes('your own profile')) {
             logger.warn('[ClientSwipeContainer] User attempted to like their own profile - this should have been filtered');
-            sonnerToast.error('Oops!', {
-              description: 'You cannot swipe on your own profile'
-            });
+            appToast.error('Oops!', 'You cannot swipe on your own profile');
           }
           // Show specific error messages for profile issues (not available, inactive, etc.)
           else if (
@@ -567,16 +565,12 @@ const ClientSwipeContainerComponent = ({
             errorMessage.includes('no longer active') ||
             errorMessage.includes('unable to save like')
           ) {
-            sonnerToast.error('Unable to save like', {
-              description: err?.message || 'This profile is no longer available'
-            });
+            appToast.error('Unable to save like', err?.message || 'This profile is no longer available');
           }
           // Show error for unexpected failures (network, auth, server errors)
           // These need user attention as the like was NOT saved
           else if (!isExpectedError) {
-            sonnerToast.error('Failed to save your like', {
-              description: 'Your swipe was not saved. Please try again or check your connection.'
-            });
+            appToast.error('Failed to save your like', 'Your swipe was not saved. Please try again or check your connection.');
           }
           // For expected errors (duplicates, stale data), silently ignore
           // The user experience is not affected as these are edge cases
@@ -688,7 +682,7 @@ const ClientSwipeContainerComponent = ({
     try {
       await refetch();
     } catch (_err) {
-      sonnerToast.error('Refresh failed', { description: 'Please try again.' });
+      appToast.error('Refresh failed', 'Please try again.');
     } finally {
       setIsRefreshing(false);
     }
@@ -717,14 +711,14 @@ const ClientSwipeContainerComponent = ({
     const { validateContent: vc } = await import('@/utils/contactInfoValidation');
     const result = vc(message);
     if (!result.isClean) {
-      sonnerToast.error('Content blocked', { description: result.message || undefined });
+      appToast.error('Content blocked', result.message || undefined);
       return;
     }
 
     setIsCreatingConversation(true);
 
     try {
-      sonnerToast.loading('Creating conversation...', { id: 'start-conv' });
+      appToast.info('Creating conversation...', 'Please wait');
 
       const result = await startConversation.mutateAsync({
         otherUserId: selectedClientId,
@@ -733,16 +727,13 @@ const ClientSwipeContainerComponent = ({
       });
 
       if (result?.conversationId) {
-        sonnerToast.success('Opening chat...', { id: 'start-conv' });
+        appToast.success('Opening chat...', 'Redirecting to conversation');
         setMessageDialogOpen(false);
         await new Promise(resolve => setTimeout(resolve, 300));
         navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (error) {
-      sonnerToast.error('Could not start conversation', {
-        id: 'start-conv',
-        description: error instanceof Error ? error.message : 'Try again'
-      });
+      appToast.error('Could not start conversation', error instanceof Error ? error.message : 'Try again');
     } finally {
       setIsCreatingConversation(false);
     }

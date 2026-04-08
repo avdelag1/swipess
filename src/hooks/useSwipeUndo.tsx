@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
 
@@ -114,18 +114,11 @@ export function useSwipeUndo() {
       queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(err => logger.error('[useSwipeUndo] Invalidation failed:', err));
       queryClient.invalidateQueries({ queryKey: ['liked-properties'] }).catch(err => logger.error('[useSwipeUndo] Invalidation failed:', err));
 
-      toast({
-        title: '↩️ Card Returned',
-        description: 'The card is back in your deck.',
-      });
+      appToast.success('↩️ Card Returned', 'The card is back in your deck.');
     },
     onError: (error) => {
       logger.error('[useSwipeUndo] Error:', error);
-      toast({
-        title: 'Could not undo',
-        description: 'Please try again.',
-        variant: 'destructive'
-      });
+      appToast.error('Could not undo', 'Please try again.');
     }
   });
 

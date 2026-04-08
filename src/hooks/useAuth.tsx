@@ -1,7 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode, useRef, useMemo } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { useNavigate } from 'react-router-dom';
 import { useProfileSetup, resetProfileCreationLock } from './useProfileSetup';
 import { useAccountLinking } from './useAccountLinking';
@@ -140,7 +140,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
             handleOAuthUserSetupAsync(session.user)
               .catch((error) => {
                 logger.error('[Auth] OAuth setup failed:', error);
-                toast.error('Profile Setup Issue', { description: 'There was an issue setting up your profile. Please try refreshing the page.' });
+                appToast.error('Profile Setup Issue', 'There was an issue setting up your profile. Please try refreshing the page.');
               })
               .finally(() => {
                 if (oauthTimeoutRef.current) {
@@ -237,7 +237,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       }
     } catch (error) {
       logger.error('[Auth] OAuth setup error:', error);
-      toast.error('Profile Setup Failed', { description: 'Failed to complete your profile setup. Please try signing in again.' });
+      appToast.error('Profile Setup Failed', 'Failed to complete your profile setup. Please try signing in again.');
     }
   };
 
@@ -266,11 +266,11 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         const existingRole = existingProfile.role;
 
         if (existingRole && existingRole !== role) {
-          toast.error("Email Already Registered", { description: `This email is already registered as a ${existingRole.toUpperCase()} account. To use both roles, please create a separate account with a different email address.` });
+          appToast.error("Email Already Registered", `This email is already registered as a ${existingRole.toUpperCase()} account. To use both roles, please create a separate account with a different email address.`);
           return { error: new Error(`Email already registered with ${existingRole} role`) };
         }
 
-        toast.error("Account Already Exists", { description: `An account with this email already exists. Please sign in instead.` });
+        appToast.error("Account Already Exists", `An account with this email already exists. Please sign in instead.`);
         return { error: new Error('User already registered') };
       }
 
@@ -317,7 +317,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
             // If auto sign-in fails (e.g. email confirmation still required on server),
             // show a helpful message but don't block the flow
             logger.warn('[Auth] Auto sign-in after signup failed:', signInError.message);
-            toast.success("Account Created!", { description: "Your account has been created. Please sign in to continue." });
+            appToast.success("Account Created!", "Your account has been created. Please sign in to continue.");
             return { error: null };
           }
 
@@ -335,7 +335,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         // Determine dashboard path from role
         const targetPath = role === 'client' ? '/client/dashboard' : '/owner/dashboard';
 
-        toast.success("Account Created!", { description: "Loading your dashboard..." });
+        appToast.success("Account Created!", "Loading your dashboard...");
 
         navigate(targetPath, { replace: true });
       }
@@ -355,7 +355,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         errorMessage = error.message;
       }
 
-      toast.error("Sign Up Failed", { description: errorMessage });
+      appToast.error("Sign Up Failed", errorMessage);
       return { error };
     }
   };
@@ -415,7 +415,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         // This ensures the swipe deck and other dashboard data is refreshed
         queryClient.invalidateQueries();
 
-        toast.success("Welcome back!", { description: "Loading your dashboard..." });
+        appToast.success("Welcome back!", "Loading your dashboard...");
 
         // 🚀 ONE-SHOT HYDRATION: Await profile setup BEFORE navigating to the dashboard.
         // This prevents the 'Missing Profile' 404s that crash the dashboard during initial render.
@@ -446,7 +446,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         errorMessage = error.message;
       }
 
-      toast.error("Sign In Failed", { description: errorMessage });
+      appToast.error("Sign In Failed", errorMessage);
       return { error };
     }
   };
@@ -514,7 +514,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         errorMessage = error.message;
       }
 
-      toast.error("OAuth Sign In Failed", { description: errorMessage });
+      appToast.error("OAuth Sign In Failed", errorMessage);
       return { error };
     }
   };
@@ -557,7 +557,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
         logger.error('[Auth] Sign out error:', error);
       }
 
-      toast.success("Signed out", { description: "You have been signed out successfully." });
+      appToast.success("Signed out", "You have been signed out successfully.");
 
       // 🚀 FORCED REBOOT: The only way to be 100% sure memory is clean and no race conditions occur
       // during the next login.
@@ -567,7 +567,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
     } catch (error) {
       logger.error('[Auth] Unexpected sign out error:', error);
-      toast.error("Sign Out Error", { description: "An unexpected error occurred during sign out." });
+      appToast.error("Sign Out Error", "An unexpected error occurred during sign out.");
       window.location.href = '/';
     }
   };
