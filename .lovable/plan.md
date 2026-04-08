@@ -1,60 +1,53 @@
 
 
-## Plan: Rebrand Kyle → The Beau Gosse (El Guapo) — Full Character Overhaul
+## Plan: Add "The Beau Gosse" as a Third Character Option
 
-### What changes
+### What we're doing
 
-Replace the "Kyle — Boston Hustler" persona with **"The Beau Gosse (El Guapo)"** — a charming, witty, French-flavored character with reactive humor, playful teasing, and adaptive intelligence instead of ego-driven arrogance.
+Adding **The Beau Gosse (El Guapo)** as a new character alongside the existing **Default** and **Kyle** options. Users cycle through three personas: Default → Kyle → Beau Gosse → Default.
 
-### Key personality shift
+### Changes
 
-| Before (Kyle) | After (Beau Gosse) |
-|---|---|
-| Boston street hustler | French-charming menace |
-| Fillers: "bro", "you know what I mean?" | Wordplay, double meanings, light French touches |
-| Ego meter (arrogance scale) | **Charm meter** (playfulness intensity) |
-| Dismissive, slightly annoying | Witty, seductive, emotionally intelligent |
-| Orange/fire theme | Purple/rose gold theme (French luxury feel) |
-
-### Changes by file
-
-#### 1. Edge function — New persona prompt
-
-**File**: `supabase/functions/ai-concierge/index.ts`
-
-- Rename `buildKylePrompt()` → `buildBeauGossePrompt(charmLevel)`
-- Replace the entire system prompt with the user's provided persona: reactive humor engine, playful/sharp dual modes, flirt engine, French flavor
-- Charm level 1-3: More direct/sharp mode, less humor
-- Charm level 4-6: Classic Beau Gosse — smooth, witty, balanced
-- Charm level 7-10: Full seduction mode — maximum charm, wordplay, flirty energy
-- Update the `character` param check from `"kyle"` to `"beaugosse"`
-
-#### 2. Hook — Rename types and labels
+#### 1. Hook — Expand character type
 
 **File**: `src/hooks/useConciergeAI.ts`
 
-- Change `AiCharacter` type from `'default' | 'kyle'` to `'default' | 'beaugosse'`
-- Rename `CHARACTER_KEY` storage value handling
-- Update `AGREE_PATTERN` / `CHALLENGE_PATTERN` — keep sentiment detection but rebrand as charm adjustments (agreement = charm rises, challenge = sharp mode triggers)
-- Send `character: 'beaugosse'` and `charmLevel` (renamed from `egoLevel`) in fetch body
+- Change `AiCharacter` type from `'default' | 'kyle'` to `'default' | 'kyle' | 'beaugosse'`
+- Send `character: 'beaugosse'` and `charmLevel` (reusing the existing `egoLevel` state) when Beau Gosse is active
+- No other logic changes — ego/charm meter and sentiment detection already work
 
-#### 3. UI — Visual rebrand
+#### 2. Edge function — Add Beau Gosse persona prompt
+
+**File**: `supabase/functions/ai-concierge/index.ts`
+
+- Add `buildBeauGossePrompt(charmLevel)` function with the full persona from the user's spec: reactive humor engine, playful/sharp dual modes, French charm, flirt engine
+- Charm level 1-3: Sharp mode (more direct, slight sarcasm)
+- Charm level 4-6: Classic Beau Gosse (smooth, witty, balanced)
+- Charm level 7-10: Full seduction mode (maximum charm, wordplay, flirty)
+- Add `else if (opts.character === "beaugosse")` branch in `buildSystemPrompt()` — existing Kyle and default branches untouched
+
+#### 3. UI — Three-way character toggle
 
 **File**: `src/components/ConciergeChat.tsx`
 
-- Replace flame icon with a sparkle/crown/diamond icon (e.g. `Sparkles` from lucide)
-- Change color scheme from orange to **purple/rose-gold** (`text-purple-400`, `bg-purple-500/20`)
-- Rename "Kyle" → "The Beau Gosse" in header
-- Rename "Boston Hustler" subtitle → "El Guapo ✨"
-- Rename "EGO" meter label → "CHARM"
-- Update meter colors: blue → purple → rose-gold (instead of blue → orange → red)
-- Update toggle toasts: "The Beau Gosse activated. Let's make this interesting... ✨" / "Back to default concierge"
+- Change the single toggle button to cycle through: default → kyle → beaugosse → default
+- When **Beau Gosse** is active:
+  - Button shows `Sparkles` icon with purple glow (instead of Flame/orange)
+  - Header name: "The Beau Gosse" in purple-400
+  - Subtitle: "El Guapo ✨"
+  - Meter label changes from "EGO" to "CHARM"
+  - Meter colors: blue → purple → rose-gold (instead of blue → orange → red)
+  - Toast: "The Beau Gosse activated. Let's make this interesting... ✨"
+- When **Kyle** is active: everything stays exactly as it is now
+- When **Default** is active: everything stays exactly as it is now
 
 ### Files to change
 
 | File | Change |
 |------|--------|
-| `supabase/functions/ai-concierge/index.ts` | Replace Kyle prompt with Beau Gosse persona, rename function |
-| `src/hooks/useConciergeAI.ts` | Rename type `kyle` → `beaugosse`, `egoLevel` → `charmLevel` semantically |
-| `src/components/ConciergeChat.tsx` | Visual rebrand: purple theme, sparkle icon, charm meter, new labels |
+| `src/hooks/useConciergeAI.ts` | Add `'beaugosse'` to `AiCharacter` type, send character in fetch body |
+| `supabase/functions/ai-concierge/index.ts` | Add `buildBeauGossePrompt()`, new branch in `buildSystemPrompt()` |
+| `src/components/ConciergeChat.tsx` | Three-way cycle toggle, conditional styling/labels per character |
+
+No changes to Kyle. No changes to default concierge. Pure addition.
 
