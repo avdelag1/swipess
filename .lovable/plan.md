@@ -1,66 +1,85 @@
 
-Goal: make Likes/Interested pages scroll reliably on client and owner side, and remove the ugly quick-filter image loading/cracking before the breathing animation starts.
 
-What I found:
-- The likes pages are still using the shared `#dashboard-scroll-container` in `DashboardLayout.tsx` (`overflow-y-auto`), but these pages behave better as their own scroll surfaces.
-- `OwnerInterestedClients.tsx` also renders `PremiumSortableGrid`, which adds drag/long-press behavior inside the same vertical interaction area and can still interfere with natural mobile scrolling.
-- Quick-filter cards in `QuickFilterBar.tsx` and `CategorySwipeStack.tsx` use raw `<img>` tags, so images appear before decode is visually stable.
-- The client “All” quick-filter card still uses an external Unsplash URL instead of the local prewarmed asset set.
-- Filter images are being pre-decoded in more than one place, which adds redundant work and inconsistent first paint.
+## Plan: Upgrade AI Concierge — Real-Time Awareness, Profile Search, and App Navigation
 
-Implementation plan
+### Problem
 
-1. Restore page-owned scrolling for likes pages
-- Update `DashboardLayout.tsx` to detect likes/interested routes and switch the main container from scroll owner to shell only (`overflow-hidden` for those routes).
-- Give these pages their own scroll container:
-  - `src/pages/ClientLikedProperties.tsx`
-  - `src/components/LikedClients.tsx`
-  - `src/pages/OwnerInterestedClients.tsx`
-- Standardize each page root to:
-  - `h-full min-h-0 overflow-y-auto touch-pan-y`
-  - `WebkitOverflowScrolling: 'touch'`
-  - `overscrollBehaviorY: 'contain'`
-- Keep inner content `min-h-full` so the page always has a stable scroll surface.
+1. **No time/date awareness**: The AI doesn't know the current date or time, giving wrong answers ("May 2025" instead of April 2026).
+2. **No profile search**: The AI can search listings but has zero ability to query user profiles — it can't answer "show me people looking for apartments."
+3. **No in-app navigation**: The AI talks about "tap here" but can't actually trigger navigation to Settings, Radio, Filters, etc.
+4. **No access gating**: The AI is free for everyone. The plan is to gate it behind premium subscriptions/tokens, but no infrastructure exists for that yet.
 
-2. Remove drag/scroll conflict on owner interested page
-- Adjust `OwnerInterestedClients.tsx` + `PremiumSortableGrid.tsx` so scrolling is never blocked by reorder behavior.
-- Best implementation: make reorder opt-in instead of always armed on the main list.
-  - Desktop can keep drag behavior.
-  - Touch devices should default to pure scrolling unless a dedicated reorder mode/handle is active.
-- This preserves the page’s function while prioritizing reliable vertical scroll.
+### Changes
 
-3. Fix quick-filter image cracking/loading flash
-- Replace the raw quick-filter `<img>` usage with a shared progressive image layer for:
-  - `src/components/QuickFilterBar.tsx`
-  - `src/components/CategorySwipeStack.tsx`
-- Reuse the proven pattern already present in `CardImage.tsx`:
-  - hidden placeholder/blur layer
-  - decode before reveal
-  - short crossfade
-  - animation only after load completes
-- Add a gradient fallback background so the user never sees black bands or broken paint while the image is decoding.
+**1. Inject real-time context into system prompt** (edge function)
 
-4. Eliminate the worst quick-filter image source
-- Replace the external Unsplash image on the client “All” quick-filter card with the local shared asset from `POKER_CARD_PHOTOS.all`.
-- This removes the extra network dependency and aligns that card with the rest of the prewarmed local filter assets.
+Add the current UTC date/time and Tulum local time (UTC-5) directly into the system prompt so every response is time-aware.
 
-5. Remove duplicate prewarming and stabilize first paint
-- Consolidate filter-image prewarming so only one system owns it.
-- Keep the top-level prewarmer as the source of truth and remove duplicate decode work from `CategorySwipeStack.tsx`.
-- Ensure the breathing animation starts only after the image is visibly ready, so users never see the image “crack” while zooming.
+```
+## Current Time
+UTC: 2026-04-08T13:45:00Z
+Tulum (CST): Tuesday, April 8, 2026 — 8:45 AM
+```
 
-Files to update
-- `src/components/DashboardLayout.tsx`
-- `src/pages/ClientLikedProperties.tsx`
-- `src/components/LikedClients.tsx`
-- `src/pages/OwnerInterestedClients.tsx`
-- `src/components/PremiumSortableGrid.tsx`
-- `src/components/QuickFilterBar.tsx`
-- `src/components/CategorySwipeStack.tsx`
-- optionally a new small shared quick-filter image component if that keeps the fix clean and consistent
+This is a 3-line addition to `buildSystemPrompt()`.
 
-Technical details
-- Scroll ownership will move from layout-level to page-level for the affected likes/interested routes.
-- Touch behavior will explicitly favor `pan-y` and inertial scrolling.
-- Quick-filter photos will use decode-first rendering with a crossfade instead of immediate raw image paint.
-- The 14s breathing zoom stays, but only begins after the image is loaded and stable.
+**2. Add profile search capability** (edge function)
+
+Create a `searchProfiles()` function that queries `profiles` + `client_profiles` tables for:
+- Name, nationality, age, languages, active mode
+- What they're looking for (from `client_filter_preferences`)
+- Never expose emails, phone numbers, or private data
+
+Return results as anonymized summaries with deep links: `"👤 **Maria, 28** — Looking for 2-bed in Aldea Zama → [View Profile](/profile/xyz)`
+
+Wire it into the main handler alongside listing search — detect profile-intent queries ("find users looking for...", "show me people who...", "who wants...").
+
+**3. Add app navigation actions** (edge function + frontend)
+
+Teach the AI to emit special action markers in its responses that the frontend can detect and render as tappable buttons:
+
+Edge function side — add to system prompt:
+```
+When suggesting the user navigate somewhere in the app, include an action tag:
+[NAV:/client/filters] for filters
+[NAV:/radio] for radio
+[NAV:/client/profile] for profile/settings
+[NAV:/subscription/packages] for packages
+```
+
+Frontend side — in `ConciergeChat.tsx`, parse `[NAV:...]` tags from AI responses and render them as tappable navigation buttons that call `navigate()`.
+
+**4. Add premium access gating** (frontend hook)
+
+Create a check in `useConciergeAI.ts` that verifies the user has an active subscription or remaining tokens before allowing AI interaction. Free users see a prompt to upgrade. This uses the existing `useCanAccessMessaging()` / `useUserSubscription()` hooks.
+
+### Files to Modify
+
+1. **`supabase/functions/ai-concierge/index.ts`**
+   - Add `getCurrentTimeContext()` helper → inject into all system prompts
+   - Add `detectProfileIntent()` + `searchProfiles()` functions
+   - Add navigation action instructions to system prompt
+   - Wire profile search into the parallel context-gathering block
+
+2. **`src/components/ConciergeChat.tsx`**
+   - Parse `[NAV:/path]` markers in AI messages → render as tappable buttons
+   - Add premium gate check before sending messages
+
+3. **`src/hooks/useConciergeAI.ts`**
+   - Add `isPremiumRequired` / `canUseAI` state based on subscription status
+   - Block `sendMessage` for non-premium users with upgrade prompt
+
+### Security Notes
+
+- Profile search uses service role key (server-side only) — no private data leaks to client
+- Only public-safe fields returned: name, nationality, age, what they're looking for
+- No emails, phone numbers, or auth data exposed
+- Navigation actions are client-side only — the AI suggests paths, the frontend validates them
+
+### What This Does NOT Change
+
+- Persona system (Kyle, Beau Gosse, etc.) — untouched
+- Streaming architecture — untouched
+- Memory extraction — untouched
+- Knowledge base search — untouched
+
