@@ -1,28 +1,41 @@
 
 
-## Plan: Upgrade System Prompt + Populate Knowledge Base
+## Plan: Fix Radio Black Screen + Improve Category Card Loading
 
-### What we're doing
+### Problem 1: Radio turns black on click
 
-1. **Replace the system prompt** in `supabase/functions/ai-concierge/index.ts` — swap the current generic Tulum prompt in `buildSystemPrompt()` with the new "hero surfer-businessman" persona. The user's draft is solid; minor tweaks: tighten formatting, ensure it references the knowledge base search and user memories correctly, keep token count lean.
+**Root cause**: The radio page has a loading overlay at `z-[10000]` with solid black background (lines 297-309). The `loading` state initializes as `true` and only turns `false` after `loadUserPreferences()` completes. When the component re-renders or when `AnimatePresence` exit animations don't complete cleanly, this black overlay can persist or flash back. Additionally, the auto-init `useEffect` (lines 245-259) runs with an empty dependency array and calls `togglePower()` + `play()`, which can trigger state churn that causes `loading` to flicker.
 
-2. **Populate `concierge_knowledge` table** with ~20-25 entries covering:
-   - **Beach clubs** (Ziggy's, RosaNegra, Taboo, La Zebra, Bagatelle, Kanan, Gitano, Casa Malca, Nomade, KA'AN, Papaya Playa Project, La Eufemia, etc.) — each with zone, vibe, min spend, IG handle, contact info, website
-   - **Real estate zones** (Aldea Zama pricing/ROI, Beach Zone, La Veleta, Region 15, Tulum Centro)
-   - **Legal essentials** (fideicomiso, notario, foreign buyer rules — with directive to connect users to app's Legal section)
-   - **Party/events** (full moon at PPP, DJ nights, Tulum.party as source)
+**Fix**:
+- Remove the full-screen black loading overlay entirely — replace with a subtle inline spinner on the play button or station name area only. The radio should never go fully black.
+- Guard the auto-init effect so it only fires once using a ref, preventing re-trigger on state changes.
+- Ensure the main container always renders its content regardless of loading state.
 
-3. **Deploy updated edge function** and verify it works.
+### Problem 2: Category swipe cards load poorly
+
+**Root cause**: Multiple issues compound:
+1. **Duplicate CSS class**: `.swipe-card-size` is defined in both `index.css` and `premium-polish.css` with conflicting values, causing layout thrash.
+2. **Heavy `AnimatePresence mode="popLayout"`** with spring physics on every card causes visible layout shifts during mount.
+3. **`decoding="sync"`** on images blocks the main thread during initial render.
+4. **Initial animation** (`initial={{ scale: 0.95, opacity: 0, y: 15 }}`) means every card fades in visibly, creating a "loading" feel.
+
+**Fix**:
+- Consolidate the `.swipe-card-size` CSS to a single definition.
+- Remove `initial` animation on cards so they appear instantly on first render (use a `hasMounted` ref).
+- Switch `decoding="sync"` to `decoding="async"` and rely on the preloader that already warms these images.
+- Simplify `AnimatePresence` mode from `"popLayout"` to `"sync"` to reduce layout recalculations.
+- Apply the same optimizations to the owner side (same `CategorySwipeStack` component handles both).
 
 ### Technical details
 
-| Change | Location |
-|--------|----------|
-| Replace `buildSystemPrompt()` system prompt text | `supabase/functions/ai-concierge/index.ts` lines 226-258 |
-| Insert ~25 knowledge entries | `concierge_knowledge` table via insert tool |
-| Deploy edge function | `ai-concierge` |
+| Change | File |
+|--------|------|
+| Remove black loading overlay, add inline loading state | `src/pages/DJTurntableRadio.tsx` |
+| Guard auto-init with ref to prevent re-triggers | `src/pages/DJTurntableRadio.tsx` |
+| Consolidate `.swipe-card-size` (remove duplicate) | `src/styles/premium-polish.css` |
+| Instant first render (skip initial animation) | `src/components/CategorySwipeStack.tsx` |
+| Switch image decoding to async | `src/components/CategorySwipeStack.tsx` |
+| Simplify AnimatePresence mode | `src/components/CategorySwipeStack.tsx` |
 
-**System prompt changes**: The new prompt is more personality-driven ("hero concierge, surfer-businessman, 15+ years in Tulum"), adds explicit directives for proactive suggestions, legal section routing, beach club expertise, and bilingual tone. The structural wrapper (memories, knowledge, listings, web results injection) stays the same.
-
-**No frontend changes needed** — the chat UI already renders markdown and handles the streaming correctly.
+Both client and owner sides benefit from the `CategorySwipeStack` fix since it handles both roles.
 
