@@ -560,7 +560,7 @@ export function useConciergeAI() {
         }
       }
     } catch (err) {
-      if ((err as Error).name === 'AbortError') return;
+      if ((err as Error).name === 'AbortError') { isSendingRef.current = false; return; }
       console.error('[ConciergeAI]', err);
       toast.error('AI temporarily unavailable. Please try again.');
     } finally {
