@@ -249,6 +249,7 @@ export function useConciergeAI() {
   }, []);
 
   const abortRef = useRef<AbortController | null>(null);
+  const isSendingRef = useRef(false); // Ref-based guard against double sends
   const streamBufferRef = useRef<{ convoId: string; msgId: string; content: string } | null>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -322,7 +323,8 @@ export function useConciergeAI() {
   }, [activeConversationId, conversations, updateConversations]);
 
   const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim() || isLoading) return;
+    if (!content.trim() || isLoading || isSendingRef.current) return;
+    isSendingRef.current = true; // Lock immediately to prevent double calls
     if (!canUseAI) {
       toast.error('Upgrade to Premium to use Swipess AI', { description: 'Subscribe or purchase tokens to unlock the AI concierge.' });
       return;
@@ -558,13 +560,14 @@ export function useConciergeAI() {
         }
       }
     } catch (err) {
-      if ((err as Error).name === 'AbortError') return;
+      if ((err as Error).name === 'AbortError') { isSendingRef.current = false; return; }
       console.error('[ConciergeAI]', err);
       toast.error('AI temporarily unavailable. Please try again.');
     } finally {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       streamBufferRef.current = null;
       setIsLoading(false);
+      isSendingRef.current = false; // Unlock
       abortRef.current = null;
     }
   }, [activeConversationId, conversations, isLoading, canUseAI, updateConversations, updateConversationsLive, flushStreamBuffer, activeCharacter, egoLevel, setEgoLevel]);
