@@ -74,6 +74,11 @@ export function useConciergeAI() {
   const activeConversation = conversations.find(c => c.id === activeConversationId) ?? null;
   const messages = activeConversation?.messages ?? [];
 
+  // Separate state-only updater (no localStorage on every call) for streaming perf
+  const updateConversationsLive = useCallback((updater: (prev: Conversation[]) => Conversation[]) => {
+    setConversations(prev => updater(prev));
+  }, []);
+
   const updateConversations = useCallback((updater: (prev: Conversation[]) => Conversation[]) => {
     setConversations(prev => {
       const next = updater(prev);
@@ -81,6 +86,26 @@ export function useConciergeAI() {
       return next;
     });
   }, []);
+
+  // RAF-based flush: updates React state at screen refresh rate, not per-token
+  const flushStreamBuffer = useCallback(() => {
+    const buf = streamBufferRef.current;
+    if (!buf) return;
+    const { convoId, msgId, content } = buf;
+    const cleaned = stripThinkBlocks(content);
+    updateConversationsLive(prev =>
+      prev.map(c => {
+        if (c.id !== convoId) return c;
+        return {
+          ...c,
+          messages: c.messages.map(m =>
+            m.id === msgId ? { ...m, content: cleaned } : m
+          ),
+        };
+      })
+    );
+    rafRef.current = requestAnimationFrame(flushStreamBuffer);
+  }, [updateConversationsLive]);
 
   const createConversation = useCallback((): string => {
     const id = crypto.randomUUID();
