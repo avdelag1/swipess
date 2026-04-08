@@ -107,6 +107,14 @@ const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate
         )}
       </div>
 
+      {/* Provider label below AI bubbles */}
+      {!isUser && message.provider && (
+        <div className="text-[10px] mt-0.5 text-muted-foreground/40 flex items-center gap-1">
+          <Zap className="w-2.5 h-2.5" />
+          <span>Powered by {message.provider === 'minimax' ? 'MiniMax' : message.provider === 'gemini' ? 'Gemini' : message.provider}</span>
+        </div>
+      )}
+
       {/* Navigation action buttons */}
       {navPaths.length > 0 && onNavigate && (
         <div className="flex flex-wrap gap-1.5 mt-2">
