@@ -101,11 +101,7 @@ export function useSwipeDismissal(targetType: DismissalTargetType) {
     },
     onError: (error) => {
       logger.error('[useSwipeDismissal] Error in dismiss mutation:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to dismiss item. Please try again.',
-        variant: 'destructive',
-      });
+      appToast.error('Error', 'Failed to dismiss item. Please try again.');
     },
   });
 

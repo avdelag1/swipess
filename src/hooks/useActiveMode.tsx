@@ -254,12 +254,12 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     }
 
     // 8. Show success toast (non-blocking)
-    toast({
-      title: newMode === 'client' ? 'Client Dashboard' : 'Owner Dashboard',
-      description: newMode === 'client'
+    appToast.info(
+      newMode === 'client' ? 'Client Dashboard' : 'Owner Dashboard',
+      newMode === 'client'
         ? 'Browsing deals, services and properties'
-        : 'Managing listings and discovering clients',
-    });
+        : 'Managing listings and discovering clients'
+    );
 
     // 9. Success haptic
     triggerHaptic('success');

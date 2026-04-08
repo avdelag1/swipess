@@ -192,9 +192,7 @@ export function useProfileSetup() {
 
         if (!roleCreated) {
           if (import.meta.env.DEV) logger.error('[ProfileSetup] Failed to upsert role after 3 attempts:', lastRoleError);
-          toast.error("Role Update Failed", {
-            description: "Could not update user role. Please refresh the page.",
-          });
+          appToast.error("Role Update Failed", "Could not update user role. Please refresh the page.");
         }
 
         // CRITICAL FIX: The DB trigger creates profiles with onboarding_completed=false
@@ -324,9 +322,7 @@ export function useProfileSetup() {
           : lastProfileError?.message || 'Unknown error';
 
         if (import.meta.env.DEV) logger.error('[ProfileSetup] Failed to create profile after 3 attempts:', lastProfileError);
-        toast.error("Profile Creation Failed", {
-          description: errorMsg,
-        });
+        appToast.error("Profile Creation Failed", errorMsg);
         return null;
       }
 
@@ -396,9 +392,7 @@ export function useProfileSetup() {
 
       if (!roleCreated) {
         if (import.meta.env.DEV) logger.error('[ProfileSetup] Failed to create role after 3 attempts:', lastRoleError);
-        toast.error("Role Setup Failed", {
-          description: "Profile created but role assignment failed. Please contact support.",
-        });
+        appToast.error("Role Setup Failed", "Profile created but role assignment failed. Please contact support.");
         return null;
       }
 
@@ -507,9 +501,7 @@ export function useProfileSetup() {
 
     } catch (error) {
       if (import.meta.env.DEV) logger.error('[ProfileSetup] Unexpected error in profile setup:', error);
-      toast.error("Setup Error", {
-        description: "An unexpected error occurred. Please try again.",
-      });
+      appToast.error("Setup Error", "An unexpected error occurred. Please try again.");
       return null;
     } finally {
       profileCreationInProgress.delete(user.id);
