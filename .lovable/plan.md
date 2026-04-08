@@ -1,93 +1,60 @@
 
 
-## Plan: Kyle — The Concierge Hustler AI Personality System
+## Plan: Rebrand Kyle → The Beau Gosse (El Guapo) — Full Character Overhaul
 
-### What we're building
+### What changes
 
-A toggleable AI character system inside the existing Swipess AI concierge. Users can activate "Kyle" — a confident Boston concierge hustler with dynamic ego, signature speech patterns, and memory-aware personality. When deactivated, the default Tulum hero concierge remains.
+Replace the "Kyle — Boston Hustler" persona with **"The Beau Gosse (El Guapo)"** — a charming, witty, French-flavored character with reactive humor, playful teasing, and adaptive intelligence instead of ego-driven arrogance.
 
-### Architecture
+### Key personality shift
 
-```text
-┌─────────────────────────────┐
-│  ConciergeChat.tsx          │
-│  ┌───────────────────────┐  │
-│  │ Header: Kyle toggle   │  │  ← New button (fire emoji / character icon)
-│  │ button + ego meter bar│  │  ← Thin glow bar showing ego level
-│  └───────────────────────┘  │
-│  Messages render as before  │
-└──────────┬──────────────────┘
-           │ sends { messages, character: "kyle" | "default", egoLevel: 6 }
-           ▼
-┌─────────────────────────────┐
-│  useConciergeAI.ts          │
-│  - activeCharacter state    │  ← localStorage persisted
-│  - egoLevel state (1-10)    │  ← Adjusts based on user reactions
-│  - Passes character+ego to  │
-│    edge function body       │
-└──────────┬──────────────────┘
-           ▼
-┌─────────────────────────────┐
-│  ai-concierge/index.ts      │
-│  - Reads character param    │
-│  - Swaps system prompt:     │
-│    "default" → existing     │
-│    "kyle" → Kyle persona    │
-│  - Ego level modifies tone  │
-└─────────────────────────────┘
-```
+| Before (Kyle) | After (Beau Gosse) |
+|---|---|
+| Boston street hustler | French-charming menace |
+| Fillers: "bro", "you know what I mean?" | Wordplay, double meanings, light French touches |
+| Ego meter (arrogance scale) | **Charm meter** (playfulness intensity) |
+| Dismissive, slightly annoying | Witty, seductive, emotionally intelligent |
+| Orange/fire theme | Purple/rose gold theme (French luxury feel) |
 
-### Changes
+### Changes by file
 
-#### 1. Edge function — Kyle system prompt + ego-aware tone
+#### 1. Edge function — New persona prompt
 
 **File**: `supabase/functions/ai-concierge/index.ts`
 
-Add a `buildKylePrompt()` function that generates Kyle's full persona prompt. It receives the ego level (1-10) and adjusts tone dynamically:
-- **Ego 1-3**: Chill but still confident, fewer fillers
-- **Ego 4-6**: Classic Kyle — dominant, assertive, full filler loop
-- **Ego 7-10**: Peak arrogance, dismissive, "I already told you bro"
+- Rename `buildKylePrompt()` → `buildBeauGossePrompt(charmLevel)`
+- Replace the entire system prompt with the user's provided persona: reactive humor engine, playful/sharp dual modes, flirt engine, French flavor
+- Charm level 1-3: More direct/sharp mode, less humor
+- Charm level 4-6: Classic Beau Gosse — smooth, witty, balanced
+- Charm level 7-10: Full seduction mode — maximum charm, wordplay, flirty energy
+- Update the `character` param check from `"kyle"` to `"beaugosse"`
 
-The main handler reads `character` and `egoLevel` from the request body alongside `messages`. If `character === "kyle"`, use the Kyle prompt instead of the default concierge prompt. All existing context injection (knowledge, listings, memories, web) still applies — Kyle just wraps it in his personality.
-
-#### 2. Hook — Character state + ego tracking
+#### 2. Hook — Rename types and labels
 
 **File**: `src/hooks/useConciergeAI.ts`
 
-- Add `activeCharacter` state (`"default" | "kyle"`) persisted in localStorage
-- Add `egoLevel` state (number 1-10, default 6) persisted in localStorage
-- Export `setCharacter()` and `egoLevel` for the UI
-- In `sendMessage()`, include `character` and `egoLevel` in the fetch body
-- After each assistant response, run a simple client-side ego adjustment:
-  - If user message contains agreement words ("right", "yeah", "true", "exactly", "good point") → ego +1
-  - If user message contains challenge words ("no", "wrong", "disagree", "that doesn't", "are you sure") → ego -1
-  - Clamp between 1-10
+- Change `AiCharacter` type from `'default' | 'kyle'` to `'default' | 'beaugosse'`
+- Rename `CHARACTER_KEY` storage value handling
+- Update `AGREE_PATTERN` / `CHALLENGE_PATTERN` — keep sentiment detection but rebrand as charm adjustments (agreement = charm rises, challenge = sharp mode triggers)
+- Send `character: 'beaugosse'` and `charmLevel` (renamed from `egoLevel`) in fetch body
 
-#### 3. UI — Character toggle + ego meter
+#### 3. UI — Visual rebrand
 
 **File**: `src/components/ConciergeChat.tsx`
 
-- Add a toggle button in the header (between the menu and the logo area) — a flame icon that glows orange when Kyle is active
-- When Kyle is active, show a thin horizontal ego meter bar below the header (1-10 scale, color shifts from blue → orange → red as ego rises)
-- The subtitle text changes from "Your Tulum concierge" to "Kyle — Boston Hustler" when active
-- Add a small activation toast: "Kyle activated. Bro... you know what I mean?" / "Back to default concierge"
-
-### Kyle's system prompt (core)
-
-The prompt instructs the AI to maintain Kyle's speech patterns while still leveraging all existing Swipess knowledge (listings, local intel, memories). Kyle doesn't lose functionality — he just delivers it differently. Key prompt elements:
-- Constant fillers: "you know what I mean?", "you know what I'm saying?", "bro"
-- Self-correction loop (catches himself repeating, switches phrase)
-- References "the formula", connections, past experiences
-- Short-medium responses, never long explanations
-- Ego level directly controls dismissiveness and arrogance in the prompt instructions
+- Replace flame icon with a sparkle/crown/diamond icon (e.g. `Sparkles` from lucide)
+- Change color scheme from orange to **purple/rose-gold** (`text-purple-400`, `bg-purple-500/20`)
+- Rename "Kyle" → "The Beau Gosse" in header
+- Rename "Boston Hustler" subtitle → "El Guapo ✨"
+- Rename "EGO" meter label → "CHARM"
+- Update meter colors: blue → purple → rose-gold (instead of blue → orange → red)
+- Update toggle toasts: "The Beau Gosse activated. Let's make this interesting... ✨" / "Back to default concierge"
 
 ### Files to change
 
 | File | Change |
 |------|--------|
-| `supabase/functions/ai-concierge/index.ts` | Add `buildKylePrompt(egoLevel)`, read `character`+`egoLevel` from request body, conditional prompt selection |
-| `src/hooks/useConciergeAI.ts` | Add `activeCharacter`, `egoLevel` state with localStorage, ego adjustment logic, pass to fetch body |
-| `src/components/ConciergeChat.tsx` | Kyle toggle button in header, ego meter bar, dynamic subtitle |
-
-No layout, routing, or swipe changes. The default concierge behavior is completely untouched when Kyle is off.
+| `supabase/functions/ai-concierge/index.ts` | Replace Kyle prompt with Beau Gosse persona, rename function |
+| `src/hooks/useConciergeAI.ts` | Rename type `kyle` → `beaugosse`, `egoLevel` → `charmLevel` semantically |
+| `src/components/ConciergeChat.tsx` | Visual rebrand: purple theme, sparkle icon, charm meter, new labels |
 
