@@ -117,7 +117,6 @@ export const BottomNavigation = memo(({
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
-    { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
     { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
   ];
 
