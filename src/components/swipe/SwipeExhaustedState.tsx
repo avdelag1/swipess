@@ -128,7 +128,7 @@ export const SwipeExhaustedState = ({
           />
         </div>
 
-        <div className="relative z-10 flex min-h-full flex-col px-4 pb-5 pt-4 sm:px-6 sm:pb-6 sm:pt-5">
+        <div className="relative z-10 flex min-h-full flex-col px-4 pb-3 pt-2 sm:px-6 sm:pb-4 sm:pt-3">
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -159,15 +159,15 @@ export const SwipeExhaustedState = ({
             </div>
           </motion.div>
 
-          <div className="flex min-h-0 flex-1 flex-col justify-center gap-5 py-5 sm:gap-6 sm:py-6">
-            <div className="flex flex-col items-center gap-6 text-center">
+          <div className="flex min-h-0 flex-1 flex-col items-center gap-3 py-2 sm:gap-4 sm:py-3">
+            <div className="flex flex-col items-center gap-3 text-center">
               <RadarSearchEffect
                 key={scanIteration === 0 ? 'idle' : `scan-${scanIteration}`}
-                size={128}
+                size={96}
                 color={activeCatInfo?.color || '#ec4899'}
                 isActive={isScanBurstActive}
                 autoStopMs={6000}
-                icon={<ActiveIcon className="h-9 w-9 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" strokeWidth={2.35} />}
+                icon={<ActiveIcon className="h-6 w-6 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" strokeWidth={2.35} />}
               />
               
               <motion.div
@@ -186,7 +186,7 @@ export const SwipeExhaustedState = ({
                   <div className={cn("h-1.5 w-1.5 rounded-full bg-primary", isScanBurstActive && "animate-pulse")} />
                 </div>
                 
-                <h3 className="text-xl font-black tracking-tight text-foreground sm:text-[1.4rem]">
+                <h3 className="text-base font-black tracking-tight text-foreground sm:text-lg">
                   No new {role === 'owner' ? 'clients' : 'listings'} right now
                 </h3>
                 
@@ -199,7 +199,7 @@ export const SwipeExhaustedState = ({
                 <Button
                   onClick={handleRefreshClick}
                   disabled={isRefreshing}
-                  className="relative h-13 overflow-hidden rounded-full border-0 px-9 text-[10px] font-black uppercase tracking-[0.24em] shadow-[var(--shadow-elegant)]"
+                  className="relative h-10 overflow-hidden rounded-full border-0 px-7 text-[10px] font-black uppercase tracking-[0.24em] shadow-[var(--shadow-elegant)]"
                 >
                   {isRefreshing && <div className="absolute inset-0 bg-background/15 animate-pulse" />}
                   <RefreshCw className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")} />
@@ -214,7 +214,7 @@ export const SwipeExhaustedState = ({
               transition={{ delay: 0.3 }}
               className="mx-auto w-full max-w-md"
             >
-              <div className="rounded-[2rem] border border-border/60 bg-card/55 p-5 backdrop-blur-xl sm:p-6">
+              <div className="rounded-2xl border border-border/60 bg-card/55 p-4 backdrop-blur-xl sm:p-5">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
