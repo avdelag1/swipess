@@ -757,8 +757,15 @@ TONE EXAMPLES:
     prompt += `\n\n## Users on Swipess matching this query:\n${opts.profileResults}\n\nPresent these naturally. Link to their profiles. Never expose emails or phone numbers.`;
   }
 
-  // Prepend time context
-  prompt = `${timeContext}\n\n${prompt}`;
+  // Prepend time context + global brevity rules
+  const brevityRules = `## RESPONSE LENGTH RULES (OVERRIDE ALL OTHER STYLE RULES):
+- Default: 1-3 sentences. Maximum 4 sentences only when listing data.
+- Never repeat the same idea twice in different words.
+- One joke/filler per response, not three.
+- Get to the point, then stop. No recap, no summary, no "let me know if you need anything".
+- If the user asks a simple question, give a simple answer.`;
+
+  prompt = `${timeContext}\n\n${brevityRules}\n\n${prompt}`;
 
   return prompt;
 }
@@ -777,7 +784,7 @@ async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
     body: JSON.stringify({
       model: "MiniMax-M2.7",
       messages,
-      max_tokens: 1024,
+      max_tokens: 450,
       temperature: 0.7,
       stream: true,
     }),
