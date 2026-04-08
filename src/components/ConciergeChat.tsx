@@ -411,7 +411,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
     let finalTranscript = '';
     let userStopped = false;
-    let lastResultIndex = -1; // Track processed results to avoid duplicates
+    
 
     recognition.onresult = (event: any) => {
       // If countdown is active and new speech arrives, CANCEL countdown and reset silence timer
