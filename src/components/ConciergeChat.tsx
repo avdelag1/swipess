@@ -725,6 +725,16 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   <Zap className="w-3 h-3" />
                   Auto-send {autoSend ? 'ON' : 'OFF'}
                 </button>
+                {countdown !== null && (
+                  <motion.span
+                    initial={{ opacity: 0, x: -5 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-[10px] font-medium text-primary/70"
+                  >
+                    Sending in {countdown}…
+                  </motion.span>
+                )}
               </div>
             )}
             <div className="flex items-end gap-2">
