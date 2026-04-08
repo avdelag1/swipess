@@ -917,6 +917,7 @@ const ClientSwipeContainerComponent = ({
             )}
           </AnimatePresence>
         </div>
+        </div>
 
         {/* Action Buttons */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
