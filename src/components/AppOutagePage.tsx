@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OUTAGE_BYPASS_KEY } from '@/config/outage';
 
@@ -9,6 +9,8 @@ interface AppOutagePageProps {
 export function AppOutagePage({ onBypass }: AppOutagePageProps) {
   const [tapCount, setTapCount] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const [sheenActive, setSheenActive] = useState(false);
+  const sheenTimeout = useRef<ReturnType<typeof setTimeout>>();
   const TAP_THRESHOLD = 7;
 
   const handleLogoTap = useCallback(() => {
@@ -25,6 +27,29 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
       return next;
     });
   }, [onBypass]);
+
+  // Random sheen trigger every 6-12 seconds
+  useEffect(() => {
+    const scheduleSheen = () => {
+      const delay = 6000 + Math.random() * 6000; // 6-12s
+      sheenTimeout.current = setTimeout(() => {
+        setSheenActive(true);
+        setTimeout(() => {
+          setSheenActive(false);
+          scheduleSheen();
+        }, 1200); // sheen duration
+      }, delay);
+    };
+    // First sheen after 2s
+    sheenTimeout.current = setTimeout(() => {
+      setSheenActive(true);
+      setTimeout(() => {
+        setSheenActive(false);
+        scheduleSheen();
+      }, 1200);
+    }, 2000);
+    return () => clearTimeout(sheenTimeout.current);
+  }, []);
 
   return (
     <div
@@ -67,112 +92,38 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
         />
       </div>
 
-      {/* Logo with living internal light */}
+      {/* Logo — large, centered, with sheen */}
       <motion.div
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
         onClick={handleLogoTap}
-        className="cursor-default select-none mb-6 relative z-10"
+        className="cursor-default select-none mb-8 relative z-10"
         aria-label="Swipess logo"
       >
-        <div className="relative inline-flex items-center justify-center">
-          <svg
-            viewBox="0 0 420 70"
-            className="h-auto w-[340px] max-w-[88vw] sm:w-[460px]"
-            aria-hidden="true"
-          >
-            <defs>
-              <linearGradient id="logo-base" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#f97316">
-                  <animate attributeName="stop-color" values="#f97316;#ec4899;#a855f7;#f97316" dur="6s" repeatCount="indefinite" />
-                </stop>
-                <stop offset="50%" stopColor="#ec4899">
-                  <animate attributeName="stop-color" values="#ec4899;#6366f1;#f97316;#ec4899" dur="6s" repeatCount="indefinite" />
-                </stop>
-                <stop offset="100%" stopColor="#a855f7">
-                  <animate attributeName="stop-color" values="#a855f7;#f97316;#ec4899;#a855f7" dur="6s" repeatCount="indefinite" />
-                </stop>
-              </linearGradient>
-
-              <linearGradient id="logo-sheen" x1="-50%" y1="0%" x2="50%" y2="0%">
-                <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
-                <stop offset="45%" stopColor="#ffffff" stopOpacity="0" />
-                <stop offset="50%" stopColor="#ffffff" stopOpacity="0.95" />
-                <stop offset="55%" stopColor="#ffffff" stopOpacity="0" />
-                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-                <animate attributeName="x1" values="-50%;90%;-50%" dur="5s" repeatCount="indefinite" />
-                <animate attributeName="x2" values="0%;140%;0%" dur="5s" repeatCount="indefinite" />
-              </linearGradient>
-
-              <filter id="logo-glow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3.5" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            <text
-              x="210"
-              y="55"
-              textAnchor="middle"
-              fill="url(#logo-base)"
-              opacity="0.32"
-              filter="url(#logo-glow)"
-              style={{
-                fontSize: '58px',
-                fontWeight: 950,
-                fontStyle: 'italic',
-                fontFamily: "'Inter', 'Outfit', system-ui, sans-serif",
-                letterSpacing: '-0.02em',
-                textTransform: 'uppercase',
-              }}
-            >
-              SwipesS
-            </text>
-
-            <text
-              x="210"
-              y="55"
-              textAnchor="middle"
-              fill="url(#logo-base)"
-              style={{
-                fontSize: '58px',
-                fontWeight: 950,
-                fontStyle: 'italic',
-                fontFamily: "'Inter', 'Outfit', system-ui, sans-serif",
-                letterSpacing: '-0.02em',
-                textTransform: 'uppercase',
-              }}
-            >
-              SwipesS
-            </text>
-
-            <text
-              x="210"
-              y="55"
-              textAnchor="middle"
-              fill="url(#logo-sheen)"
-              opacity="0.7"
-              filter="url(#logo-glow)"
-              style={{
-                fontSize: '58px',
-                fontWeight: 950,
-                fontStyle: 'italic',
-                fontFamily: "'Inter', 'Outfit', system-ui, sans-serif",
-                letterSpacing: '-0.02em',
-                textTransform: 'uppercase',
-              }}
-            >
-              SwipesS
-            </text>
-          </svg>
+        <div className="relative inline-flex items-center justify-center overflow-hidden">
+          <img
+            src="/icons/swipess-brand-logo.webp"
+            alt="SwipesS"
+            draggable={false}
+            className="h-20 sm:h-28 md:h-36 w-auto object-contain select-none"
+            style={{ imageRendering: 'auto' }}
+          />
+          {/* White sheen overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: sheenActive
+                ? 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.45) 45%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,0.45) 55%, transparent 70%)'
+                : 'none',
+              animation: sheenActive ? 'sheen-sweep 1.2s ease-in-out forwards' : 'none',
+              mixBlendMode: 'overlay',
+            }}
+          />
         </div>
       </motion.div>
 
-      {/* Heading — closer to logo */}
+      {/* Heading */}
       <motion.h1
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -193,7 +144,7 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
         We're working hard to get things back up — check back soon.
       </motion.p>
 
-      {/* Pulsing status beacon — dramatic on/off glow */}
+      {/* Pulsing status beacon */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -201,20 +152,14 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
         className="flex items-center gap-2.5 mt-6 relative z-10"
       >
         <span className="relative flex h-3 w-3">
-          {/* Outer breathing glow ring */}
           <motion.span
             className="absolute inline-flex h-full w-full rounded-full bg-primary/70"
             animate={{
               opacity: [0, 0.7, 0],
               scale: [1, 2.2, 1],
             }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           />
-          {/* Inner dot — blinks on/off */}
           <motion.span
             className="relative inline-flex h-3 w-3 rounded-full bg-primary"
             animate={{
@@ -225,11 +170,7 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
                 '0 0 8px 2px hsl(var(--primary) / 0.6)',
               ],
             }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           />
         </span>
         <span className="text-white/40 text-xs tracking-wide uppercase" style={{ letterSpacing: '0.15em' }}>
@@ -251,6 +192,14 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
           </motion.p>
         )}
       </AnimatePresence>
+
+      {/* Sheen keyframes */}
+      <style>{`
+        @keyframes sheen-sweep {
+          0% { transform: translateX(-120%); }
+          100% { transform: translateX(120%); }
+        }
+      `}</style>
     </div>
   );
 }
