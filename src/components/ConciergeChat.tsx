@@ -44,14 +44,45 @@ function formatConvoDate(date: Date) {
   return date.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
+/* ─── NAV Tag Parsing ─── */
+const NAV_PATTERN = /\[NAV:(\/[^\]]+)\]/g;
+
+const NAV_LABELS: Record<string, string> = {
+  '/client/filters': '🔍 Open Filters',
+  '/radio': '📻 Open Radio',
+  '/client/profile': '👤 My Profile',
+  '/client/settings': '⚙️ Settings',
+  '/subscription/packages': '💎 View Packages',
+  '/client/liked': '❤️ Liked Properties',
+  '/owner/listings': '🏠 My Listings',
+  '/legal': '📄 Legal Section',
+  '/events': '🎉 Browse Events',
+};
+
+function parseNavActions(content: string): { cleanContent: string; navPaths: string[] } {
+  const navPaths: string[] = [];
+  const cleanContent = content.replace(NAV_PATTERN, (_, path) => {
+    navPaths.push(path);
+    return '';
+  }).replace(/\n{3,}/g, '\n\n').trim();
+  return { cleanContent, navPaths };
+}
+
 /* ─── Message Bubble ─── */
-const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, isUser }: {
+const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate, isUser }: {
   message: ChatMessage;
   onCopy: () => void;
   onResend?: () => void;
   onTranslate?: (lang: string) => void;
+  onNavigate?: (path: string) => void;
   isUser: boolean;
-}) => (
+}) => {
+  const { cleanContent, navPaths } = useMemo(
+    () => isUser ? { cleanContent: message.content, navPaths: [] } : parseNavActions(message.content),
+    [message.content, isUser]
+  );
+
+  return (
   <div className={cn('flex w-full mb-4', isUser ? 'justify-end' : 'justify-start')}>
     <div className="max-w-[82%] relative group">
       <div className={cn(
@@ -71,10 +102,69 @@ const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, isUser }: 
           <span className="whitespace-pre-wrap">{message.content}</span>
         ) : (
           <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5">
-            <ReactMarkdown>{message.content}</ReactMarkdown>
+            <ReactMarkdown>{cleanContent}</ReactMarkdown>
           </div>
         )}
       </div>
+
+      {/* Navigation action buttons */}
+      {navPaths.length > 0 && onNavigate && (
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {navPaths.map(path => (
+            <button
+              key={path}
+              onClick={() => onNavigate(path)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
+            >
+              {NAV_LABELS[path] || path}
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Action bar — always visible on touch, hover on desktop */}
+      <div className={cn(
+        'flex items-center gap-1 mt-1 transition-opacity',
+        'opacity-100 sm:opacity-0 sm:group-hover:opacity-100',
+        isUser ? 'justify-end' : 'justify-start'
+      )}>
+        <button onClick={onCopy} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Copy">
+          <Copy className="w-3 h-3" />
+        </button>
+        {isUser && onResend && (
+          <button onClick={onResend} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Resend">
+            <RefreshCw className="w-3 h-3" />
+          </button>
+        )}
+        {!isUser && onTranslate && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Translate">
+                <Globe className="w-3 h-3" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-1.5" side="top" align="start">
+              <div className="grid gap-0.5">
+                {LANGUAGES.map(l => (
+                  <button
+                    key={l.code}
+                    onClick={() => onTranslate(l.label)}
+                    className="text-left text-xs px-2.5 py-1.5 rounded-lg hover:bg-muted/80 text-foreground transition-colors"
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
+      </div>
+    </div>
+  </div>
+  );
+});
+MessageBubble.displayName = 'MessageBubble';
 
       {/* Action bar — always visible on touch, hover on desktop */}
       <div className={cn(
