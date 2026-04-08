@@ -193,6 +193,9 @@ function SortableItem({
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
   const lastUpdateRef = useRef<number>(0);
 
+  // PERF: Detect touch device — disable drag entirely on touch to guarantee scroll
+  const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
   const clearLongPress = useCallback(() => {
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
@@ -200,21 +203,20 @@ function SortableItem({
     }
   }, []);
 
-  // Long-press gesture detection
+  // Long-press gesture detection — DISABLED on touch devices to preserve scroll
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    // Only primary pointer (finger or left mouse)
+    if (isTouchDevice) return; // Touch = scroll only, no drag
     if (e.button !== 0) return;
 
     startPosRef.current = { x: e.clientX, y: e.clientY };
 
     clearLongPress();
     longPressTimerRef.current = setTimeout(() => {
-      // Long press confirmed — activate drag
       setDragEnabled(true);
       onDragStart();
       triggerHaptic('medium');
     }, 400);
-  }, [onDragStart, clearLongPress]);
+  }, [onDragStart, clearLongPress, isTouchDevice]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!startPosRef.current) return;

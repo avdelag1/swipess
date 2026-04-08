@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, PanInfo } from 'framer-motion';
 import { Home, Bike, Briefcase, Search, Check, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -81,23 +82,7 @@ export function CategorySwipeStack() {
         setStack(currentStackBase);
     }, [currentStackBase]);
 
-    // PERF: Universal Aggressive Preloading - Warms EVERYTHING for instant switching
-    useEffect(() => {
-        const allPhotos = [...POKER_CARDS, ...OWNER_INTENT_CARDS];
-        allPhotos.forEach(cat => {
-            const src = POKER_CARD_PHOTOS[cat.id] || POKER_CARD_PHOTOS.all;
-            if (src) {
-                const img = new Image();
-                img.src = src;
-                // 🚀 GPU PRE-WARM: Force the browser to decode the image in the background
-                // so it's already in memory when the user swipes to it.
-                img.decode().then(() => {
-                    (window as any).__swipess_cache = (window as any).__swipess_cache || {};
-                    (window as any).__swipess_cache[src] = true;
-                }).catch(() => {});
-            }
-        });
-    }, []); // Run once on mount to warm entire discovery cache
+    // PERF: Preloading moved to SpeedOfLightPreloader + QuickFilterImage decode-first pattern
 
     const applyFilter = (card: CategoryCardData) => {
         if (userRole === 'owner' && card.ownerData) {
@@ -370,23 +355,12 @@ function CategoryCard({
                     category.color
                 )} 
             />
-            <img 
+            <QuickFilterImage 
                 src={category.image} 
                 alt={category.label}
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
                 className={cn(
-                    "absolute inset-0 w-full h-full object-cover transition-opacity duration-300",
                     isDragging ? "scale-105" : "scale-100"
                 )}
-                onError={() => {}}
-                style={{ 
-                    opacity: 1, 
-                    filter: 'none',
-                    transform: 'translateZ(0)', // Force GPU layer
-                    willChange: 'transform, opacity'
-                }}
             />
             {/* Dark overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-[5]" />

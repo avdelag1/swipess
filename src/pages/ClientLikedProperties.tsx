@@ -191,9 +191,9 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
 
   return (
     <div 
-      className="w-full relative pb-32 bg-background flex flex-col touch-pan-y" 
+      className="w-full h-full min-h-0 overflow-y-auto relative bg-background flex flex-col touch-pan-y" 
       data-no-swipe-nav="true"
-      style={{ overscrollBehavior: 'contain' }}
+      style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}
     >
       <div className="flex-1 flex flex-col p-4 pt-4 sm:p-8 sm:pt-4 max-w-7xl mx-auto w-full">
         {/* Category tabs and Sync button */}
