@@ -975,20 +975,22 @@ Deno.serve(async (req) => {
     const lastUserMessage = [...messages].reverse().find(m => m.role === "user")?.content || "";
 
     // Parallel context gathering
-    const [knowledge, memories, listingIntent] = await Promise.all([
+    const isProfileQuery = detectProfileIntent(lastUserMessage);
+    const [knowledge, memories, listingIntent, profileResults] = await Promise.all([
       searchKnowledge(lastUserMessage),
       userId ? loadUserMemories(userId) : Promise.resolve(""),
       Promise.resolve(detectListingIntent(lastUserMessage)),
+      isProfileQuery ? searchProfiles(lastUserMessage) : Promise.resolve(""),
     ]);
 
     // Conditional searches
     const listings = listingIntent.isListing ? await searchListings(listingIntent) : "";
     
     // Web search only if knowledge is thin
-    const webResults = (!knowledge && !listings) ? await searchWeb(lastUserMessage) : "";
+    const webResults = (!knowledge && !listings && !profileResults) ? await searchWeb(lastUserMessage) : "";
 
     // Build enriched system prompt with character support
-    const systemPrompt = buildSystemPrompt({ knowledge, listings, memories, webResults, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel });
+    const systemPrompt = buildSystemPrompt({ knowledge, listings, memories, webResults, profileResults, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel });
 
     // Prepare messages with enriched system prompt
     const enrichedMessages: ChatMessage[] = [
