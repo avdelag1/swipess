@@ -226,14 +226,16 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   } = useConciergeAI();
 
   const isKyle = activeCharacter === 'kyle';
+  const isBeauGosse = activeCharacter === 'beaugosse';
 
   const toggleCharacter = () => {
-    const next: AiCharacter = isKyle ? 'default' : 'kyle';
+    const order: AiCharacter[] = ['default', 'kyle', 'beaugosse'];
+    const idx = order.indexOf(activeCharacter);
+    const next = order[(idx + 1) % order.length];
     setActiveCharacter(next);
-    toast(next === 'kyle'
-      ? "Kyle activated. Bro... you know what I mean? 🔥"
-      : "Back to default concierge ✨"
-    );
+    if (next === 'kyle') toast("Kyle activated. Bro... you know what I mean? 🔥");
+    else if (next === 'beaugosse') toast("The Beau Gosse activated. Let's make this interesting... ✨");
+    else toast("Back to default concierge ✨");
   };
 
   const [input, setInput] = useState('');
@@ -307,22 +309,29 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   size="icon"
                   className={cn(
                     "w-8 h-8 rounded-full transition-all",
-                    isKyle && "bg-orange-500/20 text-orange-400 shadow-[0_0_12px_rgba(251,146,60,0.3)]"
+                    isKyle && "bg-orange-500/20 text-orange-400 shadow-[0_0_12px_rgba(251,146,60,0.3)]",
+                    isBeauGosse && "bg-purple-500/20 text-purple-400 shadow-[0_0_12px_rgba(168,85,247,0.3)]"
                   )}
                   onClick={toggleCharacter}
-                  title={isKyle ? 'Deactivate Kyle' : 'Activate Kyle'}
+                  title={isKyle ? 'Switch to Beau Gosse' : isBeauGosse ? 'Switch to Default' : 'Switch to Kyle'}
                 >
-                  <Flame className={cn("w-4 h-4", isKyle ? "text-orange-400" : "text-muted-foreground")} />
+                  {isBeauGosse ? (
+                    <Sparkles className="w-4 h-4 text-purple-400" />
+                  ) : (
+                    <Flame className={cn("w-4 h-4", isKyle ? "text-orange-400" : "text-muted-foreground")} />
+                  )}
                 </Button>
                 <HeaderIcon isLoading={isLoading} />
                 <div>
                   {isKyle ? (
                     <p className="text-sm font-bold text-orange-400">Kyle</p>
+                  ) : isBeauGosse ? (
+                    <p className="text-sm font-bold text-purple-400">The Beau Gosse</p>
                   ) : (
                     <SwipessLogo size="xs" variant="gradient" />
                   )}
                   <p className="text-[11px] text-muted-foreground">
-                    {isLoading ? 'Thinking…' : isKyle ? 'Boston Hustler 🔥' : 'Your Tulum concierge'}
+                    {isLoading ? 'Thinking…' : isKyle ? 'Boston Hustler 🔥' : isBeauGosse ? 'El Guapo ✨' : 'Your Tulum concierge'}
                   </p>
                 </div>
               </div>
@@ -342,7 +351,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
             </div>
             {/* Ego Meter */}
             <AnimatePresence>
-              {isKyle && (
+              {(isKyle || isBeauGosse) && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
@@ -351,22 +360,36 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   className="px-4 pb-2 overflow-hidden"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap">EGO</span>
+                    <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap">
+                      {isBeauGosse ? 'CHARM' : 'EGO'}
+                    </span>
                     <div className="flex-1 h-1.5 rounded-full bg-muted/50 overflow-hidden">
                       <motion.div
                         className="h-full rounded-full"
                         style={{
                           width: `${egoLevel * 10}%`,
-                          background: egoLevel <= 3
-                            ? 'hsl(210, 80%, 60%)'
-                            : egoLevel <= 6
-                              ? 'hsl(30, 90%, 55%)'
-                              : 'hsl(0, 80%, 55%)',
-                          boxShadow: egoLevel > 6
-                            ? '0 0 8px hsla(0, 80%, 55%, 0.5)'
-                            : egoLevel > 3
-                              ? '0 0 6px hsla(30, 90%, 55%, 0.4)'
-                              : 'none',
+                          background: isBeauGosse
+                            ? (egoLevel <= 3
+                              ? 'hsl(210, 80%, 60%)'
+                              : egoLevel <= 6
+                                ? 'hsl(270, 70%, 60%)'
+                                : 'hsl(330, 70%, 60%)')
+                            : (egoLevel <= 3
+                              ? 'hsl(210, 80%, 60%)'
+                              : egoLevel <= 6
+                                ? 'hsl(30, 90%, 55%)'
+                                : 'hsl(0, 80%, 55%)'),
+                          boxShadow: isBeauGosse
+                            ? (egoLevel > 6
+                              ? '0 0 8px hsla(330, 70%, 60%, 0.5)'
+                              : egoLevel > 3
+                                ? '0 0 6px hsla(270, 70%, 60%, 0.4)'
+                                : 'none')
+                            : (egoLevel > 6
+                              ? '0 0 8px hsla(0, 80%, 55%, 0.5)'
+                              : egoLevel > 3
+                                ? '0 0 6px hsla(30, 90%, 55%, 0.4)'
+                                : 'none'),
                         }}
                         animate={{ width: `${egoLevel * 10}%` }}
                         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
