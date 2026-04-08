@@ -11,8 +11,8 @@ export function AnimatedOutlet() {
     <div
       key={location.pathname}
       className={isFixedViewportRoute
-        ? "h-full w-full flex flex-col flex-1"
-        : "h-full w-full flex flex-col flex-1 gpu-accelerate overflow-hidden"}
+        ? "h-full min-h-0 w-full flex flex-col flex-1"
+        : "h-full min-h-0 w-full flex flex-col flex-1 gpu-accelerate overflow-hidden"}
       style={{ position: 'relative' }}
     >
       <Suspense fallback={<SuspenseFallback minimal />}>

@@ -474,7 +474,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className={cn(
-      "dashboard-root w-full min-h-full bg-background relative",
+      "dashboard-root w-full h-full min-h-0 bg-background relative flex flex-col overflow-hidden",
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
 
@@ -489,7 +489,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
         }}
         className={cn(
-          "w-full min-h-full bg-background relative z-0 touch-pan-y",
+          "flex-1 w-full min-h-0 bg-background relative z-0 touch-pan-y overscroll-y-contain",
           isRadioRoute ? "overflow-visible" : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
@@ -503,11 +503,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             : `calc(${bottomNavHeight}px + var(--safe-bottom) + 32px)`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
-          // Skip contentVisibility on radio route — it creates a containing block that breaks fixed positioning
           ...(isRadioRoute ? {} : { contentVisibility: 'auto' as any, containIntrinsicSize: '100dvh' }),
         }}
       >
-        <div className="min-h-full w-full flex flex-col">
+        <div className="min-h-full w-full flex flex-1 min-w-0 flex-col">
           {enhancedChildren}
         </div>
       </main>
