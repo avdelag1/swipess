@@ -715,8 +715,11 @@ TONE EXAMPLES:
 
 // ─── Build System Prompt ────────────────────────────────────────────────────
 
-function buildSystemPrompt(opts: { knowledge?: string; listings?: string; memories?: string; webResults?: string; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number }): string {
+function buildSystemPrompt(opts: { knowledge?: string; listings?: string; memories?: string; webResults?: string; profileResults?: string; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number }): string {
   let prompt: string;
+
+  // Always prepend real-time context
+  const timeContext = getCurrentTimeContext();
 
   if (opts.character === "kyle") {
     prompt = buildKylePrompt(opts.egoLevel ?? 6);
@@ -782,6 +785,13 @@ TONE EXAMPLES:
   if (opts.webResults) {
     prompt += `\n\n## Fresh web intel (cite sources):\n${opts.webResults}`;
   }
+
+  if (opts.profileResults) {
+    prompt += `\n\n## Users on Swipess matching this query:\n${opts.profileResults}\n\nPresent these naturally. Link to their profiles. Never expose emails or phone numbers.`;
+  }
+
+  // Prepend time context
+  prompt = `${timeContext}\n\n${prompt}`;
 
   return prompt;
 }
