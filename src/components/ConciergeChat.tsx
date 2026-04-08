@@ -738,19 +738,49 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 className="flex-1 resize-none bg-muted/50 border border-border/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 max-h-32"
                 style={{ minHeight: '40px' }}
               />
-              {/* Mic button */}
+              {/* Mic button with countdown ring */}
               {speechSupported && (
-                <Button
-                  onClick={toggleListening}
-                  size="icon"
-                  variant="outline"
-                  className={cn(
-                    "w-10 h-10 rounded-xl shrink-0 transition-all",
-                    isListening && "bg-red-500/20 border-red-500/50 text-red-400 animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.4)]"
+                <div className="relative shrink-0">
+                  {/* SVG countdown ring */}
+                  {countdown !== null && (
+                    <svg className="absolute inset-0 w-10 h-10 -rotate-90 pointer-events-none" viewBox="0 0 40 40">
+                      <circle
+                        cx="20" cy="20" r="17"
+                        fill="none"
+                        stroke="hsl(var(--primary) / 0.3)"
+                        strokeWidth="2.5"
+                      />
+                      <circle
+                        cx="20" cy="20" r="17"
+                        fill="none"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeDasharray={`${2 * Math.PI * 17}`}
+                        strokeDashoffset={`${2 * Math.PI * 17 * (1 - countdown / COUNTDOWN_SECONDS)}`}
+                        className="transition-all duration-1000 ease-linear"
+                      />
+                    </svg>
                   )}
-                >
-                  {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                </Button>
+                  <Button
+                    onClick={toggleListening}
+                    size="icon"
+                    variant="outline"
+                    className={cn(
+                      "w-10 h-10 rounded-xl transition-all relative",
+                      isListening && "bg-red-500/20 border-red-500/50 text-red-400 animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.4)]",
+                      countdown !== null && "border-primary/50 bg-primary/10"
+                    )}
+                  >
+                    {countdown !== null ? (
+                      <span className="text-xs font-bold text-primary">{countdown}</span>
+                    ) : isListening ? (
+                      <MicOff className="w-4 h-4" />
+                    ) : (
+                      <Mic className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
               )}
               {isLoading ? (
                 <Button onClick={stopGeneration} size="icon" variant="outline" className="w-10 h-10 rounded-xl shrink-0">
