@@ -751,14 +751,24 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   <Zap className="w-3 h-3" />
                   Auto-send {autoSend ? 'ON' : 'OFF'}
                 </button>
-                {countdown !== null && (
+                {ignitionFlash && (
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1.1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-xs font-bold text-primary"
+                  >
+                    🚀 Ignition!
+                  </motion.span>
+                )}
+                {countdown !== null && !ignitionFlash && (
                   <motion.span
                     initial={{ opacity: 0, x: -5 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0 }}
                     className="text-[10px] font-medium text-primary/70"
                   >
-                    Sending in {countdown}…
+                    {countdown <= 2 ? `🔥 ${countdown}… ready to launch!` : `Sending in ${countdown}…`}
                   </motion.span>
                 )}
               </div>
