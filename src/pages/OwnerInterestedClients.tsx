@@ -177,7 +177,7 @@ const OwnerInterestedClients = () => {
   );
 
   return (
-    <div className="w-full pb-32 bg-background touch-pan-y" data-no-swipe-nav="true" style={{ overscrollBehavior: 'contain' }}>
+    <div className="w-full h-full min-h-0 overflow-y-auto pb-32 bg-background touch-pan-y" data-no-swipe-nav="true" style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
       <div className="p-4 pt-4 sm:p-8 sm:pt-4 max-w-7xl mx-auto">
         {/* Badge */}
         <div className="flex items-center justify-end mb-8 relative z-10">
