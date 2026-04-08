@@ -274,6 +274,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
+      // Signal that user intentionally stopped so onend doesn't restart
+      (recognitionRef.current as any)._userStop?.();
       recognitionRef.current.stop();
       recognitionRef.current = null;
     }
