@@ -316,6 +316,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     createConversation, switchConversation, deleteConversation, clearHistory,
     activeCharacter, setActiveCharacter, egoLevel,
   } = useConciergeAI();
+  const { navigate: appNavigate } = useAppNavigate();
 
   const isKyle = activeCharacter === 'kyle';
   const isBeauGosse = activeCharacter === 'beaugosse';
