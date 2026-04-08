@@ -26,12 +26,21 @@ async function searchKnowledge(query: string): Promise<string> {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
     const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
     
-    // Search by tags overlap and title/content ILIKE
+    if (keywords.length === 0) return "";
+
+    // Build ILIKE filter from keywords across title, content, category, and tags
+    const orFilters = keywords.flatMap(kw => [
+      `title.ilike.%${kw}%`,
+      `content.ilike.%${kw}%`,
+      `category.ilike.%${kw}%`,
+    ]).join(",");
+
     const { data, error } = await supabase
       .from("concierge_knowledge")
       .select("title, content, website_url, google_maps_url, phone, category")
       .eq("is_active", true)
-      .limit(5);
+      .or(orFilters)
+      .limit(10);
     
     if (error || !data || data.length === 0) return "";
     
@@ -40,9 +49,7 @@ async function searchKnowledge(query: string): Promise<string> {
       const text = `${entry.title} ${entry.content} ${entry.category}`.toLowerCase();
       const score = keywords.reduce((s, kw) => s + (text.includes(kw) ? 1 : 0), 0);
       return { ...entry, score };
-    }).filter(e => e.score > 0).sort((a, b) => b.score - a.score).slice(0, 3);
-    
-    if (scored.length === 0) return "";
+    }).sort((a, b) => b.score - a.score).slice(0, 5);
     
     return scored.map(e => {
       let entry = `**${e.title}** (${e.category})\n${e.content}`;
