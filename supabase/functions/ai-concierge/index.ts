@@ -161,13 +161,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Try MiniMax first, fallback to Lovable AI
+    // Try Lovable AI (Gemini Flash — fastest) first, fallback to MiniMax
     try {
-      return await streamMiniMax(messages);
+      return await streamLovableAI(messages);
     } catch (e) {
-      console.warn(`[AI] MiniMax failed, falling back to Lovable AI: ${(e as Error).message}`);
+      console.warn(`[AI] Lovable AI failed, falling back to MiniMax: ${(e as Error).message}`);
       try {
-        return await streamLovableAI(messages);
+        return await streamMiniMax(messages);
       } catch (e2) {
         console.error("[AI] Both providers failed:", (e2 as Error).message);
         return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {

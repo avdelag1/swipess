@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { toast } from '@/components/ui/sonner';
 
 export interface ChatMessage {
@@ -67,9 +67,17 @@ export function useConciergeAI() {
   );
   const [isLoading, setIsLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  // Throttled streaming: accumulate tokens in a ref, flush to state via RAF
+  const streamBufferRef = useRef<{ convoId: string; msgId: string; content: string } | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   const activeConversation = conversations.find(c => c.id === activeConversationId) ?? null;
   const messages = activeConversation?.messages ?? [];
+
+  // Separate state-only updater (no localStorage on every call) for streaming perf
+  const updateConversationsLive = useCallback((updater: (prev: Conversation[]) => Conversation[]) => {
+    setConversations(prev => updater(prev));
+  }, []);
 
   const updateConversations = useCallback((updater: (prev: Conversation[]) => Conversation[]) => {
     setConversations(prev => {
@@ -78,6 +86,26 @@ export function useConciergeAI() {
       return next;
     });
   }, []);
+
+  // RAF-based flush: updates React state at screen refresh rate, not per-token
+  const flushStreamBuffer = useCallback(() => {
+    const buf = streamBufferRef.current;
+    if (!buf) return;
+    const { convoId, msgId, content } = buf;
+    const cleaned = stripThinkBlocks(content);
+    updateConversationsLive(prev =>
+      prev.map(c => {
+        if (c.id !== convoId) return c;
+        return {
+          ...c,
+          messages: c.messages.map(m =>
+            m.id === msgId ? { ...m, content: cleaned } : m
+          ),
+        };
+      })
+    );
+    rafRef.current = requestAnimationFrame(flushStreamBuffer);
+  }, [updateConversationsLive]);
 
   const createConversation = useCallback((): string => {
     const id = crypto.randomUUID();
@@ -187,13 +215,13 @@ export function useConciergeAI() {
       const contentType = resp.headers.get('content-type') || '';
       
       if (contentType.includes('text/event-stream') && resp.body) {
-        // SSE streaming
+        // SSE streaming with RAF-throttled rendering
         const assistantMsgId = crypto.randomUUID();
         const assistantTimestamp = new Date();
         let fullContent = '';
 
-        // Add empty assistant message
-        updateConversations(prev =>
+        // Add empty assistant message (one state update)
+        updateConversationsLive(prev =>
           prev.map(c => {
             if (c.id !== convoId) return c;
             return {
@@ -208,6 +236,10 @@ export function useConciergeAI() {
             };
           })
         );
+
+        // Start RAF loop for rendering
+        streamBufferRef.current = { convoId: convoId!, msgId: assistantMsgId, content: '' };
+        rafRef.current = requestAnimationFrame(flushStreamBuffer);
 
         const reader = resp.body.getReader();
         const decoder = new TextDecoder();
@@ -236,29 +268,17 @@ export function useConciergeAI() {
               const delta = parsed.choices?.[0]?.delta?.content;
               if (delta) {
                 fullContent += delta;
-                const cleaned = stripThinkBlocks(fullContent);
-                
-                updateConversations(prev =>
-                  prev.map(c => {
-                    if (c.id !== convoId) return c;
-                    return {
-                      ...c,
-                      messages: c.messages.map(m =>
-                        m.id === assistantMsgId ? { ...m, content: cleaned } : m
-                      ),
-                    };
-                  })
-                );
+                // Just update the buffer ref — RAF loop handles rendering
+                streamBufferRef.current = { convoId: convoId!, msgId: assistantMsgId, content: fullContent };
               }
             } catch {
-              // Partial JSON, re-buffer
               buffer = line + '\n' + buffer;
               break;
             }
           }
         }
 
-        // Final flush
+        // Final flush of remaining buffer
         if (buffer.trim()) {
           for (let raw of buffer.split('\n')) {
             if (!raw) continue;
@@ -272,19 +292,23 @@ export function useConciergeAI() {
               if (delta) fullContent += delta;
             } catch {}
           }
-          const cleaned = stripThinkBlocks(fullContent);
-          updateConversations(prev =>
-            prev.map(c => {
-              if (c.id !== convoId) return c;
-              return {
-                ...c,
-                messages: c.messages.map(m =>
-                  m.id === assistantMsgId ? { ...m, content: cleaned || 'No response received.' } : m
-                ),
-              };
-            })
-          );
         }
+
+        // Stop RAF loop, do final state + localStorage save
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        streamBufferRef.current = null;
+        const finalCleaned = stripThinkBlocks(fullContent) || 'No response received.';
+        updateConversations(prev =>
+          prev.map(c => {
+            if (c.id !== convoId) return c;
+            return {
+              ...c,
+              messages: c.messages.map(m =>
+                m.id === assistantMsgId ? { ...m, content: finalCleaned } : m
+              ),
+            };
+          })
+        );
       } else {
         // JSON fallback (non-streaming)
         const data = await resp.json();
@@ -314,10 +338,12 @@ export function useConciergeAI() {
       console.error('[ConciergeAI]', err);
       toast.error('AI temporarily unavailable. Please try again.');
     } finally {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      streamBufferRef.current = null;
       setIsLoading(false);
       abortRef.current = null;
     }
-  }, [activeConversationId, conversations, isLoading, updateConversations]);
+  }, [activeConversationId, conversations, isLoading, updateConversations, updateConversationsLive, flushStreamBuffer]);
 
   const resendMessage = useCallback(async (messageId: string) => {
     if (!activeConversation || isLoading) return;
@@ -342,6 +368,8 @@ export function useConciergeAI() {
 
   const stopGeneration = useCallback(() => {
     abortRef.current?.abort();
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    streamBufferRef.current = null;
     setIsLoading(false);
   }, []);
 
