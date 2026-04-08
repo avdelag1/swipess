@@ -199,7 +199,8 @@ const CardImage = memo(({
           transition: wasInCache ? 'none' : 'opacity 150ms ease-out',
           WebkitUserDrag: 'none',
           pointerEvents: 'none',
-          transform: 'translateZ(0)', // GPU promotion
+          animation: loaded ? 'photo-swim 12s ease-in-out infinite' : 'none',
+          willChange: loaded ? 'transform' : 'auto',
         } as React.CSSProperties}
         onLoad={() => {
           imageCache.set(src, true);
