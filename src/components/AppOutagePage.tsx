@@ -106,7 +106,7 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
             src="/icons/swipess-brand-logo.webp"
             alt="SwipesS"
             draggable={false}
-            className="h-20 sm:h-28 md:h-36 w-auto object-contain select-none"
+            className="h-32 sm:h-40 md:h-48 w-auto object-contain select-none"
             style={{ imageRendering: 'auto' }}
           />
           {/* White sheen overlay */}
