@@ -1,52 +1,33 @@
 
 
-## Plan: Add Ezriyah Suave as AI Character + Featured Local Expert
+## Plan: Fix Voice-to-Text Auto-Send Timing and Listening Issues
 
-Two things to build: (1) Ezriyah as a selectable chat persona, and (2) his profile seeded into the knowledge base so the default AI can surface him when relevant.
+### Problems Identified
 
----
+From the screenshot and description, three issues:
 
-### 1. Add "Ezriyah" Character to the Persona System
+1. **Speech recognition dies during countdown** — `startCountdown()` calls `recognition.stop()`, which triggers `onend`, which sets `isListening = false`. The user can't speak during the 3-second countdown to reset it.
 
-**`src/hooks/useConciergeAI.ts`**
-- Add `'ezriyah'` to the `AiCharacter` type union
-- Add `ezriyahLevel` parameter handling in the `sendMessage` body (similar to other characters)
+2. **Silence timer too short (2s) before countdown starts** — Combined with the 3s countdown, the user barely gets time to pause between thoughts. The silence detection fires too quickly.
 
-**`src/components/ConciergeChat.tsx`**
-- Add Ezriyah to `CHARACTER_OPTIONS` array:
-  - Key: `ezriyah`
-  - Label: "Ezriyah Suave"
-  - Subtitle: "Manbodiment Coach 🧘‍♂️"
-  - Color: teal/amber theme (warm grounded energy)
-  - Meter label: "FLOW"
-  - Toast: "Ezriyah activated. Brother… let's integrate. 🔥"
-- Add `isEzriyah` boolean for any character-specific styling
+3. **Duplicate text accumulation** — The `onresult` handler rebuilds `finalTranscript` from ALL results every time (loop from `i=0`), so older final results get re-concatenated, causing the "yeah I know I'm just testing" repetition seen in the screenshot.
 
-**`supabase/functions/ai-concierge/index.ts`**
-- Add `buildEzriyahPrompt(flowLevel: number)` function with the full master prompt from your spec — the playful big-brother coach style, "brother/aloha/tranquilo" vocabulary, expertise in breathwork/mushrooms/manbodiment/conscious relationships
-- Three intensity tiers: LOW (chill mentor), MID (classic embodied coach), HIGH (full fire motivator)
-- Wire it into `buildSystemPrompt()` with `opts.character === "ezriyah"`
-- Include his contact info (IG @epic_ezriyah, website ezriyah.com, email) so the AI naturally shares them
+### Fixes
 
-### 2. Seed Ezriyah Into Knowledge Base (for Default AI)
+**File: `src/components/ConciergeChat.tsx`**
 
-- Insert a record into the `concierge_knowledge` table with:
-  - **Title**: "Ezriyah Suave — Embodied Masculinity Coach"
-  - **Category**: "wellness" or "local_expert"
-  - **Content**: Summary of his services (Manbodiment, Mantorship, breathwork, mushroom ceremonies, dance/movement healing, conscious relationships, men's retreats)
-  - **Tags**: masculinity, coach, breathwork, mushrooms, plant medicine, dance, embodiment, men's work, healing, ceremonies
-  - **Contact**: IG, website, email
-- This ensures that even when using the default SwipesS AI character, questions about masculinity coaching, breathwork, plant medicine, etc. will pull Ezriyah's info from the knowledge base automatically
+**Fix 1: Don't stop recognition during countdown.** Remove `recognition.stop()` from `startCountdown()`. Instead, keep recognition alive so that if the user speaks during the countdown, the `onresult` handler detects new speech and resets the countdown. Add logic in `onresult`: if `isCountingDownRef.current` is true and new speech arrives, call `clearCountdown()` and reset the silence timer — giving the user another 2s of silence before the countdown restarts.
 
-### 3. Edge Function Redeployment
+**Fix 2: Fix duplicate transcript accumulation.** Change the `onresult` handler to only process results from index `lastResultIndex + 1` onward for final results. Track cumulative final text properly so old finals aren't re-appended.
 
-- Redeploy `ai-concierge` with the new `buildEzriyahPrompt` function
+**Fix 3: Keep recognition alive in `onend`.** When `onend` fires and the user hasn't manually stopped AND there's no countdown, auto-restart recognition (the previous auto-restart was removed to fix duplicates, but it's needed — duplicates were caused by the transcript loop, not by restarting). Use a flag to distinguish user-initiated stop from browser-initiated end.
 
----
+### Summary of behavior after fix
 
-### Technical Details
-
-- The character system follows an established pattern: type union in `useConciergeAI.ts` → UI option in `ConciergeChat.tsx` → prompt builder + routing in the edge function
-- Knowledge base seeding uses the existing `concierge_knowledge` table that `searchKnowledge()` already queries
-- No new tables or migrations needed — just one data insert + code changes across 3 files
+- User taps mic → recognition starts, listening continuously
+- User speaks → text appears in input
+- User pauses for 2 seconds → 3-second countdown begins
+- **During countdown, if user speaks again** → countdown cancels, silence timer resets
+- User stays silent through full countdown → ignition fires, message sends
+- Text never duplicates because we track which result indices we've already processed
 
