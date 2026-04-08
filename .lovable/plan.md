@@ -1,65 +1,66 @@
 
+Goal: make Likes/Interested pages scroll reliably on client and owner side, and remove the ugly quick-filter image loading/cracking before the breathing animation starts.
 
-## Plan: Performance Optimization — Push Lighthouse Score Higher
+What I found:
+- The likes pages are still using the shared `#dashboard-scroll-container` in `DashboardLayout.tsx` (`overflow-y-auto`), but these pages behave better as their own scroll surfaces.
+- `OwnerInterestedClients.tsx` also renders `PremiumSortableGrid`, which adds drag/long-press behavior inside the same vertical interaction area and can still interfere with natural mobile scrolling.
+- Quick-filter cards in `QuickFilterBar.tsx` and `CategorySwipeStack.tsx` use raw `<img>` tags, so images appear before decode is visually stable.
+- The client “All” quick-filter card still uses an external Unsplash URL instead of the local prewarmed asset set.
+- Filter images are being pre-decoded in more than one place, which adds redundant work and inconsistent first paint.
 
-### Analysis of Lighthouse Issues
+Implementation plan
 
-From the audit, here's what's actionable vs. not:
+1. Restore page-owned scrolling for likes pages
+- Update `DashboardLayout.tsx` to detect likes/interested routes and switch the main container from scroll owner to shell only (`overflow-hidden` for those routes).
+- Give these pages their own scroll container:
+  - `src/pages/ClientLikedProperties.tsx`
+  - `src/components/LikedClients.tsx`
+  - `src/pages/OwnerInterestedClients.tsx`
+- Standardize each page root to:
+  - `h-full min-h-0 overflow-y-auto touch-pan-y`
+  - `WebkitOverflowScrolling: 'touch'`
+  - `overscrollBehaviorY: 'contain'`
+- Keep inner content `min-h-full` so the page always has a stable scroll surface.
 
-| Issue | Actionable? | Impact |
-|-------|------------|--------|
-| Logo image oversized (60 KiB) | Yes — resize + convert to WebP | Fixes LCP + image delivery |
-| Unused CSS (43 KiB) | Partially — Tailwind purge already active, but 96% of CSS unused on landing | Medium |
-| Unused JS (297 KiB) | Yes — vendor-core ships too much upfront | High |
-| LCP 4.9s | Yes — direct result of oversized logo image being the LCP element | High |
-| Unused preconnect (images.unsplash.com) | Yes — remove it from `<head>` | Minor |
-| Cache lifetimes (556 KiB) | No — server/CDN config, not code-level | N/A |
-| Minify JS (7 KiB lucide-react) | Minor — already using esbuild minify | Low |
+2. Remove drag/scroll conflict on owner interested page
+- Adjust `OwnerInterestedClients.tsx` + `PremiumSortableGrid.tsx` so scrolling is never blocked by reorder behavior.
+- Best implementation: make reorder opt-in instead of always armed on the main list.
+  - Desktop can keep drag behavior.
+  - Touch devices should default to pure scrolling unless a dedicated reorder mode/handle is active.
+- This preserves the page’s function while prioritizing reliable vertical scroll.
 
-### Changes
+3. Fix quick-filter image cracking/loading flash
+- Replace the raw quick-filter `<img>` usage with a shared progressive image layer for:
+  - `src/components/QuickFilterBar.tsx`
+  - `src/components/CategorySwipeStack.tsx`
+- Reuse the proven pattern already present in `CardImage.tsx`:
+  - hidden placeholder/blur layer
+  - decode before reveal
+  - short crossfade
+  - animation only after load completes
+- Add a gradient fallback background so the user never sees black bands or broken paint while the image is decoding.
 
-**1. Fix LCP: Optimize the brand logo image (biggest win)**
+4. Eliminate the worst quick-filter image source
+- Replace the external Unsplash image on the client “All” quick-filter card with the local shared asset from `POKER_CARD_PHOTOS.all`.
+- This removes the extra network dependency and aligns that card with the rest of the prewarmed local filter assets.
 
-The splash screen logo (`swipess-brand-logo.jpg`) is 1312x784px / 62KB but displays at 164x98px. This is the LCP element.
+5. Remove duplicate prewarming and stabilize first paint
+- Consolidate filter-image prewarming so only one system owns it.
+- Keep the top-level prewarmer as the source of truth and remove duplicate decode work from `CategorySwipeStack.tsx`.
+- Ensure the breathing animation starts only after the image is visibly ready, so users never see the image “crack” while zooming.
 
-- Resize to 400x240px (2x retina for the 200px display width)
-- Convert to WebP (will drop from 62KB to ~5-8KB)
-- Create a tiny splash-specific version for `index.html`
-- Keep original for OG/social sharing if needed
-- Update `SwipessLogo.tsx` and `index.html` to use the optimized version
+Files to update
+- `src/components/DashboardLayout.tsx`
+- `src/pages/ClientLikedProperties.tsx`
+- `src/components/LikedClients.tsx`
+- `src/pages/OwnerInterestedClients.tsx`
+- `src/components/PremiumSortableGrid.tsx`
+- `src/components/QuickFilterBar.tsx`
+- `src/components/CategorySwipeStack.tsx`
+- optionally a new small shared quick-filter image component if that keeps the fix clean and consistent
 
-**2. Remove unused preconnect hints**
-
-Lighthouse flags `images.unsplash.com` preconnect as unused on the landing page. Remove it — the app will still connect when images are actually needed on dashboard pages.
-
-**3. Reduce unused JS: Move i18n out of the critical path**
-
-`i18next` (13KB) + `react-i18next` are in vendor-core but only needed after auth. Already lazy-loading translations, but the i18n initialization itself (`import '@/i18n'` in `App.tsx`) forces it into the entry bundle.
-
-- Move `i18n` initialization to a deferred import inside App component (after mount)
-
-**4. Reduce unused JS: Lazy-load react-hook-form and zod**
-
-`react-hook-form` (8KB wasted) and `zod` (12KB wasted) are in vendor-core. These are only needed on form pages (profile, settings, listings).
-
-- Move them to a separate manual chunk `vendor-forms` in vite config so they don't ship with the entry bundle
-
-**5. Reduce unused CSS: Purge splash styles after hydration**
-
-The inline splash styles in `index.html` (heartbeat keyframes, splash-wordmark class) persist after React mounts. Remove the `<style>` block from DOM after splash dissolves.
-
-### Files Modified
-
-1. **`public/icons/swipess-brand-logo.webp`** — New optimized logo (resized + WebP)
-2. **`index.html`** — Use WebP logo in splash, remove unused unsplash preconnect, cleanup splash styles after hydration
-3. **`src/components/SwipessLogo.tsx`** — Reference new WebP logo
-4. **`vite.config.ts`** — Add `vendor-forms` chunk for zod + react-hook-form
-5. **`src/App.tsx`** — Defer i18n import to after initial render
-
-### Expected Impact
-
-- LCP: ~4.9s → ~2.5s (logo goes from 62KB to ~6KB, already decoded size)
-- Unused JS: ~297KB → ~270KB (i18n + forms moved out of critical path)
-- Image delivery warning: eliminated
-- Performance score: estimated 79 → 88-92 on mobile
-
+Technical details
+- Scroll ownership will move from layout-level to page-level for the affected likes/interested routes.
+- Touch behavior will explicitly favor `pan-y` and inertial scrolling.
+- Quick-filter photos will use decode-first rendering with a crossfade instead of immediate raw image paint.
+- The 14s breathing zoom stays, but only begins after the image is loaded and stable.
