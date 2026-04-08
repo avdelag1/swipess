@@ -1,91 +1,64 @@
 
 
-## Plan: Tinder-Level Smoothness & Polish Across the Entire App
+## Plan: Unify All Notifications to Premium Top Banner Style
 
-### Summary
-Make every interaction in the app feel as instant and premium as Tinder — focusing on the distance slider, button responsiveness, likes page scroll dead zones, and overall spacing/width to feel more spacious and less cramped.
+### Problem
+The app has two notification systems running simultaneously:
+1. **Sonner toasts** — gray boxes at the bottom of the screen (the "horrible design" you mentioned)
+2. **NotificationBar** — the premium banner that slides in from left, sits at top, exits to the right (the one you like)
 
----
+When you swipe right, the like IS being saved correctly and the other user IS receiving a notification. The issue is purely visual — swipe feedback and other app actions show the ugly gray sonner toast instead of your preferred top banner.
 
-### Problem Areas Identified
+### What This Plan Does
 
-1. **Distance slider** — updates parent on every `onChange` which floods Zustand; the spring animation adds visual lag
-2. **Buttons too chunky** — action buttons, filter pills, and nav items have excess padding making the UI feel cramped vs Tinder's slim, wide feel
-3. **Likes page scroll dead zones** — after the sticky header/filter section scrolls out of view, touch events hit elements that block vertical scrolling
-4. **Overall spacing** — excessive margins and padding reduce the "wide, immersive" feel
+**Replace every sonner toast in the app with the premium NotificationBar style.** All notifications — swipe confirmations, errors, conversation creation, refresh messages — will use the same left-to-right sliding banner at the top.
 
 ---
 
 ### Changes
 
-#### 1. Distance Slider — Zero-Lag Update (2 files)
+#### 1. Create a unified `showAppNotification` helper
+- New utility function that pushes notifications into the existing `notificationStore` (which feeds the `NotificationBar`)
+- Supports all types: success, error, warning, info, like, message
+- Auto-dismisses after 4 seconds (same as current NotificationBar behavior)
+- One function replaces all `toast()`, `toast.success()`, `toast.error()` calls
 
-**`src/components/swipe/DistanceSlider.tsx`**
-- Remove the animated `scale` bounce on the km display (the `animate={{ scale: [1, 1.05, 1] }}` with `key={localKm}`) — it triggers a new animation on every pixel drag, creating jank
-- Keep the spring on the track fill/thumb for visual smoothness but ensure the **number display updates instantly** (no motion wrapping on the text)
-- Remove the infinite shimmer animation on the track (`animate={{ x: ['-100%', '200%'] }}`) — it runs continuously and wastes GPU cycles
+#### 2. Replace all `toast` calls across the app (~10 files)
+Files to update:
+- `src/components/SwipessSwipeContainer.tsx` — swipe feedback, conversation creation, refresh
+- `src/components/ClientSwipeContainer.tsx` — owner-side swipe feedback
+- `src/hooks/useSwipeWithMatch.tsx` — error toasts on swipe failure
+- `src/hooks/useSwipeUndo.tsx` — undo confirmation
+- `src/hooks/useSwipeDismissal.tsx` — dismissal error
+- `src/hooks/useAuth.tsx` — auth success/error messages
+- `src/hooks/useActiveMode.tsx` — mode switch feedback
+- `src/hooks/useConversations.tsx` — conversation errors
+- `src/hooks/useProfileSetup.tsx` — profile setup feedback
+- `src/utils/notifications.ts` — the preset notification helpers
 
-**`src/components/swipe/SwipeDistanceSlider.tsx`**
-- Same treatment: ensure the `displayKmText` motion value renders without any spring delay on the text itself
+Each `toast.success(...)` becomes `showAppNotification({ type: 'success', title: ..., message: ... })`.
 
-#### 2. Thinner, Wider Buttons (3 files)
+#### 3. Hide the sonner Toaster (optional cleanup)
+- Remove or hide the `<Toaster />` component from the app layout since nothing will call it anymore
+- Keeps the NotificationBar as the sole notification UI
 
-**`src/components/SwipeActionButtonBar.tsx`**
-- Reduce `LARGE_CSS` from `clamp(52px, 15vw, 64px)` → `clamp(46px, 13vw, 56px)`
-- Reduce `SMALL_CSS` from `clamp(40px, 12vw, 48px)` → `clamp(34px, 10vw, 42px)`
-- Reduce icon sizes proportionally (LARGE_ICON 30→26, SMALL_ICON 22→19)
-- Reduce `GAP_CSS` from `clamp(12px, 5vw, 20px)` → `clamp(8px, 3.5vw, 16px)`
-- Make tap scale snappier: `TAP_SCALE` 0.92→0.94 (subtler, more premium)
-
-**`src/components/BottomNavigation.tsx`**
-- Reduce `ICON_SIZE` from 26→23, `ICON_SIZE_COMPACT` from 23→20
-- Reduce `TOUCH_TARGET` from 52→46 — still accessible but slimmer
-
-**`src/components/TopBar.tsx`**
-- Tighten vertical padding on the bar for a slimmer header profile
-
-#### 3. Fix Likes Page Scroll Dead Zones (2 files)
-
-**`src/components/LikedClients.tsx`**
-- Add `touch-action: pan-y` to the outer container div and the card grid
-- Ensure no `motion.button` inside filter tabs uses `whileTap` with scale that could interfere with touch detection — keep `whileTap` but add `touch-action: pan-y` on the scrollable parent
-- Add `will-change: scroll-position` on the scroll container for GPU-accelerated scrolling
-
-**`src/pages/ClientLikedProperties.tsx`**
-- Same scroll fix: explicit `touch-pan-y` on the main wrapper and grid containers
-- Verify the `data-no-swipe-nav` attribute is present to prevent the horizontal tab-swipe system from stealing vertical gestures
-
-#### 4. Wider / More Spacious Feel (2 files)
-
-**`src/components/SwipessSwipeContainer.tsx`**
-- Reduce card area horizontal padding from `px-3` → `px-1.5` for a wider card
-- Reduce top controls padding from `px-4` → `px-2`
-
-**`src/components/ClientSwipeContainer.tsx`**
-- Same padding reductions to match client-side
-
-#### 5. Instant Press States Everywhere
-
-**All button components touched above:**
-- Replace spring-based `whileTap` animations with CSS `active:scale-[0.97]` where possible — CSS `:active` triggers on the native thread and is faster than Framer Motion's JS-driven spring
-- Keep Framer Motion springs only for the swipe card physics and page transitions
-
----
+### What stays the same
+- The NotificationBar component itself — no changes needed, it already has the premium slide-in/slide-out behavior
+- The real-time notification system for likes/matches — already working
+- Swipe save logic — already saving to database correctly
+- User-to-user connectivity — listings and profiles are already visible across users via the shared pool architecture
 
 ### Files Modified
-1. `src/components/swipe/DistanceSlider.tsx` — remove jank animations
-2. `src/components/swipe/SwipeDistanceSlider.tsx` — same treatment
-3. `src/components/SwipeActionButtonBar.tsx` — thinner buttons
-4. `src/components/BottomNavigation.tsx` — slimmer nav
-5. `src/components/TopBar.tsx` — slimmer header
-6. `src/components/LikedClients.tsx` — scroll dead zone fix
-7. `src/pages/ClientLikedProperties.tsx` — scroll dead zone fix
-8. `src/components/SwipessSwipeContainer.tsx` — wider card area
-9. `src/components/ClientSwipeContainer.tsx` — wider card area
-
-### Safety
-- No layout architecture changes
-- No swipe physics changes
-- No routing changes
-- Only CSS/dimension tweaks and animation removal
+1. `src/utils/appNotification.ts` — NEW: unified notification helper
+2. `src/components/SwipessSwipeContainer.tsx` — replace toast calls
+3. `src/components/ClientSwipeContainer.tsx` — replace toast calls
+4. `src/hooks/useSwipeWithMatch.tsx` — replace toast calls
+5. `src/hooks/useSwipeUndo.tsx` — replace toast calls
+6. `src/hooks/useSwipeDismissal.tsx` — replace toast calls
+7. `src/hooks/useAuth.tsx` — replace toast calls
+8. `src/hooks/useActiveMode.tsx` — replace toast calls
+9. `src/hooks/useConversations.tsx` — replace toast calls
+10. `src/hooks/useProfileSetup.tsx` — replace toast calls
+11. `src/utils/notifications.ts` — replace toast calls with store-based approach
+12. `src/components/AppLayout.tsx` — remove sonner `<Toaster />` render
 
