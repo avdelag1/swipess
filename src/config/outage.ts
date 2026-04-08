@@ -5,7 +5,7 @@
 // The bypass is stored in sessionStorage and lasts until the tab is closed.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export const IS_OUTAGE_ACTIVE = false;
+export const IS_OUTAGE_ACTIVE = true;
 
 export const OUTAGE_BYPASS_PARAM = 'preview';
 export const OUTAGE_BYPASS_VALUE = 'swipess';
