@@ -1,51 +1,74 @@
 
 
-## Plan: Center Dashboard Cards + Align Header + Performance Wins
+## Plan: HD Cinematic Polish — Rounded Vignette Header + Vibrant Icon System + Micro-Interaction Upgrade
 
-### Problem 1: Card not centered on screen
+### What we're doing
 
-The TopBar (60px + safe-area) and BottomNavigation (~68px + safe-area) are both `position: fixed`, but the `<main>` content area has zero padding to compensate. The card stack renders in the full viewport height, so its visual center is offset upward — the card appears too high, as shown in the screenshot.
+Transforming the app from "solid and functional" to "you want to touch it" — the Tinder/Instagram HD feeling where every element has depth, vibrancy, and organic roundness.
 
-**Fix**: Add top and bottom padding to the `<main>` element in `AppLayout.tsx` so the content area represents the actual visible space between the fixed header and footer. This will automatically center the card stack in the correct zone.
+### Changes
 
-```
-main padding-top: calc(var(--top-bar-height) + var(--safe-top))
-main padding-bottom: calc(68px + var(--safe-bottom))
-```
+#### 1. Header — Remove frames, add cinematic rounded vignette
 
-### Problem 2: Header buttons misaligned
+Replace the flat/transparent header background with a **curved vignette shadow** that fades from the top edge of the screen. No border, no box, no frame — just a natural dark-to-transparent gradient with rounded falloff that makes icons float on the content like they do in Instagram Stories or Tinder's overlay UI.
 
-The TopBar inner flex container (`pl-1.5 pr-2`) has asymmetric padding and the scrollable button row has inconsistent spacing (`gap-1` with `pl-2 pr-1`). The avatar, mode switcher, tokens, radio, theme, and notification buttons are not vertically centered with each other.
+**File**: `src/index.css` (`.app-header` class) + `src/components/TopBar.tsx`
 
-**Fix**:
-- Normalize padding to symmetric `px-3` on the main container.
-- Set `items-center` and consistent `gap-2` on the scrollable row.
-- Ensure all icon buttons share identical dimensions (`h-9 w-9`).
-- Add `justify-end` to the button row so icons stay right-aligned and balanced.
+- Remove any `bg-background/80 backdrop-blur-xl` from the header — make it fully transparent
+- Add a CSS `mask-image` or radial gradient pseudo-element that creates a soft rounded vignette from the top corners
+- All header buttons become pure floating icons — no glass backgrounds, no borders, just icons with subtle drop-shadows for legibility
+- The `GradientMaskTop` component already exists and does this partially — we'll increase its role and remove the header's own background entirely
 
-### Problem 3: Performance — eliminate remaining animation overhead on category cards
+#### 2. Icon Vibrancy — HD color system for header buttons
 
-The `SwipessSwipeContainer` wraps `CategorySwipeStack` in a `motion.div` with `initial={{ opacity: 0, scale: 0.95 }}` and `AnimatePresence mode="popLayout"` — both cause visible mount lag and layout thrash.
+Currently icons use `text-amber-300`, `text-rose-500` etc. — these feel flat compared to Instagram/Tinder. Upgrade to:
 
-**Fix**:
-- Change `AnimatePresence mode="popLayout"` to `mode="sync"` in `SwipessSwipeContainer.tsx` (line 994).
-- Set `initial={false}` on the category-stack wrapper `motion.div` to skip mount animation (instant render).
-- Remove the redundant `CategorySwipeStack` usage in `MyHubQuickFilters.tsx` — it's not the active code path but adds import weight.
+- **Sharper icon colors** with subtle `filter: drop-shadow()` glow matching each icon's hue
+- **Thicker stroke weight** (2.5 → 3) for icons at 18-20px size — makes them pop like native iOS icons
+- Icons get a micro `text-shadow` or `drop-shadow` that gives them the "HD backlit" feeling
+- Active states get a subtle breathing glow animation
 
-### Problem 4: `useNavigate` runtime error on Index.tsx
+**File**: `src/components/TopBar.tsx`
 
-This is an HMR edge case where the lazy-loaded `Index` component renders before the Router context is ready. Adding a guard or wrapping with a router check would prevent this.
+#### 3. Bottom Navigation — Rounder, more alive
 
-**Fix**: Wrap the `useNavigate` call in `Index.tsx` inside a try-catch or check that Router context exists before calling it.
+The bottom nav already has `borderRadius: 32px` which is good. Enhance:
 
-### Files to change
+- Increase active pill glow intensity — currently `rgba(255,107,53,0.15)` in dark mode, boost to `0.25` with a subtle `box-shadow` glow ring
+- Active icon gets a subtle continuous micro-pulse (not distracting, just alive)
+- Inactive icons get slightly more contrast — bump from `0.55` to `0.65` opacity in dark mode
+
+**File**: `src/components/BottomNavigation.tsx`
+
+#### 4. Page Transitions — Smoother cross-fade
+
+Currently pages mount/unmount without transition. Add a lightweight `motion.div` wrapper in `AppLayout.tsx` around `{children}` with:
+
+- `initial={{ opacity: 0 }}` → `animate={{ opacity: 1 }}` with 120ms duration
+- No scale, no slide — just a fast silk fade that makes navigation feel like content is "resolving" rather than "popping in"
+
+**File**: `src/components/AppLayout.tsx`
+
+#### 5. Global Polish — Rounded corners everywhere
+
+Audit and upgrade corner radii across the design system:
+
+- Bump `--radius-md` from 14px → 16px
+- Bump `--radius-lg` from 20px → 24px  
+- These cascade through all cards, modals, and containers automatically via the token system
+
+**File**: `src/styles/tokens.css`
+
+### Technical details
 
 | File | Change |
 |------|--------|
-| `src/components/AppLayout.tsx` | Add padding-top/bottom to `<main>` to account for fixed header/footer |
-| `src/components/TopBar.tsx` | Normalize padding, gap, and alignment for header button row |
-| `src/components/SwipessSwipeContainer.tsx` | `AnimatePresence mode="sync"`, `initial={false}` on category wrapper |
-| `src/pages/Index.tsx` | Guard `useNavigate` against missing Router context |
+| `src/index.css` | Make `.app-header` fully transparent, remove background |
+| `src/components/TopBar.tsx` | Remove `bg-background/80 backdrop-blur-xl`, add HD drop-shadows to icons, increase icon sizes to 18-20px with strokeWidth 3 |
+| `src/components/BottomNavigation.tsx` | Boost active pill glow, increase inactive icon opacity, add subtle active breathing |
+| `src/components/AppLayout.tsx` | Wrap `{children}` in a `motion.div` with 120ms opacity fade keyed by pathname |
+| `src/styles/tokens.css` | Bump `--radius-md` to 16px, `--radius-lg` to 24px |
+| `src/components/ui/GradientMasks.tsx` | Slightly increase top gradient intensity to compensate for removed header bg |
 
-All changes preserve existing layout architecture and swipe physics — only spacing, alignment, and animation overhead are touched.
+No layout, routing, or swipe physics changes. Pure visual evolution.
 
