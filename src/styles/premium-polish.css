@@ -853,12 +853,7 @@ button:not([data-no-cinematic]):not([role="tab"]):active {
   animation: heart-breath 3s ease-in-out infinite;
 }
 
-.swipe-card-size {
-  width: 310px;
-  height: 420px;
-  left: calc(50% - 155px);
-  top: calc(50% - 210px);
-}
+/* swipe-card-size: consolidated in index.css — removed duplicate here */
 
 /* Pulsing swipe hint arrows */
 @keyframes swipe-hint-pulse {
