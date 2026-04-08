@@ -1,16 +1,28 @@
 import { useState, useRef, useEffect, memo } from 'react';
-import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square } from 'lucide-react';
+import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useConciergeAI, ChatMessage, Conversation } from '@/hooks/useConciergeAI';
 import { toast } from '@/components/ui/sonner';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface ConciergeChatProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'es', label: 'Español' },
+  { code: 'fr', label: 'Français' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'it', label: 'Italiano' },
+  { code: 'zh', label: '中文' },
+  { code: 'ja', label: '日本語' },
+  { code: 'ru', label: 'Русский' },
+];
 
 function formatTime(date: Date) {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -30,10 +42,11 @@ function formatConvoDate(date: Date) {
 }
 
 /* ─── Message Bubble ─── */
-const MessageBubble = memo(({ message, onCopy, onResend, isUser }: {
+const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, isUser }: {
   message: ChatMessage;
   onCopy: () => void;
   onResend?: () => void;
+  onTranslate?: (lang: string) => void;
   isUser: boolean;
 }) => (
   <div className={cn('flex w-full mb-4', isUser ? 'justify-end' : 'justify-start')}>
@@ -60,9 +73,10 @@ const MessageBubble = memo(({ message, onCopy, onResend, isUser }: {
         )}
       </div>
 
-      {/* Action bar */}
+      {/* Action bar — always visible on touch, hover on desktop */}
       <div className={cn(
-        'flex items-center gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity',
+        'flex items-center gap-1 mt-1 transition-opacity',
+        'opacity-100 sm:opacity-0 sm:group-hover:opacity-100',
         isUser ? 'justify-end' : 'justify-start'
       )}>
         <button onClick={onCopy} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Copy">
@@ -73,28 +87,72 @@ const MessageBubble = memo(({ message, onCopy, onResend, isUser }: {
             <RefreshCw className="w-3 h-3" />
           </button>
         )}
+        {!isUser && onTranslate && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Translate">
+                <Globe className="w-3 h-3" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-1.5" side="top" align="start">
+              <div className="grid gap-0.5">
+                {LANGUAGES.map(l => (
+                  <button
+                    key={l.code}
+                    onClick={() => onTranslate(l.label)}
+                    className="text-left text-xs px-2.5 py-1.5 rounded-lg hover:bg-muted/80 text-foreground transition-colors"
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
     </div>
   </div>
 ));
 MessageBubble.displayName = 'MessageBubble';
 
-/* ─── Typing Indicator ─── */
+/* ─── Wave Typing Indicator ─── */
 const TypingIndicator = () => (
   <div className="flex justify-start mb-3">
-    <div className="bg-muted/80 border border-border/30 px-4 py-3 rounded-2xl rounded-bl-md">
-      <div className="flex gap-1.5 items-center h-4">
-        {[0, 1, 2].map(i => (
-          <motion.div
-            key={i}
-            className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60"
-            animate={{ y: [0, -4, 0] }}
-            transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
-          />
-        ))}
-      </div>
+    <div className="bg-muted/80 border border-border/30 px-5 py-3.5 rounded-2xl rounded-bl-md flex items-center gap-[3px]">
+      {[0, 1, 2, 3, 4].map(i => (
+        <motion.div
+          key={i}
+          className="w-[3px] rounded-full bg-primary/70"
+          animate={{ scaleY: [0.35, 1, 0.35] }}
+          transition={{
+            duration: 0.9,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: i * 0.12,
+          }}
+          style={{ height: 16, originY: '50%' }}
+        />
+      ))}
     </div>
   </div>
+);
+
+/* ─── Breathing Header Icon ─── */
+const HeaderIcon = ({ isLoading }: { isLoading: boolean }) => (
+  <motion.div
+    className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center"
+    animate={isLoading ? {
+      scale: [1, 1.15, 1],
+      boxShadow: [
+        '0 0 0px hsl(var(--primary) / 0)',
+        '0 0 18px hsl(var(--primary) / 0.35)',
+        '0 0 0px hsl(var(--primary) / 0)',
+      ],
+    } : { scale: 1, boxShadow: '0 0 0px hsl(var(--primary) / 0)' }}
+    transition={isLoading ? { duration: 2.2, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 }}
+  >
+    <Sparkles className="w-4 h-4 text-primary" />
+  </motion.div>
 );
 
 /* ─── Conversation Sidebar ─── */
@@ -195,6 +253,10 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     toast.success('Copied to clipboard');
   };
 
+  const handleTranslate = (language: string) => {
+    sendMessage(`Translate your last response to ${language}`);
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -225,12 +287,12 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
               <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => setSidebarOpen(!sidebarOpen)}>
                 <Menu className="w-4 h-4" />
               </Button>
-              <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-primary" />
-              </div>
+              <HeaderIcon isLoading={isLoading} />
               <div>
                 <h2 className="text-sm font-semibold text-foreground">SwipesS AI</h2>
-                <p className="text-[11px] text-muted-foreground">Your Lisbon concierge</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {isLoading ? 'Thinking…' : 'Your Lisbon concierge'}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -284,6 +346,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 isUser={msg.role === 'user'}
                 onCopy={() => handleCopy(msg.content)}
                 onResend={msg.role === 'user' ? () => resendMessage(msg.id) : undefined}
+                onTranslate={msg.role === 'assistant' ? handleTranslate : undefined}
               />
             ))}
 
