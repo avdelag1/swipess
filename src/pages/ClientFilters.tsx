@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, Home, Bike, Briefcase, RotateCcw, Zap,
@@ -57,7 +57,6 @@ const categories: {
 export default function ClientFilters() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
