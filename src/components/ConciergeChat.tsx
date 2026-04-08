@@ -366,10 +366,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   }, [sendMessage]);
 
   const startCountdown = useCallback(() => {
-    // Stop recognition first to prevent stale onresult events
-    if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch {}
-    }
+    // DO NOT stop recognition — keep listening so user can interrupt countdown
     isCountingDownRef.current = true;
     setCountdown(COUNTDOWN_SECONDS);
     countdownRef.current = setInterval(() => {
@@ -414,40 +411,43 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
     let finalTranscript = '';
     let userStopped = false;
-    let lastResultIndex = -1; // Track processed results to avoid duplicates
+    
 
     recognition.onresult = (event: any) => {
-      // If countdown is active, ignore stale speech events
-      if (isCountingDownRef.current) return;
+      // If countdown is active and new speech arrives, CANCEL countdown and reset silence timer
+      if (isCountingDownRef.current) {
+        clearCountdown();
+      }
 
-      // Clear only the silence timer (NOT the countdown)
+      // Clear the silence timer on any new speech
       if (silenceTimerRef.current) {
         clearTimeout(silenceTimerRef.current);
         silenceTimerRef.current = null;
       }
 
+      // Only process NEW results to prevent duplicate accumulation
       let interim = '';
-      let newFinal = '';
-      for (let i = 0; i < event.results.length; i++) {
+      let newFinalChunk = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
-          // Only append new final results we haven't seen
-          if (i > lastResultIndex) {
-            lastResultIndex = i;
-          }
-          newFinal += event.results[i][0].transcript;
+          newFinalChunk += event.results[i][0].transcript;
         } else {
           interim += event.results[i][0].transcript;
         }
       }
-      finalTranscript = newFinal;
+
+      // Accumulate final text properly
+      if (newFinalChunk) {
+        finalTranscript += newFinalChunk;
+      }
+
       setInput(finalTranscript + interim);
-      countdownTranscriptRef.current = finalTranscript.trim() || (finalTranscript + interim).trim();
+      countdownTranscriptRef.current = (finalTranscript + interim).trim();
 
       // If auto-send is ON, reset silence timer: after 2s of no new speech → start countdown
-      if (autoSend && (finalTranscript + interim).trim()) {
+      if (autoSend && countdownTranscriptRef.current) {
         silenceTimerRef.current = setTimeout(() => {
           if (!userStopped && !isCountingDownRef.current) {
-            countdownTranscriptRef.current = finalTranscript.trim() || (finalTranscript + interim).trim();
             startCountdown();
           }
         }, SILENCE_DELAY_MS);
@@ -455,14 +455,24 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     };
 
     recognition.onend = () => {
-      // If countdown is active, do NOT restart recognition — let it finish
-      if (isCountingDownRef.current) return;
-
-      // Do NOT auto-restart — continuous mode handles ongoing listening.
-      // Restarting causes duplicate transcriptions from overlapping sessions.
-      if (!countdownRef.current) {
+      // If user manually stopped, don't restart
+      if (userStopped) {
         setIsListening(false);
         recognitionRef.current = null;
+        return;
+      }
+
+      // If countdown is active, don't restart but keep state
+      if (isCountingDownRef.current) return;
+
+      // Browser killed the session (timeout, etc.) — auto-restart to keep listening
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.start();
+        } catch {
+          setIsListening(false);
+          recognitionRef.current = null;
+        }
       }
     };
 
