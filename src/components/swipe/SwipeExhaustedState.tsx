@@ -135,10 +135,11 @@ export const SwipeExhaustedState = ({
         {/* Central Radar + Searching Animation */}
         <div className="flex flex-col items-center gap-8">
           <RadarSearchEffect
-            size={200}
+            size={150}
             color={activeCatInfo?.color || '#ec4899'}
             isActive={true}
-            icon={<ActiveIcon size={44} className="drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]" />}
+            autoStopMs={5000}
+            icon={<ActiveIcon size={34} className="drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />}
           />
           
           <motion.div
