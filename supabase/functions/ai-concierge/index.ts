@@ -784,7 +784,7 @@ async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
     body: JSON.stringify({
       model: "MiniMax-M2.7",
       messages,
-      max_tokens: 350,
+      max_tokens: 280,
       temperature: 0.6,
       stream: true,
       stream_options: { chunk_result: true },
@@ -832,7 +832,7 @@ async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
     body: JSON.stringify({
       model: "google/gemini-3-flash-preview",
       messages,
-      max_tokens: 350,
+      max_tokens: 280,
       temperature: 0.6,
       stream: true,
     }),
@@ -952,17 +952,16 @@ Deno.serve(async (req) => {
     // Parallel context gathering — ALL at once
     const isProfileQuery = detectProfileIntent(lastUserMessage);
     const listingIntent = detectListingIntent(lastUserMessage);
-    const [knowledge, memories, listings, profileResults, webResultsEarly] = await Promise.all([
+    // Phase 1: local data (fast DB queries)
+    const [knowledge, memories, listings, profileResults] = await Promise.all([
       searchKnowledge(lastUserMessage),
       userId ? loadUserMemories(userId) : Promise.resolve(""),
       listingIntent.isListing ? searchListings(listingIntent) : Promise.resolve(""),
       isProfileQuery ? searchProfiles(lastUserMessage) : Promise.resolve(""),
-      // Optimistic web search — will be discarded if local data is sufficient
-      searchWeb(lastUserMessage),
     ]);
 
-    // Only use web results if local knowledge is thin
-    const webResults = (!knowledge && !listings && !profileResults) ? webResultsEarly : "";
+    // Phase 2: only web search if local data is insufficient (saves ~500-1000ms)
+    const webResults = (!knowledge && !listings && !profileResults) ? await searchWeb(lastUserMessage) : "";
 
     // Build enriched system prompt with character support
     const systemPrompt = buildSystemPrompt({ knowledge, listings, memories, webResults, profileResults, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel });
@@ -997,14 +996,38 @@ Deno.serve(async (req) => {
     newHeaders.set("Access-Control-Expose-Headers", "X-AI-Provider");
     response = new Response(response.body, { status: response.status, headers: newHeaders });
 
-    // If user is authenticated, wrap stream to capture response for memory extraction
-    if (userId && response.headers.get("content-type")?.includes("text/event-stream")) {
-      response = wrapStreamForCapture(response, (fullText) => {
-        // Fire-and-forget memory extraction
-        extractAndSaveMemories(userId, lastUserMessage, fullText).catch(e =>
-          console.error("[AI] Background memory save failed:", e)
-        );
-      });
+    // If user is authenticated, use tee() for non-blocking capture
+    if (userId && response.headers.get("content-type")?.includes("text/event-stream") && response.body) {
+      const [userStream, captureStream] = response.body.tee();
+      // Fire-and-forget: read captureStream in background for memory extraction
+      (async () => {
+        try {
+          const reader = captureStream.getReader();
+          const decoder = new TextDecoder();
+          let fullContent = "";
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            for (const line of chunk.split("\n")) {
+              if (!line.startsWith("data: ")) continue;
+              const json = line.slice(6).trim();
+              if (json === "[DONE]") continue;
+              try {
+                const parsed = JSON.parse(json);
+                const delta = parsed.choices?.[0]?.delta?.content;
+                if (delta) fullContent += delta;
+              } catch {}
+            }
+          }
+          if (fullContent) {
+            await extractAndSaveMemories(userId, lastUserMessage, fullContent);
+          }
+        } catch (e) {
+          console.error("[AI] Background memory capture failed:", e);
+        }
+      })();
+      response = new Response(userStream, { status: response.status, headers: response.headers });
     }
 
     return response;
