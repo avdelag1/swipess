@@ -82,6 +82,7 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
               {/* Sweep beam */}
               <motion.div
                 animate={{ rotate: 360 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
                 className="absolute rounded-full opacity-30 z-0"
                 style={{
@@ -132,7 +133,7 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
           <motion.div
             animate={animating ? {
               scale: [1, 1.04, 1],
-            } : { scale: 1 }}
+            } : false}
             transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
             style={{
               width: '100%',
@@ -164,7 +165,7 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
               animate={animating ? {
                 y: [0, -2, 0],
                 filter: ['brightness(1)', 'brightness(1.3)', 'brightness(1)'],
-              } : { y: 0 }}
+              } : false}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
             >
               {icon || <User size={Math.round(coreSize * 0.55)} className="drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />}
