@@ -188,7 +188,7 @@ export function LikedClients() {
   }, [likedClients, selectedCategory, searchTerm, filterSafeOnly, sortBy]);
 
   return (
-    <div className="w-full relative overflow-x-hidden min-h-[101dvh] pb-32 bg-background" data-no-swipe-nav="true">
+    <div className="w-full relative overflow-x-hidden min-h-[101dvh] pb-32 bg-background touch-pan-y" data-no-swipe-nav="true" style={{ willChange: 'scroll-position' }}>
       <div className="p-4 pt-4 sm:p-8 sm:pt-8 max-w-7xl mx-auto">
         <div className="flex items-center justify-end mb-6">
               <div className="flex items-center gap-3">
@@ -321,7 +321,7 @@ export function LikedClients() {
             ))}
           </div>
         ) : filteredClients.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 touch-pan-y">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 touch-pan-y" style={{ willChange: 'scroll-position' }}>
             {filteredClients.map((client: any, index: number) => (
               <motion.div
                 key={client.id}

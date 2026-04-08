@@ -969,7 +969,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       {/* Top Controls — IN FLOW, not absolute */}
       {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
         <div className="relative z-50 w-full flex flex-col items-center shrink-0">
-          <div className="w-full pt-1 pb-1 px-4">
+          <div className="w-full pt-1 pb-1 px-2">
             <div className="w-full flex justify-between items-center">
               <DistanceSlider
                 radiusKm={radiusKm}
@@ -1000,7 +1000,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
       {/* Card area — flex-1 fills remaining space */}
       <div className={cn(
-        "flex-1 relative flex flex-col items-center justify-center px-3 pt-1 z-10 pointer-events-none min-h-0",
+        "flex-1 relative flex flex-col items-center justify-center px-1.5 pt-1 z-10 pointer-events-none min-h-0",
         (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? "pb-2" : ""
       )}>
 

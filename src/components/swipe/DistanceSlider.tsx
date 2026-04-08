@@ -57,16 +57,11 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <motion.div 
-            className="px-2.5 py-1 rounded-md bg-muted/50 border border-border/50 shadow-inner"
-            animate={{ scale: [1, 1.05, 1] }}
-            key={localKm}
-            transition={{ duration: 0.1 }}
-          >
+          <div className="px-2.5 py-1 rounded-md bg-muted/50 border border-border/50 shadow-inner">
             <span className="text-sm font-black text-primary tracking-tight">
               {localKm} <span className="text-[10px] opacity-60 italic">km</span>
             </span>
-          </motion.div>
+          </div>
           <button
             onClick={onDetectLocation}
             disabled={detecting}
@@ -88,15 +83,9 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
         <label htmlFor="radius-slider" className="sr-only">Search Radius</label>
         
         {/* Track - Pure Glass Morphic with Liquid Highlight */}
-        <div className="absolute left-[3%] right-[3%] h-2 rounded-full bg-white/5 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
+         <div className="absolute left-[3%] right-[3%] h-2 rounded-full bg-white/5 backdrop-blur-3xl border border-white/10 overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10" />
-           {/* Animated liquid shimmer on the track */}
-           <motion.div 
-             animate={{ x: ['-100%', '200%'] }}
-             transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-             className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"
-           />
-        </div>
+         </div>
         
         {/* Fill - Left to Right with Glowing Edge */}
         <motion.div
