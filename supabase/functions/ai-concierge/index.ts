@@ -784,9 +784,10 @@ async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
     body: JSON.stringify({
       model: "MiniMax-M2.7",
       messages,
-      max_tokens: 450,
-      temperature: 0.7,
+      max_tokens: 350,
+      temperature: 0.6,
       stream: true,
+      stream_options: { chunk_result: true },
     }),
   });
 
@@ -831,8 +832,8 @@ async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
     body: JSON.stringify({
       model: "google/gemini-3-flash-preview",
       messages,
-      max_tokens: 450,
-      temperature: 0.7,
+      max_tokens: 350,
+      temperature: 0.6,
       stream: true,
     }),
   });
