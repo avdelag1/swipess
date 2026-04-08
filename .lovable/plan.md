@@ -1,32 +1,52 @@
 
 
-## Plan: Fix Countdown Flicker + Change to 3s + Speed Optimizations
+## Plan: Add Ezriyah Suave as AI Character + Featured Local Expert
 
-### Problem
-1. **Countdown flickers** — appears, disappears at second 2, then reappears. Root cause: `onresult` calls `clearCountdown()` which kills the timer, but `onend` fires shortly after and restarts recognition, which triggers new `onresult` events from the same speech, restarting the silence timer. This creates a race condition loop.
-2. **Countdown should be 3 seconds** (currently 5).
-3. **AI replies still slow** — `wrapStreamForCapture` re-creates the entire response with a new `ReadableStream`, adding overhead. Also, the `max_tokens: 350` can be reduced further and system prompt context gathering has room for optimization.
+Two things to build: (1) Ezriyah as a selectable chat persona, and (2) his profile seeded into the knowledge base so the default AI can surface him when relevant.
 
-### Changes
+---
 
-**File 1: `src/components/ConciergeChat.tsx`**
+### 1. Add "Ezriyah" Character to the Persona System
 
-- Change `COUNTDOWN_SECONDS` from 5 to **3**
-- **Fix the flicker bug**: The core issue is that `clearCountdown()` is called inside `onresult`, which clears the silence timer AND the countdown interval. But during a countdown, recognition is still running and can fire stale `onresult` events. Fix:
-  - Add a `isCountingDown` ref that is set to `true` when countdown starts
-  - In `onresult`: only clear countdown if new *final* transcript content has changed (user actually spoke new words), not on every interim event
-  - In `onend`: do NOT restart recognition if `isCountingDown` is true — let the countdown finish undisturbed
-  - Stop recognition when countdown starts (no more stale events)
-- Remove `countdown` from `startListening`'s dependency array (it captures stale state in the closure — this is a major bug causing the flicker)
+**`src/hooks/useConciergeAI.ts`**
+- Add `'ezriyah'` to the `AiCharacter` type union
+- Add `ezriyahLevel` parameter handling in the `sendMessage` body (similar to other characters)
 
-**File 2: `supabase/functions/ai-concierge/index.ts`**
+**`src/components/ConciergeChat.tsx`**
+- Add Ezriyah to `CHARACTER_OPTIONS` array:
+  - Key: `ezriyah`
+  - Label: "Ezriyah Suave"
+  - Subtitle: "Manbodiment Coach 🧘‍♂️"
+  - Color: teal/amber theme (warm grounded energy)
+  - Meter label: "FLOW"
+  - Toast: "Ezriyah activated. Brother… let's integrate. 🔥"
+- Add `isEzriyah` boolean for any character-specific styling
 
-- Reduce `max_tokens` from 350 to **280** for both MiniMax and Gemini (faster streaming, still enough for concise responses)
-- Skip `wrapStreamForCapture` for unauthenticated users (already done) — for authenticated users, make the capture non-blocking by using `tee()` on the stream instead of re-reading chunks, which avoids adding latency to each chunk delivery
-- Skip `searchWeb` entirely when local knowledge or listings are found (don't even start the fetch — saves network time in the parallel `Promise.all`)
+**`supabase/functions/ai-concierge/index.ts`**
+- Add `buildEzriyahPrompt(flowLevel: number)` function with the full master prompt from your spec — the playful big-brother coach style, "brother/aloha/tranquilo" vocabulary, expertise in breathwork/mushrooms/manbodiment/conscious relationships
+- Three intensity tiers: LOW (chill mentor), MID (classic embodied coach), HIGH (full fire motivator)
+- Wire it into `buildSystemPrompt()` with `opts.character === "ezriyah"`
+- Include his contact info (IG @epic_ezriyah, website ezriyah.com, email) so the AI naturally shares them
 
-### UX Flow (unchanged)
-```
-User stops speaking → 2s silence → countdown 3…2…1 → 🚀 Ignition! → sends
-```
+### 2. Seed Ezriyah Into Knowledge Base (for Default AI)
+
+- Insert a record into the `concierge_knowledge` table with:
+  - **Title**: "Ezriyah Suave — Embodied Masculinity Coach"
+  - **Category**: "wellness" or "local_expert"
+  - **Content**: Summary of his services (Manbodiment, Mantorship, breathwork, mushroom ceremonies, dance/movement healing, conscious relationships, men's retreats)
+  - **Tags**: masculinity, coach, breathwork, mushrooms, plant medicine, dance, embodiment, men's work, healing, ceremonies
+  - **Contact**: IG, website, email
+- This ensures that even when using the default SwipesS AI character, questions about masculinity coaching, breathwork, plant medicine, etc. will pull Ezriyah's info from the knowledge base automatically
+
+### 3. Edge Function Redeployment
+
+- Redeploy `ai-concierge` with the new `buildEzriyahPrompt` function
+
+---
+
+### Technical Details
+
+- The character system follows an established pattern: type union in `useConciergeAI.ts` → UI option in `ConciergeChat.tsx` → prompt builder + routing in the edge function
+- Knowledge base seeding uses the existing `concierge_knowledge` table that `searchKnowledge()` already queries
+- No new tables or migrations needed — just one data insert + code changes across 3 files
 
