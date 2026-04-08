@@ -215,13 +215,13 @@ export function useConciergeAI() {
       const contentType = resp.headers.get('content-type') || '';
       
       if (contentType.includes('text/event-stream') && resp.body) {
-        // SSE streaming
+        // SSE streaming with RAF-throttled rendering
         const assistantMsgId = crypto.randomUUID();
         const assistantTimestamp = new Date();
         let fullContent = '';
 
-        // Add empty assistant message
-        updateConversations(prev =>
+        // Add empty assistant message (one state update)
+        updateConversationsLive(prev =>
           prev.map(c => {
             if (c.id !== convoId) return c;
             return {
@@ -236,6 +236,10 @@ export function useConciergeAI() {
             };
           })
         );
+
+        // Start RAF loop for rendering
+        streamBufferRef.current = { convoId: convoId!, msgId: assistantMsgId, content: '' };
+        rafRef.current = requestAnimationFrame(flushStreamBuffer);
 
         const reader = resp.body.getReader();
         const decoder = new TextDecoder();
@@ -264,29 +268,17 @@ export function useConciergeAI() {
               const delta = parsed.choices?.[0]?.delta?.content;
               if (delta) {
                 fullContent += delta;
-                const cleaned = stripThinkBlocks(fullContent);
-                
-                updateConversations(prev =>
-                  prev.map(c => {
-                    if (c.id !== convoId) return c;
-                    return {
-                      ...c,
-                      messages: c.messages.map(m =>
-                        m.id === assistantMsgId ? { ...m, content: cleaned } : m
-                      ),
-                    };
-                  })
-                );
+                // Just update the buffer ref — RAF loop handles rendering
+                streamBufferRef.current = { convoId: convoId!, msgId: assistantMsgId, content: fullContent };
               }
             } catch {
-              // Partial JSON, re-buffer
               buffer = line + '\n' + buffer;
               break;
             }
           }
         }
 
-        // Final flush
+        // Final flush of remaining buffer
         if (buffer.trim()) {
           for (let raw of buffer.split('\n')) {
             if (!raw) continue;
@@ -300,19 +292,23 @@ export function useConciergeAI() {
               if (delta) fullContent += delta;
             } catch {}
           }
-          const cleaned = stripThinkBlocks(fullContent);
-          updateConversations(prev =>
-            prev.map(c => {
-              if (c.id !== convoId) return c;
-              return {
-                ...c,
-                messages: c.messages.map(m =>
-                  m.id === assistantMsgId ? { ...m, content: cleaned || 'No response received.' } : m
-                ),
-              };
-            })
-          );
         }
+
+        // Stop RAF loop, do final state + localStorage save
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        streamBufferRef.current = null;
+        const finalCleaned = stripThinkBlocks(fullContent) || 'No response received.';
+        updateConversations(prev =>
+          prev.map(c => {
+            if (c.id !== convoId) return c;
+            return {
+              ...c,
+              messages: c.messages.map(m =>
+                m.id === assistantMsgId ? { ...m, content: finalCleaned } : m
+              ),
+            };
+          })
+        );
       } else {
         // JSON fallback (non-streaming)
         const data = await resp.json();
