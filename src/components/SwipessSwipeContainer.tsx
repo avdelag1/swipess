@@ -37,7 +37,16 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { Home } from 'lucide-react';
+import { Home, Bike, Briefcase } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+
+const CATEGORY_ICON_MAP: Record<string, any> = {
+  property: Home,
+  motorcycle: MotorcycleIcon,
+  bicycle: Bike,
+  services: Briefcase,
+  worker: Briefcase,
+};
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
@@ -972,14 +981,20 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               />
             </div>
           </div>
-          {/* Searching badge — compact */}
+          {/* Searching badge — compact with category icon */}
           <div className="pb-1 flex justify-center">
-            <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-3 py-1 rounded-2xl shadow-2xl flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2 animate-pulse" />
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/90">
-                Searching <span className="text-brand-accent-2">{storeActiveCategory.replace('_', ' ')}</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
-              </span>
-            </div>
+            {(() => {
+              const CatIcon = storeActiveCategory ? CATEGORY_ICON_MAP[storeActiveCategory] : null;
+              return (
+                <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-3 py-1 rounded-2xl shadow-2xl flex items-center gap-2">
+                  {CatIcon && <CatIcon className="w-3 h-3 text-brand-accent-2" strokeWidth={2.5} />}
+                  <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2 animate-pulse" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/90">
+                    Searching <span className="text-brand-accent-2">{storeActiveCategory?.replace('_', ' ')}</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
+                  </span>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
