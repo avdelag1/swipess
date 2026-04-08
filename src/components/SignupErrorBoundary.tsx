@@ -65,7 +65,7 @@ class SignupErrorBoundary extends Component<Props, State> {
                   }}
                   className="w-24 h-24 rounded-[2rem] bg-rose-50 flex items-center justify-center border border-rose-100/50 shadow-inner"
                 >
-                  <AlertCircle className="w-12 h-12 text-rose-500" strokeWidth={2.5} />
+                  <AlertCircle className="w-12 h-12 text-rose-500" strokeWidth={1.8} />
                 </motion.div>
                 
                 {/* Decorative particles */}

@@ -972,7 +972,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               const CatIcon = storeActiveCategory ? CATEGORY_ICON_MAP[storeActiveCategory] : null;
               return (
                 <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-3 py-1 rounded-2xl shadow-2xl flex items-center gap-2">
-                  {CatIcon && <CatIcon className="w-3 h-3 text-brand-accent-2" strokeWidth={2.5} />}
+                  {CatIcon && <CatIcon className="w-3 h-3 text-brand-accent-2" strokeWidth={1.5} />}
                   <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2 animate-pulse" />
                   <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/90">
                     Searching <span className="text-brand-accent-2">{storeActiveCategory?.replace('_', ' ')}</span> in <span className="text-brand-accent-2">{radiusKm}km</span>

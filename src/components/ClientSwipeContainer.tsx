@@ -842,7 +842,7 @@ const ClientSwipeContainerComponent = ({
             {/* Searching badge */}
             <div className="pb-1 flex justify-center">
               <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-3 py-1 rounded-2xl shadow-2xl flex items-center gap-2">
-                <Users className="w-3 h-3 text-brand-accent-2" strokeWidth={2.5} />
+                <Users className="w-3 h-3 text-brand-accent-2" strokeWidth={1.5} />
                 <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2 animate-pulse" />
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/90">
                   Searching <span className="text-brand-accent-2">clients</span> in <span className="text-brand-accent-2">{radiusKm}km</span>

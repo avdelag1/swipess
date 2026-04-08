@@ -136,7 +136,7 @@ export function PWAInstallPrompt() {
             aria-label="Dismiss install prompt"
             className={cn("transition-colors p-2 -mt-2 -mr-2", isDark ? "text-white/20 hover:text-white/50" : "text-black/20 hover:text-black/50")}
           >
-            <X size={20} strokeWidth={3} />
+            <X size={20} strokeWidth={1.5} />
           </button>
         </div>
 

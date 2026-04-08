@@ -89,7 +89,7 @@ function TinderTopNavComponent({
           )}
           aria-label="Filters"
         >
-          <SlidersHorizontal className="w-5 h-5" strokeWidth={2} />
+          <SlidersHorizontal className="w-5 h-5" strokeWidth={1.5} />
         </motion.button>
       )}
 
@@ -147,7 +147,7 @@ function TinderTopNavComponent({
         )}
         aria-label="Boost"
       >
-        <Zap className="w-5 h-5" strokeWidth={2.5} fill="currentColor" />
+        <Zap className="w-5 h-5" strokeWidth={1.5} fill="currentColor" />
       </motion.button>
     </div>
   );
