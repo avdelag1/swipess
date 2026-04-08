@@ -620,7 +620,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       targetId: listing.id,
       direction,
       targetType: 'listing',
-      targetObject: { ...listing, direction }
     });
 
     // Track dismissal on left swipe (dislike)
