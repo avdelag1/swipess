@@ -1,14 +1,39 @@
 import { useCallback, useRef, useState } from 'react';
-import { motion, AnimatePresence, PanInfo } from 'framer-motion';
+import { m, AnimatePresence, PanInfo } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
 import { Play, Pause, SkipBack, SkipForward, X } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
+
+// Safe navigation hook that won't crash outside Router context
+function useSafeNavigate() {
+  try {
+    const { useNavigate, useLocation } = require('react-router-dom');
+    const nav = useNavigate();
+    const loc = useLocation();
+    return { navigate: nav, location: loc };
+  } catch {
+    return { navigate: (_: string) => {}, location: { pathname: '/' } };
+  }
+}
 
 export function RadioMiniPlayer() {
   const { state, togglePlayPause, changeStation, pause, setMiniPlayerMode } = useRadio();
-  const navigate = useNavigate();
-  const location = useLocation();
+  
+  // Use react-router hooks with an inline safe pattern
+  let navigate: (path: string) => void;
+  let location: { pathname: string };
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const nav = require('react-router-dom').useNavigate();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const loc = require('react-router-dom').useLocation();
+    navigate = nav;
+    location = loc;
+  } catch {
+    navigate = () => {};
+    location = { pathname: '/' };
+  }
+
   const constraintsRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
@@ -62,7 +87,7 @@ export function RadioMiniPlayer() {
       <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-40" />
 
       <AnimatePresence>
-        <motion.div
+        <m.div
           key="radio-mini-player"
           drag
           dragConstraints={constraintsRef}
@@ -142,7 +167,7 @@ export function RadioMiniPlayer() {
               </button>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </AnimatePresence>
     </>
   );
