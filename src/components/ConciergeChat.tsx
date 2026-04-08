@@ -414,6 +414,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
     let finalTranscript = '';
     let userStopped = false;
+    let lastResultIndex = -1; // Track processed results to avoid duplicates
 
     recognition.onresult = (event: any) => {
       // If countdown is active, ignore stale speech events
@@ -429,6 +430,10 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       let newFinal = '';
       for (let i = 0; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
+          // Only append new final results we haven't seen
+          if (i > lastResultIndex) {
+            lastResultIndex = i;
+          }
           newFinal += event.results[i][0].transcript;
         } else {
           interim += event.results[i][0].transcript;
@@ -453,15 +458,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       // If countdown is active, do NOT restart recognition — let it finish
       if (isCountingDownRef.current) return;
 
-      // If user didn't manually stop, restart recognition to keep listening
-      if (!userStopped && recognitionRef.current) {
-        try {
-          recognition.start();
-          return;
-        } catch {
-          // Failed to restart
-        }
-      }
+      // Do NOT auto-restart — continuous mode handles ongoing listening.
+      // Restarting causes duplicate transcriptions from overlapping sessions.
       if (!countdownRef.current) {
         setIsListening(false);
         recognitionRef.current = null;
