@@ -82,23 +82,7 @@ export function CategorySwipeStack() {
         setStack(currentStackBase);
     }, [currentStackBase]);
 
-    // PERF: Universal Aggressive Preloading - Warms EVERYTHING for instant switching
-    useEffect(() => {
-        const allPhotos = [...POKER_CARDS, ...OWNER_INTENT_CARDS];
-        allPhotos.forEach(cat => {
-            const src = POKER_CARD_PHOTOS[cat.id] || POKER_CARD_PHOTOS.all;
-            if (src) {
-                const img = new Image();
-                img.src = src;
-                // 🚀 GPU PRE-WARM: Force the browser to decode the image in the background
-                // so it's already in memory when the user swipes to it.
-                img.decode().then(() => {
-                    (window as any).__swipess_cache = (window as any).__swipess_cache || {};
-                    (window as any).__swipess_cache[src] = true;
-                }).catch(() => {});
-            }
-        });
-    }, []); // Run once on mount to warm entire discovery cache
+    // PERF: Preloading moved to SpeedOfLightPreloader + QuickFilterImage decode-first pattern
 
     const applyFilter = (card: CategoryCardData) => {
         if (userRole === 'owner' && card.ownerData) {
