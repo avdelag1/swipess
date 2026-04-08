@@ -113,11 +113,18 @@ export function AppLayout({ children }: AppLayoutProps) {
         <main
           id="main-content"
           className={cn(
-            "flex-1 w-full h-full relative z-0 touch-pan-y overflow-y-auto scroll-smooth"
+            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y",
+            location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')
+              ? "overflow-hidden"
+              : "overflow-y-auto scroll-smooth"
           )}
           style={{
-            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user)) ? 'var(--top-bar-height, 60px)' : undefined,
-            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user)) ? 'calc(68px + env(safe-area-inset-bottom, 0px))' : undefined,
+            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !(location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')))
+              ? 'var(--top-bar-height, 60px)'
+              : undefined,
+            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !(location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')))
+              ? 'calc(68px + env(safe-area-inset-bottom, 0px))'
+              : undefined,
           }}
         >
           <AnimatePresence mode="wait" initial={false}>
@@ -127,7 +134,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.12, ease: 'easeOut' }}
-              className="h-full w-full"
+              className="h-full min-h-0 w-full"
             >
               {children}
             </motion.div>

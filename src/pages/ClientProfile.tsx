@@ -58,8 +58,7 @@ const ClientProfile = () => {
 
   return (
     <div className="w-full">
-      <div className="h-[calc(56px+var(--safe-top))]" />
-      <div className="w-full max-w-lg mx-auto p-4 pt-2 pb-32 space-y-6 bg-background relative overflow-y-auto">
+      <div className="w-full max-w-lg mx-auto p-4 pt-2 pb-32 space-y-6 bg-background relative">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
           <div className="relative">
