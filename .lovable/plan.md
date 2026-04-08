@@ -1,71 +1,65 @@
 
 
-## Plan: Photo Swimming Effect, Fix Likes Scroll, New Logo Everywhere
+## Plan: Performance Optimization — Push Lighthouse Score Higher
 
-### 1. Photo "Swimming/Breathing" Effect on Card Images
+### Analysis of Lighthouse Issues
 
-The current swipe cards already have a subtle `whileInView` scale breathing (1.0 → 1.012 → 1.0 over 9s). The user wants the **photo inside** to feel like it's "swimming" — a slow, organic drift effect on the image itself, not just the card container.
+From the audit, here's what's actionable vs. not:
 
-**Implementation**: Add a CSS `@keyframes` animation to `CardImage.tsx` that applies a slow `scale(1.05)` + `translate` drift to the loaded image. This creates a Ken Burns-style "swimming" motion:
+| Issue | Actionable? | Impact |
+|-------|------------|--------|
+| Logo image oversized (60 KiB) | Yes — resize + convert to WebP | Fixes LCP + image delivery |
+| Unused CSS (43 KiB) | Partially — Tailwind purge already active, but 96% of CSS unused on landing | Medium |
+| Unused JS (297 KiB) | Yes — vendor-core ships too much upfront | High |
+| LCP 4.9s | Yes — direct result of oversized logo image being the LCP element | High |
+| Unused preconnect (images.unsplash.com) | Yes — remove it from `<head>` | Minor |
+| Cache lifetimes (556 KiB) | No — server/CDN config, not code-level | N/A |
+| Minify JS (7 KiB lucide-react) | Minor — already using esbuild minify | Low |
 
-```css
-@keyframes photo-swim {
-  0%   { transform: scale(1.04) translate(0%, 0%); }
-  25%  { transform: scale(1.06) translate(0.5%, -0.3%); }
-  50%  { transform: scale(1.04) translate(-0.3%, 0.5%); }
-  75%  { transform: scale(1.06) translate(-0.5%, -0.2%); }
-  100% { transform: scale(1.04) translate(0%, 0%); }
-}
-```
+### Changes
 
-- Applied to the main `<img>` in `CardImage.tsx` when loaded, with `animation: photo-swim 12s ease-in-out infinite`
-- Also apply to QuickFilterBar category card images (owner + client filter cards)
-- The effect is purely CSS, zero JS overhead, GPU-composited via `will-change: transform`
-- The existing card-level breathing (`whileInView` scale) will be **removed** from `SimpleSwipeCard.tsx` and `SimpleOwnerSwipeCard.tsx` since the image swim replaces it (avoids double-motion)
+**1. Fix LCP: Optimize the brand logo image (biggest win)**
 
-**Files**: `src/components/CardImage.tsx`, `src/index.css` (keyframes), `src/components/SimpleSwipeCard.tsx`, `src/components/SimpleOwnerSwipeCard.tsx`, `src/components/QuickFilterBar.tsx`
+The splash screen logo (`swipess-brand-logo.jpg`) is 1312x784px / 62KB but displays at 164x98px. This is the LCP element.
 
-### 2. Fix Likes Page Scroll (Client + Owner)
+- Resize to 400x240px (2x retina for the 200px display width)
+- Convert to WebP (will drop from 62KB to ~5-8KB)
+- Create a tiny splash-specific version for `index.html`
+- Keep original for OG/social sharing if needed
+- Update `SwipessLogo.tsx` and `index.html` to use the optimized version
 
-The likes pages (`ClientLikedProperties.tsx`, `OwnerInterestedClients.tsx`) have `touch-pan-y` and `min-h-[101dvh]` but scrolling is blocked. The issue is that `DashboardLayout.tsx` applies `overflow-y-auto` on `#dashboard-scroll-container`, so the child pages should NOT have their own `min-h-[101dvh]` or conflicting overflow. The `101dvh` forces the content taller than the scroll container but the nested overflow contexts fight each other.
+**2. Remove unused preconnect hints**
 
-**Fix**:
-- Remove `min-h-[101dvh]` from both `ClientLikedProperties.tsx` and `OwnerInterestedClients.tsx` — let them be natural-height children of the scroll container
-- Ensure `touch-pan-y` is on the grid container holding the cards
-- Remove `overflow-x-hidden` from these pages (parent already handles it)
-- Add `overscroll-behavior: contain` to prevent scroll chaining issues
+Lighthouse flags `images.unsplash.com` preconnect as unused on the landing page. Remove it — the app will still connect when images are actually needed on dashboard pages.
 
-**Files**: `src/pages/ClientLikedProperties.tsx`, `src/pages/OwnerInterestedClients.tsx`
+**3. Reduce unused JS: Move i18n out of the critical path**
 
-### 3. New Logo — Replace Everywhere
+`i18next` (13KB) + `react-i18next` are in vendor-core but only needed after auth. Already lazy-loading translations, but the i18n initialization itself (`import '@/i18n'` in `App.tsx`) forces it into the entry bundle.
 
-The uploaded image shows "SWIPESS" in bold white uppercase with a black outline/shadow effect on a black background. This is the new brand logo to replace the current text-based `SwipessLogo` component.
+- Move `i18n` initialization to a deferred import inside App component (after mount)
 
-**Steps**:
-1. Copy the uploaded image to `public/icons/swipess-brand-logo.png`
-2. Generate favicon/app icon versions using a script (16, 32, 48, 96, 192, 512px)
-3. Update `SwipessLogo.tsx` to render the image instead of CSS text — use `<img>` with size mapping
-4. Update `index.html`:
-   - Replace splash wordmark text with `<img src="/icons/swipess-brand-logo.png">`
-   - Update favicon `<link>` tags to point to new generated icons
-   - Update apple-touch-icon
-5. Update `manifest.json` icon references
-6. Delete old `favicon.ico` and `favicon.png` from `public/` root (replace with new ones)
+**4. Reduce unused JS: Lazy-load react-hook-form and zod**
 
-The `SwipessLogo` component is used in 10+ places (TopBar, ConciergeChat, LandingPage, Settings, PremiumLoader, etc.) — changing the component automatically propagates everywhere.
+`react-hook-form` (8KB wasted) and `zod` (12KB wasted) are in vendor-core. These are only needed on form pages (profile, settings, listings).
 
-**Files**: `src/components/SwipessLogo.tsx`, `index.html`, `public/manifest.json`, `public/icons/` (new files), `public/favicon.png`, `public/favicon.ico`
+- Move them to a separate manual chunk `vendor-forms` in vite config so they don't ship with the entry bundle
 
-### Summary of All Files Modified
+**5. Reduce unused CSS: Purge splash styles after hydration**
 
-1. `src/components/CardImage.tsx` — Add swimming animation to loaded images
-2. `src/index.css` — Add `@keyframes photo-swim`
-3. `src/components/SimpleSwipeCard.tsx` — Remove card-level `whileInView` breathing (replaced by image swim)
-4. `src/components/SimpleOwnerSwipeCard.tsx` — Same removal
-5. `src/components/QuickFilterBar.tsx` — Add swim animation to filter card images
-6. `src/pages/ClientLikedProperties.tsx` — Fix scroll: remove `min-h-[101dvh]`, clean overflow
-7. `src/pages/OwnerInterestedClients.tsx` — Same scroll fix
-8. `src/components/SwipessLogo.tsx` — Replace text with image-based logo
-9. `index.html` — New favicon, splash image, apple-touch-icon
-10. `public/manifest.json` — Updated icon paths
+The inline splash styles in `index.html` (heartbeat keyframes, splash-wordmark class) persist after React mounts. Remove the `<style>` block from DOM after splash dissolves.
+
+### Files Modified
+
+1. **`public/icons/swipess-brand-logo.webp`** — New optimized logo (resized + WebP)
+2. **`index.html`** — Use WebP logo in splash, remove unused unsplash preconnect, cleanup splash styles after hydration
+3. **`src/components/SwipessLogo.tsx`** — Reference new WebP logo
+4. **`vite.config.ts`** — Add `vendor-forms` chunk for zod + react-hook-form
+5. **`src/App.tsx`** — Defer i18n import to after initial render
+
+### Expected Impact
+
+- LCP: ~4.9s → ~2.5s (logo goes from 62KB to ~6KB, already decoded size)
+- Unused JS: ~297KB → ~270KB (i18n + forms moved out of critical path)
+- Image delivery warning: eliminated
+- Performance score: estimated 79 → 88-92 on mobile
 
