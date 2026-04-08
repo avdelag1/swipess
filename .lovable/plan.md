@@ -1,53 +1,63 @@
 
 
-## Plan: Add "The Beau Gosse" as a Third Character Option
+## Plan: Add "Don Aj K'iin" (Mayan Guardian) as Fourth Character
 
 ### What we're doing
 
-Adding **The Beau Gosse (El Guapo)** as a new character alongside the existing **Default** and **Kyle** options. Users cycle through three personas: Default → Kyle → Beau Gosse → Default.
+Adding **Don Aj K'iin** as a new character option alongside Default, Kyle, and Beau Gosse. The cycle becomes: Default → Kyle → Beau Gosse → Don Aj K'iin → Default.
 
 ### Changes
 
-#### 1. Hook — Expand character type
-
-**File**: `src/hooks/useConciergeAI.ts`
-
-- Change `AiCharacter` type from `'default' | 'kyle'` to `'default' | 'kyle' | 'beaugosse'`
-- Send `character: 'beaugosse'` and `charmLevel` (reusing the existing `egoLevel` state) when Beau Gosse is active
-- No other logic changes — ego/charm meter and sentiment detection already work
-
-#### 2. Edge function — Add Beau Gosse persona prompt
+#### 1. Edge function — Mayan Guardian prompt
 
 **File**: `supabase/functions/ai-concierge/index.ts`
 
-- Add `buildBeauGossePrompt(charmLevel)` function with the full persona from the user's spec: reactive humor engine, playful/sharp dual modes, French charm, flirt engine
-- Charm level 1-3: Sharp mode (more direct, slight sarcasm)
-- Charm level 4-6: Classic Beau Gosse (smooth, witty, balanced)
-- Charm level 7-10: Full seduction mode (maximum charm, wordplay, flirty)
-- Add `else if (opts.character === "beaugosse")` branch in `buildSystemPrompt()` — existing Kyle and default branches untouched
+Add `buildDonAjKiinPrompt(wisdomLevel)` with the full persona:
+- **Wisdom 1-3**: Playful Local mode — light humor, jokes about tourists, friendly sarcasm
+- **Wisdom 4-6**: Classic Don Aj K'iin — calm, grounded, balanced wisdom and humor, Mayan phrases woven in naturally
+- **Wisdom 7-10**: Deep Elder mode — reflective, storytelling, metaphors, cultural teachings, spiritual depth
 
-#### 3. UI — Three-way character toggle
+Core prompt elements from the user's spec:
+- 50+ year Tulum elder, Mayan descendant (Yucateco roots)
+- Calm/slow speech, rustic tone, mix of English/Spanish/Yucatec Maya
+- Language engine: translates simple phrases into Yucatec Maya with explanations
+- Three personality modes: teaching, storytelling, playful
+- Knowledge domains: Mayan culture, Tulum history, nature/jungle, fishing, local lifestyle, traditional food
+- Signature behaviors: nature references, old vs modern Tulum comparisons, short Mayan phrases, practical survival knowledge
+- Still delivers all Tulum real estate/lifestyle info — through Don Aj K'iin's voice
+
+Add `else if (opts.character === "donajkiin")` branch in `buildSystemPrompt()`. Add `wisdomLevel` to the opts type. Existing Kyle and Beau Gosse branches untouched.
+
+#### 2. Hook — Expand type + send params
+
+**File**: `src/hooks/useConciergeAI.ts`
+
+- Expand `AiCharacter` to `'default' | 'kyle' | 'beaugosse' | 'donajkiin'`
+- Add spread for the new character in the fetch body: `{ character: 'donajkiin', wisdomLevel: egoLevel }`
+- Reuses the existing `egoLevel` state (same as Beau Gosse reuses it as `charmLevel`)
+
+#### 3. UI — Four-way cycle + Mayan theme
 
 **File**: `src/components/ConciergeChat.tsx`
 
-- Change the single toggle button to cycle through: default → kyle → beaugosse → default
-- When **Beau Gosse** is active:
-  - Button shows `Sparkles` icon with purple glow (instead of Flame/orange)
-  - Header name: "The Beau Gosse" in purple-400
-  - Subtitle: "El Guapo ✨"
-  - Meter label changes from "EGO" to "CHARM"
-  - Meter colors: blue → purple → rose-gold (instead of blue → orange → red)
-  - Toast: "The Beau Gosse activated. Let's make this interesting... ✨"
-- When **Kyle** is active: everything stays exactly as it is now
-- When **Default** is active: everything stays exactly as it is now
+- Update cycle order: `['default', 'kyle', 'beaugosse', 'donajkiin']`
+- When **Don Aj K'iin** is active:
+  - Icon: `TreePine` or `Sun` from lucide with **emerald/green glow**
+  - Header name: "Don Aj K'iin" in `emerald-400`
+  - Subtitle: "Mayan Guardian 🌿"
+  - Meter label: "WISDOM" (instead of EGO/CHARM)
+  - Meter colors: teal → emerald → gold (nature-to-sun gradient)
+  - Toast: "Don Aj K'iin activated. Mmm... sit down, hermano... let me tell you something. 🌿"
+- Add `isDonAjKiin` boolean for conditional styling
+- Update toggle title tooltip for the new cycle position
 
 ### Files to change
 
 | File | Change |
 |------|--------|
-| `src/hooks/useConciergeAI.ts` | Add `'beaugosse'` to `AiCharacter` type, send character in fetch body |
-| `supabase/functions/ai-concierge/index.ts` | Add `buildBeauGossePrompt()`, new branch in `buildSystemPrompt()` |
-| `src/components/ConciergeChat.tsx` | Three-way cycle toggle, conditional styling/labels per character |
+| `supabase/functions/ai-concierge/index.ts` | Add `buildDonAjKiinPrompt()`, new branch in `buildSystemPrompt()`, add `wisdomLevel` to opts |
+| `src/hooks/useConciergeAI.ts` | Add `'donajkiin'` to type, send `wisdomLevel` in fetch body |
+| `src/components/ConciergeChat.tsx` | Four-way cycle, emerald/green theme, WISDOM meter, new labels |
 
-No changes to Kyle. No changes to default concierge. Pure addition.
+No changes to Kyle, Beau Gosse, or default. Pure addition.
 
