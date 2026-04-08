@@ -241,21 +241,19 @@ export default function DJTurntableRadio() {
   const primaryColor = cityTheme?.primaryColor || '#FF4D00';
   const secondaryColor = cityTheme?.secondaryColor || '#FFB347';
 
-  // POWER ON / INITIALIZATION GUARD — auto-power AND auto-play
+  // POWER ON / INITIALIZATION GUARD — fires exactly once via ref
+  const hasInitRef = useRef(false);
   useEffect(() => {
-    const initRadio = () => {
-      if (!state.isPoweredOn) {
-        togglePower();
-        triggerHaptic('medium');
-      }
-      // 🚀 SPEED OF LIGHT: Instant playback attempt
-      if (!state.isPlaying) {
-        play();
-      }
-    };
-
-    initRadio();
-    return () => {};
+    if (hasInitRef.current) return;
+    hasInitRef.current = true;
+    
+    if (!state.isPoweredOn) {
+      togglePower();
+      triggerHaptic('medium');
+    }
+    if (!state.isPlaying) {
+      play();
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keyboard shortcuts
@@ -294,19 +292,7 @@ export default function DJTurntableRadio() {
         isDark ? "bg-[#030303]" : "bg-[#f8f9fa]"
       )}
     >
-      <AnimatePresence>
-        {loading && (
-          <motion.div 
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-[10000] bg-black flex flex-col items-center justify-center p-8 text-center"
-          >
-            <div className="w-16 h-16 rounded-full border-4 border-orange-500/20 border-t-orange-500 animate-spin mb-6" />
-            <h2 className="text-xl font-black text-white uppercase tracking-widest animate-pulse">Initializing Radio...</h2>
-            <p className="text-sm text-white/40 mt-2 font-black uppercase tracking-[0.2em]">Synchronizing Stream</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Removed full-screen black loading overlay — radio content always visible */}
       {/* Background gradients for liquid feel */}
       <div className="absolute inset-0 opacity-50 pointer-events-none" style={{
         background: `radial-gradient(circle at 50% -10%, ${primaryColor}33 0%, transparent 60%), 

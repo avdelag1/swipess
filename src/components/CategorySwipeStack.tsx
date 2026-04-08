@@ -153,7 +153,7 @@ export function CategorySwipeStack() {
     return (
         <div className="relative w-full h-[min(42dvh,340px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
 
-            <AnimatePresence mode="popLayout" initial={false}>
+            <AnimatePresence mode="sync" initial={false}>
                 {stack.map((cat, index) => {
                     const isTop = index === 0;
                     const isActive = userRole === 'owner' 
@@ -311,7 +311,7 @@ function CategoryCard({
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onClick={() => !isTop && onSelect()}
-            initial={{ scale: 0.95, opacity: 0, y: 15 }}
+            initial={false}
             animate={{ 
                 scale, 
                 opacity: 1, 
@@ -374,7 +374,7 @@ function CategoryCard({
                 alt={category.label}
                 loading="eager"
                 fetchPriority="high"
-                decoding="sync" // Faster for pre-warmed images
+                decoding="async"
                 className={cn(
                     "absolute inset-0 w-full h-full object-cover transition-opacity duration-300",
                     isDragging ? "scale-105" : "scale-100"
