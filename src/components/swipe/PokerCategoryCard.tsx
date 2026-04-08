@@ -101,7 +101,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         willChange: 'transform, opacity',
       } as any}
       whileDrag={{ cursor: 'grabbing' }}
-      className={cn("touch-manipulation select-none gpu-ultra isolation-isolate", isTop && "card-breathe")}
+      className={cn("touch-manipulation select-none gpu-ultra isolation-isolate")}
     >
       <div
         className={cn(

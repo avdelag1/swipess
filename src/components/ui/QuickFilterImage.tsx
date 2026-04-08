@@ -10,7 +10,7 @@ interface QuickFilterImageProps {
 /**
  * Progressive decode-first image for quick filter cards.
  * Shows a gradient placeholder, decodes the image off-thread,
- * then crossfades in with the breathing animation already running.
+ * then slides in with the breathing animation already running.
  */
 export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps) {
   const [isReady, setIsReady] = useState(false);
@@ -34,21 +34,20 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
         (window as any).__swipess_cache[src] = true;
       })
       .catch(() => {
-        // Fallback: show anyway
         setIsReady(true);
       });
   }, [src]);
 
   return (
     <>
-      {/* Gradient placeholder — always visible underneath */}
+      {/* Gradient placeholder */}
       <div 
         className={cn(
           "absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted/60 transition-opacity duration-500",
           isReady ? "opacity-0" : "opacity-100"
         )} 
       />
-      {/* Actual image — fades in after decode, breathing starts immediately */}
+      {/* Actual image — slides in after decode, breathing starts immediately */}
       <img
         ref={imgRef}
         src={src}
@@ -56,11 +55,15 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
         loading="eager"
         decoding="async"
         className={cn(
-          "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
-          isReady ? "opacity-100" : "opacity-0",
+          "absolute inset-0 w-full h-full object-cover",
+          isReady ? "animate-photo-slide-in" : "opacity-0",
           className
         )}
-        style={{ animation: isReady ? 'photo-swim 14s ease-in-out infinite' : 'none' }}
+        style={{ 
+          animation: isReady 
+            ? 'photo-slide-in 0.4s cubic-bezier(0.2,0,0,1) forwards, photo-swim 14s ease-in-out 0.4s infinite' 
+            : 'none' 
+        }}
       />
     </>
   );

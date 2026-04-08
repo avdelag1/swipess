@@ -339,7 +339,7 @@ function CategoryCard({
                 "bg-black border border-white/10 rounded-[32px] transform-gpu",
                 isActive && "ring-4 ring-brand-accent-2/50 ring-offset-4 ring-offset-background",
                 "swipe-card-size",
-                isTop && !isDragging && "card-breathe"
+                ""
             )}
 
             style={{ 

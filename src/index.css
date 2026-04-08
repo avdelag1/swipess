@@ -295,6 +295,12 @@ button:active, [role="button"]:active {
   backface-visibility: hidden;
 }
 
+/* 📸 Photo Slide-In — premium entrance for decoded images */
+@keyframes photo-slide-in {
+  0%   { transform: translateX(20px) scale(1); opacity: 0; }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
 
 /* ─── Premium Animations ─── */
 @keyframes sweep {
