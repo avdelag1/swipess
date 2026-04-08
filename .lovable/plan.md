@@ -1,93 +1,100 @@
 
+# SwipesS AI Intelligence Upgrade
 
-# Rebuild AI Concierge — Full-Featured Chat on Your Backend
+## Overview
 
-## The Problem
+Transform the AI concierge from a basic chatbot into a context-aware, knowledge-backed assistant that searches real listings, remembers users, and learns over time.
 
-The edge function `ai-concierge` deploys to the Lovable Cloud project (`qegyisokrxdsszzswsqk`), but `supabase.functions.invoke()` uses the client from `client.ts` which points to your production project (`vplgtcguxujxwrgguxqq`). This means the AI call currently fails silently or hits a 404.
+---
 
-Additionally, the chat is missing key features: conversation memory, resend, markdown rendering, and proper per-message actions.
+## 1. Listing Search — AI queries your real listings
 
-## Plan
+**What**: When a user asks "find me a 2-bedroom in Alfama under €1200", the AI searches the `listings` table and returns real results with links.
 
-### 1. Fix Edge Function Call Path
+**How**: 
+- Add a `search-listings` helper in the edge function that queries `listings` via Supabase client
+- Keyword extraction from user message → SQL filter (category, price range, bedrooms, location/neighborhood)
+- Returns top 5 matching listings formatted with title, price, location, and a deep link (`/listing/{id}`)
+- Results injected into the AI system prompt as context before generating the response
 
-The hook (`useConciergeAI.ts`) currently uses `supabase.functions.invoke('ai-concierge')` which routes to `vplgtcguxujxwrgguxqq` (your production project where the function doesn't exist). Will switch to a direct `fetch()` call using `import.meta.env.VITE_SUPABASE_URL` which points to the Lovable Cloud project where the edge function actually deploys. This is the only way to reach the function while keeping your production database on `vplgtcguxujxwrgguxqq`.
+**Edge function changes**: Add Supabase client initialization, listing search logic, and inject results into prompt.
 
-### 2. Update Edge Function — MiniMax + Lovable AI Fallback
+---
 
-Update `supabase/functions/ai-concierge/index.ts`:
-- Fix the Lovable AI gateway URL to the correct one: `https://ai.gateway.lovable.dev/v1/chat/completions`
-- Keep MiniMax-M2.7 as primary, Lovable AI (`google/gemini-3-flash-preview`) as fallback
-- Add SSE streaming support for real-time token delivery
-- Proper error handling with 429/402 status codes surfaced to the client
-- Your MINIMAX_API_KEY is already configured as a secret
+## 2. User Memory — Remember preferences across sessions
 
-### 3. Upgrade `useConciergeAI` Hook — Streaming + Conversations
+**What**: AI remembers things like "I need pet-friendly", "my budget is €900", "I'm moving in July" and uses them automatically in future conversations.
 
-Rewrite `src/hooks/useConciergeAI.ts`:
-- **SSE streaming**: Token-by-token rendering using the pattern from the AI gateway docs
-- **Conversation memory**: Support multiple conversations stored in localStorage, each with a unique ID, title (auto-generated from first message), and timestamp
-- **Active conversation switching**: Ability to load previous conversations
-- **Resend**: Expose a `resendMessage(messageId)` function that removes everything after that message and re-sends it
-- **No fake fallbacks**: Real errors shown as toasts, never saved as assistant messages
+**How**:
+- Create a `user_memories` table (already exists in schema? will check) with columns: `user_id`, `memory_key`, `memory_value`, `category`, `created_at`, `updated_at`
+- Edge function loads user memories at conversation start and adds them to system prompt
+- After each AI response, extract any new facts using structured output (tool calling) and upsert into `user_memories`
+- Categories: `preference`, `timeline`, `budget`, `location`, `lifestyle`
 
-### 4. Rebuild `ConciergeChat.tsx` — Premium Full-Featured UI
+**Database changes**: Create `user_memories` table with RLS policies.
 
-Rewrite `src/components/ConciergeChat.tsx` with:
+---
 
-**Header area:**
-- SwipesS AI branding (Sparkles icon, no MiniMax anywhere)
-- Conversation list toggle (slide-out panel showing past conversations)
-- New conversation button
-- Clear history (trash icon)
-- Close button
+## 3. Knowledge Vault — Populate `concierge_knowledge` with Lisbon data
 
-**Message bubbles:**
-- Full timestamp on every message: date + hour:minute
-- Markdown rendering for assistant messages (using `react-markdown`)
-- Per-message action bar (visible on tap/hover):
-  - **Copy** — copies content only (no branding)
-  - **Resend/Reload** — re-sends the user message, regenerates the AI response
-- Streaming text animation for incoming tokens
-- No provider branding inside or below bubbles
+**What**: Pre-load the existing `concierge_knowledge` table with verified Lisbon information so the AI gives accurate, link-backed answers.
 
-**Input area:**
-- Auto-expanding textarea
-- Send button (disabled when empty or loading)
-- Keyboard shortcut: Enter to send, Shift+Enter for newline
+**How**:
+- Bulk insert ~30-50 knowledge entries covering:
+  - **Neighborhoods**: Alfama, Graça, Baixa, Príncipe Real, Santos, Estrela, Mouraria, etc. (descriptions, vibes, avg prices)
+  - **Practical info**: D7 visa, NIF process, utilities setup, transport cards, health insurance
+  - **Cost of living**: Rent ranges, groceries, dining, transport costs
+  - **Services**: Where to find plumbers, electricians, movers, internet providers
+- Each entry includes `website_url`, `google_maps_url`, and `tags` for semantic matching
+- Edge function queries `concierge_knowledge` by matching user query keywords against `title`, `content`, and `tags`
 
-**Empty state:**
-- Welcome message with suggestion chips
-- Premium design following the luxury doctrine
+**Database changes**: Insert knowledge data using the insert tool.
 
-**Conversation sidebar (slide-out):**
-- List of past conversations with title + date
-- Tap to switch conversation
-- Delete individual conversations
+---
 
-### 5. Add `react-markdown` Dependency
+## 4. Auto-Learn from Conversations — Extract & store facts
 
-Install `react-markdown` for proper AI response rendering with formatting support.
+**What**: After each conversation turn, the AI identifies useful facts ("user prefers furnished apartments", "user has a dog") and saves them for future reference.
 
-### 6. No Other File Changes
+**How**:
+- After the main AI response streams, fire a non-blocking background extraction call
+- Use tool calling to extract structured facts: `{ key: "has_pet", value: "dog", category: "lifestyle" }`
+- Upsert into `user_memories` — same key updates rather than duplicates
+- On next conversation, these memories are loaded into the system prompt
 
-The `modalStore.ts`, `GlobalDialogs.tsx`, and `BottomNavigation.tsx` already have the AI chat wired up correctly from the previous rebuild. No changes needed there.
+**Edge function changes**: Add a post-response extraction step (non-blocking).
+
+---
+
+## 5. Updated Edge Function Architecture
+
+The `ai-concierge` edge function will follow this flow:
+
+```
+1. Receive user message
+2. Load user memories from `user_memories` table
+3. Search `concierge_knowledge` for relevant entries (keyword match)
+4. Search `listings` table if query looks like a listing search
+5. (If needed) Search web via Tavily for fresh info
+6. Build enriched system prompt with all context
+7. Stream AI response to user
+8. (Background) Extract new facts → upsert into user_memories
+```
+
+---
 
 ## Files Changed
 
 | File | Action |
 |------|--------|
-| `supabase/functions/ai-concierge/index.ts` | Update: SSE streaming, fix gateway URL |
-| `src/hooks/useConciergeAI.ts` | Rewrite: streaming, conversations, resend |
-| `src/components/ConciergeChat.tsx` | Rewrite: full-featured premium UI |
-| `package.json` | Add: `react-markdown` dependency |
+| `supabase/functions/ai-concierge/index.ts` | Major update: add listing search, knowledge query, memory load/save |
+| Database migration | Create `user_memories` table with RLS |
+| Database insert | Populate `concierge_knowledge` with ~30-50 Lisbon entries |
 
-## Technical Details
+## Technical Notes
 
-- **Primary model**: MiniMax-M2.7 (your API key, already in secrets)
-- **Fallback**: google/gemini-3-flash-preview via Lovable AI gateway
-- **Edge function URL**: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-concierge`
-- **Auth header**: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
-- **Storage**: localStorage with conversation-level organization (up to 20 conversations, 50 messages each)
-
+- Listing search uses the Supabase service role key (already available as `SUPABASE_SERVICE_ROLE_KEY` secret) to query listings
+- User memories are scoped by `user_id` with RLS
+- Knowledge matching uses PostgreSQL `ILIKE` and array overlap on tags
+- Deep links format: the AI will output markdown links like `[View listing](/listing/{id})`
+- For unauthenticated users, the AI still works but without memory/listing personalization
