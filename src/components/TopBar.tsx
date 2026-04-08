@@ -220,7 +220,7 @@ function TopBarComponent({
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                     aria-label="Go to profile"
                   >
-                    <Avatar className="h-[42px] w-[42px] rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
+                    <Avatar className="h-[36px] w-[36px] rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
                       <AvatarImage 
                         src={profile?.avatar_url || ''} 
                         className="object-cover w-full h-full rounded-full" 
@@ -274,16 +274,16 @@ function TopBarComponent({
                     <PopoverTrigger asChild>
                       <Button
                         variant="ghost"
-                        className={cn(
-                          "relative h-9 w-9 px-0 transition-all duration-200 ease-out !bg-transparent !border-none !shadow-none",
-                          "hover:scale-110 active:scale-90 group",
+                       className={cn(
+                          "relative h-8 w-8 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none",
+                          "hover:scale-105 active:scale-95 group",
                           "touch-manipulation flex items-center justify-center flex-shrink-0",
                         )}
                         onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
                         onClick={(e) => e.preventDefault()}
                         aria-label="Token Packages"
                       >
-                        <Zap strokeWidth={3} className={cn("h-[18px] w-[18px]", isLight ? "text-amber-500" : "text-amber-300")} style={{ filter: isLight ? 'drop-shadow(0 0 6px rgba(245,158,11,0.4))' : 'drop-shadow(0 0 8px rgba(252,211,77,0.5))' }} />
+                        <Zap strokeWidth={2.5} className={cn("h-4 w-4", isLight ? "text-amber-500" : "text-amber-300")} style={{ filter: isLight ? 'drop-shadow(0 0 4px rgba(245,158,11,0.3))' : 'drop-shadow(0 0 6px rgba(252,211,77,0.4))' }} />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent
@@ -403,9 +403,9 @@ function TopBarComponent({
                   {/* Swipess Radio Button */}
                    <Button
                     variant="ghost"
-                    className={cn(
-                      "relative h-9 w-9 px-0 transition-all duration-200 ease-out !bg-transparent !border-none !shadow-none",
-                      "hover:scale-110 active:scale-90 group",
+                     className={cn(
+                      "relative h-8 w-8 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none",
+                      "hover:scale-105 active:scale-95 group",
                       "touch-manipulation flex items-center justify-center flex-shrink-0",
                     )}
                     onPointerDown={(e) => {
@@ -416,7 +416,7 @@ function TopBarComponent({
                     }}
                     aria-label="Go to radio"
                   >
-                    <RadioIcon strokeWidth={3} className="h-[18px] w-[18px] text-rose-500" style={{ filter: 'drop-shadow(0 0 8px rgba(244,63,94,0.45))' }} />
+                    <RadioIcon strokeWidth={2.5} className="h-4 w-4 text-rose-500" style={{ filter: 'drop-shadow(0 0 6px rgba(244,63,94,0.35))' }} />
                   </Button>
 
                   {/* Theme Toggle */}

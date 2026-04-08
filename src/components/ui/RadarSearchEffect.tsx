@@ -1,53 +1,46 @@
 /**
  * LIVING RADAR SEARCH EFFECT
  *
- * Subtle, organic, constantly-moving radar that feels alive.
- * Like a gentle heartbeat or breathing - always in motion.
- *
- * Features:
- * - Continuous gentle ripple waves
- * - Soft rotating sweep (subtle, not intense)
- * - Breathing center dot (like a living organism)
- * - Multiple motion speeds for organic feel
- * - Subtle glows and soft transitions
- * - ALWAYS moving - never static
- * - GPU-accelerated
+ * Smaller, fully round, no frame. Subtle directional light glow on edges.
+ * Auto-stops animation after a timeout to save resources.
  */
 
-import { memo, CSSProperties } from 'react';
+import { memo, CSSProperties, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User } from 'lucide-react';
 
 interface RadarSearchEffectProps {
-  /** Size in pixels (default 120) */
   size?: number;
-  /** Primary color (default: currentColor) */
   color?: string;
-  /** Show label text below the radar */
   label?: string;
-  /** Additional className */
   className?: string;
-  /** Whether animation is active (default true) */
   isActive?: boolean;
-  /** Custom icon to display in the absolute center of the radar */
   icon?: React.ReactNode;
+  /** Auto-stop animation after this many ms (0 = never stop). Default 6000 */
+  autoStopMs?: number;
 }
 
-/**
- * Radar Search Effect Component
- *
- * Renders a subtle, living radar that's constantly in gentle motion.
- * Feels organic and alive without being dramatic or distracting.
- */
 export const RadarSearchEffect = memo(function RadarSearchEffect({
-  size = 180,
+  size = 140,
   color = 'currentColor',
   label,
   className = '',
   isActive = true,
   icon,
+  autoStopMs = 6000,
 }: RadarSearchEffectProps) {
-  const centerSize = size * 0.45; // Much larger central hub
+  const [animating, setAnimating] = useState(isActive);
+
+  // Auto-stop after timeout
+  useEffect(() => {
+    if (!isActive) { setAnimating(false); return; }
+    setAnimating(true);
+    if (autoStopMs <= 0) return;
+    const t = setTimeout(() => setAnimating(false), autoStopMs);
+    return () => clearTimeout(t);
+  }, [isActive, autoStopMs]);
+
+  const coreSize = size * 0.42;
 
   const containerStyle: CSSProperties = {
     position: 'relative',
@@ -59,110 +52,107 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
   };
 
   return (
-    <div className={`flex flex-col items-center gap-8 ${className}`}>
+    <div className={`flex flex-col items-center gap-6 ${className}`}>
       <div style={containerStyle}>
-        {/* SENTIENT DISCOVERY ENGINE - Layered Ripple System */}
+        {/* Ripple rings */}
         <AnimatePresence>
-          {isActive && (
+          {animating && (
             <div className="absolute inset-0 flex items-center justify-center">
-              {[0, 1, 2, 3, 4].map((ring) => (
+              {[0, 1, 2, 3].map((ring) => (
                 <motion.div
                   key={ring}
                   initial={{ scale: 1, opacity: 0 }}
-                  animate={{
-                    scale: [1, 5],
-                    opacity: [0.35, 0],
-                  }}
+                  animate={{ scale: [1, 4.5], opacity: [0.3, 0] }}
                   exit={{ opacity: 0 }}
                   transition={{
-                    duration: 2.8,
+                    duration: 2.6,
                     repeat: Infinity,
                     ease: [0.1, 0, 0, 1],
-                    delay: ring * 0.55,
+                    delay: ring * 0.6,
                   }}
-                  className="absolute rounded-full border border-primary/40 shadow-[0_0_15px_rgba(236,72,153,0.15)]"
+                  className="absolute rounded-full border border-primary/30"
                   style={{
-                    width: centerSize,
-                    height: centerSize,
+                    width: coreSize,
+                    height: coreSize,
                     willChange: 'transform, opacity',
                   }}
                 />
               ))}
-              
-              {/* High-Tech Sweep Beam */}
+
+              {/* Sweep beam */}
               <motion.div
                 animate={{ rotate: 360 }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                className="absolute rounded-full opacity-40 z-0"
+                transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                className="absolute rounded-full opacity-30 z-0"
                 style={{
-                  width: size * 1.2,
-                  height: size * 1.2,
-                  background: `conic-gradient(from 0deg, ${color} 0%, transparent 25%, transparent 100%)`,
-                  maskImage: 'radial-gradient(circle, black 40%, transparent 95%)',
-                  WebkitMaskImage: 'radial-gradient(circle, black 40%, transparent 95%)',
+                  width: size * 1.0,
+                  height: size * 1.0,
+                  background: `conic-gradient(from 0deg, ${color} 0%, transparent 20%, transparent 100%)`,
+                  maskImage: 'radial-gradient(circle, black 35%, transparent 90%)',
+                  WebkitMaskImage: 'radial-gradient(circle, black 35%, transparent 90%)',
                 }}
               />
             </div>
           )}
         </AnimatePresence>
 
-        {/* Outer Static Frame Ring */}
+        {/* Directional light glow — subtle bright edges instead of a frame */}
         <div
+          className="absolute rounded-full pointer-events-none"
           style={{
-            position: 'absolute',
-            width: size * 1.1,
-            height: size * 1.1,
-            borderRadius: '50%',
-            border: `1px solid ${color}15`,
-            boxShadow: `inset 0 0 40px ${color}05`,
-            zIndex: 1,
+            width: coreSize + 16,
+            height: coreSize + 16,
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'transparent',
+            boxShadow: [
+              `inset 0 -6px 18px -6px rgba(255,255,255,0.12)`,
+              `inset 6px 0 18px -6px rgba(255,255,255,0.06)`,
+              `0 8px 30px -8px ${color}25`,
+            ].join(', '),
+            zIndex: 2,
           }}
         />
 
-        {/* Central Core - The 'User' Hub */}
+        {/* Central core — fully round, no frame */}
         <div
           style={{
             position: 'relative',
-            width: centerSize + 12,
-            height: centerSize + 12,
-            borderRadius: '2.5rem',
-            background: isActive 
-              ? `conic-gradient(from 0deg, #ec4899, #f97316, #fbbf24, #ec4899)` 
-              : `linear-gradient(135deg, ${color}80, ${color}20)`,
+            width: coreSize + 8,
+            height: coreSize + 8,
+            borderRadius: '50%',
+            background: animating
+              ? `conic-gradient(from 180deg, ${color}40, transparent 60%, ${color}20)`
+              : `linear-gradient(135deg, ${color}30, ${color}10)`,
             padding: 2,
             zIndex: 10,
-            boxShadow: isActive ? `0 0 50px ${color}40` : 'none',
           }}
         >
           <motion.div
-            animate={isActive ? {
-              scale: [1, 1.05, 1],
-              backgroundColor: ['rgba(0,0,0,0.95)', 'rgba(20,20,20,0.95)', 'rgba(0,0,0,0.95)'],
+            animate={animating ? {
+              scale: [1, 1.04, 1],
             } : { scale: 1 }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
             style={{
               width: '100%',
               height: '100%',
-              borderRadius: '2.4rem',
-              backgroundColor: 'rgba(0,0,0,0.98)',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(5,5,5,0.97)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: color,
+              color,
               overflow: 'hidden',
               position: 'relative',
             }}
           >
-            {/* Core sentient pulse */}
-            {isActive && (
+            {/* Inner glow */}
+            {animating && (
               <motion.div
                 className="absolute inset-0 z-0"
-                animate={{ opacity: [0.1, 0.3, 0.1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
+                animate={{ opacity: [0.08, 0.2, 0.08] }}
+                transition={{ duration: 1.8, repeat: Infinity }}
                 style={{
                   background: `radial-gradient(circle, ${color} 0%, transparent 70%)`
                 }}
@@ -170,28 +160,28 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
             )}
 
             <motion.div
-              className="relative z-10 scale-[1.3]"
-              animate={isActive ? {
-                y: [0, -3, 0],
-                filter: ['brightness(1)', 'brightness(1.5)', 'brightness(1)'],
+              className="relative z-10"
+              animate={animating ? {
+                y: [0, -2, 0],
+                filter: ['brightness(1)', 'brightness(1.3)', 'brightness(1)'],
               } : { y: 0 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
             >
-              {icon || <User size={40} className="drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]" />}
+              {icon || <User size={Math.round(coreSize * 0.55)} className="drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />}
             </motion.div>
           </motion.div>
         </div>
       </div>
 
-      {/* Modern Subtext */}
+      {/* Label */}
       {label && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="flex flex-col items-center gap-1"
         >
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary animate-pulse">
-            {isActive ? 'Scanning Network' : 'Ready'}
+          <span className="text-[9px] font-black uppercase tracking-[0.4em] text-primary/80">
+            {animating ? 'Scanning' : 'Ready'}
           </span>
           <span className="text-xs font-medium text-foreground/40 italic">
             {label}
@@ -203,7 +193,7 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
 });
 
 /**
- * Compact radar for inline use (e.g., in buttons)
+ * Compact radar for inline use
  */
 export const RadarSearchIcon = memo(function RadarSearchIcon({
   size = 24,
@@ -213,123 +203,23 @@ export const RadarSearchIcon = memo(function RadarSearchIcon({
 }: Omit<RadarSearchEffectProps, 'label'>) {
   return (
     <div style={{ position: 'relative', width: size, height: size, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} className={className}>
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        style={{ position: 'absolute' }}
-      >
-        {/* Outer ring */}
-        <circle
-          cx="12"
-          cy="12"
-          r="10"
-          fill="none"
-          stroke={color}
-          strokeWidth="1.5"
-          opacity="0.3"
-        />
-        {/* Middle ring */}
-        <circle
-          cx="12"
-          cy="12"
-          r="6"
-          fill="none"
-          stroke={color}
-          strokeWidth="1"
-          opacity="0.4"
-        />
-        {/* Center dot */}
-        <circle
-          cx="12"
-          cy="12"
-          r="2"
-          fill={color}
-        />
+      <svg width={size} height={size} viewBox="0 0 24 24" style={{ position: 'absolute' }}>
+        <circle cx="12" cy="12" r="10" fill="none" stroke={color} strokeWidth="1.5" opacity="0.3" />
+        <circle cx="12" cy="12" r="6" fill="none" stroke={color} strokeWidth="1" opacity="0.4" />
+        <circle cx="12" cy="12" r="2" fill={color} />
       </svg>
-
-      {/* Rotating sweep beam for compact icon */}
       {isActive && (
         <motion.div
-          animate={{
-            rotate: [0, 360],
-          }}
-          transition={{
-            duration: 2.5,
-            repeat: Infinity,
-            ease: 'linear',
-          }}
-          style={{
-            position: 'absolute',
-            width: size,
-            height: size,
-            overflow: 'hidden',
-            borderRadius: '50%',
-          }}
+          animate={{ rotate: [0, 360] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: 'linear' }}
+          style={{ position: 'absolute', width: size, height: size, overflow: 'hidden', borderRadius: '50%' }}
         >
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              width: size / 2,
-              height: size / 2,
-              transformOrigin: '0% 0%',
-              background: `conic-gradient(
-                from 0deg,
-                transparent 0%,
-                ${color}50 40%,
-                transparent 100%
-              )`,
-            }}
-          />
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%',
+            width: size / 2, height: size / 2, transformOrigin: '0% 0%',
+            background: `conic-gradient(from 0deg, transparent 0%, ${color}50 40%, transparent 100%)`,
+          }} />
         </motion.div>
-      )}
-
-      {/* Ripple wave 1 */}
-      {isActive && (
-        <motion.div
-          animate={{
-            scale: [0.3, 2.2],
-            opacity: [0.7, 0],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: 'easeOut',
-            delay: 0,
-          }}
-          style={{
-            position: 'absolute',
-            width: size * 0.6,
-            height: size * 0.6,
-            borderRadius: '50%',
-            border: `1px solid ${color}`,
-          }}
-        />
-      )}
-
-      {/* Ripple wave 2 */}
-      {isActive && (
-        <motion.div
-          animate={{
-            scale: [0.3, 2.2],
-            opacity: [0.7, 0],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: 'easeOut',
-            delay: 0.5,
-          }}
-          style={{
-            position: 'absolute',
-            width: size * 0.6,
-            height: size * 0.6,
-            borderRadius: '50%',
-            border: `1px solid ${color}`,
-          }}
-        />
       )}
     </div>
   );
