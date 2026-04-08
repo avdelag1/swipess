@@ -55,8 +55,10 @@ function stripThinkBlocks(text: string): string {
   return text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 }
 
-const AI_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-concierge`;
-const AUTH_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Hardcoded to Lovable Cloud where the edge function is deployed
+// (production DB is on vplgtcguxujxwrgguxqq, but the function lives here)
+const AI_URL = 'https://qegyisokrxdsszzswsqk.supabase.co/functions/v1/ai-concierge';
+const AUTH_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjY0NTIsImV4cCI6MjA4NTg0MjQ1Mn0.4tdJ82fDnFXaJ6SHpfveCiGxGm2S4II6NNIbGUnT2ZU';
 
 export function useConciergeAI() {
   const [conversations, setConversations] = useState<Conversation[]>(loadConversations);
