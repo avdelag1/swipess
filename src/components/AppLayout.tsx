@@ -114,6 +114,10 @@ export function AppLayout({ children }: AppLayoutProps) {
           className={cn(
             "flex-1 w-full h-full relative z-0 touch-pan-y overflow-y-auto scroll-smooth"
           )}
+          style={{
+            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user)) ? 'var(--top-bar-height, 60px)' : undefined,
+            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user)) ? 'calc(68px + env(safe-area-inset-bottom, 0px))' : undefined,
+          }}
         >
           {children}
         </main>

@@ -991,14 +991,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       )}>
 
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
-          <AnimatePresence mode="popLayout" initial={false}>
+          <AnimatePresence mode="sync" initial={false}>
             {!storeActiveCategory ? (
               <motion.div 
                 key="category-stack"
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={false}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 className="w-full h-full flex flex-col items-center justify-center"
               >
                 <CategorySwipeStack />

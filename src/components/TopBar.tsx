@@ -190,7 +190,7 @@ function TopBarComponent({
         )}
       >
 
-        <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 pl-1.5 pr-2">
+        <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 px-3">
 
           {/* ── Pinned left anchor: avatar / back button only ── */}
           <div className="flex-shrink-0 flex items-center gap-1 relative z-20">
@@ -255,7 +255,7 @@ function TopBarComponent({
               touchAction: 'pan-x',
             } as React.CSSProperties}
           >
-            <div className="flex items-center gap-1 flex-nowrap pl-2 pr-1">
+            <div className="flex items-center gap-2 flex-nowrap justify-end pl-2">
               {/* Mode switcher */}
                 {!minimal && (
                   <div className="flex-shrink-0">
