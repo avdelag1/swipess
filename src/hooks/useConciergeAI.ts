@@ -338,10 +338,12 @@ export function useConciergeAI() {
       console.error('[ConciergeAI]', err);
       toast.error('AI temporarily unavailable. Please try again.');
     } finally {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      streamBufferRef.current = null;
       setIsLoading(false);
       abortRef.current = null;
     }
-  }, [activeConversationId, conversations, isLoading, updateConversations]);
+  }, [activeConversationId, conversations, isLoading, updateConversations, updateConversationsLive, flushStreamBuffer]);
 
   const resendMessage = useCallback(async (messageId: string) => {
     if (!activeConversation || isLoading) return;
@@ -366,6 +368,8 @@ export function useConciergeAI() {
 
   const stopGeneration = useCallback(() => {
     abortRef.current?.abort();
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    streamBufferRef.current = null;
     setIsLoading(false);
   }, []);
 
