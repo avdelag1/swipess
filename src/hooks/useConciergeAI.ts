@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { toast } from '@/components/ui/sonner';
 
 export interface ChatMessage {
@@ -67,6 +67,9 @@ export function useConciergeAI() {
   );
   const [isLoading, setIsLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  // Throttled streaming: accumulate tokens in a ref, flush to state via RAF
+  const streamBufferRef = useRef<{ convoId: string; msgId: string; content: string } | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   const activeConversation = conversations.find(c => c.id === activeConversationId) ?? null;
   const messages = activeConversation?.messages ?? [];
