@@ -10,6 +10,7 @@ import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
 import { POKER_CARDS, POKER_CARD_PHOTOS, PK_SPRING, PK_W, PK_H } from './swipe/SwipeConstants';
 import { haptics } from '@/utils/microPolish';
+import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 
 // Re-export from CascadeFilterButton for backwards compatibility
 export { CascadeFilterButton } from './CascadeFilterButton';
