@@ -9,6 +9,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  provider?: string;
 }
 
 export interface Conversation {
@@ -424,6 +425,7 @@ export function useConciergeAI() {
       }
 
       const contentType = resp.headers.get('content-type') || '';
+      const aiProvider = resp.headers.get('x-ai-provider') || undefined;
 
       if (contentType.includes('text/event-stream') && resp.body) {
         const assistantMsgId = crypto.randomUUID();
@@ -440,6 +442,7 @@ export function useConciergeAI() {
                 role: 'assistant' as const,
                 content: '',
                 timestamp: assistantTimestamp,
+                provider: aiProvider,
               }],
               updatedAt: new Date(),
             };
@@ -504,6 +507,7 @@ export function useConciergeAI() {
           role: 'assistant',
           content: finalCleaned,
           timestamp: assistantTimestamp,
+          provider: aiProvider,
         };
 
         updateConversations(prev =>
@@ -537,6 +541,7 @@ export function useConciergeAI() {
           role: 'assistant',
           content: stripThinkBlocks(reply),
           timestamp: new Date(),
+          provider: aiProvider,
         };
 
         updateConversations(prev =>
