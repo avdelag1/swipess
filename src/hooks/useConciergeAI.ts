@@ -1,6 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useUserSubscription } from '@/hooks/useSubscription';
+import { useTokens } from '@/hooks/useTokens';
 
 export interface ChatMessage {
   id: string;
@@ -176,6 +178,14 @@ const AI_URL = 'https://qegyisokrxdsszzswsqk.supabase.co/functions/v1/ai-concier
 const AUTH_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjY0NTIsImV4cCI6MjA4NTg0MjQ1Mn0.4tdJ82fDnFXaJ6SHpfveCiGxGm2S4II6NNIbGUnT2ZU';
 
 export function useConciergeAI() {
+  // Premium access check
+  const { data: subscription } = useUserSubscription();
+  const { tokens } = useTokens();
+  const isPremium = !!(subscription?.is_active);
+  // For now: allow access if premium OR has tokens. Free users blocked.
+  // During development/testing, set to true to keep AI open for everyone:
+  const canUseAI = true; // TODO: Change to `isPremium || tokens > 0` when ready to gate
+
   const [conversations, setConversations] = useState<Conversation[]>(loadConversationsLocal);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(
     () => loadConversationsLocal()[0]?.id ?? null
@@ -312,6 +322,10 @@ export function useConciergeAI() {
 
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim() || isLoading) return;
+    if (!canUseAI) {
+      toast.error('Upgrade to Premium to use Swipess AI', { description: 'Subscribe or purchase tokens to unlock the AI concierge.' });
+      return;
+    }
 
     let convoId = activeConversationId;
     if (!convoId) {
@@ -547,7 +561,7 @@ export function useConciergeAI() {
       setIsLoading(false);
       abortRef.current = null;
     }
-  }, [activeConversationId, conversations, isLoading, updateConversations, updateConversationsLive, flushStreamBuffer, activeCharacter, egoLevel, setEgoLevel]);
+  }, [activeConversationId, conversations, isLoading, canUseAI, updateConversations, updateConversationsLive, flushStreamBuffer, activeCharacter, egoLevel, setEgoLevel]);
 
   const resendMessage = useCallback(async (messageId: string) => {
     if (!activeConversation || isLoading) return;
@@ -597,5 +611,7 @@ export function useConciergeAI() {
     setActiveCharacter,
     egoLevel,
     setEgoLevel,
+    canUseAI,
+    isPremium,
   };
 }
