@@ -567,6 +567,7 @@ export function useConciergeAI() {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       streamBufferRef.current = null;
       setIsLoading(false);
+      isSendingRef.current = false; // Unlock
       abortRef.current = null;
     }
   }, [activeConversationId, conversations, isLoading, canUseAI, updateConversations, updateConversationsLive, flushStreamBuffer, activeCharacter, egoLevel, setEgoLevel]);
