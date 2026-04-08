@@ -1,74 +1,93 @@
 
 
-## Plan: HD Cinematic Polish — Rounded Vignette Header + Vibrant Icon System + Micro-Interaction Upgrade
+## Plan: Kyle — The Concierge Hustler AI Personality System
 
-### What we're doing
+### What we're building
 
-Transforming the app from "solid and functional" to "you want to touch it" — the Tinder/Instagram HD feeling where every element has depth, vibrancy, and organic roundness.
+A toggleable AI character system inside the existing Swipess AI concierge. Users can activate "Kyle" — a confident Boston concierge hustler with dynamic ego, signature speech patterns, and memory-aware personality. When deactivated, the default Tulum hero concierge remains.
+
+### Architecture
+
+```text
+┌─────────────────────────────┐
+│  ConciergeChat.tsx          │
+│  ┌───────────────────────┐  │
+│  │ Header: Kyle toggle   │  │  ← New button (fire emoji / character icon)
+│  │ button + ego meter bar│  │  ← Thin glow bar showing ego level
+│  └───────────────────────┘  │
+│  Messages render as before  │
+└──────────┬──────────────────┘
+           │ sends { messages, character: "kyle" | "default", egoLevel: 6 }
+           ▼
+┌─────────────────────────────┐
+│  useConciergeAI.ts          │
+│  - activeCharacter state    │  ← localStorage persisted
+│  - egoLevel state (1-10)    │  ← Adjusts based on user reactions
+│  - Passes character+ego to  │
+│    edge function body       │
+└──────────┬──────────────────┘
+           ▼
+┌─────────────────────────────┐
+│  ai-concierge/index.ts      │
+│  - Reads character param    │
+│  - Swaps system prompt:     │
+│    "default" → existing     │
+│    "kyle" → Kyle persona    │
+│  - Ego level modifies tone  │
+└─────────────────────────────┘
+```
 
 ### Changes
 
-#### 1. Header — Remove frames, add cinematic rounded vignette
+#### 1. Edge function — Kyle system prompt + ego-aware tone
 
-Replace the flat/transparent header background with a **curved vignette shadow** that fades from the top edge of the screen. No border, no box, no frame — just a natural dark-to-transparent gradient with rounded falloff that makes icons float on the content like they do in Instagram Stories or Tinder's overlay UI.
+**File**: `supabase/functions/ai-concierge/index.ts`
 
-**File**: `src/index.css` (`.app-header` class) + `src/components/TopBar.tsx`
+Add a `buildKylePrompt()` function that generates Kyle's full persona prompt. It receives the ego level (1-10) and adjusts tone dynamically:
+- **Ego 1-3**: Chill but still confident, fewer fillers
+- **Ego 4-6**: Classic Kyle — dominant, assertive, full filler loop
+- **Ego 7-10**: Peak arrogance, dismissive, "I already told you bro"
 
-- Remove any `bg-background/80 backdrop-blur-xl` from the header — make it fully transparent
-- Add a CSS `mask-image` or radial gradient pseudo-element that creates a soft rounded vignette from the top corners
-- All header buttons become pure floating icons — no glass backgrounds, no borders, just icons with subtle drop-shadows for legibility
-- The `GradientMaskTop` component already exists and does this partially — we'll increase its role and remove the header's own background entirely
+The main handler reads `character` and `egoLevel` from the request body alongside `messages`. If `character === "kyle"`, use the Kyle prompt instead of the default concierge prompt. All existing context injection (knowledge, listings, memories, web) still applies — Kyle just wraps it in his personality.
 
-#### 2. Icon Vibrancy — HD color system for header buttons
+#### 2. Hook — Character state + ego tracking
 
-Currently icons use `text-amber-300`, `text-rose-500` etc. — these feel flat compared to Instagram/Tinder. Upgrade to:
+**File**: `src/hooks/useConciergeAI.ts`
 
-- **Sharper icon colors** with subtle `filter: drop-shadow()` glow matching each icon's hue
-- **Thicker stroke weight** (2.5 → 3) for icons at 18-20px size — makes them pop like native iOS icons
-- Icons get a micro `text-shadow` or `drop-shadow` that gives them the "HD backlit" feeling
-- Active states get a subtle breathing glow animation
+- Add `activeCharacter` state (`"default" | "kyle"`) persisted in localStorage
+- Add `egoLevel` state (number 1-10, default 6) persisted in localStorage
+- Export `setCharacter()` and `egoLevel` for the UI
+- In `sendMessage()`, include `character` and `egoLevel` in the fetch body
+- After each assistant response, run a simple client-side ego adjustment:
+  - If user message contains agreement words ("right", "yeah", "true", "exactly", "good point") → ego +1
+  - If user message contains challenge words ("no", "wrong", "disagree", "that doesn't", "are you sure") → ego -1
+  - Clamp between 1-10
 
-**File**: `src/components/TopBar.tsx`
+#### 3. UI — Character toggle + ego meter
 
-#### 3. Bottom Navigation — Rounder, more alive
+**File**: `src/components/ConciergeChat.tsx`
 
-The bottom nav already has `borderRadius: 32px` which is good. Enhance:
+- Add a toggle button in the header (between the menu and the logo area) — a flame icon that glows orange when Kyle is active
+- When Kyle is active, show a thin horizontal ego meter bar below the header (1-10 scale, color shifts from blue → orange → red as ego rises)
+- The subtitle text changes from "Your Tulum concierge" to "Kyle — Boston Hustler" when active
+- Add a small activation toast: "Kyle activated. Bro... you know what I mean?" / "Back to default concierge"
 
-- Increase active pill glow intensity — currently `rgba(255,107,53,0.15)` in dark mode, boost to `0.25` with a subtle `box-shadow` glow ring
-- Active icon gets a subtle continuous micro-pulse (not distracting, just alive)
-- Inactive icons get slightly more contrast — bump from `0.55` to `0.65` opacity in dark mode
+### Kyle's system prompt (core)
 
-**File**: `src/components/BottomNavigation.tsx`
+The prompt instructs the AI to maintain Kyle's speech patterns while still leveraging all existing Swipess knowledge (listings, local intel, memories). Kyle doesn't lose functionality — he just delivers it differently. Key prompt elements:
+- Constant fillers: "you know what I mean?", "you know what I'm saying?", "bro"
+- Self-correction loop (catches himself repeating, switches phrase)
+- References "the formula", connections, past experiences
+- Short-medium responses, never long explanations
+- Ego level directly controls dismissiveness and arrogance in the prompt instructions
 
-#### 4. Page Transitions — Smoother cross-fade
-
-Currently pages mount/unmount without transition. Add a lightweight `motion.div` wrapper in `AppLayout.tsx` around `{children}` with:
-
-- `initial={{ opacity: 0 }}` → `animate={{ opacity: 1 }}` with 120ms duration
-- No scale, no slide — just a fast silk fade that makes navigation feel like content is "resolving" rather than "popping in"
-
-**File**: `src/components/AppLayout.tsx`
-
-#### 5. Global Polish — Rounded corners everywhere
-
-Audit and upgrade corner radii across the design system:
-
-- Bump `--radius-md` from 14px → 16px
-- Bump `--radius-lg` from 20px → 24px  
-- These cascade through all cards, modals, and containers automatically via the token system
-
-**File**: `src/styles/tokens.css`
-
-### Technical details
+### Files to change
 
 | File | Change |
 |------|--------|
-| `src/index.css` | Make `.app-header` fully transparent, remove background |
-| `src/components/TopBar.tsx` | Remove `bg-background/80 backdrop-blur-xl`, add HD drop-shadows to icons, increase icon sizes to 18-20px with strokeWidth 3 |
-| `src/components/BottomNavigation.tsx` | Boost active pill glow, increase inactive icon opacity, add subtle active breathing |
-| `src/components/AppLayout.tsx` | Wrap `{children}` in a `motion.div` with 120ms opacity fade keyed by pathname |
-| `src/styles/tokens.css` | Bump `--radius-md` to 16px, `--radius-lg` to 24px |
-| `src/components/ui/GradientMasks.tsx` | Slightly increase top gradient intensity to compensate for removed header bg |
+| `supabase/functions/ai-concierge/index.ts` | Add `buildKylePrompt(egoLevel)`, read `character`+`egoLevel` from request body, conditional prompt selection |
+| `src/hooks/useConciergeAI.ts` | Add `activeCharacter`, `egoLevel` state with localStorage, ego adjustment logic, pass to fetch body |
+| `src/components/ConciergeChat.tsx` | Kyle toggle button in header, ego meter bar, dynamic subtitle |
 
-No layout, routing, or swipe physics changes. Pure visual evolution.
+No layout, routing, or swipe changes. The default concierge behavior is completely untouched when Kyle is off.
 
