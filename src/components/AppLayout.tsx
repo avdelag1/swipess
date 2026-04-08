@@ -15,6 +15,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useModalStore } from '@/state/modalStore';
 import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { cn } from '@/lib/utils';
+import { SentientHud } from './SentientHud';
 
 const RadioMiniPlayer = lazy(() =>
   import('@/components/RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer }))
