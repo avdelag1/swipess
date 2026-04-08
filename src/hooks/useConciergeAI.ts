@@ -249,6 +249,7 @@ export function useConciergeAI() {
   }, []);
 
   const abortRef = useRef<AbortController | null>(null);
+  const isSendingRef = useRef(false); // Ref-based guard against double sends
   const streamBufferRef = useRef<{ convoId: string; msgId: string; content: string } | null>(null);
   const rafRef = useRef<number | null>(null);
 
