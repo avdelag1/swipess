@@ -1,44 +1,46 @@
 
 
-## Plan: Fix Radar Layout, Auto-Stop, and Motorcycle Filter
+## Plan: Instant Reactivity Everywhere + Remove Duplicate Distance Info
 
-### Problems
+### What's Happening Now
 
-1. **Distance selector cut off** — The radar + text + button + distance card don't fit in the viewport. The content overflows below the visible area.
-2. **Radar animation may not stop** — Need to ensure the sweep beam and ripples fully stop after 6 seconds and do NOT animate on initial load (only on refresh click).
-3. **Motorcycle quick filter button** — Need to verify it properly triggers category switch and loads motorcycle listings.
+**The "instant feel" on the bottom nav** comes from three things working together:
+1. A global `useInstantReactivity` hook that adds a CSS active-state class + haptic on ANY button/link the instant you touch it (before React even processes the tap)
+2. Framer Motion `whileTap={{ scale: 0.92 }}` with a stiff spring (stiffness: 1000, damping: 30)
+3. Prefetching the next page on touch-start so the page is ready before you lift your finger
+
+This system already covers ALL buttons and links app-wide via the global hook. The distance slider doesn't feel the same because it uses Framer Motion spring animations on the fill bar and thumb, which add latency. The slider also has `touchAction: 'none'` which is correct for dragging but the spring physics delay the visual response.
+
+**The duplicate info**: The exhausted state has a "Coverage / Search Radius" header with km badge + Auto button (lines 218-243), AND the `SwipeDistanceSlider` component renders its OWN "Radar Radius / Scanning Range" header with ANOTHER km badge + Auto button. Two headers, two km displays, two Auto buttons.
 
 ### Changes
 
-#### 1. Compact the Exhausted State Layout (`SwipeExhaustedState.tsx`)
+#### 1. Strip SwipeDistanceSlider to Slider-Only (`SwipeDistanceSlider.tsx`)
+- Remove the entire internal header (MapPin icon, "Radar Radius", "Scanning Range", km display, Auto button) — lines 47-81
+- Remove the "1 KM / 100 KM+" footer labels (lines 126-129) since the parent already has these
+- Remove the dark card wrapper (`bg-black/40`, border, shadow) — the parent provides its own card
+- Keep ONLY the slider track, invisible range input, and animated thumb
+- Remove the spring animation on the fill bar — use direct `style.width` percentage for instant response (no spring delay)
+- The thumb position updates via direct MotionValue transforms (already instant)
 
-- Reduce radar `size` from 128 to 96 (smaller radar, less vertical space)
-- Reduce icon size inside radar from `h-9 w-9` to `h-6 w-6`
-- Reduce gaps between elements: `gap-6` to `gap-3`, `gap-5` to `gap-3`
-- Reduce vertical padding: `py-5` to `py-2`, `pt-4` to `pt-2`, `pb-5` to `pb-3`
-- Reduce the distance card padding from `p-5` to `p-4`, border-radius from `rounded-[2rem]` to `rounded-2xl`
-- Make the "No new listings" heading smaller: `text-xl` to `text-base`
-- Make the Refresh button slimmer: `h-13` to `h-10`, smaller padding
-- Remove `justify-center` from the main flex column — use `justify-start` so content flows from top and distance card is visible
+#### 2. Make Slider Feel Instant (`SwipeDistanceSlider.tsx`)
+- Replace `useSpring` (stiffness: 450, damping: 32) with direct `useMotionValue` for the fill width — zero lag between finger movement and visual update
+- Keep the thumb's `useTransform` mapping but remove the spring intermediary so it tracks the native input 1:1
+- This matches the "zero-animation" principle already used on the bottom nav buttons
 
-#### 2. Fix Radar Auto-Stop Guarantee (`RadarSearchEffect.tsx`)
-
-- Ensure initial state: `useState(isActive)` — when `isActive` is false on mount, no animation runs
-- Add a guard: when `animating` transitions to false, force-cancel any lingering Framer Motion animations by using `animate={animating ? {...} : false}` pattern (using `false` instead of static values stops transitions)
-- The sweep beam's `repeat: Infinity` inside AnimatePresence should unmount cleanly when `animating=false`, but add explicit `exit` transitions to ensure clean teardown
-
-#### 3. Fix Motorcycle Quick Filter (`SwipeExhaustedState.tsx`)
-
-- The `handleCategorySwitch` calls `setCategories([catId])` which sets `activeCategory` to the category
-- Verify the `MotorcycleIcon` component properly accepts and forwards `strokeWidth` prop — currently it does via `{...props}` spread, but it also has a hardcoded `strokeWidth={2}` on the SVG element. The spread `{...props}` comes AFTER `strokeWidth={2}`, so the passed `strokeWidth={2.35}` should override. This should work.
-- The real issue may be that `motorcycle` as a category ID doesn't match what the swipe containers expect. Check that `useSmartMatching` properly handles `motorcycle` category. If the hook filters by `listing_type` or similar, the motorcycle value needs to match.
+#### 3. Adjust Parent Layout (`SwipeExhaustedState.tsx`)
+- Keep the existing "Coverage / Search Radius" header with km badge + Auto button (lines 218-243) as the single source of truth
+- The `SwipeDistanceSlider` now renders just the track bar directly below this header
+- Add the "Local / 100 km+" scale labels below the slider (move from SwipeDistanceSlider to here)
+- Tighten vertical spacing since we removed a full duplicate header block — this frees up ~60px of vertical space, making the distance card more compact and ensuring it fits on screen
 
 ### Files Modified
+1. `src/components/swipe/SwipeDistanceSlider.tsx` — Strip to slider-only, remove spring delay
+2. `src/components/swipe/SwipeExhaustedState.tsx` — Add scale labels, tighten spacing
 
-1. **`src/components/swipe/SwipeExhaustedState.tsx`** — Compact layout: smaller radar, tighter spacing, visible distance card, `justify-start` instead of `justify-center`
-2. **`src/components/ui/RadarSearchEffect.tsx`** — Ensure clean animation stop with explicit exit props on sweep beam and ripples
-
-### Technical Detail
-
-The core layout fix is changing the flex container from `justify-center` to `justify-start` with controlled gaps. Currently `justify-center` pushes the distance card below the fold when the radar + text take up the center. With `justify-start`, elements stack from top down and the distance card stays visible within the scrollable area.
+### What Stays the Same
+- The global `useInstantReactivity` hook already provides instant feedback on all buttons/links across the entire app
+- The bottom nav's tap spring, haptics, and prefetch logic remain untouched
+- Radar scan burst behavior (6-second timer on refresh) stays as-is
+- All swipe/like persistence logic unchanged
 
