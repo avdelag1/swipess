@@ -243,13 +243,36 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages, isLoading]);
+  // Auto-scroll to bottom on new messages, loading state, opening chat, or switching conversation
+  const scrollToBottom = useCallback(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, []);
 
   useEffect(() => {
-    if (isOpen) setTimeout(() => inputRef.current?.focus(), 300);
-  }, [isOpen]);
+    // Use requestAnimationFrame to ensure DOM has updated before scrolling
+    requestAnimationFrame(scrollToBottom);
+  }, [messages, isLoading, scrollToBottom]);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Delay scroll when opening to let animation complete and DOM render
+      const t1 = setTimeout(scrollToBottom, 100);
+      const t2 = setTimeout(scrollToBottom, 350);
+      const t3 = setTimeout(() => inputRef.current?.focus(), 300);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    }
+  }, [isOpen, scrollToBottom]);
+
+  // Also scroll when switching conversations
+  useEffect(() => {
+    if (activeConversationId) {
+      requestAnimationFrame(scrollToBottom);
+      const t = setTimeout(scrollToBottom, 100);
+      return () => clearTimeout(t);
+    }
+  }, [activeConversationId, scrollToBottom]);
 
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
