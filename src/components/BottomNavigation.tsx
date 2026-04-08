@@ -76,6 +76,7 @@ export const BottomNavigation = memo(({
   const { navigate, prefetch } = useAppNavigate();
   const location = useLocation();
   const setCategories = useFilterStore((s) => s.setCategories);
+  const openAIChat = useModalStore((s) => s.setModal);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { theme } = useTheme();
@@ -103,6 +104,7 @@ export const BottomNavigation = memo(({
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
     { id: 'search', icon: SlidersHorizontal, label: 'Discovery', onClick: onFilterClick },
+    { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
   ];
 
   // Owner nav items (8 buttons)
@@ -116,6 +118,7 @@ export const BottomNavigation = memo(({
     { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
+    { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
   ];
 
   // Admin nav items — admin panel + messaging
