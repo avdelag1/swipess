@@ -320,20 +320,59 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     try { return localStorage.getItem('concierge-auto-send') === 'true'; } catch { return false; }
   });
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [ignitionFlash, setIgnitionFlash] = useState(false);
   const recognitionRef = useRef<any>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownTranscriptRef = useRef<string>('');
   const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
   const COUNTDOWN_SECONDS = 7;
+  const SILENCE_DELAY_MS = 3000; // 3 seconds of silence before countdown starts
 
   const clearCountdown = useCallback(() => {
     if (countdownRef.current) {
       clearInterval(countdownRef.current);
       countdownRef.current = null;
     }
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
     setCountdown(null);
   }, []);
+
+  const fireIgnitionAndSend = useCallback(() => {
+    const textToSend = countdownTranscriptRef.current;
+    setIgnitionFlash(true);
+    setTimeout(() => {
+      setIgnitionFlash(false);
+      if (textToSend) {
+        sendMessage(textToSend);
+        setInput('');
+      }
+      setIsListening(false);
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch {}
+        recognitionRef.current = null;
+      }
+    }, 600);
+  }, [sendMessage]);
+
+  const startCountdown = useCallback(() => {
+    setCountdown(COUNTDOWN_SECONDS);
+    countdownRef.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev === null || prev <= 1) {
+          clearInterval(countdownRef.current!);
+          countdownRef.current = null;
+          fireIgnitionAndSend();
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [fireIgnitionAndSend]);
 
   const toggleAutoSend = useCallback(() => {
     setAutoSend(prev => {
@@ -366,7 +405,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     let userStopped = false;
 
     recognition.onresult = (event: any) => {
-      // Cancel any active countdown when user speaks again
+      // Cancel any active countdown or silence timer — user is speaking
       clearCountdown();
 
       let interim = '';
@@ -379,46 +418,33 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
         }
       }
       setInput(finalTranscript + interim);
-      countdownTranscriptRef.current = finalTranscript;
+      countdownTranscriptRef.current = finalTranscript || (finalTranscript + interim);
+
+      // If auto-send is ON, reset silence timer: after 3s of no new speech → start countdown
+      if (autoSend && (finalTranscript + interim).trim()) {
+        silenceTimerRef.current = setTimeout(() => {
+          if (!userStopped && recognitionRef.current) {
+            countdownTranscriptRef.current = finalTranscript.trim() || (finalTranscript + interim).trim();
+            startCountdown();
+          }
+        }, SILENCE_DELAY_MS);
+      }
     };
 
     recognition.onend = () => {
-      if (!userStopped && recognitionRef.current) {
-        // If auto-send is ON and we have text, start countdown instead of restarting
-        if (autoSend && finalTranscript.trim()) {
-          countdownTranscriptRef.current = finalTranscript.trim();
-          setCountdown(COUNTDOWN_SECONDS);
-          countdownRef.current = setInterval(() => {
-            setCountdown(prev => {
-              if (prev === null || prev <= 1) {
-                // Countdown reached 0 — auto-send
-                clearInterval(countdownRef.current!);
-                countdownRef.current = null;
-                const textToSend = countdownTranscriptRef.current;
-                if (textToSend) {
-                  sendMessage(textToSend);
-                  setInput('');
-                }
-                setIsListening(false);
-                recognitionRef.current = null;
-                return null;
-              }
-              return prev - 1;
-            });
-          }, 1000);
-          return;
-        }
-
-        // No auto-send or no text — just restart recognition
+      // If user didn't manually stop and no countdown is running, restart recognition
+      if (!userStopped && recognitionRef.current && countdown === null && !countdownRef.current) {
         try {
           recognition.start();
           return;
         } catch {
-          // Failed to restart, fall through
+          // Failed to restart
         }
       }
-      setIsListening(false);
-      recognitionRef.current = null;
+      if (!countdownRef.current) {
+        setIsListening(false);
+        recognitionRef.current = null;
+      }
     };
 
     recognition.onerror = (e: any) => {
@@ -434,7 +460,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     recognitionRef.current = recognition;
     recognition.start();
     setIsListening(true);
-  }, [speechSupported, autoSend, sendMessage, clearCountdown]);
+  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown, countdown]);
 
   const toggleListening = useCallback(() => {
     if (isListening || countdown !== null) {
@@ -725,14 +751,24 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   <Zap className="w-3 h-3" />
                   Auto-send {autoSend ? 'ON' : 'OFF'}
                 </button>
-                {countdown !== null && (
+                {ignitionFlash && (
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1.1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-xs font-bold text-primary"
+                  >
+                    🚀 Ignition!
+                  </motion.span>
+                )}
+                {countdown !== null && !ignitionFlash && (
                   <motion.span
                     initial={{ opacity: 0, x: -5 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0 }}
                     className="text-[10px] font-medium text-primary/70"
                   >
-                    Sending in {countdown}…
+                    {countdown <= 2 ? `🔥 ${countdown}… ready to launch!` : `Sending in ${countdown}…`}
                   </motion.span>
                 )}
               </div>
@@ -779,10 +815,13 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     className={cn(
                       "w-10 h-10 rounded-xl transition-all relative",
                       isListening && "bg-red-500/20 border-red-500/50 text-red-400 animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.4)]",
-                      countdown !== null && "border-primary/50 bg-primary/10"
+                      countdown !== null && "border-primary/50 bg-primary/10",
+                      ignitionFlash && "border-primary bg-primary/30 shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
                     )}
                   >
-                    {countdown !== null ? (
+                    {ignitionFlash ? (
+                      <span className="text-sm">🚀</span>
+                    ) : countdown !== null ? (
                       <span className="text-xs font-bold text-primary">{countdown}</span>
                     ) : isListening ? (
                       <MicOff className="w-4 h-4" />
