@@ -564,8 +564,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.json() as { messages: ChatMessage[]; character?: string; egoLevel?: number };
-    const { messages, character, egoLevel } = body;
+    const body = await req.json() as { messages: ChatMessage[]; character?: string; egoLevel?: number; charmLevel?: number };
+    const { messages, character, egoLevel, charmLevel } = body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: "messages array is required" }), {
@@ -598,7 +598,7 @@ Deno.serve(async (req) => {
     const webResults = (!knowledge && !listings) ? await searchWeb(lastUserMessage) : "";
 
     // Build enriched system prompt with character support
-    const systemPrompt = buildSystemPrompt({ knowledge, listings, memories, webResults, character, egoLevel });
+    const systemPrompt = buildSystemPrompt({ knowledge, listings, memories, webResults, character, egoLevel, charmLevel });
 
     // Prepare messages with enriched system prompt
     const enrichedMessages: ChatMessage[] = [
