@@ -921,7 +921,7 @@ const ClientSwipeContainerComponent = ({
 
         {/* Action Buttons */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
-          <div className="pb-4 pt-1">
+          <div className="pb-[calc(12px+env(safe-area-inset-bottom))] pt-1">
             <SwipeActionButtonBar
               onLike={() => cardRef.current?.triggerSwipe('right')}
               onDislike={() => cardRef.current?.triggerSwipe('left')}
