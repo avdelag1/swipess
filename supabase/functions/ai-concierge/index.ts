@@ -49,7 +49,15 @@ async function callMiniMax(messages: ChatMessage[]): Promise<string> {
   }
 
   const data = await res.json();
-  return data.choices?.[0]?.message?.content || "I couldn't generate a response.";
+  console.log("[AI] MiniMax response:", JSON.stringify(data).slice(0, 500));
+  
+  const content = data.choices?.[0]?.message?.content 
+    || data.choices?.[0]?.delta?.content
+    || data.reply
+    || data.output?.choices?.[0]?.message?.content;
+  
+  if (!content) throw new Error("MiniMax returned empty response: " + JSON.stringify(data).slice(0, 300));
+  return content;
 }
 
 async function callLovableAI(messages: ChatMessage[]): Promise<string> {
