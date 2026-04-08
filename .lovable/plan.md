@@ -1,26 +1,91 @@
 
 
-## Plan: Fix Likes Page Scrolling (Client + Owner)
+## Plan: Tinder-Level Smoothness & Polish Across the Entire App
 
-### Root Cause
+### Summary
+Make every interaction in the app feel as instant and premium as Tinder — focusing on the distance slider, button responsiveness, likes page scroll dead zones, and overall spacing/width to feel more spacious and less cramped.
 
-The `#dashboard-scroll-container` in `DashboardLayout.tsx` applies `contentVisibility: 'auto'` with `containIntrinsicSize: '100dvh'` (line 506). This CSS containment property tells the browser it can skip rendering off-screen content, which can collapse the scrollable height and prevent or break scrolling — especially on pages like the Likes pages where content is dynamically loaded.
+---
 
-Additionally, `LikedClients.tsx` (owner side) lacks `min-h-[101dvh]` that `ClientLikedProperties.tsx` has, which can cause the content to not be tall enough to scroll in some states.
+### Problem Areas Identified
+
+1. **Distance slider** — updates parent on every `onChange` which floods Zustand; the spring animation adds visual lag
+2. **Buttons too chunky** — action buttons, filter pills, and nav items have excess padding making the UI feel cramped vs Tinder's slim, wide feel
+3. **Likes page scroll dead zones** — after the sticky header/filter section scrolls out of view, touch events hit elements that block vertical scrolling
+4. **Overall spacing** — excessive margins and padding reduce the "wide, immersive" feel
+
+---
 
 ### Changes
 
-**File: `src/components/DashboardLayout.tsx`**
-- Remove `contentVisibility: 'auto'` and `containIntrinsicSize: '100dvh'` from the scroll container's inline style (line 506). These properties are meant for children inside a scroll container, not the scroll container itself. Removing them restores normal scroll behavior without any visual impact.
+#### 1. Distance Slider — Zero-Lag Update (2 files)
 
-**File: `src/components/LikedClients.tsx`**
-- Change outer div from `overflow-visible` to match the client pattern: add `min-h-[101dvh]` and `overflow-x-hidden` so content always exceeds the scroll container height and scrolls naturally.
+**`src/components/swipe/DistanceSlider.tsx`**
+- Remove the animated `scale` bounce on the km display (the `animate={{ scale: [1, 1.05, 1] }}` with `key={localKm}`) — it triggers a new animation on every pixel drag, creating jank
+- Keep the spring on the track fill/thumb for visual smoothness but ensure the **number display updates instantly** (no motion wrapping on the text)
+- Remove the infinite shimmer animation on the track (`animate={{ x: ['-100%', '200%'] }}`) — it runs continuously and wastes GPU cycles
 
-**File: `src/pages/ClientLikedProperties.tsx`**
-- No structural change needed — already has `min-h-[101dvh]`. Just verify it stays consistent.
+**`src/components/swipe/SwipeDistanceSlider.tsx`**
+- Same treatment: ensure the `displayKmText` motion value renders without any spring delay on the text itself
+
+#### 2. Thinner, Wider Buttons (3 files)
+
+**`src/components/SwipeActionButtonBar.tsx`**
+- Reduce `LARGE_CSS` from `clamp(52px, 15vw, 64px)` → `clamp(46px, 13vw, 56px)`
+- Reduce `SMALL_CSS` from `clamp(40px, 12vw, 48px)` → `clamp(34px, 10vw, 42px)`
+- Reduce icon sizes proportionally (LARGE_ICON 30→26, SMALL_ICON 22→19)
+- Reduce `GAP_CSS` from `clamp(12px, 5vw, 20px)` → `clamp(8px, 3.5vw, 16px)`
+- Make tap scale snappier: `TAP_SCALE` 0.92→0.94 (subtler, more premium)
+
+**`src/components/BottomNavigation.tsx`**
+- Reduce `ICON_SIZE` from 26→23, `ICON_SIZE_COMPACT` from 23→20
+- Reduce `TOUCH_TARGET` from 52→46 — still accessible but slimmer
+
+**`src/components/TopBar.tsx`**
+- Tighten vertical padding on the bar for a slimmer header profile
+
+#### 3. Fix Likes Page Scroll Dead Zones (2 files)
+
+**`src/components/LikedClients.tsx`**
+- Add `touch-action: pan-y` to the outer container div and the card grid
+- Ensure no `motion.button` inside filter tabs uses `whileTap` with scale that could interfere with touch detection — keep `whileTap` but add `touch-action: pan-y` on the scrollable parent
+- Add `will-change: scroll-position` on the scroll container for GPU-accelerated scrolling
+
+**`src/pages/ClientLikedProperties.tsx`**
+- Same scroll fix: explicit `touch-pan-y` on the main wrapper and grid containers
+- Verify the `data-no-swipe-nav` attribute is present to prevent the horizontal tab-swipe system from stealing vertical gestures
+
+#### 4. Wider / More Spacious Feel (2 files)
+
+**`src/components/SwipessSwipeContainer.tsx`**
+- Reduce card area horizontal padding from `px-3` → `px-1.5` for a wider card
+- Reduce top controls padding from `px-4` → `px-2`
+
+**`src/components/ClientSwipeContainer.tsx`**
+- Same padding reductions to match client-side
+
+#### 5. Instant Press States Everywhere
+
+**All button components touched above:**
+- Replace spring-based `whileTap` animations with CSS `active:scale-[0.97]` where possible — CSS `:active` triggers on the native thread and is faster than Framer Motion's JS-driven spring
+- Keep Framer Motion springs only for the swipe card physics and page transitions
+
+---
+
+### Files Modified
+1. `src/components/swipe/DistanceSlider.tsx` — remove jank animations
+2. `src/components/swipe/SwipeDistanceSlider.tsx` — same treatment
+3. `src/components/SwipeActionButtonBar.tsx` — thinner buttons
+4. `src/components/BottomNavigation.tsx` — slimmer nav
+5. `src/components/TopBar.tsx` — slimmer header
+6. `src/components/LikedClients.tsx` — scroll dead zone fix
+7. `src/pages/ClientLikedProperties.tsx` — scroll dead zone fix
+8. `src/components/SwipessSwipeContainer.tsx` — wider card area
+9. `src/components/ClientSwipeContainer.tsx` — wider card area
 
 ### Safety
-- Zero logic changes
-- Zero layout architecture changes
-- Only removes a CSS containment property that was preventing scroll, and adds min-height to the owner likes page
+- No layout architecture changes
+- No swipe physics changes
+- No routing changes
+- Only CSS/dimension tweaks and animation removal
 
