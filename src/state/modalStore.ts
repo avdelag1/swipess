@@ -65,7 +65,7 @@ export const useModalStore = create<ModalState>((set) => ({
   showSupport: false,
   showMessageActivations: false,
   showFilters: false,
-
+  showAIChat: false,
 
   setModal: (key, value) => set({ [key]: value }),
   
