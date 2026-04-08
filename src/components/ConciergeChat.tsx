@@ -166,49 +166,6 @@ const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate
 });
 MessageBubble.displayName = 'MessageBubble';
 
-      {/* Action bar — always visible on touch, hover on desktop */}
-      <div className={cn(
-        'flex items-center gap-1 mt-1 transition-opacity',
-        'opacity-100 sm:opacity-0 sm:group-hover:opacity-100',
-        isUser ? 'justify-end' : 'justify-start'
-      )}>
-        <button onClick={onCopy} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Copy">
-          <Copy className="w-3 h-3" />
-        </button>
-        {isUser && onResend && (
-          <button onClick={onResend} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Resend">
-            <RefreshCw className="w-3 h-3" />
-          </button>
-        )}
-        {!isUser && onTranslate && (
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Translate">
-                <Globe className="w-3 h-3" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-40 p-1.5" side="top" align="start">
-              <div className="grid gap-0.5">
-                {LANGUAGES.map(l => (
-                  <button
-                    key={l.code}
-                    onClick={() => onTranslate(l.label)}
-                    className="text-left text-xs px-2.5 py-1.5 rounded-lg hover:bg-muted/80 text-foreground transition-colors"
-                  >
-                    {l.label}
-                  </button>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
-        )}
-      </div>
-    </div>
-  </div>
-  );
-});
-MessageBubble.displayName = 'MessageBubble';
-
 /* ─── Wave Typing Indicator ─── */
 const TypingIndicator = () => (
   <div className="flex justify-start mb-3">
