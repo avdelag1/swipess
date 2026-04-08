@@ -533,7 +533,7 @@ const ClientSwipeContainerComponent = ({
               return [likedClient, ...oldData];
             });
           }
-        }).catch((err) => {
+        }).catch((err: any) => {
           // ERROR: Save failed - log and handle appropriately
           logger.error('[ClientSwipeContainer] Swipe save error:', err);
 
