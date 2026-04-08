@@ -21,7 +21,7 @@ import {
   Flame, MessageCircle, CircleUser, Building2,
   Users2, ShieldCheck,
   Megaphone, PartyPopper,
-  Zap, SlidersHorizontal
+  Zap, SlidersHorizontal, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -33,6 +33,7 @@ import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
+import { useModalStore } from '@/state/modalStore';
 
 const ICON_SIZE = 26;
 const ICON_SIZE_COMPACT = 23;
