@@ -113,7 +113,8 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
         <AppLayout>
           <WelcomeBonusModal />
           <TooltipProvider>
-          {/* Sonner toasts removed — premium NotificationBar handles all feedback */}
+            {/* Sonner toasts removed — premium NotificationBar handles all feedback */}
+            <span />
           </TooltipProvider>
 
           <Suspense fallback={null}>
