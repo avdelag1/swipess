@@ -16,9 +16,16 @@ export interface Conversation {
   updatedAt: Date;
 }
 
+export type AiCharacter = 'default' | 'kyle';
+
 const STORAGE_KEY = 'swipess-ai-conversations';
+const CHARACTER_KEY = 'swipess-ai-character';
+const EGO_KEY = 'swipess-ai-ego';
 const MAX_CONVERSATIONS = 20;
 const MAX_MESSAGES = 50;
+
+const AGREE_PATTERN = /\b(right|yeah|yes|exactly|true|good point|facts|for real|that's it|makes sense|you're right)\b/i;
+const CHALLENGE_PATTERN = /\b(no|wrong|disagree|that doesn't|are you sure|I don't think|nah|cap|doubt)\b/i;
 
 function loadConversations(): Conversation[] {
   try {
@@ -66,6 +73,23 @@ export function useConciergeAI() {
     () => loadConversations()[0]?.id ?? null
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [activeCharacter, setActiveCharacterState] = useState<AiCharacter>(
+    () => (localStorage.getItem(CHARACTER_KEY) as AiCharacter) || 'default'
+  );
+  const [egoLevel, setEgoLevelState] = useState<number>(
+    () => parseInt(localStorage.getItem(EGO_KEY) || '6', 10)
+  );
+
+  const setActiveCharacter = useCallback((c: AiCharacter) => {
+    setActiveCharacterState(c);
+    localStorage.setItem(CHARACTER_KEY, c);
+  }, []);
+
+  const setEgoLevel = useCallback((level: number) => {
+    const clamped = Math.max(1, Math.min(10, level));
+    setEgoLevelState(clamped);
+    localStorage.setItem(EGO_KEY, String(clamped));
+  }, []);
   const abortRef = useRef<AbortController | null>(null);
   // Throttled streaming: accumulate tokens in a ref, flush to state via RAF
   const streamBufferRef = useRef<{ convoId: string; msgId: string; content: string } | null>(null);
@@ -186,13 +210,22 @@ export function useConciergeAI() {
         content: m.content,
       }));
 
+      // Adjust ego based on user message content (Kyle mode only)
+      if (activeCharacter === 'kyle') {
+        if (AGREE_PATTERN.test(content)) setEgoLevel(egoLevel + 1);
+        else if (CHALLENGE_PATTERN.test(content)) setEgoLevel(egoLevel - 1);
+      }
+
       const resp = await fetch(AI_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${AUTH_KEY}`,
         },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({
+          messages: apiMessages,
+          ...(activeCharacter === 'kyle' ? { character: 'kyle', egoLevel } : {}),
+        }),
         signal: abortController.signal,
       });
 
@@ -343,7 +376,7 @@ export function useConciergeAI() {
       setIsLoading(false);
       abortRef.current = null;
     }
-  }, [activeConversationId, conversations, isLoading, updateConversations, updateConversationsLive, flushStreamBuffer]);
+  }, [activeConversationId, conversations, isLoading, updateConversations, updateConversationsLive, flushStreamBuffer, activeCharacter, egoLevel, setEgoLevel]);
 
   const resendMessage = useCallback(async (messageId: string) => {
     if (!activeConversation || isLoading) return;
@@ -391,5 +424,9 @@ export function useConciergeAI() {
     switchConversation,
     deleteConversation,
     clearHistory,
+    activeCharacter,
+    setActiveCharacter,
+    egoLevel,
+    setEgoLevel,
   };
 }

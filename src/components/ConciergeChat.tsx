@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, memo } from 'react';
-import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe } from 'lucide-react';
+import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { Button } from '@/components/ui/button';
-import { useConciergeAI, ChatMessage, Conversation } from '@/hooks/useConciergeAI';
+import { useConciergeAI, ChatMessage, Conversation, AiCharacter } from '@/hooks/useConciergeAI';
 import { toast } from '@/components/ui/sonner';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Progress } from '@/components/ui/progress';
 import ReactMarkdown from 'react-markdown';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
@@ -221,7 +222,19 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     messages, conversations, activeConversationId, isLoading,
     sendMessage, resendMessage, stopGeneration,
     createConversation, switchConversation, deleteConversation, clearHistory,
+    activeCharacter, setActiveCharacter, egoLevel,
   } = useConciergeAI();
+
+  const isKyle = activeCharacter === 'kyle';
+
+  const toggleCharacter = () => {
+    const next: AiCharacter = isKyle ? 'default' : 'kyle';
+    setActiveCharacter(next);
+    toast(next === 'kyle'
+      ? "Kyle activated. Bro... you know what I mean? 🔥"
+      : "Back to default concierge ✨"
+    );
+  };
 
   const [input, setInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -283,32 +296,87 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           </AnimatePresence>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-background/95 backdrop-blur-xl relative z-10">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                <Menu className="w-4 h-4" />
-              </Button>
-              <HeaderIcon isLoading={isLoading} />
-              <div>
-                <SwipessLogo size="xs" variant="gradient" />
-                <p className="text-[11px] text-muted-foreground">
-                  {isLoading ? 'Thinking…' : 'Your Tulum concierge'}
-                </p>
+          <div className="border-b border-border/50 bg-background/95 backdrop-blur-xl relative z-10">
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                  <Menu className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "w-8 h-8 rounded-full transition-all",
+                    isKyle && "bg-orange-500/20 text-orange-400 shadow-[0_0_12px_rgba(251,146,60,0.3)]"
+                  )}
+                  onClick={toggleCharacter}
+                  title={isKyle ? 'Deactivate Kyle' : 'Activate Kyle'}
+                >
+                  <Flame className={cn("w-4 h-4", isKyle ? "text-orange-400" : "text-muted-foreground")} />
+                </Button>
+                <HeaderIcon isLoading={isLoading} />
+                <div>
+                  {isKyle ? (
+                    <p className="text-sm font-bold text-orange-400">Kyle</p>
+                  ) : (
+                    <SwipessLogo size="xs" variant="gradient" />
+                  )}
+                  <p className="text-[11px] text-muted-foreground">
+                    {isLoading ? 'Thinking…' : isKyle ? 'Boston Hustler 🔥' : 'Your Tulum concierge'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => { createConversation(); }}>
+                  <Plus className="w-4 h-4 text-muted-foreground" />
+                </Button>
+                {conversations.length > 0 && (
+                  <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-muted-foreground hover:text-destructive" onClick={clearHistory}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
+                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-muted-foreground" onClick={onClose}>
+                  <X className="w-4 h-4" />
+                </Button>
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => { createConversation(); }}>
-                <Plus className="w-4 h-4 text-muted-foreground" />
-              </Button>
-              {conversations.length > 0 && (
-                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-muted-foreground hover:text-destructive" onClick={clearHistory}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+            {/* Ego Meter */}
+            <AnimatePresence>
+              {isKyle && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="px-4 pb-2 overflow-hidden"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap">EGO</span>
+                    <div className="flex-1 h-1.5 rounded-full bg-muted/50 overflow-hidden">
+                      <motion.div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${egoLevel * 10}%`,
+                          background: egoLevel <= 3
+                            ? 'hsl(210, 80%, 60%)'
+                            : egoLevel <= 6
+                              ? 'hsl(30, 90%, 55%)'
+                              : 'hsl(0, 80%, 55%)',
+                          boxShadow: egoLevel > 6
+                            ? '0 0 8px hsla(0, 80%, 55%, 0.5)'
+                            : egoLevel > 3
+                              ? '0 0 6px hsla(30, 90%, 55%, 0.4)'
+                              : 'none',
+                        }}
+                        animate={{ width: `${egoLevel * 10}%` }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-muted-foreground font-mono w-4 text-right">{egoLevel}</span>
+                  </div>
+                </motion.div>
               )}
-              <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-muted-foreground" onClick={onClose}>
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
+            </AnimatePresence>
           </div>
 
           {/* Messages */}
