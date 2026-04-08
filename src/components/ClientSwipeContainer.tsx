@@ -840,7 +840,7 @@ const ClientSwipeContainerComponent = ({
         {/* Top Controls — IN FLOW, not absolute (matches client-side pattern) */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
           <div className="relative z-50 w-full flex flex-col items-center shrink-0">
-            <div className="w-full pt-1 pb-1 px-4">
+            <div className="w-full pt-1 pb-1 px-2">
               <div className="w-full flex justify-between items-center">
                 <DistanceSlider
                   radiusKm={radiusKm}
@@ -865,7 +865,7 @@ const ClientSwipeContainerComponent = ({
         )}
 
         {/* Card area — flex-1 fills remaining space */}
-        <div className="flex-1 relative flex flex-col items-center justify-center px-3 pt-1 z-10 min-h-0">
+        <div className="flex-1 relative flex flex-col items-center justify-center px-1.5 pt-1 z-10 min-h-0">
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (

@@ -35,9 +35,9 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
 
-const ICON_SIZE = 26;
-const ICON_SIZE_COMPACT = 23;
-const TOUCH_TARGET = 52;
+const ICON_SIZE = 23;
+const ICON_SIZE_COMPACT = 20;
+const TOUCH_TARGET = 46;
 
 interface BottomNavigationProps {
   userRole: 'client' | 'owner' | 'admin';
