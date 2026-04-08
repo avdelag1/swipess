@@ -170,9 +170,10 @@ function stripThinkBlocks(text: string): string {
   return text.replace(/<tool_call>[\s\S]*?<\/think>/g, '').trim();
 }
 
-// Production Supabase — all data and functions route through the same backend
-const AI_URL = 'https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/ai-concierge';
-const AUTH_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
+// AI concierge runs on Lovable Cloud (edge functions deploy here automatically)
+// All user data stays on production Supabase — AI only handles chat, no user data
+const AI_URL = 'https://qegyisokrxdsszzswsqk.supabase.co/functions/v1/ai-concierge';
+const AUTH_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjY0NTIsImV4cCI6MjA4NTg0MjQ1Mn0.4tdJ82fDnFXaJ6SHpfveCiGxGm2S4II6NNIbGUnT2ZU';
 
 export function useConciergeAI() {
   const [conversations, setConversations] = useState<Conversation[]>(loadConversationsLocal);
