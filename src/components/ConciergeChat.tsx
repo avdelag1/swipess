@@ -274,6 +274,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
+      // Signal that user intentionally stopped so onend doesn't restart
+      (recognitionRef.current as any)._userStop?.();
       recognitionRef.current.stop();
       recognitionRef.current = null;
     }
@@ -284,15 +286,18 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     if (!speechSupported) return;
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = 'en-US';
 
     let finalTranscript = '';
+    // Track whether the user intentionally stopped
+    let userStopped = false;
 
     recognition.onresult = (event: any) => {
       let interim = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      finalTranscript = '';
+      for (let i = 0; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript;
         } else {
@@ -303,22 +308,35 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     };
 
     recognition.onend = () => {
+      // If the user didn't manually stop, restart to keep listening
+      if (!userStopped && recognitionRef.current) {
+        try {
+          recognition.start();
+          return;
+        } catch {
+          // Failed to restart, fall through to cleanup
+        }
+      }
       setIsListening(false);
       recognitionRef.current = null;
-      // Auto-send if enabled and we have text
       if (autoSend && finalTranscript.trim()) {
         setTimeout(() => {
-          // Use the ref to get the latest sendMessage
           sendMessage(finalTranscript.trim());
           setInput('');
         }, 100);
       }
     };
 
-    recognition.onerror = () => {
+    recognition.onerror = (e: any) => {
+      // 'no-speech' is normal — just let onend restart
+      if (e.error === 'no-speech') return;
+      userStopped = true;
       setIsListening(false);
       recognitionRef.current = null;
     };
+
+    // Expose a way to flag user-stop from stopListening
+    (recognition as any)._userStop = () => { userStopped = true; };
 
     recognitionRef.current = recognition;
     recognition.start();
