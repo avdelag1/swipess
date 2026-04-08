@@ -327,8 +327,10 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const countdownTranscriptRef = useRef<string>('');
   const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
-  const COUNTDOWN_SECONDS = 5;
+  const COUNTDOWN_SECONDS = 3;
   const SILENCE_DELAY_MS = 2000; // 2 seconds of silence before countdown starts
+  const isCountingDownRef = useRef(false);
+  const lastFinalTranscriptRef = useRef('');
 
   const clearCountdown = useCallback(() => {
     if (countdownRef.current) {
@@ -339,10 +341,12 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
     }
+    isCountingDownRef.current = false;
     setCountdown(null);
   }, []);
 
   const fireIgnitionAndSend = useCallback(() => {
+    isCountingDownRef.current = false;
     const textToSend = countdownTranscriptRef.current;
     setIgnitionFlash(true);
     setTimeout(() => {
@@ -360,6 +364,11 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   }, [sendMessage]);
 
   const startCountdown = useCallback(() => {
+    // Stop recognition first to prevent stale onresult events
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+    }
+    isCountingDownRef.current = true;
     setCountdown(COUNTDOWN_SECONDS);
     countdownRef.current = setInterval(() => {
       setCountdown(prev => {
@@ -405,25 +414,32 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     let userStopped = false;
 
     recognition.onresult = (event: any) => {
-      // Cancel any active countdown or silence timer — user is speaking
-      clearCountdown();
+      // If countdown is active, ignore stale speech events
+      if (isCountingDownRef.current) return;
+
+      // Clear only the silence timer (NOT the countdown)
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
+      }
 
       let interim = '';
-      finalTranscript = '';
+      let newFinal = '';
       for (let i = 0; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
+          newFinal += event.results[i][0].transcript;
         } else {
           interim += event.results[i][0].transcript;
         }
       }
+      finalTranscript = newFinal;
       setInput(finalTranscript + interim);
-      countdownTranscriptRef.current = finalTranscript || (finalTranscript + interim);
+      countdownTranscriptRef.current = finalTranscript.trim() || (finalTranscript + interim).trim();
 
-      // If auto-send is ON, reset silence timer: after 3s of no new speech → start countdown
+      // If auto-send is ON, reset silence timer: after 2s of no new speech → start countdown
       if (autoSend && (finalTranscript + interim).trim()) {
         silenceTimerRef.current = setTimeout(() => {
-          if (!userStopped && recognitionRef.current) {
+          if (!userStopped && !isCountingDownRef.current) {
             countdownTranscriptRef.current = finalTranscript.trim() || (finalTranscript + interim).trim();
             startCountdown();
           }
@@ -432,8 +448,11 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     };
 
     recognition.onend = () => {
-      // If user didn't manually stop and no countdown is running, restart recognition
-      if (!userStopped && recognitionRef.current && countdown === null && !countdownRef.current) {
+      // If countdown is active, do NOT restart recognition — let it finish
+      if (isCountingDownRef.current) return;
+
+      // If user didn't manually stop, restart recognition to keep listening
+      if (!userStopped && recognitionRef.current) {
         try {
           recognition.start();
           return;
@@ -449,6 +468,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
     recognition.onerror = (e: any) => {
       if (e.error === 'no-speech') return;
+      if (isCountingDownRef.current) return; // Don't kill countdown on speech errors
       userStopped = true;
       setIsListening(false);
       recognitionRef.current = null;
@@ -458,9 +478,10 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     (recognition as any)._userStop = () => { userStopped = true; };
 
     recognitionRef.current = recognition;
+    lastFinalTranscriptRef.current = '';
     recognition.start();
     setIsListening(true);
-  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown, countdown]);
+  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown]);
 
   const toggleListening = useCallback(() => {
     if (isListening || countdown !== null) {
