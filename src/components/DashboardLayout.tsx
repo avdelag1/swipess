@@ -503,7 +503,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             : `calc(${bottomNavHeight}px + var(--safe-bottom) + 32px)`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
-          ...(isRadioRoute ? {} : { contentVisibility: 'auto' as any, containIntrinsicSize: '100dvh' }),
+          
         }}
       >
         <div className="min-h-full w-full flex flex-1 min-w-0 flex-col">
