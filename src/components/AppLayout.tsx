@@ -64,14 +64,17 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [location.pathname]);
 
   // Fullscreen routes hide HUD entirely
+  const { showAIChat } = useModalStore();
+
   const isFullScreen = useMemo(() => {
     const path = location.pathname;
     return isCameraRoute || 
            isRadioRoute || 
            path.includes('/camera') || 
            path.includes('roommates') || 
-           path.includes('eventos');
-  }, [isCameraRoute, isRadioRoute, location.pathname]);
+           path.includes('eventos') ||
+           showAIChat;
+  }, [isCameraRoute, isRadioRoute, location.pathname, showAIChat]);
 
   const handleMessageActivationsClick = () => navigate('/subscription/packages');
   const handleListingsClick = () => {
