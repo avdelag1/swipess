@@ -497,6 +497,12 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     sendMessage(`Translate your last response to ${language}`);
   };
 
+  const handleNavigate = useCallback((path: string) => {
+    onClose();
+    // Small delay to let chat close animation start
+    setTimeout(() => appNavigate(path), 150);
+  }, [appNavigate, onClose]);
+
   return (
     <AnimatePresence>
       {isOpen && (
