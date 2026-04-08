@@ -37,18 +37,18 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground',
-        destructive: 'bg-destructive text-destructive-foreground',
+        default: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_14px_hsl(var(--primary)/0.3)] hover:brightness-110',
+        destructive: 'bg-destructive text-destructive-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_3px_10px_rgba(220,38,38,0.3)]',
         outline: 'border border-input bg-background/50 text-foreground opacity-90 hover:opacity-100',
         secondary: 'bg-secondary text-secondary-foreground opacity-95 hover:opacity-100',
         ghost: 'hover:bg-accent/50 hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline shadow-none',
-        premium: 'bg-primary text-primary-foreground',
-        tinder: 'bg-primary text-primary-foreground',
+        premium: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_14px_hsl(var(--primary)/0.3)] hover:brightness-110',
+        tinder: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_3px_10px_hsl(var(--primary)/0.25)]',
         glass: 'text-foreground bg-white/10 backdrop-blur-2xl',
         glassStrong: 'text-foreground bg-white/15 backdrop-blur-[32px]',
         glassLight: 'text-foreground bg-white/70 backdrop-blur-2xl',
-        gradient: 'bg-primary text-primary-foreground',
+        gradient: 'bg-primary text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_14px_hsl(var(--primary)/0.3)] hover:brightness-110',
       },
       size: {
         default: 'h-12 px-6 py-3',
