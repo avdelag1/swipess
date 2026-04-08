@@ -1,11 +1,11 @@
 /**
  * Unified Notification System
  *
- * Provides consistent notification handling across the app using toast notifications.
+ * Provides consistent notification handling across the app using the premium NotificationBar.
  * Use these helper functions instead of calling toast() directly for better consistency.
  */
 
-import { toast } from '@/components/ui/sonner';
+import { showAppNotification } from '@/utils/appNotification';
 
 export type NotificationType =
   | 'success'
@@ -27,12 +27,7 @@ interface NotificationOptions {
  * Use for: Successful operations, confirmations
  */
 export function showSuccess(options: NotificationOptions) {
-  toast({
-    title: options.title,
-    description: options.description,
-    variant: 'success',
-    duration: options.duration || 3000,
-  });
+  showAppNotification({ type: 'success', title: options.title, message: options.description });
 }
 
 /**
@@ -40,12 +35,7 @@ export function showSuccess(options: NotificationOptions) {
  * Use for: Wrong password, failed operations, validation errors
  */
 export function showError(options: NotificationOptions) {
-  toast({
-    title: options.title,
-    description: options.description,
-    variant: 'destructive',
-    duration: options.duration || 4000,
-  });
+  showAppNotification({ type: 'error', title: options.title, message: options.description });
 }
 
 /**
@@ -53,12 +43,7 @@ export function showError(options: NotificationOptions) {
  * Use for: Non-critical issues, confirmations needed
  */
 export function showWarning(options: NotificationOptions) {
-  toast({
-    title: options.title,
-    description: options.description,
-    variant: 'warning',
-    duration: options.duration || 3500,
-  });
+  showAppNotification({ type: 'warning', title: options.title, message: options.description });
 }
 
 /**
@@ -66,12 +51,7 @@ export function showWarning(options: NotificationOptions) {
  * Use for: General information, updates, tips
  */
 export function showInfo(options: NotificationOptions) {
-  toast({
-    title: options.title,
-    description: options.description,
-    variant: 'info',
-    duration: options.duration || 3000,
-  });
+  showAppNotification({ type: 'info', title: options.title, message: options.description });
 }
 
 /**
@@ -79,12 +59,7 @@ export function showInfo(options: NotificationOptions) {
  * Use for: Someone liked your listing/profile
  */
 export function showLikeNotification(options: NotificationOptions) {
-  toast({
-    title: options.title,
-    description: options.description,
-    variant: 'success',
-    duration: options.duration || 3000,
-  });
+  showAppNotification({ type: 'like', title: options.title, message: options.description });
 }
 
 /**
@@ -92,12 +67,7 @@ export function showLikeNotification(options: NotificationOptions) {
  * Use for: New messages received
  */
 export function showMessageNotification(options: NotificationOptions) {
-  toast({
-    title: options.title,
-    description: options.description,
-    variant: 'info',
-    duration: options.duration || 3000,
-  });
+  showAppNotification({ type: 'message', title: options.title, message: options.description });
 }
 
 /**
@@ -105,12 +75,7 @@ export function showMessageNotification(options: NotificationOptions) {
  * Use for: File upload progress/completion
  */
 export function showUploadNotification(options: NotificationOptions) {
-  toast({
-    title: options.title,
-    description: options.description,
-    variant: 'default',
-    duration: options.duration || 2500,
-  });
+  showAppNotification({ type: 'info', title: options.title, message: options.description });
 }
 
 // Common notification presets for frequently used scenarios
@@ -129,17 +94,14 @@ export const notifications = {
     signInSuccess: () => showSuccess({
       title: 'Signed In',
       description: 'Welcome back!',
-      duration: 2000,
     }),
     signUpSuccess: () => showSuccess({
       title: 'Account Created',
       description: 'Welcome aboard!',
-      duration: 2000,
     }),
     signOutSuccess: () => showInfo({
       title: 'Signed Out',
       description: 'See you soon!',
-      duration: 2000,
     }),
   },
 
@@ -148,27 +110,22 @@ export const notifications = {
     created: (category: string) => showSuccess({
       title: 'Listing Created!',
       description: `Your ${category} is now live`,
-      duration: 2000,
     }),
     updated: (category: string) => showSuccess({
       title: 'Listing Updated!',
       description: `Your ${category} has been updated`,
-      duration: 2000,
     }),
     deleted: () => showInfo({
       title: 'Listing Deleted',
       description: 'Your listing has been removed',
-      duration: 2000,
     }),
     uploadStarted: () => showUploadNotification({
       title: 'Uploading Photos...',
       description: 'Please wait while we upload your images',
-      duration: 2000,
     }),
     uploadComplete: () => showSuccess({
       title: 'Upload Complete',
       description: 'All photos uploaded successfully',
-      duration: 2000,
     }),
     missingPhotos: () => showError({
       title: 'Photos Required',
@@ -205,7 +162,6 @@ export const notifications = {
     online: () => showSuccess({
       title: 'Back Online',
       description: 'Connection restored',
-      duration: 2000,
     }),
   },
 };

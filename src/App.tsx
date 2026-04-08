@@ -88,8 +88,7 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 
 // UI HELPERS
 const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDashboardLayout").then(m => ({ default: m.PersistentDashboardLayout })));
-const Toaster = lazy(() => import("@/components/ui/toaster").then(m => ({ default: m.Toaster })));
-const Sonner = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
+// Sonner toasts removed — all notifications now use premium NotificationBar
 const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 const PWAInstallPrompt = lazy(() => import("@/components/PWAInstallPrompt").then(m => ({ default: m.PWAInstallPrompt })));
 const WelcomeBonusModal = lazy(() => import("@/components/WelcomeBonusModal").then(m => ({ default: m.WelcomeBonusModal })));
@@ -114,10 +113,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
         <AppLayout>
           <WelcomeBonusModal />
           <TooltipProvider>
-            <Suspense fallback={null}>
-              <Toaster />
-              <Sonner />
-            </Suspense>
+          {/* Sonner toasts removed — premium NotificationBar handles all feedback */}
           </TooltipProvider>
 
           <Suspense fallback={null}>
