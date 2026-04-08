@@ -29,7 +29,7 @@ function SwipessLogoComponent({
       className
     )}>
       <img
-        src="/icons/swipess-brand-logo.jpg"
+        src="/icons/swipess-brand-logo.webp"
         alt="SwipesS"
         draggable={false}
         className={cn(

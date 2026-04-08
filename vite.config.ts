@@ -87,6 +87,12 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('framer-motion')) return 'vendor-motion';
             if (id.includes('lucide-react')) return 'vendor-icons';
             
+            // FORMS: react-hook-form + zod only needed on form pages
+            if (id.includes('react-hook-form') || id.includes('zod') || id.includes('@hookform')) return 'vendor-forms';
+            
+            // I18N: defer from initial bundle
+            if (id.includes('i18next') || id.includes('react-i18next')) return 'vendor-i18n';
+            
             // SPECIALIZED COMPONENT CHUNKS: Absolute heaviest libraries not needed for initial boot
             if (id.includes('recharts') || id.includes('victory')) return 'vendor-viz';
             if (id.includes('lottie')) return 'vendor-lottie';
