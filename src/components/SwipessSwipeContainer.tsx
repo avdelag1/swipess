@@ -55,7 +55,7 @@ import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
-// import { MOCK_TEST_LISTINGS } was here - removed per user request for Instagram cleanup
+
 
 // Navigation guard to prevent double-taps
 function useNavigationGuard() {
@@ -1057,10 +1057,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               </motion.div>
             ) : (
               <motion.div
-                key={`exhausted-${storeActiveCategory}`}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
+                key="exhausted"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 className="w-full h-full z-50 overflow-hidden"
               >
                 <SwipeExhaustedState 

@@ -38,7 +38,7 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
-// MOCK_TEST_CLIENTS removed for Instagram cleanup
+
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
@@ -455,7 +455,7 @@ const ClientSwipeContainerComponent = ({
       return;
     }
 
-    const isMockData = profile.user_id?.startsWith('test-') || profile.user_id?.startsWith('client-');
+    
 
     // CRITICAL: Prevent swiping on own profile (should never happen, but defense in depth)
     if (user?.id && profile.user_id === user.id) {
@@ -488,10 +488,7 @@ const ClientSwipeContainerComponent = ({
       }),
 
       // Save swipe to DB with match detection - CRITICAL: Must succeed for likes to save
-      // Skip DB write for mock data to avoid RLS/FK errors
-      isMockData
-        ? Promise.resolve({ success: true, direction, targetId: profile.user_id, userId: user?.id })
-        : swipeMutation.mutateAsync({
+      swipeMutation.mutateAsync({
           targetId: profile.user_id,
           direction,
           targetType: 'profile'
