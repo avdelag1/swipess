@@ -948,20 +948,20 @@ Deno.serve(async (req) => {
     const userId = extractUserId(req.headers.get("authorization"));
     const lastUserMessage = [...messages].reverse().find(m => m.role === "user")?.content || "";
 
-    // Parallel context gathering
+    // Parallel context gathering — ALL at once
     const isProfileQuery = detectProfileIntent(lastUserMessage);
-    const [knowledge, memories, listingIntent, profileResults] = await Promise.all([
+    const listingIntent = detectListingIntent(lastUserMessage);
+    const [knowledge, memories, listings, profileResults, webResultsEarly] = await Promise.all([
       searchKnowledge(lastUserMessage),
       userId ? loadUserMemories(userId) : Promise.resolve(""),
-      Promise.resolve(detectListingIntent(lastUserMessage)),
+      listingIntent.isListing ? searchListings(listingIntent) : Promise.resolve(""),
       isProfileQuery ? searchProfiles(lastUserMessage) : Promise.resolve(""),
+      // Optimistic web search — will be discarded if local data is sufficient
+      searchWeb(lastUserMessage),
     ]);
 
-    // Conditional searches
-    const listings = listingIntent.isListing ? await searchListings(listingIntent) : "";
-    
-    // Web search only if knowledge is thin
-    const webResults = (!knowledge && !listings && !profileResults) ? await searchWeb(lastUserMessage) : "";
+    // Only use web results if local knowledge is thin
+    const webResults = (!knowledge && !listings && !profileResults) ? webResultsEarly : "";
 
     // Build enriched system prompt with character support
     const systemPrompt = buildSystemPrompt({ knowledge, listings, memories, webResults, profileResults, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel });
