@@ -134,7 +134,7 @@ const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate
       {/* Action bar — always visible on touch, hover on desktop */}
       <div className={cn(
         'flex items-center gap-1 mt-1 transition-opacity',
-        'opacity-100 sm:opacity-0 sm:group-hover:opacity-100',
+        'opacity-60 hover:opacity-100',
         isUser ? 'justify-end' : 'justify-start'
       )}>
         <button onClick={onCopy} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Copy">
@@ -767,21 +767,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
           {/* Input */}
           <div className="border-t border-border/50 bg-background/95 backdrop-blur-xl px-4 py-3 pb-[calc(env(safe-area-inset-bottom,0px)+12px)]">
-            {/* Auto-send toggle */}
-            {speechSupported && (
-              <div className="flex items-center gap-2 mb-2">
-                <button
-                  onClick={toggleAutoSend}
-                  className={cn(
-                    "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all",
-                    autoSend
-                      ? "bg-primary/15 text-primary border border-primary/30"
-                      : "bg-muted/40 text-muted-foreground border border-border/30"
-                  )}
-                >
-                  <Zap className="w-3 h-3" />
-                  Auto-send {autoSend ? 'ON' : 'OFF'}
-                </button>
+            {/* Countdown / ignition status */}
+            {(ignitionFlash || countdown !== null) && (
+              <div className="flex items-center gap-2 mb-2 px-1">
                 {ignitionFlash && (
                   <motion.span
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -808,13 +796,34 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
               <textarea
                 ref={inputRef}
                 value={input}
-                onChange={e => setInput(e.target.value)}
+                onChange={e => {
+                  setInput(e.target.value);
+                  // Auto-grow textarea
+                  const el = e.target;
+                  el.style.height = 'auto';
+                  el.style.height = `${Math.min(el.scrollHeight, window.innerHeight * 0.5)}px`;
+                }}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask SwipesS AI..."
+                placeholder="Ask Swipes..."
                 rows={1}
-                className="flex-1 resize-none bg-muted/50 border border-border/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 max-h-32"
-                style={{ minHeight: '40px' }}
+                className="flex-1 resize-none bg-muted/50 border border-border/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                style={{ minHeight: '40px', maxHeight: '50vh' }}
               />
+              {/* Auto-send toggle inline */}
+              {speechSupported && (
+                <button
+                  onClick={toggleAutoSend}
+                  className={cn(
+                    "shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                    autoSend
+                      ? "bg-primary/15 text-primary border border-primary/30"
+                      : "bg-muted/40 text-muted-foreground border border-border/30"
+                  )}
+                  title={`Auto-send ${autoSend ? 'ON' : 'OFF'}`}
+                >
+                  <Zap className="w-4 h-4" />
+                </button>
+              )}
               {/* Mic button with countdown ring */}
               {speechSupported && (
                 <div className="relative shrink-0">
