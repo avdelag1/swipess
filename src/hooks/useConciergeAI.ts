@@ -9,6 +9,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  provider?: string;
 }
 
 export interface Conversation {
@@ -424,6 +425,7 @@ export function useConciergeAI() {
       }
 
       const contentType = resp.headers.get('content-type') || '';
+      const aiProvider = resp.headers.get('x-ai-provider') || undefined;
 
       if (contentType.includes('text/event-stream') && resp.body) {
         const assistantMsgId = crypto.randomUUID();

@@ -972,14 +972,16 @@ Deno.serve(async (req) => {
       ...messages.filter(m => m.role !== "system"),
     ];
 
-    // Try Lovable AI first (fastest), fallback to MiniMax
+    // Try MiniMax first (primary), fallback to Gemini via Lovable AI
     let response: Response;
+    let aiProvider = "minimax";
     try {
-      response = await streamLovableAI(enrichedMessages);
+      response = await streamMiniMax(enrichedMessages);
     } catch (e) {
-      console.warn(`[AI] Lovable AI failed, falling back to MiniMax: ${(e as Error).message}`);
+      console.warn(`[AI] MiniMax failed, falling back to Gemini: ${(e as Error).message}`);
+      aiProvider = "gemini";
       try {
-        response = await streamMiniMax(enrichedMessages);
+        response = await streamLovableAI(enrichedMessages);
       } catch (e2) {
         console.error("[AI] Both providers failed:", (e2 as Error).message);
         return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {
@@ -987,6 +989,12 @@ Deno.serve(async (req) => {
         });
       }
     }
+
+    // Inject provider header into the response
+    const newHeaders = new Headers(response.headers);
+    newHeaders.set("X-AI-Provider", aiProvider);
+    newHeaders.set("Access-Control-Expose-Headers", "X-AI-Provider");
+    response = new Response(response.body, { status: response.status, headers: newHeaders });
 
     // If user is authenticated, wrap stream to capture response for memory extraction
     if (userId && response.headers.get("content-type")?.includes("text/event-stream")) {
