@@ -831,7 +831,7 @@ async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
     body: JSON.stringify({
       model: "google/gemini-3-flash-preview",
       messages,
-      max_tokens: 1024,
+      max_tokens: 450,
       temperature: 0.7,
       stream: true,
     }),
