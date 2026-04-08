@@ -14,7 +14,8 @@ import { AnimatedPage } from "@/components/AnimatedPage";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SpeedOfLightPreloader } from "@/components/SpeedOfLightPreloader";
-import '@/i18n';
+// Defer i18n init — loaded after first render to reduce critical JS
+const i18nReady = import('@/i18n');
 
 // 🚀 SPEED OF LIGHT: LAZY PAGES
 const Index = lazy(() => import("./pages/Index"));

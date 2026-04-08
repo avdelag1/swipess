@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#000000">
   <meta name="msapplication-TileColor" content="#000000">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -79,7 +79,7 @@
 
   <link rel="canonical" href="https://swipess.lovable.app/">
   
-  <style>
+  <style id="splash-styles">
     *{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
     input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;user-select:text;touch-action:auto}
     :root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
@@ -147,7 +147,7 @@
 
 <body>
   <div id="initial-loader">
-    <img src="/icons/swipess-brand-logo.jpg" alt="SwipesS" style="height:3.5rem;object-fit:contain;animation:heartbeat 2s ease-in-out infinite;" draggable="false" />
+    <img src="/icons/swipess-brand-logo.webp" alt="SwipesS" width="200" height="120" style="height:3.5rem;object-fit:contain;animation:heartbeat 2s ease-in-out infinite;" draggable="false" fetchpriority="high" />
   </div>
 
   <script>
@@ -166,6 +166,10 @@
       window.__APP_INITIALIZED__ = true;
       clearTimeout(mountTimer);
       requestAnimationFrame(removeSplash);
+      setTimeout(function() {
+        var ss = document.getElementById('splash-styles');
+        if (ss) ss.remove();
+      }, 500);
     });
   </script>
 
