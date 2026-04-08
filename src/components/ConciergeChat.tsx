@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, memo } from 'react';
-import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun } from 'lucide-react';
+import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { Button } from '@/components/ui/button';
 import { useConciergeAI, ChatMessage, Conversation, AiCharacter } from '@/hooks/useConciergeAI';
@@ -228,16 +228,27 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const isKyle = activeCharacter === 'kyle';
   const isBeauGosse = activeCharacter === 'beaugosse';
   const isDonAjKiin = activeCharacter === 'donajkiin';
+  const isBotBetter = activeCharacter === 'botbetter';
+  const isLunaShanti = activeCharacter === 'lunashanti';
 
-  const toggleCharacter = () => {
-    const order: AiCharacter[] = ['default', 'kyle', 'beaugosse', 'donajkiin'];
-    const idx = order.indexOf(activeCharacter);
-    const next = order[(idx + 1) % order.length];
-    setActiveCharacter(next);
-    if (next === 'kyle') toast("Kyle activated. Bro... you know what I mean? 🔥");
-    else if (next === 'beaugosse') toast("The Beau Gosse activated. Let's make this interesting... ✨");
-    else if (next === 'donajkiin') toast("Don Aj K'iin activated. Mmm... sit down, hermano... let me tell you something. 🌿");
-    else toast("Back to default concierge ✨");
+  const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
+
+  const CHARACTER_OPTIONS: { key: AiCharacter; label: string; subtitle: string; icon: typeof Sparkles; color: string; bgColor: string; glowColor: string; toast: string; meterLabel: string }[] = [
+    { key: 'default', label: 'SwipesS AI', subtitle: 'Tulum Concierge', icon: Sparkles, color: 'text-primary', bgColor: 'bg-primary/20', glowColor: '', toast: 'Back to default concierge ✨', meterLabel: 'EGO' },
+    { key: 'kyle', label: 'Kyle', subtitle: 'Boston Hustler 🔥', icon: Flame, color: 'text-orange-400', bgColor: 'bg-orange-500/20', glowColor: 'shadow-[0_0_12px_rgba(251,146,60,0.3)]', toast: 'Kyle activated. Bro... you know what I mean? 🔥', meterLabel: 'EGO' },
+    { key: 'beaugosse', label: 'Beau Gosse', subtitle: 'El Guapo ✨', icon: Sparkles, color: 'text-purple-400', bgColor: 'bg-purple-500/20', glowColor: 'shadow-[0_0_12px_rgba(168,85,247,0.3)]', toast: 'The Beau Gosse activated. Let\'s make this interesting... ✨', meterLabel: 'CHARM' },
+    { key: 'donajkiin', label: 'Don Aj K\'iin', subtitle: 'Mayan Guardian 🌿', icon: Sun, color: 'text-emerald-400', bgColor: 'bg-emerald-500/20', glowColor: 'shadow-[0_0_12px_rgba(52,211,153,0.3)]', toast: 'Don Aj K\'iin activated. Mmm... sit down, hermano... 🌿', meterLabel: 'WISDOM' },
+    { key: 'botbetter', label: 'Bot Better', subtitle: 'Luxury Queen 👑', icon: Crown, color: 'text-pink-400', bgColor: 'bg-pink-500/20', glowColor: 'shadow-[0_0_12px_rgba(236,72,153,0.3)]', toast: 'The Bot Better activated. Mmm… let\'s upgrade this 😌👑', meterLabel: 'SASS' },
+    { key: 'lunashanti', label: 'Luna Shanti', subtitle: 'Boho Guide 🌙', icon: Moon, color: 'text-violet-300', bgColor: 'bg-violet-500/20', glowColor: 'shadow-[0_0_12px_rgba(167,139,250,0.3)]', toast: 'Luna Shanti activated. Mmm… breathe… feel into it… ✨🌙', meterLabel: 'ZEN' },
+  ];
+
+  const currentChar = CHARACTER_OPTIONS.find(c => c.key === activeCharacter) || CHARACTER_OPTIONS[0];
+
+  const selectCharacter = (key: AiCharacter) => {
+    setActiveCharacter(key);
+    const char = CHARACTER_OPTIONS.find(c => c.key === key)!;
+    toast(char.toast);
+    setCharacterPanelOpen(false);
   };
 
   const [input, setInput] = useState('');
@@ -308,6 +319,20 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           transition={{ type: 'spring', damping: 28, stiffness: 350 }}
           className="fixed inset-0 z-[10000] flex flex-col bg-background"
         >
+          {/* Sidebar backdrop */}
+          <AnimatePresence>
+            {sidebarOpen && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="absolute inset-0 z-40 bg-black/30"
+                onClick={() => setSidebarOpen(false)}
+              />
+            )}
+          </AnimatePresence>
+
           {/* Sidebar */}
           <AnimatePresence>
             {sidebarOpen && (
