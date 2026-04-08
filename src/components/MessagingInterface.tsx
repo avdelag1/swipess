@@ -13,7 +13,6 @@ import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { useQueryClient } from '@tanstack/react-query';
 import { MessageActivationPackages } from '@/components/MessageActivationPackages';
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
-import { ChatPreviewSheet } from '@/components/ChatPreviewSheet';
 import { logger } from '@/utils/prodLogger';
 import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
 import { useContentModeration } from '@/hooks/useContentModeration';
@@ -125,7 +124,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showActivationBanner, setShowActivationBanner] = useState(false);
-  const [showPreviewSheet, setShowPreviewSheet] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const { theme } = useTheme();
   const isLight = theme === 'light';
@@ -318,9 +316,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             </button>
 
             {/* Center: Avatar + Name */}
-            <button
-              onClick={() => setShowPreviewSheet(true)}
-              className="flex-1 flex items-center gap-2.5 min-w-0 py-0.5 rounded-xl transition-colors active:scale-[0.98]"
+            <div
+              className="flex-1 flex items-center gap-2.5 min-w-0 py-0.5 rounded-xl"
             >
               <div className="relative shrink-0">
                 <div className={`p-[1.5px] rounded-full ${
@@ -355,7 +352,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   {isOnline ? 'Online' : 'Recently active'}
                 </span>
               </div>
-            </button>
+            </div>
 
             {/* Actions */}
             <div className="flex gap-1.5 shrink-0">
@@ -370,7 +367,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setShowPreviewSheet(true)}
                 className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground"
               >
                 <Info className="w-3.5 h-3.5" />
@@ -549,14 +545,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           userRole={otherUser.role === 'client' ? 'owner' : 'client'}
         />
 
-        {/* Profile/Listing Preview Sheet */}
-        <ChatPreviewSheet
-          isOpen={showPreviewSheet}
-          onClose={() => setShowPreviewSheet(false)}
-          otherUser={otherUser}
-          listing={listing}
-          currentUserRole={currentUserRole}
-        />
+
 
         {/* Rating Submission Dialog */}
         <RatingSubmissionDialog
