@@ -27,7 +27,7 @@ import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { useCanAccessMessaging } from '@/hooks/useMessaging';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
-import { useSwipe } from '@/hooks/useSwipe';
+import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
@@ -309,7 +309,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const { canAccess: hasPremiumMessaging, needsUpgrade } = useCanAccessMessaging();
   const navigate = useNavigate();
   const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
-  const swipeMutation = useSwipe();
+  const swipeMutation = useSwipeWithMatch();
   const startConversation = useStartConversation();
 
   // Swipe dismissal tracking
@@ -615,12 +615,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     recordSwipe(listing.id, 'listing', direction);
 
     // Save swipe to DB with optimistic UI
-    // The useSwipe hook now handles queryClient.setQueryData optimistically
+    // Save swipe to DB with match detection and notifications
     swipeMutation.mutate({
       targetId: listing.id,
       direction,
       targetType: 'listing',
-      targetObject: { ...listing, direction }
     });
 
     // Track dismissal on left swipe (dislike)
@@ -1076,7 +1075,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.05 }}
-                className="absolute inset-0 z-50 overflow-hidden"
+                className="w-full h-full z-50 overflow-hidden"
               >
                 <SwipeExhaustedState 
                  onRefresh={handleRefresh}
