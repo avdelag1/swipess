@@ -37,7 +37,16 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { Home } from 'lucide-react';
+import { Home, Bike, Briefcase } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+
+const CATEGORY_ICON_MAP: Record<string, any> = {
+  property: Home,
+  motorcycle: MotorcycleIcon,
+  bicycle: Bike,
+  services: Briefcase,
+  worker: Briefcase,
+};
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
