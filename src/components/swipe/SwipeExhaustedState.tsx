@@ -245,9 +245,6 @@ export const SwipeExhaustedState = ({
                 <SwipeDistanceSlider
                   radiusKm={radiusKm}
                   onRadiusChange={onRadiusChange}
-                  onDetectLocation={onDetectLocation}
-                  detecting={detecting}
-                  detected={detected}
                 />
                 
                 <div className="mt-2 flex justify-between px-1">
