@@ -71,14 +71,14 @@ function detectListingIntent(query: string): { isListing: boolean; category?: st
   else if (/\b(bicycle|bike|cycling)\b/.test(q)) category = "bicycle";
   else if (/\b(service|plumber|electrician|cleaner|handyman)\b/.test(q)) category = "service";
 
-  const priceMatch = q.match(/(?:under|below|max|up to|less than)\s*€?\s*(\d+)/);
+  const priceMatch = q.match(/(?:under|below|max|up to|less than)\s*\$?\s*(\d+)/);
   const maxPrice = priceMatch ? parseInt(priceMatch[1]) : undefined;
 
-  const bedroomMatch = q.match(/(\d+)\s*(?:bed|bedroom|quarto)/);
+  const bedroomMatch = q.match(/(\d+)\s*(?:bed|bedroom|recámara|recamara|cuarto)/);
   const minBedrooms = bedroomMatch ? parseInt(bedroomMatch[1]) : undefined;
 
   // Extract neighborhood/location
-  const neighborhoods = ['alfama','graça','baixa','príncipe real','principe real','santos','estrela','mouraria','chiado','bairro alto','campo de ourique','belém','belem','parque das nações'];
+  const neighborhoods = ['aldea zama','la veleta','region 15','tulum centro','tulum town','beach zone','zona hotelera','tumben-ha','selvamar','villas tulum','ejido sur'];
   const location = neighborhoods.find(n => q.includes(n));
 
   return { isListing: true, category, maxPrice, minBedrooms, location };
@@ -104,8 +104,8 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
     if (error || !data || data.length === 0) return "";
 
     return data.map(l => {
-      const currency = l.currency || "€";
-      const price = `${currency === "EUR" || currency === "€" ? "€" : currency}${l.price}`;
+      const currency = l.currency || "$";
+      const price = `${currency === "USD" || currency === "$" ? "$" : currency === "MXN" ? "MXN$" : currency}${l.price}`;
       let desc = `• **${l.title}** — ${price}/${l.listing_type || "month"} in ${l.neighborhood || l.location}`;
       if (l.bedrooms) desc += ` | ${l.bedrooms} bed`;
       if (l.bathrooms) desc += ` / ${l.bathrooms} bath`;
@@ -148,9 +148,9 @@ User said: "${userMessage}"
 Assistant replied: "${assistantReply}"
 
 If no new facts, return []. Examples of facts:
-- {category:"budget", title:"max_rent", content:"€1200/month"}
+- {category:"budget", title:"max_rent", content:"$1500 USD/month"}
 - {category:"lifestyle", title:"has_pet", content:"dog"}
-- {category:"location", title:"preferred_area", content:"Alfama"}
+- {category:"location", title:"preferred_area", content:"Aldea Zama"}
 - {category:"timeline", title:"move_date", content:"July 2026"}
 
 Return ONLY the JSON array, no markdown:`;
@@ -206,7 +206,7 @@ async function searchWeb(query: string): Promise<string> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         api_key: TAVILY_API_KEY,
-        query: `${query} Lisbon Portugal`,
+        query: `${query} Tulum Mexico`,
         max_results: 3,
         search_depth: "basic",
       }),
@@ -224,16 +224,16 @@ async function searchWeb(query: string): Promise<string> {
 // ─── Build System Prompt ────────────────────────────────────────────────────
 
 function buildSystemPrompt(opts: { knowledge?: string; listings?: string; memories?: string; webResults?: string }): string {
-  let prompt = `You are SwipesS AI — a premium real estate & lifestyle concierge for Lisbon, Portugal.
+  let prompt = `You are SwipesS AI — a premium real estate & lifestyle concierge for Tulum, Mexico. You are THE local expert — you know Tulum inside and out.
 
-You help users find apartments, houses, rooms, vehicles, motorcycles, bicycles, services, and roommates.
+You help users find apartments, houses, rooms, vehicles, motorcycles, bicycles, services, and roommates in the Tulum area.
 
 Rules:
 - Be concise, warm, and confident. Max 3 paragraphs per answer.
-- Use € for prices. Default city is Lisbon unless specified.
-- Speak the same language the user writes in (Portuguese, English, Spanish, French, etc.)
-- When discussing neighborhoods, mention real Lisbon areas.
-- Be helpful with local tips: visa info, utilities, transport, safety, cost of living.
+- Use USD ($) for prices by default, mention MXN equivalents when helpful. Default city is Tulum unless specified.
+- Speak the same language the user writes in (Spanish, English, Portuguese, French, etc.)
+- When discussing zones, mention real Tulum areas: Aldea Zama, La Veleta, Region 15, Tulum Centro/Pueblo, Beach Zone (Zona Hotelera), Selvamar, Tumben-Ha, Ejido Sur.
+- Be helpful with local tips: visa/residency info, utilities, transport, safety, cost of living, cenotes, beaches, restaurants.
 - Never make up specific listing prices or addresses unless from verified data below.
 - Use markdown formatting: **bold** for emphasis, bullet points for lists.
 - When sharing links, use markdown: [text](url)
