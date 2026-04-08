@@ -866,9 +866,10 @@ const ClientSwipeContainerComponent = ({
 
         {/* Card area — flex-1 fills remaining space */}
         <div className="flex-1 relative flex flex-col items-center justify-center px-3 pt-1 z-10 min-h-0">
+        <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence>
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-              <div className="relative w-full h-[calc(100%-20px)] max-w-2xl">
+              <div className="relative w-full h-[calc(100%-10px)] max-w-2xl">
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (
                   <div className="absolute inset-0 z-10 scale-[0.96] translate-y-2 opacity-50 blur-[2px]">
