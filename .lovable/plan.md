@@ -1,46 +1,66 @@
 
 
-## Plan: Instant Reactivity Everywhere + Remove Duplicate Distance Info
+## Plan: Fix Category Switch Animation, Backend Alignment, and Cleanup
 
-### What's Happening Now
+### Problem 1: Client Dashboard "Sliding" on Category Switch
 
-**The "instant feel" on the bottom nav** comes from three things working together:
-1. A global `useInstantReactivity` hook that adds a CSS active-state class + haptic on ANY button/link the instant you touch it (before React even processes the tap)
-2. Framer Motion `whileTap={{ scale: 0.92 }}` with a stiff spring (stiffness: 1000, damping: 30)
-3. Prefetching the next page on touch-start so the page is ready before you lift your finger
+**Root cause**: In `SwipessSwipeContainer.tsx` (client side), the exhausted state wrapper uses `key={`exhausted-${storeActiveCategory}`}` with scale animations (`initial: scale 0.95`, `exit: scale 1.05`). Every time you tap a different quick filter, the key changes, causing AnimatePresence to fully unmount and remount the component with a scale transition — creating the "page sliding from side to side" effect.
 
-This system already covers ALL buttons and links app-wide via the global hook. The distance slider doesn't feel the same because it uses Framer Motion spring animations on the fill bar and thumb, which add latency. The slider also has `touchAction: 'none'` which is correct for dragging but the spring physics delay the visual response.
+The owner side (`ClientSwipeContainer.tsx`) does NOT wrap SwipeExhaustedState in a keyed motion.div, so it swaps instantly.
 
-**The duplicate info**: The exhausted state has a "Coverage / Search Radius" header with km badge + Auto button (lines 218-243), AND the `SwipeDistanceSlider` component renders its OWN "Radar Radius / Scanning Range" header with ANOTHER km badge + Auto button. Two headers, two km displays, two Auto buttons.
+**Fix**: Remove the scale animation from the exhausted state wrapper in `SwipessSwipeContainer.tsx`. Use only opacity fade (matching the owner side behavior), and keep the key static so category switches inside `SwipeExhaustedState` happen internally without full unmount/remount cycles.
 
-### Changes
+### Problem 2: Backend Alignment (Production Supabase)
 
-#### 1. Strip SwipeDistanceSlider to Slider-Only (`SwipeDistanceSlider.tsx`)
-- Remove the entire internal header (MapPin icon, "Radar Radius", "Scanning Range", km display, Auto button) — lines 47-81
-- Remove the "1 KM / 100 KM+" footer labels (lines 126-129) since the parent already has these
-- Remove the dark card wrapper (`bg-black/40`, border, shadow) — the parent provides its own card
-- Keep ONLY the slider track, invisible range input, and animated thumb
-- Remove the spring animation on the fill bar — use direct `style.width` percentage for instant response (no spring delay)
-- The thumb position updates via direct MotionValue transforms (already instant)
+The codebase is already locked to your production Supabase (`vplgtcguxujxwrgguxqq`) in `client.ts`. All auth, likes, profiles, and data operations go through this project. 
 
-#### 2. Make Slider Feel Instant (`SwipeDistanceSlider.tsx`)
-- Replace `useSpring` (stiffness: 450, damping: 32) with direct `useMotionValue` for the fill width — zero lag between finger movement and visual update
-- Keep the thumb's `useTransform` mapping but remove the spring intermediary so it tracks the native input 1:1
-- This matches the "zero-animation" principle already used on the bottom nav buttons
+**One exception found**: `src/hooks/useConciergeAI.ts` hardcodes the AI concierge edge function URL to the Lovable Cloud project (`qegyisokrxdsszzswsqk`). This needs to be migrated to call your production Supabase instead, OR the edge function needs to be deployed there. Since the AI concierge edge function currently lives on Lovable Cloud, we have two options:
 
-#### 3. Adjust Parent Layout (`SwipeExhaustedState.tsx`)
-- Keep the existing "Coverage / Search Radius" header with km badge + Auto button (lines 218-243) as the single source of truth
-- The `SwipeDistanceSlider` now renders just the track bar directly below this header
-- Add the "Local / 100 km+" scale labels below the slider (move from SwipeDistanceSlider to here)
-- Tighten vertical spacing since we removed a full duplicate header block — this frees up ~60px of vertical space, making the distance card more compact and ensuring it fits on screen
+- **Option A**: Deploy the `ai-concierge` edge function to your production Supabase and update the URL
+- **Option B**: Keep it on Lovable Cloud for now (it only handles AI chat, not user data)
+
+I'll update `useConciergeAI.ts` to derive the URL from the production Supabase client config so it's consistent.
+
+### Problem 3: Leftover Cleanup
+
+Found these leftovers to clean:
+1. **Mock data in events** (`MOCK_EVENTS`, `MOCK_MESSAGES`) — Events/chat use hardcoded mock arrays as fallback data. These should remain for now since events aren't fully wired to the database yet.
+2. **Mock data guards in ClientSwipeContainer** — `isMockData` check (line 458, 492) for `test-` or `client-` prefixed user IDs that skip DB writes. This is dead code if no mock profiles are injected anymore. Remove it.
+3. **Dead comments** — Lines like `// MOCK_TEST_CLIENTS removed for Instagram cleanup` and `// import { MOCK_TEST_LISTINGS } was here` are noise. Remove them.
 
 ### Files Modified
-1. `src/components/swipe/SwipeDistanceSlider.tsx` — Strip to slider-only, remove spring delay
-2. `src/components/swipe/SwipeExhaustedState.tsx` — Add scale labels, tighten spacing
 
-### What Stays the Same
-- The global `useInstantReactivity` hook already provides instant feedback on all buttons/links across the entire app
-- The bottom nav's tap spring, haptics, and prefetch logic remain untouched
-- Radar scan burst behavior (6-second timer on refresh) stays as-is
-- All swipe/like persistence logic unchanged
+1. **`src/components/SwipessSwipeContainer.tsx`** — Remove scale animation from exhausted state wrapper; use static key + opacity-only transition to match owner side behavior
+2. **`src/hooks/useConciergeAI.ts`** — Derive AI concierge URL from the production Supabase project config instead of hardcoding Lovable Cloud URL
+3. **`src/components/ClientSwipeContainer.tsx`** — Remove `isMockData` dead code path and stale comments
+
+### Technical Detail
+
+The animation fix changes this:
+```typescript
+// BEFORE (causes sliding)
+<motion.div
+  key={`exhausted-${storeActiveCategory}`}
+  initial={{ opacity: 0, scale: 0.95 }}
+  animate={{ opacity: 1, scale: 1 }}
+  exit={{ opacity: 0, scale: 1.05 }}
+>
+
+// AFTER (instant swap, no sliding)
+<motion.div
+  key="exhausted"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+>
+```
+
+The backend fix changes the AI URL from Lovable Cloud to production:
+```typescript
+// BEFORE
+const AI_URL = 'https://qegyisokrxdsszzswsqk.supabase.co/functions/v1/ai-concierge';
+
+// AFTER — derives from the same project as all other data
+const AI_URL = 'https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/ai-concierge';
+```
 
