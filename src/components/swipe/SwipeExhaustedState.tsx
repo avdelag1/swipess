@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RefreshCw, RotateCcw, MapPin, Zap, Home, Bike, Briefcase } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
@@ -52,6 +52,18 @@ export const SwipeExhaustedState = ({
   const { setCategories } = useFilterActions();
   const activeCategory = useFilterStore(s => s.activeCategory);
   const [scanIteration, setScanIteration] = useState(0);
+  const [isScanBurstActive, setIsScanBurstActive] = useState(false);
+
+  useEffect(() => {
+    if (scanIteration === 0) return;
+
+    setIsScanBurstActive(true);
+    const timeout = window.setTimeout(() => {
+      setIsScanBurstActive(false);
+    }, 6000);
+
+    return () => window.clearTimeout(timeout);
+  }, [scanIteration]);
 
   const handleCategorySwitch = (catId: string) => {
     triggerHaptic('medium');
@@ -153,7 +165,7 @@ export const SwipeExhaustedState = ({
                 key={scanIteration === 0 ? 'idle' : `scan-${scanIteration}`}
                 size={128}
                 color={activeCatInfo?.color || '#ec4899'}
-                isActive={scanIteration > 0}
+                isActive={isScanBurstActive}
                 autoStopMs={6000}
                 icon={<ActiveIcon className="h-9 w-9 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" strokeWidth={2.35} />}
               />
@@ -167,11 +179,11 @@ export const SwipeExhaustedState = ({
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <div className={cn("h-1.5 w-1.5 rounded-full bg-primary", scanIteration > 0 && "animate-pulse")} />
                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
-                    {isRefreshing || scanIteration > 0
+                    {isRefreshing || isScanBurstActive
                       ? `Scanning for ${role === 'owner' ? 'clients' : activeCatInfo?.label?.toLowerCase() || 'listings'}`
                       : 'Radar standing by'}
                   </span>
-                  <div className={cn("h-1.5 w-1.5 rounded-full bg-primary", scanIteration > 0 && "animate-pulse")} />
+                  <div className={cn("h-1.5 w-1.5 rounded-full bg-primary", isScanBurstActive && "animate-pulse")} />
                 </div>
                 
                 <h3 className="text-xl font-black tracking-tight text-foreground sm:text-[1.4rem]">

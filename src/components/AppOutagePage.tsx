@@ -203,7 +203,7 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
         <span className="relative flex h-3 w-3">
           {/* Outer breathing glow ring */}
           <motion.span
-            className="absolute inline-flex h-full w-full rounded-full bg-orange-400"
+            className="absolute inline-flex h-full w-full rounded-full bg-primary/70"
             animate={{
               opacity: [0, 0.7, 0],
               scale: [1, 2.2, 1],
@@ -216,13 +216,13 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
           />
           {/* Inner dot — blinks on/off */}
           <motion.span
-            className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"
+            className="relative inline-flex h-3 w-3 rounded-full bg-primary"
             animate={{
               opacity: [1, 0.3, 1],
               boxShadow: [
-                '0 0 8px 2px rgba(249,115,22,0.6)',
-                '0 0 2px 0px rgba(249,115,22,0.1)',
-                '0 0 8px 2px rgba(249,115,22,0.6)',
+                '0 0 8px 2px hsl(var(--primary) / 0.6)',
+                '0 0 2px 0px hsl(var(--primary) / 0.12)',
+                '0 0 8px 2px hsl(var(--primary) / 0.6)',
               ],
             }}
             transition={{
