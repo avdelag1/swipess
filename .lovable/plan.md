@@ -1,64 +1,44 @@
 
 
-## Plan: Unify All Notifications to Premium Top Banner Style
+## Plan: Fix Radar Layout, Auto-Stop, and Motorcycle Filter
 
-### Problem
-The app has two notification systems running simultaneously:
-1. **Sonner toasts** — gray boxes at the bottom of the screen (the "horrible design" you mentioned)
-2. **NotificationBar** — the premium banner that slides in from left, sits at top, exits to the right (the one you like)
+### Problems
 
-When you swipe right, the like IS being saved correctly and the other user IS receiving a notification. The issue is purely visual — swipe feedback and other app actions show the ugly gray sonner toast instead of your preferred top banner.
-
-### What This Plan Does
-
-**Replace every sonner toast in the app with the premium NotificationBar style.** All notifications — swipe confirmations, errors, conversation creation, refresh messages — will use the same left-to-right sliding banner at the top.
-
----
+1. **Distance selector cut off** — The radar + text + button + distance card don't fit in the viewport. The content overflows below the visible area.
+2. **Radar animation may not stop** — Need to ensure the sweep beam and ripples fully stop after 6 seconds and do NOT animate on initial load (only on refresh click).
+3. **Motorcycle quick filter button** — Need to verify it properly triggers category switch and loads motorcycle listings.
 
 ### Changes
 
-#### 1. Create a unified `showAppNotification` helper
-- New utility function that pushes notifications into the existing `notificationStore` (which feeds the `NotificationBar`)
-- Supports all types: success, error, warning, info, like, message
-- Auto-dismisses after 4 seconds (same as current NotificationBar behavior)
-- One function replaces all `toast()`, `toast.success()`, `toast.error()` calls
+#### 1. Compact the Exhausted State Layout (`SwipeExhaustedState.tsx`)
 
-#### 2. Replace all `toast` calls across the app (~10 files)
-Files to update:
-- `src/components/SwipessSwipeContainer.tsx` — swipe feedback, conversation creation, refresh
-- `src/components/ClientSwipeContainer.tsx` — owner-side swipe feedback
-- `src/hooks/useSwipeWithMatch.tsx` — error toasts on swipe failure
-- `src/hooks/useSwipeUndo.tsx` — undo confirmation
-- `src/hooks/useSwipeDismissal.tsx` — dismissal error
-- `src/hooks/useAuth.tsx` — auth success/error messages
-- `src/hooks/useActiveMode.tsx` — mode switch feedback
-- `src/hooks/useConversations.tsx` — conversation errors
-- `src/hooks/useProfileSetup.tsx` — profile setup feedback
-- `src/utils/notifications.ts` — the preset notification helpers
+- Reduce radar `size` from 128 to 96 (smaller radar, less vertical space)
+- Reduce icon size inside radar from `h-9 w-9` to `h-6 w-6`
+- Reduce gaps between elements: `gap-6` to `gap-3`, `gap-5` to `gap-3`
+- Reduce vertical padding: `py-5` to `py-2`, `pt-4` to `pt-2`, `pb-5` to `pb-3`
+- Reduce the distance card padding from `p-5` to `p-4`, border-radius from `rounded-[2rem]` to `rounded-2xl`
+- Make the "No new listings" heading smaller: `text-xl` to `text-base`
+- Make the Refresh button slimmer: `h-13` to `h-10`, smaller padding
+- Remove `justify-center` from the main flex column — use `justify-start` so content flows from top and distance card is visible
 
-Each `toast.success(...)` becomes `showAppNotification({ type: 'success', title: ..., message: ... })`.
+#### 2. Fix Radar Auto-Stop Guarantee (`RadarSearchEffect.tsx`)
 
-#### 3. Hide the sonner Toaster (optional cleanup)
-- Remove or hide the `<Toaster />` component from the app layout since nothing will call it anymore
-- Keeps the NotificationBar as the sole notification UI
+- Ensure initial state: `useState(isActive)` — when `isActive` is false on mount, no animation runs
+- Add a guard: when `animating` transitions to false, force-cancel any lingering Framer Motion animations by using `animate={animating ? {...} : false}` pattern (using `false` instead of static values stops transitions)
+- The sweep beam's `repeat: Infinity` inside AnimatePresence should unmount cleanly when `animating=false`, but add explicit `exit` transitions to ensure clean teardown
 
-### What stays the same
-- The NotificationBar component itself — no changes needed, it already has the premium slide-in/slide-out behavior
-- The real-time notification system for likes/matches — already working
-- Swipe save logic — already saving to database correctly
-- User-to-user connectivity — listings and profiles are already visible across users via the shared pool architecture
+#### 3. Fix Motorcycle Quick Filter (`SwipeExhaustedState.tsx`)
+
+- The `handleCategorySwitch` calls `setCategories([catId])` which sets `activeCategory` to the category
+- Verify the `MotorcycleIcon` component properly accepts and forwards `strokeWidth` prop — currently it does via `{...props}` spread, but it also has a hardcoded `strokeWidth={2}` on the SVG element. The spread `{...props}` comes AFTER `strokeWidth={2}`, so the passed `strokeWidth={2.35}` should override. This should work.
+- The real issue may be that `motorcycle` as a category ID doesn't match what the swipe containers expect. Check that `useSmartMatching` properly handles `motorcycle` category. If the hook filters by `listing_type` or similar, the motorcycle value needs to match.
 
 ### Files Modified
-1. `src/utils/appNotification.ts` — NEW: unified notification helper
-2. `src/components/SwipessSwipeContainer.tsx` — replace toast calls
-3. `src/components/ClientSwipeContainer.tsx` — replace toast calls
-4. `src/hooks/useSwipeWithMatch.tsx` — replace toast calls
-5. `src/hooks/useSwipeUndo.tsx` — replace toast calls
-6. `src/hooks/useSwipeDismissal.tsx` — replace toast calls
-7. `src/hooks/useAuth.tsx` — replace toast calls
-8. `src/hooks/useActiveMode.tsx` — replace toast calls
-9. `src/hooks/useConversations.tsx` — replace toast calls
-10. `src/hooks/useProfileSetup.tsx` — replace toast calls
-11. `src/utils/notifications.ts` — replace toast calls with store-based approach
-12. `src/components/AppLayout.tsx` — remove sonner `<Toaster />` render
+
+1. **`src/components/swipe/SwipeExhaustedState.tsx`** — Compact layout: smaller radar, tighter spacing, visible distance card, `justify-start` instead of `justify-center`
+2. **`src/components/ui/RadarSearchEffect.tsx`** — Ensure clean animation stop with explicit exit props on sweep beam and ripples
+
+### Technical Detail
+
+The core layout fix is changing the flex container from `justify-center` to `justify-start` with controlled gaps. Currently `justify-center` pushes the distance card below the fold when the radar + text take up the center. With `justify-start`, elements stack from top down and the distance card stays visible within the scrollable area.
 
