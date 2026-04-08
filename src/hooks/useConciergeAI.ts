@@ -323,7 +323,8 @@ export function useConciergeAI() {
   }, [activeConversationId, conversations, updateConversations]);
 
   const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim() || isLoading) return;
+    if (!content.trim() || isLoading || isSendingRef.current) return;
+    isSendingRef.current = true; // Lock immediately to prevent double calls
     if (!canUseAI) {
       toast.error('Upgrade to Premium to use Swipess AI', { description: 'Subscribe or purchase tokens to unlock the AI concierge.' });
       return;
