@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, memo } from 'react';
 import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe } from 'lucide-react';
+import { SwipessLogo } from '@/components/SwipessLogo';
 import { Button } from '@/components/ui/button';
 import { useConciergeAI, ChatMessage, Conversation } from '@/hooks/useConciergeAI';
 import { toast } from '@/components/ui/sonner';
@@ -289,9 +290,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
               </Button>
               <HeaderIcon isLoading={isLoading} />
               <div>
-                <h2 className="text-sm font-semibold text-foreground">SwipesS AI</h2>
+                <SwipessLogo size="xs" variant="gradient" />
                 <p className="text-[11px] text-muted-foreground">
-                  {isLoading ? 'Thinking…' : 'Your Lisbon concierge'}
+                  {isLoading ? 'Thinking…' : 'Your Tulum concierge'}
                 </p>
               </div>
             </div>
@@ -319,13 +320,13 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2">Welcome to SwipesS AI</h3>
                 <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
-                  Ask me about apartments in Lisbon, neighborhood tips, visa info, cost of living, or anything about your search.
+                  Ask me about properties in Tulum, best beaches, cenotes, local tips, cost of living, or anything about your search.
                 </p>
                 <div className="flex flex-wrap gap-2 mt-6 justify-center">
                   {[
-                    'Best neighborhoods for expats?',
-                    'Average rent in Principe Real?',
-                    'Tips for apartment hunting',
+                    'Best zones to live in Tulum?',
+                    'Average rent in Aldea Zama?',
+                    'Top cenotes & beaches nearby',
                   ].map(suggestion => (
                     <button
                       key={suggestion}
