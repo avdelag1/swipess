@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { QuickFilterImage } from '@/components/ui/QuickFilterImage';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring, PanInfo } from 'framer-motion';
 import { Home, Bike, Briefcase, Search, Check, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -370,23 +371,12 @@ function CategoryCard({
                     category.color
                 )} 
             />
-            <img 
+            <QuickFilterImage 
                 src={category.image} 
                 alt={category.label}
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
                 className={cn(
-                    "absolute inset-0 w-full h-full object-cover transition-opacity duration-300",
                     isDragging ? "scale-105" : "scale-100"
                 )}
-                onError={() => {}}
-                style={{ 
-                    opacity: 1, 
-                    filter: 'none',
-                    transform: 'translateZ(0)', // Force GPU layer
-                    willChange: 'transform, opacity'
-                }}
             />
             {/* Dark overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-[5]" />
