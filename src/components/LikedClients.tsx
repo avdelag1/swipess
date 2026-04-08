@@ -188,7 +188,7 @@ export function LikedClients() {
   }, [likedClients, selectedCategory, searchTerm, filterSafeOnly, sortBy]);
 
   return (
-    <div className="w-full relative overflow-x-hidden min-h-[101dvh] pb-32 bg-background touch-pan-y" data-no-swipe-nav="true" style={{ willChange: 'scroll-position' }}>
+    <div className="w-full relative pb-32 bg-background touch-pan-y" data-no-swipe-nav="true" style={{ overscrollBehavior: 'contain' }}>
       <div className="p-4 pt-4 sm:p-8 sm:pt-8 max-w-7xl mx-auto">
         <div className="flex items-center justify-end mb-6">
               <div className="flex items-center gap-3">

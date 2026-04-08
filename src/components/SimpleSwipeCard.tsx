@@ -455,15 +455,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           scale: 1, 
           transition: { type: 'spring', stiffness: 800, damping: 22, mass: 0.1 }
         }}
-        // 🚀 LIVE FEEL: Periodic breathing-zoom
-        whileInView={{
-          scale: [1, 1.012, 1],
-          transition: {
-            duration: 9,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }
-        }}
+        // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
         className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[32px] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5),0_16px_32px_-8px_rgba(0,0,0,0.3)] glass-nano-texture pointer-events-auto border border-white/10 zenith-interaction-isolation gpu-ultra"
         style={{
           x,

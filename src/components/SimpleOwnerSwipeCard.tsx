@@ -199,7 +199,8 @@ const CardImage = memo(({
           transition: wasInCache ? 'none' : 'opacity 150ms ease-out',
           WebkitUserDrag: 'none',
           pointerEvents: 'none',
-          transform: 'translateZ(0)', // GPU promotion
+          animation: loaded ? 'photo-swim 12s ease-in-out infinite' : 'none',
+          willChange: loaded ? 'transform' : 'auto',
         } as React.CSSProperties}
         onLoad={() => {
           imageCache.set(src, true);
@@ -627,15 +628,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           scale: 1, 
           transition: { type: 'spring', stiffness: 400, damping: 28 }
         }}
-        // 🚀 LIVE FEEL: Periodic breathing-zoom
-        whileInView={{
-          scale: [1, 1.015, 1],
-          transition: {
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }
-        }}
+        // Photo swim effect now lives on the <img> inside CardImage (CSS keyframes)
         style={{
           x,
           y,

@@ -274,11 +274,12 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                   style={{ contain: 'paint', willChange: 'transform, opacity' }}
                 >
                   <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
-                  <img 
-                    src={option.image} 
-                    className="absolute inset-0 w-full h-full object-cover" 
-                    alt={option.label}
-                  />
+                <img 
+                  src={option.image} 
+                  className="absolute inset-0 w-full h-full object-cover photo-swim" 
+                  alt={option.label}
+                  style={{ animation: 'photo-swim 12s ease-in-out infinite' }}
+                />
                   <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
                     <div className={cn("mb-1 transition-transform duration-150", isActive && "scale-105")}>
                       {option.icon}
@@ -355,8 +356,9 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
             <img 
               src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=800&auto=format&fit=crop" 
-              className="absolute inset-0 w-full h-full object-cover" 
+              className="absolute inset-0 w-full h-full object-cover photo-swim" 
               alt="All"
+              style={{ animation: 'photo-swim 12s ease-in-out infinite' }}
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
               <Globe className={cn("w-7 h-7 mb-1 transition-transform duration-150", clientIsAllSelected && "scale-105")} />
@@ -388,8 +390,9 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
                 <img 
                   src={photo} 
-                  className="absolute inset-0 w-full h-full object-cover" 
+                  className="absolute inset-0 w-full h-full object-cover photo-swim" 
                   alt={category.label}
+                  style={{ animation: 'photo-swim 12s ease-in-out infinite' }}
                 />
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
                   <div className={cn("mb-1 transition-transform duration-150", isActive && "scale-105")}>
