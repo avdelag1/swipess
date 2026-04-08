@@ -1,12 +1,11 @@
 import { useState, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, Home, Bike, Briefcase, RotateCcw, Zap,
   ChevronLeft, Search, Filter, Layers, CreditCard,
   Target, Rocket, MapPin
 } from 'lucide-react';
-import { AISearchDialog } from '@/components/AISearchDialog';
 import { Button } from '@/components/ui/button';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
@@ -58,7 +57,7 @@ const categories: {
 export default function ClientFilters() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [showAISearch, setShowAISearch] = useState(false);
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -239,41 +238,7 @@ export default function ClientFilters() {
           </div>
         </section>
 
-        {/* AI Discovery Prompt */}
-        <section className="relative group">
-          <motion.div 
-            whileHover={{ scale: 1.01 }}
-            className="relative overflow-hidden rounded-[3rem] bg-slate-900 border border-slate-800 p-8 shadow-2xl"
-          >
-            <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-40 transition-opacity">
-              <Rocket className="w-24 h-24 text-primary animate-pulse" />
-            </div>
 
-            <div className="relative z-10 space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-                  <Zap className="w-5 h-5 text-white animate-bounce" />
-                </div>
-                <h3 className="text-lg font-black tracking-tight text-white">Hyper-Discovery AI</h3>
-              </div>
-              
-              <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[280px]">
-                Seeking a loft with sunset views or a workspace near the beach? Describe it perfectly.
-              </p>
-
-              <Button 
-                onClick={() => { haptics.select(); setShowAISearch(true); }}
-                className="h-14 px-8 rounded-2xl font-black text-sm gap-3 shadow-2xl bg-white text-black hover:bg-slate-200"
-              >
-                Launch Semantic Search
-                <Target className="w-4 h-4" />
-              </Button>
-            </div>
-
-            {/* Glowing accents */}
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/20 rounded-full blur-[80px]" />
-          </motion.div>
-        </section>
       </div>
 
       {/* Primary Apply Button */}
@@ -315,7 +280,7 @@ export default function ClientFilters() {
         </div>
       </div>
 
-      <AISearchDialog isOpen={showAISearch} onClose={() => setShowAISearch(false)} userRole="client" />
+
     </div>
   );
 }
