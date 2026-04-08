@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, memo } from 'react';
+import { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { Button } from '@/components/ui/button';
