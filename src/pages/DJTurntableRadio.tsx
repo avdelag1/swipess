@@ -243,8 +243,6 @@ export default function DJTurntableRadio() {
 
   // POWER ON / INITIALIZATION GUARD — auto-power AND auto-play
   useEffect(() => {
-    let powerTimer: ReturnType<typeof setTimeout>;
-    
     const initRadio = () => {
       if (!state.isPoweredOn) {
         togglePower();

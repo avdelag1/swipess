@@ -96,7 +96,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   // Track failed stations to avoid infinite loops and identify dead ones
   const failedStationsRef = useRef<Set<string>>(new Set());
-  const failedStationsCountRef = useRef<Record<string, number>>({});
   const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentStationRef = useRef<RadioStation | null>(null);

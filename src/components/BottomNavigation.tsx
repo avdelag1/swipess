@@ -19,16 +19,13 @@ import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, MessageCircle, CircleUser, Building2,
-  Search, Users2, Sparkles, ShieldCheck,
-  Megaphone, Compass, Headphones, PlusCircle,
-  Zap, Ticket, Heart, MessageSquare,
-  LayoutDashboard, LayoutGrid, Rocket, PartyPopper, Settings2,
-  Eye, Cpu, SlidersHorizontal
+  Users2, ShieldCheck,
+  Megaphone, PartyPopper,
+  Zap, SlidersHorizontal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
-import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { useScrollBounce } from '@/hooks/useScrollBounce';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
@@ -36,12 +33,10 @@ import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
-import { useModalStore } from '@/state/modalStore';
 
 const ICON_SIZE = 26;
 const ICON_SIZE_COMPACT = 23;
 const TOUCH_TARGET = 52;
-const TOUCH_TARGET_COMPACT = 46;
 
 interface BottomNavigationProps {
   userRole: 'client' | 'owner' | 'admin';
@@ -75,9 +70,6 @@ const TAP_SPRING = {
 export const BottomNavigation = memo(({
   userRole,
   onFilterClick,
-  onAddListingClick,
-  onListingsClick,
-
   className,
 }: BottomNavigationProps) => {
   const { navigate, prefetch } = useAppNavigate();
@@ -159,24 +151,6 @@ export const BottomNavigation = memo(({
       activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
     }
   }, [location.pathname]);
-
-  // ── Edge fade indicators ──────────────────────────────────────────────
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const updateScrollFades = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 4);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
-  }, []);
-
-  useEffect(() => {
-    updateScrollFades();
-    // Re-check on resize
-    window.addEventListener('resize', updateScrollFades);
-    return () => window.removeEventListener('resize', updateScrollFades);
-  }, [updateScrollFades, navItems.length]);
 
   // ── Tap vs drag detection ─────────────────────────────────────────────
   // isDraggingRef tracks whether the user is scrolling the nav bar.
@@ -333,7 +307,6 @@ export const BottomNavigation = memo(({
         <div
           ref={mergedScrollRef}
           data-no-swipe-nav
-          onScroll={updateScrollFades}
           onPointerMove={handlePointerMove}
           className={cn(
             'relative flex items-center w-full justify-start gap-1 px-2 py-1.5 nav-scroll-hide transform-gpu',
