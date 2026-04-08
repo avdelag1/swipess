@@ -615,7 +615,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     recordSwipe(listing.id, 'listing', direction);
 
     // Save swipe to DB with optimistic UI
-    // The useSwipe hook now handles queryClient.setQueryData optimistically
+    // Save swipe to DB with match detection and notifications
     swipeMutation.mutate({
       targetId: listing.id,
       direction,
