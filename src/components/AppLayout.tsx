@@ -15,6 +15,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useModalStore } from '@/state/modalStore';
 import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { cn } from '@/lib/utils';
+import { SentientHud } from './SentientHud';
 
 const RadioMiniPlayer = lazy(() =>
   import('@/components/RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer }))
@@ -100,13 +101,14 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className="flex flex-col flex-1 h-full w-full min-h-0 overflow-hidden relative">
         {/* 🚀 PERMANENT HUD: Universal and stable header/footer architecture */}
         {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
-          <TopBar
-            userRole={userRole}
-            onMessageActivationsClick={handleMessageActivationsClick}
-            transparent={isImmersive} // Respect immersive transparency for discovery
-            showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
-            className="z-[9999]"
-          />
+          <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[9999]">
+            <TopBar
+              userRole={userRole}
+              onMessageActivationsClick={handleMessageActivationsClick}
+              transparent={isImmersive}
+              showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
+            />
+          </SentientHud>
         )}
  
         {/* Primary content area: fills available space between bars */}
@@ -145,13 +147,13 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* 🚀 PERMANENT HUD: Always visible footer per user request */}
       {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
         <>
-          <BottomNavigation
-            userRole={userRole}
-            onFilterClick={handleFilterClick}
-            
-            onListingsClick={handleListingsClick}
-            className="z-[9999]"
-          />
+          <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[9999]">
+            <BottomNavigation
+              userRole={userRole}
+              onFilterClick={handleFilterClick}
+              onListingsClick={handleListingsClick}
+            />
+          </SentientHud>
 
           {/* Radio Mini Player */}
           <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+80px)] left-4 right-4 z-50 pointer-events-none">

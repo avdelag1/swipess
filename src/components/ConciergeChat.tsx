@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, memo } from 'react';
-import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown } from 'lucide-react';
+import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown, Mic, MicOff, Zap } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { Button } from '@/components/ui/button';
 import { useConciergeAI, ChatMessage, Conversation, AiCharacter } from '@/hooks/useConciergeAI';
@@ -255,6 +255,83 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // ── Voice-to-text (Web Speech API) ─────────────────────────────────
+  const [isListening, setIsListening] = useState(false);
+  const [autoSend, setAutoSend] = useState(() => {
+    try { return localStorage.getItem('concierge-auto-send') === 'true'; } catch { return false; }
+  });
+  const recognitionRef = useRef<any>(null);
+  const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+
+  const toggleAutoSend = useCallback(() => {
+    setAutoSend(prev => {
+      const next = !prev;
+      try { localStorage.setItem('concierge-auto-send', String(next)); } catch {}
+      return next;
+    });
+  }, []);
+
+  const stopListening = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+  }, []);
+
+  const startListening = useCallback(() => {
+    if (!speechSupported) return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    let finalTranscript = '';
+
+    recognition.onresult = (event: any) => {
+      let interim = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interim += event.results[i][0].transcript;
+        }
+      }
+      setInput(finalTranscript + interim);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      recognitionRef.current = null;
+      // Auto-send if enabled and we have text
+      if (autoSend && finalTranscript.trim()) {
+        setTimeout(() => {
+          // Use the ref to get the latest sendMessage
+          sendMessage(finalTranscript.trim());
+          setInput('');
+        }, 100);
+      }
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+      recognitionRef.current = null;
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsListening(true);
+  }, [speechSupported, autoSend, sendMessage]);
+
+  const toggleListening = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  }, [isListening, stopListening, startListening]);
 
   // Auto-scroll to bottom on new messages, loading state, opening chat, or switching conversation
   const scrollToBottom = useCallback(() => {
@@ -514,6 +591,23 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
           {/* Input */}
           <div className="border-t border-border/50 bg-background/95 backdrop-blur-xl px-4 py-3 pb-[calc(env(safe-area-inset-bottom,0px)+12px)]">
+            {/* Auto-send toggle */}
+            {speechSupported && (
+              <div className="flex items-center gap-2 mb-2">
+                <button
+                  onClick={toggleAutoSend}
+                  className={cn(
+                    "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all",
+                    autoSend
+                      ? "bg-primary/15 text-primary border border-primary/30"
+                      : "bg-muted/40 text-muted-foreground border border-border/30"
+                  )}
+                >
+                  <Zap className="w-3 h-3" />
+                  Auto-send {autoSend ? 'ON' : 'OFF'}
+                </button>
+              </div>
+            )}
             <div className="flex items-end gap-2">
               <textarea
                 ref={inputRef}
@@ -525,6 +619,20 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 className="flex-1 resize-none bg-muted/50 border border-border/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30 max-h-32"
                 style={{ minHeight: '40px' }}
               />
+              {/* Mic button */}
+              {speechSupported && (
+                <Button
+                  onClick={toggleListening}
+                  size="icon"
+                  variant="outline"
+                  className={cn(
+                    "w-10 h-10 rounded-xl shrink-0 transition-all",
+                    isListening && "bg-red-500/20 border-red-500/50 text-red-400 animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.4)]"
+                  )}
+                >
+                  {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                </Button>
+              )}
               {isLoading ? (
                 <Button onClick={stopGeneration} size="icon" variant="outline" className="w-10 h-10 rounded-xl shrink-0">
                   <Square className="w-4 h-4" />
