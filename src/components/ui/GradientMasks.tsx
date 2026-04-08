@@ -53,11 +53,11 @@ export const GradientMaskTop = memo(function GradientMaskTop({
     height: `${heightPercent}%`,
     background: `linear-gradient(
       to bottom,
-      rgba(${baseColor}, ${0.35 * intensity * lightDim}) 0%,
-      rgba(${baseColor}, ${0.22 * intensity * lightDim}) 15%,
-      rgba(${baseColor}, ${0.12 * intensity * lightDim}) 35%,
-      rgba(${baseColor}, ${0.06 * intensity * lightDim}) 55%,
-      rgba(${baseColor}, ${0.02 * intensity * lightDim}) 75%,
+      rgba(${baseColor}, ${0.42 * intensity * lightDim}) 0%,
+      rgba(${baseColor}, ${0.28 * intensity * lightDim}) 15%,
+      rgba(${baseColor}, ${0.16 * intensity * lightDim}) 35%,
+      rgba(${baseColor}, ${0.08 * intensity * lightDim}) 55%,
+      rgba(${baseColor}, ${0.03 * intensity * lightDim}) 75%,
       rgba(${baseColor}, 0) 100%
     )`,
     // GPU acceleration

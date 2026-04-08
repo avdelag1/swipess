@@ -251,7 +251,7 @@ export const BottomNavigation = memo(({
     return item.path ? location.pathname === item.path : false;
   };
 
-  const iconColorInactive = isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.55)';
+  const iconColorInactive = isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.65)';
   const activeColor = 'var(--color-brand-primary)';
 
   const barShadow = 'none';
@@ -382,8 +382,8 @@ export const BottomNavigation = memo(({
                       mass: 0.6,
                     }}
                      style={{
-                       background: isLight ? 'rgba(255,107,53,0.1)' : 'rgba(255,107,53,0.15)',
-                       boxShadow: 'none',
+                       background: isLight ? 'rgba(255,107,53,0.12)' : 'rgba(255,107,53,0.22)',
+                       boxShadow: isLight ? '0 0 12px rgba(255,107,53,0.15)' : '0 0 16px rgba(255,107,53,0.2)',
                      }}
                   >
                      {/* Liquid highlight catch-light */}
@@ -440,7 +440,7 @@ export const BottomNavigation = memo(({
                       style={{
                         color: active
                           ? 'var(--color-brand-primary)'
-                        : (isLight ? 'rgba(0,0,0,0.72)' : 'rgba(255,255,255,0.55)'),
+                        : (isLight ? 'rgba(0,0,0,0.72)' : 'rgba(255,255,255,0.65)'),
                         opacity: 1,
                         zIndex: 1,
                       }}

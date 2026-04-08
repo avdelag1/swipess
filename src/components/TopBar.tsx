@@ -184,8 +184,7 @@ function TopBarComponent({
     <>
       <header
         className={cn(
-          'app-header opacity-100 translate-y-0 transform-gpu will-change-transform',
-          transparent ? 'bg-transparent' : 'bg-background/80 backdrop-blur-xl',
+          'app-header opacity-100 translate-y-0 transform-gpu will-change-transform bg-transparent',
           className
         )}
       >
@@ -284,7 +283,7 @@ function TopBarComponent({
                         onClick={(e) => e.preventDefault()}
                         aria-label="Token Packages"
                       >
-                        <Zap strokeWidth={3} className={cn("h-4 w-4", isLight ? "text-amber-500" : "text-amber-300")} />
+                        <Zap strokeWidth={3} className={cn("h-[18px] w-[18px]", isLight ? "text-amber-500" : "text-amber-300")} style={{ filter: isLight ? 'drop-shadow(0 0 6px rgba(245,158,11,0.4))' : 'drop-shadow(0 0 8px rgba(252,211,77,0.5))' }} />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent
@@ -417,7 +416,7 @@ function TopBarComponent({
                     }}
                     aria-label="Go to radio"
                   >
-                    <RadioIcon strokeWidth={3} className={cn("h-4.5 w-4.5 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.3)]")} />
+                    <RadioIcon strokeWidth={3} className="h-[18px] w-[18px] text-rose-500" style={{ filter: 'drop-shadow(0 0 8px rgba(244,63,94,0.45))' }} />
                   </Button>
 
                   {/* Theme Toggle */}

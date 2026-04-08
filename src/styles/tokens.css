@@ -23,8 +23,8 @@
   --focus-ring-offset: 2px;
   /* ── Radius Tokens ── */
   --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
   --radius-xl: 28px;
   --radius-2xl: 36px;
   /* ✨ NEW: For hero cards and major containers */
