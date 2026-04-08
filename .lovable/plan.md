@@ -1,43 +1,42 @@
 
 
-## Plan: Fix Chat UX Issues and Knowledge Search
+## Plan: Center Swipe Cards, Remove Bottom Line, Slim Icons App-Wide, Fix Scroll, Optimize Responsiveness
 
-### Issue Summary
+### 1. Center the Category Swipe Stack and Remove Bottom Line
 
-1. **Auto-send toggle location** — Currently above the input area; move it inside the chat input section (inline with the input bar)
-2. **Placeholder branding** — "Ask SwipesS AI..." → "Ask Swipes..." (first letter uppercase, rest lowercase)
-3. **Copy/Resend buttons disappearing** — The action buttons use `sm:opacity-0 sm:group-hover:opacity-100` which makes them invisible on mobile after initial render; fix to always be visible
-4. **Textarea doesn't grow with text** — Currently fixed `rows={1}` with no auto-resize; implement auto-growing textarea capped at 50% viewport height
-5. **AI doesn't find Ezriyah** — The `searchKnowledge()` function fetches only 5 random rows from 25 total entries with NO keyword filtering in the SQL query. Ezriyah's entry is in the DB but gets missed. Need to add ILIKE filters to the query.
+**`src/components/CategorySwipeStack.tsx`**
+- Line 139: The container uses `h-[min(42dvh,340px)]` — this may be too tall, pushing cards up against the header. Reduce to `h-[min(38dvh,320px)]` and ensure `items-center justify-center` keeps cards vertically centered.
+- Line 425: Remove the "Bottom Glass Indicator" div (`h-1.5 bg-gradient-to-r from-transparent via-white/20 to-transparent`) — this is the visible line at the bottom of the cards.
+- Line 177: The instruction text at `-bottom-6` also creates a visual line effect. Move it further down or make it more subtle.
 
----
+**`src/components/MyHubQuickFilters.tsx`**
+- Line 24: Change container from `mb-2 px-4` with `pt-2` to use proper centering — `flex items-center justify-center h-full`.
 
-### Changes
+### 2. Slim Icons App-Wide (12 files)
 
-**File: `src/components/ConciergeChat.tsx`**
+Reduce all remaining thick `strokeWidth` values to the new standard: **1.5 general, 1.8 active, 2 max for small decorative**.
 
-1. **Placeholder**: Change `"Ask SwipesS AI..."` → `"Ask Swipes..."`
+| File | Current | New |
+|------|---------|-----|
+| `SwipeActionButtonBar.tsx` | 2.4–2.8 | 1.8 (large), 1.5 (small) |
+| `QuickFilterDropdown.tsx` | 4 everywhere | 2 |
+| `CategorySwipeStack.tsx` | 2.5 (icon), 4 (check) | 1.5, 2.5 |
+| `PWAInstallPrompt.tsx` | 3 (X close) | 1.5 |
+| `DiscoverySidebar.tsx` | 2.2 | 1.5 |
+| `SignupErrorBoundary.tsx` | 2.5 | 1.8 |
+| `ExploreFeatureLinks.tsx` | 2.5 | 1.5 |
+| `SwipessSwipeContainer.tsx` | 2.5 | 1.5 |
+| `ClientSwipeContainer.tsx` | 2.5 | 1.5 |
+| `TinderTopNav.tsx` | 2.5 | 1.5 |
+| `OwnerContracts.tsx` | 2.5 | 1.5 |
 
-2. **Auto-growing textarea**: Add an `useEffect` that auto-resizes the textarea based on content. Reset height to `auto`, then set to `scrollHeight`, capped at `50vh`. Replace the static `max-h-32` with a dynamic `maxHeight` style.
+### 3. Fix Liked Pages Scroll
 
-3. **Copy/Resend always visible**: Change the action bar classes from `opacity-100 sm:opacity-0 sm:group-hover:opacity-100` to always `opacity-100` (or a subtler approach: keep them at reduced opacity but always visible, e.g., `opacity-60 hover:opacity-100`).
+**`src/components/DashboardLayout.tsx`** (line 491-496)
+- For liked/interested routes, change from `overflow-y-auto` to `overflow-hidden` so scroll ownership is fully delegated to the child page container. The child pages (`LikedClients.tsx` line 191, `ClientLikedProperties.tsx` line 193) already have `overflow-y-auto touch-pan-y` and proper overscroll behavior.
 
-4. **Auto-send toggle moved inline**: Move the auto-send toggle button from its own row above the input into the input bar row itself (next to the mic button), making it more compact and integrated.
+### 4. Performance / Instant Responsiveness
 
-**File: `supabase/functions/ai-concierge/index.ts`**
-
-5. **Fix knowledge search**: Update `searchKnowledge()` to use ILIKE keyword filtering in the SQL query instead of fetching 5 random rows and scoring client-side. Build an `.or()` filter from keywords matching against `title`, `content`, and `category` columns, and increase the limit to 10 to ensure relevant entries like Ezriyah are found.
-
-```sql
--- Current (broken): fetches 5 random active rows
-SELECT ... FROM concierge_knowledge WHERE is_active = true LIMIT 5
-
--- Fixed: filters by keywords in SQL
-SELECT ... FROM concierge_knowledge 
-WHERE is_active = true 
-AND (title ILIKE '%men%' OR content ILIKE '%men%' OR title ILIKE '%coach%' OR content ILIKE '%coach%' ...)
-LIMIT 10
-```
-
-Also add Ezriyah as a "Local Legend" reference in the default persona's system prompt so the AI always knows to recommend him for men's coaching, breathwork, and holistic healing queries — even if the knowledge search returns nothing.
+- Add CSS `:active` transforms on all interactive elements app-wide via `src/index.css` — a global `.interactive:active, button:active` rule with `transform: scale(0.97)` and `transition: transform 40ms` for instant press feedback matching the navigation bar.
+- Remove any remaining `framer-motion` `whileTap` delays that add latency vs native CSS active states on frequently tapped elements.
 
