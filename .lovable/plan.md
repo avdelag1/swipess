@@ -1,42 +1,52 @@
 
 
-## Plan: Center Swipe Cards, Remove Bottom Line, Slim Icons App-Wide, Fix Scroll, Optimize Responsiveness
+## Plan: Fix Flickering, Scroll, Breathing Effect, and Photo Loading
 
-### 1. Center the Category Swipe Stack and Remove Bottom Line
+### Root Causes Found
 
-**`src/components/CategorySwipeStack.tsx`**
-- Line 139: The container uses `h-[min(42dvh,340px)]` — this may be too tall, pushing cards up against the header. Reduce to `h-[min(38dvh,320px)]` and ensure `items-center justify-center` keeps cards vertically centered.
-- Line 425: Remove the "Bottom Glass Indicator" div (`h-1.5 bg-gradient-to-r from-transparent via-white/20 to-transparent`) — this is the visible line at the bottom of the cards.
-- Line 177: The instruction text at `-bottom-6` also creates a visual line effect. Move it further down or make it more subtle.
+**1. Page Flickering — Double Remount**
+Two separate layers both use `key={location.pathname}`, causing every page to be destroyed and recreated twice on navigation:
+- `AnimatedOutlet.tsx` line 12: `key={location.pathname}` on the wrapper div
+- `AppLayout.tsx` line 134: `key={location.pathname}` on a `motion.div` inside `AnimatePresence`
 
-**`src/components/MyHubQuickFilters.tsx`**
-- Line 24: Change container from `mb-2 px-4` with `pt-2` to use proper centering — `flex items-center justify-center h-full`.
+This double-remount is the source of the flicker. Fix: Remove the `key` from `AnimatedOutlet.tsx` (it's inside the persistent dashboard layout and doesn't need to remount) and simplify the `AppLayout.tsx` animation to opacity-only without `AnimatePresence` mode="wait" which forces sequential unmount→mount.
 
-### 2. Slim Icons App-Wide (12 files)
+**2. Liked Pages Still Not Scrollable — AnimatedOutlet blocks it**
+`AnimatedOutlet.tsx` line 15 applies `overflow-hidden` to all non-radio routes. This wraps every child page, including Liked pages, and blocks their `overflow-y-auto` from working. Fix: Remove `overflow-hidden` from `AnimatedOutlet` — it's unnecessary since the parent `DashboardLayout` already controls overflow.
 
-Reduce all remaining thick `strokeWidth` values to the new standard: **1.5 general, 1.8 active, 2 max for small decorative**.
+**3. Breathing Effect Not Working on Quick Filter Cards**
+Two conflicts:
+- The parent card has `card-breathe` CSS animation (scale 1→1.015) while framer-motion's `animate` prop continuously sets `scale` on the same element (line 300). Framer-motion inline styles override CSS animations.
+- The child image has `photo-swim` (scale 1→1.08) but it's nested inside a parent that's also being scaled by framer-motion, creating conflicts.
 
-| File | Current | New |
-|------|---------|-----|
-| `SwipeActionButtonBar.tsx` | 2.4–2.8 | 1.8 (large), 1.5 (small) |
-| `QuickFilterDropdown.tsx` | 4 everywhere | 2 |
-| `CategorySwipeStack.tsx` | 2.5 (icon), 4 (check) | 1.5, 2.5 |
-| `PWAInstallPrompt.tsx` | 3 (X close) | 1.5 |
-| `DiscoverySidebar.tsx` | 2.2 | 1.5 |
-| `SignupErrorBoundary.tsx` | 2.5 | 1.8 |
-| `ExploreFeatureLinks.tsx` | 2.5 | 1.5 |
-| `SwipessSwipeContainer.tsx` | 2.5 | 1.5 |
-| `ClientSwipeContainer.tsx` | 2.5 | 1.5 |
-| `TinderTopNav.tsx` | 2.5 | 1.5 |
-| `OwnerContracts.tsx` | 2.5 | 1.5 |
+Fix: Remove `card-breathe` class from the motion.div (framer-motion overrides it anyway). Keep `photo-swim` only on the `QuickFilterImage` — this is the breathing effect that matters. Ensure the image's `photo-swim` animation isn't blocked by the parent's `overflow-hidden` + transform combination.
 
-### 3. Fix Liked Pages Scroll
+**4. Slide-In Photo Loading Transition**
+Replace the simple opacity fade in `QuickFilterImage` with a combined slide-in + fade effect, similar to how the nav bar buttons slide. The image will translate from `translateX(20px)` to `translateX(0)` while fading in.
 
-**`src/components/DashboardLayout.tsx`** (line 491-496)
-- For liked/interested routes, change from `overflow-y-auto` to `overflow-hidden` so scroll ownership is fully delegated to the child page container. The child pages (`LikedClients.tsx` line 191, `ClientLikedProperties.tsx` line 193) already have `overflow-y-auto touch-pan-y` and proper overscroll behavior.
+### Changes
 
-### 4. Performance / Instant Responsiveness
+**File: `src/components/AnimatedOutlet.tsx`**
+- Remove `key={location.pathname}` from the wrapper div (prevents full remount on navigation)
+- Remove `overflow-hidden` from the className — this was blocking child scroll containers
 
-- Add CSS `:active` transforms on all interactive elements app-wide via `src/index.css` — a global `.interactive:active, button:active` rule with `transform: scale(0.97)` and `transition: transform 40ms` for instant press feedback matching the navigation bar.
-- Remove any remaining `framer-motion` `whileTap` delays that add latency vs native CSS active states on frequently tapped elements.
+**File: `src/components/AppLayout.tsx`**
+- Remove the `AnimatePresence` + `motion.div` wrapper with `key={location.pathname}` around `{children}`. Replace with a simple static `div`. The page transitions are already handled by the persistent dashboard layout's `AnimatedOutlet`.
+
+**File: `src/components/CategorySwipeStack.tsx`**
+- Remove `card-breathe` class from line 342 (framer-motion overrides CSS animations on the same element, making it pointless)
+
+**File: `src/components/ui/QuickFilterImage.tsx`**
+- Replace the opacity-only transition with a combined slide-in + fade: `transform: translateX(20px)` → `translateX(0)` alongside opacity 0→1
+- Keep the `photo-swim` breathing animation starting after the slide-in completes
+
+**File: `src/index.css`**
+- Add a `@keyframes photo-slide-in` for the combined slide + fade effect used by QuickFilterImage
+
+### Summary
+- 4 files modified
+- Eliminates double-remount flicker on every page change
+- Unblocks scroll on Liked pages by removing the `overflow-hidden` wrapper
+- Fixes breathing effect by removing conflicting CSS animation from framer-motion element
+- Adds premium slide-in photo loading matching the nav bar's responsive feel
 
