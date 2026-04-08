@@ -33,7 +33,7 @@ import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users, MapPin, Bike, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import { toast as sonnerToast } from 'sonner';
+import { appToast } from '@/utils/appNotification';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';

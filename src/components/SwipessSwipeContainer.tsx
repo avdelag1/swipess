@@ -47,7 +47,7 @@ const CATEGORY_ICON_MAP: Record<string, any> = {
   services: Briefcase,
   worker: Briefcase,
 };
-import { toast } from '@/components/ui/sonner';
+import { appToast } from '@/utils/appNotification';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
