@@ -327,8 +327,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const countdownTranscriptRef = useRef<string>('');
   const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
-  const COUNTDOWN_SECONDS = 7;
-  const SILENCE_DELAY_MS = 3000; // 3 seconds of silence before countdown starts
+  const COUNTDOWN_SECONDS = 5;
+  const SILENCE_DELAY_MS = 2000; // 2 seconds of silence before countdown starts
 
   const clearCountdown = useCallback(() => {
     if (countdownRef.current) {
@@ -768,7 +768,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     exit={{ opacity: 0 }}
                     className="text-[10px] font-medium text-primary/70"
                   >
-                    {countdown <= 2 ? `🔥 ${countdown}… ready to launch!` : `Sending in ${countdown}…`}
+                    {countdown <= 1 ? `🚀 Ignition!` : countdown <= 2 ? `🔥 ${countdown}… ready to launch!` : `Sending in ${countdown}…`}
                   </motion.span>
                 )}
               </div>
