@@ -1,43 +1,57 @@
 
 
-## Plan: Error Cleanup, Dead Code Removal, and Polish
+## Plan: Fix Page Arrival Animations — Smooth Instant Transitions
 
-### Critical Fix: ModeSwitcher `useRef` Crash
+### Problem
 
-The `ModeSwitcher.tsx` component imports `useRef` from React but never uses it. This unused import, combined with React's internal dispatcher resolution, is causing the crash: `Cannot read properties of null (reading 'useRef')`. The error triggers the `GlobalErrorBoundary` and causes the app to flash/recover visibly.
+When navigating between pages (especially on client side), pages "arrive from the left" in a jarring way. The `AnimatedOutlet` currently has zero transition — it's a raw swap. Combined with swipe gestures, the abrupt content replacement feels broken and unprofessional.
 
-**Fix**: Remove the unused `useRef` import from `ModeSwitcher.tsx` line 1.
+### Solution
 
-### Dead Code and Unused Import Cleanup
+Add a subtle, fast **fade-in** entrance to `AnimatedOutlet` using CSS transitions. No sliding — just a clean opacity + micro-scale entrance that feels instant but polished. This applies to both client and owner sides uniformly.
 
-| File | Issue | Fix |
-|------|-------|-----|
-| `src/components/ModeSwitcher.tsx` | `useRef` imported but never used | Remove from import |
-| `src/components/AppLayout.tsx` | `useRef` imported but never used | Remove from import |
-| `src/components/AppLayout.tsx` | `modalStore` assigned on line 36 but never used (only `showAIChat` is destructured separately on line 69) | Remove line 36, keep the destructured usage |
-| `src/index.css` | `card-breathe` keyframes + class defined but no component uses it anymore | Remove the dead CSS block |
+### Changes
 
-### Tailwind Warning Cleanup
+**1. `src/components/AnimatedOutlet.tsx`** — Add CSS-based fade entrance
 
-The dev server shows warnings about ambiguous Tailwind classes using bracket notation inside `data-[state=...]` selectors. These are in the `SentientHud` or similar component:
-- `data-[state=closed]:duration-[160ms]`
-- `data-[state=open]:duration-[220ms]`
-- `duration-[220ms]`, `duration-[80ms]`
-- `ease-[cubic-bezier(0.32,0.72,0,1)]`
+Replace the static `<div>` wrapper with a keyed container that triggers a CSS animation on route change. Use `location.pathname` only as a CSS animation trigger (via `key` on an inner element), NOT as a React `key` on the outlet itself (to preserve the no-flicker architecture).
 
-**Fix**: Replace bracket-based `duration-[Xms]` with Tailwind's standard `duration-150`, `duration-200` equivalents, and use style props for the custom cubic-bezier easing.
+```tsx
+import { useOutlet, useLocation } from 'react-router-dom';
+import { Suspense, useRef, useState, useEffect } from 'react';
+import { SuspenseFallback } from './ui/suspense-fallback';
 
-### WelcomeBonusModal Placement
+export function AnimatedOutlet() {
+  const outlet = useOutlet();
+  const location = useLocation();
+  const [fadeClass, setFadeClass] = useState('');
 
-In `App.tsx` line 115, `<WelcomeBonusModal />` sits outside any `<Suspense>` boundary. If it triggers a lazy load or async state during render, it would cause a visible flash.
+  useEffect(() => {
+    setFadeClass('opacity-0');
+    const raf = requestAnimationFrame(() => {
+      setFadeClass('opacity-100');
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [location.pathname]);
 
-**Fix**: Wrap it inside the existing `<Suspense fallback={null}>` block on line 121.
+  return (
+    <div
+      className={`h-full min-h-0 w-full flex flex-col flex-1 transition-opacity duration-150 ease-out ${fadeClass}`}
+      style={{ position: 'relative' }}
+    >
+      <Suspense fallback={<SuspenseFallback minimal />}>
+        {outlet}
+      </Suspense>
+    </div>
+  );
+}
+```
 
-### Summary
+This gives every page change a 150ms fade-in — fast enough to feel instant, smooth enough to eliminate the jarring "slide from left" perception. No framer-motion overhead, pure CSS.
 
-- 4 files modified for dead code removal
-- 1 critical runtime error fixed (ModeSwitcher useRef crash)
-- Tailwind warnings silenced
-- WelcomeBonusModal wrapped in Suspense
-- Zero architectural changes — pure cleanup
+### What this fixes
+- Client dashboard pages arriving with a harsh visual snap
+- Owner pages having the same issue
+- Consistent, premium-feeling transitions across both roles
+- Zero impact on scroll ownership or swipe physics
 
