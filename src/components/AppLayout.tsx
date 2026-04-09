@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useEffect, useRef } from 'react';
+import { Suspense, lazy, useMemo, useEffect } from 'react';
 
 import { useLocation } from 'react-router-dom';
 import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
@@ -33,7 +33,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
-  const modalStore = useModalStore();
   const { activeMode } = useActiveMode();
 
   const userRole = user?.user_metadata?.role === 'admin' ? 'admin' : activeMode;
