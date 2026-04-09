@@ -56,12 +56,10 @@ export function SentientHud({
   const isFade = mode === 'both' || mode === 'fade';
 
   return (
-    <div 
+    <div
+      style={{ transitionTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)' }}
       className={cn(
-        "transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
-        // 🚀 ZENITH: Pointer-events Bypass Pattern
-        // The container is fixed but must NEVER block touches to the content behind it.
-        // We set pointer-events-none on the wrapper and pointer-events-auto on the children.
+        "transition-all duration-500",
         "pointer-events-none",
         !isVisible && isFade && "opacity-0",
         !isVisible && isTranslate && side === 'top' && "-translate-y-full",

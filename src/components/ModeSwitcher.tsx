@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef } from 'react';
+import { memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, UserCheck, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';

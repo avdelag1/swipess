@@ -112,13 +112,13 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
       <RootProviders authPromise={authPromise}>
         <SpeedOfLightPreloader />
         <AppLayout>
-          <WelcomeBonusModal />
           <TooltipProvider>
             {/* Sonner toasts removed — premium NotificationBar handles all feedback */}
             <span />
           </TooltipProvider>
 
           <Suspense fallback={null}>
+            <WelcomeBonusModal />
             <GuidedTourLazy />
             <PWAInstallPrompt />
           </Suspense>
