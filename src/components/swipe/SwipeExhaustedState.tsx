@@ -4,7 +4,7 @@ import { RefreshCw, RotateCcw, MapPin, Zap, Home, Bike, Briefcase } from 'lucide
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Button } from '@/components/ui/button';
 import { RadarSearchEffect } from '@/components/ui/RadarSearchEffect';
-import { SwipeDistanceSlider } from './SwipeDistanceSlider';
+import { DistanceSlider } from './DistanceSlider';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { cn } from '@/lib/utils';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
@@ -242,10 +242,15 @@ export const SwipeExhaustedState = ({
                   </div>
                 </div>
 
-                <SwipeDistanceSlider
-                  radiusKm={radiusKm}
-                  onRadiusChange={onRadiusChange}
-                />
+                <div className="pt-2">
+                  <DistanceSlider
+                    radiusKm={radiusKm}
+                    onRadiusChange={onRadiusChange}
+                    onDetectLocation={onDetectLocation || (() => {})}
+                    detecting={detecting ?? false}
+                    detected={detected ?? false}
+                  />
+                </div>
                 
                 <div className="mt-2 flex justify-between px-1">
                   <span className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/70">Local</span>

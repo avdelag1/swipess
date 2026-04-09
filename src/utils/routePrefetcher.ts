@@ -77,7 +77,7 @@ const routeImports: Record<string, RouteImport> = {
   '/explore/tours': () => import('@/pages/VideoTours'),
   // Filter routes
   '/client/filters': () => import('@/pages/ClientFilters'),
-  '/owner/filters': () => import('@/pages/OwnerFilters'),
+  '/owner/filters': () => import('@/pages/OwnerDiscovery'),
 };
 
 // Cache for prefetched routes

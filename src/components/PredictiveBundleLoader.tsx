@@ -37,7 +37,7 @@ export function PredictiveBundleLoader() {
       } else if (role === 'client') {
         // Client specific criticals
         import("@/pages/ClientDashboard").catch(() => {});
-        import("@/pages/ClientProfileNew").catch(() => {});
+        import("@/pages/ClientProfile").catch(() => {});
       } else {
         // Guest/Public criticals
         import("@/pages/Index").catch(() => {});
