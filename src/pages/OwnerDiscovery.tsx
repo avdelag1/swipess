@@ -183,7 +183,7 @@ export default function OwnerDiscovery() {
 
       <div className="container mx-auto px-4 py-8">
          {activeTab === 'interested' ? (<OwnerInterestedClients />) : 
-          activeTab === 'saved' ? (<OwnerLikedClients />) : (
+          activeTab === 'saved' ? (<OwnerLikedClients embedded />) : (
             <div className="flex flex-col lg:flex-row gap-8">
               <aside className="hidden lg:block w-80">
                 <div className="sticky top-44 space-y-4">
