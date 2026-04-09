@@ -40,7 +40,7 @@ function LogoImage({ className }: { className?: string }) {
           className="relative flex items-center justify-center"
         >
           <SwipessLogo 
-            size="2xl" 
+            size="3xl" 
             
             className="transition-all duration-700 ease-out" 
           />
