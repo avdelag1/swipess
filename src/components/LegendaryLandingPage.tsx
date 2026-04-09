@@ -40,7 +40,7 @@ function LogoImage({ className }: { className?: string }) {
           className="relative flex items-center justify-center"
         >
           <SwipessLogo 
-            size="2xl" 
+            size="3xl" 
             
             className="transition-all duration-700 ease-out" 
           />
@@ -152,9 +152,9 @@ const LandingView = memo(({
       >
         <div className="relative">
           <SwipessLogo 
-            size="3xl" 
+            size="4xl" 
             variant="white"
-            className="w-[85vw] max-w-[380px] sm:max-w-[460px] md:max-w-[540px]" 
+            className="w-[90vw] max-w-[520px] sm:max-w-[580px] md:max-w-[640px]" 
           />
           <motion.div 
             initial={{ opacity: 0 }}

@@ -13,7 +13,7 @@ interface PremiumLoaderProps {
  * Matches the landing page and splash screen feel.
  */
 export function PremiumLoader({ className, size = 'md', full = false }: PremiumLoaderProps) {
-  const logoSize = size === 'sm' ? 'md' : size === 'lg' ? '3xl' : 'xl';
+  const logoSize = size === 'sm' ? 'lg' : size === 'lg' ? '4xl' : '2xl';
 
   return (
     <div className={cn(

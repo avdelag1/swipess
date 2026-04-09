@@ -8,14 +8,14 @@ interface SwipessLogoProps {
 }
 
 const sizeMap = {
-  xs: 'h-5',
-  sm: 'h-7',
-  md: 'h-10',
-  lg: 'h-14',
-  xl: 'h-20',
-  '2xl': 'h-28',
-  '3xl': 'h-36',
-  '4xl': 'h-44',
+  xs: 'h-6',
+  sm: 'h-9',
+  md: 'h-12',
+  lg: 'h-16',
+  xl: 'h-24',
+  '2xl': 'h-36',
+  '3xl': 'h-48',
+  '4xl': 'h-60',
 };
 
 function SwipessLogoComponent({
