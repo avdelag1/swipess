@@ -18,7 +18,7 @@ export const DiscoverySkeleton = memo(({ count = 3 }: { count?: number }) => {
     // While the user is focused on the skeleton, we silently prefetch high-traffic assets
     runIdleTask(() => {
       const brandLogo = new Image();
-      brandLogo.src = '/icons/icon-512.png';
+      brandLogo.src = '/icons/swipess-brand-logo.webp';
     });
   }, []);
 
