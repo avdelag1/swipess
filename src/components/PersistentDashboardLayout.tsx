@@ -1,10 +1,10 @@
 import { lazyWithRetry } from '@/utils/lazyRetry';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, UNSAFE_NavigationContext } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { AnimatedOutlet } from '@/components/AnimatedOutlet';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { useFilterPersistence } from '@/hooks/useFilterPersistence';
-import { useMemo, useEffect, useState, Suspense } from 'react';
+import { useMemo, useEffect, useState, Suspense, useContext } from 'react';
 import { createPortal } from 'react-dom';
 import { useMatchRealtime } from '@/hooks/useMatchRealtime';
 import { useLikesRealtime } from '@/hooks/useLikesRealtime';
