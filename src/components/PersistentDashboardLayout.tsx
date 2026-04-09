@@ -31,6 +31,12 @@ function getRoleFromPath(pathname: string, activeMode: 'client' | 'owner'): 'cli
 }
 
 export function PersistentDashboardLayout() {
+  // Defensive guard: if Router context is missing (HMR race), render nothing instead of crashing
+  const routerCtx = useContext(UNSAFE_NavigationContext);
+  if (!routerCtx?.navigator) {
+    return null;
+  }
+
   const location = useLocation();
   const navigate = useNavigate();
   const { activeMode, syncMode } = useActiveMode();
