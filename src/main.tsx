@@ -60,6 +60,20 @@ deferredInit(async () => {
     ])) as any;
     initPerformanceOptimizations();
     initOfflineSync();
+
+    // 🚀 ZENITH: SERVICE WORKER REGISTRATION
+    // Register the elite sw.js for offline support, push notifications, and background sync.
+    if ('serviceWorker' in navigator && !window.location.host.includes('localhost')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+          .then(reg => {
+            console.log('[PWA] Service Worker active:', reg.scope);
+            // Check for updates every hour
+            setInterval(() => reg.update(), 3600000);
+          })
+          .catch(err => console.error('[PWA] Registration failed:', err));
+      });
+    }
   } catch { /* intentional */ }
 }, 12000);
 

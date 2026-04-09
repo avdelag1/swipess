@@ -9,7 +9,7 @@ import { AppLayout } from "@/components/AppLayout";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 import SignupErrorBoundary from "@/components/SignupErrorBoundary";
 import { AppOutagePage } from "@/components/AppOutagePage";
-import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
+import { APP_STATUS, hasOutageBypass } from "@/config/outage";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -103,7 +103,7 @@ const DashboardRedirect = () => {
 const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
   const [outageBypassed, setOutageBypassed] = useState(() => hasOutageBypass());
 
-  if (IS_OUTAGE_ACTIVE && !outageBypassed) {
+  if (APP_STATUS === 'MAINTENANCE' && !outageBypassed) {
     return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
   }
 
@@ -202,6 +202,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <Route path="/faq/owner" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQOwnerPage /></AnimatedPage></Suspense>} />
             <Route path="/profile/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicProfilePreview /></AnimatedPage></Suspense>} />
             <Route path="/listing/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicListingPreview /></AnimatedPage></Suspense>} />
+            <Route path="/share-target" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><NotFound /></AnimatedPage></Suspense>} />
           </Routes>
         </AppLayout>

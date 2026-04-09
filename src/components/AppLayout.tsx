@@ -59,10 +59,10 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Immersive sections where header starts transparent
   const isImmersive = useMemo(() => {
     const immersiveRoutes = ['/client/dashboard', '/owner/dashboard', '/client/profile', '/owner/profile'];
+    const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
     return immersiveRoutes.some(r => location.pathname.startsWith(r)) || 
            location.pathname.includes('discovery') || 
-           location.pathname.includes('eventos') ||
-           location.pathname.includes('roommates');
+           hideHUDRoutes.some(r => location.pathname.startsWith(r));
   }, [location.pathname]);
 
   // Fullscreen routes hide HUD entirely
@@ -70,6 +70,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const isFullScreen = useMemo(() => {
     const path = location.pathname;
+    const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
     return isCameraRoute || 
            isRadioRoute || 
            path.includes('/camera') || 

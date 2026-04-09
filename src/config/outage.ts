@@ -1,12 +1,11 @@
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// APP OUTAGE CONFIG
-// Toggle IS_OUTAGE_ACTIVE to enable/disable the outage screen.
-// Bypass: visit /?preview=swipess or tap the logo 7× on the outage screen.
-// The bypass is stored in sessionStorage and lasts until the tab is closed.
+// 🚀 THE MASTER SWITCH
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Change this to 'MAINTENANCE' to hide the site.
+// Change this to 'ONLINE' to go live.
+export const APP_STATUS: 'ONLINE' | 'MAINTENANCE' = 'ONLINE';
 
-export const IS_OUTAGE_ACTIVE = true;
-
+// Secret bypass for you: visit yoursite.com/?preview=swipess
 export const OUTAGE_BYPASS_PARAM = 'preview';
 export const OUTAGE_BYPASS_VALUE = 'swipess';
 export const OUTAGE_BYPASS_KEY = 'swipess_outage_bypass';
