@@ -1,52 +1,43 @@
 
 
-## Plan: Fix Flickering, Scroll, Breathing Effect, and Photo Loading
+## Plan: Error Cleanup, Dead Code Removal, and Polish
 
-### Root Causes Found
+### Critical Fix: ModeSwitcher `useRef` Crash
 
-**1. Page Flickering — Double Remount**
-Two separate layers both use `key={location.pathname}`, causing every page to be destroyed and recreated twice on navigation:
-- `AnimatedOutlet.tsx` line 12: `key={location.pathname}` on the wrapper div
-- `AppLayout.tsx` line 134: `key={location.pathname}` on a `motion.div` inside `AnimatePresence`
+The `ModeSwitcher.tsx` component imports `useRef` from React but never uses it. This unused import, combined with React's internal dispatcher resolution, is causing the crash: `Cannot read properties of null (reading 'useRef')`. The error triggers the `GlobalErrorBoundary` and causes the app to flash/recover visibly.
 
-This double-remount is the source of the flicker. Fix: Remove the `key` from `AnimatedOutlet.tsx` (it's inside the persistent dashboard layout and doesn't need to remount) and simplify the `AppLayout.tsx` animation to opacity-only without `AnimatePresence` mode="wait" which forces sequential unmount→mount.
+**Fix**: Remove the unused `useRef` import from `ModeSwitcher.tsx` line 1.
 
-**2. Liked Pages Still Not Scrollable — AnimatedOutlet blocks it**
-`AnimatedOutlet.tsx` line 15 applies `overflow-hidden` to all non-radio routes. This wraps every child page, including Liked pages, and blocks their `overflow-y-auto` from working. Fix: Remove `overflow-hidden` from `AnimatedOutlet` — it's unnecessary since the parent `DashboardLayout` already controls overflow.
+### Dead Code and Unused Import Cleanup
 
-**3. Breathing Effect Not Working on Quick Filter Cards**
-Two conflicts:
-- The parent card has `card-breathe` CSS animation (scale 1→1.015) while framer-motion's `animate` prop continuously sets `scale` on the same element (line 300). Framer-motion inline styles override CSS animations.
-- The child image has `photo-swim` (scale 1→1.08) but it's nested inside a parent that's also being scaled by framer-motion, creating conflicts.
+| File | Issue | Fix |
+|------|-------|-----|
+| `src/components/ModeSwitcher.tsx` | `useRef` imported but never used | Remove from import |
+| `src/components/AppLayout.tsx` | `useRef` imported but never used | Remove from import |
+| `src/components/AppLayout.tsx` | `modalStore` assigned on line 36 but never used (only `showAIChat` is destructured separately on line 69) | Remove line 36, keep the destructured usage |
+| `src/index.css` | `card-breathe` keyframes + class defined but no component uses it anymore | Remove the dead CSS block |
 
-Fix: Remove `card-breathe` class from the motion.div (framer-motion overrides it anyway). Keep `photo-swim` only on the `QuickFilterImage` — this is the breathing effect that matters. Ensure the image's `photo-swim` animation isn't blocked by the parent's `overflow-hidden` + transform combination.
+### Tailwind Warning Cleanup
 
-**4. Slide-In Photo Loading Transition**
-Replace the simple opacity fade in `QuickFilterImage` with a combined slide-in + fade effect, similar to how the nav bar buttons slide. The image will translate from `translateX(20px)` to `translateX(0)` while fading in.
+The dev server shows warnings about ambiguous Tailwind classes using bracket notation inside `data-[state=...]` selectors. These are in the `SentientHud` or similar component:
+- `data-[state=closed]:duration-[160ms]`
+- `data-[state=open]:duration-[220ms]`
+- `duration-[220ms]`, `duration-[80ms]`
+- `ease-[cubic-bezier(0.32,0.72,0,1)]`
 
-### Changes
+**Fix**: Replace bracket-based `duration-[Xms]` with Tailwind's standard `duration-150`, `duration-200` equivalents, and use style props for the custom cubic-bezier easing.
 
-**File: `src/components/AnimatedOutlet.tsx`**
-- Remove `key={location.pathname}` from the wrapper div (prevents full remount on navigation)
-- Remove `overflow-hidden` from the className — this was blocking child scroll containers
+### WelcomeBonusModal Placement
 
-**File: `src/components/AppLayout.tsx`**
-- Remove the `AnimatePresence` + `motion.div` wrapper with `key={location.pathname}` around `{children}`. Replace with a simple static `div`. The page transitions are already handled by the persistent dashboard layout's `AnimatedOutlet`.
+In `App.tsx` line 115, `<WelcomeBonusModal />` sits outside any `<Suspense>` boundary. If it triggers a lazy load or async state during render, it would cause a visible flash.
 
-**File: `src/components/CategorySwipeStack.tsx`**
-- Remove `card-breathe` class from line 342 (framer-motion overrides CSS animations on the same element, making it pointless)
-
-**File: `src/components/ui/QuickFilterImage.tsx`**
-- Replace the opacity-only transition with a combined slide-in + fade: `transform: translateX(20px)` → `translateX(0)` alongside opacity 0→1
-- Keep the `photo-swim` breathing animation starting after the slide-in completes
-
-**File: `src/index.css`**
-- Add a `@keyframes photo-slide-in` for the combined slide + fade effect used by QuickFilterImage
+**Fix**: Wrap it inside the existing `<Suspense fallback={null}>` block on line 121.
 
 ### Summary
-- 4 files modified
-- Eliminates double-remount flicker on every page change
-- Unblocks scroll on Liked pages by removing the `overflow-hidden` wrapper
-- Fixes breathing effect by removing conflicting CSS animation from framer-motion element
-- Adds premium slide-in photo loading matching the nav bar's responsive feel
+
+- 4 files modified for dead code removal
+- 1 critical runtime error fixed (ModeSwitcher useRef crash)
+- Tailwind warnings silenced
+- WelcomeBonusModal wrapped in Suspense
+- Zero architectural changes — pure cleanup
 
