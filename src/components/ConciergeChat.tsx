@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, memo, useMemo } from 'react';
-import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown, Mic, MicOff, Zap, ArrowRight } from 'lucide-react';
+import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown, Mic, MicOff, Zap, ArrowRight, Info } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { Button } from '@/components/ui/button';
 import { useConciergeAI, ChatMessage, Conversation, AiCharacter } from '@/hooks/useConciergeAI';
@@ -328,6 +328,20 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownTranscriptRef = useRef<string>('');
   const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+  
+  // 🎙️ PERMISSION & VISUALS
+  const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied'>('prompt');
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const dataArrayRef = useRef<Uint8Array | null>(null);
+  const [audioVolume, setAudioVolume] = useState(0);
+  const animationFrameRef = useRef<number | null>(null);
+
+  // Auto-detect language
+  const detectLanguage = useCallback(() => {
+    const lang = (navigator.language || 'en-US').split('-')[0];
+    return lang === 'es' ? 'es-MX' : 'en-US';
+  }, []);
 
   const COUNTDOWN_SECONDS = 3;
   const SILENCE_DELAY_MS = 2000; // 2 seconds of silence before countdown starts
@@ -393,6 +407,15 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   }, []);
 
   const stopListening = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+    setAudioVolume(0);
     clearCountdown();
     if (recognitionRef.current) {
       (recognitionRef.current as any)._userStop?.();
@@ -407,20 +430,45 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       toast.error('Voice input is not supported in this browser.');
       return;
     }
-    // Kill any existing recognition session first
-    if (recognitionRef.current) {
-      try { recognitionRef.current.abort(); } catch {}
-      recognitionRef.current = null;
-    }
-    
-    // 🚀 OPERA/CHROME PERMISSION WARM-UP
+    // 🎙️ PERMISSION & AUDIO CONTEXT WARM-UP
     try {
       if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setPermissionState('granted');
+        
+        // Setup Visualizer
+        const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+        const audioCtx = new AudioContextClass();
+        const analyser = audioCtx.createAnalyser();
+        const source = audioCtx.createMediaStreamSource(stream);
+        source.connect(analyser);
+        analyser.fftSize = 64;
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        audioContextRef.current = audioCtx;
+        analyserRef.current = analyser;
+        dataArrayRef.current = dataArray;
+
+        const updateVisuals = () => {
+          if (!analyserRef.current || !dataArrayRef.current) return;
+          analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+          let sum = 0;
+          for (let i = 0; i < dataArrayRef.current.length; i++) {
+            sum += dataArrayRef.current[i];
+          }
+          const average = sum / dataArrayRef.current.length;
+          setAudioVolume(average); 
+          animationFrameRef.current = requestAnimationFrame(updateVisuals);
+        };
+        updateVisuals();
       }
     } catch (err) {
       console.warn('[Voice] Permission check failed:', err);
-      toast.error('Microphone permission required for voice input.');
+      setPermissionState('denied');
+      toast.error('Microphone access is blocked. Please check your browser settings.', {
+        description: 'For the best experience, click the lock icon next to the URL and allow microphone access.'
+      });
       return;
     }
     
@@ -430,7 +478,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'en-US';
+    recognition.lang = detectLanguage();
 
     let finalTranscript = '';
     let userStopped = false;
@@ -864,9 +912,21 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   <Zap className="w-4 h-4" />
                 </button>
               )}
-              {/* Mic button with countdown ring */}
+              {/* Mic button with countdown ring & Visualizer */}
               {speechSupported && (
                 <div className="relative shrink-0">
+                  {/* Real-time Spectrum Visualizer Glow */}
+                  {isListening && (
+                    <motion.div 
+                      className="absolute inset-0 rounded-xl bg-primary/20 -z-10"
+                      animate={{ 
+                        scale: [1, 1 + (audioVolume / 100) * 0.5, 1],
+                        opacity: [0.3, 0.6, 0.3]
+                      }}
+                      transition={{ duration: 0.15, repeat: 0 }}
+                    />
+                  )}
+                  
                   {/* SVG countdown ring */}
                   {countdown !== null && (
                     <svg className="absolute inset-0 w-10 h-10 -rotate-90 pointer-events-none" viewBox="0 0 40 40">
@@ -888,23 +948,47 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                       />
                     </svg>
                   )}
+
                   <Button
                     onClick={toggleListening}
                     size="icon"
                     variant="outline"
                     className={cn(
-                      "w-10 h-10 rounded-xl transition-all relative",
-                      isListening && "bg-red-500/20 border-red-500/50 text-red-400 animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.4)]",
+                      "w-10 h-10 rounded-xl transition-all relative overflow-hidden",
+                      isListening && "border-primary/50 text-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]",
+                      permissionState === 'denied' && "border-destructive/50 text-destructive",
                       countdown !== null && "border-primary/50 bg-primary/10",
                       ignitionFlash && "border-primary bg-primary/30 shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
                     )}
                   >
+                    {/* Visualizer Bars overlay */}
+                    {isListening && (
+                      <div className="absolute inset-x-1 bottom-1 flex items-end justify-center gap-[1px] h-3 opacity-30">
+                        {[0, 1, 2, 3, 4].map(i => (
+                          <div 
+                            key={i} 
+                            className="w-[2px] bg-primary rounded-full transition-all duration-75"
+                            style={{ height: `${Math.max(20, audioVolume * (1 - i*0.1))}%` }}
+                          />
+                        ))}
+                      </div>
+                    )}
+
                     {ignitionFlash ? (
                       <span className="text-sm">🚀</span>
                     ) : countdown !== null ? (
                       <span className="text-xs font-bold text-primary">{countdown}</span>
                     ) : isListening ? (
-                      <MicOff className="w-4 h-4" />
+                      <div className="relative">
+                        <Mic className="w-4 h-4" />
+                        <motion.div 
+                          className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"
+                          animate={{ opacity: [1, 0, 1] }}
+                          transition={{ duration: 0.8, repeat: Infinity }}
+                        />
+                      </div>
+                    ) : permissionState === 'denied' ? (
+                      <Info className="w-4 h-4" />
                     ) : (
                       <Mic className="w-4 h-4" />
                     )}
