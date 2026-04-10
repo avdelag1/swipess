@@ -883,7 +883,7 @@ async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
       model: "MiniMax-M2.7",
       messages,
       max_tokens: 800,
-      temperature: 0.6,
+      temperature: 0.9,
       stream: true,
       stream_options: { chunk_result: true },
     }),
@@ -931,7 +931,7 @@ async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
       model: "google/gemini-3-flash-preview",
       messages,
       max_tokens: 800,
-      temperature: 0.6,
+      temperature: 0.9,
       stream: true,
     }),
   });
@@ -1059,9 +1059,8 @@ Deno.serve(async (req) => {
     ]);
 
     // Phase 2: web search when local knowledge is thin (fewer than 2 results) AND no listings matched
-    const knowledgeResultCount = knowledge ? knowledge.split('---').length : 0;
-    const needsWeb = (knowledgeResultCount < 2) && !listings && !profileResults;
-    const webResults = needsWeb ? await searchWeb(lastUserMessage) : "";
+    // Phase 2 removed: Web search (Tavily) disabled to ensure sub-second response times.
+    const webResults = "";
 
     // Build enriched system prompt with character support
     const systemPrompt = buildSystemPrompt({ knowledge, listings, memories, webResults, profileResults, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel });
