@@ -224,7 +224,7 @@ async function loadUserMemories(userId: string): Promise<string> {
     
     if (error || !data || data.length === 0) return "";
     
-    return data.map(m => `[${m.category}] ${m.title}: ${m.content}`).join("\n");
+    return data.map(m => `- **${m.title}** (${m.category}): ${m.content}`).join("\n");
   } catch (e) {
     console.error("[AI] Memory load error:", e);
     return "";
@@ -824,7 +824,9 @@ TONE EXAMPLES:
   }
 
   if (opts.memories) {
-    prompt += `\n\n## What I remember about you:\n${opts.memories}`;
+    prompt += `\n\n## What I remember about this user (USE THIS — reference naturally, connect dots):
+${opts.memories}
+INSTRUCTION: Actively use these memories in your answers. If the user asks about apartments and you remember their budget, factor it in without being asked. If you know their timeline, reference it. Connect the dots between what you know and what they're asking.`;
   }
 
   if (opts.knowledge) {
@@ -843,15 +845,26 @@ TONE EXAMPLES:
     prompt += `\n\n## Users on Swipess matching this query:\n${opts.profileResults}\n\nPresent these naturally. Link to their profiles. Never expose emails or phone numbers.`;
   }
 
-  // Prepend time context + global brevity rules
-  const brevityRules = `## RESPONSE LENGTH RULES (OVERRIDE ALL OTHER STYLE RULES):
-- Default: 1-3 sentences. Maximum 4 sentences only when listing data.
-- Never repeat the same idea twice in different words.
-- One joke/filler per response, not three.
-- Get to the point, then stop. No recap, no summary, no "let me know if you need anything".
-- If the user asks a simple question, give a simple answer.`;
+  // Prepend time context + intelligence rules
+  const intelligenceRules = `## THINKING RULES (APPLY TO ALL RESPONSES):
+- Analyze the user's message carefully. Understand what they REALLY need, not just the surface question.
+- Use ALL context provided (memories, knowledge, listings, web data) to give informed, specific answers.
+- Connect dots between what you remember about the user and what they're asking now.
+- If you have relevant memories about the user, reference them naturally ("Since you mentioned your budget is $1500...").
+- Give specific, actionable answers. Never vague generalities.
+- If you don't know something, say so honestly — don't make up facts.
+- Despite your personality, ALWAYS provide genuinely useful information. Your character is HOW you deliver, not a reason to be unhelpful.
 
-  prompt = `${timeContext}\n\n${brevityRules}\n\n${prompt}`;
+## RESPONSE LENGTH RULES:
+- Be concise but complete. Default 2-5 sentences.
+- Simple questions get simple answers (1-2 sentences).
+- Complex questions get thorough answers (3-6 sentences).
+- Never cut yourself off mid-thought. Finish your point.
+- Never repeat the same idea twice in different words.
+- One joke/filler per response max.
+- No recap, no summary, no "let me know if you need anything".`;
+
+  prompt = `${timeContext}\n\n${intelligenceRules}\n\n${prompt}`;
 
   return prompt;
 }
@@ -870,7 +883,7 @@ async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
     body: JSON.stringify({
       model: "MiniMax-M2.7",
       messages,
-      max_tokens: 280,
+      max_tokens: 800,
       temperature: 0.6,
       stream: true,
       stream_options: { chunk_result: true },
@@ -918,7 +931,7 @@ async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
     body: JSON.stringify({
       model: "google/gemini-3-flash-preview",
       messages,
-      max_tokens: 280,
+      max_tokens: 800,
       temperature: 0.6,
       stream: true,
     }),
@@ -1046,8 +1059,10 @@ Deno.serve(async (req) => {
       isProfileQuery ? searchProfiles(lastUserMessage) : Promise.resolve(""),
     ]);
 
-    // Phase 2: only web search if local data is insufficient (saves ~500-1000ms)
-    const webResults = (!knowledge && !listings && !profileResults) ? await searchWeb(lastUserMessage) : "";
+    // Phase 2: web search when local knowledge is thin (fewer than 2 results) AND no listings matched
+    const knowledgeResultCount = knowledge ? knowledge.split('---').length : 0;
+    const needsWeb = (knowledgeResultCount < 2) && !listings && !profileResults;
+    const webResults = needsWeb ? await searchWeb(lastUserMessage) : "";
 
     // Build enriched system prompt with character support
     const systemPrompt = buildSystemPrompt({ knowledge, listings, memories, webResults, profileResults, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel });
