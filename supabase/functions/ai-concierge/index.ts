@@ -247,20 +247,18 @@ If no new facts, return []. Examples of facts:
 
 Return ONLY the JSON array, no markdown:`;
 
-    const res = await fetch("https://api.minimaxi.chat/v1/text/chatcompletion_v2", {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${MINIMAX_API_KEY}` },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "MiniMax-M2.7",
-        messages: [{ role: "user", content: extractionPrompt }],
-        max_tokens: 300,
-        temperature: 0.1,
+        contents: [{ role: "user", parts: [{ text: extractionPrompt }] }],
+        generationConfig: { maxOutputTokens: 300, temperature: 0.1 },
       }),
     });
 
     if (!res.ok) return;
     const data = await res.json();
-    const raw = data.choices?.[0]?.message?.content?.trim();
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
     if (!raw) return;
 
     // Parse JSON array
@@ -927,13 +925,13 @@ async function streamGemini(messages: ChatMessage[]): Promise<Response> {
   const systemContent = messages.find(m => m.role === "system")?.content;
   const systemInstruction = systemContent ? { parts: [{ text: systemContent }] } : undefined;
 
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`, {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: geminiMessages,
       systemInstruction,
-      generationConfig: { maxOutputTokens: 800, temperature: 0.75 }
+      generationConfig: { maxOutputTokens: 1000, temperature: 0.75 }
     }),
   });
 
