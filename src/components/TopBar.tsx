@@ -3,9 +3,8 @@ import { memo, useState, useCallback, Suspense, lazy } from 'react';
 const MessageActivationPackages = lazy(() => import('./MessageActivationPackages').then(module => ({ default: module.MessageActivationPackages })));
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
-import { Zap, MessageCircle, Crown, ArrowLeft, Search, Radio as RadioIcon, Filter } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Zap, ArrowLeft, Sun, Moon, Radio as RadioIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -35,14 +34,8 @@ interface TopBarProps {
 }
 
 function TopBarComponent({
-  onNotificationsClick: _onNotificationsClick,
-  onMessageActivationsClick: _onMessageActivationsClick,
-  onFilterClick,
   className,
-  showFilters,
   userRole,
-  transparent = false,
-  hideOnScroll: _hideOnScroll = false,
   title,
   showBack = false,
   minimal = false,
@@ -51,11 +44,8 @@ function TopBarComponent({
   const [tokensOpen, setTokensOpen] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
-  const { theme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const isLight = theme === 'light';
-  const { t } = useTranslation();
-
-  const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
   // 🚀 SPEED: User profile is cached forever
   const { data: profile } = useQuery({
@@ -73,12 +63,12 @@ function TopBarComponent({
     },
   });
 
-  // Pages where tapping the center logo should NOT navigate (you're already on the dashboard)
+  // Pages where tapping the center logo should NOT navigate (already on dashboard)
   const isDashboard =
     location.pathname === '/client/dashboard' ||
     location.pathname === '/owner/dashboard';
 
-  const handleLogoTap = useCallback((e: React.MouseEvent | React.PointerEvent) => {
+  const handleLogoTap = useCallback((e: React.PointerEvent) => {
     if (isDashboard) return;
     e.preventDefault();
     e.stopPropagation();
@@ -87,7 +77,7 @@ function TopBarComponent({
     navigate(dashPath);
   }, [isDashboard, userRole, navigate]);
 
-  const handleBack = (e: React.MouseEvent | React.PointerEvent) => {
+  const handleBack = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
     haptics.tap();
@@ -96,16 +86,31 @@ function TopBarComponent({
     } else {
       navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
     }
-  };
+  }, [navigate, userRole]);
 
-  const handleFilterNav = useCallback(() => {
+  // Theme toggle handler
+  const handleThemeToggle = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     haptics.tap();
-    if (onFilterClick) {
-      onFilterClick();
-    } else {
-      navigate(userRole === 'owner' ? '/owner/filters' : '/client/filters');
-    }
-  }, [onFilterClick, userRole, navigate]);
+    setTheme(isLight ? 'dark' : 'light', { x: e.clientX, y: e.clientY });
+  }, [isLight, setTheme]);
+
+  // Navigate to profile
+  const handleProfileTap = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptics.select();
+    navigate(userRole === 'owner' ? '/owner/profile' : '/client/profile');
+  }, [navigate, userRole]);
+
+  // Navigate to radio
+  const handleRadioTap = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptics.tap();
+    navigate('/radio');
+  }, [navigate]);
 
   return (
     <>
@@ -118,14 +123,14 @@ function TopBarComponent({
       >
         <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 px-3 gap-2">
 
-          {/* ── LEFT ANCHOR: Back? → Avatar → Mode Switcher → Tokens ── */}
+          {/* ── LEFT: Back? → Avatar → Mode Switcher → Tokens ── */}
           <div className="flex-shrink-0 flex items-center gap-1.5">
             {showBack && (
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={handleBack}
-                className="flex-shrink-0 w-9 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation transition-all"
-                style={{ border: 'none' }}
+                className="flex-shrink-0 w-9 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation"
+                style={{ border: 'none', WebkitTapHighlightColor: 'transparent' }}
                 aria-label="Go back"
               >
                 <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground" : "text-white/90")} strokeWidth={1.8} />
@@ -137,12 +142,7 @@ function TopBarComponent({
                 {/* Avatar → Profile */}
                 <motion.button
                   whileTap={{ scale: 0.92 }}
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    haptics.select();
-                    navigate(userRole === 'owner' ? '/owner/profile' : '/client/profile');
-                  }}
+                  onPointerDown={handleProfileTap}
                   className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0"
                   style={{ WebkitTapHighlightColor: 'transparent' }}
                   aria-label="Go to profile"
@@ -170,21 +170,21 @@ function TopBarComponent({
                   {/* Mode Switcher (client ↔ owner) */}
                   <ModeSwitcher variant="icon" size="sm" />
 
-                  {/* Token Packages */}
+                  {/* Token Packages — use onClick for Radix Popover compatibility */}
                   <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
+                      <button
                         className={cn(
-                          "relative h-9 w-9 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none",
-                          "hover:scale-110 active:scale-92 group focus-visible:ring-0",
-                          "touch-manipulation flex items-center justify-center flex-shrink-0",
+                          "relative h-9 w-9 flex items-center justify-center flex-shrink-0",
+                          "transition-all duration-150 ease-out rounded-full",
+                          "hover:scale-110 active:scale-90",
+                          "touch-manipulation focus:outline-none",
                         )}
-                        onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
+                        style={{ background: 'transparent', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                         aria-label="Token packages"
                       >
                         <Zap strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-amber-500" : "text-white/70")} />
-                      </Button>
+                      </button>
                     </PopoverTrigger>
                     <PopoverContent align="start" sideOffset={12} className="w-[min(calc(100vw-1.5rem),380px)] p-0 rounded-[2rem] bg-card border border-border/20 shadow-2xl backdrop-blur-3xl">
                       <Suspense fallback={null}>
@@ -197,7 +197,7 @@ function TopBarComponent({
             )}
           </div>
 
-          {/* ── CENTER: Logo / Title — taps go to dashboard (if not already there) ── */}
+          {/* ── CENTER: Logo / Title — tap goes to dashboard ── */}
           <div className="flex-1 flex items-center justify-center min-w-0">
             <motion.button
               onPointerDown={handleLogoTap}
@@ -207,7 +207,7 @@ function TopBarComponent({
                 isDashboard ? "cursor-default opacity-100" : "cursor-pointer opacity-90 hover:opacity-100"
               )}
               aria-label={isDashboard ? "Swipess" : "Go to dashboard"}
-              style={{ WebkitTapHighlightColor: 'transparent' }}
+              style={{ WebkitTapHighlightColor: 'transparent', border: 'none', background: 'transparent' }}
             >
               {title ? (
                 <span className={cn("text-base font-bold truncate", isLight ? "text-foreground" : "text-white/90")}>
@@ -219,46 +219,55 @@ function TopBarComponent({
             </motion.button>
           </div>
 
-          {/* ── RIGHT ANCHOR: Filter + Notifications + Radio ── */}
+          {/* ── RIGHT: Theme (Sun/Moon) + Notifications + Radio ── */}
           <div className="flex-shrink-0 flex items-center gap-1">
             {!minimal && (
               <div className="flex items-center bg-white/10 dark:bg-black/10 backdrop-blur-xl border border-border/10 rounded-full px-1.5 py-1 gap-0.5 shadow-sm">
 
-                {/* Filter / Search */}
-                <Button
-                  variant="ghost"
+                {/* ☀️/🌙 Theme Toggle */}
+                <motion.button
+                  whileTap={{ scale: 0.88 }}
+                  onPointerDown={handleThemeToggle}
                   className={cn(
-                    "relative h-9 w-9 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none",
-                    "hover:scale-110 active:scale-92 focus-visible:ring-0",
-                    "touch-manipulation flex items-center justify-center flex-shrink-0",
+                    "relative h-9 w-9 flex items-center justify-center flex-shrink-0",
+                    "touch-manipulation focus:outline-none rounded-full",
                   )}
-                  onPointerDown={(e) => { e.preventDefault(); handleFilterNav(); }}
-                  aria-label="Filters"
+                  style={{ background: 'transparent', border: 'none', WebkitTapHighlightColor: 'transparent' }}
+                  aria-label={`Switch to ${isLight ? 'dark' : 'light'} mode`}
                 >
-                  <Filter strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-foreground/70" : "text-white/70")} />
-                </Button>
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                      key={theme}
+                      initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
+                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                      exit={{ opacity: 0, scale: 0.5, rotate: 90 }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
+                    >
+                      {isLight ? (
+                        <Sun strokeWidth={1.5} className="h-4 w-4 text-amber-500" />
+                      ) : (
+                        <Moon strokeWidth={1.5} className="h-4 w-4 text-white/70" />
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </motion.button>
 
                 {/* Notifications */}
                 <NotificationPopover />
 
                 {/* Radio */}
-                <Button
-                  variant="ghost"
+                <motion.button
+                  whileTap={{ scale: 0.88 }}
+                  onPointerDown={handleRadioTap}
                   className={cn(
-                    "relative h-9 w-9 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none",
-                    "hover:scale-110 active:scale-92 group focus-visible:ring-0",
-                    "touch-manipulation flex items-center justify-center flex-shrink-0",
+                    "relative h-9 w-9 flex items-center justify-center flex-shrink-0",
+                    "touch-manipulation focus:outline-none rounded-full",
                   )}
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    haptics.tap();
-                    navigate('/radio');
-                  }}
+                  style={{ background: 'transparent', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                   aria-label="Go to radio"
                 >
                   <RadioIcon strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-rose-500" : "text-white/70")} style={{ filter: isLight ? 'drop-shadow(0 0 6px rgba(244,63,94,0.35))' : 'none' }} />
-                </Button>
+                </motion.button>
               </div>
             )}
           </div>
