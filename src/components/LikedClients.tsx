@@ -194,13 +194,12 @@ export function LikedClients({ embedded = false }: LikedClientsProps) {
   return (
     <div
       className={cn(
-        "w-full min-h-0 relative pb-32 bg-background touch-pan-y",
+        "w-full relative pb-32 bg-background touch-pan-y",
         embedded
           ? "h-auto overflow-visible"
-          : "h-full overflow-y-auto overflow-x-hidden"
+          : "min-h-full overflow-visible"
       )}
       data-no-swipe-nav="true"
-      style={embedded ? undefined : { overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}
     >
       <div className="p-4 pt-4 sm:p-8 sm:pt-8 max-w-7xl mx-auto">
         <div className="flex items-center justify-end mb-6">
