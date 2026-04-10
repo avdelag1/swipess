@@ -226,25 +226,22 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
 
 // Hook for owners to view their own listings (no filtering by listing type)
 export function useOwnerListings() {
+  const { user } = useAuth(); // ⚡ Cached — no network call
   const queryClient = useQueryClient();
 
   const query = useQuery({
     queryKey: ['owner-listings'],
-    // INSTANT NAVIGATION: Keep previous data during refetch to prevent UI blanking
     placeholderData: (prev) => prev,
     queryFn: async () => {
       try {
-        const { data: user } = await supabase.auth.getUser();
-        if (!user.user) {
-          return [];
-        }
+        if (!user) return [];
 
         const { data: listings, error } = await supabase
           .from('listings')
           .select('*')
-          .eq('owner_id', user.user.id)
+          .eq('owner_id', user.id)
           .order('created_at', { ascending: false })
-          .limit(100); // Prevent loading too many listings at once
+          .limit(100);
 
         if (error) {
           if (import.meta.env.DEV) logger.error('Owner listings query error:', error);
@@ -266,21 +263,19 @@ export function useOwnerListings() {
     let subscription: ReturnType<typeof supabase.channel> | null = null;
     let isMounted = true;
 
-    const setupSubscription = async () => {
+    const setupSubscription = () => {
       try {
-        const { data: user } = await supabase.auth.getUser();
-        if (!user.user || !isMounted) return;
+        if (!user || !isMounted) return;
 
-        // Subscribe to changes on the listings table for this user
         subscription = supabase
           .channel('owner-listings-changes')
           .on(
             'postgres_changes',
             {
-              event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+              event: '*',
               schema: 'public',
               table: 'listings',
-              filter: `owner_id=eq.${user.user.id}`,
+              filter: `owner_id=eq.${user.id}`,
             },
             (payload) => {
               if (import.meta.env.DEV) logger.log('Real-time listing change:', payload);
@@ -305,7 +300,7 @@ export function useOwnerListings() {
         supabase.removeChannel(subscription);
       }
     };
-  }, [queryClient]);
+  }, [queryClient, user]);
 
   return query;
 }
