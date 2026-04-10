@@ -33,7 +33,7 @@ const PACKAGES = [
       "Email support to help you get set up",
     ],
     tagline: "Great for one-off events or pop-ups",
-    paypalUrl: "",
+    paypalUrl: "https://www.paypal.com/ncp/payment/KP9WHGEN23MYA",
   },
   {
     id: "growth",
@@ -54,7 +54,7 @@ const PACKAGES = [
     ],
     popular: true,
     tagline: "Best value — a full month of organic reach",
-    paypalUrl: "",
+    paypalUrl: "https://www.paypal.com/ncp/payment/Y856SPQRC9WHA",
   },
   {
     id: "premium",
@@ -75,7 +75,7 @@ const PACKAGES = [
       "Custom branded card designed for maximum engagement",
     ],
     tagline: "90 days of absolute maximum visibility & VIP support",
-    paypalUrl: "",
+    paypalUrl: "https://www.paypal.com/ncp/payment/8SNPZXP9TT8KW",
   },
 ];
 
