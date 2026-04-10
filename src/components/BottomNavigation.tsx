@@ -99,12 +99,11 @@ export const BottomNavigation = memo(({
     { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
+    { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
     { id: 'search', icon: SlidersHorizontal, label: 'Discovery', onClick: onFilterClick },
-    { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
   ];
 
   // Owner nav items (8 buttons)
@@ -112,12 +111,11 @@ export const BottomNavigation = memo(({
     { id: 'dashboard', icon: Zap, label: 'System', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
-    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
-
+    { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
+    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
-    { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
   ];
 
   // Admin nav items — admin panel + messaging
@@ -368,27 +366,7 @@ export const BottomNavigation = memo(({
                   willChange: 'transform',
                 }}
               >
-                {/* Active Indicator — Slingshot-Morph Pill */}
-                {active && (
-                  <motion.div
-                    layoutId="nav-pill"
-                    className="absolute inset-[4px] rounded-2xl z-0"
-                    initial={false}
-                    transition={{
-                      type: 'spring',
-                      stiffness: 850, // SLINGSHOT
-                      damping: 38,
-                      mass: 0.6,
-                    }}
-                     style={{
-                       background: isLight ? 'rgba(255,107,53,0.14)' : 'rgba(255,107,53,0.30)',
-                       boxShadow: isLight ? '0 0 14px rgba(255,107,53,0.18)' : '0 0 20px rgba(255,107,53,0.35)',
-                     }}
-                  >
-                     {/* Liquid highlight catch-light */}
-                     <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                  </motion.div>
-                )}
+                {/* Active state — icon + label color only, no background frame */}
                 <motion.div
                   className="relative"
                   animate={{ scale: active ? 1.15 : 1 }}
