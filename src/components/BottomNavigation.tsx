@@ -304,25 +304,19 @@ export const BottomNavigation = memo(({
           )}
         </AnimatePresence>
 
-        {/* Nav items row — DRAGGABLE PHYSICS ARCHITECTURE */}
+        {/* Nav items row — NATIVE SMOOTH SCROLL ARCHITECTURE */}
         <div
           ref={mergedScrollRef}
-          className="relative w-full overflow-hidden touch-none"
+          className="relative w-full overflow-x-auto overflow-y-hidden flex snap-x snap-mandatory hide-scrollbar"
           style={{
             zIndex: 2,
-            contentVisibility: 'auto',
-            containIntrinsicSize: '60px',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
           }}
         >
-          <motion.div
-            drag="x"
-            dragConstraints={scrollRef}
-            dragElastic={0.2}
-            dragMomentum={true}
-            dragTransition={{ bounceStiffness: 600, bounceDamping: 25, timeConstant: 250 }}
-            onPointerMove={handlePointerMove}
+          <div
             className={cn(
-                'relative flex items-center justify-start gap-1 px-2 py-1 transform-gpu w-max',
+                'relative flex items-center justify-start gap-1 px-2 py-1 transform-gpu flex-nowrap',
             )}
             style={{
               paddingLeft: 'env(safe-area-inset-left, 8px)',
@@ -435,7 +429,7 @@ export const BottomNavigation = memo(({
               </motion.button>
             );
           })}
-          </motion.div>
+          </div>
         </div>
         {/* Edge fade indicators removed by user request (Weird shade color on edges) */}
       </div>
