@@ -198,9 +198,9 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
       {/* 🚀 ZENITH Ambient Glow */}
       <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-[var(--color-brand-accent-2)]/10 via-[var(--color-brand-accent-2)]/5 to-transparent pointer-events-none z-0" />
       
-      <div className="flex-1 flex flex-col p-4 pt-6 sm:p-8 sm:pt-10 max-w-7xl mx-auto w-full relative z-10">
+      <div className="flex-1 flex flex-col p-4 pt-2 sm:p-8 sm:pt-4 max-w-7xl mx-auto w-full relative z-10">
         {/* Category tabs and Sync button */}
-        <div className="flex items-center justify-between gap-4 mb-6 pb-2 pt-6">
+        <div className="flex items-center justify-between gap-4 mb-3 pb-1 pt-1">
           <div className="flex-1 flex gap-3 overflow-x-auto scrollbar-hide no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             {categories.map(({ id, label, icon: Icon }) => (
               <motion.button
@@ -339,7 +339,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
         </AnimatePresence>
 
         {/* Count */}
-        <div className="flex items-center gap-3 mb-6 px-2">
+        <div className="flex items-center gap-3 mb-3 px-2">
           <div className="w-2 h-2 rounded-full bg-[var(--color-brand-accent-2)] shadow-[0_0_10px_var(--color-brand-accent-2)]" />
           <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
             {filteredAndSorted.length} Saved Essentials
