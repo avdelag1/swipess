@@ -442,7 +442,7 @@ body.hw-mid .animate-pulse {
 
 /* UNIVERSAL: Viewport Jitter & Interaction Cleanup */
 [data-no-swipe-nav] {
-    touch-action: pan-x !important;
+    touch-action: pan-y !important;
     overscroll-behavior-x: none;
     -webkit-user-select: none;
     user-select: none;

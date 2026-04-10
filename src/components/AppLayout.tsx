@@ -95,11 +95,14 @@ export function AppLayout({ children }: AppLayoutProps) {
     const path = location.pathname;
     return path === '/client/dashboard' || 
            path === '/owner/dashboard' || 
+           path.includes('liked-properties') ||
+           path.includes('interested-clients') ||
+           path.includes('liked-clients') ||
            path.startsWith('/camera') || 
            path.startsWith('/radio') || 
            path.startsWith('/explore/eventos') || 
            path.startsWith('/explore/roommates');
-  }, [location.pathname]);
+      }, [location.pathname]);
 
   return (
     <div className={cn("flex flex-col h-full w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
