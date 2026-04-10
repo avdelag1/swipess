@@ -121,7 +121,7 @@ function TopBarComponent({
           className
         )}
       >
-        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 px-3 gap-2">
+        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 px-3 gap-2 pointer-events-auto">
 
           {/* ── LEFT: Back? → Avatar → Mode Switcher → Tokens ── */}
           <div className="flex-shrink-0 flex items-center gap-1.5">
