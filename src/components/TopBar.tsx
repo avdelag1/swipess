@@ -165,8 +165,8 @@ function TopBarComponent({
                   </Avatar>
                 </motion.button>
 
-                {/* Left pill: Mode Switcher + Tokens */}
-                <div className="flex items-center bg-white/10 dark:bg-black/10 backdrop-blur-xl border border-border/10 rounded-full px-1.5 py-1 gap-0.5 shadow-sm">
+                {/* Left pill: Mode Switcher + Tokens (NO FRAME) */}
+                <div className="flex items-center gap-0.5">
                   {/* Mode Switcher (client ↔ owner) */}
                   <ModeSwitcher variant="icon" size="sm" />
 
@@ -224,7 +224,7 @@ function TopBarComponent({
           {/* ── RIGHT: Theme (Sun/Moon) + Notifications + Radio ── */}
           <div className="flex-shrink-0 flex items-center gap-1">
             {!minimal && (
-              <div className="flex items-center bg-white/10 dark:bg-black/10 backdrop-blur-xl border border-border/10 rounded-full px-1.5 py-1 gap-0.5 shadow-sm">
+              <div className="flex items-center gap-0.5">
 
                 {/* ☀️/🌙 Theme Toggle */}
                 <motion.button
