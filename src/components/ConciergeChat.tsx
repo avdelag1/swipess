@@ -416,30 +416,6 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     
     clearCountdown();
 
-    // Fix iOS PWA Silent Failure: Prompt mic permission only if we can
-    try {
-      // Check Permissions API first (avoids console noise in iframes)
-      if (navigator.permissions) {
-        const perm = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-        if (perm.state === 'denied') {
-          toast.error('Microphone blocked. Enable it in your browser settings.');
-          return;
-        }
-      }
-      // Only call getUserMedia if API exists (skips restricted iframe contexts)
-      if (navigator.mediaDevices?.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        // Immediately release the mic track so it doesn't stay active
-        stream.getTracks().forEach(t => t.stop());
-      }
-    } catch (permErr: any) {
-      // Silently fall through if in a restricted context — SpeechRecognition may still work
-      if (permErr?.name === 'NotAllowedError') {
-        toast.error('Microphone access denied. Please check your device settings.');
-        return;
-      }
-    }
-
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
