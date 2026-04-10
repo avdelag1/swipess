@@ -306,18 +306,17 @@ export function useOwnerListings() {
 }
 
 export function useSwipedListings() {
+  const { user } = useAuth(); // ⚡ Cached — no network call
   return useQuery({
-    queryKey: ['swipes'],
+    queryKey: ['swipes', user?.id],
     queryFn: async () => {
       try {
-        const { data: user } = await supabase.auth.getUser();
-        if (!user.user) return [];
+        if (!user) return [];
 
-        // Fetch ALL-TIME swiped listings - permanent exclusion, no time limit
         const { data: likes, error } = await supabase
           .from('likes')
           .select('target_id')
-          .eq('user_id', user.user.id)
+          .eq('user_id', user.id)
           .eq('target_type', 'listing');
 
         if (error) {
@@ -331,6 +330,7 @@ export function useSwipedListings() {
         return [];
       }
     },
+    enabled: !!user,
     retry: 3,
     retryDelay: 1000,
   });
