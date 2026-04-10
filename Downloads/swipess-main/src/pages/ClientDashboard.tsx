@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ClientDashboardProps {
   onPropertyInsights?: (listingId: string) => void;
@@ -23,24 +24,41 @@ export default function ClientDashboard({
     onPropertyInsights?.(listingId);
   }, [onPropertyInsights]);
 
-  // When no category is selected, show the poker card fan
-  if (!activeCategory) {
-    return (
-      <div className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden">
-        <SwipeAllDashboard setCategories={(ids) => {
-          if (ids.length > 0) {
-            setCategories(ids);
-          }
-        }} />
-      </div>
-    );
-  }
-
   return (
-    <SwipessSwipeContainer
-      onListingTap={handleListingTap}
-      onInsights={handleListingTap}
-      onMessageClick={onMessageClick}
-    />
+    <div className="flex flex-col h-full w-full overflow-hidden bg-background">
+      <AnimatePresence mode="wait">
+        {!activeCategory ? (
+          <motion.div 
+            key="dash-fan"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
+          >
+            <SwipeAllDashboard setCategories={(ids) => {
+              if (ids.length > 0) {
+                setCategories(ids);
+              }
+            }} />
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="dash-swipe"
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full h-full"
+          >
+            <SwipessSwipeContainer
+              onListingTap={handleListingTap}
+              onInsights={handleListingTap}
+              onMessageClick={onMessageClick}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

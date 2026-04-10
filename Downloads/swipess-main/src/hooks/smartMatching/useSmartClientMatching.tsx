@@ -152,7 +152,12 @@ export function useSmartClientMatching(
                 let query = supabase.from('profiles')
                     .select(CLIENT_FIELDS)
                     .eq('role', 'client')
-                    .eq('is_active', true);;
+                    .eq('is_active', true);
+                
+                if (isRoommateSection) {
+                    query = query.eq('roommate_available', true);
+                }
+                
                 if (_category) {
                     const mappedCategory = _category === 'worker' ? 'services' : _category;
                     query = query.contains('preferred_listing_types', [mappedCategory]);
@@ -167,7 +172,9 @@ export function useSmartClientMatching(
                     query.range(page * pageSize, (page + 1) * pageSize - 1),
                     supabase.from('profiles').select(CLIENT_FIELDS)
                         .neq('user_id', userId).eq('role', 'client').eq('is_active', true)
-                        .eq('onboarding_completed', true).order('created_at', { ascending: false }).limit(2)
+                        .eq('onboarding_completed', true)
+                        .order('created_at', { ascending: false })
+                        .limit(2)
                 ]);
                 if (error) throw error;
 

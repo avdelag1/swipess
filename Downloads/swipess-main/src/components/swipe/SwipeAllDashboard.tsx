@@ -2,7 +2,9 @@ import { useState, useCallback, memo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { triggerHaptic } from '@/utils/haptics';
+import { uiSounds } from '@/utils/uiSounds';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   POKER_CARDS, PK_W, PK_H,
@@ -19,25 +21,36 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  // 🚀 SPEED OF LIGHT: Pre-fetch top card listings on hover/bringToFront
+  const { data: role } = useUserRole(user?.id);
+
+  // 🚀 SPEED OF LIGHT: Pre-fetch top card data on hover/cycle
   useEffect(() => {
     if (!user?.id || cards.length === 0) return;
     const topId = cards[0].id as string;
     if (topId === 'radio') return;
 
-    // Build the exact filter object useSmartListingMatching expects
     const filters = topId === 'all' ? {} : { category: topId };
     const filtersKey = JSON.stringify(filters);
 
-    // Pre-seed the query cache so SwipessSwipeContainer finds data instantly
-    queryClient.prefetchQuery({
-      queryKey: ['smart-listings', user.id, filtersKey, 0, false],
-      staleTime: 2 * 60 * 1000,
-    });
-  }, [cards, user?.id, queryClient]);
+    if (role === 'owner') {
+      // Pre-warm client/candidate profiles for owners
+      const isRoommate = topId === 'roommates';
+      queryClient.prefetchQuery({
+        queryKey: ['smart-clients', user.id, isRoommate ? 'property' : topId, 0, false, '{}', isRoommate],
+        staleTime: 120000,
+      });
+    } else {
+      // Pre-warm listing data for clients
+      queryClient.prefetchQuery({
+        queryKey: ['smart-listings', user.id, filtersKey, 0, false],
+        staleTime: 120000,
+      });
+    }
+  }, [cards, user?.id, queryClient, role]);
 
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
     triggerHaptic('medium');
+    uiSounds.playPing(0.8);
     setCards(prev => {
       if (prev[0].id !== id) return prev;
       const next = [...prev];
@@ -48,6 +61,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
 
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
+    uiSounds.playPing(1.2);
     if (id === 'radio') {
       navigate('/radio');
     } else {
@@ -57,6 +71,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
 
   const handleBringToFront = useCallback((index: number) => {
     triggerHaptic('light');
+    uiSounds.playPop();
     setCards(prev => {
       const next = [...prev];
       const [pulled] = next.splice(index, 1);

@@ -4,6 +4,8 @@ import { cn } from '@/lib/utils';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { MarketingSlide } from './MarketingSlide';
+import { SwipessLogo } from './SwipessLogo';
+import { motion } from 'framer-motion';
 
 function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
@@ -134,17 +136,37 @@ const CardImage = memo(({
       }}
     >
       {/* LQIP Placeholder with blur-up effect */}
+      {/* 🚀 LIQUID GLASS SKELETON */}
       {!loaded && (
         <div
+          className="absolute inset-0 flex items-center justify-center overflow-hidden"
           style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.2) 100%)',
+            background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.1) 100%)',
             zIndex: 1,
           }}
         >
+          {/* Moving Glass Flare */}
+          <motion.div 
+            className="absolute inset-x-[-100%] inset-y-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg]"
+            animate={{ x: ['100%', '-100%'] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          />
+
+          {/* Branded Pulse */}
+          <div className="relative z-10 flex flex-col items-center gap-4 opacity-20 scale-75 lg:scale-100">
+            <SwipessLogo variant="icon" className="w-12 h-12 grayscale" />
+            <div className="flex gap-1">
+              {[0, 1, 2].map(i => (
+                <motion.div 
+                  key={i}
+                  className="w-1.5 h-1.5 rounded-full bg-white/40"
+                  animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                />
+              ))}
+            </div>
+          </div>
+
           {blurSrc && (
             <img
               src={blurSrc}
@@ -152,15 +174,7 @@ const CardImage = memo(({
               aria-hidden="true"
               loading="eager"
               decoding="async"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                filter: 'blur(10px)', // Lower blur for less GPU effort
-                transform: 'scale(1.1)',
-                opacity: 0.6,
-                transition: 'opacity 0.3s ease', // Faster crossfade
-              }}
+              className="absolute inset-0 w-full h-full object-cover filter blur-[20px] scale-110 opacity-40 mix-blend-overlay transition-opacity duration-300"
             />
           )}
         </div>

@@ -34,11 +34,20 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
     displayPct.set((radiusKm / maxKm) * 100);
   }, [radiusKm, displayPct]);
 
+  // Use a timeout to debounce the store update to avoid dashboard re-render floods
+  // The localKm and displayPct still provide 60fps instant feedback
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localKm !== radiusKm) {
+        onRadiusChange(localKm);
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [localKm, radiusKm, onRadiusChange]);
+
   const handleInputChange = (val: number) => {
     setLocalKm(val);
     displayPct.set((val / maxKm) * 100);
-    // Real-time update to parent for "instant" feeling as requested by user
-    onRadiusChange(val);
   };
 
   const _springPctVal = useTransform(springPct, (v) => `${v}%`);

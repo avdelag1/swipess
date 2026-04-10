@@ -155,38 +155,43 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     );
   }
 
-  // When no category is selected, show the intent quick-filter card fan
-  if (!activeCategory) {
-    const handleCardSelect = (card: OwnerIntentCard) => {
-      // Apply intent-specific filters then reveal the swipe deck
-      if (card.clientType) setClientType(card.clientType as any);
-      if (card.listingType) setListingType(card.listingType as any);
-      const cat = card.category ?? 'property';
-      setCategories([cat as any]);
-    };
-
-    return (
-      <div className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden">
-        <OwnerAllDashboard onCardSelect={handleCardSelect} />
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col h-full w-full overflow-hidden bg-background">
-      <div className="flex-1 min-h-0 relative">
-        <ClientSwipeContainer
-          onClientTap={handleClientTap}
-          onInsights={handleInsights}
-          onMessageClick={onMessageClick}
-          profiles={clientProfiles}
-          isLoading={isLoading}
-          error={error}
-          insightsOpen={false}
-          category={filterCategory || 'default'}
-          filters={mergedFilters}
-        />
-      </div>
+      <AnimatePresence mode="wait">
+        {!activeCategory ? (
+          <motion.div 
+            key="owner-dash-fan"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
+          >
+            <OwnerAllDashboard onCardSelect={handleCardSelect} />
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="owner-dash-swipe"
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="flex-1 min-h-0 relative"
+          >
+            <ClientSwipeContainer
+              onClientTap={handleClientTap}
+              onInsights={handleInsights}
+              onMessageClick={onMessageClick}
+              profiles={clientProfiles}
+              isLoading={isLoading}
+              error={error}
+              insightsOpen={false}
+              category={filterCategory || 'default'}
+              filters={mergedFilters}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

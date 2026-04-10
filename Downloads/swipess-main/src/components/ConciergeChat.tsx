@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect, useCallback, memo, useMemo } from 'react';
-import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown, Mic, MicOff, Zap, ArrowRight } from 'lucide-react';
+import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown, Mic, MicOff, Zap, ArrowRight, Check } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { Button } from '@/components/ui/button';
 import { useConciergeAI, ChatMessage, Conversation, AiCharacter } from '@/hooks/useConciergeAI';
-import { toast } from '@/components/ui/sonner';
+import { useAudioVisualizer } from '@/hooks/useAudioVisualizer';
+import { uiSounds } from '@/utils/uiSounds';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
@@ -267,10 +269,16 @@ const ConversationSidebar = memo(({
             <p className="text-[10px] text-muted-foreground">{formatConvoDate(c.updatedAt)}</p>
           </div>
           <button
-            onClick={(e) => { e.stopPropagation(); onDelete(c.id); }}
-            className="ml-2 p-1 rounded-md hover:bg-destructive/20 text-muted-foreground hover:text-destructive shrink-0"
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              if (window.confirm('Delete this conversation? All messages will be lost.')) {
+                onDelete(c.id); 
+              }
+            }}
+            className="ml-2 p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all shrink-0"
+            title="Delete conversation"
           >
-            <Trash2 className="w-3 h-3" />
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       ))}
@@ -321,6 +329,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const voiceVolume = useAudioVisualizer(isListening);
+  const originalInputRef = useRef(''); // To preserve text before mic starts
 
   // ── Voice-to-text (Web Speech API) ─────────────────────────────────
   const [isListening, setIsListening] = useState(false);
@@ -335,8 +346,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const countdownTranscriptRef = useRef<string>('');
   const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
-  const COUNTDOWN_SECONDS = 3;
-  const SILENCE_DELAY_MS = 2000; // 2 seconds of silence before countdown starts
+  const COUNTDOWN_SECONDS = 2;
+  const SILENCE_DELAY_MS = 1200; // 1.2 seconds of silence before countdown starts
   const isCountingDownRef = useRef(false);
   const lastFinalTranscriptRef = useRef('');
 
@@ -421,6 +432,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
     recognition.onstart = () => {
       setIsListening(true);
+      originalInputRef.current = input; // Snapshot current text
+      triggerHaptic('medium');
     };
 
     recognition.onresult = (event: any) => {
@@ -452,13 +465,19 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
         }
       }
 
-      // Accumulate final text properly
-      if (newFinalChunk) {
-        finalTranscript += newFinalChunk;
-      }
+      const sanitizedFinal = finalTranscript.trim();
+      const sanitizedInterim = interim.trim();
+      
+      const combined = [
+        originalInputRef.current.trim(),
+        sanitizedFinal,
+        sanitizedInterim
+      ].filter(Boolean).join(' ');
 
-      setInput(finalTranscript + interim);
-      countdownTranscriptRef.current = (finalTranscript + interim).trim();
+      if (combined) {
+        setInput(combined);
+        countdownTranscriptRef.current = combined;
+      }
 
       // If auto-send is ON, reset silence timer: after 2s of no new speech → start countdown
       if (autoSend && countdownTranscriptRef.current) {
@@ -471,33 +490,46 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     };
 
     recognition.onend = () => {
-      // If user manually stopped, don't restart
-      if (userStopped) {
+      // Always ensure we reset state if not restarting
+      const shouldRestart = recognitionRef.current && !userStopped && !isCountingDownRef.current;
+      
+      if (!shouldRestart) {
         setIsListening(false);
         recognitionRef.current = null;
         return;
       }
 
-      // If countdown is active, don't restart but keep state
-      if (isCountingDownRef.current) return;
-
       // Browser killed the session (timeout, etc.) — auto-restart with a small delay
-      if (recognitionRef.current) {
-        setTimeout(() => {
-          if (recognitionRef.current && !userStopped && !isCountingDownRef.current) {
-            try {
-              recognitionRef.current.start();
-            } catch (err) {
-              console.error('[AI Speech] Restart failed:', err);
-            }
+      setTimeout(() => {
+        if (recognitionRef.current && !userStopped && !isCountingDownRef.current) {
+          try {
+            recognitionRef.current.start();
+            setIsListening(true);
+          } catch (err) {
+            console.error('[AI Speech] Restart failed:', err);
+            setIsListening(false);
+            recognitionRef.current = null;
           }
-        }, 300);
-      }
+        } else {
+          setIsListening(false);
+        }
+      }, 300);
     };
 
     recognition.onerror = (e: any) => {
       if (e.error === 'no-speech') return;
-      if (isCountingDownRef.current) return; // Don't kill countdown on speech errors
+      if (isCountingDownRef.current) return; 
+
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+        toast.error('Microphone access blocked', {
+          description: 'Please check your browser settings and allow microphone access to talk to Swipess AI.',
+          action: {
+            label: 'Fix settings',
+            onClick: () => window.open('https://support.google.com/chrome/answer/2693767', '_blank')
+          }
+        });
+      }
+      
       userStopped = true;
       setIsListening(false);
       recognitionRef.current = null;
@@ -655,9 +687,29 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => { createConversation(); }}>
                   <Plus className="w-4 h-4 text-muted-foreground" />
                 </Button>
-                {conversations.length > 0 && (
-                  <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-muted-foreground hover:text-destructive" onClick={clearHistory}>
-                    <Trash2 className="w-4 h-4" />
+                {activeConversationId && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={cn(
+                      "w-8 h-8 rounded-full transition-all",
+                      isDeleting ? "bg-destructive text-destructive-foreground hover:bg-destructive/80 scale-110 shadow-lg" : "text-muted-foreground hover:text-destructive"
+                    )} 
+                    onClick={() => {
+                      if (isDeleting) {
+                        stopListening();
+                        deleteConversation(activeConversationId);
+                        setIsDeleting(false);
+                        uiSounds.playPop();
+                      } else {
+                        setIsDeleting(true);
+                        uiSounds.playPing(0.6);
+                        setTimeout(() => setIsDeleting(false), 3000);
+                      }
+                    }}
+                    title={isDeleting ? "Click again to confirm delete" : "Delete conversation"}
+                  >
+                    {isDeleting ? <Check className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
                   </Button>
                 )}
                 <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-muted-foreground" onClick={onClose}>
@@ -834,7 +886,10 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
               {/* Auto-send toggle inline */}
               {speechSupported && (
                 <button
-                  onClick={toggleAutoSend}
+                  onClick={() => {
+                    toggleAutoSend();
+                    uiSounds.playPing(1.4);
+                  }}
                   className={cn(
                     "shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all",
                     autoSend
@@ -875,18 +930,40 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     size="icon"
                     variant="outline"
                     className={cn(
-                      "w-10 h-10 rounded-xl transition-all relative",
-                      isListening && "bg-red-500/20 border-red-500/50 text-red-400 animate-pulse shadow-[0_0_12px_rgba(239,68,68,0.4)]",
+                      "w-10 h-10 rounded-xl transition-all relative overflow-visible",
+                      isListening && "bg-brand-accent-2/15 border-brand-accent-2/50 text-brand-accent-2 shadow-[0_0_15px_rgba(236,72,153,0.3)]",
                       countdown !== null && "border-primary/50 bg-primary/10",
                       ignitionFlash && "border-primary bg-primary/30 shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
                     )}
                   >
+                    {isListening && !ignitionFlash && (
+                      <motion.div 
+                        layoutId="mic-aura"
+                        className="absolute inset-0 rounded-xl bg-brand-accent-2/30 -z-10"
+                        animate={{ 
+                          scale: [1, 1.2 + (voiceVolume * 0.8), 1], 
+                          opacity: [0.6, 0.2, 0.6],
+                          boxShadow: `0 0 ${20 + (voiceVolume * 80)}px rgba(236,72,153,0.5)`
+                        }}
+                        transition={{ duration: 0.1 }}
+                      />
+                    )}
+                    {isListening && (
+                       <div className="absolute inset-0 rounded-xl border-2 border-brand-accent-2/50 opacity-20" />
+                    )}
                     {ignitionFlash ? (
                       <span className="text-sm">🚀</span>
                     ) : countdown !== null ? (
                       <span className="text-xs font-bold text-primary">{countdown}</span>
                     ) : isListening ? (
-                      <MicOff className="w-4 h-4" />
+                      <div className="relative">
+                        <MicOff className="w-4 h-4" />
+                        <motion.div 
+                          className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-brand-accent-2 shadow-[0_0_8px_#ec4899]"
+                          animate={{ opacity: [1, 0, 1] }}
+                          transition={{ duration: 0.8, repeat: Infinity }}
+                        />
+                      </div>
                     ) : (
                       <Mic className="w-4 h-4" />
                     )}
