@@ -285,8 +285,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const {
     messages, conversations, activeConversationId, isLoading,
     sendMessage, resendMessage, stopGeneration,
-    createConversation, switchConversation, deleteConversation, clearHistory,
-    activeCharacter, setActiveCharacter, egoLevel,
+    createConversation, switchConversation, deleteConversation, deleteMessage, deleteMemory, clearHistory,
+    activeCharacter, setActiveCharacter, egoLevel, isPremium,
   } = useConciergeAI();
   const { navigate: appNavigate } = useAppNavigate();
 

@@ -126,7 +126,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <main
           id="main-content"
           className={cn(
-            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y flex flex-col items-center justify-center",
+            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y",
             isScrollLocked ? "overflow-hidden" : "overflow-y-auto scroll-smooth"
           )}
           style={{
