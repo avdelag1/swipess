@@ -310,7 +310,9 @@ export default function DJTurntableRadio() {
       >
         <motion.button
           whileTap={{ scale: 0.9 }}
-      onClick={() => {
+          onPointerDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
             // Reliable back navigation — always go to the dashboard if no history
             if (window.history.length > 2) {
               navigate(-1);
