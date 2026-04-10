@@ -407,13 +407,23 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'en-US';
+    recognition.lang = typeof window !== 'undefined' ? (navigator.language || 'en-US') : 'en-US';
 
     let finalTranscript = '';
     let userStopped = false;
-    
+    let hasInterrupted = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
 
     recognition.onresult = (event: any) => {
+      // 🚀 INTERRUPTION: If AI is thinking/typing, stop it on the first word detected
+      if (isLoading && !hasInterrupted) {
+        stopGeneration();
+        hasInterrupted = true;
+      }
+
       // If countdown is active and new speech arrives, CANCEL countdown and reset silence timer
       if (isCountingDownRef.current) {
         clearCountdown();
@@ -465,14 +475,17 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       // If countdown is active, don't restart but keep state
       if (isCountingDownRef.current) return;
 
-      // Browser killed the session (timeout, etc.) — auto-restart to keep listening
+      // Browser killed the session (timeout, etc.) — auto-restart with a small delay
       if (recognitionRef.current) {
-        try {
-          recognitionRef.current.start();
-        } catch {
-          setIsListening(false);
-          recognitionRef.current = null;
-        }
+        setTimeout(() => {
+          if (recognitionRef.current && !userStopped && !isCountingDownRef.current) {
+            try {
+              recognitionRef.current.start();
+            } catch (err) {
+              console.error('[AI Speech] Restart failed:', err);
+            }
+          }
+        }, 300);
       }
     };
 
@@ -498,9 +511,11 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       clearCountdown();
       stopListening();
     } else {
+      // If AI is talking, stop it immediately when you tap Mic
+      if (isLoading) stopGeneration();
       startListening();
     }
-  }, [isListening, countdown, stopListening, startListening, clearCountdown]);
+  }, [isListening, countdown, isLoading, stopListening, startListening, clearCountdown, stopGeneration]);
 
   // Auto-scroll to bottom on new messages, loading state, opening chat, or switching conversation
   const scrollToBottom = useCallback(() => {
