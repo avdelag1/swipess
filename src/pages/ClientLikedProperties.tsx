@@ -339,7 +339,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
         </AnimatePresence>
 
         {/* Count */}
-        <div className="flex items-center gap-3 mb-6 px-2">
+        <div className="flex items-center gap-3 mb-3 px-2">
           <div className="w-2 h-2 rounded-full bg-[var(--color-brand-accent-2)] shadow-[0_0_10px_var(--color-brand-accent-2)]" />
           <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
             {filteredAndSorted.length} Saved Essentials
