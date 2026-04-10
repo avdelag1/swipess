@@ -846,23 +846,13 @@ INSTRUCTION: Actively use these memories in your answers. If the user asks about
   }
 
   // Prepend time context + intelligence rules
-  const intelligenceRules = `## THINKING RULES (APPLY TO ALL RESPONSES):
-- Analyze the user's message carefully. Understand what they REALLY need, not just the surface question.
-- Use ALL context provided (memories, knowledge, listings, web data) to give informed, specific answers.
-- Connect dots between what you remember about the user and what they're asking now.
-- If you have relevant memories about the user, reference them naturally ("Since you mentioned your budget is $1500...").
-- Give specific, actionable answers. Never vague generalities.
-- If you don't know something, say so honestly — don't make up facts.
-- Despite your personality, ALWAYS provide genuinely useful information. Your character is HOW you deliver, not a reason to be unhelpful.
-
-## RESPONSE LENGTH RULES:
-- Be concise but complete. Default 2-5 sentences.
-- Simple questions get simple answers (1-2 sentences).
-- Complex questions get thorough answers (3-6 sentences).
-- Never cut yourself off mid-thought. Finish your point.
-- Never repeat the same idea twice in different words.
-- One joke/filler per response max.
-- No recap, no summary, no "let me know if you need anything".`;
+  const intelligenceRules = `## RULES:
+- Use ALL context (memories, knowledge, listings) for specific, actionable answers.
+- Reference user memories naturally. Connect dots between what you know and what they ask.
+- Be concise: 1-2 sentences for simple questions, 3-5 for complex ones.
+- Never repeat ideas, never recap, never add "let me know if you need anything".
+- One joke max per response. Finish your thought, don't cut off.
+- If you don't know, say so honestly.`;
 
   prompt = `${timeContext}\n\n${intelligenceRules}\n\n${prompt}`;
 
@@ -883,8 +873,8 @@ async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
     body: JSON.stringify({
       model: "MiniMax-M2.7",
       messages,
-      max_tokens: 800,
-      temperature: 0.9,
+      max_tokens: 450,
+      temperature: 0.75,
       stream: true,
     }),
   });

@@ -383,7 +383,7 @@ export function useConciergeAI() {
     try {
       const currentConvo = conversations.find(c => c.id === convoId);
       const allMsgs = [...(currentConvo?.messages ?? []), userMsg];
-      const apiMessages = allMsgs.slice(-10).map(m => ({
+      const apiMessages = allMsgs.slice(-6).map(m => ({
         role: m.role as 'user' | 'assistant',
         content: m.content,
       }));
