@@ -95,9 +95,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     const path = location.pathname;
     return path === '/client/dashboard' || 
            path === '/owner/dashboard' || 
-           path.includes('liked-properties') ||
-           path.includes('interested-clients') ||
-           path.includes('liked-clients') ||
            path.startsWith('/camera') || 
            path.startsWith('/radio') || 
            path.startsWith('/explore/eventos') || 
