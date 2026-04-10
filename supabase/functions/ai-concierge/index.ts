@@ -6,7 +6,7 @@ const corsHeaders = {
 };
 
 const MINIMAX_API_KEY = Deno.env.get("MINIMAX_API_KEY") || "";
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") || "";
+// LOVABLE_API_KEY removed — fully independent backend
 const TAVILY_API_KEY = Deno.env.get("TAVILY_API_KEY") || "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -231,7 +231,7 @@ async function loadUserMemories(userId: string): Promise<string> {
 }
 
 async function extractAndSaveMemories(userId: string, userMessage: string, assistantReply: string): Promise<void> {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !LOVABLE_API_KEY) return;
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !MINIMAX_API_KEY) return;
   try {
     const extractionPrompt = `Extract factual preferences from this conversation. Return ONLY a JSON array of objects with: category (budget|location|lifestyle|timeline|preference), title (short key), content (the value/fact).
 
@@ -246,11 +246,11 @@ If no new facts, return []. Examples of facts:
 
 Return ONLY the JSON array, no markdown:`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await fetch("https://api.minimaxi.chat/v1/text/chatcompletion_v2", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${LOVABLE_API_KEY}` },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${MINIMAX_API_KEY}` },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
+        model: "MiniMax-M2.7",
         messages: [{ role: "user", content: extractionPrompt }],
         max_tokens: 300,
         temperature: 0.1,
@@ -918,43 +918,7 @@ async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
   return new Response(stream, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
 }
 
-async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
-  if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
-      messages,
-      max_tokens: 800,
-      temperature: 0.9,
-      stream: true,
-    }),
-  });
-
-  if (!res.ok) {
-    const status = res.status;
-    const errBody = await res.text();
-    console.error("[AI] Lovable AI error:", status, errBody);
-    if (status === 429) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
-        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (status === 402) {
-      return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
-        status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    throw new Error(`Lovable AI ${status}: ${errBody}`);
-  }
-
-  return new Response(res.body, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
-}
+// Lovable AI fallback removed — MiniMax is the sole provider
 
 // ─── Collect streaming response for memory extraction ───────────────────────
 
@@ -1071,22 +1035,16 @@ Deno.serve(async (req) => {
       ...messages.filter(m => m.role !== "system"),
     ];
 
-    // Try MiniMax first (primary), fallback to Gemini via Lovable AI
+    // MiniMax is the sole AI provider — no third-party fallback
     let response: Response;
-    let aiProvider = "minimax";
+    const aiProvider = "minimax";
     try {
       response = await streamMiniMax(enrichedMessages);
     } catch (e) {
-      console.warn(`[AI] MiniMax failed, falling back to Gemini: ${(e as Error).message}`);
-      aiProvider = "gemini";
-      try {
-        response = await streamLovableAI(enrichedMessages);
-      } catch (e2) {
-        console.error("[AI] Both providers failed:", (e2 as Error).message);
-        return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {
-          status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      console.error("[AI] MiniMax failed:", (e as Error).message);
+      return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {
+        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Inject provider header into the response
