@@ -121,7 +121,7 @@ const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
   }
 ];
 
-  const packagesUI = showAsPage ? HARDCODED_PREMIUM_PACKAGES : HARDCODED_TOKEN_PACKAGES;
+  const packagesUI = showAsPage ? HARDCODED_PREMIUM_PACKAGES : [...HARDCODED_TOKEN_PACKAGES, ...HARDCODED_PREMIUM_PACKAGES];
   const isLoading = false;
 
   const handlePurchase = async (pkg: TokenPackage) => {
@@ -240,15 +240,19 @@ const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span className={cn("text-sm font-bold", isDark ? "text-white" : "text-gray-900")}>{pkg.name}</span>
-                        <span className={cn("text-xs", isDark ? "text-white/40" : "text-gray-400")}>{pkg.tokens} tokens</span>
+                        <span className={cn("text-xs", isDark ? "text-white/40" : "text-gray-400")}>
+                          {pkg.package_category === 'premium' ? `${pkg.duration_days >= 300 ? '1 Year' : pkg.duration_days + ' days'}` : `${pkg.tokens} tokens`}
+                        </span>
                       </div>
                       <div className="flex items-baseline gap-1.5 mt-0.5">
                         <span className={cn("text-lg font-black tracking-tight", isDark ? "text-white" : "text-gray-900")}>
                           ${pkg.price}
                         </span>
-                        <span className={cn("text-[10px]", isDark ? "text-white/35" : "text-gray-400")}>
-                          (${pkg.pricePerToken > 0 ? pkg.pricePerToken.toFixed(1) : 0}/ea)
-                        </span>
+                        {pkg.package_category !== 'premium' && (
+                          <span className={cn("text-[10px]", isDark ? "text-white/35" : "text-gray-400")}>
+                            (${pkg.pricePerToken > 0 ? pkg.pricePerToken.toFixed(1) : 0}/ea)
+                          </span>
+                        )}
                       </div>
                     </div>
 

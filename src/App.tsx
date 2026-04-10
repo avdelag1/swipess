@@ -170,7 +170,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               {/* Shared routes */}
               <Route path="/messages" element={<MessagingDashboard />} />
               <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
+              <Route path="/subscription/packages" element={<SubscriptionPackagesPage />} />
               <Route path="/radio" element={<DJTurntableRadio />} />
 
               {/* Explore/Events */}
