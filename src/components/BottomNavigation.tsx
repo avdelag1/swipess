@@ -37,7 +37,7 @@ import { useModalStore } from '@/state/modalStore';
 
 const ICON_SIZE = 23;
 const ICON_SIZE_COMPACT = 20;
-const TOUCH_TARGET = 46;
+const TOUCH_TARGET = 44;
 
 interface BottomNavigationProps {
   userRole: 'client' | 'owner' | 'admin';
@@ -255,7 +255,7 @@ export const BottomNavigation = memo(({
 
 
   return (
-    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar px-3 pb-2 pt-1', className)}>
+    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar px-3 pb-1.5 pt-1', className)}>
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
@@ -309,7 +309,7 @@ export const BottomNavigation = memo(({
           data-no-swipe-nav
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full justify-start gap-1 px-2 py-1.5 nav-scroll-hide transform-gpu',
+              'relative flex items-center w-full justify-start gap-1 px-2 py-1 nav-scroll-hide transform-gpu',
           )}
           style={{
             zIndex: 2,
@@ -353,10 +353,10 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                   style={{
-                    minWidth: '68px',
+                    minWidth: '64px',
                     scrollSnapAlign: 'start',
                     minHeight: TOUCH_TARGET,
-                    padding: '6px 8px',
+                    padding: '5px 7px',
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
