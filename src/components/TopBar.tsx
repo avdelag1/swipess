@@ -199,24 +199,26 @@ function TopBarComponent({
 
           {/* ── CENTER: Logo / Title — tap goes to dashboard ── */}
           <div className="flex-1 flex items-center justify-center min-w-0">
-            <motion.button
-              onPointerDown={handleLogoTap}
-              whileTap={!isDashboard ? { scale: 0.95 } : {}}
-              className={cn(
-                "flex items-center justify-center transition-opacity touch-manipulation",
-                isDashboard ? "cursor-default opacity-100" : "cursor-pointer opacity-90 hover:opacity-100"
-              )}
-              aria-label={isDashboard ? "Swipess" : "Go to dashboard"}
-              style={{ WebkitTapHighlightColor: 'transparent', border: 'none', background: 'transparent' }}
-            >
-              {title ? (
-                <span className={cn("text-base font-bold truncate", isLight ? "text-foreground" : "text-white/90")}>
-                  {title}
-                </span>
-              ) : (
-                <SwipessLogo size="xs" variant="gradient" />
-              )}
-            </motion.button>
+            {(!isDashboard || title) && (
+              <motion.button
+                onPointerDown={handleLogoTap}
+                whileTap={!isDashboard ? { scale: 0.95 } : {}}
+                className={cn(
+                  "flex items-center justify-center transition-opacity touch-manipulation",
+                  isDashboard ? "cursor-default opacity-100" : "cursor-pointer opacity-90 hover:opacity-100"
+                )}
+                aria-label={isDashboard ? "Swipess" : "Go to dashboard"}
+                style={{ WebkitTapHighlightColor: 'transparent', border: 'none', background: 'transparent' }}
+              >
+                {title ? (
+                  <span className={cn("text-base font-bold truncate", isLight ? "text-foreground" : "text-white/90")}>
+                    {title}
+                  </span>
+                ) : (
+                  <SwipessLogo size="xs" variant="gradient" />
+                )}
+              </motion.button>
+            )}
           </div>
 
           {/* ── RIGHT: Theme (Sun/Moon) + Notifications + Radio ── */}
