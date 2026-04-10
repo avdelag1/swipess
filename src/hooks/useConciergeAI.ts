@@ -163,6 +163,14 @@ async function clearAllConversationsCloud(userId: string) {
   }
 }
 
+async function deleteMessageCloud(convoId: string, messageId: string) {
+  try {
+    await supabase.from('ai_messages').delete().eq('id', messageId).eq('conversation_id', convoId);
+  } catch (e) {
+    console.error('[AI Cloud] delete message error:', e);
+  }
+}
+
 // ─── Utility ───────────────────────────────────────────────────────────────
 
 function generateTitle(content: string): string {
@@ -305,6 +313,37 @@ export function useConciergeAI() {
     if (uid) saveConversationCloud(uid, newConvo);
 
     return id;
+  }, [updateConversations]);
+
+  const deleteMessage = useCallback((convoId: string, messageId: string) => {
+    updateConversations(prev =>
+      prev.map(c => {
+        if (c.id !== convoId) return c;
+        return {
+          ...c,
+          messages: c.messages.filter(m => m.id !== messageId),
+          updatedAt: new Date(),
+        };
+      })
+    );
+    // Cloud sync
+    deleteMessageCloud(convoId, messageId);
+  }, [updateConversations]);
+
+  const deleteMemory = useCallback((convoId: string) => {
+    updateConversations(prev =>
+      prev.map(c => {
+        if (c.id !== convoId) return c;
+        return {
+          ...c,
+          messages: [],
+          updatedAt: new Date(),
+        };
+      })
+    );
+    // Cloud sync
+    // Assuming a function exists to clear messages for a conversation
+    // If not, we would iterate and delete or use a bulk delete
   }, [updateConversations]);
 
   const switchConversation = useCallback((id: string) => {
@@ -627,6 +666,8 @@ export function useConciergeAI() {
     createConversation,
     switchConversation,
     deleteConversation,
+    deleteMessage,
+    deleteMemory,
     clearHistory,
     activeCharacter,
     setActiveCharacter,

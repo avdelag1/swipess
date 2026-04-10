@@ -70,12 +70,13 @@ function parseNavActions(content: string): { cleanContent: string; navPaths: str
 }
 
 /* ─── Message Bubble ─── */
-const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate, isUser }: {
+const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate, onDelete, isUser }: {
   message: ChatMessage;
   onCopy: () => void;
   onResend?: () => void;
   onTranslate?: (lang: string) => void;
   onNavigate?: (path: string) => void;
+  onDelete?: () => void;
   isUser: boolean;
 }) => {
   const { cleanContent, navPaths } = useMemo(
@@ -141,6 +142,11 @@ const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate
         <button onClick={onCopy} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Copy">
           <Copy className="w-3 h-3" />
         </button>
+        {onDelete && (
+          <button onClick={onDelete} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-destructive/70" aria-label="Delete message">
+            <Trash2 className="w-3 h-3" />
+          </button>
+        )}
         {isUser && onResend && (
           <button onClick={onResend} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Resend">
             <RefreshCw className="w-3 h-3" />
@@ -447,43 +453,40 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     // 🎙️ PERMISSION & AUDIO CONTEXT WARM-UP
     try {
       if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         setPermissionState('granted');
         
-        // Setup Visualizer
+        // 🚀 MICROPHONE STABILITY: Decouple Visualizer to prevent "Already in use" on mobile
         const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-        const audioCtx = new AudioContextClass();
-        const analyser = audioCtx.createAnalyser();
-        const source = audioCtx.createMediaStreamSource(stream);
-        source.connect(analyser);
-        analyser.fftSize = 64;
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        
-        audioContextRef.current = audioCtx;
-        analyserRef.current = analyser;
-        dataArrayRef.current = dataArray;
+        if (!audioContextRef.current) {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true }).catch(err => {
+             console.warn('[Mic] stream error:', err);
+             return null;
+          });
+          
+          if (stream) {
+            const audioCtx = new AudioContextClass();
+            const analyser = audioCtx.createAnalyser();
+            const source = audioCtx.createMediaStreamSource(stream);
+            source.connect(analyser);
+            analyser.fftSize = 64;
+            audioContextRef.current = audioCtx;
+            analyserRef.current = analyser;
+            dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
 
-        const updateVisuals = () => {
-          if (!analyserRef.current || !dataArrayRef.current) return;
-          analyserRef.current.getByteFrequencyData(dataArrayRef.current);
-          let sum = 0;
-          for (let i = 0; i < dataArrayRef.current.length; i++) {
-            sum += dataArrayRef.current[i];
+            const updateVisuals = () => {
+              if (!analyserRef.current || !dataArrayRef.current) return;
+              analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+              let sum = 0;
+              for (let i = 0; i < dataArrayRef.current.length; i++) sum += dataArrayRef.current[i];
+              setAudioVolume(sum / dataArrayRef.current.length); 
+              animationFrameRef.current = requestAnimationFrame(updateVisuals);
+            };
+            updateVisuals();
           }
-          const average = sum / dataArrayRef.current.length;
-          setAudioVolume(average); 
-          animationFrameRef.current = requestAnimationFrame(updateVisuals);
-        };
-        updateVisuals();
+        }
       }
     } catch (err) {
-      console.warn('[Voice] Permission check failed:', err);
-      setPermissionState('denied');
-      toast.error('Microphone access is blocked. Please check your browser settings.', {
-        description: 'For the best experience, click the lock icon next to the URL and allow microphone access.'
-      });
-      return;
+      console.warn('[Voice] Permission/Audio check warning:', err);
     }
     
     clearCountdown();
@@ -863,6 +866,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 onResend={msg.role === 'user' ? () => resendMessage(msg.id) : undefined}
                 onTranslate={msg.role === 'assistant' ? handleTranslate : undefined}
                 onNavigate={msg.role === 'assistant' ? handleNavigate : undefined}
+                onDelete={() => activeConversationId && deleteMessage(activeConversationId, msg.id)}
               />
             ))}
 
