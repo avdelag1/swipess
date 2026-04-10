@@ -476,7 +476,7 @@ export function useConciergeAI() {
             if (jsonStr === '[DONE]') break;
             try {
               const parsed = JSON.parse(jsonStr);
-              const delta = parsed.choices?.[0]?.delta?.content;
+              const delta = parsed.choices?.[0]?.delta?.content || parsed.choices?.[0]?.message?.content || parsed.reply;
               if (delta) {
                 fullContent += delta;
                 streamBufferRef.current = { convoId: convoId!, msgId: assistantMsgId, content: fullContent };
@@ -497,7 +497,7 @@ export function useConciergeAI() {
             if (jsonStr === '[DONE]') continue;
             try {
               const parsed = JSON.parse(jsonStr);
-              const delta = parsed.choices?.[0]?.delta?.content;
+              const delta = parsed.choices?.[0]?.delta?.content || parsed.choices?.[0]?.message?.content || parsed.reply;
               if (delta) fullContent += delta;
             } catch {}
           }

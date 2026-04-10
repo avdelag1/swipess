@@ -1114,7 +1114,7 @@ Deno.serve(async (req) => {
               if (json === "[DONE]") continue;
               try {
                 const parsed = JSON.parse(json);
-                const delta = parsed.choices?.[0]?.delta?.content;
+                const delta = parsed.choices?.[0]?.delta?.content || parsed.choices?.[0]?.message?.content || parsed.reply;
                 if (delta) fullContent += delta;
               } catch {}
             }
