@@ -28,7 +28,6 @@ export const SpeedOfLightPreloader = memo(() => {
           // GPU Decode: This happens off-thread
           await img.decode();
           (window as any).__swipess_cache[src] = true;
-          console.log(`[SpeedOfLight] Pre-warmed: ${src}`);
         } catch (e) {
           // Fallback or ignore
         }
@@ -46,11 +45,10 @@ export const SpeedOfLightPreloader = memo(() => {
       routes.forEach(route => prefetchRoute(route));
     };
 
-    // Execute after initial paint
     const timer = setTimeout(() => {
       prewarmPhotos();
       warmRoutes();
-    }, 1000);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, []);
