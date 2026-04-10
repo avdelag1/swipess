@@ -100,7 +100,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
         {/* Card stack */}
         <div
           className="relative"
-          style={{ width: `min(${PK_W}px, calc(100vw - 100px))`, height: `min(65dvh, ${PK_H}px)`, maxHeight: '72vh' }}
+          style={{ width: `min(${PK_W}px, calc(100vw - 80px))`, height: `min(78dvh, ${PK_H}px)`, maxHeight: '82vh' }}
         >
           {[...cards].reverse().map((card, reversedIdx) => {
             const index = cards.length - 1 - reversedIdx;

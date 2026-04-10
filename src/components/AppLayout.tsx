@@ -126,15 +126,15 @@ export function AppLayout({ children }: AppLayoutProps) {
         <main
           id="main-content"
           className={cn(
-            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y",
+            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y flex flex-col items-center justify-center",
             isScrollLocked ? "overflow-hidden" : "overflow-y-auto scroll-smooth"
           )}
           style={{
-            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isScrollLocked)
-              ? 'var(--top-bar-height, 60px)'
+            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user))
+              ? 'var(--top-bar-height, 64px)'
               : undefined,
-            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isScrollLocked)
-              ? 'calc(68px + env(safe-area-inset-bottom, 0px))'
+            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user))
+              ? 'calc(76px + env(safe-area-inset-bottom, 0px))'
               : undefined,
           }}
         >
