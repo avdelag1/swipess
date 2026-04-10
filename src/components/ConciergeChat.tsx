@@ -407,11 +407,21 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       toast.error('Voice input is not supported in this browser.');
       return;
     }
-    
     // Kill any existing recognition session first
     if (recognitionRef.current) {
       try { recognitionRef.current.abort(); } catch {}
       recognitionRef.current = null;
+    }
+    
+    // 🚀 OPERA/CHROME PERMISSION WARM-UP
+    try {
+      if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+    } catch (err) {
+      console.warn('[Voice] Permission check failed:', err);
+      toast.error('Microphone permission required for voice input.');
+      return;
     }
     
     clearCountdown();

@@ -185,9 +185,7 @@ function TopBarComponent({
       <header
         className={cn(
           'app-header opacity-100 translate-y-0 transform-gpu will-change-transform',
-          transparent 
-            ? 'bg-gradient-to-b from-black/50 via-black/20 to-transparent pb-8 pt-2' 
-            : 'bg-gradient-to-b from-background via-background/90 to-transparent pb-8 pt-2',
+          'bg-transparent', // Pure floating look
           className
         )}
       >
@@ -257,89 +255,41 @@ function TopBarComponent({
               touchAction: 'pan-x',
             } as React.CSSProperties}
           >
-            <div className="flex items-center gap-2 flex-nowrap justify-end pl-2">
-              {/* Mode switcher */}
+            <div className="flex items-center gap-1.5 flex-nowrap justify-end pl-2">
                 {!minimal && (
-                  <div className="flex-shrink-0">
+                  <div className="flex items-center bg-white/10 dark:bg-black/10 backdrop-blur-xl border border-border/10 rounded-full px-1.5 py-1 gap-0.5 shadow-sm">
+                    {/* Token Packages */}
+                    <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className={cn(
+                            "relative h-9 w-9 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none",
+                            "hover:scale-110 active:scale-92 group focus-visible:ring-0",
+                            "touch-manipulation flex items-center justify-center flex-shrink-0",
+                          )}
+                          onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
+                        >
+                          <Zap strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-amber-500" : "text-white/70")} />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" sideOffset={12} className="w-[min(calc(100vw-1.5rem),380px)] p-0 rounded-[2rem] bg-card border border-border/20 shadow-2xl backdrop-blur-3xl">
+                         <Suspense fallback={null}>
+                            <MessageActivationPackages onClose={() => setTokensOpen(false)} />
+                         </Suspense>
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Notifications */}
+                    <NotificationPopover />
+
+                    {/* Mode Switcher */}
                     <ModeSwitcher variant="icon" size="sm" />
+
+                    {/* Theme Toggle */}
+                    <ThemeToggle className="h-9 w-9" />
                   </div>
                 )}
-
-
-              <div className="flex-1 flex justify-center">
-                 {/* Branding removed except for Entry/Auth pages per user requirements */}
-              </div>
-
-                {!minimal && (
-                <>
-                  {/* Token Packages Button with Popover */}
-                  <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                       className={cn(
-                          "relative h-8 w-8 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none",
-                          "hover:scale-105 active:scale-95 group",
-                          "touch-manipulation flex items-center justify-center flex-shrink-0",
-                        )}
-                        onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
-                        onClick={(e) => e.preventDefault()}
-                        aria-label="Token Packages"
-                      >
-                        <Zap strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-amber-500" : "text-white/70")} style={{ filter: isLight ? 'drop-shadow(0 0 4px rgba(245,158,11,0.3))' : 'none' }} />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      align="end"
-                      sideOffset={8}
-                      className="w-[min(calc(100vw-1.5rem),420px)] p-0 rounded-2xl bg-card border border-border shadow-2xl"
-                    >
-                      {/* Popover Header */}
-                      <div className="px-4 pt-4 pb-3">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-bold text-foreground text-base">{t('topbar.tokenPackages')}</h3>
-                          <span className="text-xs text-muted-foreground">
-                            {userRole === 'owner' ? t('topbar.provider') : t('topbar.explorer')}
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {userRole === 'owner'
-                            ? t('topbar.connectExplorers')
-                            : t('topbar.startConversations')}
-                        </p>
-                      </div>
-
-                      {/* Three Package Token Cards */}
-                      <div className="p-3 space-y-2">
-                        {packages && packages.length > 0 ? (
-                          packages.slice(0, 3).map((pkg, index) => {
-                            const tier = tierNames[index] || 'starter';
-                            const config = tierConfig[tier];
-                            const Icon = config.icon;
-                            const isPopular = tier === 'standard';
-                            const tokens = pkg.message_activations || 0;
-                            const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
-
-                            return (
-                              <motion.div
-                                key={pkg.id}
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.05 }}
-                                className={cn(
-                                  "relative rounded-xl border p-3 bg-gradient-to-r transition-all duration-200",
-                                  config.gradient,
-                                  config.border,
-                                  isPopular && "ring-1 ring-blue-500/30"
-                                )}
-                              >
-                                {isPopular && (
-                                  <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full whitespace-nowrap">
-                                    {t('topbar.bestValue')}
-                                  </span>
-                                )}
-                                <div className="flex items-center gap-3">
-                                  {/* Icon */}
                                   <div className={cn("flex-shrink-0 p-2 rounded-lg", config.iconBg)}>
                                     <Icon className="w-5 h-5" />
                                   </div>

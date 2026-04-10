@@ -266,9 +266,8 @@ export const BottomNavigation = memo(({
           backgroundColor: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(10, 10, 12, 0.85)',
           backdropFilter: 'blur(24px) saturate(200%)',
           WebkitBackdropFilter: 'blur(24px) saturate(200%)',
-          border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.1)',
           borderRadius: '9999px',
-          boxShadow: isLight ? '0 10px 40px -10px rgba(0,0,0,0.1)' : '0 10px 40px -10px rgba(0,0,0,0.5)',
+          boxShadow: isLight ? '0 8px 32px -4px rgba(0,0,0,0.08)' : '0 12px 48px -8px rgba(0,0,0,0.6)',
           // GPU acceleration
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',

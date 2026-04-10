@@ -174,25 +174,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             className="relative flex items-center w-full h-full"
             style={{ width: iconW * 2 }}
           >
-            {/* Sliding highlight behind active icon — Precision centered */}
-            <motion.div
-              layoutId="mode-highlight"
-              className="absolute rounded-full"
-              initial={false}
-              animate={{
-                left: isClient ? '4%' : '54%',
-              }}
-              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-              style={{
-                width: '42%',
-                height: '80%',
-                background: isClient
-                  ? (isLight ? 'rgba(244,63,94,0.15)' : 'rgba(244,63,94,0.22)')
-                  : (isLight ? 'rgba(249,115,22,0.15)' : 'rgba(249,115,22,0.22)'),
-                top: '50%',
-                y: '-50%',
-              }}
-            />
+            {/* icons only, no background frame */}
 
             <div className="flex-1 flex items-center justify-center relative z-10">
               <User
