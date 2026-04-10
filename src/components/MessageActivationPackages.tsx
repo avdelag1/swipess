@@ -84,39 +84,33 @@ const HARDCODED_TOKEN_PACKAGES: TokenPackage[] = [
 
 const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
   {
-    id: 201, name: 'Swipess Monthly', tokens: 999, price: 39.00, pricePerToken: 0, tier: 'starter', icon: MessageCircle, duration_days: 30, package_category: 'premium', paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
+    id: 201, name: 'Swipess Monthly', tokens: 50, price: 39.00, pricePerToken: 0, tier: 'starter', icon: MessageCircle, duration_days: 30, package_category: 'premium', paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
     features: [
-      'Communicate with listings and members',
-      'Post properties for rent or sale',
-      'Post services (chef, driver, cleaning, maintenance, babysitting, etc.)',
-      'Post motorcycles or bicycles for rent or sale',
-      'Save favorite listings',
-      'Discover opportunities',
-      'AI assistant to create listings, generate descriptions, and discover the city'
+      '50 Tokens for instant messaging',
+      'Exclusive 24/7 access to AI Concierge chat',
+      'Discover and communicate with exclusive listings',
+      'Post items and services on the discovery feed',
+      'Save favorite listings and track views',
     ], legal_documents: 0, bestValue: false,
   },
   {
-    id: 202, name: 'Swipess +6 Months', tokens: 999, price: 119.00, pricePerToken: 0, tier: 'standard', icon: Zap, duration_days: 180, package_category: 'premium', paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
+    id: 202, name: 'Swipess +6 Months', tokens: 300, price: 119.00, pricePerToken: 0, tier: 'standard', icon: Zap, duration_days: 180, package_category: 'premium', paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
     features: [
-      'Communicate with listings and members',
-      'Post properties for rent or sale',
-      'Post services (chef, driver, cleaning, maintenance, babysitting, etc.)',
-      'Post motorcycles or bicycles for rent or sale',
-      'Save favorite listings',
-      'Discover opportunities',
-      'AI assistant to create listings, generate descriptions, and discover the city'
+      '300 Tokens included',
+      'Priority 24/7 access to AI Concierge chat',
+      'Featured placement in matching algorithms',
+      'Post items and services on the discovery feed',
+      'Save favorite listings and track views',
     ], legal_documents: 0, bestValue: true,
   },
   {
     id: 203, name: 'Swipess Unlimited', tokens: 999, price: 299.00, pricePerToken: 0, tier: 'premium', icon: Crown, duration_days: 365, package_category: 'premium', paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
     features: [
-      'Communicate with listings and members',
-      'Post properties for rent or sale',
-      'Post services (chef, driver, cleaning, maintenance, babysitting, etc.)',
-      'Post motorcycles or bicycles for rent or sale',
-      'Save favorite listings',
-      'Discover opportunities',
-      'AI assistant to create listings, generate descriptions, and discover the city'
+      'Unlimited messaging tokens',
+      'VIP 24/7 access to ultra-fast AI Concierge chat',
+      'Maximum visibility & golden profile badge',
+      'Post limitless items and services on the discovery feed',
+      'Custom insights and priority support',
     ], legal_documents: 0, bestValue: false,
   }
 ];
@@ -167,19 +161,13 @@ const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
     return (
       <div className={cn("p-4 space-y-3 min-w-[300px]", isDark ? "text-white" : "text-gray-900")}>
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pb-1">
           <div>
-            <h3 className={cn("text-base font-bold", isDark ? "text-white" : "text-gray-900")}>Token Packages</h3>
-            <p className={cn("text-xs mt-0.5", isDark ? "text-white/50" : "text-gray-500")}>
-              Start conversations with {currentUserRole === 'owner' ? 'Clients' : 'Owners'}
+            <h3 className={cn("text-base font-black tracking-tight", isDark ? "text-white" : "text-gray-900")}>Tokens & Premium</h3>
+            <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/40" : "text-gray-500")}>
+              Unlock the full experience
             </p>
           </div>
-          <Badge variant="outline" className={cn(
-            "text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5",
-            isDark ? "border-white/20 text-white/60" : "border-gray-300 text-gray-500"
-          )}>
-            {roleLabel}
-          </Badge>
         </div>
 
         {/* Package rows */}
@@ -208,13 +196,25 @@ const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
                   ? { bg: isDark ? 'bg-blue-500/15' : 'bg-blue-50', icon: 'text-blue-400', border: isDark ? 'border-blue-500/30' : 'border-blue-200', ring: isDark ? 'ring-blue-500/20' : 'ring-blue-100' }
                   : { bg: isDark ? 'bg-rose-500/15' : 'bg-rose-50', icon: 'text-rose-400', border: isDark ? 'border-white/10' : 'border-gray-200', ring: '' };
 
+              // Add a divider before the first Premium Package
+              const isFirstPremium = index === 3;
+
               return (
-                <motion.div
-                  key={pkg.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.07 }}
-                >
+                <div key={pkg.id}>
+                  {isFirstPremium && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3 py-3 mt-1 relative z-10">
+                      <div className="h-px flex-1 bg-gradient-to-r from-transparent to-amber-500/30" />
+                      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                        Subscriptions
+                      </span>
+                      <div className="h-px flex-1 bg-gradient-to-l from-transparent to-amber-500/30" />
+                    </motion.div>
+                  )}
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
                   <div className={cn(
                     "relative flex items-center gap-3 p-3 rounded-2xl border transition-all duration-200",
                     "hover:scale-[1.02] active:scale-[0.98]",
@@ -239,12 +239,18 @@ const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className={cn("text-sm font-bold", isDark ? "text-white" : "text-gray-900")}>{pkg.name}</span>
-                        <span className={cn("text-xs", isDark ? "text-white/40" : "text-gray-400")}>
-                          {pkg.package_category === 'premium' ? `${pkg.duration_days >= 300 ? '1 Year' : pkg.duration_days + ' days'}` : `${pkg.tokens} tokens`}
+                        <span className={cn("text-sm font-black tracking-tight", isDark ? "text-white" : "text-gray-900")}>{pkg.name}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className={cn("text-[10px] font-medium tracking-wide", isDark ? "text-white/60" : "text-gray-500")}>
+                          {pkg.package_category === 'premium' ? (
+                            <>Includes <span className={cn("font-bold", pkg.tokens === 999 ? "text-amber-500" : "text-blue-500")}>{pkg.tokens === 999 ? "Unlimited" : pkg.tokens} tokens</span> + 24/7 AI Chat</>
+                          ) : (
+                            <>{pkg.tokens} tokens included</>
+                          )}
                         </span>
                       </div>
-                      <div className="flex items-baseline gap-1.5 mt-0.5">
+                      <div className="flex items-baseline gap-1.5 mt-1">
                         <span className={cn("text-lg font-black tracking-tight", isDark ? "text-white" : "text-gray-900")}>
                           ${pkg.price}
                         </span>
@@ -276,6 +282,7 @@ const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
                     </Button>
                   </div>
                 </motion.div>
+                </div>
               );
             })}
           </div>
