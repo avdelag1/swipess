@@ -53,7 +53,7 @@ export function CategorySwipeStack() {
                 id: card.id,
                 label: card.label,
                 icon: card.icon,
-                color: `from-${card.accent.replace('#', '')} to-${card.accent.replace('#', '')}40`,
+                color: card.accent, // Raw hex color — rendered via inline style, not Tailwind
                 description: card.description,
                 image: POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.all,
                 ownerData: {
@@ -66,7 +66,7 @@ export function CategorySwipeStack() {
             id: card.id,
             label: card.label,
             icon: card.icon,
-            color: `from-[${card.accent}] to-[${card.accent}]/40`,
+            color: card.accent, // Raw hex color — rendered via inline style, not Tailwind
             description: card.description,
             image: POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.all,
             categoryId: card.id as QuickFilterCategory
@@ -350,10 +350,8 @@ function CategoryCard({
         >
             {/* 🚀 SPEED OF LIGHT: Optimized high-priority image pipeline */}
             <div 
-                className={cn(
-                    "absolute inset-0 bg-gradient-to-br opacity-40 transition-opacity duration-700",
-                    category.color
-                )} 
+                className="absolute inset-0 opacity-40 transition-opacity duration-700"
+                style={{ background: `linear-gradient(to bottom right, ${category.color}, ${category.color}66)` }}
             />
             <QuickFilterImage 
                 src={category.image} 
@@ -367,10 +365,8 @@ function CategoryCard({
 
             {/* Icon Container - static for performance */}
             <motion.div
-                className={cn(
-                    "w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl relative z-10",
-                    `bg-gradient-to-br ${category.color} text-white`
-                )}
+                className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl relative z-10 text-white"
+                style={{ background: `linear-gradient(to bottom right, ${category.color}, ${category.color}aa)` }}
                 whileHover={{ scale: 1.1, rotate: 5 }}
             >
                 <category.icon className="w-10 h-10" strokeWidth={1.5} />

@@ -16,10 +16,7 @@ import { useCategories } from '@/state/filterStore'
 import { QuickFilterCategory } from '@/types/filters'
 
 
-// New Mobile Navigation Components
-import { TopBar } from '@/components/TopBar'
-import { SwipessLogo } from '@/components/SwipessLogo'
-import { BottomNavigation } from '@/components/BottomNavigation'
+// Note: TopBar, SwipessLogo, BottomNavigation are now rendered by AppLayout.tsx (global HUD)
 
 // SPEED OF LIGHT HOOKS
 import { useWelcomeState } from "@/hooks/useWelcomeState"
