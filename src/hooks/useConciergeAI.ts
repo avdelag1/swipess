@@ -476,9 +476,16 @@ export function useConciergeAI() {
             if (jsonStr === '[DONE]') break;
             try {
               const parsed = JSON.parse(jsonStr);
-              const delta = parsed.choices?.[0]?.delta?.content || parsed.choices?.[0]?.message?.content || parsed.reply;
-              if (delta) {
-                fullContent += delta;
+              // MiniMax streams deltas, but may provide the entire reply at the end.
+              const deltaContent = parsed.choices?.[0]?.delta?.content;
+              const fullContentFallback = parsed.choices?.[0]?.message?.content || parsed.reply;
+              
+              if (deltaContent) {
+                fullContent += deltaContent;
+                streamBufferRef.current = { convoId: convoId!, msgId: assistantMsgId, content: fullContent };
+              } else if (fullContentFallback && typeof fullContentFallback === 'string' && !fullContent.includes(fullContentFallback.slice(0, 10))) {
+                // If it's a full payload and we somehow missed deltas
+                fullContent = fullContentFallback;
                 streamBufferRef.current = { convoId: convoId!, msgId: assistantMsgId, content: fullContent };
               }
             } catch {
@@ -497,8 +504,8 @@ export function useConciergeAI() {
             if (jsonStr === '[DONE]') continue;
             try {
               const parsed = JSON.parse(jsonStr);
-              const delta = parsed.choices?.[0]?.delta?.content || parsed.choices?.[0]?.message?.content || parsed.reply;
-              if (delta) fullContent += delta;
+              const deltaContent = parsed.choices?.[0]?.delta?.content;
+              if (deltaContent) fullContent += deltaContent;
             } catch {}
           }
         }
