@@ -236,8 +236,8 @@ export default function TermsOfService() {
         </div>
       </div>
 
-      {/* Sticky Footer Button */}
-      <div className="flex-shrink-0 sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
+      {/* Natural Footer Button */}
+      <div className="flex-shrink-0 relative z-10 bg-background/95 backdrop-blur-sm border-t p-4 mt-8">
         <div className="max-w-4xl mx-auto">
           <Button
             onClick={() => navigate(-1)}
