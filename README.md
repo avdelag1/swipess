@@ -1,11 +1,11 @@
-# SwipesS: Elite Multi-Vertical Marketplace 🚀
+# Swipess: Elite Multi-Vertical Marketplace 🚀
 
 [![Vercel Deployment](https://img.shields.io/badge/Deployed-Vercel-black?logo=vercel)](https://swipess.com)
 [![Capacitor Mobile](https://img.shields.io/badge/Mobile-Native-blue?logo=capacitor)](https://capacitorjs.com)
 [![Supabase Backend](https://img.shields.io/badge/Backend-Supabase-emerald?logo=supabase)](https://supabase.com)
 [![TypeScript Mastery](https://img.shields.io/badge/TypeScript-94%25-blue?logo=typescript)](https://www.typescriptlang.org)
 
-**SwipesS** is a high-performance, mobile-first marketplace platform designed for high-end properties, vehicle rentals (motorcycles & bicycles), and premium services. It features a "Speed of Light" PWA experience with zero-latency swipe matching, real-time messaging, and an integrated AI concierge.
+**Swipess** is a high-performance, mobile-first marketplace platform designed for high-end properties, vehicle rentals (motorcycles & bicycles), and premium services. It features a "Speed of Light" PWA experience with zero-latency swipe matching, real-time messaging, and an integrated AI concierge.
 
 ---
 
@@ -90,4 +90,4 @@ Refer to our local documentation for details on:
 
 ---
 
-*© 2026 SwipesS Team. Built for the future of Direct Digital Deals.*
+*© 2026 Swipess Team. Built for the future of Direct Digital Deals.*

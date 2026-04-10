@@ -1,5 +1,5 @@
 /**
- * SwipesS Template Engine
+ * Swipess Template Engine
  * Generates professional listing descriptions without external APIs
  * Produces natural-sounding, varied content for properties, vehicles, and worker services
  */

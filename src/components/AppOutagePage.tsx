@@ -104,7 +104,7 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
         <div className="relative inline-flex items-center justify-center overflow-hidden">
           <img
             src="/icons/swipess-brand-logo.webp"
-            alt="SwipesS"
+            alt="Swipess"
             draggable={false}
             className="h-48 sm:h-56 md:h-64 w-auto object-contain select-none"
             style={{ imageRendering: 'auto' }}

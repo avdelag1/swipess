@@ -293,7 +293,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
 
   const CHARACTER_OPTIONS: { key: AiCharacter; label: string; subtitle: string; icon: typeof Sparkles; color: string; bgColor: string; glowColor: string; toast: string; meterLabel: string }[] = [
-    { key: 'default', label: 'SwipesS AI', subtitle: 'Tulum Concierge', icon: Sparkles, color: 'text-primary', bgColor: 'bg-primary/20', glowColor: '', toast: 'Back to default concierge ✨', meterLabel: 'EGO' },
+    { key: 'default', label: 'Swipess AI', subtitle: 'Tulum Concierge', icon: Sparkles, color: 'text-primary', bgColor: 'bg-primary/20', glowColor: '', toast: 'Back to default concierge ✨', meterLabel: 'EGO' },
     { key: 'kyle', label: 'Kyle', subtitle: 'Boston Hustler 🔥', icon: Flame, color: 'text-orange-400', bgColor: 'bg-orange-500/20', glowColor: 'shadow-[0_0_12px_rgba(251,146,60,0.3)]', toast: 'Kyle activated. Bro... you know what I mean? 🔥', meterLabel: 'EGO' },
     { key: 'beaugosse', label: 'Beau Gosse', subtitle: 'El Guapo ✨', icon: Sparkles, color: 'text-purple-400', bgColor: 'bg-purple-500/20', glowColor: 'shadow-[0_0_12px_rgba(168,85,247,0.3)]', toast: 'The Beau Gosse activated. Let\'s make this interesting... ✨', meterLabel: 'CHARM' },
     { key: 'donajkiin', label: 'Don Aj K\'iin', subtitle: 'Mayan Guardian 🌿', icon: Sun, color: 'text-emerald-400', bgColor: 'bg-emerald-500/20', glowColor: 'shadow-[0_0_12px_rgba(52,211,153,0.3)]', toast: 'Don Aj K\'iin activated. Mmm... sit down, hermano... 🌿', meterLabel: 'WISDOM' },
@@ -744,7 +744,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                   <Sparkles className="w-7 h-7 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Welcome to SwipesS AI</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Welcome to Swipess AI</h3>
                 <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
                   Ask me about properties in Tulum, best beaches, cenotes, local tips, cost of living, or anything about your search.
                 </p>

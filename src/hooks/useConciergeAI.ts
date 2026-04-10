@@ -173,10 +173,8 @@ function stripThinkBlocks(text: string): string {
   return text.replace(/<tool_call>[\s\S]*?<\/think>/g, '').trim();
 }
 
-// AI concierge runs on Lovable Cloud (edge functions deploy here automatically)
-// All user data stays on production Supabase — AI only handles chat, no user data
-const AI_URL = 'https://qegyisokrxdsszzswsqk.supabase.co/functions/v1/ai-concierge';
-const AUTH_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjY0NTIsImV4cCI6MjA4NTg0MjQ1Mn0.4tdJ82fDnFXaJ6SHpfveCiGxGm2S4II6NNIbGUnT2ZU';
+// AI concierge is officially running securely natively on your own Supabase project
+const AI_URL = `${import.meta.env.VITE_SUPABASE_URL || 'https://vplgtcguxujxwrgguxqq.supabase.co'}/functions/v1/ai-concierge`;
 
 export function useConciergeAI() {
   // Premium access check
@@ -396,11 +394,15 @@ export function useConciergeAI() {
         else if (CHALLENGE_PATTERN.test(content)) setEgoLevel(egoLevel - 1);
       }
 
+      // Uses your secure Supabase logic natively (no Lovable backdoor needed)
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+
       const resp = await fetch(AI_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${AUTH_KEY}`,
+          'Authorization': `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           messages: apiMessages,
