@@ -90,6 +90,17 @@ export function AppLayout({ children }: AppLayoutProps) {
   };
 
 
+  // True for swipe/camera interfaces that need tight viewport control to prevent double-bouncing
+  const isScrollLocked = useMemo(() => {
+    const path = location.pathname;
+    return path === '/client/dashboard' || 
+           path === '/owner/dashboard' || 
+           path.startsWith('/camera') || 
+           path.startsWith('/radio') || 
+           path.startsWith('/explore/eventos') || 
+           path.startsWith('/explore/roommates');
+  }, [location.pathname]);
+
   return (
     <div className={cn("flex flex-col h-full w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
       <SkipToMainContent />
@@ -116,15 +127,13 @@ export function AppLayout({ children }: AppLayoutProps) {
           id="main-content"
           className={cn(
             "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y",
-            location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')
-              ? "overflow-hidden"
-              : "overflow-y-auto scroll-smooth"
+            isScrollLocked ? "overflow-hidden" : "overflow-y-auto scroll-smooth"
           )}
           style={{
-            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !(location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')))
+            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isScrollLocked)
               ? 'var(--top-bar-height, 60px)'
               : undefined,
-            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !(location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')))
+            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isScrollLocked)
               ? 'calc(68px + env(safe-area-inset-bottom, 0px))'
               : undefined,
           }}
