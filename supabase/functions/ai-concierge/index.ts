@@ -8,9 +8,9 @@ const corsHeaders = {
 const MINIMAX_API_KEY = Deno.env.get("MINIMAX_API_KEY") || "";
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") || "";
 const TAVILY_API_KEY = Deno.env.get("TAVILY_API_KEY") || "";
-// Use the production Supabase for data queries
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || Deno.env.get("VITE_SUPABASE_URL") || "";
-const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+// Data reads go to PRODUCTION Supabase (user's real backend)
+const SUPABASE_URL = Deno.env.get("PROD_SUPABASE_URL") || Deno.env.get("SUPABASE_URL") || Deno.env.get("VITE_SUPABASE_URL") || "";
+const SUPABASE_SERVICE_KEY = Deno.env.get("PROD_SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("VITE_SUPABASE_ANON_KEY") || "";
 
 interface ChatMessage {
