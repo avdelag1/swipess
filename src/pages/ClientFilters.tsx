@@ -123,13 +123,13 @@ export default function ClientFilters() {
   return (
     <div className="min-h-screen bg-background text-foreground pb-32">
       {/* Liquid Header */}
-      <div className="sticky top-0 z-50 px-6 py-8 bg-background/80 backdrop-blur-2xl border-b border-border/10">
+      <div className="px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => navigate(-1)}
-              className="p-3 rounded-2xl bg-secondary/50 border border-border/50 text-muted-foreground"
+              className="p-3 rounded-2xl text-muted-foreground"
             >
               <ChevronLeft className="w-5 h-5" />
             </motion.button>
