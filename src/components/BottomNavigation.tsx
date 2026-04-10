@@ -34,6 +34,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
 import { useModalStore } from '@/state/modalStore';
+import { playPopSound } from '@/utils/audioEvents';
 
 const ICON_SIZE = 23;
 const ICON_SIZE_COMPACT = 20;
@@ -194,6 +195,7 @@ export const BottomNavigation = memo(({
     (item: NavItem, event?: React.MouseEvent | React.PointerEvent) => {
       // Immediate haptic on the final click confirmation
       haptics.tap();
+      playPopSound();
 
       if (isDraggingRef.current) {
         isDraggingRef.current = false;

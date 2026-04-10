@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import ReactMarkdown from 'react-markdown';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { playAiWelcomeSound, playAiCharacterChange, playAiMessageSound } from '@/utils/audioEvents';
 
 interface ConciergeChatProps {
   isOpen: boolean;
@@ -306,10 +307,17 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
   const selectCharacter = (key: AiCharacter) => {
     setActiveCharacter(key);
+    playAiCharacterChange();
     const char = CHARACTER_OPTIONS.find(c => c.key === key)!;
     toast(char.toast);
     setCharacterPanelOpen(false);
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      playAiWelcomeSound();
+    }
+  }, [isOpen]);
 
   const [input, setInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);

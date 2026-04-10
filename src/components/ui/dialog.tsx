@@ -24,7 +24,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-[10001] bg-black/80 dark:bg-black/90 pointer-events-none data-&lsqb;state=open&rsqb;:animate-in data-&lsqb;state=closed&rsqb;:animate-out data-&lsqb;state=closed&rsqb;:fade-out-0 data-&lsqb;state=open&rsqb;:fade-in-0",
+      "fixed inset-0 z-[10001] bg-black/40 dark:bg-black/70 backdrop-blur-md dark:backdrop-blur-[20px] pointer-events-none data-&lsqb;state=open&rsqb;:animate-in data-&lsqb;state=closed&rsqb;:animate-out data-&lsqb;state=closed&rsqb;:fade-out-0 data-&lsqb;state=open&rsqb;:fade-in-0",
       className
     )}
     {...props}
@@ -47,7 +47,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-[10002] grid w-[calc(100%-24px)] max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] gap-5 border border-border bg-background/95 backdrop-blur-[var(--glass-blur-xl)] saturate-150 p-5 sm:p-[28px] shadow-[var(--shadow-soft-lg)] duration-[220ms] ease-out pointer-events-auto data-&lsqb;state=open&rsqb;:animate-in data-&lsqb;state=closed&rsqb;:animate-out data-&lsqb;state=closed&rsqb;:fade-out-0 data-&lsqb;state=open&rsqb;:fade-in-0 data-&lsqb;state=closed&rsqb;:zoom-out-95 data-&lsqb;state=open&rsqb;:zoom-in-95 data-&lsqb;state=closed&rsqb;:slide-out-to-left-1/2 data-&lsqb;state=closed&rsqb;:slide-out-to-top-[48%] data-&lsqb;state=open&rsqb;:slide-in-from-left-1/2 data-&lsqb;state=open&rsqb;:slide-in-from-top-[48%] rounded-[var(--radius-xl)] overflow-hidden",
+        "fixed left-[50%] top-[50%] z-[10002] grid w-[calc(100%-24px)] max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] gap-5 border border-border bg-background/95 backdrop-blur-[var(--glass-blur-xl)] saturate-150 p-5 sm:p-[28px] shadow-[var(--shadow-soft-lg)] duration-[300ms] ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-auto data-&lsqb;state=open&rsqb;:animate-in data-&lsqb;state=closed&rsqb;:animate-out data-&lsqb;state=closed&rsqb;:fade-out-0 data-&lsqb;state=open&rsqb;:fade-in-0 data-&lsqb;state=closed&rsqb;:zoom-out-90 data-&lsqb;state=open&rsqb;:zoom-in-90 data-&lsqb;state=closed&rsqb;:slide-out-to-left-1/2 data-&lsqb;state=closed&rsqb;:slide-out-to-top-[48%] data-&lsqb;state=open&rsqb;:slide-in-from-left-1/2 data-&lsqb;state=open&rsqb;:slide-in-from-top-[48%] rounded-[var(--radius-xl)] overflow-hidden",
         className
       )}
       {...props}
