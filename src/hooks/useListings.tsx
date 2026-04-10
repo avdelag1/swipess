@@ -1,9 +1,24 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 import { SWIPE_CARD_FIELDS } from './smartMatching/useSmartListingMatching';
+
+/** Append CDN optimization params to Supabase storage image URLs (pure, no side effects) */
+function optimizeImageUrl(img: string): string {
+  if (typeof img === 'string' && img.includes('supabase.co/storage') && !img.includes('?width=')) {
+    return `${img}?width=720&quality=75&format=avif`;
+  }
+  return img;
+}
+
+function optimizeListingImages(listing: any): any {
+  if (!listing.images) return listing;
+  const images = Array.isArray(listing.images) ? listing.images : (listing.images ? [listing.images] : []);
+  return { ...listing, images: images.map(optimizeImageUrl) };
+}
 
 export interface Listing {
   id: string;
@@ -100,22 +115,20 @@ export interface Listing {
 }
 
 export function useListings(excludeSwipedIds: string[] = [], options: { enabled?: boolean, category?: string } = {}) {
+  const { user } = useAuth(); // ⚡ Cached — no network call
   const category = options.category || 'all';
   const query = useQuery({
     queryKey: ['listings', excludeSwipedIds, category, 'with-filters'],
-    // INSTANT NAVIGATION: Keep previous data during refetch to prevent UI blanking
     placeholderData: (prev) => prev,
     queryFn: async () => {
       try {
-        // Get current user's filter preferences for listing types
-        const { data: user } = await supabase.auth.getUser();
-        let _preferredListingTypes = ['rent']; // Default to rent
+        let _preferredListingTypes = ['rent'];
 
-        if (user.user) {
+        if (user) {
           const { data: preferences, error: prefError } = await supabase
             .from('client_filter_preferences')
             .select('preferred_listing_types')
-            .eq('user_id', user.user.id)
+            .eq('user_id', user.id)
             .maybeSingle();
 
           if (prefError) {
@@ -128,22 +141,16 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
         }
 
         // 🚀 SPEED OF LIGHT: Attempt database-level filtering (RPC)
-        // This is the "Materialized View" strategy: DB handles exclusion in one pass.
         try {
           const { data: rpcListings, error: rpcError } = await (supabase as any).rpc('get_smart_listings', {
-            p_user_id: user?.user?.id,
+            p_user_id: user?.id,
             p_category: category === 'all' ? null : category,
-            p_limit: 30, // Increased limit for consistent feed
+            p_limit: 30,
             p_offset: 0
           });
 
           if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
-            return (rpcListings as any[]).map(l => ({
-                ...l,
-                images: (Array.isArray(l.images) ? l.images : (l.images ? [l.images] : []))
-                        .map((img: string) => (typeof img === 'string' && img.includes('supabase.co/storage') && !img.includes('?width=')) 
-                                    ? `${img}?width=720&quality=75&format=avif` : img)
-            })) as Listing[];
+            return (rpcListings as any[]).map(optimizeListingImages) as Listing[];
           }
         } catch (_e) {
             // Fallback to PostgREST
@@ -157,8 +164,8 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
           .order('created_at', { ascending: false });
 
         // CRITICAL: Exclude own listings
-        if (user.user) {
-          query = query.neq('owner_id', user.user.id);
+        if (user) {
+          query = query.neq('owner_id', user.id);
         }
 
         // URL SAFETY: Apply excluded IDs (Fallback only)

@@ -46,7 +46,7 @@ export function useRealtimeChat(conversationId: string) {
 
     // OPTIMIZATION: Throttle typing status updates to max 1 per second
     // This prevents sending excessive realtime messages on every keystroke
-    if (timeSinceLastSent < 1000 && isTypingRef.current) {
+    if (timeSinceLastSent < 500 && isTypingRef.current) {
       // Just reset the timeout, don't send another status
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
