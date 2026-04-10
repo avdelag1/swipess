@@ -176,7 +176,7 @@ function stripThinkBlocks(text: string): string {
   return parsed.trim();
 }
 
-// AI concierge is officially running securely natively on your own Supabase project
+// Swipess AI is officially running securely natively on your own Supabase project
 const AI_URL = `${import.meta.env.VITE_SUPABASE_URL || 'https://vplgtcguxujxwrgguxqq.supabase.co'}/functions/v1/ai-concierge`;
 
 export function useConciergeAI() {
@@ -327,7 +327,7 @@ export function useConciergeAI() {
     if (!content.trim() || isLoading || isSendingRef.current) return;
     isSendingRef.current = true; // Lock immediately to prevent double calls
     if (!canUseAI) {
-      toast.error('Upgrade to Premium to use Swipess AI', { description: 'Subscribe or purchase tokens to unlock the AI concierge.' });
+      toast.error('Upgrade to Premium to use Swipess AI', { description: 'Subscribe or purchase tokens to unlock the AI.' });
       return;
     }
 

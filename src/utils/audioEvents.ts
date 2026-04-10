@@ -133,8 +133,10 @@ export const playAiMessageSound = () => {
 
 export const playAiCharacterChange = () => {
   if (!_soundsEnabled) return;
-  setTimeout(() => createOscillator(440, 'triangle', 0.1, 0.1), 0);
-  setTimeout(() => createOscillator(349.23, 'triangle', 0.2, 0.1), 100);
+  // Brighter, more vibrant glissando for Mexican-inspired character swaps
+  setTimeout(() => createOscillator(523.25, 'triangle', 0.08, 0.1), 0);
+  setTimeout(() => createOscillator(659.25, 'triangle', 0.08, 0.1), 60);
+  setTimeout(() => createOscillator(783.99, 'triangle', 0.15, 0.1), 120);
 };
 
 // Auto-initialize memory state

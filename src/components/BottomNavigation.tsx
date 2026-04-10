@@ -100,7 +100,7 @@ export const BottomNavigation = memo(({
     { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
-    { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
+    { id: 'ai', icon: Sparkles, label: 'Swipess AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
@@ -112,7 +112,7 @@ export const BottomNavigation = memo(({
     { id: 'dashboard', icon: Zap, label: 'System', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
-    { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
+    { id: 'ai', icon: Sparkles, label: 'Swipess AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
@@ -307,7 +307,7 @@ export const BottomNavigation = memo(({
         {/* Nav items row — NATIVE SMOOTH SCROLL ARCHITECTURE */}
         <div
           ref={mergedScrollRef}
-          className="relative w-full overflow-x-auto overflow-y-hidden flex snap-x snap-mandatory hide-scrollbar"
+          className="relative w-full overflow-x-auto overflow-y-hidden flex snap-x snap-mandatory hide-scrollbar active:cursor-grabbing cursor-grab"
           style={{
             zIndex: 2,
             WebkitOverflowScrolling: 'touch',
