@@ -290,67 +290,7 @@ function TopBarComponent({
                     <ThemeToggle className="h-9 w-9" />
                   </div>
                 )}
-                                  <div className={cn("flex-shrink-0 p-2 rounded-lg", config.iconBg)}>
-                                    <Icon className="w-5 h-5" />
-                                  </div>
 
-                                  {/* Info */}
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-baseline gap-1.5">
-                                      <span className="font-bold text-foreground text-sm capitalize">{tier}</span>
-                                      <span className="text-muted-foreground text-xs">{tokens} {t('topbar.tokens')}</span>
-                                    </div>
-                                    <div className="flex items-baseline gap-1 mt-0.5">
-                                      <span className="font-bold text-foreground text-base">{formatPriceMXN(pkg.price)}</span>
-                                      <span className="text-muted-foreground text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
-                                    </div>
-                                  </div>
-
-                                  {/* Buy Button */}
-                                  <Button
-                                    size="sm"
-                                    className={cn(
-                                      "flex-shrink-0 h-8 px-3 rounded-lg font-semibold text-xs",
-                                      config.button
-                                    )}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleQuickPurchase(pkg, tier);
-                                    }}
-                                  >
-                                    <FileText className="w-3.5 h-3.5 mr-1" />
-                                    {t('topbar.buy')}
-                                  </Button>
-                                </div>
-                              </motion.div>
-                            );
-                          })
-                        ) : (
-                          <div className="py-6 text-center">
-                            <div className="flex justify-center gap-2 mb-3">
-                              {[0, 1, 2].map((i) => (
-                                <div key={i} className="h-12 w-full rounded-lg bg-muted animate-pulse" />
-                              ))}
-                            </div>
-                            <p className="text-muted-foreground text-xs">{t('topbar.loadingPackages')}</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Footer: View All link */}
-                      <div className="px-4 pb-3 pt-1 border-t border-border">
-                        <button
-                          className="w-full text-center text-xs text-blue-500 hover:text-blue-400 font-medium py-1.5 transition-colors"
-                          onClick={() => {
-                            setTokensOpen(false);
-                            onMessageActivationsClick?.();
-                          }}
-                        >
-                          {t('topbar.viewAllPackages')}
-                        </button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
 
 
                   {/* Swipess Radio Button */}
@@ -372,13 +312,6 @@ function TopBarComponent({
                     <RadioIcon strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-rose-500" : "text-white/70")} style={{ filter: isLight ? 'drop-shadow(0 0 6px rgba(244,63,94,0.35))' : 'none' }} />
                   </Button>
 
-                  {/* Theme Toggle */}
-                  <ThemeToggle />
-
-                  {/* Notifications Button */}
-                  <NotificationPopover />
-                </>
-              )}
 
               {/* Minimal Mode Centering Spacer: Balances the back button on the left - REMOVED for clean HUD */}
             </div>
