@@ -596,6 +596,31 @@ export function useConciergeAI() {
     setIsLoading(false);
   }, []);
 
+  const deleteMessage = useCallback(async (messageId: string) => {
+    if (!activeConversationId) return;
+
+    updateConversations(prev =>
+      prev.map(c => {
+        if (c.id !== activeConversationId) return c;
+        return {
+          ...c,
+          messages: c.messages.filter(m => m.id !== messageId),
+          updatedAt: new Date(),
+        };
+      })
+    );
+
+    // Cloud sync (delete from DB)
+    const uid = userIdRef.current;
+    if (uid) {
+      try {
+        await supabase.from('ai_messages').delete().eq('id', messageId);
+      } catch (e) {
+        console.error('[AI Cloud] delete message error:', e);
+      }
+    }
+  }, [activeConversationId, updateConversations]);
+
   const clearHistory = useCallback(() => {
     setConversations([]);
     setActiveConversationId(null);
@@ -611,6 +636,7 @@ export function useConciergeAI() {
     isLoading,
     sendMessage,
     resendMessage,
+    deleteMessage, // Expose newly added function
     stopGeneration,
     createConversation,
     switchConversation,

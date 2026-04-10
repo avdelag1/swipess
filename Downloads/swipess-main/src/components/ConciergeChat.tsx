@@ -69,10 +69,11 @@ function parseNavActions(content: string): { cleanContent: string; navPaths: str
 }
 
 /* ─── Message Bubble ─── */
-const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate, isUser }: {
+const MessageBubble = memo(({ message, onCopy, onResend, onDelete, onTranslate, onNavigate, isUser }: {
   message: ChatMessage;
   onCopy: () => void;
   onResend?: () => void;
+  onDelete?: () => void;
   onTranslate?: (lang: string) => void;
   onNavigate?: (path: string) => void;
   isUser: boolean;
@@ -140,6 +141,11 @@ const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate
         <button onClick={onCopy} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Copy">
           <Copy className="w-3 h-3" />
         </button>
+        {onDelete && (
+          <button onClick={onDelete} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground group-hover:text-destructive transition-colors" aria-label="Delete">
+            <Trash2 className="w-3 h-3" />
+          </button>
+        )}
         {isUser && onResend && (
           <button onClick={onResend} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Resend">
             <RefreshCw className="w-3 h-3" />
@@ -277,7 +283,7 @@ ConversationSidebar.displayName = 'ConversationSidebar';
 export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const {
     messages, conversations, activeConversationId, isLoading,
-    sendMessage, resendMessage, stopGeneration,
+    sendMessage, resendMessage, deleteMessage, stopGeneration,
     createConversation, switchConversation, deleteConversation, clearHistory,
     activeCharacter, setActiveCharacter, egoLevel,
   } = useConciergeAI();
@@ -771,6 +777,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 message={msg}
                 isUser={msg.role === 'user'}
                 onCopy={() => handleCopy(msg.content)}
+                onDelete={() => deleteMessage(msg.id)}
                 onResend={msg.role === 'user' ? () => resendMessage(msg.id) : undefined}
                 onTranslate={msg.role === 'assistant' ? handleTranslate : undefined}
                 onNavigate={msg.role === 'assistant' ? handleNavigate : undefined}
