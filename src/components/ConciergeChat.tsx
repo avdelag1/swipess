@@ -217,7 +217,7 @@ const HeaderIcon = ({ isLoading }: { isLoading: boolean }) => (
     } : { scale: 1, boxShadow: '0 0 0px hsl(var(--primary) / 0)' }}
     transition={isLoading ? { duration: 2.2, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 }}
   >
-    <Sparkles className="w-4 h-4 text-primary" />
+    <div className={cn("w-2 h-2 rounded-full bg-primary animate-pulse", isLoading ? "opacity-100" : "opacity-40")} />
   </motion.div>
 );
 
@@ -450,20 +450,22 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       try { recognitionRef.current.abort(); } catch {}
       recognitionRef.current = null;
     }
+    
     // 🎙️ PERMISSION & AUDIO CONTEXT WARM-UP
+    // CRITICAL: Request hardware access immediately in the gesture callback to trigger Safari prompt
     try {
       if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        setPermissionState('granted');
-        
-        // 🚀 MICROPHONE STABILITY: Decouple Visualizer to prevent "Already in use" on mobile
-        const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-        if (!audioContextRef.current) {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true }).catch(err => {
-             console.warn('[Mic] stream error:', err);
-             return null;
-          });
-          
-          if (stream) {
+        // Kick off permission check immediately
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true }).catch(err => {
+           console.warn('[Mic] HW access error/denied:', err);
+           return null;
+        });
+
+        if (stream) {
+          setPermissionState('granted');
+          // Setup visualizer if context doesn't exist
+          if (!audioContextRef.current) {
+            const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
             const audioCtx = new AudioContextClass();
             const analyser = audioCtx.createAnalyser();
             const source = audioCtx.createMediaStreamSource(stream);
@@ -483,10 +485,14 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
             };
             updateVisuals();
           }
+        } else {
+          setPermissionState('denied');
+          toast.error('Microphone permission required', { description: 'Please allow access to use voice-to-text.' });
+          return;
         }
       }
     } catch (err) {
-      console.warn('[Voice] Permission/Audio check warning:', err);
+      console.warn('[Voice] Permission check exception:', err);
     }
     
     clearCountdown();
@@ -759,7 +765,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 350, mass: 0.5 }}
                   className="px-3 pb-3 overflow-hidden"
                 >
                   <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
@@ -790,7 +796,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 350, mass: 0.5 }}
                   className="px-4 pb-2 overflow-hidden"
                 >
                   <div className="flex items-center gap-2">
