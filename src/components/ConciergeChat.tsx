@@ -394,7 +394,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     clearCountdown();
     if (recognitionRef.current) {
       (recognitionRef.current as any)._userStop?.();
-      recognitionRef.current.stop();
+      try { recognitionRef.current.abort(); } catch {}
       recognitionRef.current = null;
     }
     setIsListening(false);
