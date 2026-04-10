@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Safety - RentMatch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+        }
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 35px;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+        }
+        p, li {
+            margin-bottom: 12px;
+            color: #555;
+            font-size: 1.05em;
+        }
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+        .data-category {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .data-category h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .security-badge {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin: 5px 5px 5px 0;
+        }
+        .warning-badge {
+            display: inline-block;
+            background: #e67e22;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin: 5px 5px 5px 0;
+        }
+        .info-box {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border: 1px solid #3498db;
+        }
+        .info-box h3 {
+            color: #2980b9;
+            margin-top: 0;
+        }
+        .security-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .feature-card {
+            background: #ffffff;
+            border: 2px solid #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        .feature-card h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .feature-card p {
+            color: #7f8c8d;
+            font-size: 0.95em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 5px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #95a5a6;
+        }
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        .quick-links {
+            background: #ecf0f1;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Data Safety</h1>
+            <p class="subtitle">Understanding how RentMatch protects your information</p>
+            <p style="color: #95a5a6; font-style: italic; margin-top: 10px;">Last Updated: November 25, 2024</p>
+        </div>
+
+        <p style="font-size: 1.1em;">At RentMatch, protecting your privacy and securing your data is our top priority. This page provides transparent information about what data we collect, why we collect it, and how we keep it safe.</p>
+
+        <h2>📊 Data Collection Overview</h2>
+
+        <div class="info-box">
+            <h3>Our Commitment to You</h3>
+            <p>We only collect data that is necessary to provide and improve our services. We never sell your personal data to third parties, and we provide you with full control over your information.</p>
+        </div>
+
+        <h2>🔍 Data We Collect and Why</h2>
+
+        <div class="data-category">
+            <h3>1. Account & Authentication Data</h3>
+            <span class="security-badge">✓ Required</span>
+            <span class="security-badge">✓ Encrypted</span>
+            <p><strong>What we collect:</strong></p>
+            <ul>
+                <li>Email address</li>
+                <li>Username and password (hashed)</li>
+                <li>OAuth tokens (Google, Apple sign-in)</li>
+                <li>Two-factor authentication codes</li>
+            </ul>
+            <p><strong>Why we collect it:</strong></p>
+            <ul>
+                <li>Create and manage your account</li>
+                <li>Authenticate your identity securely</li>
+                <li>Enable password recovery</li>
+                <li>Prevent unauthorized access</li>
+            </ul>
+            <p><strong>How we protect it:</strong> Passwords are hashed using industry-standard algorithms. Authentication tokens are encrypted in transit and at rest.</p>
+        </div>
+
+        <div class="data-category">
+            <h3>2. Profile Information</h3>
+            <span class="security-badge">✓ User Controlled</span>
+            <span class="warning-badge">⚠ Visible to Matches</span>
+            <p><strong>What we collect:</strong></p>
+            <ul>
+                <li>Full name</li>
+                <li>Age</li>
+                <li>Phone number (optional)</li>
+                <li>Profile photo</li>
+                <li>Bio/description</li>
+                <li>Occupation</li>
+            </ul>
+            <p><strong>Why we collect it:</strong></p>
+            <ul>
+                <li>Create your public profile</li>
+                <li>Help property owners and renters connect</li>
+                <li>Build trust in the community</li>
+                <li>Personalize your experience</li>
+            </ul>
+            <p><strong>How we protect it:</strong> Profile information is only shared with users you match with. You control what information to include.</p>
+        </div>
+
+        <div class="data-category">
+            <h3>3. Preferences & Search Data</h3>
+            <span class="security-badge">✓ Private</span>
+            <span class="security-badge">✓ Optional</span>
+            <p><strong>What we collect:</strong></p>
+            <ul>
+                <li>Budget range (min/max rent)</li>
+                <li>Preferred locations</li>
+                <li>Lifestyle preferences (pet-friendly, gym, etc.)</li>
+                <li>Property type preferences</li>
+                <li>Saved searches and filters</li>
+            </ul>
+            <p><strong>Why we collect it:</strong></p>
+            <ul>
+                <li>Show you relevant property matches</li>
+                <li>Save time with personalized recommendations</li>
+                <li>Improve search quality</li>
+            </ul>
+            <p><strong>How we protect it:</strong> Your preferences are private and not shared with other users unless you explicitly include them in your profile.</p>
+        </div>
+
+        <div class="data-category">
+            <h3>4. Location Data</h3>
+            <span class="warning-badge">⚠ Permission Required</span>
+            <span class="security-badge">✓ Can Be Disabled</span>
+            <p><strong>What we collect:</strong></p>
+            <ul>
+                <li>Device location (when you grant permission)</li>
+                <li>Location preferences you set manually</li>
+                <li>IP-based approximate location</li>
+            </ul>
+            <p><strong>Why we collect it:</strong></p>
+            <ul>
+                <li>Show properties near you</li>
+                <li>Filter results by distance</li>
+                <li>Provide location-based recommendations</li>
+                <li>Improve local search results</li>
+            </ul>
+            <p><strong>How we protect it:</strong> Location access requires your explicit permission. You can disable it anytime in device settings. We don't share your precise location with other users.</p>
+        </div>
+
+        <div class="data-category">
+            <h3>5. Property Listings (For Owners)</h3>
+            <span class="security-badge">✓ Public</span>
+            <span class="security-badge">✓ Owner Controlled</span>
+            <p><strong>What we collect:</strong></p>
+            <ul>
+                <li>Property address and details</li>
+                <li>Photos and descriptions</li>
+                <li>Rental price and availability</li>
+                <li>Amenities and features</li>
+            </ul>
+            <p><strong>Why we collect it:</strong></p>
+            <ul>
+                <li>Display your properties to potential renters</li>
+                <li>Match properties with suitable tenants</li>
+                <li>Facilitate rental transactions</li>
+            </ul>
+            <p><strong>How we protect it:</strong> You control what information to publish. Listing data is visible to app users searching for properties.</p>
+        </div>
+
+        <div class="data-category">
+            <h3>6. Messages & Communications</h3>
+            <span class="security-badge">✓ Encrypted</span>
+            <span class="security-badge">✓ Private</span>
+            <p><strong>What we collect:</strong></p>
+            <ul>
+                <li>In-app messages and chat history</li>
+                <li>Shared photos and documents</li>
+                <li>Message timestamps</li>
+            </ul>
+            <p><strong>Why we collect it:</strong></p>
+            <ul>
+                <li>Enable communication between matched users</li>
+                <li>Provide chat history</li>
+                <li>Support safety and moderation</li>
+            </ul>
+            <p><strong>How we protect it:</strong> Messages are encrypted in transit. They're only visible to you and your conversation partner. We may review reported messages for safety violations.</p>
+        </div>
+
+        <div class="data-category">
+            <h3>7. Usage & Analytics Data</h3>
+            <span class="security-badge">✓ Anonymized</span>
+            <span class="security-badge">✓ Aggregated</span>
+            <p><strong>What we collect:</strong></p>
+            <ul>
+                <li>App interactions (swipes, likes, searches)</li>
+                <li>Feature usage statistics</li>
+                <li>Session duration and frequency</li>
+                <li>Device type and OS version</li>
+                <li>Crash reports and error logs</li>
+            </ul>
+            <p><strong>Why we collect it:</strong></p>
+            <ul>
+                <li>Improve app performance</li>
+                <li>Fix bugs and technical issues</li>
+                <li>Understand user behavior</li>
+                <li>Develop new features</li>
+            </ul>
+            <p><strong>How we protect it:</strong> Analytics data is aggregated and anonymized. We can't identify individual users from this data.</p>
+        </div>
+
+        <div class="data-category">
+            <h3>8. Technical & Device Data</h3>
+            <span class="security-badge">✓ Automatic</span>
+            <span class="security-badge">✓ Non-Personal</span>
+            <p><strong>What we collect:</strong></p>
+            <ul>
+                <li>Device identifiers (anonymized)</li>
+                <li>IP address</li>
+                <li>Browser type and version</li>
+                <li>Operating system</li>
+                <li>App version</li>
+                <li>Push notification tokens</li>
+            </ul>
+            <p><strong>Why we collect it:</strong></p>
+            <ul>
+                <li>Ensure app compatibility</li>
+                <li>Send push notifications</li>
+                <li>Prevent fraud and abuse</li>
+                <li>Provide technical support</li>
+            </ul>
+            <p><strong>How we protect it:</strong> Technical data is used only for operational purposes and cannot identify you personally.</p>
+        </div>
+
+        <h2>🛡️ Security Measures</h2>
+
+        <p>We implement multiple layers of security to protect your data:</p>
+
+        <div class="security-features">
+            <div class="feature-card">
+                <div class="feature-icon">🔐</div>
+                <h4>Encryption</h4>
+                <p>All data is encrypted in transit (HTTPS/TLS) and at rest using industry-standard protocols</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h4>Secure Storage</h4>
+                <p>Data is stored on secure cloud servers with strict access controls</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👤</div>
+                <h4>Authentication</h4>
+                <p>Multi-factor authentication and secure password hashing protect your account</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h4>Monitoring</h4>
+                <p>24/7 security monitoring and threat detection systems</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h4>Compliance</h4>
+                <p>Regular security audits and compliance with data protection regulations</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚨</div>
+                <h4>Incident Response</h4>
+                <p>Rapid response team for security incidents and data breaches</p>
+            </div>
+        </div>
+
+        <h2>📱 Third-Party Services</h2>
+
+        <p>We work with trusted third-party services to provide our app:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Service Provider</th>
+                    <th>Purpose</th>
+                    <th>Data Shared</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Supabase</strong></td>
+                    <td>Database and authentication</td>
+                    <td>Account info, profile data, messages</td>
+                </tr>
+                <tr>
+                    <td><strong>Cloud Storage</strong></td>
+                    <td>Store photos and media</td>
+                    <td>Images, documents</td>
+                </tr>
+                <tr>
+                    <td><strong>Push Notification Services</strong></td>
+                    <td>Send app notifications</td>
+                    <td>Device tokens, notification content</td>
+                </tr>
+                <tr>
+                    <td><strong>Analytics Providers</strong></td>
+                    <td>App analytics and insights</td>
+                    <td>Anonymized usage data</td>
+                </tr>
+                <tr>
+                    <td><strong>Google/Apple</strong></td>
+                    <td>OAuth sign-in (optional)</td>
+                    <td>Email, name, profile photo</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p><em>All third-party services are carefully vetted and required to maintain the same level of data protection as RentMatch.</em></p>
+
+        <h2>✅ Your Rights and Controls</h2>
+
+        <p>You have complete control over your data:</p>
+
+        <ul>
+            <li><strong>Access:</strong> View all your personal data at any time</li>
+            <li><strong>Edit:</strong> Update your profile and preferences in app settings</li>
+            <li><strong>Delete:</strong> Permanently delete your account and all data</li>
+            <li><strong>Export:</strong> Download a copy of your data</li>
+            <li><strong>Opt-out:</strong> Disable notifications and marketing communications</li>
+            <li><strong>Limit:</strong> Control location access and other permissions</li>
+        </ul>
+
+        <div class="info-box">
+            <h3>🗑️ Account Deletion</h3>
+            <p>You can delete your account at any time. When you do:</p>
+            <ul>
+                <li>Your profile is immediately deactivated</li>
+                <li>All personal data is permanently deleted within 7 days</li>
+                <li>Data is removed from backups within 30 days</li>
+                <li>You'll receive confirmation via email</li>
+            </ul>
+            <p style="margin-top: 15px;">
+                <a href="account-deletion.html" class="btn">Learn About Account Deletion</a>
+            </p>
+        </div>
+
+        <h2>📋 Data Collection Summary</h2>
+
+        <p>Here's what you need to know:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Data Type</th>
+                    <th>Collected?</th>
+                    <th>Can Opt-Out?</th>
+                    <th>Shared?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Email & Password</td>
+                    <td>✅ Yes</td>
+                    <td>❌ Required</td>
+                    <td>❌ Never</td>
+                </tr>
+                <tr>
+                    <td>Profile Info</td>
+                    <td>✅ Yes</td>
+                    <td>⚠️ Partial</td>
+                    <td>✅ With matches</td>
+                </tr>
+                <tr>
+                    <td>Location</td>
+                    <td>✅ Yes</td>
+                    <td>✅ Yes</td>
+                    <td>❌ Approximate only</td>
+                </tr>
+                <tr>
+                    <td>Messages</td>
+                    <td>✅ Yes</td>
+                    <td>❌ Required</td>
+                    <td>✅ With chat partner</td>
+                </tr>
+                <tr>
+                    <td>Usage Analytics</td>
+                    <td>✅ Yes</td>
+                    <td>⚠️ Limited</td>
+                    <td>❌ Anonymized only</td>
+                </tr>
+                <tr>
+                    <td>Photos</td>
+                    <td>✅ Yes</td>
+                    <td>✅ Yes</td>
+                    <td>✅ Per your settings</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>🌍 International Data Transfers</h2>
+
+        <p>RentMatch operates globally. Your data may be transferred to and processed in countries outside your residence. We ensure appropriate safeguards are in place:</p>
+        <ul>
+            <li>Data transfer agreements with service providers</li>
+            <li>Compliance with GDPR, CCPA, and other privacy regulations</li>
+            <li>Standard contractual clauses for international transfers</li>
+        </ul>
+
+        <h2>👶 Children's Privacy</h2>
+
+        <p>RentMatch is not intended for users under 18 years of age. We do not knowingly collect personal information from children. If we discover that a child's data was collected, we delete it immediately.</p>
+
+        <h2>📞 Contact Us</h2>
+
+        <p>Questions about data safety or privacy?</p>
+        <ul>
+            <li><strong>Privacy Email:</strong> <a href="mailto:privacy@rentmatch.app">privacy@rentmatch.app</a></li>
+            <li><strong>General Support:</strong> <a href="mailto:support@rentmatch.app">support@rentmatch.app</a></li>
+            <li><strong>Data Requests:</strong> Submit a data access or deletion request via email</li>
+        </ul>
+
+        <div class="quick-links">
+            <h3>Quick Links</h3>
+            <p>
+                <a href="privacy-policy.html" class="btn">Privacy Policy</a>
+                <a href="account-deletion.html" class="btn btn-secondary">Delete Account</a>
+            </p>
+        </div>
+
+        <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #ecf0f1; text-align: center;">
+            <p style="color: #95a5a6;">
+                <strong>RentMatch</strong> - Committed to your privacy and security<br>
+                Last updated: November 25, 2024
+            </p>
+        </div>
+    </div>
+</body>
+</html>

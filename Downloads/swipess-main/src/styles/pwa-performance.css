@@ -1,0 +1,561 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  UNIVERSAL MOBILE SPEED — applies to ALL mobile browsers            */
+/*  (PWA, browser tab, web view — same instant feel everywhere)        */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (max-width: 1024px) {
+    /* Sheets, drawers — same speed as native app */
+    [data-radix-dialog-content],
+    [data-state="open"],
+    [data-state="closed"] {
+        animation-duration: 180ms !important;
+        transition-duration: 180ms !important;
+    }
+
+    /* Toasts */
+    [data-sonner-toast] {
+        transition-duration: 120ms !important;
+    }
+
+    /* Press feedback — sub-60ms feels physical */
+    button:active:not([disabled]),
+    [role="button"]:active:not([disabled]),
+    .touchable:active {
+        transform: scale(0.95) !important;
+        transition: transform 50ms cubic-bezier(0, 0, 0.2, 1) !important;
+    }
+
+    /* Eliminate any lingering CSS transition delays on nav/bottom-bar */
+    .app-header,
+    .app-bottom-bar {
+        transition-duration: 120ms !important;
+    }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  PWA INTERACTION LATENCY FIX                                        */
+/*  Eliminates 300ms tap delay and gesture conflicts                   */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* CSS class-based PWA mode (set by JavaScript detection) */
+html.pwa-mode {
+    /* Additional PWA optimizations applied via JS class */
+    --animation-speed-multiplier: 0.5; /* Near-instant — native app feel */
+    overscroll-behavior-y: none;
+    height: 100dvh;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    /* Smooth theme transitions in PWA */
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.pwa-mode body {
+    overscroll-behavior-y: none;
+    height: 100dvh;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+}
+
+html.pwa-mode .backdrop-blur-xl {
+    -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+    backdrop-filter: blur(16px) saturate(140%) !important;
+}
+
+html.pwa-mode .animate-ping {
+    animation: none !important;
+}
+
+html.pwa-ios {
+    /* iOS-specific PWA optimizations */
+    --animation-speed-multiplier: 0.5;
+    /* Smooth theme transitions on iOS PWA */
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.pwa-ios .swipe-card {
+    /* Even more aggressive containment for iOS PWA */
+    contain: strict;
+}
+
+/* Global touch-action fix for PWA mode - eliminates 300ms delay */
+html.pwa-mode,
+html.pwa-mode body,
+html.pwa-mode #root {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* All tappable elements in PWA mode get instant response */
+html.pwa-mode button,
+html.pwa-mode [role="button"],
+html.pwa-mode a,
+html.pwa-mode input,
+html.pwa-mode .swipe-action-btn {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+}
+
+
+/* PWA: Near-instant animations — native app speed */
+html.pwa-mode .animate-in,
+html.pwa-mode .animate-out {
+    animation-duration: 60ms !important;
+}
+
+/* PWA: Kill framer-motion page transitions entirely — crossfade is handled by opacity only */
+html.pwa-mode [data-framer-portal],
+html.pwa-mode .framer-motion-overlay {
+    transition-duration: 0.08s !important;
+}
+
+/* PWA: Faster dialog/sheet open-close */
+html.pwa-mode [data-radix-dialog-content],
+html.pwa-mode [data-state="open"],
+html.pwa-mode [data-state="closed"] {
+    animation-duration: 100ms !important;
+    transition-duration: 100ms !important;
+}
+
+/* PWA: Faster toasts */
+html.pwa-mode [data-sonner-toast] {
+    transition-duration: 100ms !important;
+}
+
+/* PWA: Reduce motion for better performance */
+@media (prefers-reduced-motion: reduce) {
+    html.pwa-mode * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  MOBILE & TABLET PERFORMANCE OPTIMIZATIONS                          */
+/*  Instagram/Tinder-level performance for React PWA                   */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Global performance defaults */
+* {
+    /* Remove iOS tap highlight */
+    -webkit-tap-highlight-color: transparent;
+    /* Eliminate 300ms tap delay on ALL browsers (not just PWA mode) */
+    touch-action: manipulation;
+}
+
+/* FIX #2: GPU Acceleration - Force hardware acceleration on key elements
+   PERF: Removed permanent will-change (wastes VRAM on low-end devices).
+   Use transform: translateZ(0) only where needed for compositing. */
+.swipe-card,
+.modal-overlay {
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Dialogs only need GPU promotion while open */
+[data-radix-dialog-content] {
+    transform: translateZ(0);
+    contain: layout style paint;
+}
+
+/* FIX #3: Reduce Layout Thrashing - Prevent unnecessary reflows */
+.filter-dropdown,
+.category-tabs,
+.filter-content {
+    /* Use content-box to prevent layout recalculations */
+    box-sizing: border-box;
+    /* Contain layout changes to this element */
+    contain: layout style paint;
+}
+
+/* FIX #4: Tablet-Specific Optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+    /* Reduce visual complexity on tablets */
+    .gradient-background {
+        /* Simpler gradients perform better */
+        background: linear-gradient(180deg, var(--background) 0%, var(--background) 100%);
+    }
+
+    /* Disable expensive effects on tablets */
+    .backdrop-blur,
+    [class*="backdrop-blur"] {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    /* Reduce shadow complexity */
+    .shadow-lg,
+    .shadow-xl,
+    [class*="shadow-"] {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+}
+
+/* FIX #5: Optimize Filter Button Touch Targets - Minimum 48x48px */
+.filter-button,
+.quick-filter-chip,
+.category-tab-trigger,
+button[role="tab"] {
+    min-height: 48px;
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Prevent text selection on double-tap */
+    -webkit-user-select: none;
+    user-select: none;
+    /* Velocity: Faster press response */
+    transition: transform 0.08s cubic-bezier(0, 0, 0.2, 1) !important;
+}
+
+/* FIX #6: Optimize Scrolling Performance */
+.filter-scroll-area,
+.category-content,
+[data-radix-scroll-area-viewport] {
+    /* Enable momentum scrolling */
+    /* Optimize scroll performance */
+    scroll-behavior: smooth;
+    /* Contain scrolling paint */
+    contain: paint;
+}
+
+/* FIX #7: Pointer Events Optimization - Reduce event handling overhead */
+button:disabled,
+.disabled {
+    /* Prevent unnecessary event listeners */
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* FIX #8: Optimize Modal/Dialog Performance */
+[data-radix-dialog-overlay] {
+    /* Keep blur on PWA - it looks much more premium */
+    background-color: rgba(0, 0, 0, 0.4);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+@media (min-width: 768px) {
+    [data-radix-dialog-overlay] {
+        /* Enable blur only on desktop */
+        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px);
+    }
+}
+
+/* FIX #9: Optimize Animations for Mobile */
+@media (max-width: 767px) {
+
+    /* PERF: Speed up CSS-driven animations on mobile for native feel */
+    .view-enter-premium,
+    .stagger-enter > *,
+    .prism-transition-in,
+    .prism-transition-out,
+    .modal-enter-premium {
+        animation-duration: 0.1s !important;
+    }
+
+    /* Disable complex animations during active scroll for jank-free scrolling */
+    .scrolling .liquid-glass-highlight--animated,
+    .scrolling .gradient-animated {
+        animation-play-state: paused !important;
+    }
+}
+
+/* FIX #10: Prevent Unwanted Interactions During Transitions */
+.transitioning {
+    pointer-events: none;
+}
+
+/* FIX #11: Fullscreen Modal Optimization for Mobile */
+@media (max-width: 767px) {
+    [data-radix-dialog-content] {
+        /* Fullscreen on mobile with dynamic viewport height */
+        width: 100vw !important;
+        height: 100dvh !important;
+        max-width: 100vw !important;
+        max-height: 100dvh !important;
+        border-radius: 0 !important;
+        border: none !important;
+        /* Performance: Force layer */
+        transform: translateZ(0);
+    }
+}
+
+/* FIX #12: Optimize Touch Feedback — covers ALL interactive elements */
+/* Note: will-change must NOT be set here (:active is too late for the browser to prepare).
+   GPU promotion for animated elements is handled by translateZ(0) on the element itself. */
+button:active:not([disabled]),
+a:active,
+[role="button"]:active,
+[tabindex]:active:not([tabindex="-1"]),
+label:active,
+.touchable:active {
+    transform: scale(0.96);
+    transition: transform 0.04s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* FIX #13: Prevent Scroll Jank on Filter Panels */
+.filter-panel,
+.advanced-filters {
+    /* Isolate rendering context */
+    isolation: isolate;
+    /* Optimize paint — will-change removed (only useful during active animation) */
+    contain: layout style paint;
+}
+
+/* FIX #14: Optimize List Rendering */
+.filter-list,
+.category-list {
+    contain: layout style;
+}
+
+/* FIX #15: Critical Touch Interaction Rules */
+.critical-touch {
+    /* Highest priority for touch events */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    /* Ensure instant response */
+    cursor: pointer;
+}
+
+/* FIX #16: Optimize Filter Badge Rendering */
+.filter-badge,
+.active-filter-count {
+    position: absolute;
+    contain: layout paint;
+}
+
+/* ===== PREMIUM MICRO-INTERACTIONS ===== */
+
+/* Tactile press effect for all interactive elements — INSTANT feedback */
+.app-content button,
+.app-content [role="button"],
+.app-content a,
+.app-content [tabindex]:not([tabindex="-1"]) {
+    transition: transform 0.04s cubic-bezier(0, 0, 0.2, 1),
+        box-shadow 0.1s ease,
+        background-color 0.1s ease;
+}
+
+.app-content button:active,
+.app-content [role="button"]:active {
+    transform: scale(0.97);
+}
+
+/* Cards get a subtle lift on hover (desktop) */
+@media (hover: hover) {
+    .app-content .bg-card {
+        transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            box-shadow 0.2s ease;
+    }
+
+    .app-content .bg-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 20px -4px hsl(var(--primary) / 0.08);
+    }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  ACCESSIBILITY: Reduced Motion                                         */
+/*  Respect OS "Reduce Motion" preference — disable all heavy transitions */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (prefers-reduced-motion: reduce) {
+
+    /* Kill the cinematic blur/scale hide-on-scroll for header and nav */
+    .app-header,
+    .app-bottom-bar {
+        transition: opacity 0.15s linear !important;
+        will-change: auto !important;
+    }
+
+    /* Hidden states use only opacity (no transform, no blur) */
+    /* 🛡️ RECOVERY FIX: Removed !important opacity to allow React Motion to manage visibility reliably */
+    .app-header.header-hidden,
+    .app-bottom-bar.nav-hidden {
+        transform: none !important;
+        /* opacity: 0 !important; <--- Commented out to prevent conflict with Sentient UI logic */
+        filter: none !important;
+    }
+
+    /* Remove card hover lift */
+    .app-content .bg-card {
+        transition: none !important;
+    }
+
+    .app-content .bg-card:hover {
+        transform: none !important;
+    }
+}
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  ELITE HARDWARE ADAPTATION — Reactive Performance Tiering           */
+/*  Ensures 120fps on flagships AND 60fps on low-end devices           */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* TIER 1: Low-End Hardware Guard (RAM < 4GB or Cores < 4) */
+body.hw-low .backdrop-blur,
+body.hw-low [class*="backdrop-blur"],
+body.hw-low .modal-overlay,
+body.hw-low [data-radix-dialog-overlay] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background-color: rgba(0, 0, 0, 0.92) !important;
+}
+
+body.hw-low .animate-pulse,
+body.hw-low .animate-bounce,
+body.hw-low .animate-ping,
+body.hw-low .marketing-breathing {
+    animation: none !important;
+}
+
+body.hw-low * {
+    text-shadow: none !important;
+    box-shadow: none !important;
+}
+
+body.hw-low .swipe-card {
+    contain: strict;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+}
+
+/* TIER 2: Mid-Range Hardware Balanced Mode (RAM < 8GB) */
+body.hw-mid .backdrop-blur-xl {
+    -webkit-backdrop-filter: blur(8px) saturate(110%) !important;
+    backdrop-filter: blur(8px) saturate(110%) !important;
+}
+
+body.hw-mid .animate-pulse {
+    animation-duration: 3s !important;
+}
+
+/* UNIVERSAL: Viewport Jitter & Interaction Cleanup */
+[data-no-swipe-nav] {
+    touch-action: pan-x !important;
+    overscroll-behavior-x: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  SPEED BOOST — Snappier interactions across ALL sections             */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Paint containment for card lists — prevents full-page reflows */
+.swipe-card,
+[class*="ClientCard"],
+[class*="WorkerCard"] {
+    contain: layout style paint;
+    transform: translateZ(0);
+}
+
+/* GPU layer for the app header + bottom nav to avoid repaints during scroll */
+.app-header,
+.app-bottom-bar {
+    transform: translateZ(0);
+    contain: layout style paint;
+}
+
+/* Faster Framer Motion spring/tween for all motion elements on mobile */
+@media (max-width: 767px) {
+    /* Reduce Framer Motion exit/enter overhead */
+    [data-framer-portal] * {
+        transition-duration: 80ms !important;
+    }
+
+    /* Cards: instant response to touch — no transition lag */
+    button,
+    [role="button"] {
+        transition: transform 40ms cubic-bezier(0, 0, 0.2, 1) !important;
+    }
+
+    /* Swipe card container: promote to its own layer */
+    .swipe-card-container {
+        isolation: isolate;
+        transform: translateZ(0);
+    }
+}
+
+/* content-visibility: auto on heavy off-screen sections for faster initial paint */
+.dashboard-section,
+.profile-section,
+.settings-section {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
+}
+
+/* Eliminate expensive multi-layer blur on the quick-filter backdrop for mobile */
+@media (max-width: 767px) {
+    .filter-backdrop {
+        -webkit-backdrop-filter: blur(4px) !important;
+        backdrop-filter: blur(4px) !important;
+    }
+}
+
+/* Faster page route transitions — match native-app feel */
+.page-transition-enter,
+.page-transition-exit {
+    animation-duration: 120ms !important;
+    transition-duration: 120ms !important;
+}
+
+/* Reduce radix popover/select animation on mobile */
+@media (max-width: 767px) {
+    [data-radix-popper-content-wrapper] {
+        animation-duration: 80ms !important;
+        transition-duration: 80ms !important;
+    }
+    [data-radix-select-content],
+    [data-radix-popover-content] {
+        animation-duration: 80ms !important;
+    }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  SPEED OF LIGHT: Global 0ms Reactivity Engine                       */
+/*  Bypasses React loop. Applied instantly via JS on pointerdown      */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.instant-active-element {
+    transform: scale(0.96) translateZ(0) !important;
+    /* 🚀 MEGAMHERTZ SPEED: 0ms forced transition on press. Impossible to be faster. */
+    transition-duration: 0ms !important;
+    filter: brightness(0.95);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  GPU VIEW TRANSITIONS API (document.startViewTransition)            */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.15s;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+::view-transition-old(root) {
+  animation-name: fade-out;
+}
+
+::view-transition-new(root) {
+  animation-name: fade-in;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

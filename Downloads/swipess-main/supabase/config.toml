@@ -1,0 +1,19 @@
+project_id = "vplgtcguxujxwrgguxqq"
+
+[functions.ai-assistant]
+verify_jwt = true
+
+[functions.ai-conversation]
+verify_jwt = true
+
+[functions.ai-orchestrator]
+verify_jwt = false
+
+[functions.delete-user]
+verify_jwt = true
+
+[functions.moderate-image]
+verify_jwt = true
+
+[functions.send-push-notification]
+verify_jwt = true

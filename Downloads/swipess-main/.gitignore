@@ -1,0 +1,59 @@
+node_modules/
+dist/
+__pycache__/
+*.pyc
+*.pyo
+.tmp/
+.env
+.env.local
+.env.*.local
+*.local
+.agent/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+*.tsbuildinfo
+vite.config.ts.timestamp-*
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Capacitor build outputs
+android/
+ios/
+supabase/.temp/
+
+# Audit & Debug Artifacts
+*audit.log
+*_audit.log
+*debug.txt
+*log.txt
+*build_output.txt
+*lint_errors*
+error_list*
+errors*.json
+lint_results.json
+ACTION_ITEMS.md
+AUDIT_REPORT*.md
+AUDIT_SUMMARY.md
+FULL_AUDIT*.md
+FULL_CODEBASE_AUDIT.md
+PERFORMANCE_PERFECTION*.md
+PREMIUM_POLISH*.md
+QUICK_REFERENCE.md
+replit.md
+parse_errors.py
+push_error.txt
+app_layout_lint.txt
+dump.sql

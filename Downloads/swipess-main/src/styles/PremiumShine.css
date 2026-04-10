@@ -1,0 +1,113 @@
+/* Premium Lux Glow and Shine effects */
+
+@keyframes premium-shine {
+    0% {
+        transform: translateX(-200%) rotate(45deg);
+    }
+
+    20%,
+    100% {
+        transform: translateX(200%) rotate(45deg);
+    }
+}
+
+@keyframes border-glow {
+
+    0%,
+    100% {
+        border-color: rgba(251, 191, 36, 0.4);
+        box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+    }
+
+    50% {
+        border-color: rgba(251, 191, 36, 0.8);
+        box-shadow: 0 0 25px rgba(251, 191, 36, 0.4);
+    }
+}
+
+@keyframes float-slow {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.premium-card-lux {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(15, 15, 15, 0.97) 0%, rgba(35, 30, 20, 0.95) 100%);
+
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.premium-card-lux:hover {
+    border-color: rgba(251, 191, 36, 0.6);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(251, 191, 36, 0.15);
+}
+
+.premium-shine-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0) 45%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0) 55%,
+            transparent 100%);
+    z-index: 10;
+    pointer-events: none;
+    animation: premium-shine 6s infinite ease-in-out;
+}
+
+.premium-btn-wow {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%);
+    color: white;
+    font-weight: 800;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+    border: none;
+    box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4), inset 0 1px rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.premium-btn-wow:hover {
+    background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 50%, #D97706 100%);
+    box-shadow: 0 8px 25px rgba(180, 83, 9, 0.6), inset 0 1px rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.premium-btn-wow:active {
+    transform: translateY(1px);
+}
+
+.premium-crown-pulse {
+    animation: float-slow 4s infinite ease-in-out;
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+}
+
+.luxury-text-gradient {
+    background: linear-gradient(to right, #FDE68A, #F59E0B, #FDE68A);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: text-shine 4s linear infinite;
+}
+
+@keyframes text-shine {
+    to {
+        background-position: 200% center;
+    }
+}
