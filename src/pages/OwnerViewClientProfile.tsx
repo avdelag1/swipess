@@ -141,7 +141,7 @@ export default function OwnerViewClientProfile() {
     <>
       <div className="bg-background">
         {/* Header */}
-        <div className="border-b bg-card sticky top-0 z-10">
+        <div className="relative border-b bg-card">
           <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-1 sm:mb-2">
               Back

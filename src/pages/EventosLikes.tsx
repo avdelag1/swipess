@@ -106,8 +106,8 @@ export default function EventosLikes() {
 
       {/* 📱 Flagship Header */}
       <div className={cn(
-        "sticky top-0 z-50 backdrop-blur-2xl pt-[var(--safe-top)] px-4 pb-1 transition-all duration-500 border-b",
-        isLight ? "bg-white/80 border-black/[0.03]" : "bg-black/60 border-white/[0.03]"
+        "relative backdrop-blur-2xl pt-4 px-4 pb-1 transition-all duration-500 border-b",
+        isLight ? "bg-white border-black/[0.03]" : "bg-[#0a0a0b] border-white/[0.03]"
       )}>
         <div className="flex items-center gap-4 py-4 px-2">
           <div className="flex-1">

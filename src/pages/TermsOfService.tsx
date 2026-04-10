@@ -7,9 +7,9 @@ export default function TermsOfService() {
   const navigate = useNavigate();
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Sticky Header */}
-      <div className="flex-shrink-0 sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b px-4 pt-[calc(var(--safe-top)+0.75rem)] pb-3">
+    <div className="bg-background min-h-screen">
+      {/* Header */}
+      <div className="relative bg-background border-b px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center gap-3">
           <Button
             variant="ghost"
@@ -23,8 +23,8 @@ export default function TermsOfService() {
         </div>
       </div>
 
-      {/* Scrollable Content */}
-      <ScrollArea className="flex-1">
+      {/* Content */}
+      <div className="flex-1">
         <div className="max-w-4xl mx-auto px-4 py-6 pb-24">
           <div className="prose prose-invert max-w-none">
             <p className="text-muted-foreground mb-8">Last Updated: November 23, 2025</p>
@@ -234,7 +234,7 @@ export default function TermsOfService() {
             </section>
           </div>
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Sticky Footer Button */}
       <div className="flex-shrink-0 sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">

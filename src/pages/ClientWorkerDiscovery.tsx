@@ -113,7 +113,7 @@ export default function ClientWorkerDiscovery() {
   return (
     <div className="min-h-[110dvh] pb-16 bg-background">
       {/* 🚀 Header: Glassmorphism + Sticky */}
-      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/40 px-4 py-4 safe-top-padding">
+      <div className="relative bg-background border-b border-border/40 px-4 py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <button

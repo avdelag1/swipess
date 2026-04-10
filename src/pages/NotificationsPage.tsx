@@ -82,8 +82,8 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-background pb-32">
       {/* ── STICKY GLASS HEADER ────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 w-full pt-[var(--safe-top)]">
-        <div className="absolute inset-0 bg-background/60 backdrop-blur-3xl" />
+      <header className="relative w-full pt-4">
+        <div className="absolute inset-x-0 bottom-0 h-px bg-border/10" />
         <div className="relative max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
