@@ -209,6 +209,22 @@ async function searchListings(intent: ReturnType<typeof detectListingIntent>): P
   }
 }
 
+// ─── Web Intent Detection ───────────────────────────────────────────────────
+
+function detectWebIntent(query: string, localResultCount: number): boolean {
+  const q = query.toLowerCase();
+  // Always search web if explicitly asked for "latest", "now", "live", or "current"
+  const isTimeSensitive = /\b(latest|current|now|live|today|tonight|updated|news|weather|rate)\b/.test(q);
+  if (isTimeSensitive) return true;
+  
+  // Search web if local knowledge is thin and it's not a generic listing/profile search
+  if (localResultCount < 2 && !/\b(find|search|looking for)\b/.test(q)) {
+    return true;
+  }
+  
+  return false;
+}
+
 // ─── User Memory ────────────────────────────────────────────────────────────
 
 async function loadUserMemories(userId: string): Promise<string> {
@@ -1087,9 +1103,11 @@ Deno.serve(async (req) => {
       isProfileQuery ? searchProfiles(lastUserMessage) : Promise.resolve(""),
     ]);
 
-    // Phase 2: web search when local knowledge is thin (fewer than 2 results) AND no listings matched
-    // Phase 2 removed: Web search (Tavily) disabled to ensure sub-second response times.
-    const webResults = "";
+    // Phase 2: Web search when local knowledge is thin OR live data requested
+    let webResults = "";
+    if (detectWebIntent(lastUserMessage, knowledge.split('\n\n---\n\n').length)) {
+      webResults = await searchWeb(lastUserMessage);
+    }
 
     // Build enriched system prompt with character support
     const systemPrompt = buildSystemPrompt({ knowledge, listings, memories, webResults, profileResults, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel });
