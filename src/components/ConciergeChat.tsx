@@ -394,7 +394,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     clearCountdown();
     if (recognitionRef.current) {
       (recognitionRef.current as any)._userStop?.();
-      recognitionRef.current.stop();
+      try { recognitionRef.current.abort(); } catch {}
       recognitionRef.current = null;
     }
     setIsListening(false);
@@ -402,6 +402,13 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
   const startListening = useCallback(() => {
     if (!speechSupported) return;
+    
+    // Kill any existing recognition session first
+    if (recognitionRef.current) {
+      try { recognitionRef.current.abort(); } catch {}
+      recognitionRef.current = null;
+    }
+    
     clearCountdown();
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
@@ -477,7 +484,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     };
 
     recognition.onerror = (e: any) => {
+      console.warn('[Voice] Recognition error:', e.error);
       if (e.error === 'no-speech') return;
+      if (e.error === 'aborted') return; // We aborted it ourselves
       if (isCountingDownRef.current) return; // Don't kill countdown on speech errors
       userStopped = true;
       setIsListening(false);
@@ -489,8 +498,15 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
     recognitionRef.current = recognition;
     lastFinalTranscriptRef.current = '';
-    recognition.start();
-    setIsListening(true);
+    
+    try {
+      recognition.start();
+      setIsListening(true);
+    } catch (err) {
+      console.error('[Voice] Failed to start recognition:', err);
+      recognitionRef.current = null;
+      setIsListening(false);
+    }
   }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown]);
 
   const toggleListening = useCallback(() => {
