@@ -191,9 +191,8 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
 
   return (
     <div 
-      className="w-full h-full min-h-0 overflow-y-auto relative bg-background flex flex-col touch-pan-y" 
+      className="w-full h-full min-h-0 relative bg-background flex flex-col" 
       data-no-swipe-nav="true"
-      style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}
     >
       {/* 🚀 ZENITH Ambient Glow */}
       <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-[var(--color-brand-accent-2)]/10 via-[var(--color-brand-accent-2)]/5 to-transparent pointer-events-none z-0" />
