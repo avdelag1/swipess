@@ -170,7 +170,10 @@ function generateTitle(content: string): string {
 }
 
 function stripThinkBlocks(text: string): string {
-  return text.replace(/<tool_call>[\s\S]*?<\/think>/g, '').trim();
+  // Convert <think> tags into visible markdown so the user sees the stream immediately!
+  let parsed = text.replace(/<think>/g, '`✨ Thinking...`\n\n_');
+  parsed = parsed.replace(/<\/think>/g, '_\n\n---\n\n');
+  return parsed.trim();
 }
 
 // AI concierge is officially running securely natively on your own Supabase project

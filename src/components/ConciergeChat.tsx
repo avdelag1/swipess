@@ -93,15 +93,15 @@ const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate
       </div>
 
       <div className={cn(
-        'px-4 py-3 rounded-2xl text-sm leading-relaxed break-words',
+        'px-4 py-3 rounded-2xl text-sm leading-relaxed break-words shadow-sm transition-all',
         isUser
-          ? 'bg-primary text-primary-foreground rounded-br-md'
-          : 'bg-muted/80 text-foreground rounded-bl-md border border-border/30'
+          ? 'bg-gradient-to-br from-brand-primary/90 to-brand-accent/90 text-primary-foreground rounded-br-md !shadow-[0_4px_14px_rgba(255,107,53,0.25)]'
+          : 'bg-muted/60 backdrop-blur-md text-foreground rounded-bl-md border border-white/5 dark:border-white/10'
       )}>
         {isUser ? (
-          <span className="whitespace-pre-wrap">{message.content}</span>
+          <span className="whitespace-pre-wrap font-medium inline-block">{message.content}</span>
         ) : (
-          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5">
+          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1.5 prose-ul:my-1 prose-li:my-0.5 prose-strong:text-brand-primary prose-strong:font-black prose-blockquote:border-l-[3px] prose-blockquote:border-brand-primary prose-blockquote:bg-gradient-to-r prose-blockquote:from-brand-primary/10 prose-blockquote:to-transparent prose-blockquote:px-4 prose-blockquote:py-2 prose-blockquote:my-2 prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-em:text-muted-foreground prose-em:italic prose-a:text-brand-primary prose-a:no-underline hover:prose-a:underline">
             <ReactMarkdown>{cleanContent}</ReactMarkdown>
           </div>
         )}
@@ -719,8 +719,10 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   ) : (
                     <SwipessLogo size="xs" variant="gradient" />
                   )}
-                  <p className="text-[11px] text-muted-foreground">
-                    {isLoading ? 'Thinking…' : currentChar.subtitle}
+                  <p className="text-[11px] text-muted-foreground mt-0.5 max-w-[140px] truncate">
+                    {isLoading ? (
+                      <span className="bg-gradient-to-r from-emerald-400 via-brand-primary to-purple-500 bg-clip-text text-transparent animate-pulse font-bold tracking-wide">Thinking…</span>
+                    ) : currentChar.subtitle}
                   </p>
                 </div>
               </div>

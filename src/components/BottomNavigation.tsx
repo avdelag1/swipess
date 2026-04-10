@@ -302,25 +302,31 @@ export const BottomNavigation = memo(({
           )}
         </AnimatePresence>
 
-        {/* Nav items row — SCROLLABLE ZENITH ARCHITECTURE */}
+        {/* Nav items row — DRAGGABLE PHYSICS ARCHITECTURE */}
         <div
           ref={mergedScrollRef}
-          data-no-swipe-nav
-          onPointerMove={handlePointerMove}
-          className={cn(
-              'relative flex items-center w-full justify-start gap-1 px-2 py-1 nav-scroll-hide transform-gpu',
-          )}
+          className="relative w-full overflow-hidden touch-none"
           style={{
             zIndex: 2,
-            transform: 'translateZ(0)',
-            overflowX: 'auto',
-            scrollSnapType: 'x proximity', // Premium app landing feel
-            scrollbarWidth: 'none' as const,
-            WebkitOverflowScrolling: 'touch',
             contentVisibility: 'auto',
             containIntrinsicSize: '60px',
           }}
         >
+          <motion.div
+            drag="x"
+            dragConstraints={scrollRef}
+            dragElastic={0.2}
+            dragMomentum={true}
+            dragTransition={{ bounceStiffness: 600, bounceDamping: 25, timeConstant: 250 }}
+            onPointerMove={handlePointerMove}
+            className={cn(
+                'relative flex items-center justify-start gap-1 px-2 py-1 transform-gpu w-max',
+            )}
+            style={{
+              paddingLeft: 'env(safe-area-inset-left, 8px)',
+              paddingRight: 'env(safe-area-inset-right, 8px)',
+            }}
+          >
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item);
@@ -427,8 +433,8 @@ export const BottomNavigation = memo(({
               </motion.button>
             );
           })}
+          </motion.div>
         </div>
-
         {/* Edge fade indicators removed by user request (Weird shade color on edges) */}
       </div>
 

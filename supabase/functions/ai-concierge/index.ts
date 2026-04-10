@@ -11,6 +11,7 @@ const TAVILY_API_KEY = Deno.env.get("TAVILY_API_KEY") || "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -802,6 +803,11 @@ RULES:
 - Use USD ($) for prices by default, mention MXN equivalents when helpful.
 - Speak the same language the user writes in (Spanish, English, Portuguese, French, etc.)
 - Responses: 2-3 sentences max unless asked for detail. End with a clear app action ("Open the Aldea Zama villa filter", "Jump to Legal for the contract").
+- **Crucial formatting**: When presenting a person (like a Local Legend, e.g., Ezriyah Suave) or a profile, ALWAYS format it as a beautiful markdown profile card with their Name, Role, details, contact info seamlessly integrated into bullet points, and an inspiring quote if applicable. Example:
+  > 🌟 **Ezriyah Suave**
+  > _FLOW Embodied Masculinity Coach_
+  > • **Focus:** Breathwork, Mushroom Ceremonies, Conscious Relationships
+  > • **Insta:** @epic_ezriyah | **Web:** www.ezriyah.com
 - Use markdown: **bold** for emphasis, bullet points for lists, [text](url) for links.
 - Never mention you're MiniMax, Gemini, or any specific AI model. You are "Swipess AI".
 - Never make up specific listing prices or addresses unless from verified data below.
@@ -901,6 +907,77 @@ async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
       const { value, done } = await reader.read();
       if (done) controller.close();
       else controller.enqueue(value);
+    },
+    cancel() { reader.cancel(); }
+  });
+
+  return new Response(stream, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
+}
+
+// ─── Gemini Streaming ───────────────────────────────────────────────────────
+
+async function streamGemini(messages: ChatMessage[]): Promise<Response> {
+  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
+
+  const geminiMessages = messages.filter(m => m.role !== "system").map(m => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }]
+  }));
+
+  const systemContent = messages.find(m => m.role === "system")?.content;
+  const systemInstruction = systemContent ? { parts: [{ text: systemContent }] } : undefined;
+
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: geminiMessages,
+      systemInstruction,
+      generationConfig: { maxOutputTokens: 800, temperature: 0.75 }
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error("[AI] Gemini error:", res.status, errBody);
+    throw new Error(`Gemini ${res.status}: ${errBody}`);
+  }
+
+  // Intercept the stream to format as standard SSE (like expected by the frontend)
+  // Gemini emits: data: {"candidates": [{"content": {"parts": [{"text": "Hello"}]}}]}
+  const reader = res.body!.getReader();
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+
+  const stream = new ReadableStream({
+    async pull(controller) {
+      const { value, done } = await reader.read();
+      if (done) {
+        controller.enqueue(encoder.encode(`data: [DONE]\n\n`));
+        controller.close();
+        return;
+      }
+      
+      const chunk = decoder.decode(value, { stream: true });
+      let outChunk = "";
+      for (const line of chunk.split("\n")) {
+        if (!line.startsWith("data: ")) continue;
+        const json = line.slice(6).trim();
+        if (!json || json === "[DONE]") continue;
+        
+        try {
+          const parsed = JSON.parse(json);
+          const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            // Reformat as OpenAI-style SSE chunk
+            const mapped = { choices: [{ delta: { content: text } }] };
+            outChunk += `data: ${JSON.stringify(mapped)}\n\n`;
+          }
+        } catch { /* ignore parsing errors of partial chunks */ }
+      }
+      if (outChunk) {
+        controller.enqueue(encoder.encode(outChunk));
+      }
     },
     cancel() { reader.cancel(); }
   });
@@ -1025,16 +1102,40 @@ Deno.serve(async (req) => {
       ...messages.filter(m => m.role !== "system"),
     ];
 
-    // MiniMax is the sole AI provider — no third-party fallback
+    // Determine provider logic
     let response: Response;
-    const aiProvider = "minimax";
+    let aiProvider = "minimax";
+
+    // If body specifies provider or we want to try Gemini
+    const requestedProvider = (body as any).provider || (GEMINI_API_KEY ? "gemini" : "minimax");
+
     try {
-      response = await streamMiniMax(enrichedMessages);
+      if (requestedProvider === "gemini" && GEMINI_API_KEY) {
+        aiProvider = "gemini";
+        response = await streamGemini(enrichedMessages);
+      } else {
+        response = await streamMiniMax(enrichedMessages);
+      }
     } catch (e) {
-      console.error("[AI] MiniMax failed:", (e as Error).message);
-      return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {
-        status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.error(`[AI] ${aiProvider} failed:`, (e as Error).message);
+      // Fallback
+      try {
+        if (aiProvider === "gemini" && MINIMAX_API_KEY) {
+          aiProvider = "minimax";
+          console.log("[AI] Falling back to MiniMax");
+          response = await streamMiniMax(enrichedMessages);
+        } else if (aiProvider === "minimax" && GEMINI_API_KEY) {
+          aiProvider = "gemini";
+          console.log("[AI] Falling back to Gemini");
+          response = await streamGemini(enrichedMessages);
+        } else {
+          throw e; // Rethrow if no fallback
+        }
+      } catch (fallbackErr) {
+        return new Response(JSON.stringify({ error: "AI temporarily unavailable. Please try again." }), {
+          status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     // Inject provider header into the response

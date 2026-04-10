@@ -67,79 +67,62 @@ export function MessageActivationPackages({
   const currentUserRole = userRole || userProfile?.role || 'client';
   const packageCategory = currentUserRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
-  const { data: packages, isLoading } = useQuery({
-    queryKey: ['activation-packages', packageCategory],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('subscription_packages')
-        .select('*')
-        .eq('package_category', packageCategory)
-        .eq('is_active', true)
-        .order('message_activations', { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-  });
+const HARDCODED_TOKEN_PACKAGES: TokenPackage[] = [
+  {
+    id: 101, name: 'Client Starter', tokens: 3, price: 3.00, pricePerToken: 1.00, tier: 'starter', icon: MessageCircle, duration_days: 999, package_category: 'tokens', paypalUrl: '#',
+    features: ['3 Message Activations', 'Instant delivery', 'Never expires'], legal_documents: 0, bestValue: false,
+  },
+  {
+    id: 102, name: 'Tokens Standard', tokens: 10, price: 6.00, pricePerToken: 0.60, tier: 'standard', icon: Zap, duration_days: 999, package_category: 'tokens', paypalUrl: 'https://www.paypal.com/ncp/payment/VG2C7QMAC8N6A',
+    features: ['10 Message Activations', 'Instant delivery', 'Never expires'], legal_documents: 0, bestValue: true, savings: 'Save 40%'
+  },
+  {
+    id: 103, name: 'Tokens Premium', tokens: 15, price: 9.00, pricePerToken: 0.60, tier: 'premium', icon: Crown, duration_days: 999, package_category: 'tokens', paypalUrl: 'https://www.paypal.com/ncp/payment/9NBGA9X3BJ5UA',
+    features: ['15 Message Activations', 'Instant delivery', 'Never expires'], legal_documents: 0, bestValue: false, savings: 'Save 40%'
+  }
+];
 
-  const convertPackages = (dbPackages: any[] | undefined): TokenPackage[] => {
-    if (!dbPackages || dbPackages.length === 0) return [];
+const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
+  {
+    id: 201, name: 'Swipess Monthly', tokens: 999, price: 39.00, pricePerToken: 0, tier: 'starter', icon: MessageCircle, duration_days: 30, package_category: 'premium', paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
+    features: [
+      'Communicate with listings and members',
+      'Post properties for rent or sale',
+      'Post services (chef, driver, cleaning, maintenance, babysitting, etc.)',
+      'Post motorcycles or bicycles for rent or sale',
+      'Save favorite listings',
+      'Discover opportunities',
+      'AI assistant to create listings, generate descriptions, and discover the city'
+    ], legal_documents: 0, bestValue: false,
+  },
+  {
+    id: 202, name: 'Swipess +6 Months', tokens: 999, price: 119.00, pricePerToken: 0, tier: 'standard', icon: Zap, duration_days: 180, package_category: 'premium', paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
+    features: [
+      'Communicate with listings and members',
+      'Post properties for rent or sale',
+      'Post services (chef, driver, cleaning, maintenance, babysitting, etc.)',
+      'Post motorcycles or bicycles for rent or sale',
+      'Save favorite listings',
+      'Discover opportunities',
+      'AI assistant to create listings, generate descriptions, and discover the city'
+    ], legal_documents: 0, bestValue: true,
+  },
+  {
+    id: 203, name: 'Swipess Unlimited', tokens: 999, price: 299.00, pricePerToken: 0, tier: 'premium', icon: Crown, duration_days: 365, package_category: 'premium', paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
+    features: [
+      'Communicate with listings and members',
+      'Post properties for rent or sale',
+      'Post services (chef, driver, cleaning, maintenance, babysitting, etc.)',
+      'Post motorcycles or bicycles for rent or sale',
+      'Save favorite listings',
+      'Discover opportunities',
+      'AI assistant to create listings, generate descriptions, and discover the city'
+    ], legal_documents: 0, bestValue: false,
+  }
+];
 
-    const sorted = dbPackages.map((pkg, index) => {
-      const tokens = pkg.message_activations || pkg.tokens || 0;
-      const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
-
-      let tier: 'starter' | 'standard' | 'premium' = 'starter';
-      const dbTier = pkg.tier?.toLowerCase();
-      if (dbTier === 'premium' || tokens >= 15) tier = 'premium';
-      else if (dbTier === 'standard' || tokens >= 10) tier = 'standard';
-      else tier = 'starter';
-
-      let savings: string | undefined;
-      if (index > 0 && dbPackages[0]) {
-        const firstTokens = dbPackages[0].message_activations || dbPackages[0].tokens || 1;
-        const firstPricePerToken = dbPackages[0].price / firstTokens;
-        const savingsPercent = Math.round(((firstPricePerToken - pricePerToken) / firstPricePerToken) * 100);
-        if (savingsPercent > 0) savings = `Save ${savingsPercent}%`;
-      }
-
-      let features: string[] = [];
-      try {
-        features = Array.isArray(pkg.features) ? pkg.features : JSON.parse(pkg.features || '[]');
-      } catch {
-        features = [`${tokens} tokens`, `${pkg.duration_days || 30} days validity`];
-      }
-
-      const iconMap = { starter: MessageCircle, standard: Zap, premium: Crown };
-
-      return {
-        id: pkg.id,
-        name: pkg.name || (tier.charAt(0).toUpperCase() + tier.slice(1)),
-        tokens,
-        price: pkg.price,
-        pricePerToken,
-        savings,
-        tier,
-        icon: iconMap[tier],
-        duration_days: pkg.duration_days || 30,
-        package_category: pkg.package_category,
-        paypalUrl: pkg.paypal_link || '',
-        features,
-        legal_documents: pkg.legal_documents_included || 0,
-        bestValue: false,
-      };
-    }).sort((a, b) => a.tokens - b.tokens);
-
-    // Mark the one with the lowest pricePerToken as best value
-    if (sorted.length > 1) {
-      let bestIdx = 0;
-      sorted.forEach((p, i) => {
-        if (p.pricePerToken < sorted[bestIdx].pricePerToken) bestIdx = i;
-      });
-      sorted[bestIdx].bestValue = true;
-    }
-
-    return sorted;
-  };
+  const packagesUI = showAsPage ? HARDCODED_PREMIUM_PACKAGES : HARDCODED_TOKEN_PACKAGES;
+  const isLoading = false;
 
   const handlePurchase = async (pkg: TokenPackage) => {
     sessionStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
@@ -175,7 +158,6 @@ export function MessageActivationPackages({
     }
   };
 
-  const packagesUI = convertPackages(packages);
   const roleLabel = currentUserRole === 'owner' ? 'Owner' : 'Client';
 
   // ─── COMPACT POPOVER VIEW (used in TopBar) ────────────────────────────────
@@ -265,7 +247,7 @@ export function MessageActivationPackages({
                           ${pkg.price}
                         </span>
                         <span className={cn("text-[10px]", isDark ? "text-white/35" : "text-gray-400")}>
-                          (${pkg.pricePerToken.toFixed(1)}/ea)
+                          (${pkg.pricePerToken > 0 ? pkg.pricePerToken.toFixed(1) : 0}/ea)
                         </span>
                       </div>
                     </div>
@@ -415,8 +397,9 @@ export function MessageActivationPackages({
                     </div>
                     <div className="flex-1 px-8 py-6 space-y-6">
                       <div className={cn("text-center py-6 rounded-3xl border shadow-inner", isDark ? "bg-black/40 border-white/5" : "bg-gray-50 border-gray-100")}>
-                        <div className={cn("text-5xl font-black tracking-tighter mb-1", isDark ? "text-white" : "text-gray-900")}>{pkg.tokens}</div>
-                        <div className={cn("text-xs font-black uppercase tracking-[0.2em]", isDark ? "text-white/30" : "text-gray-400")}>Activations</div>
+                        {pkg.id === 201 && <div className={cn("text-lg font-black tracking-tighter mb-1", isDark ? "text-white" : "text-gray-900")}>Best for: <span className="text-sm font-medium">seasonal visitors and short stays.</span></div>}
+                        {pkg.id === 202 && <div className={cn("text-lg font-black tracking-tighter mb-1", isDark ? "text-white" : "text-gray-900")}>Best for: <span className="text-sm font-medium">digital nomads, seasonal visitors, and freelancers.</span></div>}
+                        {pkg.id === 203 && <div className={cn("text-lg font-black tracking-tighter mb-1", isDark ? "text-white" : "text-gray-900")}>Best for: <span className="text-sm font-medium">residents, investors, and property owners.</span></div>}
                       </div>
                       <div className="space-y-3">
                         {pkg.features.map((feature, i) => (
