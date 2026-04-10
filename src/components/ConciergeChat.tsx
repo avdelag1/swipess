@@ -386,6 +386,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     setAutoSend(prev => {
       const next = !prev;
       try { localStorage.setItem('concierge-auto-send', String(next)); } catch {}
+      if (next) toast('⚡ Auto-send after 2s of silence enabled');
+      else toast('Auto-send disabled');
       return next;
     });
   }, []);
@@ -400,8 +402,11 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     setIsListening(false);
   }, [clearCountdown]);
 
-  const startListening = useCallback(() => {
-    if (!speechSupported) return;
+  const startListening = useCallback(async () => {
+    if (!speechSupported) {
+      toast.error('Voice input is not supported in this browser.');
+      return;
+    }
     
     // Kill any existing recognition session first
     if (recognitionRef.current) {
@@ -410,6 +415,18 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     }
     
     clearCountdown();
+
+    // Fix iOS PWA Silent Failure: Force microphone permission prompt manually first
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+    } catch (permErr: any) {
+      console.warn('[Voice] Permission denied or not available:', permErr);
+      toast.error('Microphone access denied. Please check your device settings.');
+      return;
+    }
+
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
@@ -418,7 +435,6 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
     let finalTranscript = '';
     let userStopped = false;
-    
 
     recognition.onresult = (event: any) => {
       // If countdown is active and new speech arrives, CANCEL countdown and reset silence timer
@@ -485,6 +501,14 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
     recognition.onerror = (e: any) => {
       console.warn('[Voice] Recognition error:', e.error);
+      if (e.error === 'not-allowed') {
+        userStopped = true;
+        setIsListening(false);
+        recognitionRef.current = null;
+        clearCountdown();
+        toast.error('Microphone access denied! Please allow access in Safari Settings.');
+        return;
+      }
       if (e.error === 'no-speech') return;
       if (e.error === 'aborted') return; // We aborted it ourselves
       if (isCountingDownRef.current) return; // Don't kill countdown on speech errors
@@ -504,10 +528,11 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       setIsListening(true);
     } catch (err) {
       console.error('[Voice] Failed to start recognition:', err);
+      toast.error('Voice input failed to start. Try reloading the app.');
       recognitionRef.current = null;
       setIsListening(false);
     }
-  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown]);
+  }, [speechSupported, autoSend, clearCountdown, startCountdown]);
 
   const toggleListening = useCallback(() => {
     if (isListening || countdown !== null) {
