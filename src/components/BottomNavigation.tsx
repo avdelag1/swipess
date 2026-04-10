@@ -260,16 +260,15 @@ export const BottomNavigation = memo(({
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className="pointer-events-auto w-full max-w-md mx-auto"
+        className="pointer-events-auto w-fit mx-auto shadow-2xl backdrop-blur-2xl"
         style={{
           // LAYER 1: Solid glass base with Heavy Backdrop Blur
-          backgroundColor: isLight ? 'rgba(255,255,255,0.88)' : 'rgba(8, 8, 10, 0.85)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          // No hard borders — defined by shadows and a subtle rim light
-          border: 'none',
-          borderRadius: '32px',
-          boxShadow: barShadow,
+          backgroundColor: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(10, 10, 12, 0.85)',
+          backdropFilter: 'blur(24px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(200%)',
+          border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '9999px',
+          boxShadow: isLight ? '0 10px 40px -10px rgba(0,0,0,0.1)' : '0 10px 40px -10px rgba(0,0,0,0.5)',
           // GPU acceleration
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',

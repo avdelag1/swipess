@@ -191,7 +191,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
 
   return (
     <div 
-      className="w-full h-full min-h-0 relative bg-background flex flex-col" 
+      className="w-full relative bg-background flex flex-col" 
       data-no-swipe-nav="true"
     >
       {/* 🚀 ZENITH Ambient Glow */}

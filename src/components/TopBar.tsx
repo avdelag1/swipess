@@ -184,7 +184,10 @@ function TopBarComponent({
     <>
       <header
         className={cn(
-          'app-header opacity-100 translate-y-0 transform-gpu will-change-transform bg-transparent',
+          'app-header opacity-100 translate-y-0 transform-gpu will-change-transform',
+          transparent 
+            ? 'bg-gradient-to-b from-black/50 via-black/20 to-transparent pb-8 pt-2' 
+            : 'bg-gradient-to-b from-background via-background/90 to-transparent pb-8 pt-2',
           className
         )}
       >
