@@ -17,8 +17,6 @@ export const DiscoverySkeleton = memo(({ count = 3 }: { count?: number }) => {
     // 🚀 SPEED OF LIGHT: Predictive pre-warming
     // While the user is focused on the skeleton, we silently prefetch high-traffic assets
     runIdleTask(() => {
-      const brandLogo = new Image();
-      brandLogo.src = '/icons/swipess-brand-logo.webp';
     });
   }, []);
 
@@ -30,8 +28,8 @@ export const DiscoverySkeleton = memo(({ count = 3 }: { count?: number }) => {
           className={cn(
             "relative w-full rounded-[2.5rem] p-5 border backdrop-blur-xl overflow-hidden shadow-2xl transition-all duration-700",
             isLight 
-              ? "bg-white/40 border-slate-200/50" 
-              : "bg-black/40 border-white/10",
+              ? "bg-white/10 border-slate-200/20" 
+              : "bg-white/5 border-white/10",
             i === 1 && "opacity-80",
             i === 2 && "opacity-60",
             i >= 3 && "opacity-40"

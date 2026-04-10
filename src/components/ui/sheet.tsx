@@ -19,7 +19,7 @@ const SheetOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
-      "fixed inset-0 z-[10001] bg-black/30 data-&lsqb;state=open&rsqb;:animate-in data-&lsqb;state=closed&rsqb;:animate-out data-&lsqb;state=closed&rsqb;:fade-out-0 data-&lsqb;state=open&rsqb;:fade-in-0",
+      "fixed inset-0 z-[10001] bg-sky-500/5 dark:bg-blue-900/10 backdrop-blur-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
     {...props}
@@ -29,7 +29,7 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
 
 const sheetVariants = cva(
-  "fixed z-[10002] gap-4 bg-background/95 backdrop-blur-md p-6 shadow-2xl transition ease-in-out data-&lsqb;state=open&rsqb;:animate-in data-&lsqb;state=closed&rsqb;:animate-out data-&lsqb;state=closed&rsqb;:duration-[160ms] data-&lsqb;state=open&rsqb;:duration-[220ms] border border-white/20",
+  "fixed z-[10002] gap-4 bg-background/70 backdrop-blur-xl p-6 shadow-2xl transition ease-in-out data-&lsqb;state=open&rsqb;:animate-in data-&lsqb;state=closed&rsqb;:animate-out data-&lsqb;state=closed&rsqb;:duration-[160ms] data-&lsqb;state=open&rsqb;:duration-[220ms] border border-white/20",
   {
     variants: {
       side: {
