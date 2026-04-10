@@ -1,4 +1,6 @@
-import { memo, useState, useCallback } from 'react';
+import { memo, useState, useCallback, Suspense, lazy } from 'react';
+
+const MessageActivationPackages = lazy(() => import('./MessageActivationPackages').then(module => ({ default: module.MessageActivationPackages })));
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
