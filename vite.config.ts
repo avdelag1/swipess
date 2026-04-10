@@ -30,24 +30,19 @@ export default defineConfig(({ mode }) => ({
         }
       }
     },
-    // {
-    //   name: 'critical-preload-plugin',
-    //   transformIndexHtml(html, ctx) {
-    //     if (!ctx.bundle) return html;
-    //     // PERFORMANCE FIX: Only modulepreload the true entry point.
-    //     // The browser will discover imports via the module graph — no need
-    //     // to eagerly preload vendor/tanstack/framer-motion/etc.
-    //     // Over-preloading wastes bandwidth on slow 4G and inflates "unused JS".
-    //     const preloads: string[] = [];
-    //     for (const [_key, chunk] of Object.entries(ctx.bundle)) {
-    //       if ((chunk as any).type === 'chunk' && (chunk as any).isEntry) {
-    //         preloads.push(`<link rel="modulepreload" href="/${(chunk as any).fileName}" fetchpriority="high" crossorigin>`);
-    //       }
-    //     }
-    //     // Strictly limit to 1 entry preload
-    //     return html.replace('</head>', `${preloads.slice(0, 1).join('')}</head>`);
-    //   }
-    // }
+    {
+      name: 'critical-preload-plugin',
+      transformIndexHtml(html, ctx) {
+        if (!ctx.bundle) return html;
+        const preloads: string[] = [];
+        for (const [_key, chunk] of Object.entries(ctx.bundle)) {
+          if ((chunk as any).type === 'chunk' && (chunk as any).isEntry) {
+            preloads.push(`<link rel="modulepreload" href="/${(chunk as any).fileName}" fetchpriority="high" crossorigin>`);
+          }
+        }
+        return html.replace('</head>', `${preloads.slice(0, 1).join('')}</head>`);
+      }
+    }
   ],
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react-router-dom', '@tanstack/react-query'],

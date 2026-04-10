@@ -83,8 +83,7 @@ function AppLifecycleManager({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState(false);
 
   useEffect(() => {
-    // Reduce initial quiet period to 500ms for faster background hydration
-    const timer = setTimeout(() => setActive(true), 500);
+    const timer = setTimeout(() => setActive(true), 200);
     return () => clearTimeout(timer);
   }, []);
 
