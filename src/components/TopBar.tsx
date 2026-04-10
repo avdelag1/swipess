@@ -8,7 +8,7 @@ import { Zap, ArrowLeft, Sun, Moon, Radio as RadioIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
@@ -170,9 +170,9 @@ function TopBarComponent({
                   {/* Mode Switcher (client ↔ owner) */}
                   <ModeSwitcher variant="icon" size="sm" />
 
-                  {/* Token Packages — use onClick for Radix Popover compatibility */}
-                  <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
-                    <PopoverTrigger asChild>
+                  {/* Token Packages — use onClick for Radix Dialog compatibility */}
+                  <Dialog open={tokensOpen} onOpenChange={setTokensOpen}>
+                    <DialogTrigger asChild>
                       <button
                         className={cn(
                           "relative h-9 w-9 flex items-center justify-center flex-shrink-0",
@@ -185,13 +185,13 @@ function TopBarComponent({
                       >
                         <Zap strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-amber-500" : "text-white/70")} />
                       </button>
-                    </PopoverTrigger>
-                    <PopoverContent align="center" side="bottom" sideOffset={12} className="w-[min(calc(100vw-1rem),370px)] p-0 rounded-[1.5rem] bg-card border border-border/20 shadow-2xl backdrop-blur-3xl overflow-hidden">
+                    </DialogTrigger>
+                    <DialogContent className="w-[min(calc(100vw-2rem),400px)] p-0 rounded-[2rem] bg-[#111] sm:bg-card border border-white/10 sm:border-border/20 shadow-[0_20px_60px_rgba(0,0,0,0.6)] backdrop-blur-3xl overflow-hidden pointer-events-auto !max-h-[85vh]">
                       <Suspense fallback={null}>
                         <MessageActivationPackages userRole={userRole} onClose={() => setTokensOpen(false)} />
                       </Suspense>
-                    </PopoverContent>
-                  </Popover>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             )}

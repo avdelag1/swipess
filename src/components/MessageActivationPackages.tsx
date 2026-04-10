@@ -159,7 +159,7 @@ const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
     if (!isOpen) return null;
 
     return (
-      <div className={cn("p-4 space-y-3 min-w-[300px]", isDark ? "text-white" : "text-gray-900")}>
+      <div className={cn("p-5 space-y-4 min-w-[300px] overflow-y-auto custom-scrollbar max-h-[85vh]", isDark ? "text-white" : "text-gray-900")}>
         {/* Header */}
         <div className="flex items-center justify-between pb-1">
           <div>
@@ -289,20 +289,23 @@ const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
         )}
 
         {/* View all link */}
-        <button
-          onClick={() => {
-            onClose?.();
-            navigate('/subscription/packages');
-          }}
-          className={cn(
-            "w-full text-center text-xs font-medium py-2 rounded-xl transition-colors",
-            isDark
-              ? "text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
-              : "text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-          )}
-        >
-          View all packages & details
-        </button>
+        <div className="pt-2 sticky bottom-0 z-20 pb-2">
+          <button
+            onClick={() => {
+              onClose?.();
+              navigate('/subscription/packages');
+            }}
+            className={cn(
+              "w-full text-center text-xs font-bold uppercase tracking-widest py-3.5 rounded-2xl transition-all shadow-lg backdrop-blur-md",
+              isDark
+                ? "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                : "bg-white border border-gray-200 text-gray-900 hover:bg-gray-50",
+              "hover:scale-[1.02] active:scale-[0.98]"
+            )}
+          >
+            View All Packages & Details
+          </button>
+        </div>
       </div>
     );
   }
