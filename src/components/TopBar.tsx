@@ -186,9 +186,9 @@ function TopBarComponent({
                         <Zap strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-amber-500" : "text-white/70")} />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent align="start" sideOffset={12} className="w-[min(calc(100vw-1.5rem),380px)] p-0 rounded-[2rem] bg-card border border-border/20 shadow-2xl backdrop-blur-3xl">
+                    <PopoverContent align="center" side="bottom" sideOffset={12} className="w-[min(calc(100vw-1rem),370px)] p-0 rounded-[1.5rem] bg-card border border-border/20 shadow-2xl backdrop-blur-3xl overflow-hidden">
                       <Suspense fallback={null}>
-                        <MessageActivationPackages onClose={() => setTokensOpen(false)} />
+                        <MessageActivationPackages userRole={userRole} onClose={() => setTokensOpen(false)} />
                       </Suspense>
                     </PopoverContent>
                   </Popover>
