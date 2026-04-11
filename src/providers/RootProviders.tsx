@@ -15,6 +15,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useForceUpdateOnVersionChange } from "@/hooks/useAutomaticUpdates";
 import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProfileAutoSync";
+import { useDiscoveryRealtime } from '@/hooks/useDiscoveryRealtime';
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
 import { ZenithPrewarmer } from "@/components/ZenithPrewarmer";
@@ -53,6 +54,7 @@ function LifecycleHooks({ children }: { children: React.ReactNode }) {
   usePushNotifications();
   useForceUpdateOnVersionChange();
   useProfileAutoSync();
+  useDiscoveryRealtime();
   useEnsureSpecializedProfile();
   return <>{children}</>;
 }

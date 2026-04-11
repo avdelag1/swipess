@@ -92,13 +92,22 @@ export function useSmartClientMatching(
     useEffect(() => {
         if (!userId) return;
         const channel = supabase
-            .channel('clients-realtime')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
-                logger.info('[SmartMatching] New profile inserted, invalidating queries');
+            .channel(`clients-realtime-${userId}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+                logger.info('[SmartMatching] Profile changed, invalidating queries');
                 queryClient.invalidateQueries({ queryKey: ['smart-clients'] });
+                queryClient.invalidateQueries({ queryKey: ['client-profiles'] });
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'client_profiles' }, () => {
+                logger.info('[SmartMatching] Client profile changed, invalidating queries');
+                queryClient.invalidateQueries({ queryKey: ['smart-clients'] });
+                queryClient.invalidateQueries({ queryKey: ['client-profiles'] });
             })
             .subscribe();
-        return () => { channel.unsubscribe(); };
+        return () => {
+            channel.unsubscribe();
+            supabase.removeChannel(channel);
+        };
     }, [userId, queryClient]);
 
     return useQuery<MatchedClientProfile[]>({
