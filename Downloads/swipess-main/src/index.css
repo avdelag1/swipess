@@ -159,8 +159,8 @@ html {
   -webkit-overflow-scrolling: touch;
   background-color: unset;
   color: unset;
-  --safe-top: env(safe-area-inset-top, 12px);
-  --safe-bottom: env(safe-area-inset-bottom, 12px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
   --top-bar-height: 60px;
 }
 

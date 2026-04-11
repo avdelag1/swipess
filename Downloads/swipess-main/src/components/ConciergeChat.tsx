@@ -904,68 +904,81 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
               {/* Mic button with countdown ring */}
               {speechSupported && (
                 <div className="relative shrink-0">
-                  {/* SVG countdown ring */}
-                  {countdown !== null && (
-                    <svg className="absolute inset-0 w-10 h-10 -rotate-90 pointer-events-none" viewBox="0 0 40 40">
-                      <circle
-                        cx="20" cy="20" r="17"
-                        fill="none"
-                        stroke="hsl(var(--primary) / 0.3)"
-                        strokeWidth="2.5"
-                      />
-                      <circle
-                        cx="20" cy="20" r="17"
-                        fill="none"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeDasharray={`${2 * Math.PI * 17}`}
-                        strokeDashoffset={`${2 * Math.PI * 17 * (1 - countdown / COUNTDOWN_SECONDS)}`}
-                        className="transition-all duration-1000 ease-linear"
-                      />
-                    </svg>
-                  )}
                   <Button
                     onClick={toggleListening}
-                    size="icon"
-                    variant="outline"
                     className={cn(
-                      "w-10 h-10 rounded-xl transition-all relative overflow-visible",
-                      isListening && "bg-brand-accent-2/15 border-brand-accent-2/50 text-brand-accent-2 shadow-[0_0_15px_rgba(236,72,153,0.3)]",
-                      countdown !== null && "border-primary/50 bg-primary/10",
-                      ignitionFlash && "border-primary bg-primary/30 shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+                      "transition-all duration-300 relative overflow-visible z-20",
+                      isListening || countdown !== null
+                        ? "w-20 h-20 rounded-[2.5rem] bg-primary border-none shadow-[0_0_40px_rgba(228,0,124,0.6)] scale-110 -translate-y-4"
+                        : "w-10 h-10 rounded-xl bg-muted/40 text-muted-foreground border border-border/30 hover:bg-muted/60"
                     )}
                   >
-                    {isListening && !ignitionFlash && (
-                      <motion.div 
-                        layoutId="mic-aura"
-                        className="absolute inset-0 rounded-xl bg-brand-accent-2/30 -z-10"
-                        animate={{ 
-                          scale: [1, 1.2 + (voiceVolume * 0.8), 1], 
-                          opacity: [0.6, 0.2, 0.6],
-                          boxShadow: `0 0 ${20 + (voiceVolume * 80)}px rgba(236,72,153,0.5)`
-                        }}
-                        transition={{ duration: 0.1 }}
-                      />
-                    )}
-                    {isListening && (
-                       <div className="absolute inset-0 rounded-xl border-2 border-brand-accent-2/50 opacity-20" />
-                    )}
-                    {ignitionFlash ? (
-                      <span className="text-sm">🚀</span>
-                    ) : countdown !== null ? (
-                      <span className="text-xs font-bold text-primary">{countdown}</span>
-                    ) : isListening ? (
-                      <div className="relative">
-                        <MicOff className="w-4 h-4" />
-                        <motion.div 
-                          className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-brand-accent-2 shadow-[0_0_8px_#ec4899]"
-                          animate={{ opacity: [1, 0, 1] }}
-                          transition={{ duration: 0.8, repeat: Infinity }}
+                    <AnimatePresence mode="wait">
+                      {isListening && !ignitionFlash ? (
+                        <motion.div
+                          key="stop"
+                          initial={{ scale: 0.5, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.5, opacity: 0 }}
+                        >
+                          <Square className="w-8 h-8 text-white fill-white" />
+                        </motion.div>
+                      ) : countdown !== null ? (
+                        <motion.div
+                          key="countdown"
+                          initial={{ scale: 0.5, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="text-2xl font-black text-white"
+                        >
+                          {countdown}
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="mic"
+                          initial={{ scale: 0.5, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                        >
+                          <Mic className="w-5 h-5 group-hover:text-primary transition-colors" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* 🚀 LIQUID BREATHING PULSE */}
+                    {(isListening || countdown !== null) && (
+                      <>
+                        <motion.div
+                          className="absolute inset-0 rounded-[2.5rem] bg-primary/30 -z-10"
+                          animate={{
+                            scale: [1, 2],
+                            opacity: [0.6, 0]
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            ease: "easeOut"
+                          }}
                         />
-                      </div>
-                    ) : (
-                      <Mic className="w-4 h-4" />
+                        <motion.div
+                          className="absolute inset-0 rounded-[2.5rem] bg-primary/40 -z-10"
+                          animate={{
+                            scale: [1, 2.5],
+                            opacity: [0.4, 0]
+                          }}
+                          transition={{
+                            duration: 1.8,
+                            repeat: Infinity,
+                            ease: "easeOut",
+                            delay: 0.4
+                          }}
+                        />
+                        <motion.div
+                          className="absolute inset-0 rounded-[2.5rem] bg-primary/20 -z-10 blur-xl"
+                          animate={{
+                            scale: [1, 1.4 + (voiceVolume * 0.8)],
+                          }}
+                          transition={{ duration: 0.1 }}
+                        />
+                      </>
                     )}
                   </Button>
                 </div>

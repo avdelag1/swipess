@@ -311,16 +311,16 @@ export function useConciergeAI() {
   }, []);
 
   const deleteConversation = useCallback((id: string) => {
-    updateConversations(prev => prev.filter(c => c.id !== id));
-    if (activeConversationId === id) {
-      setActiveConversationId(prev => {
-        const remaining = conversations.filter(c => c.id !== id);
-        return remaining[0]?.id ?? null;
-      });
-    }
+    updateConversations(prev => {
+      const next = prev.filter(c => c.id !== id);
+      if (activeConversationId === id) {
+        setActiveConversationId(next[0]?.id ?? null);
+      }
+      return next;
+    });
     // Cloud sync
     deleteConversationCloud(id);
-  }, [activeConversationId, conversations, updateConversations]);
+  }, [activeConversationId, updateConversations]);
 
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim() || isLoading || isSendingRef.current) return;
