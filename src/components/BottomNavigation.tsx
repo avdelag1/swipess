@@ -373,10 +373,6 @@ export const BottomNavigation = memo(({
                   transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
                   style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
                 >
-                  {/* 🟢 PRESENCE GLOW: Pulsing indicator for platform activity */}
-                  {item.path && !item.isCenter && (
-                    <div className="absolute -top-1 -left-1 w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.7)] animate-pulse opacity-0 group-hover:opacity-100 transition-opacity z-30" />
-                  )}
 
                   {/* Notification badge */}
                   <AnimatePresence mode="popLayout">
@@ -403,7 +399,7 @@ export const BottomNavigation = memo(({
                       color: active ? activeColor : iconColorInactive,
                       fill: active ? activeColor : 'none',
                       strokeWidth: active ? 1.8 : 1.5,
-                      filter: active ? 'drop-shadow(0 0 4px rgba(255,107,53,0.3))' : 'none',
+                      filter: 'none',
                     }}
                   />
                 </motion.div>

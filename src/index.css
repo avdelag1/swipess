@@ -204,7 +204,10 @@ html, body {
   height: 52px;
   padding-top: var(--safe-top);
   background-color: transparent !important;
+  background: transparent !important;
   border-bottom: none !important;
+  box-shadow: none !important;
+  isolation: isolate;
   pointer-events: none;
 }
 
@@ -216,7 +219,10 @@ html, body {
   z-index: 100;
   padding-bottom: var(--safe-bottom);
   background-color: transparent !important;
+  background: transparent !important;
   border-top: none !important;
+  box-shadow: none !important;
+  isolation: isolate;
   pointer-events: none;
 }
 
