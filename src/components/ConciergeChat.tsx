@@ -477,7 +477,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
             const updateVisuals = () => {
               if (!analyserRef.current || !dataArrayRef.current) return;
-              analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+              analyserRef.current.getByteFrequencyData(dataArrayRef.current as Uint8Array<ArrayBuffer>);
               let sum = 0;
               for (let i = 0; i < dataArrayRef.current.length; i++) sum += dataArrayRef.current[i];
               setAudioVolume(sum / dataArrayRef.current.length); 
