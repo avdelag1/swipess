@@ -473,7 +473,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
             analyser.fftSize = 64;
             audioContextRef.current = audioCtx;
             analyserRef.current = analyser;
-            dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
+            dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount) as Uint8Array<ArrayBuffer>;
 
             const updateVisuals = () => {
               if (!analyserRef.current || !dataArrayRef.current) return;

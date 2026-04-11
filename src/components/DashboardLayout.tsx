@@ -490,7 +490,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           isRadioRoute ? "overflow-visible" 
               : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
-          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
+          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-transparent"
         )}
         style={{
           paddingTop: (isFullScreenRoute)
@@ -504,7 +504,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           
         }}
       >
-        <div className="min-h-full w-full flex flex-1 min-w-0 flex-col">
+        <div className="min-h-full w-full flex flex-1 min-w-0 flex-col bg-background">
           {enhancedChildren}
         </div>
       </main>

@@ -403,7 +403,7 @@ export const BottomNavigation = memo(({
                       color: active ? activeColor : iconColorInactive,
                       fill: active ? activeColor : 'none',
                       strokeWidth: active ? 1.8 : 1.5,
-                      filter: active ? 'drop-shadow(0 0 4px rgba(255,107,53,0.3))' : 'none',
+                      filter: 'none',
                     }}
                   />
                 </motion.div>
