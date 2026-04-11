@@ -1,61 +1,31 @@
 
 
-## Assessment: What's Missing, What's Disconnected, What Needs Speed
+## Plan: Remove Background Frames, Green Glows, and Fix Build Error
 
-### Critical Finding: Edge Functions Are Deployed in the Wrong Place
+### Problem Analysis
+1. **Top/bottom frame backgrounds**: The `DashboardLayout.tsx` main container has `bg-background` and padding for the header/footer areas. On native iOS (Xcode), this solid background color shows through as visible rectangular bands behind the transparent TopBar and BottomNavigation — creating the "frame" effect.
 
-The AI concierge intelligence upgrades, persona improvements, and all edge function changes made in this project are deployed to **Lovable Cloud** (`qegyisokrxdsszzswsqk`). But your app correctly calls your **production Supabase** (`vplgtcguxujxwrgguxqq`). Zero edge function calls hit Lovable Cloud — confirmed by empty logs.
+2. **Green glow dots on nav buttons**: Line 376-378 in `BottomNavigation.tsx` renders a pulsing emerald-green presence indicator dot on every nav button. On desktop it's hidden (`opacity-0 group-hover:opacity-100`), but on iOS touch devices, hover states can stick — making these dots visible.
 
-**This means**: Every edge function edit here (ai-concierge intelligence upgrade, persona changes, memory improvements, token limit increase) exists only on Lovable Cloud and is never reached by your users. Your production Supabase has its own copies of these functions.
-
-**To fix this**: You need to copy the updated `supabase/functions/ai-concierge/index.ts` file and deploy it to your production Supabase project using the Supabase CLI (`supabase functions deploy ai-concierge`). I cannot deploy to your production backend — only you can. I can prepare the files for you.
-
----
-
-### What I Can Fix Right Now (Frontend Speed + Interactions)
-
-**1. Query Waterfall in Listings — Extra Round-Trip**
-`useListings` calls `supabase.auth.getUser()` on every query execution. This is a network call to verify the token. Since `useAuth()` already has the user in memory, this adds ~200-400ms of latency on every listing fetch. Fix: use the cached `user` from the auth context instead.
-
-**2. Conversation Load — N+1 Query Problem**
-`useConversations` fetches conversations, then does separate queries for profiles and last messages. This creates 3 sequential round-trips. Fix: use a single query with proper joins or an RPC that returns everything in one call.
-
-**3. Image Transform on Every Render**
-`useListings` maps over every listing to append `?width=720&quality=75&format=avif` to image URLs on every query resolution. This should happen once at the data layer, not on every render cycle.
-
-**4. Swipe Mutation — Cancels Too Aggressively**
-`useSwipeWithMatch` calls `cancelQueries` for both `['listings']` AND `['client-profiles']` on every swipe. If a background refetch is in progress, this kills it and forces a re-fetch later. Fix: only cancel queries for the specific target type being swiped.
-
-**5. Realtime Channel Proliferation**
-The app creates 8+ simultaneous realtime channels per authenticated user (conversations, messages, typing, presence, notifications, unread count, matches, profile sync, listings). Each channel is a WebSocket subscription. Fix: consolidate into 2-3 channels using wildcard table subscriptions.
-
-**6. Auth Token in AI Concierge — Unnecessary getSession() Call**
-`useConciergeAI.sendMessage` calls `supabase.auth.getSession()` before every AI request. The session is already available in the auth context. Fix: use the cached session.
-
----
+3. **Build error**: `ConciergeChat.tsx` line 480 has a TypeScript type mismatch with `Uint8Array<ArrayBufferLike>` vs `Uint8Array<ArrayBuffer>`.
 
 ### Changes
 
-**File: `src/hooks/useListings.tsx`**
-- Replace `supabase.auth.getUser()` call with cached `user` from `useAuth()` hook
-- Move image URL transform to a stable utility function with memoization
+**1. Remove background frames (src/components/DashboardLayout.tsx)**
+- Change `bg-background` on the main scroll container (line 489/493) to `bg-transparent` for the dashboard routes, so no solid color bar appears behind the floating header/footer
+- Alternatively, keep `bg-background` but make the padding regions transparent by setting the background only on the inner content wrapper (line 507), not on the padded main element
 
-**File: `src/hooks/useSwipeWithMatch.tsx`**
-- Only cancel queries for the specific `targetType` being swiped, not both
+**2. Remove green glow dots (src/components/BottomNavigation.tsx)**
+- Delete lines 376-379 — the entire "PRESENCE GLOW" div that renders the pulsing emerald dot on each nav button
 
-**File: `src/hooks/useConciergeAI.ts`**  
-- Remove redundant `supabase.auth.getSession()` call; use auth context session
+**3. Fix build error (src/components/ConciergeChat.tsx)**
+- Add explicit type cast on line 480: `new Uint8Array(analyser.frequencyBinCount) as Uint8Array<ArrayBuffer>` or use a simpler approach with `dataArrayRef` typed as `Uint8Array<ArrayBuffer>`
 
-**File: `src/hooks/useConversations.tsx`**
-- Batch the profile + last message lookups into a single optimized query
+**4. Remove active icon drop-shadow glow (src/components/BottomNavigation.tsx)**
+- Line 406: Change the active icon `filter: 'drop-shadow(0 0 4px rgba(255,107,53,0.3))'` to `'none'` — this removes any orange glow effect on active nav icons that may appear as unwanted light effects on native iOS
 
-**File: `src/hooks/useRealtimeChat.tsx`**
-- Reduce typing indicator throttle from 1000ms to 500ms for snappier feel
-
-### Net Result
-- ~400-800ms faster listing loads (eliminated auth round-trip)
-- ~200ms faster swipe response (no unnecessary query cancellation)
-- ~200ms faster AI chat start (no redundant session fetch)
-- Fewer WebSocket connections and less network overhead
-- All changes are frontend-only — your production backend is untouched
+### Files Modified
+- `src/components/DashboardLayout.tsx` — transparent background on padding regions
+- `src/components/BottomNavigation.tsx` — remove green dots and icon glow
+- `src/components/ConciergeChat.tsx` — fix TypeScript build error
 
