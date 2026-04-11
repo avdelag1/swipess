@@ -175,30 +175,30 @@ export function MessageActivationPackages({
     switch (tier) {
       case 'starter':
         return {
-          gradient: 'from-slate-500/10 to-slate-800/20',
-          border: isDark ? 'border-slate-500/30 hover:border-slate-400/50' : 'border-slate-200 hover:border-slate-300',
+          gradient: 'from-slate-500/5 to-transparent',
+          border: isDark ? 'border-white/10' : 'border-gray-200',
           badge: isDark ? 'bg-slate-500/20 text-slate-300' : 'bg-slate-100 text-slate-700',
-          button: isDark ? 'bg-slate-700 hover:bg-slate-600' : 'bg-slate-800 hover:bg-slate-700 text-white',
+          button: isDark ? 'bg-slate-700 hover:bg-slate-600' : 'bg-slate-900 hover:bg-black text-white',
           glow: '',
-          cardClass: isDark ? 'bg-slate-900/40 backdrop-blur-md' : 'bg-white border-slate-200',
+          cardClass: 'ram-card',
         };
       case 'standard':
         return {
-          gradient: 'from-blue-600/20 via-blue-900/10 to-transparent',
-          border: isDark ? 'border-blue-500/50 hover:border-blue-400 ring-1 ring-blue-500/20' : 'border-blue-200 hover:border-blue-300 ring-1 ring-blue-100',
-          badge: isDark ? 'bg-blue-500/30 text-blue-200 border border-blue-400/30' : 'bg-blue-50 text-blue-700 border border-blue-200',
-          button: isDark ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md',
-          glow: isDark ? 'shadow-lg shadow-blue-500/10' : 'shadow-xl shadow-blue-500/5',
-          cardClass: isDark ? 'bg-blue-950/20 backdrop-blur-lg' : 'bg-white border-blue-100',
+          gradient: 'from-blue-600/5 to-transparent',
+          border: 'border-blue-500',
+          badge: isDark ? 'bg-blue-500/30 text-blue-200' : 'bg-blue-50 text-blue-700 font-black',
+          button: 'bg-blue-600 hover:bg-blue-500 text-white shadow-ram-button',
+          glow: 'active', // triggers .ram-card.active styles
+          cardClass: 'ram-card',
         };
       case 'premium':
         return {
-          gradient: 'from-amber-500/20 via-orange-950/30 to-black',
+          gradient: 'from-amber-500/10 to-transparent',
           border: isDark ? 'border-amber-500/50' : 'border-amber-200',
-          badge: isDark ? 'bg-amber-500/20 text-amber-200 border border-amber-400/30' : 'bg-amber-50 text-amber-700 border border-amber-200',
-          button: isDark ? 'premium-btn-wow' : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg',
-          glow: isDark ? 'shadow-[0_0_30px_rgba(245,158,11,0.15)]' : 'shadow-xl shadow-amber-500/10',
-          cardClass: isDark ? 'premium-card-lux' : 'bg-white border-amber-100',
+          badge: isDark ? 'bg-amber-500/20 text-amber-200' : 'bg-amber-50 text-amber-700',
+          button: isDark ? 'premium-btn-wow' : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg',
+          glow: '',
+          cardClass: 'ram-card',
         };
       default:
         return {
@@ -279,7 +279,7 @@ export function MessageActivationPackages({
                 className="h-full"
               >
                 <Card
-                  className={cn("relative h-full flex flex-col border rounded-[2.5rem] transition-all duration-500 group hover:shadow-2xl overflow-hidden", styles.cardClass, styles.glow)}
+                  className={cn("relative h-full flex flex-col transition-all duration-500 group", styles.cardClass, styles.glow)}
                 >
                   {isPremium && <div className="premium-shine-overlay" />}
 

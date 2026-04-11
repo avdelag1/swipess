@@ -30,24 +30,24 @@ import { useScrollBounce } from '@/hooks/useScrollBounce';
 const tierConfig = {
   starter: {
     icon: MessageCircle,
-    gradient: 'from-purple-500/30 to-purple-600/20',
-    border: 'border-purple-500/40',
-    iconBg: 'bg-purple-500/20 text-purple-300',
-    button: 'bg-purple-600 hover:bg-purple-500 text-white',
+    gradient: 'from-slate-500/5 to-transparent',
+    border: 'border-slate-200 dark:border-white/10',
+    iconBg: 'bg-slate-100 text-slate-600 dark:bg-slate-500/20 dark:text-slate-300',
+    button: 'bg-slate-900 dark:bg-slate-700 text-white',
   },
   standard: {
     icon: Zap,
-    gradient: 'from-blue-500/30 to-blue-600/20',
-    border: 'border-blue-500/50 ring-1 ring-blue-500/30',
-    iconBg: 'bg-blue-500/20 text-blue-300',
+    gradient: 'from-blue-500/10 to-transparent',
+    border: 'border-blue-500 shadow-ram-button',
+    iconBg: 'bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-300',
     button: 'bg-blue-600 hover:bg-blue-500 text-white',
   },
   premium: {
     icon: Crown,
-    gradient: 'from-brand-accent-2/30 to-brand-accent-2/20',
-    border: 'border-brand-accent-2/40',
-    iconBg: 'bg-brand-accent-2/20 text-pink-300',
-    button: 'bg-gradient-to-r from-brand-accent-2 to-[#B0005E] hover:from-pink-500 hover:to-brand-accent-2 text-white',
+    gradient: 'from-amber-500/10 to-transparent',
+    border: 'border-amber-500/40',
+    iconBg: 'bg-amber-50 text-amber-600 dark:bg-amber-500/20 dark:text-amber-300',
+    button: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white',
   },
 } as const;
 
@@ -294,12 +294,12 @@ function TopBarComponent({
                       {/* Popover Header */}
                       <div className="px-4 pt-4 pb-3">
                         <div className="flex items-center justify-between">
-                          <h3 className="font-bold text-foreground text-base">{t('topbar.tokenPackages')}</h3>
-                          <span className="text-xs text-muted-foreground">
+                          <h3 className="font-black text-foreground text-sm uppercase tracking-tight">{t('topbar.tokenPackages')}</h3>
+                          <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest", isLight ? "bg-gray-100 text-gray-500" : "bg-white/5 text-white/40")}>
                             {userRole === 'owner' ? t('topbar.provider') : t('topbar.explorer')}
                           </span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className={cn("text-[11px] font-medium mt-1 leading-relaxed", isLight ? "text-gray-500" : "text-white/40")}>
                           {userRole === 'owner'
                             ? t('topbar.connectExplorers')
                             : t('topbar.startConversations')}
@@ -344,12 +344,12 @@ function TopBarComponent({
                                   {/* Info */}
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-baseline gap-1.5">
-                                      <span className="font-bold text-foreground text-sm capitalize">{tier}</span>
-                                      <span className="text-muted-foreground text-xs">{tokens} {t('topbar.tokens')}</span>
+                                      <span className={cn("font-black text-sm uppercase italic tracking-tight", isLight ? "text-gray-900" : "text-white")}>{tier}</span>
+                                      <span className={cn("text-[10px] font-bold uppercase tracking-wider", isLight ? "text-gray-400" : "text-white/30")}>{tokens} {t('topbar.tokens')}</span>
                                     </div>
                                     <div className="flex items-baseline gap-1 mt-0.5">
-                                      <span className="font-bold text-foreground text-base">{formatPriceMXN(pkg.price)}</span>
-                                      <span className="text-muted-foreground text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
+                                      <span className={cn("font-black text-base italic tracking-tighter", isLight ? "text-gray-900" : "text-white")}>{formatPriceMXN(pkg.price)}</span>
+                                      <span className={cn("text-[10px] font-bold opacity-40", isLight ? "text-gray-900" : "text-white")}>({formatPriceMXN(pricePerToken)}/ea)</span>
                                     </div>
                                   </div>
 

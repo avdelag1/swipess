@@ -111,6 +111,7 @@ body::-webkit-scrollbar {
   mix-blend-mode: overlay;
 }
 
+
 .liquid-glass-card {
   @apply bg-card backdrop-blur-xl transition-all duration-300 overflow-hidden relative;
   border: none !important;
@@ -118,8 +119,22 @@ body::-webkit-scrollbar {
   contain: layout style paint;
 }
 
-.liquid-glass-card:hover {
-  box-shadow: var(--shadow-cinematic-lg);
+/* 💎 RAM (Rent a Mac) PREMIUM CARD */
+.ram-card {
+  @apply bg-white dark:bg-zinc-900 transition-all duration-300 relative border overflow-hidden;
+  border-color: var(--ram-border-inactive);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-ram-card);
+}
+
+.ram-card.active {
+  border-color: var(--ram-blue) !important;
+  background-color: var(--ram-blue-light) !important;
+  box-shadow: var(--ram-blue-glow);
+}
+
+.ram-card:hover {
+  box-shadow: var(--shadow-ram-card-hover);
   transform: translateY(-2px);
 }
 
@@ -350,8 +365,20 @@ button:active, [role="button"]:active {
 }
 
 .white-matte {
-  background-color: #F8F9FA !important;
+  background-color: #FFFFFF !important;
   color: #000000 !important;
+}
+
+/* 🚀 UNIVERSAL CONTRAST LOCK: Force dark assets in light mode */
+.white-matte .text-muted-foreground { color: #555555 !important; }
+.white-matte .text-foreground { color: #000000 !important; }
+.white-matte button:not(.mexican-pink-premium) { color: #000000 !important; }
+.white-matte .ram-card { background-color: #FFFFFF; color: #000000; }
+.white-matte svg { color: inherit; }
+
+/* 💎 LOGO CONTRAST: Auto-invert PNG wordmark in light mode */
+.white-matte .swipess-logo img {
+  filter: brightness(0);
 }
 
 /* ─── Layout Utils (Safe Areas) ─── */

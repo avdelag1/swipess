@@ -96,40 +96,40 @@
 /* THEME: LIGHT — Clean, normal white */
 .light {
     --background: 0 0% 100%;
-    --foreground: 0 0% 7%;
-    --card: 0 0% 99%;
-    --card-foreground: 0 0% 7%;
-    --primary: 343 99% 65%;
+    --foreground: 0 0% 5%; /* Sharp charcoal/black */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 5%;
+    --primary: 221 83% 53%; /* RAM Blue for Light Theme */
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 10%;
+    --secondary-foreground: 0 0% 5%;
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 35%;
-    --accent: 343 99% 65%;
+    --muted-foreground: 0 0% 30%;
+    --accent: 221 83% 53%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 343 99% 65%;
+    --border: 0 0% 92%;
+    --input: 0 0% 92%;
+    --ring: 221 83% 53%;
 
     --bg-primary: 0 0% 100%;
-    --bg-secondary: 0 0% 97%;
-    --bg-tertiary: 0 0% 95%;
-    --text-primary: 0 0% 5%;
-    --text-secondary: 0 0% 30%;
-    --text-tertiary: 0 0% 45%;
-    --border-primary: 0 0% 90%;
-    --border-secondary: 0 0% 85%;
-    --accent-primary: 343 99% 65%;
-    --accent-secondary: 343 99% 72%;
+    --bg-secondary: 0 0% 98%;
+    --bg-tertiary: 0 0% 96%;
+    --text-primary: 0 0% 5%; /* Pure charcoal */
+    --text-secondary: 0 0% 25%;
+    --text-tertiary: 0 0% 40%;
+    --border-primary: 0 0% 92%;
+    --border-secondary: 0 0% 88%;
+    --accent-primary: 221 83% 53%;
+    --accent-secondary: 221 83% 63%;
 
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
-    --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.06);
-    --shadow-glow: 0 0 20px rgba(229, 57, 53, 0.15);
-    --overlay: rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.07);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --shadow-card: var(--shadow-ram-card);
+    --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.1);
+    --overlay: rgba(0, 0, 0, 0.5);
 }
 
 /* THEME 4: RED MATTE (Bold Mexican spirit) */

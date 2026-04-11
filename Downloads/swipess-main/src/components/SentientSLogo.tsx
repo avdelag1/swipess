@@ -143,7 +143,7 @@ export const SentientSLogo = memo(({ size = 'md', className }: SentientSLogoProp
 
       {/* The Central S Logo */}
       <img
-        src="/icons/swipess-brand-logo.webp"
+        src="/icons/swipess-logo-transparent.png"
         alt="S"
         width="960"
         height="640"
