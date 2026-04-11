@@ -333,11 +333,16 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/owner/dashboard',
       '/client/profile',
       '/owner/profile',
+      '/client/liked-properties',
+      '/owner/properties',
+      '/owner/interested-clients',
+      '/owner/liked-clients',
     ];
 
     const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
       path.includes('discovery') ||
-      path.includes('view-client');
+      path.includes('view-client') ||
+      path.includes('/listing/');
     
     return isMatch;
   }, [location.pathname]);
@@ -495,10 +500,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
         )}
         style={{
-          paddingTop: (isFullScreenRoute)
+          paddingTop: (isFullScreenRoute || isImmersiveDashboard)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isFullScreenRoute) 
+          paddingBottom: (isFullScreenRoute || isImmersiveDashboard) 
             ? '0px' 
             : `calc(${bottomNavHeight}px + var(--safe-bottom) + 32px)`,
           paddingLeft: 'max(var(--safe-left), 0px)',

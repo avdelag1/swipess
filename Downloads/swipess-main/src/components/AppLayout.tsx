@@ -58,10 +58,20 @@ export function AppLayout({ children }: AppLayoutProps) {
   
   // Immersive sections where header starts transparent
   const isImmersive = useMemo(() => {
-    const immersiveRoutes = ['/client/dashboard', '/owner/dashboard', '/client/profile', '/owner/profile'];
+    const immersiveRoutes = [
+      '/client/dashboard', 
+      '/owner/dashboard', 
+      '/client/profile', 
+      '/owner/profile',
+      '/client/liked-properties',
+      '/owner/properties',
+      '/owner/interested-clients',
+      '/owner/liked-clients'
+    ];
     const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
     return immersiveRoutes.some(r => location.pathname.startsWith(r)) || 
            location.pathname.includes('discovery') || 
+           location.pathname.includes('/listing/') ||
            hideHUDRoutes.some(r => location.pathname.startsWith(r));
   }, [location.pathname]);
 
@@ -122,10 +132,10 @@ export function AppLayout({ children }: AppLayoutProps) {
               : "overflow-y-auto scroll-smooth"
           )}
           style={{
-            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !(location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')))
+            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !(location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')) && !isImmersive)
               ? 'var(--top-bar-height, 60px)'
               : undefined,
-            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !(location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')))
+            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !(location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')) && !isImmersive)
               ? 'calc(68px + env(safe-area-inset-bottom, 0px))'
               : undefined,
           }}

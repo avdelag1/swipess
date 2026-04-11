@@ -31,7 +31,7 @@ const OwnerProperties = () => {
 
   return (
     <>
-      <div className="w-full overflow-x-hidden pt-4 px-4 sm:px-6 pb-24 bg-background min-h-full">
+      <div className="w-full overflow-x-hidden pt-0 px-4 sm:px-6 pb-12 bg-background min-h-full">
         <motion.button
           onClick={() => navigate('/owner/settings')}
           whileTap={{ scale: 0.8, transition: { type: "spring", stiffness: 400, damping: 17 } }}
