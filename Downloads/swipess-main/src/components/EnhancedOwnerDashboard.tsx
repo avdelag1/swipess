@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ClientFilters } from '@/hooks/useSmartMatching';
+import { OwnerInsightsDashboard } from '@/components/OwnerInsightsDashboard';
 import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
 import { useFilterActions } from '@/state/filterStore';
 import type { OwnerIntentCard } from '@/components/swipe/SwipeConstants';
@@ -155,10 +156,65 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     );
   }
 
+  const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
+
+  // Read activeCategory from store
+  const activeCategory = useFilterStore(s => s.activeCategory);
+  
+  // Conditionally hide category fan when in insights mode
+  const effectiveCategory = viewMode === 'insights' ? 'insights-active' : activeCategory;
+
+  const { setCategories, setClientType, setListingType } = useFilterActions();
+
+  const handleCardSelect = useCallback((card: OwnerIntentCard) => {
+    triggerHaptic('medium');
+    setCategories([card.category || 'property']);
+    if (card.clientType) setClientType(card.clientType);
+    if (card.listingType) setListingType(card.listingType);
+  }, [setCategories, setClientType, setListingType]);
+
   return (
     <div className="flex flex-col h-full w-full overflow-hidden bg-background">
+      {/* Immersive View Switcher */}
+      <div className="absolute top-24 left-1/2 -translate-x-1/2 z-[40] flex p-1.5 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/5 shadow-2xl">
+        <button
+          onClick={() => {
+            setViewMode('discovery');
+            triggerHaptic('light');
+          }}
+          className={cn(
+            "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+            viewMode === 'discovery' ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"
+          )}
+        >
+          Discovery
+        </button>
+        <button
+          onClick={() => {
+            setViewMode('insights');
+            triggerHaptic('light');
+          }}
+          className={cn(
+            "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+            viewMode === 'insights' ? "bg-white/10 text-white shadow-lg" : "text-white/40 hover:text-white/60"
+          )}
+        >
+          Insights
+        </button>
+      </div>
+
       <AnimatePresence mode="wait">
-        {!activeCategory ? (
+        {viewMode === 'insights' ? (
+          <motion.div
+            key="owner-insights"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="flex-1 overflow-y-auto pt-24"
+          >
+            <OwnerInsightsDashboard />
+          </motion.div>
+        ) : !activeCategory ? (
           <motion.div 
             key="owner-dash-fan"
             initial={{ opacity: 0, scale: 0.95 }}

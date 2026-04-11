@@ -351,11 +351,11 @@
 
 .swipess-logo-enhanced {
   background: linear-gradient(135deg,
-      #FF8C42 0%,
-      #FFB347 25%,
-      #FF6B35 50%,
-      #FF4D00 75%,
-      #FF8C42 100%);
+      #FFFFFF 0%,
+      #F0F0F0 25%,
+      #D1D5DB 50%,
+      #F3F4F6 75%,
+      #FFFFFF 100%);
   background-size: 200% 200%;
   background-clip: text;
   -webkit-background-clip: text;

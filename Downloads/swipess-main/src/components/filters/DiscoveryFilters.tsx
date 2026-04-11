@@ -7,12 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Home, DollarSign, Bed, Sparkles, PawPrint, Sofa, Building2, Eye, Car, Calendar } from 'lucide-react';
+import { ChevronDown, Home, DollarSign, Bed, Sparkles, PawPrint, Sofa, Building2, Eye, Car, Calendar, Globe } from 'lucide-react';
 import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
+import { useFilterStore } from '@/state/filterStore';
 
 // Predefined budget ranges for motorcycles (rent)
 const MOTO_RENT_BUDGET_RANGES = [
@@ -64,6 +65,8 @@ interface DiscoveryFiltersProps {
 
 export function DiscoveryFilters({ category, onApply, initialFilters = {}, activeCount: _activeCount }: DiscoveryFiltersProps) {
   const savePreferencesMutation = useSaveClientFilterPreferences();
+  const radiusKm = useFilterStore(s => s.radiusKm);
+  const setRadiusKm = useFilterStore(s => s.setRadiusKm);
 
   // SHARED STATE
   const [interestType, setInterestType] = useState(initialFilters.interest_type || 'both');
@@ -215,15 +218,35 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
         </Collapsible>
       </Card>
 
-      {/* Location Filter */}
+      {/* Location Filter & Radius */}
       <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
-        <CardContent className="pt-4">
+        <CardHeader className="pb-0 pt-6 px-6">
+          <div className="flex items-center gap-2">
+             <Globe className="w-4 h-4 text-primary" />
+             <span className="text-xs font-black uppercase tracking-widest">Geo Scope</span>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-4 space-y-6">
           <EmbeddedLocationFilter
             countries={locationCountries} setCountries={setLocationCountries}
             cities={locationCities} setCities={setLocationCities}
             neighborhoods={locationNeighborhoods} setNeighborhoods={setLocationNeighborhoods}
             multiSelect={true} defaultOpen={false} country="" city="" neighborhood="" setCountry={()=>{}} setCity={()=>{}} setNeighborhood={()=>{}}
           />
+          
+          <div className="pt-2 space-y-4">
+             <div className="flex justify-between items-center">
+               <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Search Radius</Label>
+               <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black">{radiusKm} KM</Badge>
+             </div>
+             <Slider 
+                value={[radiusKm]} 
+                onValueChange={(v) => setRadiusKm(v[0])} 
+                min={1} max={200} step={1} 
+                className="py-2"
+             />
+             <p className="text-[9px] text-white/20 font-medium">Radius filtering uses your current GPS or selected location.</p>
+          </div>
         </CardContent>
       </Card>
 

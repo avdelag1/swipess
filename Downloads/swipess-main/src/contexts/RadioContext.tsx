@@ -406,7 +406,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           artist: "Swipess: Find Your Direct Deal",
           album: "Swipe & Save Big",
           artwork: [
-            { src: targetStation.albumArt || 'https://ivfdbmbevemvpkqukmdy.supabase.co/storage/v1/object/public/app-assets/swipess_logo_square.png', sizes: '512x512', type: 'image/png' },
+            { src: targetStation.albumArt || '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
           ]
         });
 
