@@ -471,7 +471,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className={cn(
-      "dashboard-root w-full h-full min-h-0 bg-background relative flex flex-col overflow-hidden",
+      "dashboard-root w-full h-full min-h-0 bg-transparent relative flex flex-col overflow-hidden",
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
 
@@ -486,7 +486,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
         }}
         className={cn(
-          "flex-1 w-full min-h-0 bg-background relative z-0 touch-pan-y overscroll-y-contain",
+          "flex-1 w-full min-h-0 bg-transparent relative z-0 touch-pan-y overscroll-y-contain",
           isRadioRoute ? "overflow-visible" 
               : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
@@ -504,7 +504,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           
         }}
       >
-        <div className="min-h-full w-full flex flex-1 min-w-0 flex-col bg-background">
+        <div className="min-h-full w-full flex flex-1 min-w-0 flex-col bg-background overflow-x-clip">
           {enhancedChildren}
         </div>
       </main>

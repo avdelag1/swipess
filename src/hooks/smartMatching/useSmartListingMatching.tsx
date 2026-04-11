@@ -63,13 +63,17 @@ export function useSmartListingMatching(
     useEffect(() => {
         if (!userId) return;
         const channel = supabase
-            .channel('listings-realtime')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'listings' }, () => {
-                logger.info('[SmartMatching] New listing inserted, invalidating queries');
+            .channel(`listings-realtime-${userId}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'listings' }, () => {
+                logger.info('[SmartMatching] Listing changed, invalidating queries');
                 queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
+                queryClient.invalidateQueries({ queryKey: ['listings'] });
             })
             .subscribe();
-        return () => { channel.unsubscribe(); };
+        return () => {
+            channel.unsubscribe();
+            supabase.removeChannel(channel);
+        };
     }, [userId, queryClient]);
 
     return useQuery({
