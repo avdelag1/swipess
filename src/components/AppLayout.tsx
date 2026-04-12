@@ -62,13 +62,12 @@ export function AppLayout({ children }: AppLayoutProps) {
     const immersiveRoutes = [
       '/client/dashboard', 
       '/owner/dashboard', 
-      '/client/profile', 
-      '/owner/profile',
       '/client/liked-properties',
       '/owner/properties',
       '/owner/interested-clients',
       '/owner/liked-clients',
-      '/client/advertise'
+      '/client/advertise',
+      '/explore/eventos'
     ];
     const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
     return immersiveRoutes.some(r => location.pathname.startsWith(r)) || 

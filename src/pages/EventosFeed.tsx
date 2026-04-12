@@ -122,20 +122,17 @@ export default function EventosFeed() {
         price_text: ev.price_text || null,
       }));
 
-      // Zenith: Only show real events if they exist, otherwise use mocks for a "full" feel
       return formatted.length > 0 ? formatted : MOCK_EVENTS;
     },
     staleTime: 5 * 60 * 1000,
     placeholderData: MOCK_EVENTS,
   });
 
-  // 🏎️ SPEED OF LIGHT: Force high-fidelity mock data to ensure "sentient" breathing photos always exist
   const allEvents = useMemo(() => {
     const real = rawEvents || [];
     const mockUnique = MOCK_EVENTS.filter(m => !real.some(r => r.id === m.id));
     const combined = [...real, ...mockUnique];
     
-    // 🚀 WARP SPEED: Pre-warm first 3 photos immediately on data ready
     if (combined.length > 0 && typeof window !== 'undefined') {
       import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
         const first3 = combined.slice(0, 3).map(e => getCardImageUrl(e.image_url || ''));
@@ -151,7 +148,7 @@ export default function EventosFeed() {
     return allEvents.filter(e => e.category === activeCategory);
   }, [allEvents, activeCategory, likedIds]);
 
-  // 4. Scroll & Virtualization
+  // Scroll & Virtualization
   useEffect(() => {
     const el = parentRef.current;
     if (!el) return;
@@ -177,7 +174,7 @@ export default function EventosFeed() {
     initialOffset: 0,
   });
 
-  // 5. Auto-play Logic
+  // Auto-play Logic
   const _pauseAutoPlay = useCallback(() => {
     setIsPaused(true);
     if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
@@ -203,9 +200,7 @@ export default function EventosFeed() {
     return () => clearTimeout(timeout);
   }, [autoPlay, isPaused, activeIdx, filteredEvents.length, animKey]);
 
-  // 🏎️ SPEED OF LIGHT: Aggressive Image Warmup
   useEffect(() => {
-    // Prefetch next 5 items' images whenever index changes
     const nextBatch = filteredEvents.slice(activeIdx + 1, activeIdx + 6);
     if (nextBatch.length > 0) {
       import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {
@@ -214,7 +209,6 @@ export default function EventosFeed() {
       });
     }
 
-    // Also prefetch data for next 3 items
     for (let i = 1; i <= 3; i++) {
       const preIdx = (activeIdx + i) % (filteredEvents.length + 1);
       const preId = filteredEvents[preIdx]?.id;
@@ -222,7 +216,6 @@ export default function EventosFeed() {
     }
   }, [activeIdx, filteredEvents, queryClient]);
 
-  // Handlers
   const handleOpenChat = useCallback((event: EventItem) => {
     triggerHaptic('light');
     const clean = (event.organizer_whatsapp || '').replace(/[^+\d]/g, '');
@@ -245,30 +238,24 @@ export default function EventosFeed() {
     <div className={cn("relative w-full h-full min-h-[100dvh] flex flex-col bg-black overflow-hidden")}>
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       
-      {/* Immersive HUD (Overlay) */}
-      <div className="absolute top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 pt-12 pb-6 bg-gradient-to-b from-black/80 via-black/40 to-transparent">
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => { triggerHaptic('light'); navigate(-1); }}
-          className={cn(
-            "w-11 h-11 rounded-[1.25rem] border backdrop-blur-3xl flex items-center justify-center transition-all shadow-2xl",
-            isLight ? "bg-white/80 border-slate-200 text-slate-900" : "bg-black/40 border-white/10 text-white"
-          )}
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </motion.button>
-      </div>
-
-      {/* Immersive Controls (Floating below global HUD) */}
+      {/* Consolidated Immersive HUD (Single Row) */}
       <div 
-        className="absolute left-0 right-0 z-[100] transform-gpu"
-        style={{ top: 'calc(var(--safe-top, 12px) + 12px)' }}
+        className="absolute left-0 right-0 z-[100] transform-gpu px-4 pt-8"
+        style={{ top: 'calc(var(--safe-top, 6px))' }}
       >
+        <div className="flex items-center gap-3">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => { triggerHaptic('light'); navigate(-1); }}
+            className={cn(
+              "w-12 h-12 rounded-2xl border backdrop-blur-3xl flex items-center justify-center transition-all shadow-2xl shrink-0",
+              isLight ? "bg-white/80 border-slate-200 text-slate-900" : "bg-black/60 border-white/10 text-white"
+            )}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </motion.button>
 
-
-        {/* Categories: Modern Horizontal Pill Selection */}
-        <div className="relative z-50">
-          <div className="flex gap-3 px-6 pt-3 pb-4 overflow-x-auto no-scrollbar scroll-smooth">
+          <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar scroll-smooth py-2">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const active = activeCategory === cat.key;
@@ -283,7 +270,7 @@ export default function EventosFeed() {
                     if (cat.key === 'likes') navigate('/explore/eventos/likes');
                   }} 
                   className={cn(
-                    "flex items-center gap-2 px-5 py-3 rounded-2xl shrink-0 transition-all duration-500 border relative overflow-hidden group",
+                    "flex items-center gap-2 px-5 py-3 rounded-2xl shrink-0 transition-all duration-300 border relative overflow-hidden group h-12",
                     active 
                       ? "scale-105 shadow-xl shadow-black/20" 
                       : "opacity-70 hover:opacity-100 backdrop-blur-md"
@@ -314,19 +301,17 @@ export default function EventosFeed() {
               );
             })}
           </div>
-          
-          {/* Adaptive Ambient Glow: Changes color based on active category */}
-          <div 
-            className="absolute -top-32 left-1/2 -translate-x-1/2 w-[140%] h-[160px] blur-[100px] opacity-20 pointer-events-none transition-colors duration-1000 z-[-1]"
-            style={{ 
-              background: `radial-gradient(circle, ${CATEGORIES.find(c => c.key === activeCategory)?.color || '#f97316'} 0%, transparent 70%)` 
-            }}
-          />
         </div>
+        
+        <div 
+          className="absolute -top-32 left-1/2 -translate-x-1/2 w-[140%] h-[160px] blur-[100px] opacity-20 pointer-events-none transition-colors duration-1000 z-[-1]"
+          style={{ 
+            background: `radial-gradient(circle, ${CATEGORIES.find(c => c.key === activeCategory)?.color || '#f97316'} 0%, transparent 70%)` 
+          }}
+        />
       </div>
 
       {/* Main Feed */}
-      {/* Main Feed - Unlocked scroll for "Full Page" feel but keeping snap for story experience */}
       <div 
         ref={parentRef} 
         className="w-full h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar overscroll-contain touch-pan-y"
@@ -350,7 +335,7 @@ export default function EventosFeed() {
                   isActive={virtualRow.index === activeIdx}
                   isPaused={isPaused}
                   animKey={animKey}
-                  onTickComplete={() => {}} // Controlled by main feed effect
+                  onTickComplete={() => {}} 
                   liked={likedIds.has(event.id)}
                   activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
                   onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}

@@ -331,8 +331,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const immersiveRoutes = [
       '/client/dashboard',
       '/owner/dashboard',
-      '/client/profile',
-      '/owner/profile',
       '/client/liked-properties',
       '/owner/properties',
       '/owner/interested-clients',

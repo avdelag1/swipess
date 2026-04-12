@@ -62,8 +62,15 @@ export function PageHeader({
             Back
           </motion.button>
         )}
-        <div className="flex items-center gap-3">
-          {/* Branding and Title removed for clean HUD space */}
+        <div className="flex flex-col min-w-0">
+          <h1 className="text-xl font-black text-foreground tracking-tight leading-none uppercase italic truncate">
+             {title}
+          </h1>
+          {subtitle && (
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">
+              {subtitle}
+            </p>
+          )}
         </div>
       </div>
       {actions && (

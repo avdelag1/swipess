@@ -27,6 +27,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 const ClientProfile = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [isVapModalOpen, setIsVapModalOpen] = useState(false);
   const { data: profile, isLoading } = useClientProfile();
   const { user, signOut } = useAuth();
@@ -60,7 +61,7 @@ const ClientProfile = () => {
 
   return (
     <div className="w-full">
-      <div className="w-full max-w-lg mx-auto p-4 pt-2 pb-32 space-y-6 bg-background relative">
+      <div className="w-full max-w-lg mx-auto p-4 pt-24 pb-32 space-y-6 bg-background relative">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
           <div className="relative">

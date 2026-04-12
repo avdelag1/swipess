@@ -265,7 +265,7 @@ function TopBarComponent({
 
 
               <div className="flex-1 flex justify-center">
-                 {/* Branding removed except for Entry/Auth pages per user requirements */}
+                 <SwipessLogo size="sm" className="opacity-80 transition-opacity hover:opacity-100" />
               </div>
 
                 {!minimal && (
@@ -420,6 +420,9 @@ function TopBarComponent({
                     <RadioIcon strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-rose-500" : "text-white/70")} style={{ filter: isLight ? 'drop-shadow(0 0 6px rgba(244,63,94,0.35))' : 'none' }} />
                   </Button>
 
+                  {/* Theme Toggle */}
+                  <ThemeToggle />
+
                   {/* Resident ID Card Button (Client only) */}
                   {userRole !== 'owner' && (
                     <Button
@@ -440,9 +443,6 @@ function TopBarComponent({
                       <IdCard strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-primary" : "text-white/70")} />
                     </Button>
                   )}
-
-                  {/* Theme Toggle */}
-                  <ThemeToggle />
 
                   {/* Notifications Button */}
                   <NotificationPopover />
