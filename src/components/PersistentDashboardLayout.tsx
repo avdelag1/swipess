@@ -59,10 +59,7 @@ function PersistentDashboardLayoutInner() {
     <DashboardLayout userRole={userRole}>
       <div
         id="zenith-dashboard-root"
-        className="flex h-full min-h-0 w-full flex-1 flex-col"
-        style={location.pathname.startsWith('/radio')
-          ? undefined
-          : { contentVisibility: 'auto', containIntrinsicSize: '1000px' }}
+        className="flex w-full flex-1 flex-col relative"
       >
         <AnimatedOutlet />
       </div>

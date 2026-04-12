@@ -486,7 +486,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
         }}
         className={cn(
-          "flex-1 w-full min-h-0 bg-transparent relative z-0 touch-pan-y overscroll-y-contain",
+          "flex-1 w-full min-h-0 bg-transparent relative z-0",
           isRadioRoute ? "overflow-visible" 
               : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
