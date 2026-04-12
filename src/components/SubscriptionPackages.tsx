@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Crown, Check, Shield, Clock, Sparkles } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { STORAGE } from '@/constants/app';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface SubscriptionPackagesProps {
@@ -20,11 +21,12 @@ type Plan = {
   name: string;
   label: string;
   price: string;
+  priceNum: number;
   durationText: string;
+  perMonth: string;
   benefits: string[];
   paypalUrl: string;
   highlight?: boolean;
-  accent: 'blue' | 'pink' | 'gold';
 };
 
 const clientPlans: Plan[] = [
@@ -33,87 +35,68 @@ const clientPlans: Plan[] = [
     name: 'Monthly',
     label: 'STARTER',
     price: '$39',
-    durationText: '/month',
+    priceNum: 39,
+    perMonth: '$39',
+    durationText: 'Billed monthly',
     benefits: [
-      'Communicate with listings and members',
-      'Post properties, services & vehicles',
+      'Communicate with listings',
+      'Post properties & vehicles',
       'Save favorite listings',
-      '🤖 AI Concierge — 15 messages/day',
-      '📝 AI Listing Creator — 3/month',
+      'AI Concierge — 15 msg/day',
+      'AI Listing Creator — 3/mo',
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
-    accent: 'blue',
   },
   {
     id: 'client-unlimited-6-months',
     name: 'Semi-Annual',
     label: 'POPULAR',
     price: '$119',
-    durationText: '/6 months',
+    priceNum: 119,
+    perMonth: '$19.83',
+    durationText: 'Billed every 6 months',
     benefits: [
-      'Communicate with listings and members',
-      'Post properties, services & vehicles',
+      'Communicate with listings',
+      'Post properties & vehicles',
       'Save favorite listings',
-      '🧠 AI Concierge — 50 messages/day',
-      '📝 AI Listing Creator — 10/month',
-      '🗺️ Local Expert Knowledge',
-      '💡 AI Smart Suggestions',
+      'AI Concierge — 50 msg/day',
+      'AI Listing Creator — 10/mo',
+      'Local Expert Knowledge',
+      'AI Smart Suggestions',
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
-    accent: 'pink',
+    highlight: true,
   },
   {
     id: 'client-unlimited-1-year',
     name: 'Yearly',
     label: 'BEST VALUE',
     price: '$299',
-    durationText: '/year',
+    priceNum: 299,
+    perMonth: '$24.92',
+    durationText: 'Billed annually',
     benefits: [
-      'Communicate with listings and members',
-      'Post properties, services & vehicles',
+      'Communicate with listings',
+      'Post properties & vehicles',
       'Save favorite listings',
-      '🔥 AI Concierge — Unlimited',
-      '📝 AI Listing Creator — Unlimited',
-      '🗺️ Local Expert Knowledge',
-      '💡 AI Personalized Suggestions',
-      '⚡ Priority AI Responses',
+      'AI Concierge — Unlimited',
+      'AI Listing Creator — Unlimited',
+      'Local Expert Knowledge',
+      'AI Personalized Suggestions',
+      'Priority AI Responses',
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
-    highlight: true,
-    accent: 'gold',
   },
 ];
 
-const accentStyles = {
-  blue: {
-    border: 'border-blue-500/20',
-    badge: 'bg-blue-500/15 text-blue-400',
-    button: 'bg-gradient-to-r from-blue-600 to-blue-400',
-    checkColor: 'text-blue-400',
-    topGradient: 'from-blue-500/8 via-transparent to-transparent',
-  },
-  pink: {
-    border: 'border-pink-500/25',
-    badge: 'bg-pink-500/15 text-pink-400',
-    button: 'bg-gradient-to-r from-pink-600 to-orange-500',
-    checkColor: 'text-pink-400',
-    topGradient: 'from-pink-500/8 via-transparent to-transparent',
-  },
-  gold: {
-    border: 'border-amber-500/30',
-    badge: 'bg-amber-500/15 text-amber-400',
-    button: 'bg-gradient-to-r from-amber-500 to-orange-500',
-    checkColor: 'text-amber-400',
-    topGradient: 'from-amber-500/8 via-transparent to-transparent',
-  },
-};
-
 export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole = 'client' }: SubscriptionPackagesProps) {
   const { user } = useAuth();
+  const [selectedIndex, setSelectedIndex] = useState(1); // default to Popular
 
   if (!isOpen) return null;
 
   const plans = clientPlans;
+  const activePlan = plans[selectedIndex];
 
   const handleSubscribe = async (plan: Plan) => {
     const selection = { role: userRole, planId: plan.id, name: plan.name, price: plan.price, at: new Date().toISOString() };
@@ -133,101 +116,107 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
         notification_type: 'payment_received',
         title: 'Premium Package Selected!',
         message: `You selected the ${plan.name} package (${plan.price}). Complete payment to activate your premium benefits!`,
-        is_read: false
-      }]).then(
-        () => {},
-        () => {}
-      );
+        is_read: false,
+      }]).then(() => {}, () => {});
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 bg-background border-border overflow-hidden rounded-3xl">
+      <DialogContent className="max-w-md max-h-[90vh] p-0 bg-background border-border overflow-hidden rounded-3xl">
         {/* Header */}
-        <div className="text-center px-4 pt-6 pb-3">
-          <Crown className="w-6 h-6 text-amber-400 mx-auto mb-2" />
-          <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-pink-500 via-orange-400 to-amber-400 bg-clip-text text-transparent">
-            Unlock Premium
-          </h2>
+        <div className="text-center px-5 pt-6 pb-2">
+          <Crown className="w-7 h-7 text-amber-400 mx-auto mb-2" />
+          <h2 className="text-2xl font-extrabold text-foreground">Unlock Premium</h2>
           {reason && (
-            <p className="text-xs text-muted-foreground mt-1.5">{reason}</p>
+            <p className="text-xs text-muted-foreground mt-1">{reason}</p>
           )}
         </div>
 
-        {/* Cards */}
-        <div className="flex flex-col sm:flex-row gap-3 px-4 sm:px-5 pb-3 items-stretch">
-          {plans.map((pkg, index) => {
-            const style = accentStyles[pkg.accent];
-            const isHighlight = pkg.highlight;
-
-            return (
-              <motion.div
-                key={pkg.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + index * 0.08, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        {/* Segmented Selector */}
+        <div className="px-5">
+          <div className="flex bg-muted/50 rounded-2xl p-1 gap-0.5">
+            {plans.map((plan, i) => (
+              <button
+                key={plan.id}
+                onClick={() => setSelectedIndex(i)}
                 className={cn(
-                  "flex-1 flex flex-col rounded-2xl border backdrop-blur-xl bg-card/50 p-4 relative overflow-hidden",
-                  style.border,
-                  isHighlight && "ring-1 ring-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.08)]"
+                  "relative flex-1 py-2.5 px-2 rounded-xl text-center transition-all duration-200",
+                  selectedIndex === i
+                    ? "bg-card shadow-md text-foreground"
+                    : "text-muted-foreground hover:text-foreground/70"
                 )}
               >
-                <div className={cn("absolute inset-0 rounded-2xl bg-gradient-to-b pointer-events-none", style.topGradient)} />
-
-                <div className="relative flex flex-col flex-1">
-                  {/* Badge */}
-                  <span className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full w-fit mb-2", style.badge)}>
-                    {pkg.label}
+                {plan.highlight && (
+                  <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold uppercase tracking-wider bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                    Popular
                   </span>
-
-                  <h3 className="text-sm font-bold text-foreground">{pkg.name}</h3>
-
-                  <div className="flex items-baseline gap-1 mt-1 mb-3">
-                    <span className="text-2xl sm:text-3xl font-extrabold text-foreground">{pkg.price}</span>
-                    <span className="text-[10px] sm:text-xs text-muted-foreground">USD {pkg.durationText}</span>
-                  </div>
-
-                  <div className="h-px bg-border mb-2.5" />
-
-                  <div className="flex-1 space-y-1.5 mb-3">
-                    {pkg.benefits.map((feature, i) => (
-                      <div key={i} className="flex items-start gap-1.5">
-                        <Check className={cn("w-3 h-3 flex-shrink-0 mt-0.5", style.checkColor)} />
-                        <span className="text-[11px] sm:text-xs text-foreground/80 leading-snug">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <motion.button
-                    whileTap={{ scale: 0.96 }}
-                    onClick={() => handleSubscribe(pkg)}
-                    className={cn(
-                      "w-full py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white transition-opacity hover:opacity-90",
-                      style.button,
-                      isHighlight && "shadow-md shadow-amber-500/15"
-                    )}
-                  >
-                    {isHighlight ? '🚀 Get Best Value' : 'Subscribe Now'}
-                  </motion.button>
-                </div>
-              </motion.div>
-            );
-          })}
+                )}
+                <span className="text-xs font-semibold block">{plan.name}</span>
+                <span className="text-[10px] opacity-70 block">{plan.price}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
+        {/* Active Plan Detail */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activePlan.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="px-5 pb-2"
+          >
+            {/* Price Display */}
+            <div className="text-center py-4">
+              <div className="flex items-baseline justify-center gap-1">
+                <span className="text-5xl font-extrabold text-foreground tracking-tight">{activePlan.price}</span>
+                <span className="text-sm text-muted-foreground font-medium">USD</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">{activePlan.durationText} · {activePlan.perMonth}/mo</p>
+            </div>
+
+            {/* Features Grid */}
+            <div className="bg-muted/30 rounded-2xl p-4 mb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">What's included</p>
+              <div className="grid grid-cols-1 gap-2">
+                {activePlan.benefits.map((feature, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-emerald-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-2.5 h-2.5 text-emerald-400" />
+                    </div>
+                    <span className="text-sm text-foreground/85 leading-snug">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => handleSubscribe(activePlan)}
+              className="w-full py-4 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-primary to-primary/80 shadow-lg shadow-primary/20 transition-opacity hover:opacity-90 active:opacity-95"
+              style={{ minHeight: 52 }}
+            >
+              Subscribe Now — {activePlan.price}
+            </motion.button>
+          </motion.div>
+        </AnimatePresence>
+
         {/* Trust Footer */}
-        <div className="flex items-center justify-center gap-5 px-4 pb-4 pt-1">
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-            <Shield className="w-3 h-3 text-rose-500" />
+        <div className="flex items-center justify-center gap-5 px-5 pb-5 pt-1">
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <Shield className="w-3.5 h-3.5 text-emerald-500" />
             <span>Secure</span>
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-            <Clock className="w-3 h-3 text-blue-400" />
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <Clock className="w-3.5 h-3.5 text-blue-400" />
             <span>Instant</span>
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-            <Sparkles className="w-3 h-3 text-amber-400" />
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Cancel Anytime</span>
           </div>
         </div>
