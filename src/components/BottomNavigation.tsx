@@ -368,10 +368,10 @@ export const BottomNavigation = memo(({
               >
                 {/* Active state — icon + label color only, no background frame */}
                 <motion.div
-                  className="relative"
+                  className="relative flex items-center justify-center"
                   animate={{ scale: active ? 1.15 : 1 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
-                  style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
+                  style={{ zIndex: 1, minHeight: '26px' }}
                 >
 
                   {/* Notification badge */}
@@ -405,10 +405,10 @@ export const BottomNavigation = memo(({
                 </motion.div>
                 {/* Label: Natural height, no clipping */}
                 {!isNarrow && (
-                  <div className="flex items-center justify-center w-full min-h-[14px]">
+                  <div className="flex items-center justify-center w-full min-h-[14px] mt-0.5">
                     <span
                       className={cn(
-                        'text-[9px] tracking-tight transition-all duration-300 relative font-black uppercase italic whitespace-nowrap',
+                        'text-[10px] tracking-tight transition-all duration-300 relative font-black uppercase italic whitespace-nowrap',
                       )}
                       style={{
                         color: active

@@ -183,12 +183,12 @@ export function SharedProfileSection({
             >
               <AnimatePresence mode="wait">
                 {copied ? (
-                  <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+                  <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="flex items-center justify-center">
                     <Check className="w-5 h-5 text-rose-500" />
                   </motion.div>
                 ) : (
-                  <motion.div key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                    <Copy className={cn("w-4 h-4", isDark ? "text-zinc-300" : "text-gray-500")} />
+                  <motion.div key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="flex items-center justify-center">
+                    <Copy className={cn("w-5 h-5", isDark ? "text-zinc-300" : "text-gray-500")} />
                   </motion.div>
                 )}
               </AnimatePresence>

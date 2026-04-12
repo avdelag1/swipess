@@ -209,6 +209,14 @@ export function useConciergeAI() {
   const [egoLevel, setEgoLevelState] = useState<number>(
     () => parseInt(localStorage.getItem(EGO_KEY) || '6', 10)
   );
+  const [hasAcceptedTerms, setHasAcceptedTermsState] = useState<boolean>(
+    () => localStorage.getItem('swipess-ai-terms-accepted') === 'true'
+  );
+
+  const setHasAcceptedTerms = useCallback((accepted: boolean) => {
+    setHasAcceptedTermsState(accepted);
+    localStorage.setItem('swipess-ai-terms-accepted', String(accepted));
+  }, []);
 
   // ─── Cloud sync on mount ─────────────────────────────────────────────────
   useEffect(() => {
@@ -673,6 +681,8 @@ export function useConciergeAI() {
     setActiveCharacter,
     egoLevel,
     setEgoLevel,
+    hasAcceptedTerms,
+    setHasAcceptedTerms,
     canUseAI,
     isPremium,
   };

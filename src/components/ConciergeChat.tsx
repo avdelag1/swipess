@@ -11,6 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { playAiWelcomeSound, playAiCharacterChange, playAiMessageSound } from '@/utils/audioEvents';
+import { ConciergePrivacyPortal } from './ConciergePrivacyPortal';
 
 interface ConciergeChatProps {
   isOpen: boolean;
@@ -139,24 +140,39 @@ const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate
         'opacity-60 hover:opacity-100',
         isUser ? 'justify-end' : 'justify-start'
       )}>
-        <button onClick={onCopy} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Copy">
-          <Copy className="w-3 h-3" />
+        <button 
+          onClick={onCopy} 
+          className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-muted/80 text-muted-foreground/50 hover:text-brand-primary transition-all active:scale-90" 
+          aria-label="Copy"
+        >
+          <Copy className="w-3.5 h-3.5" strokeWidth={2.2} />
         </button>
         {onDelete && (
-          <button onClick={onDelete} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-destructive/70" aria-label="Delete message">
-            <Trash2 className="w-3 h-3" />
+          <button 
+            onClick={onDelete} 
+            className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-destructive/10 text-muted-foreground/50 hover:text-destructive transition-all active:scale-90" 
+            aria-label="Delete message"
+          >
+            <Trash2 className="w-3.5 h-3.5" strokeWidth={2.2} />
           </button>
         )}
         {isUser && onResend && (
-          <button onClick={onResend} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Resend">
-            <RefreshCw className="w-3 h-3" />
+          <button 
+            onClick={onResend} 
+            className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-muted/80 text-muted-foreground/50 hover:text-brand-primary transition-all active:scale-90" 
+            aria-label="Resend"
+          >
+            <RefreshCw className="w-3.5 h-3.5" strokeWidth={2.2} />
           </button>
         )}
         {!isUser && onTranslate && (
           <Popover>
             <PopoverTrigger asChild>
-              <button className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Translate">
-                <Globe className="w-3 h-3" />
+              <button 
+                className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-muted/80 text-muted-foreground/50 hover:text-brand-primary transition-all active:scale-90" 
+                aria-label="Translate"
+              >
+                <Globe className="w-3.5 h-3.5" strokeWidth={2.2} />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-40 p-1.5" side="top" align="start">
@@ -287,6 +303,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     sendMessage, resendMessage, stopGeneration,
     createConversation, switchConversation, deleteConversation, deleteMessage, deleteMemory, clearHistory,
     activeCharacter, setActiveCharacter, egoLevel, isPremium,
+    hasAcceptedTerms, setHasAcceptedTerms,
   } = useConciergeAI();
   const { navigate: appNavigate } = useAppNavigate();
 
@@ -675,7 +692,14 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <>
+          <ConciergePrivacyPortal 
+            isOpen={!hasAcceptedTerms} 
+            onAccept={() => setHasAcceptedTerms(true)}
+            onClose={onClose}
+          />
+
+          <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 40 }}
@@ -1038,6 +1062,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
             </div>
           </div>
         </motion.div>
+        </>
       )}
     </AnimatePresence>
   );
