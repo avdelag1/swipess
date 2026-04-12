@@ -56,8 +56,8 @@ export function usePushNotifications() {
         logger.info('[PushNative] Registered with token:', token.value);
         
         // Save token to Supabase
-        const { error } = await supabase
-          .from('push_subscriptions')
+        const { error } = await (supabase
+          .from('push_subscriptions') as any)
           .upsert({
             user_id: user.id,
             endpoint: token.value,
