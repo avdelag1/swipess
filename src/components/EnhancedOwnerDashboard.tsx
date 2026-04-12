@@ -169,35 +169,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }, [setCategories, setClientType, setListingType]);
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden bg-background">
-      {/* Immersive View Switcher */}
-      <div className="absolute top-24 left-1/2 -translate-x-1/2 z-[40] flex p-1.5 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/5 shadow-2xl">
-        <button
-          onClick={() => {
-            setViewMode('discovery');
-            triggerHaptic('light');
-          }}
-          className={cn(
-            "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-            viewMode === 'discovery' ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"
-          )}
-        >
-          Discovery
-        </button>
-        <button
-          onClick={() => {
-            setViewMode('insights');
-            triggerHaptic('light');
-          }}
-          className={cn(
-            "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-            viewMode === 'insights' ? "bg-white/10 text-white shadow-lg" : "text-white/40 hover:text-white/60"
-          )}
-        >
-          Insights
-        </button>
-      </div>
-
+    <div className="flex flex-col h-full w-full overflow-y-auto bg-background">
       <AnimatePresence mode="wait">
         {viewMode === 'insights' ? (
           <motion.div

@@ -32,7 +32,7 @@ export default function ClientDashboard({
   }, [onPropertyInsights]);
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">
+    <div className="flex flex-col h-full w-full overflow-y-auto bg-background relative">
       <AnimatePresence mode="wait">
         {!activeCategory ? (
           <motion.div 
