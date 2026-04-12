@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, Shield, ChevronRight, BookOpen } from "lucide-react";
+import { FileText, Shield, ChevronRight, BookOpen, Scale } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
@@ -11,6 +11,20 @@ export default function LegalPage() {
   const navigate = useNavigate();
 
   const legalItems = [
+    {
+      icon: Scale,
+      label: 'Legal Hub & Contracts',
+      description: 'Manage your rental agreements and digital protocols',
+      color: 'text-emerald-500',
+      action: () => navigate('/client/contracts')
+    },
+    {
+      icon: BookOpen,
+      label: 'Lawyer Services',
+      description: 'Get professional legal assistance for rental issues',
+      color: 'text-amber-500',
+      action: () => navigate('/client/legal-services')
+    },
     {
       icon: FileText,
       label: 'Terms of Service',

@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { VapIdCardModal } from "@/components/VapIdCardModal";
+import { Scale, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
@@ -25,7 +27,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 const ClientProfile = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const [isVapModalOpen, setIsVapModalOpen] = useState(false);
   const { data: profile, isLoading } = useClientProfile();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -143,6 +145,34 @@ const ClientProfile = () => {
           </div>
         </div>
 
+        {/* resident VAP ID card */}
+        <motion.div
+           initial={{ opacity: 0, scale: 0.95 }}
+           animate={{ opacity: 1, scale: 1 }}
+           className={cn(
+             "p-6 rounded-[2.5rem] relative overflow-hidden group cursor-pointer border-2 border-primary/20 hover:border-primary/40 transition-all",
+             isLight ? "mexican-pink-premium text-white shadow-xl" : "bg-white/[0.03] border-white/[0.08]"
+           )}
+           onClick={() => { haptics.select(); setIsVapModalOpen(true); }}
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-[50px] rounded-full translate-x-1/2 -translate-y-1/2" />
+          <div className="flex items-center gap-5 relative z-10">
+            <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center">
+              <ShieldCheck className="w-7 h-7 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base font-black uppercase tracking-widest text-white italic">Resident VAP Card</h3>
+              <p className="text-[10px] font-bold text-white/70 uppercase">Unlock Community Discounts in Tulum</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-white/50" />
+          </div>
+          
+          <VapIdCardModal 
+            isOpen={isVapModalOpen} 
+            onClose={() => setIsVapModalOpen(false)} 
+          />
+        </motion.div>
+
         {/* Profile Completion */}
         {profile && completionPercent < 100 && (
           <div
@@ -252,12 +282,23 @@ const ClientProfile = () => {
 
         <div className="space-y-2">
           <button
-            onClick={() => { haptics.success(); navigate('/subscription-packages'); }}
+            onClick={() => { haptics.success(); navigate('/subscription/packages'); }}
             className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl mexican-pink-premium relative overflow-hidden active:scale-[0.97] transition-transform shadow-lg font-bold text-sm"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.4),transparent)] opacity-50" />
             <Crown className="w-5 h-5 relative z-10 drop-shadow-lg" />
             <span className="relative z-10">Premium Package</span>
+          </button>
+
+          <button
+            onClick={() => { haptics.select(); navigate('/client/contracts'); }}
+            className={cn(
+              "w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border",
+              isLight ? "bg-card border-border/40 text-foreground shadow-sm" : "bg-white/[0.04] border-white/[0.06] text-foreground"
+            )}
+          >
+            <Scale className="w-5 h-5 opacity-70" />
+            Legal Hub & Contracts
           </button>
 
           <button

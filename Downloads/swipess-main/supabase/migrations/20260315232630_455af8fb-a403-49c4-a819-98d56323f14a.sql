@@ -1,1 +1,0 @@
-ALTER TABLE public.client_profiles ADD COLUMN IF NOT EXISTS roommate_available boolean DEFAULT false;

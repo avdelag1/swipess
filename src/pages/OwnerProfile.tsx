@@ -11,6 +11,7 @@ import {
   LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { Scale } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
@@ -181,14 +182,24 @@ const OwnerProfile = () => {
 
         {/* Action Buttons - unified compact stack */}
         <div className="space-y-2">
+          {/* Legal Hub */}
+          <button
+            onClick={() => { haptics.select(); navigate('/owner/contracts'); }}
+            className={cn(
+              "w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border",
+              isLight ? "bg-card border-border/40 text-foreground shadow-sm" : "bg-white/[0.04] border-white/[0.06] text-foreground"
+            )}
+          >
+            <Scale className="w-5 h-5 opacity-70" />
+            Legal Hub & Contracts
+          </button>
+
           {/* Settings */}
           <button
             onClick={() => { haptics.tap(); navigate('/owner/settings'); }}
             className={cn(
               "w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border",
-              isLight
-                ? "bg-card border-border/40 text-foreground shadow-sm"
-                : "bg-white/[0.04] border-white/[0.06] text-foreground"
+              isLight ? "bg-card border-border/40 text-foreground shadow-sm" : "bg-white/[0.04] border-white/[0.06] text-foreground"
             )}
           >
             <Settings className="w-5 h-5 opacity-70" />
