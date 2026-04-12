@@ -186,6 +186,9 @@ const ClientSettings = () => {
           </motion.div>
         </div>
       </div>
+    );
+  }
+
   if (activeSection === 'preferences') {
     return (
       <div className="w-full px-4 pt-4 pb-32 bg-background flex-1 relative">
