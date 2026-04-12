@@ -115,19 +115,20 @@ export function usePushNotifications() {
       if (perm !== 'granted') return false;
 
       const reg = await navigator.serviceWorker.ready;
+      const appServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        applicationServerKey: new Uint8Array(appServerKey.buffer as ArrayBuffer),
       });
 
       const subJSON = sub.toJSON();
-      const { error } = await supabase
-        .from('push_subscriptions')
+      const { error } = await (supabase
+        .from('push_subscriptions') as any)
         .upsert({
           user_id: user.id,
           endpoint: subJSON.endpoint!,
-          p256dh: subJSON.keys?.p256dh,
-          auth: subJSON.keys?.auth,
+          p256dh: (subJSON.keys as any)?.p256dh ?? 'unknown',
+          auth: (subJSON.keys as any)?.auth ?? 'unknown',
           platform: 'web',
           user_agent: navigator.userAgent.slice(0, 255),
         }, { onConflict: 'user_id,endpoint' });
