@@ -23,7 +23,7 @@ import { useActiveMode } from '@/hooks/useActiveMode';
 import { toast } from 'sonner';
 import {
   Flame, MessageCircle, CircleUser, Building2,
-  Users2, ShieldCheck,
+  Users2, ShieldCheck, Rocket,
   Megaphone, PartyPopper,
   Zap, SlidersHorizontal, Sparkles, Scale
 } from 'lucide-react';
