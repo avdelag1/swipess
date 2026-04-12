@@ -896,9 +896,7 @@ const ClientSwipeContainerComponent = ({
                   detecting={locationDetecting}
                   detected={locationDetected}
                   error={externalError}
-                  role="owner"
-               />
-            )}
+                  role="owner" /> ) : null}
           </AnimatePresence>
         </div>
         </div>
