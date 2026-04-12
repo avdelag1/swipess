@@ -29,7 +29,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
   const dragTilt = useTransform(x, [-250, 0, 250], [-15, 0, 15]);
-  const { tiltX, tiltY } = useDeviceParallax(0.8);
+  const { tiltX, tiltY } = useDeviceParallax(0.3);
   const isCycling = useRef(false);
 
   const handleDragEnd = useCallback((_: any, info: any) => {

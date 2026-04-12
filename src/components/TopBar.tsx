@@ -3,7 +3,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Zap, MessageCircle, Crown, FileText, ArrowLeft, Search, Eye, Radio as RadioIcon } from 'lucide-react';
+import { Zap, MessageCircle, Crown, FileText, ArrowLeft, Search, Eye, Radio as RadioIcon, IdCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -24,6 +24,7 @@ import { ModeSwitcher } from './ModeSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 import { NotificationPopover } from './NotificationPopover';
 import { useScrollBounce } from '@/hooks/useScrollBounce';
+import { useModalStore } from '@/state/modalStore';
 
 
 // Tier styling for package cards
@@ -418,6 +419,27 @@ function TopBarComponent({
                   >
                     <RadioIcon strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-rose-500" : "text-white/70")} style={{ filter: isLight ? 'drop-shadow(0 0 6px rgba(244,63,94,0.35))' : 'none' }} />
                   </Button>
+
+                  {/* Resident ID Card Button (Client only) */}
+                  {userRole !== 'owner' && (
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "relative h-8 w-8 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none",
+                        "hover:scale-105 active:scale-95 group",
+                        "touch-manipulation flex items-center justify-center flex-shrink-0",
+                      )}
+                      onPointerDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        haptics.select();
+                        useModalStore.getState().setModal('showVapId', true);
+                      }}
+                      aria-label="Resident ID"
+                    >
+                      <IdCard strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-primary" : "text-white/70")} />
+                    </Button>
+                  )}
 
                   {/* Theme Toggle */}
                   <ThemeToggle />

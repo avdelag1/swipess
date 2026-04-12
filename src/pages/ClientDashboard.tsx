@@ -24,7 +24,6 @@ export default function ClientDashboard({
 }: ClientDashboardProps) {
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setCategories } = useFilterActions();
-  const [isVapModalOpen, setIsVapModalOpen] = useState(false);
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
@@ -34,24 +33,6 @@ export default function ClientDashboard({
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">
-      
-      {/* VAP ID Trigger Button */}
-      <button
-        onClick={() => setIsVapModalOpen(true)}
-        className={cn(
-          "absolute top-6 right-6 z-40 p-3 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg transition-transform active:scale-95",
-          isLight ? "bg-white/80 border border-black/5 text-primary" : "bg-black/40 border border-white/10 text-white"
-        )}
-      >
-        <ShieldCheck className="w-6 h-6" />
-        <div className="absolute inset-0 rounded-full animate-ping opacity-20 bg-primary" />
-      </button>
-
-      <VapIdCardModal 
-        isOpen={isVapModalOpen} 
-        onClose={() => setIsVapModalOpen(false)} 
-      />
-
       <AnimatePresence mode="wait">
         {!activeCategory ? (
           <motion.div 

@@ -16,6 +16,7 @@ import { useModalStore } from '@/state/modalStore';
 import { useInstantReactivity } from '@/hooks/useInstantReactivity';
 import { cn } from '@/lib/utils';
 import { SentientHud } from './SentientHud';
+import { VapIdCardModal } from './VapIdCardModal';
 
 const RadioMiniPlayer = lazy(() =>
   import('@/components/RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer }))
@@ -146,6 +147,11 @@ export function AppLayout({ children }: AppLayoutProps) {
         >
           {children}
         </main>
+
+        <VapIdCardModal
+          isOpen={modalStore.showVapId}
+          onClose={() => modalStore.setModal('showVapId', false)}
+        />
       </div>
 
       {/* 🚀 PERMANENT HUD: Always visible footer per user request */}

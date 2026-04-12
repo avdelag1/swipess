@@ -29,16 +29,16 @@ function SwipessLogoComponent({
       className
     )}>
       <img
-        src="/icons/swipess-logo-transparent.png"
+        src="/icons/swipess-wordmark-512.png"
         alt="Swipess"
         draggable={false}
         className={cn(
-          'object-contain select-none',
+          'select-none w-auto',
           sizeMap[size]
         )}
         style={{
           imageRendering: 'auto',
-          width: 'auto',
+          maxWidth: '80vw',
         }}
       />
     </div>

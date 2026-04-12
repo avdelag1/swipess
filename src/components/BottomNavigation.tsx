@@ -20,7 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame, MessageCircle, CircleUser, Building2,
   Users2, ShieldCheck,
-  Megaphone, PartyPopper,
+  Megaphone, PartyPopper, Scale,
   Zap, SlidersHorizontal, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -99,12 +99,11 @@ export const BottomNavigation = memo(({
     { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
+    { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
     { id: 'search', icon: SlidersHorizontal, label: 'Discovery', onClick: onFilterClick },
-    { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
   ];
 
   // Owner nav items (8 buttons)
@@ -112,12 +111,12 @@ export const BottomNavigation = memo(({
     { id: 'dashboard', icon: Zap, label: 'System', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
-    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
-
+    { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
-    { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
+    { id: 'legal', icon: Scale, label: 'Legal Hub', path: '/legal', onClick: () => navigate('/legal', { state: { from: 'dashboard' } }) },
+    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
+    { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
   ];
 
   // Admin nav items — admin panel + messaging

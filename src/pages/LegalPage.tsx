@@ -4,6 +4,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/PageHeader";
+import { LawyerContactModal } from "@/components/LawyerContactModal";
+import { useState } from "react";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 
@@ -11,6 +13,7 @@ export default function LegalPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || 'settings';
+  const [showLawyerModal, setShowLawyerModal] = useState(false);
 
   const handleBack = () => {
     if (from === 'dashboard') {
@@ -33,7 +36,7 @@ export default function LegalPage() {
       label: 'Lawyer Services',
       description: 'Get professional legal assistance for rental issues',
       color: 'text-amber-500',
-      action: () => navigate('/client/legal-services')
+      action: () => setShowLawyerModal(true)
     },
     {
       icon: FileText,
@@ -97,6 +100,11 @@ export default function LegalPage() {
           </Card>
         </motion.div>
       </div>
+
+      <LawyerContactModal 
+        isOpen={showLawyerModal} 
+        onClose={() => setShowLawyerModal(false)} 
+      />
     </div>
   );
 }

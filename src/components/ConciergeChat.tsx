@@ -662,7 +662,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
             stiffness: 180,
             opacity: { duration: 0.3 }
           }}
-          className="w-full h-full md:max-w-md md:max-h-[85vh] bg-background/95 backdrop-blur-3xl md:rounded-[2rem] shadow-2xl flex flex-col overflow-hidden relative border border-white/10"
+          className="w-full h-full bg-background/95 backdrop-blur-3xl shadow-2xl flex flex-col overflow-hidden relative border-t border-white/10"
         >
           {/* ADVANCED PARTICLE WARP EFFECT (Subtle) */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-[5]">
@@ -751,11 +751,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 </Button>
                 <HeaderIcon isLoading={isLoading} />
                 <div>
-                  {activeCharacter !== 'default' ? (
-                    <p className={cn("text-sm font-bold", currentChar.color)}>{currentChar.label}</p>
-                  ) : (
-                    <SwipessLogo size="xs" variant="gradient" />
-                  )}
+                  <p className={cn("text-sm font-bold", activeCharacter !== 'default' ? currentChar.color : "text-foreground")}>
+                    {activeCharacter !== 'default' ? currentChar.label : "Swipess AI"}
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     {isLoading ? 'Thinking…' : currentChar.subtitle}
                   </p>
