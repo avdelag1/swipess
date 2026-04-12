@@ -28,7 +28,7 @@ const PushNotificationPrompt = lazyWithRetry(() => import('@/components/PushNoti
 const WelcomeNotification = lazyWithRetry(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })));
 const LikedListingInsightsModal = lazyWithRetry(() => import('@/components/LikedListingInsightsModal').then(m => ({ default: m.LikedListingInsightsModal })));
 const LikedClientInsightsModal = lazyWithRetry(() => import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal })));
-const ConciergeChat = lazy(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
+import { ConciergeChat } from '@/components/ConciergeChat';
 
 interface GlobalDialogsProps {
   userRole: 'client' | 'owner' | 'admin';
@@ -190,12 +190,10 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         />
       </SmartSuspense>
 
-      <SmartSuspense fallback={null}>
-        <ConciergeChat
-          isOpen={store.showAIChat}
-          onClose={() => store.setModal('showAIChat', false)}
-        />
-      </SmartSuspense>
+      <ConciergeChat
+        isOpen={store.showAIChat}
+        onClose={() => store.setModal('showAIChat', false)}
+      />
     </>
   );
 });
