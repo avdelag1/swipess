@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, memo, useMemo, lazy, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 const _ClientInsightsDialog = lazy(() =>
   import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))

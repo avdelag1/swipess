@@ -10,6 +10,7 @@ import {
   POKER_CARDS, PK_W, PK_H,
 } from './SwipeConstants';
 import { PokerCategoryCard } from './PokerCategoryCard';
+import { VapIdCardModal } from '../VapIdCardModal';
 
 export interface SwipeAllDashboardProps {
   setCategories: (ids: any[]) => void;
@@ -22,6 +23,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   const { user } = useAuth();
 
   const { data: role } = useUserRole(user?.id);
+  const [showVapModal, setShowVapModal] = useState(false);
 
   // 🚀 SPEED OF LIGHT: Pre-fetch top card data on hover/cycle
   useEffect(() => {
@@ -64,6 +66,8 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
     uiSounds.playPing(1.2);
     if (id === 'radio') {
       navigate('/radio');
+    } else if (id === 'vap') {
+      setShowVapModal(true);
     } else {
       setCategories([id]);
     }
@@ -145,6 +149,11 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
           <ChevronRight size={20} className="text-white/60" />
         </button>
       </div>
+
+      <VapIdCardModal 
+        isOpen={showVapModal}
+        onClose={() => setShowVapModal(false)}
+      />
     </div>
   );
 });

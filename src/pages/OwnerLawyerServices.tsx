@@ -14,6 +14,9 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
+import { PageHeader } from '@/components/PageHeader';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface LegalIssueCategory {
   id: string;
@@ -105,11 +108,13 @@ const ownerLegalIssueCategories: LegalIssueCategory[] = [
 
 const OwnerLawyerServices = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [selectedIssue, setSelectedIssue] = useState<{ category: string; subcategory: string } | null>(null);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [lawyerContactRequested, setLawyerContactRequested] = useState(false);
 
   const handleCategoryClick = (categoryId: string) => {
     setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
@@ -145,37 +150,58 @@ const OwnerLawyerServices = () => {
     <div className="w-full overflow-x-hidden p-4 sm:p-6 lg:p-8 pb-24 sm:pb-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/owner/settings')}
-            className="mb-4 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Scale className="w-8 h-8 text-purple-400" />
+        <PageHeader 
+          title="Lawyer Services for Owners" 
+          subtitle="Professional assistance for property owners and landlords"
+          showBack={true}
+        />
+
+        {/* Preloaded Entity Info - Trust Indicator */}
+        <div className="mb-6 flex items-center justify-between px-4 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold">
+              {user?.email?.[0].toUpperCase()}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Legal Services for Owners</h1>
-            <p className="text-muted-foreground text-sm sm:text-base">Professional legal assistance for property owners and landlords</p>
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-black">Registered Owner</p>
+              <h4 className="text-sm font-bold text-white leading-tight">{user?.email}</h4>
+            </div>
           </div>
+          <Badge variant="outline" className="border-purple-500/30 text-purple-400 bg-purple-500/5">
+            Verified Entity
+          </Badge>
         </div>
 
-        {/* Coming Soon Banner */}
-        <Card className="mb-6 bg-gradient-to-r from-purple-900/50 to-blue-900/50 border-purple-700/50">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center shrink-0">
-                <Clock className="w-6 h-6 text-purple-400" />
+        {/* Personal Real Estate Lawyer Direct Contact Trigger */}
+        <Card className="mb-6 bg-gradient-to-br from-indigo-900/50 via-purple-900/40 to-slate-900/50 border-purple-500/30 shadow-xl overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Building2 className="w-24 h-24 rotate-12" />
+          </div>
+          <CardContent className="p-6 sm:p-8 relative z-10">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="w-20 h-20 bg-purple-500/20 rounded-[2rem] flex items-center justify-center shrink-0 border border-purple-500/30">
+                <Gavel className="w-10 h-10 text-purple-400" />
               </div>
-              <div>
-                <h3 className="text-foreground font-semibold">Direct Lawyer Access - Coming Soon</h3>
-                <p className="text-purple-200/80 text-sm">
-                  We're building a direct connection to verified real estate lawyers. Submit your request now and we'll match you with the right legal expert.
+              <div className="flex-1 text-center md:text-left">
+                <h3 className="text-xl font-bold text-white mb-2 tracking-tight">Lease & Property Law Experts</h3>
+                <p className="text-purple-100/70 text-sm leading-relaxed mb-4 max-w-lg">
+                  Do you need a specialized real estate lawyer to contact you for a case review? We will notify our legal partner with your registration details.
                 </p>
+                <Button 
+                  onClick={() => {
+                    setLawyerContactRequested(true);
+                    toast.success("Notification sent! A real estate lawyer will contact you shortly.");
+                    triggerHaptic('success');
+                  }}
+                  disabled={lawyerContactRequested}
+                  className="h-12 px-8 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-all"
+                >
+                  {lawyerContactRequested ? (
+                    <><CheckCircle2 className="w-4 h-4 mr-2" /> Notification Sent</>
+                  ) : (
+                    "Contact Personal Lawyer"
+                  )}
+                </Button>
               </div>
             </div>
           </CardContent>

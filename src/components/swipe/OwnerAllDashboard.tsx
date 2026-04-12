@@ -94,8 +94,8 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent overflow-hidden"
-        style={{ minHeight: 'auto' }}
+        className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent overflow-hidden pt-12"
+        style={{ minHeight: 'auto', transform: 'translateY(24px)' }}
       >
         <div className="relative flex items-center justify-center gap-3">
           {/* External left arrow */}

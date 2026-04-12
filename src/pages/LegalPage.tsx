@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Shield, ChevronRight, BookOpen, Scale } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/PageHeader";
@@ -9,6 +9,16 @@ const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass:
 
 export default function LegalPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || 'settings';
+
+  const handleBack = () => {
+    if (from === 'dashboard') {
+      navigate('/client/dashboard');
+    } else {
+      navigate('/client/settings');
+    }
+  };
 
   const legalItems = [
     {
@@ -55,6 +65,7 @@ export default function LegalPage() {
           title="Legal"
           subtitle="Terms of service and privacy information"
           showBack={true}
+          onBack={handleBack}
         />
 
         <motion.div

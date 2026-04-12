@@ -291,7 +291,7 @@ const ClientProfile = () => {
           </button>
 
           <button
-            onClick={() => { haptics.select(); navigate('/client/contracts'); }}
+            onClick={() => { haptics.select(); navigate('/legal', { state: { from: 'dashboard' } }); }}
             className={cn(
               "w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border",
               isLight ? "bg-card border-border/40 text-foreground shadow-sm" : "bg-white/[0.04] border-white/[0.06] text-foreground"

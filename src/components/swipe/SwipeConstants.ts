@@ -1,4 +1,4 @@
-import { Home, Bike, Briefcase, Sparkles, Users, ShoppingBag, Key, Wrench, Radio as RadioIcon } from 'lucide-react';
+import { Home, Bike, Briefcase, Sparkles, Users, ShoppingBag, Key, Wrench, Radio as RadioIcon, ShieldCheck } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ListingFilters } from '@/hooks/useSmartMatching';
 import { logger } from '@/utils/prodLogger';
@@ -83,6 +83,7 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   buyers:     'linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%)',
   renters:    'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
   hire:       'linear-gradient(135deg, #3b0764 0%, #1e0636 100%)',
+  vap:        'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
 };
 
 // Icon imports consolidated at top.
@@ -94,12 +95,13 @@ export const POKER_CARDS = [
   { id: 'services'   as const, label: 'Workers',     description: 'Skilled freelancers',  accent: '#a855f7', accentRgb: '168,85,247', icon: Briefcase  },
   { id: 'radio'      as const, label: 'Radio',       description: 'Sentient Beats',       accent: '#f43f5e', accentRgb: '244,63,94',  icon: RadioIcon },
   { id: 'all'        as const, label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212', icon: Sparkles   },
+  { id: 'vap'        as const, label: 'Resident Card', description: 'Local Discounts',    accent: '#10b981', accentRgb: '16,185,129', icon: ShieldCheck },
 ];
 
 // Zenith Spec: Professional-grade card dimensions for flagship smartphones
 export const PK_W = 360;
 export const PK_H = 500;
-export const OWNER_PK_H = 480;
+export const OWNER_PK_H = 500;
 
 export const FOLDER_OFFSET_X = 30;
 export const FOLDER_OFFSET_Y = 0;
@@ -119,6 +121,7 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   services:   '/images/filters/workers.png',
   all:        '/images/filters/all.png',
   radio:      '/images/filters/radio.png',
+  vap:        '/images/filters/all.png',
   
   // Owner intent cards - REFINED UX
   buyers:        '/images/filters/owner_buyers_card.png',
