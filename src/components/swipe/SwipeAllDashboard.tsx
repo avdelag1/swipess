@@ -5,9 +5,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { triggerHaptic } from '@/utils/haptics';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
-  POKER_CARDS, PK_W, PK_H,
+  POKER_CARDS, PK_W, PK_H, POKER_CARD_PHOTOS,
 } from './SwipeConstants';
 import { PokerCategoryCard } from './PokerCategoryCard';
+import { prefetchImages } from '@/utils/vramStreamer';
 
 export interface SwipeAllDashboardProps {
   setCategories: (ids: any[]) => void;
@@ -18,6 +19,12 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+
+  // 🚀 VRAM BLOB STREAMING: Pre-fetch upcoming card photos into memory
+  useEffect(() => {
+    const urls = cards.map(c => POKER_CARD_PHOTOS[c.id]).filter(Boolean);
+    prefetchImages(urls, 5);
+  }, [cards]);
 
   // 🚀 SPEED OF LIGHT: Pre-fetch top card listings on hover/bringToFront
   useEffect(() => {

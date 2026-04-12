@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState, useEffect } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
@@ -9,6 +9,7 @@ import {
   PokerCardData,
 } from './SwipeConstants';
 import { cn } from '@/lib/utils';
+import { useResolvedSrc } from '@/utils/vramStreamer';
 
 interface PokerCardProps {
   card: PokerCardData;
@@ -88,6 +89,8 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const exitScale = useTransform(x, [-250, -100, 0, 100, 250], [0.5, 0.85, 1, 0.85, 0.5]);
   const exitOpacity = useTransform(x, [-250, -180, 0, 180, 250], [0, 0.5, 1, 0.5, 0]);
 
+    const resolvedPhoto = useResolvedSrc(photo);
+
   return (
     <motion.div
       drag={isTop ? "x" : false}
@@ -133,7 +136,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         {/* Flagship Imagery */}
         {!imgError ? (
           <motion.img
-            src={photo}
+            src={resolvedPhoto}
             alt={card.label}
             className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
             draggable={false}
