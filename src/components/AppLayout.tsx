@@ -102,7 +102,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       }, [location.pathname]);
 
   return (
-    <div className={cn("flex flex-col h-full w-full bg-transparent relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
+    <div className={cn("flex flex-col h-full w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
       <SkipToMainContent />
       
       <Suspense fallback={null}>
