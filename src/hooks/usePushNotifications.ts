@@ -60,7 +60,9 @@ export function usePushNotifications() {
           .from('push_subscriptions')
           .upsert({
             user_id: user.id,
-            endpoint: token.value, // Treat token as dummy endpoint for native
+            endpoint: token.value,
+            p256dh: 'native',
+            auth: 'native',
             platform: Capacitor.getPlatform(),
             user_agent: `Capacitor-${Capacitor.getPlatform()}`,
           }, { onConflict: 'user_id,endpoint' });
