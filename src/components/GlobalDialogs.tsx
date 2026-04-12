@@ -155,8 +155,10 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
 
       <SmartSuspense fallback={null}>
         <OnboardingFlow
-          open={false} // Managed by logic in DashboardLayout
-          onComplete={() => {}} 
+          open={store.showOnboarding}
+          onComplete={() => {
+            store.setModal('showOnboarding', false);
+          }} 
         />
       </SmartSuspense>
 

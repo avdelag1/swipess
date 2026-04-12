@@ -188,7 +188,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       if (cached) {
         setOnboardingChecked(true);
         if (cached.needsOnboarding) {
-          setShowOnboarding(true);
+          modalStore.setModal('showOnboarding', true);
         }
         return; // Skip DB check entirely
       }
@@ -228,7 +228,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         setOnboardingCache(userId, needsOnboarding);
 
         if (needsOnboarding) {
-          setShowOnboarding(true);
+          modalStore.setModal('showOnboarding', true);
         }
       } catch (error) {
         if (import.meta.env.DEV) {

@@ -34,6 +34,7 @@ interface ModalState {
   showMessageActivations: boolean;
   showFilters: boolean;
   showAIChat: boolean;
+  showOnboarding: boolean;
 
 
   // Actions
@@ -66,6 +67,7 @@ export const useModalStore = create<ModalState>((set) => ({
   showMessageActivations: false,
   showFilters: false,
   showAIChat: false,
+  showOnboarding: false,
 
   setModal: (key, value) => set({ [key]: value }),
   
@@ -90,5 +92,6 @@ export const useModalStore = create<ModalState>((set) => ({
     showMessageActivations: false,
     showFilters: false,
     showAIChat: false,
+    showOnboarding: false,
   }),
 }));
