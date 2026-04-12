@@ -119,7 +119,7 @@ export const SwipeExhaustedState = ({
         initial="initial" 
         animate="animate" 
         exit="exit" 
-        className="relative z-50 h-full w-full overflow-y-auto overscroll-contain bg-background"
+        className="relative z-50 min-h-full w-full bg-background pb-12"
       >
         <div className="absolute inset-0 pointer-events-none z-0">
           <div 

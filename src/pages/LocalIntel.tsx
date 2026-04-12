@@ -59,7 +59,7 @@ export default function LocalIntel() {
     : posts.filter(p => p.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-black p-4 pb-28 max-w-2xl mx-auto">
+    <div className="w-full h-full max-w-2xl mx-auto selection:bg-primary/30 p-4">
       {/* ── HEADER ── */}
       <div className="mb-8 pt-[var(--safe-top)]">
         <div className="flex items-center justify-between mb-8">

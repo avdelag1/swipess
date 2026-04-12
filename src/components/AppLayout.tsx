@@ -71,12 +71,13 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const isFullScreen = useMemo(() => {
     const path = location.pathname;
-    const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
+    const hideHUDRoutes = ['/explore/eventos', '/explore/roommates', '/explore/video-tours'];
     return isCameraRoute || 
            isRadioRoute || 
            path.includes('/camera') || 
            path.includes('roommates') || 
            path.includes('eventos') ||
+           path.includes('video-tours') ||
            showAIChat;
   }, [isCameraRoute, isRadioRoute, location.pathname, showAIChat]);
 
@@ -131,16 +132,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         <main
           id="main-content"
           className={cn(
-            "flex-1 w-full h-full min-h-0 relative z-0",
-            isScrollLocked ? "overflow-hidden" : "overflow-y-auto scroll-smooth"
+            "flex-1 w-full min-h-0 relative z-0",
+            isScrollLocked ? "overflow-hidden" : "overflow-y-auto overscroll-contain scroll-smooth"
           )}
           style={{
-            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user))
-              ? 'var(--top-bar-height, 64px)'
-              : undefined,
-            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user))
-              ? 'calc(76px + env(safe-area-inset-bottom, 0px))'
-              : undefined,
+            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user)) ? 80 : 0,
+            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user)) ? 140 : 20,
           }}
         >
           {children}
