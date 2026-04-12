@@ -13,9 +13,9 @@ const sizeMap = {
   md: 'text-3xl',
   lg: 'text-4xl',
   xl: 'text-5xl',
-  '2xl': 'text-7xl',
-  '3xl': 'text-8xl',
-  '4xl': 'text-9xl',
+  '2xl': 'text-[10vw] sm:text-7xl',
+  '3xl': 'text-[12vw] sm:text-8xl',
+  '4xl': 'text-[15vw] sm:text-9xl',
 };
 
 function SwipessLogoComponent({
