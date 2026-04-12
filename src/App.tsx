@@ -93,6 +93,7 @@ const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDash
 const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 const PWAInstallPrompt = lazy(() => import("@/components/PWAInstallPrompt").then(m => ({ default: m.PWAInstallPrompt })));
 const WelcomeBonusModal = lazy(() => import("@/components/WelcomeBonusModal").then(m => ({ default: m.WelcomeBonusModal })));
+const InAppReviewPrompt = lazy(() => import("@/components/InAppReviewPrompt").then(m => ({ default: m.InAppReviewPrompt })));
 
 const DashboardRedirect = () => {
   const { user } = useAuth();
@@ -121,6 +122,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <WelcomeBonusModal />
             <GuidedTourLazy />
             <PWAInstallPrompt />
+            <InAppReviewPrompt />
           </Suspense>
 
           <Routes>

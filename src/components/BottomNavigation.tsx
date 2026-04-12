@@ -115,7 +115,7 @@ export const BottomNavigation = memo(({
     { id: 'ai', icon: Sparkles, label: 'Swipess AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
-    { id: 'lawyer', icon: Scale, label: 'Lawyer', path: '/owner/lawyer-services' },
+    { id: 'lawyer', icon: Scale, label: 'Lawyer', path: '/owner/legal-services' },
     { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
   ];
