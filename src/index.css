@@ -224,22 +224,12 @@ main, .scrollable-content, .overflow-y-auto {
   height: calc(var(--top-bar-height) + var(--safe-top));
   display: flex;
   align-items: center;
-<<<<<<< HEAD
-  height: 52px;
-  padding-top: var(--safe-top);
-  background-color: transparent !important;
-  background: transparent !important;
-  border-bottom: none !important;
-  box-shadow: none !important;
-  isolation: isolate;
-  pointer-events: none;
-=======
   transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
   will-change: transform, opacity;
   /* 🚀 ZENITH HUD ISOLATION */
   contain: layout style;
   transform: translateZ(0);
->>>>>>> f5eb5bfe (chore: final ios native bridge and app store prep)
+  background: transparent !important;
 }
 
 .app-bottom-bar {
@@ -249,20 +239,12 @@ main, .scrollable-content, .overflow-y-auto {
   right: 0;
   z-index: 1000;
   padding-bottom: var(--safe-bottom);
-<<<<<<< HEAD
-  background-color: transparent !important;
-  background: transparent !important;
-  border-top: none !important;
-  box-shadow: none !important;
-  isolation: isolate;
-  pointer-events: none;
-=======
   transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
   will-change: transform, opacity;
   /* 🚀 ZENITH HUD ISOLATION */
   contain: layout style;
   transform: translateZ(0);
->>>>>>> f5eb5bfe (chore: final ios native bridge and app store prep)
+  background: transparent !important;
 }
 
 @layer base {
