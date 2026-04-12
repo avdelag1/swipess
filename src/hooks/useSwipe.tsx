@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
-import { trackPositiveAction } from '@/utils/inAppReview';
 
 /**
  * OPTIMISTIC SWIPE HANDLER — Instagram-speed mutations
@@ -93,8 +92,6 @@ export function useSwipe() {
       return { success: true, direction, targetId, userId: user.id };
     },
     onSuccess: (_data, variables) => {
-      // Track positive action for in-app review timing
-      if (variables.direction === 'right') trackPositiveAction();
       // Background invalidation to sync with server
       queryClient.invalidateQueries({ queryKey: [variables.targetType === 'listing' ? 'liked-properties' : 'liked-clients'] });
       queryClient.invalidateQueries({ queryKey: ['matches'] });

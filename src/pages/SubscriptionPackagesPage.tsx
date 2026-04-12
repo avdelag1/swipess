@@ -154,7 +154,7 @@ export default function SubscriptionPackagesPage() {
 
   return (
     <PaymentErrorBoundary>
-      <div className="w-full flex-1 flex flex-col pb-40 overflow-y-auto overscroll-contain select-none">
+      <div className="min-h-screen bg-background flex flex-col pb-32 overflow-x-hidden" style={{ contain: 'layout' }}>
       {/* Background Polish */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-accent-2/5 blur-[120px] rounded-full" />

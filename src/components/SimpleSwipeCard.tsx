@@ -25,6 +25,7 @@ import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { DiscoverySidebar } from '@/components/DiscoverySidebar';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
+import { useDeviceParallax } from '@/hooks/useDeviceParallax';
 
 // Exposed interface for parent to trigger swipe animations
 export interface SimpleSwipeCardRef {
@@ -148,9 +149,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
 
-  // 🚀 FLAGSHIP FEATURE: 3D Perspective Tilt based on pointer position
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
+  // 🚀 FLAGSHIP FEATURE: 3D Perspective Tilt based on pointer pos & Device Gyroscope
+  const pointerRotateX = useMotionValue(0);
+  const pointerRotateY = useMotionValue(0);
+  const { tiltX: gyroTiltX, tiltY: gyroTiltY } = useDeviceParallax(0.8);
+
+  const rotateX = useTransform(pointerRotateX, (val) => val - gyroTiltY);
+  const rotateY = useTransform(pointerRotateY, (val) => val + gyroTiltX);
 
   const handlePointerMoveForTilt = useCallback((e: React.PointerEvent) => {
     if (!isTop) return;
@@ -164,14 +169,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     const rotateYVal = ((xPos - centerX) / centerX) * 8; // Max 8 deg tilt
     const rotateXVal = ((centerY - yPos) / centerY) * 8; // Max 8 deg tilt
     
-    rotateY.set(rotateYVal);
-    rotateX.set(rotateXVal);
-  }, [isTop, rotateX, rotateY]);
+    pointerRotateY.set(rotateYVal);
+    pointerRotateX.set(rotateXVal);
+  }, [isTop, pointerRotateX, pointerRotateY]);
 
   const handlePointerLeaveForTilt = useCallback(() => {
-    animate(rotateX, 0, { duration: 0.5 });
-    animate(rotateY, 0, { duration: 0.5 });
-  }, [rotateX, rotateY]);
+    animate(pointerRotateX, 0, { duration: 0.5 });
+    animate(pointerRotateY, 0, { duration: 0.5 });
+  }, [pointerRotateX, pointerRotateY]);
 
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);

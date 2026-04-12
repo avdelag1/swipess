@@ -21,6 +21,7 @@ import { QuickFilterCategory } from '@/types/filters'
 // SPEED OF LIGHT HOOKS
 import { useWelcomeState } from "@/hooks/useWelcomeState"
 import { LoadingBar } from './ui/LoadingBar';
+import { GlobalDialogs } from './GlobalDialogs'
 import { useModalStore } from '@/state/modalStore'
 import { useFocusMode } from '@/hooks/useFocusMode'
 import { useScrollDirection } from '@/hooks/useScrollDirection'
@@ -187,7 +188,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       if (cached) {
         setOnboardingChecked(true);
         if (cached.needsOnboarding) {
-          modalStore.setModal('showOnboarding', true);
+          setShowOnboarding(true);
         }
         return; // Skip DB check entirely
       }
@@ -227,7 +228,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         setOnboardingCache(userId, needsOnboarding);
 
         if (needsOnboarding) {
-          modalStore.setModal('showOnboarding', true);
+          setShowOnboarding(true);
         }
       } catch (error) {
         if (import.meta.env.DEV) {
@@ -332,11 +333,17 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/owner/dashboard',
       '/client/profile',
       '/owner/profile',
+      '/client/liked-properties',
+      '/owner/properties',
+      '/owner/interested-clients',
+      '/owner/liked-clients',
+      '/client/advertise'
     ];
 
     const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
       path.includes('discovery') ||
-      path.includes('view-client');
+      path.includes('view-client') ||
+      path.includes('/listing/');
     
     return isMatch;
   }, [location.pathname]);
@@ -485,28 +492,33 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
         }}
         className={cn(
-          "flex-1 w-full min-h-0 bg-transparent relative z-0",
+          "flex-1 w-full min-h-0 bg-background relative z-0 touch-pan-y overscroll-y-contain",
           isRadioRoute ? "overflow-visible" 
+            : (location.pathname.includes('liked') || location.pathname.includes('interested')) 
+              ? "overflow-hidden" 
               : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
-          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-transparent"
+          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
         )}
         style={{
-          paddingTop: (isFullScreenRoute)
+          paddingTop: (isFullScreenRoute || isImmersiveDashboard)
             ? '0px'
-            : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isFullScreenRoute) 
+            : 'calc(var(--top-bar-height) + var(--safe-top))',
+          paddingBottom: (isFullScreenRoute || isImmersiveDashboard) 
             ? '0px' 
-            : `calc(${bottomNavHeight}px + var(--safe-bottom) + 16px)`,
+            : 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 32px)',
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           
         }}
       >
-        <div className="min-h-full w-full flex flex-1 min-w-0 flex-col overflow-x-clip">
+        <div className="min-h-full w-full flex flex-1 min-w-0 flex-col">
           {enhancedChildren}
         </div>
       </main>
+
+      {/* ZENITH GLOBAL DIALOGS — Decoupled lifecycle */}
+      <GlobalDialogs userRole={userRole} />
     </div>
   )
 }

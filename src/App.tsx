@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { RootProviders } from "./providers/RootProviders";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useActiveMode } from "@/hooks/useActiveMode";
 import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
@@ -86,6 +87,7 @@ const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 // PUBLIC PREVIEWS
 const PublicProfilePreview = lazy(() => import("./pages/PublicProfilePreview"));
 const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
+const VapValidate = lazy(() => import("./pages/VapValidate"));
 
 // UI HELPERS
 const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDashboardLayout").then(m => ({ default: m.PersistentDashboardLayout })));
@@ -93,12 +95,10 @@ const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDash
 const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 const PWAInstallPrompt = lazy(() => import("@/components/PWAInstallPrompt").then(m => ({ default: m.PWAInstallPrompt })));
 const WelcomeBonusModal = lazy(() => import("@/components/WelcomeBonusModal").then(m => ({ default: m.WelcomeBonusModal })));
-const InAppReviewPrompt = lazy(() => import("@/components/InAppReviewPrompt").then(m => ({ default: m.InAppReviewPrompt })));
 
 const DashboardRedirect = () => {
-  const { user } = useAuth();
-  const metadataRole = user?.user_metadata?.role;
-  return <Navigate to={metadataRole === 'owner' ? "/owner/dashboard" : "/client/dashboard"} replace />;
+  const { activeMode } = useActiveMode();
+  return <Navigate to={activeMode === 'owner' ? "/owner/dashboard" : "/client/dashboard"} replace />;
 };
 
 const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
@@ -113,16 +113,15 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
       <RootProviders authPromise={authPromise}>
         <SpeedOfLightPreloader />
         <AppLayout>
+          <WelcomeBonusModal />
           <TooltipProvider>
             {/* Sonner toasts removed — premium NotificationBar handles all feedback */}
             <span />
           </TooltipProvider>
 
           <Suspense fallback={null}>
-            <WelcomeBonusModal />
             <GuidedTourLazy />
             <PWAInstallPrompt />
-            <InAppReviewPrompt />
           </Suspense>
 
           <Routes>
@@ -172,7 +171,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               {/* Shared routes */}
               <Route path="/messages" element={<MessagingDashboard />} />
               <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/subscription/packages" element={<SubscriptionPackagesPage />} />
+              <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
               <Route path="/radio" element={<DJTurntableRadio />} />
 
               {/* Explore/Events */}
@@ -204,6 +203,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <Route path="/faq/owner" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQOwnerPage /></AnimatedPage></Suspense>} />
             <Route path="/profile/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicProfilePreview /></AnimatedPage></Suspense>} />
             <Route path="/listing/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicListingPreview /></AnimatedPage></Suspense>} />
+            <Route path="/vap-validate/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><VapValidate /></AnimatedPage></Suspense>} />
             <Route path="/share-target" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><NotFound /></AnimatedPage></Suspense>} />
           </Routes>

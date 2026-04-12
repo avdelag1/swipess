@@ -60,6 +60,10 @@ function applyThemeToDOM(theme: Theme) {
     root.classList.add('black-matte');
   }
 
+  if (theme === 'light') {
+    root.classList.add('white-matte');
+  }
+
   if (theme === 'cheers') {
     root.classList.add('dark');
   }

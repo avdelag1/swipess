@@ -424,7 +424,7 @@ export const radioStations: RadioStation[] = [
   // Tulum - 10 Stations
   {
     id: 'tulum-1',
-    name: 'Tulum Vibes',
+    name: 'Tulum Deep Pulse',
     frequency: '102.1',
     streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
     city: 'tulum',
@@ -433,7 +433,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-2',
-    name: 'Sunset Tunes',
+    name: 'Nomade Vibes',
     frequency: '98.5',
     streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
     city: 'tulum',
@@ -442,7 +442,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-3',
-    name: 'Full Moon Radio',
+    name: 'Drone Zone',
     frequency: '100.1',
     streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
     city: 'tulum',
@@ -451,7 +451,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-4',
-    name: 'Cosmic Jungle',
+    name: 'Deep Space',
     frequency: '94.3',
     streamUrl: 'https://ice1.somafm.com/deepspaceone-128-mp3',
     city: 'tulum',
@@ -460,7 +460,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-5',
-    name: 'Playa Sounds',
+    name: 'Papaya Playa',
     frequency: '91.7',
     streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
     city: 'tulum',
@@ -469,7 +469,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-6',
-    name: 'Selva Nights',
+    name: 'Be Tulum',
     frequency: '105.9',
     streamUrl: 'https://ice1.somafm.com/secretagent-128-mp3',
     city: 'tulum',
@@ -478,7 +478,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-7',
-    name: 'Riviera Jazz',
+    name: 'Ahau Vibes',
     frequency: '103.5',
     streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
     city: 'tulum',
@@ -487,7 +487,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-8',
-    name: 'Cenote Beats',
+    name: 'PopTron',
     frequency: '107.5',
     streamUrl: 'https://ice1.somafm.com/poptron-128-mp3',
     city: 'tulum',
@@ -496,7 +496,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-9',
-    name: 'After Dark Tulum',
+    name: 'The Trip',
     frequency: '96.7',
     streamUrl: 'https://ice1.somafm.com/thetrip-128-mp3',
     city: 'tulum',
@@ -505,7 +505,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-10',
-    name: 'Mayan Lounge',
+    name: 'Illinois Street',
     frequency: '89.1',
     streamUrl: 'https://ice1.somafm.com/illstreet-128-mp3',
     city: 'tulum',
@@ -1160,7 +1160,7 @@ export const radioStations: RadioStation[] = [
   // Tulum/Beach Special — 5 Swipess Featured Stations
   {
     id: 'tulum-beach-1',
-    name: 'Tulum Sunset Session',
+    name: 'Tulum Sunset Beats',
     frequency: '96.3',
     streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
     city: 'tulum',
@@ -1169,7 +1169,7 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-beach-2',
-    name: 'Riviera Waves',
+    name: 'Playa del Carmen FM',
     frequency: '98.7',
     streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
     city: 'tulum',
@@ -1196,12 +1196,12 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-beach-5',
-    name: 'Tulum Beach Radio',
+    name: 'Swipess Beach Radio',
     frequency: '105.9',
     streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
     city: 'tulum',
     genre: 'Electronic',
-    description: 'The official beach frequency'
+    description: 'The official Swipess beach frequency'
   }
 ];
 

@@ -56,13 +56,11 @@ export function usePushNotifications() {
         logger.info('[PushNative] Registered with token:', token.value);
         
         // Save token to Supabase
-        const { error } = await (supabase
-          .from('push_subscriptions') as any)
+        const { error } = await supabase
+          .from('push_subscriptions')
           .upsert({
             user_id: user.id,
-            endpoint: token.value,
-            p256dh: 'native',
-            auth: 'native',
+            endpoint: token.value, // Treat token as dummy endpoint for native
             platform: Capacitor.getPlatform(),
             user_agent: `Capacitor-${Capacitor.getPlatform()}`,
           }, { onConflict: 'user_id,endpoint' });
@@ -115,20 +113,19 @@ export function usePushNotifications() {
       if (perm !== 'granted') return false;
 
       const reg = await navigator.serviceWorker.ready;
-      const appServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: new Uint8Array(appServerKey.buffer as ArrayBuffer),
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       });
 
       const subJSON = sub.toJSON();
-      const { error } = await (supabase
-        .from('push_subscriptions') as any)
+      const { error } = await supabase
+        .from('push_subscriptions')
         .upsert({
           user_id: user.id,
           endpoint: subJSON.endpoint!,
-          p256dh: (subJSON.keys as any)?.p256dh ?? 'unknown',
-          auth: (subJSON.keys as any)?.auth ?? 'unknown',
+          p256dh: subJSON.keys?.p256dh,
+          auth: subJSON.keys?.auth,
           platform: 'web',
           user_agent: navigator.userAgent.slice(0, 255),
         }, { onConflict: 'user_id,endpoint' });

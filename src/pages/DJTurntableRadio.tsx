@@ -310,9 +310,7 @@ export default function DJTurntableRadio() {
       >
         <motion.button
           whileTap={{ scale: 0.9 }}
-          onPointerDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
+      onClick={() => {
             // Reliable back navigation — always go to the dashboard if no history
             if (window.history.length > 2) {
               navigate(-1);
@@ -387,15 +385,16 @@ export default function DJTurntableRadio() {
 
       {/* Main turntable area */}
       <div className="flex-1 flex flex-col items-center justify-start px-4 pt-16 overflow-hidden">
-        <div className="relative w-full max-w-[340px] flex items-center justify-center mt-2">
+        <div className="relative w-full max-w-[440px] flex items-center justify-center">
 
-          {/* Turntable Platter Wrapper — iOS style scaling */}
+
+          {/* Turntable Platter Wrapper — height-capped so it never pushes controls off screen */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: state.isPlaying ? 1.05 : 1, y: 0 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+            initial={{ opacity: 0, scale: 0.9, rotate: -15 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 100 }}
             className="relative aspect-square flex items-center justify-center"
-            style={{ width: 'min(75vw, 34dvh)' }}
+            style={{ width: 'min(85vw, 38dvh)' }}
           >
             <AnimatePresence>
               {state.isPlaying && (
@@ -458,7 +457,7 @@ export default function DJTurntableRadio() {
         </div>
 
         {/* Info & Visualizer Section */}
-        <div className="mt-6 text-center w-full max-w-[420px] stagger-enter">
+        <div className="mt-3 text-center w-full max-w-[420px] stagger-enter">
           <AnimatePresence mode="wait">
             <motion.div
               key={state.currentStation?.id || 'none'}
@@ -467,17 +466,17 @@ export default function DJTurntableRadio() {
               exit={{ opacity: 0, scale: 0.85, y: -15, filter: 'blur(20px)' }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <h2 className={cn("text-3xl sm:text-4xl font-bold tracking-tight drop-shadow-xl", isDark ? "text-white" : "!text-black")}>
+              <h2 className={cn("text-4xl sm:text-5xl font-black tracking-tighter drop-shadow-2xl uppercase font-brand", isDark ? "text-white" : "!text-black")}>
                 {state.currentStation?.name || 'Radio'}
               </h2>
-              <div className="flex items-center justify-center gap-3 mt-2">
+              <div className="flex items-center justify-center gap-4 mt-1.5">
                 <motion.div 
                   animate={{ scale: state.isPlaying ? [1, 1.25, 1] : 1 }}
                   transition={{ repeat: Infinity, duration: 2 }}
                   className="w-2.5 h-2.5 rounded-full" 
                   style={{ backgroundColor: primaryColor, boxShadow: `0 0 15px ${primaryColor}` }} 
                 />
-                <p className={cn("text-xs tracking-[0.3em] font-bold uppercase text-center", isDark ? "text-white/70" : "!text-black/70")}>
+                <p className={cn("text-xs tracking-[0.6em] font-black uppercase text-center", isDark ? "text-white/60" : "!text-black/60")}>
                   {state.currentStation?.genre || 'Broadcast'}
                 </p>
               </div>

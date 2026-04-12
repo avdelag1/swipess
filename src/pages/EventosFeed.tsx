@@ -45,7 +45,7 @@ export default function EventosFeed() {
   const [shareEventData, setShareEventData] = useState<EventItem | null>(null);
 
   // Auto-play state
-  const [autoPlay, setAutoPlay] = useState(true);
+  const [autoPlay, setAutoPlay] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [animKey, setAnimKey] = useState(0);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -172,8 +172,9 @@ export default function EventosFeed() {
   const rowVirtualizer = useVirtualizer({
     count: filteredEvents.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => window.innerHeight,
-    overscan: 5, // Increased for smoother scrolling
+    estimateSize: () => window.innerHeight || 800,
+    overscan: 2,
+    initialOffset: 0,
   });
 
   // 5. Auto-play Logic
@@ -241,13 +242,11 @@ export default function EventosFeed() {
   }, [navigate]);
 
   return (
-    <div className={cn("relative w-full h-[100dvh] overflow-hidden flex flex-col", isLight ? "bg-white" : "bg-black")}>
+    <div className={cn("relative w-full h-full min-h-[100dvh] flex flex-col bg-black overflow-hidden")}>
+      <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       
-      {/* 🏎️ IMMERSIVE BACK BRIDGE */}
-      <div 
-        className="absolute left-6 z-[110] transform-gpu"
-        style={{ top: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 12px) + 20px)' }}
-      >
+      {/* Immersive HUD (Overlay) */}
+      <div className="absolute top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 pt-12 pb-6 bg-gradient-to-b from-black/80 via-black/40 to-transparent">
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => { triggerHaptic('light'); navigate(-1); }}
@@ -327,12 +326,25 @@ export default function EventosFeed() {
       </div>
 
       {/* Main Feed */}
-      <div ref={parentRef} className="w-full h-full overflow-y-scroll scroll-smooth no-scrollbar" style={{ scrollSnapType: 'y mandatory', overscrollBehavior: 'contain' }}>
+      {/* Main Feed - Unlocked scroll for "Full Page" feel but keeping snap for story experience */}
+      <div 
+        ref={parentRef} 
+        className="w-full h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar overscroll-contain touch-pan-y"
+        style={{ scrollBehavior: 'smooth' }}
+      >
         <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
           {rowVirtualizer.getVirtualItems().map((virtualRow) => {
             const event = filteredEvents[virtualRow.index];
             return (
-              <div key={virtualRow.key} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100dvh', transform: `translateY(${virtualRow.start}px)`, scrollSnapAlign: 'start', scrollSnapStop: 'always' }}>
+              <div 
+                key={virtualRow.key} 
+                className="absolute top-0 left-0 w-full snap-start snap-always"
+                style={{ 
+                  height: '100dvh', 
+                  width: '100%',
+                  transform: `translateY(${virtualRow.start}px)`
+                }}
+              >
                 <EventCard
                   event={event}
                   isActive={virtualRow.index === activeIdx}

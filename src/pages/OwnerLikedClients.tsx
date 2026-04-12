@@ -1,14 +1,10 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { LikedClients } from "@/components/LikedClients";
 
-interface OwnerLikedClientsProps {
-  embedded?: boolean;
-}
-
-const OwnerLikedClients = ({ embedded = false }: OwnerLikedClientsProps) => {
+const OwnerLikedClients = () => {
   return (
     <>
-      <LikedClients embedded={embedded} />
+      <LikedClients />
     </>
   );
 };

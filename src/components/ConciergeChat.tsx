@@ -1,17 +1,41 @@
 import { useState, useRef, useEffect, useCallback, memo, useMemo } from 'react';
-import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown, Mic, MicOff, Zap, ArrowRight, Info } from 'lucide-react';
+import { triggerHaptic } from '@/utils/haptics';
+import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown, Mic, MicOff, Zap, ArrowRight, Check } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { Button } from '@/components/ui/button';
 import { useConciergeAI, ChatMessage, Conversation, AiCharacter } from '@/hooks/useConciergeAI';
-import { toast } from '@/components/ui/sonner';
+import { useAudioVisualizer } from '@/hooks/useAudioVisualizer';
+import { uiSounds } from '@/utils/uiSounds';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import ReactMarkdown from 'react-markdown';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { playAiWelcomeSound, playAiCharacterChange, playAiMessageSound } from '@/utils/audioEvents';
-import { ConciergePrivacyPortal } from './ConciergePrivacyPortal';
+
+const ConciergePrivacyPortal = memo(({ onAccept }: { onAccept: () => void }) => {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center p-8 relative z-10 space-y-6 text-center h-full">
+      <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-4 border border-primary/20 relative shadow-[0_0_40px_rgba(168,85,247,0.3)]">
+        <Sparkles className="w-10 h-10 text-primary animate-pulse" />
+      </div>
+      <h2 className="text-2xl font-black tracking-tight text-foreground uppercase">Swipess AI Protocol</h2>
+      <p className="text-xs text-muted-foreground leading-relaxed max-w-[280px]">
+        Swipess AI is a highly-trained, secure concierge built purely to enhance your experience. Your data is strictly protected under our high standards and will never be used maliciously or sold to third parties. We are here to help you seamlessly.
+      </p>
+      
+      <div className="w-full space-y-3 mt-6">
+        <Button 
+          onClick={onAccept}
+          className="w-full h-14 rounded-2xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 transition-all text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_10px_30px_rgba(99,102,241,0.3)]"
+        >
+          Initialize AI & Accept
+        </Button>
+      </div>
+    </div>
+  );
+});
 
 interface ConciergeChatProps {
   isOpen: boolean;
@@ -71,13 +95,13 @@ function parseNavActions(content: string): { cleanContent: string; navPaths: str
 }
 
 /* ─── Message Bubble ─── */
-const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate, onDelete, isUser }: {
+const MessageBubble = memo(({ message, onCopy, onResend, onDelete, onTranslate, onNavigate, isUser }: {
   message: ChatMessage;
   onCopy: () => void;
   onResend?: () => void;
+  onDelete?: () => void;
   onTranslate?: (lang: string) => void;
   onNavigate?: (path: string) => void;
-  onDelete?: () => void;
   isUser: boolean;
 }) => {
   const { cleanContent, navPaths } = useMemo(
@@ -96,15 +120,15 @@ const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate
       </div>
 
       <div className={cn(
-        'px-4 py-3 rounded-2xl text-sm leading-relaxed break-words shadow-sm transition-all',
+        'px-4 py-3 rounded-2xl text-sm leading-relaxed break-words',
         isUser
-          ? 'bg-gradient-to-br from-brand-primary/90 to-brand-accent/90 text-primary-foreground rounded-br-md !shadow-[0_4px_14px_rgba(255,107,53,0.25)]'
-          : 'bg-muted/60 backdrop-blur-md text-foreground rounded-bl-md border border-white/5 dark:border-white/10'
+          ? 'bg-primary text-primary-foreground rounded-br-md'
+          : 'bg-muted/80 text-foreground rounded-bl-md border border-border/30'
       )}>
         {isUser ? (
-          <span className="whitespace-pre-wrap font-medium inline-block">{message.content}</span>
+          <span className="whitespace-pre-wrap">{message.content}</span>
         ) : (
-          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1.5 prose-ul:my-1 prose-li:my-0.5 prose-strong:text-brand-primary prose-strong:font-black prose-blockquote:border-l-[3px] prose-blockquote:border-brand-primary prose-blockquote:bg-gradient-to-r prose-blockquote:from-brand-primary/10 prose-blockquote:to-transparent prose-blockquote:px-4 prose-blockquote:py-2 prose-blockquote:my-2 prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-em:text-muted-foreground prose-em:italic prose-a:text-brand-primary prose-a:no-underline hover:prose-a:underline">
+          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5">
             <ReactMarkdown>{cleanContent}</ReactMarkdown>
           </div>
         )}
@@ -140,39 +164,24 @@ const MessageBubble = memo(({ message, onCopy, onResend, onTranslate, onNavigate
         'opacity-60 hover:opacity-100',
         isUser ? 'justify-end' : 'justify-start'
       )}>
-        <button 
-          onClick={onCopy} 
-          className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-muted/80 text-muted-foreground/50 hover:text-brand-primary transition-all active:scale-90" 
-          aria-label="Copy"
-        >
-          <Copy className="w-3.5 h-3.5" strokeWidth={2.2} />
+        <button onClick={onCopy} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Copy">
+          <Copy className="w-3 h-3" />
         </button>
         {onDelete && (
-          <button 
-            onClick={onDelete} 
-            className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-destructive/10 text-muted-foreground/50 hover:text-destructive transition-all active:scale-90" 
-            aria-label="Delete message"
-          >
-            <Trash2 className="w-3.5 h-3.5" strokeWidth={2.2} />
+          <button onClick={onDelete} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground group-hover:text-destructive transition-colors" aria-label="Delete">
+            <Trash2 className="w-3 h-3" />
           </button>
         )}
         {isUser && onResend && (
-          <button 
-            onClick={onResend} 
-            className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-muted/80 text-muted-foreground/50 hover:text-brand-primary transition-all active:scale-90" 
-            aria-label="Resend"
-          >
-            <RefreshCw className="w-3.5 h-3.5" strokeWidth={2.2} />
+          <button onClick={onResend} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Resend">
+            <RefreshCw className="w-3 h-3" />
           </button>
         )}
         {!isUser && onTranslate && (
           <Popover>
             <PopoverTrigger asChild>
-              <button 
-                className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-muted/80 text-muted-foreground/50 hover:text-brand-primary transition-all active:scale-90" 
-                aria-label="Translate"
-              >
-                <Globe className="w-3.5 h-3.5" strokeWidth={2.2} />
+              <button className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Translate">
+                <Globe className="w-3 h-3" />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-40 p-1.5" side="top" align="start">
@@ -233,7 +242,7 @@ const HeaderIcon = ({ isLoading }: { isLoading: boolean }) => (
     } : { scale: 1, boxShadow: '0 0 0px hsl(var(--primary) / 0)' }}
     transition={isLoading ? { duration: 2.2, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 }}
   >
-    <div className={cn("w-2 h-2 rounded-full bg-primary animate-pulse", isLoading ? "opacity-100" : "opacity-40")} />
+    <Sparkles className="w-4 h-4 text-primary" />
   </motion.div>
 );
 
@@ -284,10 +293,16 @@ const ConversationSidebar = memo(({
             <p className="text-[10px] text-muted-foreground">{formatConvoDate(c.updatedAt)}</p>
           </div>
           <button
-            onClick={(e) => { e.stopPropagation(); onDelete(c.id); }}
-            className="ml-2 p-1 rounded-md hover:bg-destructive/20 text-muted-foreground hover:text-destructive shrink-0"
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              if (window.confirm('Delete this conversation? All messages will be lost.')) {
+                onDelete(c.id); 
+              }
+            }}
+            className="ml-2 p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all shrink-0"
+            title="Delete conversation"
           >
-            <Trash2 className="w-3 h-3" />
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       ))}
@@ -298,12 +313,21 @@ ConversationSidebar.displayName = 'ConversationSidebar';
 
 /* ─── Main Chat ─── */
 export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
+  const [hasAcceptedPrivacy, setHasAcceptedPrivacy] = useState(() => {
+    return localStorage.getItem('swipess_ai_privacy') === 'true';
+  });
+
+  const acceptPrivacy = useCallback(() => {
+    localStorage.setItem('swipess_ai_privacy', 'true');
+    setHasAcceptedPrivacy(true);
+    triggerHaptic('success');
+  }, []);
+
   const {
     messages, conversations, activeConversationId, isLoading,
-    sendMessage, resendMessage, stopGeneration,
-    createConversation, switchConversation, deleteConversation, deleteMessage, deleteMemory, clearHistory,
-    activeCharacter, setActiveCharacter, egoLevel, isPremium,
-    hasAcceptedTerms, setHasAcceptedTerms,
+    sendMessage, resendMessage, deleteMessage, stopGeneration,
+    createConversation, switchConversation, deleteConversation, clearHistory,
+    activeCharacter, setActiveCharacter, egoLevel,
   } = useConciergeAI();
   const { navigate: appNavigate } = useAppNavigate();
 
@@ -317,38 +341,34 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
 
   const CHARACTER_OPTIONS: { key: AiCharacter; label: string; subtitle: string; icon: typeof Sparkles; color: string; bgColor: string; glowColor: string; toast: string; meterLabel: string }[] = [
-    { key: 'default', label: 'Swipess AI', subtitle: 'Swipess AI Hero', icon: Sparkles, color: 'text-primary', bgColor: 'bg-primary/20', glowColor: '', toast: 'Back to Swipess AI ✨', meterLabel: 'EGO' },
-    { key: 'kyle', label: 'Johnny', subtitle: 'Hustler 🔥', icon: Flame, color: 'text-red-500', bgColor: 'bg-red-500/20', glowColor: 'shadow-[0_0_15px_rgba(239,68,68,0.4)]', toast: 'Johnny activated. Bro... you know what I mean? 🔥', meterLabel: 'EGO' },
-    { key: 'beaugosse', label: 'Beau Gosse', subtitle: 'El Guapo ✨', icon: Sparkles, color: 'text-blue-400', bgColor: 'bg-blue-500/20', glowColor: 'shadow-[0_0_15px_rgba(96,165,250,0.4)]', toast: 'The Beau Gosse activated. Let\'s make this interesting... ✨', meterLabel: 'CHARM' },
-    { key: 'donajkiin', label: 'Don Aj K\'iin', subtitle: 'Guardian 🌹', icon: Sun, color: 'text-[#FF1493]', bgColor: 'bg-[#FF1493]/20', glowColor: 'shadow-[0_0_15px_rgba(255,20,147,0.4)]', toast: 'Don Aj K\'iin activated. Mexican Pink energy... 🌹', meterLabel: 'WISDOM' },
-    { key: 'botbetter', label: 'Anastacia', subtitle: 'Luxury Queen 👑', icon: Crown, color: 'text-fuchsia-500', bgColor: 'bg-fuchsia-500/20', glowColor: 'shadow-[0_0_15px_rgba(217,70,239,0.4)]', toast: 'Anastacia activated. Mmm… let\'s upgrade this 😌👑', meterLabel: 'SASS' },
-    { key: 'lunashanti', label: 'Luna Shanti', subtitle: 'Boho Guide 🌙', icon: Moon, color: 'text-indigo-400', bgColor: 'bg-indigo-500/20', glowColor: 'shadow-[0_0_15px_rgba(129,140,248,0.4)]', toast: 'Luna Shanti activated. Mmm… breathe… ✨🌙', meterLabel: 'ZEN' },
-    { key: 'ezriyah', label: 'Ezriyah Suave', subtitle: 'Manbodiment Coach 🧘‍♂️', icon: Zap, color: 'text-amber-500', bgColor: 'bg-amber-500/20', glowColor: 'shadow-[0_0_15px_rgba(245,158,11,0.4)]', toast: 'Ezriyah activated. Brother… let\'s integrate. 🔥', meterLabel: 'FLOW' },
+    { key: 'default', label: 'Swipess AI', subtitle: 'Tulum Concierge', icon: Sparkles, color: 'text-primary', bgColor: 'bg-primary/20', glowColor: '', toast: 'Back to default concierge ✨', meterLabel: 'EGO' },
+    { key: 'kyle', label: 'Kyle', subtitle: 'Boston Hustler 🔥', icon: Flame, color: 'text-orange-400', bgColor: 'bg-orange-500/20', glowColor: 'shadow-[0_0_12px_rgba(251,146,60,0.3)]', toast: 'Kyle activated. Bro... you know what I mean? 🔥', meterLabel: 'EGO' },
+    { key: 'beaugosse', label: 'Beau Gosse', subtitle: 'El Guapo ✨', icon: Sparkles, color: 'text-purple-400', bgColor: 'bg-purple-500/20', glowColor: 'shadow-[0_0_12px_rgba(168,85,247,0.3)]', toast: 'The Beau Gosse activated. Let\'s make this interesting... ✨', meterLabel: 'CHARM' },
+    { key: 'donajkiin', label: 'Don Aj K\'iin', subtitle: 'Mayan Guardian 🌿', icon: Sun, color: 'text-emerald-400', bgColor: 'bg-emerald-500/20', glowColor: 'shadow-[0_0_12px_rgba(52,211,153,0.3)]', toast: 'Don Aj K\'iin activated. Mmm... sit down, hermano... 🌿', meterLabel: 'WISDOM' },
+    { key: 'botbetter', label: 'Bot Better', subtitle: 'Luxury Queen 👑', icon: Crown, color: 'text-pink-400', bgColor: 'bg-pink-500/20', glowColor: 'shadow-[0_0_12px_rgba(236,72,153,0.3)]', toast: 'The Bot Better activated. Mmm… let\'s upgrade this 😌👑', meterLabel: 'SASS' },
+    { key: 'lunashanti', label: 'Luna Shanti', subtitle: 'Boho Guide 🌙', icon: Moon, color: 'text-violet-300', bgColor: 'bg-violet-500/20', glowColor: 'shadow-[0_0_12px_rgba(167,139,250,0.3)]', toast: 'Luna Shanti activated. Mmm… breathe… feel into it… ✨🌙', meterLabel: 'ZEN' },
+    { key: 'ezriyah', label: 'Ezriyah Suave', subtitle: 'Manbodiment Coach 🧘‍♂️', icon: Sun, color: 'text-teal-400', bgColor: 'bg-teal-500/20', glowColor: 'shadow-[0_0_12px_rgba(45,212,191,0.3)]', toast: 'Ezriyah activated. Brother… let\'s integrate. 🔥', meterLabel: 'FLOW' },
   ];
 
   const currentChar = CHARACTER_OPTIONS.find(c => c.key === activeCharacter) || CHARACTER_OPTIONS[0];
 
   const selectCharacter = (key: AiCharacter) => {
     setActiveCharacter(key);
-    playAiCharacterChange();
     const char = CHARACTER_OPTIONS.find(c => c.key === key)!;
     toast(char.toast);
     setCharacterPanelOpen(false);
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      playAiWelcomeSound();
-    }
-  }, [isOpen]);
-
   const [input, setInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const originalInputRef = useRef(''); // To preserve text before mic starts
 
   // ── Voice-to-text (Web Speech API) ─────────────────────────────────
   const [isListening, setIsListening] = useState(false);
+  const voiceVolume = useAudioVisualizer(isListening);
   const [autoSend, setAutoSend] = useState(() => {
     try { return localStorage.getItem('concierge-auto-send') === 'true'; } catch { return false; }
   });
@@ -359,23 +379,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownTranscriptRef = useRef<string>('');
   const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
-  
-  // 🎙️ PERMISSION & VISUALS
-  const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied'>('prompt');
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const dataArrayRef = useRef<Uint8Array | null>(null);
-  const [audioVolume, setAudioVolume] = useState(0);
-  const animationFrameRef = useRef<number | null>(null);
 
-  // Auto-detect language
-  const detectLanguage = useCallback(() => {
-    const lang = (navigator.language || 'en-US').split('-')[0];
-    return lang === 'es' ? 'es-MX' : 'en-US';
-  }, []);
-
-  const COUNTDOWN_SECONDS = 3;
-  const SILENCE_DELAY_MS = 2000; // 2 seconds of silence before countdown starts
+  const COUNTDOWN_SECONDS = 2;
+  const SILENCE_DELAY_MS = 1200; // 1.2 seconds of silence before countdown starts
   const isCountingDownRef = useRef(false);
   const lastFinalTranscriptRef = useRef('');
 
@@ -431,99 +437,46 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     setAutoSend(prev => {
       const next = !prev;
       try { localStorage.setItem('concierge-auto-send', String(next)); } catch {}
-      if (next) toast('⚡ Auto-send after 2s of silence enabled');
-      else toast('Auto-send disabled');
       return next;
     });
   }, []);
 
   const stopListening = useCallback(() => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-    if (audioContextRef.current) {
-      audioContextRef.current.close().catch(() => {});
-      audioContextRef.current = null;
-    }
-    setAudioVolume(0);
     clearCountdown();
     if (recognitionRef.current) {
       (recognitionRef.current as any)._userStop?.();
-      try { recognitionRef.current.abort(); } catch {}
+      recognitionRef.current.stop();
       recognitionRef.current = null;
     }
     setIsListening(false);
   }, [clearCountdown]);
 
-  const startListening = useCallback(async () => {
-    if (!speechSupported) {
-      toast.error('Voice input is not supported in this browser.');
-      return;
-    }
-
-    // Kill any existing recognition session first
-    if (recognitionRef.current) {
-      try { recognitionRef.current.abort(); } catch {}
-      recognitionRef.current = null;
-    }
-    
-    // 🎙️ PERMISSION & AUDIO CONTEXT WARM-UP
-    // CRITICAL: Request hardware access immediately in the gesture callback to trigger Safari prompt
-    try {
-      if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        // Kick off permission check immediately
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true }).catch(err => {
-           console.warn('[Mic] HW access error/denied:', err);
-           return null;
-        });
-
-        if (stream) {
-          setPermissionState('granted');
-          // Setup visualizer if context doesn't exist
-          if (!audioContextRef.current) {
-            const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
-            const audioCtx = new AudioContextClass();
-            const analyser = audioCtx.createAnalyser();
-            const source = audioCtx.createMediaStreamSource(stream);
-            source.connect(analyser);
-            analyser.fftSize = 64;
-            audioContextRef.current = audioCtx;
-            analyserRef.current = analyser;
-            dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount) as Uint8Array<ArrayBuffer>;
-
-            const updateVisuals = () => {
-              if (!analyserRef.current || !dataArrayRef.current) return;
-              analyserRef.current.getByteFrequencyData(dataArrayRef.current as Uint8Array<ArrayBuffer>);
-              let sum = 0;
-              for (let i = 0; i < dataArrayRef.current.length; i++) sum += dataArrayRef.current[i];
-              setAudioVolume(sum / dataArrayRef.current.length); 
-              animationFrameRef.current = requestAnimationFrame(updateVisuals);
-            };
-            updateVisuals();
-          }
-        } else {
-          setPermissionState('denied');
-          toast.error('Microphone permission required', { description: 'Please allow access to use voice-to-text.' });
-          return;
-        }
-      }
-    } catch (err) {
-      console.warn('[Voice] Permission check exception:', err);
-    }
-    
+  const startListening = useCallback(() => {
+    if (!speechSupported) return;
     clearCountdown();
-
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = detectLanguage();
+    recognition.lang = typeof window !== 'undefined' ? (navigator.language || 'en-US') : 'en-US';
 
     let finalTranscript = '';
     let userStopped = false;
+    let hasInterrupted = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      originalInputRef.current = input; // Snapshot current text
+      triggerHaptic('medium');
+    };
 
     recognition.onresult = (event: any) => {
+      // 🚀 INTERRUPTION: If AI is thinking/typing, stop it on the first word detected
+      if (isLoading && !hasInterrupted) {
+        stopGeneration();
+        hasInterrupted = true;
+      }
+
       // If countdown is active and new speech arrives, CANCEL countdown and reset silence timer
       if (isCountingDownRef.current) {
         clearCountdown();
@@ -535,7 +488,6 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
         silenceTimerRef.current = null;
       }
 
-      // Only process NEW results to prevent duplicate accumulation
       let interim = '';
       let newFinalChunk = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -546,13 +498,21 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
         }
       }
 
-      // Accumulate final text properly
-      if (newFinalChunk) {
-        finalTranscript += newFinalChunk;
-      }
+      finalTranscript += newFinalChunk;
 
-      setInput(finalTranscript + interim);
-      countdownTranscriptRef.current = (finalTranscript + interim).trim();
+      const sanitizedFinal = finalTranscript.trim();
+      const sanitizedInterim = interim.trim();
+      
+      const combined = [
+        originalInputRef.current.trim(),
+        sanitizedFinal,
+        sanitizedInterim
+      ].filter(Boolean).join(' ');
+
+      if (combined) {
+        setInput(combined);
+        countdownTranscriptRef.current = combined;
+      }
 
       // If auto-send is ON, reset silence timer: after 2s of no new speech → start countdown
       if (autoSend && countdownTranscriptRef.current) {
@@ -565,40 +525,46 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     };
 
     recognition.onend = () => {
-      // If user manually stopped, don't restart
-      if (userStopped) {
+      // Always ensure we reset state if not restarting
+      const shouldRestart = recognitionRef.current && !userStopped && !isCountingDownRef.current;
+      
+      if (!shouldRestart) {
         setIsListening(false);
         recognitionRef.current = null;
         return;
       }
 
-      // If countdown is active, don't restart but keep state
-      if (isCountingDownRef.current) return;
-
-      // Browser killed the session (timeout, etc.) — auto-restart to keep listening
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.start();
-        } catch {
+      // Browser killed the session (timeout, etc.) — auto-restart with a small delay
+      setTimeout(() => {
+        if (recognitionRef.current && !userStopped && !isCountingDownRef.current) {
+          try {
+            recognitionRef.current.start();
+            setIsListening(true);
+          } catch (err) {
+            console.error('[AI Speech] Restart failed:', err);
+            setIsListening(false);
+            recognitionRef.current = null;
+          }
+        } else {
           setIsListening(false);
-          recognitionRef.current = null;
         }
-      }
+      }, 300);
     };
 
     recognition.onerror = (e: any) => {
-      console.warn('[Voice] Recognition error:', e.error);
-      if (e.error === 'not-allowed') {
-        userStopped = true;
-        setIsListening(false);
-        recognitionRef.current = null;
-        clearCountdown();
-        toast.error('Microphone access denied! Please allow access in Safari Settings.');
-        return;
-      }
       if (e.error === 'no-speech') return;
-      if (e.error === 'aborted') return; // We aborted it ourselves
-      if (isCountingDownRef.current) return; // Don't kill countdown on speech errors
+      if (isCountingDownRef.current) return; 
+
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+        toast.error('Microphone access blocked', {
+          description: 'Please check your browser settings and allow microphone access to talk to Swipess AI.',
+          action: {
+            label: 'Fix settings',
+            onClick: () => window.open('https://support.google.com/chrome/answer/2693767', '_blank')
+          }
+        });
+      }
+      
       userStopped = true;
       setIsListening(false);
       recognitionRef.current = null;
@@ -609,26 +575,20 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
     recognitionRef.current = recognition;
     lastFinalTranscriptRef.current = '';
-    
-    try {
-      recognition.start();
-      setIsListening(true);
-    } catch (err) {
-      console.error('[Voice] Failed to start recognition:', err);
-      toast.error('Voice input failed to start. Try reloading the app.');
-      recognitionRef.current = null;
-      setIsListening(false);
-    }
-  }, [speechSupported, autoSend, clearCountdown, startCountdown]);
+    recognition.start();
+    setIsListening(true);
+  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown]);
 
   const toggleListening = useCallback(() => {
     if (isListening || countdown !== null) {
       clearCountdown();
       stopListening();
     } else {
+      // If AI is talking, stop it immediately when you tap Mic
+      if (isLoading) stopGeneration();
       startListening();
     }
-  }, [isListening, countdown, stopListening, startListening, clearCountdown]);
+  }, [isListening, countdown, isLoading, stopListening, startListening, clearCountdown, stopGeneration]);
 
   // Auto-scroll to bottom on new messages, loading state, opening chat, or switching conversation
   const scrollToBottom = useCallback(() => {
@@ -692,21 +652,56 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          {!hasAcceptedTerms ? (
-            <ConciergePrivacyPortal 
-              isOpen={true} 
-              onAccept={() => setHasAcceptedTerms(true)}
-              onClose={onClose}
-            />
-          ) : (
-            <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 40 }}
-          transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-          className="fixed inset-0 z-[100000] flex flex-col bg-background"
+        <motion.div
+          initial={{ y: '100%', scale: 0.8, filter: 'blur(20px)', opacity: 0 }}
+          animate={{ y: 0, scale: 1, filter: 'blur(0px)', opacity: 1 }}
+          exit={{ y: '100%', scale: 0.8, filter: 'blur(20px)', opacity: 0 }}
+          transition={{ 
+            type: 'spring', 
+            damping: 25, 
+            stiffness: 180,
+            opacity: { duration: 0.3 }
+          }}
+          className="w-full h-full md:max-w-md md:max-h-[85vh] bg-background/95 backdrop-blur-3xl md:rounded-[2rem] shadow-2xl flex flex-col overflow-hidden relative border border-white/10"
         >
+          {/* ADVANCED PARTICLE WARP EFFECT (Subtle) */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-[5]">
+             {[...Array(6)].map((_, i) => (
+               <motion.div
+                 key={i}
+                 initial={{ opacity: 0, scale: 0 }}
+                 animate={{ 
+                   opacity: [0, 0.4, 0], 
+                   scale: [1, 2],
+                   x: [0, (i % 2 === 0 ? 100 : -100)],
+                   y: [0, (i < 3 ? 100 : -100)]
+                 }}
+                 transition={{ 
+                   duration: 0.8, 
+                   delay: 0.1 + i * 0.05,
+                   ease: "easeOut"
+                 }}
+                 className="absolute top-1/2 left-1/2 w-32 h-32 -translate-x-1/2 -translate-y-1/2 bg-primary/20 rounded-full blur-3xl"
+               />
+             ))}
+          </div>
+          {/* LIQUID AMBIENT BACKGROUND */}
+          <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden mix-blend-screen opacity-40">
+            <div 
+              className={cn(
+                "absolute top-1/2 left-1/2 w-[180%] h-[180%] -translate-x-1/2 -translate-y-1/2 blur-[80px] transition-all duration-3000 ease-in-out",
+                isLoading || isListening ? "scale-110 opacity-70 animate-pulse" : "scale-100 opacity-30"
+              )}
+              style={{
+                background: `radial-gradient(circle at center, ${activeCharacter === 'default' ? '#6366f1' : '#f59e0b'}40 0%, transparent 60%)`
+              }}
+            />
+          </div>
+
+          {!hasAcceptedPrivacy ? (
+             <ConciergePrivacyPortal onAccept={acceptPrivacy} />
+          ) : (
+            <>
           {/* Sidebar backdrop */}
           <AnimatePresence>
             {sidebarOpen && (
@@ -715,7 +710,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="absolute inset-0 z-40 bg-black/30"
+                className="absolute inset-0 z-40 bg-black/60 backdrop-blur-sm"
                 onClick={() => setSidebarOpen(false)}
               />
             )}
@@ -761,10 +756,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   ) : (
                     <SwipessLogo size="xs" variant="gradient" />
                   )}
-                  <p className="text-[11px] text-muted-foreground mt-0.5 max-w-[140px] truncate">
-                    {isLoading ? (
-                      <span className="bg-gradient-to-r from-emerald-400 via-brand-primary to-purple-500 bg-clip-text text-transparent animate-pulse font-bold tracking-wide">Thinking…</span>
-                    ) : currentChar.subtitle}
+                  <p className="text-[11px] text-muted-foreground">
+                    {isLoading ? 'Thinking…' : currentChar.subtitle}
                   </p>
                 </div>
               </div>
@@ -772,9 +765,29 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => { createConversation(); }}>
                   <Plus className="w-4 h-4 text-muted-foreground" />
                 </Button>
-                {conversations.length > 0 && (
-                  <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-muted-foreground hover:text-destructive" onClick={clearHistory}>
-                    <Trash2 className="w-4 h-4" />
+                {activeConversationId && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={cn(
+                      "w-8 h-8 rounded-full transition-all",
+                      isDeleting ? "bg-destructive text-destructive-foreground hover:bg-destructive/80 scale-110 shadow-lg" : "text-muted-foreground hover:text-destructive"
+                    )} 
+                    onClick={() => {
+                      if (isDeleting) {
+                        stopListening();
+                        deleteConversation(activeConversationId);
+                        setIsDeleting(false);
+                        uiSounds.playPop();
+                      } else {
+                        setIsDeleting(true);
+                        uiSounds.playPing(0.6);
+                        setTimeout(() => setIsDeleting(false), 3000);
+                      }
+                    }}
+                    title={isDeleting ? "Click again to confirm delete" : "Delete conversation"}
+                  >
+                    {isDeleting ? <Check className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
                   </Button>
                 )}
                 <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-muted-foreground" onClick={onClose}>
@@ -790,7 +803,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ type: 'spring', damping: 25, stiffness: 350, mass: 0.5 }}
+                  transition={{ duration: 0.2 }}
                   className="px-3 pb-3 overflow-hidden"
                 >
                   <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
@@ -821,7 +834,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ type: 'spring', damping: 25, stiffness: 350, mass: 0.5 }}
+                  transition={{ duration: 0.2 }}
                   className="px-4 pb-2 overflow-hidden"
                 >
                   <div className="flex items-center gap-2">
@@ -894,10 +907,10 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 message={msg}
                 isUser={msg.role === 'user'}
                 onCopy={() => handleCopy(msg.content)}
+                onDelete={() => deleteMessage(msg.id)}
                 onResend={msg.role === 'user' ? () => resendMessage(msg.id) : undefined}
                 onTranslate={msg.role === 'assistant' ? handleTranslate : undefined}
                 onNavigate={msg.role === 'assistant' ? handleNavigate : undefined}
-                onDelete={() => activeConversationId && deleteMessage(activeConversationId, msg.id)}
               />
             ))}
 
@@ -951,7 +964,10 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
               {/* Auto-send toggle inline */}
               {speechSupported && (
                 <button
-                  onClick={toggleAutoSend}
+                  onClick={() => {
+                    toggleAutoSend();
+                    uiSounds.playPing(1.4);
+                  }}
                   className={cn(
                     "shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all",
                     autoSend
@@ -963,85 +979,84 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   <Zap className="w-4 h-4" />
                 </button>
               )}
-              {/* Mic button with countdown ring & Visualizer */}
+              {/* Mic button with countdown ring */}
               {speechSupported && (
                 <div className="relative shrink-0">
-                  {/* Real-time Spectrum Visualizer Glow */}
-                  {isListening && (
-                    <motion.div 
-                      className="absolute inset-0 rounded-xl bg-primary/20 -z-10"
-                      animate={{ 
-                        scale: [1, 1 + (audioVolume / 100) * 0.5, 1],
-                        opacity: [0.3, 0.6, 0.3]
-                      }}
-                      transition={{ duration: 0.15, repeat: 0 }}
-                    />
-                  )}
-                  
-                  {/* SVG countdown ring */}
-                  {countdown !== null && (
-                    <svg className="absolute inset-0 w-10 h-10 -rotate-90 pointer-events-none" viewBox="0 0 40 40">
-                      <circle
-                        cx="20" cy="20" r="17"
-                        fill="none"
-                        stroke="hsl(var(--primary) / 0.3)"
-                        strokeWidth="2.5"
-                      />
-                      <circle
-                        cx="20" cy="20" r="17"
-                        fill="none"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeDasharray={`${2 * Math.PI * 17}`}
-                        strokeDashoffset={`${2 * Math.PI * 17 * (1 - countdown / COUNTDOWN_SECONDS)}`}
-                        className="transition-all duration-1000 ease-linear"
-                      />
-                    </svg>
-                  )}
-
                   <Button
                     onClick={toggleListening}
-                    size="icon"
-                    variant="outline"
                     className={cn(
-                      "w-10 h-10 rounded-xl transition-all relative overflow-hidden",
-                      isListening && "border-primary/50 text-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]",
-                      permissionState === 'denied' && "border-destructive/50 text-destructive",
-                      countdown !== null && "border-primary/50 bg-primary/10",
-                      ignitionFlash && "border-primary bg-primary/30 shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+                      "transition-all duration-300 relative overflow-visible z-20",
+                      isListening || countdown !== null
+                        ? "w-20 h-20 rounded-[2.5rem] bg-primary border-none shadow-[0_0_40px_rgba(228,0,124,0.6)] scale-110 -translate-y-4"
+                        : "w-10 h-10 rounded-xl bg-muted/40 text-muted-foreground border border-border/30 hover:bg-muted/60"
                     )}
                   >
-                    {/* Visualizer Bars overlay */}
-                    {isListening && (
-                      <div className="absolute inset-x-1 bottom-1 flex items-end justify-center gap-[1px] h-3 opacity-30">
-                        {[0, 1, 2, 3, 4].map(i => (
-                          <div 
-                            key={i} 
-                            className="w-[2px] bg-primary rounded-full transition-all duration-75"
-                            style={{ height: `${Math.max(20, audioVolume * (1 - i*0.1))}%` }}
-                          />
-                        ))}
-                      </div>
-                    )}
+                    <AnimatePresence mode="wait">
+                      {isListening && !ignitionFlash ? (
+                        <motion.div
+                          key="stop"
+                          initial={{ scale: 0.5, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.5, opacity: 0 }}
+                        >
+                          <Square className="w-8 h-8 text-white fill-white" />
+                        </motion.div>
+                      ) : countdown !== null ? (
+                        <motion.div
+                          key="countdown"
+                          initial={{ scale: 0.5, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="text-2xl font-black text-white"
+                        >
+                          {countdown}
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="mic"
+                          initial={{ scale: 0.5, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                        >
+                          <Mic className="w-5 h-5 group-hover:text-primary transition-colors" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                    {ignitionFlash ? (
-                      <span className="text-sm">🚀</span>
-                    ) : countdown !== null ? (
-                      <span className="text-xs font-bold text-primary">{countdown}</span>
-                    ) : isListening ? (
-                      <div className="relative">
-                        <Mic className="w-4 h-4" />
-                        <motion.div 
-                          className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"
-                          animate={{ opacity: [1, 0, 1] }}
-                          transition={{ duration: 0.8, repeat: Infinity }}
+                    {/* 🚀 LIQUID BREATHING PULSE */}
+                    {(isListening || countdown !== null) && (
+                      <>
+                        <motion.div
+                          className="absolute inset-0 rounded-[2.5rem] bg-primary/30 -z-10"
+                          animate={{
+                            scale: [1, 2],
+                            opacity: [0.6, 0]
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            ease: "easeOut"
+                          }}
                         />
-                      </div>
-                    ) : permissionState === 'denied' ? (
-                      <Info className="w-4 h-4" />
-                    ) : (
-                      <Mic className="w-4 h-4" />
+                        <motion.div
+                          className="absolute inset-0 rounded-[2.5rem] bg-primary/40 -z-10"
+                          animate={{
+                            scale: [1, 2.5],
+                            opacity: [0.4, 0]
+                          }}
+                          transition={{
+                            duration: 1.8,
+                            repeat: Infinity,
+                            ease: "easeOut",
+                            delay: 0.4
+                          }}
+                        />
+                        <motion.div
+                          className="absolute inset-0 rounded-[2.5rem] bg-primary/20 -z-10 blur-xl"
+                          animate={{
+                            scale: [1, 1.4 + (voiceVolume * 0.8)],
+                          }}
+                          transition={{ duration: 0.1 }}
+                        />
+                      </>
                     )}
                   </Button>
                 </div>
@@ -1060,12 +1075,12 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   <Send className="w-4 h-4" />
                 </Button>
               )}
+              </div>
             </div>
-          </div>
+          </>
+        )}
         </motion.div>
       )}
-    </>
-  )}
     </AnimatePresence>
   );
 }

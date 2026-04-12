@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, UserCheck, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -53,85 +53,11 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   const btnH = size === 'sm' ? 32 : size === 'md' ? 36 : 40;
   const iconW = Math.round(btnH * 1.15); // Perfectly wide enough for the icons
 
-  const pillBg = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)';
-  const pillBorder = isLight ? '1px solid rgba(0,0,0,0.10)' : '1px solid rgba(255,255,255,0.14)';
+  const pillBg = 'transparent';
+  const pillBorder = 'none';
   
   const clientColor = isClient ? '#f43f5e' : (isLight ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.35)');
   const ownerColor = !isClient ? '#f97316' : (isLight ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.35)');
-
-  if (variant === 'icon') {
-    return (
-      <button
-        onPointerDown={onPointerDown}
-        onClick={handleToggle}
-        disabled={isSwitching || !canSwitchMode}
-        className={cn(
-          'relative flex items-center justify-center rounded-full',
-          'transition-all duration-150 ease-out',
-          'active:scale-[0.92]',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
-          'touch-manipulation select-none',
-          className
-        )}
-        style={{
-          height: btnH,
-          minWidth: iconW * 2,
-          background: 'transparent',
-          border: 'none',
-          padding: 0,
-        }}
-        aria-label={`Switch to ${isClient ? 'Business' : 'Client'} mode`}
-      >
-        <AnimatePresence mode="wait" initial={false}>
-          {isSwitching ? (
-            <motion.div
-              key="icon-loader"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="flex items-center justify-center w-full"
-            >
-              <Loader2 className="h-4 w-4 animate-spin" style={{ color: isClient ? '#f43f5e' : '#f97316' }} />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="icon-content"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center justify-center gap-1.5"
-            >
-              <motion.div
-                animate={{ scale: isClient ? 1.08 : 1, opacity: isClient ? 1 : 0.7 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                className="flex items-center justify-center"
-                style={{ width: iconW - 2 }}
-              >
-                <User
-                  strokeWidth={isClient ? 2 : 1.5}
-                  className="h-[18px] w-[18px] transition-all duration-200"
-                  style={{ color: clientColor }}
-                />
-              </motion.div>
-
-              <motion.div
-                animate={{ scale: !isClient ? 1.08 : 1, opacity: !isClient ? 1 : 0.7 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                className="flex items-center justify-center"
-                style={{ width: iconW - 2 }}
-              >
-                <UserCheck
-                  strokeWidth={!isClient ? 2 : 1.5}
-                  className="h-[18px] w-[18px] transition-all duration-200"
-                  style={{ color: ownerColor }}
-                />
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </button>
-    );
-  }
 
   return (
     <button
@@ -174,7 +100,22 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             className="relative flex items-center w-full h-full"
             style={{ width: iconW * 2 }}
           >
-            {/* icons only, no background frame */}
+            <motion.div
+              layoutId="mode-highlight"
+              className="absolute rounded-full"
+              initial={false}
+              animate={{
+                left: isClient ? '4%' : '54%',
+              }}
+              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              style={{
+                width: '42%',
+                height: '80%',
+                background: 'transparent',
+                top: '50%',
+                y: '-50%',
+              }}
+            />
 
             <div className="flex-1 flex items-center justify-center relative z-10">
               <User

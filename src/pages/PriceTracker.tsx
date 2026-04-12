@@ -74,7 +74,7 @@ export default function PriceTracker() {
   const activeZones = selectedZone === 'all' ? neighborhoods : [selectedZone];
 
   return (
-    <div className="w-full h-full max-w-2xl mx-auto selection:bg-primary/30 p-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-black p-4 pb-28 max-w-2xl mx-auto selection:bg-primary/30">
       {/* ── HEADER ── */}
       <div className="mb-8 pt-[var(--safe-top)]">
         <div className="flex items-center gap-4 mb-6">

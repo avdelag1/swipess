@@ -16,16 +16,21 @@ function Skeleton({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-md",
-        glow ? "liquid-glass-shimmer" : "bg-muted/40 animate-pulse",
+        "relative overflow-hidden rounded-md bg-muted/80",
+        // GPU-accelerated shimmer animation
+        "before:absolute before:inset-0 before:-translate-x-full",
+        "before:animate-shimmer before:bg-gradient-to-r",
+        "before:from-transparent before:via-white/15 before:to-transparent",
         // Force GPU layer for smooth 60fps
-        "transform-gpu translate-z-0",
+        "transform-gpu",
+        // Pulsing glow effect for premium feel
+        glow && "after:absolute after:inset-0 after:rounded-md after:animate-skeleton-glow after:pointer-events-none",
         className
       )}
       style={{
         backfaceVisibility: 'hidden',
         ...(glow && {
-          boxShadow: '0 8px 32px 0 rgba(236, 72, 153, 0.15)',
+          boxShadow: '0 0 20px 2px rgba(255,255,255,0.1)',
         }),
       }}
       {...props}

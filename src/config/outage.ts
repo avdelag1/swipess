@@ -3,7 +3,7 @@
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Change this to 'MAINTENANCE' to hide the site.
 // Change this to 'ONLINE' to go live.
-export const APP_STATUS: 'ONLINE' | 'MAINTENANCE' = 'MAINTENANCE';
+export const APP_STATUS: 'ONLINE' | 'MAINTENANCE' = 'ONLINE';
 
 // Secret bypass for you: visit yoursite.com/?preview=swipess
 export const OUTAGE_BYPASS_PARAM = 'preview';

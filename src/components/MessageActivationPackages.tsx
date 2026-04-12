@@ -1,7 +1,7 @@
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star, X, ExternalLink } from "lucide-react";
+import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatPriceMXN } from "@/utils/subscriptionPricing";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,7 +11,6 @@ import { motion } from "framer-motion";
 import { STORAGE } from "@/constants/app";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
-import { useAppNavigate } from "@/hooks/useAppNavigate";
 
 type TokenPackage = {
   id: number;
@@ -27,7 +26,6 @@ type TokenPackage = {
   paypalUrl: string;
   features: string[];
   legal_documents: number;
-  bestValue?: boolean;
 };
 
 interface MessageActivationPackagesProps {
@@ -47,7 +45,6 @@ export function MessageActivationPackages({
   const { user } = useAuth();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const { navigate } = useAppNavigate();
 
   const { data: userProfile } = useQuery({
     queryKey: ['user-profile', user?.id],
@@ -67,56 +64,71 @@ export function MessageActivationPackages({
   const currentUserRole = userRole || userProfile?.role || 'client';
   const packageCategory = currentUserRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
-const HARDCODED_TOKEN_PACKAGES: TokenPackage[] = [
-  {
-    id: 101, name: 'Client Starter', tokens: 3, price: 3.00, pricePerToken: 1.00, tier: 'starter', icon: MessageCircle, duration_days: 999, package_category: 'tokens', paypalUrl: '#',
-    features: ['3 Message Activations', 'Instant delivery', 'Never expires'], legal_documents: 0, bestValue: false,
-  },
-  {
-    id: 102, name: 'Tokens Standard', tokens: 10, price: 6.00, pricePerToken: 0.60, tier: 'standard', icon: Zap, duration_days: 999, package_category: 'tokens', paypalUrl: 'https://www.paypal.com/ncp/payment/VG2C7QMAC8N6A',
-    features: ['10 Message Activations', 'Instant delivery', 'Never expires'], legal_documents: 0, bestValue: true, savings: 'Save 40%'
-  },
-  {
-    id: 103, name: 'Tokens Premium', tokens: 15, price: 9.00, pricePerToken: 0.60, tier: 'premium', icon: Crown, duration_days: 999, package_category: 'tokens', paypalUrl: 'https://www.paypal.com/ncp/payment/9NBGA9X3BJ5UA',
-    features: ['15 Message Activations', 'Instant delivery', 'Never expires'], legal_documents: 0, bestValue: false, savings: 'Save 40%'
-  }
-];
+  const { data: packages, isLoading } = useQuery({
+    queryKey: ['activation-packages', packageCategory],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('subscription_packages')
+        .select('*')
+        .eq('package_category', packageCategory)
+        .eq('is_active', true)
+        .order('message_activations', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
 
-const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
-  {
-    id: 201, name: 'Swipess Monthly', tokens: 50, price: 39.00, pricePerToken: 0, tier: 'starter', icon: MessageCircle, duration_days: 30, package_category: 'premium', paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
-    features: [
-      '50 Tokens for instant messaging',
-      'Exclusive 24/7 access to AI Concierge chat',
-      'Discover and communicate with exclusive listings',
-      'Post items and services on the discovery feed',
-      'Save favorite listings and track views',
-    ], legal_documents: 0, bestValue: false,
-  },
-  {
-    id: 202, name: 'Swipess +6 Months', tokens: 300, price: 119.00, pricePerToken: 0, tier: 'standard', icon: Zap, duration_days: 180, package_category: 'premium', paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
-    features: [
-      '300 Tokens included',
-      'Priority 24/7 access to AI Concierge chat',
-      'Featured placement in matching algorithms',
-      'Post items and services on the discovery feed',
-      'Save favorite listings and track views',
-    ], legal_documents: 0, bestValue: true,
-  },
-  {
-    id: 203, name: 'Swipess Unlimited', tokens: 999, price: 299.00, pricePerToken: 0, tier: 'premium', icon: Crown, duration_days: 365, package_category: 'premium', paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
-    features: [
-      'Unlimited messaging tokens',
-      'VIP 24/7 access to ultra-fast AI Concierge chat',
-      'Maximum visibility & golden profile badge',
-      'Post limitless items and services on the discovery feed',
-      'Custom insights and priority support',
-    ], legal_documents: 0, bestValue: false,
-  }
-];
+  const convertPackages = (dbPackages: any[] | undefined): TokenPackage[] => {
+    if (!dbPackages || dbPackages.length === 0) return [];
 
-  const packagesUI = showAsPage ? HARDCODED_PREMIUM_PACKAGES : [...HARDCODED_TOKEN_PACKAGES, ...HARDCODED_PREMIUM_PACKAGES];
-  const isLoading = false;
+    return dbPackages.map((pkg, index) => {
+      // FIX: Use message_activations as the primary field for tokens, fallback to tokens
+      const tokens = pkg.message_activations || pkg.tokens || 0;
+      const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
+
+      const _tierMap: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
+      // If we have packages with specific tiers in DB, use them, otherwise map by index
+      let tier: 'starter' | 'standard' | 'premium' = 'starter';
+
+      const dbTier = pkg.tier?.toLowerCase();
+      if (dbTier === 'premium' || tokens >= 15) tier = 'premium';
+      else if (dbTier === 'standard' || tokens >= 10) tier = 'standard';
+      else tier = 'starter';
+
+      let savings: string | undefined;
+      if (index > 0 && dbPackages[0]) {
+        const firstTokens = dbPackages[0].message_activations || dbPackages[0].tokens || 1;
+        const firstPricePerToken = dbPackages[0].price / firstTokens;
+        const savingsPercent = Math.round(((firstPricePerToken - pricePerToken) / firstPricePerToken) * 100);
+        if (savingsPercent > 0) savings = `Save ${savingsPercent}%`;
+      }
+
+      let features: string[] = [];
+      try {
+        features = Array.isArray(pkg.features) ? pkg.features : JSON.parse(pkg.features || '[]');
+      } catch {
+        features = [`${tokens} tokens`, `${pkg.duration_days || 30} days validity`];
+      }
+
+      const iconMap = { starter: MessageCircle, standard: Zap, premium: Crown };
+
+      return {
+        id: pkg.id,
+        name: pkg.name || (tier.charAt(0).toUpperCase() + tier.slice(1)),
+        tokens,
+        price: pkg.price,
+        pricePerToken,
+        savings,
+        tier,
+        icon: iconMap[tier],
+        duration_days: pkg.duration_days || 30,
+        package_category: pkg.package_category,
+        paypalUrl: pkg.paypal_link || '',
+        features,
+        legal_documents: pkg.legal_documents_included || 0,
+      };
+    }).sort((a, b) => a.tokens - b.tokens);
+  };
 
   const handlePurchase = async (pkg: TokenPackage) => {
     sessionStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
@@ -152,165 +164,9 @@ const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
     }
   };
 
-  const roleLabel = currentUserRole === 'owner' ? 'Owner' : 'Client';
+  const packagesUI = convertPackages(packages);
 
-  // ─── COMPACT POPOVER VIEW (used in TopBar) ────────────────────────────────
-  if (!showAsPage) {
-    if (!isOpen) return null;
-
-    return (
-      <div className={cn("p-5 space-y-4 min-w-[300px] overflow-y-auto custom-scrollbar max-h-[85vh]", isDark ? "text-white" : "text-gray-900")}>
-        {/* Header */}
-        <div className="flex items-center justify-between pb-1">
-          <div>
-            <h3 className={cn("text-base font-black tracking-tight", isDark ? "text-white" : "text-gray-900")}>Tokens & Premium</h3>
-            <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/40" : "text-gray-500")}>
-              Unlock the full experience
-            </p>
-          </div>
-        </div>
-
-        {/* Package rows */}
-        {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map(i => (
-              <div key={i} className={cn("h-16 rounded-2xl animate-pulse", isDark ? "bg-white/5" : "bg-gray-100")} />
-            ))}
-          </div>
-        ) : packagesUI.length === 0 ? (
-          <div className={cn("text-center py-6 rounded-2xl", isDark ? "bg-white/5" : "bg-gray-50")}>
-            <p className={cn("text-sm", isDark ? "text-white/40" : "text-gray-400")}>No packages available</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {packagesUI.map((pkg, index) => {
-              const Icon = pkg.icon;
-              const isStarter = pkg.tier === 'starter';
-              const isStandard = pkg.tier === 'standard';
-              const isPremium = pkg.tier === 'premium';
-
-              // Tier-specific accent colors
-              const accentColor = isPremium
-                ? { bg: isDark ? 'bg-purple-500/15' : 'bg-purple-50', icon: 'text-purple-400', border: isDark ? 'border-purple-500/30' : 'border-purple-200', ring: isDark ? 'ring-purple-500/20' : 'ring-purple-100' }
-                : isStandard
-                  ? { bg: isDark ? 'bg-blue-500/15' : 'bg-blue-50', icon: 'text-blue-400', border: isDark ? 'border-blue-500/30' : 'border-blue-200', ring: isDark ? 'ring-blue-500/20' : 'ring-blue-100' }
-                  : { bg: isDark ? 'bg-rose-500/15' : 'bg-rose-50', icon: 'text-rose-400', border: isDark ? 'border-white/10' : 'border-gray-200', ring: '' };
-
-              // Add a divider before the first Premium Package
-              const isFirstPremium = index === 3;
-
-              return (
-                <div key={pkg.id}>
-                  {isFirstPremium && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3 py-3 mt-1 relative z-10">
-                      <div className="h-px flex-1 bg-gradient-to-r from-transparent to-amber-500/30" />
-                      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-                        Subscriptions
-                      </span>
-                      <div className="h-px flex-1 bg-gradient-to-l from-transparent to-amber-500/30" />
-                    </motion.div>
-                  )}
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                  <div className={cn(
-                    "relative flex items-center gap-3 p-3 rounded-2xl border transition-all duration-200",
-                    "hover:scale-[1.02] active:scale-[0.98]",
-                    accentColor.border,
-                    pkg.bestValue ? `ring-1 ${accentColor.ring}` : '',
-                    isDark ? "bg-white/[0.03]" : "bg-white"
-                  )}>
-                    {/* Best value badge */}
-                    {pkg.bestValue && (
-                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10">
-                        <Badge className="bg-gradient-to-r from-blue-600 to-blue-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-lg border-0">
-                          Best Value
-                        </Badge>
-                      </div>
-                    )}
-
-                    {/* Icon */}
-                    <div className={cn("flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center", accentColor.bg)}>
-                      <Icon className={cn("w-5 h-5", accentColor.icon)} strokeWidth={1.8} />
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className={cn("text-sm font-black tracking-tight", isDark ? "text-white" : "text-gray-900")}>{pkg.name}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className={cn("text-[10px] font-medium tracking-wide", isDark ? "text-white/60" : "text-gray-500")}>
-                          {pkg.package_category === 'premium' ? (
-                            <>Includes <span className={cn("font-bold", pkg.tokens === 999 ? "text-amber-500" : "text-blue-500")}>{pkg.tokens === 999 ? "Unlimited" : pkg.tokens} tokens</span> + 24/7 AI Chat</>
-                          ) : (
-                            <>{pkg.tokens} tokens included</>
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex items-baseline gap-1.5 mt-1">
-                        <span className={cn("text-lg font-black tracking-tight", isDark ? "text-white" : "text-gray-900")}>
-                          ${pkg.price}
-                        </span>
-                        {pkg.package_category !== 'premium' && (
-                          <span className={cn("text-[10px]", isDark ? "text-white/35" : "text-gray-400")}>
-                            (${pkg.pricePerToken > 0 ? pkg.pricePerToken.toFixed(1) : 0}/ea)
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Buy button */}
-                    <Button
-                      size="sm"
-                      onClick={() => handlePurchase(pkg)}
-                      className={cn(
-                        "flex-shrink-0 h-9 px-3 rounded-xl font-bold text-xs gap-1.5 transition-all",
-                        isPremium
-                          ? "bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white shadow-lg shadow-purple-500/25"
-                          : isStandard
-                            ? "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-lg shadow-blue-500/25"
-                            : isDark
-                              ? "bg-white/10 hover:bg-white/15 text-white"
-                              : "bg-gray-900 hover:bg-gray-800 text-white"
-                      )}
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      Buy
-                    </Button>
-                  </div>
-                </motion.div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* View all link */}
-        <div className="pt-2 sticky bottom-0 z-20 pb-2">
-          <button
-            onClick={() => {
-              onClose?.();
-              navigate('/subscription/packages');
-            }}
-            className={cn(
-              "w-full text-center text-xs font-bold uppercase tracking-widest py-3.5 rounded-2xl transition-all shadow-lg backdrop-blur-md",
-              isDark
-                ? "bg-white/5 border border-white/10 text-white hover:bg-white/10"
-                : "bg-white border border-gray-200 text-gray-900 hover:bg-gray-50",
-              "hover:scale-[1.02] active:scale-[0.98]"
-            )}
-          >
-            View All Packages & Details
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // ─── FULL PAGE VIEW (used in /subscription/packages route) ─────────────────
+  const roleLabel = currentUserRole === 'owner' ? 'Provider' : 'Explorer';
   const roleDescription = currentUserRole === 'owner'
     ? 'Connect with potential explorers interested in your listings'
     : 'Start conversations with providers about their listings';
@@ -319,143 +175,263 @@ const HARDCODED_PREMIUM_PACKAGES: TokenPackage[] = [
     switch (tier) {
       case 'starter':
         return {
+          gradient: 'from-slate-500/5 to-transparent',
+          border: isDark ? 'border-white/10' : 'border-gray-200',
           badge: isDark ? 'bg-slate-500/20 text-slate-300' : 'bg-slate-100 text-slate-700',
-          button: isDark ? 'bg-slate-700 hover:bg-slate-600' : 'bg-slate-800 hover:bg-slate-700 text-white',
+          button: isDark ? 'bg-slate-700 hover:bg-slate-600' : 'bg-slate-900 hover:bg-black text-white',
           glow: '',
-          cardClass: isDark ? 'bg-slate-900/40 backdrop-blur-md' : 'bg-white border-slate-200',
+          cardClass: 'ram-card',
         };
       case 'standard':
         return {
-          badge: isDark ? 'bg-blue-500/30 text-blue-200 border border-blue-400/30' : 'bg-blue-50 text-blue-700 border border-blue-200',
-          button: isDark ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md',
-          glow: isDark ? 'shadow-lg shadow-blue-500/10' : 'shadow-xl shadow-blue-500/5',
-          cardClass: isDark ? 'bg-blue-950/20 backdrop-blur-lg' : 'bg-white border-blue-100',
+          gradient: 'from-blue-600/5 to-transparent',
+          border: 'border-blue-500',
+          badge: isDark ? 'bg-blue-500/30 text-blue-200' : 'bg-blue-50 text-blue-700 font-black',
+          button: 'bg-blue-600 hover:bg-blue-500 text-white shadow-ram-button',
+          glow: 'active', // triggers .ram-card.active styles
+          cardClass: 'ram-card',
         };
       case 'premium':
         return {
-          badge: isDark ? 'bg-amber-500/20 text-amber-200 border border-amber-400/30' : 'bg-amber-50 text-amber-700 border border-amber-200',
-          button: isDark ? 'premium-btn-wow' : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg',
-          glow: isDark ? 'shadow-[0_0_30px_rgba(245,158,11,0.15)]' : 'shadow-xl shadow-amber-500/10',
-          cardClass: isDark ? 'premium-card-lux' : 'bg-white border-amber-100',
+          gradient: 'from-amber-500/10 to-transparent',
+          border: isDark ? 'border-amber-500/50' : 'border-amber-200',
+          badge: isDark ? 'bg-amber-500/20 text-amber-200' : 'bg-amber-50 text-amber-700',
+          button: isDark ? 'premium-btn-wow' : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg',
+          glow: '',
+          cardClass: 'ram-card',
         };
       default:
-        return { badge: '', button: '', glow: '', cardClass: '' };
+        return {
+          gradient: 'from-muted/50 to-muted/30',
+          border: 'border-border',
+          badge: 'bg-muted text-muted-foreground',
+          button: '',
+          glow: '',
+          cardClass: '',
+        };
     }
   };
 
+  const content = (
+    <div className={cn("space-y-6 p-4 sm:p-8 rounded-2xl overflow-hidden relative", isDark ? "bg-[#050505]" : "bg-white shadow-xl border border-gray-100")}>
+      {/* Background ambient glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center space-y-3 relative z-10"
+      >
+        <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full border backdrop-blur-md", isDark ? "bg-white/5 border-white/10 shadow-xl" : "bg-gray-50 border-gray-200 shadow-sm")}>
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          <span className={cn("text-xs font-bold tracking-wider uppercase", isDark ? "text-white/90" : "text-gray-900")}>{roleLabel} Privilege</span>
+        </div>
+
+        <h2 className={cn("text-3xl sm:text-4xl font-black tracking-tighter", isDark ? "text-white" : "text-gray-900")}>
+          Elevate Your <span className="luxury-text-gradient">Experience</span>
+        </h2>
+
+        <p className={cn("text-sm max-w-lg mx-auto font-medium", isDark ? "text-white/60" : "text-gray-600")}>
+          {roleDescription}. Choose the package that suits your goals.
+        </p>
+
+        <div className="flex items-center justify-center gap-2">
+          <div className="h-px w-8 bg-gradient-to-r from-transparent to-amber-500/50" />
+          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 uppercase tracking-widest">
+            <Star className="w-3.5 h-3.5 fill-current" />
+            <span>New Member Bonus: 3 Tokens Included</span>
+          </div>
+          <div className="h-px w-8 bg-gradient-to-l from-transparent to-amber-500/50" />
+        </div>
+      </motion.div>
+
+      {/* Packages Grid */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className={cn("h-[450px] rounded-3xl animate-pulse border", isDark ? "bg-white/5 border-white/10" : "bg-gray-100 border-gray-200")} />
+          ))}
+        </div>
+      ) : packagesUI.length === 0 ? (
+        <div className={cn("text-center py-16 rounded-3xl border", isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200")}>
+          <p className={cn("text-lg font-medium", isDark ? "text-white/40" : "text-gray-500")}>No premium packages available at this time.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 relative z-10">
+          {packagesUI.map((pkg, index) => {
+            const Icon = pkg.icon;
+            const styles = getTierStyles(pkg.tier);
+            const isPremium = pkg.tier === 'premium';
+            const isStandard = pkg.tier === 'standard';
+
+            return (
+              <motion.div
+                key={pkg.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: index * 0.15,
+                  type: 'spring',
+                  stiffness: 100,
+                  damping: 20
+                }}
+                className="h-full"
+              >
+                <Card
+                  className={cn("relative h-full flex flex-col transition-all duration-500 group", styles.cardClass, styles.glow)}
+                >
+                  {isPremium && <div className="premium-shine-overlay" />}
+
+                  {isStandard && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+                      <Badge className="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg border-2 border-white/10 uppercase tracking-tighter">
+                        Most Popular Choice
+                      </Badge>
+                    </div>
+                  )}
+
+                  {pkg.savings && isPremium && (
+                    <div className="absolute top-6 right-6 z-20">
+                      <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-md">
+                        {pkg.savings} Best Value
+                      </Badge>
+                    </div>
+                  )}
+
+                  <CardHeader className={`text-center space-y-4 pb-2 px-8 ${isStandard ? 'pt-10' : 'pt-8'}`}>
+                    <div className={`mx-auto p-4 rounded-3xl ${styles.badge} w-fit shadow-inner ${isPremium ? 'premium-crown-pulse' : ''}`}>
+                      <Icon className={`w-8 h-8 ${isPremium ? 'text-amber-400' : ''}`} />
+                    </div>
+
+                    <div className="space-y-1">
+                      <h3 className={cn("text-xl font-black tracking-tighter uppercase", isPremium ? 'luxury-text-gradient' : isDark ? 'text-white' : 'text-gray-900')}>
+                        {pkg.name}
+                      </h3>
+                      <div className="flex items-baseline justify-center gap-1">
+                        <span className={cn("text-4xl font-black italic tracking-tighter", isDark ? "text-white" : "text-gray-900")}>
+                          {formatPriceMXN(pkg.price)}
+                        </span>
+                        <span className={cn("text-xs font-bold", isDark ? "text-white/40" : "text-gray-500")}>MXN</span>
+                      </div>
+                      <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/40" : "text-gray-500")}>
+                        {formatPriceMXN(pkg.pricePerToken)} per connection
+                      </p>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="flex-1 px-8 py-6 space-y-6">
+                    {/* Tokens Display */}
+                    <div className={cn("text-center py-6 rounded-3xl border shadow-inner transition-transform duration-500 group-hover:scale-[1.03]", isDark ? "bg-black/40 border-white/5" : "bg-gray-50 border-gray-100")}>
+                      <div className={cn("text-5xl font-black tracking-tighter mb-1", isDark ? "text-white" : "text-gray-900")}>{pkg.tokens}</div>
+                      <div className={cn("text-xs font-black uppercase tracking-[0.2em]", isDark ? "text-white/30" : "text-gray-400")}>Activations</div>
+                    </div>
+
+                    {/* Features */}
+                    <div className="space-y-3">
+                      {pkg.features.map((feature, i) => (
+                        <Feature key={i} text={feature} isPremium={isPremium} />
+                      ))}
+                    </div>
+                  </CardContent>
+
+                  <CardFooter className="pb-8 px-8">
+                    <Button
+                      onClick={() => handlePurchase(pkg)}
+                      className={`w-full h-14 rounded-2xl text-base font-black uppercase tracking-tighter transition-all duration-300 ${styles.button}`}
+                    >
+                      <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797H9.603c-.564 0-1.04.408-1.13.964L7.076 21.337z" />
+                      </svg>
+                      Secure Purchase
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Trust Badges */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className={cn("flex flex-wrap items-center justify-center gap-8 pt-8 relative z-10 border-t", isDark ? "border-white/5" : "border-gray-200")}
+      >
+        <div className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20 group-hover:scale-110 transition-transform">
+            <Shield className="w-4 h-4 text-rose-500" />
+          </div>
+          <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Bank-Level Security</span>
+        </div>
+        <div className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
+            <Clock className="w-4 h-4 text-blue-500" />
+          </div>
+          <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Instant Activation</span>
+        </div>
+        <div className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:scale-110 transition-transform">
+            <Zap className="w-4 h-4 text-amber-500" />
+          </div>
+          <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Elite Support 24/7</span>
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  if (showAsPage) return <div className={cn("min-h-screen", isDark ? "bg-black" : "bg-gray-50")}>{content}</div>;
+  if (!isOpen) return null;
+
   return (
-    <div className={cn("min-h-screen", isDark ? "bg-black" : "bg-gray-50")}>
-      <div className={cn("space-y-6 p-4 sm:p-8 rounded-2xl overflow-hidden relative", isDark ? "bg-[#050505]" : "bg-white shadow-xl border border-gray-100")}>
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-3 relative z-10">
-          <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full border backdrop-blur-md", isDark ? "bg-white/5 border-white/10 shadow-xl" : "bg-gray-50 border-gray-200 shadow-sm")}>
-            <Sparkles className="w-4 h-4 text-amber-500" />
-            <span className={cn("text-xs font-bold tracking-wider uppercase", isDark ? "text-white/90" : "text-gray-900")}>{roleLabel} Privilege</span>
-          </div>
-          <h2 className={cn("text-3xl sm:text-4xl font-black tracking-tighter", isDark ? "text-white" : "text-gray-900")}>
-            Elevate Your <span className="luxury-text-gradient">Experience</span>
-          </h2>
-          <p className={cn("text-sm max-w-lg mx-auto font-medium", isDark ? "text-white/60" : "text-gray-600")}>
-            {roleDescription}. Choose the package that suits your goals.
-          </p>
-          <div className="flex items-center justify-center gap-2">
-            <div className="h-px w-8 bg-gradient-to-r from-transparent to-amber-500/50" />
-            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 uppercase tracking-widest">
-              <Star className="w-3.5 h-3.5 fill-current" />
-              <span>New Member Bonus: 3 Tokens Included</span>
-            </div>
-            <div className="h-px w-8 bg-gradient-to-l from-transparent to-amber-500/50" />
-          </div>
-        </motion.div>
-
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <div key={i} className={cn("h-[450px] rounded-3xl animate-pulse border", isDark ? "bg-white/5 border-white/10" : "bg-gray-100 border-gray-200")} />
-            ))}
-          </div>
-        ) : packagesUI.length === 0 ? (
-          <div className={cn("text-center py-16 rounded-3xl border", isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200")}>
-            <p className={cn("text-lg font-medium", isDark ? "text-white/40" : "text-gray-500")}>No packages available at this time.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 relative z-10">
-            {packagesUI.map((pkg, index) => {
-              const Icon = pkg.icon;
-              const styles = getTierStyles(pkg.tier);
-              const isPremium = pkg.tier === 'premium';
-              const isStandard = pkg.tier === 'standard';
-
-              return (
-                <motion.div key={pkg.id} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.15, type: 'spring', stiffness: 100, damping: 20 }} className="h-full">
-                  <Card className={cn("relative h-full flex flex-col border rounded-[2.5rem] transition-all duration-500 group hover:shadow-2xl overflow-hidden", styles.cardClass, styles.glow)}>
-                    {isPremium && <div className="premium-shine-overlay" />}
-                    {isStandard && (
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
-                        <Badge className="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg border-2 border-white/10 uppercase tracking-tighter">Most Popular</Badge>
-                      </div>
-                    )}
-                    <div className={`text-center space-y-4 pb-2 px-8 ${isStandard ? 'pt-10' : 'pt-8'}`}>
-                      <div className={`mx-auto p-4 rounded-3xl ${styles.badge} w-fit shadow-inner`}>
-                        <Icon className={`w-8 h-8 ${isPremium ? 'text-amber-400' : ''}`} />
-                      </div>
-                      <div className="space-y-1">
-                        <h3 className={cn("text-xl font-black tracking-tighter uppercase", isPremium ? 'luxury-text-gradient' : isDark ? 'text-white' : 'text-gray-900')}>{pkg.name}</h3>
-                        <div className="flex items-baseline justify-center gap-1">
-                          <span className={cn("text-4xl font-black italic tracking-tighter", isDark ? "text-white" : "text-gray-900")}>{formatPriceMXN(pkg.price)}</span>
-                          <span className={cn("text-xs font-bold", isDark ? "text-white/40" : "text-gray-500")}>MXN</span>
-                        </div>
-                        <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/40" : "text-gray-500")}>{formatPriceMXN(pkg.pricePerToken)} per connection</p>
-                      </div>
-                    </div>
-                    <div className="flex-1 px-8 py-6 space-y-6">
-                      <div className={cn("text-center py-6 rounded-3xl border shadow-inner", isDark ? "bg-black/40 border-white/5" : "bg-gray-50 border-gray-100")}>
-                        {pkg.id === 201 && <div className={cn("text-lg font-black tracking-tighter mb-1", isDark ? "text-white" : "text-gray-900")}>Best for: <span className="text-sm font-medium">seasonal visitors and short stays.</span></div>}
-                        {pkg.id === 202 && <div className={cn("text-lg font-black tracking-tighter mb-1", isDark ? "text-white" : "text-gray-900")}>Best for: <span className="text-sm font-medium">digital nomads, seasonal visitors, and freelancers.</span></div>}
-                        {pkg.id === 203 && <div className={cn("text-lg font-black tracking-tighter mb-1", isDark ? "text-white" : "text-gray-900")}>Best for: <span className="text-sm font-medium">residents, investors, and property owners.</span></div>}
-                      </div>
-                      <div className="space-y-3">
-                        {pkg.features.map((feature, i) => (
-                          <div key={i} className="flex items-center gap-3 text-xs group">
-                            <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${isPremium ? 'bg-amber-500/20' : 'bg-rose-500/10'}`}>
-                              <Check className={`w-3 h-3 ${isPremium ? 'text-amber-500' : 'text-rose-500'}`} />
-                            </div>
-                            <span className={cn("font-bold", isDark ? "text-white/70" : "text-gray-600")}>{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="pb-8 px-8">
-                      <Button onClick={() => handlePurchase(pkg)} className={`w-full h-14 rounded-2xl text-base font-black uppercase tracking-tighter transition-all duration-300 ${styles.button}`}>
-                        <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797H9.603c-.564 0-1.04.408-1.13.964L7.076 21.337z" />
-                        </svg>
-                        Secure Purchase
-                      </Button>
-                    </div>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </div>
-        )}
-
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className={cn("flex flex-wrap items-center justify-center gap-8 pt-8 relative z-10 border-t", isDark ? "border-white/5" : "border-gray-200")}>
-          <div className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20"><Shield className="w-4 h-4 text-rose-500" /></div>
-            <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Bank-Level Security</span>
-          </div>
-          <div className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20"><Clock className="w-4 h-4 text-blue-500" /></div>
-            <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Instant Activation</span>
-          </div>
-          <div className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20"><Zap className="w-4 h-4 text-amber-500" /></div>
-            <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Elite Support 24/7</span>
-          </div>
-        </motion.div>
-      </div>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className={cn("absolute inset-0 backdrop-blur-xl", isDark ? "bg-black/90" : "bg-white/95")}
+        onClick={onClose}
+      />
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        className="relative z-[110] w-full max-w-6xl max-h-[90vh] overflow-y-auto"
+      >
+        <div className={cn("relative rounded-[2rem] border overflow-hidden", isDark ? "bg-[#050505] border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)]" : "bg-white border-gray-200 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)]")}>
+          {onClose && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn("absolute right-4 top-4 z-[120] rounded-full border transition-all hover:rotate-90", isDark ? "bg-white/5 hover:bg-white/10 text-white border-white/10" : "bg-gray-100 hover:bg-gray-200 text-gray-900 border-gray-200")}
+              onClick={onClose}
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          )}
+          {content}
+        </div>
+      </motion.div>
     </div>
   );
 }
+
+function Feature({ text, isPremium }: { text: string; isPremium?: boolean }) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  return (
+    <div className="flex items-center gap-3 text-xs group">
+      <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-colors ${isPremium
+        ? 'bg-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
+        : 'bg-rose-500/10'
+        }`}>
+        <Check className={`w-3 h-3 ${isPremium ? 'text-amber-500' : 'text-rose-500'}`} />
+      </div>
+      <span className={cn("font-bold transition-colors", isDark ? "text-white/70 group-hover:text-white" : "text-gray-600 group-hover:text-gray-900")}>{text}</span>
+    </div>
+  );
+}
+

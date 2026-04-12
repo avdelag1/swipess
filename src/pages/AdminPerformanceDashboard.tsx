@@ -57,8 +57,8 @@ const AUDIT_ISSUES: AuditIssue[] = [
     category: 'image',
     severity: 'high',
     description:
-      'fire-s-logo.webp is 1536×1024 but displayed at 517×345 (–57 KiB). ' +
-      'swipess-logo.png should be converted to WebP/AVIF (–34 KiB).',
+      'swipess-logo.webp is 1536×1024 but displayed at 517×345 (–57 KiB). ' +
+      'swipess-logo.png should be converted to modern formats (–34 KiB).',
   },
   {
     id: 'unused-js',
@@ -97,7 +97,7 @@ const AUDIT_ISSUES: AuditIssue[] = [
     category: 'network',
     severity: 'medium',
     description:
-      'swipess-logo-video.mp4 (2,078 KiB), fire-s-logo.webp (65 KiB), and ' +
+      'swipess-logo-video.mp4 (2,078 KiB), swipess-brand-logo.webp (65 KiB), and ' +
       'swipess-logo.png (63 KiB) only have a 7-day cache TTL. Increase to ≥ 1 year.',
   },
   {

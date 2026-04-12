@@ -163,14 +163,6 @@ async function clearAllConversationsCloud(userId: string) {
   }
 }
 
-async function deleteMessageCloud(convoId: string, messageId: string) {
-  try {
-    await supabase.from('ai_messages').delete().eq('id', messageId).eq('conversation_id', convoId);
-  } catch (e) {
-    console.error('[AI Cloud] delete message error:', e);
-  }
-}
-
 // ─── Utility ───────────────────────────────────────────────────────────────
 
 function generateTitle(content: string): string {
@@ -178,14 +170,13 @@ function generateTitle(content: string): string {
 }
 
 function stripThinkBlocks(text: string): string {
-  // Convert <think> tags into visible markdown so the user sees the stream immediately!
-  let parsed = text.replace(/<think>/g, '`✨ Thinking...`\n\n_');
-  parsed = parsed.replace(/<\/think>/g, '_\n\n---\n\n');
-  return parsed.trim();
+  return text.replace(/<tool_call>[\s\S]*?<\/think>/g, '').trim();
 }
 
-// Swipess AI is officially running securely natively on your own Supabase project
-const AI_URL = `${import.meta.env.VITE_SUPABASE_URL || 'https://vplgtcguxujxwrgguxqq.supabase.co'}/functions/v1/ai-concierge`;
+// AI concierge runs on Lovable Cloud (edge functions deploy here automatically)
+// All user data stays on production Supabase — AI only handles chat, no user data
+const AI_URL = 'https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/ai-concierge';
+const AUTH_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
 
 export function useConciergeAI() {
   // Premium access check
@@ -209,14 +200,6 @@ export function useConciergeAI() {
   const [egoLevel, setEgoLevelState] = useState<number>(
     () => parseInt(localStorage.getItem(EGO_KEY) || '6', 10)
   );
-  const [hasAcceptedTerms, setHasAcceptedTermsState] = useState<boolean>(
-    () => localStorage.getItem('swipess-ai-terms-accepted') === 'true'
-  );
-
-  const setHasAcceptedTerms = useCallback((accepted: boolean) => {
-    setHasAcceptedTermsState(accepted);
-    localStorage.setItem('swipess-ai-terms-accepted', String(accepted));
-  }, []);
 
   // ─── Cloud sync on mount ─────────────────────────────────────────────────
   useEffect(() => {
@@ -323,58 +306,27 @@ export function useConciergeAI() {
     return id;
   }, [updateConversations]);
 
-  const deleteMessage = useCallback((convoId: string, messageId: string) => {
-    updateConversations(prev =>
-      prev.map(c => {
-        if (c.id !== convoId) return c;
-        return {
-          ...c,
-          messages: c.messages.filter(m => m.id !== messageId),
-          updatedAt: new Date(),
-        };
-      })
-    );
-    // Cloud sync
-    deleteMessageCloud(convoId, messageId);
-  }, [updateConversations]);
-
-  const deleteMemory = useCallback((convoId: string) => {
-    updateConversations(prev =>
-      prev.map(c => {
-        if (c.id !== convoId) return c;
-        return {
-          ...c,
-          messages: [],
-          updatedAt: new Date(),
-        };
-      })
-    );
-    // Cloud sync
-    // Assuming a function exists to clear messages for a conversation
-    // If not, we would iterate and delete or use a bulk delete
-  }, [updateConversations]);
-
   const switchConversation = useCallback((id: string) => {
     setActiveConversationId(id);
   }, []);
 
   const deleteConversation = useCallback((id: string) => {
-    updateConversations(prev => prev.filter(c => c.id !== id));
-    if (activeConversationId === id) {
-      setActiveConversationId(prev => {
-        const remaining = conversations.filter(c => c.id !== id);
-        return remaining[0]?.id ?? null;
-      });
-    }
+    updateConversations(prev => {
+      const next = prev.filter(c => c.id !== id);
+      if (activeConversationId === id) {
+        setActiveConversationId(null);
+      }
+      return next;
+    });
     // Cloud sync
     deleteConversationCloud(id);
-  }, [activeConversationId, conversations, updateConversations]);
+  }, [activeConversationId, updateConversations]);
 
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim() || isLoading || isSendingRef.current) return;
     isSendingRef.current = true; // Lock immediately to prevent double calls
     if (!canUseAI) {
-      toast.error('Upgrade to Premium to use Swipess AI', { description: 'Subscribe or purchase tokens to unlock the AI.' });
+      toast.error('Upgrade to Premium to use Swipess AI', { description: 'Subscribe or purchase tokens to unlock the AI concierge.' });
       return;
     }
 
@@ -433,7 +385,7 @@ export function useConciergeAI() {
     try {
       const currentConvo = conversations.find(c => c.id === convoId);
       const allMsgs = [...(currentConvo?.messages ?? []), userMsg];
-      const apiMessages = allMsgs.slice(-6).map(m => ({
+      const apiMessages = allMsgs.slice(-10).map(m => ({
         role: m.role as 'user' | 'assistant',
         content: m.content,
       }));
@@ -444,15 +396,11 @@ export function useConciergeAI() {
         else if (CHALLENGE_PATTERN.test(content)) setEgoLevel(egoLevel - 1);
       }
 
-      // ⚡ Use cached session — no network round-trip
-      const { data: { session } } = await supabase.auth.getSession();
-      const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
-
       const resp = await fetch(AI_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          'Authorization': `Bearer ${AUTH_KEY}`,
         },
         body: JSON.stringify({
           messages: apiMessages,
@@ -526,16 +474,9 @@ export function useConciergeAI() {
             if (jsonStr === '[DONE]') break;
             try {
               const parsed = JSON.parse(jsonStr);
-              // MiniMax streams deltas, but may provide the entire reply at the end.
-              const deltaContent = parsed.choices?.[0]?.delta?.content;
-              const fullContentFallback = parsed.choices?.[0]?.message?.content || parsed.reply;
-              
-              if (deltaContent) {
-                fullContent += deltaContent;
-                streamBufferRef.current = { convoId: convoId!, msgId: assistantMsgId, content: fullContent };
-              } else if (fullContentFallback && typeof fullContentFallback === 'string' && !fullContent.includes(fullContentFallback.slice(0, 10))) {
-                // If it's a full payload and we somehow missed deltas
-                fullContent = fullContentFallback;
+              const delta = parsed.choices?.[0]?.delta?.content;
+              if (delta) {
+                fullContent += delta;
                 streamBufferRef.current = { convoId: convoId!, msgId: assistantMsgId, content: fullContent };
               }
             } catch {
@@ -554,8 +495,8 @@ export function useConciergeAI() {
             if (jsonStr === '[DONE]') continue;
             try {
               const parsed = JSON.parse(jsonStr);
-              const deltaContent = parsed.choices?.[0]?.delta?.content;
-              if (deltaContent) fullContent += deltaContent;
+              const delta = parsed.choices?.[0]?.delta?.content;
+              if (delta) fullContent += delta;
             } catch {}
           }
         }
@@ -655,6 +596,31 @@ export function useConciergeAI() {
     setIsLoading(false);
   }, []);
 
+  const deleteMessage = useCallback(async (messageId: string) => {
+    if (!activeConversationId) return;
+
+    updateConversations(prev =>
+      prev.map(c => {
+        if (c.id !== activeConversationId) return c;
+        return {
+          ...c,
+          messages: c.messages.filter(m => m.id !== messageId),
+          updatedAt: new Date(),
+        };
+      })
+    );
+
+    // Cloud sync (delete from DB)
+    const uid = userIdRef.current;
+    if (uid) {
+      try {
+        await supabase.from('ai_messages').delete().eq('id', messageId);
+      } catch (e) {
+        console.error('[AI Cloud] delete message error:', e);
+      }
+    }
+  }, [activeConversationId, updateConversations]);
+
   const clearHistory = useCallback(() => {
     setConversations([]);
     setActiveConversationId(null);
@@ -670,19 +636,16 @@ export function useConciergeAI() {
     isLoading,
     sendMessage,
     resendMessage,
+    deleteMessage, // Expose newly added function
     stopGeneration,
     createConversation,
     switchConversation,
     deleteConversation,
-    deleteMessage,
-    deleteMemory,
     clearHistory,
     activeCharacter,
     setActiveCharacter,
     egoLevel,
     setEgoLevel,
-    hasAcceptedTerms,
-    setHasAcceptedTerms,
     canUseAI,
     isPremium,
   };

@@ -1,24 +1,9 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 import { SWIPE_CARD_FIELDS } from './smartMatching/useSmartListingMatching';
-
-/** Append CDN optimization params to Supabase storage image URLs (pure, no side effects) */
-function optimizeImageUrl(img: string): string {
-  if (typeof img === 'string' && img.includes('supabase.co/storage') && !img.includes('?width=')) {
-    return `${img}?width=720&quality=75&format=avif`;
-  }
-  return img;
-}
-
-function optimizeListingImages(listing: any): any {
-  if (!listing.images) return listing;
-  const images = Array.isArray(listing.images) ? listing.images : (listing.images ? [listing.images] : []);
-  return { ...listing, images: images.map(optimizeImageUrl) };
-}
 
 export interface Listing {
   id: string;
@@ -115,20 +100,22 @@ export interface Listing {
 }
 
 export function useListings(excludeSwipedIds: string[] = [], options: { enabled?: boolean, category?: string } = {}) {
-  const { user } = useAuth(); // ⚡ Cached — no network call
   const category = options.category || 'all';
   const query = useQuery({
     queryKey: ['listings', excludeSwipedIds, category, 'with-filters'],
+    // INSTANT NAVIGATION: Keep previous data during refetch to prevent UI blanking
     placeholderData: (prev) => prev,
     queryFn: async () => {
       try {
-        let _preferredListingTypes = ['rent'];
+        // Get current user's filter preferences for listing types
+        const { data: user } = await supabase.auth.getUser();
+        let _preferredListingTypes = ['rent']; // Default to rent
 
-        if (user) {
+        if (user.user) {
           const { data: preferences, error: prefError } = await supabase
             .from('client_filter_preferences')
             .select('preferred_listing_types')
-            .eq('user_id', user.id)
+            .eq('user_id', user.user.id)
             .maybeSingle();
 
           if (prefError) {
@@ -141,16 +128,22 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
         }
 
         // 🚀 SPEED OF LIGHT: Attempt database-level filtering (RPC)
+        // This is the "Materialized View" strategy: DB handles exclusion in one pass.
         try {
           const { data: rpcListings, error: rpcError } = await (supabase as any).rpc('get_smart_listings', {
-            p_user_id: user?.id,
+            p_user_id: user?.user?.id,
             p_category: category === 'all' ? null : category,
-            p_limit: 30,
+            p_limit: 30, // Increased limit for consistent feed
             p_offset: 0
           });
 
           if (!rpcError && rpcListings && Array.isArray(rpcListings) && rpcListings.length > 0) {
-            return (rpcListings as any[]).map(optimizeListingImages) as Listing[];
+            return (rpcListings as any[]).map(l => ({
+                ...l,
+                images: (Array.isArray(l.images) ? l.images : (l.images ? [l.images] : []))
+                        .map((img: string) => (typeof img === 'string' && img.includes('supabase.co/storage') && !img.includes('?width=')) 
+                                    ? `${img}?width=720&quality=75&format=avif` : img)
+            })) as Listing[];
           }
         } catch (_e) {
             // Fallback to PostgREST
@@ -164,8 +157,8 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
           .order('created_at', { ascending: false });
 
         // CRITICAL: Exclude own listings
-        if (user) {
-          query = query.neq('owner_id', user.id);
+        if (user.user) {
+          query = query.neq('owner_id', user.user.id);
         }
 
         // URL SAFETY: Apply excluded IDs (Fallback only)
@@ -226,22 +219,25 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
 
 // Hook for owners to view their own listings (no filtering by listing type)
 export function useOwnerListings() {
-  const { user } = useAuth(); // ⚡ Cached — no network call
   const queryClient = useQueryClient();
 
   const query = useQuery({
     queryKey: ['owner-listings'],
+    // INSTANT NAVIGATION: Keep previous data during refetch to prevent UI blanking
     placeholderData: (prev) => prev,
     queryFn: async () => {
       try {
-        if (!user) return [];
+        const { data: user } = await supabase.auth.getUser();
+        if (!user.user) {
+          return [];
+        }
 
         const { data: listings, error } = await supabase
           .from('listings')
           .select('*')
-          .eq('owner_id', user.id)
+          .eq('owner_id', user.user.id)
           .order('created_at', { ascending: false })
-          .limit(100);
+          .limit(100); // Prevent loading too many listings at once
 
         if (error) {
           if (import.meta.env.DEV) logger.error('Owner listings query error:', error);
@@ -263,19 +259,21 @@ export function useOwnerListings() {
     let subscription: ReturnType<typeof supabase.channel> | null = null;
     let isMounted = true;
 
-    const setupSubscription = () => {
+    const setupSubscription = async () => {
       try {
-        if (!user || !isMounted) return;
+        const { data: user } = await supabase.auth.getUser();
+        if (!user.user || !isMounted) return;
 
+        // Subscribe to changes on the listings table for this user
         subscription = supabase
           .channel('owner-listings-changes')
           .on(
             'postgres_changes',
             {
-              event: '*',
+              event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
               schema: 'public',
               table: 'listings',
-              filter: `owner_id=eq.${user.id}`,
+              filter: `owner_id=eq.${user.user.id}`,
             },
             (payload) => {
               if (import.meta.env.DEV) logger.log('Real-time listing change:', payload);
@@ -300,23 +298,24 @@ export function useOwnerListings() {
         supabase.removeChannel(subscription);
       }
     };
-  }, [queryClient, user]);
+  }, [queryClient]);
 
   return query;
 }
 
 export function useSwipedListings() {
-  const { user } = useAuth(); // ⚡ Cached — no network call
   return useQuery({
-    queryKey: ['swipes', user?.id],
+    queryKey: ['swipes'],
     queryFn: async () => {
       try {
-        if (!user) return [];
+        const { data: user } = await supabase.auth.getUser();
+        if (!user.user) return [];
 
+        // Fetch ALL-TIME swiped listings - permanent exclusion, no time limit
         const { data: likes, error } = await supabase
           .from('likes')
           .select('target_id')
-          .eq('user_id', user.id)
+          .eq('user_id', user.user.id)
           .eq('target_type', 'listing');
 
         if (error) {
@@ -330,7 +329,6 @@ export function useSwipedListings() {
         return [];
       }
     },
-    enabled: !!user,
     retry: 3,
     retryDelay: 1000,
   });

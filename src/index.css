@@ -229,7 +229,6 @@ main, .scrollable-content, .overflow-y-auto {
   /* 🚀 ZENITH HUD ISOLATION */
   contain: layout style;
   transform: translateZ(0);
-  background: transparent !important;
 }
 
 .app-bottom-bar {
@@ -244,7 +243,6 @@ main, .scrollable-content, .overflow-y-auto {
   /* 🚀 ZENITH HUD ISOLATION */
   contain: layout style;
   transform: translateZ(0);
-  background: transparent !important;
 }
 
 @layer base {
@@ -348,28 +346,6 @@ button:active, [role="button"]:active {
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
-}
-
-@keyframes liquid-flow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.liquid-glass-shimmer {
-  background: linear-gradient(
-    90deg, 
-    rgba(255, 255, 255, 0.05) 0%, 
-    rgba(255, 255, 255, 0.12) 25%, 
-    rgba(236, 72, 153, 0.08) 50%, 
-    rgba(255, 255, 255, 0.12) 75%, 
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite linear;
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
 }
 
 .shimmer {

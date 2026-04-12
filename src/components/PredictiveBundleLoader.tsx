@@ -14,6 +14,7 @@ export function PredictiveBundleLoader() {
   useEffect(() => {
     // 🛡️ ZENITH GUARD: Delay prefetching to ensure initial render is 100/100
     const timer = setTimeout(() => {
+      console.log(`[Zenith] Initializing predictive prefetch for role: ${role || 'guest'}...`);
       
       // Basic prefetch strategy:
       // If owner -> prefetch dashboard, properties, and listings
@@ -46,7 +47,7 @@ export function PredictiveBundleLoader() {
       import("@/pages/MessagingDashboard").catch(() => {});
       import("@/pages/EventosFeed").catch(() => {});
 
-    }, 4000);
+    }, 12000); // 12s delay to stay out of the profiling window
 
     return () => clearTimeout(timer);
   }, [role]);

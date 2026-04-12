@@ -1,27 +1,25 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Download, Upload } from 'lucide-react';
-import { toast } from 'sonner';
+import { Trash2, Sparkles, Fingerprint, MousePointer2 } from 'lucide-react';
+import { triggerHaptic } from '@/utils/haptics';
+import { uiSounds } from '@/utils/uiSounds';
 
-interface DigitalSignaturePadProps {
+interface LiquidSignaturePadProps {
   onSignatureCapture: (signatureData: string, signatureType: 'drawn' | 'typed' | 'uploaded') => void;
   onClear?: () => void;
 }
 
-export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
+export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
   onSignatureCapture,
   onClear
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [typedSignature, setTypedSignature] = useState('');
-  const [selectedFont, setSelectedFont] = useState('font-serif');
-  const [uploadedSignature, setUploadedSignature] = useState<string | null>(null);
+  const [hasDrawn, setHasDrawn] = useState(false);
+  const [points, setPoints] = useState<{x: number, y: number}[]>([]);
 
+  // Initialize Canvas with High-DPI support
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -29,247 +27,156 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size
-    canvas.width = 400;
-    canvas.height = 200;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
 
-    // Set drawing styles
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2;
+    // Initial state
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#f43f5e'; // Rose-500
+    
+    // Add glowing effect
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'rgba(244, 63, 94, 0.5)';
   }, []);
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const getPos = (e: React.MouseEvent | React.TouchEvent | any) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-
+    if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    setIsDrawing(true);
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
+    setIsDrawing(true);
+    setHasDrawn(true);
+    const { x, y } = getPos(e);
+    const ctx = canvasRef.current?.getContext('2d');
+    if (ctx) {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
+    setPoints([{ x, y }]);
+    triggerHaptic('light');
+    uiSounds.playPop();
+  };
+
+  const draw = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDrawing) return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    const { x, y } = getPos(e);
+    const ctx = canvasRef.current?.getContext('2d');
+    if (ctx) {
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
+    setPoints(prev => [...prev.slice(-20), { x, y }]);
   };
 
   const stopDrawing = () => {
+    if (!isDrawing) return;
     setIsDrawing(false);
-  };
-
-  const clearCanvas = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    onClear?.();
-  };
-
-  const saveDrawnSignature = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const signatureData = canvas.toDataURL('image/png');
-    onSignatureCapture(signatureData, 'drawn');
-  };
-
-  const saveTypedSignature = () => {
-    if (!typedSignature.trim()) return;
-
-    // Create a canvas for the typed signature
-    const canvas = document.createElement('canvas');
-    canvas.width = 400;
-    canvas.height = 100;
-    const ctx = canvas.getContext('2d');
-    
-    if (!ctx) return;
-
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.fillStyle = '#000';
-    ctx.font = selectedFont.includes('serif') ? '32px serif' : 
-               selectedFont.includes('sans') ? '32px sans-serif' : 
-               '32px cursive';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(typedSignature, canvas.width / 2, canvas.height / 2);
-
-    const signatureData = canvas.toDataURL('image/png');
-    onSignatureCapture(signatureData, 'typed');
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file');
-      return;
+    if (canvas) {
+      const signatureData = canvas.toDataURL('image/png');
+      onSignatureCapture(signatureData, 'drawn');
     }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = event.target?.result as string;
-      setUploadedSignature(result);
-      onSignatureCapture(result, 'uploaded');
-    };
-    reader.readAsDataURL(file);
   };
+
+  const clearCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setHasDrawn(false);
+    setPoints([]);
+    onClear?.();
+    triggerHaptic('medium');
+    uiSounds.playSwipe();
+  }, [onClear]);
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>Digital Signature</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="draw" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="draw">Draw</TabsTrigger>
-            <TabsTrigger value="type">Type</TabsTrigger>
-            <TabsTrigger value="upload">Upload</TabsTrigger>
-          </TabsList>
+    <div className="w-full space-y-4">
+      <div className="relative group">
+        {/* Animated Background Glow */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-rose-500/20 via-orange-500/20 to-rose-500/20 rounded-[2rem] blur-xl opacity-50 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
+        
+        {/* Matte Container */}
+        <div className="relative h-64 w-full bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl">
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full cursor-crosshair touch-none"
+            onMouseDown={startDrawing}
+            onMouseMove={draw}
+            onMouseUp={stopDrawing}
+            onMouseLeave={stopDrawing}
+            onTouchStart={startDrawing}
+            onTouchMove={draw}
+            onTouchEnd={stopDrawing}
+          />
 
-          <TabsContent value="draw" className="space-y-4">
-            <div className="border-2 border-dashed border-border rounded-lg p-4">
-              <canvas
-                ref={canvasRef}
-                className="border border-border rounded cursor-crosshair mx-auto block bg-white"
-                onMouseDown={startDrawing}
-                onMouseMove={draw}
-                onMouseUp={stopDrawing}
-                onMouseLeave={stopDrawing}
+          {/* Liquid Particles Trail Overlay (Visualization only) */}
+          <div className="absolute inset-0 pointer-events-none">
+            {points.map((p, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0.8, scale: 1 }}
+                animate={{ opacity: 0, scale: 0, y: 10 }}
+                transition={{ duration: 0.5 }}
+                className="absolute w-1 h-1 rounded-full bg-rose-400 blur-[2px]"
+                style={{ left: p.x, top: p.y }}
               />
-              <p className="text-sm text-muted-foreground text-center mt-2">
-                Draw your signature above
-              </p>
-            </div>
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={clearCanvas}>
-                <Trash2 className="w-4 h-4 mr-2" />
-                Clear
-              </Button>
-              <Button onClick={saveDrawnSignature}>
-                <Download className="w-4 h-4 mr-2" />
-                Save Signature
-              </Button>
-            </div>
-          </TabsContent>
+            ))}
+          </div>
 
-          <TabsContent value="type" className="space-y-4">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="signature-text">Your Signature</Label>
-                <Input
-                  id="signature-text"
-                  placeholder="Type your name"
-                  value={typedSignature}
-                  onChange={(e) => setTypedSignature(e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label>Font Style</Label>
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  {[
-                    { value: 'font-serif', label: 'Serif', style: 'serif' },
-                    { value: 'font-sans', label: 'Sans', style: 'sans-serif' },
-                    { value: 'font-mono', label: 'Script', style: 'cursive' }
-                  ].map((font) => (
-                    <Button
-                      key={font.value}
-                      variant={selectedFont === font.value ? 'default' : 'outline'}
-                      onClick={() => setSelectedFont(font.value)}
-                      className="h-12"
-                      style={{ fontFamily: font.style }}
-                    >
-                      {font.label}
-                    </Button>
-                  ))}
+          <AnimatePresence>
+            {!hasDrawn && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-6 text-center"
+              >
+                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4 animate-pulse">
+                  <Fingerprint className="w-8 h-8 text-rose-500/60" />
                 </div>
-              </div>
-
-              {typedSignature && (
-                <div className="border rounded-lg p-4 bg-muted">
-                  <p className="text-sm text-muted-foreground mb-2">Preview:</p>
-                  <div 
-                    className={`text-2xl ${selectedFont} text-center text-foreground`}
-                    style={{ 
-                      fontFamily: selectedFont.includes('serif') ? 'serif' : 
-                                 selectedFont.includes('sans') ? 'sans-serif' : 'cursive'
-                    }}
-                  >
-                    {typedSignature}
-                  </div>
+                <h4 className="text-sm font-black uppercase tracking-[0.2em] text-white/40">Hold and sign here</h4>
+                <div className="flex items-center gap-2 mt-2">
+                  <MousePointer2 className="w-3 h-3 text-rose-500/40 animate-bounce" />
+                  <span className="text-[10px] font-bold text-white/20">Liquid Signature Pad v2</span>
                 </div>
-              )}
-            </div>
-            <Button 
-              onClick={saveTypedSignature} 
-              disabled={!typedSignature.trim()}
-              className="w-full"
-            >
-              Save Typed Signature
-            </Button>
-          </TabsContent>
-
-          <TabsContent value="upload" className="space-y-4">
-            <div className="border-2 border-dashed border-border rounded-lg p-8">
-              <div className="text-center">
-                <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <Label htmlFor="signature-upload" className="cursor-pointer">
-                  <span className="text-lg font-medium text-foreground">Upload Signature Image</span>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    PNG, JPG up to 10MB
-                  </p>
-                </Label>
-                <Input
-                  id="signature-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-              </div>
-            </div>
-
-            {uploadedSignature && (
-              <div className="border rounded-lg p-4 bg-muted">
-                <p className="text-sm text-muted-foreground mb-2">Uploaded Signature:</p>
-                <img 
-                  src={uploadedSignature} 
-                  alt="Uploaded signature" 
-                  className="max-w-full h-auto mx-auto"
-                  style={{ maxHeight: '100px' }}
-                />
-              </div>
+              </motion.div>
             )}
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+          </AnimatePresence>
+
+          {/* Footer Info */}
+          <div className="absolute bottom-4 left-6 flex items-center gap-2 opacity-30">
+            <Sparkles className="w-3 h-3 text-rose-500" />
+            <span className="text-[9px] font-black uppercase tracking-widest text-white">Encrypted Digital Hash</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-3">
+        <Button 
+          variant="outline" 
+          onClick={clearCanvas}
+          className="rounded-2xl h-12 px-6 border-white/5 bg-white/5 backdrop-blur-md hover:bg-white/10 text-white/60 font-black uppercase tracking-widest text-[10px] transition-all"
+        >
+          <Trash2 className="w-4 h-4 mr-2" />
+          Clear Pad
+        </Button>
+      </div>
+    </div>
   );
 };

@@ -54,23 +54,12 @@ deferredInit(async () => {
     const [
       { initPerformanceOptimizations },
       { initOfflineSync },
-      { applyScreenshotProtection, enableBackgroundBlur },
-      { trackReviewSession },
     ] = (await Promise.all([
       import("@/utils/performanceMonitor"),
       import("@/utils/offlineSwipeQueue"),
-      import("@/utils/screenshotProtection"),
-      import("@/utils/inAppReview"),
     ])) as any;
     initPerformanceOptimizations();
     initOfflineSync();
-
-    // 🛡️ SCREENSHOT PROTECTION: CSS shield + background blur
-    applyScreenshotProtection();
-    enableBackgroundBlur();
-
-    // ⭐ IN-APP REVIEW: Track this session for smart timing
-    trackReviewSession();
 
     // 🚀 ZENITH: SERVICE WORKER REGISTRATION
     // Register the elite sw.js for offline support, push notifications, and background sync.

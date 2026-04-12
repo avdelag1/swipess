@@ -15,7 +15,6 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useForceUpdateOnVersionChange } from "@/hooks/useAutomaticUpdates";
 import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProfileAutoSync";
-import { useDiscoveryRealtime } from '@/hooks/useDiscoveryRealtime';
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
 import { ZenithPrewarmer } from "@/components/ZenithPrewarmer";
@@ -54,7 +53,6 @@ function LifecycleHooks({ children }: { children: React.ReactNode }) {
   usePushNotifications();
   useForceUpdateOnVersionChange();
   useProfileAutoSync();
-  useDiscoveryRealtime();
   useEnsureSpecializedProfile();
   return <>{children}</>;
 }
@@ -85,7 +83,8 @@ function AppLifecycleManager({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setActive(true), 200);
+    // Reduce initial quiet period to 500ms for faster background hydration
+    const timer = setTimeout(() => setActive(true), 500);
     return () => clearTimeout(timer);
   }, []);
 

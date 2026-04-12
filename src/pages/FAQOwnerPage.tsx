@@ -146,7 +146,7 @@ export default function FAQOwnerPage() {
               </p>
               <Button
                 variant="outline"
-                onClick={() => window.location.href = 'mailto:woorkify@gmail.com'}
+                onClick={() => window.location.href = 'mailto:support@swipess.com'}
               >
                 Contact Support
               </Button>

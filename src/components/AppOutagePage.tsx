@@ -54,7 +54,7 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
   return (
     <div
       className="min-h-screen min-h-dvh flex flex-col items-center justify-center px-6 text-center overflow-hidden relative"
-      style={{ background: '#050505' }}
+      style={{ background: '#000000' }}
     >
       {/* Ambient background auras */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -103,10 +103,10 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
       >
         <div className="relative inline-flex items-center justify-center overflow-hidden">
           <img
-            src="/icons/swipess-brand-logo.webp"
+            src="/icons/swipess-logo-transparent.png"
             alt="Swipess"
             draggable={false}
-            className="h-48 sm:h-56 md:h-64 w-auto object-contain select-none"
+            className="h-40 sm:h-48 md:h-56 w-auto object-contain select-none"
             style={{ imageRendering: 'auto' }}
           />
           {/* White sheen overlay */}

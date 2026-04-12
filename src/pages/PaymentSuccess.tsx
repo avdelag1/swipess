@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, Loader2, Sparkles } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,14 +20,8 @@ export default function PaymentSuccess() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [isProcessing, setIsProcessing] = useState(true);
-  const [successState, setSuccessState] = useState<null | {
-    title: string;
-    message: string;
-    targetPath: string;
-  }>(null);
+  const [_processing, _setProcessing] = useState(true);
   const processedRef = useRef(false);
-  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     // Prevent double processing
@@ -88,10 +82,6 @@ export default function PaymentSuccess() {
         queryClient.invalidateQueries({ queryKey: ['tokens'] });
         queryClient.invalidateQueries({ queryKey: ['user-subscriptions'] });
         queryClient.invalidateQueries({ queryKey: ['legal-document-quota'] });
-        queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
-        queryClient.invalidateQueries({ queryKey: ['smart-clients'] });
-        queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-        queryClient.invalidateQueries({ queryKey: ['client-profiles'] });
 
         // Show single toast notification - premium, non-intrusive
         toast.success('Congratulations! Your Premium package is now active.', {
@@ -99,36 +89,18 @@ export default function PaymentSuccess() {
           icon: '🎉',
         });
 
+        // Silent redirect back to where user was (or dashboard)
         const targetPath = returnPath || `/${role}/dashboard`;
-        const celebrationMessage = isMonthly
-          ? 'Thanks for upgrading — enjoy your premium access, community deals, and faster connections.'
-          : 'Thanks for getting your tokens — enjoy your community deals and start connecting with people.';
-
-        setSuccessState({
-          title: isMonthly ? 'Premium Activated' : 'Tokens Activated',
-          message: celebrationMessage,
-          targetPath,
-        });
-        setIsProcessing(false);
-
-        redirectTimerRef.current = setTimeout(() => {
-          navigate(targetPath, { replace: true });
-        }, 2600);
+        navigate(targetPath, { replace: true });
 
       } catch (error) {
         logger.error('Payment processing error:', error);
-        setIsProcessing(false);
         toast.error('Failed to process payment. Please contact support with your PayPal receipt.');
         navigate(returnPath || '/client/dashboard', { replace: true });
       }
     };
 
     processPayment();
-    return () => {
-      if (redirectTimerRef.current) {
-        clearTimeout(redirectTimerRef.current);
-      }
-    };
   }, [user, navigate, queryClient]);
 
   // Process monthly subscription
@@ -243,29 +215,11 @@ export default function PaymentSuccess() {
   };
 
   // Minimal loading UI - just a spinner, user won't see this long
-  if (successState) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-6 py-10">
-        <div className="w-full max-w-md rounded-[2rem] border border-border/40 bg-card/90 backdrop-blur-xl shadow-xl p-8 text-center space-y-5">
-          <div className="mx-auto relative flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <CheckCircle2 className="h-8 w-8" />
-            <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-primary" />
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-foreground">{successState.title}</h1>
-            <p className="text-sm text-muted-foreground">{successState.message}</p>
-          </div>
-          <p className="text-xs uppercase tracking-[0.24em] text-primary/80">Taking you back now…</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-4">
         <Loader2 className="w-8 h-8 mx-auto text-primary animate-spin" />
-        <p className="text-sm text-muted-foreground">{isProcessing ? 'Processing your payment...' : 'Preparing your thank-you page...'}</p>
+        <p className="text-sm text-muted-foreground">Processing your payment...</p>
       </div>
     </div>
   );

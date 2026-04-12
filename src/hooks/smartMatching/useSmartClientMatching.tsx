@@ -92,22 +92,13 @@ export function useSmartClientMatching(
     useEffect(() => {
         if (!userId) return;
         const channel = supabase
-            .channel(`clients-realtime-${userId}`)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-                logger.info('[SmartMatching] Profile changed, invalidating queries');
+            .channel('clients-realtime')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, () => {
+                logger.info('[SmartMatching] New profile inserted, invalidating queries');
                 queryClient.invalidateQueries({ queryKey: ['smart-clients'] });
-                queryClient.invalidateQueries({ queryKey: ['client-profiles'] });
-            })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'client_profiles' }, () => {
-                logger.info('[SmartMatching] Client profile changed, invalidating queries');
-                queryClient.invalidateQueries({ queryKey: ['smart-clients'] });
-                queryClient.invalidateQueries({ queryKey: ['client-profiles'] });
             })
             .subscribe();
-        return () => {
-            channel.unsubscribe();
-            supabase.removeChannel(channel);
-        };
+        return () => { channel.unsubscribe(); };
     }, [userId, queryClient]);
 
     return useQuery<MatchedClientProfile[]>({
@@ -161,7 +152,12 @@ export function useSmartClientMatching(
                 let query = supabase.from('profiles')
                     .select(CLIENT_FIELDS)
                     .eq('role', 'client')
-                    .eq('is_active', true);;
+                    .eq('is_active', true);
+                
+                if (isRoommateSection) {
+                    query = query.eq('roommate_available', true);
+                }
+                
                 if (_category) {
                     const mappedCategory = _category === 'worker' ? 'services' : _category;
                     query = query.contains('preferred_listing_types', [mappedCategory]);
@@ -176,7 +172,9 @@ export function useSmartClientMatching(
                     query.range(page * pageSize, (page + 1) * pageSize - 1),
                     supabase.from('profiles').select(CLIENT_FIELDS)
                         .neq('user_id', userId).eq('role', 'client').eq('is_active', true)
-                        .eq('onboarding_completed', true).order('created_at', { ascending: false }).limit(2)
+                        .eq('onboarding_completed', true)
+                        .order('created_at', { ascending: false })
+                        .limit(2)
                 ]);
                 if (error) throw error;
 

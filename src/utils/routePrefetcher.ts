@@ -35,10 +35,10 @@ function shouldSkipPrefetch(): boolean {
  * Calculate optimized timeout based on network
  */
 const optimizedTimeout = (function() {
-  if (typeof navigator === 'undefined') return 2000;
+  if (typeof navigator === 'undefined') return 1000;
   const connection = (navigator as any).connection;
-  if (connection?.effectiveType === '4g') return 1000; // Be 2x faster on 4G
-  return 2000;
+  if (connection?.effectiveType === '4g') return 200; // Super aggressive on 4G
+  return 1000;
 })();
 
 // Route mapping for prefetching - ALL app routes
@@ -91,7 +91,7 @@ const scheduleIdle = (callback: () => void): void => {
     requestIdleCallback(callback, { timeout: optimizedTimeout });
   } else {
     // Fallback for Safari - use shorter delay for snappier navigation
-    setTimeout(callback, 150);
+    setTimeout(callback, 50);
   }
 };
 

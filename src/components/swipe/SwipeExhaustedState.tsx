@@ -119,7 +119,7 @@ export const SwipeExhaustedState = ({
         initial="initial" 
         animate="animate" 
         exit="exit" 
-        className="relative z-50 min-h-full w-full bg-background pb-12"
+        className="relative z-50 h-full w-full overflow-y-auto overscroll-contain bg-background"
       >
         <div className="absolute inset-0 pointer-events-none z-0">
           <div 
@@ -205,20 +205,6 @@ export const SwipeExhaustedState = ({
                   <RefreshCw className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")} />
                   {isRefreshing ? 'Scanning...' : 'Refresh'}
                 </Button>
-              </motion.div>
-              
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} className="mt-2 text-center w-full max-w-[200px]">
-                 <Button
-                  onClick={() => {
-                     triggerHaptic('light');
-                     useFilterStore.getState().resetFilters();
-                     appToast.success('Filters Reset', 'Your search constraints have been cleared.');
-                  }}
-                  variant="ghost"
-                  className="w-full h-8 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-full"
-                 >
-                   Reset All Filters
-                 </Button>
               </motion.div>
             </div>
 

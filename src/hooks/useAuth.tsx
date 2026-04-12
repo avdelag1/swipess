@@ -16,7 +16,7 @@ interface AuthContextType {
   initialized: boolean; // TRUE after first auth check completes (regardless of user logged in or not)
   signUp: (email: string, password: string, role?: 'client' | 'owner', name?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string, role?: 'client' | 'owner') => Promise<{ error: any }>;
-  signInWithOAuth: (provider: 'google', role?: 'client' | 'owner') => Promise<{ error: any }>;
+  signInWithOAuth: (provider: 'google' | 'apple', role?: 'client' | 'owner') => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -451,7 +451,7 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
     }
   };
 
-  const signInWithOAuth = async (provider: 'google', role: 'client' | 'owner' = 'client') => {
+  const signInWithOAuth = async (provider: 'google' | 'apple', role: 'client' | 'owner' = 'client') => {
     try {
       const clientUrl = (supabase as any)?.supabaseUrl;
       const clientKey = (supabase as any)?.supabaseKey;
@@ -463,20 +463,29 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       // Store role before OAuth redirect
       localStorage.setItem('pendingOAuthRole', role);
 
-      const queryParams: Record<string, string> = {
-        prompt: 'consent',
-        access_type: 'offline',
-      };
+      // Provider-specific OAuth query params
+      const queryParams: Record<string, string> = provider === 'google'
+        ? { prompt: 'consent', access_type: 'offline' }
+        : {}; // Apple handles its own consent flow
 
       // Use current origin as fallback to support all environments (dev, staging, production)
       const redirectUrl = import.meta.env.VITE_APP_URL || window.location.origin;
 
+      const oauthOptions: any = {
+        redirectTo: redirectUrl,
+      };
+      // Only pass queryParams if non-empty (Apple doesn't need them)
+      if (Object.keys(queryParams).length > 0) {
+        oauthOptions.queryParams = queryParams;
+      }
+      // Apple-specific: request email and name scopes
+      if (provider === 'apple') {
+        oauthOptions.scopes = 'email name';
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: {
-          redirectTo: redirectUrl,
-          queryParams: queryParams,
-        },
+        options: oauthOptions,
       });
 
       if (error) {
@@ -499,7 +508,8 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       } else if (error.message?.includes('access_denied')) {
         errorMessage = `Access denied. Please grant permission to continue with ${provider}.`;
       } else if (error.message?.includes('Provider not enabled') || error.message?.includes('not enabled')) {
-        errorMessage = `${provider === 'google' ? 'Google' : 'Facebook'} OAuth is not enabled in Supabase.`;
+        const providerName = provider === 'google' ? 'Google' : provider === 'apple' ? 'Apple' : provider;
+        errorMessage = `${providerName} OAuth is not enabled in Supabase.`;
       } else if (error.message?.includes('redirect_uri_mismatch')) {
         errorMessage = 'Redirect URL configuration error.';
       } else if (error.message?.includes('invalid_client')) {

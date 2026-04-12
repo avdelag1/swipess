@@ -17,7 +17,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PWAInstallButton } from "@/components/PWAInstallButton";
 import { SwipessLogo } from "@/components/SwipessLogo";
-import { AppIconSelector } from "@/components/AppIconSelector";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 const stagger = { staggerChildren: 0.04 };
@@ -137,7 +136,7 @@ const OwnerSettings = () => {
 
   if (activeSection === 'security') {
     return (
-      <div className="w-full px-4 pt-4 pb-32 bg-background relative flex-1">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-4 pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
 
 
@@ -164,7 +163,7 @@ const OwnerSettings = () => {
 
   if (activeSection === 'language') {
     return (
-      <div className="w-full px-4 pt-4 pb-32 bg-background flex-1 relative">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-4 pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
           <PageHeader title={t('settings.language')} subtitle={t('settings.languageDesc')} showBack={true} onBack={() => setActiveSection(null)} />
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6">
@@ -177,7 +176,7 @@ const OwnerSettings = () => {
 
   if (activeSection === 'preferences') {
     return (
-      <div className="w-full px-4 pt-4 pb-32 bg-background flex-1 relative">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-4 pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
 
 
@@ -186,7 +185,6 @@ const OwnerSettings = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6">
             <BackgroundThemeSettings />
             <SwipeSoundSettings />
-            <AppIconSelector />
           </motion.div>
         </div>
       </div>
@@ -194,7 +192,7 @@ const OwnerSettings = () => {
   }
 
   return (
-    <div className="w-full px-6 pt-4 pb-40 bg-background flex-1 relative">
+    <div className="w-full min-h-full overflow-y-auto px-6 pt-4 pb-40 scrollbar-hide bg-background">
       <div className="max-w-3xl mx-auto space-y-10">
         <PWAInstallButton className="mb-2" />
 

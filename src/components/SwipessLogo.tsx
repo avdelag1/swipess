@@ -8,14 +8,14 @@ interface SwipessLogoProps {
 }
 
 const sizeMap = {
-  xs: 'text-lg',
-  sm: 'text-2xl',
-  md: 'text-3xl',
-  lg: 'text-4xl',
-  xl: 'text-5xl',
-  '2xl': 'text-[10vw] sm:text-7xl',
-  '3xl': 'text-[12vw] sm:text-8xl',
-  '4xl': 'text-[15vw] sm:text-9xl',
+  xs: 'h-5',
+  sm: 'h-7',
+  md: 'h-10',
+  lg: 'h-14',
+  xl: 'h-20',
+  '2xl': 'h-28',
+  '3xl': 'h-36',
+  '4xl': 'h-44',
 };
 
 function SwipessLogoComponent({
@@ -28,16 +28,19 @@ function SwipessLogoComponent({
       'relative inline-flex items-center justify-center transition-all duration-300',
       className
     )}>
-      <span
+      <img
+        src="/icons/swipess-logo-transparent.png"
+        alt="Swipess"
+        draggable={false}
         className={cn(
-          "font-['Inter'] font-[950] uppercase italic tracking-[-0.04em] leading-none",
-          _variant === 'white' ? 'text-white' : _variant === 'black' ? 'text-black' : 'text-foreground',
+          'object-contain select-none',
           sizeMap[size]
         )}
-        style={{ paddingRight: '0.15em' }}
-      >
-        SWIPESS
-      </span>
+        style={{
+          imageRendering: 'auto',
+          width: 'auto',
+        }}
+      />
     </div>
   );
 }

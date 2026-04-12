@@ -14,9 +14,9 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
 
   return useMutation({
     onMutate: async ({ targetId, targetType }) => {
-      // Cancel ONLY the relevant query to avoid killing unrelated background refetches
-      const targetQueryKey = targetType === 'listing' ? ['listings'] : ['client-profiles'];
-      await queryClient.cancelQueries({ queryKey: targetQueryKey });
+      // Cancel in-flight refetches so they don't overwrite optimistic update
+      await queryClient.cancelQueries({ queryKey: ['listings'] });
+      await queryClient.cancelQueries({ queryKey: ['client-profiles'] });
 
       // Snapshot for rollback
       const prevListings = queryClient.getQueryData(['listings']);

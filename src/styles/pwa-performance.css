@@ -442,7 +442,7 @@ body.hw-mid .animate-pulse {
 
 /* UNIVERSAL: Viewport Jitter & Interaction Cleanup */
 [data-no-swipe-nav] {
-    touch-action: pan-y !important;
+    touch-action: pan-x !important;
     overscroll-behavior-x: none;
     -webkit-user-select: none;
     user-select: none;
@@ -464,6 +464,7 @@ body.hw-mid .animate-pulse {
 .app-header,
 .app-bottom-bar {
     transform: translateZ(0);
+    contain: layout style paint;
 }
 
 /* Faster Framer Motion spring/tween for all motion elements on mobile */

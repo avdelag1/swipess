@@ -34,12 +34,14 @@ export default defineConfig(({ mode }) => ({
       name: 'critical-preload-plugin',
       transformIndexHtml(html, ctx) {
         if (!ctx.bundle) return html;
+        // PERFORMANCE FIX: Only modulepreload the true entry point.
         const preloads: string[] = [];
         for (const [_key, chunk] of Object.entries(ctx.bundle)) {
           if ((chunk as any).type === 'chunk' && (chunk as any).isEntry) {
             preloads.push(`<link rel="modulepreload" href="/${(chunk as any).fileName}" fetchpriority="high" crossorigin>`);
           }
         }
+        // Strictly limit to 1 entry preload
         return html.replace('</head>', `${preloads.slice(0, 1).join('')}</head>`);
       }
     }
@@ -80,7 +82,9 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules')) {
             // HIGH-STABILITY CHUNKS: Isolate huge libraries to maximize browser cache persistence across app updates
             if (id.includes('framer-motion')) return 'vendor-motion';
-            if (id.includes('lucide-react')) return 'vendor-icons';
+            if (id.includes('@radix-ui')) return 'vendor-radix';
+            if (id.includes('@supabase')) return 'vendor-supabase';
+            if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
             
             // FORMS: react-hook-form + zod only needed on form pages
             if (id.includes('react-hook-form') || id.includes('zod') || id.includes('@hookform')) return 'vendor-forms';

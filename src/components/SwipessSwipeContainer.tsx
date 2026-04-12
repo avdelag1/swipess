@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, memo, useRef, useMemo, lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
+import { useModalStore } from '@/state/modalStore';
 import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
@@ -9,8 +10,8 @@ import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import {
   getActiveCategoryInfo,
 } from './swipe/SwipeConstants';
-import { DistanceSlider } from './swipe/DistanceSlider';
 import { CategorySwipeStack } from './CategorySwipeStack';
+import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
@@ -114,6 +115,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [directMessageDialogOpen, setDirectMessageDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any | null>(null);
+
+  // Epic Match State
+  const [matchData, setMatchData] = useState<{ client: any, owner: any } | null>(null);
 
   // ── Distance filter state ─────────────────────────────────────────────────
   const radiusKm = useFilterStore((s) => s.radiusKm);
@@ -307,9 +311,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   // Hooks for functionality
   const { canAccess: hasPremiumMessaging, needsUpgrade } = useCanAccessMessaging();
-  const navigate = useNavigate();
   const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
-  const swipeMutation = useSwipeWithMatch();
+  const swipeMutation = useSwipeWithMatch({
+    onMatch: (clientProfile, ownerProfile) => setMatchData({ client: clientProfile, owner: ownerProfile })
+  });
   const startConversation = useStartConversation();
 
   // Swipe dismissal tracking
@@ -971,12 +976,27 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             {(() => {
               const CatIcon = storeActiveCategory ? CATEGORY_ICON_MAP[storeActiveCategory] : null;
               return (
-                <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-3 py-1 rounded-2xl shadow-2xl flex items-center gap-2">
-                  {CatIcon && <CatIcon className="w-3 h-3 text-brand-accent-2" strokeWidth={1.5} />}
-                  <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2 animate-pulse" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/90">
-                    Searching <span className="text-brand-accent-2">{storeActiveCategory?.replace('_', ' ')}</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
-                  </span>
+                <div className="bg-black/60 backdrop-blur-2xl border border-white/10 px-4 py-1.5 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex items-center gap-2.5 group relative overflow-hidden">
+                  {/* LIQUID PULSE ENGINE */}
+                  <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
+                    <motion.div 
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-brand-accent-2/50 to-transparent"
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+                    />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,72,153,0.1)_0%,transparent_70%)] animate-pulse" />
+                  </div>
+                  <div className="relative z-10 flex items-center gap-2.5">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-brand-accent-2/60 blur-[8px] rounded-full animate-pulse" />
+                      <div className="relative w-1.5 h-1.5 rounded-full bg-brand-accent-2 shadow-[0_0_10px_#ec4899] z-10" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/95">
+                      Searching <span className="text-brand-accent-2">candidates</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
+                    </span>
+                    <div className="w-1 h-1 rounded-full bg-white/20" />
+                    <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{storeActiveCategory?.replace('_', ' ')}</span>
+                  </div>
                 </div>
               );
             })()}
@@ -1010,7 +1030,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-full h-[calc(100%-10px)] max-w-2xl"
+                className="relative w-full h-[calc(100%-10px)] max-w-3xl mx-auto"
               >
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (
@@ -1092,8 +1112,19 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             onShare={handleShare}
             onMessage={handleMessage}
             canUndo={canUndo}
+            onSpeedMeet={() => useModalStore.getState().setModal('showAIChat', true)}
           />
         </div>
+      )}
+
+      {/* Epic Match Celebration Modal */}
+      {matchData && (
+        <MatchCelebrateModal 
+          isOpen={true} 
+          onClose={() => setMatchData(null)}
+          clientProfile={matchData.client} 
+          ownerProfile={matchData.owner} 
+        />
       )}
 
       {/* FIX #3: PORTAL ISOLATION - Modals render outside swipe tree */}

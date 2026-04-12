@@ -17,65 +17,67 @@ import { toast } from "@/components/ui/sonner";
 const PACKAGES = [
   {
     id: "starter",
-    name: "Starter Boost",
+    name: "Starter",
     icon: <Zap className="w-5 h-5" />,
     emoji: "⚡",
     color: "var(--color-brand-accent)",
     colorRgb: "236,72,153",
-    price: 69.00,
+    price: 4.99,
     duration: "week",
     durationLabel: "/ week",
     perks: [
       "Your event shown to property owners, renters & digital nomads",
-      "1 high-quality photo showcase",
+      "1 photo with your listing card",
       "Standard feed placement across all categories",
       "Direct WhatsApp connection — leads contact you instantly",
       "Email support to help you get set up",
     ],
-    tagline: "Great for one-off events or pop-ups",
-    paypalUrl: "https://www.paypal.com/ncp/payment/KP9WHGEN23MYA",
+    tagline: "Try it for a week — no commitment",
+    paypalUrl: "https://www.paypal.com/ncp/payment/ZXQC96VYV7JLL",
   },
   {
     id: "growth",
-    name: "Growth Accelerator",
+    name: "Growth",
     icon: <Star className="w-5 h-5" />,
     emoji: "🔥",
     color: "var(--color-brand-primary)",
     colorRgb: "255,77,0",
-    price: 99.00,
-    duration: "1month",
-    durationLabel: "/ month",
+    price: 6.99,
+    duration: "3months",
+    durationLabel: "/ 3 months",
     perks: [
       "Featured badge — stand out in a feed full of high-spending users",
-      "Up to 3 photos to showcase your event or service",
-      "Priority placement above standard free listings",
+      "Up to 5 photos to showcase your event or service",
+      "Priority placement above standard listings",
       "Highlighted in your category so the right audience finds you",
-      "Real-time performance tracking (views, taps & leads)",
+      "Real-time performance stats — views, taps & leads",
+      "Chat support to optimize your promotion",
     ],
     popular: true,
-    tagline: "Best value — a full month of organic reach",
-    paypalUrl: "https://www.paypal.com/ncp/payment/Y856SPQRC9WHA",
+    tagline: "Best value — 3 months of organic reach",
+    paypalUrl: "https://www.paypal.com/ncp/payment/ATKD4TR7KFTJU",
   },
   {
     id: "premium",
-    name: "Premium Takeover",
+    name: "Premium",
     icon: <Crown className="w-5 h-5" />,
     emoji: "👑",
     color: "#8B5CF6",
     colorRgb: "139,92,246",
-    price: 119.00,
-    duration: "3months",
-    durationLabel: "/ 3 months",
+    price: 9.99,
+    duration: "6months",
+    durationLabel: "/ 6 months",
     perks: [
-      "Top of feed — firsthand visibility to property owners & expats",
+      "Top of feed — first thing property owners & expats see",
       "Unlimited photos & rich media for your listing",
-      "1 Push notification blast to thousands of active users",
+      "Push notification blast to thousands of active users",
       "Dedicated account manager for hands-on support",
-      "Cross-promotion on Swipess official social channels",
+      "Cross-promotion on our social channels",
       "Custom branded card designed for maximum engagement",
+      "Direct access to an audience of renters, buyers & service seekers",
     ],
-    tagline: "90 days of absolute maximum visibility & VIP support",
-    paypalUrl: "https://www.paypal.com/ncp/payment/8SNPZXP9TT8KW",
+    tagline: "6 months of maximum visibility & VIP support",
+    paypalUrl: "https://www.paypal.com/ncp/payment/LK7XWSMDHH8AW",
   },
 ];
 
@@ -385,7 +387,7 @@ export default function AdvertisePage() {
   // ── LANDING PAGE ────────────────────────────────────────────────────────────
   if (view === "landing") {
     return (
-      <div className="min-h-[100dvh] overflow-y-auto" style={{ background: th.pageBg }}>
+      <div className="w-full relative pb-20" style={{ background: th.pageBg }}>
         {/* Subtle gradient blobs */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full blur-[120px]"
@@ -641,7 +643,7 @@ export default function AdvertisePage() {
 
   // ── FORM ────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-[100dvh] flex flex-col pb-10" style={{ background: th.pageBg }}>
+    <div className="w-full min-h-screen flex flex-col pb-20" style={{ background: th.pageBg }}>
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-20 pb-3">
         <div className="flex-1">
@@ -665,7 +667,7 @@ export default function AdvertisePage() {
       </div>
 
       {/* Step content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1">
         <AnimatePresence mode="wait" custom={dir}>
           <motion.div
             key={step}
@@ -679,8 +681,7 @@ export default function AdvertisePage() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-            className="px-5 pt-6 pb-4 overflow-y-auto"
-            style={{ maxHeight: "calc(100dvh - 96px)" }}
+            className="px-5 pt-6 pb-20"
           >
 
             {/* ── Step 1: Event Type ── */}

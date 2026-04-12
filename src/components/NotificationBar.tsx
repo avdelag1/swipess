@@ -125,35 +125,42 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMa
   };
 
   return (
-    <div className="fixed top-[max(env(safe-area-inset-top),12px)] left-0 right-0 z-[160] px-3 flex justify-center pointer-events-none">
+    <div className="fixed top-16 left-0 right-0 z-[150] px-3 flex justify-center pointer-events-none">
       <AnimatePresence onExitComplete={handleExitComplete}>
         {visible && (
           <motion.div
             key={current.id}
-            initial={{ y: -50, scale: 0.9, opacity: 0 }}
-            animate={{ y: 0, scale: 1, opacity: 1 }}
-            exit={{ y: -30, scale: 0.8, opacity: 0 }}
+            // Slides in from the LEFT, rests centered, exits to the RIGHT
+            initial={{ x: '-115%', opacity: 0, scale: 0.94 }}
+            animate={{ x: 0, opacity: 1, scale: 1 }}
+            exit={exitVariant}
             transition={{
-              type: 'spring',
-              stiffness: 400,
-              damping: 25,
-              mass: 0.8
+              x:       { type: 'spring', stiffness: 420, damping: 38, mass: 0.75 },
+              scale:   { type: 'spring', stiffness: 420, damping: 38, mass: 0.75 },
+              opacity: { type: 'tween', duration: 0.12, ease: 'easeOut' },
             }}
-            drag="y"
-            dragConstraints={{ top: -30, bottom: 10 }}
+            // ── SWIPE TO DISMISS ─────────────────────────────────────────────
+            drag="x"
+            dragDirectionLock
+            dragConstraints={{ left: -16, right: 600 }}
+            dragElastic={{ left: 0.03, right: 0.12 }}
+            dragMomentum={false}
+            onDrag={(_, info) => {
+              if (isExiting.current) return;
+              if (info.offset.x > 44) startDismiss('right');
+            }}
             onDragEnd={(_, info) => {
               if (isExiting.current) return;
-              if (info.offset.y < -20) startDismiss('right');
+              if (info.offset.x > 20) startDismiss('right');
             }}
-            whileTap={{ scale: 0.96 }}
-            className="pointer-events-auto rounded-[32px] overflow-hidden cursor-pointer"
+            whileTap={{ scale: 0.978 }}
+            className="pointer-events-auto w-full max-w-[400px] rounded-2xl overflow-hidden cursor-pointer"
             style={{
-              width: 'min(92vw, 360px)',
-              background: 'rgba(0,0,0,0.85)',
-              border: `1px solid ${config.accentColor}25`,
-              boxShadow: `0 15px 40px -10px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) inset`,
-              backdropFilter: 'blur(32px)',
-              WebkitBackdropFilter: 'blur(32px)',
+              background: 'rgba(15,15,15,0.92)',
+              border: `1px solid ${config.accentColor}28`,
+              boxShadow: `0 12px 40px rgba(0,0,0,0.35), 0 0 0 1px ${config.accentColor}18, 0 4px 12px ${config.accentColor}18`,
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
             }}
             onClick={() => {
               onNotificationClick(current);

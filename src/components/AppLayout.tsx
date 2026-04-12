@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useEffect } from 'react';
+import { Suspense, lazy, useMemo, useEffect, useRef } from 'react';
 
 import { useLocation } from 'react-router-dom';
 import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
@@ -23,8 +23,6 @@ const RadioMiniPlayer = lazy(() =>
 const NotificationSystem = lazy(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
 );
-import { LiquidPullToRefresh } from './LiquidPullToRefresh';
-import { GlobalDialogs } from './GlobalDialogs';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -35,6 +33,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
+  const modalStore = useModalStore();
   const { activeMode } = useActiveMode();
 
   const userRole = user?.user_metadata?.role === 'admin' ? 'admin' : activeMode;
@@ -59,10 +58,21 @@ export function AppLayout({ children }: AppLayoutProps) {
   
   // Immersive sections where header starts transparent
   const isImmersive = useMemo(() => {
-    const immersiveRoutes = ['/client/dashboard', '/owner/dashboard', '/client/profile', '/owner/profile'];
+    const immersiveRoutes = [
+      '/client/dashboard', 
+      '/owner/dashboard', 
+      '/client/profile', 
+      '/owner/profile',
+      '/client/liked-properties',
+      '/owner/properties',
+      '/owner/interested-clients',
+      '/owner/liked-clients',
+      '/client/advertise'
+    ];
     const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
     return immersiveRoutes.some(r => location.pathname.startsWith(r)) || 
            location.pathname.includes('discovery') || 
+           location.pathname.includes('/listing/') ||
            hideHUDRoutes.some(r => location.pathname.startsWith(r));
   }, [location.pathname]);
 
@@ -71,13 +81,12 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const isFullScreen = useMemo(() => {
     const path = location.pathname;
-    const hideHUDRoutes = ['/explore/eventos', '/explore/roommates', '/explore/video-tours'];
+    const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
     return isCameraRoute || 
            isRadioRoute || 
            path.includes('/camera') || 
            path.includes('roommates') || 
            path.includes('eventos') ||
-           path.includes('video-tours') ||
            showAIChat;
   }, [isCameraRoute, isRadioRoute, location.pathname, showAIChat]);
 
@@ -93,19 +102,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   };
 
 
-  // True for swipe/camera interfaces that need tight viewport control to prevent double-bouncing
-  const isScrollLocked = useMemo(() => {
-    const path = location.pathname;
-    return path === '/client/dashboard' || 
-           path === '/owner/dashboard' || 
-           path.startsWith('/camera') || 
-           path.startsWith('/radio') || 
-           path.startsWith('/explore/eventos') || 
-           path.startsWith('/explore/roommates');
-      }, [location.pathname]);
-
   return (
-    <div className="flex flex-col h-full w-full relative selection:bg-brand-primary/30 overflow-hidden">
+    <div className={cn("flex flex-col h-full w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
       <SkipToMainContent />
       
       <Suspense fallback={null}>
@@ -113,9 +111,6 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
  
       <div className="flex flex-col flex-1 h-full w-full min-h-0 overflow-hidden relative">
-        <Suspense fallback={null}>
-          <LiquidPullToRefresh />
-        </Suspense>
         {/* 🚀 PERMANENT HUD: Universal and stable header/footer architecture */}
         {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
           <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[9999]">
@@ -132,12 +127,21 @@ export function AppLayout({ children }: AppLayoutProps) {
         <main
           id="main-content"
           className={cn(
-            "flex-1 w-full min-h-0 relative z-0",
-            isScrollLocked ? "overflow-hidden" : "overflow-y-auto overscroll-contain scroll-smooth"
+            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y",
+            // ONLY swipe decks should have origin-level overflow-hidden. Everything else scrolls naturally.
+            location.pathname === '/client/dashboard' || 
+            location.pathname === '/owner/dashboard' || 
+            location.pathname === '/owner/discovery'
+              ? "overflow-hidden"
+              : "overflow-y-auto overflow-x-hidden scroll-smooth"
           )}
           style={{
-            paddingTop: 0,
-            paddingBottom: 0,
+            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive)
+              ? 'calc(var(--top-bar-height) + var(--safe-top))'
+              : undefined,
+            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive)
+              ? 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 32px)'
+              : undefined,
           }}
         >
           {children}
@@ -165,9 +169,6 @@ export function AppLayout({ children }: AppLayoutProps) {
           </div>
         </>
       )}
-
-      {/* ZENITH GLOBAL DIALOGS — Ensuring coverage across all routes */}
-      <GlobalDialogs userRole={userRole} />
     </div>
   );
 }

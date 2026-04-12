@@ -15,9 +15,11 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { ClientFilters } from '@/hooks/useSmartMatching';
+import { OwnerInsightsDashboard } from '@/components/OwnerInsightsDashboard';
 import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
 import { useFilterActions } from '@/state/filterStore';
 import type { OwnerIntentCard } from '@/components/swipe/SwipeConstants';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -28,6 +30,7 @@ interface EnhancedOwnerDashboardProps {
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
   const [_selectedClientId, _setSelectedClientId] = useState<string | null>(null);
   const [_insightsOpen, _setInsightsOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
 
   const modalStore = useModalStore();
   const { user, loading: isAuthLoading } = useAuth();
@@ -155,38 +158,91 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     );
   }
 
-  // When no category is selected, show the intent quick-filter card fan
-  if (!activeCategory) {
-    const handleCardSelect = (card: OwnerIntentCard) => {
-      // Apply intent-specific filters then reveal the swipe deck
-      if (card.clientType) setClientType(card.clientType as any);
-      if (card.listingType) setListingType(card.listingType as any);
-      const cat = card.category ?? 'property';
-      setCategories([cat as any]);
-    };
+  // Conditionally hide category fan when in insights mode
+  const effectiveCategory = viewMode === 'insights' ? 'insights-active' : activeCategory;
 
-    return (
-      <div className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden">
-        <OwnerAllDashboard onCardSelect={handleCardSelect} />
-      </div>
-    );
-  }
+  const handleCardSelect = useCallback((card: OwnerIntentCard) => {
+    triggerHaptic('medium');
+    setCategories([card.category || 'property']);
+    if (card.clientType) setClientType(card.clientType);
+    if (card.listingType) setListingType(card.listingType);
+  }, [setCategories, setClientType, setListingType]);
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden bg-background overscroll-none">
-      <div className="flex-1 min-h-0 relative flex flex-col overflow-hidden">
-        <ClientSwipeContainer
-          onClientTap={handleClientTap}
-          onInsights={handleInsights}
-          onMessageClick={onMessageClick}
-          profiles={clientProfiles}
-          isLoading={isLoading}
-          error={error}
-          insightsOpen={false}
-          category={filterCategory || 'default'}
-          filters={mergedFilters}
-        />
+    <div className="flex flex-col h-full w-full overflow-hidden bg-background">
+      {/* Immersive View Switcher */}
+      <div className="absolute top-24 left-1/2 -translate-x-1/2 z-[40] flex p-1.5 rounded-2xl bg-black/40 backdrop-blur-3xl border border-white/5 shadow-2xl">
+        <button
+          onClick={() => {
+            setViewMode('discovery');
+            triggerHaptic('light');
+          }}
+          className={cn(
+            "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+            viewMode === 'discovery' ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"
+          )}
+        >
+          Discovery
+        </button>
+        <button
+          onClick={() => {
+            setViewMode('insights');
+            triggerHaptic('light');
+          }}
+          className={cn(
+            "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+            viewMode === 'insights' ? "bg-white/10 text-white shadow-lg" : "text-white/40 hover:text-white/60"
+          )}
+        >
+          Insights
+        </button>
       </div>
+
+      <AnimatePresence mode="wait">
+        {viewMode === 'insights' ? (
+          <motion.div
+            key="owner-insights"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="flex-1 overflow-y-auto pt-24"
+          >
+            <OwnerInsightsDashboard />
+          </motion.div>
+        ) : !activeCategory ? (
+          <motion.div 
+            key="owner-dash-fan"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
+          >
+            <OwnerAllDashboard onCardSelect={handleCardSelect} />
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="owner-dash-swipe"
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="flex-1 min-h-0 relative"
+          >
+            <ClientSwipeContainer
+              onClientTap={handleClientTap}
+              onInsights={handleInsights}
+              onMessageClick={onMessageClick}
+              profiles={clientProfiles}
+              isLoading={isLoading}
+              error={error}
+              insightsOpen={false}
+              category={filterCategory || 'default'}
+              filters={mergedFilters}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

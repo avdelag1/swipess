@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { appToast } from '@/utils/appNotification';
+import { toast } from 'sonner';
 
 interface LegalIssueCategory {
   id: string;
@@ -122,7 +122,7 @@ const OwnerLawyerServices = () => {
 
   const handleSubmitRequest = async () => {
     if (!selectedIssue || !description.trim()) {
-      appToast.error('Please select an issue type and provide a description');
+      toast.error('Please select an issue type and provide a description');
       return;
     }
 
@@ -131,7 +131,7 @@ const OwnerLawyerServices = () => {
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsSubmitting(false);
     setSubmitted(true);
-    appToast.success('Legal help request submitted!');
+    toast.success('Legal help request submitted!');
   };
 
   const handleReset = () => {

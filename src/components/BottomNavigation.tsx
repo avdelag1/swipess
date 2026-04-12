@@ -17,34 +17,34 @@
 import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { haptics } from '@/utils/microPolish';
-import { useModalStore } from '@/state/modalStore';
-import { useActiveMode } from '@/hooks/useActiveMode';
 import {
   Flame, MessageCircle, CircleUser, Building2,
-  Users2, ShieldCheck, Rocket,
-  PartyPopper,
+  Users2, ShieldCheck,
+  Megaphone, PartyPopper,
   Zap, SlidersHorizontal, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { useScrollBounce } from '@/hooks/useScrollBounce';
+import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
-import { playPopSound } from '@/utils/audioEvents';
+import { useModalStore } from '@/state/modalStore';
 
 const ICON_SIZE = 23;
 const ICON_SIZE_COMPACT = 20;
-const TOUCH_TARGET = 44;
+const TOUCH_TARGET = 46;
 
 interface BottomNavigationProps {
-  userRole?: 'client' | 'owner' | 'admin';
+  userRole: 'client' | 'owner' | 'admin';
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
   onListingsClick?: () => void;
+
   className?: string; // High-stability HUD support
 }
 
@@ -71,7 +71,6 @@ const TAP_SPRING = {
 export const BottomNavigation = memo(({
   userRole,
   onFilterClick,
-  onListingsClick,
   className,
 }: BottomNavigationProps) => {
   const { navigate, prefetch } = useAppNavigate();
@@ -94,35 +93,31 @@ export const BottomNavigation = memo(({
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const handleAIClick = useCallback(() => {
-    import('@/utils/sonicBranding').then((m) => m.sonicBranding.playDeepHum());
-    haptics.select();
-    openAIChat('showAIChat', true);
-  }, [openAIChat]);
 
   // Client nav items (8 buttons)
   const clientNavItems: NavItem[] = [
     { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
-    { id: 'ai', icon: Sparkles, label: 'Swipess AI', onClick: handleAIClick, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
+
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
     { id: 'search', icon: SlidersHorizontal, label: 'Discovery', onClick: onFilterClick },
+    { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
   ];
 
   // Owner nav items (8 buttons)
   const ownerNavItems: NavItem[] = [
-    { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/owner/dashboard' },
+    { id: 'dashboard', icon: Zap, label: 'System', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
-    { id: 'likes', icon: Flame, label: 'Clients', path: '/owner/liked-clients' },
-    { id: 'ai', icon: Sparkles, label: 'Swipess AI', onClick: handleAIClick, isSpecial: true },
+    { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
+    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
+
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'listings', icon: Building2, label: 'Listings', onClick: onListingsClick },
-    { id: 'lawyer', icon: ShieldCheck, label: 'Legal', path: '/owner/legal-services' },
-    { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
-    { id: 'promote', icon: Rocket, label: 'Promote', path: '/subscription/packages' },
+    { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
+    { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
+    { id: 'ai', icon: Sparkles, label: 'AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
   ];
 
   // Admin nav items — admin panel + messaging
@@ -153,9 +148,10 @@ export const BottomNavigation = memo(({
   // Auto-scroll active item into view
   useEffect(() => {
     if (!scrollRef.current) return;
-    const activeBtn = scrollRef.current.querySelector('button[data-active="true"]') as HTMLElement;
+    const activeBtn = scrollRef.current.querySelector('[aria-current="page"]') as HTMLElement;
     if (activeBtn) {
-      activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      // INSTANT VIEW: No smooth scrolling for internal state sync, keep it technical and fast
+      activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
     }
   }, [location.pathname]);
 
@@ -198,17 +194,10 @@ export const BottomNavigation = memo(({
   // Primary navigation handler — fires after pointer events, checks drag state
   const handleNavClick = useCallback(
     (item: NavItem, event?: React.MouseEvent | React.PointerEvent) => {
-      // Sonic/Haptic execution
-      if (item.isSpecial) {
-        import('@/utils/sonicBranding').then((m) => m.sonicBranding.playDeepHum());
-        haptics.select();
-      } else {
-        import('@/utils/sonicBranding').then((m) => m.sonicBranding.playGlassTink());
-        haptics.tap();
-      }
-      playPopSound();
+      // Immediate haptic on the final click confirmation
+      haptics.tap();
 
-      if (isDraggingRef.current && item.id !== 'ai') {
+      if (isDraggingRef.current) {
         isDraggingRef.current = false;
         return;
       }
@@ -216,6 +205,7 @@ export const BottomNavigation = memo(({
 
       if (item.path === location.pathname) {
         haptics.tap();
+        // Tapping Dashboard while already on dashboard resets to category selection grid
         if (item.id === 'dashboard') {
           setCategories([]);
         }
@@ -223,6 +213,7 @@ export const BottomNavigation = memo(({
         return;
       }
 
+      // Trigger ripple at click position
       if (event && scrollRef.current) {
         const rect = scrollRef.current.getBoundingClientRect();
         const x = (event as any).clientX - rect.left;
@@ -230,6 +221,7 @@ export const BottomNavigation = memo(({
         setTimeout(() => setRipple(null), 800);
       }
 
+      // Haptics already triggered on PointerDown if applicable
       if (item.onClick) {
         item.onClick();
       } else if (item.path) {
@@ -265,19 +257,21 @@ export const BottomNavigation = memo(({
 
 
   return (
-    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar px-3 pb-1.5 pt-1', className)}>
+    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar px-3 pb-2 pt-1', className)}>
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className="pointer-events-auto w-max max-w-[calc(100vw-1.5rem)] mx-auto"
+        className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
-          // PURE FLOATING UI: BACKGROUND REMOVED PER USER REQUEST
+          // LAYER 1: Truly transparent base for floating icons
           backgroundColor: 'transparent',
           backdropFilter: 'none',
           WebkitBackdropFilter: 'none',
-          borderRadius: '0',
-          boxShadow: 'none',
+          // No hard borders — defined by shadows and a subtle rim light
+          border: 'none',
+          borderRadius: '32px',
+          boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
@@ -312,25 +306,25 @@ export const BottomNavigation = memo(({
           )}
         </AnimatePresence>
 
-        {/* Nav items row — NATIVE SMOOTH SCROLL ARCHITECTURE */}
+        {/* Nav items row — SCROLLABLE ZENITH ARCHITECTURE */}
         <div
           ref={mergedScrollRef}
-          className="relative w-full overflow-x-auto overflow-y-hidden flex snap-x snap-mandatory hide-scrollbar active:cursor-grabbing cursor-grab"
+          data-no-swipe-nav
+          onPointerMove={handlePointerMove}
+          className={cn(
+            'relative flex items-center w-full justify-start gap-1 px-2 py-1.5 nav-scroll-hide transform-gpu',
+          )}
           style={{
             zIndex: 2,
+            transform: 'translateZ(0)',
+            overflowX: 'auto',
+            scrollSnapType: 'x proximity', // Premium app landing feel
+            scrollbarWidth: 'none' as const,
             WebkitOverflowScrolling: 'touch',
-            scrollbarWidth: 'none',
+            contentVisibility: 'auto',
+            containIntrinsicSize: '60px',
           }}
         >
-          <div
-            className={cn(
-                'relative flex items-center justify-start gap-1 px-2 py-1 transform-gpu flex-nowrap',
-            )}
-            style={{
-              paddingLeft: 'env(safe-area-inset-left, 8px)',
-              paddingRight: 'env(safe-area-inset-right, 8px)',
-            }}
-          >
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item);
@@ -362,10 +356,10 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
                 )}
                   style={{
-                    minWidth: '64px',
+                    minWidth: '68px',
                     scrollSnapAlign: 'start',
                     minHeight: TOUCH_TARGET,
-                    padding: '5px 7px',
+                    padding: '6px 8px',
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
@@ -374,13 +368,33 @@ export const BottomNavigation = memo(({
                   willChange: 'transform',
                 }}
               >
-                {/* Active state — icon + label color only, no background frame */}
+                {active && (
+                  <motion.div
+                    layoutId="nav-pill"
+                    className="absolute inset-[4px] rounded-2xl z-0 pointer-events-none"
+                    initial={false}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 850, // SLINGSHOT
+                      damping: 38,
+                      mass: 0.6,
+                    }}
+                     style={{
+                       background: 'transparent',
+                       boxShadow: 'none',
+                     }}
+                  />
+                )}
                 <motion.div
-                  className="relative flex items-center justify-center"
+                  className="relative"
                   animate={{ scale: active ? 1.15 : 1 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
-                  style={{ zIndex: 1, minHeight: '26px' }}
+                  style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}
                 >
+                  {/* 🟢 PRESENCE GLOW: Pulsing indicator for platform activity */}
+                  {item.path && !item.isCenter && (
+                    <div className="absolute -top-1 -left-1 w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.7)] animate-pulse opacity-0 group-hover:opacity-100 transition-opacity z-30" />
+                  )}
 
                   {/* Notification badge */}
                   <AnimatePresence mode="popLayout">
@@ -399,48 +413,24 @@ export const BottomNavigation = memo(({
                   </AnimatePresence>
 
                   {/* Icon: filled with brand color when active, outline when inactive */}
-                  {item.id === 'ai' ? (
-                     <motion.div
-                       animate={{ 
-                         scale: [1, 1.15, 1],
-                         filter: active ? [
-                           'drop-shadow(0 0 8px rgba(236,72,153,0.3))',
-                           'drop-shadow(0 0 15px rgba(236,72,153,0.6))',
-                           'drop-shadow(0 0 8px rgba(236,72,153,0.3))'
-                         ] : 'none'
-                       }}
-                       transition={{ duration: 2, repeat: Infinity }}
-                     >
-                       <Icon
-                        className="transition-all duration-300 ease-out"
-                        style={{
-                          width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                          height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                          color: active ? activeColor : iconColorInactive,
-                          fill: active ? activeColor : 'none',
-                          strokeWidth: active ? 1.8 : 1.5,
-                        }}
-                      />
-                     </motion.div>
-                  ) : (
-                    <Icon
-                      className="transition-all duration-300 ease-out"
-                      style={{
-                        width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                        height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                        color: active ? activeColor : iconColorInactive,
-                        fill: active ? activeColor : 'none',
-                        strokeWidth: active ? 1.8 : 1.5,
-                      }}
-                    />
-                  )}
+                  <Icon
+                    className="transition-all duration-300 ease-out"
+                    style={{
+                      width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                      height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                      color: active ? activeColor : iconColorInactive,
+                      fill: active ? activeColor : 'none',
+                      strokeWidth: active ? 1.8 : 1.5,
+                      filter: active ? 'drop-shadow(0 0 4px rgba(255,107,53,0.3))' : 'none',
+                    }}
+                  />
                 </motion.div>
                 {/* Label: Natural height, no clipping */}
                 {!isNarrow && (
-                  <div className="flex items-center justify-center w-full min-h-[14px] mt-0.5">
+                  <div className="flex items-center justify-center w-full min-h-[14px]">
                     <span
                       className={cn(
-                        'text-[10px] tracking-tight transition-all duration-300 relative font-black uppercase italic whitespace-nowrap',
+                        'text-[9px] tracking-tight transition-all duration-300 relative font-black uppercase italic whitespace-nowrap',
                       )}
                       style={{
                         color: active
@@ -457,8 +447,8 @@ export const BottomNavigation = memo(({
               </motion.button>
             );
           })}
-          </div>
         </div>
+
         {/* Edge fade indicators removed by user request (Weird shade color on edges) */}
       </div>
 

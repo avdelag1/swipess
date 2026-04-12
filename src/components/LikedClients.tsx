@@ -41,11 +41,7 @@ const clientCategories = [
   { id: "buyer", label: "Buyers", icon: DollarSign },
 ];
 
-interface LikedClientsProps {
-  embedded?: boolean;
-}
-
-export function LikedClients({ embedded = false }: LikedClientsProps) {
+export function LikedClients() {
   const { user } = useAuth();
   const { theme } = useTheme();
   const isLight = theme === "light";
@@ -192,15 +188,7 @@ export function LikedClients({ embedded = false }: LikedClientsProps) {
   }, [likedClients, selectedCategory, searchTerm, filterSafeOnly, sortBy]);
 
   return (
-    <div
-      className={cn(
-        "w-full relative pb-32 bg-background touch-pan-y",
-        embedded
-          ? "h-auto overflow-visible"
-          : "min-h-full overflow-visible"
-      )}
-      data-no-swipe-nav="true"
-    >
+    <div className="w-full h-full min-h-0 overflow-y-auto relative pb-32 bg-background touch-pan-y" data-no-swipe-nav="true" style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
       <div className="p-4 pt-4 sm:p-8 sm:pt-8 max-w-7xl mx-auto">
         <div className="flex items-center justify-end mb-6">
               <div className="flex items-center gap-3">

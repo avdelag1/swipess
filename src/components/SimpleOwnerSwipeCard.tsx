@@ -23,6 +23,7 @@ import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
 import { getWorkScheduleLabel } from '@/constants/profileConstants';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
 import { useTheme } from '@/hooks/useTheme';
+import { useDeviceParallax } from '@/hooks/useDeviceParallax';
 
 
 // Exposed interface for parent to trigger swipe animations
@@ -85,37 +86,24 @@ interface ClientProfile {
 const PlaceholderImage = memo(({ name }: { name?: string | null }) => {
   return (
     <div
-      className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-8 text-center"
+      className="absolute inset-0 w-full h-full bg-black/20 flex flex-col items-center justify-center p-8 text-center"
       style={{
-        background: 'linear-gradient(135deg, #0f172a 0%, #020617 100%)',
         transform: 'translateZ(0)',
+        backdropFilter: 'blur(20px)',
       }}
     >
-      {/* Background Atmosphere */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-primary/10 rounded-full blur-[80px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-brand-accent/10 rounded-full blur-[80px]" />
-      </div>
-
-      <motion.div 
-        animate={{ 
-          scale: [1, 1.05, 1],
-          rotate: [0, 1, 0]
-        }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="w-36 h-36 rounded-[2.5rem] bg-white/5 border border-white/10 flex items-center justify-center mb-8 shadow-2xl relative overflow-hidden group backdrop-blur-3xl"
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/20 via-transparent to-brand-accent/20 opacity-40" />
+      <div className="w-32 h-32 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center mb-8 shadow-2xl relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         <img
           src="/icons/swipess-logo.png"
           alt="Logo"
-          className="w-20 h-20 relative z-10 transition-transform duration-700 group-hover:scale-110"
+          className="w-16 h-16 relative z-10"
           draggable={false}
         />
-      </motion.div>
-      <h3 className="text-white text-3xl font-black tracking-tighter mb-2 uppercase italic">PROFILE IN SYNC</h3>
-      <p className="text-white/30 text-[10px] font-black uppercase tracking-[0.3em] leading-relaxed max-w-[200px]">
-        The sentient engine is currently parsing this user identity
+      </div>
+      <h3 className="text-white text-2xl font-black tracking-tight mb-2 uppercase">{name || 'Client'}</h3>
+      <p className="text-white/40 text-xs font-bold uppercase tracking-widest leading-relaxed">
+        Visual identity is being processed<br/>by the sentient engine
       </p>
     </div>
   );
@@ -295,9 +283,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
 
-  // 🚀 FLAGSHIP FEATURE: 3D Perspective Tilt based on pointer position
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
+  // 🚀 FLAGSHIP FEATURE: 3D Perspective Tilt based on pointer pos & Device Gyroscope
+  const pointerRotateX = useMotionValue(0);
+  const pointerRotateY = useMotionValue(0);
+  const { tiltX: gyroTiltX, tiltY: gyroTiltY } = useDeviceParallax(0.8);
+
+  const rotateX = useTransform(pointerRotateX, (val) => val - gyroTiltY);
+  const rotateY = useTransform(pointerRotateY, (val) => val + gyroTiltX);
 
   const handlePointerMoveForTilt = useCallback((e: React.PointerEvent) => {
     if (!isTop) return;
@@ -311,14 +303,14 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     const rotateYVal = ((xPos - centerX) / centerX) * 6; // Max 6 deg tilt
     const rotateXVal = ((centerY - yPos) / centerY) * 6; // Max 6 deg tilt
     
-    rotateY.set(rotateYVal);
-    rotateX.set(rotateXVal);
-  }, [isTop, rotateX, rotateY]);
+    pointerRotateY.set(rotateYVal);
+    pointerRotateX.set(rotateXVal);
+  }, [isTop, pointerRotateX, pointerRotateY]);
 
   const handlePointerLeaveForTilt = useCallback(() => {
-    animate(rotateX, 0, { duration: 0.5 });
-    animate(rotateY, 0, { duration: 0.5 });
-  }, [rotateX, rotateY]);
+    animate(pointerRotateX, 0, { duration: 0.5 });
+    animate(pointerRotateY, 0, { duration: 0.5 });
+  }, [pointerRotateX, pointerRotateY]);
 
   // Fetch user rating aggregate for this client profile
   const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregateEnhanced(profile?.user_id);

@@ -18,6 +18,14 @@
   --color-brand-glow:       rgba(255, 77, 0, 0.45);
   --color-brand-glow-accent: rgba(236, 72, 153, 0.35);
 
+  /* 💎 RENT A MAC (RAM) SPECIAL TOKENS */
+  --ram-blue: #3b82f6;
+  --ram-blue-light: rgba(59, 130, 246, 0.05);
+  --ram-blue-glow: 0 0 20px rgba(59, 130, 246, 0.15);
+  --ram-border-active: #3b82f6;
+  --ram-border-inactive: rgba(0, 0, 0, 0.06);
+  --ram-text-charcoal: #1a1a1a;
+
   /* ── Focus Ring Tokens ── */
   --focus-ring-color: rgba(255, 77, 0, 0.7);
   --focus-ring-offset: 2px;
@@ -41,6 +49,17 @@
   --shadow-soft-md: 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.06), 0 8px 20px rgba(0, 0, 0, 0.04);
   --shadow-soft-lg: 0 4px 8px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.08), 0 16px 48px rgba(0, 0, 0, 0.06);
   --shadow-glow-accent: 0 0 20px rgba(255, 77, 0, 0.2), 0 0 40px rgba(255, 77, 0, 0.1);
+
+  /* ✨ RAM ELEVATION (The 'Floating' Shade) */
+  --shadow-ram-card: 
+    0 2px 4px rgba(0, 0, 0, 0.02), 
+    0 10px 20px rgba(0, 0, 0, 0.04), 
+    0 20px 40px rgba(0, 0, 0, 0.03);
+  --shadow-ram-card-hover: 
+    0 14px 28px rgba(0, 0, 0, 0.06), 
+    0 10px 10px rgba(0, 0, 0, 0.04);
+  --shadow-ram-button:
+    0 4px 14px 0 rgba(0, 118, 255, 0.39);
 
   /* ✨ CINEMATIC SHADES (2026 Global Design) ✨ */
   /* These replace borders with shadow-defined surfaces */

@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect, memo, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useModalStore } from '@/state/modalStore';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
@@ -30,7 +31,6 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { useModalStore } from '@/state/modalStore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users, MapPin, Bike, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
@@ -39,6 +39,9 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+
+
+// PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { DistanceSlider } from './swipe/DistanceSlider';
 
@@ -278,6 +281,22 @@ const ClientSwipeContainerComponent = ({
   const [page, setPage] = useState(0);
   const isFetchingMore = useRef(false);
   const prefetchSchedulerRef = useRef(new PrefetchScheduler());
+
+  // ─── PREDICTIVE CARD TRANSITIONS ─────────────────────────────────────────
+  const topCardX = useMotionValue(0);
+
+  // Next card scales up and brightens as the top card is dragged away.
+  const nextCardScale = useTransform(
+    topCardX,
+    [-280, -60, 0, 60, 280],
+    [1.0, 1.0, 0.97, 1.0, 1.0]
+  );
+  const nextCardOpacity = useTransform(
+    topCardX,
+    [-280, -60, 0, 60, 280],
+    [0.98, 0.92, 0.72, 0.92, 0.98]
+  );
+  // ─────────────────────────────────────────────────────────────────────────
 
   // FIX: Hydration sync disabled — DB query is the single source of truth
   // The query with refetchOnMount:'always' ensures fresh data on every mount
@@ -580,25 +599,25 @@ const ClientSwipeContainerComponent = ({
       logger.error('[ClientSwipeContainer] Background swipe tasks failed:', err);
     });
 
+    // Reset shared motion value BEFORE React re-render so new top card
+    // mounts with x=0 (prevents stale rotation/opacity on the incoming card)
+    topCardX.set(0);
+
     // Clear direction for next swipe
     setTimeout(() => setSwipeDirection(null), 300);
 
     // FIX: Prevent pagination trigger after final card
-    // Check: 1) Not past end, 2) Near end (3 cards away), 3) Has cards, 4) Not already fetching, 5) No error
     if (
-      newIndex < deckQueueRef.current.length &&       // Still within deck
-      newIndex >= deckQueueRef.current.length - 3 &&  // Near the end (trigger prefetch)
-      deckQueueRef.current.length > 0 &&              // Deck has cards
-      !isFetchingMore.current &&                       // Not already fetching
-      !error                                           // Don't fetch if previous fetch errored
+      newIndex < deckQueueRef.current.length &&
+      newIndex >= deckQueueRef.current.length - 3 &&
+      deckQueueRef.current.length > 0 &&
+      !isFetchingMore.current &&
+      !error
     ) {
       isFetchingMore.current = true;
       setPage(p => p + 1);
     }
-
-    // Note: Image preloading is handled in handleSwipe (next 5 cards)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [swipeMutation, recordSwipe, recordProfileView, markOwnerSwiped, category, dismissTarget]);
+  }, [swipeMutation, recordSwipe, recordProfileView, markOwnerSwiped, category, dismissTarget, topCardX, error]);
 
   const handleSwipe = useCallback((direction: 'left' | 'right') => {
     const profile = deckQueueRef.current[currentIndexRef.current];
@@ -826,7 +845,7 @@ const ClientSwipeContainerComponent = ({
         {/* Top Controls — IN FLOW, not absolute (matches client-side pattern) */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
           <div className="relative z-50 w-full flex flex-col items-center shrink-0">
-            <div className="w-full max-w-2xl pt-1 pb-1 px-2">
+            <div className="w-full pt-1 pb-1 px-2">
               <div className="w-full flex justify-between items-center">
                 <DistanceSlider
                   radiusKm={radiusKm}
@@ -837,81 +856,129 @@ const ClientSwipeContainerComponent = ({
                 />
               </div>
             </div>
-            {/* Searching badge */}
+            {/* Searching badge — premium unified layout */}
             <div className="pb-1 flex justify-center">
-              <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-3 py-1 rounded-2xl shadow-2xl flex items-center gap-2">
-                <Users className="w-3 h-3 text-brand-accent-2" strokeWidth={1.5} />
-                <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2 animate-pulse" />
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/90">
-                  Searching <span className="text-brand-accent-2">clients</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
-                </span>
+              <div className="bg-black/60 backdrop-blur-2xl border border-white/10 px-4 py-1.5 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex items-center gap-2.5 group relative overflow-hidden">
+                {/* LIQUID PULSE ENGINE */}
+                <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-brand-accent-2/50 to-transparent"
+                    animate={{ x: ['-100%', '100%'] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+                  />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,72,153,0.1)_0%,transparent_70%)] animate-pulse" />
+                </div>
+                <div className="relative z-10 flex items-center gap-2.5">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-brand-accent-2/60 blur-[8px] rounded-full animate-pulse" />
+                    <div className="relative w-1.5 h-1.5 rounded-full bg-brand-accent-2 shadow-[0_0_10px_#ec4899] z-10" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/95">
+                    Searching <span className="text-brand-accent-2">candidates</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
+                  </span>
+                  <div className="w-1 h-1 rounded-full bg-white/20" />
+                  <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{category}</span>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {/* Card area — flex-1 fills remaining space */}
-        <div className="flex-1 relative flex flex-col items-center justify-center px-2 pt-1 z-10 min-h-0">
-          <div className="w-full h-full flex items-center justify-center pointer-events-auto relative">
-            <AnimatePresence mode="popLayout">
-            {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-              <div className="relative w-full h-full max-w-3xl">
+        <div className="flex-1 relative flex flex-col items-center justify-center px-1.5 pt-1 z-10 min-h-0">
+        <div className="w-full h-full flex items-center justify-center pointer-events-auto">
+          <AnimatePresence mode="sync" initial={false}>
+            {topCard ? (
+              <motion.div 
+                key={`deck-${category}`}
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className="relative w-full h-[calc(100%-10px)] max-w-3xl mx-auto"
+              >
                 {/* Back card (Peek) */}
-                {currentIndex + 1 < deckQueue.length && (
-                  <div className="absolute inset-0 z-10 scale-[0.96] translate-y-2 opacity-50 blur-[2px]">
+                {_nextCard && (
+                  <motion.div 
+                    className="absolute inset-0 z-10"
+                    style={{
+                      scale: nextCardScale,
+                      opacity: nextCardOpacity,
+                      willChange: 'transform, opacity',
+                    }}
+                  >
                     <SimpleOwnerSwipeCard
-                      key={deckQueue[currentIndex + 1].user_id}
-                      profile={deckQueue[currentIndex + 1]}
+                      key={_nextCard.user_id}
+                      profile={_nextCard}
                       onSwipe={() => { }}
                       isTop={false}
                     />
-                  </div>
+                  </motion.div>
                 )}
 
                 {/* Front card */}
                 <SimpleOwnerSwipeCard
-                  key={deckQueue[currentIndex].user_id}
+                  key={topCard.user_id}
                   ref={cardRef}
-                  profile={deckQueue[currentIndex]}
+                  profile={topCard}
                   onSwipe={handleSwipe}
-                  onTap={() => onClientTap(deckQueue[currentIndex].user_id)}
-                  onInsights={() => handleInsights(deckQueue[currentIndex].user_id)}
-                  onMessage={() => handleConnect(deckQueue[currentIndex].user_id)}
+                  onTap={() => onClientTap(topCard.user_id)}
+                  onInsights={() => handleInsights(topCard.user_id)}
+                  onMessage={() => handleConnect(topCard.user_id)}
                   onShare={handleShare}
                   onUndo={undoLastSwipe}
                   canUndo={canUndo}
                   isTop={true}
+                  externalX={topCardX}
                 />
-              </div>
+              </motion.div>
             ) : !externalIsLoading ? (
-               <SwipeExhaustedState 
-                  onRefresh={handleRefresh}
-                  isRefreshing={isRefreshing}
-                  categoryLabel={labels.plural}
-                  CategoryIcon={labels.Icon}
-                  iconColor={labels.color}
-                  radiusKm={radiusKm}
-                  onRadiusChange={setRadiusKm}
-                  onDetectLocation={detectLocation}
-                  detecting={locationDetecting}
-                  detected={locationDetected}
-                  error={externalError}
-                  role="owner" /> ) : null}
+               <motion.div
+                 key="exhausted"
+                 initial={{ opacity: 0 }}
+                 animate={{ opacity: 1 }}
+                 exit={{ opacity: 0 }}
+                 className="w-full h-full z-50 overflow-hidden"
+               >
+                 <SwipeExhaustedState 
+                    onRefresh={handleRefresh}
+                    isRefreshing={isRefreshing}
+                    categoryLabel={labels.plural}
+                    CategoryIcon={labels.Icon}
+                    iconColor={labels.color}
+                    radiusKm={radiusKm}
+                    onRadiusChange={setRadiusKm}
+                    onDetectLocation={detectLocation}
+                    detecting={locationDetecting}
+                    detected={locationDetected}
+                    error={externalError}
+                    role="owner"
+                 />
+               </motion.div>
+            ) : (
+              <motion.div 
+                key="loading-skeleton"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="w-full h-full flex items-center justify-center"
+              >
+                <SwipeLoadingSkeleton />
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
         </div>
 
         {/* Action Buttons */}
-        {deckQueue.length > 0 && currentIndex < deckQueue.length && (
-          <div className="w-full max-w-2xl mx-auto pb-[calc(12px+env(safe-area-inset-bottom))] pt-1">
+        {topCard && (
+          <div className="pb-[calc(12px+env(safe-area-inset-bottom))] pt-1">
             <SwipeActionButtonBar
               onLike={() => cardRef.current?.triggerSwipe('right')}
               onDislike={() => cardRef.current?.triggerSwipe('left')}
               onUndo={undoLastSwipe}
               canUndo={canUndo}
-              onShare={handleShare}
-              onMessage={() => topCard && handleConnect(topCard.user_id)}
-              onSpeedMeet={() => modalStore.setModal('showAIChat', true)}
+              onSpeedMeet={() => useModalStore.getState().setModal('showAIChat', true)}
             />
           </div>
         )}
