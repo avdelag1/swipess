@@ -104,23 +104,23 @@ export default function OwnerDiscovery() {
     <div className="min-h-screen bg-background text-foreground pb-24 lg:pb-0">
       <div className="relative bg-background border-b border-border/40 pt-4 pb-2">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between mb-4 gap-2">
+            <div className="flex items-center gap-3 min-w-0">
               <button
                 onClick={() => navigate('/owner/dashboard')}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-muted/40 border border-border/10 hover:bg-muted transition-all active:scale-90"
+                className="w-10 h-10 shrink-0 flex items-center justify-center rounded-full bg-muted/40 border border-border/10 hover:bg-muted transition-all active:scale-90"
                 title="Back to Dashboard"
                 aria-label="Back to Dashboard"
               >
                 <ArrowLeft className="w-5 h-5 text-foreground/80" strokeWidth={2.5} />
               </button>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary mb-0.5">Prospect Shield</span>
-                <h1 className="text-xl lg:text-2xl font-black tracking-tighter text-foreground uppercase">Target Acquisition</h1>
+              <div className="flex flex-col min-w-0">
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-0.5 truncate">Prospect Shield</span>
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-black tracking-tighter text-foreground uppercase truncate">Target Acquisition</h1>
               </div>
             </div>
-            <div className="px-4 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center gap-2">
-              <Coins className="w-4 h-4 text-primary" />
+            <div className="px-3 h-10 shrink-0 rounded-full bg-primary/10 border border-primary/20 flex items-center gap-2">
+              <Coins className="w-4 h-4 text-primary shrink-0" />
               <span className="text-xs font-black text-primary">{tokens || 0}</span>
             </div>
           </div>

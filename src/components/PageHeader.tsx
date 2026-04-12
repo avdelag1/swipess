@@ -63,7 +63,6 @@ export function PageHeader({
           </motion.button>
         )}
         <div className="flex items-center gap-3">
-          <SwipessLogo size="md" className="transition-all" />
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">{title}</h1>
             {subtitle && (

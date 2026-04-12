@@ -125,20 +125,20 @@ export default function ClientFilters() {
       {/* Liquid Header */}
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 min-w-0">
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => navigate(-1)}
-              className="p-3 rounded-2xl text-muted-foreground"
+              className="p-3 shrink-0 rounded-2xl text-muted-foreground"
             >
               <ChevronLeft className="w-5 h-5" />
             </motion.button>
-            <div>
-              <h1 className="text-xl font-black tracking-tight flex items-center gap-2">
+            <div className="min-w-0">
+              <h1 className="text-xl font-black tracking-tight flex items-center gap-2 truncate">
                 Discover
-                <Sparkles className="w-4 h-4 text-primary fill-primary/20" />
+                <Sparkles className="w-4 h-4 text-primary fill-primary/20 shrink-0" />
               </h1>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">Global Listing Filters</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-60 truncate">Global Listing Filters</p>
             </div>
           </div>
           <AnimatePresence>
