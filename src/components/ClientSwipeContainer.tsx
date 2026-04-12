@@ -30,6 +30,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
+import { useModalStore } from '@/state/modalStore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users, MapPin, Bike, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
@@ -38,9 +39,6 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
-
-
-// PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { DistanceSlider } from './swipe/DistanceSlider';
 
@@ -828,7 +826,7 @@ const ClientSwipeContainerComponent = ({
         {/* Top Controls — IN FLOW, not absolute (matches client-side pattern) */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
           <div className="relative z-50 w-full flex flex-col items-center shrink-0">
-            <div className="w-full pt-1 pb-1 px-2">
+            <div className="w-full max-w-2xl pt-1 pb-1 px-2">
               <div className="w-full flex justify-between items-center">
                 <DistanceSlider
                   radiusKm={radiusKm}
@@ -853,11 +851,11 @@ const ClientSwipeContainerComponent = ({
         )}
 
         {/* Card area — flex-1 fills remaining space */}
-        <div className="flex-1 relative flex flex-col items-center justify-center px-1.5 pt-1 z-10 min-h-0">
-        <div className="w-full h-full flex items-center justify-center pointer-events-auto">
-          <AnimatePresence>
+        <div className="flex-1 relative flex flex-col items-center justify-center px-2 pt-1 z-10 min-h-0">
+          <div className="w-full h-full flex items-center justify-center pointer-events-auto relative">
+            <AnimatePresence mode="popLayout">
             {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
-              <div className="relative w-full h-[calc(100%-10px)] max-w-2xl">
+              <div className="relative w-full h-full max-w-3xl">
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (
                   <div className="absolute inset-0 z-10 scale-[0.96] translate-y-2 opacity-50 blur-[2px]">
@@ -900,8 +898,6 @@ const ClientSwipeContainerComponent = ({
                   error={externalError}
                   role="owner"
                />
-            ) : (
-              <SwipeLoadingSkeleton />
             )}
           </AnimatePresence>
         </div>
@@ -909,12 +905,15 @@ const ClientSwipeContainerComponent = ({
 
         {/* Action Buttons */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
-          <div className="pb-[calc(12px+env(safe-area-inset-bottom))] pt-1">
+          <div className="w-full max-w-2xl mx-auto pb-[calc(12px+env(safe-area-inset-bottom))] pt-1">
             <SwipeActionButtonBar
               onLike={() => cardRef.current?.triggerSwipe('right')}
               onDislike={() => cardRef.current?.triggerSwipe('left')}
               onUndo={undoLastSwipe}
               canUndo={canUndo}
+              onShare={handleShare}
+              onMessage={() => topCard && handleConnect(topCard.user_id)}
+              onSpeedMeet={() => modalStore.setModal('showAIChat', true)}
             />
           </div>
         )}

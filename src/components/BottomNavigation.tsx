@@ -15,29 +15,25 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { haptics } from '@/utils/microPolish';
 import { useModalStore } from '@/state/modalStore';
 import { useActiveMode } from '@/hooks/useActiveMode';
-import { toast } from 'sonner';
 import {
   Flame, MessageCircle, CircleUser, Building2,
   Users2, ShieldCheck, Rocket,
-  Megaphone, PartyPopper,
-  Zap, SlidersHorizontal, Sparkles, Scale
+  PartyPopper,
+  Zap, SlidersHorizontal, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { useScrollBounce } from '@/hooks/useScrollBounce';
-import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
-import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
-import { useModalStore } from '@/state/modalStore';
 import { playPopSound } from '@/utils/audioEvents';
 
 const ICON_SIZE = 23;
@@ -403,17 +399,41 @@ export const BottomNavigation = memo(({
                   </AnimatePresence>
 
                   {/* Icon: filled with brand color when active, outline when inactive */}
-                  <Icon
-                    className="transition-all duration-300 ease-out"
-                    style={{
-                      width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                      height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                      color: active ? activeColor : iconColorInactive,
-                      fill: active ? activeColor : 'none',
-                      strokeWidth: active ? 1.8 : 1.5,
-                      filter: 'none',
-                    }}
-                  />
+                  {item.id === 'ai' ? (
+                     <motion.div
+                       animate={{ 
+                         scale: [1, 1.15, 1],
+                         filter: active ? [
+                           'drop-shadow(0 0 8px rgba(236,72,153,0.3))',
+                           'drop-shadow(0 0 15px rgba(236,72,153,0.6))',
+                           'drop-shadow(0 0 8px rgba(236,72,153,0.3))'
+                         ] : 'none'
+                       }}
+                       transition={{ duration: 2, repeat: Infinity }}
+                     >
+                       <Icon
+                        className="transition-all duration-300 ease-out"
+                        style={{
+                          width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                          height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                          color: active ? activeColor : iconColorInactive,
+                          fill: active ? activeColor : 'none',
+                          strokeWidth: active ? 1.8 : 1.5,
+                        }}
+                      />
+                     </motion.div>
+                  ) : (
+                    <Icon
+                      className="transition-all duration-300 ease-out"
+                      style={{
+                        width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                        height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                        color: active ? activeColor : iconColorInactive,
+                        fill: active ? activeColor : 'none',
+                        strokeWidth: active ? 1.8 : 1.5,
+                      }}
+                    />
+                  )}
                 </motion.div>
                 {/* Label: Natural height, no clipping */}
                 {!isNarrow && (

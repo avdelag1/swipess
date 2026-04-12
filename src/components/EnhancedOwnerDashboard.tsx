@@ -173,8 +173,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden bg-background">
-      <div className="flex-1 min-h-0 relative">
+    <div className="flex flex-col h-full w-full overflow-hidden bg-background overscroll-none">
+      <div className="flex-1 min-h-0 relative flex flex-col overflow-hidden">
         <ClientSwipeContainer
           onClientTap={handleClientTap}
           onInsights={handleInsights}
