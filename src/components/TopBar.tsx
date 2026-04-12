@@ -237,26 +237,7 @@ function TopBarComponent({
                 {/* Notifications */}
                 <NotificationPopover />
 
-                {/* 🚀 FLAGSHIP AI ACCESS (Mirrored) */}
-                <motion.button
-                  whileTap={{ scale: 0.88 }}
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    import('@/utils/sonicBranding').then((m) => m.sonicBranding.playDeepHum());
-                    haptics.heavy();
-                    useModalStore.getState().setModal('showAIChat', true);
-                  }}
-                  className={cn(
-                    "relative h-10 w-10 flex items-center justify-center flex-shrink-0 group",
-                    "touch-manipulation focus:outline-none rounded-full"
-                  )}
-                  style={{ background: 'transparent', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                  aria-label="Open AI Concierge"
-                >
-                  <div className="absolute inset-0 bg-brand-primary/10 rounded-full blur-md group-hover:bg-brand-primary/20 transition-all" />
-                  <Sparkles strokeWidth={1.8} className={cn("h-5 w-5 relative z-10", isLight ? "text-brand-primary" : "text-brand-primary")} style={{ filter: 'drop-shadow(0 0 8px rgba(var(--color-brand-primary-rgb), 0.5))' }} />
-                </motion.button>
+
 
                 {/* Radio */}
                 <motion.button

@@ -99,7 +99,6 @@ export const BottomNavigation = memo(({
   }, []);
 
   const handleAIClick = useCallback(() => {
-    toast.success('Sentient Concierge Initializing...');
     import('@/utils/sonicBranding').then((m) => m.sonicBranding.playDeepHum());
     haptics.heavy();
     openAIChat('showAIChat', true);
@@ -213,7 +212,7 @@ export const BottomNavigation = memo(({
       }
       playPopSound();
 
-      if (isDraggingRef.current) {
+      if (isDraggingRef.current && item.id !== 'ai') {
         isDraggingRef.current = false;
         return;
       }

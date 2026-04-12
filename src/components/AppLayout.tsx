@@ -105,7 +105,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       }, [location.pathname]);
 
   return (
-    <div className={cn("flex flex-col h-full w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
+    <div className="flex flex-col h-full w-full relative selection:bg-brand-primary/30 overflow-hidden">
       <SkipToMainContent />
       
       <Suspense fallback={null}>
@@ -136,8 +136,8 @@ export function AppLayout({ children }: AppLayoutProps) {
             isScrollLocked ? "overflow-hidden" : "overflow-y-auto overscroll-contain scroll-smooth"
           )}
           style={{
-            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user)) ? 80 : 0,
-            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user)) ? 140 : 20,
+            paddingTop: 0,
+            paddingBottom: 0,
           }}
         >
           {children}
