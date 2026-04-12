@@ -166,6 +166,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               </Suspense>
             </div>
           </div>
+        </>
       )}
 
       {/* ZENITH GLOBAL DIALOGS — Ensuring coverage across all routes */}
