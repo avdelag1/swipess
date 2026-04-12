@@ -1,31 +1,38 @@
 
 
-## Plan: Remove Background Frames, Green Glows, and Fix Build Error
+## Plan: Fix Build Errors + iOS-Style Subscription UI
 
-### Problem Analysis
-1. **Top/bottom frame backgrounds**: The `DashboardLayout.tsx` main container has `bg-background` and padding for the header/footer areas. On native iOS (Xcode), this solid background color shows through as visible rectangular bands behind the transparent TopBar and BottomNavigation — creating the "frame" effect.
+### Problem 1: Build Errors in `usePushNotifications.ts`
 
-2. **Green glow dots on nav buttons**: Line 376-378 in `BottomNavigation.tsx` renders a pulsing emerald-green presence indicator dot on every nav button. On desktop it's hidden (`opacity-0 group-hover:opacity-100`), but on iOS touch devices, hover states can stick — making these dots visible.
+Three TypeScript errors caused by the recent refactor to support native Capacitor push:
 
-3. **Build error**: `ConciergeChat.tsx` line 480 has a TypeScript type mismatch with `Uint8Array<ArrayBufferLike>` vs `Uint8Array<ArrayBuffer>`.
+1. **Lines 62 & 125** — The `push_subscriptions` table requires `auth` and `p256dh` as non-nullable strings. The native registration (line 62) omits them entirely, and the upsert format triggers a type mismatch.
+2. **Line 118** — `applicationServerKey` receives `Uint8Array<ArrayBufferLike>` but TypeScript expects `BufferSource` backed by `ArrayBuffer`.
 
-### Changes
+**Fix:**
+- Native upsert (line 62): Add placeholder values for `auth` and `p256dh` (e.g., `'native'`) since native push uses FCM/APNS tokens, not VAPID keys.
+- Web upsert (line 125): Ensure `p256dh` and `auth` are cast to `string` with fallback defaults.
+- Line 118: Cast `urlBase64ToUint8Array(...)` result buffer explicitly: `new Uint8Array(appServerKey.buffer as ArrayBuffer)`.
 
-**1. Remove background frames (src/components/DashboardLayout.tsx)**
-- Change `bg-background` on the main scroll container (line 489/493) to `bg-transparent` for the dashboard routes, so no solid color bar appears behind the floating header/footer
-- Alternatively, keep `bg-background` but make the padding regions transparent by setting the background only on the inner content wrapper (line 507), not on the padded main element
+### Problem 2: iOS-Style Subscription Buttons/Sections
 
-**2. Remove green glow dots (src/components/BottomNavigation.tsx)**
-- Delete lines 376-379 — the entire "PRESENCE GLOW" div that renders the pulsing emerald dot on each nav button
+Referencing the uploaded image (rent-a-mac pricing UI), upgrade `SubscriptionPackages.tsx` to use clean, iOS-native-feeling selection cards:
 
-**3. Fix build error (src/components/ConciergeChat.tsx)**
-- Add explicit type cast on line 480: `new Uint8Array(analyser.frequencyBinCount) as Uint8Array<ArrayBuffer>` or use a simpler approach with `dataArrayRef` typed as `Uint8Array<ArrayBuffer>`
+- **Segmented billing cycle selector** — horizontal row of tappable pills (like the "Daily / Weekly / Monthly" row in the reference), with a highlighted "POPULAR" badge.
+- **Included features section** — clean two-column grid with green checkmarks and concise labels, matching iOS settings-style layout.
+- **Bold price display** — large centered price with "Billed monthly/yearly" subtitle.
+- **Full-width CTA button** — large rounded blue/gradient button ("Subscribe Now") with proper iOS touch target (48px+).
+- Replace the current 3-card horizontal layout with a single active plan view + segmented plan switcher at top for cleaner mobile UX.
 
-**4. Remove active icon drop-shadow glow (src/components/BottomNavigation.tsx)**
-- Line 406: Change the active icon `filter: 'drop-shadow(0 0 4px rgba(255,107,53,0.3))'` to `'none'` — this removes any orange glow effect on active nav icons that may appear as unwanted light effects on native iOS
+### Files to Modify
 
-### Files Modified
-- `src/components/DashboardLayout.tsx` — transparent background on padding regions
-- `src/components/BottomNavigation.tsx` — remove green dots and icon glow
-- `src/components/ConciergeChat.tsx` — fix TypeScript build error
+| File | Changes |
+|---|---|
+| `src/hooks/usePushNotifications.ts` | Fix all 3 TypeScript errors |
+| `src/components/SubscriptionPackages.tsx` | Redesign to iOS-style segmented plan selector with bold CTA |
+
+### Approach
+1. Fix the build errors first to unblock deployment.
+2. Redesign the subscription UI with the segmented selector pattern, maintaining all existing PayPal URLs and plan data.
+3. Preserve the celebration flow on payment return (already implemented in `PaymentSuccess.tsx`).
 
