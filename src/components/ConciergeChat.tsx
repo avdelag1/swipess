@@ -693,13 +693,14 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     <AnimatePresence>
       {isOpen && (
         <>
-          <ConciergePrivacyPortal 
-            isOpen={!hasAcceptedTerms} 
-            onAccept={() => setHasAcceptedTerms(true)}
-            onClose={onClose}
-          />
-
-          <motion.div
+          {!hasAcceptedTerms ? (
+            <ConciergePrivacyPortal 
+              isOpen={true} 
+              onAccept={() => setHasAcceptedTerms(true)}
+              onClose={onClose}
+            />
+          ) : (
+            <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 40 }}
@@ -1062,8 +1063,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
             </div>
           </div>
         </motion.div>
-        </>
       )}
+    </>
+  )}
     </AnimatePresence>
   );
 }
