@@ -314,7 +314,7 @@ export function useConciergeAI() {
     updateConversations(prev => {
       const next = prev.filter(c => c.id !== id);
       if (activeConversationId === id) {
-        setActiveConversationId(next[0]?.id ?? null);
+        setActiveConversationId(null);
       }
       return next;
     });

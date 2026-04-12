@@ -53,8 +53,8 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   const btnH = size === 'sm' ? 32 : size === 'md' ? 36 : 40;
   const iconW = Math.round(btnH * 1.15); // Perfectly wide enough for the icons
 
-  const pillBg = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)';
-  const pillBorder = isLight ? '1px solid rgba(0,0,0,0.10)' : '1px solid rgba(255,255,255,0.14)';
+  const pillBg = 'transparent';
+  const pillBorder = 'none';
   
   const clientColor = isClient ? '#f43f5e' : (isLight ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.35)');
   const ownerColor = !isClient ? '#f97316' : (isLight ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.35)');
@@ -100,7 +100,6 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             className="relative flex items-center w-full h-full"
             style={{ width: iconW * 2 }}
           >
-            {/* Sliding highlight behind active icon — Precision centered */}
             <motion.div
               layoutId="mode-highlight"
               className="absolute rounded-full"
@@ -112,9 +111,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
               style={{
                 width: '42%',
                 height: '80%',
-                background: isClient
-                  ? (isLight ? 'rgba(244,63,94,0.15)' : 'rgba(244,63,94,0.22)')
-                  : (isLight ? 'rgba(249,115,22,0.15)' : 'rgba(249,115,22,0.22)'),
+                background: 'transparent',
                 top: '50%',
                 y: '-50%',
               }}

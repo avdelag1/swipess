@@ -9,6 +9,7 @@ import {
   PokerCardData,
 } from './SwipeConstants';
 import { cn } from '@/lib/utils';
+import { useDeviceParallax } from '@/hooks/useDeviceParallax';
 
 interface PokerCardProps {
   card: PokerCardData;
@@ -28,6 +29,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
   const dragTilt = useTransform(x, [-250, 0, 250], [-15, 0, 15]);
+  const { tiltX, tiltY } = useDeviceParallax(0.8);
   const isCycling = useRef(false);
 
   const handleDragEnd = useCallback((_: any, info: any) => {
@@ -93,7 +95,9 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         zIndex: 50 - index,
         x: isTop ? x : 0,
         scale: isTop ? exitScale : stackScale,
-        rotate: isTop ? dragTilt : 0,
+        rotateZ: isTop ? dragTilt : 0,
+        rotateX: isTop ? -tiltY : (index > 4 ? 0 : 6),
+        rotateY: isTop ? tiltX : 0,
         opacity: isTop ? exitOpacity : (index > 4 ? 0 : 1),
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
@@ -132,8 +136,17 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
           />
         )}
 
-        {/* Cinematic gradient overlay */}
-        <div className="absolute inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        {/* Cinematic gradient overlay & Liquid Glow */}
+        <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
+        
+        {isTop && (
+          <div 
+            className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay animate-pulse"
+            style={{
+              background: 'radial-gradient(ellipse at 50% 120%, var(--primary) 0%, transparent 70%)'
+            }}
+          />
+        )}
 
         {/* Info section */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-8 pb-8">
@@ -147,9 +160,10 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
               initial={{ opacity: 0, scale: 0.9, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               onClick={(e) => { e.stopPropagation(); onSelect(card.id); }}
-              className="mt-6 w-full h-16 rounded-[1.5rem] font-black text-[13px] uppercase tracking-[0.25em] bg-white/10 backdrop-blur-xl text-white border border-white/30 active:scale-95 transition-transform shadow-[0_16px_32px_rgba(0,0,0,0.4)] flex items-center justify-center"
+              className="mt-6 w-full h-16 rounded-[1.5rem] font-black text-[13px] uppercase tracking-[0.25em] bg-white text-black active:scale-95 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.4)] flex items-center justify-center overflow-hidden relative group"
             >
-              Launch {card.label}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer" />
+              <span>Launch {card.label}</span>
             </motion.button>
           )}
         </div>

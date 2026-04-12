@@ -87,6 +87,7 @@ const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 // PUBLIC PREVIEWS
 const PublicProfilePreview = lazy(() => import("./pages/PublicProfilePreview"));
 const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
+const VapValidate = lazy(() => import("./pages/VapValidate"));
 
 // UI HELPERS
 const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDashboardLayout").then(m => ({ default: m.PersistentDashboardLayout })));
@@ -202,6 +203,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <Route path="/faq/owner" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQOwnerPage /></AnimatedPage></Suspense>} />
             <Route path="/profile/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicProfilePreview /></AnimatedPage></Suspense>} />
             <Route path="/listing/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicListingPreview /></AnimatedPage></Suspense>} />
+            <Route path="/vap-validate/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><VapValidate /></AnimatedPage></Suspense>} />
             <Route path="/share-target" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><NotFound /></AnimatedPage></Suspense>} />
           </Routes>

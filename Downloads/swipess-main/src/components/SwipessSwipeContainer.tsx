@@ -10,8 +10,8 @@ import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import {
   getActiveCategoryInfo,
 } from './swipe/SwipeConstants';
-import { DistanceSlider } from './swipe/DistanceSlider';
 import { CategorySwipeStack } from './CategorySwipeStack';
+import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
@@ -115,6 +115,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [directMessageDialogOpen, setDirectMessageDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any | null>(null);
+
+  // Epic Match State
+  const [matchData, setMatchData] = useState<{ client: any, owner: any } | null>(null);
 
   // ── Distance filter state ─────────────────────────────────────────────────
   const radiusKm = useFilterStore((s) => s.radiusKm);
@@ -308,9 +311,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
   // Hooks for functionality
   const { canAccess: hasPremiumMessaging, needsUpgrade } = useCanAccessMessaging();
-  const navigate = useNavigate();
   const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
-  const swipeMutation = useSwipeWithMatch();
+  const swipeMutation = useSwipeWithMatch({
+    onMatch: (clientProfile, ownerProfile) => setMatchData({ client: clientProfile, owner: ownerProfile })
+  });
   const startConversation = useStartConversation();
 
   // Swipe dismissal tracking
@@ -1111,6 +1115,16 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             onSpeedMeet={() => useModalStore.getState().setModal('showAIChat', true)}
           />
         </div>
+      )}
+
+      {/* Epic Match Celebration Modal */}
+      {matchData && (
+        <MatchCelebrateModal 
+          isOpen={true} 
+          onClose={() => setMatchData(null)}
+          clientProfile={matchData.client} 
+          ownerProfile={matchData.owner} 
+        />
       )}
 
       {/* FIX #3: PORTAL ISOLATION - Modals render outside swipe tree */}

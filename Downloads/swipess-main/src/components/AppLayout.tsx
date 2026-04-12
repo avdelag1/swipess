@@ -128,9 +128,12 @@ export function AppLayout({ children }: AppLayoutProps) {
           id="main-content"
           className={cn(
             "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y",
-            location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')
+            // ONLY swipe decks should have origin-level overflow-hidden. Everything else scrolls naturally.
+            location.pathname === '/client/dashboard' || 
+            location.pathname === '/owner/dashboard' || 
+            location.pathname === '/owner/discovery'
               ? "overflow-hidden"
-              : "overflow-y-auto scroll-smooth"
+              : "overflow-y-auto overflow-x-hidden scroll-smooth"
           )}
           style={{
             paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive)

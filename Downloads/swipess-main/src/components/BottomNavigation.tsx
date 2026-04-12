@@ -368,11 +368,10 @@ export const BottomNavigation = memo(({
                   willChange: 'transform',
                 }}
               >
-                {/* Active Indicator — Slingshot-Morph Pill */}
                 {active && (
                   <motion.div
                     layoutId="nav-pill"
-                    className="absolute inset-[4px] rounded-2xl z-0"
+                    className="absolute inset-[4px] rounded-2xl z-0 pointer-events-none"
                     initial={false}
                     transition={{
                       type: 'spring',
@@ -381,13 +380,10 @@ export const BottomNavigation = memo(({
                       mass: 0.6,
                     }}
                      style={{
-                       background: isLight ? 'rgba(255,107,53,0.14)' : 'rgba(255,107,53,0.30)',
-                       boxShadow: isLight ? '0 0 14px rgba(255,107,53,0.18)' : '0 0 20px rgba(255,107,53,0.35)',
+                       background: 'transparent',
+                       boxShadow: 'none',
                      }}
-                  >
-                     {/* Liquid highlight catch-light */}
-                     <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                  </motion.div>
+                  />
                 )}
                 <motion.div
                   className="relative"

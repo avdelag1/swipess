@@ -14,15 +14,15 @@ import ReactMarkdown from 'react-markdown';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 
-const ConciergePrivacyPortal = memo(({ onAccept, onDecline }: { onAccept: () => void, onDecline: () => void }) => {
+const ConciergePrivacyPortal = memo(({ onAccept }: { onAccept: () => void }) => {
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8 relative z-10 space-y-6 text-center h-full">
       <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-4 border border-primary/20 relative shadow-[0_0_40px_rgba(168,85,247,0.3)]">
         <Sparkles className="w-10 h-10 text-primary animate-pulse" />
       </div>
-      <h2 className="text-2xl font-black tracking-tight text-foreground uppercase">Activate AI Protocol</h2>
+      <h2 className="text-2xl font-black tracking-tight text-foreground uppercase">Swipess AI Protocol</h2>
       <p className="text-xs text-muted-foreground leading-relaxed max-w-[280px]">
-        Swipess AI uses advanced sentient models. To provide "Speed of Light" concierge services, it requires explicit permission to process your interactions and context.
+        Swipess AI is a highly-trained, secure concierge built purely to enhance your experience. Your data is strictly protected under our high standards and will never be used maliciously or sold to third parties. We are here to help you seamlessly.
       </p>
       
       <div className="w-full space-y-3 mt-6">
@@ -30,14 +30,7 @@ const ConciergePrivacyPortal = memo(({ onAccept, onDecline }: { onAccept: () => 
           onClick={onAccept}
           className="w-full h-14 rounded-2xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 transition-all text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_10px_30px_rgba(99,102,241,0.3)]"
         >
-          Initialize AI Core
-        </Button>
-        <Button 
-          onClick={onDecline}
-          variant="ghost"
-          className="w-full h-14 rounded-2xl text-muted-foreground/60 hover:text-white active:scale-95 transition-all font-black uppercase tracking-[0.2em] text-[11px]"
-        >
-          Cancel
+          Initialize AI & Accept
         </Button>
       </div>
     </div>
@@ -495,7 +488,6 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
         silenceTimerRef.current = null;
       }
 
-      // Only process NEW results to prevent duplicate accumulation
       let interim = '';
       let newFinalChunk = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -505,6 +497,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           interim += event.results[i][0].transcript;
         }
       }
+
+      finalTranscript += newFinalChunk;
 
       const sanitizedFinal = finalTranscript.trim();
       const sanitizedInterim = interim.trim();
@@ -705,7 +699,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           </div>
 
           {!hasAcceptedPrivacy ? (
-             <ConciergePrivacyPortal onAccept={acceptPrivacy} onDecline={onClose} />
+             <ConciergePrivacyPortal onAccept={acceptPrivacy} />
           ) : (
             <>
           {/* Sidebar backdrop */}

@@ -23,6 +23,7 @@ import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
 import { getWorkScheduleLabel } from '@/constants/profileConstants';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
 import { useTheme } from '@/hooks/useTheme';
+import { useDeviceParallax } from '@/hooks/useDeviceParallax';
 
 
 // Exposed interface for parent to trigger swipe animations
@@ -282,9 +283,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const likeOpacity = useTransform(x, [0, SWIPE_THRESHOLD * 0.5, SWIPE_THRESHOLD], [0, 0.5, 1]);
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
 
-  // 🚀 FLAGSHIP FEATURE: 3D Perspective Tilt based on pointer position
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
+  // 🚀 FLAGSHIP FEATURE: 3D Perspective Tilt based on pointer pos & Device Gyroscope
+  const pointerRotateX = useMotionValue(0);
+  const pointerRotateY = useMotionValue(0);
+  const { tiltX: gyroTiltX, tiltY: gyroTiltY } = useDeviceParallax(0.8);
+
+  const rotateX = useTransform(pointerRotateX, (val) => val - gyroTiltY);
+  const rotateY = useTransform(pointerRotateY, (val) => val + gyroTiltX);
 
   const handlePointerMoveForTilt = useCallback((e: React.PointerEvent) => {
     if (!isTop) return;
@@ -298,14 +303,14 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     const rotateYVal = ((xPos - centerX) / centerX) * 6; // Max 6 deg tilt
     const rotateXVal = ((centerY - yPos) / centerY) * 6; // Max 6 deg tilt
     
-    rotateY.set(rotateYVal);
-    rotateX.set(rotateXVal);
-  }, [isTop, rotateX, rotateY]);
+    pointerRotateY.set(rotateYVal);
+    pointerRotateX.set(rotateXVal);
+  }, [isTop, pointerRotateX, pointerRotateY]);
 
   const handlePointerLeaveForTilt = useCallback(() => {
-    animate(rotateX, 0, { duration: 0.5 });
-    animate(rotateY, 0, { duration: 0.5 });
-  }, [rotateX, rotateY]);
+    animate(pointerRotateX, 0, { duration: 0.5 });
+    animate(pointerRotateY, 0, { duration: 0.5 });
+  }, [pointerRotateX, pointerRotateY]);
 
   // Fetch user rating aggregate for this client profile
   const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregateEnhanced(profile?.user_id);
