@@ -23,6 +23,7 @@ const RadioMiniPlayer = lazy(() =>
 const NotificationSystem = lazy(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
 );
+import { LiquidPullToRefresh } from './LiquidPullToRefresh';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -110,6 +111,9 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
  
       <div className="flex flex-col flex-1 h-full w-full min-h-0 overflow-hidden relative">
+        <Suspense fallback={null}>
+          <LiquidPullToRefresh />
+        </Suspense>
         {/* 🚀 PERMANENT HUD: Universal and stable header/footer architecture */}
         {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
           <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[9999]">

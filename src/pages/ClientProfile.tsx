@@ -62,15 +62,42 @@ const ClientProfile = () => {
         {/* Profile Header */}
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="w-[84px] h-[84px] rounded-full p-[2.5px] bg-gradient-to-br from-primary to-orange-500">
+            {/* Gamified Circular Progress Ring */}
+            <div className="absolute inset-[-4px] pointer-events-none origin-center transform -rotate-90">
+              <svg className="w-[92px] h-[92px]" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="46" fill="transparent" stroke="currentColor" className="text-muted/20" strokeWidth="4" />
+                <motion.circle 
+                  cx="50" cy="50" r="46" fill="transparent" 
+                  stroke="url(#gradient-primary)" 
+                  strokeWidth="4" 
+                  strokeLinecap="round"
+                  initial={{ strokeDasharray: "289 289", strokeDashoffset: 289 }}
+                  animate={{ strokeDashoffset: 289 - (289 * completionPercent) / 100 }}
+                  transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                />
+                <defs>
+                  <linearGradient id="gradient-primary" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ec4899" />
+                    <stop offset="100%" stopColor="#f97316" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            {/* Avatar */}
+            <div className="w-[84px] h-[84px] rounded-full p-[2px] bg-background shadow-lg">
               <div
-                className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
+                className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center relative"
                 onClick={() => { haptics.tap(); if (profile?.profile_images?.length) { handlePhotoClick(0); } else { setShowEditDialog(true); } }}
               >
                 {profile?.profile_images?.[0] ? (
                   <img src={profile.profile_images[0]} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
                   <User className="w-9 h-9 text-muted-foreground/40" />
+                )}
+                {completionPercent < 100 && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <span className="text-white text-xs font-black">{completionPercent}%</span>
+                  </div>
                 )}
               </div>
             </div>

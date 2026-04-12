@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useBiometrics } from '@/hooks/useBiometrics';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -86,12 +87,6 @@ export default function DocumentVault() {
   const [pendingFile, setPendingFile] = useState<globalThis.File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    fetchDocuments();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
   const fetchDocuments = async () => {
     if (!user) return;
     setIsLoading(true);
@@ -103,6 +98,28 @@ export default function DocumentVault() {
     setContracts(contractsRes.data || []);
     setIsLoading(false);
   };
+
+  const { checkSupport, authenticate, isSupported } = useBiometrics();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const initAuth = async () => {
+      const hasSupport = await checkSupport();
+      if (hasSupport) {
+        const success = await authenticate('Unlock your vault');
+        setIsAuthenticated(success);
+      } else {
+        setIsAuthenticated(true); // Fallback if biometrics unsupported or not available
+      }
+    };
+    initAuth();
+  }, [checkSupport, authenticate]);
+
+  useEffect(() => {
+    if (!user || !isAuthenticated) return;
+    fetchDocuments();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isAuthenticated]);
 
   const processUpload = async (file: globalThis.File, docType: string) => {
     if (!user) return;
@@ -191,6 +208,30 @@ export default function DocumentVault() {
   };
 
   const getDocTypeLabel = (type: string) => DOC_TYPES.find(d => d.value === type)?.label || 'Other';
+
+  if (!isAuthenticated && isSupported === true) {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+          <Shield className="w-12 h-12 text-primary" />
+        </div>
+        <h2 className="text-2xl font-black mb-2">Vault Locked</h2>
+        <p className="text-muted-foreground mb-8 text-sm max-w-[280px]">
+          Your legal documents and contracts are protected. Verify your identity to access them.
+        </p>
+        <Button 
+          size="lg" 
+          className="rounded-full px-12 h-14 font-black shadow-lg shadow-primary/20"
+          onClick={async () => {
+            const success = await authenticate('Unlock your vault');
+            setIsAuthenticated(success);
+          }}
+        >
+          Unlock Vault
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div
