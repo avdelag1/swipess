@@ -96,7 +96,7 @@ export const BottomNavigation = memo(({
 
   const handleAIClick = useCallback(() => {
     import('@/utils/sonicBranding').then((m) => m.sonicBranding.playDeepHum());
-    haptics.heavy();
+    haptics.select();
     openAIChat('showAIChat', true);
   }, [openAIChat]);
 
@@ -201,7 +201,7 @@ export const BottomNavigation = memo(({
       // Sonic/Haptic execution
       if (item.isSpecial) {
         import('@/utils/sonicBranding').then((m) => m.sonicBranding.playDeepHum());
-        haptics.heavy();
+        haptics.select();
       } else {
         import('@/utils/sonicBranding').then((m) => m.sonicBranding.playGlassTink());
         haptics.tap();
