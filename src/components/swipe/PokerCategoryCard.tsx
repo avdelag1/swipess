@@ -28,7 +28,26 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
   const dragTilt = useTransform(x, [-250, 0, 250], [-15, 0, 15]);
+  const gyroX = useMotionValue(0);
+  const gyroY = useMotionValue(0);
   const isCycling = useRef(false);
+
+  // Parallax Device Tilt (Gyroscope)
+  useEffect(() => {
+    if (!isTop) return;
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      if (e.gamma !== null && e.beta !== null) {
+        // gamma is left/right [-90, 90]
+        // beta is front/back [-180, 180]
+        const tiltX = Math.max(-15, Math.min(15, e.gamma / 2));
+        const tiltY = Math.max(-15, Math.min(15, (e.beta - 45) / 2)); // Offset assuming they hold phone at 45 deg angle
+        gyroY.set(tiltX);
+        gyroX.set(-tiltY); // rotateX handles up/down tilt
+      }
+    };
+    window.addEventListener('deviceorientation', handleOrientation);
+    return () => window.removeEventListener('deviceorientation', handleOrientation);
+  }, [isTop, gyroX, gyroY]);
 
   const handleDragEnd = useCallback((_: any, info: any) => {
     if (isCycling.current) return;
@@ -80,7 +99,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       animate={{
         y: stackY,
         opacity: index > 4 ? 0 : 1,
-        rotateX: isTop ? 0 : 6, 
+        // Remove rotateX from animate to let useMotionValue control it exclusively on top
         filter: isTop ? undefined : `brightness(${stackBrightness})`,
       }}
       transition={{ type: 'spring', stiffness: 180, damping: 26, mass: 1.2 }}
@@ -93,7 +112,9 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         zIndex: 50 - index,
         x: isTop ? x : 0,
         scale: isTop ? exitScale : stackScale,
-        rotate: isTop ? dragTilt : 0,
+        rotateZ: isTop ? dragTilt : 0, 
+        rotateX: isTop ? gyroX : 6, // 6 deg tilt when in stack
+        rotateY: isTop ? gyroY : 0,
         opacity: isTop ? exitOpacity : (index > 4 ? 0 : 1),
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',

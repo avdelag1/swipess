@@ -148,10 +148,9 @@ export const BottomNavigation = memo(({
   // Auto-scroll active item into view
   useEffect(() => {
     if (!scrollRef.current) return;
-    const activeBtn = scrollRef.current.querySelector('[aria-current="page"]') as HTMLElement;
+    const activeBtn = scrollRef.current.querySelector('button[data-active="true"]') as HTMLElement;
     if (activeBtn) {
-      // INSTANT VIEW: No smooth scrolling for internal state sync, keep it technical and fast
-      activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
+      activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
   }, [location.pathname]);
 
@@ -194,8 +193,14 @@ export const BottomNavigation = memo(({
   // Primary navigation handler — fires after pointer events, checks drag state
   const handleNavClick = useCallback(
     (item: NavItem, event?: React.MouseEvent | React.PointerEvent) => {
-      // Immediate haptic on the final click confirmation
-      haptics.tap();
+      // Sonic/Haptic execution
+      if (item.isSpecial) {
+        import('@/utils/sonicBranding').then((m) => m.sonicBranding.playDeepHum());
+        haptics.heavy();
+      } else {
+        import('@/utils/sonicBranding').then((m) => m.sonicBranding.playGlassTink());
+        haptics.tap();
+      }
       playPopSound();
 
       if (isDraggingRef.current) {
@@ -206,7 +211,6 @@ export const BottomNavigation = memo(({
 
       if (item.path === location.pathname) {
         haptics.tap();
-        // Tapping Dashboard while already on dashboard resets to category selection grid
         if (item.id === 'dashboard') {
           setCategories([]);
         }
@@ -214,7 +218,6 @@ export const BottomNavigation = memo(({
         return;
       }
 
-      // Trigger ripple at click position
       if (event && scrollRef.current) {
         const rect = scrollRef.current.getBoundingClientRect();
         const x = (event as any).clientX - rect.left;
@@ -222,7 +225,6 @@ export const BottomNavigation = memo(({
         setTimeout(() => setRipple(null), 800);
       }
 
-      // Haptics already triggered on PointerDown if applicable
       if (item.onClick) {
         item.onClick();
       } else if (item.path) {

@@ -18,6 +18,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PWAInstallButton } from "@/components/PWAInstallButton";
 import { SwipessLogo } from "@/components/SwipessLogo";
+import { AppIconSelector } from "@/components/AppIconSelector";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 const stagger = { staggerChildren: 0.04 };
@@ -185,9 +186,6 @@ const ClientSettings = () => {
           </motion.div>
         </div>
       </div>
-    );
-  }
-
   if (activeSection === 'preferences') {
     return (
       <div className="w-full px-4 pt-4 pb-32 bg-background flex-1 relative">
@@ -199,6 +197,7 @@ const ClientSettings = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6">
             <BackgroundThemeSettings />
             <SwipeSoundSettings />
+            <AppIconSelector />
           </motion.div>
         </div>
       </div>
