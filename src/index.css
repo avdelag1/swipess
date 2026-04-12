@@ -111,6 +111,7 @@ body::-webkit-scrollbar {
   mix-blend-mode: overlay;
 }
 
+
 .liquid-glass-card {
   @apply bg-card backdrop-blur-xl transition-all duration-300 overflow-hidden relative;
   border: none !important;
@@ -118,8 +119,22 @@ body::-webkit-scrollbar {
   contain: layout style paint;
 }
 
-.liquid-glass-card:hover {
-  box-shadow: var(--shadow-cinematic-lg);
+/* 💎 RAM (Rent a Mac) PREMIUM CARD */
+.ram-card {
+  @apply bg-white dark:bg-zinc-900 transition-all duration-300 relative border overflow-hidden;
+  border-color: var(--ram-border-inactive);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-ram-card);
+}
+
+.ram-card.active {
+  border-color: var(--ram-blue) !important;
+  background-color: var(--ram-blue-light) !important;
+  box-shadow: var(--ram-blue-glow);
+}
+
+.ram-card:hover {
+  box-shadow: var(--shadow-ram-card-hover);
   transform: translateY(-2px);
 }
 
@@ -144,8 +159,8 @@ html {
   -webkit-overflow-scrolling: touch;
   background-color: unset;
   color: unset;
-  --safe-top: env(safe-area-inset-top, 12px);
-  --safe-bottom: env(safe-area-inset-bottom, 12px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
   --top-bar-height: 60px;
 }
 
@@ -157,10 +172,16 @@ html, body {
   overflow: hidden;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: none; /* 🚫 DISABLING WEBVIEW BOUNCE FOR NATIVE FEEL */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* Allow bounce ONLY in scrollable areas */
+main, .scrollable-content, .overflow-y-auto {
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 #root {
@@ -198,9 +219,12 @@ html, body {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 1000;
+  padding-top: var(--safe-top);
+  height: calc(var(--top-bar-height) + var(--safe-top));
   display: flex;
   align-items: center;
+<<<<<<< HEAD
   height: 52px;
   padding-top: var(--safe-top);
   background-color: transparent !important;
@@ -209,6 +233,13 @@ html, body {
   box-shadow: none !important;
   isolation: isolate;
   pointer-events: none;
+=======
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
+  will-change: transform, opacity;
+  /* 🚀 ZENITH HUD ISOLATION */
+  contain: layout style;
+  transform: translateZ(0);
+>>>>>>> f5eb5bfe (chore: final ios native bridge and app store prep)
 }
 
 .app-bottom-bar {
@@ -216,14 +247,22 @@ html, body {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 1000;
   padding-bottom: var(--safe-bottom);
+<<<<<<< HEAD
   background-color: transparent !important;
   background: transparent !important;
   border-top: none !important;
   box-shadow: none !important;
   isolation: isolate;
   pointer-events: none;
+=======
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
+  will-change: transform, opacity;
+  /* 🚀 ZENITH HUD ISOLATION */
+  contain: layout style;
+  transform: translateZ(0);
+>>>>>>> f5eb5bfe (chore: final ios native bridge and app store prep)
 }
 
 @layer base {
@@ -352,8 +391,20 @@ button:active, [role="button"]:active {
 }
 
 .white-matte {
-  background-color: #F8F9FA !important;
+  background-color: #FFFFFF !important;
   color: #000000 !important;
+}
+
+/* 🚀 UNIVERSAL CONTRAST LOCK: Force dark assets in light mode */
+.white-matte .text-muted-foreground { color: #555555 !important; }
+.white-matte .text-foreground { color: #000000 !important; }
+.white-matte button:not(.mexican-pink-premium) { color: #000000 !important; }
+.white-matte .ram-card { background-color: #FFFFFF; color: #000000; }
+.white-matte svg { color: inherit; }
+
+/* 💎 LOGO CONTRAST: Auto-invert PNG wordmark in light mode */
+.white-matte .swipess-logo img {
+  filter: brightness(0);
 }
 
 /* ─── Layout Utils (Safe Areas) ─── */
@@ -496,6 +547,15 @@ button:active, [role="button"]:active {
   filter: brightness(1.1);
 }
 
+/* 🫁 CARD BREATHING: Subtle alive presence for top cards */
+@keyframes card-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.015); }
+}
+
+.card-breathe {
+  animation: card-breathe 4s ease-in-out infinite;
+}
 
 /* ─── Instant Tap Responsiveness ─── */
 button:active,
