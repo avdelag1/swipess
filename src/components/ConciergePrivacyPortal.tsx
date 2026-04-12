@@ -71,9 +71,15 @@ export function ConciergePrivacyPortal({ isOpen, onAccept, onClose }: ConciergeP
               </div>
 
               <div className="bg-muted/50 rounded-2xl p-4 border border-border/50">
-                <p className="text-[11px] leading-relaxed text-muted-foreground font-medium text-center">
+                <p className="text-[11px] leading-relaxed text-muted-foreground font-medium text-center mb-3">
                   By continuing, you agree to allow the AI to process your public profile and preferences to provide personalized assistance.
                 </p>
+                <div className="flex gap-2 items-start bg-red-500/10 p-2.5 rounded-xl border border-red-500/20">
+                  <ShieldCheck className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-[11px] leading-tight text-red-200/90 font-medium">
+                    <span className="font-bold text-red-400">Strict Security:</span> Our AI is an expert broker and legal companion. Requests for illegal activities or policy violations will be actively blocked and flagged.
+                  </p>
+                </div>
               </div>
 
               <Button 

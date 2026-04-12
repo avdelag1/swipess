@@ -168,7 +168,7 @@ export default function AGLPage() {
               </p>
               <ul className="list-disc pl-6 mb-4 space-y-2">
                 <li>Use the Report function on user profiles or listings</li>
-                <li>Contact our support team at support@swipess.com</li>
+                <li>Contact our support team at woorkify@gmail.com</li>
                 <li>Provide as much detail as possible about the violation</li>
                 <li>Include screenshots or evidence when available</li>
               </ul>
@@ -210,7 +210,7 @@ export default function AGLPage() {
                 For questions about these Acceptable Use Guidelines, contact us at:
               </p>
               <ul className="list-none pl-0 mb-4 space-y-2">
-                <li><strong>Email:</strong> support@swipess.com</li>
+                <li><strong>Email:</strong> woorkify@gmail.com</li>
                 <li><strong>Legal:</strong> legal@swipess.com</li>
               </ul>
             </section>

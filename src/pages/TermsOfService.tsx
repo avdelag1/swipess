@@ -221,7 +221,7 @@ export default function TermsOfService() {
               </p>
               <ul className="list-none pl-0 mb-4 space-y-2">
                 <li><strong>Email:</strong> legal@swipess.com</li>
-                <li><strong>Support:</strong> support@swipess.com</li>
+                <li><strong>Support:</strong> woorkify@gmail.com</li>
               </ul>
             </section>
 
