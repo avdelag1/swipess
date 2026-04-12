@@ -15,8 +15,12 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { haptics } from '@/utils/microPolish';
+import { useModalStore } from '@/state/modalStore';
+import { useActiveMode } from '@/hooks/useActiveMode';
+import { toast } from 'sonner';
 import {
   Flame, MessageCircle, CircleUser, Building2,
   Users2, ShieldCheck,
@@ -41,11 +45,10 @@ const ICON_SIZE_COMPACT = 20;
 const TOUCH_TARGET = 44;
 
 interface BottomNavigationProps {
-  userRole: 'client' | 'owner' | 'admin';
+  userRole?: 'client' | 'owner' | 'admin';
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
   onListingsClick?: () => void;
-
   className?: string; // High-stability HUD support
 }
 
@@ -72,6 +75,7 @@ const TAP_SPRING = {
 export const BottomNavigation = memo(({
   userRole,
   onFilterClick,
+  onListingsClick,
   className,
 }: BottomNavigationProps) => {
   const { navigate, prefetch } = useAppNavigate();
@@ -94,13 +98,19 @@ export const BottomNavigation = memo(({
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  const handleAIClick = useCallback(() => {
+    toast.success('Sentient Concierge Initializing...');
+    import('@/utils/sonicBranding').then((m) => m.sonicBranding.playDeepHum());
+    haptics.heavy();
+    openAIChat('showAIChat', true);
+  }, [openAIChat]);
 
   // Client nav items (8 buttons)
   const clientNavItems: NavItem[] = [
     { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
-    { id: 'ai', icon: Sparkles, label: 'Swipess AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
+    { id: 'ai', icon: Sparkles, label: 'Swipess AI', onClick: handleAIClick, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
@@ -109,15 +119,15 @@ export const BottomNavigation = memo(({
 
   // Owner nav items (8 buttons)
   const ownerNavItems: NavItem[] = [
-    { id: 'dashboard', icon: Zap, label: 'System', path: '/owner/dashboard' },
+    { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
-    { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
-    { id: 'ai', icon: Sparkles, label: 'Swipess AI', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
+    { id: 'likes', icon: Flame, label: 'Clients', path: '/owner/liked-clients' },
+    { id: 'ai', icon: Sparkles, label: 'Swipess AI', onClick: handleAIClick, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
-    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
-    { id: 'lawyer', icon: Scale, label: 'Lawyer', path: '/owner/legal-services' },
-    { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
-    { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
+    { id: 'listings', icon: Building2, label: 'Listings', onClick: onListingsClick },
+    { id: 'lawyer', icon: ShieldCheck, label: 'Legal', path: '/owner/legal-services' },
+    { id: 'search', icon: SlidersHorizontal, label: 'Filters', onClick: onFilterClick },
+    { id: 'promote', icon: Rocket, label: 'Promote', path: '/subscription/packages' },
   ];
 
   // Admin nav items — admin panel + messaging

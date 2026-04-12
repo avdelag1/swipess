@@ -170,9 +170,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       )}
 
       {/* ZENITH GLOBAL DIALOGS — Ensuring coverage across all routes */}
-      {!isAuthRoute && (!isPublicPreview || !!user) && (
-        <GlobalDialogs userRole={userRole} />
-      )}
+      <GlobalDialogs userRole={userRole} />
     </div>
   );
 }

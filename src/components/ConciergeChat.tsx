@@ -704,7 +704,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 40 }}
           transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-          className="fixed inset-0 z-[10000] flex flex-col bg-background"
+          className="fixed inset-0 z-[100000] flex flex-col bg-background"
         >
           {/* Sidebar backdrop */}
           <AnimatePresence>
