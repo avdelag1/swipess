@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, memo, useMemo } from 'react';
+import { triggerHaptic } from '@/utils/haptics';
 import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown, Mic, MicOff, Zap, ArrowRight, Check } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,36 @@ import { Progress } from '@/components/ui/progress';
 import ReactMarkdown from 'react-markdown';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+
+const ConciergePrivacyPortal = memo(({ onAccept, onDecline }: { onAccept: () => void, onDecline: () => void }) => {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center p-8 relative z-10 space-y-6 text-center h-full">
+      <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-4 border border-primary/20 relative shadow-[0_0_40px_rgba(168,85,247,0.3)]">
+        <Sparkles className="w-10 h-10 text-primary animate-pulse" />
+      </div>
+      <h2 className="text-2xl font-black tracking-tight text-foreground uppercase">Activate AI Protocol</h2>
+      <p className="text-xs text-muted-foreground leading-relaxed max-w-[280px]">
+        Swipess AI uses advanced sentient models. To provide "Speed of Light" concierge services, it requires explicit permission to process your interactions and context.
+      </p>
+      
+      <div className="w-full space-y-3 mt-6">
+        <Button 
+          onClick={onAccept}
+          className="w-full h-14 rounded-2xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 transition-all text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_10px_30px_rgba(99,102,241,0.3)]"
+        >
+          Initialize AI Core
+        </Button>
+        <Button 
+          onClick={onDecline}
+          variant="ghost"
+          className="w-full h-14 rounded-2xl text-muted-foreground/60 hover:text-white active:scale-95 transition-all font-black uppercase tracking-[0.2em] text-[11px]"
+        >
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+});
 
 interface ConciergeChatProps {
   isOpen: boolean;
@@ -289,6 +320,16 @@ ConversationSidebar.displayName = 'ConversationSidebar';
 
 /* ─── Main Chat ─── */
 export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
+  const [hasAcceptedPrivacy, setHasAcceptedPrivacy] = useState(() => {
+    return localStorage.getItem('swipess_ai_privacy') === 'true';
+  });
+
+  const acceptPrivacy = useCallback(() => {
+    localStorage.setItem('swipess_ai_privacy', 'true');
+    setHasAcceptedPrivacy(true);
+    triggerHaptic('success');
+  }, []);
+
   const {
     messages, conversations, activeConversationId, isLoading,
     sendMessage, resendMessage, deleteMessage, stopGeneration,
@@ -330,11 +371,11 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const voiceVolume = useAudioVisualizer(isListening);
   const originalInputRef = useRef(''); // To preserve text before mic starts
 
   // ── Voice-to-text (Web Speech API) ─────────────────────────────────
   const [isListening, setIsListening] = useState(false);
+  const voiceVolume = useAudioVisualizer(isListening);
   const [autoSend, setAutoSend] = useState(() => {
     try { return localStorage.getItem('concierge-auto-send') === 'true'; } catch { return false; }
   });
@@ -618,12 +659,55 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 40 }}
-          transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-          className="fixed inset-0 z-[10000] flex flex-col bg-background"
+          initial={{ y: '100%', scale: 0.8, filter: 'blur(20px)', opacity: 0 }}
+          animate={{ y: 0, scale: 1, filter: 'blur(0px)', opacity: 1 }}
+          exit={{ y: '100%', scale: 0.8, filter: 'blur(20px)', opacity: 0 }}
+          transition={{ 
+            type: 'spring', 
+            damping: 25, 
+            stiffness: 180,
+            opacity: { duration: 0.3 }
+          }}
+          className="w-full h-full md:max-w-md md:max-h-[85vh] bg-background/95 backdrop-blur-3xl md:rounded-[2rem] shadow-2xl flex flex-col overflow-hidden relative border border-white/10"
         >
+          {/* ADVANCED PARTICLE WARP EFFECT (Subtle) */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-[5]">
+             {[...Array(6)].map((_, i) => (
+               <motion.div
+                 key={i}
+                 initial={{ opacity: 0, scale: 0 }}
+                 animate={{ 
+                   opacity: [0, 0.4, 0], 
+                   scale: [1, 2],
+                   x: [0, (i % 2 === 0 ? 100 : -100)],
+                   y: [0, (i < 3 ? 100 : -100)]
+                 }}
+                 transition={{ 
+                   duration: 0.8, 
+                   delay: 0.1 + i * 0.05,
+                   ease: "easeOut"
+                 }}
+                 className="absolute top-1/2 left-1/2 w-32 h-32 -translate-x-1/2 -translate-y-1/2 bg-primary/20 rounded-full blur-3xl"
+               />
+             ))}
+          </div>
+          {/* LIQUID AMBIENT BACKGROUND */}
+          <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden mix-blend-screen opacity-40">
+            <div 
+              className={cn(
+                "absolute top-1/2 left-1/2 w-[180%] h-[180%] -translate-x-1/2 -translate-y-1/2 blur-[80px] transition-all duration-3000 ease-in-out",
+                isLoading || isListening ? "scale-110 opacity-70 animate-pulse" : "scale-100 opacity-30"
+              )}
+              style={{
+                background: `radial-gradient(circle at center, ${activeCharacter === 'default' ? '#6366f1' : '#f59e0b'}40 0%, transparent 60%)`
+              }}
+            />
+          </div>
+
+          {!hasAcceptedPrivacy ? (
+             <ConciergePrivacyPortal onAccept={acceptPrivacy} onDecline={onClose} />
+          ) : (
+            <>
           {/* Sidebar backdrop */}
           <AnimatePresence>
             {sidebarOpen && (
@@ -632,7 +716,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="absolute inset-0 z-40 bg-black/30"
+                className="absolute inset-0 z-40 bg-black/60 backdrop-blur-sm"
                 onClick={() => setSidebarOpen(false)}
               />
             )}
@@ -997,8 +1081,10 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   <Send className="w-4 h-4" />
                 </Button>
               )}
+              </div>
             </div>
-          </div>
+          </>
+        )}
         </motion.div>
       )}
     </AnimatePresence>

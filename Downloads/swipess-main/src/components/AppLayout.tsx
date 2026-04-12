@@ -66,7 +66,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       '/client/liked-properties',
       '/owner/properties',
       '/owner/interested-clients',
-      '/owner/liked-clients'
+      '/owner/liked-clients',
+      '/client/advertise'
     ];
     const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
     return immersiveRoutes.some(r => location.pathname.startsWith(r)) || 
@@ -132,11 +133,11 @@ export function AppLayout({ children }: AppLayoutProps) {
               : "overflow-y-auto scroll-smooth"
           )}
           style={{
-            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !(location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')) && !isImmersive)
-              ? 'var(--top-bar-height, 60px)'
+            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive)
+              ? 'calc(var(--top-bar-height) + var(--safe-top))'
               : undefined,
-            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !(location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')) && !isImmersive)
-              ? 'calc(68px + env(safe-area-inset-bottom, 0px))'
+            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive)
+              ? 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 32px)'
               : undefined,
           }}
         >

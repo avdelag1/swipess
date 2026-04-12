@@ -337,6 +337,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/owner/properties',
       '/owner/interested-clients',
       '/owner/liked-clients',
+      '/client/advertise'
     ];
 
     const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
@@ -502,10 +503,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         style={{
           paddingTop: (isFullScreenRoute || isImmersiveDashboard)
             ? '0px'
-            : `calc(${topBarHeight}px + var(--safe-top))`,
+            : 'calc(var(--top-bar-height) + var(--safe-top))',
           paddingBottom: (isFullScreenRoute || isImmersiveDashboard) 
             ? '0px' 
-            : `calc(${bottomNavHeight}px + var(--safe-bottom) + 32px)`,
+            : 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 32px)',
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           

@@ -127,8 +127,8 @@ export const EventCard = memo(({
       <div className={cn(
         "absolute inset-0 pointer-events-none transition-opacity duration-700",
         isLight 
-          ? "bg-gradient-to-t from-white/95 via-white/20 to-white/40 opacity-90" 
-          : "bg-gradient-to-t from-black/90 via-black/10 to-black/40"
+          ? "bg-gradient-to-t from-white/80 via-white/10 to-white/20 opacity-90" 
+          : "bg-gradient-to-t from-black/80 via-black/5 to-black/20"
       )} />
 
       {/* Tap zones */}
@@ -273,7 +273,7 @@ export const EventCard = memo(({
           >
             <div className="relative h-[45dvh]">
               {event.image_url && (
-                <img src={event.image_url} className={cn("w-full h-full object-cover", isLight ? "opacity-30" : "opacity-60")} alt="" />
+                <img src={event.image_url} className={cn("w-full h-full object-cover", isLight ? "opacity-80" : "opacity-90")} alt="" />
               )}
               <div className={cn("absolute inset-0", isLight ? "bg-gradient-to-t from-white via-white/40 to-transparent" : "bg-gradient-to-t from-black via-black/40 to-transparent")} />
               <button 

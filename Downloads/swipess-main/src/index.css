@@ -172,10 +172,16 @@ html, body {
   overflow: hidden;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: none; /* 🚫 DISABLING WEBVIEW BOUNCE FOR NATIVE FEEL */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* Allow bounce ONLY in scrollable areas */
+main, .scrollable-content, .overflow-y-auto {
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 #root {

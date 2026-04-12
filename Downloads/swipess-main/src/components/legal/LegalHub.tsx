@@ -231,6 +231,7 @@ export function LegalHub() {
             </motion.div>
           )}
 
+          {view === 'editor' && (
             <motion.div 
               key="editor"
               initial={{ opacity: 0, y: 40 }}

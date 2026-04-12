@@ -19,6 +19,7 @@ import { OwnerInsightsDashboard } from '@/components/OwnerInsightsDashboard';
 import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
 import { useFilterActions } from '@/state/filterStore';
 import type { OwnerIntentCard } from '@/components/swipe/SwipeConstants';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -29,6 +30,7 @@ interface EnhancedOwnerDashboardProps {
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
   const [_selectedClientId, _setSelectedClientId] = useState<string | null>(null);
   const [_insightsOpen, _setInsightsOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
 
   const modalStore = useModalStore();
   const { user, loading: isAuthLoading } = useAuth();
@@ -156,15 +158,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     );
   }
 
-  const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
-
-  // Read activeCategory from store
-  const activeCategory = useFilterStore(s => s.activeCategory);
-  
   // Conditionally hide category fan when in insights mode
   const effectiveCategory = viewMode === 'insights' ? 'insights-active' : activeCategory;
-
-  const { setCategories, setClientType, setListingType } = useFilterActions();
 
   const handleCardSelect = useCallback((card: OwnerIntentCard) => {
     triggerHaptic('medium');

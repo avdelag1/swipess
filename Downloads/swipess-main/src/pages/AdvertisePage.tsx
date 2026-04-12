@@ -387,7 +387,7 @@ export default function AdvertisePage() {
   // ── LANDING PAGE ────────────────────────────────────────────────────────────
   if (view === "landing") {
     return (
-      <div className="min-h-[100dvh] overflow-y-auto" style={{ background: th.pageBg }}>
+      <div className="w-full relative pb-20" style={{ background: th.pageBg }}>
         {/* Subtle gradient blobs */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full blur-[120px]"
@@ -643,7 +643,7 @@ export default function AdvertisePage() {
 
   // ── FORM ────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-[100dvh] flex flex-col pb-10" style={{ background: th.pageBg }}>
+    <div className="w-full min-h-screen flex flex-col pb-20" style={{ background: th.pageBg }}>
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-20 pb-3">
         <div className="flex-1">
@@ -667,7 +667,7 @@ export default function AdvertisePage() {
       </div>
 
       {/* Step content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1">
         <AnimatePresence mode="wait" custom={dir}>
           <motion.div
             key={step}
@@ -681,8 +681,7 @@ export default function AdvertisePage() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-            className="px-5 pt-6 pb-4 overflow-y-auto"
-            style={{ maxHeight: "calc(100dvh - 96px)" }}
+            className="px-5 pt-6 pb-20"
           >
 
             {/* ── Step 1: Event Type ── */}

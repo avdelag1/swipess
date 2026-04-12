@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { RootProviders } from "./providers/RootProviders";
 import { useAuth } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useActiveMode } from "@/hooks/useActiveMode";
 import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
@@ -95,9 +96,8 @@ const PWAInstallPrompt = lazy(() => import("@/components/PWAInstallPrompt").then
 const WelcomeBonusModal = lazy(() => import("@/components/WelcomeBonusModal").then(m => ({ default: m.WelcomeBonusModal })));
 
 const DashboardRedirect = () => {
-  const { user } = useAuth();
-  const metadataRole = user?.user_metadata?.role;
-  return <Navigate to={metadataRole === 'owner' ? "/owner/dashboard" : "/client/dashboard"} replace />;
+  const { activeMode } = useActiveMode();
+  return <Navigate to={activeMode === 'owner' ? "/owner/dashboard" : "/client/dashboard"} replace />;
 };
 
 const App = ({ authPromise }: { authPromise?: Promise<any> }) => {

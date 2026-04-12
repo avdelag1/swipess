@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect, memo, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useModalStore } from '@/state/modalStore';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
@@ -857,16 +858,27 @@ const ClientSwipeContainerComponent = ({
             </div>
             {/* Searching badge — premium unified layout */}
             <div className="pb-1 flex justify-center">
-              <div className="bg-black/60 backdrop-blur-2xl border border-white/10 px-4 py-1.5 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex items-center gap-2.5 group">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-brand-accent-2/40 blur-md rounded-full animate-pulse" />
-                  <div className="relative w-1.5 h-1.5 rounded-full bg-brand-accent-2 shadow-[0_0_8px_#ec4899] z-10" />
+              <div className="bg-black/60 backdrop-blur-2xl border border-white/10 px-4 py-1.5 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex items-center gap-2.5 group relative overflow-hidden">
+                {/* LIQUID PULSE ENGINE */}
+                <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-brand-accent-2/50 to-transparent"
+                    animate={{ x: ['-100%', '100%'] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+                  />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,72,153,0.1)_0%,transparent_70%)] animate-pulse" />
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/95">
-                  Searching <span className="text-brand-accent-2">candidates</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
-                </span>
-                <div className="w-1 h-1 rounded-full bg-white/20" />
-                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{category}</span>
+                <div className="relative z-10 flex items-center gap-2.5">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-brand-accent-2/60 blur-[8px] rounded-full animate-pulse" />
+                    <div className="relative w-1.5 h-1.5 rounded-full bg-brand-accent-2 shadow-[0_0_10px_#ec4899] z-10" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/95">
+                    Searching <span className="text-brand-accent-2">candidates</span> in <span className="text-brand-accent-2">{radiusKm}km</span>
+                  </span>
+                  <div className="w-1 h-1 rounded-full bg-white/20" />
+                  <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{category}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -876,17 +888,17 @@ const ClientSwipeContainerComponent = ({
         <div className="flex-1 relative flex flex-col items-center justify-center px-1.5 pt-1 z-10 min-h-0">
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="sync" initial={false}>
-            {deckQueue.length > 0 && currentIndex < deckQueue.length ? (
+            {topCard ? (
               <motion.div 
                 key={`deck-${category}`}
                 initial={{ opacity: 0, scale: 1.05 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-full h-[calc(100%-10px)] max-w-2xl"
+                className="relative w-full h-[calc(100%-10px)] max-w-3xl mx-auto"
               >
                 {/* Back card (Peek) */}
-                {currentIndex + 1 < deckQueue.length && (
+                {_nextCard && (
                   <motion.div 
                     className="absolute inset-0 z-10"
                     style={{
@@ -896,8 +908,8 @@ const ClientSwipeContainerComponent = ({
                     }}
                   >
                     <SimpleOwnerSwipeCard
-                      key={deckQueue[currentIndex + 1].user_id}
-                      profile={deckQueue[currentIndex + 1]}
+                      key={_nextCard.user_id}
+                      profile={_nextCard}
                       onSwipe={() => { }}
                       isTop={false}
                     />
@@ -906,13 +918,13 @@ const ClientSwipeContainerComponent = ({
 
                 {/* Front card */}
                 <SimpleOwnerSwipeCard
-                  key={deckQueue[currentIndex].user_id}
+                  key={topCard.user_id}
                   ref={cardRef}
-                  profile={deckQueue[currentIndex]}
+                  profile={topCard}
                   onSwipe={handleSwipe}
-                  onTap={() => onClientTap(deckQueue[currentIndex].user_id)}
-                  onInsights={() => handleInsights(deckQueue[currentIndex].user_id)}
-                  onMessage={() => handleConnect(deckQueue[currentIndex].user_id)}
+                  onTap={() => onClientTap(topCard.user_id)}
+                  onInsights={() => handleInsights(topCard.user_id)}
+                  onMessage={() => handleConnect(topCard.user_id)}
                   onShare={handleShare}
                   onUndo={undoLastSwipe}
                   canUndo={canUndo}
@@ -959,13 +971,14 @@ const ClientSwipeContainerComponent = ({
         </div>
 
         {/* Action Buttons */}
-        {deckQueue.length > 0 && currentIndex < deckQueue.length && (
+        {topCard && (
           <div className="pb-[calc(12px+env(safe-area-inset-bottom))] pt-1">
             <SwipeActionButtonBar
               onLike={() => cardRef.current?.triggerSwipe('right')}
               onDislike={() => cardRef.current?.triggerSwipe('left')}
               onUndo={undoLastSwipe}
               canUndo={canUndo}
+              onSpeedMeet={() => useModalStore.getState().setModal('showAIChat', true)}
             />
           </div>
         )}
