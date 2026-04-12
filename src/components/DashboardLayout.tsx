@@ -21,7 +21,6 @@ import { QuickFilterCategory } from '@/types/filters'
 // SPEED OF LIGHT HOOKS
 import { useWelcomeState } from "@/hooks/useWelcomeState"
 import { LoadingBar } from './ui/LoadingBar';
-import { GlobalDialogs } from './GlobalDialogs'
 import { useModalStore } from '@/state/modalStore'
 import { useFocusMode } from '@/hooks/useFocusMode'
 import { useScrollDirection } from '@/hooks/useScrollDirection'
@@ -508,9 +507,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           {enhancedChildren}
         </div>
       </main>
-
-      {/* ZENITH GLOBAL DIALOGS — Decoupled lifecycle */}
-      <GlobalDialogs userRole={userRole} />
     </div>
   )
 }

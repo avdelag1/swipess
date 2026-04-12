@@ -24,6 +24,7 @@ const NotificationSystem = lazy(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
 );
 import { LiquidPullToRefresh } from './LiquidPullToRefresh';
+import { GlobalDialogs } from './GlobalDialogs';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -165,7 +166,11 @@ export function AppLayout({ children }: AppLayoutProps) {
               </Suspense>
             </div>
           </div>
-        </>
+      )}
+
+      {/* ZENITH GLOBAL DIALOGS — Ensuring coverage across all routes */}
+      {!isAuthRoute && (!isPublicPreview || !!user) && (
+        <GlobalDialogs userRole={userRole} />
       )}
     </div>
   );
