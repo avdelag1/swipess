@@ -91,11 +91,11 @@ function TopBarComponent({
     <>
       <header
         className={cn(
-          'app-header opacity-100 translate-y-0 transform-gpu will-change-transform bg-transparent',
+          'app-header pointer-events-none opacity-100 translate-y-0 transform-gpu will-change-transform bg-transparent',
           className
         )}
       >
-        <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 px-3">
+        <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 px-3 pointer-events-none">
           {/* ── Tap center area to go home ── */}
           <button
             type="button"
@@ -103,13 +103,12 @@ function TopBarComponent({
               haptics.tap();
               navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
             }}
-            className="absolute left-1/2 top-1/2 z-10 h-full w-24 -translate-x-1/2 -translate-y-1/2 touch-manipulation bg-transparent"
-            style={{ pointerEvents: 'auto' }}
+            className="absolute left-1/2 top-1/2 z-10 h-full w-24 -translate-x-1/2 -translate-y-1/2 touch-manipulation bg-transparent pointer-events-auto"
             aria-label="Go to dashboard"
           />
 
           {/* ── Pinned left: avatar + mode switcher + token badge ── */}
-          <div className="flex-shrink-0 flex items-center gap-1.5 relative z-20">
+          <div className="flex-shrink-0 flex items-center gap-1.5 relative z-20 pointer-events-none">
             {showBack && (
               <motion.button
                 whileTap={{ scale: 0.9 }}
@@ -156,7 +155,7 @@ function TopBarComponent({
                 </motion.button>
 
                 {/* Mode Switcher — pinned next to avatar */}
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 pointer-events-auto">
                   <ModeSwitcher variant="icon" size="sm" />
                 </div>
 
@@ -170,7 +169,7 @@ function TopBarComponent({
                     useModalStore.getState().setModal('showTokensModal', true);
                   }}
                   className={cn(
-                    "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full touch-manipulation transition-all",
+                    "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full pointer-events-auto touch-manipulation transition-all",
                     "!bg-transparent !border-none !shadow-none hover:scale-105 active:scale-95"
                   )}
                   aria-label="View tokens"
@@ -182,10 +181,10 @@ function TopBarComponent({
           </div>
 
           {/* ── Horizontally scrollable row: remaining action buttons ── */}
-          <div className="flex-1 min-w-0 relative">
+          <div className="flex-1 min-w-0 relative pointer-events-none">
             <div
               ref={headerBounceRef}
-              className="overflow-x-auto"
+              className="overflow-x-auto pointer-events-auto"
               style={{
                 scrollbarWidth: 'none',
                 WebkitOverflowScrolling: 'touch',

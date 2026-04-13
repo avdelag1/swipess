@@ -90,50 +90,19 @@ export function AppLayout({ children }: AppLayoutProps) {
            showAIChat;
   }, [isCameraRoute, isRadioRoute, location.pathname, showAIChat]);
 
-  const handleMessageActivationsClick = () => navigate('/subscription/packages');
-  const handleListingsClick = () => {
-    if (userRole === 'owner') navigate('/owner/properties');
-    else navigate('/client/liked-properties');
-  };
-
-  const handleFilterClick = () => {
-    if (userRole === 'owner') navigate('/owner/filters');
-    else navigate('/client/filters');
-  };
-
-
-  return (
-    <div className={cn("flex flex-col h-full w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
-      <SkipToMainContent />
-      
-      <Suspense fallback={null}>
-        <NotificationSystem />
-      </Suspense>
- 
-      <div className="flex flex-col flex-1 h-full w-full min-h-0 overflow-hidden relative">
-        {/* 🚀 PERMANENT HUD: Universal and stable header/footer architecture */}
-        {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
-          <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[9999]">
-            <TopBar
-              userRole={userRole}
-              onMessageActivationsClick={handleMessageActivationsClick}
-              transparent={isImmersive}
-              showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
-            />
-          </SentientHud>
-        )}
- 
-        {/* Primary content area: fills available space between bars */}
+  const usesLayoutManagedScroll = location.pathname === '/client/liked-properties' || location.pathname === '/owner/liked-clients';
+...
         <main
           id="main-content"
           className={cn(
-            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y overflow-y-auto overflow-x-hidden scroll-smooth"
+            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y overflow-x-hidden",
+            usesLayoutManagedScroll ? "overflow-visible" : "overflow-y-auto scroll-smooth"
           ) }
           style={{
-            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive)
+            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive && !usesLayoutManagedScroll)
               ? 'calc(var(--top-bar-height) + var(--safe-top))'
               : undefined,
-            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive)
+            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive && !usesLayoutManagedScroll)
               ? 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 32px)'
               : undefined,
           }}
