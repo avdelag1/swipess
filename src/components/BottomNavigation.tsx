@@ -30,6 +30,7 @@ import { useScrollBounce } from '@/hooks/useScrollBounce';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
+import { uiSounds } from '@/utils/uiSounds';
 import { useTranslation } from 'react-i18next';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useFilterStore } from '@/state/filterStore';
@@ -193,8 +194,9 @@ export const BottomNavigation = memo(({
   // Primary navigation handler — fires after pointer events, checks drag state
   const handleNavClick = useCallback(
     (item: NavItem, event?: React.MouseEvent | React.PointerEvent) => {
-      // Immediate haptic on the final click confirmation
+      // Immediate haptic + audio on the final click confirmation
       haptics.tap();
+      uiSounds.playTap();
 
       if (isDraggingRef.current) {
         isDraggingRef.current = false;

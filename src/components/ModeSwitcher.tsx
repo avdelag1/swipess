@@ -4,6 +4,7 @@ import { User, UserCheck, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useActiveMode, ActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
+import { uiSounds } from '@/utils/uiSounds';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
 import { useFilterStore } from '@/state/filterStore';
@@ -26,6 +27,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
     
     // Immediate physical feedback
     triggerHaptic('medium');
+    uiSounds.playSwitch();
     
     // Reset filters for the side you are leaving so they never bleed across
     if (newMode === 'owner') resetClientFilters();
