@@ -124,6 +124,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className={cn("flex flex-col h-full w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />
       
       <Suspense fallback={null}>
