@@ -410,7 +410,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
             "overflow-hidden gap-0",
             className
           )}
-          onPointerDown={(e) => e.stopPropagation()}
+          onInteractOutside={() => setIsOpen(false)}
         >
           <DialogTitle className="sr-only">Notifications</DialogTitle>
 

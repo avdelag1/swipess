@@ -306,6 +306,16 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                     onClick={handleImageClick}
                   />
 
+                  {/* Back Button */}
+                  <button
+                    onClick={() => onOpenChange(false)}
+                    title="Back"
+                    aria-label="Back"
+                    className="absolute top-3 left-3 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm z-10"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+
                   {/* Close Button */}
                   <button
                     onClick={() => onOpenChange(false)}
