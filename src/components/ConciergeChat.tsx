@@ -867,10 +867,10 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
           {/* Header */}
           <div className="border-b border-border/50 bg-background/95 backdrop-blur-xl relative z-10">
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex items-center gap-3">
-                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                  <Menu className="w-4 h-4" />
+            <div className="flex items-center justify-between px-3 py-1.5">
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" className="w-7 h-7 rounded-full" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                  <Menu className="w-3.5 h-3.5" />
                 </Button>
                 {/* Character avatar image */}
                 <button
@@ -879,7 +879,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   title="Choose character"
                 >
                   <motion.div
-                    className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/50"
+                    className="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/50"
                     animate={isLoading ? { scale: [1, 1.08, 1] } : { scale: 1 }}
                     transition={isLoading ? { duration: 1.8, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.2 }}
                   >
@@ -890,21 +890,21 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   <p className={cn("text-sm font-bold", activeCharacter !== 'default' ? currentChar.color : "text-foreground")}>
                     {activeCharacter !== 'default' ? currentChar.label : "Swipess AI"}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {isLoading ? 'Thinking…' : currentChar.subtitle}
+                  <p className="text-[10px] text-muted-foreground">
+                    {isLoading ? 'Thinking...' : currentChar.subtitle}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => { createConversation(); }}>
-                  <Plus className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-0.5">
+                <Button variant="ghost" size="icon" className="w-7 h-7 rounded-full" onClick={() => { createConversation(); }}>
+                  <Plus className="w-3.5 h-3.5 text-muted-foreground" />
                 </Button>
                 {activeConversationId && (
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "w-8 h-8 rounded-full transition-all",
+                      "w-7 h-7 rounded-full transition-all",
                       isDeleting ? "bg-destructive text-destructive-foreground hover:bg-destructive/80 scale-110 shadow-lg" : "text-muted-foreground hover:text-destructive"
                     )} 
                     onClick={() => {
@@ -921,11 +921,11 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     }}
                     title={isDeleting ? "Click again to confirm delete" : "Delete conversation"}
                   >
-                    {isDeleting ? <Check className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
+                    {isDeleting ? <Check className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
                   </Button>
                 )}
-                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-muted-foreground" onClick={onClose}>
-                  <X className="w-4 h-4" />
+                <Button variant="ghost" size="icon" className="w-7 h-7 rounded-full text-muted-foreground" onClick={onClose}>
+                  <X className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
