@@ -82,7 +82,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     }
   }, [card.id, onCycle, x]);
 
-  const stackY = isCollapsed ? 0 : index * 18;
+  const stackY = isCollapsed ? 0 : index * 12;
   const stackScale = 1 - (index * 0.04);
   const stackBrightness = 1 - (index * 0.05);
 
