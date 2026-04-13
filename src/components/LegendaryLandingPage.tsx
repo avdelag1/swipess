@@ -194,13 +194,17 @@ const SocialAuthButton = ({
     type="button"
     onClick={onClick}
     aria-label={`${label} sign in coming soon`}
-    className="group relative flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-border bg-card/90 px-4 text-sm font-semibold text-foreground shadow-lg shadow-black/20 transition-all duration-200 hover:border-primary/40 hover:bg-accent/50 active:scale-[0.98]"
+    className="group flex h-14 w-full items-center justify-between gap-3 overflow-hidden rounded-2xl border border-border bg-card/90 px-4 text-sm font-semibold text-foreground shadow-lg shadow-black/20 transition-all duration-200 hover:border-primary/40 hover:bg-accent/50 active:scale-[0.98]"
   >
-    <span className="absolute right-2 top-2 rounded-full border border-border bg-background/90 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+    <span className="flex min-w-0 items-center gap-3">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background/50 text-foreground/90 transition-colors duration-200 group-hover:bg-background/70">
+        {icon}
+      </span>
+      <span className="truncate text-base font-bold tracking-tight">{label}</span>
+    </span>
+    <span className="inline-flex shrink-0 items-center rounded-full border border-border bg-background/70 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">
       Soon
     </span>
-    <span className="flex h-6 w-6 items-center justify-center">{icon}</span>
-    <span>{label}</span>
   </button>
 );
 
@@ -211,15 +215,17 @@ const PasswordToggleButton = ({
   showPassword: boolean;
   onClick: () => void;
 }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    title={showPassword ? 'Hide password' : 'Show password'}
-    aria-label={showPassword ? 'Hide password' : 'Show password'}
-    className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/80 text-muted-foreground transition-all duration-150 hover:text-foreground active:translate-y-[calc(-50%+1px)] active:scale-95"
-  >
-    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-  </button>
+  <div className="absolute inset-y-0 right-0 flex items-center pr-2">
+    <button
+      type="button"
+      onClick={onClick}
+      title={showPassword ? 'Hide password' : 'Show password'}
+      aria-label={showPassword ? 'Hide password' : 'Show password'}
+      className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background/80 text-muted-foreground transition-all duration-150 hover:text-foreground active:scale-95"
+    >
+      {showPassword ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
+    </button>
+  </div>
 );
 
 /* ─── Auth view ──────────────────────────────────────────── */
@@ -378,7 +384,7 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
-                    <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-10 pr-10 h-11" />
+                    <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-10 pr-12 h-11" />
                     <PasswordToggleButton showPassword={showPassword} onClick={() => setShowPassword(!showPassword)} />
                   </GlowingField>
                 </motion.div>
@@ -388,7 +394,7 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
-                    <Input type={showPassword ? 'text' : 'password'} name="confirmPassword" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" className="pl-10 pr-10 h-11" />
+                    <Input type={showPassword ? 'text' : 'password'} name="confirmPassword" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" className="pl-10 pr-12 h-11" />
                     <PasswordToggleButton showPassword={showPassword} onClick={() => setShowPassword(!showPassword)} />
                   </GlowingField>
                 </motion.div>

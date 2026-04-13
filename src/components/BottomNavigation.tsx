@@ -26,7 +26,6 @@ import {
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
-import { useScrollBounce } from '@/hooks/useScrollBounce';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
@@ -136,23 +135,8 @@ export const BottomNavigation = memo(({
   ];
 
   const navItems = userRole === 'admin' ? adminNavItems : userRole === 'client' ? clientNavItems : ownerNavItems;
-  const _isScrollable = true; // Always scrollable for both roles
-
-  // ── LIQUID MOMENTUM: Bounce physics on horizontal scroll ──────────
-  const bounceRef = useScrollBounce({
-    maxTilt: 5,
-    maxBounce: 2.5,
-    damping: 0.18,
-    edgeScale: 0.97,
-    childSelector: '> button',
-  });
-
-  // Merge bounceRef with our local scrollRef for auto-scroll-to-active
   const scrollRef = useRef<HTMLDivElement>(null);
-  const mergedScrollRef = useCallback((node: HTMLDivElement | null) => {
-    (scrollRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
-    (bounceRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
-  }, [bounceRef]);
+  const scrollGuardTimeoutRef = useRef<number | null>(null);
 
   // Auto-scroll active item into view
   useEffect(() => {
@@ -160,7 +144,7 @@ export const BottomNavigation = memo(({
     const activeBtn = scrollRef.current.querySelector('[aria-current="page"]') as HTMLElement;
     if (activeBtn) {
       // INSTANT VIEW: No smooth scrolling for internal state sync, keep it technical and fast
-      activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
+      activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
     }
   }, [location.pathname]);
 
@@ -184,6 +168,13 @@ export const BottomNavigation = memo(({
     if (dragResetTimeoutRef.current !== null) {
       window.clearTimeout(dragResetTimeoutRef.current);
       dragResetTimeoutRef.current = null;
+    }
+  }, []);
+
+  const clearScrollGuardTimeout = useCallback(() => {
+    if (scrollGuardTimeoutRef.current !== null) {
+      window.clearTimeout(scrollGuardTimeoutRef.current);
+      scrollGuardTimeoutRef.current = null;
     }
   }, []);
 
@@ -211,6 +202,7 @@ export const BottomNavigation = memo(({
 
   const handleScrollPointerDownCapture = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (e.pointerType === 'touch') return;
 
     clearDragResetTimeout();
     horizontalDragRef.current = {
@@ -226,6 +218,7 @@ export const BottomNavigation = memo(({
     const container = scrollRef.current;
     const state = horizontalDragRef.current;
     if (!container || state.pointerId !== e.pointerId) return;
+    if (e.pointerType === 'touch') return;
 
     const dx = e.clientX - state.startX;
     const dy = e.clientY - state.startY;
@@ -242,11 +235,13 @@ export const BottomNavigation = memo(({
 
   const handleScrollPointerUpCapture = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (horizontalDragRef.current.pointerId !== e.pointerId) return;
+    if (e.pointerType === 'touch') return;
     resetHorizontalDrag(horizontalDragRef.current.isDragging);
   }, [resetHorizontalDrag]);
 
   const handleScrollPointerCancelCapture = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (horizontalDragRef.current.pointerId !== e.pointerId) return;
+    if (e.pointerType === 'touch') return;
     resetHorizontalDrag(horizontalDragRef.current.isDragging);
   }, [resetHorizontalDrag]);
 
@@ -270,6 +265,15 @@ export const BottomNavigation = memo(({
   }, []);
 
   const [ripple, setRipple] = useState<{ x: number, id: string } | null>(null);
+
+  const handleNavScroll = useCallback(() => {
+    isDraggingRef.current = true;
+    clearScrollGuardTimeout();
+    scrollGuardTimeoutRef.current = window.setTimeout(() => {
+      isDraggingRef.current = false;
+      scrollGuardTimeoutRef.current = null;
+    }, 140);
+  }, [clearScrollGuardTimeout]);
 
   const handlePointerUp = useCallback(
     (_e: React.PointerEvent) => {
@@ -395,8 +399,9 @@ export const BottomNavigation = memo(({
 
         {/* Nav items row — SCROLLABLE ZENITH ARCHITECTURE */}
         <div
-          ref={mergedScrollRef}
+          ref={scrollRef}
           data-no-swipe-nav
+          onScroll={handleNavScroll}
           onPointerDownCapture={handleScrollPointerDownCapture}
           onPointerMoveCapture={handleScrollPointerMoveCapture}
           onPointerUpCapture={handleScrollPointerUpCapture}
@@ -410,11 +415,14 @@ export const BottomNavigation = memo(({
             transform: 'translateZ(0)',
             overflowX: 'auto',
             scrollSnapType: 'x proximity',
+            scrollBehavior: 'smooth',
+            scrollPaddingLeft: '16px',
+            scrollPaddingRight: '16px',
             scrollbarWidth: 'none' as const,
             WebkitOverflowScrolling: 'touch',
             contentVisibility: 'auto',
             containIntrinsicSize: '60px',
-            touchAction: 'pan-x',
+            touchAction: 'pan-x pinch-zoom',
             overscrollBehaviorX: 'contain',
           }}
         >
@@ -458,7 +466,7 @@ export const BottomNavigation = memo(({
                   cursor: 'pointer',
                   flexShrink: 0,
                   willChange: 'transform',
-                   touchAction: 'pan-x',
+                    touchAction: 'pan-x pinch-zoom',
                    userSelect: 'none',
                    WebkitUserSelect: 'none',
                 }}
