@@ -33,7 +33,7 @@ function SwipessLogoComponent({
       className
     )}>
       <img
-        src={isIcon ? "/icons/swipess-logo-transparent.png" : "/icons/swipess-wordmark-512.png"}
+        src={isIcon ? "/icons/swipess-logo-transparent.png" : "/icons/swipess-wordmark-transparent-v2.png"}
         alt="Swipess"
         draggable={false}
         className={cn(
@@ -43,7 +43,7 @@ function SwipessLogoComponent({
         style={{
           imageRendering: 'auto',
           maxWidth: !isIcon ? '80vw' : undefined,
-          filter: isWhite ? 'brightness(0) invert(1)' : undefined,
+          filter: isWhite ? undefined : undefined,
         }}
       />
     </div>

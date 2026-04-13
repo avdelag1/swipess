@@ -103,7 +103,7 @@ export function AppOutagePage({ onBypass }: AppOutagePageProps) {
       >
         <div className="relative inline-flex items-center justify-center overflow-hidden">
           <img
-            src="/icons/swipess-wordmark-512.png"
+            src="/icons/swipess-wordmark-transparent-v2.png"
             alt="Swipess"
             draggable={false}
             className="h-40 sm:h-48 md:h-56 w-auto object-contain select-none"
