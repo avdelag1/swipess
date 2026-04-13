@@ -329,9 +329,9 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                 </div>
 
                 {/* QR Code */}
-                <div className="flex flex-col items-center justify-center pt-2 mb-6">
-                  <div className="p-4 bg-white rounded-2xl shadow-sm border border-black/5 ring-4 ring-black/5 dark:ring-white/5 relative">
-                    <QRCode value={validationUrl} size={140} level="H" className="rounded-lg" />
+                <div className="flex flex-col items-center justify-center pt-1 mb-4">
+                  <div className="p-3 bg-white rounded-2xl shadow-sm border border-black/5 ring-4 ring-black/5 dark:ring-white/5 relative">
+                    <QRCode value={validationUrl} size={120} level="H" className="rounded-lg" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-1 rounded-full shadow-sm">
                       <ScanLine className="w-6 h-6 text-primary" />
                     </div>
