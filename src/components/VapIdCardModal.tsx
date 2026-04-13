@@ -437,6 +437,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
