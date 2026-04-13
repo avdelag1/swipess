@@ -904,7 +904,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "w-8 h-8 rounded-full transition-all",
+                      "w-7 h-7 rounded-full transition-all",
                       isDeleting ? "bg-destructive text-destructive-foreground hover:bg-destructive/80 scale-110 shadow-lg" : "text-muted-foreground hover:text-destructive"
                     )} 
                     onClick={() => {
@@ -921,11 +921,11 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     }}
                     title={isDeleting ? "Click again to confirm delete" : "Delete conversation"}
                   >
-                    {isDeleting ? <Check className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
+                    {isDeleting ? <Check className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
                   </Button>
                 )}
-                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full text-muted-foreground" onClick={onClose}>
-                  <X className="w-4 h-4" />
+                <Button variant="ghost" size="icon" className="w-7 h-7 rounded-full text-muted-foreground" onClick={onClose}>
+                  <X className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
