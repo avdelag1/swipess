@@ -154,7 +154,6 @@ function PromoSwipeCard({
 
   return (
     <motion.div
-      style={{ x, rotate, opacity, zIndex: total - index, scale: stackScale, y: stackOffset }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.9}
