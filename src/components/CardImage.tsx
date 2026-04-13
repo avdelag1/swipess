@@ -217,6 +217,7 @@ const CardImage = memo(({
           borderRadius: br,
           zIndex: 3,
           transformOrigin: 'center',
+          filter: loaded ? 'saturate(1.08) contrast(1.03)' : 'none',
           animation: loaded ? 'photo-swim 12s ease-in-out infinite' : 'none',
           willChange: loaded ? 'transform' : 'auto',
         }}

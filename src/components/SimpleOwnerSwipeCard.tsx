@@ -595,7 +595,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           border: '1px solid rgba(255, 255, 255, 0.05)',
         }}
       >
-        <div className="absolute inset-0 opacity-40">
+        <div className="absolute inset-0 opacity-60">
           <CardImage 
             src={currentImage} 
             alt={profile.name || 'Client'} 
@@ -738,7 +738,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none"
           style={{
             height: '60%',
-            background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)',
           }}
         />
 
