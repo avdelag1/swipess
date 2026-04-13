@@ -8,6 +8,12 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  // 🚀 Drop console & debugger in production for clean Lighthouse scores
+  ...(mode === 'production' ? {
+    esbuild: {
+      drop: ['console', 'debugger'],
+    },
+  } : {}),
   plugins: [
     react(),
     {
@@ -34,14 +40,12 @@ export default defineConfig(({ mode }) => ({
       name: 'critical-preload-plugin',
       transformIndexHtml(html, ctx) {
         if (!ctx.bundle) return html;
-        // PERFORMANCE FIX: Only modulepreload the true entry point.
         const preloads: string[] = [];
         for (const [_key, chunk] of Object.entries(ctx.bundle)) {
           if ((chunk as any).type === 'chunk' && (chunk as any).isEntry) {
             preloads.push(`<link rel="modulepreload" href="/${(chunk as any).fileName}" fetchpriority="high" crossorigin>`);
           }
         }
-        // Strictly limit to 1 entry preload
         return html.replace('</head>', `${preloads.slice(0, 1).join('')}</head>`);
       }
     }
@@ -61,15 +65,9 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: 'esnext',
-    // PERF: Use terser to drop console.error/warn in production
-    // This fixes Lighthouse Best Practices "browser errors logged to console"
     minify: 'esbuild',
-
     cssMinify: true,
-    // PERF: Enable CSS code-splitting — only load CSS needed for the current route
-    // Eliminates ~39 KiB of unused CSS on landing page
     cssCodeSplit: true,
-    // Enable source maps for production (fixes Best Practices audit)
     sourcemap: true,
     reportCompressedSize: false,
     chunkSizeWarningLimit: 3000,
@@ -80,26 +78,28 @@ export default defineConfig(({ mode }) => ({
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            // HIGH-STABILITY CHUNKS: Isolate huge libraries to maximize browser cache persistence across app updates
+            // ISOLATED HEAVY LIBRARIES — maximize cache persistence
             if (id.includes('framer-motion')) return 'vendor-motion';
             if (id.includes('@radix-ui')) return 'vendor-radix';
             if (id.includes('@supabase')) return 'vendor-supabase';
             if (id.includes('lucide-react') || id.includes('react-icons')) return 'vendor-icons';
-            
-            // FORMS: react-hook-form + zod only needed on form pages
             if (id.includes('react-hook-form') || id.includes('zod') || id.includes('@hookform')) return 'vendor-forms';
-            
-            // I18N: defer from initial bundle
             if (id.includes('i18next') || id.includes('react-i18next')) return 'vendor-i18n';
-            
-            // SPECIALIZED COMPONENT CHUNKS: Absolute heaviest libraries not needed for initial boot
             if (id.includes('recharts') || id.includes('victory')) return 'vendor-viz';
             if (id.includes('lottie')) return 'vendor-lottie';
             if (id.includes('embla-carousel')) return 'vendor-carousel';
             if (id.includes('browser-image-compression')) return 'vendor-img';
             
-            // CORE VENDOR: React, TanStack, etc.
-            return 'vendor-core';
+            // SPLIT CORE: Separate React from utilities for granular caching
+            if (id.includes('react-dom') || id.includes('react/')) return 'vendor-react';
+            if (id.includes('react-router')) return 'vendor-router';
+            if (id.includes('@tanstack')) return 'vendor-query';
+            if (id.includes('zustand')) return 'vendor-state';
+            if (id.includes('date-fns')) return 'vendor-dates';
+            if (id.includes('clsx') || id.includes('tailwind-merge') || id.includes('class-variance-authority')) return 'vendor-css-utils';
+            
+            // Everything else
+            return 'vendor-misc';
           }
         }
       }

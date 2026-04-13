@@ -1,4 +1,6 @@
 import { Suspense, lazy, useMemo, useEffect, useRef } from 'react';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator';
 
 import { useLocation } from 'react-router-dom';
 import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
@@ -36,6 +38,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { navigate } = useAppNavigate();
   const modalStore = useModalStore();
   const { activeMode } = useActiveMode();
+  const { isRefreshing, pullDistance, triggered } = usePullToRefresh();
 
   const userRole = user?.user_metadata?.role === 'admin' ? 'admin' : activeMode;
 
@@ -121,6 +124,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className={cn("flex flex-col h-full w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />
       
       <Suspense fallback={null}>
