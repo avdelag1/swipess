@@ -91,6 +91,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const name = profile?.full_name || user?.email?.split('@')[0] || 'Resident';
   const nationality = clientProfile?.nationality || profile?.nationality || '';
   const city = clientProfile?.city || profile?.city || 'Tulum';
+  const country = profile?.country || '';
   const bio = clientProfile?.bio || '';
   const occupation = (clientProfile as any)?.occupation || '';
   const avatarUrl = profile?.avatar_url || '';
