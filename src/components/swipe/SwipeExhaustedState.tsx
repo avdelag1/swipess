@@ -151,7 +151,7 @@ export const SwipeExhaustedState = ({
                     )}
                     style={isActive ? { boxShadow: `0 0 20px ${info.color}20` } : undefined}
                   >
-                    <Icon className="h-3.5 w-3.5" strokeWidth={2.35} style={isActive ? { color: info.color } : undefined} />
+                    <Icon className="h-3.5 w-3.5" strokeWidth={1.5} style={isActive ? { color: info.color } : undefined} />
                     <span>{info.label}</span>
                   </button>
                 );
@@ -167,7 +167,7 @@ export const SwipeExhaustedState = ({
                 color={activeCatInfo?.color || '#ec4899'}
                 isActive={isScanBurstActive}
                 autoStopMs={6000}
-                icon={<ActiveIcon className="h-6 w-6 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" strokeWidth={2.35} />}
+                icon={<ActiveIcon className="h-6 w-6 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" strokeWidth={1.5} />}
               />
               
               <motion.div
