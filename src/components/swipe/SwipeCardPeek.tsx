@@ -32,8 +32,6 @@ export const SwipeCardPeek = memo(({ listing }: SwipeCardPeekProps) => {
         />
       )}
       
-      {/* Subtle overlay to matches the main card's theme */}
-      <div className="absolute inset-0 bg-black/20 z-[2]" />
     </div>
   );
 });

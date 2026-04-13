@@ -65,7 +65,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
 
   const stackY = isCollapsed ? 0 : index * 18;
   const stackScale = 1 - (index * 0.04);
-  const stackBrightness = 1 - (index * 0.08);
+  const stackBrightness = 1 - (index * 0.05);
 
   // Depth exit: scale shrinks and opacity fades as card moves away
   const exitScale = useTransform(x, [-250, -100, 0, 100, 250], [0.5, 0.85, 1, 0.85, 0.5]);
@@ -137,7 +137,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         )}
 
         {/* Cinematic gradient overlay & Liquid Glow */}
-        <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/70 via-black/15 to-transparent pointer-events-none" />
         
         {isTop && (
           <div 
