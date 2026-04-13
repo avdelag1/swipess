@@ -56,6 +56,7 @@ import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
+import { DistanceSlider } from './swipe/DistanceSlider';
 
 
 // Navigation guard to prevent double-taps
