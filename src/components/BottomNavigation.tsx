@@ -547,7 +547,7 @@ export const BottomNavigation = memo(({
                     </span>
                   </div>
                 )}
-              </motion.button>
+              </button>
             );
           })}
         </div>
