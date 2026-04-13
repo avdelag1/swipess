@@ -1026,8 +1026,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 onKeyDown={handleKeyDown}
                 placeholder="Ask Swipes..."
                 rows={1}
-                className="flex-1 resize-none bg-muted/50 border border-border/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30"
-                style={{ minHeight: '40px', maxHeight: '50vh' }}
+                className="flex-1 resize-none bg-muted/50 border border-border/40 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                style={{ minHeight: '36px', maxHeight: '50vh' }}
               />
               {/* Auto-send toggle — "Open Talk" mode */}
               {speechSupported && (
