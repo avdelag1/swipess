@@ -191,14 +191,14 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed inset-0 z-[10002] flex items-center justify-center p-3 pointer-events-none"
           >
-            <div className={cn(
-              "relative w-full max-w-sm max-h-[80vh] rounded-[32px] overflow-y-auto overscroll-y-contain pointer-events-auto shadow-2xl",
+              <div className={cn(
+              "relative w-full max-w-[340px] max-h-[75vh] rounded-[28px] overflow-y-auto overscroll-y-contain pointer-events-auto shadow-2xl",
               isLight ? "bg-white border border-black/5" : "bg-zinc-900 border border-white/10"
             )}>
 
               {/* Header */}
               <div className={cn(
-                "w-full px-6 py-4 flex items-center justify-between sticky top-0 z-10",
+                "w-full px-4 py-3 flex items-center justify-between sticky top-0 z-10",
                 isLight ? "bg-white/90 backdrop-blur-lg border-b border-black/5" : "bg-zinc-900/90 backdrop-blur-lg border-b border-white/5"
               )}>
                 <div className="flex items-center gap-2">
@@ -216,15 +216,15 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
               </div>
 
               {/* Card Body */}
-              <div className="p-5">
+              <div className="p-4">
                 {/* User Info */}
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="relative w-20 h-20 rounded-2xl overflow-hidden shadow-lg shrink-0">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="relative w-16 h-16 rounded-2xl overflow-hidden shadow-lg shrink-0">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
                     ) : (
                       <div className={cn(
-                        "w-full h-full flex items-center justify-center text-2xl font-black",
+                        "w-full h-full flex items-center justify-center text-xl font-black",
                         isLight ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
                       )}>
                         {name.charAt(0).toUpperCase()}
@@ -233,36 +233,36 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                     <div className="absolute inset-0 ring-1 ring-inset ring-black/10 dark:ring-white/10 rounded-2xl" />
                   </div>
 
-                  <div className="flex-1 pt-1">
-                    <h2 className={cn("text-xl font-bold tracking-tight mb-1", isLight ? "text-zinc-900" : "text-white")}>
+                  <div className="flex-1 pt-0.5">
+                    <h2 className={cn("text-lg font-bold tracking-tight mb-0.5", isLight ? "text-zinc-900" : "text-white")}>
                       {name}
                     </h2>
                     {nationality && (
-                      <p className={cn("text-sm", isLight ? "text-zinc-500" : "text-zinc-400")}>
+                      <p className={cn("text-xs", isLight ? "text-zinc-500" : "text-zinc-400")}>
                         {nationality}
                       </p>
                     )}
                     <div className={cn(
-                      "inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full text-xs font-medium",
+                      "inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium",
                       isLight ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
                     )}>
-                      <MapPin className="w-3.5 h-3.5" />
+                      <MapPin className="w-3 h-3" />
                       {city}
                     </div>
                   </div>
                 </div>
 
                 {/* Verification Score */}
-                <div className={cn("p-4 rounded-2xl mb-6", isLight ? "bg-zinc-50" : "bg-white/5")}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className={cn("text-xs font-bold uppercase tracking-widest", isLight ? "text-zinc-500" : "text-zinc-400")}>
+                <div className={cn("p-3 rounded-xl mb-4", isLight ? "bg-zinc-50" : "bg-white/5")}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className={cn("text-[10px] font-bold uppercase tracking-widest", isLight ? "text-zinc-500" : "text-zinc-400")}>
                       Profile Verification
                     </span>
-                    <span className={cn("text-sm font-black", verificationScore >= 75 ? "text-emerald-500" : verificationScore >= 40 ? "text-amber-500" : "text-muted-foreground")}>
+                    <span className={cn("text-xs font-black", verificationScore >= 75 ? "text-emerald-500" : verificationScore >= 40 ? "text-amber-500" : "text-muted-foreground")}>
                       {verificationScore}%
                     </span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                  <div className="w-full h-1.5 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
                     <div
                       className={cn("h-full rounded-full transition-all duration-500", verificationScore >= 75 ? "bg-emerald-500" : verificationScore >= 40 ? "bg-amber-500" : "bg-muted-foreground")}
                       style={{ width: `${verificationScore}%` }}
@@ -272,29 +272,30 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
 
                 {/* Occupation & Years */}
                 {(occupation || yearsInCity != null) && (
-                  <div className="grid grid-cols-2 gap-3 mb-6">
+                  <div className="grid grid-cols-2 gap-2 mb-4">
                     {occupation && (
-                      <div className={cn("flex items-center gap-3 p-3 rounded-xl", isLight ? "bg-zinc-50" : "bg-white/5")}>
-                        <Briefcase className={cn("w-4 h-4 flex-shrink-0", isLight ? "text-zinc-400" : "text-zinc-500")} />
+                      <div className={cn("flex items-center gap-2 p-2.5 rounded-xl", isLight ? "bg-zinc-50" : "bg-white/5")}>
+                        <Briefcase className={cn("w-3.5 h-3.5 flex-shrink-0", isLight ? "text-zinc-400" : "text-zinc-500")} />
                         <div className="min-w-0">
-                          <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">Occupation</p>
-                          <p className="text-sm font-medium text-foreground truncate">{occupation}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Occupation</p>
+                          <p className="text-xs font-medium text-foreground truncate">{occupation}</p>
                         </div>
                       </div>
                     )}
                     {yearsInCity != null && (
-                      <div className={cn("flex items-center gap-3 p-3 rounded-xl", isLight ? "bg-zinc-50" : "bg-white/5")}>
-                        <Clock className={cn("w-4 h-4 flex-shrink-0", isLight ? "text-zinc-400" : "text-zinc-500")} />
+                      <div className={cn("flex items-center gap-2 p-2.5 rounded-xl", isLight ? "bg-zinc-50" : "bg-white/5")}>
+                        <Clock className={cn("w-3.5 h-3.5 flex-shrink-0", isLight ? "text-zinc-400" : "text-zinc-500")} />
                         <div className="min-w-0">
-                          <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">Years in city</p>
-                          <p className="text-sm font-medium text-foreground">{yearsInCity}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Years in city</p>
+                          <p className="text-xs font-medium text-foreground">{yearsInCity}</p>
                         </div>
                       </div>
                     )}
                   </div>
                 )}
 
-                <div className={cn("p-4 rounded-2xl mb-6 relative", isLight ? "bg-zinc-50" : "bg-white/5")}>
+                {/* Bio */}
+                <div className={cn("p-3 rounded-xl mb-4 relative", isLight ? "bg-zinc-50" : "bg-white/5")}>
                   {editingBio ? (
                     <div className="space-y-2">
                       <textarea
@@ -302,86 +303,86 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                         onChange={(e) => setBioValue(e.target.value)}
                         placeholder="Tell the community about yourself..."
                         className={cn(
-                          "w-full resize-none rounded-xl p-3 text-sm bg-transparent border focus:outline-none focus:ring-1",
+                          "w-full resize-none rounded-lg p-2.5 text-xs bg-transparent border focus:outline-none focus:ring-1",
                           isLight ? "border-black/10 focus:ring-primary" : "border-white/10 focus:ring-white/30 text-white"
                         )}
-                        rows={3}
+                        rows={2}
                         maxLength={200}
                       />
                       <div className="flex gap-2 justify-end">
-                        <button onClick={() => setEditingBio(false)} className="text-xs px-3 py-1.5 rounded-lg text-muted-foreground">Cancel</button>
-                        <button onClick={handleSaveBio} className="text-xs px-3 py-1.5 rounded-lg bg-primary text-primary-foreground font-bold">Save</button>
+                        <button onClick={() => setEditingBio(false)} className="text-[11px] px-2.5 py-1 rounded-lg text-muted-foreground">Cancel</button>
+                        <button onClick={handleSaveBio} className="text-[11px] px-2.5 py-1 rounded-lg bg-primary text-primary-foreground font-bold">Save</button>
                       </div>
                     </div>
                   ) : (
                     <div className="flex items-start gap-2">
-                      <p className={cn("text-sm leading-relaxed italic flex-1", isLight ? "text-zinc-600" : "text-zinc-300")}>
+                      <p className={cn("text-xs leading-relaxed italic flex-1", isLight ? "text-zinc-600" : "text-zinc-300")}>
                         {bio ? `"${bio}"` : 'Tap to add a bio...'}
                       </p>
                       <button
                         onClick={() => { setBioValue(bio); setEditingBio(true); }}
-                        className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors shrink-0"
+                        className="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors shrink-0"
                       >
-                        <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                        <Pencil className="w-3 h-3 text-muted-foreground" />
                       </button>
                     </div>
                   )}
                 </div>
 
                 {/* QR Code */}
-                <div className="flex flex-col items-center justify-center pt-1 mb-4">
-                  <div className="p-3 bg-white rounded-2xl shadow-sm border border-black/5 ring-4 ring-black/5 dark:ring-white/5 relative">
-                    <QRCode value={validationUrl} size={120} level="H" className="rounded-lg" />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-1 rounded-full shadow-sm">
-                      <ScanLine className="w-6 h-6 text-primary" />
+                <div className="flex flex-col items-center justify-center mb-4">
+                  <div className="p-2.5 bg-white rounded-xl shadow-sm border border-black/5 ring-3 ring-black/5 dark:ring-white/5 relative">
+                    <QRCode value={validationUrl} size={90} level="H" className="rounded-md" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-0.5 rounded-full shadow-sm">
+                      <ScanLine className="w-4 h-4 text-primary" />
                     </div>
                   </div>
-                  <div className="mt-4 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-amber-500" />
-                    <span className={cn("text-sm font-semibold tracking-wide uppercase", isLight ? "text-zinc-800" : "text-white")}>
+                  <div className="mt-2.5 flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3 text-amber-500" />
+                    <span className={cn("text-xs font-semibold tracking-wide uppercase", isLight ? "text-zinc-800" : "text-white")}>
                       Verified Member
                     </span>
-                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <Sparkles className="w-3 h-3 text-amber-500" />
                   </div>
-                  <p className={cn("text-xs mt-1 text-center", isLight ? "text-zinc-400" : "text-zinc-500")}>
+                  <p className={cn("text-[10px] mt-0.5 text-center", isLight ? "text-zinc-400" : "text-zinc-500")}>
                     Scan to verify Local Resident benefits
                   </p>
                 </div>
 
                 {/* Additional Info */}
-                <div className="space-y-3 mb-6">
+                <div className="space-y-2 mb-4">
                   {memberSince && (
-                    <div className={cn("flex items-center gap-3 p-3 rounded-xl", isLight ? "bg-zinc-50" : "bg-white/5")}>
-                      <Calendar className={cn("w-4 h-4 flex-shrink-0", isLight ? "text-zinc-400" : "text-zinc-500")} />
+                    <div className={cn("flex items-center gap-2.5 p-2.5 rounded-xl", isLight ? "bg-zinc-50" : "bg-white/5")}>
+                      <Calendar className={cn("w-3.5 h-3.5 flex-shrink-0", isLight ? "text-zinc-400" : "text-zinc-500")} />
                       <div>
-                        <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">Member since</p>
-                        <p className="text-sm font-medium text-foreground">{memberSince}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Member since</p>
+                        <p className="text-xs font-medium text-foreground">{memberSince}</p>
                       </div>
                     </div>
                   )}
                   {languages && (
-                    <div className={cn("flex items-center gap-3 p-3 rounded-xl", isLight ? "bg-zinc-50" : "bg-white/5")}>
-                      <Languages className={cn("w-4 h-4 flex-shrink-0", isLight ? "text-zinc-400" : "text-zinc-500")} />
+                    <div className={cn("flex items-center gap-2.5 p-2.5 rounded-xl", isLight ? "bg-zinc-50" : "bg-white/5")}>
+                      <Languages className={cn("w-3.5 h-3.5 flex-shrink-0", isLight ? "text-zinc-400" : "text-zinc-500")} />
                       <div>
-                        <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">Languages</p>
-                        <p className="text-sm font-medium text-foreground">{languages}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Languages</p>
+                        <p className="text-xs font-medium text-foreground">{languages}</p>
                       </div>
                     </div>
                   )}
                   {nationality && (
-                    <div className={cn("flex items-center gap-3 p-3 rounded-xl", isLight ? "bg-zinc-50" : "bg-white/5")}>
-                      <Globe className={cn("w-4 h-4 flex-shrink-0", isLight ? "text-zinc-400" : "text-zinc-500")} />
+                    <div className={cn("flex items-center gap-2.5 p-2.5 rounded-xl", isLight ? "bg-zinc-50" : "bg-white/5")}>
+                      <Globe className={cn("w-3.5 h-3.5 flex-shrink-0", isLight ? "text-zinc-400" : "text-zinc-500")} />
                       <div>
-                        <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">Nationality</p>
-                        <p className="text-sm font-medium text-foreground">{nationality}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Nationality</p>
+                        <p className="text-xs font-medium text-foreground">{nationality}</p>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* ── Document Verification Section ── */}
-                <div className="space-y-3">
-                  <h3 className={cn("text-xs font-bold uppercase tracking-widest", isLight ? "text-zinc-500" : "text-zinc-400")}>
+                {/* Document Verification */}
+                <div className="space-y-2">
+                  <h3 className={cn("text-[10px] font-bold uppercase tracking-widest", isLight ? "text-zinc-500" : "text-zinc-400")}>
                     Identity Documents
                   </h3>
                   {DOC_TYPES.map(({ key, label }) => {
@@ -392,14 +393,14 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                         onClick={() => status === 'none' ? handleDocUpload(key) : undefined}
                         disabled={uploading === key || status === 'verified'}
                         className={cn(
-                          "w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all",
+                          "w-full flex items-center gap-2.5 p-2.5 rounded-xl text-left transition-all",
                           status === 'none' && "cursor-pointer active:scale-[0.98]",
                           isLight ? "bg-zinc-50 hover:bg-zinc-100" : "bg-white/5 hover:bg-white/[0.08]",
                           status === 'verified' && "opacity-80 cursor-default"
                         )}
                       >
                         <div className={cn(
-                          "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
+                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
                           status === 'verified'
                             ? "bg-emerald-500/15 text-emerald-500"
                             : status === 'pending'
@@ -407,18 +408,18 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                             : isLight ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
                         )}>
                           {uploading === key ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
                           ) : status === 'verified' ? (
-                            <CheckCircle2 className="w-4 h-4" />
+                            <CheckCircle2 className="w-3.5 h-3.5" />
                           ) : status === 'pending' ? (
-                            <FileText className="w-4 h-4" />
+                            <FileText className="w-3.5 h-3.5" />
                           ) : (
-                            <Upload className="w-4 h-4" />
+                            <Upload className="w-3.5 h-3.5" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground">{label}</p>
-                          <p className="text-[11px] text-muted-foreground">
+                          <p className="text-xs font-medium text-foreground">{label}</p>
+                          <p className="text-[10px] text-muted-foreground">
                             {status === 'verified' ? 'Verified ✓' : status === 'pending' ? 'Under review' : 'Tap to upload'}
                           </p>
                         </div>
@@ -427,7 +428,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                   })}
                 </div>
 
-                <div className="h-6" />
+                <div className="h-4" />
               </div>
 
               {/* Decorative glow */}
