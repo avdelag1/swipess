@@ -152,7 +152,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // 🚀 FLAGSHIP FEATURE: 3D Perspective Tilt based on pointer pos & Device Gyroscope
   const pointerRotateX = useMotionValue(0);
   const pointerRotateY = useMotionValue(0);
-  const { tiltX: gyroTiltX, tiltY: gyroTiltY } = useDeviceParallax(0.8);
+  const { tiltX: gyroTiltX, tiltY: gyroTiltY } = useDeviceParallax(0.4);
 
   const rotateX = useTransform(pointerRotateX, (val) => val - gyroTiltY);
   const rotateY = useTransform(pointerRotateY, (val) => val + gyroTiltX);
