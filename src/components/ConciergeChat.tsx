@@ -912,73 +912,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
               </div>
             </div>
 
-            {/* Character Selector — Bottom Sheet Carousel */}
-            <AnimatePresence>
-              {characterPanelOpen && (
-                <>
-                  {/* Backdrop */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"
-                    onClick={() => setCharacterPanelOpen(false)}
-                  />
-                  {/* Sheet */}
-                  <motion.div
-                    initial={{ y: '100%' }}
-                    animate={{ y: 0 }}
-                    exit={{ y: '100%' }}
-                    transition={{ type: 'spring', damping: 32, stiffness: 400 }}
-                    className="fixed bottom-0 left-0 right-0 z-[61] bg-background/95 backdrop-blur-2xl border-t border-border/40 rounded-t-3xl pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
-                  >
-                    {/* Drag handle */}
-                    <div className="flex justify-center pt-3 pb-2">
-                      <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
-                    </div>
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest text-center mb-3">Choose Your AI</p>
-                    {/* Horizontal carousel */}
-                    <div className="flex gap-3 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory" style={{ WebkitOverflowScrolling: 'touch' }}>
-                      {CHARACTER_OPTIONS.map(char => {
-                        const isActive = activeCharacter === char.key;
-                        return (
-                          <button
-                            key={char.key}
-                            onClick={() => selectCharacter(char.key)}
-                            className={cn(
-                              "flex flex-col items-center gap-2 p-4 rounded-2xl transition-all shrink-0 snap-center border min-w-[100px]",
-                              isActive
-                                ? cn("border-2", char.bgColor, char.glowColor)
-                                : "bg-muted/20 border-border/30 hover:bg-muted/40"
-                            )}
-                          >
-                            <div className={cn(
-                              "w-12 h-12 rounded-full flex items-center justify-center transition-all",
-                              isActive ? char.bgColor : "bg-muted/40"
-                            )}>
-                              <char.icon className={cn("w-6 h-6", isActive ? char.color : "text-muted-foreground")} />
-                            </div>
-                            <span className={cn(
-                              "text-xs font-bold whitespace-nowrap",
-                              isActive ? char.color : "text-foreground"
-                            )}>{char.label}</span>
-                            <span className="text-[10px] text-muted-foreground whitespace-nowrap">{char.subtitle}</span>
-                            {isActive && (
-                              <motion.div
-                                layoutId="char-check"
-                                className="w-5 h-5 rounded-full bg-primary flex items-center justify-center"
-                              >
-                                <Check className="w-3 h-3 text-primary-foreground" />
-                              </motion.div>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
+            {characterPanel}
           </div>
 
           {/* Messages */}
