@@ -191,10 +191,11 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
 
   return (
     <div 
-      className="w-full min-h-full overflow-visible relative bg-background flex flex-col" 
+      className="w-full min-h-full overflow-visible relative bg-background flex flex-col touch-pan-y overscroll-y-contain" 
       data-no-swipe-nav="true"
+      style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}
     >
-      <div className="flex-1 flex flex-col p-4 pt-0 sm:p-8 sm:pt-0 max-w-7xl mx-auto w-full">
+      <div className="flex-1 flex flex-col p-4 pt-0 sm:p-8 sm:pt-0 max-w-7xl mx-auto w-full touch-pan-y" style={{ touchAction: 'pan-y' }}>
         {/* Category tabs and Sync button */}
         <div className="flex items-center justify-between gap-4 mb-6 pb-2 pt-6">
           <div className="flex-1 flex gap-3 overflow-x-auto scrollbar-hide no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
