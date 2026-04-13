@@ -1,5 +1,5 @@
 import { lazyWithRetry } from '@/utils/lazyRetry';
-import { lazy, memo } from 'react';
+import { memo } from 'react';
 import { TokensModal } from './TokensModal';
 import { useModalStore } from '@/state/modalStore';
 import { SmartSuspense } from './SmartSuspense';
@@ -29,7 +29,7 @@ const PushNotificationPrompt = lazyWithRetry(() => import('@/components/PushNoti
 const WelcomeNotification = lazyWithRetry(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })));
 const LikedListingInsightsModal = lazyWithRetry(() => import('@/components/LikedListingInsightsModal').then(m => ({ default: m.LikedListingInsightsModal })));
 const LikedClientInsightsModal = lazyWithRetry(() => import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal })));
-const ConciergeChat = lazy(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
+const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
 
 interface GlobalDialogsProps {
   userRole: 'client' | 'owner' | 'admin';

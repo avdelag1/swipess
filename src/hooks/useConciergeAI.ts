@@ -173,6 +173,62 @@ function stripThinkBlocks(text: string): string {
   return text.replace(/<tool_call>[\s\S]*?<\/think>/g, '').trim();
 }
 
+function parseLooseJson<T = any>(raw: string): T | null {
+  const cleaned = raw
+    .replace(/```json\s*/gi, '')
+    .replace(/```\s*/g, '')
+    .trim();
+
+  const variants = [
+    cleaned,
+    cleaned
+      .replace(/,\s*}/g, '}')
+      .replace(/,\s*]/g, ']')
+      .replace(/[\x00-\x1F\x7F]/g, ''),
+  ];
+
+  for (const variant of variants) {
+    try {
+      return JSON.parse(variant) as T;
+    } catch {
+      continue;
+    }
+  }
+
+  return null;
+}
+
+function extractAssistantReply(payload: any): string | null {
+  if (!payload || typeof payload !== 'object') return null;
+  return payload.reply
+    || payload.content
+    || payload.message?.content
+    || payload.choices?.[0]?.message?.content
+    || payload.choices?.[0]?.delta?.content
+    || null;
+}
+
+function detectTruncation(text: string): boolean {
+  const trimmed = text.trim();
+  const openBraces = (trimmed.match(/{/g) || []).length;
+  const closeBraces = (trimmed.match(/}/g) || []).length;
+  const openBrackets = (trimmed.match(/\[/g) || []).length;
+  const closeBrackets = (trimmed.match(/\]/g) || []).length;
+
+  if (openBraces !== closeBraces || openBrackets !== closeBrackets) return true;
+
+  return [/\.\.\.$/, /…$/, /\[truncated\]/i, /\[continued\]/i].some((pattern) => pattern.test(trimmed));
+}
+
+function normalizeAssistantReply(text: string): string {
+  const cleaned = stripThinkBlocks(text)
+    .replace(/\[truncated\]/gi, '')
+    .replace(/\[continued\]/gi, '')
+    .trim();
+
+  return detectTruncation(cleaned) ? cleaned.replace(/[….]$/, '').trim() : cleaned;
+}
+
 // AI concierge runs on Lovable Cloud (edge functions deploy here automatically)
 // All user data stays on production Supabase — AI only handles chat, no user data
 const AI_URL = 'https://vplgtcguxujxwrgguxqq.supabase.co/functions/v1/ai-concierge';
@@ -385,7 +441,7 @@ export function useConciergeAI() {
     try {
       const currentConvo = conversations.find(c => c.id === convoId);
       const allMsgs = [...(currentConvo?.messages ?? []), userMsg];
-      const apiMessages = allMsgs.slice(-10).map(m => ({
+      const apiMessages = allMsgs.map(m => ({
         role: m.role as 'user' | 'assistant',
         content: m.content,
       }));
@@ -458,6 +514,7 @@ export function useConciergeAI() {
         const reader = resp.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
+        let streamDone = false;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -471,19 +528,29 @@ export function useConciergeAI() {
             if (line.startsWith(':') || line.trim() === '') continue;
             if (!line.startsWith('data: ')) continue;
             const jsonStr = line.slice(6).trim();
-            if (jsonStr === '[DONE]') break;
-            try {
-              const parsed = JSON.parse(jsonStr);
-              const delta = parsed.choices?.[0]?.delta?.content;
-              if (delta) {
-                fullContent += delta;
-                streamBufferRef.current = { convoId: convoId!, msgId: assistantMsgId, content: fullContent };
-              }
-            } catch {
+            if (jsonStr === '[DONE]') {
+              streamDone = true;
+              break;
+            }
+
+            const parsed = parseLooseJson<any>(jsonStr);
+            if (!parsed) {
               buffer = line + '\n' + buffer;
               break;
             }
+
+            const delta = parsed.choices?.[0]?.delta?.content
+              || parsed.delta?.content
+              || (typeof parsed.content === 'string' ? parsed.content : null)
+              || '';
+
+            if (delta) {
+              fullContent += delta;
+              streamBufferRef.current = { convoId: convoId!, msgId: assistantMsgId, content: fullContent };
+            }
           }
+
+          if (streamDone) break;
         }
 
         if (buffer.trim()) {
@@ -493,17 +560,18 @@ export function useConciergeAI() {
             if (!raw.startsWith('data: ')) continue;
             const jsonStr = raw.slice(6).trim();
             if (jsonStr === '[DONE]') continue;
-            try {
-              const parsed = JSON.parse(jsonStr);
-              const delta = parsed.choices?.[0]?.delta?.content;
-              if (delta) fullContent += delta;
-            } catch {}
+            const parsed = parseLooseJson<any>(jsonStr);
+            const delta = parsed?.choices?.[0]?.delta?.content
+              || parsed?.delta?.content
+              || (typeof parsed?.content === 'string' ? parsed.content : null)
+              || '';
+            if (delta) fullContent += delta;
           }
         }
 
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
         streamBufferRef.current = null;
-        const finalCleaned = stripThinkBlocks(fullContent) || 'No response received.';
+        const finalCleaned = normalizeAssistantReply(fullContent) || 'No response received.';
 
         const assistantMsg: ChatMessage = {
           id: assistantMsgId,
@@ -531,18 +599,22 @@ export function useConciergeAI() {
           saveConversationCloud(uid, { id: convoId, title: generateTitle(content.trim()), messages: [], createdAt: new Date(), updatedAt: new Date() });
         }
       } else {
-        const data = await resp.json();
-        if (data.error) {
-          toast.error(data.error);
+        const rawResponse = await resp.text();
+        const parsed = parseLooseJson<any>(rawResponse);
+        const reply = normalizeAssistantReply(
+          extractAssistantReply(parsed) || rawResponse || 'No response received.'
+        );
+
+        if (!reply) {
+          toast.error('AI temporarily unavailable. Please try again.');
           setIsLoading(false);
           return;
         }
 
-        const reply = data.reply || data.choices?.[0]?.message?.content || 'No response received.';
         const assistantMsg: ChatMessage = {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: stripThinkBlocks(reply),
+          content: reply,
           timestamp: new Date(),
           provider: aiProvider,
         };

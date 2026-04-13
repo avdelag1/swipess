@@ -77,13 +77,22 @@ export const BottomNavigation = memo(({
   const { navigate, prefetch } = useAppNavigate();
   const location = useLocation();
   const setCategories = useFilterStore((s) => s.setCategories);
-  const openAIChat = useModalStore((s) => s.setModal);
+  const setModal = useModalStore((s) => s.setModal);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
   const { t } = useTranslation();
+
+  const prewarmAIChat = useCallback(() => {
+    import('@/components/ConciergeChat').catch(() => {});
+  }, []);
+
+  const openAIChat = useCallback(() => {
+    prewarmAIChat();
+    setModal('showAIChat', true);
+  }, [prewarmAIChat, setModal]);
 
   // Detect narrow screens for icon-only compact mode
   const [isNarrow, setIsNarrow] = useState(false);
@@ -100,7 +109,7 @@ export const BottomNavigation = memo(({
     { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
-    { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
+    { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: openAIChat, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
@@ -112,7 +121,7 @@ export const BottomNavigation = memo(({
     { id: 'dashboard', icon: Zap, label: 'System', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
-    { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: () => openAIChat('showAIChat', true), isSpecial: true },
+    { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: openAIChat, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
     { id: 'legal', icon: Scale, label: 'Legal Hub', path: '/owner/legal-services' },
