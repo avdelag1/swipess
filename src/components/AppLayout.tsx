@@ -56,6 +56,22 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isAuthRoute = location.pathname === '/' || location.pathname === '/reset-password';
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
+
+  useEffect(() => {
+    if (isAuthRoute || !user) return;
+
+    const prewarm = () => {
+      import('@/components/ConciergeChat').catch(() => {});
+    };
+
+    if ('requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(prewarm, { timeout: 1500 });
+      return () => window.cancelIdleCallback(idleId);
+    }
+
+    const timeoutId = window.setTimeout(prewarm, 900);
+    return () => window.clearTimeout(timeoutId);
+  }, [isAuthRoute, user]);
   
   // Immersive sections where header starts transparent
   const isImmersive = useMemo(() => {

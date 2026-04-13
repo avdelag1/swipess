@@ -31,6 +31,39 @@ const LikedListingInsightsModal = lazyWithRetry(() => import('@/components/Liked
 const LikedClientInsightsModal = lazyWithRetry(() => import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal })));
 const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
 
+const ConciergeChatFallback = memo(() => (
+  <div className="fixed inset-0 z-[9999] flex flex-col bg-background/95 backdrop-blur-xl">
+    <div className="border-b border-border/50 bg-background/90 px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+          <div className="h-8 w-8 rounded-full bg-primary/15 animate-pulse" />
+          <div className="space-y-1.5">
+            <div className="h-3 w-24 rounded-full bg-foreground/10 animate-pulse" />
+            <div className="h-2.5 w-20 rounded-full bg-muted animate-pulse" />
+          </div>
+        </div>
+        <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+      </div>
+    </div>
+
+    <div className="flex-1 space-y-4 px-4 py-5">
+      <div className="ml-auto h-16 w-[72%] rounded-3xl rounded-br-md bg-primary/12 animate-pulse" />
+      <div className="h-20 w-[80%] rounded-3xl rounded-bl-md bg-muted animate-pulse" />
+      <div className="ml-auto h-12 w-[55%] rounded-3xl rounded-br-md bg-primary/10 animate-pulse" />
+    </div>
+
+    <div className="border-t border-border/50 bg-background/90 px-4 py-3 pb-[calc(env(safe-area-inset-bottom,0px)+12px)]">
+      <div className="flex items-end gap-2">
+        <div className="h-11 flex-1 rounded-2xl bg-muted animate-pulse" />
+        <div className="h-10 w-10 rounded-xl bg-muted animate-pulse" />
+        <div className="h-10 w-10 rounded-xl bg-primary/15 animate-pulse" />
+      </div>
+    </div>
+  </div>
+));
+ConciergeChatFallback.displayName = 'ConciergeChatFallback';
+
 interface GlobalDialogsProps {
   userRole: 'client' | 'owner' | 'admin';
 }
@@ -189,7 +222,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         />
       </SmartSuspense>
 
-      <SmartSuspense fallback={null}>
+      <SmartSuspense fallback={store.showAIChat ? <ConciergeChatFallback /> : null} threshold={0}>
         <ConciergeChat
           isOpen={store.showAIChat}
           onClose={() => store.setModal('showAIChat', false)}
