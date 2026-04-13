@@ -15,6 +15,25 @@ import ReactMarkdown from 'react-markdown';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 
+// Character avatar images
+import avatarDefault from '@/assets/avatars/avatar-default.png';
+import avatarKyle from '@/assets/avatars/avatar-kyle.png';
+import avatarBeauGosse from '@/assets/avatars/avatar-beaugosse.png';
+import avatarDonAjKiin from '@/assets/avatars/avatar-donajkiin.png';
+import avatarBotBetter from '@/assets/avatars/avatar-botbetter.png';
+import avatarLunaShanti from '@/assets/avatars/avatar-lunashanti.png';
+import avatarEzriyah from '@/assets/avatars/avatar-ezriyah.png';
+
+const CHARACTER_AVATARS: Record<string, string> = {
+  default: avatarDefault,
+  kyle: avatarKyle,
+  beaugosse: avatarBeauGosse,
+  donajkiin: avatarDonAjKiin,
+  botbetter: avatarBotBetter,
+  lunashanti: avatarLunaShanti,
+  ezriyah: avatarEzriyah,
+};
+
 const ConciergePrivacyPortal = memo(({ onAccept }: { onAccept: () => void }) => {
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8 relative z-10 space-y-6 text-center h-full">
