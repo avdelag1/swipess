@@ -167,7 +167,8 @@ export function useNotificationSystem() {
 
   const handleDismiss = (id: string) => {
     dismissNotification(id);
-    if (user?.id) {
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    if (user?.id && isUUID) {
       supabase.from('notifications').delete().eq('id', id).eq('user_id', user.id).then(({ error }) => {
         if (error) logger.error('[Notifications] Failed to delete:', error);
       });
