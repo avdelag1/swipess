@@ -357,28 +357,17 @@ export default function DJTurntableRadio() {
             <Shuffle className={cn("w-5 h-5", state.isShuffle ? (isDark ? "text-white" : "text-black") : (isDark ? "text-white/40" : "text-black/30"))} />
           </motion.button>
           
-          {/* 📡 ALL STATIONS: Hexagonal Scanner Look */}
+          {/* 📡 ALL STATIONS: Clean glass button */}
           <motion.button
-            whileHover={{ scale: 1.08, rotate: 5 }}
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => { setShowDrawer(true); triggerHaptic('medium'); }}
             className={cn(
-              "relative w-14 h-14 flex items-center justify-center group",
-              "before:absolute before:inset-0 before:bg-white/5 before:backdrop-blur-3xl before:rounded-[35%] before:rotate-45 before:border before:border-white/10 before:transition-transform group-hover:before:rotate-[135deg]",
-              "after:absolute after:inset-1 after:border-t after:border-l after:border-orange-500/40 after:rounded-[30%] after:rotate-45 after:transition-all group-hover:after:border-orange-400"
+              "w-12 h-12 rounded-2xl backdrop-blur-2xl flex items-center justify-center transition-all border",
+              isDark ? "bg-white/5 border-white/10" : "bg-black/5 border-black/5 shadow-sm"
             )}
           >
-            <div className="relative z-10 flex flex-col items-center gap-0.5">
-              <ListMusic className={cn("w-6 h-6", isDark ? "text-white" : "text-black")} />
-              <span className="text-[7px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Stations</span>
-            </div>
-            
-            {/* Pulsing scan line */}
-            <motion.div 
-              animate={{ top: ['20%', '80%', '20%'] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              className="absolute left-1/4 right-1/4 h-[1px] bg-orange-500/30 blur-[1px] z-10 pointer-events-none"
-            />
+            <ListMusic className={cn("w-5 h-5", isDark ? "text-white/70" : "text-black/60")} />
           </motion.button>
         </div>
       </motion.div>
@@ -394,7 +383,7 @@ export default function DJTurntableRadio() {
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{ type: 'spring', damping: 20, stiffness: 100 }}
             className="relative aspect-square flex items-center justify-center"
-            style={{ width: 'min(85vw, 38dvh)' }}
+            style={{ width: 'min(75vw, 32dvh)' }}
           >
             <AnimatePresence>
               {state.isPlaying && (
@@ -466,7 +455,7 @@ export default function DJTurntableRadio() {
               exit={{ opacity: 0, scale: 0.85, y: -15, filter: 'blur(20px)' }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <h2 className={cn("text-4xl sm:text-5xl font-black tracking-tighter drop-shadow-2xl uppercase font-brand", isDark ? "text-white" : "!text-black")}>
+              <h2 className={cn("text-2xl sm:text-3xl font-black tracking-tighter drop-shadow-2xl uppercase font-brand", isDark ? "text-white" : "!text-black")}>
                 {state.currentStation?.name || 'Radio'}
               </h2>
               <div className="flex items-center justify-center gap-4 mt-1.5">
@@ -487,8 +476,8 @@ export default function DJTurntableRadio() {
         </div>
 
         {/* Playback Controls Container */}
-        <div className="mt-auto mb-10 flex flex-col items-center gap-5 w-full max-w-[440px] stagger-enter">
-          <div className="flex items-center gap-6">
+        <div className="mt-auto flex flex-col items-center gap-4 w-full max-w-[440px] stagger-enter" style={{ marginBottom: 'calc(env(safe-area-inset-bottom, 20px) + 16px)' }}>
+          <div className="flex items-center gap-4">
             
             {/* ❤️ SENTIENT PULSAR: Save the Likes/Lights */}
             <motion.button
@@ -496,7 +485,7 @@ export default function DJTurntableRadio() {
               whileTap={{ scale: 0.85 }}
               onClick={() => { if (state.currentStation) { toggleFavorite(state.currentStation.id); triggerHaptic('success'); } }}
               className={cn(
-                "relative w-16 h-16 rounded-full flex items-center justify-center group overflow-hidden transition-all duration-700",
+                "relative w-12 h-12 rounded-full flex items-center justify-center group overflow-hidden transition-all duration-700",
                 isStationFavorite(state.currentStation?.id || '') 
                   ? "bg-transparent ring-2 ring-orange-500/40" 
                   : "bg-white/5 backdrop-blur-3xl border border-white/10"
@@ -523,14 +512,14 @@ export default function DJTurntableRadio() {
                 )}
               />
 
-              <Heart 
+              <Heart
                 className={cn("w-8 h-8 relative z-10 transition-all duration-700", isStationFavorite(state.currentStation?.id || '') ? "scale-110" : "scale-100")} 
                 fill={state.currentStation && isStationFavorite(state.currentStation.id) ? "white" : "none"} 
                 stroke={state.currentStation && isStationFavorite(state.currentStation.id) ? "white" : (isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)')} 
               />
             </motion.button>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { changeStation('prev'); triggerHaptic('medium'); }}
@@ -569,14 +558,14 @@ export default function DJTurntableRadio() {
               whileTap={{ scale: 0.85 }}
               onClick={() => { setShowFavoritesDrawer(true); triggerHaptic('medium'); }}
               className={cn(
-                "relative w-16 h-16 flex items-center justify-center overflow-hidden transition-all duration-500",
-                "bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[1.8rem]"
+                "relative w-12 h-12 flex items-center justify-center overflow-hidden transition-all duration-500",
+                "bg-white/5 backdrop-blur-3xl border border-white/10 rounded-2xl"
               )}
             >
               <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/10 to-purple-500/10 pointer-events-none" />
               <div className="relative z-10 flex flex-col items-center gap-1">
                 <div className="relative">
-                  <ListMusic className={cn("w-8 h-8", isDark ? "text-white/60" : "text-black/40")} />
+                  <ListMusic className={cn("w-5 h-5", isDark ? "text-white/60" : "text-black/40")} />
                   {state.favorites.length > 0 && (
                     <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full ring-2 ring-[#030303]" />
                   )}

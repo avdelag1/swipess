@@ -169,7 +169,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }
 
   return (
-    <div className="flex flex-col h-full w-full overflow-y-auto bg-background">
+    <div className="flex flex-col h-full w-full bg-background">
       <AnimatePresence mode="wait">
         {viewMode === 'insights' ? (
           <motion.div

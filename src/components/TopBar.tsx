@@ -3,7 +3,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Zap, ArrowLeft, Radio as RadioIcon, IdCard } from 'lucide-react';
+import { Coins, ArrowLeft, Radio as RadioIcon, IdCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -17,7 +17,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { NotificationPopover } from './NotificationPopover';
 import { useScrollBounce } from '@/hooks/useScrollBounce';
 import { useModalStore } from '@/state/modalStore';
-import { useTokens } from '@/hooks/useTokens';
+
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -51,7 +51,7 @@ function TopBarComponent({
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { t } = useTranslation();
-  const { tokens } = useTokens();
+  
 
   const headerBounceRef = useScrollBounce({
     maxTilt: 4,
@@ -149,7 +149,7 @@ function TopBarComponent({
                   <ModeSwitcher variant="icon" size="sm" />
                 </div>
 
-                {/* Token Badge — tappable */}
+                {/* Token Badge — icon only */}
                 <motion.button
                   whileTap={{ scale: 0.92 }}
                   onPointerDown={(e) => {
@@ -159,20 +159,14 @@ function TopBarComponent({
                     useModalStore.getState().setModal('showTokensModal', true);
                   }}
                   className={cn(
-                    "flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-full touch-manipulation transition-all",
+                    "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full touch-manipulation transition-all",
                     isLight
                       ? "bg-amber-500/10 hover:bg-amber-500/15"
                       : "bg-white/[0.06] hover:bg-white/[0.10]"
                   )}
                   aria-label="View tokens"
                 >
-                  <Zap className="w-3.5 h-3.5 text-amber-500" />
-                  <span className={cn(
-                    "text-[11px] font-bold tabular-nums",
-                    isLight ? "text-amber-600" : "text-amber-400"
-                  )}>
-                    {tokens}
-                  </span>
+                  <Coins className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
                 </motion.button>
               </>
             )}
