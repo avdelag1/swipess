@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useRef } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -60,6 +60,39 @@ function TopBarComponent({
     edgeScale: 0.97,
     childSelector: '> div, > button',
   });
+
+  // ── Swipe-vs-tap detection for scrollable header ──
+  const isDraggingHeader = useRef(false);
+  const headerTouchStart = useRef<{ x: number; y: number } | null>(null);
+
+  const handleHeaderPointerDown = useCallback((e: React.PointerEvent) => {
+    isDraggingHeader.current = false;
+    headerTouchStart.current = { x: e.clientX, y: e.clientY };
+  }, []);
+
+  const handleHeaderPointerMove = useCallback((e: React.PointerEvent) => {
+    if (!headerTouchStart.current) return;
+    const dx = Math.abs(e.clientX - headerTouchStart.current.x);
+    const dy = Math.abs(e.clientY - headerTouchStart.current.y);
+    if (dx > 8 || dy > 8) {
+      isDraggingHeader.current = true;
+    }
+  }, []);
+
+  const handleHeaderPointerUp = useCallback(() => {
+    headerTouchStart.current = null;
+  }, []);
+
+  /** Only fire action if user tapped (not scrolled) */
+  const guardedClick = useCallback((action: () => void) => {
+    return () => {
+      if (isDraggingHeader.current) {
+        isDraggingHeader.current = false;
+        return;
+      }
+      action();
+    };
+  }, []);
 
   const { data: profile } = useQuery({
     queryKey: ['topbar-user-profile', user?.id],
@@ -152,9 +185,7 @@ function TopBarComponent({
                 {/* Token Badge — icon only */}
                 <motion.button
                   whileTap={{ scale: 0.92 }}
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                  onClick={() => {
                     haptics.tap();
                     useModalStore.getState().setModal('showTokensModal', true);
                   }}
@@ -183,30 +214,33 @@ function TopBarComponent({
 
           {/* ── Horizontally scrollable row: remaining action buttons ── */}
           <div className="flex-1 min-w-0 relative pointer-events-none">
-            {/* Edge fade masks for header scroll */}
+            {/* Edge fade masks — subtle hints */}
             <div
-              className="pointer-events-none absolute left-0 top-0 bottom-0 w-5 z-20 rounded-l-full"
+              className="pointer-events-none absolute left-0 top-0 bottom-0 w-4 z-20 rounded-l-full"
               style={{
                 background: isLight
-                  ? 'linear-gradient(to right, rgba(255,255,255,0.9) 0%, transparent 100%)'
-                  : 'linear-gradient(to right, rgba(5,5,5,0.9) 0%, transparent 100%)',
+                  ? 'linear-gradient(to right, rgba(255,255,255,0.3) 0%, transparent 100%)'
+                  : 'linear-gradient(to right, rgba(0,0,0,0.25) 0%, transparent 100%)',
               }}
             />
             <div
-              className="pointer-events-none absolute right-0 top-0 bottom-0 w-5 z-20 rounded-r-full"
+              className="pointer-events-none absolute right-0 top-0 bottom-0 w-4 z-20 rounded-r-full"
               style={{
                 background: isLight
-                  ? 'linear-gradient(to left, rgba(255,255,255,0.9) 0%, transparent 100%)'
-                  : 'linear-gradient(to left, rgba(5,5,5,0.9) 0%, transparent 100%)',
+                  ? 'linear-gradient(to left, rgba(255,255,255,0.3) 0%, transparent 100%)'
+                  : 'linear-gradient(to left, rgba(0,0,0,0.25) 0%, transparent 100%)',
               }}
             />
             <div
               ref={headerBounceRef}
               className="overflow-x-auto pointer-events-none"
+              onPointerDown={handleHeaderPointerDown}
+              onPointerMove={handleHeaderPointerMove}
+              onPointerUp={handleHeaderPointerUp}
               style={{
                 scrollbarWidth: 'none',
                 WebkitOverflowScrolling: 'touch',
-                touchAction: 'manipulation',
+                touchAction: 'pan-x',
               } as React.CSSProperties}
             >
               <div className="flex items-center gap-3 flex-nowrap justify-end pl-3 pr-1 [&>*]:pointer-events-auto">
@@ -220,12 +254,10 @@ function TopBarComponent({
                         "hover:scale-105 active:scale-95 group",
                         "touch-manipulation flex items-center justify-center flex-shrink-0",
                       )}
-                      onPointerDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
+                      onClick={guardedClick(() => {
                         haptics.tap();
                         navigate('/radio');
-                      }}
+                      })}
                       aria-label="Go to radio"
                     >
                       <RadioIcon strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-rose-500" : "text-white/70")} style={{ filter: isLight ? 'drop-shadow(0 0 6px rgba(244,63,94,0.35))' : 'none' }} />
@@ -243,12 +275,10 @@ function TopBarComponent({
                           "hover:scale-105 active:scale-95 group",
                           "touch-manipulation flex items-center justify-center flex-shrink-0",
                         )}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
+                        onClick={guardedClick(() => {
                           haptics.select();
                           useModalStore.getState().setModal('showVapId', true);
-                        }}
+                        })}
                         aria-label="Resident ID"
                       >
                         <IdCard strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-primary" : "text-white/70")} />
