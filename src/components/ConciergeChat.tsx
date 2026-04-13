@@ -1037,14 +1037,14 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     uiSounds.playPing(1.4);
                   }}
                   className={cn(
-                    "shrink-0 h-10 rounded-xl flex items-center justify-center gap-1.5 px-3 transition-all text-xs font-semibold tracking-wide uppercase",
+                    "shrink-0 h-8 rounded-lg flex items-center justify-center gap-1 px-2.5 transition-all text-[10px] font-semibold tracking-wide uppercase",
                     autoSend
                       ? "bg-primary/15 text-primary border border-primary/30"
                       : "bg-muted/40 text-muted-foreground border border-border/30"
                   )}
                   title={`Open talk ${autoSend ? 'ON' : 'OFF'}`}
                 >
-                  <Zap className="w-3.5 h-3.5" />
+                  <Zap className="w-3 h-3" />
                   <span className="hidden xs:inline">{autoSend ? 'Auto' : 'Auto'}</span>
                 </button>
               )}
@@ -1053,7 +1053,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 <div className="relative shrink-0">
                   {(isListening || countdown !== null) && (
                     <motion.div
-                      className="pointer-events-none absolute inset-0 rounded-xl border border-primary/30"
+                      className="pointer-events-none absolute inset-0 rounded-lg border border-primary/30"
                       animate={{
                         scale: [1, 1.08, 1],
                         opacity: [0.35, 0.85, 0.35],
@@ -1071,9 +1071,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     onClick={toggleListening}
                     size="icon"
                     className={cn(
-                      "relative z-10 h-10 w-10 rounded-xl border transition-all duration-150",
+                      "relative z-10 h-8 w-8 rounded-lg border transition-all duration-150",
                       isListening || countdown !== null
-                        ? "border-primary/40 bg-primary/12 text-primary shadow-[0_0_22px_hsl(var(--primary)/0.28)]"
+                        ? "border-primary/40 bg-primary/12 text-primary shadow-[0_0_16px_hsl(var(--primary)/0.28)]"
                         : "border-border/30 bg-muted/40 text-muted-foreground hover:bg-muted/60"
                     )}
                   >
@@ -1104,7 +1104,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                           animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0.85, opacity: 0 }}
                         >
-                          <Mic className="h-4 w-4" />
+                          <Mic className="h-3.5 w-3.5" />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -1112,17 +1112,17 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 </div>
               )}
               {isLoading ? (
-                <Button onClick={stopGeneration} size="icon" variant="outline" className="w-10 h-10 rounded-xl shrink-0">
-                  <Square className="w-4 h-4" />
+                <Button onClick={stopGeneration} size="icon" variant="outline" className="w-8 h-8 rounded-lg shrink-0">
+                  <Square className="w-3.5 h-3.5" />
                 </Button>
               ) : (
                 <Button
                   onClick={handleSend}
                   disabled={!input.trim()}
                   size="icon"
-                  className="w-10 h-10 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 disabled:opacity-40"
+                  className="w-8 h-8 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 disabled:opacity-40"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-3.5 h-3.5" />
                 </Button>
               )}
               </div>
