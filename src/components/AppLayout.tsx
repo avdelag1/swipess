@@ -157,13 +157,20 @@ export function AppLayout({ children }: AppLayoutProps) {
             />
           </SentientHud>
 
-          <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+80px)] left-4 right-4 z-50 pointer-events-none">
-            <div className="pointer-events-auto">
-              <Suspense fallback={null}>
-                <RadioMiniPlayer />
-              </Suspense>
+          {!([
+            '/client/liked-properties',
+            '/owner/liked-clients',
+            '/owner/interested-clients',
+            '/client/who-liked-you',
+          ].some(path => location.pathname === path || location.pathname.startsWith(`${path}/`)) || showAIChat) && (
+            <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+80px)] left-4 right-4 z-50 pointer-events-none">
+              <div className="pointer-events-auto">
+                <Suspense fallback={null}>
+                  <RadioMiniPlayer />
+                </Suspense>
+              </div>
             </div>
-          </div>
+          )}
         </>
       )}
     </div>

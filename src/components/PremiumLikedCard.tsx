@@ -68,7 +68,7 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                     onClick={(e) => { e.stopPropagation(); onAction('remove', data); }}
                     aria-label="Remove from favorites"
                     title="Remove from favorites"
-                    className="absolute top-4 right-4 h-11 w-11 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:text-rose-500 transition-all active:scale-95 shadow-lg group/trash z-20"
+                    className="absolute top-4 right-4 h-11 w-11 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:text-rose-500 transition-all active:scale-95 shadow-lg group/trash z-20 touch-manipulation pointer-events-auto"
                 >
                     <Trash2 className="w-5 h-5 transition-transform group-hover/trash:scale-110" />
                 </button>
@@ -124,7 +124,7 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                     <motion.button
                         whileTap={{ scale: 0.96 }}
                         onClick={() => onAction('message', data)}
-                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white text-xs font-black shadow-[0_4px_16px_rgba(228,0,124,0.3)] transition-all"
+                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white text-xs font-black shadow-[0_4px_16px_rgba(228,0,124,0.3)] transition-all touch-manipulation pointer-events-auto"
                     >
                         <MessageCircle className="w-4 h-4" />
                         MESSAGE
@@ -134,7 +134,7 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                         whileTap={{ scale: 0.96 }}
                         onClick={() => onAction('view', data)}
                         className={cn(
-                          "flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl text-xs font-black transition-all",
+                          "flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl text-xs font-black transition-all touch-manipulation pointer-events-auto",
                           isLight
                             ? "bg-secondary hover:bg-muted text-foreground border border-border/40"
                             : "bg-white/[0.06] hover:bg-white/[0.1] text-white border border-white/[0.08]"
