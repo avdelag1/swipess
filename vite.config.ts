@@ -64,6 +64,12 @@ export default defineConfig(({ mode }) => ({
     // PERF: Use terser to drop console.error/warn in production
     // This fixes Lighthouse Best Practices "browser errors logged to console"
     minify: 'esbuild',
+    // Drop ALL console statements in production for clean Lighthouse scores
+    ...(mode === 'production' ? {
+      esbuild: {
+        drop: ['console', 'debugger'],
+      },
+    } : {}),
 
     cssMinify: true,
     // PERF: Enable CSS code-splitting — only load CSS needed for the current route
