@@ -502,9 +502,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             : isImmersiveDashboard
               ? 'calc(var(--top-bar-height) + var(--safe-top) + 8px)'
               : 'calc(var(--top-bar-height) + var(--safe-top))',
-          paddingBottom: (isFullScreenRoute || isImmersiveDashboard) 
-            ? '0px' 
-            : 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 32px)',
+          paddingBottom: isFullScreenRoute
+            ? '0px'
+            : isImmersiveDashboard
+              ? 'calc(var(--bottom-nav-height) + var(--safe-bottom))'
+              : 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 32px)',
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           
