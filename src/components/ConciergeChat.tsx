@@ -160,28 +160,28 @@ const MessageBubble = memo(({ message, onCopy, onResend, onDelete, onTranslate, 
 
       {/* Action bar — always visible on touch, hover on desktop */}
       <div className={cn(
-        'flex items-center gap-1 mt-1 transition-opacity',
+        'flex items-center gap-0.5 mt-1.5 transition-opacity',
         'opacity-60 hover:opacity-100',
         isUser ? 'justify-end' : 'justify-start'
       )}>
-        <button onClick={onCopy} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Copy">
-          <Copy className="w-3 h-3" />
+        <button onClick={onCopy} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground flex items-center justify-center" aria-label="Copy">
+          <Copy className="w-3.5 h-3.5" />
         </button>
         {onDelete && (
-          <button onClick={onDelete} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground group-hover:text-destructive transition-colors" aria-label="Delete">
-            <Trash2 className="w-3 h-3" />
+          <button onClick={onDelete} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground/60 hover:text-destructive transition-colors flex items-center justify-center" aria-label="Delete">
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         )}
         {isUser && onResend && (
-          <button onClick={onResend} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Resend">
-            <RefreshCw className="w-3 h-3" />
+          <button onClick={onResend} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground flex items-center justify-center" aria-label="Resend">
+            <RefreshCw className="w-3.5 h-3.5" />
           </button>
         )}
         {!isUser && onTranslate && (
           <Popover>
             <PopoverTrigger asChild>
-              <button className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground" aria-label="Translate">
-                <Globe className="w-3 h-3" />
+              <button className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground flex items-center justify-center" aria-label="Translate">
+                <Globe className="w-3.5 h-3.5" />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-40 p-1.5" side="top" align="start">
@@ -662,7 +662,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
             stiffness: 180,
             opacity: { duration: 0.3 }
           }}
-          className="w-full h-full bg-background/95 backdrop-blur-3xl shadow-2xl flex flex-col overflow-hidden relative border-t border-white/10"
+          className="fixed inset-0 w-full h-full bg-background/95 backdrop-blur-3xl shadow-2xl flex flex-col overflow-hidden relative border-t border-white/10 z-[9999]"
         >
           {/* ADVANCED PARTICLE WARP EFFECT (Subtle) */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-[5]">
@@ -967,14 +967,17 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     uiSounds.playPing(1.4);
                   }}
                   className={cn(
-                    "shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                    "shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all relative",
                     autoSend
-                      ? "bg-primary/15 text-primary border border-primary/30"
+                      ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30"
                       : "bg-muted/40 text-muted-foreground border border-border/30"
                   )}
-                  title={`Auto-send ${autoSend ? 'ON' : 'OFF'}`}
+                  title={`Open talk ${autoSend ? 'ON' : 'OFF'}`}
                 >
-                  <Zap className="w-4 h-4" />
+                  <Mic className="w-4 h-4" />
+                  {autoSend && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-background" />
+                  )}
                 </button>
               )}
               {/* Mic button with countdown ring */}

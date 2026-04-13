@@ -189,10 +189,10 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-0 z-[10002] flex items-center justify-center p-4 pointer-events-none"
+            className="fixed inset-0 z-[10002] flex items-center justify-center p-3 pointer-events-none"
           >
             <div className={cn(
-              "relative w-full max-w-sm max-h-[85vh] rounded-[32px] overflow-y-auto overscroll-y-contain pointer-events-auto shadow-2xl",
+              "relative w-full max-w-sm max-h-[80vh] rounded-[32px] overflow-y-auto overscroll-y-contain pointer-events-auto shadow-2xl",
               isLight ? "bg-white border border-black/5" : "bg-zinc-900 border border-white/10"
             )}>
 
@@ -204,7 +204,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                 <div className="flex items-center gap-2">
                   <ShieldCheck className={cn("w-5 h-5", isLight ? "text-primary" : "text-white")} />
                   <span className={cn("text-xs font-bold tracking-widest uppercase", isLight ? "text-primary" : "text-white")}>
-                    Virtual Resident
+                    Resident Card
                   </span>
                 </div>
                 <button
@@ -216,7 +216,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
               </div>
 
               {/* Card Body */}
-              <div className="p-6">
+              <div className="p-5">
                 {/* User Info */}
                 <div className="flex items-start gap-4 mb-6">
                   <div className="relative w-20 h-20 rounded-2xl overflow-hidden shadow-lg shrink-0">
@@ -329,9 +329,9 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                 </div>
 
                 {/* QR Code */}
-                <div className="flex flex-col items-center justify-center pt-2 mb-6">
-                  <div className="p-4 bg-white rounded-2xl shadow-sm border border-black/5 ring-4 ring-black/5 dark:ring-white/5 relative">
-                    <QRCode value={validationUrl} size={140} level="H" className="rounded-lg" />
+                <div className="flex flex-col items-center justify-center pt-1 mb-4">
+                  <div className="p-3 bg-white rounded-2xl shadow-sm border border-black/5 ring-4 ring-black/5 dark:ring-white/5 relative">
+                    <QRCode value={validationUrl} size={120} level="H" className="rounded-lg" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-1 rounded-full shadow-sm">
                       <ScanLine className="w-6 h-6 text-primary" />
                     </div>
