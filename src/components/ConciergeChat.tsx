@@ -743,7 +743,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[10018] bg-background/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[10018] bg-black/70"
             onClick={() => setCharacterPanelOpen(false)}
           />
           <motion.div
@@ -810,7 +810,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="fixed inset-0 z-[10020] flex h-full w-full flex-col overflow-hidden bg-background/98 backdrop-blur-xl shadow-2xl"
+          className="fixed inset-0 z-[10020] flex h-full w-full flex-col overflow-hidden bg-background shadow-2xl"
           style={{ willChange: 'transform, opacity' }}
         >
           {showAmbientLayer && (
@@ -867,7 +867,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
           {/* Header */}
           <div
-            className="relative z-10 border-b border-border/50 bg-background/95 backdrop-blur-xl"
+            className="relative z-10 border-b border-border/50 bg-background"
             style={{ paddingTop: 'max(2px, env(safe-area-inset-top, 0px))' }}
           >
             <div className="flex items-center justify-between px-2.5 py-1">
