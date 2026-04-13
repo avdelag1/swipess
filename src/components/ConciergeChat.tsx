@@ -662,7 +662,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
             stiffness: 180,
             opacity: { duration: 0.3 }
           }}
-          className="w-full h-full bg-background/95 backdrop-blur-3xl shadow-2xl flex flex-col overflow-hidden relative border-t border-white/10"
+          className="fixed inset-0 w-full h-full bg-background/95 backdrop-blur-3xl shadow-2xl flex flex-col overflow-hidden relative border-t border-white/10 z-[9999]"
         >
           {/* ADVANCED PARTICLE WARP EFFECT (Subtle) */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-[5]">
