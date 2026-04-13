@@ -169,9 +169,7 @@ function TopBarComponent({
                   }}
                   className={cn(
                     "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full touch-manipulation transition-all",
-                    isLight
-                      ? "bg-amber-500/10 hover:bg-amber-500/15"
-                      : "bg-white/[0.06] hover:bg-white/[0.10]"
+                    "!bg-transparent !border-none !shadow-none hover:scale-105 active:scale-95"
                   )}
                   aria-label="View tokens"
                 >
