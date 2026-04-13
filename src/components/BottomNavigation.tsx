@@ -434,43 +434,41 @@ export const BottomNavigation = memo(({
             const active = isActive(item);
 
             return (
-              <motion.button
+              <button
                 key={item.id}
                 id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
                 data-no-cinematic
+                data-instant-feedback
                 onPointerDown={(e) => {
-                  if (item.path) prefetchRoute(item.path); // TOUCH-PRE-WARM
+                  if (item.path) prefetchRoute(item.path);
                   isDraggingRef.current = false;
                   touchState.current = { x: e.clientX, y: e.clientY };
                 }}
                 onPointerEnter={() => {
-                  // HOVER PREFETCH: Gain 100-300ms before they even click
                   if (item.path) prefetch(item.path);
                 }}
                 onPointerUp={(e) => handlePointerUp(e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
                 onClick={(e) => handleNavClick(item, e)}
-                whileTap={{ scale: 0.92, transition: TAP_SPRING }}
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 className={cn(
                   'relative flex flex-col items-center justify-center rounded-xl gap-1 w-auto flex-shrink-0 h-full',
-                  'touch-manipulation focus-visible:outline-none transition-transform active:scale-90 transform-gpu',
+                  'touch-manipulation focus-visible:outline-none transform-gpu',
                 )}
-                  style={{
-                    minWidth: '68px',
-                    scrollSnapAlign: 'start',
-                    minHeight: TOUCH_TARGET,
-                    padding: '6px 8px',
+                style={{
+                  minWidth: '68px',
+                  scrollSnapAlign: 'start',
+                  minHeight: TOUCH_TARGET,
+                  padding: '6px 8px',
                   background: 'none',
                   border: 'none',
                   boxShadow: 'none',
                   cursor: 'pointer',
                   flexShrink: 0,
-                  willChange: 'transform',
-                    touchAction: 'manipulation',
-                   userSelect: 'none',
-                   WebkitUserSelect: 'none',
+                  touchAction: 'manipulation',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none' as any,
                 }}
               >
                 {active && (
@@ -549,7 +547,7 @@ export const BottomNavigation = memo(({
                     </span>
                   </div>
                 )}
-              </motion.button>
+              </button>
             );
           })}
         </div>
