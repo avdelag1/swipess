@@ -3,7 +3,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Coins, ArrowLeft, Radio as RadioIcon, IdCard } from 'lucide-react';
+import { MessageCirclePlus, ArrowLeft, Radio as RadioIcon, IdCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -173,7 +173,7 @@ function TopBarComponent({
                   )}
                   aria-label="View tokens"
                 >
-                  <Coins className="w-4 h-4 text-amber-500" strokeWidth={1.5} />
+                  <MessageCirclePlus className="w-4 h-4 text-primary" strokeWidth={1.5} />
                 </motion.button>
               </>
             )}
