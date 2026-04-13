@@ -264,9 +264,6 @@ function TopBarComponent({
                 )}
 
 
-              <div className="flex-1 flex justify-center">
-                 <SwipessLogo size="sm" className="opacity-80 transition-opacity hover:opacity-100" />
-              </div>
 
                 {!minimal && (
                 <>
