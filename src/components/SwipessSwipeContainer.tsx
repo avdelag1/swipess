@@ -605,9 +605,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     pendingSwipeRef.current = null;
     isSwipeAnimatingRef.current = false;
 
-    // Reset shared motion value BEFORE React re-render so new top card
-    // mounts with x=0 (prevents stale rotation/opacity on the incoming card)
-    topCardX.set(0);
+    // Smoothly reset shared motion value so the next card's peek transforms
+    // don't snap — they ease back to rest while the new card springs in
+    animate(topCardX, 0, { type: 'spring', stiffness: 500, damping: 35, mass: 0.4 });
 
     // Gate entrance animation — only spring-in for cards after the first swipe
     hasSwipedRef.current = true;
