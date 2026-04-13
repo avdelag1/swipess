@@ -10,9 +10,21 @@ import {
   OwnerIntentCard,
   PK_W,
   OWNER_PK_H,
+  POKER_CARD_PHOTOS,
 } from './SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { PokerCategoryCard } from './PokerCategoryCard';
+
+// Preload all owner card images on module load
+const preloadedOwnerImages = new Set<string>();
+OWNER_INTENT_CARDS.forEach(card => {
+  const src = POKER_CARD_PHOTOS[card.id];
+  if (src && !preloadedOwnerImages.has(src)) {
+    preloadedOwnerImages.add(src);
+    const img = new Image();
+    img.src = src;
+  }
+});
 
 export interface OwnerAllDashboardProps {
   onCardSelect: (card: OwnerIntentCard) => void;

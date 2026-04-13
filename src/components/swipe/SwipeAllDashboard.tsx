@@ -7,10 +7,21 @@ import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
-  POKER_CARDS, PK_W, PK_H,
+  POKER_CARDS, PK_W, PK_H, POKER_CARD_PHOTOS,
 } from './SwipeConstants';
 import { PokerCategoryCard } from './PokerCategoryCard';
 import { VapIdCardModal } from '../VapIdCardModal';
+
+// Preload all card images on module load for instant display
+const preloadedImages = new Set<string>();
+POKER_CARDS.forEach(card => {
+  const src = POKER_CARD_PHOTOS[card.id];
+  if (src && !preloadedImages.has(src)) {
+    preloadedImages.add(src);
+    const img = new Image();
+    img.src = src;
+  }
+});
 
 export interface SwipeAllDashboardProps {
   setCategories: (ids: any[]) => void;
