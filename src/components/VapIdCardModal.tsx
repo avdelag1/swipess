@@ -189,10 +189,10 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-0 z-[10002] flex items-center justify-center p-4 pointer-events-none"
+            className="fixed inset-0 z-[10002] flex items-center justify-center p-3 pointer-events-none"
           >
             <div className={cn(
-              "relative w-full max-w-sm max-h-[85vh] rounded-[32px] overflow-y-auto overscroll-y-contain pointer-events-auto shadow-2xl",
+              "relative w-full max-w-sm max-h-[80vh] rounded-[32px] overflow-y-auto overscroll-y-contain pointer-events-auto shadow-2xl",
               isLight ? "bg-white border border-black/5" : "bg-zinc-900 border border-white/10"
             )}>
 
@@ -216,7 +216,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
               </div>
 
               {/* Card Body */}
-              <div className="p-6">
+              <div className="p-5">
                 {/* User Info */}
                 <div className="flex items-start gap-4 mb-6">
                   <div className="relative w-20 h-20 rounded-2xl overflow-hidden shadow-lg shrink-0">
