@@ -177,7 +177,7 @@ const OwnerInterestedClients = () => {
   );
 
   return (
-    <div className="w-full h-full min-h-0 overflow-y-auto pb-32 bg-background touch-pan-y" data-no-swipe-nav="true" style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
+    <div className="w-full min-h-[101dvh] pb-32 bg-background touch-pan-y overscroll-y-contain" data-no-swipe-nav="true">
       <div className="p-4 pt-4 sm:p-8 sm:pt-4 max-w-7xl mx-auto">
         {/* Badge */}
         <div className="flex items-center justify-end mb-8 relative z-10">
@@ -245,17 +245,17 @@ const OwnerInterestedClients = () => {
             ))}
           </div>
         ) : filteredClients.length > 0 ? (
-          <PremiumSortableGrid
-            items={filteredClients}
-            onReorder={handleReorder}
-            renderItem={(client) => (
-              <PremiumLikedCard
-                type="profile"
-                data={client}
-                onAction={(action) => handleAction(action, client)}
-              />
-            )}
-           />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8" style={{ touchAction: 'pan-y' }}>
+            {filteredClients.map((client: any) => (
+              <div key={client.id} className="rounded-[2rem]" style={{ touchAction: 'pan-y' }}>
+                <PremiumLikedCard
+                  type="profile"
+                  data={client}
+                  onAction={(action) => handleAction(action, client)}
+                />
+              </div>
+            ))}
+          </div>
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
