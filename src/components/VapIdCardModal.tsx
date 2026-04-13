@@ -207,7 +207,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     { label: 'Member Since', value: memberSince || 'Just joined', icon: CalendarDays },
   ];
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
