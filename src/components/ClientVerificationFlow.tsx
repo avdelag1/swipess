@@ -84,28 +84,32 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
     setSubmitting(true);
     
     try {
-      // 1. Create a verification request record
+      // 1. Create a legal document record for verification
       const { error: requestError } = await supabase
-        .from('verification_requests')
+        .from('legal_documents')
         .insert({
           user_id: user.id,
+          document_type: 'identity_verification',
+          file_name: 'verification_bundle.json',
+          file_path: `verifications/${user.id}/${Date.now()}`,
+          file_size: 0,
+          mime_type: 'application/json',
           status: 'pending',
-          documents: [
-            { type: 'selfie', preview: selfieUrl.substring(0, 100) + '...' }, // Meta only
+          verification_notes: JSON.stringify([
+            { type: 'selfie', preview: selfieUrl.substring(0, 100) + '...' },
             { type: 'id_document', preview: documentUrl.substring(0, 100) + '...' }
-          ]
+          ])
         });
 
       if (requestError) throw requestError;
 
-      // 2. Update profile status to pending
+      // 2. Update client profile verification timestamp
       await supabase
-        .from('profiles')
+        .from('client_profiles')
         .update({
-          verification_status: 'pending',
           verification_submitted_at: new Date().toISOString()
         })
-        .eq('id', user.id);
+        .eq('user_id', user.id);
 
       toast.success('Identity submitted for review! 🚀');
       onComplete?.();

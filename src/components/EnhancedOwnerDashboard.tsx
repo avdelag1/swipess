@@ -107,6 +107,16 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     onClientInsights?.(clientId);
   }, [onClientInsights]);
 
+  // Conditionally hide category fan when in insights mode
+  const effectiveCategory = viewMode === 'insights' ? 'insights-active' : activeCategory;
+
+  const handleCardSelect = useCallback((card: OwnerIntentCard) => {
+    triggerHaptic('medium');
+    setCategories([(card.category || 'property') as any]);
+    if (card.clientType) setClientType(card.clientType as any);
+    if (card.listingType) setListingType(card.listingType as any);
+  }, [setCategories, setClientType, setListingType]);
+
   // Loading state handling
   if (isAuthLoading || isPrefsLoading) {
     return (
@@ -157,16 +167,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
       </div>
     );
   }
-
-  // Conditionally hide category fan when in insights mode
-  const effectiveCategory = viewMode === 'insights' ? 'insights-active' : activeCategory;
-
-  const handleCardSelect = useCallback((card: OwnerIntentCard) => {
-    triggerHaptic('medium');
-    setCategories([card.category || 'property']);
-    if (card.clientType) setClientType(card.clientType);
-    if (card.listingType) setListingType(card.listingType);
-  }, [setCategories, setClientType, setListingType]);
 
   return (
     <div className="flex flex-col h-full w-full overflow-y-auto bg-background">

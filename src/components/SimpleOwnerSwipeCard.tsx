@@ -228,6 +228,7 @@ interface SimpleOwnerSwipeCardProps {
   canUndo?: boolean;
   isTop?: boolean;
   fullScreen?: boolean;
+  externalX?: any;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({

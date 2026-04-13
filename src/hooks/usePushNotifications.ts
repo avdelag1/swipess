@@ -55,15 +55,16 @@ export function usePushNotifications() {
       await PushNotifications.addListener('registration', async (token) => {
         logger.info('[PushNative] Registered with token:', token.value);
         
-        // Save token to Supabase
-        const { error } = await supabase
+        const { error } = await (supabase
           .from('push_subscriptions')
           .upsert({
             user_id: user.id,
-            endpoint: token.value, // Treat token as dummy endpoint for native
+            endpoint: token.value,
+            p256dh: 'native',
+            auth: 'native',
             platform: Capacitor.getPlatform(),
             user_agent: `Capacitor-${Capacitor.getPlatform()}`,
-          }, { onConflict: 'user_id,endpoint' });
+          }, { onConflict: 'user_id,endpoint' }) as any);
 
         if (!error) setIsSubscribed(true);
       });
@@ -113,22 +114,23 @@ export function usePushNotifications() {
       if (perm !== 'granted') return false;
 
       const reg = await navigator.serviceWorker.ready;
+      const appServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        applicationServerKey: appServerKey as any,
       });
 
       const subJSON = sub.toJSON();
-      const { error } = await supabase
+      const { error } = await (supabase
         .from('push_subscriptions')
         .upsert({
           user_id: user.id,
           endpoint: subJSON.endpoint!,
-          p256dh: subJSON.keys?.p256dh,
-          auth: subJSON.keys?.auth,
+          p256dh: subJSON.keys?.p256dh || '',
+          auth: subJSON.keys?.auth || '',
           platform: 'web',
           user_agent: navigator.userAgent.slice(0, 255),
-        }, { onConflict: 'user_id,endpoint' });
+        }, { onConflict: 'user_id,endpoint' }) as any);
 
       if (error) return false;
       setIsSubscribed(true);
@@ -146,8 +148,6 @@ export function usePushNotifications() {
     if (!isSupported || !user?.id) return false;
 
     if (isNative()) {
-      // Capacitor doesn't have a direct "unregister" for push that's common,
-      // but we can remove the record from our DB.
       await supabase.from('push_subscriptions').delete().eq('user_id', user.id);
       setIsSubscribed(false);
       return true;

@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Scale, Clock, MessageSquare, ChevronRight, ChevronDown,
   ArrowLeft, Shield, AlertTriangle, FileText, DollarSign,
-  Lock, Send, CheckCircle2, Building2, UserX, Briefcase
+  Lock, Send, CheckCircle2, Building2, UserX, Briefcase, Gavel
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
