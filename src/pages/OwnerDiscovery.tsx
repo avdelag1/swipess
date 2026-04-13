@@ -218,27 +218,8 @@ export default function OwnerDiscovery() {
               </main>
             </div>
           )}
-      </div>
-
-      {activeTab === 'radar' && (
-        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button size="lg" className="rounded-full h-14 px-8 shadow-2xl bg-primary hover:bg-primary/90 font-black uppercase tracking-widest text-[11px]">
-                <Filter className="h-4 w-4 mr-2" />
-                Laser Filters
-                {activeFilterCount > 0 && <Badge variant="secondary" className="ml-2">{activeFilterCount}</Badge>}
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="h-[80vh] rounded-t-[3rem] bg-background/95 backdrop-blur-2xl border-t border-white/10">
-              <div className="px-6 pb-20 overflow-y-auto h-full scrollbar-hide">
-                <SheetHeader className="mb-6 pt-4"><SheetTitle className="font-black uppercase tracking-tighter text-2xl italic">Radar Scope</SheetTitle></SheetHeader>
-                <DiscoveryFilters category={radarCategory} onApply={handleApplyFilters} initialFilters={filters} activeCount={activeFilterCount} />
-              </div>
-            </SheetContent>
-          </Sheet>
         </div>
-      )}
+      </div>
     </div>
   );
 }
