@@ -225,7 +225,7 @@ function TopBarComponent({
                           "hover:scale-105 active:scale-95 group",
                           "touch-manipulation flex items-center justify-center flex-shrink-0",
                         )}
-                        onPointerDown={(e) => {
+                        onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                           haptics.select();
