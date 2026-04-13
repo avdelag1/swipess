@@ -497,9 +497,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
         )}
         style={{
-          paddingTop: (isFullScreenRoute || isImmersiveDashboard)
+          paddingTop: isFullScreenRoute
             ? '0px'
-            : 'calc(var(--top-bar-height) + var(--safe-top))',
+            : isImmersiveDashboard
+              ? 'calc(var(--top-bar-height) + var(--safe-top) + 8px)'
+              : 'calc(var(--top-bar-height) + var(--safe-top))',
           paddingBottom: (isFullScreenRoute || isImmersiveDashboard) 
             ? '0px' 
             : 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 32px)',
