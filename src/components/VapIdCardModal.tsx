@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -206,7 +207,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     { label: 'Member Since', value: memberSince || 'Just joined', icon: CalendarDays },
   ];
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -436,6 +437,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
