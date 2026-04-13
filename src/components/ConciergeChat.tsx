@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, memo, useMemo, SVGProps } from 'react';
+import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown, Mic, MicOff, Zap, ArrowRight, Check, ChevronUp } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
