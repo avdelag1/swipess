@@ -986,7 +986,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           </div>
 
           {/* Input */}
-          <div className="border-t border-border/50 bg-background/95 backdrop-blur-xl px-4 py-3 pb-[calc(env(safe-area-inset-bottom,0px)+12px)]">
+          <div className="border-t border-border/50 bg-background/95 backdrop-blur-xl px-3 py-2 pb-[calc(env(safe-area-inset-bottom,0px)+8px)]">
             {/* Countdown / ignition status */}
             {(ignitionFlash || countdown !== null) && (
               <div className="flex items-center gap-2 mb-2 px-1">
@@ -1012,7 +1012,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 )}
               </div>
             )}
-            <div className="flex items-end gap-2">
+            <div className="flex items-end gap-1.5">
               <textarea
                 ref={inputRef}
                 value={input}
