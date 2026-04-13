@@ -15,6 +15,25 @@ import ReactMarkdown from 'react-markdown';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 
+// Character avatar images
+import avatarDefault from '@/assets/avatars/avatar-default.png';
+import avatarKyle from '@/assets/avatars/avatar-kyle.png';
+import avatarBeauGosse from '@/assets/avatars/avatar-beaugosse.png';
+import avatarDonAjKiin from '@/assets/avatars/avatar-donajkiin.png';
+import avatarBotBetter from '@/assets/avatars/avatar-botbetter.png';
+import avatarLunaShanti from '@/assets/avatars/avatar-lunashanti.png';
+import avatarEzriyah from '@/assets/avatars/avatar-ezriyah.png';
+
+const CHARACTER_AVATARS: Record<string, string> = {
+  default: avatarDefault,
+  kyle: avatarKyle,
+  beaugosse: avatarBeauGosse,
+  donajkiin: avatarDonAjKiin,
+  botbetter: avatarBotBetter,
+  lunashanti: avatarLunaShanti,
+  ezriyah: avatarEzriyah,
+};
+
 const ConciergePrivacyPortal = memo(({ onAccept }: { onAccept: () => void }) => {
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8 relative z-10 space-y-6 text-center h-full">
@@ -752,11 +771,13 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                         : "border-border/30 bg-muted/20 hover:bg-muted/40"
                     )}
                   >
-                    <div className={cn(
-                      "flex h-12 w-12 items-center justify-center rounded-full transition-all",
-                      isActive ? char.bgColor : "bg-muted/40"
-                    )}>
-                      <char.icon className={cn("h-6 w-6", isActive ? char.color : "text-muted-foreground")} />
+                    <div
+                      className={cn(
+                        "flex h-14 w-14 items-center justify-center rounded-full overflow-hidden border-2 transition-all",
+                        isActive ? "border-primary shadow-lg" : "border-border/30"
+                      )}
+                    >
+                      <img src={CHARACTER_AVATARS[char.key]} alt={char.label} className="h-full w-full object-cover" loading="lazy" />
                     </div>
                     <span className={cn(
                       "whitespace-nowrap text-xs font-bold",
@@ -851,22 +872,19 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => setSidebarOpen(!sidebarOpen)}>
                   <Menu className="w-4 h-4" />
                 </Button>
-                {/* Character avatar with arc gauge or simple icon */}
+                {/* Character avatar image */}
                 <button
                   onClick={() => setCharacterPanelOpen(!characterPanelOpen)}
                   className="relative focus:outline-none"
                   title="Choose character"
                 >
-                  {activeCharacter !== 'default' ? (
-                    <ArcGauge
-                      level={egoLevel}
-                      color={arcColor}
-                      isLoading={isLoading}
-                      icon={currentChar.icon}
-                    />
-                  ) : (
-                    <HeaderIcon isLoading={isLoading} />
-                  )}
+                  <motion.div
+                    className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/50"
+                    animate={isLoading ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+                    transition={isLoading ? { duration: 1.8, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.2 }}
+                  >
+                    <img src={CHARACTER_AVATARS[activeCharacter]} alt={currentChar.label} className="w-full h-full object-cover" />
+                  </motion.div>
                 </button>
                 <div>
                   <p className={cn("text-sm font-bold", activeCharacter !== 'default' ? currentChar.color : "text-foreground")}>
