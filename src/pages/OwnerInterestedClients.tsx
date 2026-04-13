@@ -177,7 +177,7 @@ const OwnerInterestedClients = () => {
   );
 
   return (
-    <div className="w-full min-h-[101dvh] pb-32 bg-background touch-pan-y overscroll-y-contain" data-no-swipe-nav="true">
+    <div className="w-full min-h-full pb-32 overflow-visible" style={{ touchAction: 'pan-y' }} data-no-swipe-nav="true">
       <div className="p-4 pt-4 sm:p-8 sm:pt-4 max-w-7xl mx-auto">
         {/* Badge */}
         <div className="flex items-center justify-end mb-8 relative z-10">

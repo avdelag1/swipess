@@ -191,7 +191,8 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
 
   return (
     <div 
-      className="w-full min-h-[101dvh] pb-32 relative bg-background flex flex-col touch-pan-y overscroll-y-contain" 
+      className="w-full min-h-full pb-32 relative flex flex-col overflow-visible" 
+      style={{ touchAction: 'pan-y' }}
       data-no-swipe-nav="true"
     >
       <div className="flex-1 flex flex-col p-4 pt-0 sm:p-8 sm:pt-0 max-w-7xl mx-auto w-full">

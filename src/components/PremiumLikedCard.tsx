@@ -31,10 +31,9 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
             )}
             style={{ touchAction: 'pan-y' }}
         >
-            {/* Visual Header / Image — tappable for view */}
+            {/* Visual Header / Image — scroll-first, no full-surface tap */}
             <div 
-                className="relative h-48 sm:h-56 overflow-hidden cursor-pointer"
-                onClick={() => onAction('view', data)}
+                className="relative h-48 sm:h-56 overflow-hidden"
                 style={{ touchAction: 'pan-y' }}
             >
                 {imageUrl ? (

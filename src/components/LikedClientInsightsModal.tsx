@@ -295,6 +295,26 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
           hideCloseButton
         >
           <div className="flex flex-col h-full">
+            {/* Persistent Back/Close — always visible */}
+            <div className="absolute top-3 left-3 right-3 z-30 flex items-center justify-between pointer-events-none">
+              <button
+                onClick={() => onOpenChange(false)}
+                title="Back"
+                aria-label="Back"
+                className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={() => onOpenChange(false)}
+                title="Close"
+                aria-label="Close"
+                className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             {/* Hero Image Section */}
             <div className="relative flex-shrink-0">
               {clientImages.length > 0 ? (
@@ -305,26 +325,6 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                     className="w-full h-full object-cover cursor-pointer"
                     onClick={handleImageClick}
                   />
-
-                  {/* Back Button */}
-                  <button
-                    onClick={() => onOpenChange(false)}
-                    title="Back"
-                    aria-label="Back"
-                    className="absolute top-3 left-3 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm z-10"
-                  >
-                    <ChevronLeft className="w-6 h-6" />
-                  </button>
-
-                  {/* Close Button */}
-                  <button
-                    onClick={() => onOpenChange(false)}
-                    title="Close"
-                    aria-label="Close"
-                    className="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm z-10"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
 
                   {/* Navigation Arrows */}
                   {clientImages.length > 1 && (
@@ -361,7 +361,6 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                           Verified
                         </Badge>
                       )}
-                      {/* Rating Badge */}
                       <Badge className="bg-black/60 text-white border-0 px-3 py-1 backdrop-blur-sm">
                         <Star className="w-3 h-3 mr-1 fill-yellow-400 text-yellow-400" />
                         {ratingAggregate?.displayed_rating?.toFixed(1) || '5.0'}
@@ -395,7 +394,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                   )}
                 </div>
               ) : (
-                <div className="aspect-[3/4] max-h-[45vh] w-full bg-muted flex items-center justify-center">
+                <div className="aspect-[3/4] max-h-[45vh] w-full bg-muted flex items-center justify-center pt-14">
                   <User className="w-16 h-16 text-muted-foreground" />
                 </div>
               )}
