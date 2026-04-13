@@ -459,21 +459,21 @@ export const BottomNavigation = memo(({
           })}
         </div>
 
-        {/* Edge fade masks — rounded glass feel */}
+        {/* Edge fade masks — subtle shadow hints */}
         <div
-          className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 z-10 rounded-l-[32px]"
+          className="pointer-events-none absolute left-0 top-0 bottom-0 w-4 z-10 rounded-l-[32px]"
           style={{
             background: isLight
-              ? 'linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 40%, transparent 100%)'
-              : 'linear-gradient(to right, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.6) 40%, transparent 100%)',
+              ? 'linear-gradient(to right, rgba(255,255,255,0.3) 0%, transparent 100%)'
+              : 'linear-gradient(to right, rgba(0,0,0,0.25) 0%, transparent 100%)',
           }}
         />
         <div
-          className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 z-10 rounded-r-[32px]"
+          className="pointer-events-none absolute right-0 top-0 bottom-0 w-4 z-10 rounded-r-[32px]"
           style={{
             background: isLight
-              ? 'linear-gradient(to left, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 40%, transparent 100%)'
-              : 'linear-gradient(to left, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.6) 40%, transparent 100%)',
+              ? 'linear-gradient(to left, rgba(255,255,255,0.3) 0%, transparent 100%)'
+              : 'linear-gradient(to left, rgba(0,0,0,0.25) 0%, transparent 100%)',
           }}
         />
       </div>
