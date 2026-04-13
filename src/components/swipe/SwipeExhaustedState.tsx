@@ -136,7 +136,7 @@ export const SwipeExhaustedState = ({
             transition={{ delay: 0.1 }}
             className="flex w-full justify-center"
           >
-            <div className="flex w-full max-w-2xl flex-wrap justify-center gap-2">
+            <div className="flex items-center justify-center gap-3">
               {Object.entries(CATEGORY_ICONS).filter(([k]) => k !== 'worker').map(([catId, info]) => {
                 const Icon = info.icon;
                 const isActive = activeCategory === catId;
@@ -144,16 +144,16 @@ export const SwipeExhaustedState = ({
                   <button
                     key={catId}
                     onClick={() => handleCategorySwitch(catId)}
+                    title={info.label}
                     className={cn(
-                      "flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[9px] font-black uppercase tracking-[0.22em] transition-all duration-300 sm:px-4",
+                      "flex items-center justify-center w-10 h-10 rounded-full border transition-all duration-200 active:scale-90",
                       isActive
-                        ? "border-border bg-card/80 text-foreground shadow-lg"
-                        : "border-border/60 bg-card/45 text-muted-foreground hover:bg-card/70 hover:text-foreground/80"
+                        ? "border-white/20 bg-white/10 shadow-lg"
+                        : "border-border/40 bg-card/30 text-muted-foreground hover:bg-card/50"
                     )}
-                    style={isActive ? { boxShadow: `0 0 20px ${info.color}20` } : undefined}
+                    style={isActive ? { boxShadow: `0 0 16px ${info.color}30`, color: info.color } : undefined}
                   >
-                    <Icon className="h-3.5 w-3.5" strokeWidth={1.5} style={isActive ? { color: info.color } : undefined} />
-                    <span>{info.label}</span>
+                    <Icon className="h-4.5 w-4.5" strokeWidth={1.5} style={isActive ? { color: info.color } : { opacity: 0.6 }} />
                   </button>
                 );
               })}
