@@ -364,6 +364,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showAmbientLayer, setShowAmbientLayer] = useState(false);
   const originalInputRef = useRef(''); // To preserve text before mic starts
 
   // ── Voice-to-text (Web Speech API) ─────────────────────────────────
@@ -621,6 +622,16 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     }
   }, [activeConversationId, scrollToBottom]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      setShowAmbientLayer(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => setShowAmbientLayer(true), 120);
+    return () => window.clearTimeout(timer);
+  }, [isOpen]);
+
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
     sendMessage(input);
@@ -653,50 +664,32 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={{ y: '100%', scale: 0.8, filter: 'blur(20px)', opacity: 0 }}
-          animate={{ y: 0, scale: 1, filter: 'blur(0px)', opacity: 1 }}
-          exit={{ y: '100%', scale: 0.8, filter: 'blur(20px)', opacity: 0 }}
-          transition={{ 
-            type: 'spring', 
-            damping: 25, 
-            stiffness: 180,
-            opacity: { duration: 0.3 }
-          }}
-          className="fixed inset-0 w-full h-full bg-background/95 backdrop-blur-3xl shadow-2xl flex flex-col overflow-hidden relative border-t border-white/10 z-[9999]"
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="fixed inset-0 w-full h-full bg-background/98 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden relative border-t border-border/40 z-[9999]"
+          style={{ willChange: 'transform, opacity' }}
         >
-          {/* ADVANCED PARTICLE WARP EFFECT (Subtle) */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden z-[5]">
-             {[...Array(6)].map((_, i) => (
-               <motion.div
-                 key={i}
-                 initial={{ opacity: 0, scale: 0 }}
-                 animate={{ 
-                   opacity: [0, 0.4, 0], 
-                   scale: [1, 2],
-                   x: [0, (i % 2 === 0 ? 100 : -100)],
-                   y: [0, (i < 3 ? 100 : -100)]
-                 }}
-                 transition={{ 
-                   duration: 0.8, 
-                   delay: 0.1 + i * 0.05,
-                   ease: "easeOut"
-                 }}
-                 className="absolute top-1/2 left-1/2 w-32 h-32 -translate-x-1/2 -translate-y-1/2 bg-primary/20 rounded-full blur-3xl"
-               />
-             ))}
-          </div>
-          {/* LIQUID AMBIENT BACKGROUND */}
-          <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden mix-blend-screen opacity-40">
-            <div 
-              className={cn(
-                "absolute top-1/2 left-1/2 w-[180%] h-[180%] -translate-x-1/2 -translate-y-1/2 blur-[80px] transition-all duration-3000 ease-in-out",
-                isLoading || isListening ? "scale-110 opacity-70 animate-pulse" : "scale-100 opacity-30"
-              )}
-              style={{
-                background: `radial-gradient(circle at center, ${activeCharacter === 'default' ? '#6366f1' : '#f59e0b'}40 0%, transparent 60%)`
-              }}
-            />
-          </div>
+          {showAmbientLayer && (
+            <>
+              <div className="absolute inset-0 pointer-events-none overflow-hidden z-[5]">
+                <div className="absolute left-[10%] right-[18%] top-[-8%] h-40 rounded-full bg-primary/10 blur-3xl" />
+                <div className="absolute left-[18%] right-[10%] bottom-[-12%] h-48 rounded-full bg-accent/10 blur-3xl" />
+              </div>
+              <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-60">
+                <div
+                  className={cn(
+                    'absolute top-1/2 left-1/2 h-[180%] w-[180%] -translate-x-1/2 -translate-y-1/2 blur-[80px] transition-all duration-700 ease-out',
+                    isLoading || isListening ? 'scale-110 opacity-70' : 'scale-100 opacity-35'
+                  )}
+                  style={{
+                    background: 'radial-gradient(circle at center, hsl(var(--primary) / 0.18) 0%, transparent 62%)',
+                  }}
+                />
+              </div>
+            </>
+          )}
 
           {!hasAcceptedPrivacy ? (
              <ConciergePrivacyPortal onAccept={acceptPrivacy} />

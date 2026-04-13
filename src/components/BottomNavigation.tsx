@@ -171,6 +171,84 @@ export const BottomNavigation = memo(({
   const touchState = useRef<{
     x: number; y: number;
   } | null>(null);
+  const horizontalDragRef = useRef({
+    pointerId: -1,
+    startX: 0,
+    startY: 0,
+    startScrollLeft: 0,
+    isDragging: false,
+  });
+  const dragResetTimeoutRef = useRef<number | null>(null);
+
+  const clearDragResetTimeout = useCallback(() => {
+    if (dragResetTimeoutRef.current !== null) {
+      window.clearTimeout(dragResetTimeoutRef.current);
+      dragResetTimeoutRef.current = null;
+    }
+  }, []);
+
+  const resetHorizontalDrag = useCallback((keepClickGuard = false) => {
+    const wasDragging = horizontalDragRef.current.isDragging;
+    horizontalDragRef.current = {
+      pointerId: -1,
+      startX: 0,
+      startY: 0,
+      startScrollLeft: scrollRef.current?.scrollLeft ?? 0,
+      isDragging: false,
+    };
+
+    if (wasDragging || keepClickGuard) {
+      clearDragResetTimeout();
+      dragResetTimeoutRef.current = window.setTimeout(() => {
+        isDraggingRef.current = false;
+        dragResetTimeoutRef.current = null;
+      }, 140);
+      return;
+    }
+
+    isDraggingRef.current = false;
+  }, [clearDragResetTimeout]);
+
+  const handleScrollPointerDownCapture = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+    clearDragResetTimeout();
+    horizontalDragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      startScrollLeft: scrollRef.current?.scrollLeft ?? 0,
+      isDragging: false,
+    };
+  }, [clearDragResetTimeout]);
+
+  const handleScrollPointerMoveCapture = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const container = scrollRef.current;
+    const state = horizontalDragRef.current;
+    if (!container || state.pointerId !== e.pointerId) return;
+
+    const dx = e.clientX - state.startX;
+    const dy = e.clientY - state.startY;
+
+    if (!state.isDragging) {
+      if (Math.abs(dx) < 6 || Math.abs(dx) <= Math.abs(dy)) return;
+      state.isDragging = true;
+      isDraggingRef.current = true;
+    }
+
+    container.scrollLeft = state.startScrollLeft - dx;
+    e.preventDefault();
+  }, []);
+
+  const handleScrollPointerUpCapture = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (horizontalDragRef.current.pointerId !== e.pointerId) return;
+    resetHorizontalDrag(horizontalDragRef.current.isDragging);
+  }, [resetHorizontalDrag]);
+
+  const handleScrollPointerCancelCapture = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (horizontalDragRef.current.pointerId !== e.pointerId) return;
+    resetHorizontalDrag(horizontalDragRef.current.isDragging);
+  }, [resetHorizontalDrag]);
 
   const _handlePointerDown = useCallback(
     (e: React.PointerEvent, item: NavItem) => {
@@ -203,15 +281,14 @@ export const BottomNavigation = memo(({
   // Primary navigation handler — fires after pointer events, checks drag state
   const handleNavClick = useCallback(
     (item: NavItem, event?: React.MouseEvent | React.PointerEvent) => {
-      // Immediate haptic + audio on the final click confirmation
-      haptics.tap();
-      uiSounds.playTap();
-
       if (isDraggingRef.current) {
         isDraggingRef.current = false;
         return;
       }
       isDraggingRef.current = false;
+
+      haptics.tap();
+      uiSounds.playTap();
 
       if (item.path === location.pathname) {
         haptics.tap();
@@ -320,9 +397,13 @@ export const BottomNavigation = memo(({
         <div
           ref={mergedScrollRef}
           data-no-swipe-nav
+          onPointerDownCapture={handleScrollPointerDownCapture}
+          onPointerMoveCapture={handleScrollPointerMoveCapture}
+          onPointerUpCapture={handleScrollPointerUpCapture}
+          onPointerCancelCapture={handleScrollPointerCancelCapture}
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full justify-start gap-3 px-4 py-1.5 nav-scroll-hide transform-gpu',
+            'relative flex items-center w-full justify-start gap-3 px-4 py-1.5 nav-scroll-hide transform-gpu select-none',
           )}
           style={{
             zIndex: 2,
@@ -333,6 +414,8 @@ export const BottomNavigation = memo(({
             WebkitOverflowScrolling: 'touch',
             contentVisibility: 'auto',
             containIntrinsicSize: '60px',
+            touchAction: 'pan-x',
+            overscrollBehaviorX: 'contain',
           }}
         >
           {navItems.map((item) => {
@@ -345,7 +428,6 @@ export const BottomNavigation = memo(({
                 id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
                 data-no-cinematic
                 onPointerDown={(e) => {
-                  haptics.select(); // INSTANT HAPTIC
                   if (item.path) prefetchRoute(item.path); // TOUCH-PRE-WARM
                   isDraggingRef.current = false;
                   touchState.current = { x: e.clientX, y: e.clientY };
@@ -376,6 +458,9 @@ export const BottomNavigation = memo(({
                   cursor: 'pointer',
                   flexShrink: 0,
                   willChange: 'transform',
+                   touchAction: 'pan-x',
+                   userSelect: 'none',
+                   WebkitUserSelect: 'none',
                 }}
               >
                 {active && (
