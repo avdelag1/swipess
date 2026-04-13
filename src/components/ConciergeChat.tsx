@@ -743,7 +743,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[10018] bg-black/70"
+            className="fixed inset-0 z-[10025] bg-background/40 backdrop-blur-sm"
             onClick={() => setCharacterPanelOpen(false)}
           />
           <motion.div
@@ -751,7 +751,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 400 }}
-            className="fixed inset-x-0 bottom-0 z-[10019] rounded-t-3xl border-t border-border/40 bg-background shadow-2xl pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
+            className="fixed inset-x-0 bottom-0 z-[10026] rounded-t-3xl border-t border-border/40 bg-background/95 backdrop-blur-xl shadow-2xl pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
           >
             <div className="flex justify-center pt-3 pb-2">
               <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
@@ -810,7 +810,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="fixed inset-0 z-[10020] flex h-full w-full flex-col overflow-hidden bg-background shadow-2xl"
+          className="fixed inset-0 z-[10020] flex h-full w-full flex-col overflow-hidden bg-background/98 backdrop-blur-xl shadow-2xl"
           style={{ willChange: 'transform, opacity' }}
         >
           {showAmbientLayer && (
@@ -845,7 +845,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="absolute inset-0 z-40 bg-black/60"
+                className="absolute inset-0 z-40 bg-black/60 backdrop-blur-sm"
                 onClick={() => setSidebarOpen(false)}
               />
             )}
@@ -867,7 +867,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
           {/* Header */}
           <div
-            className="relative z-10 border-b border-border/50 bg-background"
+            className="relative z-10 border-b border-border/50 bg-background/95 backdrop-blur-xl"
             style={{ paddingTop: 'max(2px, env(safe-area-inset-top, 0px))' }}
           >
             <div className="flex items-center justify-between px-2.5 py-1">
