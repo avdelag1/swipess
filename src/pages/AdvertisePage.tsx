@@ -310,6 +310,7 @@ export default function AdvertisePage() {
   const [approvedSubmission, setApprovedSubmission] = useState<any>(null);
   const [pendingSubmission, setPendingSubmission] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [visiblePackages, setVisiblePackages] = useState([...PACKAGES]);
 
   const steps: Step[] = ["type", "details", "confirm"];
   const stepIdx = steps.indexOf(step);
