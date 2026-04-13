@@ -186,7 +186,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
           >
             <div
               className={cn(
-                "relative w-full max-w-[340px] rounded-[28px] pointer-events-auto shadow-2xl overflow-hidden",
+                "relative w-full max-w-[420px] rounded-[28px] pointer-events-auto shadow-2xl overflow-hidden",
                 isLight ? "bg-white border border-black/5" : "bg-zinc-900 border border-white/10"
               )}
             >
@@ -210,11 +210,11 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
               </div>
 
               {/* ── Card Content — single-screen, no scroll ── */}
-              <div className="p-4 space-y-3">
+              <div className="p-5 space-y-4">
 
                 {/* User row */}
                 <div className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 rounded-2xl overflow-hidden shadow-lg shrink-0">
+                  <div className="relative w-14 h-14 rounded-2xl overflow-hidden shadow-lg shrink-0">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
                     ) : (
@@ -243,11 +243,11 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                   </div>
 
                   {/* QR — small, inline */}
-                  <div className="shrink-0 p-1 bg-white rounded-lg shadow-sm border border-black/5 relative">
-                    <QRCode value={validationUrl} size={48} level="H" />
+                  <div className="shrink-0 p-1.5 bg-white rounded-xl shadow-sm border border-black/5 relative">
+                    <QRCode value={validationUrl} size={56} level="H" />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="bg-white p-0.5 rounded-full">
-                        <ScanLine className="w-2.5 h-2.5 text-primary" />
+                        <ScanLine className="w-3 h-3 text-primary" />
                       </div>
                     </div>
                   </div>
@@ -347,15 +347,15 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                           )}
                         >
                           <div className={cn(
-                            "w-7 h-7 rounded-lg flex items-center justify-center",
+                            "w-9 h-9 rounded-xl flex items-center justify-center",
                             status === 'verified' ? "bg-emerald-500/15 text-emerald-500"
                               : status === 'pending' ? "bg-amber-500/15 text-amber-500"
                               : isLight ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
                           )}>
-                            {uploading === key ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              : status === 'verified' ? <CheckCircle2 className="w-3.5 h-3.5" />
-                              : status === 'pending' ? <FileText className="w-3.5 h-3.5" />
-                              : <Upload className="w-3.5 h-3.5" />}
+                            {uploading === key ? <Loader2 className="w-4 h-4 animate-spin" />
+                              : status === 'verified' ? <CheckCircle2 className="w-4 h-4" />
+                              : status === 'pending' ? <FileText className="w-4 h-4" />
+                              : <Upload className="w-4 h-4" />}
                           </div>
                           <span className="text-[9px] font-medium text-muted-foreground">{label}</span>
                         </button>
