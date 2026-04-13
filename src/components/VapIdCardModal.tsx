@@ -214,25 +214,25 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-          className="fixed inset-0 z-[10001] flex flex-col bg-background"
+          className="fixed inset-0 z-[10001] flex flex-col bg-background overflow-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <div className="flex items-center justify-between border-b border-border px-5 py-3 shrink-0">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Virtual ID</p>
-              <h2 className="mt-1 text-lg font-black tracking-tight text-foreground">Resident Identity Card</h2>
+              <h2 className="mt-0.5 text-base font-black tracking-tight text-foreground">Resident Identity Card</h2>
             </div>
             <button
               onClick={onClose}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
               aria-label="Close resident ID"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
-          {/* Scrollable content */}
-          <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-8 pt-4">
+          {/* Scrollable content — generous padding so nothing hugs edges */}
+          <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-28 pt-5 scroll-smooth">
             {/* Main card section */}
             <section className="rounded-[28px] border border-border bg-card p-4 shadow-lg">
               <div className="mb-4 flex items-center justify-between gap-3">
