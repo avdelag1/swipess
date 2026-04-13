@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const TOUR_KEY = 'guidedTourCompleted';
 
@@ -43,17 +44,28 @@ const defaultSteps: TourStep[] = [
 ];
 
 export function useGuidedTour(steps: TourStep[] = defaultSteps) {
+  const location = useLocation();
   const [isActive, setIsActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
+  const canRunTour = useMemo(() => {
+    return location.pathname === '/client/dashboard' || location.pathname === '/owner/dashboard';
+  }, [location.pathname]);
+
   useEffect(() => {
+    if (!canRunTour) {
+      setIsActive(false);
+      setCurrentStep(0);
+      return;
+    }
+
     // Auto-trigger on first visit after onboarding
     const completed = localStorage.getItem(TOUR_KEY);
     if (!completed) {
       const timer = setTimeout(() => setIsActive(true), 2000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [canRunTour]);
 
   const nextStep = useCallback(() => {
     if (currentStep < steps.length - 1) {
@@ -85,7 +97,7 @@ export function useGuidedTour(steps: TourStep[] = defaultSteps) {
   }, []);
 
   return {
-    isActive,
+    isActive: canRunTour && isActive,
     currentStep,
     totalSteps: steps.length,
     step: steps[currentStep],

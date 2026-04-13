@@ -103,7 +103,7 @@ function TopBarComponent({
               haptics.tap();
               navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
             }}
-            className="absolute left-1/2 top-1/2 z-10 h-full w-24 -translate-x-1/2 -translate-y-1/2 touch-manipulation bg-transparent pointer-events-auto"
+            className="absolute left-1/2 top-1/2 z-10 h-10 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full touch-manipulation bg-transparent pointer-events-auto"
             aria-label="Go to dashboard"
           />
 
@@ -184,14 +184,14 @@ function TopBarComponent({
           <div className="flex-1 min-w-0 relative pointer-events-none">
             <div
               ref={headerBounceRef}
-              className="overflow-x-auto pointer-events-auto"
+              className="overflow-x-auto pointer-events-none"
               style={{
                 scrollbarWidth: 'none',
                 WebkitOverflowScrolling: 'touch',
-                touchAction: 'pan-x',
+                touchAction: 'manipulation',
               } as React.CSSProperties}
             >
-              <div className="flex items-center gap-2 flex-nowrap justify-end pl-2">
+              <div className="flex items-center gap-2 flex-nowrap justify-end pl-2 [&>*]:pointer-events-auto">
                 {!minimal && (
                   <>
                     {/* Radio */}

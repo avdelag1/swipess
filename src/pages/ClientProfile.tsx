@@ -146,26 +146,26 @@ const ClientProfile = () => {
           </div>
         </div>
 
-        {/* resident VAP ID card */}
+        {/* Resident Card */}
         <motion.div
            initial={{ opacity: 0, scale: 0.95 }}
            animate={{ opacity: 1, scale: 1 }}
            className={cn(
-             "p-6 rounded-[2.5rem] relative overflow-hidden group cursor-pointer border-2 border-primary/20 hover:border-primary/40 transition-all",
+             "p-4 rounded-[2rem] relative overflow-hidden group cursor-pointer border-2 border-primary/20 hover:border-primary/40 transition-all",
              isLight ? "mexican-pink-premium text-white shadow-xl" : "bg-white/[0.03] border-white/[0.08]"
            )}
            onClick={() => { haptics.select(); setIsVapModalOpen(true); }}
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-[50px] rounded-full translate-x-1/2 -translate-y-1/2" />
-          <div className="flex items-center gap-5 relative z-10">
-            <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center">
-              <ShieldCheck className="w-7 h-7 text-white" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-[36px] rounded-full translate-x-1/2 -translate-y-1/2" />
+          <div className="flex items-center gap-3.5 relative z-10">
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="text-base font-black uppercase tracking-widest text-white italic">Resident VAP Card</h3>
-              <p className="text-[10px] font-bold text-white/70 uppercase">Unlock Community Discounts in Tulum</p>
+              <h3 className="text-sm font-black uppercase tracking-widest text-white italic">Resident Card</h3>
+              <p className="text-[10px] font-bold text-white/70 uppercase">View and update your local details</p>
             </div>
-            <ChevronRight className="w-5 h-5 text-white/50" />
+            <ChevronRight className="w-4 h-4 text-white/50 shrink-0" />
           </div>
         </motion.div>
 

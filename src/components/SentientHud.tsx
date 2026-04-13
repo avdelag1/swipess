@@ -70,9 +70,7 @@ export function SentientHud({
         className
       )}
     >
-      <div className="pointer-events-auto">
-        {children}
-      </div>
+      {children}
     </div>
   );
 }
