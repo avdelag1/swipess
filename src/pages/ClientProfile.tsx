@@ -167,12 +167,12 @@ const ClientProfile = () => {
             </div>
             <ChevronRight className="w-5 h-5 text-white/50" />
           </div>
-          
-          <VapIdCardModal 
-            isOpen={isVapModalOpen} 
-            onClose={() => setIsVapModalOpen(false)} 
-          />
         </motion.div>
+
+        <VapIdCardModal 
+          isOpen={isVapModalOpen} 
+          onClose={() => setIsVapModalOpen(false)} 
+        />
 
         {/* Profile Completion */}
         {profile && completionPercent < 100 && (
