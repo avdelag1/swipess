@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect, useCallback, memo, useMemo } from 'react';
+import { useState, useRef, useEffect, useCallback, memo, useMemo, SVGProps } from 'react';
 import { triggerHaptic } from '@/utils/haptics';
-import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown, Mic, MicOff, Zap, ArrowRight, Check } from 'lucide-react';
-import { SwipessLogo } from '@/components/SwipessLogo';
+import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown, Mic, MicOff, Zap, ArrowRight, Check, ChevronUp } from 'lucide-react';
+import SwipessLogoComponent from '@/components/SwipessLogo';
 import { Button } from '@/components/ui/button';
 import { useConciergeAI, ChatMessage, Conversation, AiCharacter } from '@/hooks/useConciergeAI';
 import { useAudioVisualizer } from '@/hooks/useAudioVisualizer';
@@ -228,7 +228,49 @@ const TypingIndicator = () => (
   </div>
 );
 
-/* ─── Breathing Header Icon ─── */
+/* ─── Circular Arc Energy Gauge ─── */
+const ArcGauge = memo(({ level, color, isLoading, icon: Icon }: {
+  level: number; color: string; isLoading: boolean;
+  icon: React.ElementType;
+}) => {
+  const size = 42;
+  const stroke = 3;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.max(0, Math.min(1, level / 10));
+  const dashOffset = circumference * (1 - progress);
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="absolute inset-0 -rotate-90">
+        {/* Track */}
+        <circle cx={size/2} cy={size/2} r={radius} fill="none"
+          stroke="hsl(var(--muted) / 0.3)" strokeWidth={stroke} />
+        {/* Arc fill */}
+        <motion.circle cx={size/2} cy={size/2} r={radius} fill="none"
+          stroke={color} strokeWidth={stroke} strokeLinecap="round"
+          strokeDasharray={circumference}
+          animate={{ strokeDashoffset: dashOffset }}
+          transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+          style={{ filter: level > 6 ? `drop-shadow(0 0 4px ${color})` : 'none' }}
+        />
+      </svg>
+      {/* Center icon */}
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center"
+        animate={isLoading ? {
+          scale: [1, 1.12, 1],
+        } : { scale: 1 }}
+        transition={isLoading ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 }}
+      >
+        <Icon className="w-4.5 h-4.5" style={{ color }} />
+      </motion.div>
+    </div>
+  );
+});
+ArcGauge.displayName = 'ArcGauge';
+
+/* ─── Simple Header Icon (default character, no gauge) ─── */
 const HeaderIcon = ({ isLoading }: { isLoading: boolean }) => (
   <motion.div
     className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center"
@@ -351,6 +393,20 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   ];
 
   const currentChar = CHARACTER_OPTIONS.find(c => c.key === activeCharacter) || CHARACTER_OPTIONS[0];
+
+  // Derive the arc color from the current character
+  const arcColor = useMemo(() => {
+    if (activeCharacter === 'default') return 'hsl(var(--primary))';
+    const colorMap: Record<string, string> = {
+      kyle: 'hsl(25, 95%, 60%)',
+      beaugosse: 'hsl(270, 70%, 60%)',
+      donajkiin: 'hsl(155, 70%, 50%)',
+      botbetter: 'hsl(330, 80%, 60%)',
+      lunashanti: 'hsl(270, 60%, 65%)',
+      ezriyah: 'hsl(170, 70%, 50%)',
+    };
+    return colorMap[activeCharacter] || 'hsl(var(--primary))';
+  }, [activeCharacter]);
 
   const selectCharacter = (key: AiCharacter) => {
     setActiveCharacter(key);
@@ -730,19 +786,23 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => setSidebarOpen(!sidebarOpen)}>
                   <Menu className="w-4 h-4" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "w-8 h-8 rounded-full transition-all",
-                    currentChar.bgColor, currentChar.glowColor
-                  )}
+                {/* Character avatar with arc gauge or simple icon */}
+                <button
                   onClick={() => setCharacterPanelOpen(!characterPanelOpen)}
+                  className="relative focus:outline-none"
                   title="Choose character"
                 >
-                  <currentChar.icon className={cn("w-4 h-4", currentChar.color)} />
-                </Button>
-                <HeaderIcon isLoading={isLoading} />
+                  {activeCharacter !== 'default' ? (
+                    <ArcGauge
+                      level={egoLevel}
+                      color={arcColor}
+                      isLoading={isLoading}
+                      icon={currentChar.icon}
+                    />
+                  ) : (
+                    <HeaderIcon isLoading={isLoading} />
+                  )}
+                </button>
                 <div>
                   <p className={cn("text-sm font-bold", activeCharacter !== 'default' ? currentChar.color : "text-foreground")}>
                     {activeCharacter !== 'default' ? currentChar.label : "Swipess AI"}
@@ -787,78 +847,71 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
               </div>
             </div>
 
-            {/* Character Selector Panel */}
+            {/* Character Selector — Bottom Sheet Carousel */}
             <AnimatePresence>
               {characterPanelOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="px-3 pb-3 overflow-hidden"
-                >
-                  <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-                    {CHARACTER_OPTIONS.map(char => (
-                      <button
-                        key={char.key}
-                        onClick={() => selectCharacter(char.key)}
-                        className={cn(
-                          "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all shrink-0 border",
-                          activeCharacter === char.key
-                            ? cn(char.bgColor, char.color, "border-current/20", char.glowColor)
-                            : "bg-muted/30 text-muted-foreground border-border/30 hover:bg-muted/60"
-                        )}
-                      >
-                        <char.icon className="w-3.5 h-3.5" />
-                        {char.label}
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Level Meter */}
-            <AnimatePresence>
-              {activeCharacter !== 'default' && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="px-4 pb-2 overflow-hidden"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap">
-                      {currentChar.meterLabel}
-                    </span>
-                    <div className="flex-1 h-1.5 rounded-full bg-muted/50 overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{
-                          width: `${egoLevel * 10}%`,
-                          background: isBotBetter
-                            ? (egoLevel <= 3 ? 'hsl(340, 70%, 55%)' : egoLevel <= 6 ? 'hsl(330, 80%, 60%)' : 'hsl(320, 85%, 65%)')
-                            : isLunaShanti
-                              ? (egoLevel <= 3 ? 'hsl(260, 60%, 60%)' : egoLevel <= 6 ? 'hsl(270, 65%, 55%)' : 'hsl(280, 70%, 65%)')
-                              : isDonAjKiin
-                                ? (egoLevel <= 3 ? 'hsl(180, 60%, 45%)' : egoLevel <= 6 ? 'hsl(155, 70%, 45%)' : 'hsl(45, 80%, 55%)')
-                                : isBeauGosse
-                                  ? (egoLevel <= 3 ? 'hsl(210, 80%, 60%)' : egoLevel <= 6 ? 'hsl(270, 70%, 60%)' : 'hsl(330, 70%, 60%)')
-                                  : (egoLevel <= 3 ? 'hsl(210, 80%, 60%)' : egoLevel <= 6 ? 'hsl(30, 90%, 55%)' : 'hsl(0, 80%, 55%)'),
-                          boxShadow: egoLevel > 6
-                            ? `0 0 8px ${isBotBetter ? 'hsla(320, 85%, 65%, 0.5)' : isLunaShanti ? 'hsla(280, 70%, 65%, 0.5)' : isDonAjKiin ? 'hsla(45, 80%, 55%, 0.5)' : isBeauGosse ? 'hsla(330, 70%, 60%, 0.5)' : 'hsla(0, 80%, 55%, 0.5)'}`
-                            : egoLevel > 3
-                              ? `0 0 6px ${isBotBetter ? 'hsla(330, 80%, 60%, 0.4)' : isLunaShanti ? 'hsla(270, 65%, 55%, 0.4)' : isDonAjKiin ? 'hsla(155, 70%, 45%, 0.4)' : isBeauGosse ? 'hsla(270, 70%, 60%, 0.4)' : 'hsla(30, 90%, 55%, 0.4)'}`
-                              : 'none',
-                        }}
-                        animate={{ width: `${egoLevel * 10}%` }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                      />
+                <>
+                  {/* Backdrop */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"
+                    onClick={() => setCharacterPanelOpen(false)}
+                  />
+                  {/* Sheet */}
+                  <motion.div
+                    initial={{ y: '100%' }}
+                    animate={{ y: 0 }}
+                    exit={{ y: '100%' }}
+                    transition={{ type: 'spring', damping: 32, stiffness: 400 }}
+                    className="fixed bottom-0 left-0 right-0 z-[61] bg-background/95 backdrop-blur-2xl border-t border-border/40 rounded-t-3xl pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
+                  >
+                    {/* Drag handle */}
+                    <div className="flex justify-center pt-3 pb-2">
+                      <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
                     </div>
-                    <span className="text-[10px] text-muted-foreground font-mono w-4 text-right">{egoLevel}</span>
-                  </div>
-                </motion.div>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest text-center mb-3">Choose Your AI</p>
+                    {/* Horizontal carousel */}
+                    <div className="flex gap-3 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory" style={{ WebkitOverflowScrolling: 'touch' }}>
+                      {CHARACTER_OPTIONS.map(char => {
+                        const isActive = activeCharacter === char.key;
+                        return (
+                          <button
+                            key={char.key}
+                            onClick={() => selectCharacter(char.key)}
+                            className={cn(
+                              "flex flex-col items-center gap-2 p-4 rounded-2xl transition-all shrink-0 snap-center border min-w-[100px]",
+                              isActive
+                                ? cn("border-2", char.bgColor, char.glowColor)
+                                : "bg-muted/20 border-border/30 hover:bg-muted/40"
+                            )}
+                          >
+                            <div className={cn(
+                              "w-12 h-12 rounded-full flex items-center justify-center transition-all",
+                              isActive ? char.bgColor : "bg-muted/40"
+                            )}>
+                              <char.icon className={cn("w-6 h-6", isActive ? char.color : "text-muted-foreground")} />
+                            </div>
+                            <span className={cn(
+                              "text-xs font-bold whitespace-nowrap",
+                              isActive ? char.color : "text-foreground"
+                            )}>{char.label}</span>
+                            <span className="text-[10px] text-muted-foreground whitespace-nowrap">{char.subtitle}</span>
+                            {isActive && (
+                              <motion.div
+                                layoutId="char-check"
+                                className="w-5 h-5 rounded-full bg-primary flex items-center justify-center"
+                              >
+                                <Check className="w-3 h-3 text-primary-foreground" />
+                              </motion.div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                </>
               )}
             </AnimatePresence>
           </div>
@@ -866,24 +919,31 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           {/* Messages */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 scroll-smooth">
             {messages.length === 0 && !isLoading && (
-              <div className="flex flex-col items-center justify-center h-full text-center px-6">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <Sparkles className="w-7 h-7 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Welcome to Swipess AI</h3>
-                <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
-                  Ask me about properties in Tulum, best beaches, cenotes, local tips, cost of living, or anything about your search.
+              <div className="flex flex-col items-center justify-center h-full text-center px-8">
+                <motion.div
+                  animate={{ scale: [1, 1.04, 1], opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                  className="mb-6"
+                >
+                  <div className="w-16 h-16 rounded-2xl bg-primary/8 flex items-center justify-center">
+                    <Sparkles className="w-8 h-8 text-primary/60" />
+                  </div>
+                </motion.div>
+                <p className="text-base font-medium text-foreground/80 mb-1">
+                  Ask me anything
                 </p>
-                <div className="flex flex-wrap gap-2 mt-6 justify-center">
+                <p className="text-xs text-muted-foreground/60 max-w-[220px] leading-relaxed">
+                  Properties, beaches, cenotes, local tips, cost of living…
+                </p>
+                <div className="flex flex-wrap gap-2 mt-8 justify-center">
                   {[
                     'Best zones to live in Tulum?',
                     'Average rent in Aldea Zama?',
-                    'Top cenotes & beaches nearby',
                   ].map(suggestion => (
                     <button
                       key={suggestion}
                       onClick={() => sendMessage(suggestion)}
-                      className="px-3 py-2 text-xs rounded-xl bg-muted/60 text-foreground border border-border/40 hover:bg-muted transition-colors"
+                      className="px-3 py-2 text-xs rounded-xl bg-muted/40 text-foreground/70 border border-border/20 hover:bg-muted/60 transition-colors"
                     >
                       {suggestion}
                     </button>
