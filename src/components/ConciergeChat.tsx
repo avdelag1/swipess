@@ -74,15 +74,15 @@ function formatConvoDate(date: Date) {
 const NAV_PATTERN = /\[NAV:(\/[^\]]+)\]/g;
 
 const NAV_LABELS: Record<string, string> = {
-  '/client/filters': '🔍 Open Filters',
-  '/radio': '📻 Open Radio',
-  '/client/profile': '👤 My Profile',
-  '/client/settings': '⚙️ Settings',
-  '/subscription/packages': '💎 View Packages',
-  '/client/liked': '❤️ Liked Properties',
-  '/owner/listings': '🏠 My Listings',
-  '/legal': '📄 Legal Section',
-  '/events': '🎉 Browse Events',
+  '/client/filters': 'Open Filters',
+  '/radio': 'Open Radio',
+  '/client/profile': 'My Profile',
+  '/client/settings': 'Settings',
+  '/subscription/packages': 'View Packages',
+  '/client/liked': 'Liked Properties',
+  '/owner/listings': 'My Listings',
+  '/legal': 'Legal Section',
+  '/events': 'Browse Events',
 };
 
 function parseNavActions(content: string): { cleanContent: string; navPaths: string[] } {
@@ -383,13 +383,13 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const [characterPanelOpen, setCharacterPanelOpen] = useState(false);
 
   const CHARACTER_OPTIONS: { key: AiCharacter; label: string; subtitle: string; icon: typeof Sparkles; color: string; bgColor: string; glowColor: string; toast: string; meterLabel: string }[] = [
-    { key: 'default', label: 'Swipess AI', subtitle: 'Tulum Concierge', icon: Sparkles, color: 'text-primary', bgColor: 'bg-primary/20', glowColor: '', toast: 'Back to default concierge ✨', meterLabel: 'EGO' },
-    { key: 'kyle', label: 'Kyle', subtitle: 'Boston Hustler 🔥', icon: Flame, color: 'text-orange-400', bgColor: 'bg-orange-500/20', glowColor: 'shadow-[0_0_12px_rgba(251,146,60,0.3)]', toast: 'Kyle activated. Bro... you know what I mean? 🔥', meterLabel: 'EGO' },
-    { key: 'beaugosse', label: 'Beau Gosse', subtitle: 'El Guapo ✨', icon: Sparkles, color: 'text-purple-400', bgColor: 'bg-purple-500/20', glowColor: 'shadow-[0_0_12px_rgba(168,85,247,0.3)]', toast: 'The Beau Gosse activated. Let\'s make this interesting... ✨', meterLabel: 'CHARM' },
-    { key: 'donajkiin', label: 'Don Aj K\'iin', subtitle: 'Mayan Guardian 🌿', icon: Sun, color: 'text-emerald-400', bgColor: 'bg-emerald-500/20', glowColor: 'shadow-[0_0_12px_rgba(52,211,153,0.3)]', toast: 'Don Aj K\'iin activated. Mmm... sit down, hermano... 🌿', meterLabel: 'WISDOM' },
-    { key: 'botbetter', label: 'Bot Better', subtitle: 'Luxury Queen 👑', icon: Crown, color: 'text-pink-400', bgColor: 'bg-pink-500/20', glowColor: 'shadow-[0_0_12px_rgba(236,72,153,0.3)]', toast: 'The Bot Better activated. Mmm… let\'s upgrade this 😌👑', meterLabel: 'SASS' },
-    { key: 'lunashanti', label: 'Luna Shanti', subtitle: 'Boho Guide 🌙', icon: Moon, color: 'text-violet-300', bgColor: 'bg-violet-500/20', glowColor: 'shadow-[0_0_12px_rgba(167,139,250,0.3)]', toast: 'Luna Shanti activated. Mmm… breathe… feel into it… ✨🌙', meterLabel: 'ZEN' },
-    { key: 'ezriyah', label: 'Ezriyah Suave', subtitle: 'Manbodiment Coach 🧘‍♂️', icon: Sun, color: 'text-teal-400', bgColor: 'bg-teal-500/20', glowColor: 'shadow-[0_0_12px_rgba(45,212,191,0.3)]', toast: 'Ezriyah activated. Brother… let\'s integrate. 🔥', meterLabel: 'FLOW' },
+    { key: 'default', label: 'Swipess AI', subtitle: 'Tulum Concierge', icon: Sparkles, color: 'text-primary', bgColor: 'bg-primary/20', glowColor: '', toast: 'Back to default concierge', meterLabel: 'EGO' },
+    { key: 'kyle', label: 'Kyle', subtitle: 'Boston Hustler', icon: Flame, color: 'text-orange-400', bgColor: 'bg-orange-500/20', glowColor: 'shadow-[0_0_12px_rgba(251,146,60,0.3)]', toast: 'Kyle activated. Bro... you know what I mean?', meterLabel: 'EGO' },
+    { key: 'beaugosse', label: 'Beau Gosse', subtitle: 'El Guapo', icon: Sparkles, color: 'text-purple-400', bgColor: 'bg-purple-500/20', glowColor: 'shadow-[0_0_12px_rgba(168,85,247,0.3)]', toast: 'The Beau Gosse activated. Let\'s make this interesting...', meterLabel: 'CHARM' },
+    { key: 'donajkiin', label: 'Don Aj K\'iin', subtitle: 'Mayan Guardian', icon: Sun, color: 'text-emerald-400', bgColor: 'bg-emerald-500/20', glowColor: 'shadow-[0_0_12px_rgba(52,211,153,0.3)]', toast: 'Don Aj K\'iin activated. Mmm... sit down, hermano...', meterLabel: 'WISDOM' },
+    { key: 'botbetter', label: 'Bot Better', subtitle: 'Luxury Queen', icon: Crown, color: 'text-pink-400', bgColor: 'bg-pink-500/20', glowColor: 'shadow-[0_0_12px_rgba(236,72,153,0.3)]', toast: 'The Bot Better activated. Mmm… let\'s upgrade this', meterLabel: 'SASS' },
+    { key: 'lunashanti', label: 'Luna Shanti', subtitle: 'Boho Guide', icon: Moon, color: 'text-violet-300', bgColor: 'bg-violet-500/20', glowColor: 'shadow-[0_0_12px_rgba(167,139,250,0.3)]', toast: 'Luna Shanti activated. Mmm… breathe… feel into it…', meterLabel: 'ZEN' },
+    { key: 'ezriyah', label: 'Ezriyah Suave', subtitle: 'Manbodiment Coach', icon: Sun, color: 'text-teal-400', bgColor: 'bg-teal-500/20', glowColor: 'shadow-[0_0_12px_rgba(45,212,191,0.3)]', toast: 'Ezriyah activated. Brother… let\'s integrate.', meterLabel: 'FLOW' },
   ];
 
   const currentChar = CHARACTER_OPTIONS.find(c => c.key === activeCharacter) || CHARACTER_OPTIONS[0];
@@ -978,9 +978,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1.1 }}
                     exit={{ opacity: 0 }}
-                    className="text-xs font-bold text-primary"
+                    className="text-xs font-bold text-primary flex items-center gap-1"
                   >
-                    🚀 Ignition!
+                    <Send className="w-3 h-3" /> Sending
                   </motion.span>
                 )}
                 {countdown !== null && !ignitionFlash && (
@@ -990,7 +990,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     exit={{ opacity: 0 }}
                     className="text-[10px] font-medium text-primary/70"
                   >
-                    {countdown <= 1 ? `🚀 Ignition!` : countdown <= 2 ? `🔥 ${countdown}… ready to launch!` : `Sending in ${countdown}…`}
+                    {countdown <= 1 ? 'Sending...' : `${countdown}s`}
                   </motion.span>
                 )}
               </div>
@@ -1012,7 +1012,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 className="flex-1 resize-none bg-muted/50 border border-border/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30"
                 style={{ minHeight: '40px', maxHeight: '50vh' }}
               />
-              {/* Auto-send toggle inline */}
+              {/* Auto-send toggle — "Open Talk" mode */}
               {speechSupported && (
                 <button
                   onClick={() => {
@@ -1020,17 +1020,15 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     uiSounds.playPing(1.4);
                   }}
                   className={cn(
-                    "shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all relative",
+                    "shrink-0 h-10 rounded-xl flex items-center justify-center gap-1.5 px-3 transition-all text-xs font-semibold tracking-wide uppercase",
                     autoSend
-                      ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30"
+                      ? "bg-primary/15 text-primary border border-primary/30"
                       : "bg-muted/40 text-muted-foreground border border-border/30"
                   )}
                   title={`Open talk ${autoSend ? 'ON' : 'OFF'}`}
                 >
-                  <Mic className="w-4 h-4" />
-                  {autoSend && (
-                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-background" />
-                  )}
+                  <Zap className="w-3.5 h-3.5" />
+                  <span className="hidden xs:inline">{autoSend ? 'Auto' : 'Auto'}</span>
                 </button>
               )}
               {/* Mic button with countdown ring */}
