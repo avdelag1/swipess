@@ -3,8 +3,6 @@
  * Types and interfaces for the location-themed radio player
  */
 
-export type RadioSkin = 'modern' | 'vinyl' | 'retro' | 'turntable';
-
 export type CityLocation =
   | 'new-york'
   | 'miami'
@@ -66,7 +64,6 @@ export interface RadioPlayerState {
   currentCity: CityLocation;
   volume: number;
   isShuffle: boolean;
-  skin: RadioSkin;
   favorites: string[]; // station IDs
   deadStationIds: string[]; // IDs of stations that are permanently broken
   miniPlayerMode: 'expanded' | 'minimized' | 'closed';
