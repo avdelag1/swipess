@@ -717,6 +717,70 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     setTimeout(() => appNavigate(path), 150);
   }, [appNavigate, onClose]);
 
+  const characterPanel = typeof document !== 'undefined' && characterPanelOpen
+    ? createPortal(
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[10018] bg-background/40 backdrop-blur-sm"
+            onClick={() => setCharacterPanelOpen(false)}
+          />
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 32, stiffness: 400 }}
+            className="fixed inset-x-0 bottom-0 z-[10019] rounded-t-3xl border-t border-border/40 bg-background shadow-2xl pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
+          >
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
+            </div>
+            <p className="mb-3 text-center text-xs font-bold uppercase tracking-widest text-muted-foreground">Choose Your AI</p>
+            <div className="flex gap-3 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory" style={{ WebkitOverflowScrolling: 'touch' }}>
+              {CHARACTER_OPTIONS.map(char => {
+                const isActive = activeCharacter === char.key;
+                return (
+                  <button
+                    key={char.key}
+                    onClick={() => selectCharacter(char.key)}
+                    className={cn(
+                      "flex min-w-[100px] shrink-0 snap-center flex-col items-center gap-2 rounded-2xl border p-4 transition-all",
+                      isActive
+                        ? cn("border-2", char.bgColor, char.glowColor)
+                        : "border-border/30 bg-muted/20 hover:bg-muted/40"
+                    )}
+                  >
+                    <div className={cn(
+                      "flex h-12 w-12 items-center justify-center rounded-full transition-all",
+                      isActive ? char.bgColor : "bg-muted/40"
+                    )}>
+                      <char.icon className={cn("h-6 w-6", isActive ? char.color : "text-muted-foreground")} />
+                    </div>
+                    <span className={cn(
+                      "whitespace-nowrap text-xs font-bold",
+                      isActive ? char.color : "text-foreground"
+                    )}>{char.label}</span>
+                    <span className="whitespace-nowrap text-[10px] text-muted-foreground">{char.subtitle}</span>
+                    {isActive && (
+                      <motion.div
+                        layoutId="char-check"
+                        className="flex h-5 w-5 items-center justify-center rounded-full bg-primary"
+                      >
+                        <Check className="h-3 w-3 text-primary-foreground" />
+                      </motion.div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        </>,
+        document.body
+      )
+    : null;
+
   return (
     <AnimatePresence>
       {isOpen && (
