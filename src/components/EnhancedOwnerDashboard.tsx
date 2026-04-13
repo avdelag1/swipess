@@ -177,7 +177,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="flex-1 overflow-y-auto pt-24"
+            className="flex-1 overflow-y-auto pt-2"
           >
             <OwnerInsightsDashboard />
           </motion.div>
