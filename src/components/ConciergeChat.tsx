@@ -180,28 +180,28 @@ const MessageBubble = memo(({ message, onCopy, onResend, onDelete, onTranslate, 
 
       {/* Action bar — always visible on touch, hover on desktop */}
       <div className={cn(
-        'flex items-center gap-0 mt-1 transition-opacity',
+        'mt-1 flex items-center gap-0 transition-opacity',
         'opacity-60 hover:opacity-100',
         isUser ? 'justify-end' : 'justify-start'
       )}>
-        <button onClick={onCopy} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground flex items-center justify-center" aria-label="Copy">
-          <Copy className="w-3 h-3" />
+        <button onClick={onCopy} className="flex items-center justify-center rounded-md p-[3px] text-muted-foreground/60 hover:bg-muted hover:text-muted-foreground" aria-label="Copy">
+          <Copy className="h-2.5 w-2.5" />
         </button>
         {onDelete && (
-          <button onClick={onDelete} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-destructive transition-colors flex items-center justify-center" aria-label="Delete">
-            <Trash2 className="w-3 h-3" />
+          <button onClick={onDelete} className="flex items-center justify-center rounded-md p-[3px] text-muted-foreground/60 transition-colors hover:bg-muted hover:text-destructive" aria-label="Delete">
+            <Trash2 className="h-2.5 w-2.5" />
           </button>
         )}
         {isUser && onResend && (
-          <button onClick={onResend} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground flex items-center justify-center" aria-label="Resend">
-            <RefreshCw className="w-3 h-3" />
+          <button onClick={onResend} className="flex items-center justify-center rounded-md p-[3px] text-muted-foreground/60 hover:bg-muted hover:text-muted-foreground" aria-label="Resend">
+            <RefreshCw className="h-2.5 w-2.5" />
           </button>
         )}
         {!isUser && onTranslate && (
           <Popover>
             <PopoverTrigger asChild>
-              <button className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground flex items-center justify-center" aria-label="Translate">
-                <Globe className="w-3 h-3" />
+              <button className="flex items-center justify-center rounded-md p-[3px] text-muted-foreground/60 hover:bg-muted hover:text-muted-foreground" aria-label="Translate">
+                <Globe className="h-2.5 w-2.5" />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-40 p-1.5" side="top" align="start">
@@ -802,7 +802,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       )
     : null;
 
-  return (
+  const chatContent = (
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -810,7 +810,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="fixed inset-0 w-full h-full bg-background/98 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden relative border-t border-border/40 z-[9999] pt-[env(safe-area-inset-top,0px)]"
+          className="fixed inset-0 z-[10020] flex h-full w-full flex-col overflow-hidden bg-background/98 backdrop-blur-xl shadow-2xl"
           style={{ willChange: 'transform, opacity' }}
         >
           {showAmbientLayer && (
@@ -866,11 +866,14 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           </AnimatePresence>
 
           {/* Header */}
-          <div className="border-b border-border/50 bg-background/95 backdrop-blur-xl relative z-10">
-            <div className="flex items-center justify-between px-3 py-1.5">
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="w-7 h-7 rounded-full" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                  <Menu className="w-3.5 h-3.5" />
+          <div
+            className="relative z-10 border-b border-border/50 bg-background/95 backdrop-blur-xl"
+            style={{ paddingTop: 'max(2px, env(safe-area-inset-top, 0px))' }}
+          >
+            <div className="flex items-center justify-between px-2.5 py-1">
+              <div className="flex items-center gap-1.5">
+                <Button variant="ghost" size="icon" className="h-6.5 w-6.5 rounded-full" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                  <Menu className="h-3 w-3" />
                 </Button>
                 {/* Character avatar image */}
                 <button
@@ -879,7 +882,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   title="Choose character"
                 >
                   <motion.div
-                    className="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/50"
+                    className="h-8 w-8 rounded-full overflow-hidden border border-primary/50"
                     animate={isLoading ? { scale: [1, 1.08, 1] } : { scale: 1 }}
                     transition={isLoading ? { duration: 1.8, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.2 }}
                   >
@@ -887,24 +890,24 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   </motion.div>
                 </button>
                 <div>
-                  <p className={cn("text-sm font-bold", activeCharacter !== 'default' ? currentChar.color : "text-foreground")}>
+                  <p className={cn("text-xs font-bold leading-none", activeCharacter !== 'default' ? currentChar.color : "text-foreground")}>
                     {activeCharacter !== 'default' ? currentChar.label : "Swipess AI"}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="mt-0.5 text-[9px] leading-none text-muted-foreground">
                     {isLoading ? 'Thinking...' : currentChar.subtitle}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-0.5">
-                <Button variant="ghost" size="icon" className="w-7 h-7 rounded-full" onClick={() => { createConversation(); }}>
-                  <Plus className="w-3.5 h-3.5 text-muted-foreground" />
+                <Button variant="ghost" size="icon" className="h-6.5 w-6.5 rounded-full" onClick={() => { createConversation(); }}>
+                  <Plus className="h-3 w-3 text-muted-foreground" />
                 </Button>
                 {activeConversationId && (
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "w-7 h-7 rounded-full transition-all",
+                      "h-6.5 w-6.5 rounded-full transition-all",
                       isDeleting ? "bg-destructive text-destructive-foreground hover:bg-destructive/80 scale-110 shadow-lg" : "text-muted-foreground hover:text-destructive"
                     )} 
                     onClick={() => {
@@ -921,11 +924,11 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     }}
                     title={isDeleting ? "Click again to confirm delete" : "Delete conversation"}
                   >
-                    {isDeleting ? <Check className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
+                    {isDeleting ? <Check className="h-3 w-3" /> : <Trash2 className="h-3 w-3" />}
                   </Button>
                 )}
-                <Button variant="ghost" size="icon" className="w-7 h-7 rounded-full text-muted-foreground" onClick={onClose}>
-                  <X className="w-3.5 h-3.5" />
+                <Button variant="ghost" size="icon" className="h-6.5 w-6.5 rounded-full text-muted-foreground" onClick={onClose}>
+                  <X className="h-3 w-3" />
                 </Button>
               </div>
             </div>
@@ -934,7 +937,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           </div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 scroll-smooth">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 scroll-smooth">
             {messages.length === 0 && !isLoading && (
               <div className="flex flex-col items-center justify-center h-full text-center px-8">
                 <motion.div
@@ -986,7 +989,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           </div>
 
           {/* Input */}
-          <div className="border-t border-border/50 bg-background/95 backdrop-blur-xl px-3 py-2 pb-[calc(env(safe-area-inset-bottom,0px)+8px)]">
+          <div className="border-t border-border/50 bg-background/95 px-3 py-1.5 pb-[calc(env(safe-area-inset-bottom,0px)+6px)] backdrop-blur-xl">
             {/* Countdown / ignition status */}
             {(ignitionFlash || countdown !== null) && (
               <div className="flex items-center gap-2 mb-2 px-1">
@@ -1012,7 +1015,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 )}
               </div>
             )}
-            <div className="flex items-end gap-1.5">
+            <div className="flex items-end gap-1">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -1026,8 +1029,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 onKeyDown={handleKeyDown}
                 placeholder="Ask Swipes..."
                 rows={1}
-                className="flex-1 resize-none bg-muted/50 border border-border/40 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30"
-                style={{ minHeight: '36px', maxHeight: '50vh' }}
+                className="flex-1 resize-none bg-muted/50 border border-border/40 rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                style={{ minHeight: '34px', maxHeight: '50vh' }}
               />
               {/* Auto-send toggle — "Open Talk" mode */}
               {speechSupported && (
@@ -1037,14 +1040,14 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     uiSounds.playPing(1.4);
                   }}
                   className={cn(
-                    "shrink-0 h-8 rounded-lg flex items-center justify-center gap-1 px-2.5 transition-all text-[10px] font-semibold tracking-wide uppercase",
+                    "shrink-0 flex h-7 items-center justify-center gap-1 rounded-md px-2 text-[9px] font-semibold tracking-wide uppercase transition-all",
                     autoSend
                       ? "bg-primary/15 text-primary border border-primary/30"
                       : "bg-muted/40 text-muted-foreground border border-border/30"
                   )}
                   title={`Open talk ${autoSend ? 'ON' : 'OFF'}`}
                 >
-                  <Zap className="w-3 h-3" />
+                  <Zap className="h-2.5 w-2.5" />
                   <span className="hidden xs:inline">{autoSend ? 'Auto' : 'Auto'}</span>
                 </button>
               )}
@@ -1053,7 +1056,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 <div className="relative shrink-0">
                   {(isListening || countdown !== null) && (
                     <motion.div
-                      className="pointer-events-none absolute inset-0 rounded-lg border border-primary/30"
+                      className="pointer-events-none absolute inset-0 rounded-md border border-primary/30"
                       animate={{
                         scale: [1, 1.08, 1],
                         opacity: [0.35, 0.85, 0.35],
@@ -1071,7 +1074,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     onClick={toggleListening}
                     size="icon"
                     className={cn(
-                      "relative z-10 h-8 w-8 rounded-lg border transition-all duration-150",
+                        "relative z-10 h-7 w-7 rounded-md border transition-all duration-150",
                       isListening || countdown !== null
                         ? "border-primary/40 bg-primary/12 text-primary shadow-[0_0_16px_hsl(var(--primary)/0.28)]"
                         : "border-border/30 bg-muted/40 text-muted-foreground hover:bg-muted/60"
@@ -1095,7 +1098,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                           animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0.85, opacity: 0 }}
                         >
-                          <Square className="h-3.5 w-3.5 fill-current" />
+                          <Square className="h-3 w-3 fill-current" />
                         </motion.div>
                       ) : (
                         <motion.div
@@ -1104,7 +1107,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                           animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0.85, opacity: 0 }}
                         >
-                          <Mic className="h-3.5 w-3.5" />
+                          <Mic className="h-3 w-3" />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -1112,17 +1115,17 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 </div>
               )}
               {isLoading ? (
-                <Button onClick={stopGeneration} size="icon" variant="outline" className="w-8 h-8 rounded-lg shrink-0">
-                  <Square className="w-3.5 h-3.5" />
+                <Button onClick={stopGeneration} size="icon" variant="outline" className="h-7 w-7 rounded-md shrink-0">
+                  <Square className="h-3 w-3" />
                 </Button>
               ) : (
                 <Button
                   onClick={handleSend}
                   disabled={!input.trim()}
                   size="icon"
-                  className="w-8 h-8 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 disabled:opacity-40"
+                  className="h-7 w-7 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 disabled:opacity-40"
                 >
-                  <Send className="w-3.5 h-3.5" />
+                  <Send className="h-3 w-3" />
                 </Button>
               )}
               </div>
@@ -1133,4 +1136,6 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       )}
     </AnimatePresence>
   );
+
+  return typeof document !== 'undefined' ? createPortal(chatContent, document.body) : null;
 }

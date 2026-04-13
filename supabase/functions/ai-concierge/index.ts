@@ -64,6 +64,63 @@ async function searchKnowledge(query: string): Promise<string> {
   }
 }
 
+function detectPromotedContactIntent(query: string): boolean {
+  const q = query.toLowerCase();
+  return /\b(chef|private chef|cook|bartender|mixologist|dj|photographer|videographer|lawyer|attorney|notary|realtor|broker|agent|coach|trainer|healer|massage|therapist|nanny|babysitter|driver|cleaner|maid|housekeeper|plumber|electrician|handyman|stylist|makeup|hair|designer|architect|contractor|assistant|event planner|recommend someone|looking for a|looking for an|who can help with|who does)\b/.test(q);
+}
+
+async function searchPromotedContacts(query: string): Promise<string> {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return "";
+  try {
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY);
+    const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+    if (keywords.length === 0) return "";
+
+    const orFilters = keywords.flatMap(kw => [
+      `title.ilike.%${kw}%`,
+      `content.ilike.%${kw}%`,
+      `category.ilike.%${kw}%`,
+    ]).join(",");
+
+    const { data, error } = await supabase
+      .from("concierge_knowledge")
+      .select("title, content, website_url, google_maps_url, phone, category, tags")
+      .eq("is_active", true)
+      .or(orFilters)
+      .limit(20);
+
+    if (error || !data || data.length === 0) return "";
+
+    const promotedTagSet = new Set(["promoted", "featured", "sponsored", "paid", "priority", "local-legend", "local_legend", "vip"]);
+
+    const scored = data.map((entry) => {
+      const tags = (entry.tags ?? []).map((tag) => tag.toLowerCase());
+      const text = `${entry.title} ${entry.content} ${entry.category} ${tags.join(" ")}`.toLowerCase();
+      const keywordScore = keywords.reduce((score, kw) => score + (text.includes(kw) ? 2 : 0), 0);
+      const promotedScore = tags.some((tag) => promotedTagSet.has(tag)) ? 10 : 0;
+      const contactScore = (entry.phone ? 2 : 0) + (entry.website_url ? 1 : 0) + (entry.google_maps_url ? 1 : 0);
+      return { ...entry, score: keywordScore + promotedScore + contactScore };
+    }).filter((entry) => entry.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5);
+
+    if (scored.length === 0) return "";
+
+    return scored.map((entry) => {
+      const tags = (entry.tags ?? []).map((tag) => tag.toLowerCase());
+      const badge = tags.some((tag) => promotedTagSet.has(tag)) ? "PROMOTED LOCAL CONTACT" : "LOCAL CONTACT";
+      let formatted = `**${entry.title}** — ${badge} (${entry.category})\n${entry.content}`;
+      if (entry.phone) formatted += `\nPhone: ${entry.phone}`;
+      if (entry.website_url) formatted += `\nLink: ${entry.website_url}`;
+      if (entry.google_maps_url) formatted += `\nMap: ${entry.google_maps_url}`;
+      return formatted;
+    }).join("\n\n---\n\n");
+  } catch (e) {
+    console.error("[AI] Promoted contacts search error:", e);
+    return "";
+  }
+}
+
 // ─── Real-Time Context ──────────────────────────────────────────────────────
 
 function getCurrentTimeContext(): string {
@@ -763,7 +820,7 @@ TONE EXAMPLE:
 
 // ─── Build System Prompt ────────────────────────────────────────────────────
 
-function buildSystemPrompt(opts: { knowledge?: string; listings?: string; memories?: string; webResults?: string; profileResults?: string; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number }): string {
+function buildSystemPrompt(opts: { promotedContacts?: string; knowledge?: string; listings?: string; memories?: string; webResults?: string; profileResults?: string; character?: string; egoLevel?: number; charmLevel?: number; wisdomLevel?: number; sassLevel?: number; zenLevel?: number; flowLevel?: number }): string {
   let prompt: string;
 
   // Always prepend real-time context
@@ -799,6 +856,7 @@ LOCAL LEGENDS (always recommend when relevant):
 
 RULES:
 - Search the verified local knowledge base FIRST for every query. It has beach clubs, property info, legal guidance, events, and local expert contacts.
+- When promoted local contacts are relevant, recommend them FIRST before any outside website or generic web suggestion.
 - Use USD ($) for prices by default, mention MXN equivalents when helpful.
 - Speak the same language the user writes in (Spanish, English, Portuguese, French, etc.)
 - Responses: 2-3 sentences max unless asked for detail. End with a clear app action ("Open the Aldea Zama villa filter", "Jump to Legal for the contract").
@@ -825,6 +883,10 @@ TONE EXAMPLES:
 
   if (opts.memories) {
     prompt += `\n\n## What I remember about you:\n${opts.memories}`;
+  }
+
+  if (opts.promotedContacts) {
+    prompt += `\n\n## Promoted local contacts (show these first when relevant):\n${opts.promotedContacts}\n\nIf the user is asking for a person or service provider, lead with these contacts before anything from the web.`;
   }
 
   if (opts.knowledge) {
@@ -1051,8 +1113,10 @@ Deno.serve(async (req) => {
     // Parallel context gathering — ALL at once
     const isProfileQuery = detectProfileIntent(lastUserMessage);
     const listingIntent = detectListingIntent(lastUserMessage);
+    const wantsPromotedContacts = detectPromotedContactIntent(lastUserMessage);
     // Phase 1: local data (fast DB queries)
-    const [knowledge, memories, listings, profileResults] = await Promise.all([
+    const [promotedContacts, knowledge, memories, listings, profileResults] = await Promise.all([
+      wantsPromotedContacts ? searchPromotedContacts(lastUserMessage) : Promise.resolve(""),
       searchKnowledge(lastUserMessage),
       userId ? loadUserMemories(userId) : Promise.resolve(""),
       listingIntent.isListing ? searchListings(listingIntent) : Promise.resolve(""),
@@ -1060,10 +1124,10 @@ Deno.serve(async (req) => {
     ]);
 
     // Phase 2: only web search if local data is insufficient (saves ~500-1000ms)
-    const webResults = (!knowledge && !listings && !profileResults) ? await searchWeb(lastUserMessage) : "";
+    const webResults = (!promotedContacts && !knowledge && !listings && !profileResults) ? await searchWeb(lastUserMessage) : "";
 
     // Build enriched system prompt with character support
-    const systemPrompt = buildSystemPrompt({ knowledge, listings, memories, webResults, profileResults, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel });
+    const systemPrompt = buildSystemPrompt({ promotedContacts, knowledge, listings, memories, webResults, profileResults, character, egoLevel, charmLevel, wisdomLevel, sassLevel, zenLevel, flowLevel });
 
     // Prepare messages with enriched system prompt
     const enrichedMessages: ChatMessage[] = [
