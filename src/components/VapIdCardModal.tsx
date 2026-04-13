@@ -252,7 +252,48 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                   </div>
                 </div>
 
-                {/* Bio — editable */}
+                {/* Verification Score */}
+                <div className={cn("p-4 rounded-2xl mb-6", isLight ? "bg-zinc-50" : "bg-white/5")}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={cn("text-xs font-bold uppercase tracking-widest", isLight ? "text-zinc-500" : "text-zinc-400")}>
+                      Profile Verification
+                    </span>
+                    <span className={cn("text-sm font-black", verificationScore >= 75 ? "text-emerald-500" : verificationScore >= 40 ? "text-amber-500" : "text-muted-foreground")}>
+                      {verificationScore}%
+                    </span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                    <div
+                      className={cn("h-full rounded-full transition-all duration-500", verificationScore >= 75 ? "bg-emerald-500" : verificationScore >= 40 ? "bg-amber-500" : "bg-muted-foreground")}
+                      style={{ width: `${verificationScore}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Occupation & Years */}
+                {(occupation || yearsInCity != null) && (
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    {occupation && (
+                      <div className={cn("flex items-center gap-3 p-3 rounded-xl", isLight ? "bg-zinc-50" : "bg-white/5")}>
+                        <Briefcase className={cn("w-4 h-4 flex-shrink-0", isLight ? "text-zinc-400" : "text-zinc-500")} />
+                        <div className="min-w-0">
+                          <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">Occupation</p>
+                          <p className="text-sm font-medium text-foreground truncate">{occupation}</p>
+                        </div>
+                      </div>
+                    )}
+                    {yearsInCity != null && (
+                      <div className={cn("flex items-center gap-3 p-3 rounded-xl", isLight ? "bg-zinc-50" : "bg-white/5")}>
+                        <Clock className={cn("w-4 h-4 flex-shrink-0", isLight ? "text-zinc-400" : "text-zinc-500")} />
+                        <div className="min-w-0">
+                          <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium">Years in city</p>
+                          <p className="text-sm font-medium text-foreground">{yearsInCity}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className={cn("p-4 rounded-2xl mb-6 relative", isLight ? "bg-zinc-50" : "bg-white/5")}>
                   {editingBio ? (
                     <div className="space-y-2">
