@@ -1,5 +1,6 @@
 import { lazyWithRetry } from '@/utils/lazyRetry';
 import { lazy, memo } from 'react';
+import { TokensModal } from './TokensModal';
 import { useModalStore } from '@/state/modalStore';
 import { SmartSuspense } from './SmartSuspense';
 import { useAuth } from '@/hooks/useAuth';
@@ -194,6 +195,8 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           onClose={() => store.setModal('showAIChat', false)}
         />
       </SmartSuspense>
+
+      <TokensModal userRole={userRole === 'admin' ? 'client' : userRole} />
     </>
   );
 });
