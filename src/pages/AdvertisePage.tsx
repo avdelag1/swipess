@@ -121,67 +121,141 @@ const INITIAL: FormData = {
   photoUrl: "",
 };
 
-const _SAMPLE_CARDS = [
-  {
-    bg: "/images/events/cenote_rave.png",
-    tag: "TONIGHT",
-    title: "Cenote Rave",
-    venue: "Zamna Tulum",
-    price: "$42",
-    color: "#a855f7",
-  },
-  {
-    bg: "/images/events/food_market.png",
-    tag: "FREE ENTRY",
-    title: "Food Market",
-    venue: "La Veleta",
-    price: "Free",
-    color: "#ef4444",
-  },
-  {
-    bg: "/images/events/cacao_ceremony.png",
-    tag: "EARLY BIRD",
-    title: "Cacao Ceremony",
-    venue: "Playa Paraíso",
-    price: "$18",
-    color: "#f97316",
-  },
-  {
-    bg: "/images/events/sunset_session.png",
-    tag: "LIVE DJ",
-    title: "Sunset Session",
-    venue: "Papaya Playa",
-    price: "$30",
-    color: "#3b82f6",
-  },
-  {
-    bg: "/images/events/yoga_sound.png",
-    tag: "WELLNESS",
-    title: "Yoga & Sound",
-    venue: "Holistika",
-    price: "$25",
-    color: "#10b981",
-  },
-  {
-    bg: "/images/events/gallery_night.png",
-    tag: "PRIVATE ART",
-    title: "Gallery Night",
-    venue: "Azulik",
-    price: "Invite",
-    color: "#eab308",
-  },
-];
+// ── Swipe card for package ────────────────────────────────────────────────────
+function PromoSwipeCard({ 
+  pkg, 
+  index, 
+  total, 
+  onDismiss, 
+  onPayment,
+  isLight,
+  th,
+}: { 
+  pkg: typeof PACKAGES[0]; 
+  index: number; 
+  total: number;
+  onDismiss: () => void;
+  onPayment: (pkg: typeof PACKAGES[0]) => void;
+  isLight: boolean;
+  th: any;
+}) {
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 200], [-8, 8]);
+  const opacity = useTransform(x, [-200, -120, 0, 120, 200], [0.5, 1, 1, 1, 0.5]);
 
-// ── Photo strip — Tulum lifestyle imagery ─────────────────────────────────────
-const PHOTO_STRIP = [
-  "/images/promo/promo_1.png", // Beach club sunset
-  "/images/promo/promo_2.png", // Jungle restaurant
-  "/images/promo/promo_3.png", // Beach party DJ
-  "/images/promo/promo_4.png", // Wellness retreat
-  "/images/promo/promo_5.png", // Boutique hotel
-  "/images/promo/promo_6.png", // Sunset dinner
-  "/images/promo/promo_7.png", // Yacht chill
-];
+  const handleDragEnd = (_: any, info: PanInfo) => {
+    if (Math.abs(info.offset.x) > 100) {
+      onDismiss();
+    }
+  };
+
+  const stackOffset = index * 6;
+  const stackScale = 1 - index * 0.04;
+
+  return (
+    <motion.div
+      style={{ x, rotate, opacity, zIndex: total - index, scale: stackScale, y: stackOffset }}
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.9}
+      onDragEnd={handleDragEnd}
+      initial={{ opacity: 0, scale: 0.9, y: 30 }}
+      animate={{ opacity: 1, scale: stackScale, y: stackOffset }}
+      exit={{ x: 300, opacity: 0, rotate: 15, transition: { duration: 0.3 } }}
+      className="absolute inset-0 rounded-[2rem] overflow-hidden cursor-grab active:cursor-grabbing"
+      style={{ 
+        x, rotate, opacity,
+        zIndex: total - index, 
+        scale: stackScale, 
+        y: stackOffset,
+        boxShadow: index === 0 
+          ? `0 20px 60px rgba(${pkg.colorRgb}, 0.25), 0 8px 20px rgba(0,0,0,0.3)` 
+          : "0 4px 20px rgba(0,0,0,0.2)",
+      }}
+    >
+      {/* Background image */}
+      <img 
+        src={pkg.image} 
+        className="absolute inset-0 w-full h-full object-cover" 
+        alt={pkg.name}
+        loading={index === 0 ? "eager" : "lazy"}
+      />
+      
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+      
+      {/* Popular badge */}
+      {(pkg as any).popular && (
+        <div className="absolute top-4 right-4 z-10">
+          <div className="px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] text-white"
+            style={{ background: `linear-gradient(135deg, ${pkg.color}, rgba(${pkg.colorRgb}, 0.7))`, boxShadow: `0 4px 16px rgba(${pkg.colorRgb}, 0.4)` }}>
+            Most Popular
+          </div>
+        </div>
+      )}
+
+      {/* Card counter */}
+      <div className="absolute top-4 left-4 z-10 flex gap-1.5">
+        {Array.from({ length: total }).map((_, i) => (
+          <div key={i} className="h-1 rounded-full transition-all" 
+            style={{ 
+              width: i === index ? 24 : 8, 
+              background: i === index ? pkg.color : "rgba(255,255,255,0.3)" 
+            }} 
+          />
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="absolute bottom-0 left-0 right-0 p-6 space-y-4 z-10">
+        {/* Package name & icon */}
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center"
+            style={{ background: `rgba(${pkg.colorRgb}, 0.3)`, backdropFilter: "blur(12px)", border: `1px solid rgba(${pkg.colorRgb}, 0.5)` }}>
+            <span className="text-white">{pkg.icon}</span>
+          </div>
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">{pkg.tagline}</div>
+            <div className="text-xl font-black text-white tracking-tight">{pkg.name}</div>
+          </div>
+        </div>
+
+        {/* Price */}
+        <div className="flex items-baseline gap-2">
+          <span className="text-5xl font-black text-white">${pkg.price.toFixed(2)}</span>
+          <span className="text-sm font-bold text-white/50 uppercase tracking-wider">USD {pkg.durationLabel}</span>
+        </div>
+
+        {/* Perks */}
+        <div className="space-y-2">
+          {pkg.perks.map(perk => (
+            <div key={perk} className="flex items-start gap-2 text-[11px] text-white/80 font-medium leading-relaxed">
+              <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                style={{ background: `rgba(${pkg.colorRgb}, 0.4)` }}>
+                <Check className="w-2.5 h-2.5 text-white" />
+              </div>
+              <span>{perk}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA Button */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={(e) => { e.stopPropagation(); onPayment(pkg); }}
+          className="w-full py-4 rounded-2xl font-black text-white text-sm uppercase tracking-[0.1em] relative overflow-hidden"
+          style={{ 
+            background: `linear-gradient(135deg, ${pkg.color}, rgba(${pkg.colorRgb}, 0.7))`,
+            boxShadow: `0 12px 30px rgba(${pkg.colorRgb}, 0.4)`,
+          }}
+        >
+          <div className="absolute inset-0 bg-white/10" />
+          <span className="relative z-10">Get Started</span>
+        </motion.button>
+      </div>
+    </motion.div>
+  );
+}
 
 // ── Feature items ──────────────────────────────────────────────────────────────
 const _FEATURES = [
