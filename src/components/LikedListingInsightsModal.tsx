@@ -278,7 +278,27 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
           className="w-full max-w-2xl h-[90vh] max-h-[90vh] p-0 overflow-hidden bg-background border-0 rounded-3xl"
           hideCloseButton
         >
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full relative">
+            {/* Persistent Back/Close — always visible */}
+            <div className="absolute top-3 left-3 right-3 z-30 flex items-center justify-between pointer-events-none">
+              <button
+                onClick={() => onOpenChange(false)}
+                title="Back"
+                aria-label="Back"
+                className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={() => onOpenChange(false)}
+                title="Close Details"
+                aria-label="Close Details"
+                className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             {/* Hero Image Section */}
             <div className="relative flex-shrink-0">
               {images.length > 0 ? (
@@ -289,26 +309,6 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                     className="w-full h-full object-cover cursor-pointer"
                     onClick={handleImageClick}
                   />
-
-                  {/* Back Button */}
-                  <button
-                    onClick={() => onOpenChange(false)}
-                    title="Back"
-                    aria-label="Back"
-                    className="absolute top-3 left-3 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm z-10"
-                  >
-                    <ChevronLeft className="w-6 h-6" />
-                  </button>
-
-                  {/* Close Button */}
-                  <button
-                    onClick={() => onOpenChange(false)}
-                    title="Close Details"
-                    aria-label="Close Details"
-                    className="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm z-10"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
 
                   {/* Navigation Arrows */}
                   {images.length > 1 && (
@@ -339,7 +339,6 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                         <Sparkles className="w-3 h-3 mr-1" />
                         Liked
                       </Badge>
-                      {/* Rating Badge */}
                       <Badge className="bg-black/60 text-white border-0 px-3 py-1 backdrop-blur-sm">
                         <Star className="w-3 h-3 mr-1 fill-yellow-400 text-yellow-400" />
                         {ratingAggregate?.displayed_rating?.toFixed(1) || '5.0'}
@@ -373,7 +372,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                   )}
                 </div>
               ) : (
-                <div className="aspect-[16/10] w-full bg-muted flex items-center justify-center">
+                <div className="aspect-[16/10] w-full bg-muted flex items-center justify-center pt-14">
                   <span className="text-muted-foreground">No images</span>
                 </div>
               )}
