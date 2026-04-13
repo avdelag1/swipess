@@ -566,3 +566,14 @@ body.hw-mid .animate-pulse {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  BOTTOM NAV INSTANT FEEDBACK — CSS :active beats framer-motion      */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.app-bottom-bar button {
+  transition: transform 40ms cubic-bezier(0, 0, 0.2, 1) !important;
+}
+
+.app-bottom-bar button:active {
+  transform: scale(0.90) !important;
+}
