@@ -61,15 +61,17 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     const dist = Math.abs(info.offset.x);
     const vel  = Math.abs(info.velocity.x);
 
-    if (dist > 80 || vel > 400) {
+    if (dist > 60 || vel > 350) {
       isCycling.current = true;
       triggerHaptic('medium');
       const direction = info.offset.x > 0 ? 'right' : 'left';
+      const exitX = direction === 'right' ? 300 : -300;
 
-      animate(x, direction === 'right' ? 250 : -250, { 
-        type: 'tween', 
-        duration: 0.4,
-        ease: [0.4, 0, 0.2, 1],
+      animate(x, exitX, { 
+        type: 'spring', 
+        stiffness: 600,
+        damping: 40,
+        mass: 0.8,
         onComplete: () => {
           onCycle(card.id, direction);
           x.set(0); 
@@ -78,7 +80,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       });
     } else {
       triggerHaptic('light');
-      animate(x, 0, PK_SPRING);
+      animate(x, 0, { type: 'spring', stiffness: 600, damping: 30, mass: 0.6 });
     }
   }, [card.id, onCycle, x]);
 
