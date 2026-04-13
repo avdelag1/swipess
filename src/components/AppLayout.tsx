@@ -101,7 +101,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     else navigate('/client/filters');
   };
 
-  const usesLayoutManagedScroll = location.pathname === '/client/liked-properties' || location.pathname === '/owner/liked-clients';
+  const usesLayoutManagedScroll = false; // Always let <main> be the scroll container
 
   return (
     <div className={cn("flex flex-col h-full w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
