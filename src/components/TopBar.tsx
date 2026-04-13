@@ -183,6 +183,23 @@ function TopBarComponent({
 
           {/* ── Horizontally scrollable row: remaining action buttons ── */}
           <div className="flex-1 min-w-0 relative pointer-events-none">
+            {/* Edge fade masks for header scroll */}
+            <div
+              className="pointer-events-none absolute left-0 top-0 bottom-0 w-5 z-20 rounded-l-full"
+              style={{
+                background: isLight
+                  ? 'linear-gradient(to right, rgba(255,255,255,0.9) 0%, transparent 100%)'
+                  : 'linear-gradient(to right, rgba(5,5,5,0.9) 0%, transparent 100%)',
+              }}
+            />
+            <div
+              className="pointer-events-none absolute right-0 top-0 bottom-0 w-5 z-20 rounded-r-full"
+              style={{
+                background: isLight
+                  ? 'linear-gradient(to left, rgba(255,255,255,0.9) 0%, transparent 100%)'
+                  : 'linear-gradient(to left, rgba(5,5,5,0.9) 0%, transparent 100%)',
+              }}
+            />
             <div
               ref={headerBounceRef}
               className="overflow-x-auto pointer-events-none"
@@ -192,7 +209,7 @@ function TopBarComponent({
                 touchAction: 'manipulation',
               } as React.CSSProperties}
             >
-              <div className="flex items-center gap-2 flex-nowrap justify-end pl-2 [&>*]:pointer-events-auto">
+              <div className="flex items-center gap-3 flex-nowrap justify-end pl-3 pr-1 [&>*]:pointer-events-auto">
                 {!minimal && (
                   <>
                     {/* Radio */}
