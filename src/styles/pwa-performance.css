@@ -441,8 +441,9 @@ body.hw-mid .animate-pulse {
 }
 
 /* UNIVERSAL: Viewport Jitter & Interaction Cleanup */
+/* Allow vertical scrolling; only suppress horizontal overscroll to block swipe-nav */
 [data-no-swipe-nav] {
-    touch-action: pan-x !important;
+    touch-action: pan-y !important;
     overscroll-behavior-x: none;
     -webkit-user-select: none;
     user-select: none;
