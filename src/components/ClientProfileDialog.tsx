@@ -89,6 +89,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   // Client intentions - what they're looking for
   const [intentions, setIntentions] = useState<string[]>([]);
 
+  // Verification fields
+  const [occupation, setOccupation] = useState<string>('');
+  const [yearsInCity, setYearsInCity] = useState<number | ''>('');
+
   // Get all unique countries across all regions (static data — computed once)
   const allCountries = useMemo(() => {
     const countries = new Set<string>();
@@ -203,6 +207,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     // Load client intentions
     setIntentions((data as any).intentions ?? []);
 
+    // Load verification fields
+    setOccupation((data as any).occupation ?? '');
+    setYearsInCity((data as any).years_in_city ?? '');
+
     // Find and set the region for the loaded country
     if (loadedCountry) {
       const region = findRegionForCountry(loadedCountry);
@@ -281,6 +289,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
       // Client intentions
       intentions: intentions,
+
+      // Verification fields
+      occupation: occupation || null,
+      years_in_city: yearsInCity === '' ? null : Number(yearsInCity),
     };
 
     // Content moderation on name
