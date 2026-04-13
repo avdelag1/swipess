@@ -121,7 +121,7 @@ export default function ClientWorkerDiscovery() {
               className="group flex items-center justify-center w-10 h-10 rounded-full bg-muted/30 border border-border/10 hover:bg-muted/50 transition-all active:scale-90"
               title="Go back"
             >
-              <ArrowLeft className="w-5 h-5 text-foreground/80" strokeWidth={2.5} />
+              <ArrowLeft className="w-5 h-5 text-foreground/80" strokeWidth={1.5} />
             </button>
             <div className="flex flex-col">
               <span className="text-[10px] font-black uppercase tracking-[0.25em] text-rose-500 mb-0.5">Discovery</span>

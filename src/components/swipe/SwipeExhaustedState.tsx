@@ -218,7 +218,7 @@ export const SwipeExhaustedState = ({
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
-                      <MapPin className="h-4 w-4 text-primary" strokeWidth={2.5} />
+                      <MapPin className="h-4 w-4 text-primary" strokeWidth={1.5} />
                     </div>
                     <div className="text-left">
                       <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Coverage</p>
