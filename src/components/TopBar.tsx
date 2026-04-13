@@ -98,11 +98,14 @@ function TopBarComponent({
         <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 px-3">
           {/* ── Tap center area to go home ── */}
           <button
-            onClick={() => {
+            type="button"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               haptics.tap();
               navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
             }}
-            className="absolute inset-0 z-0"
+            className="absolute left-1/2 top-1/2 z-10 h-full w-28 -translate-x-1/2 -translate-y-1/2 touch-manipulation bg-transparent"
             aria-label="Go to dashboard"
           />
 

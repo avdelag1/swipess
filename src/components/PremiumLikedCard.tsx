@@ -33,6 +33,7 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                   ? "bg-white border border-border/50 shadow-xl hover:shadow-2xl"
                   : "bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] shadow-2xl hover:border-white/[0.12]"
             )}
+            style={{ touchAction: 'pan-y' }}
         >
             {/* Visual Header / Image */}
             <div 
