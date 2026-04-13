@@ -41,7 +41,7 @@ function LogoImage({ className }: { className?: string }) {
         >
           <SwipessLogo 
             size="2xl" 
-            
+            variant="white"
             className="transition-all duration-700 ease-out" 
           />
         </motion.div>

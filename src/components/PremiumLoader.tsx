@@ -29,7 +29,7 @@ export function PremiumLoader({ className, size = 'md', full = false }: PremiumL
           ease: "easeInOut",
         }}
       >
-        <SwipessLogo size={logoSize} />
+        <SwipessLogo size={logoSize} variant="white" />
       </motion.div>
     </div>
   );

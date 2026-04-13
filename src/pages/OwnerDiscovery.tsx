@@ -112,7 +112,7 @@ export default function OwnerDiscovery() {
                 title="Back to Dashboard"
                 aria-label="Back to Dashboard"
               >
-                <ArrowLeft className="w-5 h-5 text-foreground/80" strokeWidth={2.5} />
+                <ArrowLeft className="w-5 h-5 text-foreground/80" strokeWidth={1.5} />
               </button>
               <div className="flex flex-col">
                 <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary mb-0.5">Prospect Shield</span>

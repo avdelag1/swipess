@@ -376,7 +376,7 @@ function CategoryCard({
                         animate={{ scale: 1 }}
                         className="absolute -top-3 -right-3 bg-brand-accent-2 rounded-full p-1.5 shadow-lg border-2 border-white dark:border-black"
                     >
-                        <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                        <Check className="w-3.5 h-3.5 text-white" strokeWidth={1.5} />
                     </motion.div>
                 )}
             </motion.div>

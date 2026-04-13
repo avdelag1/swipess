@@ -34,7 +34,7 @@ const OwnerSavedSearches = () => {
             whileTap={{ scale: 0.9, transition: { type: "spring", stiffness: 400, damping: 17 } }}
             className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors duration-150"
           >
-            <ArrowLeft className="w-4 h-4" strokeWidth={2.5} />
+            <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
             Back
           </motion.button>
 
