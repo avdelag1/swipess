@@ -515,7 +515,35 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               )}
             </div>
 
-            {/* Location Section */}
+            {/* Occupation & Local Status */}
+            <div className="space-y-4">
+              <Label className="text-white text-lg sm:text-xl font-bold">💼 Occupation & Local Status</Label>
+              <p className="text-white/60 text-xs sm:text-sm -mt-2">Helps verify your resident profile</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-white/80 text-sm">What do you do?</Label>
+                  <Input
+                    value={occupation}
+                    onChange={(e) => setOccupation(e.target.value)}
+                    placeholder="e.g. Chef, DJ, Developer..."
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/30"
+                    maxLength={60}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-white/80 text-sm">Years in this city</Label>
+                  <Input
+                    type="number"
+                    value={yearsInCity}
+                    onChange={(e) => setYearsInCity(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="e.g. 3"
+                    min={0}
+                    max={50}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/30"
+                  />
+                </div>
+              </div>
+            </div>
             <div className="space-y-4">
               <Label className="text-white text-lg sm:text-xl font-bold">📍 Your Location</Label>
               <p className="text-white/60 text-xs sm:text-sm -mt-2">Where are you looking to rent or buy?</p>

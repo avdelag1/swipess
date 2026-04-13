@@ -51,7 +51,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, nationality, city')
+        .select('bio, nationality, city, occupation, years_in_city')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
