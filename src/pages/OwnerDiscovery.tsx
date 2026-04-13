@@ -218,7 +218,6 @@ export default function OwnerDiscovery() {
               </main>
             </div>
           )}
-        </div>
       </div>
     </div>
   );
