@@ -1,51 +1,64 @@
 
 
-## Photo Vibrancy & General Polish Plan
+## Fix Plan: Scroll Issues, Filter Headers, Likes Freeze, VAP Card + Profile Verification
 
-### Root Cause Analysis
+### Problems Identified
 
-The "gray filter" effect comes from multiple overlapping opacity/overlay layers that compound to wash out photos:
+1. **Owner Discovery (filter page)**: The entire header section (title "Prospect Shield / Target Acquisition", tabs, category buttons, search) is `sticky top-0` — it stays fixed while content scrolls behind it, causing overlap. Needs to scroll with the page.
 
-1. **Poker category cards** (`PokerCategoryCard.tsx`): Bottom gradient is `from-black/90 via-black/30` covering 60% of the card height — very heavy.
-2. **Owner swipe cards** (`SimpleOwnerSwipeCard.tsx`): Bottom gradient is `from-black/85 via-black/40` covering 60% — also heavy. The "next card preview" renders at `opacity-40` making it look ghosted.
-3. **Client swipe cards** (`SimpleSwipeCard.tsx`): Bottom gradient is `from-black/80 via-black/30` covering 50% — slightly better but still dims photos.
-4. **SwipeCardPeek** (`SwipeCardPeek.tsx`): Has a flat `bg-black/20` overlay on top of the entire card image — unnecessary dimming.
-5. **Stacked cards** in `PokerCategoryCard.tsx` apply `brightness(stackBrightness)` which dims background cards further.
-6. **`photo-swim` animation** on `CardImage.tsx` has no color boost — pure scale only.
+2. **Client Worker Discovery (filter page)**: Same issue — the header with "Discovery / Services" and filter pills is `sticky top-0`, overlapping scrolled content.
+
+3. **Likes pages frozen (both sides)**: `ClientLikedProperties` and `LikedClients` both use `h-full min-h-0 overflow-y-auto` creating a nested scroll container inside the DashboardLayout scroll container. Since DashboardLayout already owns scroll via `#dashboard-scroll-container`, these inner scroll containers conflict and freeze. Fix: switch to `min-h-full overflow-visible` per the unified scroll flow policy.
+
+4. **VAP Card opens briefly then closes**: Likely a re-render or state issue. Need to inspect the trigger in ClientProfile.
+
+5. **Profile needs more verification fields**: Add `occupation`, `years_in_city` to `client_profiles` table. Expand the profile editing dialog and the VAP card to show these. Build a verification completeness score.
+
+---
 
 ### Plan
 
-#### 1. Reduce gradient overlays on all card types
+#### 1. Make filter page headers scroll with content
 
-**PokerCategoryCard.tsx** (quick filter cards):
-- Change bottom gradient from `from-black/90 via-black/30` to `from-black/70 via-black/15` — still readable text but photos pop more
-- Reduce gradient height from `h-[60%]` to `h-[45%]` — shows more of the photo
+**OwnerDiscovery.tsx** (line 105):
+- Remove `sticky top-0 z-40` from the header wrapper div
+- Content will now scroll naturally as one page
 
-**SimpleSwipeCard.tsx** (client swipe deck):
-- Reduce gradient from `rgba(0,0,0,0.8)` to `rgba(0,0,0,0.6)` and mid-stop from `0.3` to `0.15`
-- This preserves text legibility while letting the photo colors breathe
+**ClientWorkerDiscovery.tsx** (line 116):
+- Same fix: remove `sticky top-0 z-40` from the header div
+- Remove the separate `overflow-y-auto h-[calc(100vh-120px)]` on the content div — let DashboardLayout handle scroll
 
-**SimpleOwnerSwipeCard.tsx** (owner swipe deck):
-- Reduce gradient from `rgba(0,0,0,0.85)` to `rgba(0,0,0,0.65)` and mid-stop from `0.4` to `0.2`
-- The "next card preview" opacity from `opacity-40` to `opacity-60` so it looks less ghosted
+#### 2. Fix frozen Likes pages
 
-#### 2. Remove the flat black overlay on SwipeCardPeek
+**ClientLikedProperties.tsx** (line 193-196):
+- Change `h-full min-h-0 overflow-y-auto` to `min-h-full overflow-visible`
+- Remove `overscrollBehavior` and `WebkitOverflowScrolling` styles (parent handles this)
 
-- Remove the `bg-black/20` div that sits on top of every peeked card — it serves no purpose other than dulling the image
+**LikedClients.tsx** (line 191):
+- Same fix: change `h-full min-h-0 overflow-y-auto` to `min-h-full overflow-visible`
 
-#### 3. Add subtle color vibrancy boost to CardImage
+#### 3. Fix VAP Card closing immediately
 
-- Add `filter: saturate(1.08) contrast(1.03)` to the loaded `<img>` in `CardImage.tsx`
-- This gives a subtle but noticeable color pop without looking unnatural — similar to how iOS Photos auto-enhances
+Inspect the modal trigger in ClientProfile and ensure the state toggle isn't being re-triggered by a parent re-render or touch event bubbling.
 
-#### 4. Increase stacked card brightness
+#### 4. Add profile verification fields (DB migration)
 
-- In `PokerCategoryCard.tsx`, increase `stackBrightness` for non-top cards (e.g. from 0.6 to 0.75) so background cards in the fan don't look muddy
+Add columns to `client_profiles`:
+- `occupation TEXT`
+- `years_in_city INTEGER`
+- `employer_name TEXT`
 
-#### 5. General scan for other issues
+#### 5. Expand profile editing + VAP card
 
-- Verify build passes after changes
-- Check no other overlapping overlays or filters remain
+**ClientProfileDialog** — add occupation, years_in_city fields to the edit form
+
+**VapIdCardModal** — show occupation, years_in_city, and calculate a verification completeness percentage (documents uploaded + fields filled) displayed as a progress ring on the card
+
+**useClientProfile hook** — add new fields to the type and sync logic
+
+#### 6. Build verification
+
+TypeScript build check to catch regressions.
 
 ---
 
@@ -53,9 +66,13 @@ The "gray filter" effect comes from multiple overlapping opacity/overlay layers 
 
 | File | Change |
 |------|--------|
-| `src/components/swipe/PokerCategoryCard.tsx` | Lighter gradient, smaller height, brighter stack |
-| `src/components/SimpleSwipeCard.tsx` | Lighter bottom gradient |
-| `src/components/SimpleOwnerSwipeCard.tsx` | Lighter gradient, brighter next-card preview |
-| `src/components/swipe/SwipeCardPeek.tsx` | Remove `bg-black/20` overlay |
-| `src/components/CardImage.tsx` | Add `saturate(1.08) contrast(1.03)` to loaded img |
+| `src/pages/OwnerDiscovery.tsx` | Remove sticky header |
+| `src/pages/ClientWorkerDiscovery.tsx` | Remove sticky header, remove inner scroll |
+| `src/pages/ClientLikedProperties.tsx` | Fix scroll: `min-h-full overflow-visible` |
+| `src/components/LikedClients.tsx` | Fix scroll: `min-h-full overflow-visible` |
+| `src/components/VapIdCardModal.tsx` | Add verification fields display + completeness score |
+| `src/pages/ClientProfile.tsx` | Fix VAP modal state |
+| `src/components/ClientProfileDialog.tsx` | Add occupation, years_in_city inputs |
+| `src/hooks/useClientProfile.ts` | Add new fields to type |
+| **DB Migration** | Add `occupation`, `years_in_city`, `employer_name` to `client_profiles` |
 
