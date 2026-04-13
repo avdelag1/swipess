@@ -69,8 +69,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       return () => window.cancelIdleCallback(idleId);
     }
 
-    const timeoutId = window.setTimeout(prewarm, 900);
-    return () => window.clearTimeout(timeoutId);
+    const timeoutId = globalThis.setTimeout(prewarm, 900);
+    return () => globalThis.clearTimeout(timeoutId);
   }, [isAuthRoute, user]);
   
   // Immersive sections where header starts transparent
