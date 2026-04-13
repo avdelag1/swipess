@@ -154,6 +154,9 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
             style={{ 
               opacity: imgReady ? 1 : 0, 
               transform: 'translateZ(0)',
+              animation: imgReady 
+                ? 'photo-swim 14s ease-in-out 0.4s infinite' 
+                : 'none',
             }}
           />
         )}
