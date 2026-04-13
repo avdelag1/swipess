@@ -1,78 +1,45 @@
 
 
-## Fix Plan: Scroll Issues, Filter Headers, Likes Freeze, VAP Card + Profile Verification
+## Plan: Fix Multiple UI Issues
 
-### Problems Identified
+### Issues Identified
 
-1. **Owner Discovery (filter page)**: The entire header section (title "Prospect Shield / Target Acquisition", tabs, category buttons, search) is `sticky top-0` — it stays fixed while content scrolls behind it, causing overlap. Needs to scroll with the page.
+1. **Dark floating pill between header and cards** — The invisible center-tap button in TopBar (`h-10 w-20 rounded-full bg-transparent`) may be rendering visibly in some contexts. Will remove it entirely since its function is redundant.
 
-2. **Client Worker Discovery (filter page)**: Same issue — the header with "Discovery / Services" and filter pills is `sticky top-0`, overlapping scrolled content.
+2. **Token icon (MessageCirclePlus) next to mode switcher** — Currently a plain `MessageCirclePlus` icon that looks generic. Will replace with a more premium, branded icon (e.g., a `Zap` or `Gem` icon with accent color glow).
 
-3. **Likes pages frozen (both sides)**: `ClientLikedProperties` and `LikedClients` both use `h-full min-h-0 overflow-y-auto` creating a nested scroll container inside the DashboardLayout scroll container. Since DashboardLayout already owns scroll via `#dashboard-scroll-container`, these inner scroll containers conflict and freeze. Fix: switch to `min-h-full overflow-visible` per the unified scroll flow policy.
+3. **Likes pages scrolling broken** — The likes page containers use `min-h-full overflow-visible` which creates a conflict with the parent `<main>` `overflow-y-auto`. Will fix by ensuring proper scroll delegation — likes pages should use `min-h-[101dvh] pb-32` pattern (like `ClientWhoLikedYou` already does) and remove conflicting `overflow-visible` declarations.
 
-4. **VAP Card opens briefly then closes**: Likely a re-render or state issue. Need to inspect the trigger in ClientProfile.
+4. **Back button missing on client listing insight / owner client profile pages** — The TopBar already renders a back arrow when `showBack` is true, and `showBack` is already set for non-dashboard routes. The issue is likely that these insight/review pages open as modals or dialogs (e.g., `LikedListingInsightsModal`, `LikedClientInsightsModal`) rather than navigable routes, so there's no route-level back button. Will ensure these modals have clear close/back buttons.
 
-5. **Profile needs more verification fields**: Add `occupation`, `years_in_city` to `client_profiles` table. Expand the profile editing dialog and the VAP card to show these. Build a verification completeness score.
+5. **Swipe category cards hanging/going down** — The poker card stack uses `justify-center` but may drift down due to parent flex layout. Will ensure the card deck container is properly centered vertically within the viewport space between header and bottom nav.
 
----
+### Technical Changes
 
-### Plan
+**File: `src/components/TopBar.tsx`**
+- Remove the invisible center tap button (lines 100-108) that creates the dark floating pill artifact.
+- Replace `MessageCirclePlus` token icon with `Sparkles` or `Zap` icon, add a subtle brand accent glow for a cooler look.
 
-#### 1. Make filter page headers scroll with content
+**File: `src/pages/ClientLikedProperties.tsx`**
+- Change container from `min-h-full overflow-visible` to `min-h-[101dvh] pb-32` with no `overflow-visible`.
+- Remove redundant inline `touchAction`/`WebkitOverflowScrolling` styles (parent handles scroll).
 
-**OwnerDiscovery.tsx** (line 105):
-- Remove `sticky top-0 z-40` from the header wrapper div
-- Content will now scroll naturally as one page
+**File: `src/components/LikedClients.tsx`**
+- Same scroll fix: change from `min-h-full overflow-visible` to `min-h-[101dvh] pb-32`.
+- Remove redundant touch/overflow styles.
 
-**ClientWorkerDiscovery.tsx** (line 116):
-- Same fix: remove `sticky top-0 z-40` from the header div
-- Remove the separate `overflow-y-auto h-[calc(100vh-120px)]` on the content div — let DashboardLayout handle scroll
+**File: `src/pages/ClientWhoLikedYou.tsx`**
+- Already uses correct pattern (`min-h-[101dvh] pb-32`). Verify no issues.
 
-#### 2. Fix frozen Likes pages
+**File: `src/components/LikedClientInsightsModal.tsx`**
+- Ensure the modal has a prominent back/close button at the top.
 
-**ClientLikedProperties.tsx** (line 193-196):
-- Change `h-full min-h-0 overflow-y-auto` to `min-h-full overflow-visible`
-- Remove `overscrollBehavior` and `WebkitOverflowScrolling` styles (parent handles this)
+**File: `src/components/LikedListingInsightsModal.tsx`**
+- Same — ensure visible close/back button.
 
-**LikedClients.tsx** (line 191):
-- Same fix: change `h-full min-h-0 overflow-y-auto` to `min-h-full overflow-visible`
+**File: `src/components/swipe/SwipeAllDashboard.tsx` and `OwnerAllDashboard.tsx`**
+- Ensure the card deck wrapper fills available space and centers cards vertically using `flex-1 items-center justify-center` without allowing content to drift downward.
 
-#### 3. Fix VAP Card closing immediately
-
-Inspect the modal trigger in ClientProfile and ensure the state toggle isn't being re-triggered by a parent re-render or touch event bubbling.
-
-#### 4. Add profile verification fields (DB migration)
-
-Add columns to `client_profiles`:
-- `occupation TEXT`
-- `years_in_city INTEGER`
-- `employer_name TEXT`
-
-#### 5. Expand profile editing + VAP card
-
-**ClientProfileDialog** — add occupation, years_in_city fields to the edit form
-
-**VapIdCardModal** — show occupation, years_in_city, and calculate a verification completeness percentage (documents uploaded + fields filled) displayed as a progress ring on the card
-
-**useClientProfile hook** — add new fields to the type and sync logic
-
-#### 6. Build verification
-
-TypeScript build check to catch regressions.
-
----
-
-### Files to modify
-
-| File | Change |
-|------|--------|
-| `src/pages/OwnerDiscovery.tsx` | Remove sticky header |
-| `src/pages/ClientWorkerDiscovery.tsx` | Remove sticky header, remove inner scroll |
-| `src/pages/ClientLikedProperties.tsx` | Fix scroll: `min-h-full overflow-visible` |
-| `src/components/LikedClients.tsx` | Fix scroll: `min-h-full overflow-visible` |
-| `src/components/VapIdCardModal.tsx` | Add verification fields display + completeness score |
-| `src/pages/ClientProfile.tsx` | Fix VAP modal state |
-| `src/components/ClientProfileDialog.tsx` | Add occupation, years_in_city inputs |
-| `src/hooks/useClientProfile.ts` | Add new fields to type |
-| **DB Migration** | Add `occupation`, `years_in_city`, `employer_name` to `client_profiles` |
+**File: `src/pages/ClientDashboard.tsx`**
+- Ensure the fan view wrapper uses `h-full` and centers properly.
 
