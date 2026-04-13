@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShieldCheck, MapPin, Sparkles, ScanLine, Globe, Calendar, Languages, Upload, FileText, CheckCircle2, Loader2, Pencil } from 'lucide-react';
+import { X, ShieldCheck, MapPin, Sparkles, ScanLine, Globe, Calendar, Languages, Upload, FileText, CheckCircle2, Loader2, Pencil, Briefcase, Clock } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
@@ -78,6 +78,8 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const nationality = clientProfile?.nationality || profile?.nationality || '';
   const city = clientProfile?.city || profile?.city || 'Tulum';
   const bio = clientProfile?.bio || '';
+  const occupation = (clientProfile as any)?.occupation || '';
+  const yearsInCity = (clientProfile as any)?.years_in_city;
   const avatarUrl = profile?.avatar_url || '';
   const memberSince = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
@@ -86,7 +88,23 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     ? (profile.languages_spoken as string[]).join(', ')
     : profile?.language || '';
 
-  const validationUrl = `https://swipess.app/vap-validate/${user?.id || 'unknown'}`;
+  // Verification completeness score
+  const verificationScore = useMemo(() => {
+    let filled = 0;
+    const total = 8;
+    if (profile?.full_name) filled++;
+    if (nationality) filled++;
+    if (bio) filled++;
+    if (occupation) filled++;
+    if (yearsInCity != null) filled++;
+    if (languages) filled++;
+    // Documents
+    const verifiedDocs = documents?.filter(d => d.status === 'verified').length || 0;
+    const pendingDocs = documents?.filter(d => d.status === 'pending').length || 0;
+    if (verifiedDocs > 0) filled += 2;
+    else if (pendingDocs > 0) filled += 1;
+    return Math.min(100, Math.round((filled / total) * 100));
+  }, [profile, nationality, bio, occupation, yearsInCity, languages, documents]);
 
   const handleDocUpload = useCallback(async (docType: string) => {
     if (!user?.id) return;
