@@ -17,7 +17,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { NotificationPopover } from './NotificationPopover';
 import { useScrollBounce } from '@/hooks/useScrollBounce';
 import { useModalStore } from '@/state/modalStore';
-import { useTokens } from '@/hooks/useTokens';
+
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -51,7 +51,7 @@ function TopBarComponent({
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { t } = useTranslation();
-  const { tokens } = useTokens();
+  
 
   const headerBounceRef = useScrollBounce({
     maxTilt: 4,
