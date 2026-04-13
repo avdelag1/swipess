@@ -449,6 +449,12 @@ body.hw-mid .animate-pulse {
     user-select: none;
 }
 
+[data-no-swipe-nav][data-scroll-axis='x'] {
+    touch-action: pan-x !important;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: none;
+}
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  SPEED BOOST — Snappier interactions across ALL sections             */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
