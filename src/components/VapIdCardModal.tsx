@@ -209,294 +209,232 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 z-[10001] bg-black/70 backdrop-blur-md"
-          />
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 30 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-            className="fixed inset-0 z-[10002] flex items-center justify-center p-4 pointer-events-none"
-          >
-            <div
-              className="relative pointer-events-auto w-full max-w-[440px] max-h-[86dvh] overflow-hidden rounded-[30px] border border-border bg-background shadow-2xl"
+        <motion.div
+          initial={{ opacity: 0, y: '100%' }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: '100%' }}
+          transition={{ type: 'spring', damping: 30, stiffness: 350 }}
+          className="fixed inset-0 z-[10001] flex flex-col bg-background"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Virtual ID</p>
+              <h2 className="mt-1 text-lg font-black tracking-tight text-foreground">Resident Identity Card</h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+              aria-label="Close resident ID"
             >
-              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/92 px-5 py-4 backdrop-blur-xl">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Virtual ID</p>
-                  <h2 className="mt-1 text-lg font-black tracking-tight text-foreground">Resident Identity Card</h2>
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Scrollable content */}
+          <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-8 pt-4">
+            {/* Main card section */}
+            <section className="rounded-[28px] border border-border bg-card p-4 shadow-lg">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/12 text-primary">
+                    <ShieldCheck className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Verified Resident</p>
+                    <p className="text-xs font-medium text-muted-foreground">Primary identity surface</p>
+                  </div>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
-                  aria-label="Close resident ID"
-                >
-                  <X className="h-4 w-4" />
-                </button>
+                <div className="rounded-full border border-border bg-card px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-foreground">
+                  {idNumber}
+                </div>
               </div>
 
-              <div className="max-h-[calc(86dvh-74px)] overflow-y-auto overscroll-contain px-4 pb-6 pt-4">
-                <section
-                  className="relative overflow-hidden rounded-[28px] border border-border bg-card p-4 shadow-2xl"
-                  style={{
-                    backgroundImage:
-                      'radial-gradient(circle at top right, hsl(var(--primary) / 0.18), transparent 34%), linear-gradient(135deg, hsl(var(--card)), hsl(var(--muted) / 0.88))',
-                  }}
-                >
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/12 text-primary">
-                        <ShieldCheck className="h-4 w-4" />
+              <div className="flex gap-4">
+                <div className="w-[118px] shrink-0">
+                  <div className="h-[154px] overflow-hidden rounded-[24px] border border-border bg-muted shadow-xl">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-primary/10 text-4xl font-black text-primary">
+                        {name.charAt(0).toUpperCase()}
                       </div>
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Verified Resident</p>
-                        <p className="text-xs font-medium text-muted-foreground">Primary identity surface</p>
-                      </div>
-                    </div>
-                    <div className="rounded-full border border-border bg-background/80 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-foreground">
-                      {idNumber}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <div className="w-[118px] shrink-0">
-                      <div className="h-[154px] overflow-hidden rounded-[24px] border border-border bg-muted shadow-xl">
-                        {avatarUrl ? (
-                          <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-primary/10 text-4xl font-black text-primary">
-                            {name.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                      <div className="mt-3 rounded-[20px] border border-border bg-background/70 px-3 py-2 text-center">
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Trust Score</p>
-                        <p className="mt-1 text-xl font-black text-foreground">{verificationScore}%</p>
-                      </div>
-                    </div>
-
-                    <div className="min-w-0 flex-1 space-y-3">
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Resident</p>
-                        <h3 className="mt-1 text-[1.55rem] font-black leading-[1.05] tracking-tight text-foreground">
-                          {name}
-                        </h3>
-                      </div>
-
-                      <div className="grid gap-2 text-sm">
-                        {detailItems.map(({ label, value, icon: Icon }) => (
-                          <div key={label} className="flex items-start gap-2 rounded-2xl border border-border bg-background/60 px-3 py-2.5">
-                            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                              <Icon className="h-3.5 w-3.5" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-                              <p className="mt-0.5 truncate font-semibold text-foreground">{value}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid grid-cols-[auto_1fr] items-center gap-3 rounded-[24px] border border-border bg-background/75 p-3">
-                    <div className="relative rounded-[20px] border border-border bg-white p-2 shadow-sm">
-                      <QRCode value={validationUrl} size={72} level="H" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="rounded-full bg-white p-1 text-primary shadow">
-                          <ScanLine className="h-3.5 w-3.5" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <BadgeCheck className="h-4 w-4 text-primary" />
-                        <p className="text-sm font-black text-foreground">Live validation enabled</p>
-                      </div>
-                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        Scan this code to confirm this resident card, trust score, and uploaded identity documents.
-                      </p>
-                    </div>
-                  </div>
-                </section>
-
-                <section className="mt-4 rounded-[28px] border border-border bg-card p-4 shadow-lg">
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Profile Note</p>
-                      <h3 className="mt-1 text-base font-black text-foreground">About this resident</h3>
-                    </div>
-                    {!editingBio && (
-                      <button
-                        onClick={() => {
-                          setBioValue(bio);
-                          setEditingBio(true);
-                        }}
-                        className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:text-foreground"
-                        aria-label="Edit bio"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
                     )}
                   </div>
+                  <div className="mt-3 rounded-[20px] border border-border bg-card px-3 py-2 text-center">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Trust Score</p>
+                    <p className="mt-1 text-xl font-black text-foreground">{verificationScore}%</p>
+                  </div>
+                </div>
 
-                  {editingBio ? (
-                    <div className="space-y-3">
-                      <Textarea
-                        value={bioValue}
-                        onChange={(e) => setBioValue(e.target.value)}
-                        placeholder="Add a short resident summary..."
-                        rows={4}
-                        maxLength={220}
-                        className="min-h-[120px]"
-                      />
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => setEditingBio(false)}
-                          className="rounded-2xl border border-border bg-background px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={handleSaveBio}
-                          className="rounded-2xl bg-primary px-4 py-2 text-sm font-black text-primary-foreground transition-transform active:scale-95"
-                        >
-                          Save Note
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="rounded-[22px] border border-border bg-background/70 px-4 py-4 text-sm leading-relaxed text-muted-foreground">
-                      {bio || 'Add a short note so this virtual ID feels complete and trustworthy.'}
-                    </p>
-                  )}
-                </section>
-
-                <section className="mt-4 rounded-[28px] border border-border bg-card p-4 shadow-lg">
-                  <div className="mb-3">
-                    <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Deep Details</p>
-                    <h3 className="mt-1 text-base font-black text-foreground">Identity breakdown</h3>
+                <div className="min-w-0 flex-1 space-y-3">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Resident</p>
+                    <h3 className="mt-1 text-[1.55rem] font-black leading-[1.05] tracking-tight text-foreground">
+                      {name}
+                    </h3>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div className="rounded-[22px] border border-border bg-background/70 p-4">
-                      <div className="flex items-center gap-2 text-foreground">
-                        <Languages className="h-4 w-4 text-primary" />
-                        <p className="text-sm font-black">Languages</p>
-                      </div>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                        {spokenLanguages.length > 0 ? spokenLanguages.join(', ') : 'No languages added yet'}
-                      </p>
-                    </div>
-
-                    <div className="rounded-[22px] border border-border bg-background/70 p-4">
-                      <div className="flex items-center gap-2 text-foreground">
-                        <IdCard className="h-4 w-4 text-primary" />
-                        <p className="text-sm font-black">Residency Status</p>
-                      </div>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                        {yearsInCity ? `${yearsInCity} year${yearsInCity === 1 ? '' : 's'} in ${city}.` : `City history not added yet.`}
-                      </p>
-                    </div>
-                  </div>
-                </section>
-
-                <section className="mt-4 rounded-[28px] border border-border bg-card p-4 shadow-lg">
-                  <div className="mb-4 flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Documents</p>
-                      <h3 className="mt-1 text-base font-black text-foreground">Verification files</h3>
-                    </div>
-                    <div className="rounded-[20px] border border-border bg-background/70 px-3 py-2 text-right">
-                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Status</p>
-                      <p className="mt-1 text-sm font-black text-foreground">
-                        {documentSummary.verified} verified · {documentSummary.pending} pending
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    {DOC_TYPES.map(({ key, label }) => {
-                      const status = getDocStatus(key);
-                      const doc = getDocMeta(key);
-                      return (
-                        <div key={key} className="flex items-center gap-3 rounded-[22px] border border-border bg-background/70 p-3">
-                          <div className={cn(
-                            'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border',
-                            status === 'verified'
-                              ? 'border-primary/20 bg-primary/10 text-primary'
-                              : status === 'pending'
-                                ? 'border-border bg-secondary text-foreground'
-                                : 'border-border bg-muted text-muted-foreground'
-                          )}>
-                            {uploading === key ? (
-                              <Loader2 className="h-5 w-5 animate-spin" />
-                            ) : status === 'verified' ? (
-                              <CheckCircle2 className="h-5 w-5" />
-                            ) : status === 'pending' ? (
-                              <FileText className="h-5 w-5" />
-                            ) : (
-                              <Upload className="h-5 w-5" />
-                            )}
-                          </div>
-
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-black text-foreground">{label}</p>
-                            <p className="mt-1 truncate text-xs text-muted-foreground">
-                              {doc?.file_name || 'No file uploaded yet'}
-                            </p>
-                          </div>
-
-                          <div className="flex shrink-0 flex-col items-end gap-2">
-                            <span className={cn(
-                              'rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em]',
-                              status === 'verified'
-                                ? 'border-primary/20 bg-primary/10 text-primary'
-                                : status === 'pending'
-                                  ? 'border-border bg-secondary text-foreground'
-                                  : 'border-border bg-muted text-muted-foreground'
-                            )}>
-                              {status === 'none' ? 'Missing' : status}
-                            </span>
-
-                            <button
-                              onClick={() => status !== 'verified' && handleDocUpload(key)}
-                              disabled={uploading === key || status === 'verified'}
-                              className={cn(
-                                'rounded-2xl px-3 py-2 text-xs font-black transition-transform active:scale-95',
-                                status === 'verified'
-                                  ? 'cursor-default bg-secondary text-muted-foreground'
-                                  : 'bg-primary text-primary-foreground'
-                              )}
-                            >
-                              {status === 'verified' ? 'Locked' : status === 'pending' ? 'Replace' : 'Upload'}
-                            </button>
-                          </div>
+                  <div className="grid gap-2 text-sm">
+                    {detailItems.map(({ label, value, icon: Icon }) => (
+                      <div key={label} className="flex items-start gap-2 rounded-2xl border border-border bg-muted/50 px-3 py-2.5">
+                        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                          <Icon className="h-3.5 w-3.5" />
                         </div>
-                      );
-                    })}
+                        <div className="min-w-0">
+                          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
+                          <p className="mt-0.5 truncate font-semibold text-foreground">{value}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </section>
+                </div>
               </div>
 
-              <div
-                className="pointer-events-none absolute inset-0 opacity-30"
-                style={{
-                  background:
-                    'radial-gradient(circle at top right, hsl(var(--primary) / 0.22), transparent 30%), radial-gradient(circle at bottom left, hsl(var(--primary) / 0.12), transparent 24%)',
-                }}
-              />
-            </div>
-          </motion.div>
-        </>
+              {/* QR Code */}
+              <div className="mt-4 grid grid-cols-[auto_1fr] items-center gap-3 rounded-[24px] border border-border bg-muted/40 p-3">
+                <div className="relative rounded-[20px] border border-border bg-white p-2 shadow-sm">
+                  <QRCode value={validationUrl} size={72} level="H" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="rounded-full bg-white p-1 text-primary shadow">
+                      <ScanLine className="h-3.5 w-3.5" />
+                    </div>
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <BadgeCheck className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-black text-foreground">Live validation enabled</p>
+                  </div>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    Scan this code to confirm this resident card, trust score, and uploaded identity documents.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Bio section */}
+            <section className="mt-4 rounded-[28px] border border-border bg-card p-4 shadow-lg">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Profile Note</p>
+                  <h3 className="mt-1 text-base font-black text-foreground">About this resident</h3>
+                </div>
+                {!editingBio && (
+                  <button
+                    onClick={() => { setBioValue(bio); setEditingBio(true); }}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+                    aria-label="Edit bio"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              {editingBio ? (
+                <div className="space-y-3">
+                  <Textarea value={bioValue} onChange={(e) => setBioValue(e.target.value)} placeholder="Add a short resident summary..." rows={4} maxLength={220} className="min-h-[120px]" />
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => setEditingBio(false)} className="rounded-2xl border border-border bg-card px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">Cancel</button>
+                    <button onClick={handleSaveBio} className="rounded-2xl bg-primary px-4 py-2 text-sm font-black text-primary-foreground transition-transform active:scale-95">Save Note</button>
+                  </div>
+                </div>
+              ) : (
+                <p className="rounded-[22px] border border-border bg-muted/40 px-4 py-4 text-sm leading-relaxed text-muted-foreground">
+                  {bio || 'Add a short note so this virtual ID feels complete and trustworthy.'}
+                </p>
+              )}
+            </section>
+
+            {/* Deep Details */}
+            <section className="mt-4 rounded-[28px] border border-border bg-card p-4 shadow-lg">
+              <div className="mb-3">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Deep Details</p>
+                <h3 className="mt-1 text-base font-black text-foreground">Identity breakdown</h3>
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="rounded-[22px] border border-border bg-muted/40 p-4">
+                  <div className="flex items-center gap-2 text-foreground">
+                    <Languages className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-black">Languages</p>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {spokenLanguages.length > 0 ? spokenLanguages.join(', ') : 'No languages added yet'}
+                  </p>
+                </div>
+                <div className="rounded-[22px] border border-border bg-muted/40 p-4">
+                  <div className="flex items-center gap-2 text-foreground">
+                    <IdCard className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-black">Residency Status</p>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {yearsInCity ? `${yearsInCity} year${yearsInCity === 1 ? '' : 's'} in ${city}.` : `City history not added yet.`}
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Documents */}
+            <section className="mt-4 rounded-[28px] border border-border bg-card p-4 shadow-lg">
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Documents</p>
+                  <h3 className="mt-1 text-base font-black text-foreground">Verification files</h3>
+                </div>
+                <div className="rounded-[20px] border border-border bg-muted/40 px-3 py-2 text-right">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Status</p>
+                  <p className="mt-1 text-sm font-black text-foreground">
+                    {documentSummary.verified} verified · {documentSummary.pending} pending
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {DOC_TYPES.map(({ key, label }) => {
+                  const status = getDocStatus(key);
+                  const doc = getDocMeta(key);
+                  return (
+                    <div key={key} className="flex items-center gap-3 rounded-[22px] border border-border bg-muted/40 p-3">
+                      <div className={cn(
+                        'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border',
+                        status === 'verified' ? 'border-primary/20 bg-primary/10 text-primary'
+                          : status === 'pending' ? 'border-border bg-secondary text-foreground'
+                          : 'border-border bg-muted text-muted-foreground'
+                      )}>
+                        {uploading === key ? <Loader2 className="h-5 w-5 animate-spin" />
+                          : status === 'verified' ? <CheckCircle2 className="h-5 w-5" />
+                          : status === 'pending' ? <FileText className="h-5 w-5" />
+                          : <Upload className="h-5 w-5" />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-black text-foreground">{label}</p>
+                        <p className="mt-1 truncate text-xs text-muted-foreground">{doc?.file_name || 'No file uploaded yet'}</p>
+                      </div>
+                      <div className="flex shrink-0 flex-col items-end gap-2">
+                        <span className={cn(
+                          'rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em]',
+                          status === 'verified' ? 'border-primary/20 bg-primary/10 text-primary'
+                            : status === 'pending' ? 'border-border bg-secondary text-foreground'
+                            : 'border-border bg-muted text-muted-foreground'
+                        )}>
+                          {status === 'none' ? 'Missing' : status}
+                        </span>
+                        <button
+                          onClick={() => status !== 'verified' && handleDocUpload(key)}
+                          disabled={uploading === key || status === 'verified'}
+                          className={cn(
+                            'rounded-2xl px-3 py-2 text-xs font-black transition-transform active:scale-95',
+                            status === 'verified' ? 'cursor-default bg-secondary text-muted-foreground' : 'bg-primary text-primary-foreground'
+                          )}
+                        >
+                          {status === 'verified' ? 'Locked' : status === 'pending' ? 'Replace' : 'Upload'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
