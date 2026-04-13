@@ -33,7 +33,6 @@ interface RadioContextType {
   setVolume: (volume: number) => void;
   toggleShuffle: () => void;
   toggleFavorite: (stationId: string) => void;
-  toggleFavorite: (stationId: string) => void;
   isStationFavorite: (stationId: string) => boolean;
   playPlaylist: (stationIds: string[]) => void;
   playFavorites: () => void;
@@ -535,7 +534,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     savePreferences({ isShuffle: newShuffle });
   }, [state.isShuffle, state.currentStation]);
 
-  const toggleFavoriteWrapped = toggleFavorite;
+  
 
   const toggleFavorite = useCallback((stationId: string) => {
     setState(prev => {
@@ -583,14 +582,14 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     setCity,
     setVolume,
     toggleShuffle,
-    setSkin,
+    toggleFavorite,
     toggleFavorite,
     isStationFavorite,
     playPlaylist,
     playFavorites,
     setMiniPlayerMode,
     getFrequencyData,
-  }), [state, loading, error, play, pause, togglePlayPause, togglePower, changeStation, setCity, setVolume, toggleShuffle, setSkin, toggleFavorite, isStationFavorite, playPlaylist, playFavorites, setMiniPlayerMode, getFrequencyData]);
+  }), [state, loading, error, play, pause, togglePlayPause, togglePower, changeStation, setCity, setVolume, toggleShuffle, toggleFavorite, isStationFavorite, playPlaylist, playFavorites, setMiniPlayerMode, getFrequencyData]);
 
   return <RadioContext.Provider value={value}>{children}</RadioContext.Provider>;
 }
