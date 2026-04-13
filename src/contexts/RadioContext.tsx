@@ -53,7 +53,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     currentCity: 'tulum',
     volume: 0.7,
     isShuffle: false,
-    isShuffle: false,
     favorites: [],
     deadStationIds: [], // Fresh start each session — no permanent blacklist
     miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
@@ -582,7 +581,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     setCity,
     setVolume,
     toggleShuffle,
-    toggleFavorite,
     toggleFavorite,
     isStationFavorite,
     playPlaylist,
