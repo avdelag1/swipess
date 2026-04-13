@@ -14,6 +14,7 @@ import { APP_STATUS, hasOutageBypass } from "@/config/outage";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 import { SpeedOfLightPreloader } from "@/components/SpeedOfLightPreloader";
 // Defer i18n init — loaded after first render to reduce critical JS
 const i18nReady = import('@/i18n');
@@ -115,8 +116,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
         <AppLayout>
           <WelcomeBonusModal />
           <TooltipProvider>
-            {/* Sonner toasts removed — premium NotificationBar handles all feedback */}
-            <span />
+            <Toaster />
           </TooltipProvider>
 
           <Suspense fallback={null}>
