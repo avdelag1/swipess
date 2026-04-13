@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ThumbsUp, GripVertical, Flame, Home, Briefcase, DollarSign } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { LikesSkeleton } from "@/components/ui/LikesSkeleton";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { PremiumSortableGrid } from "@/components/PremiumSortableGrid";
@@ -219,11 +221,7 @@ const ClientWhoLikedYou = () => {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-96 rounded-[2.5rem] bg-muted/50 animate-pulse" />
-            ))}
-          </div>
+          <LikesSkeleton />
         ) : filteredOwners.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8" style={{ touchAction: 'pan-y' }}>
             {filteredOwners.map((owner: any, index: number) => (
@@ -237,32 +235,13 @@ const ClientWhoLikedYou = () => {
             ))}
           </div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className={cn(
-              "flex flex-col items-center justify-center py-32 text-center rounded-[3rem] border",
-              isLight ? "bg-muted/30 border-border/40" : "bg-muted/20 border-white/[0.06]"
-            )}
-          >
-            <div className={cn(
-              "w-24 h-24 rounded-[2rem] flex items-center justify-center mb-8 shadow-2xl border",
-              isLight ? "bg-muted border-border/30" : "bg-white/[0.04] border-white/[0.08]"
-            )}>
-              <ThumbsUp className="w-12 h-12 text-[var(--color-brand-accent-2)]/60 animate-pulse" />
-            </div>
-            <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">Stay Noticed.</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold mb-10">
-              When an owner likes your profile, they will appear here instantly.
-            </p>
-            <button
-              onClick={() => navigate("/client/dashboard")}
-              className="px-8 py-4 rounded-2xl text-sm font-black text-white transition-all active:scale-95 shadow-lg"
-              style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
-            >
-              EXPLORE WORLD
-            </button>
-          </motion.div>
+          <EmptyState
+            icon={ThumbsUp}
+            title="Stay Noticed."
+            description="When an owner likes your profile, they will appear here instantly."
+            actionLabel="EXPLORE WORLD"
+            onAction={() => navigate("/client/dashboard")}
+          />
         )}
       </div>
 
