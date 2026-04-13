@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, memo, useMemo, SVGProps } from 'react';
+import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { X, Send, Trash2, Copy, Sparkles, RefreshCw, Plus, Menu, ChevronLeft, Square, Globe, Flame, Sun, Crown, Moon, ChevronDown, Mic, MicOff, Zap, ArrowRight, Check, ChevronUp } from 'lucide-react';
 import { SwipessLogo } from '@/components/SwipessLogo';
@@ -716,6 +717,70 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     setTimeout(() => appNavigate(path), 150);
   }, [appNavigate, onClose]);
 
+  const characterPanel = typeof document !== 'undefined' && characterPanelOpen
+    ? createPortal(
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[10018] bg-background/40 backdrop-blur-sm"
+            onClick={() => setCharacterPanelOpen(false)}
+          />
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 32, stiffness: 400 }}
+            className="fixed inset-x-0 bottom-0 z-[10019] rounded-t-3xl border-t border-border/40 bg-background shadow-2xl pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
+          >
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
+            </div>
+            <p className="mb-3 text-center text-xs font-bold uppercase tracking-widest text-muted-foreground">Choose Your AI</p>
+            <div className="flex gap-3 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory" style={{ WebkitOverflowScrolling: 'touch' }}>
+              {CHARACTER_OPTIONS.map(char => {
+                const isActive = activeCharacter === char.key;
+                return (
+                  <button
+                    key={char.key}
+                    onClick={() => selectCharacter(char.key)}
+                    className={cn(
+                      "flex min-w-[100px] shrink-0 snap-center flex-col items-center gap-2 rounded-2xl border p-4 transition-all",
+                      isActive
+                        ? cn("border-2", char.bgColor, char.glowColor)
+                        : "border-border/30 bg-muted/20 hover:bg-muted/40"
+                    )}
+                  >
+                    <div className={cn(
+                      "flex h-12 w-12 items-center justify-center rounded-full transition-all",
+                      isActive ? char.bgColor : "bg-muted/40"
+                    )}>
+                      <char.icon className={cn("h-6 w-6", isActive ? char.color : "text-muted-foreground")} />
+                    </div>
+                    <span className={cn(
+                      "whitespace-nowrap text-xs font-bold",
+                      isActive ? char.color : "text-foreground"
+                    )}>{char.label}</span>
+                    <span className="whitespace-nowrap text-[10px] text-muted-foreground">{char.subtitle}</span>
+                    {isActive && (
+                      <motion.div
+                        layoutId="char-check"
+                        className="flex h-5 w-5 items-center justify-center rounded-full bg-primary"
+                      >
+                        <Check className="h-3 w-3 text-primary-foreground" />
+                      </motion.div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        </>,
+        document.body
+      )
+    : null;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -847,73 +912,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
               </div>
             </div>
 
-            {/* Character Selector — Bottom Sheet Carousel */}
-            <AnimatePresence>
-              {characterPanelOpen && (
-                <>
-                  {/* Backdrop */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"
-                    onClick={() => setCharacterPanelOpen(false)}
-                  />
-                  {/* Sheet */}
-                  <motion.div
-                    initial={{ y: '100%' }}
-                    animate={{ y: 0 }}
-                    exit={{ y: '100%' }}
-                    transition={{ type: 'spring', damping: 32, stiffness: 400 }}
-                    className="fixed bottom-0 left-0 right-0 z-[61] bg-background/95 backdrop-blur-2xl border-t border-border/40 rounded-t-3xl pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
-                  >
-                    {/* Drag handle */}
-                    <div className="flex justify-center pt-3 pb-2">
-                      <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
-                    </div>
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest text-center mb-3">Choose Your AI</p>
-                    {/* Horizontal carousel */}
-                    <div className="flex gap-3 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory" style={{ WebkitOverflowScrolling: 'touch' }}>
-                      {CHARACTER_OPTIONS.map(char => {
-                        const isActive = activeCharacter === char.key;
-                        return (
-                          <button
-                            key={char.key}
-                            onClick={() => selectCharacter(char.key)}
-                            className={cn(
-                              "flex flex-col items-center gap-2 p-4 rounded-2xl transition-all shrink-0 snap-center border min-w-[100px]",
-                              isActive
-                                ? cn("border-2", char.bgColor, char.glowColor)
-                                : "bg-muted/20 border-border/30 hover:bg-muted/40"
-                            )}
-                          >
-                            <div className={cn(
-                              "w-12 h-12 rounded-full flex items-center justify-center transition-all",
-                              isActive ? char.bgColor : "bg-muted/40"
-                            )}>
-                              <char.icon className={cn("w-6 h-6", isActive ? char.color : "text-muted-foreground")} />
-                            </div>
-                            <span className={cn(
-                              "text-xs font-bold whitespace-nowrap",
-                              isActive ? char.color : "text-foreground"
-                            )}>{char.label}</span>
-                            <span className="text-[10px] text-muted-foreground whitespace-nowrap">{char.subtitle}</span>
-                            {isActive && (
-                              <motion.div
-                                layoutId="char-check"
-                                className="w-5 h-5 rounded-full bg-primary flex items-center justify-center"
-                              >
-                                <Check className="w-3 h-3 text-primary-foreground" />
-                              </motion.div>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
+            {characterPanel}
           </div>
 
           {/* Messages */}
@@ -1031,85 +1030,66 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   <span className="hidden xs:inline">{autoSend ? 'Auto' : 'Auto'}</span>
                 </button>
               )}
-              {/* Mic button with countdown ring */}
+              {/* Mic button */}
               {speechSupported && (
                 <div className="relative shrink-0">
+                  {(isListening || countdown !== null) && (
+                    <motion.div
+                      className="pointer-events-none absolute inset-0 rounded-xl border border-primary/30"
+                      animate={{
+                        scale: [1, 1.08, 1],
+                        opacity: [0.35, 0.85, 0.35],
+                        boxShadow: [
+                          '0 0 0px hsl(var(--primary) / 0)',
+                          '0 0 22px hsl(var(--primary) / 0.45)',
+                          '0 0 0px hsl(var(--primary) / 0)'
+                        ]
+                      }}
+                      transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                  )}
+
                   <Button
                     onClick={toggleListening}
+                    size="icon"
                     className={cn(
-                      "transition-all duration-300 relative overflow-visible z-20",
+                      "relative z-10 h-10 w-10 rounded-xl border transition-all duration-150",
                       isListening || countdown !== null
-                        ? "w-20 h-20 rounded-[2.5rem] bg-primary border-none shadow-[0_0_40px_rgba(228,0,124,0.6)] scale-110 -translate-y-4"
-                        : "w-10 h-10 rounded-xl bg-muted/40 text-muted-foreground border border-border/30 hover:bg-muted/60"
+                        ? "border-primary/40 bg-primary/12 text-primary shadow-[0_0_22px_hsl(var(--primary)/0.28)]"
+                        : "border-border/30 bg-muted/40 text-muted-foreground hover:bg-muted/60"
                     )}
                   >
                     <AnimatePresence mode="wait">
-                      {isListening && !ignitionFlash ? (
-                        <motion.div
-                          key="stop"
-                          initial={{ scale: 0.5, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0.5, opacity: 0 }}
-                        >
-                          <Square className="w-8 h-8 text-white fill-white" />
-                        </motion.div>
-                      ) : countdown !== null ? (
+                      {countdown !== null ? (
                         <motion.div
                           key="countdown"
-                          initial={{ scale: 0.5, opacity: 0 }}
+                          initial={{ scale: 0.85, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
-                          className="text-2xl font-black text-white"
+                          exit={{ scale: 0.85, opacity: 0 }}
+                          className="text-[13px] font-black"
                         >
                           {countdown}
+                        </motion.div>
+                      ) : isListening && !ignitionFlash ? (
+                        <motion.div
+                          key="stop"
+                          initial={{ scale: 0.85, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.85, opacity: 0 }}
+                        >
+                          <Square className="h-3.5 w-3.5 fill-current" />
                         </motion.div>
                       ) : (
                         <motion.div
                           key="mic"
-                          initial={{ scale: 0.5, opacity: 0 }}
+                          initial={{ scale: 0.85, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.85, opacity: 0 }}
                         >
-                          <Mic className="w-5 h-5 group-hover:text-primary transition-colors" />
+                          <Mic className="h-4 w-4" />
                         </motion.div>
                       )}
                     </AnimatePresence>
-
-                    {/* 🚀 LIQUID BREATHING PULSE */}
-                    {(isListening || countdown !== null) && (
-                      <>
-                        <motion.div
-                          className="absolute inset-0 rounded-[2.5rem] bg-primary/30 -z-10"
-                          animate={{
-                            scale: [1, 2],
-                            opacity: [0.6, 0]
-                          }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            ease: "easeOut"
-                          }}
-                        />
-                        <motion.div
-                          className="absolute inset-0 rounded-[2.5rem] bg-primary/40 -z-10"
-                          animate={{
-                            scale: [1, 2.5],
-                            opacity: [0.4, 0]
-                          }}
-                          transition={{
-                            duration: 1.8,
-                            repeat: Infinity,
-                            ease: "easeOut",
-                            delay: 0.4
-                          }}
-                        />
-                        <motion.div
-                          className="absolute inset-0 rounded-[2.5rem] bg-primary/20 -z-10 blur-xl"
-                          animate={{
-                            scale: [1, 1.4 + (voiceVolume * 0.8)],
-                          }}
-                          transition={{ duration: 0.1 }}
-                        />
-                      </>
-                    )}
                   </Button>
                 </div>
               )}
