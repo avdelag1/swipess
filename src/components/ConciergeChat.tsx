@@ -1030,85 +1030,66 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   <span className="hidden xs:inline">{autoSend ? 'Auto' : 'Auto'}</span>
                 </button>
               )}
-              {/* Mic button with countdown ring */}
+              {/* Mic button */}
               {speechSupported && (
                 <div className="relative shrink-0">
+                  {(isListening || countdown !== null) && (
+                    <motion.div
+                      className="pointer-events-none absolute inset-0 rounded-xl border border-primary/30"
+                      animate={{
+                        scale: [1, 1.08, 1],
+                        opacity: [0.35, 0.85, 0.35],
+                        boxShadow: [
+                          '0 0 0px hsl(var(--primary) / 0)',
+                          '0 0 22px hsl(var(--primary) / 0.45)',
+                          '0 0 0px hsl(var(--primary) / 0)'
+                        ]
+                      }}
+                      transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                  )}
+
                   <Button
                     onClick={toggleListening}
+                    size="icon"
                     className={cn(
-                      "transition-all duration-300 relative overflow-visible z-20",
+                      "relative z-10 h-10 w-10 rounded-xl border transition-all duration-150",
                       isListening || countdown !== null
-                        ? "w-20 h-20 rounded-[2.5rem] bg-primary border-none shadow-[0_0_40px_rgba(228,0,124,0.6)] scale-110 -translate-y-4"
-                        : "w-10 h-10 rounded-xl bg-muted/40 text-muted-foreground border border-border/30 hover:bg-muted/60"
+                        ? "border-primary/40 bg-primary/12 text-primary shadow-[0_0_22px_hsl(var(--primary)/0.28)]"
+                        : "border-border/30 bg-muted/40 text-muted-foreground hover:bg-muted/60"
                     )}
                   >
                     <AnimatePresence mode="wait">
-                      {isListening && !ignitionFlash ? (
-                        <motion.div
-                          key="stop"
-                          initial={{ scale: 0.5, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0.5, opacity: 0 }}
-                        >
-                          <Square className="w-8 h-8 text-white fill-white" />
-                        </motion.div>
-                      ) : countdown !== null ? (
+                      {countdown !== null ? (
                         <motion.div
                           key="countdown"
-                          initial={{ scale: 0.5, opacity: 0 }}
+                          initial={{ scale: 0.85, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
-                          className="text-2xl font-black text-white"
+                          exit={{ scale: 0.85, opacity: 0 }}
+                          className="text-[13px] font-black"
                         >
                           {countdown}
+                        </motion.div>
+                      ) : isListening && !ignitionFlash ? (
+                        <motion.div
+                          key="stop"
+                          initial={{ scale: 0.85, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.85, opacity: 0 }}
+                        >
+                          <Square className="h-3.5 w-3.5 fill-current" />
                         </motion.div>
                       ) : (
                         <motion.div
                           key="mic"
-                          initial={{ scale: 0.5, opacity: 0 }}
+                          initial={{ scale: 0.85, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.85, opacity: 0 }}
                         >
-                          <Mic className="w-5 h-5 group-hover:text-primary transition-colors" />
+                          <Mic className="h-4 w-4" />
                         </motion.div>
                       )}
                     </AnimatePresence>
-
-                    {/* 🚀 LIQUID BREATHING PULSE */}
-                    {(isListening || countdown !== null) && (
-                      <>
-                        <motion.div
-                          className="absolute inset-0 rounded-[2.5rem] bg-primary/30 -z-10"
-                          animate={{
-                            scale: [1, 2],
-                            opacity: [0.6, 0]
-                          }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            ease: "easeOut"
-                          }}
-                        />
-                        <motion.div
-                          className="absolute inset-0 rounded-[2.5rem] bg-primary/40 -z-10"
-                          animate={{
-                            scale: [1, 2.5],
-                            opacity: [0.4, 0]
-                          }}
-                          transition={{
-                            duration: 1.8,
-                            repeat: Infinity,
-                            ease: "easeOut",
-                            delay: 0.4
-                          }}
-                        />
-                        <motion.div
-                          className="absolute inset-0 rounded-[2.5rem] bg-primary/20 -z-10 blur-xl"
-                          animate={{
-                            scale: [1, 1.4 + (voiceVolume * 0.8)],
-                          }}
-                          transition={{ duration: 0.1 }}
-                        />
-                      </>
-                    )}
                   </Button>
                 </div>
               )}
