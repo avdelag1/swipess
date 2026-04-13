@@ -401,6 +401,7 @@ export const BottomNavigation = memo(({
         <div
           ref={scrollRef}
           data-no-swipe-nav
+          data-scroll-axis="x"
           onScroll={handleNavScroll}
           onPointerDownCapture={handleScrollPointerDownCapture}
           onPointerMoveCapture={handleScrollPointerMoveCapture}
@@ -408,7 +409,7 @@ export const BottomNavigation = memo(({
           onPointerCancelCapture={handleScrollPointerCancelCapture}
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full justify-start gap-3 px-4 py-1.5 nav-scroll-hide transform-gpu select-none',
+            'relative flex items-center w-full justify-start gap-3 px-4 py-1.5 nav-scroll-hide transform-gpu select-none cursor-grab active:cursor-grabbing',
           )}
           style={{
             zIndex: 2,
@@ -419,11 +420,13 @@ export const BottomNavigation = memo(({
             scrollPaddingLeft: '16px',
             scrollPaddingRight: '16px',
             scrollbarWidth: 'none' as const,
+            msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch',
             contentVisibility: 'auto',
             containIntrinsicSize: '60px',
-            touchAction: 'pan-x pinch-zoom',
+            touchAction: 'pan-x',
             overscrollBehaviorX: 'contain',
+            overscrollBehaviorY: 'none',
           }}
         >
           {navItems.map((item) => {
@@ -446,7 +449,6 @@ export const BottomNavigation = memo(({
                 }}
                 onPointerUp={(e) => handlePointerUp(e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
-                onTouchStart={() => {}}
                 onClick={(e) => handleNavClick(item, e)}
                 whileTap={{ scale: 0.92, transition: TAP_SPRING }}
                 aria-label={item.label}
@@ -466,7 +468,7 @@ export const BottomNavigation = memo(({
                   cursor: 'pointer',
                   flexShrink: 0,
                   willChange: 'transform',
-                    touchAction: 'pan-x pinch-zoom',
+                    touchAction: 'manipulation',
                    userSelect: 'none',
                    WebkitUserSelect: 'none',
                 }}
