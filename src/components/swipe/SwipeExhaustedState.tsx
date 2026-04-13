@@ -27,6 +27,7 @@ interface SwipeExhaustedStateProps {
 }
 
 const CATEGORY_ICONS: Record<string, { icon: any; label: string; color: string }> = {
+  all:        { icon: Zap,            label: 'All',         color: '#ec4899' },
   property:   { icon: Home,           label: 'Properties',  color: '#3b82f6' },
   motorcycle: { icon: MotorcycleIcon, label: 'Motorcycles', color: '#f97316' },
   bicycle:    { icon: Bike,           label: 'Bicycles',    color: '#f43f5e' },
@@ -214,49 +215,13 @@ export const SwipeExhaustedState = ({
               transition={{ delay: 0.3 }}
               className="mx-auto w-full max-w-md"
             >
-              <div className="rounded-2xl border border-border/60 bg-card/55 p-4 backdrop-blur-xl sm:p-5">
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
-                      <MapPin className="h-4 w-4 text-primary" strokeWidth={1.5} />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Coverage</p>
-                      <p className="text-sm font-black leading-none text-foreground">Search Radius</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <div className="rounded-full border border-border/70 bg-secondary/40 px-3 py-1">
-                      <span className="text-sm font-black text-primary">{radiusKm}<span className="ml-0.5 text-[9px] opacity-50">km</span></span>
-                    </div>
-                    {onDetectLocation && (
-                      <button 
-                        onClick={onDetectLocation}
-                        className="flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-secondary/35 px-3 text-[8px] font-black uppercase tracking-widest text-muted-foreground transition-all hover:bg-secondary/55 hover:text-foreground"
-                      >
-                        <Zap className="h-3 w-3 text-primary" fill="currentColor" />
-                        Auto
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <DistanceSlider
-                    radiusKm={radiusKm}
-                    onRadiusChange={onRadiusChange}
-                    onDetectLocation={onDetectLocation || (() => {})}
-                    detecting={detecting ?? false}
-                    detected={detected ?? false}
-                  />
-                </div>
-                
-                <div className="mt-2 flex justify-between px-1">
-                  <span className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/70">Local</span>
-                  <span className="text-[7px] font-black uppercase tracking-widest text-muted-foreground/70">100 km+</span>
-                </div>
-              </div>
+              <DistanceSlider
+                radiusKm={radiusKm}
+                onRadiusChange={onRadiusChange}
+                onDetectLocation={onDetectLocation || (() => {})}
+                detecting={detecting ?? false}
+                detected={detected ?? false}
+              />
             </motion.div>
           </div>
         </div>
