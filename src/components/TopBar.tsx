@@ -99,13 +99,12 @@ function TopBarComponent({
           {/* ── Tap center area to go home ── */}
           <button
             type="button"
-            onPointerDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+            onClick={() => {
               haptics.tap();
               navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
             }}
-            className="absolute left-1/2 top-1/2 z-10 h-full w-28 -translate-x-1/2 -translate-y-1/2 touch-manipulation bg-transparent"
+            className="absolute left-1/2 top-1/2 z-10 h-full w-24 -translate-x-1/2 -translate-y-1/2 touch-manipulation bg-transparent"
+            style={{ pointerEvents: 'auto' }}
             aria-label="Go to dashboard"
           />
 

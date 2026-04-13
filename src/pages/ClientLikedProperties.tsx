@@ -354,14 +354,14 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
         {isLoading ? (
           <DashboardSkeleton />
         ) : filteredAndSorted.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 touch-pan-y">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {filteredAndSorted.map((property, index) => (
               <motion.div
                 key={property.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03, duration: 0.3 }}
-                className="rounded-[2rem] touch-pan-y"
+                className="rounded-[2rem]"
               >
                 <PremiumLikedCard
                   type="listing"
