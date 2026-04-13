@@ -101,6 +101,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     else navigate('/client/filters');
   };
 
+  const usesLayoutManagedScroll = location.pathname === '/client/liked-properties' || location.pathname === '/owner/liked-clients';
 
   return (
     <div className={cn("flex flex-col h-full w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
@@ -111,7 +112,6 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
  
       <div className="flex flex-col flex-1 h-full w-full min-h-0 overflow-hidden relative">
-        {/* 🚀 PERMANENT HUD: Universal and stable header/footer architecture */}
         {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
           <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[9999]">
             <TopBar
@@ -123,17 +123,17 @@ export function AppLayout({ children }: AppLayoutProps) {
           </SentientHud>
         )}
  
-        {/* Primary content area: fills available space between bars */}
         <main
           id="main-content"
           className={cn(
-            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y overflow-y-auto overflow-x-hidden scroll-smooth"
-          ) }
+            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y overflow-x-hidden",
+            usesLayoutManagedScroll ? "overflow-visible" : "overflow-y-auto scroll-smooth"
+          )}
           style={{
-            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive)
+            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive && !usesLayoutManagedScroll)
               ? 'calc(var(--top-bar-height) + var(--safe-top))'
               : undefined,
-            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive)
+            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive && !usesLayoutManagedScroll)
               ? 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 32px)'
               : undefined,
           }}
@@ -147,7 +147,6 @@ export function AppLayout({ children }: AppLayoutProps) {
         />
       </div>
 
-      {/* 🚀 PERMANENT HUD: Always visible footer per user request */}
       {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
         <>
           <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[9999]">
@@ -158,7 +157,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             />
           </SentientHud>
 
-          {/* Radio Mini Player */}
           <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+80px)] left-4 right-4 z-50 pointer-events-none">
             <div className="pointer-events-auto">
               <Suspense fallback={null}>
