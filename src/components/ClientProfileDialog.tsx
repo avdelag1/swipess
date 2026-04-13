@@ -89,6 +89,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   // Client intentions - what they're looking for
   const [intentions, setIntentions] = useState<string[]>([]);
 
+  // Verification fields
+  const [occupation, setOccupation] = useState<string>('');
+  const [yearsInCity, setYearsInCity] = useState<number | ''>('');
+
   // Get all unique countries across all regions (static data — computed once)
   const allCountries = useMemo(() => {
     const countries = new Set<string>();
@@ -203,6 +207,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     // Load client intentions
     setIntentions((data as any).intentions ?? []);
 
+    // Load verification fields
+    setOccupation((data as any).occupation ?? '');
+    setYearsInCity((data as any).years_in_city ?? '');
+
     // Find and set the region for the loaded country
     if (loadedCountry) {
       const region = findRegionForCountry(loadedCountry);
@@ -281,6 +289,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
       // Client intentions
       intentions: intentions,
+
+      // Verification fields
+      occupation: occupation || null,
+      years_in_city: yearsInCity === '' ? null : Number(yearsInCity),
     };
 
     // Content moderation on name
@@ -503,7 +515,35 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               )}
             </div>
 
-            {/* Location Section */}
+            {/* Occupation & Local Status */}
+            <div className="space-y-4">
+              <Label className="text-white text-lg sm:text-xl font-bold">💼 Occupation & Local Status</Label>
+              <p className="text-white/60 text-xs sm:text-sm -mt-2">Helps verify your resident profile</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-white/80 text-sm">What do you do?</Label>
+                  <Input
+                    value={occupation}
+                    onChange={(e) => setOccupation(e.target.value)}
+                    placeholder="e.g. Chef, DJ, Developer..."
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/30"
+                    maxLength={60}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-white/80 text-sm">Years in this city</Label>
+                  <Input
+                    type="number"
+                    value={yearsInCity}
+                    onChange={(e) => setYearsInCity(e.target.value === '' ? '' : Number(e.target.value))}
+                    placeholder="e.g. 3"
+                    min={0}
+                    max={50}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/30"
+                  />
+                </div>
+              </div>
+            </div>
             <div className="space-y-4">
               <Label className="text-white text-lg sm:text-xl font-bold">📍 Your Location</Label>
               <p className="text-white/60 text-xs sm:text-sm -mt-2">Where are you looking to rent or buy?</p>

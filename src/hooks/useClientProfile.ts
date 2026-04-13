@@ -36,6 +36,10 @@ export type ClientProfileLite = {
   dietary_preferences?: string[] | null;
   personality_traits?: string[] | null;
   interest_categories?: string[] | null;
+  // Verification fields
+  occupation?: string | null;
+  years_in_city?: number | null;
+  employer_name?: string | null;
 };
 
 // Type for database operations (excluding id)
