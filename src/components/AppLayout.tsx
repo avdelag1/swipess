@@ -90,6 +90,17 @@ export function AppLayout({ children }: AppLayoutProps) {
            showAIChat;
   }, [isCameraRoute, isRadioRoute, location.pathname, showAIChat]);
 
+  const handleMessageActivationsClick = () => navigate('/subscription/packages');
+  const handleListingsClick = () => {
+    if (userRole === 'owner') navigate('/owner/properties');
+    else navigate('/client/liked-properties');
+  };
+
+  const handleFilterClick = () => {
+    if (userRole === 'owner') navigate('/owner/filters');
+    else navigate('/client/filters');
+  };
+
   const usesLayoutManagedScroll = location.pathname === '/client/liked-properties' || location.pathname === '/owner/liked-clients';
 
   return (
