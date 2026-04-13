@@ -217,7 +217,9 @@ export default function OwnerDiscovery() {
                 </AnimatePresence>
               </main>
             </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
