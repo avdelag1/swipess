@@ -216,15 +216,15 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
               </div>
 
               {/* Card Body */}
-              <div className="p-5">
+              <div className="p-4">
                 {/* User Info */}
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="relative w-20 h-20 rounded-2xl overflow-hidden shadow-lg shrink-0">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="relative w-16 h-16 rounded-2xl overflow-hidden shadow-lg shrink-0">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
                     ) : (
                       <div className={cn(
-                        "w-full h-full flex items-center justify-center text-2xl font-black",
+                        "w-full h-full flex items-center justify-center text-xl font-black",
                         isLight ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
                       )}>
                         {name.charAt(0).toUpperCase()}
@@ -233,20 +233,20 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                     <div className="absolute inset-0 ring-1 ring-inset ring-black/10 dark:ring-white/10 rounded-2xl" />
                   </div>
 
-                  <div className="flex-1 pt-1">
-                    <h2 className={cn("text-xl font-bold tracking-tight mb-1", isLight ? "text-zinc-900" : "text-white")}>
+                  <div className="flex-1 pt-0.5">
+                    <h2 className={cn("text-lg font-bold tracking-tight mb-0.5", isLight ? "text-zinc-900" : "text-white")}>
                       {name}
                     </h2>
                     {nationality && (
-                      <p className={cn("text-sm", isLight ? "text-zinc-500" : "text-zinc-400")}>
+                      <p className={cn("text-xs", isLight ? "text-zinc-500" : "text-zinc-400")}>
                         {nationality}
                       </p>
                     )}
                     <div className={cn(
-                      "inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full text-xs font-medium",
+                      "inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium",
                       isLight ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
                     )}>
-                      <MapPin className="w-3.5 h-3.5" />
+                      <MapPin className="w-3 h-3" />
                       {city}
                     </div>
                   </div>
