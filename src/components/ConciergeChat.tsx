@@ -772,10 +772,10 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     )}
                   >
                     <div className={cn(
-                      "flex h-12 w-12 items-center justify-center rounded-full transition-all",
-                      isActive ? char.bgColor : "bg-muted/40"
-                    )}>
-                      <char.icon className={cn("h-6 w-6", isActive ? char.color : "text-muted-foreground")} />
+                      "flex h-14 w-14 items-center justify-center rounded-full overflow-hidden transition-all",
+                      isActive ? "ring-2 ring-offset-2 ring-offset-background" : "ring-1 ring-border/30"
+                    )} style={isActive ? { ringColor: arcColor } : undefined}>
+                      <img src={CHARACTER_AVATARS[char.key]} alt={char.label} className="h-full w-full object-cover" loading="lazy" />
                     </div>
                     <span className={cn(
                       "whitespace-nowrap text-xs font-bold",
@@ -870,22 +870,20 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => setSidebarOpen(!sidebarOpen)}>
                   <Menu className="w-4 h-4" />
                 </Button>
-                {/* Character avatar with arc gauge or simple icon */}
+                {/* Character avatar image */}
                 <button
                   onClick={() => setCharacterPanelOpen(!characterPanelOpen)}
                   className="relative focus:outline-none"
                   title="Choose character"
                 >
-                  {activeCharacter !== 'default' ? (
-                    <ArcGauge
-                      level={egoLevel}
-                      color={arcColor}
-                      isLoading={isLoading}
-                      icon={currentChar.icon}
-                    />
-                  ) : (
-                    <HeaderIcon isLoading={isLoading} />
-                  )}
+                  <motion.div
+                    className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-offset-1 ring-offset-background"
+                    style={{ ringColor: activeCharacter !== 'default' ? arcColor : 'hsl(var(--primary))' }}
+                    animate={isLoading ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+                    transition={isLoading ? { duration: 1.8, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.2 }}
+                  >
+                    <img src={CHARACTER_AVATARS[activeCharacter]} alt={currentChar.label} className="w-full h-full object-cover" />
+                  </motion.div>
                 </button>
                 <div>
                   <p className={cn("text-sm font-bold", activeCharacter !== 'default' ? currentChar.color : "text-foreground")}>
