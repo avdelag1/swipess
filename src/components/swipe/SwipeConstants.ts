@@ -1,4 +1,4 @@
-import { Home, Bike, Briefcase, Sparkles, Users, ShoppingBag, Key, Wrench, Radio as RadioIcon, ShieldCheck } from 'lucide-react';
+import { Home, Bike, Briefcase, Sparkles, Users, ShoppingBag, Key, Wrench, Radio as RadioIcon, ShieldCheck, Scale, Megaphone } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ListingFilters } from '@/hooks/useSmartMatching';
 import { logger } from '@/utils/prodLogger';
@@ -84,6 +84,8 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   renters:    'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
   hire:       'linear-gradient(135deg, #3b0764 0%, #1e0636 100%)',
   vap:        'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
+  lawyer:     'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+  promote:    'linear-gradient(135deg, #4a1942 0%, #2d1b69 100%)',
 };
 
 // Icon imports consolidated at top.
@@ -121,13 +123,15 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   services:   '/images/filters/workers.png',
   all:        '/images/filters/all.png',
   radio:      '/images/filters/radio.png',
-  vap:        '/images/filters/all.png',
+  vap:        '/images/filters/resident_card.png',
   
-  // Owner intent cards - REFINED UX
+  // Owner intent cards
   buyers:        '/images/filters/owner_buyers_card.png',
   renters:       '/images/filters/owner_renters_card.png',
   hire:          '/images/filters/owner_hire_card.png',
   'all-clients': '/images/filters/all.png',
+  lawyer:        '/images/filters/owner_lawyer_card.png',
+  promote:       '/images/filters/owner_promote_card.png',
 };
 
 // ─── Owner quick-filter intent cards ────────────────────────────────────────
@@ -175,5 +179,21 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
     accentRgb: '168,85,247',
     clientType: 'hire',
     icon: Wrench,
+  },
+  {
+    id: 'lawyer',
+    label: 'Legal Hub',
+    description: 'Contracts & Docs',
+    accent: '#6366f1',
+    accentRgb: '99,102,241',
+    icon: Scale,
+  },
+  {
+    id: 'promote',
+    label: 'Promote',
+    description: 'Advertise Events',
+    accent: '#ec4899',
+    accentRgb: '236,72,153',
+    icon: Megaphone,
   },
 ];
