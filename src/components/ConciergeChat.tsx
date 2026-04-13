@@ -771,10 +771,12 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                         : "border-border/30 bg-muted/20 hover:bg-muted/40"
                     )}
                   >
-                    <div className={cn(
-                      "flex h-14 w-14 items-center justify-center rounded-full overflow-hidden transition-all",
-                      isActive ? "ring-2 ring-offset-2 ring-offset-background" : "ring-1 ring-border/30"
-                    )} style={isActive ? { ringColor: arcColor } : undefined}>
+                    <div
+                      className={cn(
+                        "flex h-14 w-14 items-center justify-center rounded-full overflow-hidden border-2 transition-all",
+                        isActive ? "border-primary shadow-lg" : "border-border/30"
+                      )}
+                    >
                       <img src={CHARACTER_AVATARS[char.key]} alt={char.label} className="h-full w-full object-cover" loading="lazy" />
                     </div>
                     <span className={cn(
@@ -877,8 +879,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                   title="Choose character"
                 >
                   <motion.div
-                    className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-offset-1 ring-offset-background"
-                    style={{ ringColor: activeCharacter !== 'default' ? arcColor : 'hsl(var(--primary))' }}
+                    className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/50"
                     animate={isLoading ? { scale: [1, 1.08, 1] } : { scale: 1 }}
                     transition={isLoading ? { duration: 1.8, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.2 }}
                   >
