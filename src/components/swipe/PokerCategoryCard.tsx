@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState, useEffect } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
@@ -32,6 +32,30 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const { tiltX, tiltY } = useDeviceParallax(0.3);
   const isCycling = useRef(false);
 
+  // Image preloading with decode() for flicker-free reveal
+  const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
+  const gradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
+  const [imgReady, setImgReady] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgReady(false);
+    setImgError(false);
+    const img = new Image();
+    img.src = photo;
+    img.decode()
+      .then(() => setImgReady(true))
+      .catch(() => {
+        // Fallback: if decode fails, still try to show if loaded
+        if (img.complete && img.naturalWidth > 0) {
+          setImgReady(true);
+        } else {
+          setImgError(true);
+        }
+      });
+    img.onerror = () => setImgError(true);
+  }, [photo]);
+
   const handleDragEnd = useCallback((_: any, info: any) => {
     if (isCycling.current) return;
     const dist = Math.abs(info.offset.x);
@@ -42,7 +66,6 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       triggerHaptic('medium');
       const direction = info.offset.x > 0 ? 'right' : 'left';
 
-      // Recede behind: animate x slightly while scale+opacity handle via useTransform
       animate(x, direction === 'right' ? 250 : -250, { 
         type: 'tween', 
         duration: 0.4,
@@ -59,10 +82,6 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     }
   }, [card.id, onCycle, x]);
 
-  const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
-  const gradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
-  const [imgError, setImgError] = useState(false);
-
   const stackY = isCollapsed ? 0 : index * 18;
   const stackScale = 1 - (index * 0.04);
   const stackBrightness = 1 - (index * 0.05);
@@ -78,14 +97,19 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       dragElastic={0.5}
       onDragEnd={isTop ? handleDragEnd : undefined}
       onClick={!isTop ? () => onBringToFront(index) : undefined}
-      initial={false}
+      initial={{ y: stackY + 40, opacity: 0, scale: stackScale * 0.95 }}
       animate={{
         y: stackY,
         opacity: index > 4 ? 0 : 1,
         rotateX: isTop ? 0 : 6, 
+        scale: isTop ? undefined : stackScale,
         filter: isTop ? undefined : `brightness(${stackBrightness})`,
       }}
-      transition={{ type: 'spring', stiffness: 180, damping: 26, mass: 1.2 }}
+      transition={{ 
+        type: 'spring', stiffness: 180, damping: 26, mass: 1.2,
+        // Stagger entrance: each card delays slightly based on index
+        delay: index * 0.06,
+      }}
       style={{
         position: 'absolute',
         top: 0,
@@ -94,11 +118,11 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         height: height,
         zIndex: 50 - index,
         x: isTop ? x : 0,
-        scale: isTop ? exitScale : stackScale,
+        scale: isTop ? exitScale : undefined,
         rotateZ: isTop ? dragTilt : 0,
         rotateX: isTop ? -tiltY : (index > 4 ? 0 : 6),
         rotateY: isTop ? tiltX : 0,
-        opacity: isTop ? exitOpacity : (index > 4 ? 0 : 1),
+        opacity: isTop ? exitOpacity : undefined,
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
         transformStyle: 'preserve-3d',
@@ -109,30 +133,28 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     >
       <div
         className={cn(
-          "w-full h-full relative overflow-hidden rounded-[48px] transition-all duration-300",
+          "w-full h-full relative overflow-hidden rounded-[48px]",
           isTop ? "border-2 border-white/10 shadow-2xl" : "border border-white/5 shadow-xl"
         )}
       >
-        {/* Flagship Imagery */}
-        {!imgError ? (
-          <motion.img
+        {/* Gradient base — always visible immediately */}
+        <div
+          className="absolute inset-0 w-full h-full"
+          style={{ background: gradient }}
+        />
+
+        {/* Photo — fades in only after decode() completes */}
+        {!imgError && (
+          <img
             src={photo}
             alt={card.label}
-            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-out"
             draggable={false}
             loading="eager"
-            decoding="sync"
-            onError={() => setImgError(true)}
             style={{ 
-              opacity: 1, 
-              filter: 'none',
-              transform: 'translateZ(0)', // Force GPU layer
+              opacity: imgReady ? 1 : 0, 
+              transform: 'translateZ(0)',
             }}
-          />
-        ) : (
-          <motion.div
-            className="absolute inset-0 w-full h-full"
-            style={{ background: gradient }}
           />
         )}
 
@@ -159,6 +181,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
             <motion.button
               initial={{ opacity: 0, scale: 0.9, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
               onClick={(e) => { e.stopPropagation(); onSelect(card.id); }}
               className="mt-6 w-full h-16 rounded-[1.5rem] font-black text-[13px] uppercase tracking-[0.25em] bg-white text-black active:scale-95 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.4)] flex items-center justify-center overflow-hidden relative group"
             >
