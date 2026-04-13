@@ -106,7 +106,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     return Math.min(100, Math.round((filled / total) * 100));
   }, [profile, nationality, bio, occupation, yearsInCity, languages, documents]);
 
-  const handleDocUpload = useCallback(async (docType: string) => {
+  const validationUrl = `https://swipess.app/vap-validate/${user?.id || 'unknown'}`;
     if (!user?.id) return;
     const input = document.createElement('input');
     input.type = 'file';
