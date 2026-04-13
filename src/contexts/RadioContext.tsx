@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { RadioStation, CityLocation, RadioSkin, RadioPlayerState } from '@/types/radio';
+import { RadioStation, CityLocation, RadioPlayerState } from '@/types/radio';
 import { getStationsByCity, getStationById, radioStations } from '@/data/radioStations';
 import { logger } from '@/utils/prodLogger';
 
@@ -32,7 +32,7 @@ interface RadioContextType {
   setCity: (city: CityLocation) => void;
   setVolume: (volume: number) => void;
   toggleShuffle: () => void;
-  setSkin: (skin: RadioSkin) => void;
+  toggleFavorite: (stationId: string) => void;
   toggleFavorite: (stationId: string) => void;
   isStationFavorite: (stationId: string) => boolean;
   playPlaylist: (stationIds: string[]) => void;
@@ -54,7 +54,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     currentCity: 'tulum',
     volume: 0.7,
     isShuffle: false,
-    skin: 'turntable',
+    isShuffle: false,
     favorites: [],
     deadStationIds: [], // Fresh start each session — no permanent blacklist
     miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
@@ -535,10 +535,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     savePreferences({ isShuffle: newShuffle });
   }, [state.isShuffle, state.currentStation]);
 
-  const setSkin = useCallback((skin: RadioSkin) => {
-    setState(prev => ({ ...prev, skin }));
-    savePreferences({ skin });
-  }, []);
+  const toggleFavoriteWrapped = toggleFavorite;
 
   const toggleFavorite = useCallback((stationId: string) => {
     setState(prev => {
