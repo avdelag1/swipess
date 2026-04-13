@@ -1,52 +1,51 @@
 
 
-## Stabilization Plan: Parallax Fix, Splash Logo, General Polish
+## Photo Vibrancy & General Polish Plan
 
-### Problems
+### Root Cause Analysis
 
-1. **Cards shaking/vibrating** — The `useDeviceParallax` hook calls `setState` on every animation frame (~60fps), causing constant React re-renders. Combined with a 25px multiplier, even micro-movements from gyroscope noise create visible jitter.
+The "gray filter" effect comes from multiple overlapping opacity/overlay layers that compound to wash out photos:
 
-2. **Splash/loading screen uses square logo** — `index.html` splash uses `swipess-logo-transparent.png` (the square icon), not the white wordmark (`swipess-wordmark-512.png`). The `PremiumLoader` component correctly uses the wordmark via `SwipessLogo`, but the HTML splash doesn't.
-
-3. **Owner dashboard content overlapping bottom nav** — Already partially addressed but needs verification pass.
-
----
+1. **Poker category cards** (`PokerCategoryCard.tsx`): Bottom gradient is `from-black/90 via-black/30` covering 60% of the card height — very heavy.
+2. **Owner swipe cards** (`SimpleOwnerSwipeCard.tsx`): Bottom gradient is `from-black/85 via-black/40` covering 60% — also heavy. The "next card preview" renders at `opacity-40` making it look ghosted.
+3. **Client swipe cards** (`SimpleSwipeCard.tsx`): Bottom gradient is `from-black/80 via-black/30` covering 50% — slightly better but still dims photos.
+4. **SwipeCardPeek** (`SwipeCardPeek.tsx`): Has a flat `bg-black/20` overlay on top of the entire card image — unnecessary dimming.
+5. **Stacked cards** in `PokerCategoryCard.tsx` apply `brightness(stackBrightness)` which dims background cards further.
+6. **`photo-swim` animation** on `CardImage.tsx` has no color boost — pure scale only.
 
 ### Plan
 
-#### 1. Fix the parallax hook to stop jitter
+#### 1. Reduce gradient overlays on all card types
 
-Rewrite `useDeviceParallax.ts` to:
-- **Stop calling `setState` every frame** — instead, only update state when the delta exceeds a dead-zone threshold (~0.3px), preventing micro-jitter from gyroscope noise
-- **Reduce the multiplier** from `25` to `8` (max 8px translation instead of 25px)
-- **Increase damping** from `0.08` to `0.04` for a slower, smoother interpolation
-- **Add a dead-zone** — ignore movements under ±2 degrees to filter sensor noise
+**PokerCategoryCard.tsx** (quick filter cards):
+- Change bottom gradient from `from-black/90 via-black/30` to `from-black/70 via-black/15` — still readable text but photos pop more
+- Reduce gradient height from `h-[60%]` to `h-[45%]` — shows more of the photo
 
-In `SimpleOwnerSwipeCard.tsx` and `SimpleSwipeCard.tsx`:
-- Reduce the parallax multiplier from `0.8` to `0.4` for a more subtle, premium feel
-- The combined effect: max ~3px of smooth tilt instead of ~20px of jittery movement
+**SimpleSwipeCard.tsx** (client swipe deck):
+- Reduce gradient from `rgba(0,0,0,0.8)` to `rgba(0,0,0,0.6)` and mid-stop from `0.3` to `0.15`
+- This preserves text legibility while letting the photo colors breathe
 
-In `PokerCategoryCard.tsx`:
-- Already uses `0.3` multiplier — will benefit from the hook fix automatically
+**SimpleOwnerSwipeCard.tsx** (owner swipe deck):
+- Reduce gradient from `rgba(0,0,0,0.85)` to `rgba(0,0,0,0.65)` and mid-stop from `0.4` to `0.2`
+- The "next card preview" opacity from `opacity-40` to `opacity-60` so it looks less ghosted
 
-#### 2. Replace splash logo with the white wordmark
+#### 2. Remove the flat black overlay on SwipeCardPeek
 
-In `index.html`:
-- Change the splash `<img>` from `swipess-logo-transparent.png` to `swipess-wordmark-512.png`
-- Increase height from `2.8rem` to `3.2rem` for the wordmark proportions
+- Remove the `bg-black/20` div that sits on top of every peeked card — it serves no purpose other than dulling the image
 
-In `AppOutagePage.tsx`:
-- Same swap: use `swipess-wordmark-512.png` instead of `swipess-logo-transparent.png`
+#### 3. Add subtle color vibrancy boost to CardImage
 
-The `PremiumLoader` and `SwipessLogo` components already use the correct wordmark — no changes needed there.
+- Add `filter: saturate(1.08) contrast(1.03)` to the loaded `<img>` in `CardImage.tsx`
+- This gives a subtle but noticeable color pop without looking unnatural — similar to how iOS Photos auto-enhances
 
-#### 3. Verify owner dashboard layout
+#### 4. Increase stacked card brightness
 
-Quick check that the bottom padding from the previous fix (`calc(var(--bottom-nav-height) + var(--safe-bottom))`) is properly applied for immersive dashboard routes so content doesn't overlap the nav bar.
+- In `PokerCategoryCard.tsx`, increase `stackBrightness` for non-top cards (e.g. from 0.6 to 0.75) so background cards in the fan don't look muddy
 
-#### 4. Build verification
+#### 5. General scan for other issues
 
-Run full TypeScript build check to ensure no regressions.
+- Verify build passes after changes
+- Check no other overlapping overlays or filters remain
 
 ---
 
@@ -54,9 +53,9 @@ Run full TypeScript build check to ensure no regressions.
 
 | File | Change |
 |------|--------|
-| `src/hooks/useDeviceParallax.ts` | Add dead-zone, reduce multiplier, throttle setState |
-| `src/components/SimpleOwnerSwipeCard.tsx` | Reduce parallax multiplier 0.8 → 0.4 |
-| `src/components/SimpleSwipeCard.tsx` | Reduce parallax multiplier 0.8 → 0.4 |
-| `index.html` | Swap splash logo to wordmark |
-| `src/components/AppOutagePage.tsx` | Swap logo to wordmark |
+| `src/components/swipe/PokerCategoryCard.tsx` | Lighter gradient, smaller height, brighter stack |
+| `src/components/SimpleSwipeCard.tsx` | Lighter bottom gradient |
+| `src/components/SimpleOwnerSwipeCard.tsx` | Lighter gradient, brighter next-card preview |
+| `src/components/swipe/SwipeCardPeek.tsx` | Remove `bg-black/20` overlay |
+| `src/components/CardImage.tsx` | Add `saturate(1.08) contrast(1.03)` to loaded img |
 
