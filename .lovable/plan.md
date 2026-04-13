@@ -1,47 +1,57 @@
 
-Goal: fix the two real problems still present on the likes flows: missing back/close controls in preview states with no image, and scrolling only working on exposed parts of the page instead of across the cards themselves.
+Goal: fix only the two broken likes pages so vertical scrolling works from anywhere on the page, not just the exposed top area.
 
 What I found
-- `src/components/LikedClientInsightsModal.tsx` only shows the back/close buttons inside the `clientImages.length > 0` branch. If a liked client has no photo, the modal shows a placeholder and no back button at all. The same structural issue needs to be hardened in `src/components/LikedListingInsightsModal.tsx`.
-- The likes pages already live inside `DashboardLayout`’s `#dashboard-scroll-container`, but their page shells still use standalone `min-h-[101dvh]` wrappers instead of the unified `min-h-full overflow-visible` pattern.
-- The main touch problem is `src/components/PremiumLikedCard.tsx`: the whole image/header area is a tap target (`onClick` on the full image block), so when the finger starts on the card, the UI behaves like a tappable surface instead of a scroll-first surface.
-- Both client and owner likes flows reuse `PremiumLikedCard`, so the same bug affects both sides.
+- The actual root cause is global CSS, not the card component itself.
+- In `src/styles/pwa-performance.css`, there is a rule:
+  ```css
+  [data-no-swipe-nav] {
+    touch-action: pan-x !important;
+    overscroll-behavior-x: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  ```
+- Both broken pages use `data-no-swipe-nav="true"` on their root wrapper:
+  - `src/pages/ClientLikedProperties.tsx`
+  - `src/components/LikedClients.tsx`
+- Because `touch-action` is intersected across ancestors, that global `pan-x !important` blocks normal vertical scroll whenever the gesture starts inside those page surfaces/cards. That matches exactly what you described: only some exposed areas scroll, while the card area feels dead.
+- `PremiumLikedCard.tsx` is no longer the main blocker. The global `data-no-swipe-nav` rule is overriding the page’s intended `pan-y`.
 
 Implementation plan
-1. Fix missing back buttons on preview modals
-- Update:
-  - `src/components/LikedClientInsightsModal.tsx`
-  - `src/components/LikedListingInsightsModal.tsx`
-- Move back/close controls out of the “has images” branch and into a persistent top overlay/header.
-- Keep the back action as modal close so users return instantly to the likes page underneath.
+1. Fix the route-level touch policy
+- Update `src/styles/pwa-performance.css`.
+- Stop forcing every `[data-no-swipe-nav]` area to `touch-action: pan-x !important`.
+- Replace it with a safer rule that only disables horizontal swipe-nav behavior without killing vertical page scroll.
 
-2. Re-align likes pages with the shared scroll architecture
+2. Harden the two affected pages explicitly
 - Update:
   - `src/pages/ClientLikedProperties.tsx`
   - `src/components/LikedClients.tsx`
-- Replace the current `min-h-[101dvh]` page shells with `min-h-full overflow-visible`-style wrappers so the parent `#dashboard-scroll-container` remains the only real scroller.
-- Preserve `touch-pan-y` and `data-no-swipe-nav="true"`.
+- Keep them on unified parent scroll flow (`min-h-full overflow-visible`).
+- Add explicit route-safe classes/attributes so these two pages always prefer vertical touch scrolling across the full content area.
 
-3. Make card surfaces scroll-first
-- Refine `src/components/PremiumLikedCard.tsx` so vertical dragging wins everywhere except on explicit action buttons.
-- Remove the full-card/header tap behavior from the whole image region.
-- Keep “View” as a deliberate action button or smaller explicit target, instead of making the full top half of the card capture touches.
-- Keep decorative layers passive and maintain `touch-action: pan-y` on non-button surfaces.
+3. Ensure card surfaces inherit vertical scroll correctly
+- Re-check `src/components/PremiumLikedCard.tsx`.
+- Keep the card root, image area, and content area aligned to `pan-y`.
+- Keep actions clickable only on actual buttons.
 
-4. Reduce extra interaction layers on likes grids
-- Update:
-  - `src/pages/ClientLikedProperties.tsx`
-  - `src/components/LikedClients.tsx`
-- Simplify the per-card wrappers so they do not add extra touch/interactivity weight above the real scroll container.
-- Keep visual polish, but prioritize reliable finger scrolling over animated wrapper behavior.
-
-5. Mirror the same fix on related owner/client card pages
-- Apply the same card-scroll treatment to:
-  - `src/pages/OwnerInterestedClients.tsx`
-  - `src/pages/ClientWhoLikedYou.tsx`
-- This keeps all liked/interested card pages consistent instead of fixing only one route.
+4. Preserve swipe-navigation blocking without breaking scroll
+- Review `src/hooks/useSwipeNavigation.ts` usage indirectly via the existing `data-no-swipe-nav` behavior.
+- Keep horizontal route-swipe navigation disabled on these pages, but do it without a CSS rule that suppresses vertical gestures.
 
 Expected result
-- The preview modals always have a visible back button, even when there is no image.
-- The client and owner likes pages scroll from anywhere the finger starts, including directly on top of the cards.
-- Buttons still work on tap, but dragging on the card surface scrolls the page naturally.
+- Both pages:
+  - `/client/liked-properties`
+  - `/owner/liked-clients`
+  will scroll naturally from anywhere the finger starts, including directly on cards.
+- Buttons like Message/View/Trash will still work on tap.
+- No broader redesign is needed; this is a targeted touch-behavior fix.
+
+Technical detail
+- The bug is caused by:
+  ```css
+  [data-no-swipe-nav] { touch-action: pan-x !important; }
+  ```
+  on the same wrappers that are supposed to scroll vertically.
+- The fix is to remove or narrow that global rule and let these likes pages use `pan-y` at the page/card surface level.
