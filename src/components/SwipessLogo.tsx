@@ -24,6 +24,8 @@ function SwipessLogoComponent({
   variant = 'gradient',
 }: SwipessLogoProps) {
   const isIcon = variant === 'icon';
+  // White variant: invert the orange wordmark to pure white
+  const isWhite = variant === 'white';
 
   return (
     <div className={cn(
@@ -41,6 +43,7 @@ function SwipessLogoComponent({
         style={{
           imageRendering: 'auto',
           maxWidth: !isIcon ? '80vw' : undefined,
+          filter: isWhite ? 'brightness(0) invert(1)' : undefined,
         }}
       />
     </div>
