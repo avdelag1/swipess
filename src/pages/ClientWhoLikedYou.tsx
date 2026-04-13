@@ -225,17 +225,17 @@ const ClientWhoLikedYou = () => {
             ))}
           </div>
         ) : filteredOwners.length > 0 ? (
-          <PremiumSortableGrid
-            items={filteredOwners}
-            onReorder={handleReorder}
-            renderItem={(owner) => (
-              <PremiumLikedCard
-                type="profile"
-                data={owner}
-                onAction={(action) => handleAction(action, owner)}
-              />
-            )}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8" style={{ touchAction: 'pan-y' }}>
+            {filteredOwners.map((owner: any, index: number) => (
+              <div key={owner.id} className="rounded-[2rem]" style={{ touchAction: 'pan-y' }}>
+                <PremiumLikedCard
+                  type="profile"
+                  data={owner}
+                  onAction={(action) => handleAction(action, owner)}
+                />
+              </div>
+            ))}
+          </div>
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
