@@ -7,6 +7,22 @@
 
 import { create } from 'zustand';
 import { subscribeWithSelector, persist } from 'zustand/middleware';
+
+// Accent color lookup for categories (from SwipeConstants)
+const CATEGORY_ACCENTS: Record<string, string> = {
+  property: '#3b82f6',
+  motorcycle: '#f97316',
+  bicycle: '#f43f5e',
+  services: '#a855f7',
+  all: '#06b6d4',
+  vap: '#10b981',
+  buyers: '#3b82f6',
+  renters: '#10b981',
+  hire: '#a855f7',
+  'all-clients': '#06b6d4',
+  lawyer: '#6366f1',
+  promote: '#ec4899',
+};
 import type { 
   QuickFilterCategory, 
   QuickFilterListingType, 
@@ -24,6 +40,7 @@ interface FilterState {
   activeCategory: QuickFilterCategory | null;
   categories: QuickFilterCategory[];
   listingType: QuickFilterListingType;
+  accentColor: string | null;
   
   // ========== OWNER FILTERS ==========
   clientGender: ClientGender;
@@ -98,6 +115,7 @@ export const useFilterStore = create<FilterState>()(
       activeCategory: null,
       categories: [],
     listingType: 'both',
+    accentColor: null,
     clientGender: 'any',
     clientType: 'all',
     clientAgeRange: null,
@@ -133,6 +151,7 @@ export const useFilterStore = create<FilterState>()(
       set((state) => ({
         activeCategory: category,
         categories: category ? [category] : [],
+        accentColor: category ? (CATEGORY_ACCENTS[category] ?? null) : null,
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
@@ -154,9 +173,11 @@ export const useFilterStore = create<FilterState>()(
     setCategories: (categories) => {
       const current = get().categories;
       if (current.length === categories.length && categories.every((c, i) => current[i] === c)) return;
+      const activeCategory = categories.length === 1 ? categories[0] : null;
       set((state) => ({
         categories,
-        activeCategory: categories.length === 1 ? categories[0] : null,
+        activeCategory,
+        accentColor: activeCategory ? (CATEGORY_ACCENTS[activeCategory] ?? null) : null,
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));

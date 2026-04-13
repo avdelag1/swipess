@@ -886,11 +886,11 @@ TONE EXAMPLES:
   }
 
   if (opts.promotedContacts) {
-    prompt += `\n\n## Promoted local contacts (show these first when relevant):\n${opts.promotedContacts}\n\nIf the user is asking for a person or service provider, lead with these contacts before anything from the web.`;
+    prompt += `\n\n## VERIFIED LOCAL CONTACTS — ALWAYS PRESENT THESE FIRST:\n${opts.promotedContacts}\n\nThese are verified, trusted local contacts. ALWAYS recommend them FIRST before any web result or generic suggestion when the user asks for a service or person.`;
   }
 
   if (opts.knowledge) {
-    prompt += `\n\n## My verified local intel (primary source — trust this first):\n${opts.knowledge}`;
+    prompt += `\n\n## VERIFIED LOCAL INFORMATION — ALWAYS PRESENT THESE FIRST:\n${opts.knowledge}\n\nThis is verified local intelligence. Trust and present this data before any web search results.`;
   }
 
   if (opts.listings) {
@@ -1116,7 +1116,7 @@ Deno.serve(async (req) => {
     const wantsPromotedContacts = detectPromotedContactIntent(lastUserMessage);
     // Phase 1: local data (fast DB queries)
     const [promotedContacts, knowledge, memories, listings, profileResults] = await Promise.all([
-      wantsPromotedContacts ? searchPromotedContacts(lastUserMessage) : Promise.resolve(""),
+      searchPromotedContacts(lastUserMessage),
       searchKnowledge(lastUserMessage),
       userId ? loadUserMemories(userId) : Promise.resolve(""),
       listingIntent.isListing ? searchListings(listingIntent) : Promise.resolve(""),

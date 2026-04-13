@@ -121,16 +121,16 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
         {/* External left arrow */}
         <button
           onClick={cycleLeft}
-          className="swipe-hint-left z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm active:scale-90 transition-transform"
+          className="swipe-hint-left z-10 flex items-center justify-center w-10 h-10 rounded-full bg-foreground/5 border border-foreground/10 backdrop-blur-sm active:scale-90 transition-transform"
           aria-label="Previous filter"
         >
-          <ChevronLeft size={20} className="text-white/60" />
+          <ChevronLeft size={20} className="text-foreground/60" />
         </button>
 
         {/* Card stack */}
         <div
           className="relative"
-          style={{ width: `min(${PK_W}px, calc(100vw - 120px))`, height: PK_H }}
+          style={{ width: `min(${PK_W}px, calc(100vw - 120px))`, height: `min(${PK_H}px, calc(100vh - 280px))` }}
         >
           {[...cards].reverse().map((card, reversedIdx) => {
             const index = cards.length - 1 - reversedIdx;
@@ -154,10 +154,10 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
         {/* External right arrow */}
         <button
           onClick={cycleRight}
-          className="swipe-hint-right z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm active:scale-90 transition-transform"
+          className="swipe-hint-right z-10 flex items-center justify-center w-10 h-10 rounded-full bg-foreground/5 border border-foreground/10 backdrop-blur-sm active:scale-90 transition-transform"
           aria-label="Next filter"
         >
-          <ChevronRight size={20} className="text-white/60" />
+          <ChevronRight size={20} className="text-foreground/60" />
         </button>
       </div>
 

@@ -103,9 +103,9 @@ export default function DJTurntableRadio() {
       <div className="flex items-center justify-between px-5 pt-[env(safe-area-inset-top,16px)] pb-3 z-20">
         <button
           onClick={() => window.history.length > 2 ? navigate(-1) : navigate('/client/dashboard')}
-          className={cn('w-10 h-10 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
+          className={cn('w-9 h-9 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
         >
-          <ArrowLeft className={cn('w-5 h-5', isDark ? 'text-white/60' : 'text-black/50')} />
+          <ArrowLeft className={cn('w-4.5 h-4.5', isDark ? 'text-white/60' : 'text-black/50')} />
         </button>
 
         {/* City name */}
@@ -122,17 +122,17 @@ export default function DJTurntableRadio() {
         <div className="flex gap-2">
           <button
             onClick={() => { toggleShuffle(); triggerHaptic('light'); }}
-            className={cn('w-10 h-10 rounded-full flex items-center justify-center', neumBtn, neumBtnActive,
+            className={cn('w-9 h-9 rounded-full flex items-center justify-center', neumBtn, neumBtnActive,
               state.isShuffle && (isDark ? 'ring-1 ring-white/20' : 'ring-1 ring-black/10')
             )}
           >
-            <Shuffle className={cn('w-4 h-4', state.isShuffle ? (isDark ? 'text-white' : 'text-black') : (isDark ? 'text-white/30' : 'text-black/25'))} />
+            <Shuffle className={cn('w-3.5 h-3.5', state.isShuffle ? (isDark ? 'text-white' : 'text-black') : (isDark ? 'text-white/30' : 'text-black/25'))} />
           </button>
           <button
             onClick={() => { setShowDrawer(true); triggerHaptic('medium'); }}
-            className={cn('w-10 h-10 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
+            className={cn('w-9 h-9 rounded-full flex items-center justify-center', neumBtn, neumBtnActive)}
           >
-            <ListMusic className={cn('w-4 h-4', isDark ? 'text-white/50' : 'text-black/40')} />
+            <ListMusic className={cn('w-3.5 h-3.5', isDark ? 'text-white/50' : 'text-black/40')} />
           </button>
         </div>
       </div>
