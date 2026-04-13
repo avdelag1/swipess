@@ -1,4 +1,5 @@
 import { useState, useCallback, memo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,6 +20,7 @@ export interface OwnerAllDashboardProps {
 
 export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps) => {
   const [cards, setCards] = useState([...OWNER_INTENT_CARDS]);
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
@@ -55,9 +57,17 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
 
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
+    if (id === 'lawyer') {
+      navigate('/legal');
+      return;
+    }
+    if (id === 'promote') {
+      navigate('/promote');
+      return;
+    }
     const card = OWNER_INTENT_CARDS.find(c => c.id === id);
     if (card) onCardSelect(card);
-  }, [onCardSelect]);
+  }, [onCardSelect, navigate]);
 
   const handleBringToFront = useCallback((index: number) => {
     triggerHaptic('light');
