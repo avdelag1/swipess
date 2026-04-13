@@ -1,13 +1,29 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShieldCheck, MapPin, Sparkles, ScanLine, Upload, FileText, CheckCircle2, Loader2, Pencil, Briefcase, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  X,
+  ShieldCheck,
+  MapPin,
+  ScanLine,
+  Upload,
+  FileText,
+  CheckCircle2,
+  Loader2,
+  Pencil,
+  Briefcase,
+  Globe2,
+  CalendarDays,
+  Languages,
+  BadgeCheck,
+  IdCard,
+} from 'lucide-react';
 import QRCode from 'react-qr-code';
-import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Textarea } from '@/components/ui/textarea';
 
 export interface VapIdProps {
   isOpen: boolean;
@@ -21,14 +37,11 @@ const DOC_TYPES = [
 ] as const;
 
 export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState<string | null>(null);
   const [editingBio, setEditingBio] = useState(false);
   const [bioValue, setBioValue] = useState('');
-  const [showDocs, setShowDocs] = useState(false);
 
   const { data: profile } = useQuery({
     queryKey: ['vap-id-profile', user?.id],
@@ -78,12 +91,23 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const name = profile?.full_name || user?.email?.split('@')[0] || 'Resident';
   const nationality = clientProfile?.nationality || profile?.nationality || '';
   const city = clientProfile?.city || profile?.city || 'Tulum';
+  const country = profile?.country || '';
   const bio = clientProfile?.bio || '';
   const occupation = (clientProfile as any)?.occupation || '';
   const avatarUrl = profile?.avatar_url || '';
+  const yearsInCity = clientProfile?.years_in_city;
   const memberSince = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
     : '';
+  const spokenLanguages = useMemo(() => {
+    const raw = profile?.languages_spoken;
+    if (Array.isArray(raw)) {
+      return raw.filter((value): value is string => typeof value === 'string' && value.trim().length > 0);
+    }
+    if (typeof raw === 'string' && raw.trim()) return [raw.trim()];
+    if (profile?.language) return [profile.language];
+    return [];
+  }, [profile?.languages_spoken, profile?.language]);
 
   const verificationScore = useMemo(() => {
     let filled = 0;
@@ -99,7 +123,14 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     return Math.min(100, Math.round((filled / total) * 100));
   }, [profile, nationality, bio, occupation, documents]);
 
+  const documentSummary = useMemo(() => {
+    const verified = documents?.filter((doc) => doc.status === 'verified').length || 0;
+    const pending = documents?.filter((doc) => doc.status === 'pending').length || 0;
+    return { verified, pending, total: documents?.length || 0 };
+  }, [documents]);
+
   const validationUrl = `https://swipess.app/vap-validate/${user?.id || 'unknown'}`;
+  const idNumber = `SW-${(user?.id || 'resident').slice(0, 8).toUpperCase()}`;
 
   const handleDocUpload = useCallback(async (docType: string) => {
     if (!user?.id) return;
@@ -166,6 +197,15 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     return doc.status;
   };
 
+  const getDocMeta = (docType: string) => documents?.find((doc) => doc.document_type === docType);
+
+  const detailItems = [
+    { label: 'Location', value: [city, country].filter(Boolean).join(', ') || 'Not set', icon: MapPin },
+    { label: 'Nationality', value: nationality || 'Not set', icon: Globe2 },
+    { label: 'Occupation', value: occupation || 'Not set', icon: Briefcase },
+    { label: 'Member Since', value: memberSince || 'Just joined', icon: CalendarDays },
+  ];
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -175,7 +215,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-md"
+            className="fixed inset-0 z-[10001] bg-black/70 backdrop-blur-md"
           />
 
           <motion.div
@@ -186,254 +226,272 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
             className="fixed inset-0 z-[10002] flex items-center justify-center p-4 pointer-events-none"
           >
             <div
-              className={cn(
-                "relative w-full max-w-[380px] rounded-[24px] pointer-events-auto shadow-2xl overflow-hidden",
-                isLight ? "bg-white border border-black/5" : "bg-zinc-900 border border-white/10"
-              )}
+              className="relative pointer-events-auto w-full max-w-[440px] max-h-[86dvh] overflow-hidden rounded-[30px] border border-border bg-background shadow-2xl"
             >
-              {/* ── Close button ── */}
-              <button
-                onClick={onClose}
-                className={cn(
-                  "absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center",
-                  "transition-colors touch-manipulation",
-                  isLight ? "bg-black/5 hover:bg-black/10" : "bg-white/10 hover:bg-white/15"
-                )}
-              >
-                <X className={cn("w-4 h-4", isLight ? "text-black/50" : "text-white/50")} />
-              </button>
-
-              {/* ══════ PAGE 1: ID CARD ══════ */}
-              <div className="px-5 pt-5 pb-4">
-
-                {/* Top band */}
-                <div className="flex items-center gap-2 mb-4">
-                  <ShieldCheck className="w-4 h-4 text-primary" />
-                  <span className="text-[11px] font-black uppercase tracking-[0.15em] text-primary">
-                    Resident Card
-                  </span>
+              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/92 px-5 py-4 backdrop-blur-xl">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Virtual ID</p>
+                  <h2 className="mt-1 text-lg font-black tracking-tight text-foreground">Resident Identity Card</h2>
                 </div>
+                <button
+                  onClick={onClose}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+                  aria-label="Close resident ID"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
 
-                {/* ID layout: photo left, info right */}
-                <div className="flex gap-4">
-                  {/* Photo */}
-                  <div className="shrink-0 flex flex-col items-center gap-2">
-                    <div className={cn(
-                      "w-20 h-24 rounded-xl overflow-hidden shadow-lg",
-                      "border-2",
-                      isLight ? "border-black/5" : "border-white/10"
-                    )}>
-                      {avatarUrl ? (
-                        <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className={cn(
-                          "w-full h-full flex items-center justify-center text-2xl font-black",
-                          isLight ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
-                        )}>
-                          {name.charAt(0).toUpperCase()}
-                        </div>
-                      )}
+              <div className="max-h-[calc(86dvh-74px)] overflow-y-auto overscroll-contain px-4 pb-6 pt-4">
+                <section
+                  className="relative overflow-hidden rounded-[28px] border border-border bg-card p-4 shadow-2xl"
+                  style={{
+                    backgroundImage:
+                      'radial-gradient(circle at top right, hsl(var(--primary) / 0.18), transparent 34%), linear-gradient(135deg, hsl(var(--card)), hsl(var(--muted) / 0.88))',
+                  }}
+                >
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/12 text-primary">
+                        <ShieldCheck className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Verified Resident</p>
+                        <p className="text-xs font-medium text-muted-foreground">Primary identity surface</p>
+                      </div>
                     </div>
-                    {/* Score badge under photo */}
-                    <div className={cn(
-                      "px-2 py-0.5 rounded-full text-[10px] font-bold",
-                      verificationScore >= 75 ? "bg-emerald-500/15 text-emerald-500"
-                        : verificationScore >= 40 ? "bg-amber-500/15 text-amber-500"
-                        : isLight ? "bg-zinc-100 text-muted-foreground" : "bg-white/5 text-muted-foreground"
-                    )}>
-                      {verificationScore}% verified
+                    <div className="rounded-full border border-border bg-background/80 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-foreground">
+                      {idNumber}
                     </div>
                   </div>
 
-                  {/* Info fields */}
-                  <div className="flex-1 min-w-0 space-y-2 pt-0.5">
+                  <div className="flex gap-4">
+                    <div className="w-[118px] shrink-0">
+                      <div className="h-[154px] overflow-hidden rounded-[24px] border border-border bg-muted shadow-xl">
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-primary/10 text-4xl font-black text-primary">
+                            {name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-3 rounded-[20px] border border-border bg-background/70 px-3 py-2 text-center">
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Trust Score</p>
+                        <p className="mt-1 text-xl font-black text-foreground">{verificationScore}%</p>
+                      </div>
+                    </div>
+
+                    <div className="min-w-0 flex-1 space-y-3">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Resident</p>
+                        <h3 className="mt-1 text-[1.55rem] font-black leading-[1.05] tracking-tight text-foreground">
+                          {name}
+                        </h3>
+                      </div>
+
+                      <div className="grid gap-2 text-sm">
+                        {detailItems.map(({ label, value, icon: Icon }) => (
+                          <div key={label} className="flex items-start gap-2 rounded-2xl border border-border bg-background/60 px-3 py-2.5">
+                            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                              <Icon className="h-3.5 w-3.5" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
+                              <p className="mt-0.5 truncate font-semibold text-foreground">{value}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-[auto_1fr] items-center gap-3 rounded-[24px] border border-border bg-background/75 p-3">
+                    <div className="relative rounded-[20px] border border-border bg-white p-2 shadow-sm">
+                      <QRCode value={validationUrl} size={72} level="H" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="rounded-full bg-white p-1 text-primary shadow">
+                          <ScanLine className="h-3.5 w-3.5" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <BadgeCheck className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-black text-foreground">Live validation enabled</p>
+                      </div>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        Scan this code to confirm this resident card, trust score, and uploaded identity documents.
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="mt-4 rounded-[28px] border border-border bg-card p-4 shadow-lg">
+                  <div className="mb-3 flex items-center justify-between gap-3">
                     <div>
-                      <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Full Name</span>
-                      <h2 className="text-base font-bold text-foreground truncate leading-tight">{name}</h2>
+                      <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Profile Note</p>
+                      <h3 className="mt-1 text-base font-black text-foreground">About this resident</h3>
                     </div>
-
-                    {nationality && (
-                      <div>
-                        <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Nationality</span>
-                        <p className="text-sm font-medium text-foreground leading-tight">{nationality}</p>
-                      </div>
-                    )}
-
-                    <div className="flex gap-3">
-                      <div className="min-w-0">
-                        <span className="text-[9px] uppercase tracking-wider text-muted-foreground">City</span>
-                        <p className="text-sm font-medium text-foreground leading-tight flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-primary shrink-0" />
-                          <span className="truncate">{city}</span>
-                        </p>
-                      </div>
-                      {occupation && (
-                        <div className="min-w-0">
-                          <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Occupation</span>
-                          <p className="text-sm font-medium text-foreground leading-tight flex items-center gap-1">
-                            <Briefcase className="w-3 h-3 text-muted-foreground shrink-0" />
-                            <span className="truncate">{occupation}</span>
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {memberSince && (
-                      <div>
-                        <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Member Since</span>
-                        <p className="text-xs font-medium text-foreground leading-tight flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
-                          {memberSince}
-                        </p>
-                      </div>
+                    {!editingBio && (
+                      <button
+                        onClick={() => {
+                          setBioValue(bio);
+                          setEditingBio(true);
+                        }}
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:text-foreground"
+                        aria-label="Edit bio"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
                     )}
                   </div>
-                </div>
 
-                {/* Verification bar */}
-                <div className="mt-4">
-                  <div className="w-full h-1.5 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${verificationScore}%` }}
-                      transition={{ duration: 0.8, ease: 'easeOut' }}
-                      className={cn("h-full rounded-full",
-                        verificationScore >= 75 ? "bg-emerald-500" : verificationScore >= 40 ? "bg-amber-500" : "bg-muted-foreground"
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* Bio section */}
-                <div className={cn("mt-3 px-3 py-2.5 rounded-xl relative", isLight ? "bg-zinc-50" : "bg-white/5")}>
                   {editingBio ? (
-                    <div className="space-y-2">
-                      <textarea
+                    <div className="space-y-3">
+                      <Textarea
                         value={bioValue}
                         onChange={(e) => setBioValue(e.target.value)}
-                        placeholder="Tell the community about yourself..."
-                        className={cn(
-                          "w-full resize-none rounded-lg p-2 text-xs bg-transparent border focus:outline-none focus:ring-1",
-                          isLight ? "border-black/10 focus:ring-primary" : "border-white/10 focus:ring-white/30 text-white"
-                        )}
-                        rows={2}
-                        maxLength={150}
+                        placeholder="Add a short resident summary..."
+                        rows={4}
+                        maxLength={220}
+                        className="min-h-[120px]"
                       />
-                      <div className="flex gap-2 justify-end">
-                        <button onClick={() => setEditingBio(false)} className="text-[11px] px-3 py-1 rounded-lg text-muted-foreground touch-manipulation">Cancel</button>
-                        <button onClick={handleSaveBio} className="text-[11px] px-3 py-1 rounded-lg bg-primary text-primary-foreground font-bold touch-manipulation">Save</button>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => setEditingBio(false)}
+                          className="rounded-2xl border border-border bg-background px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleSaveBio}
+                          className="rounded-2xl bg-primary px-4 py-2 text-sm font-black text-primary-foreground transition-transform active:scale-95"
+                        >
+                          Save Note
+                        </button>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <p className={cn("text-xs leading-relaxed italic flex-1", isLight ? "text-zinc-600" : "text-zinc-300")}>
-                        {bio ? `"${bio}"` : 'Tap to add bio...'}
-                      </p>
-                      <button
-                        onClick={() => { setBioValue(bio); setEditingBio(true); }}
-                        className={cn(
-                          "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 touch-manipulation",
-                          isLight ? "hover:bg-black/5" : "hover:bg-white/10"
-                        )}
-                      >
-                        <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-                      </button>
-                    </div>
+                    <p className="rounded-[22px] border border-border bg-background/70 px-4 py-4 text-sm leading-relaxed text-muted-foreground">
+                      {bio || 'Add a short note so this virtual ID feels complete and trustworthy.'}
+                    </p>
                   )}
-                </div>
+                </section>
 
-                {/* QR code row */}
-                <div className="mt-3 flex items-center justify-between">
-                  <div className="p-1.5 bg-white rounded-xl shadow-sm border border-black/5 relative">
-                    <QRCode value={validationUrl} size={52} level="H" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-white p-0.5 rounded-full">
-                        <ScanLine className="w-3 h-3 text-primary" />
+                <section className="mt-4 rounded-[28px] border border-border bg-card p-4 shadow-lg">
+                  <div className="mb-3">
+                    <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Deep Details</p>
+                    <h3 className="mt-1 text-base font-black text-foreground">Identity breakdown</h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="rounded-[22px] border border-border bg-background/70 p-4">
+                      <div className="flex items-center gap-2 text-foreground">
+                        <Languages className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-black">Languages</p>
                       </div>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {spokenLanguages.length > 0 ? spokenLanguages.join(', ') : 'No languages added yet'}
+                      </p>
+                    </div>
+
+                    <div className="rounded-[22px] border border-border bg-background/70 p-4">
+                      <div className="flex items-center gap-2 text-foreground">
+                        <IdCard className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-black">Residency Status</p>
+                      </div>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {yearsInCity ? `${yearsInCity} year${yearsInCity === 1 ? '' : 's'} in ${city}.` : `City history not added yet.`}
+                      </p>
                     </div>
                   </div>
-                  <span className="text-[9px] text-muted-foreground max-w-[160px] text-right leading-tight">
-                    Scan to validate this resident's identity
-                  </span>
-                </div>
-              </div>
+                </section>
 
-              {/* ── Expand to Documents ── */}
-              <button
-                onClick={() => setShowDocs(!showDocs)}
-                className={cn(
-                  "w-full flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold uppercase tracking-widest touch-manipulation transition-colors",
-                  isLight ? "bg-zinc-50 text-muted-foreground hover:bg-zinc-100 border-t border-black/5"
-                    : "bg-white/5 text-muted-foreground hover:bg-white/[0.08] border-t border-white/5"
-                )}
-              >
-                {showDocs ? 'Hide' : 'Documents & Verification'}
-                {showDocs ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-              </button>
+                <section className="mt-4 rounded-[28px] border border-border bg-card p-4 shadow-lg">
+                  <div className="mb-4 flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Documents</p>
+                      <h3 className="mt-1 text-base font-black text-foreground">Verification files</h3>
+                    </div>
+                    <div className="rounded-[20px] border border-border bg-background/70 px-3 py-2 text-right">
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Status</p>
+                      <p className="mt-1 text-sm font-black text-foreground">
+                        {documentSummary.verified} verified · {documentSummary.pending} pending
+                      </p>
+                    </div>
+                  </div>
 
-              {/* ══════ PAGE 2: DOCUMENTS ══════ */}
-              <AnimatePresence>
-                {showDocs && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: 'easeInOut' }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-5 pb-5 pt-3 space-y-3">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                        Upload Documents
-                      </span>
-                      <div className="grid grid-cols-3 gap-3">
-                        {DOC_TYPES.map(({ key, label }) => {
-                          const status = getDocStatus(key);
-                          return (
+                  <div className="space-y-3">
+                    {DOC_TYPES.map(({ key, label }) => {
+                      const status = getDocStatus(key);
+                      const doc = getDocMeta(key);
+                      return (
+                        <div key={key} className="flex items-center gap-3 rounded-[22px] border border-border bg-background/70 p-3">
+                          <div className={cn(
+                            'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border',
+                            status === 'verified'
+                              ? 'border-primary/20 bg-primary/10 text-primary'
+                              : status === 'pending'
+                                ? 'border-border bg-secondary text-foreground'
+                                : 'border-border bg-muted text-muted-foreground'
+                          )}>
+                            {uploading === key ? (
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                            ) : status === 'verified' ? (
+                              <CheckCircle2 className="h-5 w-5" />
+                            ) : status === 'pending' ? (
+                              <FileText className="h-5 w-5" />
+                            ) : (
+                              <Upload className="h-5 w-5" />
+                            )}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-black text-foreground">{label}</p>
+                            <p className="mt-1 truncate text-xs text-muted-foreground">
+                              {doc?.file_name || 'No file uploaded yet'}
+                            </p>
+                          </div>
+
+                          <div className="flex shrink-0 flex-col items-end gap-2">
+                            <span className={cn(
+                              'rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em]',
+                              status === 'verified'
+                                ? 'border-primary/20 bg-primary/10 text-primary'
+                                : status === 'pending'
+                                  ? 'border-border bg-secondary text-foreground'
+                                  : 'border-border bg-muted text-muted-foreground'
+                            )}>
+                              {status === 'none' ? 'Missing' : status}
+                            </span>
+
                             <button
-                              key={key}
-                              onClick={() => status === 'none' ? handleDocUpload(key) : undefined}
+                              onClick={() => status !== 'verified' && handleDocUpload(key)}
                               disabled={uploading === key || status === 'verified'}
                               className={cn(
-                                "flex flex-col items-center justify-center gap-2 py-4 rounded-xl transition-all touch-manipulation",
-                                status === 'none' && "active:scale-95",
-                                isLight ? "bg-zinc-50 hover:bg-zinc-100" : "bg-white/5 hover:bg-white/[0.08]",
-                                status === 'verified' && "opacity-80"
+                                'rounded-2xl px-3 py-2 text-xs font-black transition-transform active:scale-95',
+                                status === 'verified'
+                                  ? 'cursor-default bg-secondary text-muted-foreground'
+                                  : 'bg-primary text-primary-foreground'
                               )}
                             >
-                              <div className={cn(
-                                "w-10 h-10 rounded-xl flex items-center justify-center",
-                                status === 'verified' ? "bg-emerald-500/15 text-emerald-500"
-                                  : status === 'pending' ? "bg-amber-500/15 text-amber-500"
-                                  : isLight ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
-                              )}>
-                                {uploading === key ? <Loader2 className="w-5 h-5 animate-spin" />
-                                  : status === 'verified' ? <CheckCircle2 className="w-5 h-5" />
-                                  : status === 'pending' ? <FileText className="w-5 h-5" />
-                                  : <Upload className="w-5 h-5" />}
-                              </div>
-                              <span className="text-[10px] font-medium text-muted-foreground">{label}</span>
-                              {status !== 'none' && (
-                                <span className={cn("text-[9px] font-bold uppercase",
-                                  status === 'verified' ? "text-emerald-500" : "text-amber-500"
-                                )}>
-                                  {status}
-                                </span>
-                              )}
+                              {status === 'verified' ? 'Locked' : status === 'pending' ? 'Replace' : 'Upload'}
                             </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              </div>
 
-              {/* Decorative glow */}
-              <div className="absolute inset-0 pointer-events-none opacity-15 mix-blend-overlay"
+              <div
+                className="pointer-events-none absolute inset-0 opacity-30"
                 style={{
-                  background: isLight
-                    ? 'radial-gradient(circle at 100% 0%, hsl(var(--primary) / 0.4) 0%, transparent 40%)'
-                    : 'radial-gradient(circle at 100% 0%, rgba(255,255,255,0.3) 0%, transparent 40%)'
+                  background:
+                    'radial-gradient(circle at top right, hsl(var(--primary) / 0.22), transparent 30%), radial-gradient(circle at bottom left, hsl(var(--primary) / 0.12), transparent 24%)',
                 }}
               />
             </div>

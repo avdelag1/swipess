@@ -3,7 +3,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Gem, ArrowLeft, Radio as RadioIcon, IdCard } from 'lucide-react';
+import { Coins, ArrowLeft, Radio as RadioIcon, IdCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -164,7 +164,7 @@ function TopBarComponent({
                   )}
                   aria-label="View tokens"
                 >
-                  <Gem className="w-4 h-4 text-primary drop-shadow-[0_0_6px_hsl(var(--primary)/0.5)]" strokeWidth={1.8} />
+                  <Coins className="w-4 h-4 text-primary drop-shadow-[0_0_6px_hsl(var(--primary)/0.5)]" strokeWidth={1.8} />
                 </motion.button>
               </>
             )}
