@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { RadioStation, CityLocation, RadioSkin, RadioPlayerState } from '@/types/radio';
+import { RadioStation, CityLocation, RadioPlayerState } from '@/types/radio';
 import { getStationsByCity, getStationById, radioStations } from '@/data/radioStations';
 import { logger } from '@/utils/prodLogger';
 
@@ -32,7 +32,6 @@ interface RadioContextType {
   setCity: (city: CityLocation) => void;
   setVolume: (volume: number) => void;
   toggleShuffle: () => void;
-  setSkin: (skin: RadioSkin) => void;
   toggleFavorite: (stationId: string) => void;
   isStationFavorite: (stationId: string) => boolean;
   playPlaylist: (stationIds: string[]) => void;
@@ -54,7 +53,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     currentCity: 'tulum',
     volume: 0.7,
     isShuffle: false,
-    skin: 'turntable',
     favorites: [],
     deadStationIds: [], // Fresh start each session — no permanent blacklist
     miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
@@ -535,10 +533,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     savePreferences({ isShuffle: newShuffle });
   }, [state.isShuffle, state.currentStation]);
 
-  const setSkin = useCallback((skin: RadioSkin) => {
-    setState(prev => ({ ...prev, skin }));
-    savePreferences({ skin });
-  }, []);
+  
 
   const toggleFavorite = useCallback((stationId: string) => {
     setState(prev => {
@@ -586,14 +581,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     setCity,
     setVolume,
     toggleShuffle,
-    setSkin,
     toggleFavorite,
     isStationFavorite,
     playPlaylist,
     playFavorites,
     setMiniPlayerMode,
     getFrequencyData,
-  }), [state, loading, error, play, pause, togglePlayPause, togglePower, changeStation, setCity, setVolume, toggleShuffle, setSkin, toggleFavorite, isStationFavorite, playPlaylist, playFavorites, setMiniPlayerMode, getFrequencyData]);
+  }), [state, loading, error, play, pause, togglePlayPause, togglePower, changeStation, setCity, setVolume, toggleShuffle, toggleFavorite, isStationFavorite, playPlaylist, playFavorites, setMiniPlayerMode, getFrequencyData]);
 
   return <RadioContext.Provider value={value}>{children}</RadioContext.Provider>;
 }
