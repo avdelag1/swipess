@@ -2,7 +2,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Bed, Bath, Square, DollarSign, MessageCircle, Sparkles, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Star } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, DollarSign, MessageCircle, Sparkles, Trash2, Ban, Flag, ChevronLeft, ChevronRight, X, Star, ArrowLeft } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -289,6 +289,16 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                     className="w-full h-full object-cover cursor-pointer"
                     onClick={handleImageClick}
                   />
+
+                  {/* Back Button */}
+                  <button
+                    onClick={() => onOpenChange(false)}
+                    title="Back"
+                    aria-label="Back"
+                    className="absolute top-3 left-3 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all backdrop-blur-sm z-10"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
 
                   {/* Close Button */}
                   <button

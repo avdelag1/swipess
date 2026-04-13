@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { MessageCircle, MapPin, Trash2, Eye, Bed, User, Home, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 interface PremiumLikedCardProps {
     type: 'listing' | 'profile';
@@ -23,21 +22,18 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
     const category = data.category || data.property_type || 'Profile';
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -4 }}
+        <div
             className={cn(
-                "group relative rounded-[2rem] overflow-hidden transition-all duration-300 touch-pan-y",
+                "group relative rounded-[2rem] overflow-hidden transition-shadow duration-300",
                 isLight
                   ? "bg-white border border-border/50 shadow-xl hover:shadow-2xl"
                   : "bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] shadow-2xl hover:border-white/[0.12]"
             )}
             style={{ touchAction: 'pan-y' }}
         >
-            {/* Visual Header / Image */}
+            {/* Visual Header / Image — tappable for view */}
             <div 
-                className="relative h-48 sm:h-56 overflow-hidden cursor-pointer touch-pan-y"
+                className="relative h-48 sm:h-56 overflow-hidden cursor-pointer"
                 onClick={() => onAction('view', data)}
                 style={{ touchAction: 'pan-y' }}
             >
@@ -55,10 +51,10 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                 )}
 
                 {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
 
                 {/* Top Badges */}
-                <div className="absolute top-4 left-4 flex gap-2">
+                <div className="absolute top-4 left-4 flex gap-2 pointer-events-none">
                     <div className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
                         {category}
                     </div>
@@ -68,13 +64,13 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                     onClick={(e) => { e.stopPropagation(); onAction('remove', data); }}
                     aria-label="Remove from favorites"
                     title="Remove from favorites"
-                    className="absolute top-4 right-4 h-11 w-11 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:text-rose-500 transition-all active:scale-95 shadow-lg group/trash z-20 touch-manipulation pointer-events-auto"
+                    className="absolute top-4 right-4 h-11 w-11 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:text-rose-500 transition-all active:scale-95 shadow-lg group/trash z-20 touch-manipulation"
                 >
                     <Trash2 className="w-5 h-5 transition-transform group-hover/trash:scale-110" />
                 </button>
 
                 {/* Bottom Info on Image */}
-                <div className="absolute bottom-4 left-4 right-4">
+                <div className="absolute bottom-4 left-4 right-4 pointer-events-none">
                     <h3 className="text-white font-black text-lg sm:text-xl leading-tight truncate drop-shadow-lg">
                         {title}
                     </h3>
@@ -86,7 +82,7 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
             </div>
 
             {/* Content Area */}
-            <div className="p-5 space-y-4">
+            <div className="p-5 space-y-4" style={{ touchAction: 'pan-y' }}>
                 {/* Specs / Details */}
                 <div className="flex flex-wrap gap-2">
                     {type === 'listing' && (
@@ -121,20 +117,18 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
 
                 {/* Standardized Action Buttons */}
                 <div className="flex gap-2 pt-2">
-                    <motion.button
-                        whileTap={{ scale: 0.96 }}
+                    <button
                         onClick={() => onAction('message', data)}
-                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white text-xs font-black shadow-[0_4px_16px_rgba(228,0,124,0.3)] transition-all touch-manipulation pointer-events-auto"
+                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white text-xs font-black shadow-[0_4px_16px_rgba(228,0,124,0.3)] transition-all touch-manipulation active:scale-[0.96]"
                     >
                         <MessageCircle className="w-4 h-4" />
                         MESSAGE
-                    </motion.button>
+                    </button>
 
-                    <motion.button
-                        whileTap={{ scale: 0.96 }}
+                    <button
                         onClick={() => onAction('view', data)}
                         className={cn(
-                          "flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl text-xs font-black transition-all touch-manipulation pointer-events-auto",
+                          "flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl text-xs font-black transition-all touch-manipulation active:scale-[0.96]",
                           isLight
                             ? "bg-secondary hover:bg-muted text-foreground border border-border/40"
                             : "bg-white/[0.06] hover:bg-white/[0.1] text-white border border-white/[0.08]"
@@ -142,10 +136,10 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
                     >
                         <Eye className="w-4 h-4" />
                         VIEW
-                    </motion.button>
+                    </button>
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 });
 

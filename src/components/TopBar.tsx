@@ -170,6 +170,17 @@ function TopBarComponent({
             )}
           </div>
 
+          {/* ── Center tap: dashboard shortcut ── */}
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-20 z-10 pointer-events-auto touch-manipulation cursor-pointer"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+            onClick={() => {
+              haptics.tap();
+              navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
+            }}
+            aria-label="Go to dashboard"
+          />
+
           {/* ── Horizontally scrollable row: remaining action buttons ── */}
           <div className="flex-1 min-w-0 relative pointer-events-none">
             <div
