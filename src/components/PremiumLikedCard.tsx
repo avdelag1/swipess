@@ -28,16 +28,15 @@ export const PremiumLikedCard = memo(({ type, data, onAction, isLight }: Premium
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ y: -4 }}
             className={cn(
-                "group relative rounded-[2rem] overflow-hidden transition-all duration-300 touch-pan-y",
+                "group relative rounded-[2rem] overflow-hidden transition-all duration-300",
                 isLight
                   ? "bg-white border border-border/50 shadow-xl hover:shadow-2xl"
                   : "bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] shadow-2xl hover:border-white/[0.12]"
             )}
-            style={{ touchAction: 'pan-y' }}
         >
             {/* Visual Header / Image */}
             <div 
-                className="relative h-48 sm:h-56 overflow-hidden cursor-pointer touch-pan-y"
+                className="relative h-48 sm:h-56 overflow-hidden cursor-pointer"
                 onClick={() => onAction('view', data)}
             >
                 {imageUrl ? (
