@@ -3,7 +3,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { MessageCirclePlus, ArrowLeft, Radio as RadioIcon, IdCard } from 'lucide-react';
+import { Gem, ArrowLeft, Radio as RadioIcon, IdCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -96,16 +96,6 @@ function TopBarComponent({
         )}
       >
         <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 px-3 pointer-events-none">
-          {/* ── Tap center area to go home ── */}
-          <button
-            type="button"
-            onClick={() => {
-              haptics.tap();
-              navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
-            }}
-            className="absolute left-1/2 top-1/2 z-10 h-10 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full touch-manipulation bg-transparent pointer-events-auto"
-            aria-label="Go to dashboard"
-          />
 
           {/* ── Pinned left: avatar + mode switcher + token badge ── */}
           <div className="flex-shrink-0 flex items-center gap-1.5 relative z-20 pointer-events-none">
@@ -174,7 +164,7 @@ function TopBarComponent({
                   )}
                   aria-label="View tokens"
                 >
-                  <MessageCirclePlus className="w-4 h-4 text-primary" strokeWidth={1.5} />
+                  <Gem className="w-4 h-4 text-primary drop-shadow-[0_0_6px_hsl(var(--primary)/0.5)]" strokeWidth={1.8} />
                 </motion.button>
               </>
             )}
