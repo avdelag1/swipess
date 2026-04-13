@@ -11,7 +11,7 @@ import { useLocation } from 'react-router-dom';
  */
 export function useAiNudges() {
   const { user } = useAuth();
-  const { addSystemMessage, sendMessage } = useConciergeAI();
+  const { sendMessage } = useConciergeAI();
   const location = useLocation();
   const lastNudgeRef = useRef<number>(Date.now());
   const nudgeCooldown = 1000 * 60 * 30; // 30 minutes
@@ -32,7 +32,7 @@ export function useAiNudges() {
           .is('read_at', null);
 
         if (unreadCount && unreadCount > 0) {
-          addSystemMessage(`You have ${unreadCount} unread messages waiting for you.`);
+          sendMessage(`You have ${unreadCount} unread messages waiting for you.`);
           lastNudgeRef.current = now;
           return;
         }
@@ -57,5 +57,5 @@ export function useAiNudges() {
     checkNudges(); // Initial check
 
     return () => clearInterval(timer);
-  }, [user, location.pathname, addSystemMessage, sendMessage]);
+  }, [user, location.pathname, sendMessage]);
 }
