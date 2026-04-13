@@ -191,7 +191,25 @@ const ClientProfile = () => {
               <span className="text-sm font-semibold text-primary">{completionPercent}%</span>
             </div>
             <Progress value={completionPercent} className="h-2 rounded-full" />
-            <p className="text-xs font-normal text-muted-foreground mt-3 leading-relaxed">
+            {/* Contextual nudge — tell the user exactly what's missing */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {!profile.profile_images?.length && (
+                <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-primary/10 text-primary">+ Photos</span>
+              )}
+              {!profile.bio && (
+                <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-primary/10 text-primary">+ Bio</span>
+              )}
+              {!profile.interests?.length && (
+                <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-primary/10 text-primary">+ Interests</span>
+              )}
+              {!profile.age && (
+                <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-primary/10 text-primary">+ Age</span>
+              )}
+              {!profile.name && (
+                <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-primary/10 text-primary">+ Name</span>
+              )}
+            </div>
+            <p className="text-xs font-normal text-muted-foreground mt-2 leading-relaxed">
               Complete profiles get 3x more interest. Tap to finish.
             </p>
           </div>

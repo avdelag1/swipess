@@ -13,7 +13,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
-import { DashboardSkeleton } from "@/components/ui/LayoutSkeletons";
+import { LikesSkeleton } from "@/components/ui/LikesSkeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { pwaImagePreloader, getCardImageUrl } from "@/utils/imageOptimization";
 import type { Listing } from "@/hooks/useListings";
 import { useEffect } from "react";
@@ -352,7 +353,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
         </div>
 
         {isLoading ? (
-          <DashboardSkeleton />
+          <LikesSkeleton />
         ) : filteredAndSorted.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {filteredAndSorted.map((property, index) => (
@@ -372,25 +373,13 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             ))}
           </div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-32 text-center bg-muted/30 rounded-[3rem] border border-border"
-          >
-            <div className="w-24 h-24 rounded-[2.5rem] bg-secondary flex items-center justify-center mb-8 shadow-2xl border border-border">
-              <Flame className="w-12 h-12 text-[var(--color-brand-accent-2)]/40" />
-            </div>
-            <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">Pure Potential.</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">
-              Your favorite listings will appear here. Start swiping to fill your world.
-            </p>
-            <button
-              onClick={() => navigate("/client/dashboard")}
-              className="mt-10 px-8 py-4 rounded-2xl bg-[var(--color-brand-accent-2)] text-white text-sm font-black tracking-widest hover:bg-[#FF1493] transition-all active:scale-95 shadow-[0_10px_30px_rgba(228,0,124,0.3)]"
-            >
-              EXPLORE WORLD
-            </button>
-          </motion.div>
+          <EmptyState
+            icon={Flame}
+            title="Pure Potential."
+            description="Your favorite listings will appear here. Start swiping to fill your world."
+            actionLabel="EXPLORE WORLD"
+            onAction={() => navigate("/client/dashboard")}
+          />
         )}
       </div>
 
