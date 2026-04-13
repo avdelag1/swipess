@@ -180,28 +180,28 @@ const MessageBubble = memo(({ message, onCopy, onResend, onDelete, onTranslate, 
 
       {/* Action bar — always visible on touch, hover on desktop */}
       <div className={cn(
-        'flex items-center gap-0.5 mt-1.5 transition-opacity',
+        'flex items-center gap-0 mt-1 transition-opacity',
         'opacity-60 hover:opacity-100',
         isUser ? 'justify-end' : 'justify-start'
       )}>
-        <button onClick={onCopy} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground flex items-center justify-center" aria-label="Copy">
-          <Copy className="w-3.5 h-3.5" />
+        <button onClick={onCopy} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground flex items-center justify-center" aria-label="Copy">
+          <Copy className="w-3 h-3" />
         </button>
         {onDelete && (
-          <button onClick={onDelete} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground/60 hover:text-destructive transition-colors flex items-center justify-center" aria-label="Delete">
-            <Trash2 className="w-3.5 h-3.5" />
+          <button onClick={onDelete} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-destructive transition-colors flex items-center justify-center" aria-label="Delete">
+            <Trash2 className="w-3 h-3" />
           </button>
         )}
         {isUser && onResend && (
-          <button onClick={onResend} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground flex items-center justify-center" aria-label="Resend">
-            <RefreshCw className="w-3.5 h-3.5" />
+          <button onClick={onResend} className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground flex items-center justify-center" aria-label="Resend">
+            <RefreshCw className="w-3 h-3" />
           </button>
         )}
         {!isUser && onTranslate && (
           <Popover>
             <PopoverTrigger asChild>
-              <button className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground flex items-center justify-center" aria-label="Translate">
-                <Globe className="w-3.5 h-3.5" />
+              <button className="p-1 rounded-md hover:bg-muted text-muted-foreground/60 hover:text-muted-foreground flex items-center justify-center" aria-label="Translate">
+                <Globe className="w-3 h-3" />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-40 p-1.5" side="top" align="start">
@@ -810,7 +810,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="fixed inset-0 w-full h-full bg-background/98 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden relative border-t border-border/40 z-[9999]"
+          className="fixed inset-0 w-full h-full bg-background/98 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden relative border-t border-border/40 z-[9999] pt-[env(safe-area-inset-top,0px)]"
           style={{ willChange: 'transform, opacity' }}
         >
           {showAmbientLayer && (
