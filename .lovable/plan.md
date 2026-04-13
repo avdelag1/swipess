@@ -1,55 +1,62 @@
 
 
-## Stabilization & Polish Plan
+## Stabilization Plan: Parallax Fix, Splash Logo, General Polish
 
-### Issues Identified
+### Problems
 
-1. **Token badge uses Zap (lightning) icon** — conflicts with lightning already used elsewhere on the owner dashboard. User wants a dedicated token/coin icon instead, with no number displayed.
-2. **Owner dashboard content sits too low** — the `EnhancedOwnerDashboard` root div has `overflow-y-auto` and the `OwnerAllDashboard` fan view wrapper uses `h-full` but `isImmersiveDashboard` sets `paddingBottom: 0` while `paddingTop` adds ~60px+safe-area, pushing content down and making the bottom overlap the nav bar.
-3. **No card parallax/tilt effect** — no gyroscope/deviceorientation code exists. Need to add a subtle iOS-style parallax tilt to swipe cards based on device motion.
-4. **Radio UI needs iOS-native polish** — the current layout has controls pushed to `mb-10` which can overlap or feel cramped on shorter devices; safe-area padding needs tightening; overall spacing needs to feel more like Apple Music.
+1. **Cards shaking/vibrating** — The `useDeviceParallax` hook calls `setState` on every animation frame (~60fps), causing constant React re-renders. Combined with a 25px multiplier, even micro-movements from gyroscope noise create visible jitter.
+
+2. **Splash/loading screen uses square logo** — `index.html` splash uses `swipess-logo-transparent.png` (the square icon), not the white wordmark (`swipess-wordmark-512.png`). The `PremiumLoader` component correctly uses the wordmark via `SwipessLogo`, but the HTML splash doesn't.
+
+3. **Owner dashboard content overlapping bottom nav** — Already partially addressed but needs verification pass.
 
 ---
 
 ### Plan
 
-#### 1. Fix token badge in TopBar
-- Replace `Zap` icon with `Coins` from lucide-react (a round coin stack icon — distinct from lightning).
-- Remove the numeric `{tokens}` text. Show only the icon as a tappable pill.
-- Keep the tap-to-open-TokensModal behavior.
+#### 1. Fix the parallax hook to stop jitter
 
-#### 2. Fix owner dashboard vertical centering
-- In `EnhancedOwnerDashboard.tsx`, remove `overflow-y-auto` from the root wrapper for the fan/card views — the parent `#dashboard-scroll-container` already handles scrolling.
-- In `DashboardLayout.tsx`, for `isImmersiveDashboard` routes, set `paddingBottom` to `calc(var(--bottom-nav-height) + var(--safe-bottom))` instead of `0px` — this prevents the fan cards from sinking behind the bottom nav.
-- Keep `paddingBottom: 0` only for true fullscreen routes (radio, camera).
+Rewrite `useDeviceParallax.ts` to:
+- **Stop calling `setState` every frame** — instead, only update state when the delta exceeds a dead-zone threshold (~0.3px), preventing micro-jitter from gyroscope noise
+- **Reduce the multiplier** from `25` to `8` (max 8px translation instead of 25px)
+- **Increase damping** from `0.08` to `0.04` for a slower, smoother interpolation
+- **Add a dead-zone** — ignore movements under ±2 degrees to filter sensor noise
 
-#### 3. Add subtle iOS parallax tilt to swipe cards
-- Create a new hook `useDeviceParallax()` that listens to `deviceorientation` events (with permission request on iOS 13+).
-- Returns `{ tiltX, tiltY }` as motion values (clamped ±8deg).
-- In `SimpleOwnerSwipeCard`, apply a subtle `rotateX/rotateY` transform on the card image layer using these values, with `perspective(800px)`.
-- Smooth the values with a low-pass filter (lerp ~0.1) for a buttery feel.
-- Only active on the top card (`isTop`).
+In `SimpleOwnerSwipeCard.tsx` and `SimpleSwipeCard.tsx`:
+- Reduce the parallax multiplier from `0.8` to `0.4` for a more subtle, premium feel
+- The combined effect: max ~3px of smooth tilt instead of ~20px of jittery movement
 
-#### 4. Polish radio UI for iOS
-- Adjust the radio page (`DJTurntableRadio.tsx`) layout:
-  - Top bar: use `pt-[calc(env(safe-area-inset-top,16px)+8px)]` for consistent safe-area clearance.
-  - Controls section: change `mb-10` to `mb-[calc(env(safe-area-inset-bottom,20px)+16px)]` so the volume bar and buttons clear the home indicator on all devices.
-  - Turntable: reduce max size from `min(85vw, 38dvh)` to `min(75vw, 32dvh)` to give more room to controls on shorter phones.
-  - Station name: reduce from `text-4xl sm:text-5xl` to `text-2xl sm:text-3xl` to prevent crowding.
-  - Remove the orange-tinted hexagonal scan-line effect on the stations button (too "tech-demo-ish") — use a clean rounded glass button instead.
-  - Reduce heart/favorites button size from `w-16 h-16` to `w-12 h-12` for balance.
-  - Tighten gap between controls from `gap-6` to `gap-4`.
+In `PokerCategoryCard.tsx`:
+- Already uses `0.3` multiplier — will benefit from the hook fix automatically
 
-#### 5. Build verification
-- Run full TypeScript build to catch any regressions.
+#### 2. Replace splash logo with the white wordmark
+
+In `index.html`:
+- Change the splash `<img>` from `swipess-logo-transparent.png` to `swipess-wordmark-512.png`
+- Increase height from `2.8rem` to `3.2rem` for the wordmark proportions
+
+In `AppOutagePage.tsx`:
+- Same swap: use `swipess-wordmark-512.png` instead of `swipess-logo-transparent.png`
+
+The `PremiumLoader` and `SwipessLogo` components already use the correct wordmark — no changes needed there.
+
+#### 3. Verify owner dashboard layout
+
+Quick check that the bottom padding from the previous fix (`calc(var(--bottom-nav-height) + var(--safe-bottom))`) is properly applied for immersive dashboard routes so content doesn't overlap the nav bar.
+
+#### 4. Build verification
+
+Run full TypeScript build check to ensure no regressions.
 
 ---
 
 ### Files to modify
-- `src/components/TopBar.tsx` — token icon swap, remove number
-- `src/components/DashboardLayout.tsx` — fix paddingBottom for immersive dashboards
-- `src/components/EnhancedOwnerDashboard.tsx` — remove inner overflow-y-auto
-- `src/components/SimpleOwnerSwipeCard.tsx` — integrate parallax tilt
-- `src/hooks/useDeviceParallax.ts` — new hook (deviceorientation listener)
-- `src/pages/DJTurntableRadio.tsx` — iOS spacing + design tightening
+
+| File | Change |
+|------|--------|
+| `src/hooks/useDeviceParallax.ts` | Add dead-zone, reduce multiplier, throttle setState |
+| `src/components/SimpleOwnerSwipeCard.tsx` | Reduce parallax multiplier 0.8 → 0.4 |
+| `src/components/SimpleSwipeCard.tsx` | Reduce parallax multiplier 0.8 → 0.4 |
+| `index.html` | Swap splash logo to wordmark |
+| `src/components/AppOutagePage.tsx` | Swap logo to wordmark |
 
