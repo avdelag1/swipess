@@ -1104,9 +1104,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         </div>
       </div>
 
-      {/* Action Buttons — always visible when a category is active */}
-      {storeActiveCategory && (
-        <div className="pb-[calc(12px+env(safe-area-inset-bottom))] pt-1">
+      {/* Action Buttons — only when a swipe card is showing */}
+      {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
+        <div className="pb-[calc(8px+env(safe-area-inset-bottom))] pt-0.5">
           <SwipeActionButtonBar
             onLike={handleButtonLike}
             onDislike={handleButtonDislike}
@@ -1114,7 +1114,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
             onShare={handleShare}
             onMessage={handleMessage}
             canUndo={canUndo}
-            disabled={!(deckQueue.length > 0 && currentIndex < deckQueue.length)}
             onSpeedMeet={() => useModalStore.getState().setModal('showAIChat', true)}
           />
         </div>
