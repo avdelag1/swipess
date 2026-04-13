@@ -322,13 +322,13 @@ export const BottomNavigation = memo(({
           data-no-swipe-nav
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full justify-start gap-1 px-2 py-1.5 nav-scroll-hide transform-gpu',
+            'relative flex items-center w-full justify-start gap-3 px-4 py-1.5 nav-scroll-hide transform-gpu',
           )}
           style={{
             zIndex: 2,
             transform: 'translateZ(0)',
             overflowX: 'auto',
-            scrollSnapType: 'x proximity', // Premium app landing feel
+            scrollSnapType: 'x proximity',
             scrollbarWidth: 'none' as const,
             WebkitOverflowScrolling: 'touch',
             contentVisibility: 'auto',
@@ -459,7 +459,23 @@ export const BottomNavigation = memo(({
           })}
         </div>
 
-        {/* Edge fade indicators removed by user request (Weird shade color on edges) */}
+        {/* Edge fade masks — rounded glass feel */}
+        <div
+          className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 z-10 rounded-l-[32px]"
+          style={{
+            background: isLight
+              ? 'linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 40%, transparent 100%)'
+              : 'linear-gradient(to right, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.6) 40%, transparent 100%)',
+          }}
+        />
+        <div
+          className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 z-10 rounded-r-[32px]"
+          style={{
+            background: isLight
+              ? 'linear-gradient(to left, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 40%, transparent 100%)'
+              : 'linear-gradient(to left, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.6) 40%, transparent 100%)',
+          }}
+        />
       </div>
 
       {/* SVG gradient defs for active icon */}
