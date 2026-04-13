@@ -38,6 +38,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { navigate } = useAppNavigate();
   const modalStore = useModalStore();
   const { activeMode } = useActiveMode();
+  const { isRefreshing, pullDistance, triggered } = usePullToRefresh();
 
   const userRole = user?.user_metadata?.role === 'admin' ? 'admin' : activeMode;
 
