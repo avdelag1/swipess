@@ -200,6 +200,7 @@ export type Database = {
           created_at: string
           dietary_preferences: Json | null
           drinking_habit: string | null
+          employer_name: string | null
           gender: string | null
           has_children: boolean | null
           id: number
@@ -214,6 +215,7 @@ export type Database = {
           nationality: string | null
           neighborhood: string | null
           noise_tolerance: string | null
+          occupation: string | null
           personality_traits: Json | null
           preferred_activities: Json | null
           profile_images: Json | null
@@ -224,6 +226,7 @@ export type Database = {
           user_id: string
           verification_submitted_at: string | null
           work_schedule: string | null
+          years_in_city: number | null
         }
         Insert: {
           age?: number | null
@@ -234,6 +237,7 @@ export type Database = {
           created_at?: string
           dietary_preferences?: Json | null
           drinking_habit?: string | null
+          employer_name?: string | null
           gender?: string | null
           has_children?: boolean | null
           id?: number
@@ -248,6 +252,7 @@ export type Database = {
           nationality?: string | null
           neighborhood?: string | null
           noise_tolerance?: string | null
+          occupation?: string | null
           personality_traits?: Json | null
           preferred_activities?: Json | null
           profile_images?: Json | null
@@ -258,6 +263,7 @@ export type Database = {
           user_id: string
           verification_submitted_at?: string | null
           work_schedule?: string | null
+          years_in_city?: number | null
         }
         Update: {
           age?: number | null
@@ -268,6 +274,7 @@ export type Database = {
           created_at?: string
           dietary_preferences?: Json | null
           drinking_habit?: string | null
+          employer_name?: string | null
           gender?: string | null
           has_children?: boolean | null
           id?: number
@@ -282,6 +289,7 @@ export type Database = {
           nationality?: string | null
           neighborhood?: string | null
           noise_tolerance?: string | null
+          occupation?: string | null
           personality_traits?: Json | null
           preferred_activities?: Json | null
           profile_images?: Json | null
@@ -292,6 +300,7 @@ export type Database = {
           user_id?: string
           verification_submitted_at?: string | null
           work_schedule?: string | null
+          years_in_city?: number | null
         }
         Relationships: []
       }
