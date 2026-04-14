@@ -17,6 +17,8 @@ import {
   Languages,
   BadgeCheck,
   IdCard,
+  Phone,
+  Palette,
 } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { cn } from '@/lib/utils';
@@ -37,12 +39,134 @@ const DOC_TYPES = [
   { key: 'drivers_license', label: 'License' },
 ] as const;
 
+type CardSkin = 'glassmorphic' | 'cheetah' | 'tuluminati' | 'tropical';
+
+const CARD_SKINS: { id: CardSkin; label: string; emoji: string }[] = [
+  { id: 'glassmorphic', label: 'Glass', emoji: '💎' },
+  { id: 'cheetah', label: 'Cheetah', emoji: '🐆' },
+  { id: 'tuluminati', label: 'Tuluminati', emoji: '👁️' },
+  { id: 'tropical', label: 'Tropical', emoji: '🌴' },
+];
+
+function getCardSkinStyles(skin: CardSkin) {
+  switch (skin) {
+    case 'glassmorphic':
+      return {
+        bg: 'bg-white/10 dark:bg-white/5',
+        border: 'border-white/30 dark:border-white/10',
+        overlay: 'backdrop-blur-2xl',
+        text: 'text-foreground',
+        subtext: 'text-foreground/70',
+        accent: 'text-primary',
+        qrBg: 'bg-white',
+        gradient: 'from-white/20 via-white/5 to-transparent dark:from-white/10 dark:via-white/3 dark:to-transparent',
+        innerCard: 'bg-white/15 dark:bg-white/8 border-white/20 dark:border-white/10',
+      };
+    case 'cheetah':
+      return {
+        bg: 'bg-amber-950',
+        border: 'border-amber-700/50',
+        overlay: '',
+        text: 'text-amber-50',
+        subtext: 'text-amber-200/70',
+        accent: 'text-amber-400',
+        qrBg: 'bg-amber-50',
+        gradient: 'from-amber-900/80 via-amber-950 to-black/60',
+        innerCard: 'bg-amber-900/50 border-amber-700/30',
+      };
+    case 'tuluminati':
+      return {
+        bg: 'bg-slate-950',
+        border: 'border-emerald-500/30',
+        overlay: '',
+        text: 'text-emerald-50',
+        subtext: 'text-emerald-300/60',
+        accent: 'text-emerald-400',
+        qrBg: 'bg-emerald-50',
+        gradient: 'from-emerald-900/40 via-slate-950 to-purple-950/40',
+        innerCard: 'bg-emerald-950/50 border-emerald-500/20',
+      };
+    case 'tropical':
+      return {
+        bg: 'bg-sky-950',
+        border: 'border-cyan-400/30',
+        overlay: '',
+        text: 'text-cyan-50',
+        subtext: 'text-cyan-200/60',
+        accent: 'text-cyan-300',
+        qrBg: 'bg-white',
+        gradient: 'from-cyan-600/30 via-sky-900/60 to-emerald-900/40',
+        innerCard: 'bg-sky-900/40 border-cyan-400/20',
+      };
+  }
+}
+
+function CheetahPattern() {
+  return (
+    <svg className="absolute inset-0 w-full h-full opacity-[0.15] pointer-events-none" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice">
+      {Array.from({ length: 60 }).map((_, i) => {
+        const x = (i * 47) % 380 + 10;
+        const y = (i * 31) % 230 + 10;
+        const rx = 6 + (i % 4) * 3;
+        const ry = 4 + (i % 3) * 2;
+        const rot = (i * 23) % 180;
+        return <ellipse key={i} cx={x} cy={y} rx={rx} ry={ry} fill="#000" transform={`rotate(${rot} ${x} ${y})`} />;
+      })}
+    </svg>
+  );
+}
+
+function TuluminatiPattern() {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.08]">
+      {/* Sacred geometry - all-seeing eye triangle */}
+      <svg className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px]" viewBox="0 0 200 200">
+        <polygon points="100,10 190,180 10,180" fill="none" stroke="#10b981" strokeWidth="0.8" />
+        <polygon points="100,40 170,165 30,165" fill="none" stroke="#10b981" strokeWidth="0.5" />
+        <circle cx="100" cy="110" r="25" fill="none" stroke="#10b981" strokeWidth="0.6" />
+        <circle cx="100" cy="110" r="12" fill="none" stroke="#10b981" strokeWidth="0.4" />
+        <circle cx="100" cy="110" r="5" fill="#10b981" opacity="0.3" />
+        {/* Rays */}
+        {Array.from({ length: 12 }).map((_, i) => {
+          const angle = (i * 30 * Math.PI) / 180;
+          const x1 = 100 + Math.cos(angle) * 30;
+          const y1 = 110 + Math.sin(angle) * 30;
+          const x2 = 100 + Math.cos(angle) * 90;
+          const y2 = 110 + Math.sin(angle) * 90;
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#10b981" strokeWidth="0.3" />;
+        })}
+      </svg>
+    </div>
+  );
+}
+
+function TropicalPattern() {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.1]">
+      <svg className="absolute -right-8 -top-8 w-[200px] h-[200px]" viewBox="0 0 100 100">
+        {/* Palm leaf */}
+        <path d="M50 90 Q30 60 10 30 Q35 45 50 50 Q65 45 90 30 Q70 60 50 90Z" fill="none" stroke="#06b6d4" strokeWidth="0.8" />
+        <path d="M50 90 Q40 65 25 40 Q42 50 50 55 Q58 50 75 40 Q60 65 50 90Z" fill="none" stroke="#06b6d4" strokeWidth="0.5" />
+      </svg>
+      <svg className="absolute -left-6 bottom-4 w-[160px] h-[160px] rotate-45" viewBox="0 0 100 100">
+        <path d="M50 90 Q30 60 10 30 Q35 45 50 50 Q65 45 90 30 Q70 60 50 90Z" fill="none" stroke="#06b6d4" strokeWidth="0.8" />
+      </svg>
+      {/* Small wave lines */}
+      <svg className="absolute bottom-0 left-0 w-full h-[40px]" viewBox="0 0 400 40" preserveAspectRatio="none">
+        <path d="M0 20 Q50 5 100 20 Q150 35 200 20 Q250 5 300 20 Q350 35 400 20" fill="none" stroke="#06b6d4" strokeWidth="1" />
+        <path d="M0 30 Q50 15 100 30 Q150 45 200 30 Q250 15 300 30 Q350 45 400 30" fill="none" stroke="#06b6d4" strokeWidth="0.6" />
+      </svg>
+    </div>
+  );
+}
+
 export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState<string | null>(null);
   const [editingBio, setEditingBio] = useState(false);
   const [bioValue, setBioValue] = useState('');
+  const [activeSkin, setActiveSkin] = useState<CardSkin>('glassmorphic');
 
   const { data: profile } = useQuery({
     queryKey: ['vap-id-profile', user?.id],
@@ -51,7 +175,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, avatar_url, nationality, city, country, language, languages_spoken, created_at')
+        .select('full_name, avatar_url, nationality, city, country, language, languages_spoken, created_at, phone')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -97,14 +221,13 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const occupation = (clientProfile as any)?.occupation || '';
   const avatarUrl = profile?.avatar_url || '';
   const yearsInCity = clientProfile?.years_in_city;
+  const phone = profile?.phone || '';
   const memberSince = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
     : '';
   const spokenLanguages = useMemo(() => {
     const raw = profile?.languages_spoken;
-    if (Array.isArray(raw)) {
-      return raw.filter((value): value is string => typeof value === 'string' && value.trim().length > 0);
-    }
+    if (Array.isArray(raw)) return raw.filter((v): v is string => typeof v === 'string' && v.trim().length > 0);
     if (typeof raw === 'string' && raw.trim()) return [raw.trim()];
     if (profile?.language) return [profile.language];
     return [];
@@ -125,12 +248,12 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   }, [profile, nationality, bio, occupation, documents]);
 
   const documentSummary = useMemo(() => {
-    const verified = documents?.filter((doc) => doc.status === 'verified').length || 0;
-    const pending = documents?.filter((doc) => doc.status === 'pending').length || 0;
+    const verified = documents?.filter(d => d.status === 'verified').length || 0;
+    const pending = documents?.filter(d => d.status === 'pending').length || 0;
     return { verified, pending, total: documents?.length || 0 };
   }, [documents]);
 
-  const validationUrl = `https://swipess.app/vap-validate/${user?.id || 'unknown'}`;
+  const validationUrl = `https://swipess.lovable.app/vap-validate/${user?.id || 'unknown'}`;
   const idNumber = `SW-${(user?.id || 'resident').slice(0, 8).toUpperCase()}`;
 
   const handleDocUpload = useCallback(async (docType: string) => {
@@ -197,15 +320,9 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
     if (!doc) return 'none';
     return doc.status;
   };
+  const getDocMeta = (docType: string) => documents?.find(d => d.document_type === docType);
 
-  const getDocMeta = (docType: string) => documents?.find((doc) => doc.document_type === docType);
-
-  const detailItems = [
-    { label: 'Location', value: [city, country].filter(Boolean).join(', ') || 'Not set', icon: MapPin },
-    { label: 'Nationality', value: nationality || 'Not set', icon: Globe2 },
-    { label: 'Occupation', value: occupation || 'Not set', icon: Briefcase },
-    { label: 'Member Since', value: memberSince || 'Just joined', icon: CalendarDays },
-  ];
+  const skin = getCardSkinStyles(activeSkin);
 
   return createPortal(
     <AnimatePresence>
@@ -221,7 +338,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
           <div className="flex items-center justify-between border-b border-border px-5 py-3 shrink-0">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.24em] text-primary">Virtual ID</p>
-              <h2 className="mt-0.5 text-base font-black tracking-tight text-foreground">Resident Identity Card</h2>
+              <h2 className="mt-0.5 text-base font-black tracking-tight text-foreground">Local Resident Card</h2>
             </div>
             <button
               onClick={onClose}
@@ -232,208 +349,232 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
             </button>
           </div>
 
-          {/* Scrollable content — generous padding so nothing hugs edges */}
+          {/* Scrollable content */}
           <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-28 pt-5 scroll-smooth">
-            {/* Main card section */}
-            <section className="rounded-[28px] border border-border bg-card p-4 shadow-lg">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/12 text-primary">
-                    <ShieldCheck className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Verified Resident</p>
-                    <p className="text-xs font-medium text-muted-foreground">Primary identity surface</p>
-                  </div>
-                </div>
-                <div className="rounded-full border border-border bg-card px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-foreground">
-                  {idNumber}
-                </div>
-              </div>
 
-              <div className="flex gap-4">
-                <div className="w-[118px] shrink-0">
-                  <div className="h-[154px] overflow-hidden rounded-[24px] border border-border bg-muted shadow-xl">
+            {/* ====== SKIN SELECTOR ====== */}
+            <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1">
+              <Palette className="h-4 w-4 text-muted-foreground shrink-0" />
+              {CARD_SKINS.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setActiveSkin(s.id)}
+                  className={cn(
+                    'flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition-all active:scale-95 shrink-0',
+                    activeSkin === s.id
+                      ? 'bg-primary text-primary-foreground shadow-lg'
+                      : 'bg-muted/60 text-muted-foreground border border-border hover:bg-muted'
+                  )}
+                >
+                  <span>{s.emoji}</span>
+                  <span>{s.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* ====== THE ID CARD ====== */}
+            <section className={cn(
+              'relative rounded-[24px] border-2 p-5 shadow-2xl overflow-hidden transition-all duration-500',
+              skin.bg, skin.border, skin.overlay
+            )}>
+              {/* Background gradient */}
+              <div className={cn('absolute inset-0 bg-gradient-to-br pointer-events-none', skin.gradient)} />
+
+              {/* Skin-specific patterns */}
+              {activeSkin === 'cheetah' && <CheetahPattern />}
+              {activeSkin === 'tuluminati' && <TuluminatiPattern />}
+              {activeSkin === 'tropical' && <TropicalPattern />}
+
+              {/* Card content */}
+              <div className="relative z-10">
+                {/* Top row: badge + ID number */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className={cn('h-4 w-4', skin.accent)} />
+                    <span className={cn('text-[10px] font-black uppercase tracking-[0.22em]', skin.accent)}>
+                      Verified Local
+                    </span>
+                  </div>
+                  <span className={cn('text-[10px] font-mono font-bold tracking-wider', skin.subtext)}>
+                    {idNumber}
+                  </span>
+                </div>
+
+                {/* Avatar + Name + Occupation */}
+                <div className="flex gap-4 items-start">
+                  <div className="w-[88px] h-[110px] shrink-0 rounded-[18px] overflow-hidden border-2 shadow-xl"
+                    style={{ borderColor: 'rgba(255,255,255,0.2)' }}>
                     {avatarUrl ? (
-                      <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+                      <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-primary/10 text-4xl font-black text-primary">
+                      <div className={cn('w-full h-full flex items-center justify-center text-3xl font-black', skin.accent)}
+                        style={{ background: 'rgba(255,255,255,0.1)' }}>
                         {name.charAt(0).toUpperCase()}
                       </div>
                     )}
                   </div>
-                  <div className="mt-3 rounded-[20px] border border-border bg-card px-3 py-2 text-center">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Trust Score</p>
-                    <p className="mt-1 text-xl font-black text-foreground">{verificationScore}%</p>
-                  </div>
-                </div>
 
-                <div className="min-w-0 flex-1 space-y-3">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Resident</p>
-                    <h3 className="mt-1 text-[1.55rem] font-black leading-[1.05] tracking-tight text-foreground">
+                  <div className="flex-1 min-w-0 pt-1">
+                    <h3 className={cn('text-xl font-black tracking-tight leading-tight', skin.text)}>
                       {name}
                     </h3>
-                  </div>
-
-                  <div className="grid gap-2 text-sm">
-                    {detailItems.map(({ label, value, icon: Icon }) => (
-                      <div key={label} className="flex items-start gap-2 rounded-2xl border border-border bg-muted/50 px-3 py-2.5">
-                        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                          <Icon className="h-3.5 w-3.5" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-                          <p className="mt-0.5 truncate font-semibold text-foreground">{value}</p>
-                        </div>
+                    {occupation && (
+                      <p className={cn('text-sm font-semibold mt-1', skin.accent)}>
+                        {occupation}
+                      </p>
+                    )}
+                    <div className={cn('flex items-center gap-1.5 mt-2 text-xs', skin.subtext)}>
+                      <MapPin className="h-3 w-3" />
+                      <span>{[city, country].filter(Boolean).join(', ') || 'Location not set'}</span>
+                    </div>
+                    {nationality && (
+                      <div className={cn('flex items-center gap-1.5 mt-1 text-xs', skin.subtext)}>
+                        <Globe2 className="h-3 w-3" />
+                        <span>{nationality}</span>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
-              </div>
 
-              {/* QR Code */}
-              <div className="mt-4 grid grid-cols-[auto_1fr] items-center gap-3 rounded-[24px] border border-border bg-muted/40 p-3">
-                <div className="relative rounded-[20px] border border-border bg-white p-2 shadow-sm">
-                  <QRCode value={validationUrl} size={72} level="H" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="rounded-full bg-white p-1 text-primary shadow">
-                      <ScanLine className="h-3.5 w-3.5" />
+                {/* Bio / About line */}
+                {bio && (
+                  <div className={cn(
+                    'mt-4 rounded-[14px] border px-3 py-2.5',
+                    skin.innerCard
+                  )}>
+                    <p className={cn('text-xs leading-relaxed line-clamp-3', skin.subtext)}>
+                      "{bio}"
+                    </p>
+                  </div>
+                )}
+
+                {/* Bottom row: WhatsApp + QR + Trust Score */}
+                <div className="mt-4 flex items-end gap-3">
+                  {/* WhatsApp */}
+                  <div className="flex-1 space-y-2">
+                    {phone && (
+                      <a
+                        href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn(
+                          'flex items-center gap-2 rounded-[12px] border px-3 py-2 text-xs font-semibold transition-transform active:scale-95',
+                          skin.innerCard, skin.text
+                        )}
+                      >
+                        <Phone className="h-3.5 w-3.5" />
+                        <span>{phone}</span>
+                      </a>
+                    )}
+                    <div className={cn(
+                      'flex items-center gap-2 rounded-[12px] border px-3 py-2',
+                      skin.innerCard
+                    )}>
+                      <span className={cn('text-[10px] font-black uppercase tracking-wider', skin.subtext)}>Trust</span>
+                      <span className={cn('text-sm font-black', skin.text)}>{verificationScore}%</span>
                     </div>
                   </div>
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <BadgeCheck className="h-4 w-4 text-primary" />
-                    <p className="text-sm font-black text-foreground">Live validation enabled</p>
+
+                  {/* QR Code */}
+                  <div className={cn('rounded-[14px] p-2 shadow-lg', skin.qrBg)}>
+                    <QRCode value={validationUrl} size={68} level="H" />
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    Scan this code to confirm this resident card, trust score, and uploaded identity documents.
-                  </p>
+                </div>
+
+                {/* Scan label */}
+                <div className="mt-3 flex items-center justify-center gap-1.5">
+                  <ScanLine className={cn('h-3 w-3', skin.accent)} />
+                  <span className={cn('text-[10px] font-bold uppercase tracking-[0.18em]', skin.subtext)}>
+                    Scan to verify • swipess.app
+                  </span>
                 </div>
               </div>
             </section>
 
-            {/* Bio section */}
-            <section className="mt-4 rounded-[28px] border border-border bg-card p-4 shadow-lg">
+            {/* ====== BIO EDIT SECTION ====== */}
+            <section className="mt-5 rounded-[24px] border border-border bg-card p-4 shadow-lg">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Profile Note</p>
-                  <h3 className="mt-1 text-base font-black text-foreground">About this resident</h3>
+                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">About Me</p>
+                  <h3 className="mt-1 text-sm font-black text-foreground">Card description</h3>
                 </div>
                 {!editingBio && (
                   <button
                     onClick={() => { setBioValue(bio); setEditingBio(true); }}
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
                     aria-label="Edit bio"
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="h-3.5 w-3.5" />
                   </button>
                 )}
               </div>
               {editingBio ? (
                 <div className="space-y-3">
-                  <Textarea value={bioValue} onChange={(e) => setBioValue(e.target.value)} placeholder="Add a short resident summary..." rows={4} maxLength={220} className="min-h-[120px]" />
+                  <Textarea value={bioValue} onChange={(e) => setBioValue(e.target.value)} placeholder="I work as... I own a business called... I'm passionate about..." rows={3} maxLength={180} className="min-h-[90px] text-sm" />
+                  <p className="text-[10px] text-muted-foreground text-right">{bioValue.length}/180</p>
                   <div className="flex justify-end gap-2">
-                    <button onClick={() => setEditingBio(false)} className="rounded-2xl border border-border bg-card px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">Cancel</button>
-                    <button onClick={handleSaveBio} className="rounded-2xl bg-primary px-4 py-2 text-sm font-black text-primary-foreground transition-transform active:scale-95">Save Note</button>
+                    <button onClick={() => setEditingBio(false)} className="rounded-2xl border border-border bg-card px-4 py-2 text-xs font-semibold text-muted-foreground">Cancel</button>
+                    <button onClick={handleSaveBio} className="rounded-2xl bg-primary px-4 py-2 text-xs font-black text-primary-foreground active:scale-95">Save</button>
                   </div>
                 </div>
               ) : (
-                <p className="rounded-[22px] border border-border bg-muted/40 px-4 py-4 text-sm leading-relaxed text-muted-foreground">
-                  {bio || 'Add a short note so this virtual ID feels complete and trustworthy.'}
+                <p className="rounded-xl border border-border bg-muted/40 px-3 py-3 text-sm text-muted-foreground leading-relaxed">
+                  {bio || 'Tap edit to add a short description for your card.'}
                 </p>
               )}
             </section>
 
-            {/* Deep Details */}
-            <section className="mt-4 rounded-[28px] border border-border bg-card p-4 shadow-lg">
-              <div className="mb-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Deep Details</p>
-                <h3 className="mt-1 text-base font-black text-foreground">Identity breakdown</h3>
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div className="rounded-[22px] border border-border bg-muted/40 p-4">
-                  <div className="flex items-center gap-2 text-foreground">
-                    <Languages className="h-4 w-4 text-primary" />
-                    <p className="text-sm font-black">Languages</p>
-                  </div>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {spokenLanguages.length > 0 ? spokenLanguages.join(', ') : 'No languages added yet'}
-                  </p>
-                </div>
-                <div className="rounded-[22px] border border-border bg-muted/40 p-4">
-                  <div className="flex items-center gap-2 text-foreground">
-                    <IdCard className="h-4 w-4 text-primary" />
-                    <p className="text-sm font-black">Residency Status</p>
-                  </div>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {yearsInCity ? `${yearsInCity} year${yearsInCity === 1 ? '' : 's'} in ${city}.` : `City history not added yet.`}
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            {/* Documents */}
-            <section className="mt-4 rounded-[28px] border border-border bg-card p-4 shadow-lg">
+            {/* ====== LEGAL DOCUMENTS ====== */}
+            <section className="mt-5 rounded-[24px] border border-border bg-card p-4 shadow-lg">
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Documents</p>
-                  <h3 className="mt-1 text-base font-black text-foreground">Verification files</h3>
+                  <h3 className="mt-1 text-sm font-black text-foreground">Verification files</h3>
                 </div>
-                <div className="rounded-[20px] border border-border bg-muted/40 px-3 py-2 text-right">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Status</p>
-                  <p className="mt-1 text-sm font-black text-foreground">
-                    {documentSummary.verified} verified · {documentSummary.pending} pending
+                <div className="rounded-xl border border-border bg-muted/40 px-3 py-1.5 text-right">
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-muted-foreground">Status</p>
+                  <p className="text-xs font-black text-foreground">
+                    {documentSummary.verified}✓ · {documentSummary.pending} pending
                   </p>
                 </div>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {DOC_TYPES.map(({ key, label }) => {
                   const status = getDocStatus(key);
                   const doc = getDocMeta(key);
                   return (
-                    <div key={key} className="flex items-center gap-3 rounded-[22px] border border-border bg-muted/40 p-3">
+                    <div key={key} className="flex items-center gap-3 rounded-[18px] border border-border bg-muted/40 p-3">
                       <div className={cn(
-                        'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border',
+                        'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border',
                         status === 'verified' ? 'border-primary/20 bg-primary/10 text-primary'
                           : status === 'pending' ? 'border-border bg-secondary text-foreground'
                           : 'border-border bg-muted text-muted-foreground'
                       )}>
-                        {uploading === key ? <Loader2 className="h-5 w-5 animate-spin" />
-                          : status === 'verified' ? <CheckCircle2 className="h-5 w-5" />
-                          : status === 'pending' ? <FileText className="h-5 w-5" />
-                          : <Upload className="h-5 w-5" />}
+                        {uploading === key ? <Loader2 className="h-4 w-4 animate-spin" />
+                          : status === 'verified' ? <CheckCircle2 className="h-4 w-4" />
+                          : status === 'pending' ? <FileText className="h-4 w-4" />
+                          : <Upload className="h-4 w-4" />}
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-black text-foreground">{label}</p>
-                        <p className="mt-1 truncate text-xs text-muted-foreground">{doc?.file_name || 'No file uploaded yet'}</p>
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">{doc?.file_name || 'Not uploaded'}</p>
                       </div>
-                      <div className="flex shrink-0 flex-col items-end gap-2">
-                        <span className={cn(
-                          'rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em]',
-                          status === 'verified' ? 'border-primary/20 bg-primary/10 text-primary'
-                            : status === 'pending' ? 'border-border bg-secondary text-foreground'
-                            : 'border-border bg-muted text-muted-foreground'
-                        )}>
-                          {status === 'none' ? 'Missing' : status}
-                        </span>
-                        <button
-                          onClick={() => status !== 'verified' && handleDocUpload(key)}
-                          disabled={uploading === key || status === 'verified'}
-                          className={cn(
-                            'rounded-2xl px-3 py-2 text-xs font-black transition-transform active:scale-95',
-                            status === 'verified' ? 'cursor-default bg-secondary text-muted-foreground' : 'bg-primary text-primary-foreground'
-                          )}
-                        >
-                          {status === 'verified' ? 'Locked' : status === 'pending' ? 'Replace' : 'Upload'}
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => status !== 'verified' && handleDocUpload(key)}
+                        disabled={uploading === key || status === 'verified'}
+                        className={cn(
+                          'rounded-xl px-3 py-1.5 text-[11px] font-black transition-transform active:scale-95',
+                          status === 'verified' ? 'bg-secondary text-muted-foreground cursor-default' : 'bg-primary text-primary-foreground'
+                        )}
+                      >
+                        {status === 'verified' ? 'Done' : status === 'pending' ? 'Replace' : 'Upload'}
+                      </button>
                     </div>
                   );
                 })}
               </div>
             </section>
+
           </div>
         </motion.div>
       )}
