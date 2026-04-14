@@ -27,7 +27,6 @@ const SavedSearchesDialog = lazyWithRetry(() => import('@/components/SavedSearch
 const MessageActivationPackages = lazyWithRetry(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })));
 const PushNotificationPrompt = lazyWithRetry(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })));
 const WelcomeNotification = lazyWithRetry(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })));
-const LikedListingInsightsModal = lazyWithRetry(() => import('@/components/LikedListingInsightsModal').then(m => ({ default: m.LikedListingInsightsModal })));
 const LikedClientInsightsModal = lazyWithRetry(() => import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal })));
 const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
 
@@ -196,13 +195,6 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
 
       <SmartSuspense fallback={null}>
 
-
-        {/* LIKED ITEM MODALS */}
-        <LikedListingInsightsModal
-          open={store.showPropertyInsights}
-          onOpenChange={(open: boolean) => store.setModal('showPropertyInsights', open)}
-          listing={selectedListing}
-        />
 
         <LikedClientInsightsModal
           open={store.showClientInsights}
