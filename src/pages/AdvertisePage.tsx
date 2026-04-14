@@ -144,7 +144,7 @@ function PromoSwipeCard({
   const opacity = useTransform(x, [-200, -120, 0, 120, 200], [0.5, 1, 1, 1, 0.5]);
 
   const handleDragEnd = (_: any, info: PanInfo) => {
-    if (Math.abs(info.offset.x) > 100) {
+    if (Math.abs(info.offset.x) > 60) {
       onDismiss();
     }
   };
@@ -156,7 +156,8 @@ function PromoSwipeCard({
     <motion.div
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.9}
+      dragElastic={0.6}
+      dragMomentum={false}
       onDragEnd={handleDragEnd}
       initial={{ opacity: 0, scale: 0.9, y: 30 }}
       animate={{ opacity: 1, scale: stackScale, y: stackOffset }}

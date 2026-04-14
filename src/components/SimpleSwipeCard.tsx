@@ -33,12 +33,12 @@ export interface SimpleSwipeCardRef {
 }
 
 // Tinder-style thresholds
-const SWIPE_THRESHOLD = 100; // Distance to trigger swipe
-const VELOCITY_THRESHOLD = 400; // Velocity to trigger swipe
+const SWIPE_THRESHOLD = 65; // Distance to trigger swipe
+const VELOCITY_THRESHOLD = 280; // Velocity to trigger swipe
 const FALLBACK_PLACEHOLDER = ''; // Empty → CardImage renders branded PlaceholderImage
 
 // Max rotation angle (degrees) based on horizontal position
-const MAX_ROTATION = 28; // Increased for a more playful, dramatic swing
+const MAX_ROTATION = 18; // Elegant, less dramatic rotation
 
 // Calculate exit distance dynamically
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
@@ -49,13 +49,13 @@ const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth 
 const SPRING_CONFIGS = {
   // SNAPPY: Quick response, minimal overshoot
   SNAPPY: { stiffness: 600, damping: 30, mass: 0.8 },
-  // NATIVE: iOS-native flick feel — low mass + high stiffness = instant response
-  NATIVE: { stiffness: 800, damping: 22, mass: 0.1 },
+  // SILK: iOS-native silky feel — responsive but graceful settling
+  SILK: { stiffness: 400, damping: 24, mass: 0.3 },
   // SOFT: Playful with bounce - EXTREMELY FUN FEEL
   SOFT: { stiffness: 250, damping: 18, mass: 1.1 },
 };
 
-const ACTIVE_SPRING = SPRING_CONFIGS.NATIVE; // Responsive iOS-like feel without excessive bounce
+const ACTIVE_SPRING = SPRING_CONFIGS.SILK; // Silky iOS-like feel
 
 /**
  * GLASS SHINE ANIMATION
@@ -438,7 +438,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         dragListener={false}
         dragMomentum={false}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.15}
+        dragElastic={0.55}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onClick={handleCardTap}
