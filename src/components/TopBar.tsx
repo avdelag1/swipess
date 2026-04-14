@@ -214,21 +214,27 @@ function TopBarComponent({
 
           {/* ── Horizontally scrollable row: remaining action buttons ── */}
           <div className="flex-1 min-w-0 relative pointer-events-none">
-            {/* Edge fade masks — subtle hints */}
+          {/* Tunnel clipping masks — rounded glass edges */}
             <div
-              className="pointer-events-none absolute left-0 top-0 bottom-0 w-4 z-20 rounded-l-full"
+              className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 z-20 rounded-l-full"
               style={{
                 background: isLight
-                  ? 'linear-gradient(to right, rgba(255,255,255,0.3) 0%, transparent 100%)'
-                  : 'linear-gradient(to right, rgba(0,0,0,0.25) 0%, transparent 100%)',
+                  ? 'linear-gradient(to right, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.3) 40%, transparent 100%)'
+                  : 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 40%, transparent 100%)',
+                boxShadow: isLight
+                  ? 'inset -3px 0 8px -4px rgba(0,0,0,0.08)'
+                  : 'inset -3px 0 8px -4px rgba(255,255,255,0.04)',
               }}
             />
             <div
-              className="pointer-events-none absolute right-0 top-0 bottom-0 w-4 z-20 rounded-r-full"
+              className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 z-20 rounded-r-full"
               style={{
                 background: isLight
-                  ? 'linear-gradient(to left, rgba(255,255,255,0.3) 0%, transparent 100%)'
-                  : 'linear-gradient(to left, rgba(0,0,0,0.25) 0%, transparent 100%)',
+                  ? 'linear-gradient(to left, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.3) 40%, transparent 100%)'
+                  : 'linear-gradient(to left, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 40%, transparent 100%)',
+                boxShadow: isLight
+                  ? 'inset 3px 0 8px -4px rgba(0,0,0,0.08)'
+                  : 'inset 3px 0 8px -4px rgba(255,255,255,0.04)',
               }}
             />
             <div

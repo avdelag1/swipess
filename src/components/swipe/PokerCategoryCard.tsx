@@ -36,6 +36,9 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const [imgReady, setImgReady] = useState(false);
   const [imgError, setImgError] = useState(false);
 
+  // Freeze parallax values at drag start so they don't jitter
+  const frozenTilt = useRef({ x: 0, y: 0 });
+
   useEffect(() => {
     setImgReady(false);
     setImgError(false);
@@ -52,6 +55,12 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       });
     img.onerror = () => setImgError(true);
   }, [photo]);
+
+  const handleDragStart = useCallback(() => {
+    // Snapshot current parallax values and freeze them
+    frozenTilt.current = { x: tiltX, y: tiltY };
+    setIsDragging(true);
+  }, [tiltX, tiltY]);
 
   const handleDragEnd = useCallback((_: any, info: any) => {
     if (isCycling.current) return;
@@ -95,13 +104,18 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const exitScale = useTransform(x, [-300, -120, 0, 120, 300], [0.6, 0.88, 1, 0.88, 0.6]);
   const exitOpacity = useTransform(x, [-300, -200, 0, 200, 300], [0, 0.4, 1, 0.4, 0]);
 
+  // Use frozen values during drag, live values otherwise
+  const activeParallaxX = isDragging ? frozenTilt.current.x : tiltX;
+  const activeParallaxY = isDragging ? frozenTilt.current.y : tiltY;
+
   return (
+    /* LAYER 1: Stack position + drag gesture — this is the only layer that moves with x */
     <motion.div
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: -150, right: 150 }}
       dragElastic={0.5}
       dragMomentum={false}
-      onDragStart={isTop ? () => setIsDragging(true) : undefined}
+      onDragStart={isTop ? handleDragStart : undefined}
       onDragEnd={isTop ? handleDragEnd : undefined}
       onClick={!isTop ? () => onBringToFront(index) : undefined}
       initial={{ y: stackY + 40, opacity: 0, scale: stackScale * 0.95 }}
@@ -125,90 +139,101 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         x: isTop ? x : 0,
         scale: isTop ? exitScale : undefined,
         rotateZ: isTop ? dragTilt : 0,
-        rotateX: isTop ? (isDragging ? 0 : -tiltY) : (index > 4 ? 0 : 6),
-        rotateY: isTop ? (isDragging ? 0 : tiltX) : 0,
         opacity: isTop ? exitOpacity : undefined,
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
-        transformStyle: 'preserve-3d',
         willChange: 'transform, opacity',
       } as any}
       whileDrag={{ cursor: 'grabbing' }}
       className={cn('touch-manipulation select-none gpu-ultra isolation-isolate')}
     >
+      {/* LAYER 2: Parallax tilt — separate div so gyro doesn't conflict with drag */}
       <div
-        className={cn(
-          'w-full h-full relative overflow-hidden rounded-[48px]',
-          isTop ? 'border-2 border-white/10 shadow-2xl' : 'border border-white/5 shadow-xl'
-        )}
+        className="w-full h-full"
+        style={{
+          transformStyle: 'preserve-3d',
+          transform: isTop
+            ? `rotateX(${-activeParallaxY}deg) rotateY(${activeParallaxX}deg)`
+            : index > 4 ? 'rotateX(0deg)' : 'rotateX(6deg)',
+          transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+        }}
       >
+        {/* LAYER 3: Visual card surface */}
         <div
-          className="absolute inset-0 w-full h-full"
-          style={{ background: gradient }}
-        />
-
-        {!imgError && (
+          className={cn(
+            'w-full h-full relative overflow-hidden rounded-[48px]',
+            isTop ? 'border-2 border-white/10 shadow-2xl' : 'border border-white/5 shadow-xl'
+          )}
+        >
           <div
-            className="absolute inset-0 transition-[opacity,transform] duration-500 ease-out will-change-transform"
-            style={{
-              opacity: imgReady ? 1 : 0,
-              transform: imgReady ? 'translate3d(0,0,0)' : 'translate3d(20px,0,0)',
-            }}
-          >
-            <img
-              src={photo}
-              alt={card.label}
-              className="absolute inset-0 w-full h-full object-cover"
-              draggable={false}
-              loading="eager"
-              style={{
-                transform: 'translateZ(0)',
-                transformOrigin: 'center center',
-                backfaceVisibility: 'hidden',
-                filter: 'saturate(1.08) contrast(1.03)',
-                animation: imgReady ? 'photo-swim 14s ease-in-out 0.4s infinite' : 'none',
-                animationPlayState: isDragging ? 'paused' : 'running',
-              }}
-            />
-          </div>
-        )}
-
-        <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/70 via-black/15 to-transparent pointer-events-none" />
-
-        {isTop && (
-          <div
-            className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay animate-pulse"
-            style={{
-              background: 'radial-gradient(ellipse at 50% 120%, var(--primary) 0%, transparent 70%)'
-            }}
+            className="absolute inset-0 w-full h-full"
+            style={{ background: gradient }}
           />
-        )}
 
-        <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-8 pb-8">
-          <div className="flex flex-col gap-0.5">
-            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/50 mb-1">{card.description}</p>
-            <h3 className="text-white text-3xl font-black tracking-tight uppercase leading-none">{card.label}</h3>
-          </div>
+          {!imgError && (
+            <div
+              className="absolute inset-0 transition-[opacity,transform] duration-500 ease-out will-change-transform"
+              style={{
+                opacity: imgReady ? 1 : 0,
+                transform: imgReady ? 'translate3d(0,0,0)' : 'translate3d(20px,0,0)',
+              }}
+            >
+              {/* LAYER 4: Image with breathing animation — isolated from all transforms above */}
+              <img
+                src={photo}
+                alt={card.label}
+                className="absolute inset-0 w-full h-full object-cover"
+                draggable={false}
+                loading="eager"
+                style={{
+                  transform: 'translateZ(0)',
+                  transformOrigin: 'center center',
+                  backfaceVisibility: 'hidden',
+                  filter: 'saturate(1.08) contrast(1.03)',
+                  animation: imgReady ? 'photo-swim 14s ease-in-out 0.4s infinite' : 'none',
+                  animationPlayState: isDragging ? 'paused' : 'running',
+                }}
+              />
+            </div>
+          )}
+
+          <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/70 via-black/15 to-transparent pointer-events-none" />
 
           {isTop && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.9, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              onClick={(e) => { e.stopPropagation(); onSelect(card.id); }}
-              className="mt-6 w-full h-16 rounded-[1.5rem] font-black text-[13px] uppercase tracking-[0.25em] bg-white text-black active:scale-95 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.4)] flex items-center justify-center overflow-hidden relative group"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer" />
-              <span>Launch {card.label}</span>
-            </motion.button>
+            <div
+              className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay animate-pulse"
+              style={{
+                background: 'radial-gradient(ellipse at 50% 120%, var(--primary) 0%, transparent 70%)'
+              }}
+            />
+          )}
+
+          <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-8 pb-8">
+            <div className="flex flex-col gap-0.5">
+              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/50 mb-1">{card.description}</p>
+              <h3 className="text-white text-3xl font-black tracking-tight uppercase leading-none">{card.label}</h3>
+            </div>
+
+            {isTop && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                onClick={(e) => { e.stopPropagation(); onSelect(card.id); }}
+                className="mt-6 w-full h-16 rounded-[1.5rem] font-black text-[13px] uppercase tracking-[0.25em] bg-white text-black active:scale-95 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.4)] flex items-center justify-center overflow-hidden relative group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                <span>Launch {card.label}</span>
+              </motion.button>
+            )}
+          </div>
+
+          {!isTop && (
+            <div className="absolute top-8 left-8 px-4 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-md">
+              <p className="text-[10px] font-black uppercase tracking-widest text-white/70">{card.label}</p>
+            </div>
           )}
         </div>
-
-        {!isTop && (
-          <div className="absolute top-8 left-8 px-4 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-md">
-            <p className="text-[10px] font-black uppercase tracking-widest text-white/70">{card.label}</p>
-          </div>
-        )}
       </div>
     </motion.div>
   );

@@ -552,21 +552,27 @@ export const BottomNavigation = memo(({
           })}
         </div>
 
-        {/* Edge fade masks — subtle shadow hints */}
+        {/* Tunnel clipping masks — rounded glass edges with depth */}
         <div
-          className="pointer-events-none absolute left-0 top-0 bottom-0 w-4 z-10 rounded-l-[32px]"
+          className="pointer-events-none absolute left-0 top-0 bottom-0 w-7 z-10 rounded-l-[32px]"
           style={{
             background: isLight
-              ? 'linear-gradient(to right, rgba(255,255,255,0.3) 0%, transparent 100%)'
-              : 'linear-gradient(to right, rgba(0,0,0,0.25) 0%, transparent 100%)',
+              ? 'linear-gradient(to right, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 45%, transparent 100%)'
+              : 'linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 45%, transparent 100%)',
+            boxShadow: isLight
+              ? 'inset -4px 0 10px -5px rgba(0,0,0,0.1)'
+              : 'inset -4px 0 10px -5px rgba(255,255,255,0.05)',
           }}
         />
         <div
-          className="pointer-events-none absolute right-0 top-0 bottom-0 w-4 z-10 rounded-r-[32px]"
+          className="pointer-events-none absolute right-0 top-0 bottom-0 w-7 z-10 rounded-r-[32px]"
           style={{
             background: isLight
-              ? 'linear-gradient(to left, rgba(255,255,255,0.3) 0%, transparent 100%)'
-              : 'linear-gradient(to left, rgba(0,0,0,0.25) 0%, transparent 100%)',
+              ? 'linear-gradient(to left, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 45%, transparent 100%)'
+              : 'linear-gradient(to left, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 45%, transparent 100%)',
+            boxShadow: isLight
+              ? 'inset 4px 0 10px -5px rgba(0,0,0,0.1)'
+              : 'inset 4px 0 10px -5px rgba(255,255,255,0.05)',
           }}
         />
       </div>
