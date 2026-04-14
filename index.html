@@ -83,36 +83,39 @@
     *{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
     input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;user-select:text;touch-action:auto}
     :root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
-    html,body{margin:0;padding:0;overflow:hidden;background:#000;width:100%;height:100%;color:#fff;font-family: 'Inter', system-ui, -apple-system, sans-serif;-webkit-font-smoothing:antialiased}
+    html,body{margin:0;padding:0;overflow:hidden;background:#000;width:100%;height:100%;color:#fff;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
 
     #initial-loader{
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       width:100vw;height:100dvh;background:#000;
       position:fixed;top:0;left:0;z-index:9999;
-      transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition:opacity 0.4s cubic-bezier(0.4,0,0.2,1);
     }
-    #initial-loader.dissolving { opacity: 0; pointer-events: none; }
-    
-    .splash-wordmark{
-      font-family: 'Inter', 'Outfit', sans-serif;
-      font-weight: 950;
-      font-size: 3.5rem; /* Slightly smaller for better framing on mobile */
-      text-transform: uppercase;
-      letter-spacing: -0.04em;
-      color: #FFFFFF;
-      font-style: italic;
-      padding-right: 0.25em; /* CRITICAL: Prevents italic clipping */
-      display: inline-block;
-      animation: heartbeat 2s ease-in-out infinite;
-      -webkit-user-select: none;
-      user-select: none;
+    #initial-loader.dissolving{opacity:0;pointer-events:none}
+
+    /* Premium shimmer sweep across the logo */
+    .splash-logo-wrap{
+      position:relative;display:inline-block;overflow:hidden;
     }
-    @keyframes heartbeat{
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.02); opacity: 0.85; }
+    .splash-logo-wrap::after{
+      content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+      background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.25) 50%,transparent 70%);
+      animation:logo-shimmer 2.4s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes logo-shimmer{
+      0%{left:-100%}
+      60%{left:150%}
+      100%{left:150%}
     }
 
-    #root{opacity:0;transition:opacity 0.1s ease-out}
+    @keyframes heartbeat{
+      0%,100%{transform:scale(1);opacity:1}
+      50%{transform:scale(1.02);opacity:0.85}
+    }
+
+    /* Root stays invisible until splash is gone — NO white flash */
+    #root{opacity:0;transition:opacity 0.15s ease-out;background:#000}
     #root.hydrated{opacity:1}
   </style>
 
@@ -127,7 +130,9 @@
 
 <body>
   <div id="initial-loader">
-    <img src="/icons/swipess-wordmark-transparent-v2.png" alt="Swipess" width="280" style="height:3.2rem;object-fit:contain;animation:heartbeat 2s ease-in-out infinite;" draggable="false" fetchpriority="high" />
+    <span class="splash-logo-wrap">
+      <img src="/icons/swipess-wordmark-transparent-v2.png" alt="Swipess" width="280" style="height:3.2rem;object-fit:contain;animation:heartbeat 2s ease-in-out infinite;" draggable="false" fetchpriority="high" />
+    </span>
   </div>
 
   <script>
@@ -135,21 +140,27 @@
     function removeSplash() {
       var loader = document.getElementById('initial-loader');
       var root = document.getElementById('root');
+      /* Step 1: Make root visible BEHIND the splash (no flash) */
       if (root) root.classList.add('hydrated');
-      if (loader && !loader.classList.contains('dissolving')) {
-        loader.classList.add('dissolving');
-        setTimeout(function() { if(loader.parentNode) loader.remove(); }, 300);
-      }
+      /* Step 2: Wait 2 frames so root is fully painted, THEN dissolve splash */
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          if (loader && !loader.classList.contains('dissolving')) {
+            loader.classList.add('dissolving');
+            setTimeout(function() { if(loader.parentNode) loader.remove(); }, 500);
+          }
+        });
+      });
     }
     var mountTimer = setTimeout(removeSplash, 1500);
     window.addEventListener('app-rendered', function() {
       window.__APP_INITIALIZED__ = true;
       clearTimeout(mountTimer);
-      requestAnimationFrame(removeSplash);
+      removeSplash();
       setTimeout(function() {
         var ss = document.getElementById('splash-styles');
         if (ss) ss.remove();
-      }, 500);
+      }, 800);
     });
     // Dynamic theme-color: sync status bar with app theme
     (function(){
