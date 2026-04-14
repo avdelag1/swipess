@@ -237,6 +237,9 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
+  // CRITICAL: Never cache OAuth callback routes — must always hit the network
+  if (url.pathname.startsWith('/~oauth')) return;
+
   // Network-first for Supabase API calls (always fetch fresh data)
   if (url.hostname.includes('supabase')) {
     event.respondWith(
