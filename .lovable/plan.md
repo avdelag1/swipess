@@ -1,86 +1,40 @@
 
 
-## Resident Perks & Discount History -- Full Feature Plan
+## Final iOS Audit + Performance & Backend Connectivity Hardening
 
-### Overview
-Build a consumer-facing "Perks" section where verified residents show a QR code at partner businesses, receive discounts, and track their savings history in real time.
+### Issues Found
 
-### Database (3 new tables + 1 realtime)
+**1. Critical: `Missing queryFn` error in SwipeAllDashboard.tsx (line 56-58)**
+The `prefetchQuery` call uses only a `queryKey` and `staleTime` but no `queryFn`. If the query hasn't been cached yet by `useSmartListingMatching`, the prefetch throws. Same issue on line 51-53 for owner mode. Fix: supply the actual `queryFn` or wrap in a try-catch with a no-op fallback.
 
-**`business_partners`** -- partner businesses offering discounts
-- id (uuid PK), name, logo_url, category, description, discount_percent (int), custom_discount_text, location, latitude, longitude, website_url, whatsapp, is_active (bool default true), created_at, updated_at
-- RLS: SELECT open to all authenticated; INSERT/UPDATE/DELETE admin-only via `has_role()`
+**2. React CSS warning: `animation` + `animationPlayState` conflict (PokerCategoryCard.tsx line 211-212)**
+React warns about mixing shorthand (`animation`) with longhand (`animationPlayState`) on the same element. Fix: use only longhand properties (`animationName`, `animationDuration`, `animationTimingFunction`, `animationDelay`, `animationIterationCount`, `animationPlayState`).
 
-**`discount_offers`** -- specific offers a business provides
-- id (uuid PK), business_id (FK), title, description, discount_percent, valid_from, valid_until, is_active, created_at
-- RLS: SELECT open to authenticated; mutations admin-only
+**3. Sonner toast still imported in 78 files**
+Memory says "No legacy toasts (Sonner). Use unified NotificationBar." But `Toaster` from Sonner is still rendered in `App.tsx` line 121, and 78 files import `toast` from sonner. This is not a blocker for iOS but creates inconsistency.
 
-**`discount_redemptions`** -- every time a user redeems a discount
-- id (uuid PK), user_id (uuid), business_id (FK), offer_id (FK nullable), discount_percent, amount_saved (numeric nullable), business_note (text nullable), redeemed_at (timestamptz default now()), status (text default 'approved')
-- RLS: SELECT where `auth.uid() = user_id`; INSERT via service role (edge function) only
-- Enable realtime: `ALTER PUBLICATION supabase_realtime ADD TABLE discount_redemptions;`
+**4. iOS Privacy Manifest looks correct** -- UserDefaults + SystemBootTime declared. Good for App Store.
 
-### Edge Function: `validate-resident-qr`
-Called by the business admin scanner. Receives `{ user_id, business_id, discount_percent, amount_saved?, note? }`. Validates user exists + is verified, inserts into `discount_redemptions`, returns success. Uses service role key.
+**5. Splash screen logic is solid** -- 1.5s max timeout with `app-rendered` event override. No blank screen risk.
 
-### New Pages & Components
+**6. `sourcemap: true` in production build (vite.config.ts line 78)**
+Sourcemaps ship to production, increasing bundle size and exposing source code. For iOS WebView performance, disable in production.
 
-**Route**: `/client/perks` (inside PersistentDashboardLayout)
+### Plan
 
-1. **`src/pages/ClientPerks.tsx`** -- main entry
-   - Hero card with user's QR code (tap to expand full-screen)
-   - Stats row: total saved, discounts used, businesses visited, current streak
-   - "Active Offers" horizontal carousel from `discount_offers`
-   - Link to full history
+| # | Task | File(s) |
+|---|------|---------|
+| 1 | Fix `prefetchQuery` missing `queryFn` -- add the actual fetch function from `useSmartListingMatching` or wrap in try-catch | `src/components/swipe/SwipeAllDashboard.tsx` |
+| 2 | Fix CSS shorthand conflict -- replace `animation` + `animationPlayState` with individual longhand properties | `src/components/swipe/PokerCategoryCard.tsx` |
+| 3 | Disable sourcemaps in production build | `vite.config.ts` (line 78: `sourcemap: false`) |
+| 4 | Add `will-change: transform` to key animated elements for GPU compositing on iOS Safari | `src/components/swipe/PokerCategoryCard.tsx`, `src/components/BottomNavigation.tsx` |
+| 5 | Ensure all Supabase queries in Perks feature handle loading/error states gracefully | `src/components/perks/PerksDashboard.tsx` (already has loading state -- verify error handling) |
+| 6 | Remove `Toaster` (Sonner) from App.tsx since NotificationBar is the standard | `src/App.tsx` (line 121) |
 
-2. **`src/components/perks/PerksDashboard.tsx`** -- the hero + stats layout
-
-3. **`src/components/perks/ResidentQRModal.tsx`** -- full-screen QR modal
-   - Large QR encoding user's profile UUID
-   - 60-second countdown timer, auto-regenerates
-   - Realtime subscription on `discount_redemptions` filtered to user
-   - Success animation (confetti + checkmark) when new row appears
-
-4. **`src/components/perks/BusinessList.tsx`** -- searchable/filterable partner list
-   - Category filter chips (cafes, gyms, services, etc.)
-   - Each card: logo, name, discount %, "Show QR" button
-
-5. **`src/components/perks/DiscountHistory.tsx`** -- timeline of redemptions
-   - Sorted by date, shows business name, discount %, amount saved, note
-   - Export button (generates CSV via client-side blob)
-
-6. **`src/components/perks/BusinessDetailSheet.tsx`** -- bottom sheet for business detail
-
-### Navigation Integration
-- Add to `BottomNavigation.tsx` client items: `{ id: 'perks', icon: BadgePercent, label: 'Perks', path: '/client/perks' }`
-- Add lazy route in `App.tsx` inside the protected dashboard layout
-
-### Realtime Flow
-1. User opens QR modal
-2. Business scans QR (gets user_id), calls `validate-resident-qr` edge function
-3. Edge function inserts `discount_redemptions` row
-4. User's app receives realtime INSERT event, triggers confetti + updates history
-
-### Files to Create/Modify
-| File | Action |
-|------|--------|
-| `src/pages/ClientPerks.tsx` | Create |
-| `src/components/perks/PerksDashboard.tsx` | Create |
-| `src/components/perks/ResidentQRModal.tsx` | Create |
-| `src/components/perks/BusinessList.tsx` | Create |
-| `src/components/perks/DiscountHistory.tsx` | Create |
-| `src/components/perks/BusinessDetailSheet.tsx` | Create |
-| `src/components/BottomNavigation.tsx` | Add perks nav item |
-| `src/App.tsx` | Add lazy route |
-| Migration | 3 new tables + realtime publication |
-| Edge function `validate-resident-qr` | Create |
-
-### Design
-- Same premium dark/light theme tokens as existing app
-- Framer Motion for QR reveal, card transitions, confetti
-- QR generated client-side via `qrcode` npm package (lightweight)
-- Fully responsive, Capacitor-ready (no camera needed on consumer side)
-
-### Dependencies
-- `qrcode` (or `qrcode.react`) for QR generation -- small, no native deps
+### What this achieves
+- Eliminates the `Missing queryFn` runtime error (the most visible console error)
+- Fixes the React CSS property collision warning
+- Reduces production bundle size (no sourcemaps)
+- Smoother iOS Safari rendering via GPU hints
+- Cleaner notification system (single source of truth)
 
