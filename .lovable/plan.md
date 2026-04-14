@@ -1,65 +1,72 @@
 
+## What I found
 
-# Fix Radio Buttons, Filter Colors, AI Knowledge Priority, and Swipe Cards
-
-## Issues Identified
-
-1. **Radio top bar buttons overlapping** — The shuffle and list music buttons in the top-right are `w-10 h-10` each with only `gap-2` (8px) spacing, causing visual crowding on smaller screens
-2. **Filter accent colors not carrying through to new pages** — Category accent colors defined in `SwipeConstants.ts` are not applied to downstream discovery pages after selection
-3. **AI concierge internal knowledge priority** — The edge function already has `searchPromotedContacts` with a +10 score boost for promoted tags, but need to verify it's always called before web search and results are injected prominently into the system prompt
-4. **Swipe quick-filter cards not landing well** — The poker card stack on both client (`SwipeAllDashboard`) and owner (`OwnerAllDashboard`) side needs visual refinement for a premium first impression
-
----
+- The quick-filter card shake is real: the top card currently mixes three moving systems on the same element/layer:
+  1. swipe drag (`x`, `rotateZ`)
+  2. gyroscope parallax (`rotateX`, `rotateY`)
+  3. photo breathing animation (`photo-swim`)
+- The session data also shows rapid repeated `rotateX/rotateY` updates, which matches the jitter you feel while dragging.
+- The header and bottom nav already scroll horizontally, but right now they only use simple fade hints. They do not have the proper rounded “tunnel” clipping effect you described.
 
 ## Plan
 
-### 1. Fix Radio Top Bar Button Overlap
+### 1. Stabilize the quick-filter swipe cards
+- Refactor `PokerCategoryCard.tsx` into separate motion layers:
+  - outer stack/position layer
+  - drag gesture layer
+  - inner parallax visual layer
+  - image breathing layer
+- Freeze or decouple gyroscope updates while the user is actively dragging, then restore them after release.
+- Keep all wanted behaviors:
+  - parallax when resting
+  - breathing photo effect
+  - swipe left/right
+  - tap a lower card to bring it forward
+- Tune the drag release so it feels clean and premium, not twitchy.
 
-**File**: `src/pages/DJTurntableRadio.tsx`
+### 2. Make the cards large again without clipping
+- Restore a taller shared card height for both client and owner dashboards.
+- Use one shared responsive sizing rule so client and owner stay visually identical.
+- Make sure the button, title, and image all remain fully visible on smaller phones.
 
-- Reduce top-right buttons from `w-10 h-10` to `w-9 h-9`
-- Reduce icon sizes from `w-4 h-4` / `w-5 h-5` to `w-3.5 h-3.5` / `w-4.5 h-4.5`
-- Also reduce back button from `w-10 h-10` to `w-9 h-9`
-- Keep `gap-2` spacing — smaller buttons solve the overlap
+### 3. Rebuild the top header as a real glass “tunnel”
+- Keep the avatar/photo as the fixed left anchor.
+- Start the scrollable tunnel exactly after that rounded avatar edge.
+- Put the crowded header actions inside a clipped horizontal glass rail so they slide behind rounded left/right ends instead of overlapping.
+- Add subtle inner shade/depth so it feels futuristic and intentional, not just faded.
+- Preserve tap-vs-scroll behavior so horizontal dragging the header never accidentally triggers buttons.
 
-### 2. Ensure Filter Colors Match Across Pages
+### 4. Apply the same tunnel idea to the bottom navigation
+- Keep horizontal scrolling for narrow phones.
+- Add rounded tunnel edges and shaded mask walls on both sides.
+- Make nav items disappear behind the tunnel edges cleanly as you scroll.
+- Preserve instant tap response and active-state clarity.
 
-**Files**: `src/components/swipe/SwipeConstants.ts`, relevant discovery headers
+### 5. Keep owner and client perfectly in sync
+- Apply the exact same swipe-deck fixes to:
+  - `SwipeAllDashboard.tsx`
+  - `OwnerAllDashboard.tsx`
+- Share sizing, spacing, and motion behavior so one side never drifts from the other again.
 
-- Each category already has an `accent` color defined in `POKER_CARDS` and `OWNER_INTENT_CARDS`
-- Pipe the active category's accent color into the filter store or pass it via the existing `activeCategory` state so downstream components (headers, badges, active states) can read it
-- Add `accentColor` field to `FilterState` in `filterStore.ts`
-- Set it automatically when `setCategories` is called, looking up from the constants
-- Use this accent in discovery header active states and filter pills
+## Technical details
 
-### 3. Strengthen AI Internal Knowledge Priority
+**Files to update**
+- `src/components/swipe/PokerCategoryCard.tsx`
+- `src/components/swipe/SwipeAllDashboard.tsx`
+- `src/components/swipe/OwnerAllDashboard.tsx`
+- `src/hooks/useDeviceParallax.ts`
+- `src/components/TopBar.tsx`
+- `src/components/BottomNavigation.tsx`
+- possibly a small mask/shade utility in `src/index.css`
 
-**File**: `supabase/functions/ai-concierge/index.ts`
+**Implementation notes**
+- Main card fix: stop combining drag + gyro + breathing on the same transform layer.
+- Main header/nav fix: replace the current simple edge fades with a true rounded clipping/masking tunnel.
+- No routing or feature logic changes; this is a polish/stability pass focused on motion, layout, and responsiveness.
 
-The edge function already has good knowledge search and promoted contact detection. Improvements:
-- Always run `searchKnowledge` AND `searchPromotedContacts` on every query (not just when `detectPromotedContactIntent` returns true) — this ensures internal data is always checked
-- In the system prompt injection, label internal results as **"VERIFIED LOCAL INFORMATION — ALWAYS PRESENT THESE FIRST"** so the AI model knows to prioritize them over web results
-- Only fall back to `searchWeb` (Tavily) when internal knowledge returns empty
-
-### 4. Polish Swipe Quick-Filter Cards
-
-**Files**: `src/components/swipe/PokerCategoryCard.tsx`, `src/components/swipe/SwipeAllDashboard.tsx`, `src/components/swipe/OwnerAllDashboard.tsx`
-
-- **Card height**: Ensure cards don't overflow the viewport — use `min(500px, calc(100vh - 280px))` for dynamic sizing
-- **Stack offset**: Reduce `stackY` from `index * 18` to `index * 12` for tighter, more premium stacking
-- **Border radius**: Keep `rounded-[48px]` — already premium
-- **Button label**: The "Launch X" button is good but ensure it has enough bottom padding on shorter screens
-- **Chevron arrows**: Make theme-aware — currently hardcoded `text-white/60` and `bg-white/5` which looks wrong in light mode. Use semantic tokens
-- **Light mode fix**: Both dashboards use `text-white/60` for arrows — needs to be `text-foreground/60` and `bg-foreground/5` for theme awareness
-
-### Files Modified
-
-| File | Change |
-|---|---|
-| `src/pages/DJTurntableRadio.tsx` | Shrink top bar buttons |
-| `src/state/filterStore.ts` | Add `accentColor` to state |
-| `src/components/swipe/SwipeAllDashboard.tsx` | Theme-aware arrows, dynamic card height |
-| `src/components/swipe/OwnerAllDashboard.tsx` | Theme-aware arrows, dynamic card height |
-| `src/components/swipe/PokerCategoryCard.tsx` | Tighter stack, responsive height |
-| `supabase/functions/ai-concierge/index.ts` | Always search internal knowledge first |
-
+## QA I will do after implementation
+- Repeatedly swipe the quick-filter cards left/right on mobile width and confirm no shaking.
+- Confirm breathing + parallax return smoothly when not dragging.
+- Confirm tapping back cards still brings them forward.
+- Verify the full card stays visible on both client and owner dashboards.
+- Verify top and bottom controls scroll inside the new tunnel rails and hide behind rounded edges cleanly.
