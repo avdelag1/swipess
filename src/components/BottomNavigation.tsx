@@ -80,8 +80,13 @@ export const BottomNavigation = memo(({
   const setModal = useModalStore((s) => s.setModal);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const isLight = theme === 'light';
+
+  const toggleTheme = useCallback(() => {
+    const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'cheers' : 'light';
+    setTheme(nextTheme);
+  }, [theme, setTheme]);
 
   const { t } = useTranslation();
 
