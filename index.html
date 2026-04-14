@@ -171,6 +171,17 @@
         if (ss) ss.remove();
       }, 500);
     });
+    // Dynamic theme-color: sync status bar with app theme
+    (function(){
+      var meta = document.getElementById('theme-color-meta');
+      if (!meta) return;
+      function sync() {
+        var isDark = document.documentElement.classList.contains('dark');
+        meta.setAttribute('content', isDark ? '#000000' : '#ffffff');
+      }
+      sync();
+      new MutationObserver(sync).observe(document.documentElement, {attributes:true, attributeFilter:['class']});
+    })();
   </script>
 
   <div id="root"></div>
