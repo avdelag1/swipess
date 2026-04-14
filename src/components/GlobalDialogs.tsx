@@ -164,7 +164,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
             <CategorySelectionDialog
               open={store.showCategoryDialog}
               onOpenChange={(val: boolean) => store.setModal('showCategoryDialog', val)}
-              onCategorySelect={(category: string, mode: 'buy' | 'rent') => {
+              onCategorySelect={(category: string, mode: string) => {
                 store.setModal('showCategoryDialog', false);
                 navigate(`/owner/listings/new?category=${category}&mode=${mode}`);
               }}
