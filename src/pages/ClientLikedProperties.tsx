@@ -1,4 +1,5 @@
-import { LikedListingInsightsModal } from "@/components/LikedListingInsightsModal";
+import { lazy, Suspense } from "react";
+const LikedListingInsightsModal = lazy(() => import("@/components/LikedListingInsightsModal").then(m => ({ default: m.LikedListingInsightsModal })));
 
 import { useState, useMemo } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
@@ -383,11 +384,15 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
         )}
       </div>
 
-      <LikedListingInsightsModal
-        open={showInsightsModal}
-        onOpenChange={setShowInsightsModal}
-        listing={selectedPropertyForModal}
-      />
+      {showInsightsModal && (
+        <Suspense fallback={null}>
+          <LikedListingInsightsModal
+            open={showInsightsModal}
+            onOpenChange={setShowInsightsModal}
+            listing={selectedPropertyForModal}
+          />
+        </Suspense>
+      )}
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent

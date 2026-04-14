@@ -152,7 +152,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
   const sharedRoutes = ['/messages', '/notifications', '/explore/eventos'];
   
   if (role === 'client') {
-    const critical = ['/client/profile', '/client/liked-properties', ...sharedRoutes];
+    const critical = ['/client/profile', ...sharedRoutes];
     critical.forEach(p => prefetchRoute(p));
     
     // Everything else — sequential background prefetch (start fast)
