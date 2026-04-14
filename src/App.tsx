@@ -208,6 +208,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <Route path="/share-target" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><NotFound /></AnimatedPage></Suspense>} />
           </Routes>
+          </TooltipProvider>
         </AppLayout>
       </RootProviders>
     </GlobalErrorBoundary>
