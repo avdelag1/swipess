@@ -26,7 +26,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
-  const dragTilt = useTransform(x, [-250, 0, 250], [-15, 0, 15]);
+  const dragTilt = useTransform(x, [-200, 0, 200], [-12, 0, 12]);
   const isCycling = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
@@ -77,17 +77,17 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     const dist = Math.abs(info.offset.x);
     const vel = Math.abs(info.velocity.x);
 
-    if (dist > 45 || vel > 250) {
+    if (dist > 25 || vel > 150) {
       isCycling.current = true;
       triggerHaptic('medium');
       const direction = info.offset.x > 0 ? 'right' : 'left';
-      const exitX = direction === 'right' ? 280 : -280;
+      const exitX = direction === 'right' ? 320 : -320;
 
       animate(x, exitX, {
         type: 'spring',
-        stiffness: 900,
-        damping: 35,
-        mass: 0.4,
+        stiffness: 1200,
+        damping: 40,
+        mass: 0.3,
         onComplete: () => {
           setIsDragging(false);
           setIsInteracting(false);
@@ -100,9 +100,9 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       triggerHaptic('light');
       animate(x, 0, {
         type: 'spring',
-        stiffness: 900,
-        damping: 28,
-        mass: 0.35,
+        stiffness: 1200,
+        damping: 30,
+        mass: 0.25,
         onComplete: () => {
           setIsDragging(false);
           setIsInteracting(false);
@@ -115,14 +115,14 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const stackScale = 1 - (index * 0.04);
   const stackBrightness = 1 - (index * 0.05);
 
-  const exitScale = useTransform(x, [-300, -120, 0, 120, 300], [0.6, 0.9, 1, 0.9, 0.6]);
-  const exitOpacity = useTransform(x, [-300, -240, 0, 240, 300], [0, 1, 1, 1, 0]);
+  const exitScale = useTransform(x, [-320, -100, 0, 100, 320], [0.7, 0.92, 1, 0.92, 0.7]);
+  const exitOpacity = useTransform(x, [-320, -260, 0, 260, 320], [0, 1, 1, 1, 0]);
 
   return (
     <motion.div
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.2}
+      dragElastic={0.35}
       dragMomentum={false}
       onPointerDownCapture={isTop ? handlePointerDownCapture : undefined}
       onPointerUpCapture={isTop ? handlePointerReleaseCapture : undefined}
@@ -138,8 +138,8 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         filter: isTop ? undefined : `brightness(${stackBrightness})`,
       }}
       transition={{
-        type: 'spring', stiffness: 180, damping: 26, mass: 1.2,
-        delay: index * 0.06,
+        type: 'spring', stiffness: 300, damping: 28, mass: 0.8,
+        delay: index * 0.04,
       }}
       style={{
         position: 'absolute',
@@ -243,8 +243,8 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
           </div>
 
           {!isTop && (
-            <div className="absolute top-8 left-8 px-4 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-md">
-              <p className="text-[10px] font-black uppercase tracking-widest text-white/70">{card.label}</p>
+            <div className="absolute top-8 left-8 px-4 py-1.5 bg-black/60 rounded-full border border-white/10 shadow-md">
+              <p className="text-[10px] font-black uppercase tracking-widest text-white/70" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{card.label}</p>
             </div>
           )}
         </div>
