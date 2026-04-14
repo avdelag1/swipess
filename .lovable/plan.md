@@ -1,46 +1,54 @@
 
 
-## Fix Swipe Cards, ID Card & Runtime Errors
+## Enable Apple & Google Sign-In + Fix React Crash
 
-### Problems Identified
-
-1. **Swipe card sizing on mobile**: The card container uses `calc(100vh - 160px)` for height, which on a 676px viewport = 516px. Combined with the 48px rounded corners, the card looks oversized and awkward. The bottom area has too much empty space below the card stack.
-2. **Swipe sensitivity too aggressive**: Threshold of 25px / 150 velocity means accidental micro-drags trigger card cycling — feels broken and uncontrollable.
-3. **ID Card modal**: The close button at `-top-11` can overlap with status bar. Card padding and layout need tightening for mobile.
-4. **Runtime errors**: `useNavigate()` outside Router in `NotificationSystem` and `useState` null in `WelcomeBonusModal` — these cause crashes and error boundary recovery loops.
+### Problem
+1. **React crash** — `Cannot read properties of null (reading 'useState')` persists because the Vite resolve aliases point to directory roots instead of specific entry files, causing duplicate React instances in the bundle.
+2. **Social login disabled** — Apple and Google buttons show "Coming soon" toasts instead of actually authenticating.
 
 ### Plan
 
-**1. Fix runtime errors (silent fixes)**
+#### Step 1: Fix the React null crash (root cause)
+Update `vite.config.ts` resolve aliases to point to the exact module entry files:
+```
+react → ./node_modules/react/index.js
+react-dom → ./node_modules/react-dom/index.js
+react/jsx-runtime → ./node_modules/react/jsx-runtime.js
+```
+Also add `react/jsx-runtime` and `react/jsx-dev-runtime` to the dedupe list. Clear `.vite` cache.
 
-- `NotificationSystem.tsx` / `useNotificationSystem.tsx`: Wrap the `useNavigate` call in a try-catch or guard it so it doesn't crash outside Router context.
-- `WelcomeBonusModal.tsx`: Fix the `useState` null error — likely a lazy-loaded component mounting issue. Wrap in error boundary or add a guard.
+#### Step 2: Configure Social Auth via Lovable Cloud
+Use the **Configure Social Auth** tool to:
+- Generate the `src/integrations/lovable/` module with `@lovable.dev/cloud-auth-js`
+- This provides the managed `lovable.auth.signInWithOAuth()` function that works out of the box for both Google and Apple (no API keys needed for Google; Apple uses Lovable's managed credentials)
 
-**2. Improve PokerCategoryCard swipe feel**
+#### Step 3: Update `useAuth.tsx` — switch to Lovable Cloud OAuth
+Replace the current `signInWithOAuth` function that calls `supabase.auth.signInWithOAuth()` with the new `lovable.auth.signInWithOAuth()` pattern:
+```typescript
+import { lovable } from "@/integrations/lovable/index";
 
-- Increase drag threshold from 25px to **60px** and velocity from 150 to **350** — prevents accidental cycles, makes swipes feel intentional.
-- Reduce `dragElastic` from 0.35 to **0.25** for tighter resistance.
-- Reduce rounded corners from `rounded-[48px]` to `rounded-[28px]` — 48px is excessive on mobile and wastes visible card area.
-- Reduce `dragTilt` rotation range from [-12, 12] to [-8, 8] for subtlety.
-- Tighten exit animation: exit at 280px instead of 320px for faster completion.
+const result = await lovable.auth.signInWithOAuth(provider, {
+  redirect_uri: window.location.origin,
+});
+```
 
-**3. Fix card stack container sizing**
+#### Step 4: Activate social buttons on landing page
+In `LegendaryLandingPage.tsx`:
+- Replace `handleSocialComingSoon('Apple')` with actual `signInWithOAuth('apple')` call
+- Replace `handleSocialComingSoon('Google')` with actual `signInWithOAuth('google')` call  
+- Remove the "Coming soon" banner
+- Add loading states to the social buttons during OAuth redirect
 
-- In both `SwipeAllDashboard.tsx` and `OwnerAllDashboard.tsx`: Change height from `calc(100vh - 160px)` to `calc(100vh - 220px)` to account for top bar + bottom nav + breathing room.
-- Reduce `PK_W` from 360 to 340 and ensure the `calc(100vw - 120px)` works well on 393px width (= 273px, too narrow). Change to `calc(100vw - 80px)` for wider cards.
-
-**4. Polish ID Card modal**
-
-- Move close button from `-top-11` to inside the card top-right corner with `absolute top-3 right-3`.
-- Add `overscroll-contain` to prevent background scroll bleed.
+#### Step 5: Update PWA config
+Add `/~oauth` to the service worker's `navigateFallbackDenylist` in `vite.config.ts` or the SW config so OAuth callbacks always hit the network (required for Lovable Cloud OAuth).
 
 ### Files to modify
+- `vite.config.ts` — fix React aliases + add OAuth denylist
+- `src/hooks/useAuth.tsx` — switch to `lovable.auth.signInWithOAuth`
+- `src/components/LegendaryLandingPage.tsx` — activate social buttons, remove "Coming soon"
 
-- `src/components/swipe/PokerCategoryCard.tsx` — swipe physics, border radius, drag feel
-- `src/components/swipe/SwipeAllDashboard.tsx` — container sizing
-- `src/components/swipe/OwnerAllDashboard.tsx` — container sizing
-- `src/components/swipe/SwipeConstants.ts` — PK_W adjustment
-- `src/components/VapIdCardModal.tsx` — close button positioning
-- `src/hooks/useNotificationSystem.tsx` — fix useNavigate crash
-- `src/components/WelcomeBonusModal.tsx` — fix useState null crash
+### Technical details
+- Lovable Cloud manages Google OAuth credentials automatically — no setup needed
+- Lovable Cloud manages Apple OAuth credentials automatically — no Apple Developer setup needed for the managed flow
+- The user can later switch to their own Apple credentials (BYOC) via Cloud dashboard if they want custom branding on the Apple sign-in sheet
 
