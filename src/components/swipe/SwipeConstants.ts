@@ -101,7 +101,7 @@ export const POKER_CARDS = [
 ];
 
 // Zenith Spec: Professional-grade card dimensions for flagship smartphones
-export const PK_W = 360;
+export const PK_W = 340;
 export const PK_H = 500;
 export const OWNER_PK_H = 500;
 

@@ -26,7 +26,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
-  const dragTilt = useTransform(x, [-200, 0, 200], [-12, 0, 12]);
+  const dragTilt = useTransform(x, [-200, 0, 200], [-8, 0, 8]);
   const isCycling = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
@@ -77,11 +77,11 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     const dist = Math.abs(info.offset.x);
     const vel = Math.abs(info.velocity.x);
 
-    if (dist > 25 || vel > 150) {
+    if (dist > 60 || vel > 350) {
       isCycling.current = true;
       triggerHaptic('medium');
       const direction = info.offset.x > 0 ? 'right' : 'left';
-      const exitX = direction === 'right' ? 320 : -320;
+      const exitX = direction === 'right' ? 280 : -280;
 
       animate(x, exitX, {
         type: 'spring',
@@ -115,14 +115,14 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const stackScale = 1 - (index * 0.04);
   const stackBrightness = 1 - (index * 0.05);
 
-  const exitScale = useTransform(x, [-320, -100, 0, 100, 320], [0.7, 0.92, 1, 0.92, 0.7]);
-  const exitOpacity = useTransform(x, [-320, -260, 0, 260, 320], [0, 1, 1, 1, 0]);
+  const exitScale = useTransform(x, [-280, -100, 0, 100, 280], [0.7, 0.92, 1, 0.92, 0.7]);
+  const exitOpacity = useTransform(x, [-280, -220, 0, 220, 280], [0, 1, 1, 1, 0]);
 
   return (
     <motion.div
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.35}
+      dragElastic={0.25}
       dragMomentum={false}
       onPointerDownCapture={isTop ? handlePointerDownCapture : undefined}
       onPointerUpCapture={isTop ? handlePointerReleaseCapture : undefined}
@@ -176,7 +176,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       >
         <div
           className={cn(
-            'w-full h-full relative overflow-hidden rounded-[48px]',
+            'w-full h-full relative overflow-hidden rounded-[28px]',
             isTop ? 'border-2 border-white/10 shadow-2xl' : 'border border-white/5 shadow-xl'
           )}
         >

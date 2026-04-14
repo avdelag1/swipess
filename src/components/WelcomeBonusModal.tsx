@@ -10,16 +10,20 @@ export const WelcomeBonusModal = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id || !user?.created_at) return;
 
     // Check if user is "new" (created within last 7 days)
-    const createdAt = new Date(user.created_at);
+    let createdAt: Date;
+    try {
+      createdAt = new Date(user.created_at);
+      if (isNaN(createdAt.getTime())) return;
+    } catch { return; }
+    
     const now = new Date();
     const ageMs = now.getTime() - createdAt.getTime();
     const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
 
     if (ageMs > sevenDaysMs) {
-      // User is too old for the welcome bonus
       return;
     }
 
