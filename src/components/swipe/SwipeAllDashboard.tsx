@@ -77,6 +77,9 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
       navigate('/radio');
     } else if (id === 'vap') {
       setShowVapModal(true);
+    } else if (id === 'all') {
+      // 'all' means show all categories — set to property as default entry
+      setCategories(['property']);
     } else {
       setCategories([id]);
     }
