@@ -9,21 +9,21 @@ interface ParallaxOffset {
  * Hook to track device orientation for 3D parallax effects.
  * Returns smooth, jitter-free values based on how the device is held.
  */
-export function useDeviceParallax(multiplier = 1, maxTilt = 45): ParallaxOffset {
+export function useDeviceParallax(multiplier = 1, maxTilt = 45, enabled = true): ParallaxOffset {
   const [offset, setOffset] = useState<ParallaxOffset>({ tiltX: 0, tiltY: 0 });
   const currentOffset = useRef<ParallaxOffset>({ tiltX: 0, tiltY: 0 });
   const targetOffset = useRef<ParallaxOffset>({ tiltX: 0, tiltY: 0 });
   const lastSetOffset = useRef<ParallaxOffset>({ tiltX: 0, tiltY: 0 });
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.DeviceOrientationEvent) {
+    if (typeof window === 'undefined' || !window.DeviceOrientationEvent || !enabled) {
       return;
     }
 
-    const DEAD_ZONE = 2; // ignore movements under ±2 degrees
-    const MAX_PX = 8; // max 8px translation (reduced from 25)
-    const DAMPING = 0.04; // slower, smoother interpolation
-    const STATE_THRESHOLD = 0.3; // only setState when delta > 0.3px
+    const DEAD_ZONE = 2;
+    const MAX_PX = 8;
+    const DAMPING = 0.04;
+    const STATE_THRESHOLD = 0.3;
 
     const handleOrientation = (event: DeviceOrientationEvent) => {
       if (event.beta === null || event.gamma === null) return;
@@ -32,15 +32,12 @@ export function useDeviceParallax(multiplier = 1, maxTilt = 45): ParallaxOffset 
       let beta = event.beta - restingBeta;
       let gamma = event.gamma;
 
-      // Dead-zone filter — ignore micro-movements
       if (Math.abs(beta) < DEAD_ZONE) beta = 0;
       if (Math.abs(gamma) < DEAD_ZONE) gamma = 0;
 
-      // Clamp
       beta = Math.max(-maxTilt, Math.min(maxTilt, beta));
       gamma = Math.max(-maxTilt, Math.min(maxTilt, gamma));
 
-      // Normalize to -1..1 then scale to max pixels
       const normalizedY = (beta / maxTilt) * multiplier;
       const normalizedX = (gamma / maxTilt) * multiplier;
 
@@ -57,7 +54,6 @@ export function useDeviceParallax(multiplier = 1, maxTilt = 45): ParallaxOffset 
         tiltY: currentOffset.current.tiltY + (targetOffset.current.tiltY - currentOffset.current.tiltY) * DAMPING,
       };
 
-      // Only trigger React re-render when change exceeds threshold
       const deltaX = Math.abs(currentOffset.current.tiltX - lastSetOffset.current.tiltX);
       const deltaY = Math.abs(currentOffset.current.tiltY - lastSetOffset.current.tiltY);
 
@@ -76,7 +72,7 @@ export function useDeviceParallax(multiplier = 1, maxTilt = 45): ParallaxOffset 
       window.removeEventListener('deviceorientation', handleOrientation);
       cancelAnimationFrame(rafId);
     };
-  }, [multiplier, maxTilt]);
+  }, [multiplier, maxTilt, enabled]);
 
   return offset;
 }

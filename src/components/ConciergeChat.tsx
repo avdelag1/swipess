@@ -454,13 +454,19 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const recognitionRef = useRef<any>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ignitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSendRef = useRef(autoSend);
   const countdownTranscriptRef = useRef<string>('');
   const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
   const COUNTDOWN_SECONDS = 2;
-  const SILENCE_DELAY_MS = 1200; // 1.2 seconds of silence before countdown starts
+  const SILENCE_DELAY_MS = 1200;
   const isCountingDownRef = useRef(false);
   const lastFinalTranscriptRef = useRef('');
+
+  useEffect(() => {
+    autoSendRef.current = autoSend;
+  }, [autoSend]);
 
   const clearCountdown = useCallback(() => {
     if (countdownRef.current) {
@@ -471,17 +477,28 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
     }
+    if (ignitionTimeoutRef.current) {
+      clearTimeout(ignitionTimeoutRef.current);
+      ignitionTimeoutRef.current = null;
+    }
     isCountingDownRef.current = false;
     setCountdown(null);
+    setIgnitionFlash(false);
   }, []);
 
   const fireIgnitionAndSend = useCallback(() => {
+    if (!autoSendRef.current) {
+      clearCountdown();
+      return;
+    }
+
     isCountingDownRef.current = false;
-    const textToSend = countdownTranscriptRef.current;
+    const textToSend = countdownTranscriptRef.current.trim();
     setIgnitionFlash(true);
-    setTimeout(() => {
+    ignitionTimeoutRef.current = setTimeout(() => {
       setIgnitionFlash(false);
-      if (textToSend) {
+      ignitionTimeoutRef.current = null;
+      if (autoSendRef.current && textToSend) {
         sendMessage(textToSend);
         setInput('');
       }
@@ -491,7 +508,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
         recognitionRef.current = null;
       }
     }, 600);
-  }, [sendMessage]);
+  }, [clearCountdown, sendMessage]);
 
   const startCountdown = useCallback(() => {
     // DO NOT stop recognition — keep listening so user can interrupt countdown
@@ -513,10 +530,14 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const toggleAutoSend = useCallback(() => {
     setAutoSend(prev => {
       const next = !prev;
+      autoSendRef.current = next;
       try { localStorage.setItem('concierge-auto-send', String(next)); } catch {}
+      if (!next) {
+        clearCountdown();
+      }
       return next;
     });
-  }, []);
+  }, [clearCountdown]);
 
   const stopListening = useCallback(() => {
     clearCountdown();
@@ -525,6 +546,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       recognitionRef.current.stop();
       recognitionRef.current = null;
     }
+    uiSounds.playMicOff();
     setIsListening(false);
   }, [clearCountdown]);
 
@@ -543,8 +565,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
     recognition.onstart = () => {
       setIsListening(true);
-      originalInputRef.current = input; // Snapshot current text
+      originalInputRef.current = input;
       triggerHaptic('medium');
+      uiSounds.playMicOn();
     };
 
     recognition.onresult = (event: any) => {
@@ -591,10 +614,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
         countdownTranscriptRef.current = combined;
       }
 
-      // If auto-send is ON, reset silence timer: after 2s of no new speech → start countdown
-      if (autoSend && countdownTranscriptRef.current) {
+      if (autoSendRef.current && countdownTranscriptRef.current) {
         silenceTimerRef.current = setTimeout(() => {
-          if (!userStopped && !isCountingDownRef.current) {
+          if (!userStopped && !isCountingDownRef.current && autoSendRef.current) {
             startCountdown();
           }
         }, SILENCE_DELAY_MS);
@@ -1036,8 +1058,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
               {speechSupported && (
                 <button
                   onClick={() => {
+                    const nextAutoSend = !autoSend;
                     toggleAutoSend();
-                    uiSounds.playPing(1.4);
+                    nextAutoSend ? uiSounds.playAutoSendOn() : uiSounds.playAutoSendOff();
                   }}
                   className={cn(
                     "shrink-0 flex h-7 items-center justify-center gap-1 rounded-md px-2 text-[9px] font-semibold tracking-wide uppercase transition-all",
