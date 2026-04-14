@@ -9,7 +9,7 @@ import {
   OWNER_INTENT_CARDS,
   OwnerIntentCard,
   PK_W,
-  OWNER_PK_H,
+  PK_H,
   POKER_CARD_PHOTOS,
 } from './SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
@@ -41,7 +41,6 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
     if (!user?.id || cards.length === 0) return;
     const topCard = cards[0];
     
-    // Construct the filter key exactly as useSmartClientMatching does
     const tempFilters = {
       clientType: topCard.clientType || 'all',
       listingType: topCard.listingType || 'all',
@@ -50,7 +49,6 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
     const filtersKey = JSON.stringify(tempFilters);
     const category = topCard.category || 'property';
 
-    // Pre-seed the query cache
     queryClient.prefetchQuery({
       queryKey: ['smart-clients', user.id, category, 0, false, filtersKey, false],
       staleTime: 2 * 60 * 1000,
@@ -129,10 +127,10 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
             <ChevronLeft size={20} className="text-foreground/60" />
           </button>
 
-          {/* Card stack */}
+          {/* Card stack — same responsive sizing as client */}
           <div
             className="relative"
-            style={{ width: `min(${PK_W}px, calc(100vw - 120px))`, height: `min(${OWNER_PK_H}px, calc(100vh - 120px))` }}
+            style={{ width: `min(${PK_W}px, calc(100vw - 120px))`, height: `min(${PK_H}px, calc(100vh - 160px))` }}
           >
             {[...cards].reverse().map((card, reversedIdx) => {
               const index = cards.length - 1 - reversedIdx;
@@ -148,7 +146,6 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
                   onCycle={handleCycle}
                   onSelect={handleSelect}
                   onBringToFront={handleBringToFront}
-                  cardHeight={OWNER_PK_H}
                 />
               );
             })}

@@ -46,14 +46,12 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
     const filtersKey = JSON.stringify(filters);
 
     if (role === 'owner') {
-      // Pre-warm client/candidate profiles for owners
       const isRoommate = topId === 'roommates';
       queryClient.prefetchQuery({
         queryKey: ['smart-clients', user.id, isRoommate ? 'property' : topId, 0, false, '{}', isRoommate],
         staleTime: 120000,
       });
     } else {
-      // Pre-warm listing data for clients
       queryClient.prefetchQuery({
         queryKey: ['smart-listings', user.id, filtersKey, 0, false],
         staleTime: 120000,
@@ -127,10 +125,10 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
           <ChevronLeft size={20} className="text-foreground/60" />
         </button>
 
-        {/* Card stack */}
+        {/* Card stack — responsive height capped at PK_H */}
         <div
           className="relative"
-          style={{ width: `min(${PK_W}px, calc(100vw - 120px))`, height: `min(${PK_H}px, calc(100vh - 120px))` }}
+          style={{ width: `min(${PK_W}px, calc(100vw - 120px))`, height: `min(${PK_H}px, calc(100vh - 160px))` }}
         >
           {[...cards].reverse().map((card, reversedIdx) => {
             const index = cards.length - 1 - reversedIdx;
