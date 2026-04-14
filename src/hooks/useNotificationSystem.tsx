@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { useProfileCache } from '@/hooks/useProfileCache';
 import { useNotificationStore, NotificationType, Notification } from '@/state/notificationStore';
@@ -30,7 +29,6 @@ export function useNotificationSystem() {
   } = useNotificationStore();
   
   const { user } = useAuth();
-  const navigate = useNavigate();
   const { getProfile: _getProfile } = useProfileCache();
 
   // Map database notification types to frontend types
@@ -184,18 +182,25 @@ export function useNotificationSystem() {
     }
   };
 
-  const handleNotificationClick = (notification: Notification) => {
-    // Navigate and auto-mark as read in standard flow
+  const handleNotificationClick = useCallback((notification: Notification) => {
+    // Navigate using window.location for safety (no useNavigate dependency)
+    let url: string | null = null;
     if (notification.actionUrl) {
-      navigate(notification.actionUrl);
+      url = notification.actionUrl;
     } else if (notification.type === 'message' && (notification.conversationId || notification.metadata?.conversationId)) {
       const convId = notification.conversationId || notification.metadata?.conversationId;
-      navigate(`/messages?id=${convId}`);
+      url = `/messages?id=${convId}`;
+    }
+    
+    if (url) {
+      try {
+        window.location.href = url;
+      } catch { /* silent */ }
     }
     
     // Auto-dismiss the banner on click
     handleDismiss(notification.id);
-  };
+  }, [handleDismiss]);
 
   const markNotificationAsRead = (id: string) => {
     // Mark single notification as read locally + in DB

@@ -98,12 +98,12 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
             exit={{ scale: 0.9, opacity: 0, y: 30 }}
             transition={{ type: 'spring', damping: 28, stiffness: 380 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-[92vw] max-w-[560px] max-h-[85vh] overflow-y-auto"
+            className="relative w-[92vw] max-w-[560px] max-h-[85vh] overflow-y-auto overscroll-contain"
           >
-            {/* Close button */}
+            {/* Close button — inside card */}
             <button
               onClick={onClose}
-              className="absolute -top-11 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white/70 transition-colors hover:bg-white/20 hover:text-white z-20"
+              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/70 transition-colors hover:bg-black/60 hover:text-white z-20"
               aria-label="Close"
             >
               <X className="h-4 w-4" />
