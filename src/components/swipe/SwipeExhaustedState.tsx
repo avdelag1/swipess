@@ -28,11 +28,11 @@ interface SwipeExhaustedStateProps {
 
 const CATEGORY_ICONS: Record<string, { icon: any; label: string; color: string }> = {
   all:        { icon: Zap,            label: 'All',         color: '#ec4899' },
-  property:   { icon: Home,           label: 'Properties',  color: '#3b82f6' },
-  motorcycle: { icon: MotorcycleIcon, label: 'Motorcycles', color: '#f97316' },
-  bicycle:    { icon: Bike,           label: 'Bicycles',    color: '#f43f5e' },
-  services:   { icon: Briefcase,      label: 'Workers',     color: '#a855f7' },
-  worker:     { icon: Briefcase,      label: 'Workers',     color: '#a855f7' },
+  property:   { icon: Home,           label: 'Property',    color: '#3b82f6' },
+  motorcycle: { icon: MotorcycleIcon, label: 'Motos',       color: '#f97316' },
+  bicycle:    { icon: Bike,           label: 'Bikes',       color: '#f43f5e' },
+  services:   { icon: Briefcase,      label: 'Work',        color: '#a855f7' },
+  worker:     { icon: Briefcase,      label: 'Work',        color: '#a855f7' },
 };
 
 export const SwipeExhaustedState = ({
@@ -136,7 +136,7 @@ export const SwipeExhaustedState = ({
             transition={{ delay: 0.1 }}
             className="flex w-full justify-center"
           >
-            <div className="flex items-center justify-center gap-3">
+            <div className="inline-flex items-center gap-1.5 p-1 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30 shadow-lg">
               {Object.entries(CATEGORY_ICONS).filter(([k]) => k !== 'worker').map(([catId, info]) => {
                 const Icon = info.icon;
                 const isActive = activeCategory === catId;
@@ -146,14 +146,29 @@ export const SwipeExhaustedState = ({
                     onClick={() => handleCategorySwitch(catId)}
                     title={info.label}
                     className={cn(
-                      "flex items-center justify-center w-10 h-10 rounded-full border transition-all duration-200 active:scale-90",
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-250 active:scale-90",
                       isActive
-                        ? "border-white/20 bg-white/10 shadow-lg"
-                        : "border-border/40 bg-card/30 text-muted-foreground hover:bg-card/50"
+                        ? "bg-white/12 shadow-md"
+                        : "hover:bg-white/5"
                     )}
-                    style={isActive ? { boxShadow: `0 0 16px ${info.color}30`, color: info.color } : undefined}
+                    style={isActive ? { boxShadow: `0 0 20px ${info.color}20, inset 0 1px 0 rgba(255,255,255,0.08)` } : undefined}
                   >
-                    <Icon className="h-4.5 w-4.5" strokeWidth={1.5} style={isActive ? { color: info.color } : { opacity: 0.6 }} />
+                    <Icon
+                      className="h-3.5 w-3.5 shrink-0"
+                      strokeWidth={isActive ? 1.8 : 1.5}
+                      style={{ color: isActive ? info.color : 'var(--muted-foreground)', opacity: isActive ? 1 : 0.5 }}
+                    />
+                    {isActive && (
+                      <motion.span
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: 'auto', opacity: 1 }}
+                        exit={{ width: 0, opacity: 0 }}
+                        className="text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap overflow-hidden"
+                        style={{ color: info.color }}
+                      >
+                        {info.label}
+                      </motion.span>
+                    )}
                   </button>
                 );
               })}
