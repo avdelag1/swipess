@@ -79,6 +79,60 @@ export type Database = {
           },
         ]
       }
+      business_partners: {
+        Row: {
+          category: string
+          created_at: string
+          custom_discount_text: string | null
+          description: string | null
+          discount_percent: number
+          id: string
+          is_active: boolean
+          latitude: number | null
+          location: string | null
+          logo_url: string | null
+          longitude: number | null
+          name: string
+          updated_at: string
+          website_url: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          custom_discount_text?: string | null
+          description?: string | null
+          discount_percent?: number
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          location?: string | null
+          logo_url?: string | null
+          longitude?: number | null
+          name: string
+          updated_at?: string
+          website_url?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          custom_discount_text?: string | null
+          description?: string | null
+          discount_percent?: number
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          location?: string | null
+          logo_url?: string | null
+          longitude?: number | null
+          name?: string
+          updated_at?: string
+          website_url?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       client_filter_preferences: {
         Row: {
           amenities_required: Json | null
@@ -674,6 +728,101 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discount_offers: {
+        Row: {
+          business_id: string
+          created_at: string
+          description: string | null
+          discount_percent: number
+          id: string
+          is_active: boolean
+          title: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          description?: string | null
+          discount_percent?: number
+          id?: string
+          is_active?: boolean
+          title: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          description?: string | null
+          discount_percent?: number
+          id?: string
+          is_active?: boolean
+          title?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discount_offers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discount_redemptions: {
+        Row: {
+          amount_saved: number | null
+          business_id: string
+          business_note: string | null
+          discount_percent: number
+          id: string
+          offer_id: string | null
+          redeemed_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_saved?: number | null
+          business_id: string
+          business_note?: string | null
+          discount_percent?: number
+          id?: string
+          offer_id?: string | null
+          redeemed_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_saved?: number | null
+          business_id?: string
+          business_note?: string | null
+          discount_percent?: number
+          id?: string
+          offer_id?: string | null
+          redeemed_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discount_redemptions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "business_partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discount_redemptions_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "discount_offers"
             referencedColumns: ["id"]
           },
         ]
