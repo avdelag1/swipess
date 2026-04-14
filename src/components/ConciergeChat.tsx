@@ -1047,16 +1047,27 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 value={input}
                 onChange={e => {
                   setInput(e.target.value);
-                  // Auto-grow textarea
+                  // Auto-grow textarea — expand UPWARD by scrolling into view
                   const el = e.target;
                   el.style.height = 'auto';
-                  el.style.height = `${Math.min(el.scrollHeight, window.innerHeight * 0.5)}px`;
+                  const maxH = Math.min(el.scrollHeight, window.innerHeight * 0.3);
+                  el.style.height = `${maxH}px`;
+                  // Scroll the input container into view so the text stays visible above keyboard
+                  requestAnimationFrame(() => {
+                    el.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+                  });
+                }}
+                onFocus={() => {
+                  // When keyboard opens on mobile, scroll input into view
+                  setTimeout(() => {
+                    inputRef.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+                  }, 300);
                 }}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask Swipes..."
                 rows={1}
                 className="flex-1 resize-none bg-muted/50 border border-border/40 rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/30"
-                style={{ minHeight: '34px', maxHeight: '50vh' }}
+                style={{ minHeight: '34px', maxHeight: '30vh' }}
               />
               {/* Auto-send toggle — "Open Talk" mode */}
               {speechSupported && (
