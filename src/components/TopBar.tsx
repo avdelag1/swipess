@@ -1,8 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
-import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, SlidersHorizontal } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -13,11 +12,11 @@ import { haptics } from '@/utils/microPolish';
 import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
 
-
 interface TopBarProps {
   onNotificationsClick?: () => void;
   onMessageActivationsClick?: () => void;
   onAISearchClick?: () => void;
+  onFilterClick?: () => void;
   className?: string;
   showFilters?: boolean;
   userRole?: 'client' | 'owner' | 'admin';
@@ -30,13 +29,14 @@ interface TopBarProps {
 
 function TopBarComponent({
   onNotificationsClick: _onNotificationsClick,
-  onMessageActivationsClick,
+  onMessageActivationsClick: _onMessageActivationsClick,
+  onFilterClick,
   className,
-  showFilters,
+  showFilters: _showFilters,
   userRole,
-  transparent = false,
+  transparent: _transparent = false,
   hideOnScroll: _hideOnScroll = false,
-  title,
+  title: _title,
   showBack = false,
   minimal = false,
 }: TopBarProps) {
@@ -44,7 +44,6 @@ function TopBarComponent({
   const { user } = useAuth();
   const { theme } = useTheme();
   const isLight = theme === 'light';
-  const { t } = useTranslation();
 
   const { data: profile } = useQuery({
     queryKey: ['topbar-user-profile', user?.id],
@@ -81,8 +80,6 @@ function TopBarComponent({
         )}
       >
         <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 px-3 pointer-events-none">
-
-          {/* ── Left pinned: avatar + dashboard mode switcher ── */}
           <div className="flex-shrink-0 flex items-center gap-1.5 relative z-20 pointer-events-none">
             {showBack && (
               <motion.button
@@ -135,7 +132,6 @@ function TopBarComponent({
             )}
           </div>
 
-          {/* ── Center tap: dashboard shortcut ── */}
           <div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-20 z-10 pointer-events-auto touch-manipulation cursor-pointer"
             style={{ WebkitTapHighlightColor: 'transparent' }}
@@ -146,11 +142,24 @@ function TopBarComponent({
             aria-label="Go to dashboard"
           />
 
-          {/* ── Spacer ── */}
           <div className="flex-1 min-w-0" />
 
-          {/* ── Right side: notifications only ── */}
           <div className="flex-shrink-0 flex items-center gap-2 pointer-events-auto">
+            {!minimal && onFilterClick && (
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  haptics.tap();
+                  onFilterClick();
+                }}
+                className="w-9 h-9 rounded-xl border border-border/60 bg-secondary/70 text-muted-foreground hover:text-foreground flex items-center justify-center touch-manipulation"
+                aria-label="Open filters"
+              >
+                <SlidersHorizontal className="w-4 h-4" strokeWidth={1.8} />
+              </motion.button>
+            )}
             {!minimal && (
               <NotificationPopover />
             )}

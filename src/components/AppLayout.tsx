@@ -137,6 +137,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <TopBar
               userRole={userRole}
               onMessageActivationsClick={handleMessageActivationsClick}
+              onFilterClick={handleFilterClick}
               transparent={isImmersive}
               showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
             />

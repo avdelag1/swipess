@@ -29,14 +29,15 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const dragTilt = useTransform(x, [-250, 0, 250], [-15, 0, 15]);
   const isCycling = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
-  const { tiltX, tiltY } = useDeviceParallax(0.3, 45, !isDragging);
+  const [isInteracting, setIsInteracting] = useState(false);
+  const { tiltX, tiltY } = useDeviceParallax(0.3, 45, !isDragging && !isInteracting);
 
   const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
   const gradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
   const [imgReady, setImgReady] = useState(false);
   const [imgError, setImgError] = useState(false);
 
-  // Freeze parallax values at drag start so they don't jitter
+  // Freeze parallax values before drag starts to prevent grab jitter
   const frozenTilt = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -56,10 +57,19 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     img.onerror = () => setImgError(true);
   }, [photo]);
 
+  const handlePointerDownCapture = useCallback(() => {
+    frozenTilt.current = { x: tiltX, y: tiltY };
+    setIsInteracting(true);
+  }, [tiltX, tiltY]);
+
+  const handlePointerReleaseCapture = useCallback(() => {
+    if (!isDragging) setIsInteracting(false);
+  }, [isDragging]);
+
   const handleDragStart = useCallback(() => {
-    // Snapshot current parallax values and freeze them
     frozenTilt.current = { x: tiltX, y: tiltY };
     setIsDragging(true);
+    setIsInteracting(true);
   }, [tiltX, tiltY]);
 
   const handleDragEnd = useCallback((_: any, info: any) => {
@@ -80,6 +90,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         mass: 0.8,
         onComplete: () => {
           setIsDragging(false);
+          setIsInteracting(false);
           onCycle(card.id, direction);
           x.set(0);
           isCycling.current = false;
@@ -92,7 +103,10 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         stiffness: 600,
         damping: 30,
         mass: 0.6,
-        onComplete: () => setIsDragging(false),
+        onComplete: () => {
+          setIsDragging(false);
+          setIsInteracting(false);
+        },
       });
     }
   }, [card.id, onCycle, x]);
@@ -101,17 +115,18 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const stackScale = 1 - (index * 0.04);
   const stackBrightness = 1 - (index * 0.05);
 
-  const exitScale = useTransform(x, [-300, -120, 0, 120, 300], [0.6, 0.88, 1, 0.88, 0.6]);
-  const exitOpacity = useTransform(x, [-300, -200, 0, 200, 300], [0, 0.4, 1, 0.4, 0]);
-
+  const exitScale = useTransform(x, [-300, -120, 0, 120, 300], [0.6, 0.9, 1, 0.9, 0.6]);
+  const exitOpacity = useTransform(x, [-300, -240, 0, 240, 300], [0, 1, 1, 1, 0]);
 
   return (
-    /* LAYER 1: Stack position + drag gesture — this is the only layer that moves with x */
     <motion.div
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.9}
+      dragElastic={0.2}
       dragMomentum={false}
+      onPointerDownCapture={isTop ? handlePointerDownCapture : undefined}
+      onPointerUpCapture={isTop ? handlePointerReleaseCapture : undefined}
+      onPointerCancelCapture={isTop ? handlePointerReleaseCapture : undefined}
       onDragStart={isTop ? handleDragStart : undefined}
       onDragEnd={isTop ? handleDragEnd : undefined}
       onClick={!isTop ? () => onBringToFront(index) : undefined}
@@ -134,9 +149,9 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         height: '100%',
         zIndex: 50 - index,
         x: isTop ? x : 0,
-        scale: isTop ? exitScale : undefined,
+        scale: isTop ? ((isDragging || isInteracting) ? 1 : exitScale) : undefined,
         rotateZ: isTop ? dragTilt : 0,
-        opacity: isTop ? exitOpacity : undefined,
+        opacity: isTop ? ((isDragging || isInteracting) ? 1 : exitOpacity) : undefined,
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
         willChange: 'transform, opacity',
@@ -144,7 +159,6 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       whileDrag={{ cursor: 'grabbing' }}
       className={cn('touch-manipulation select-none gpu-ultra isolation-isolate')}
     >
-      {/* LAYER 2: Parallax tilt — separate div so gyro doesn't conflict with drag */}
       <div
         className="w-full h-full"
         style={{
@@ -153,14 +167,13 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           transform: isTop
-            ? isDragging
+            ? (isDragging || isInteracting)
               ? `rotateX(${-frozenTilt.current.y}deg) rotateY(${frozenTilt.current.x}deg)`
               : `rotateX(${-tiltX}deg) rotateY(${tiltY}deg)`
             : index > 4 ? 'rotateX(0deg)' : 'rotateX(6deg)',
-          transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+          transition: (isDragging || isInteracting) ? 'none' : 'transform 0.15s ease-out',
         }}
       >
-        {/* LAYER 3: Visual card surface */}
         <div
           className={cn(
             'w-full h-full relative overflow-hidden rounded-[48px]',
@@ -180,7 +193,6 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
                 transform: imgReady ? 'translate3d(0,0,0)' : 'translate3d(20px,0,0)',
               }}
             >
-              {/* LAYER 4: Image with breathing animation — isolated from all transforms above */}
               <img
                 src={photo}
                 alt={card.label}
@@ -193,7 +205,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
                   backfaceVisibility: 'hidden',
                   filter: 'saturate(1.08) contrast(1.03)',
                   animation: imgReady ? 'photo-swim 14s ease-in-out 0.4s infinite' : 'none',
-                  animationPlayState: isDragging ? 'paused' : 'running',
+                  animationPlayState: (isDragging || isInteracting) ? 'paused' : 'running',
                 }}
               />
             </div>
@@ -203,7 +215,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
 
           {isTop && (
             <div
-              className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay animate-pulse"
+              className="absolute inset-0 pointer-events-none opacity-35 mix-blend-overlay"
               style={{
                 background: 'radial-gradient(ellipse at 50% 120%, var(--primary) 0%, transparent 70%)'
               }}
