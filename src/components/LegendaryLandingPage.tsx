@@ -509,12 +509,10 @@ function LegendaryLandingPage() {
       )} 
       animate={{ backgroundColor: bgColor }}
     >
-      <Suspense fallback={null}>
-        <LandingBackgroundEffects
-          mode={activeMode}
-          isLightTheme={!isDark}
-        />
-      </Suspense>
+      <LandingBackgroundEffects
+        mode={activeMode}
+        isLightTheme={!isDark}
+      />
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
