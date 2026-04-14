@@ -3,7 +3,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart, ArrowLeft, Megaphone, Pause, Play
 } from 'lucide-react';
@@ -22,6 +22,54 @@ import { ShareModal } from '@/components/events/ShareModal';
 // Static Data
 import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
+
+/** Scroll-direction tracker for the HUD: hides on scroll-down, shows on scroll-up or idle */
+function useHudVisibility(scrollRef: React.RefObject<HTMLDivElement | null>) {
+  const [visible, setVisible] = useState(true);
+  const lastY = useRef(0);
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ticking = useRef(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      if (ticking.current) return;
+      ticking.current = true;
+      requestAnimationFrame(() => {
+        const y = el.scrollTop;
+        const delta = y - lastY.current;
+
+        // At the very top — always show
+        if (y <= 10) {
+          setVisible(true);
+        } else if (delta > 6) {
+          // scrolling down — hide
+          setVisible(false);
+        } else if (delta < -6) {
+          // scrolling up — show
+          setVisible(true);
+        }
+
+        lastY.current = y;
+        ticking.current = false;
+
+        // Show again after user stops scrolling for 1.2s
+        if (idleTimer.current) clearTimeout(idleTimer.current);
+        idleTimer.current = setTimeout(() => setVisible(true), 1200);
+      });
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      if (idleTimer.current) clearTimeout(idleTimer.current);
+    };
+  }, [scrollRef]);
+
+  return visible;
+}
 
 const AUTOPLAY_DURATION = 6000;
 
