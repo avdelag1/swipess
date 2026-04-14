@@ -1,40 +1,54 @@
 
 
-## Final iOS Audit + Performance & Backend Connectivity Hardening
+## Softer, More Fluid Swipe Physics Across All Card Types
 
-### Issues Found
+### Problem
+The swipe cards feel "heavy" -- low `dragElastic`, high `stiffness`, high thresholds make the drag resist the finger. The Advertise page cards also have inconsistent physics. All swipe surfaces need a unified, silky feel.
 
-**1. Critical: `Missing queryFn` error in SwipeAllDashboard.tsx (line 56-58)**
-The `prefetchQuery` call uses only a `queryKey` and `staleTime` but no `queryFn`. If the query hasn't been cached yet by `useSmartListingMatching`, the prefetch throws. Same issue on line 51-53 for owner mode. Fix: supply the actual `queryFn` or wrap in a try-catch with a no-op fallback.
+### Changes
 
-**2. React CSS warning: `animation` + `animationPlayState` conflict (PokerCategoryCard.tsx line 211-212)**
-React warns about mixing shorthand (`animation`) with longhand (`animationPlayState`) on the same element. Fix: use only longhand properties (`animationName`, `animationDuration`, `animationTimingFunction`, `animationDelay`, `animationIterationCount`, `animationPlayState`).
+**1. PokerCategoryCard.tsx (Category selector cards -- Client & Owner dashboards)**
+- `dragElastic`: 0.18 -> 0.65 (finger tracks more loosely, feels lighter)
+- Swipe trigger threshold: `dist > 60` -> `dist > 40`, `vel > 350` -> `vel > 250`
+- Exit spring: stiffness 800/damping 35 -> 500/28 (smoother exit arc)
+- Snap-back spring: stiffness 600/damping 25 -> 350/22 (softer bounce back)
 
-**3. Sonner toast still imported in 78 files**
-Memory says "No legacy toasts (Sonner). Use unified NotificationBar." But `Toaster` from Sonner is still rendered in `App.tsx` line 121, and 78 files import `toast` from sonner. This is not a blocker for iOS but creates inconsistency.
+**2. SimpleSwipeCard.tsx (Client discovery deck)**
+- `dragElastic`: 0.15 -> 0.55 (dramatic improvement in finger-follow feel)
+- `SWIPE_THRESHOLD`: 100 -> 65
+- `VELOCITY_THRESHOLD`: 400 -> 280
+- Switch `ACTIVE_SPRING` from `NATIVE` (800/22/0.1) to a new `SILK` config: stiffness 400, damping 24, mass 0.3 -- responsive but graceful
+- `MAX_ROTATION`: 28 -> 18 (less dramatic, more elegant)
 
-**4. iOS Privacy Manifest looks correct** -- UserDefaults + SystemBootTime declared. Good for App Store.
+**3. SimpleOwnerSwipeCard.tsx (Owner discovery deck)**
+- `dragElastic` is already 0.9 (good), keep it
+- Match spring physics to the new `SILK` config (stiffness 400, damping 24)
+- Ensure snap-back uses same soft spring
 
-**5. Splash screen logic is solid** -- 1.5s max timeout with `app-rendered` event override. No blank screen risk.
+**4. CategorySwipeStack.tsx (Quick filter cards)**
+- `dragElastic`: 0.12 -> 0.55
+- `dragConstraints`: widen from `left: -150, right: 150` to `left: -200, right: 200`
+- Drag spring during drag: stiffness 800 -> 400, damping 35 -> 24
+- Swipe threshold: `info.offset.x > 80` -> `> 50`
 
-**6. `sourcemap: true` in production build (vite.config.ts line 78)**
-Sourcemaps ship to production, increasing bundle size and exposing source code. For iOS WebView performance, disable in production.
+**5. AdvertisePage.tsx (Promote page swipe cards)**
+- `dragElastic`: 0.9 -> 0.6 (currently too loose, cards fly away)
+- Add `dragMomentum={false}` for controlled feel
+- Swipe dismiss threshold: `Math.abs(info.offset.x) > 100` -> `> 60`
+- Add snap-back animation when below threshold instead of just releasing
+- Add `rotate` transform matching the other cards for consistency
 
-### Plan
+### Unified "SILK" Spring Config
+All swipe cards will converge on this physics profile:
+```text
+SILK: { stiffness: 400, damping: 24, mass: 0.3 }
+```
+This gives an iOS-native feel: responsive without being stiff, with a slight organic settle.
 
-| # | Task | File(s) |
-|---|------|---------|
-| 1 | Fix `prefetchQuery` missing `queryFn` -- add the actual fetch function from `useSmartListingMatching` or wrap in try-catch | `src/components/swipe/SwipeAllDashboard.tsx` |
-| 2 | Fix CSS shorthand conflict -- replace `animation` + `animationPlayState` with individual longhand properties | `src/components/swipe/PokerCategoryCard.tsx` |
-| 3 | Disable sourcemaps in production build | `vite.config.ts` (line 78: `sourcemap: false`) |
-| 4 | Add `will-change: transform` to key animated elements for GPU compositing on iOS Safari | `src/components/swipe/PokerCategoryCard.tsx`, `src/components/BottomNavigation.tsx` |
-| 5 | Ensure all Supabase queries in Perks feature handle loading/error states gracefully | `src/components/perks/PerksDashboard.tsx` (already has loading state -- verify error handling) |
-| 6 | Remove `Toaster` (Sonner) from App.tsx since NotificationBar is the standard | `src/App.tsx` (line 121) |
-
-### What this achieves
-- Eliminates the `Missing queryFn` runtime error (the most visible console error)
-- Fixes the React CSS property collision warning
-- Reduces production bundle size (no sourcemaps)
-- Smoother iOS Safari rendering via GPU hints
-- Cleaner notification system (single source of truth)
+### Files Modified
+- `src/components/swipe/PokerCategoryCard.tsx`
+- `src/components/SimpleSwipeCard.tsx`
+- `src/components/SimpleOwnerSwipeCard.tsx`
+- `src/components/CategorySwipeStack.tsx`
+- `src/pages/AdvertisePage.tsx`
 
