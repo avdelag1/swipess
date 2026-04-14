@@ -8,18 +8,28 @@ const config: CapacitorConfig = {
     androidScheme: 'https'
   },
   ios: {
-    contentInset: 'never',
+    contentInset: 'always',
     backgroundColor: '#000000',
-    scrollEnabled: true,
+    scrollEnabled: false,
+    allowsLinkPreviews: false,
+    limitsNavigationsToAppBoundDomains: true,
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 0,
       backgroundColor: "#000000",
       showSpinner: false,
       androidScaleType: "CENTER_CROP",
       splashFullScreen: true,
       splashImmersive: true,
+    },
+    StatusBar: {
+      style: "DARK",
+      backgroundColor: "#000000",
+    },
+    Keyboard: {
+      resize: "body",
+      scrollAssist: false,
     },
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"],

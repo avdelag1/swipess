@@ -15,6 +15,7 @@ html, body {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
   overflow-x: hidden;
+  -webkit-touch-callout: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -199,6 +200,9 @@ main, .scrollable-content, .overflow-y-auto {
 .swipe-card {
   will-change: transform, opacity;
   transform: translateZ(0);
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
   /* 🚀 ZENITH CONTENT ISOLATION */
   contain: layout style;
   content-visibility: auto;
@@ -276,6 +280,9 @@ main, .scrollable-content, .overflow-y-auto {
   touch-action: manipulation;
   transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
   will-change: transform;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* ZERO-WAIT PRESS: Button responds at 0ms (60fps limit) */

@@ -77,15 +77,15 @@ deferredInit(async () => {
   } catch { /* intentional */ }
 }, 12000);
 
-// Native Plugins
-deferredInit(async () => {
+// Native Plugins — immediate after first render
+setTimeout(async () => {
   try {
     const { Capacitor } = await import("@capacitor/core");
     if (Capacitor.isNativePlatform()) {
       const { StatusBar, Style } = await import("@capacitor/status-bar");
       await StatusBar.setOverlaysWebView({ overlay: false });
-      await StatusBar.setStyle({ style: Style.Light });
+      await StatusBar.setStyle({ style: Style.Dark });
       await StatusBar.setBackgroundColor({ color: "#000000" });
     }
   } catch { /* intentional */ }
-}, 15000);
+}, 500);
