@@ -1,6 +1,6 @@
 import { memo, useCallback, useRef, useState, useEffect } from 'react';
 import { useTheme } from '@/hooks/useTheme';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   POKER_CARD_PHOTOS,
@@ -26,7 +26,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
-  const dragTilt = useTransform(x, [-200, 0, 200], [-8, 0, 8]);
+  const dragTilt = useTransform(x, [-200, 0, 200], [-6, 0, 6]);
   const isCycling = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
@@ -37,7 +37,6 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const [imgReady, setImgReady] = useState(false);
   const [imgError, setImgError] = useState(false);
 
-  // Freeze parallax values before drag starts to prevent grab jitter
   const frozenTilt = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -81,13 +80,13 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       isCycling.current = true;
       triggerHaptic('medium');
       const direction = info.offset.x > 0 ? 'right' : 'left';
-      const exitX = direction === 'right' ? 280 : -280;
+      const exitX = direction === 'right' ? 300 : -300;
 
       animate(x, exitX, {
         type: 'spring',
-        stiffness: 1200,
-        damping: 40,
-        mass: 0.3,
+        stiffness: 800,
+        damping: 35,
+        mass: 0.4,
         onComplete: () => {
           setIsDragging(false);
           setIsInteracting(false);
@@ -100,9 +99,9 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       triggerHaptic('light');
       animate(x, 0, {
         type: 'spring',
-        stiffness: 1200,
-        damping: 30,
-        mass: 0.25,
+        stiffness: 600,
+        damping: 25,
+        mass: 0.3,
         onComplete: () => {
           setIsDragging(false);
           setIsInteracting(false);
@@ -111,18 +110,22 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     }
   }, [card.id, onCycle, x]);
 
-  const stackY = isCollapsed ? 0 : index * 12;
-  const stackScale = 1 - (index * 0.04);
-  const stackBrightness = 1 - (index * 0.05);
+  // iOS-style tight stack: minimal peek, aggressive scale-down, blur on bg cards
+  const stackY = isCollapsed ? 0 : index * 6;
+  const stackScale = 1 - (index * 0.035);
+  const stackOpacity = index === 0 ? 1 : index === 1 ? 0.6 : index === 2 ? 0.3 : 0;
 
-  const exitScale = useTransform(x, [-280, -100, 0, 100, 280], [0.7, 0.92, 1, 0.92, 0.7]);
-  const exitOpacity = useTransform(x, [-280, -220, 0, 220, 280], [0, 1, 1, 1, 0]);
+  const exitScale = useTransform(x, [-300, -120, 0, 120, 300], [0.88, 0.96, 1, 0.96, 0.88]);
+  const exitOpacity = useTransform(x, [-300, -240, 0, 240, 300], [0, 1, 1, 1, 0]);
+
+  // Only render top 3 cards for performance and clean look
+  if (index > 3) return null;
 
   return (
     <motion.div
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.25}
+      dragElastic={0.18}
       dragMomentum={false}
       onPointerDownCapture={isTop ? handlePointerDownCapture : undefined}
       onPointerUpCapture={isTop ? handlePointerReleaseCapture : undefined}
@@ -130,16 +133,15 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       onDragStart={isTop ? handleDragStart : undefined}
       onDragEnd={isTop ? handleDragEnd : undefined}
       onClick={!isTop ? () => onBringToFront(index) : undefined}
-      initial={{ y: stackY + 40, opacity: 0, scale: stackScale * 0.95 }}
+      initial={{ y: stackY + 30, opacity: 0, scale: stackScale * 0.96 }}
       animate={{
         y: stackY,
-        opacity: index > 4 ? 0 : 1,
+        opacity: stackOpacity,
         scale: isTop ? undefined : stackScale,
-        filter: isTop ? undefined : `brightness(${stackBrightness})`,
+        filter: isTop ? undefined : `brightness(${1 - index * 0.12}) blur(${index * 2}px)`,
       }}
       transition={{
-        type: 'spring', stiffness: 300, damping: 28, mass: 0.8,
-        delay: index * 0.04,
+        type: 'spring', stiffness: 400, damping: 32, mass: 0.6,
       }}
       style={{
         position: 'absolute',
@@ -170,14 +172,16 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
             ? (isDragging || isInteracting)
               ? `rotateX(${-frozenTilt.current.y}deg) rotateY(${frozenTilt.current.x}deg)`
               : `rotateX(${-tiltX}deg) rotateY(${tiltY}deg)`
-            : index > 4 ? 'rotateX(0deg)' : 'rotateX(6deg)',
+            : 'rotateX(4deg)',
           transition: (isDragging || isInteracting) ? 'none' : 'transform 0.15s ease-out',
         }}
       >
         <div
           className={cn(
             'w-full h-full relative overflow-hidden rounded-[28px]',
-            isTop ? 'border-2 border-white/10 shadow-2xl' : 'border border-white/5 shadow-xl'
+            isTop
+              ? 'border-2 border-white/15 shadow-[0_8px_40px_rgba(0,0,0,0.5)]'
+              : 'border border-white/5 shadow-xl'
           )}
         >
           <div
@@ -204,18 +208,18 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
                   transformOrigin: 'center center',
                   backfaceVisibility: 'hidden',
                   filter: 'saturate(1.08) contrast(1.03)',
-                  animation: imgReady ? 'photo-swim 14s ease-in-out 0.4s infinite' : 'none',
+                  animation: imgReady && isTop ? 'photo-swim 14s ease-in-out 0.4s infinite' : 'none',
                   animationPlayState: (isDragging || isInteracting) ? 'paused' : 'running',
                 }}
               />
             </div>
           )}
 
-          <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/70 via-black/15 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/80 via-black/25 to-transparent pointer-events-none" />
 
           {isTop && (
             <div
-              className="absolute inset-0 pointer-events-none opacity-35 mix-blend-overlay"
+              className="absolute inset-0 pointer-events-none opacity-30 mix-blend-overlay"
               style={{
                 background: 'radial-gradient(ellipse at 50% 120%, var(--primary) 0%, transparent 70%)'
               }}
@@ -242,9 +246,9 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
             )}
           </div>
 
-          {!isTop && (
-            <div className="absolute top-8 left-8 px-4 py-1.5 bg-black/60 rounded-full border border-white/10 shadow-md">
-              <p className="text-[10px] font-black uppercase tracking-widest text-white/70" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{card.label}</p>
+          {!isTop && index === 1 && (
+            <div className="absolute top-6 left-6 px-3 py-1 bg-black/50 rounded-full border border-white/10 backdrop-blur-sm">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-white/60">{card.label}</p>
             </div>
           )}
         </div>
