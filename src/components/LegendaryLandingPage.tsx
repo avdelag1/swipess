@@ -432,7 +432,8 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
             </form>
 
             {!isForgotPassword && (
-              <>
+                </motion.div>
+              </>
                 <motion.div variants={itemVariants} className="flex items-center gap-3 my-1">
                   <div className="flex-1 h-px bg-white/10" />
                   <span className="text-[11px] text-muted-foreground/60 uppercase tracking-widest font-medium">or</span>
