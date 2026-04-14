@@ -12,6 +12,33 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // ── AUTH CHECK: Require a valid JWT ──────────────────────────────
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUser = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseUser.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: "Invalid or expired token" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // The caller is the business/admin scanning the QR
+    const callerId = claimsData.claims.sub;
+
     const { user_id, business_id, discount_percent, amount_saved, note } =
       await req.json();
 
@@ -19,6 +46,14 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ error: "Missing required fields: user_id, business_id, discount_percent" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Prevent users from redeeming discounts for themselves
+    if (callerId === user_id) {
+      return new Response(
+        JSON.stringify({ error: "Cannot redeem discount for yourself" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 

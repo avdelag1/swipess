@@ -2668,6 +2668,24 @@ export type Database = {
         }
         Returns: string
       }
+      get_public_profile: {
+        Args: { p_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          city: string
+          created_at: string
+          full_name: string
+          id: string
+          images: Json
+          interests: Json
+          is_active: boolean
+          languages_spoken: Json
+          lifestyle_tags: Json
+          neighborhood: string
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
