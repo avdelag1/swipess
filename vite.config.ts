@@ -54,9 +54,11 @@ export default defineConfig(({ mode }) => ({
     include: [
       'react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime',
       'scheduler', 'react-router-dom', '@tanstack/react-query', 'zustand', 'zustand/react',
-      'framer-motion',
+      'framer-motion', 'date-fns', 'zod', 'recharts', 'browser-image-compression',
+      '@radix-ui/react-radio-group', '@radix-ui/react-progress', '@radix-ui/react-label',
+      '@radix-ui/react-select', '@radix-ui/react-dropdown-menu', '@radix-ui/react-switch',
+      '@radix-ui/react-alert-dialog', '@radix-ui/react-slider', '@tanstack/react-virtual',
     ],
-    force: true,
   },
   resolve: {
     alias: {
