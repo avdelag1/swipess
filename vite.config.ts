@@ -78,6 +78,18 @@ export default defineConfig(({ mode }) => ({
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks(id) {
           if (id.includes('node_modules')) {
+            // CRITICAL: Match core React FIRST to prevent splitting across chunks
+            // The bare 'react' package must be in the same chunk as react-dom & scheduler
+            if (
+              id.includes('/react-dom/') || 
+              id.includes('/react/') || 
+              id.includes('/scheduler/') ||
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/react/') ||
+              id.includes('node_modules/scheduler/')
+            ) return 'vendor-react';
+            if (id.includes('react-router')) return 'vendor-router';
+
             // ISOLATED HEAVY LIBRARIES — maximize cache persistence
             if (id.includes('framer-motion')) return 'vendor-motion';
             if (id.includes('@radix-ui')) return 'vendor-radix';
@@ -90,9 +102,6 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('embla-carousel')) return 'vendor-carousel';
             if (id.includes('browser-image-compression')) return 'vendor-img';
             
-            // SPLIT CORE: Separate React from utilities for granular caching
-            if (id.includes('react-dom') || id.includes('react/') || id.includes('scheduler')) return 'vendor-react';
-            if (id.includes('react-router')) return 'vendor-router';
             if (id.includes('@tanstack')) return 'vendor-query';
             if (id.includes('zustand')) return 'vendor-state';
             if (id.includes('date-fns')) return 'vendor-dates';
