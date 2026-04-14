@@ -104,16 +104,13 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const exitScale = useTransform(x, [-300, -120, 0, 120, 300], [0.6, 0.88, 1, 0.88, 0.6]);
   const exitOpacity = useTransform(x, [-300, -200, 0, 200, 300], [0, 0.4, 1, 0.4, 0]);
 
-  // Use frozen values during drag, live values otherwise
-  const activeParallaxX = isDragging ? frozenTilt.current.x : tiltX;
-  const activeParallaxY = isDragging ? frozenTilt.current.y : tiltY;
 
   return (
     /* LAYER 1: Stack position + drag gesture — this is the only layer that moves with x */
     <motion.div
       drag={isTop ? 'x' : false}
-      dragConstraints={{ left: -150, right: 150 }}
-      dragElastic={0.5}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.9}
       dragMomentum={false}
       onDragStart={isTop ? handleDragStart : undefined}
       onDragEnd={isTop ? handleDragEnd : undefined}
@@ -156,8 +153,11 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           transform: isTop
-            ? `rotateX(${-activeParallaxY}deg) rotateY(${activeParallaxX}deg)`
+            ? isDragging
+              ? `rotateX(${-frozenTilt.current.y}deg) rotateY(${frozenTilt.current.x}deg)`
+              : `rotateX(${-tiltX}deg) rotateY(${tiltY}deg)`
             : index > 4 ? 'rotateX(0deg)' : 'rotateX(6deg)',
+          transition: isDragging ? 'none' : 'transform 0.15s ease-out',
         }}
       >
         {/* LAYER 3: Visual card surface */}
