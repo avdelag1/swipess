@@ -104,9 +104,6 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const exitScale = useTransform(x, [-300, -120, 0, 120, 300], [0.6, 0.88, 1, 0.88, 0.6]);
   const exitOpacity = useTransform(x, [-300, -200, 0, 200, 300], [0, 0.4, 1, 0.4, 0]);
 
-  // Use frozen values during drag, live values otherwise
-  const activeParallaxX = isDragging ? frozenTilt.current.x : tiltX;
-  const activeParallaxY = isDragging ? frozenTilt.current.y : tiltY;
 
   return (
     /* LAYER 1: Stack position + drag gesture — this is the only layer that moves with x */
