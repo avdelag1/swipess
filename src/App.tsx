@@ -13,7 +13,7 @@ import { AppOutagePage } from "@/components/AppOutagePage";
 import { APP_STATUS, hasOutageBypass } from "@/config/outage";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
-import { TooltipProvider } from "@/components/ui/tooltip";
+
 
 import { SpeedOfLightPreloader } from "@/components/SpeedOfLightPreloader";
 import Index from "./pages/Index";
