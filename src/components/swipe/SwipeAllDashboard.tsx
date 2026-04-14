@@ -46,17 +46,21 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
     const filters = topId === 'all' ? {} : { category: topId };
     const filtersKey = JSON.stringify(filters);
 
-    if (role === 'owner') {
-      const isRoommate = topId === 'roommates';
-      queryClient.prefetchQuery({
-        queryKey: ['smart-clients', user.id, isRoommate ? 'property' : topId, 0, false, '{}', isRoommate],
-        staleTime: 120000,
-      });
-    } else {
-      queryClient.prefetchQuery({
-        queryKey: ['smart-listings', user.id, filtersKey, 0, false],
-        staleTime: 120000,
-      });
+    try {
+      if (role === 'owner') {
+        const isRoommate = topId === 'roommates';
+        const qk = ['smart-clients', user.id, isRoommate ? 'property' : topId, 0, false, '{}', isRoommate];
+        if (queryClient.getQueryData(qk)) {
+          queryClient.prefetchQuery({ queryKey: qk, staleTime: 120000 });
+        }
+      } else {
+        const qk = ['smart-listings', user.id, filtersKey, 0, false];
+        if (queryClient.getQueryData(qk)) {
+          queryClient.prefetchQuery({ queryKey: qk, staleTime: 120000 });
+        }
+      }
+    } catch {
+      // Silently skip prefetch if queryFn not yet registered
     }
   }, [cards, user?.id, queryClient, role]);
 

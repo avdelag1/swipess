@@ -208,7 +208,11 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
                   transformOrigin: 'center center',
                   backfaceVisibility: 'hidden',
                   filter: 'saturate(1.08) contrast(1.03)',
-                  animation: imgReady && isTop ? 'photo-swim 14s ease-in-out 0.4s infinite' : 'none',
+                  animationName: imgReady && isTop ? 'photo-swim' : 'none',
+                  animationDuration: '14s',
+                  animationTimingFunction: 'ease-in-out',
+                  animationDelay: '0.4s',
+                  animationIterationCount: 'infinite',
                   animationPlayState: (isDragging || isInteracting) ? 'paused' : 'running',
                 }}
               />
