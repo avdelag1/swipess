@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Radio } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -146,6 +146,22 @@ function TopBarComponent({
           <div className="flex-1 min-w-0" />
 
           <div className="flex-shrink-0 flex items-center gap-1 pointer-events-auto">
+            {!minimal && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  haptics.tap();
+                  navigate('/radio');
+                }}
+                className="w-9 h-9 flex items-center justify-center touch-manipulation"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
+                aria-label="Open Radio"
+              >
+                <Radio className={cn("w-[19px] h-[19px]", isLight ? "text-foreground/70" : "text-white/70")} strokeWidth={1.5} />
+              </motion.button>
+            )}
             {!minimal && (
               <ThemeToggle />
             )}
