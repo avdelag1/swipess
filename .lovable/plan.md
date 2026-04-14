@@ -1,39 +1,86 @@
 
 
-## Fix: Clear Stale Vite Cache + Create iOS Privacy Manifest
+## Resident Perks & Discount History -- Full Feature Plan
 
-### Diagnosis
+### Overview
+Build a consumer-facing "Perks" section where verified residents show a QR code at partner businesses, receive discounts, and track their savings history in real time.
 
-The `useState` null error in `SwipeAllDashboard.tsx` is **not a code bug**. The component is correctly structured -- imports are fine, hooks are inside the component body, `memo` wrapping is correct. This is a **Vite HMR cache corruption** from the many rapid edits today. The dev server's dependency optimization cache (`node_modules/.vite`) has stale React module references, causing React's internal dispatcher to be `null`.
+### Database (3 new tables + 1 realtime)
 
-The codebase is otherwise stable: `GlobalDialogs` properly uses `DeferredDialog` gating, `lazyWithRetry` no longer reloads, `ChunkErrorBoundary` catches chunk failures, and the prefetcher excludes heavy routes.
+**`business_partners`** -- partner businesses offering discounts
+- id (uuid PK), name, logo_url, category, description, discount_percent (int), custom_discount_text, location, latitude, longitude, website_url, whatsapp, is_active (bool default true), created_at, updated_at
+- RLS: SELECT open to all authenticated; INSERT/UPDATE/DELETE admin-only via `has_role()`
 
-### What needs to happen
+**`discount_offers`** -- specific offers a business provides
+- id (uuid PK), business_id (FK), title, description, discount_percent, valid_from, valid_until, is_active, created_at
+- RLS: SELECT open to authenticated; mutations admin-only
 
-**Step 1: Force Vite cache reset**
-- Delete `node_modules/.vite` directory to clear corrupted dependency optimization cache
-- Run `npm run build` to verify the production bundle is clean (this is the build that ships to iOS)
+**`discount_redemptions`** -- every time a user redeems a discount
+- id (uuid PK), user_id (uuid), business_id (FK), offer_id (FK nullable), discount_percent, amount_saved (numeric nullable), business_note (text nullable), redeemed_at (timestamptz default now()), status (text default 'approved')
+- RLS: SELECT where `auth.uid() = user_id`; INSERT via service role (edge function) only
+- Enable realtime: `ALTER PUBLICATION supabase_realtime ADD TABLE discount_redemptions;`
 
-**Step 2: Create iOS Privacy Manifest**
-- The `ios/` directory does not exist in the repo (it is generated locally by `npx cap add ios`). The privacy manifest needs to be placed where Capacitor can pick it up during sync.
-- Create `public/PrivacyInfo.xcprivacy` with the required Apple declarations:
-  - `NSPrivacyAccessedAPICategoryUserDefaults` (reason: `CA92.1`) -- used by auth, theme, filters via localStorage
-  - `NSPrivacyAccessedAPICategorySystemBootTime` (reason: `35F9.1`) -- used by performance timing
-  - `NSPrivacyTracking = false`
-  - No collected data types declared at the app level (handled by Capacitor/Supabase SDKs)
+### Edge Function: `validate-resident-qr`
+Called by the business admin scanner. Receives `{ user_id, business_id, discount_percent, amount_saved?, note? }`. Validates user exists + is verified, inserts into `discount_redemptions`, returns success. Uses service role key.
 
-**Step 3: Add a tiny cache-bust comment to SwipeAllDashboard.tsx**
-- Add a harmless comment change to force Vite to re-process this specific module, breaking the stale HMR reference chain
+### New Pages & Components
 
-### Files to modify
+**Route**: `/client/perks` (inside PersistentDashboardLayout)
+
+1. **`src/pages/ClientPerks.tsx`** -- main entry
+   - Hero card with user's QR code (tap to expand full-screen)
+   - Stats row: total saved, discounts used, businesses visited, current streak
+   - "Active Offers" horizontal carousel from `discount_offers`
+   - Link to full history
+
+2. **`src/components/perks/PerksDashboard.tsx`** -- the hero + stats layout
+
+3. **`src/components/perks/ResidentQRModal.tsx`** -- full-screen QR modal
+   - Large QR encoding user's profile UUID
+   - 60-second countdown timer, auto-regenerates
+   - Realtime subscription on `discount_redemptions` filtered to user
+   - Success animation (confetti + checkmark) when new row appears
+
+4. **`src/components/perks/BusinessList.tsx`** -- searchable/filterable partner list
+   - Category filter chips (cafes, gyms, services, etc.)
+   - Each card: logo, name, discount %, "Show QR" button
+
+5. **`src/components/perks/DiscountHistory.tsx`** -- timeline of redemptions
+   - Sorted by date, shows business name, discount %, amount saved, note
+   - Export button (generates CSV via client-side blob)
+
+6. **`src/components/perks/BusinessDetailSheet.tsx`** -- bottom sheet for business detail
+
+### Navigation Integration
+- Add to `BottomNavigation.tsx` client items: `{ id: 'perks', icon: BadgePercent, label: 'Perks', path: '/client/perks' }`
+- Add lazy route in `App.tsx` inside the protected dashboard layout
+
+### Realtime Flow
+1. User opens QR modal
+2. Business scans QR (gets user_id), calls `validate-resident-qr` edge function
+3. Edge function inserts `discount_redemptions` row
+4. User's app receives realtime INSERT event, triggers confetti + updates history
+
+### Files to Create/Modify
 | File | Action |
 |------|--------|
-| `public/PrivacyInfo.xcprivacy` | Create -- Apple-required privacy manifest |
-| `src/components/swipe/SwipeAllDashboard.tsx` | Add cache-bust comment (line 1) |
-| `node_modules/.vite` | Delete via exec |
+| `src/pages/ClientPerks.tsx` | Create |
+| `src/components/perks/PerksDashboard.tsx` | Create |
+| `src/components/perks/ResidentQRModal.tsx` | Create |
+| `src/components/perks/BusinessList.tsx` | Create |
+| `src/components/perks/DiscountHistory.tsx` | Create |
+| `src/components/perks/BusinessDetailSheet.tsx` | Create |
+| `src/components/BottomNavigation.tsx` | Add perks nav item |
+| `src/App.tsx` | Add lazy route |
+| Migration | 3 new tables + realtime publication |
+| Edge function `validate-resident-qr` | Create |
 
-### Post-implementation
-After these changes, the user should:
-1. Hard-refresh the preview (Ctrl/Cmd+Shift+R)
-2. For iOS submission: `npm run build && npx cap sync ios` -- the privacy manifest in `public/` will be copied to `dist/` and available for manual placement in the Xcode project
+### Design
+- Same premium dark/light theme tokens as existing app
+- Framer Motion for QR reveal, card transitions, confetti
+- QR generated client-side via `qrcode` npm package (lightweight)
+- Fully responsive, Capacitor-ready (no camera needed on consumer side)
+
+### Dependencies
+- `qrcode` (or `qrcode.react`) for QR generation -- small, no native deps
 
