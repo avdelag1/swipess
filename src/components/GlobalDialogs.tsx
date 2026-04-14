@@ -8,6 +8,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useListings } from '@/hooks/useListings';
 import { useClientProfiles } from '@/hooks/useClientProfiles';
 import { useWelcomeState } from '@/hooks/useWelcomeState';
+import { DeferredDialog } from './DeferredDialog';
 
 // 🚀 SPEED OF LIGHT: LAZY WITH RETRY HARDENING
 const AdvancedFiltersDialog = lazyWithRetry(() => import('@/components/AdvancedFiltersDialog'));
@@ -82,7 +83,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
 
   return (
     <>
-      <SmartSuspense fallback={null}>
+      <DeferredDialog when={store.showFilters}>
         <AdvancedFiltersDialog
           isOpen={store.showFilters}
           onClose={() => store.setModal('showFilters', false)}
@@ -90,32 +91,35 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           userRole={userRole}
           currentFilters={{}}
         />
-      </SmartSuspense>
+      </DeferredDialog>
 
-      <SmartSuspense fallback={null}>
+      <DeferredDialog when={store.showSubscriptionPackages}>
         <SubscriptionPackages
           isOpen={store.showSubscriptionPackages}
           onClose={() => store.setModal('showSubscriptionPackages', false)}
           reason={store.subscriptionReason}
           userRole={userRole}
         />
-      </SmartSuspense>
+      </DeferredDialog>
 
-      <SmartSuspense fallback={null}>
+      <DeferredDialog when={store.showMessageActivations}>
         <MessageActivationPackages
           isOpen={store.showMessageActivations}
           onClose={() => store.setModal('showMessageActivations', false)}
           userRole={userRole}
         />
-      </SmartSuspense>
+      </DeferredDialog>
 
       {userRole === 'client' && (
-        <SmartSuspense fallback={null}>
-          <>
+        <>
+          <DeferredDialog when={store.showProfile}>
             <ClientProfileDialog
               open={store.showProfile}
               onOpenChange={(val: boolean) => store.setModal('showProfile', val)}
             />
+          </DeferredDialog>
+
+          <DeferredDialog when={store.showPropertyDetails}>
             <PropertyDetails
               listingId={store.selectedListingId}
               isOpen={store.showPropertyDetails}
@@ -124,43 +128,64 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
               }}
               onMessageClick={() => store.openSubscription('Unlock Messaging!')}
             />
+          </DeferredDialog>
+
+          <DeferredDialog when={store.showPropertyInsights}>
             <PropertyInsightsDialog
               open={store.showPropertyInsights}
               onOpenChange={(val: boolean) => store.setModal('showPropertyInsights', val)}
               listing={selectedListing || null}
             />
+          </DeferredDialog>
+
+          <DeferredDialog when={store.showSavedSearches}>
             <SavedSearchesDialog
               open={store.showSavedSearches}
               onOpenChange={(val: boolean) => store.setModal('showSavedSearches', val)}
             />
-          </>
-        </SmartSuspense>
+          </DeferredDialog>
+        </>
       )}
 
       {userRole === 'owner' && (
-        <SmartSuspense fallback={null}>
-          <>
+        <>
+          <DeferredDialog when={store.showClientInsights}>
             <ClientInsightsDialog
               open={store.showClientInsights}
               onOpenChange={(val: boolean) => store.setModal('showClientInsights', val)}
               profile={selectedProfile || null}
             />
+          </DeferredDialog>
+
+          <DeferredDialog when={store.showOwnerSettings}>
             <OwnerSettingsDialog
               open={store.showOwnerSettings}
               onOpenChange={(val: boolean) => store.setModal('showOwnerSettings', val)}
             />
+          </DeferredDialog>
+
+          <DeferredDialog when={store.showOwnerProfile}>
             <OwnerProfileDialog
               open={store.showOwnerProfile}
               onOpenChange={(val: boolean) => store.setModal('showOwnerProfile', val)}
             />
+          </DeferredDialog>
+
+          <DeferredDialog when={store.showOwnerSwipe}>
             <OwnerClientSwipeDialog
               open={store.showOwnerSwipe}
               onOpenChange={(val: boolean) => store.setModal('showOwnerSwipe', val)}
             />
+          </DeferredDialog>
+
+          <DeferredDialog when={store.showLegalDocuments}>
             <LegalDocumentsDialog
               open={store.showLegalDocuments}
               onOpenChange={(val: boolean) => store.setModal('showLegalDocuments', val)}
             />
+          </DeferredDialog>
+
+          <DeferredDialog when={store.showCategoryDialog}>
             <CategorySelectionDialog
               open={store.showCategoryDialog}
               onOpenChange={(val: boolean) => store.setModal('showCategoryDialog', val)}
@@ -169,35 +194,35 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
                 navigate(`/owner/listings/new?category=${category}&mode=${mode}`);
               }}
             />
-          </>
-        </SmartSuspense>
+          </DeferredDialog>
+        </>
       )}
 
-      <SmartSuspense fallback={null}>
+      <DeferredDialog when={store.showSupport}>
         <SupportDialog
           isOpen={store.showSupport}
           onClose={() => store.setModal('showSupport', false)}
           userRole={userRole}
         />
-      </SmartSuspense>
+      </DeferredDialog>
 
       <SmartSuspense fallback={null}>
         <PushNotificationPrompt />
       </SmartSuspense>
 
-      <SmartSuspense fallback={null}>
+      <DeferredDialog when={shouldShowWelcome}>
         <WelcomeNotification
           isOpen={shouldShowWelcome}
           onClose={dismissWelcome}
         />
-      </SmartSuspense>
+      </DeferredDialog>
 
-      <SmartSuspense fallback={store.showAIChat ? <ConciergeChatFallback /> : null} threshold={0}>
+      <DeferredDialog when={store.showAIChat} fallback={<ConciergeChatFallback />} threshold={0}>
         <ConciergeChat
           isOpen={store.showAIChat}
           onClose={() => store.setModal('showAIChat', false)}
         />
-      </SmartSuspense>
+      </DeferredDialog>
 
       <TokensModal userRole={userRole === 'admin' ? 'client' : userRole} />
     </>
