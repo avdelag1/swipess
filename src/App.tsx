@@ -19,7 +19,7 @@ import { SpeedOfLightPreloader } from "@/components/SpeedOfLightPreloader";
 import Index from "./pages/Index";
 
 // Defer i18n init — loaded after first render to reduce critical JS
-const i18nReady = import('@/i18n');
+const i18nReady = import('@/i18n'); // hmr-refresh
 
 // 🚀 SPEED OF LIGHT: LAZY PAGES
 const NotFound = lazy(() => import("./pages/NotFound"));
