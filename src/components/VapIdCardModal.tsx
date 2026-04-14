@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShieldCheck, MapPin, Globe2, Phone, ScanLine, Palette } from 'lucide-react';
+import { X, ShieldCheck, MapPin, Globe2, Phone, ScanLine, Droplets } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
@@ -12,6 +12,8 @@ export interface VapIdProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const ICON_SIZE = 14;
 
 export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const { user } = useAuth();
@@ -103,16 +105,26 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
             exit={{ scale: 0.9, opacity: 0, y: 30 }}
             transition={{ type: 'spring', damping: 28, stiffness: 380 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-[92vw] max-w-[560px] max-h-[85vh] overflow-y-auto overscroll-contain"
+            className="relative w-[92vw] max-w-[560px]"
           >
-            {/* Close button */}
-            <button
-              onClick={onClose}
-              className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white/70 transition-colors hover:bg-black/60 hover:text-white z-20"
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            {/* Controls OUTSIDE the card — top row */}
+            <div className="flex items-center justify-between mb-3 px-1">
+              <button
+                onClick={cycleTheme}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/15 transition-transform active:scale-90"
+                aria-label="Change theme"
+              >
+                <Droplets className="h-4 w-4 text-white/80" />
+              </button>
+              <span className="text-[10px] font-medium text-white/40 tracking-wide">{theme.name}</span>
+              <button
+                onClick={onClose}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/15 transition-transform active:scale-90"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4 text-white/80" />
+              </button>
+            </div>
 
             {/* THE CARD */}
             <motion.div
@@ -120,7 +132,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
               initial={{ opacity: 0.7 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.35 }}
-              className="relative rounded-[20px] overflow-hidden shadow-2xl"
+              className="relative rounded-[20px] overflow-hidden shadow-2xl max-h-[72vh] overflow-y-auto overscroll-contain"
               style={{ background: theme.background }}
             >
               {/* Pattern overlay */}
@@ -136,24 +148,22 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
               )}
 
               {/* Top accent bar */}
-              <div className="h-1 w-full" style={{ background: theme.accentBar }} />
+              <div className="h-0.5 w-full" style={{ background: theme.accentBar }} />
 
               <div className="relative z-10 p-5">
-                {/* Row 1: Badge + Name + ID number */}
+                {/* Row 1: Badge + Name + ID */}
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="flex-1 min-w-0">
-                    {/* Badge */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <ShieldCheck className="h-4 w-4 shrink-0" style={{ color: theme.accentColor }} />
+                    <div className="flex items-center gap-1.5 mb-2.5">
+                      <ShieldCheck size={ICON_SIZE} style={{ color: theme.accentColor }} />
                       <span
-                        className="text-[10px] font-black uppercase tracking-[0.22em]"
+                        className="text-[9px] font-black uppercase tracking-[0.22em]"
                         style={{ color: theme.accentColor }}
                       >
                         Local Resident
                       </span>
                     </div>
 
-                    {/* Name */}
                     <h3
                       className="text-xl font-black leading-tight tracking-tight"
                       style={{ color: theme.textPrimary }}
@@ -161,70 +171,59 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                       {name}
                     </h3>
                     {occupation && (
-                      <p className="text-[13px] font-semibold mt-0.5" style={{ color: theme.accentColor }}>
+                      <p className="text-[12px] font-semibold mt-0.5" style={{ color: theme.accentColor }}>
                         {occupation}
                       </p>
                     )}
 
-                    {/* Location & Nationality */}
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
                       {location && (
-                        <div className="flex items-center gap-1 text-[11px]" style={{ color: theme.textTertiary }}>
-                          <MapPin className="h-3 w-3 shrink-0" />
+                        <div className="flex items-center gap-1 text-[10px]" style={{ color: theme.textTertiary }}>
+                          <MapPin size={11} className="shrink-0" />
                           <span>{location}</span>
                         </div>
                       )}
                       {nationality && (
-                        <div className="flex items-center gap-1 text-[11px]" style={{ color: theme.textTertiary }}>
-                          <Globe2 className="h-3 w-3 shrink-0" />
+                        <div className="flex items-center gap-1 text-[10px]" style={{ color: theme.textTertiary }}>
+                          <Globe2 size={11} className="shrink-0" />
                           <span>{nationality}</span>
                           {yearsInCity && (
-                            <span style={{ color: theme.textTertiary, opacity: 0.6 }}>· {yearsInCity}yr local</span>
+                            <span style={{ opacity: 0.6 }}>· {yearsInCity}yr</span>
                           )}
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {/* ID number top-right */}
-                  <div className="shrink-0 flex flex-col items-end gap-1 pt-1">
-                    <span
-                      className="text-[9px] font-mono font-bold tracking-widest"
-                      style={{ color: theme.textTertiary }}
-                    >
-                      {idNumber}
-                    </span>
-                  </div>
+                  <span
+                    className="text-[8px] font-mono font-bold tracking-widest pt-1 shrink-0"
+                    style={{ color: theme.textTertiary }}
+                  >
+                    {idNumber}
+                  </span>
                 </div>
 
                 {/* Bio */}
                 {bio && (
                   <div
-                    className="rounded-[10px] px-3.5 py-2.5 mb-3"
-                    style={{
-                      background: theme.tagBg,
-                      border: `1px solid ${theme.tagBorder}`,
-                    }}
+                    className="rounded-[10px] px-3 py-2 mb-3"
+                    style={{ background: theme.tagBg, border: `1px solid ${theme.tagBorder}` }}
                   >
-                    <p className="text-[11px] leading-relaxed line-clamp-3" style={{ color: theme.textSecondary }}>
+                    <p className="text-[10px] leading-relaxed line-clamp-3" style={{ color: theme.textSecondary }}>
                       {bio}
                     </p>
                   </div>
                 )}
 
                 {/* Tags + Languages */}
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-3">
                   {allTags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-1">
                       {allTags.map((tag) => (
                         <span
                           key={tag}
-                          className="rounded-full px-2.5 py-0.5 text-[10px] font-semibold"
-                          style={{
-                            background: theme.tagBg,
-                            border: `1px solid ${theme.tagBorder}`,
-                            color: theme.tagText,
-                          }}
+                          className="rounded-full px-2 py-0.5 text-[9px] font-semibold"
+                          style={{ background: theme.tagBg, border: `1px solid ${theme.tagBorder}`, color: theme.tagText }}
                         >
                           {tag}
                         </span>
@@ -232,22 +231,15 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                     </div>
                   )}
                   {spokenLanguages.length > 0 && (
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span
-                        className="text-[9px] font-black uppercase tracking-wider"
-                        style={{ color: theme.textTertiary }}
-                      >
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <span className="text-[8px] font-black uppercase tracking-wider" style={{ color: theme.textTertiary }}>
                         Speaks
                       </span>
                       {spokenLanguages.map((lang) => (
                         <span
                           key={lang}
-                          className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                          style={{
-                            background: theme.langTagBg,
-                            border: `1px solid ${theme.langTagBorder}`,
-                            color: theme.langTagText,
-                          }}
+                          className="rounded-full px-1.5 py-0.5 text-[9px] font-semibold"
+                          style={{ background: theme.langTagBg, border: `1px solid ${theme.langTagBorder}`, color: theme.langTagText }}
                         >
                           {lang}
                         </span>
@@ -257,20 +249,19 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                 </div>
 
                 {/* Divider */}
-                <div className="h-px mb-4" style={{ background: theme.tagBorder }} />
+                <div className="h-px mb-3" style={{ background: theme.tagBorder }} />
 
-                {/* Bottom: Photo left, WhatsApp + QR + footer right */}
-                <div className="flex items-end justify-between gap-4">
-                  {/* Photo */}
+                {/* Bottom: Photo + WhatsApp + QR */}
+                <div className="flex items-end justify-between gap-3">
                   <div
-                    className="w-[80px] h-[100px] shrink-0 rounded-[14px] overflow-hidden shadow-xl"
-                    style={{ boxShadow: `0 8px 30px rgba(0,0,0,0.3)`, border: `2px solid ${theme.tagBorder}` }}
+                    className="w-[72px] h-[90px] shrink-0 rounded-[12px] overflow-hidden shadow-xl"
+                    style={{ border: `1.5px solid ${theme.tagBorder}` }}
                   >
                     {avatarUrl ? (
                       <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
                     ) : (
                       <div
-                        className="w-full h-full flex items-center justify-center text-2xl font-black"
+                        className="w-full h-full flex items-center justify-center text-xl font-black"
                         style={{ color: theme.accentColor, background: theme.tagBg }}
                       >
                         {name.charAt(0).toUpperCase()}
@@ -278,64 +269,38 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                     )}
                   </div>
 
-                  {/* Right side */}
-                  <div className="flex-1 flex flex-col items-end gap-2">
+                  <div className="flex-1 flex flex-col items-end gap-1.5">
                     {phone && (
                       <a
                         href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 rounded-[10px] px-3 py-2 text-[11px] font-semibold transition-transform active:scale-95"
-                        style={{
-                          background: theme.tagBg,
-                          border: `1px solid ${theme.tagBorder}`,
-                          color: theme.textSecondary,
-                        }}
+                        className="flex items-center gap-1.5 rounded-[8px] px-2.5 py-1.5 text-[10px] font-semibold transition-transform active:scale-95"
+                        style={{ background: theme.tagBg, border: `1px solid ${theme.tagBorder}`, color: theme.textSecondary }}
                       >
-                        <Phone className="h-3 w-3" style={{ color: '#4ade80' }} />
-                        <span className="truncate max-w-[140px]">{phone}</span>
+                        <Phone size={11} style={{ color: '#4ade80' }} />
+                        <span className="truncate max-w-[120px]">{phone}</span>
                       </a>
                     )}
-
-                    {/* QR + verify */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex flex-col items-end gap-0.5">
-                        <div className="flex items-center gap-1">
-                          <ScanLine className="h-2.5 w-2.5" style={{ color: theme.textTertiary }} />
-                          <span
-                            className="text-[7px] font-bold uppercase tracking-[0.12em]"
-                            style={{ color: theme.textTertiary }}
-                          >
-                            Scan to verify
+                    <div className="flex items-center gap-1.5">
+                      <div className="flex flex-col items-end">
+                        <div className="flex items-center gap-0.5">
+                          <ScanLine size={9} style={{ color: theme.textTertiary }} />
+                          <span className="text-[7px] font-bold uppercase tracking-[0.1em]" style={{ color: theme.textTertiary }}>
+                            Verify
                           </span>
                         </div>
-                        <span
-                          className="text-[8px] font-bold uppercase tracking-[0.2em]"
-                          style={{ color: theme.textTertiary, opacity: 0.6 }}
-                        >
+                        <span className="text-[7px] font-bold uppercase tracking-[0.15em]" style={{ color: theme.textTertiary, opacity: 0.5 }}>
                           swipess.app
                         </span>
                       </div>
-                      <div className="rounded-[8px] p-1 shadow-lg" style={{ background: theme.qrBg }}>
-                        <QRCode value={validationUrl} size={48} level="H" />
+                      <div className="rounded-[6px] p-1 shadow-md" style={{ background: theme.qrBg }}>
+                        <QRCode value={validationUrl} size={44} level="H" />
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
-              {/* Theme switcher button */}
-              <button
-                onClick={cycleTheme}
-                className="absolute bottom-3 left-3 flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-sm transition-transform active:scale-90 z-20"
-                style={{
-                  background: theme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
-                  border: `1px solid ${theme.tagBorder}`,
-                }}
-                aria-label="Change theme"
-              >
-                <Palette className="h-3.5 w-3.5" style={{ color: theme.accentColor }} />
-              </button>
             </motion.div>
           </motion.div>
         </motion.div>
