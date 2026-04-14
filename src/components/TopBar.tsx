@@ -147,6 +147,22 @@ function TopBarComponent({
 
           <div className="flex-shrink-0 flex items-center gap-1 pointer-events-auto">
             {!minimal && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  haptics.tap();
+                  navigate('/radio');
+                }}
+                className="w-9 h-9 flex items-center justify-center touch-manipulation"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
+                aria-label="Open Radio"
+              >
+                <Radio className={cn("w-[19px] h-[19px]", isLight ? "text-foreground/70" : "text-white/70")} strokeWidth={1.5} />
+              </motion.button>
+            )}
+            {!minimal && (
               <ThemeToggle />
             )}
             {!minimal && (
