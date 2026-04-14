@@ -16,11 +16,12 @@ import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { SpeedOfLightPreloader } from "@/components/SpeedOfLightPreloader";
+import Index from "./pages/Index";
+
 // Defer i18n init — loaded after first render to reduce critical JS
 const i18nReady = import('@/i18n');
 
 // 🚀 SPEED OF LIGHT: LAZY PAGES
-const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -125,7 +126,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
           </Suspense>
 
           <Routes>
-            <Route path="/" element={<SignupErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><Index /></Suspense></SignupErrorBoundary>} />
+            <Route path="/" element={<SignupErrorBoundary><Index /></SignupErrorBoundary>} />
             <Route path="/reset-password" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><ResetPassword /></AnimatedPage></Suspense>} />
 
             <Route element={<ProtectedRoute><PersistentDashboardLayout /></ProtectedRoute>}>
