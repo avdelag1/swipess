@@ -1,9 +1,7 @@
 // cache-bust: 2026-04-14
 import { useState, useCallback, memo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
-import { useUserRole } from '@/hooks/useUserRole';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -31,18 +29,8 @@ export interface SwipeAllDashboardProps {
 export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps) => {
   const [cards, setCards] = useState([...POKER_CARDS]);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
 
-  const { data: role } = useUserRole(user?.id);
   const [showVapModal, setShowVapModal] = useState(false);
-
-  // 🚀 SPEED OF LIGHT: Pre-warm top card query cache (only refreshes already-cached entries)
-  useEffect(() => {
-    if (!user?.id || cards.length === 0) return;
-    // Prefetch removed — the actual hooks (useSmartListingMatching / useSmartClientMatching)
-    // register queryFn on mount. Prefetching before they mount causes "Missing queryFn" crashes.
-  }, [cards, user?.id, queryClient, role]);
 
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
     triggerHaptic('medium');
