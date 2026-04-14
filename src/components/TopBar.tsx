@@ -3,8 +3,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Coins, ArrowLeft, Radio as RadioIcon, IdCard } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -13,10 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { ModeSwitcher } from './ModeSwitcher';
-import { ThemeToggle } from './ThemeToggle';
 import { NotificationPopover } from './NotificationPopover';
-import { useScrollBounce } from '@/hooks/useScrollBounce';
-import { useModalStore } from '@/state/modalStore';
 
 
 interface TopBarProps {
@@ -197,99 +193,11 @@ function TopBarComponent({
           {/* ── Spacer ── */}
           <div className="flex-1 min-w-0" />
 
-          {/* ── Right side: tokens, radio, theme, ID, notifications ── */}
-          <div className="flex-shrink-0 relative pointer-events-none">
-            {/* Glassmorphic fade masks — blur only, no dark shade, vanishing edges */}
-            <div
-              className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 z-30"
-              style={{
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                maskImage: 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.05) 70%, transparent 100%)',
-                WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.05) 70%, transparent 100%)',
-              }}
-            />
-            <div
-              className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 z-30"
-              style={{
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                maskImage: 'linear-gradient(to left, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.05) 70%, transparent 100%)',
-                WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.05) 70%, transparent 100%)',
-              }}
-            />
-            <div
-              ref={headerBounceRef}
-              className="overflow-x-auto pointer-events-none"
-              onPointerDown={handleHeaderPointerDown}
-              onPointerMove={handleHeaderPointerMove}
-              onPointerUp={handleHeaderPointerUp}
-              style={{
-                scrollbarWidth: 'none',
-                WebkitOverflowScrolling: 'touch',
-                touchAction: 'pan-x',
-                maxWidth: '280px',
-              } as React.CSSProperties}
-            >
-              <div className="flex items-center gap-3 flex-nowrap justify-end pl-1 pr-1 [&>*]:pointer-events-auto">
-                {!minimal && (
-                  <>
-                    <motion.button
-                      whileTap={{ scale: 0.92 }}
-                      onClick={() => {
-                        haptics.tap();
-                        useModalStore.getState().setModal('showTokensModal', true);
-                      }}
-                      className={cn(
-                        'flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full pointer-events-auto touch-manipulation transition-all',
-                        '!bg-transparent !border-none !shadow-none hover:scale-105 active:scale-95'
-                      )}
-                      aria-label="View tokens"
-                    >
-                      <Coins className="w-4 h-4 text-primary drop-shadow-[0_0_6px_hsl(var(--primary)/0.5)]" strokeWidth={1.8} />
-                    </motion.button>
-
-                    <Button
-                      variant="ghost"
-                      className={cn(
-                        'relative h-8 w-8 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none',
-                        'hover:scale-105 active:scale-95 group',
-                        'touch-manipulation flex items-center justify-center flex-shrink-0',
-                      )}
-                      onClick={guardedClick(() => {
-                        haptics.tap();
-                        navigate('/radio');
-                      })}
-                      aria-label="Go to radio"
-                    >
-                      <RadioIcon strokeWidth={1.5} className={cn('h-4 w-4', isLight ? 'text-rose-500' : 'text-white/70')} style={{ filter: isLight ? 'drop-shadow(0 0 6px rgba(244,63,94,0.35))' : 'none' }} />
-                    </Button>
-
-                    <ThemeToggle />
-
-                    {userRole !== 'owner' && (
-                      <Button
-                        variant="ghost"
-                        className={cn(
-                          'relative h-8 w-8 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none',
-                          'hover:scale-105 active:scale-95 group',
-                          'touch-manipulation flex items-center justify-center flex-shrink-0',
-                        )}
-                        onClick={guardedClick(() => {
-                          haptics.select();
-                          useModalStore.getState().setModal('showVapId', true);
-                        })}
-                        aria-label="Resident ID"
-                      >
-                        <IdCard strokeWidth={1.5} className={cn('h-4 w-4', isLight ? 'text-primary' : 'text-white/70')} />
-                      </Button>
-                    )}
-
-                    <NotificationPopover />
-                  </>
-                )}
-              </div>
-            </div>
+          {/* ── Right side: notifications only ── */}
+          <div className="flex-shrink-0 flex items-center gap-2 pointer-events-auto">
+            {!minimal && (
+              <NotificationPopover />
+            )}
           </div>
         </div>
       </header>
