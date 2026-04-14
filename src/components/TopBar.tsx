@@ -103,7 +103,7 @@ function TopBarComponent({
                   haptics.select();
                   navigate(userRole === 'owner' ? '/owner/profile' : '/client/profile');
                 }}
-                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0"
+                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 flex items-center gap-2"
                 style={{ WebkitTapHighlightColor: 'transparent' }}
                 aria-label="Go to profile"
               >
@@ -123,6 +123,14 @@ function TopBarComponent({
                     {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
+                {profile?.full_name && (
+                  <span className={cn(
+                    "text-[13px] font-bold tracking-tight max-w-[80px] truncate",
+                    isLight ? "text-foreground/80" : "text-white/80"
+                  )}>
+                    {profile.full_name.split(' ')[0]}
+                  </span>
+                )}
               </motion.button>
             )}
 
