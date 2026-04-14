@@ -103,11 +103,20 @@ function TopBarComponent({
                   haptics.select();
                   navigate(userRole === 'owner' ? '/owner/profile' : '/client/profile');
                 }}
-                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 flex items-center gap-2"
-                style={{ WebkitTapHighlightColor: 'transparent' }}
+                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 flex items-center gap-2 rounded-full px-1.5 py-1"
+                style={{
+                  WebkitTapHighlightColor: 'transparent',
+                  background: isLight ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.08)',
+                  backdropFilter: 'blur(16px) saturate(1.4)',
+                  WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
+                  border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.1)',
+                  boxShadow: isLight
+                    ? '0 1px 6px rgba(0,0,0,0.06)'
+                    : '0 1px 8px rgba(0,0,0,0.25), inset 0 0.5px 0 rgba(255,255,255,0.08)',
+                }}
                 aria-label="Go to profile"
               >
-                <Avatar className="h-[36px] w-[36px] rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
+                <Avatar className="h-[32px] w-[32px] rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
                   <AvatarImage
                     src={profile?.avatar_url || ''}
                     className="object-cover w-full h-full rounded-full"
@@ -125,8 +134,8 @@ function TopBarComponent({
                 </Avatar>
                 {profile?.full_name && (
                   <span className={cn(
-                    "text-[13px] font-bold tracking-tight max-w-[80px] truncate",
-                    isLight ? "text-foreground/80" : "text-white/80"
+                    "text-[12px] font-bold tracking-tight max-w-[72px] truncate pr-1.5",
+                    isLight ? "text-foreground/80" : "text-white/85"
                   )}>
                     {profile.full_name.split(' ')[0]}
                   </span>
@@ -153,7 +162,18 @@ function TopBarComponent({
 
           <div className="flex-1 min-w-0" />
 
-          <div className="flex-shrink-0 flex items-center gap-1 pointer-events-auto">
+          <div
+            className="flex-shrink-0 flex items-center gap-1 pointer-events-auto rounded-full px-1 py-1"
+            style={{
+              background: isLight ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(16px) saturate(1.4)',
+              WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
+              border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.1)',
+              boxShadow: isLight
+                ? '0 1px 6px rgba(0,0,0,0.06)'
+                : '0 1px 8px rgba(0,0,0,0.25), inset 0 0.5px 0 rgba(255,255,255,0.08)',
+            }}
+          >
             {!minimal && (
               <motion.button
                 whileTap={{ scale: 0.9 }}
