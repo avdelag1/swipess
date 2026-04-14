@@ -1,76 +1,55 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 /**
- * useAudioVisualizer - High-performance Web Audio API hook
- * Provides real-time frequency data for "Liquid" UI ripples.
- * Hardware-Aware: Automatically cleans up and handles permissions.
+ * useAudioVisualizer - Simulated voice energy for UI ripple effects.
+ * 
+ * IMPORTANT: We do NOT open a second getUserMedia stream here.
+ * On Android, opening two mic streams (one for SpeechRecognition + one here)
+ * causes the browser to kill the SpeechRecognition session silently.
+ * 
+ * Instead, we expose a `pulse()` method that the speech recognition 
+ * `onresult` handler calls to simulate voice energy for visual feedback.
  */
 export function useAudioVisualizer(isActive: boolean) {
   const [volume, setVolume] = useState(0);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyzerRef = useRef<AnalyserNode | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const animationRef = useRef<number | null>(null);
+  const decayRef = useRef<number | null>(null);
+  const lastPulseRef = useRef(0);
 
+  // Decay the volume smoothly when no pulses arrive
   useEffect(() => {
     if (!isActive) {
-      cleanup();
+      setVolume(0);
+      if (decayRef.current) cancelAnimationFrame(decayRef.current);
       return;
     }
 
-    async function initAudio() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        streamRef.current = stream;
+    const decay = () => {
+      setVolume(prev => {
+        const elapsed = Date.now() - lastPulseRef.current;
+        // Decay after 150ms of no pulses
+        if (elapsed > 150) {
+          return prev * 0.88; // Smooth exponential decay
+        }
+        return prev;
+      });
+      decayRef.current = requestAnimationFrame(decay);
+    };
 
-        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-        const ctx = new AudioContextClass();
-        audioContextRef.current = ctx;
+    decayRef.current = requestAnimationFrame(decay);
 
-        const source = ctx.createMediaStreamSource(stream);
-        const analyzer = ctx.createAnalyser();
-        analyzer.fftSize = 64; // Low FFT for high-performance ripples
-        source.connect(analyzer);
-        analyzerRef.current = analyzer;
-
-        const dataArray = new Uint8Array(analyzer.frequencyBinCount);
-
-        const update = () => {
-          if (!analyzerRef.current) return;
-          analyzerRef.current.getByteFrequencyData(dataArray);
-          
-          // Calculate average "energy" for the pulse
-          let sum = 0;
-          for (let i = 0; i < dataArray.length; i++) {
-            sum += dataArray[i];
-          }
-          const avg = sum / dataArray.length;
-          setVolume(avg / 255); // Normalize to 0-1
-          
-          animationRef.current = requestAnimationFrame(update);
-        };
-
-        update();
-      } catch (err) {
-        console.warn('[AudioVisualizer] Access denied or not supported', err);
-      }
-    }
-
-    initAudio();
-
-    return cleanup;
+    return () => {
+      if (decayRef.current) cancelAnimationFrame(decayRef.current);
+      setVolume(0);
+    };
   }, [isActive]);
 
-  const cleanup = () => {
-    if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-    }
-    if (audioContextRef.current) {
-      audioContextRef.current.close().catch(() => {});
-    }
-    setVolume(0);
-  };
+  // Call this from onresult to simulate voice energy
+  const pulse = useCallback((intensity: number = 0.7) => {
+    lastPulseRef.current = Date.now();
+    // Add some randomness for organic feel
+    const jitter = 0.8 + Math.random() * 0.4; // 0.8-1.2
+    setVolume(Math.min(1, intensity * jitter));
+  }, []);
 
-  return volume;
+  return { volume, pulse };
 }

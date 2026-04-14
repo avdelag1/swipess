@@ -445,7 +445,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
   // ── Voice-to-text (Web Speech API) ─────────────────────────────────
   const [isListening, setIsListening] = useState(false);
-  const voiceVolume = useAudioVisualizer(isListening);
+  const { volume: voiceVolume, pulse: voicePulse } = useAudioVisualizer(isListening);
   const [autoSend, setAutoSend] = useState(() => {
     try { return localStorage.getItem('concierge-auto-send') === 'true'; } catch { return false; }
   });
@@ -571,6 +571,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     };
 
     recognition.onresult = (event: any) => {
+      // Pulse the visualizer on voice activity (no second mic stream needed)
+      voicePulse(0.7);
+
       // 🚀 INTERRUPTION: If AI is thinking/typing, stop it on the first word detected
       if (isLoading && !hasInterrupted) {
         stopGeneration();
@@ -651,7 +654,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     };
 
     recognition.onerror = (e: any) => {
-      if (e.error === 'no-speech') return;
+      // no-speech is common on Android — don't kill the session, just let onend restart it
+      if (e.error === 'no-speech' || e.error === 'aborted') return;
       if (isCountingDownRef.current) return; 
 
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
@@ -676,7 +680,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     lastFinalTranscriptRef.current = '';
     recognition.start();
     setIsListening(true);
-  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown]);
+  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown, voicePulse]);
 
   const toggleListening = useCallback(() => {
     if (isListening || countdown !== null) {
