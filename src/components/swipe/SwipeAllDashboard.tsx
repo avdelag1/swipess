@@ -134,8 +134,9 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
           className="relative"
           style={{ width: `min(${PK_W}px, calc(100vw - 80px))`, height: 'calc(100dvh - 190px)' }}
         >
-          {[...cards].reverse().map((card, reversedIdx) => {
+        {[...cards].reverse().map((card, reversedIdx) => {
             const index = cards.length - 1 - reversedIdx;
+            if (index > 3) return null;
             const isTop = index === 0;
             return (
               <PokerCategoryCard
