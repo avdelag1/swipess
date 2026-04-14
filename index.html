@@ -122,27 +122,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <script type="speculationrules">
-  {
-    "prerender": [
-      {
-        "source": "list",
-        "urls": [
-          "/client/dashboard", 
-          "/owner/dashboard", 
-          "/messages", 
-          "/notifications",
-          "/client/profile",
-          "/owner/profile",
-          "/client/liked-properties",
-          "/owner/properties",
-          "/explore/roommates",
-          "/explore/eventos"
-        ]
-      }
-    ]
-  }
-  </script>
+  <!-- Speculation rules removed — prefetching handled by routePrefetcher.ts -->
 </head>
 
 <body>

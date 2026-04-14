@@ -84,40 +84,23 @@ const deferredInit = (callback: () => void, timeout = 5000) => {
   }
 };
 
-// Secondary Tools: Pushed to 12s+ to ensure 0% main-thread noise during boot
+// Secondary Tools: Pushed to idle to avoid main-thread noise during boot
 deferredInit(async () => {
   try {
-    // Apply theme optimizations quietely
     const body = document.body;
     body.classList.add('hw-high', 'perf-ultra');
-    body.style.setProperty('--backdrop-blur-intensity', '24px');
     initHaptics();
 
-    const [
-      { initPerformanceOptimizations },
-      { initOfflineSync },
-    ] = (await Promise.all([
-      import("@/utils/performanceMonitor"),
-      import("@/utils/offlineSwipeQueue"),
-    ])) as any;
-    initPerformanceOptimizations();
-    initOfflineSync();
-
-    // 🚀 ZENITH: SERVICE WORKER REGISTRATION
-    // Register the elite sw.js for offline support, push notifications, and background sync.
+    // Register service worker in production only
     if ('serviceWorker' in navigator && !isPreviewHost) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' })
-          .then(reg => {
-            console.log('[PWA] Service Worker active:', reg.scope);
-            // Check for updates every hour
-            setInterval(() => reg.update(), 3600000);
-          })
-          .catch(err => console.error('[PWA] Registration failed:', err));
-      });
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .then(reg => {
+          setInterval(() => reg.update(), 3600000);
+        })
+        .catch(() => {});
     }
   } catch { /* intentional */ }
-}, 12000);
+}, 5000);
 
 // Native Plugins — immediate after first render
 setTimeout(async () => {
