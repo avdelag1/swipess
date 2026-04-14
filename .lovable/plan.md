@@ -1,43 +1,47 @@
 
+Root cause is likely not the dashboard component itself but the preload chain around it.
 
-## iOS Native-Grade Upgrade for App Store Submission
+What I found:
+- The current runtime error is `Failed to fetch dynamically imported module: /src/components/LikedListingInsightsModal.tsx`.
+- `LikedListingInsightsModal` is used by `src/pages/ClientLikedProperties.tsx`.
+- `/client/liked-properties` is aggressively prefetched from `src/components/DashboardLayout.tsx` via `prefetchRoleRoutes('client')`.
+- That means the dashboard can trigger loading of the liked-properties page in the background, which can pull the modal chunk before the user ever opens that page.
+- `src/utils/lazyRetry.ts` force-reloads the whole app on lazy-import failure, so one bad chunk fetch can look like an endless crash/reload loop.
+- `GlobalDialogs.tsx` is no longer importing `LikedListingInsightsModal`, so the remaining suspect path is route prefetching.
 
-### What We're Doing
-Hardening the Capacitor iOS configuration, fixing safe-area handling, optimizing performance for native feel, and adding the required iOS privacy manifest -- all to ensure Apple accepts this app and it feels indistinguishable from native.
+Plan to fix it:
+1. Harden the immediate crash path
+- Remove `/client/liked-properties` from the client “critical” prefetch list in `src/utils/routePrefetcher.ts`.
+- Keep prefetching lighter routes first so dashboard boot stops pulling the failing modal chain in the background.
 
-### Step 1: Optimize `capacitor.config.ts`
-- Set `contentInset: 'always'` (enables proper safe-area rendering behind status bar)
-- Set `scrollEnabled: false` (prevents WKWebView double-scroll conflicting with Framer Motion swipe cards)
-- Add `allowsLinkPreviews: false` and `limitsNavigationsToAppBoundDomains: true`
-- Set `SplashScreen.launchShowDuration: 0` (the web app renders fast enough -- no artificial delay)
-- Add `StatusBar` plugin config with `style: 'dark'` and `backgroundColor: '#000000'`
-- Add `Keyboard` plugin config with `resize: 'body'` and `scrollAssist: false` (prevents iOS keyboard push-up jank)
+2. Reduce loop behavior from lazy import recovery
+- Update `src/utils/lazyRetry.ts` so failed dynamic imports do not blindly reload the entire app from any route.
+- Make it retry once in a controlled way, then surface the error instead of entering a reload cycle.
 
-### Step 2: Add `PrivacyInfo.xcprivacy` 
-Create `ios/App/App/PrivacyInfo.xcprivacy` -- Apple requires this since iOS 17. Declare:
-- `NSPrivacyAccessedAPICategoryUserDefaults` (used by Capacitor/WKWebView for localStorage)
-- `NSPrivacyAccessedAPICategorySystemBootTime` (used by Date/performance APIs)
-- No tracking APIs declared (app doesn't use ATT)
+3. Isolate the heavy liked-properties modal dependency
+- Convert `LikedListingInsightsModal` usage inside `src/pages/ClientLikedProperties.tsx` to a local lazy boundary or defer its load until `showInsightsModal === true`.
+- This keeps the modal chunk out of the initial liked-properties page graph.
 
-### Step 3: Harden CSS for native iOS feel
-In `src/index.css`:
-- Add `-webkit-touch-callout: none` globally (prevents long-press context menus on images)
-- Add `user-select: none` on interactive elements (buttons, cards) to prevent text selection during swipes
-- Ensure `overscroll-behavior: none` on body to kill rubber-banding outside the app's own pull-to-refresh
+4. Verify the modal module itself is safe
+- Review `src/components/LikedListingInsightsModal.tsx` for anything that can break module evaluation on import, especially routing hooks and large top-level imports.
+- Keep all router hooks inside component execution only and avoid any import-time side effects.
 
-### Step 4: Fix StatusBar initialization timing
-In `src/main.tsx`, move the Capacitor StatusBar setup from the 15-second deferred init to a 1-second deferred init. Users currently see a white status bar for 15 seconds on cold launch before it turns dark. Move it to run immediately after first render.
+5. Add a safer fallback path for users
+- Ensure the liked-properties page still renders even if the insights modal chunk fails.
+- Show a non-blocking fallback instead of crashing the route or reloading the app.
 
-### Step 5: Add `will-change: transform` to swipe cards
-In `src/index.css`, add `will-change: transform` to `.swipe-card` class to hint the compositor for GPU layer promotion on older iPhones (iPhone SE, iPhone 11).
+Technical details:
+- Files to update:
+  - `src/utils/routePrefetcher.ts`
+  - `src/utils/lazyRetry.ts`
+  - `src/pages/ClientLikedProperties.tsx`
+  - possibly `src/components/LikedListingInsightsModal.tsx`
+- Expected result:
+  - dashboard stops background-triggering the bad chunk
+  - no more endless reload behavior
+  - liked-properties can load independently
+  - modal failure, if any remains, is contained instead of taking down the app
 
-### Files to Modify
-- `capacitor.config.ts` -- iOS-optimized config
-- `ios/App/App/PrivacyInfo.xcprivacy` -- new file (Apple requirement)
-- `src/index.css` -- native-feel CSS hardening
-- `src/main.tsx` -- earlier StatusBar init
+Secondary cleanup I also noticed:
+- There is a React warning from `fetchPriority` leaking onto a DOM `<img>` through the avatar stack. That is not the crash, but I would clean it after the loop is fixed.
 
-### What This Does NOT Change
-- No routing, swipe physics, or layout architecture changes
-- No Supabase/auth changes
-- No component restructuring
