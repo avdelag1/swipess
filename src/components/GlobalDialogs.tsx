@@ -206,9 +206,9 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         />
       </DeferredDialog>
 
-      <SmartSuspense fallback={null}>
+      <DeferredDialog when={isWarmedUp}>
         <PushNotificationPrompt />
-      </SmartSuspense>
+      </DeferredDialog>
 
       <DeferredDialog when={shouldShowWelcome}>
         <WelcomeNotification

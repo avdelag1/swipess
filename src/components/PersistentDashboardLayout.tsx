@@ -8,6 +8,7 @@ import { useMemo, useEffect, useState, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { useMatchRealtime } from '@/hooks/useMatchRealtime';
 import { useLikesRealtime } from '@/hooks/useLikesRealtime';
+import { ChunkErrorBoundary } from '@/components/ChunkErrorBoundary';
 
 // Global match celebration modal
 const MatchCelebration = lazyWithRetry(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
@@ -69,6 +70,7 @@ export function PersistentDashboardLayout() {
   }, [location.pathname, activeMode, syncMode]);
 
   return (
+    <ChunkErrorBoundary>
     <DashboardLayout userRole={userRole}>
       <div
         id="zenith-dashboard-root"
@@ -101,6 +103,7 @@ export function PersistentDashboardLayout() {
         document.body
       )}
     </DashboardLayout>
+    </ChunkErrorBoundary>
   );
 }
 
