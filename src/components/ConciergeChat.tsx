@@ -571,6 +571,9 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     };
 
     recognition.onresult = (event: any) => {
+      // Pulse the visualizer on voice activity (no second mic stream needed)
+      voicePulse(0.7);
+
       // 🚀 INTERRUPTION: If AI is thinking/typing, stop it on the first word detected
       if (isLoading && !hasInterrupted) {
         stopGeneration();
