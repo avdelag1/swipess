@@ -3,7 +3,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart, ArrowLeft, Megaphone, Pause, Play
 } from 'lucide-react';
@@ -23,6 +23,54 @@ import { ShareModal } from '@/components/events/ShareModal';
 import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
 
+/** Scroll-direction tracker for the HUD: hides on scroll-down, shows on scroll-up or idle */
+function useHudVisibility(scrollRef: React.RefObject<HTMLDivElement | null>) {
+  const [visible, setVisible] = useState(true);
+  const lastY = useRef(0);
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ticking = useRef(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      if (ticking.current) return;
+      ticking.current = true;
+      requestAnimationFrame(() => {
+        const y = el.scrollTop;
+        const delta = y - lastY.current;
+
+        // At the very top — always show
+        if (y <= 10) {
+          setVisible(true);
+        } else if (delta > 6) {
+          // scrolling down — hide
+          setVisible(false);
+        } else if (delta < -6) {
+          // scrolling up — show
+          setVisible(true);
+        }
+
+        lastY.current = y;
+        ticking.current = false;
+
+        // Show again after user stops scrolling for 1.2s
+        if (idleTimer.current) clearTimeout(idleTimer.current);
+        idleTimer.current = setTimeout(() => setVisible(true), 1200);
+      });
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      if (idleTimer.current) clearTimeout(idleTimer.current);
+    };
+  }, [scrollRef]);
+
+  return visible;
+}
+
 const AUTOPLAY_DURATION = 6000;
 
 export default function EventosFeed() {
@@ -33,7 +81,7 @@ export default function EventosFeed() {
   const isLight = theme === 'light';
   const queryClient = useQueryClient();
   const parentRef = useRef<HTMLDivElement>(null);
-  
+  const hudVisible = useHudVisibility(parentRef);
   const [activeIdx, setActiveIdx] = useState(0);
   const [activeCategory, setActiveCategory] = useState('all');
 
@@ -238,9 +286,12 @@ export default function EventosFeed() {
     <div className={cn("relative w-full h-full min-h-[100dvh] flex flex-col bg-black overflow-hidden")}>
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       
-      {/* Consolidated Immersive HUD (Single Row) */}
+      {/* Floating HUD — hides on scroll down, reappears on scroll up or idle */}
       <div 
-        className="absolute left-0 right-0 z-[100] transform-gpu px-4 pt-8"
+        className={cn(
+          "absolute left-0 right-0 z-[100] transform-gpu px-4 pt-8 transition-all duration-300 ease-out",
+          hudVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full pointer-events-none"
+        )}
         style={{ top: 'calc(var(--safe-top, 6px))' }}
       >
         <div className="flex items-center gap-3">
@@ -314,8 +365,7 @@ export default function EventosFeed() {
       {/* Main Feed */}
       <div 
         ref={parentRef} 
-        className="w-full h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar overscroll-contain touch-pan-y"
-        style={{ scrollBehavior: 'smooth' }}
+        className="w-full h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar overscroll-contain touch-pan-y scroll-smooth"
       >
         <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
           {rowVirtualizer.getVirtualItems().map((virtualRow) => {
