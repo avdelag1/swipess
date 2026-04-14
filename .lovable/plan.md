@@ -1,54 +1,30 @@
 
 
-## Enable Apple & Google Sign-In + Fix React Crash
+## Redesign Virtual ID Card with Switchable Themes
 
-### Problem
-1. **React crash** — `Cannot read properties of null (reading 'useState')` persists because the Vite resolve aliases point to directory roots instead of specific entry files, causing duplicate React instances in the bundle.
-2. **Social login disabled** — Apple and Google buttons show "Coming soon" toasts instead of actually authenticating.
+### What's Wrong Now
+1. QR code overlaps with the X close button (visible in screenshot)
+2. Single static dark-blue design — no personality or customization
+3. Layout feels generic, not Apple-quality
 
-### Plan
+### What We'll Build
 
-#### Step 1: Fix the React null crash (root cause)
-Update `vite.config.ts` resolve aliases to point to the exact module entry files:
-```
-react → ./node_modules/react/index.js
-react-dom → ./node_modules/react-dom/index.js
-react/jsx-runtime → ./node_modules/react/jsx-runtime.js
-```
-Also add `react/jsx-runtime` and `react/jsx-dev-runtime` to the dedupe list. Clear `.vite` cache.
+A theme-switching system for the Virtual ID card with 5 premium skins the user can cycle through by tapping a small palette icon. Each theme changes the card's background, accent colors, pattern overlay, and typography tones.
 
-#### Step 2: Configure Social Auth via Lovable Cloud
-Use the **Configure Social Auth** tool to:
-- Generate the `src/integrations/lovable/` module with `@lovable.dev/cloud-auth-js`
-- This provides the managed `lovable.auth.signInWithOAuth()` function that works out of the box for both Google and Apple (no API keys needed for Google; Apple uses Lovable's managed credentials)
+**Themes:**
+1. **Obsidian** — Pure black with subtle silver accents, minimal dot grid pattern
+2. **Pearl** — Clean white/cream with soft gray shadows, elegant light mode
+3. **Rosa Mexicano** — Hot pink gradient with cheetah/animal print pattern overlay at low opacity
+4. **Jungle** — Deep tropical greens with palm leaf silhouette pattern (Tulum vibe)
+5. **Sahara** — Warm sand/terracotta tones with abstract organic texture
 
-#### Step 3: Update `useAuth.tsx` — switch to Lovable Cloud OAuth
-Replace the current `signInWithOAuth` function that calls `supabase.auth.signInWithOAuth()` with the new `lovable.auth.signInWithOAuth()` pattern:
-```typescript
-import { lovable } from "@/integrations/lovable/index";
+**Layout Fixes:**
+- Move QR code to the bottom-right corner of the card (away from X button)
+- Move close button to top-right with proper clearance
+- QR gets smaller (56px) and sits in the footer area next to "swipess.app"
+- ID number stays top-right where QR used to be
 
-const result = await lovable.auth.signInWithOAuth(provider, {
-  redirect_uri: window.location.origin,
-});
-```
+### Implementation
 
-#### Step 4: Activate social buttons on landing page
-In `LegendaryLandingPage.tsx`:
-- Replace `handleSocialComingSoon('Apple')` with actual `signInWithOAuth('apple')` call
-- Replace `handleSocialComingSoon('Google')` with actual `signInWithOAuth('google')` call  
-- Remove the "Coming soon" banner
-- Add loading states to the social buttons during OAuth redirect
-
-#### Step 5: Update PWA config
-Add `/~oauth` to the service worker's `navigateFallbackDenylist` in `vite.config.ts` or the SW config so OAuth callbacks always hit the network (required for Lovable Cloud OAuth).
-
-### Files to modify
-- `vite.config.ts` — fix React aliases + add OAuth denylist
-- `src/hooks/useAuth.tsx` — switch to `lovable.auth.signInWithOAuth`
-- `src/components/LegendaryLandingPage.tsx` — activate social buttons, remove "Coming soon"
-
-### Technical details
-- Lovable Cloud manages Google OAuth credentials automatically — no setup needed
-- Lovable Cloud manages Apple OAuth credentials automatically — no Apple Developer setup needed for the managed flow
-- The user can later switch to their own Apple credentials (BYOC) via Cloud dashboard if they want custom branding on the Apple sign-in sheet
-
+#### Step 1: Add theme state and definitions
+Add a `useState` for `themeIndex` in `VapIdCardModal.tsx`. Define a
