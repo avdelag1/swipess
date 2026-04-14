@@ -445,7 +445,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
   // ── Voice-to-text (Web Speech API) ─────────────────────────────────
   const [isListening, setIsListening] = useState(false);
-  const voiceVolume = useAudioVisualizer(isListening);
+  const { volume: voiceVolume, pulse: voicePulse } = useAudioVisualizer(isListening);
   const [autoSend, setAutoSend] = useState(() => {
     try { return localStorage.getItem('concierge-auto-send') === 'true'; } catch { return false; }
   });
