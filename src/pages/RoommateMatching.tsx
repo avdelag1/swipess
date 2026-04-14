@@ -228,7 +228,7 @@ export default function RoommateMatching() {
       >
         <motion.button
           whileTap={{ scale: 0.9 }}
-          onClick={() => { triggerHaptic('light'); navigate(-1); }}
+          onClick={() => { triggerHaptic('light'); if (window.history.length > 1) { navigate(-1); } else { navigate('/client/dashboard'); } }}
           className={cn(
             "w-11 h-11 rounded-[1.25rem] border backdrop-blur-3xl flex items-center justify-center transition-all shadow-2xl",
             isLight ? "bg-white/80 border-slate-200 text-slate-900" : "bg-black/40 border-white/10 text-white"
