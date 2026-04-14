@@ -37,31 +37,11 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   const { data: role } = useUserRole(user?.id);
   const [showVapModal, setShowVapModal] = useState(false);
 
-  // 🚀 SPEED OF LIGHT: Pre-fetch top card data on hover/cycle
+  // 🚀 SPEED OF LIGHT: Pre-warm top card query cache (only refreshes already-cached entries)
   useEffect(() => {
     if (!user?.id || cards.length === 0) return;
-    const topId = cards[0].id as string;
-    if (topId === 'radio') return;
-
-    const filters = topId === 'all' ? {} : { category: topId };
-    const filtersKey = JSON.stringify(filters);
-
-    try {
-      if (role === 'owner') {
-        const isRoommate = topId === 'roommates';
-        const qk = ['smart-clients', user.id, isRoommate ? 'property' : topId, 0, false, '{}', isRoommate];
-        if (queryClient.getQueryData(qk)) {
-          queryClient.prefetchQuery({ queryKey: qk, staleTime: 120000 });
-        }
-      } else {
-        const qk = ['smart-listings', user.id, filtersKey, 0, false];
-        if (queryClient.getQueryData(qk)) {
-          queryClient.prefetchQuery({ queryKey: qk, staleTime: 120000 });
-        }
-      }
-    } catch {
-      // Silently skip prefetch if queryFn not yet registered
-    }
+    // Prefetch removed — the actual hooks (useSmartListingMatching / useSmartClientMatching)
+    // register queryFn on mount. Prefetching before they mount causes "Missing queryFn" crashes.
   }, [cards, user?.id, queryClient, role]);
 
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
