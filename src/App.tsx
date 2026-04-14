@@ -83,6 +83,7 @@ const LocalIntel = lazy(() => import("./pages/LocalIntel"));
 const RoommateMatching = lazy(() => import("./pages/RoommateMatching"));
 const DocumentVault = lazy(() => import("./pages/DocumentVault"));
 const EscrowDashboard = lazy(() => import("./pages/EscrowDashboard"));
+const ClientPerks = lazy(() => import("./pages/ClientPerks"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 
@@ -189,6 +190,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
 
               <Route path="/documents" element={<DocumentVault />} />
               <Route path="/escrow" element={<EscrowDashboard />} />
+              <Route path="/client/perks" element={<ClientPerks />} />
             </Route>
 
             {/* Outside Layout */}
