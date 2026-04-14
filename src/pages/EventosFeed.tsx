@@ -81,7 +81,7 @@ export default function EventosFeed() {
   const isLight = theme === 'light';
   const queryClient = useQueryClient();
   const parentRef = useRef<HTMLDivElement>(null);
-  
+  const hudVisible = useHudVisibility(parentRef);
   const [activeIdx, setActiveIdx] = useState(0);
   const [activeCategory, setActiveCategory] = useState('all');
 
@@ -286,9 +286,12 @@ export default function EventosFeed() {
     <div className={cn("relative w-full h-full min-h-[100dvh] flex flex-col bg-black overflow-hidden")}>
       <div className="absolute inset-0 bg-[#0a0a0b] -z-10" />
       
-      {/* Consolidated Immersive HUD (Single Row) */}
+      {/* Floating HUD — hides on scroll down, reappears on scroll up or idle */}
       <div 
-        className="absolute left-0 right-0 z-[100] transform-gpu px-4 pt-8"
+        className={cn(
+          "absolute left-0 right-0 z-[100] transform-gpu px-4 pt-8 transition-all duration-300 ease-out",
+          hudVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-full pointer-events-none"
+        )}
         style={{ top: 'calc(var(--safe-top, 6px))' }}
       >
         <div className="flex items-center gap-3">
