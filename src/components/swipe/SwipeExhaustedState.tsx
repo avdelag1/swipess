@@ -28,11 +28,11 @@ interface SwipeExhaustedStateProps {
 
 const CATEGORY_ICONS: Record<string, { icon: any; label: string; color: string }> = {
   all:        { icon: Zap,            label: 'All',         color: '#ec4899' },
-  property:   { icon: Home,           label: 'Properties',  color: '#3b82f6' },
-  motorcycle: { icon: MotorcycleIcon, label: 'Motorcycles', color: '#f97316' },
-  bicycle:    { icon: Bike,           label: 'Bicycles',    color: '#f43f5e' },
-  services:   { icon: Briefcase,      label: 'Workers',     color: '#a855f7' },
-  worker:     { icon: Briefcase,      label: 'Workers',     color: '#a855f7' },
+  property:   { icon: Home,           label: 'Property',    color: '#3b82f6' },
+  motorcycle: { icon: MotorcycleIcon, label: 'Motos',       color: '#f97316' },
+  bicycle:    { icon: Bike,           label: 'Bikes',       color: '#f43f5e' },
+  services:   { icon: Briefcase,      label: 'Work',        color: '#a855f7' },
+  worker:     { icon: Briefcase,      label: 'Work',        color: '#a855f7' },
 };
 
 export const SwipeExhaustedState = ({
