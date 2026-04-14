@@ -21,13 +21,11 @@ const OwnerSettingsDialog = lazyWithRetry(() => import('@/components/OwnerSettin
 const OwnerProfileDialog = lazyWithRetry(() => import('@/components/OwnerProfileDialog').then(m => ({ default: m.OwnerProfileDialog })));
 const OwnerClientSwipeDialog = lazyWithRetry(() => import('@/components/OwnerClientSwipeDialog'));
 const SupportDialog = lazyWithRetry(() => import('@/components/SupportDialog').then(m => ({ default: m.SupportDialog })));
-const OnboardingFlow = lazyWithRetry(() => import('@/components/OnboardingFlow').then(m => ({ default: m.OnboardingFlow })));
 const CategorySelectionDialog = lazyWithRetry(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })));
 const SavedSearchesDialog = lazyWithRetry(() => import('@/components/SavedSearchesDialog').then(m => ({ default: m.SavedSearchesDialog })));
 const MessageActivationPackages = lazyWithRetry(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })));
 const PushNotificationPrompt = lazyWithRetry(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })));
 const WelcomeNotification = lazyWithRetry(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })));
-const LikedClientInsightsModal = lazyWithRetry(() => import('@/components/LikedClientInsightsModal').then(m => ({ default: m.LikedClientInsightsModal })));
 const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
 
 const ConciergeChatFallback = memo(() => (
@@ -45,13 +43,11 @@ const ConciergeChatFallback = memo(() => (
         <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
       </div>
     </div>
-
     <div className="flex-1 space-y-4 px-4 py-5">
       <div className="ml-auto h-16 w-[72%] rounded-3xl rounded-br-md bg-primary/12 animate-pulse" />
       <div className="h-20 w-[80%] rounded-3xl rounded-bl-md bg-muted animate-pulse" />
       <div className="ml-auto h-12 w-[55%] rounded-3xl rounded-br-md bg-primary/10 animate-pulse" />
     </div>
-
     <div className="border-t border-border/50 bg-background/90 px-4 py-3 pb-[calc(env(safe-area-inset-bottom,0px)+12px)]">
       <div className="flex items-end gap-2">
         <div className="h-11 flex-1 rounded-2xl bg-muted animate-pulse" />
@@ -90,7 +86,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         <AdvancedFiltersDialog
           isOpen={store.showFilters}
           onClose={() => store.setModal('showFilters', false)}
-          onApplyFilters={() => {}} // Store handles filters internally via filterStore
+          onApplyFilters={() => {}}
           userRole={userRole}
           currentFilters={{}}
         />
@@ -168,9 +164,8 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
             <CategorySelectionDialog
               open={store.showCategoryDialog}
               onOpenChange={(val: boolean) => store.setModal('showCategoryDialog', val)}
-              onCategorySelect={(category: string, mode: 'buy' | 'rent') => {
+              onCategorySelect={(category: string, mode: string) => {
                 store.setModal('showCategoryDialog', false);
-                // ZENITH FIX: Navigate to the specialized creation form, not the list
                 navigate(`/owner/listings/new?category=${category}&mode=${mode}`);
               }}
             />
@@ -183,23 +178,6 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           isOpen={store.showSupport}
           onClose={() => store.setModal('showSupport', false)}
           userRole={userRole}
-        />
-      </SmartSuspense>
-
-      <SmartSuspense fallback={null}>
-        <OnboardingFlow
-          open={false} // Managed by logic in DashboardLayout
-          onComplete={() => {}} 
-        />
-      </SmartSuspense>
-
-      <SmartSuspense fallback={null}>
-
-
-        <LikedClientInsightsModal
-          open={store.showClientInsights}
-          onOpenChange={(open: boolean) => store.setModal('showClientInsights', open)}
-          client={selectedProfile as any}
         />
       </SmartSuspense>
 

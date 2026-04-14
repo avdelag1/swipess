@@ -1,34 +1,25 @@
 import { lazy, ComponentType } from 'react';
 
 /**
- * 🏎️ SPEED OF LIGHT: LAZY WITH AUTO-RETRY
- * 
- * When a PWA is updated (like after a git push), old chunk hashes are purged from the server.
- * If a user's browser is still running an old 'manifest.js', it will try to fetch the old hashes and 404.
- * 
- * This utility catches the 'Failed to fetch dynamically imported module' error and triggers
- * a hard reload to force the browser to pick up the new chunk manifest.
+ * Lazy load with a single network retry (no page reload).
+ * If both attempts fail, the error surfaces to the nearest ErrorBoundary.
  */
 export function lazyWithRetry<T extends ComponentType<any>>(
   componentImport: () => Promise<{ default: T }>
 ) {
   return lazy(async () => {
-    const pageHasBeenForceRefreshed = JSON.parse(
-      window.localStorage.getItem('page-has-been-force-refreshed') || 'false'
-    );
-
     try {
-      const component = await componentImport();
-      window.localStorage.setItem('page-has-been-force-refreshed', 'false');
-      return component;
-    } catch (error: any) {
-      if (!pageHasBeenForceRefreshed) {
-        window.localStorage.setItem('page-has-been-force-refreshed', 'true');
-        window.location.reload();
-        // Return a never-resolving promise as recovery - the page will reload anyway
-        return new Promise(() => {}) as any;
+      return await componentImport();
+    } catch (firstError) {
+      // One retry after a short delay (cache-bust via fresh import call)
+      console.warn('[lazyWithRetry] First load failed, retrying…', firstError);
+      await new Promise(r => setTimeout(r, 1500));
+      try {
+        return await componentImport();
+      } catch (retryError) {
+        console.error('[lazyWithRetry] Retry also failed', retryError);
+        throw retryError; // Let ErrorBoundary handle it — NO reload
       }
-      throw error;
     }
   });
 }
