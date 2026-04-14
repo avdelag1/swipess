@@ -91,7 +91,7 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('browser-image-compression')) return 'vendor-img';
             
             // SPLIT CORE: Separate React from utilities for granular caching
-            if (id.includes('react-dom') || id.includes('react/')) return 'vendor-react';
+            if (id.includes('react-dom') || id.includes('react/') || id.includes('scheduler')) return 'vendor-react';
             if (id.includes('react-router')) return 'vendor-router';
             if (id.includes('@tanstack')) return 'vendor-query';
             if (id.includes('zustand')) return 'vendor-state';
