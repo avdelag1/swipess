@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ArrowLeft, SlidersHorizontal } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -11,6 +11,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
+import { ThemeToggle } from './ThemeToggle';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -30,7 +31,7 @@ interface TopBarProps {
 function TopBarComponent({
   onNotificationsClick: _onNotificationsClick,
   onMessageActivationsClick: _onMessageActivationsClick,
-  onFilterClick,
+  onFilterClick: _onFilterClick,
   className,
   showFilters: _showFilters,
   userRole,
@@ -144,21 +145,9 @@ function TopBarComponent({
 
           <div className="flex-1 min-w-0" />
 
-          <div className="flex-shrink-0 flex items-center gap-2 pointer-events-auto">
-            {!minimal && onFilterClick && (
-              <motion.button
-                whileTap={{ scale: 0.92 }}
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  haptics.tap();
-                  onFilterClick();
-                }}
-                className="w-9 h-9 rounded-xl border border-border/60 bg-secondary/70 text-muted-foreground hover:text-foreground flex items-center justify-center touch-manipulation"
-                aria-label="Open filters"
-              >
-                <SlidersHorizontal className="w-4 h-4" strokeWidth={1.8} />
-              </motion.button>
+          <div className="flex-shrink-0 flex items-center gap-1 pointer-events-auto">
+            {!minimal && (
+              <ThemeToggle />
             )}
             {!minimal && (
               <NotificationPopover />
