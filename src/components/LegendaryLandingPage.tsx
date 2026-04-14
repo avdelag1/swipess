@@ -1,4 +1,4 @@
-import { memo, useState, useRef, useMemo, useEffect, lazy, Suspense } from 'react';
+import { memo, useState, useRef, useMemo, useEffect } from 'react';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 
 import { SwipessLogo } from './SwipessLogo';
+import LandingBackgroundEffects, { type EffectMode } from './LandingBackgroundEffects';
 
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -19,10 +20,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { cn } from '@/lib/utils';
-import type { EffectMode } from './LandingBackgroundEffects';
-
-// Lazy-load heavy deps that aren't needed for first paint
-const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
 // Optimized logo with modern format support + heartbeat pulse
 function LogoImage({ className }: { className?: string }) {
