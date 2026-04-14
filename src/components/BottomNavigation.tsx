@@ -117,26 +117,23 @@ export const BottomNavigation = memo(({
     { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: openAIChat, isSpecial: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
-    { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
     { id: 'tokens', icon: Ticket, label: 'Tokens', onClick: () => setModal('showTokensModal', true) },
     { id: 'vapid', icon: IdCard, label: 'ID Card', onClick: () => setModal('showVapId', true) },
-    { id: 'theme', icon: Palette, label: 'Theme', onClick: () => toggleTheme() },
-    { id: 'search', icon: SlidersHorizontal, label: 'Discovery', onClick: onFilterClick },
+    { id: 'search', icon: SlidersHorizontal, label: 'Filter', onClick: onFilterClick },
+    { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
   ];
 
   // Owner nav items
   const ownerNavItems: NavItem[] = [
-    { id: 'dashboard', icon: Zap, label: 'System', path: '/owner/dashboard' },
+    { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
     { id: 'ai', icon: Sparkles, label: 'AI Bot', onClick: openAIChat, isSpecial: true },
+    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
-    { id: 'legal', icon: Scale, label: 'Legal Hub', path: '/owner/legal-services' },
-    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
-    { id: 'tokens', icon: Ticket, label: 'Tokens', onClick: () => setModal('showTokensModal', true) },
-    { id: 'theme', icon: Palette, label: 'Theme', onClick: () => toggleTheme() },
-    { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
+    { id: 'legal', icon: Scale, label: 'Legal', path: '/owner/legal-services' },
+    { id: 'filters', icon: SlidersHorizontal, label: 'Filter', path: '/owner/clients/property' },
   ];
 
   // Admin nav items — admin panel + messaging
