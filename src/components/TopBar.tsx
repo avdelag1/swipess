@@ -1,6 +1,5 @@
-import { memo, useCallback, useRef } from 'react';
+import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
-import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
@@ -43,52 +42,9 @@ function TopBarComponent({
 }: TopBarProps) {
   const { navigate, prefetch: _prefetch } = useAppNavigate();
   const { user } = useAuth();
-  const location = useLocation();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { t } = useTranslation();
-  
-
-  const headerBounceRef = useScrollBounce({
-    maxTilt: 4,
-    maxBounce: 2,
-    damping: 0.2,
-    edgeScale: 0.97,
-    childSelector: '> div, > button',
-  });
-
-  // ── Swipe-vs-tap detection for scrollable header ──
-  const isDraggingHeader = useRef(false);
-  const headerTouchStart = useRef<{ x: number; y: number } | null>(null);
-
-  const handleHeaderPointerDown = useCallback((e: React.PointerEvent) => {
-    isDraggingHeader.current = false;
-    headerTouchStart.current = { x: e.clientX, y: e.clientY };
-  }, []);
-
-  const handleHeaderPointerMove = useCallback((e: React.PointerEvent) => {
-    if (!headerTouchStart.current) return;
-    const dx = Math.abs(e.clientX - headerTouchStart.current.x);
-    const dy = Math.abs(e.clientY - headerTouchStart.current.y);
-    if (dx > 8 || dy > 8) {
-      isDraggingHeader.current = true;
-    }
-  }, []);
-
-  const handleHeaderPointerUp = useCallback(() => {
-    headerTouchStart.current = null;
-  }, []);
-
-  /** Only fire action if user tapped (not scrolled) */
-  const guardedClick = useCallback((action: () => void) => {
-    return () => {
-      if (isDraggingHeader.current) {
-        isDraggingHeader.current = false;
-        return;
-      }
-      action();
-    };
-  }, []);
 
   const { data: profile } = useQuery({
     queryKey: ['topbar-user-profile', user?.id],

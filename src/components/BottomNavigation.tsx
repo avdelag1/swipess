@@ -21,7 +21,8 @@ import {
   Flame, MessageCircle, CircleUser, Building2,
   Users2, ShieldCheck,
   Megaphone, PartyPopper, Scale,
-  Zap, SlidersHorizontal, Sparkles
+  Zap, SlidersHorizontal, Sparkles,
+  Ticket, IdCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -112,6 +113,8 @@ export const BottomNavigation = memo(({
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'roommates', icon: Users2, label: 'Roommates', path: '/explore/roommates' },
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
+    { id: 'tokens', icon: Ticket, label: 'Tokens', onClick: () => setModal('showTokensModal', true) },
+    { id: 'vapid', icon: IdCard, label: 'ID Card', onClick: () => setModal('showVapId', true) },
     { id: 'search', icon: SlidersHorizontal, label: 'Discovery', onClick: onFilterClick },
   ];
 
@@ -125,6 +128,7 @@ export const BottomNavigation = memo(({
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
     { id: 'legal', icon: Scale, label: 'Legal Hub', path: '/owner/legal-services' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
+    { id: 'tokens', icon: Ticket, label: 'Tokens', onClick: () => setModal('showTokensModal', true) },
     { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
   ];
 
