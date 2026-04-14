@@ -279,7 +279,7 @@ export default function RoommateMatching() {
       </motion.div>
 
       {/* ── CARD STACK AREA ── */}
-      <div className="absolute inset-0 w-full h-full">
+      <div className="absolute inset-0 w-full h-full z-[1]">
         <div className="absolute inset-0 z-0">
           <AnimatePresence mode="popLayout" initial={false}>
             {isLoading ? (
