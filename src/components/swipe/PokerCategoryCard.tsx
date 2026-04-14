@@ -3,9 +3,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {
-  PK_W, PK_H,
-  PK_SPRING,
-  POKER_CARD_PHOTOS, POKER_CARD_GRADIENTS,
+  POKER_CARD_PHOTOS,
+  POKER_CARD_GRADIENTS,
   PokerCardData,
 } from './SwipeConstants';
 import { cn } from '@/lib/utils';
@@ -23,16 +22,15 @@ interface PokerCardProps {
   cardHeight?: number;
 }
 
-export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCollapsed = false, onCycle, onSelect, onBringToFront, cardHeight }: PokerCardProps) => {
-  const height = cardHeight ?? PK_H;
+export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
   const dragTilt = useTransform(x, [-250, 0, 250], [-15, 0, 15]);
   const { tiltX, tiltY } = useDeviceParallax(0.3);
   const isCycling = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
 
-  // Image preloading with decode() for flicker-free reveal
   const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
   const gradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
   const [imgReady, setImgReady] = useState(false);
@@ -46,7 +44,6 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     img.decode()
       .then(() => setImgReady(true))
       .catch(() => {
-        // Fallback: if decode fails, still try to show if loaded
         if (img.complete && img.naturalWidth > 0) {
           setImgReady(true);
         } else {
@@ -59,7 +56,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const handleDragEnd = useCallback((_: any, info: any) => {
     if (isCycling.current) return;
     const dist = Math.abs(info.offset.x);
-    const vel  = Math.abs(info.velocity.x);
+    const vel = Math.abs(info.velocity.x);
 
     if (dist > 60 || vel > 350) {
       isCycling.current = true;
@@ -67,20 +64,27 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       const direction = info.offset.x > 0 ? 'right' : 'left';
       const exitX = direction === 'right' ? 300 : -300;
 
-      animate(x, exitX, { 
-        type: 'spring', 
+      animate(x, exitX, {
+        type: 'spring',
         stiffness: 600,
         damping: 40,
         mass: 0.8,
         onComplete: () => {
+          setIsDragging(false);
           onCycle(card.id, direction);
-          x.set(0); 
+          x.set(0);
           isCycling.current = false;
-        } 
+        }
       });
     } else {
       triggerHaptic('light');
-      animate(x, 0, { type: 'spring', stiffness: 600, damping: 30, mass: 0.6 });
+      animate(x, 0, {
+        type: 'spring',
+        stiffness: 600,
+        damping: 30,
+        mass: 0.6,
+        onComplete: () => setIsDragging(false),
+      });
     }
   }, [card.id, onCycle, x]);
 
@@ -88,28 +92,27 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const stackScale = 1 - (index * 0.04);
   const stackBrightness = 1 - (index * 0.05);
 
-  // Depth exit: scale and opacity respond to drag distance
   const exitScale = useTransform(x, [-300, -120, 0, 120, 300], [0.6, 0.88, 1, 0.88, 0.6]);
   const exitOpacity = useTransform(x, [-300, -200, 0, 200, 300], [0, 0.4, 1, 0.4, 0]);
 
   return (
     <motion.div
-      drag={isTop ? "x" : false}
+      drag={isTop ? 'x' : false}
       dragConstraints={{ left: -150, right: 150 }}
       dragElastic={0.5}
+      dragMomentum={false}
+      onDragStart={isTop ? () => setIsDragging(true) : undefined}
       onDragEnd={isTop ? handleDragEnd : undefined}
       onClick={!isTop ? () => onBringToFront(index) : undefined}
       initial={{ y: stackY + 40, opacity: 0, scale: stackScale * 0.95 }}
       animate={{
         y: stackY,
         opacity: index > 4 ? 0 : 1,
-        rotateX: isTop ? 0 : 6, 
         scale: isTop ? undefined : stackScale,
         filter: isTop ? undefined : `brightness(${stackBrightness})`,
       }}
-      transition={{ 
+      transition={{
         type: 'spring', stiffness: 180, damping: 26, mass: 1.2,
-        // Stagger entrance: each card delays slightly based on index
         delay: index * 0.06,
       }}
       style={{
@@ -122,8 +125,8 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         x: isTop ? x : 0,
         scale: isTop ? exitScale : undefined,
         rotateZ: isTop ? dragTilt : 0,
-        rotateX: isTop ? -tiltY : (index > 4 ? 0 : 6),
-        rotateY: isTop ? tiltX : 0,
+        rotateX: isTop ? (isDragging ? 0 : -tiltY) : (index > 4 ? 0 : 6),
+        rotateY: isTop ? (isDragging ? 0 : tiltX) : 0,
         opacity: isTop ? exitOpacity : undefined,
         cursor: isTop ? 'grab' : 'pointer',
         touchAction: 'none',
@@ -131,43 +134,49 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         willChange: 'transform, opacity',
       } as any}
       whileDrag={{ cursor: 'grabbing' }}
-      className={cn("touch-manipulation select-none gpu-ultra isolation-isolate")}
+      className={cn('touch-manipulation select-none gpu-ultra isolation-isolate')}
     >
       <div
         className={cn(
-          "w-full h-full relative overflow-hidden rounded-[48px]",
-          isTop ? "border-2 border-white/10 shadow-2xl" : "border border-white/5 shadow-xl"
+          'w-full h-full relative overflow-hidden rounded-[48px]',
+          isTop ? 'border-2 border-white/10 shadow-2xl' : 'border border-white/5 shadow-xl'
         )}
       >
-        {/* Gradient base — always visible immediately */}
         <div
           className="absolute inset-0 w-full h-full"
           style={{ background: gradient }}
         />
 
-        {/* Photo — fades in only after decode() completes */}
         {!imgError && (
-          <img
-            src={photo}
-            alt={card.label}
-            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-out"
-            draggable={false}
-            loading="eager"
-            style={{ 
-              opacity: imgReady ? 1 : 0, 
-              transform: 'translateZ(0)',
-              animation: imgReady 
-                ? 'photo-swim 14s ease-in-out 0.4s infinite' 
-                : 'none',
+          <div
+            className="absolute inset-0 transition-[opacity,transform] duration-500 ease-out will-change-transform"
+            style={{
+              opacity: imgReady ? 1 : 0,
+              transform: imgReady ? 'translate3d(0,0,0)' : 'translate3d(20px,0,0)',
             }}
-          />
+          >
+            <img
+              src={photo}
+              alt={card.label}
+              className="absolute inset-0 w-full h-full object-cover"
+              draggable={false}
+              loading="eager"
+              style={{
+                transform: 'translateZ(0)',
+                transformOrigin: 'center center',
+                backfaceVisibility: 'hidden',
+                filter: 'saturate(1.08) contrast(1.03)',
+                animation: imgReady ? 'photo-swim 14s ease-in-out 0.4s infinite' : 'none',
+                animationPlayState: isDragging ? 'paused' : 'running',
+              }}
+            />
+          </div>
         )}
 
-        {/* Cinematic gradient overlay & Liquid Glow */}
         <div className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/70 via-black/15 to-transparent pointer-events-none" />
-        
+
         {isTop && (
-          <div 
+          <div
             className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay animate-pulse"
             style={{
               background: 'radial-gradient(ellipse at 50% 120%, var(--primary) 0%, transparent 70%)'
@@ -175,7 +184,6 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
           />
         )}
 
-        {/* Info section */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-8 pb-8">
           <div className="flex flex-col gap-0.5">
             <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/50 mb-1">{card.description}</p>
@@ -196,7 +204,6 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
           )}
         </div>
 
-        {/* Small floating tag for background cards */}
         {!isTop && (
           <div className="absolute top-8 left-8 px-4 py-1.5 bg-black/50 backdrop-blur-sm rounded-full border border-white/10 shadow-md">
             <p className="text-[10px] font-black uppercase tracking-widest text-white/70">{card.label}</p>
