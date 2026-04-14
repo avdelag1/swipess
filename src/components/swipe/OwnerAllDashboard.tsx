@@ -132,7 +132,7 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
           {/* Card stack */}
           <div
             className="relative"
-            style={{ width: `min(${PK_W}px, calc(100vw - 120px))`, height: `min(${OWNER_PK_H}px, calc(100vh - 150px))` }}
+            style={{ width: `min(${PK_W}px, calc(100vw - 120px))`, height: `min(${OWNER_PK_H}px, calc(100vh - 120px))` }}
           >
             {[...cards].reverse().map((card, reversedIdx) => {
               const index = cards.length - 1 - reversedIdx;
