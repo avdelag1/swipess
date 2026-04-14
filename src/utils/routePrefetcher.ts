@@ -47,7 +47,6 @@ const routeImports: Record<string, RouteImport> = {
   '/client/dashboard': () => import('@/pages/ClientDashboard'),
   '/client/profile': () => import('@/pages/ClientProfile'),
   '/client/settings': () => import('@/pages/ClientSettings'),
-  '/client/liked-properties': () => import('@/pages/ClientLikedProperties'),
   '/client/contracts': () => import('@/pages/ClientContracts'),
   '/client/services': () => import('@/pages/ClientWorkerDiscovery'),
   '/client/saved-searches': () => import('@/pages/ClientSavedSearches'),
@@ -153,7 +152,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
   
   if (role === 'client') {
     const critical = ['/client/profile', ...sharedRoutes];
-    critical.forEach(p => prefetchRoute(p));
+    critical.forEach(p => prefetchRoute(p).catch(() => {}));
     
     // Everything else — sequential background prefetch (start fast)
     scheduleIdle(() => {
@@ -174,7 +173,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
     });
   } else {
     const critical = ['/owner/profile', '/owner/properties', ...sharedRoutes];
-    critical.forEach(p => prefetchRoute(p));
+    critical.forEach(p => prefetchRoute(p).catch(() => {}));
 
     // Everything else — sequential background prefetch (start fast)
     scheduleIdle(() => {

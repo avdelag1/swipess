@@ -5,7 +5,8 @@ const config: CapacitorConfig = {
   appName: 'Swipess',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    allowNavigation: ['*.supabase.co'],
   },
   ios: {
     contentInset: 'always',

@@ -1,5 +1,5 @@
 import { lazyWithRetry } from '@/utils/lazyRetry';
-import { memo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { TokensModal } from './TokensModal';
 import { useModalStore } from '@/state/modalStore';
 import { SmartSuspense } from './SmartSuspense';
@@ -69,6 +69,8 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
   const { navigate } = useAppNavigate();
   const store = useModalStore();
   const { shouldShowWelcome, dismissWelcome } = useWelcomeState(user?.id);
+  const [isWarmedUp, setIsWarmedUp] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setIsWarmedUp(true), 2000); return () => clearTimeout(t); }, []);
 
   // DATA FETCHING (Lazy-enabled)
   const { data: listings = [] } = useListings([], {
@@ -206,9 +208,9 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         />
       </DeferredDialog>
 
-      <SmartSuspense fallback={null}>
+      <DeferredDialog when={isWarmedUp}>
         <PushNotificationPrompt />
-      </SmartSuspense>
+      </DeferredDialog>
 
       <DeferredDialog when={shouldShowWelcome}>
         <WelcomeNotification
