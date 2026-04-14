@@ -1,30 +1,43 @@
 
 
-## Redesign Virtual ID Card with Switchable Themes
+## iOS Native-Grade Upgrade for App Store Submission
 
-### What's Wrong Now
-1. QR code overlaps with the X close button (visible in screenshot)
-2. Single static dark-blue design — no personality or customization
-3. Layout feels generic, not Apple-quality
+### What We're Doing
+Hardening the Capacitor iOS configuration, fixing safe-area handling, optimizing performance for native feel, and adding the required iOS privacy manifest -- all to ensure Apple accepts this app and it feels indistinguishable from native.
 
-### What We'll Build
+### Step 1: Optimize `capacitor.config.ts`
+- Set `contentInset: 'always'` (enables proper safe-area rendering behind status bar)
+- Set `scrollEnabled: false` (prevents WKWebView double-scroll conflicting with Framer Motion swipe cards)
+- Add `allowsLinkPreviews: false` and `limitsNavigationsToAppBoundDomains: true`
+- Set `SplashScreen.launchShowDuration: 0` (the web app renders fast enough -- no artificial delay)
+- Add `StatusBar` plugin config with `style: 'dark'` and `backgroundColor: '#000000'`
+- Add `Keyboard` plugin config with `resize: 'body'` and `scrollAssist: false` (prevents iOS keyboard push-up jank)
 
-A theme-switching system for the Virtual ID card with 5 premium skins the user can cycle through by tapping a small palette icon. Each theme changes the card's background, accent colors, pattern overlay, and typography tones.
+### Step 2: Add `PrivacyInfo.xcprivacy` 
+Create `ios/App/App/PrivacyInfo.xcprivacy` -- Apple requires this since iOS 17. Declare:
+- `NSPrivacyAccessedAPICategoryUserDefaults` (used by Capacitor/WKWebView for localStorage)
+- `NSPrivacyAccessedAPICategorySystemBootTime` (used by Date/performance APIs)
+- No tracking APIs declared (app doesn't use ATT)
 
-**Themes:**
-1. **Obsidian** — Pure black with subtle silver accents, minimal dot grid pattern
-2. **Pearl** — Clean white/cream with soft gray shadows, elegant light mode
-3. **Rosa Mexicano** — Hot pink gradient with cheetah/animal print pattern overlay at low opacity
-4. **Jungle** — Deep tropical greens with palm leaf silhouette pattern (Tulum vibe)
-5. **Sahara** — Warm sand/terracotta tones with abstract organic texture
+### Step 3: Harden CSS for native iOS feel
+In `src/index.css`:
+- Add `-webkit-touch-callout: none` globally (prevents long-press context menus on images)
+- Add `user-select: none` on interactive elements (buttons, cards) to prevent text selection during swipes
+- Ensure `overscroll-behavior: none` on body to kill rubber-banding outside the app's own pull-to-refresh
 
-**Layout Fixes:**
-- Move QR code to the bottom-right corner of the card (away from X button)
-- Move close button to top-right with proper clearance
-- QR gets smaller (56px) and sits in the footer area next to "swipess.app"
-- ID number stays top-right where QR used to be
+### Step 4: Fix StatusBar initialization timing
+In `src/main.tsx`, move the Capacitor StatusBar setup from the 15-second deferred init to a 1-second deferred init. Users currently see a white status bar for 15 seconds on cold launch before it turns dark. Move it to run immediately after first render.
 
-### Implementation
+### Step 5: Add `will-change: transform` to swipe cards
+In `src/index.css`, add `will-change: transform` to `.swipe-card` class to hint the compositor for GPU layer promotion on older iPhones (iPhone SE, iPhone 11).
 
-#### Step 1: Add theme state and definitions
-Add a `useState` for `themeIndex` in `VapIdCardModal.tsx`. Define a
+### Files to Modify
+- `capacitor.config.ts` -- iOS-optimized config
+- `ios/App/App/PrivacyInfo.xcprivacy` -- new file (Apple requirement)
+- `src/index.css` -- native-feel CSS hardening
+- `src/main.tsx` -- earlier StatusBar init
+
+### What This Does NOT Change
+- No routing, swipe physics, or layout architecture changes
+- No Supabase/auth changes
+- No component restructuring
