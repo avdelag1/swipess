@@ -130,7 +130,7 @@ function TopBarComponent({
       >
         <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 px-3 pointer-events-none">
 
-          {/* ── Pinned left: avatar + mode switcher + token badge ── */}
+          {/* ── Pinned left: avatar only ── */}
           <div className="flex-shrink-0 flex items-center gap-1.5 relative z-20 pointer-events-none">
             {showBack && (
               <motion.button
@@ -145,59 +145,35 @@ function TopBarComponent({
             )}
 
             {user && !minimal && (
-              <>
-                {/* Avatar */}
-                <motion.button
-                  whileTap={{ scale: 0.92 }}
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    haptics.select();
-                    navigate(userRole === 'owner' ? '/owner/profile' : '/client/profile');
-                  }}
-                  className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0"
-                  style={{ WebkitTapHighlightColor: 'transparent' }}
-                  aria-label="Go to profile"
-                >
-                  <Avatar className="h-[36px] w-[36px] rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
-                    <AvatarImage
-                      src={profile?.avatar_url || ''}
-                      className="object-cover w-full h-full rounded-full"
-                      loading="eager"
-                      fetchPriority="high"
-                    />
-                    <AvatarFallback className={cn(
-                      "text-sm font-black uppercase rounded-full w-full h-full flex items-center justify-center",
-                      isLight
-                        ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/90"
-                        : "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
-                    )}>
-                      {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </motion.button>
-
-                {/* Mode Switcher — pinned next to avatar */}
-                <div className="flex-shrink-0 pointer-events-auto">
-                  <ModeSwitcher variant="icon" size="sm" />
-                </div>
-
-                {/* Token Badge — icon only */}
-                <motion.button
-                  whileTap={{ scale: 0.92 }}
-                  onClick={() => {
-                    haptics.tap();
-                    useModalStore.getState().setModal('showTokensModal', true);
-                  }}
-                  className={cn(
-                    "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full pointer-events-auto touch-manipulation transition-all",
-                    "!bg-transparent !border-none !shadow-none hover:scale-105 active:scale-95"
-                  )}
-                  aria-label="View tokens"
-                >
-                  <Coins className="w-4 h-4 text-primary drop-shadow-[0_0_6px_hsl(var(--primary)/0.5)]" strokeWidth={1.8} />
-                </motion.button>
-              </>
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  haptics.select();
+                  navigate(userRole === 'owner' ? '/owner/profile' : '/client/profile');
+                }}
+                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
+                aria-label="Go to profile"
+              >
+                <Avatar className="h-[36px] w-[36px] rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
+                  <AvatarImage
+                    src={profile?.avatar_url || ''}
+                    className="object-cover w-full h-full rounded-full"
+                    loading="eager"
+                    fetchPriority="high"
+                  />
+                  <AvatarFallback className={cn(
+                    "text-sm font-black uppercase rounded-full w-full h-full flex items-center justify-center",
+                    isLight
+                      ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/90"
+                      : "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
+                  )}>
+                    {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </motion.button>
             )}
           </div>
 
@@ -212,29 +188,32 @@ function TopBarComponent({
             aria-label="Go to dashboard"
           />
 
-          {/* ── Horizontally scrollable row: remaining action buttons ── */}
-          <div className="flex-1 min-w-0 relative pointer-events-none">
-          {/* Tunnel clipping masks — rounded glass edges */}
+          {/* ── Horizontally scrollable row: actions start right after avatar ── */}
+          <div className="flex-1 min-w-0 relative pointer-events-none ml-1">
             <div
-              className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 z-20 rounded-l-full"
+              className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 z-30 rounded-l-full"
               style={{
                 background: isLight
-                  ? 'linear-gradient(to right, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.3) 40%, transparent 100%)'
-                  : 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 40%, transparent 100%)',
+                  ? 'linear-gradient(to right, rgba(255,255,255,0.68) 0%, rgba(255,255,255,0.18) 42%, transparent 100%)'
+                  : 'linear-gradient(to right, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.12) 42%, transparent 100%)',
                 boxShadow: isLight
-                  ? 'inset -3px 0 8px -4px rgba(0,0,0,0.08)'
-                  : 'inset -3px 0 8px -4px rgba(255,255,255,0.04)',
+                  ? 'inset -2px 0 8px -5px rgba(0,0,0,0.08)'
+                  : 'inset -2px 0 8px -5px rgba(255,255,255,0.05)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
               }}
             />
             <div
-              className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 z-20 rounded-r-full"
+              className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 z-30 rounded-r-full"
               style={{
                 background: isLight
-                  ? 'linear-gradient(to left, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.3) 40%, transparent 100%)'
-                  : 'linear-gradient(to left, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 40%, transparent 100%)',
+                  ? 'linear-gradient(to left, rgba(255,255,255,0.68) 0%, rgba(255,255,255,0.18) 42%, transparent 100%)'
+                  : 'linear-gradient(to left, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.12) 42%, transparent 100%)',
                 boxShadow: isLight
-                  ? 'inset 3px 0 8px -4px rgba(0,0,0,0.08)'
-                  : 'inset 3px 0 8px -4px rgba(255,255,255,0.04)',
+                  ? 'inset 2px 0 8px -5px rgba(0,0,0,0.08)'
+                  : 'inset 2px 0 8px -5px rgba(255,255,255,0.05)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
               }}
             />
             <div
@@ -249,16 +228,34 @@ function TopBarComponent({
                 touchAction: 'pan-x',
               } as React.CSSProperties}
             >
-              <div className="flex items-center gap-3 flex-nowrap justify-end pl-3 pr-1 [&>*]:pointer-events-auto">
+              <div className="flex items-center gap-3 flex-nowrap justify-start pl-1 pr-1 [&>*]:pointer-events-auto">
                 {!minimal && (
                   <>
-                    {/* Radio */}
+                    <div className="flex-shrink-0 pointer-events-auto">
+                      <ModeSwitcher variant="icon" size="sm" />
+                    </div>
+
+                    <motion.button
+                      whileTap={{ scale: 0.92 }}
+                      onClick={() => {
+                        haptics.tap();
+                        useModalStore.getState().setModal('showTokensModal', true);
+                      }}
+                      className={cn(
+                        'flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full pointer-events-auto touch-manipulation transition-all',
+                        '!bg-transparent !border-none !shadow-none hover:scale-105 active:scale-95'
+                      )}
+                      aria-label="View tokens"
+                    >
+                      <Coins className="w-4 h-4 text-primary drop-shadow-[0_0_6px_hsl(var(--primary)/0.5)]" strokeWidth={1.8} />
+                    </motion.button>
+
                     <Button
                       variant="ghost"
                       className={cn(
-                        "relative h-8 w-8 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none",
-                        "hover:scale-105 active:scale-95 group",
-                        "touch-manipulation flex items-center justify-center flex-shrink-0",
+                        'relative h-8 w-8 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none',
+                        'hover:scale-105 active:scale-95 group',
+                        'touch-manipulation flex items-center justify-center flex-shrink-0',
                       )}
                       onClick={guardedClick(() => {
                         haptics.tap();
@@ -266,20 +263,18 @@ function TopBarComponent({
                       })}
                       aria-label="Go to radio"
                     >
-                      <RadioIcon strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-rose-500" : "text-white/70")} style={{ filter: isLight ? 'drop-shadow(0 0 6px rgba(244,63,94,0.35))' : 'none' }} />
+                      <RadioIcon strokeWidth={1.5} className={cn('h-4 w-4', isLight ? 'text-rose-500' : 'text-white/70')} style={{ filter: isLight ? 'drop-shadow(0 0 6px rgba(244,63,94,0.35))' : 'none' }} />
                     </Button>
 
-                    {/* Theme Toggle */}
                     <ThemeToggle />
 
-                    {/* Resident ID Card (Client only) */}
                     {userRole !== 'owner' && (
                       <Button
                         variant="ghost"
                         className={cn(
-                          "relative h-8 w-8 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none",
-                          "hover:scale-105 active:scale-95 group",
-                          "touch-manipulation flex items-center justify-center flex-shrink-0",
+                          'relative h-8 w-8 px-0 transition-all duration-150 ease-out !bg-transparent !border-none !shadow-none',
+                          'hover:scale-105 active:scale-95 group',
+                          'touch-manipulation flex items-center justify-center flex-shrink-0',
                         )}
                         onClick={guardedClick(() => {
                           haptics.select();
@@ -287,11 +282,10 @@ function TopBarComponent({
                         })}
                         aria-label="Resident ID"
                       >
-                        <IdCard strokeWidth={1.5} className={cn("h-4 w-4", isLight ? "text-primary" : "text-white/70")} />
+                        <IdCard strokeWidth={1.5} className={cn('h-4 w-4', isLight ? 'text-primary' : 'text-white/70')} />
                       </Button>
                     )}
 
-                    {/* Notifications */}
                     <NotificationPopover />
                   </>
                 )}

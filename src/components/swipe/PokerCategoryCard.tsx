@@ -27,7 +27,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
   const dragTilt = useTransform(x, [-250, 0, 250], [-15, 0, 15]);
-  const { tiltX, tiltY } = useDeviceParallax(0.3);
+  const { tiltX, tiltY } = useDeviceParallax(0.3, 45, !isDragging);
   const isCycling = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -152,10 +152,12 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         className="w-full h-full"
         style={{
           transformStyle: 'preserve-3d',
+          willChange: 'transform',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
           transform: isTop
             ? `rotateX(${-activeParallaxY}deg) rotateY(${activeParallaxX}deg)`
             : index > 4 ? 'rotateX(0deg)' : 'rotateX(6deg)',
-          transition: isDragging ? 'none' : 'transform 0.15s ease-out',
         }}
       >
         {/* LAYER 3: Visual card surface */}
