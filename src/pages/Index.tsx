@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo, lazy, Suspense } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -6,8 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
-
-const LegendaryLandingPage = lazy(() => import("@/components/LegendaryLandingPage"));
+import LegendaryLandingPage from "@/components/LegendaryLandingPage";
 
 const Index = () => {
   const { user, loading, initialized } = useAuth();
@@ -246,9 +245,7 @@ const Index = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-[#050505] overflow-hidden">
-        <Suspense fallback={<SuspenseFallback />}>
-          <LegendaryLandingPage />
-        </Suspense>
+        <LegendaryLandingPage />
       </div>
     );
   }
