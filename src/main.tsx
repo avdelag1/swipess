@@ -9,6 +9,14 @@ import "./styles/responsive.css";
 import "./styles/PremiumShine.css";
 import { supabase } from "@/integrations/supabase/client";
 
+const hostname = window.location.hostname;
+const isPreviewHost = import.meta.env.DEV
+  || hostname === 'localhost'
+  || hostname === '127.0.0.1'
+  || hostname.includes('lovableproject.com')
+  || hostname.includes('id-preview--');
+const PREVIEW_CACHE_RESET_KEY = 'swipess-preview-cache-reset-v1';
+
 // 1. START AUTH CHECK BEFORE RENDERING (Parallel process)
 const authPromise = supabase.auth.getSession()
   .then(res => res || { data: { session: null }, error: null })
@@ -26,12 +34,46 @@ const initHaptics = () => {
   }, { capture: true, passive: true });
 };
 
-// 2. RENDER REACT (Robust)
-const rootElement = document.getElementById("root");
-if (rootElement) {
-  const root = createRoot(rootElement as HTMLElement);
-  root.render(<App authPromise={authPromise} />);
+async function resetPreviewRuntimeState() {
+  if (!isPreviewHost) return false;
+
+  const registrations = 'serviceWorker' in navigator
+    ? await navigator.serviceWorker.getRegistrations()
+    : [];
+  const cacheKeys = 'caches' in window ? await caches.keys() : [];
+  const swipessCaches = cacheKeys.filter((key) => key.startsWith('swipess-'));
+
+  if (registrations.length === 0 && swipessCaches.length === 0) {
+    return false;
+  }
+
+  await Promise.allSettled(registrations.map((registration) => registration.unregister()));
+  await Promise.allSettled(swipessCaches.map((key) => caches.delete(key)));
+
+  const alreadyReset = sessionStorage.getItem(PREVIEW_CACHE_RESET_KEY) === 'true';
+  if (!alreadyReset) {
+    sessionStorage.setItem(PREVIEW_CACHE_RESET_KEY, 'true');
+    return true;
+  }
+
+  return false;
 }
+
+async function bootstrap() {
+  const shouldReload = await resetPreviewRuntimeState();
+  if (shouldReload) {
+    window.location.reload();
+    return;
+  }
+
+  const rootElement = document.getElementById("root");
+  if (rootElement) {
+    const root = createRoot(rootElement as HTMLElement);
+    root.render(<App authPromise={authPromise} />);
+  }
+}
+
+void bootstrap();
 
 // 3. DEFERRED INITIALIZATION (Quiet Background)
 const deferredInit = (callback: () => void, timeout = 5000) => {
@@ -63,7 +105,7 @@ deferredInit(async () => {
 
     // 🚀 ZENITH: SERVICE WORKER REGISTRATION
     // Register the elite sw.js for offline support, push notifications, and background sync.
-    if ('serviceWorker' in navigator && !window.location.host.includes('localhost')) {
+    if ('serviceWorker' in navigator && !isPreviewHost) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js', { scope: '/' })
           .then(reg => {
