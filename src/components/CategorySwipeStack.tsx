@@ -281,9 +281,9 @@ function CategoryCard({
             return;
         }
 
-        if (info.offset.x > 80) {
+        if (info.offset.x > 50) {
             onSwipeRight();
-        } else if (info.offset.x < -80) {
+        } else if (info.offset.x < -50) {
             onSwipeLeft();
         }
     };
@@ -291,8 +291,8 @@ function CategoryCard({
     return (
         <motion.div
             drag={isTop ? true : false}
-            dragConstraints={{ left: -150, right: 150, top: -250, bottom: 0 }} 
-            dragElastic={0.12}
+            dragConstraints={{ left: -200, right: 200, top: -250, bottom: 0 }} 
+            dragElastic={0.55}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onClick={() => !isTop && onSelect()}
@@ -307,9 +307,9 @@ function CategoryCard({
             }}
             transition={{ 
                 type: 'spring', 
-                stiffness: isDragging ? 800 : 180, 
-                damping: isDragging ? 35 : 26, 
-                mass: isDragging ? 0.8 : 1.2
+                stiffness: isDragging ? 400 : 180, 
+                damping: isDragging ? 24 : 26, 
+                mass: isDragging ? 0.3 : 1.2
             }}
             whileHover={!isTop ? { 
                 y: fanY - 20, 

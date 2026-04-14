@@ -32,8 +32,8 @@ export interface SimpleOwnerSwipeCardRef {
 }
 
 // Tinder-style thresholds
-const SWIPE_THRESHOLD = 100; // Distance to trigger swipe
-const VELOCITY_THRESHOLD = 400; // Velocity to trigger swipe
+const SWIPE_THRESHOLD = 65; // Distance to trigger swipe
+const VELOCITY_THRESHOLD = 280; // Velocity to trigger swipe
 
 // Max rotation angle (degrees) based on horizontal position
 const MAX_ROTATION = 15; // Slightly reduced for a more "expensive" feel
@@ -47,15 +47,15 @@ const FALLBACK_PLACEHOLDER = '/placeholder.svg';
  * Optimized for "Velocity" - minimal drag and maximum return speed
  */
 const SPRING_CONFIGS = {
-  // SNAPPY: Quick response, minimal overshoot (Best for high-volume swiping)
-  SNAPPY: { stiffness: 600, damping: 35, mass: 0.8 },
+  // SILK: iOS-native silky feel — responsive but graceful settling
+  SILK: { stiffness: 400, damping: 24, mass: 0.3 },
   // NATIVE: iOS-like balanced feel
   NATIVE: { stiffness: 450, damping: 28, mass: 1 },
   // PREMIUM: Heavy, smooth, luxurious
   PREMIUM: { stiffness: 350, damping: 25, mass: 1.2 },
 };
 
-const ACTIVE_SPRING = SPRING_CONFIGS.SNAPPY;
+const ACTIVE_SPRING = SPRING_CONFIGS.SILK;
 
 // Client profile type
 interface ClientProfile {
@@ -456,8 +456,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       // Spring-based exit animation - feels more natural than tween
       animate(x, exitX, {
         type: 'spring',
-        stiffness: 600,
-        damping: 30,
+        stiffness: 400,
+        damping: 24,
         velocity: velocityX,
         onComplete: () => {
           isExitingRef.current = false;
@@ -468,8 +468,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       // Animate Y in parallel
       animate(y, Math.min(Math.max(exitY, -300), 300), {
         type: 'spring',
-        stiffness: 600,
-        damping: 30,
+        stiffness: 400,
+        damping: 24,
         velocity: velocityY,
       });
     } else {
@@ -551,16 +551,15 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     // Spring-based exit for button taps (consistent physics)
     animate(x, exitX, {
       type: 'spring',
-      stiffness: 500,
-      damping: 30,
+      stiffness: 400,
+      damping: 24,
       onComplete: fireSwipe,
     });
 
-    // Slight upward arc for button swipes
     animate(y, -50, {
       type: 'spring',
-      stiffness: 500,
-      damping: 30,
+      stiffness: 400,
+      damping: 24,
     });
 
     // SAFETY NET: If animation callback doesn't fire within 350ms, force it

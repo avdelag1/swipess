@@ -76,7 +76,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     const dist = Math.abs(info.offset.x);
     const vel = Math.abs(info.velocity.x);
 
-    if (dist > 60 || vel > 350) {
+    if (dist > 40 || vel > 250) {
       isCycling.current = true;
       triggerHaptic('medium');
       const direction = info.offset.x > 0 ? 'right' : 'left';
@@ -84,9 +84,9 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
 
       animate(x, exitX, {
         type: 'spring',
-        stiffness: 800,
-        damping: 35,
-        mass: 0.4,
+        stiffness: 500,
+        damping: 28,
+        mass: 0.3,
         onComplete: () => {
           setIsDragging(false);
           setIsInteracting(false);
@@ -99,8 +99,8 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       triggerHaptic('light');
       animate(x, 0, {
         type: 'spring',
-        stiffness: 600,
-        damping: 25,
+        stiffness: 350,
+        damping: 22,
         mass: 0.3,
         onComplete: () => {
           setIsDragging(false);
@@ -125,7 +125,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     <motion.div
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.18}
+      dragElastic={0.65}
       dragMomentum={false}
       onPointerDownCapture={isTop ? handlePointerDownCapture : undefined}
       onPointerUpCapture={isTop ? handlePointerReleaseCapture : undefined}
