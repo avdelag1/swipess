@@ -341,8 +341,9 @@ export const BottomNavigation = memo(({
   );
 
   const isActive = (item: NavItem) => {
-
-    return item.path ? location.pathname === item.path : false;
+    if (!item.path) return false;
+    // Exact match OR startsWith for sub-routes (e.g. /client/dashboard/*)
+    return location.pathname === item.path || location.pathname.startsWith(item.path + '/');
   };
 
   const iconColorInactive = isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.65)';

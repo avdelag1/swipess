@@ -1,9 +1,6 @@
 // cache-bust: 2026-04-14
-import { useState, useCallback, memo, useEffect } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/hooks/useAuth';
-import { useUserRole } from '@/hooks/useUserRole';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -31,38 +28,8 @@ export interface SwipeAllDashboardProps {
 export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps) => {
   const [cards, setCards] = useState([...POKER_CARDS]);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
 
-  const { data: role } = useUserRole(user?.id);
   const [showVapModal, setShowVapModal] = useState(false);
-
-  // 🚀 SPEED OF LIGHT: Pre-fetch top card data on hover/cycle
-  useEffect(() => {
-    if (!user?.id || cards.length === 0) return;
-    const topId = cards[0].id as string;
-    if (topId === 'radio') return;
-
-    const filters = topId === 'all' ? {} : { category: topId };
-    const filtersKey = JSON.stringify(filters);
-
-    try {
-      if (role === 'owner') {
-        const isRoommate = topId === 'roommates';
-        const qk = ['smart-clients', user.id, isRoommate ? 'property' : topId, 0, false, '{}', isRoommate];
-        if (queryClient.getQueryData(qk)) {
-          queryClient.prefetchQuery({ queryKey: qk, staleTime: 120000 });
-        }
-      } else {
-        const qk = ['smart-listings', user.id, filtersKey, 0, false];
-        if (queryClient.getQueryData(qk)) {
-          queryClient.prefetchQuery({ queryKey: qk, staleTime: 120000 });
-        }
-      }
-    } catch {
-      // Silently skip prefetch if queryFn not yet registered
-    }
-  }, [cards, user?.id, queryClient, role]);
 
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
     triggerHaptic('medium');
