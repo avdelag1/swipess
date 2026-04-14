@@ -22,7 +22,7 @@ import {
   Users2, ShieldCheck,
   Megaphone, PartyPopper, Scale,
   Zap, SlidersHorizontal, Sparkles,
-  Ticket, IdCard
+  Ticket, IdCard, Palette
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -80,8 +80,13 @@ export const BottomNavigation = memo(({
   const setModal = useModalStore((s) => s.setModal);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
-  const { theme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const isLight = theme === 'light';
+
+  const toggleTheme = useCallback(() => {
+    const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'cheers' : 'light';
+    setTheme(nextTheme);
+  }, [theme, setTheme]);
 
   const { t } = useTranslation();
 
@@ -104,7 +109,7 @@ export const BottomNavigation = memo(({
   }, []);
 
 
-  // Client nav items (8 buttons)
+  // Client nav items
   const clientNavItems: NavItem[] = [
     { id: 'dashboard', icon: Zap, label: 'Dashboard', path: '/client/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/client/profile' },
@@ -115,10 +120,11 @@ export const BottomNavigation = memo(({
     { id: 'events', icon: PartyPopper, label: 'Events', path: '/explore/eventos' },
     { id: 'tokens', icon: Ticket, label: 'Tokens', onClick: () => setModal('showTokensModal', true) },
     { id: 'vapid', icon: IdCard, label: 'ID Card', onClick: () => setModal('showVapId', true) },
+    { id: 'theme', icon: Palette, label: 'Theme', onClick: () => toggleTheme() },
     { id: 'search', icon: SlidersHorizontal, label: 'Discovery', onClick: onFilterClick },
   ];
 
-  // Owner nav items (8 buttons)
+  // Owner nav items
   const ownerNavItems: NavItem[] = [
     { id: 'dashboard', icon: Zap, label: 'System', path: '/owner/dashboard' },
     { id: 'profile', icon: CircleUser, label: 'Profile', path: '/owner/profile' },
@@ -129,6 +135,7 @@ export const BottomNavigation = memo(({
     { id: 'legal', icon: Scale, label: 'Legal Hub', path: '/owner/legal-services' },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
     { id: 'tokens', icon: Ticket, label: 'Tokens', onClick: () => setModal('showTokensModal', true) },
+    { id: 'theme', icon: Palette, label: 'Theme', onClick: () => toggleTheme() },
     { id: 'filters', icon: SlidersHorizontal, label: 'Filters', path: '/owner/clients/property' },
   ];
 
