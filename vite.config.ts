@@ -75,7 +75,7 @@ export default defineConfig(({ mode }) => ({
     minify: 'esbuild',
     cssMinify: true,
     cssCodeSplit: true,
-    sourcemap: true,
+    sourcemap: false,
     reportCompressedSize: false,
     chunkSizeWarningLimit: 3000,
     rollupOptions: {
