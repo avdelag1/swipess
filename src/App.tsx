@@ -13,7 +13,7 @@ import { AppOutagePage } from "@/components/AppOutagePage";
 import { APP_STATUS, hasOutageBypass } from "@/config/outage";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
-
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { SpeedOfLightPreloader } from "@/components/SpeedOfLightPreloader";
 import Index from "./pages/Index";
@@ -116,6 +116,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
       <RootProviders authPromise={authPromise}>
         <SpeedOfLightPreloader />
         <AppLayout>
+          <TooltipProvider>
           <WelcomeBonusModal />
 
           <Suspense fallback={null}>
@@ -207,6 +208,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             <Route path="/share-target" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><NotFound /></AnimatedPage></Suspense>} />
           </Routes>
+          </TooltipProvider>
         </AppLayout>
       </RootProviders>
     </GlobalErrorBoundary>
