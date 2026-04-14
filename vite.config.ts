@@ -51,14 +51,18 @@ export default defineConfig(({ mode }) => ({
     }
   ],
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react-router-dom', '@tanstack/react-query'],
+    include: [
+      'react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime',
+      'scheduler', 'react-router-dom', '@tanstack/react-query', 'zustand', 'zustand/react',
+      'framer-motion',
+    ],
     force: true,
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    dedupe: ['react', 'react-dom', 'react-router-dom', '@tanstack/react-query'],
+    dedupe: ['react', 'react-dom', 'scheduler', 'react-router-dom', '@tanstack/react-query', 'zustand'],
   },
   define: {
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(new Date().toISOString()),
