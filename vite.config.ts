@@ -64,10 +64,12 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      react: path.resolve(__dirname, "./node_modules/react"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      react: path.resolve(__dirname, "./node_modules/react/index.js"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom/index.js"),
+      "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime.js"),
+      "react/jsx-dev-runtime": path.resolve(__dirname, "./node_modules/react/jsx-dev-runtime.js"),
     },
-    dedupe: ['react', 'react-dom', 'scheduler', 'react-router-dom', '@tanstack/react-query', 'zustand'],
+    dedupe: ['react', 'react-dom', 'scheduler', 'react-router-dom', '@tanstack/react-query', 'zustand', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
   },
   define: {
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(new Date().toISOString()),

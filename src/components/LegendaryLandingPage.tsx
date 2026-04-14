@@ -182,25 +182,27 @@ const SocialAuthButton = ({
   label,
   onClick,
   icon,
+  isLoading,
 }: {
   label: string;
   onClick: () => void;
   icon: React.ReactNode;
+  isLoading?: boolean;
 }) => (
   <button
     type="button"
     onClick={onClick}
-    aria-label={`${label} sign in coming soon`}
-    className="group flex h-14 w-full items-center justify-between gap-3 overflow-hidden rounded-2xl border border-border bg-card/90 px-4 text-sm font-semibold text-foreground shadow-lg shadow-black/20 transition-all duration-200 hover:border-primary/40 hover:bg-accent/50 active:scale-[0.98]"
+    disabled={isLoading}
+    aria-label={`Sign in with ${label}`}
+    className="group flex h-14 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-border bg-card/90 px-4 text-sm font-semibold text-foreground shadow-lg shadow-black/20 transition-all duration-200 hover:border-primary/40 hover:bg-accent/50 active:scale-[0.98] disabled:opacity-60"
   >
     <span className="flex min-w-0 items-center gap-3">
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background/50 text-foreground/90 transition-colors duration-200 group-hover:bg-background/70">
         {icon}
       </span>
-      <span className="truncate text-base font-bold tracking-tight">{label}</span>
-    </span>
-    <span className="inline-flex shrink-0 items-center rounded-full border border-border bg-background/70 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">
-      Soon
+      <span className="truncate text-base font-bold tracking-tight">
+        {isLoading ? 'Connecting...' : label}
+      </span>
     </span>
   </button>
 );
@@ -237,7 +239,8 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithOAuth } = useAuth();
+  const [socialLoading, setSocialLoading] = useState<'apple' | 'google' | null>(null);
   const _passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
 
   useEffect(() => {
@@ -306,12 +309,16 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
     setShowPassword(false); setAgreeToTerms(false);
   };
 
-  const handleSocialComingSoon = (provider: 'Apple' | 'Google') => {
+  const handleSocialLogin = async (provider: 'apple' | 'google') => {
     triggerHaptic('light');
-    toast({
-      title: 'Coming soon',
-      description: `${provider} sign in is not live yet. You can still continue with your email and password right now.`,
-    });
+    setSocialLoading(provider);
+    try {
+      await signInWithOAuth(provider, 'client');
+    } catch {
+      // Error handled inside signInWithOAuth
+    } finally {
+      setSocialLoading(null);
+    }
   };
 
   const containerVariants = { hidden: {}, visible: { transition: { staggerChildren: 0.03, delayChildren: 0.06 } } };
@@ -435,7 +442,8 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
                 <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
                   <SocialAuthButton
                     label="Apple"
-                    onClick={() => handleSocialComingSoon('Apple')}
+                    onClick={() => handleSocialLogin('apple')}
+                    isLoading={socialLoading === 'apple'}
                     icon={
                       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
                         <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
@@ -444,7 +452,8 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
                   />
                   <SocialAuthButton
                     label="Google"
-                    onClick={() => handleSocialComingSoon('Google')}
+                    onClick={() => handleSocialLogin('google')}
+                    isLoading={socialLoading === 'google'}
                     icon={
                       <svg viewBox="0 0 24 24" className="h-4 w-4" xmlns="http://www.w3.org/2000/svg">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -454,13 +463,6 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
                       </svg>
                     }
                   />
-                </motion.div>
-
-                <motion.div variants={itemVariants} className="mt-3 rounded-xl border border-border bg-muted/30 px-4 py-3 text-center">
-                  <p className="text-sm font-semibold text-foreground">Coming soon</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    Apple and Google sign in are on the way. For now, keep using your normal email and password.
-                  </p>
                 </motion.div>
               </>
             )}

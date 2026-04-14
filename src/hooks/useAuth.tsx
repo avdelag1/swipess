@@ -453,77 +453,34 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
 
   const signInWithOAuth = async (provider: 'google' | 'apple', role: 'client' | 'owner' = 'client') => {
     try {
-      const clientUrl = (supabase as any)?.supabaseUrl;
-      const clientKey = (supabase as any)?.supabaseKey;
-      
-      if (!clientUrl || !clientKey) {
-        throw new Error('Supabase configuration is missing. Please check your client setup.');
-      }
-
       // Store role before OAuth redirect
       localStorage.setItem('pendingOAuthRole', role);
 
-      // Provider-specific OAuth query params
-      const queryParams: Record<string, string> = provider === 'google'
-        ? { prompt: 'consent', access_type: 'offline' }
-        : {}; // Apple handles its own consent flow
+      const { lovable } = await import('@/integrations/lovable/index');
 
-      // Use current origin as fallback to support all environments (dev, staging, production)
-      const redirectUrl = import.meta.env.VITE_APP_URL || window.location.origin;
-
-      const oauthOptions: any = {
-        redirectTo: redirectUrl,
-      };
-      // Only pass queryParams if non-empty (Apple doesn't need them)
-      if (Object.keys(queryParams).length > 0) {
-        oauthOptions.queryParams = queryParams;
-      }
-      // Apple-specific: request email and name scopes
-      if (provider === 'apple') {
-        oauthOptions.scopes = 'email name';
-      }
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: oauthOptions,
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: window.location.origin,
+        ...(provider === 'google' ? { extraParams: { prompt: 'select_account' } } : {}),
       });
 
-      if (error) {
-        logger.error(`[Auth] ${provider} OAuth error:`, error);
+      if (result.error) {
+        logger.error(`[Auth] ${provider} OAuth error:`, result.error);
         localStorage.removeItem('pendingOAuthRole');
-        throw error;
+        throw result.error;
       }
 
+      if (result.redirected) {
+        // Browser will redirect to provider — just return
+        return { error: null };
+      }
+
+      // Tokens received and session set — user is authenticated
       return { error: null };
     } catch (error: any) {
       if (import.meta.env.DEV) logger.error(`[Auth] ${provider} OAuth error:`, error);
       localStorage.removeItem('pendingOAuthRole');
 
-      let errorMessage = `Failed to sign in with ${provider}. Please try again.`;
-
-      if (error.message?.includes('Supabase configuration is missing')) {
-        errorMessage = error.message;
-      } else if (error.message?.includes('Email link is invalid')) {
-        errorMessage = 'OAuth link expired. Please try signing in again.';
-      } else if (error.message?.includes('access_denied')) {
-        errorMessage = `Access denied. Please grant permission to continue with ${provider}.`;
-      } else if (error.message?.includes('Provider not enabled') || error.message?.includes('not enabled')) {
-        const providerName = provider === 'google' ? 'Google' : provider === 'apple' ? 'Apple' : provider;
-        errorMessage = `${providerName} OAuth is not enabled in Supabase.`;
-      } else if (error.message?.includes('redirect_uri_mismatch')) {
-        errorMessage = 'Redirect URL configuration error.';
-      } else if (error.message?.includes('invalid_client')) {
-        errorMessage = 'Invalid OAuth credentials.';
-      } else if (error.message?.includes('invalid_grant')) {
-        errorMessage = 'Authorization grant error. Please try signing in again.';
-      } else if (error.status === 400) {
-        errorMessage = 'Bad OAuth request.';
-      } else if (error.status === 401 || error.status === 403) {
-        errorMessage = `OAuth authentication failed (${error.status}).`;
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
+      const errorMessage = error.message || `Failed to sign in with ${provider}. Please try again.`;
       appToast.error("OAuth Sign In Failed", errorMessage);
       return { error };
     }
