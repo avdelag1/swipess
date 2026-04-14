@@ -465,14 +465,25 @@ export const BottomNavigation = memo(({
                   scrollSnapAlign: 'start',
                   minHeight: TOUCH_TARGET,
                   padding: '6px 8px',
-                  background: 'none',
-                  border: 'none',
-                  boxShadow: 'none',
+                  background: active
+                    ? (isLight ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.1)')
+                    : 'none',
+                  backdropFilter: active ? 'blur(12px) saturate(1.3)' : 'none',
+                  WebkitBackdropFilter: active ? 'blur(12px) saturate(1.3)' : 'none',
+                  border: active
+                    ? (isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)')
+                    : 'none',
+                  boxShadow: active
+                    ? (isLight
+                      ? '0 1px 6px rgba(0,0,0,0.06)'
+                      : '0 1px 8px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.06)')
+                    : 'none',
                   cursor: 'pointer',
                   flexShrink: 0,
                   touchAction: 'manipulation',
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
+                  transition: 'background 0.25s ease, backdrop-filter 0.25s ease, border 0.25s ease, box-shadow 0.25s ease',
                 }}
               >
                 {active && (
