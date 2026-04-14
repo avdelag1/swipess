@@ -654,7 +654,8 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     };
 
     recognition.onerror = (e: any) => {
-      if (e.error === 'no-speech') return;
+      // no-speech is common on Android — don't kill the session, just let onend restart it
+      if (e.error === 'no-speech' || e.error === 'aborted') return;
       if (isCountingDownRef.current) return; 
 
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
@@ -679,7 +680,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     lastFinalTranscriptRef.current = '';
     recognition.start();
     setIsListening(true);
-  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown]);
+  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown, voicePulse]);
 
   const toggleListening = useCallback(() => {
     if (isListening || countdown !== null) {
