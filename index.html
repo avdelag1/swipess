@@ -140,21 +140,27 @@
     function removeSplash() {
       var loader = document.getElementById('initial-loader');
       var root = document.getElementById('root');
+      /* Step 1: Make root visible BEHIND the splash (no flash) */
       if (root) root.classList.add('hydrated');
-      if (loader && !loader.classList.contains('dissolving')) {
-        loader.classList.add('dissolving');
-        setTimeout(function() { if(loader.parentNode) loader.remove(); }, 300);
-      }
+      /* Step 2: Wait 2 frames so root is fully painted, THEN dissolve splash */
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          if (loader && !loader.classList.contains('dissolving')) {
+            loader.classList.add('dissolving');
+            setTimeout(function() { if(loader.parentNode) loader.remove(); }, 500);
+          }
+        });
+      });
     }
     var mountTimer = setTimeout(removeSplash, 1500);
     window.addEventListener('app-rendered', function() {
       window.__APP_INITIALIZED__ = true;
       clearTimeout(mountTimer);
-      requestAnimationFrame(removeSplash);
+      removeSplash();
       setTimeout(function() {
         var ss = document.getElementById('splash-styles');
         if (ss) ss.remove();
-      }, 500);
+      }, 800);
     });
     // Dynamic theme-color: sync status bar with app theme
     (function(){
