@@ -130,7 +130,7 @@ function TopBarComponent({
       >
         <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 px-3 pointer-events-none">
 
-          {/* ── Pinned left: avatar only ── */}
+          {/* ── Left pinned: avatar + dashboard mode switcher ── */}
           <div className="flex-shrink-0 flex items-center gap-1.5 relative z-20 pointer-events-none">
             {showBack && (
               <motion.button
@@ -175,6 +175,12 @@ function TopBarComponent({
                 </Avatar>
               </motion.button>
             )}
+
+            {!minimal && (
+              <div className="flex-shrink-0 pointer-events-auto">
+                <ModeSwitcher variant="icon" size="sm" />
+              </div>
+            )}
           </div>
 
           {/* ── Center tap: dashboard shortcut ── */}
@@ -188,32 +194,28 @@ function TopBarComponent({
             aria-label="Go to dashboard"
           />
 
-          {/* ── Horizontally scrollable row: actions start right after avatar ── */}
-          <div className="flex-1 min-w-0 relative pointer-events-none ml-1">
+          {/* ── Spacer ── */}
+          <div className="flex-1 min-w-0" />
+
+          {/* ── Right side: tokens, radio, theme, ID, notifications ── */}
+          <div className="flex-shrink-0 relative pointer-events-none">
+            {/* Glassmorphic fade masks — blur only, no dark shade, vanishing edges */}
             <div
-              className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 z-30 rounded-l-full"
+              className="pointer-events-none absolute left-0 top-0 bottom-0 w-5 z-30"
               style={{
-                background: isLight
-                  ? 'linear-gradient(to right, rgba(255,255,255,0.68) 0%, rgba(255,255,255,0.18) 42%, transparent 100%)'
-                  : 'linear-gradient(to right, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.12) 42%, transparent 100%)',
-                boxShadow: isLight
-                  ? 'inset -2px 0 8px -5px rgba(0,0,0,0.08)'
-                  : 'inset -2px 0 8px -5px rgba(255,255,255,0.05)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                maskImage: 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
               }}
             />
             <div
-              className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 z-30 rounded-r-full"
+              className="pointer-events-none absolute right-0 top-0 bottom-0 w-5 z-30"
               style={{
-                background: isLight
-                  ? 'linear-gradient(to left, rgba(255,255,255,0.68) 0%, rgba(255,255,255,0.18) 42%, transparent 100%)'
-                  : 'linear-gradient(to left, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.12) 42%, transparent 100%)',
-                boxShadow: isLight
-                  ? 'inset 2px 0 8px -5px rgba(0,0,0,0.08)'
-                  : 'inset 2px 0 8px -5px rgba(255,255,255,0.05)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                maskImage: 'linear-gradient(to left, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
               }}
             />
             <div
@@ -226,15 +228,12 @@ function TopBarComponent({
                 scrollbarWidth: 'none',
                 WebkitOverflowScrolling: 'touch',
                 touchAction: 'pan-x',
+                maxWidth: '200px',
               } as React.CSSProperties}
             >
-              <div className="flex items-center gap-3 flex-nowrap justify-start pl-1 pr-1 [&>*]:pointer-events-auto">
+              <div className="flex items-center gap-3 flex-nowrap justify-end pl-1 pr-1 [&>*]:pointer-events-auto">
                 {!minimal && (
                   <>
-                    <div className="flex-shrink-0 pointer-events-auto">
-                      <ModeSwitcher variant="icon" size="sm" />
-                    </div>
-
                     <motion.button
                       whileTap={{ scale: 0.92 }}
                       onClick={() => {

@@ -552,31 +552,23 @@ export const BottomNavigation = memo(({
           })}
         </div>
 
-        {/* Tunnel clipping masks — soft overlay on top of icons */}
+        {/* Tunnel glassmorphic masks — blur only, no dark shade, vanishing edges */}
         <div
-          className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 z-30 rounded-l-[32px]"
+          className="pointer-events-none absolute left-0 top-0 bottom-0 w-7 z-30 rounded-l-[32px]"
           style={{
-            background: isLight
-              ? 'linear-gradient(to right, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.18) 48%, transparent 100%)'
-              : 'linear-gradient(to right, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.12) 48%, transparent 100%)',
-            boxShadow: isLight
-              ? 'inset -3px 0 10px -6px rgba(0,0,0,0.1)'
-              : 'inset -3px 0 10px -6px rgba(255,255,255,0.05)',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
+            maskImage: 'linear-gradient(to right, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)',
           }}
         />
         <div
-          className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 z-30 rounded-r-[32px]"
+          className="pointer-events-none absolute right-0 top-0 bottom-0 w-7 z-30 rounded-r-[32px]"
           style={{
-            background: isLight
-              ? 'linear-gradient(to left, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.18) 48%, transparent 100%)'
-              : 'linear-gradient(to left, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.12) 48%, transparent 100%)',
-            boxShadow: isLight
-              ? 'inset 3px 0 10px -6px rgba(0,0,0,0.1)'
-              : 'inset 3px 0 10px -6px rgba(255,255,255,0.05)',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
+            maskImage: 'linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)',
           }}
         />
       </div>
