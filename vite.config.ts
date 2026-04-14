@@ -51,8 +51,6 @@ export default defineConfig(({ mode }) => ({
     }
   ],
   optimizeDeps: {
-    // Force eager pre-bundling to avoid 504 timeouts on cold starts
-    force: true,
     include: [
       'react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime',
       'scheduler', 'react-router-dom', '@tanstack/react-query', 'zustand', 'zustand/react',
