@@ -367,7 +367,6 @@ export default function EventosFeed() {
         ref={parentRef} 
         className="w-full h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar overscroll-contain touch-pan-y scroll-smooth"
       >
-      >
         <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
           {rowVirtualizer.getVirtualItems().map((virtualRow) => {
             const event = filteredEvents[virtualRow.index];
