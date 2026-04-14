@@ -169,7 +169,7 @@ const ClientProfile = () => {
           </div>
         </motion.div>
 
-        <VapIdCardModal 
+        <VapIdEditModal 
           isOpen={isVapModalOpen} 
           onClose={() => setIsVapModalOpen(false)} 
         />
