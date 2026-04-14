@@ -22,7 +22,7 @@ import {
   Users2, ShieldCheck,
   Megaphone, PartyPopper, Scale,
   Zap, SlidersHorizontal, Sparkles,
-  Ticket, IdCard, Palette
+  Ticket, IdCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -80,13 +80,8 @@ export const BottomNavigation = memo(({
   const setModal = useModalStore((s) => s.setModal);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const isLight = theme === 'light';
-
-  const toggleTheme = useCallback(() => {
-    const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'cheers' : 'light';
-    setTheme(nextTheme);
-  }, [theme, setTheme]);
 
   const { t } = useTranslation();
 
