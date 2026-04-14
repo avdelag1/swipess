@@ -201,21 +201,21 @@ function TopBarComponent({
           <div className="flex-shrink-0 relative pointer-events-none">
             {/* Glassmorphic fade masks — blur only, no dark shade, vanishing edges */}
             <div
-              className="pointer-events-none absolute left-0 top-0 bottom-0 w-5 z-30"
+              className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 z-30"
               style={{
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                maskImage: 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
-                WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                maskImage: 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.05) 70%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.05) 70%, transparent 100%)',
               }}
             />
             <div
-              className="pointer-events-none absolute right-0 top-0 bottom-0 w-5 z-30"
+              className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 z-30"
               style={{
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                maskImage: 'linear-gradient(to left, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
-                WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                maskImage: 'linear-gradient(to left, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.05) 70%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.05) 70%, transparent 100%)',
               }}
             />
             <div
@@ -228,7 +228,7 @@ function TopBarComponent({
                 scrollbarWidth: 'none',
                 WebkitOverflowScrolling: 'touch',
                 touchAction: 'pan-x',
-                maxWidth: '200px',
+                maxWidth: '280px',
               } as React.CSSProperties}
             >
               <div className="flex items-center gap-3 flex-nowrap justify-end pl-1 pr-1 [&>*]:pointer-events-auto">
