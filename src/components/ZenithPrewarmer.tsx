@@ -39,13 +39,7 @@ export const ZenithPrewarmer = () => {
       }
 
       // 2. Pre-warm Persistent Shared Data
-      runIdleTask(() => {
-
-        queryClient.prefetchQuery({
-          queryKey: ['topbar-token-packages', role === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use'],
-          staleTime: 1000 * 60 * 60 * 24,
-        });
-      });
+      // Token packages prefetch removed — no queryFn was defined
 
       // 🚀 PHASE 2: Predictive DNS / TCP Pre-resolution
       // Shaves 100-300ms off initial external resource fetches
