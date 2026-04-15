@@ -244,7 +244,7 @@ const Index = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#050505] overflow-hidden">
+      <div className="min-h-screen bg-black overflow-hidden">
         <LegendaryLandingPage />
       </div>
     );

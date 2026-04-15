@@ -108,7 +108,9 @@ const LandingView = memo(({
       triggered.current = true;
       playRandomZen(0.45);
       triggerHaptic('success');
-      onEnterAuth();
+      // Animate logo flying off to the right before showing auth
+      animate(x, window.innerWidth + 100, { type: 'spring', stiffness: 200, damping: 22, mass: 0.6 });
+      setTimeout(onEnterAuth, 280);
     } else {
       animate(x, 0, { type: 'spring', stiffness: 600, damping: 32, mass: 0.5 });
       animate(torchBoost, 0, { duration: 0.22 });
@@ -120,7 +122,9 @@ const LandingView = memo(({
     if (isDragging.current || triggered.current) return;
     triggered.current = true;
     triggerHaptic('light');
-    onEnterAuth();
+    // Same swipe-right exit animation on tap
+    animate(x, window.innerWidth + 100, { type: 'spring', stiffness: 200, damping: 22, mass: 0.6 });
+    setTimeout(onEnterAuth, 280);
   };
 
   return (
@@ -128,9 +132,9 @@ const LandingView = memo(({
       key="landing"
       className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4"
       style={{ paddingBottom: '10vh' }}
-      initial={{ opacity: 0, scale: 1.02 }}
-      animate={{ opacity: 1, scale: 1, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }}
-      exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.2, ease: [0.7, 0, 0.84, 0] } }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.25, ease: [0.7, 0, 0.84, 0] } }}
     >
       <motion.div
         drag="x"
@@ -146,12 +150,24 @@ const LandingView = memo(({
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.98 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none relative"
+        initial={{ x: -260, opacity: 0 }}
+        animate={{ x: 0, opacity: 1, transition: { type: 'spring', stiffness: 120, damping: 18, mass: 0.8, delay: 0.1 } }}
       >
-        <div className="relative">
+        <div className="relative overflow-hidden">
           <SwipessLogo 
             size="3xl" 
             variant="white"
             className="w-[60vw] max-w-[240px] sm:max-w-[320px] md:max-w-[400px]" 
+          />
+          {/* Premium shimmer sweep — every 8s */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.28) 48%, rgba(255,255,255,0.08) 52%, transparent 70%)',
+            }}
+            initial={{ x: '-120%' }}
+            animate={{ x: ['-120%', '180%', '180%'] }}
+            transition={{ duration: 1.6, ease: 'easeInOut', repeat: Infinity, repeatDelay: 8 }}
           />
           <motion.div 
             initial={{ opacity: 0 }}
@@ -163,8 +179,6 @@ const LandingView = memo(({
           </motion.div>
         </div>
       </motion.div>
-
-      {/* Theme toggle removed for true 'Always Black' performance if user wants it everywhere */}
 
     </motion.div>
   );
