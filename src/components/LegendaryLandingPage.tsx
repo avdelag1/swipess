@@ -108,7 +108,9 @@ const LandingView = memo(({
       triggered.current = true;
       playRandomZen(0.45);
       triggerHaptic('success');
-      onEnterAuth();
+      // Animate logo flying off to the right before showing auth
+      animate(x, window.innerWidth + 100, { type: 'spring', stiffness: 200, damping: 22, mass: 0.6 });
+      setTimeout(onEnterAuth, 280);
     } else {
       animate(x, 0, { type: 'spring', stiffness: 600, damping: 32, mass: 0.5 });
       animate(torchBoost, 0, { duration: 0.22 });
@@ -120,7 +122,9 @@ const LandingView = memo(({
     if (isDragging.current || triggered.current) return;
     triggered.current = true;
     triggerHaptic('light');
-    onEnterAuth();
+    // Same swipe-right exit animation on tap
+    animate(x, window.innerWidth + 100, { type: 'spring', stiffness: 200, damping: 22, mass: 0.6 });
+    setTimeout(onEnterAuth, 280);
   };
 
   return (
