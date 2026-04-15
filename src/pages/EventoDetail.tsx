@@ -146,7 +146,26 @@ export default function EventoDetail() {
     staleTime: 1000 * 60 * 5,
   });
 
-  // 🚀 SPEED OF LIGHT: Favorite Status Query
+  // Auto-scroll photos every 4 seconds
+  useEffect(() => {
+    if (!event) return;
+    const gallery: string[] = [];
+    if (event.image_url) gallery.push(event.image_url);
+    if (Array.isArray(event.image_urls)) {
+      event.image_urls.forEach((u: any) => {
+        const url = typeof u === 'string' ? u : u?.url;
+        if (url && url !== event.image_url) gallery.push(url);
+      });
+    }
+    if (gallery.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setActiveImageIndex(i => (i + 1) % gallery.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [event]);
+
+
   const { data: isFavorited = false } = useQuery({
     queryKey: ['event-is-favorited', id, user?.id],
     queryFn: async () => {
