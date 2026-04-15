@@ -54,8 +54,18 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
   const _thumbLeft = useTransform(springPct, (v) => `${v}%`);
 
   return (
-    <div className="w-full max-w-xs mx-auto mt-2 px-4 py-2">
-      <div className="flex items-center justify-between mb-4">
+    <motion.div 
+      className="w-full max-w-xs mx-auto mt-2 px-4 py-2"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <motion.div 
+        className="flex items-center justify-between mb-4"
+        initial={{ opacity: 0, x: -12 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      >
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-primary/10 border border-primary/20 shadow-sm">
             <MapPin className="w-4 h-4 text-primary" />
