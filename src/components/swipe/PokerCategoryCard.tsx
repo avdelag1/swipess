@@ -230,10 +230,10 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
             />
           )}
 
-          <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-8 md:px-10 pb-8 md:pb-10">
+          <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-8 md:px-10 lg:px-14 pb-8 md:pb-10 lg:pb-14">
             <div className="flex flex-col gap-0.5">
-              <p className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.35em] text-white/50 mb-1">{card.description}</p>
-              <h3 className="text-white text-3xl md:text-4xl font-black tracking-tight uppercase leading-none">{card.label}</h3>
+              <p className="text-[10px] md:text-[12px] lg:text-sm font-black uppercase tracking-[0.35em] text-white/50 mb-1">{card.description}</p>
+              <h3 className="text-white text-3xl md:text-4xl lg:text-5xl font-black tracking-tight uppercase leading-none">{card.label}</h3>
             </div>
 
             {isTop && (
@@ -242,7 +242,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
                 onClick={(e) => { e.stopPropagation(); onSelect(card.id); }}
-                className="mt-6 w-full h-16 md:h-[72px] rounded-[1.5rem] font-black text-[13px] md:text-[15px] uppercase tracking-[0.25em] bg-white text-black active:scale-95 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.4)] flex items-center justify-center overflow-hidden relative group"
+                className="mt-6 w-full h-16 md:h-[72px] lg:h-20 rounded-[1.5rem] font-black text-[13px] md:text-[15px] lg:text-[17px] uppercase tracking-[0.25em] bg-white text-black active:scale-95 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.4)] flex items-center justify-center overflow-hidden relative group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer" />
                 <span>Launch {card.label}</span>

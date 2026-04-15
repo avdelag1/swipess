@@ -118,18 +118,23 @@ body::-webkit-scrollbar {
   mix-blend-mode: overlay;
 }
 
-/* ─── Tablet/iPad Responsive Card Dimensions ─── */
+/* ─── Fluid Card Dimensions — fills viewport on all devices ─── */
 :root {
-  --card-width: 340px;
+  --card-width: min(340px, calc(100vw - 80px));
 }
 @media (min-width: 768px) {
   :root {
-    --card-width: 420px;
+    --card-width: min(520px, calc(100vw - 160px));
   }
 }
 @media (min-width: 1024px) {
   :root {
-    --card-width: 480px;
+    --card-width: min(640px, calc(100vw - 200px));
+  }
+}
+@media (min-width: 1366px) {
+  :root {
+    --card-width: min(720px, calc(100vw - 240px));
   }
 }
 
