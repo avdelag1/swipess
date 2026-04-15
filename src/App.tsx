@@ -9,8 +9,6 @@ import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 import SignupErrorBoundary from "@/components/SignupErrorBoundary";
-import { AppOutagePage } from "@/components/AppOutagePage";
-import { APP_STATUS, hasOutageBypass } from "@/config/outage";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { TooltipProvider } from "@/components/ui/tooltip";
