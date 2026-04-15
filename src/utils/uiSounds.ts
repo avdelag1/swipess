@@ -1,6 +1,7 @@
 /**
- * UISounds - Synthetic High-Fidelity UI Audio
+ * UISounds - iOS-Grade Synthetic Audio
  * Uses Web Audio API to create premium tactile sounds without asset files.
+ * All sounds tuned for Apple-level subtlety and clarity.
  */
 
 class SoundEngine {
@@ -44,7 +45,7 @@ class SoundEngine {
     }
 
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(gainAmount, now + 0.01);
+    gain.gain.linearRampToValueAtTime(gainAmount, now + 0.005);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
     osc.connect(gain);
@@ -59,12 +60,21 @@ class SoundEngine {
       this.init();
       if (!this.ctx) return;
 
+      // iOS-style crystalline ping — two-note shimmer
       this.tone({
         type: 'sine',
-        startFreq: 1200 * intensity,
-        endFreq: 400,
-        gainAmount: 0.05 * intensity,
-        duration: 0.1,
+        startFreq: 1100 * intensity,
+        endFreq: 880 * intensity,
+        gainAmount: 0.03 * intensity,
+        duration: 0.08,
+      });
+      this.tone({
+        type: 'triangle',
+        startFreq: 1650 * intensity,
+        endFreq: 1320 * intensity,
+        gainAmount: 0.015 * intensity,
+        duration: 0.06,
+        delay: 0.015,
       });
     } catch (e) {}
   }
@@ -74,12 +84,21 @@ class SoundEngine {
       this.init();
       if (!this.ctx) return;
 
+      // Soft bubble pop — rounded low-to-high
       this.tone({
         type: 'sine',
-        startFreq: 200,
-        endFreq: 400,
-        gainAmount: 0.1,
-        duration: 0.05,
+        startFreq: 300,
+        endFreq: 520,
+        gainAmount: 0.045,
+        duration: 0.04,
+      });
+      this.tone({
+        type: 'triangle',
+        startFreq: 600,
+        endFreq: 440,
+        gainAmount: 0.02,
+        duration: 0.04,
+        delay: 0.02,
       });
     } catch (e) {}
   }
@@ -122,12 +141,21 @@ class SoundEngine {
       this.init();
       if (!this.ctx) return;
 
+      // iOS toggle switch — clean two-note click
       this.tone({
         type: 'sine',
-        startFreq: 520,
-        endFreq: 380,
-        gainAmount: 0.035,
-        duration: 0.06,
+        startFreq: 1046,
+        endFreq: 784,
+        gainAmount: 0.025,
+        duration: 0.045,
+      });
+      this.tone({
+        type: 'triangle',
+        startFreq: 1568,
+        endFreq: 1175,
+        gainAmount: 0.012,
+        duration: 0.035,
+        delay: 0.02,
       });
     } catch (e) {}
   }
@@ -137,13 +165,75 @@ class SoundEngine {
       this.init();
       if (!this.ctx) return;
 
+      // Minimal haptic tap — barely-there click
       this.tone({
         type: 'sine',
-        startFreq: 900,
-        endFreq: 600,
-        gainAmount: 0.04,
-        duration: 0.03,
+        startFreq: 1000,
+        endFreq: 800,
+        gainAmount: 0.02,
+        duration: 0.025,
       });
+    } catch (e) {}
+  }
+
+  /** Card swipe whoosh — quick directional sweep */
+  public playCardSwipe(direction: 'left' | 'right' = 'right') {
+    try {
+      this.init();
+      if (!this.ctx) return;
+
+      const ctx = this.ctx;
+      const now = ctx.currentTime;
+
+      // Filtered noise burst
+      const noise = ctx.createBufferSource();
+      const len = Math.round(ctx.sampleRate * 0.12);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const ch = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+      noise.buffer = buf;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.Q.value = 1.2;
+      const freqStart = direction === 'right' ? 1400 : 2000;
+      const freqEnd = direction === 'right' ? 2800 : 800;
+      filter.frequency.setValueAtTime(freqStart, now);
+      filter.frequency.exponentialRampToValueAtTime(freqEnd, now + 0.1);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.linearRampToValueAtTime(0.018, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start(now);
+      noise.stop(now + 0.12);
+
+      // Subtle tonal accent
+      this.tone({
+        type: 'sine',
+        startFreq: direction === 'right' ? 660 : 880,
+        endFreq: direction === 'right' ? 880 : 660,
+        gainAmount: 0.012,
+        duration: 0.07,
+        delay: 0.01,
+      });
+    } catch (e) {}
+  }
+
+  /** Category select — bright staccato confirmation */
+  public playCategorySelect() {
+    try {
+      this.init();
+      if (!this.ctx) return;
+
+      // Three-note rising arpeggio (C6-E6-G6) — very fast, very quiet
+      this.tone({ type: 'sine', startFreq: 1047, endFreq: 1047, gainAmount: 0.022, duration: 0.04 });
+      this.tone({ type: 'sine', startFreq: 1319, endFreq: 1319, gainAmount: 0.02, duration: 0.035, delay: 0.03 });
+      this.tone({ type: 'triangle', startFreq: 1568, endFreq: 1568, gainAmount: 0.016, duration: 0.05, delay: 0.055 });
     } catch (e) {}
   }
 
