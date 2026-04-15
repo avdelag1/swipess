@@ -103,12 +103,6 @@ const DashboardRedirect = () => {
 };
 
 const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
-  const [outageBypassed, setOutageBypassed] = useState(() => hasOutageBypass());
-
-  if (APP_STATUS === 'MAINTENANCE' && !outageBypassed) {
-    return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
-  }
-
   return (
     <GlobalErrorBoundary>
       <RootProviders authPromise={authPromise}>
