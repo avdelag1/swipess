@@ -38,12 +38,10 @@ function SwipessLogoComponent({
         draggable={false}
         className={cn(
           'select-none transition-all duration-300',
-          isIcon ? 'w-full h-full object-contain' : cn('w-auto', sizeMap[size])
+          isIcon ? 'w-full h-full object-contain' : cn('w-auto max-w-full', sizeMap[size])
         )}
         style={{
           imageRendering: 'auto',
-          maxWidth: !isIcon ? '80vw' : undefined,
-          filter: isWhite ? undefined : undefined,
         }}
       />
     </div>

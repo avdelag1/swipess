@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils';
 // Optimized logo with modern format support + heartbeat pulse
 function LogoImage({ className }: { className?: string }) {
   return (
-    <div className={cn("relative flex items-center justify-center translate-y-[-2vh]", className)}>
+    <div className={cn("relative flex items-center justify-center translate-y-[-2vh] px-8", className)}>
         <motion.div
           animate={{
             scale: [1, 1.03, 1],
@@ -34,10 +34,10 @@ function LogoImage({ className }: { className?: string }) {
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          className="relative flex items-center justify-center"
+          className="relative flex items-center justify-center w-full max-w-[320px] md:max-w-[400px]"
         >
           <SwipessLogo 
-            size="xl" 
+            size="lg" 
             variant="white"
             className="transition-all duration-700 ease-out" 
           />
