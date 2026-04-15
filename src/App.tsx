@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react"; // cache-bust-v3
+import { lazy, Suspense } from "react"; // cache-bust-v3
 import { lazyWithRetry } from "@/utils/lazyRetry";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { RootProviders } from "./providers/RootProviders";
@@ -9,8 +9,6 @@ import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 import SignupErrorBoundary from "@/components/SignupErrorBoundary";
-import { AppOutagePage } from "@/components/AppOutagePage";
-import { APP_STATUS, hasOutageBypass } from "@/config/outage";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -105,12 +103,6 @@ const DashboardRedirect = () => {
 };
 
 const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
-  const [outageBypassed, setOutageBypassed] = useState(() => hasOutageBypass());
-
-  if (APP_STATUS === 'MAINTENANCE' && !outageBypassed) {
-    return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
-  }
-
   return (
     <GlobalErrorBoundary>
       <RootProviders authPromise={authPromise}>
