@@ -113,24 +113,6 @@ export default function EventoDetail() {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // Auto-scroll photos every 4 seconds
-  useEffect(() => {
-    if (!event) return;
-    const gallery: string[] = [];
-    if (event.image_url) gallery.push(event.image_url);
-    if (Array.isArray(event.image_urls)) {
-      event.image_urls.forEach((u: any) => {
-        const url = typeof u === 'string' ? u : u?.url;
-        if (url && url !== event.image_url) gallery.push(url);
-      });
-    }
-    if (gallery.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setActiveImageIndex(i => (i + 1) % gallery.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [event]);
 
   // 🚀 SPEED OF LIGHT: Unified Event Data Query
   const { data: event, isLoading } = useQuery({
