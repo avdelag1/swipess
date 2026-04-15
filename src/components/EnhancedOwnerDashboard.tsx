@@ -170,7 +170,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   return (
     <div className="flex flex-col h-full w-full bg-background">
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         {viewMode === 'insights' ? (
           <motion.div
             key="owner-insights"
@@ -189,6 +189,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
+            style={{ willChange: 'transform, opacity' }}
           >
             <OwnerAllDashboard onCardSelect={handleCardSelect} />
           </motion.div>
@@ -200,6 +201,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             exit={{ opacity: 0, y: -20, scale: 0.98 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 min-h-0 relative"
+            style={{ willChange: 'transform, opacity' }}
           >
             <ClientSwipeContainer
               onClientTap={handleClientTap}

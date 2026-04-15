@@ -33,7 +33,7 @@ export default function ClientDashboard({
 
   return (
     <div className="flex flex-col h-full w-full overflow-y-auto bg-background relative">
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         {!activeCategory ? (
           <motion.div 
             key="dash-fan"
@@ -42,6 +42,7 @@ export default function ClientDashboard({
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
+            style={{ willChange: 'transform, opacity' }}
           >
             <SwipeAllDashboard setCategories={(ids) => {
               if (ids.length > 0) {
@@ -57,6 +58,7 @@ export default function ClientDashboard({
             exit={{ opacity: 0, y: -20, scale: 0.98 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             className="w-full h-full"
+            style={{ willChange: 'transform, opacity' }}
           >
             <SwipessSwipeContainer
               onListingTap={handleListingTap}
