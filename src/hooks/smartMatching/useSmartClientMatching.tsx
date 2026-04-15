@@ -12,45 +12,24 @@ const CLIENT_FIELDS = `
     languages_spoken, neighborhood, bio, onboarding_completed
 `;
 
-// 🌴 TULUM BOHO MOCKS: Guaranteed high-fidelity "wow" factor for owners
-const TULUM_MOCKS: MatchedClientProfile[] = [
-    {
-        id: 'mock-1', user_id: 'mock-1', name: 'Elena V.', age: 26, gender: 'female',
-        location: { city: 'Tulum' }, nationality: 'Spanish',
-        profile_images: ['https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=800&auto=format&fit=crop'],
-        interests: ['Yoga', 'Beach Clubs', 'Digital Nomad'],
-        lifestyle_tags: ['Premium', 'Quiet', 'Pet Friendly'],
-        matchPercentage: 98, matchReasons: ['Perfect Price Match', 'Loves Beachfront'], verified: true,
-        preferred_activities: ['Yoga', 'Swimming'], incompatibleReasons: []
-    },
-    {
-        id: 'mock-2', user_id: 'mock-2', name: 'Julian S.', age: 31, gender: 'male',
-        location: { city: 'Aldea Zama' }, nationality: 'German',
-        profile_images: ['https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop'],
-        interests: ['Architecture', 'Cycling', 'Fine Dining'],
-        lifestyle_tags: ['Business', 'Minimalist', 'Non-smoker'],
-        matchPercentage: 95, matchReasons: ['Long-term stay', 'Verified documents'], verified: true,
-        preferred_activities: ['Cycling', 'Dining'], incompatibleReasons: []
-    },
-    {
-        id: 'mock-3', user_id: 'mock-3', name: 'Sofia & Marc', age: 29, gender: 'other',
-        location: { city: 'La Veleta' }, nationality: 'French',
-        profile_images: ['https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=800&auto=format&fit=crop'],
-        interests: ['Art', 'Nature', 'Photography'],
-        lifestyle_tags: ['Couple', 'Creative', 'Eco-conscious'],
-        matchPercentage: 92, matchReasons: ['Spacious preferred', 'High budget'], verified: true,
-        preferred_activities: ['Walking', 'Photography'], incompatibleReasons: []
-    },
-    {
-        id: 'mock-4', user_id: 'mock-4', name: 'Chloe Anderson', age: 24, gender: 'female',
-        location: { city: 'Zona Hotelera' }, nationality: 'American',
-        profile_images: ['https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop'],
-        interests: ['Kitesurfing', 'Nightlife', 'Music'],
-        lifestyle_tags: ['Social', 'Active', 'Short-term'],
-        matchPercentage: 89, matchReasons: ['Near clubs', 'Quick move-in'], verified: true,
-        preferred_activities: ['Kitesurfing', 'Dancing'], incompatibleReasons: []
-    }
-];
+/**
+ * Fetch admin user IDs once and cache for 1 hour.
+ * Used to exclude admins from discovery decks.
+ */
+function useAdminUserIds() {
+    return useQuery({
+        queryKey: ['admin-user-ids'],
+        queryFn: async () => {
+            const { data } = await supabase
+                .from('user_roles' as any)
+                .select('user_id')
+                .eq('role', 'admin');
+            return new Set<string>((data || []).map((r: any) => r.user_id));
+        },
+        staleTime: 60 * 60 * 1000,
+        gcTime: 2 * 60 * 60 * 1000,
+    });
+}
 
 export function useSmartClientMatching(
     userId?: string,
@@ -63,8 +42,8 @@ export function useSmartClientMatching(
 ) {
     const queryClient = useQueryClient();
     const filtersKey = useMemo(() => filters ? JSON.stringify(filters) : '', [filters]);
+    const { data: adminIds } = useAdminUserIds();
 
-    // 🚀 SPEED OF LIGHT: Cache user swipes globally to avoid repeated fetching
     const { data: userSwipes } = useQuery({
         queryKey: ['user-client-swipes', userId],
         queryFn: async () => {
@@ -86,7 +65,7 @@ export function useSmartClientMatching(
             return { liked, left };
         },
         enabled: !!userId,
-        staleTime: 5 * 60 * 1000, // 5 minutes cache
+        staleTime: 5 * 60 * 1000,
     });
 
     useEffect(() => {
@@ -110,7 +89,6 @@ export function useSmartClientMatching(
             if (!userId) return [] as MatchedClientProfile[];
 
             try {
-                // 1. Prepare exclusion list from cache (if available)
                 const swipedProfileIds = new Set<string>();
                 if (userSwipes) {
                     userSwipes.liked.forEach(id => swipedProfileIds.add(id));
@@ -123,7 +101,7 @@ export function useSmartClientMatching(
                     });
                 }
 
-                // 🚀 SPEED OF LIGHT: Attempt database-level filtering (RPC)
+                // RPC attempt
                 try {
                     const { data: rpcClients, error: rpcError } = await (supabase as any).rpc('get_smart_clients', {
                         p_user_id: userId,
@@ -132,14 +110,14 @@ export function useSmartClientMatching(
                     });
 
                     if (!rpcError && rpcClients && Array.isArray(rpcClients) && rpcClients.length > 0) {
-                        let finalClients = rpcClients as any[];
+                        let finalClients = (rpcClients as any[])
+                            .filter(c => c.user_id !== userId) // self-exclusion
+                            .filter(c => !adminIds?.has(c.user_id)); // admin exclusion
                         
-                        // 🚀 ZENITH: Explicit Roommate Gate (No leaks)
                         if (isRoommateSection) {
                           finalClients = finalClients.filter(c => c.roommate_available || (c as any).roommate_active);
                         }
 
-                        // 🔥 PRE-WARM IMAGES IMMEDIATELY
                         runIdleTask(() => {
                             const imagesToPrewarm = finalClients.flatMap(p => p.profile_images || p.images || []).slice(0, 5);
                             pwaImagePreloader.batchPreload(imagesToPrewarm.map(url => getCardImageUrl(url)));
@@ -152,7 +130,8 @@ export function useSmartClientMatching(
                 let query = supabase.from('profiles')
                     .select(CLIENT_FIELDS)
                     .eq('role', 'client')
-                    .eq('is_active', true);
+                    .eq('is_active', true)
+                    .neq('user_id', userId); // self-exclusion
                 
                 if (isRoommateSection) {
                     query = query.eq('roommate_available', true);
@@ -185,7 +164,9 @@ export function useSmartClientMatching(
                 const { data: cpData } = await supabase.from('client_profiles').select('user_id, age, gender, city, country, preferred_activities, profile_images, interests, roommate_available, work_schedule, name').in('user_id', userIds);
                 const cpMap = new Map(cpData?.map(cp => [cp.user_id, cp]) || []);
 
-                let results = finalProfiles.map(p => {
+                let results = finalProfiles
+                    .filter(p => !adminIds?.has(p.user_id)) // admin exclusion
+                    .map(p => {
                     const cp = cpMap.get(p.user_id);
                     return {
                         id: p.user_id, user_id: p.user_id, name: p.full_name || cp?.name || 'User',
@@ -198,18 +179,10 @@ export function useSmartClientMatching(
                     } as MatchedClientProfile;
                 });
 
-                // Filter for roommate section if needed
                 if (isRoommateSection) {
                     results = results.filter(r => r.roommate_available);
                 }
 
-                if (page === 0) {
-                    const existingIds = new Set(results.map(r => r.id));
-                    const uniqueMocks = TULUM_MOCKS.filter(m => !existingIds.has(m.id));
-                    results = [...uniqueMocks, ...results];
-                }
-
-                // 🔥 PRE-WARM IMAGES IMMEDIATELY (Hardware-Aware)
                 runIdleTask(() => {
                     const isHighPerformance = (navigator as any).deviceMemory >= 4 || !('deviceMemory' in navigator);
                     const imagesToPrewarm = results.flatMap(p => p.profile_images || []).slice(0, isHighPerformance ? 25 : 10);

@@ -124,7 +124,8 @@ export function useSmartListingMatching(
 
                 // 2. BUILD SECURE POSTGREST QUERY (Fallback)
                 let query = supabase.from('listings').select(SWIPE_CARD_FIELDS)
-                    .eq('status', 'active');
+                    .eq('status', 'active')
+                    .neq('user_id', userId); // self-exclusion
 
                 // 3. Apply excluded IDs (Fallback path)
                 if (swipedListingIds.size > 0) {

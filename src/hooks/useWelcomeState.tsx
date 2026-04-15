@@ -3,17 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 
 /**
- * SPEED OF LIGHT: Welcome state with SERVER-SIDE persistence
- *
- * Problem: localStorage can be inconsistent across different subdomains or
- * deployment environments, causing welcome to show multiple times.
- *
- * Solution: Use profiles.created_at to determine if user is new
- * - If created_at is within 2 minutes, user is new → show welcome once
- * - Use localStorage as a backup to prevent showing again in same session
- * - ALSO save welcome notification to database for notification history
- *
- * The welcome should ONLY show once per user, ever.
+ * Welcome state with SERVER-SIDE persistence.
+ * Shows the welcome once per user based on whether a welcome notification exists.
  */
 export function useWelcomeState(userId: string | undefined) {
   const [shouldShowWelcome, setShouldShowWelcome] = useState(false);
@@ -27,7 +18,7 @@ export function useWelcomeState(userId: string | undefined) {
 
     const checkWelcomeStatus = async () => {
       try {
-        // Check localStorage first - if marked as seen, skip DB check
+        // Check localStorage first for same-session dedup
         const localKey = `welcome_seen_${userId}`;
         if (localStorage.getItem(localKey) === 'true') {
           setIsChecking(false);
@@ -35,57 +26,37 @@ export function useWelcomeState(userId: string | undefined) {
           return;
         }
 
-        // Check server-side created_at to determine if user is truly new
-        // Use maybeSingle() to handle case where profile doesn't exist yet (async creation)
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('created_at')
+        // Check if welcome notification already exists in DB
+        const { data: existing, error } = await supabase
+          .from('notifications')
+          .select('id')
           .eq('user_id', userId)
+          .eq('notification_type', 'system_announcement')
+          .ilike('title', 'Welcome%')
           .maybeSingle();
 
         if (error) {
-          // On error, don't show welcome (fail safe)
-          logger.warn('[Welcome] Profile check error:', error);
+          logger.warn('[Welcome] Check error:', error);
           setIsChecking(false);
           setShouldShowWelcome(false);
           return;
         }
 
-        // Profile doesn't exist yet (async creation in progress) - don't show welcome yet
-        if (!profile) {
+        if (existing) {
+          // Already seen welcome — mark localStorage and skip
+          localStorage.setItem(localKey, 'true');
           setIsChecking(false);
           setShouldShowWelcome(false);
           return;
         }
 
-        // Check if user is "new" (created within 2 minutes)
-        if (profile?.created_at) {
-          const createdAt = new Date(profile.created_at);
-          const now = new Date();
-          const ageMs = now.getTime() - createdAt.getTime();
-          const twoMinutesMs = 2 * 60 * 1000;
-
-          if (ageMs > twoMinutesMs) {
-            // User is not new - mark as seen and don't show
-            localStorage.setItem(localKey, 'true');
-            setIsChecking(false);
-            setShouldShowWelcome(false);
-            return;
-          }
-        }
-
-        // User is new - show welcome once
-        // Mark as seen IMMEDIATELY (optimistic) to prevent double-showing
+        // New user — show welcome, save immediately
         localStorage.setItem(localKey, 'true');
-
-        // Save welcome notification to database for history
         await saveWelcomeNotification(userId);
-
         setIsChecking(false);
         setShouldShowWelcome(true);
 
       } catch {
-        // On any error, don't show welcome (fail safe)
         setIsChecking(false);
         setShouldShowWelcome(false);
       }
@@ -96,7 +67,6 @@ export function useWelcomeState(userId: string | undefined) {
 
   const dismissWelcome = useCallback(() => {
     if (userId) {
-      // Mark as seen in localStorage
       localStorage.setItem(`welcome_seen_${userId}`, 'true');
     }
     setShouldShowWelcome(false);
@@ -109,25 +79,8 @@ export function useWelcomeState(userId: string | undefined) {
   };
 }
 
-/**
- * Save welcome notification to database so it appears in notification history
- */
 async function saveWelcomeNotification(userId: string) {
   try {
-    // Check if welcome notification already exists
-    const { data: existing } = await supabase
-      .from('notifications')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('notification_type', 'system_announcement')
-      .maybeSingle();
-
-    if (existing) {
-      // Already saved, skip
-      return;
-    }
-
-    // Insert welcome notification with correct schema
     const notificationData = {
       user_id: userId,
       notification_type: 'system_announcement' as const,
@@ -137,10 +90,8 @@ async function saveWelcomeNotification(userId: string) {
     };
 
     await supabase.from('notifications').insert([notificationData]);
-
     logger.log('[Welcome] Saved welcome notification to database');
   } catch (error) {
-    // Silent fail - this is not critical
     logger.error('[Welcome] Failed to save welcome notification:', error);
   }
 }
