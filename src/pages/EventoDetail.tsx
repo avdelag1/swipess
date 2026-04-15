@@ -113,6 +113,25 @@ export default function EventoDetail() {
     window.scrollTo(0, 0);
   }, [id]);
 
+  // Auto-scroll photos every 4 seconds
+  useEffect(() => {
+    if (!event) return;
+    const gallery: string[] = [];
+    if (event.image_url) gallery.push(event.image_url);
+    if (Array.isArray(event.image_urls)) {
+      event.image_urls.forEach((u: any) => {
+        const url = typeof u === 'string' ? u : u?.url;
+        if (url && url !== event.image_url) gallery.push(url);
+      });
+    }
+    if (gallery.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setActiveImageIndex(i => (i + 1) % gallery.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [event]);
+
   // 🚀 SPEED OF LIGHT: Unified Event Data Query
   const { data: event, isLoading } = useQuery({
     queryKey: ['evento', id],
@@ -313,8 +332,14 @@ export default function EventoDetail() {
 
         {/* Floating Controls — Adjusted lower to clear 'S' Logo */}
         <div className="absolute top-[calc(env(safe-area-inset-top,0px)+24px)] left-4 right-4 flex justify-between items-center z-50 py-4">
-          {/* Floating Controls Pruned (Global HUD handles navigation) */}
-          <div />
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => { triggerHaptic('light'); navigate(-1); }}
+            aria-label="Go back"
+            className="w-11 h-11 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </motion.button>
           
           <div className="flex gap-2">
             <motion.button

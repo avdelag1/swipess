@@ -158,18 +158,12 @@ export const EventCard = memo(({
         </button>
       </div>
 
-      <div className="absolute left-1/2 z-30 -translate-x-1/2 bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))]">
-        <button
-          onClick={(e) => { e.stopPropagation(); onMiddleTap(); }}
-          className={cn(
-            "min-w-[92px] h-10 rounded-full px-4 text-[11px] font-black uppercase tracking-[0.18em] shadow-lg backdrop-blur-[10px] border transition-transform active:scale-[0.97]",
-            isLight ? "bg-white/58 border-black/10 text-black" : "bg-black/28 border-white/12 text-white"
-          )}
-          title="Open event details"
-        >
-          Open
-        </button>
-      </div>
+      {/* Tap anywhere on card body to open detail */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onMiddleTap(); }}
+        className="absolute inset-0 z-[5] w-full h-full cursor-pointer"
+        aria-label="Open event details"
+      />
 
       {/* Double-tap to like overlay */}
       <AnimatePresence>
