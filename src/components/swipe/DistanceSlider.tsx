@@ -153,7 +153,7 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
           <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-80" />
           <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,1)] z-10" />
         </motion.div>
-      </div>
+      </motion.div>
       
       <div className="flex justify-between mt-2 px-1">
         <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.3em]">Local</span>
