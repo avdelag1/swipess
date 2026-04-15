@@ -98,7 +98,13 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
         </div>
       </motion.div>
       
-      <div className="relative h-12 flex items-center group">
+      <motion.div 
+        className="relative h-12 flex items-center group"
+        initial={{ opacity: 0, scaleX: 0.7 }}
+        animate={{ opacity: 1, scaleX: 1 }}
+        transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        style={{ transformOrigin: 'left center' }}
+      >
         <label htmlFor="radius-slider" className="sr-only">Search Radius</label>
         
         {/* Track - Pure Glass Morphic with Liquid Highlight */}
