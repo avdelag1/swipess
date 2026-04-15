@@ -62,10 +62,10 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   const ownerColor = !isClient ? '#f97316' : (isLight ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.35)');
 
   return (
-    <button
+    <button 
       onPointerDown={onPointerDown}
       onClick={handleToggle}
-      disabled={isSwitching || !canSwitchMode}
+      disabled={!canSwitchMode}
       className={cn(
         'relative flex items-center justify-center rounded-full overflow-hidden',
         'transition-all duration-150 ease-out',
@@ -83,60 +83,41 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
       }}
       aria-label={`Switch to ${isClient ? 'Business' : 'Client'} mode`}
     >
-      <AnimatePresence mode="wait">
-        {isSwitching ? (
-          <motion.div
-            key="loader"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="flex items-center justify-center w-full"
-          >
-            <Loader2 className="h-4 w-4 animate-spin" style={{ color: isClient ? '#f43f5e' : '#f97316' }} />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="content"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="relative flex items-center w-full h-full"
-            style={{ width: iconW * 2 }}
-          >
-            <motion.div
-              layoutId="mode-highlight"
-              className="absolute rounded-full"
-              initial={false}
-              animate={{
-                left: isClient ? '4%' : '54%',
-              }}
-              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-              style={{
-                width: '42%',
-                height: '80%',
-                background: 'transparent',
-                top: '50%',
-                y: '-50%',
-              }}
-            />
+      <div
+        className="relative flex items-center w-full h-full"
+        style={{ width: iconW * 2 }}
+      >
+        <motion.div
+          layoutId="mode-highlight"
+          className="absolute rounded-full"
+          initial={false}
+          animate={{ left: isClient ? '4%' : '54%' }}
+          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+          style={{
+            width: '42%',
+            height: '80%',
+            background: 'transparent',
+            top: '50%',
+            y: '-50%',
+          }}
+        />
 
-            <div className="flex-1 flex items-center justify-center relative z-10">
-              <User
-                strokeWidth={isClient ? 2 : 1.5}
-                className="h-[18px] w-[18px] transition-all duration-200"
-                style={{ color: clientColor, transform: isClient ? 'scale(1.1)' : 'scale(1)' }}
-              />
-            </div>
-            
-            <div className="flex-1 flex items-center justify-center relative z-10">
-              <UserCheck
-                strokeWidth={!isClient ? 2 : 1.5}
-                className="h-[18px] w-[18px] transition-all duration-200"
-                style={{ color: ownerColor, transform: !isClient ? 'scale(1.1)' : 'scale(1)' }}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <div className="flex-1 flex items-center justify-center relative z-10">
+          <User
+            strokeWidth={isClient ? 2 : 1.5}
+            className="h-[18px] w-[18px] transition-all duration-200"
+            style={{ color: clientColor, transform: isClient ? 'scale(1.1)' : 'scale(1)' }}
+          />
+        </div>
+
+        <div className="flex-1 flex items-center justify-center relative z-10">
+          <UserCheck
+            strokeWidth={!isClient ? 2 : 1.5}
+            className="h-[18px] w-[18px] transition-all duration-200"
+            style={{ color: ownerColor, transform: !isClient ? 'scale(1.1)' : 'scale(1)' }}
+          />
+        </div>
+      </div>
     </button>
   );
 }
