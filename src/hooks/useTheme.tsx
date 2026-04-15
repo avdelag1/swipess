@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
-type Theme = 'dark' | 'light' | 'cheers' | 'sunset';
+type Theme = 'dark' | 'light' | 'cheers';
 
 export interface ThemeToggleCoords {
   x: number;
@@ -18,14 +18,13 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers', 'sunset'];
+const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers'];
 const DEFAULT_THEME: Theme = 'light';
 const STORAGE_KEY = 'swipess_theme_preference';
 
 /** Map legacy DB values to new theme names */
 function normalizeTheme(raw: string | null | undefined): Theme {
   if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte' || raw === 'pure-black') return 'dark';
-  if (raw === 'sunset' || raw === 'red-matte') return 'sunset';
   if (raw === 'cheers') return 'cheers';
   return 'light';
 }
@@ -49,7 +48,7 @@ function applyThemeToDOM(theme: Theme) {
   }
 
   // Mark transition start for smooth color shift
-  root.style.colorScheme = (theme === 'cheers' || theme === 'sunset') ? 'dark' : theme;
+  root.style.colorScheme = theme === 'cheers' ? 'dark' : theme;
   
   // PERFORMANCE: Only remove if we're actually changing
   root.classList.remove(...ALL_THEME_CLASSES);
@@ -69,10 +68,6 @@ function applyThemeToDOM(theme: Theme) {
     root.classList.add('dark');
   }
 
-  if (theme === 'sunset') {
-    root.classList.add('dark', 'red-matte');
-  }
-
   // Update status bar color for PWA (respects safe-area)
   let meta = document.querySelector('meta[name="theme-color"]');
   if (!meta) {
@@ -84,7 +79,6 @@ function applyThemeToDOM(theme: Theme) {
   let targetColor: string;
   if (theme === 'dark') targetColor = '#000000';
   else if (theme === 'cheers') targetColor = '#180800';
-  else if (theme === 'sunset') targetColor = '#1a0505';
   else targetColor = '#ffffff';
   
   meta.setAttribute('content', targetColor);

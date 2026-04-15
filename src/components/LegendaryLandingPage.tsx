@@ -513,9 +513,7 @@ function LegendaryLandingPage() {
   const bgColor = '#000000';
 
   const toggleTheme = (e?: React.MouseEvent) => {
-    const cycle = { light: 'dark', dark: 'sunset', sunset: 'light' } as const;
-    const current = (theme === 'light' || theme === 'dark' || theme === 'sunset') ? theme : 'dark';
-    const nextTheme = cycle[current];
+    const nextTheme = isDark ? 'light' : 'dark';
     setTheme(nextTheme, e ? { x: e.clientX, y: e.clientY } : undefined);
   };
 
