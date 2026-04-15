@@ -11,7 +11,7 @@
 @tailwind utilities;
 
 /* ─── Hide Scrollbars ─── */
-html, body {
+html, body, #root {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
   overflow-x: hidden;
@@ -19,6 +19,12 @@ html, body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: hsl(var(--background));
+}
+
+/* Force black root in dark mode — eliminates white frame bleed */
+.dark #root, .dark body, .black-matte #root, .black-matte body {
+  background-color: #000000;
 }
 
 /* GPU acceleration only where needed — not universal */
