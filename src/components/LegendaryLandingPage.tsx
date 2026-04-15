@@ -166,7 +166,7 @@ const LandingView = memo(({
               background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.28) 48%, rgba(255,255,255,0.08) 52%, transparent 70%)',
             }}
             initial={{ x: '-120%' }}
-            animate={{ x: ['−120%', '180%', '180%'] }}
+            animate={{ x: ['-120%', '180%', '180%'] }}
             transition={{ duration: 1.6, ease: 'easeInOut', repeat: Infinity, repeatDelay: 8 }}
           />
           <motion.div 
