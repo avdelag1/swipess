@@ -89,9 +89,7 @@
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       width:100vw;height:100dvh;background:#000;
       position:fixed;top:0;left:0;z-index:9999;
-      transition:opacity 0.4s cubic-bezier(0.4,0,0.2,1);
     }
-    #initial-loader.dissolving{opacity:0;pointer-events:none}
 
     /* Premium shimmer sweep across the logo */
     .splash-logo-wrap{
@@ -114,9 +112,7 @@
       50%{transform:scale(1.02);opacity:0.85}
     }
 
-    /* Root stays invisible until splash is gone — NO white flash */
-    #root{opacity:0;transition:opacity 0.15s ease-out;background:#000}
-    #root.hydrated{opacity:1}
+    #root{opacity:1;background:#000;min-height:100dvh}
   </style>
 
   <link rel="manifest" href="/manifest.json">
@@ -139,28 +135,15 @@
     window.__APP_INITIALIZED__ = false;
     function removeSplash() {
       var loader = document.getElementById('initial-loader');
-      var root = document.getElementById('root');
-      /* Step 1: Make root visible BEHIND the splash (no flash) */
-      if (root) root.classList.add('hydrated');
-      /* Step 2: Wait 2 frames so root is fully painted, THEN dissolve splash */
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          if (loader && !loader.classList.contains('dissolving')) {
-            loader.classList.add('dissolving');
-            setTimeout(function() { if(loader.parentNode) loader.remove(); }, 500);
-          }
-        });
-      });
+      var ss = document.getElementById('splash-styles');
+      if (loader && loader.parentNode) loader.remove();
+      if (ss && ss.parentNode) ss.remove();
     }
-    var mountTimer = setTimeout(removeSplash, 1500);
+    var mountTimer = setTimeout(removeSplash, 900);
     window.addEventListener('app-rendered', function() {
       window.__APP_INITIALIZED__ = true;
       clearTimeout(mountTimer);
       removeSplash();
-      setTimeout(function() {
-        var ss = document.getElementById('splash-styles');
-        if (ss) ss.remove();
-      }, 800);
     });
     // Dynamic theme-color: sync status bar with app theme
     (function(){

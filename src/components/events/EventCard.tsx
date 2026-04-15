@@ -84,7 +84,7 @@ export const EventCard = memo(({
   return (
     <div
       className={cn(
-        "relative w-full h-full overflow-hidden transition-colors duration-500",
+        "relative w-full h-full overflow-hidden transition-colors duration-500 touch-pan-y",
         isLight ? "bg-white" : "bg-black"
       )}
       data-testid={`event-card-${event.id}`}
@@ -131,38 +131,45 @@ export const EventCard = memo(({
           : "bg-gradient-to-t from-black/80 via-black/5 to-black/20"
       )} />
 
-      {/* Tap zones */}
-      <button
-        onClick={(e) => { e.stopPropagation(); onPrevEvent(); }}
-        className="absolute left-0 top-[8%] bottom-[40%] w-[30%] z-10 flex items-center justify-start pl-3"
-        title="Previous event"
-      >
-        <div className={cn(
-          "w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity backdrop-blur-md border",
-          isLight ? "bg-white/35 border-black/10" : "bg-black/35 border-white/20"
-        )}>
+      {/* Compact navigation affordances — small explicit controls that do not block vertical swipe */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-20 flex items-center px-3">
+        <button
+          onClick={(e) => { e.stopPropagation(); onPrevEvent(); }}
+          className={cn(
+            "pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center transition-opacity shadow-lg backdrop-blur-[10px] border opacity-75 hover:opacity-100 active:scale-95",
+            isLight ? "bg-white/55 border-black/10" : "bg-black/28 border-white/12"
+          )}
+          title="Previous event"
+        >
           <ChevronLeft className={cn("w-4 h-4", isLight ? "text-black" : "text-white")} />
-        </div>
-      </button>
+        </button>
+      </div>
 
-      <button
-        onClick={(e) => { e.stopPropagation(); onMiddleTap(); }}
-        className="absolute inset-x-[30%] top-[8%] bottom-[40%] z-10"
-        title="View event details"
-      />
-
-      <button
-        onClick={(e) => { e.stopPropagation(); onNextEvent(); }}
-        className="absolute right-0 top-[8%] bottom-[40%] w-[30%] z-10 flex items-center justify-end pr-3"
-        title="Next event"
-      >
-        <div className={cn(
-          "w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity backdrop-blur-md border",
-          isLight ? "bg-white/35 border-black/10" : "bg-black/35 border-white/20"
-        )}>
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-20 flex items-center px-3">
+        <button
+          onClick={(e) => { e.stopPropagation(); onNextEvent(); }}
+          className={cn(
+            "pointer-events-auto w-9 h-9 rounded-full flex items-center justify-center transition-opacity shadow-lg backdrop-blur-[10px] border opacity-75 hover:opacity-100 active:scale-95",
+            isLight ? "bg-white/55 border-black/10" : "bg-black/28 border-white/12"
+          )}
+          title="Next event"
+        >
           <ChevronRight className={cn("w-4 h-4", isLight ? "text-black" : "text-white")} />
-        </div>
-      </button>
+        </button>
+      </div>
+
+      <div className="absolute left-1/2 z-30 -translate-x-1/2 bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))]">
+        <button
+          onClick={(e) => { e.stopPropagation(); onMiddleTap(); }}
+          className={cn(
+            "min-w-[92px] h-10 rounded-full px-4 text-[11px] font-black uppercase tracking-[0.18em] shadow-lg backdrop-blur-[10px] border transition-transform active:scale-[0.97]",
+            isLight ? "bg-white/58 border-black/10 text-black" : "bg-black/28 border-white/12 text-white"
+          )}
+          title="Open event details"
+        >
+          Open
+        </button>
+      </div>
 
       {/* Double-tap to like overlay */}
       <AnimatePresence>

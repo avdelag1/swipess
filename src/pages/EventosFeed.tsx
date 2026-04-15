@@ -98,6 +98,31 @@ export default function EventosFeed() {
   const [animKey, setAnimKey] = useState(0);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const hudGlassStyle: React.CSSProperties = {
+    background: isLight ? 'rgba(255,255,255,0.34)' : 'rgba(18,18,22,0.18)',
+    backdropFilter: 'blur(10px) saturate(1.2)',
+    WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
+    border: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)',
+    boxShadow: isLight
+      ? '0 2px 10px rgba(0,0,0,0.06)'
+      : '0 8px 22px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.06)',
+  };
+
+  const resetFeedPosition = useCallback((behavior: ScrollBehavior = 'auto') => {
+    const el = parentRef.current;
+    setActiveIdx(0);
+    setAnimKey((key) => key + 1);
+
+    if (!el) return;
+
+    if (behavior === 'auto') {
+      el.scrollTop = 0;
+      return;
+    }
+
+    el.scrollTo({ top: 0, behavior });
+  }, []);
+
   // 1. Fetch Likes
   const { data: likedIds = new Set<string>() } = useQuery({
     queryKey: ['event-likes', user?.id],
@@ -196,6 +221,15 @@ export default function EventosFeed() {
     return allEvents.filter(e => e.category === activeCategory);
   }, [allEvents, activeCategory, likedIds]);
 
+  useEffect(() => {
+    resetFeedPosition();
+  }, [activeCategory, resetFeedPosition]);
+
+  useEffect(() => {
+    if (activeIdx < filteredEvents.length) return;
+    resetFeedPosition();
+  }, [activeIdx, filteredEvents.length, resetFeedPosition]);
+
   // Scroll & Virtualization
   useEffect(() => {
     const el = parentRef.current;
@@ -204,7 +238,7 @@ export default function EventosFeed() {
     const handleScroll = () => {
       const height = el.clientHeight || window.innerHeight || 1;
       const newIdx = Math.round(el.scrollTop / height);
-      if (newIdx !== activeIdx && newIdx >= 0 && newIdx <= filteredEvents.length) {
+      if (newIdx !== activeIdx && newIdx >= 0 && newIdx < filteredEvents.length) {
         setActiveIdx(newIdx);
         setAnimKey(k => k + 1);
       }
@@ -299,9 +333,9 @@ export default function EventosFeed() {
             whileTap={{ scale: 0.9 }}
             onClick={() => { triggerHaptic('light'); navigate(-1); }}
             className={cn(
-              "w-12 h-12 rounded-2xl border backdrop-blur-3xl flex items-center justify-center transition-all shadow-2xl shrink-0",
-              isLight ? "bg-white/80 border-slate-200 text-slate-900" : "bg-black/60 border-white/10 text-white"
+              "w-12 h-12 rounded-2xl flex items-center justify-center transition-all shrink-0"
             )}
+            style={hudGlassStyle}
           >
             <ArrowLeft className="w-5 h-5" />
           </motion.button>
@@ -317,6 +351,10 @@ export default function EventosFeed() {
                   key={cat.key} 
                   onClick={() => {
                     triggerHaptic('light');
+                    if (cat.key === activeCategory) {
+                      resetFeedPosition('smooth');
+                      return;
+                    }
                     setActiveCategory(cat.key);
                     if (cat.key === 'likes') navigate('/explore/eventos/likes');
                   }} 
@@ -324,11 +362,14 @@ export default function EventosFeed() {
                     "flex items-center gap-2 px-5 py-3 rounded-2xl shrink-0 transition-all duration-300 border relative overflow-hidden group h-12",
                     active 
                       ? "scale-105 shadow-xl shadow-black/20" 
-                      : "opacity-70 hover:opacity-100 backdrop-blur-md"
+                      : "opacity-80 hover:opacity-100"
                   )}
                   style={{
-                    backgroundColor: active ? catColor : isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.06)',
-                    borderColor: active ? 'transparent' : isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)',
+                    ...hudGlassStyle,
+                    background: active
+                      ? `linear-gradient(135deg, ${catColor}, ${catColor}cc)`
+                      : hudGlassStyle.background,
+                    borderColor: active ? `${catColor}90` : hudGlassStyle.border?.toString().replace('1px solid ', ''),
                   }}
                 >
                   <Icon 
@@ -363,43 +404,71 @@ export default function EventosFeed() {
       </div>
 
       {/* Main Feed */}
-      <div 
-        ref={parentRef} 
-        className="w-full h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar overscroll-contain touch-pan-y scroll-smooth"
-      >
-        <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
-          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-            const event = filteredEvents[virtualRow.index];
-            return (
-              <div 
-                key={virtualRow.key} 
-                className="absolute top-0 left-0 w-full snap-start snap-always"
-                style={{ 
-                  height: '100dvh', 
-                  width: '100%',
-                  transform: `translateY(${virtualRow.start}px)`
-                }}
-              >
-                <EventCard
-                  event={event}
-                  isActive={virtualRow.index === activeIdx}
-                  isPaused={isPaused}
-                  animKey={animKey}
-                  onTickComplete={() => {}} 
-                  liked={likedIds.has(event.id)}
-                  activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
-                  onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
-                  onChat={() => handleOpenChat(event)}
-                  onShare={() => handleShare(event)}
-                  onMiddleTap={() => handleMiddleTap(event)}
-                  onNextEvent={() => parentRef.current?.scrollBy({ top: window.innerHeight, behavior: 'smooth' })}
-                  onPrevEvent={() => parentRef.current?.scrollBy({ top: -window.innerHeight, behavior: 'smooth' })}
-                />
-              </div>
-            );
-          })}
+      {filteredEvents.length === 0 ? (
+        <div className="absolute inset-0 flex items-center justify-center px-6">
+          <div className="w-full max-w-sm rounded-[30px] px-6 py-7 text-center" style={hudGlassStyle}>
+            <p className={cn("text-lg font-black tracking-tight", isLight ? "text-foreground" : "text-white")}> 
+              {activeCategory === 'likes' ? 'No saved events yet' : 'No events in this category yet'}
+            </p>
+            <p className={cn("mt-2 text-sm", isLight ? "text-foreground/70" : "text-white/70")}>
+              Try another vibe or jump back to everything.
+            </p>
+            <button
+              onClick={() => setActiveCategory('all')}
+              className={cn(
+                "mt-5 inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-black tracking-tight transition-transform active:scale-[0.98]",
+                isLight ? "text-foreground" : "text-white"
+              )}
+              style={{
+                ...hudGlassStyle,
+                background: isLight ? 'rgba(255,255,255,0.56)' : 'rgba(255,255,255,0.12)',
+              }}
+            >
+              Show all events
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div 
+          ref={parentRef} 
+          className="w-full h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar overscroll-contain touch-pan-y scroll-smooth"
+        >
+          <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: 'relative' }}>
+            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              const event = filteredEvents[virtualRow.index];
+              if (!event) return null;
+
+              return (
+                <div 
+                  key={virtualRow.key} 
+                  className="absolute top-0 left-0 w-full snap-start snap-always"
+                  style={{ 
+                    height: '100dvh', 
+                    width: '100%',
+                    transform: `translateY(${virtualRow.start}px)`
+                  }}
+                >
+                  <EventCard
+                    event={event}
+                    isActive={virtualRow.index === activeIdx}
+                    isPaused={isPaused}
+                    animKey={animKey}
+                    onTickComplete={() => {}} 
+                    liked={likedIds.has(event.id)}
+                    activeColor={CATEGORIES.find(c => c.key === event.category)?.color || '#f97316'}
+                    onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
+                    onChat={() => handleOpenChat(event)}
+                    onShare={() => handleShare(event)}
+                    onMiddleTap={() => handleMiddleTap(event)}
+                    onNextEvent={() => parentRef.current?.scrollBy({ top: parentRef.current?.clientHeight || window.innerHeight, behavior: 'smooth' })}
+                    onPrevEvent={() => parentRef.current?.scrollBy({ top: -(parentRef.current?.clientHeight || window.innerHeight), behavior: 'smooth' })}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {showShareModal && shareEventData && <ShareModal event={shareEventData} open={showShareModal} onClose={() => setShowShareModal(false)} />}
     </div>
