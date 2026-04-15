@@ -1,53 +1,61 @@
 
 
-## Make Quick Filter Cards Fill the Screen on All Devices
+## Production-Ready App: Remove Mocks, Reset Welcome, Add Live Counts
 
-The cards are currently capped at **480px wide** and **700px tall** even on large iPads. On an iPad Pro 13-inch (1024x1366), that leaves massive empty space. The fix is to make the cards fluid -- filling the available viewport on every device.
+### Problem Summary
+1. **Mock data pollutes owner discovery** -- `TULUM_MOCKS` array injects 4 fake profiles into the owner swipe deck
+2. **Welcome page won't re-show** -- `localStorage` flag `welcome_seen_{userId}` blocks it permanently
+3. **No live count indicator** -- Users can't see how many listings/profiles are available per category
+4. **Admin profiles could leak** -- No explicit admin exclusion in discovery queries
+5. **Console error** -- `ZenithPrewarmer` prefetches `topbar-token-packages` without a `queryFn`
+6. **Self-exclusion missing on listing queries** -- Users could theoretically see their own listings
 
 ---
 
 ### Changes
 
-**1. `src/index.css` -- Fluid card width with larger breakpoints**
+**1. Remove mock data from `src/hooks/smartMatching/useSmartClientMatching.tsx`**
+- Delete the entire `TULUM_MOCKS` array (lines 16-53)
+- Remove the code that injects mocks into results (lines 206-209: `if (page === 0) { ... uniqueMocks ... }`)
+- This ensures only real user profiles appear in owner discovery
 
-Replace the fixed `--card-width` values with a fluid system that scales up for tablets and desktops:
+**2. Exclude admin users from discovery queries**
+- In `useSmartClientMatching.tsx` PostgREST fallback: add `.neq('user_id', userId)` to the main query (self-exclusion) and add a sub-filter to exclude admin-role users by joining against `user_roles`
+- Since we can't easily join in PostgREST, use a simpler approach: after fetching profiles, filter out any whose `user_id` appears in the admin role. Alternatively, add an RPC or use the existing `has_role` function at the app level
+- Practical approach: fetch admin user IDs once (small set), cache them, exclude client-side
 
-```css
-:root { --card-width: 340px; }
-@media (min-width: 768px)  { :root { --card-width: min(520px, calc(100vw - 160px)); } }
-@media (min-width: 1024px) { :root { --card-width: min(640px, calc(100vw - 200px)); } }
-@media (min-width: 1366px) { :root { --card-width: min(720px, calc(100vw - 240px)); } }
-```
+**3. Self-exclusion on listing queries in `useSmartListingMatching.tsx`**
+- Add `.neq('user_id', userId)` to the PostgREST fallback query so users never see their own listings
 
-**2. `src/components/swipe/SwipeAllDashboard.tsx` -- Remove the 700px height cap**
+**4. Reset welcome state in `useWelcomeState.tsx`**
+- Change the "newness" window from 2 minutes to a flag-based approach: remove the `created_at` time check
+- Instead, rely purely on a database-side flag: check if a `system_announcement` welcome notification exists for the user
+- For the reset: we'll clear the welcome notification records so all existing users see it again. This requires a data operation (DELETE from notifications where notification_type = 'system_announcement' and title LIKE 'Welcome%')
 
-Change the card stack container to fill more of the viewport on larger screens:
+**5. Add live category count badge**
+- Create a lightweight `useDiscoveryCounts` hook that queries:
+  - Client side: `SELECT category, count(*) FROM listings WHERE status='active' GROUP BY category`
+  - Owner side: count from `profiles` where `role='client'` and `is_active=true`
+- Display the count as a small pill/badge near the category filter buttons or in the discovery header
+- Use a subtle, iOS-style numeric badge (e.g., "12 Properties" or "5 Renters")
 
-```tsx
-style={{ 
-  width: 'min(var(--card-width, 340px), calc(100vw - 80px))',
-  height: 'calc(100dvh - 190px)',
-  maxHeight: 'min(calc(100dvh - 190px), 480px, 700px, 900px)', // scale with viewport
-}}
-```
-
-Replace `maxHeight` with a responsive approach: `480px` on phones (via CSS clamp or media query), no cap on tablets/desktops so the card fills the available space.
-
-**3. `src/components/swipe/PokerCategoryCard.tsx` -- Scale typography and CTA for larger cards**
-
-Add responsive sizing so text and buttons grow proportionally:
-- Title: `text-3xl md:text-4xl lg:text-5xl`
-- CTA button height: `h-16 md:h-[72px] lg:h-20`
-- Bottom padding: `pb-8 md:pb-10 lg:pb-14`
-
-**4. Quick audit pass** -- Verify no runtime errors by checking:
-- `SwipeConstants.ts` for any hardcoded PK_W/PK_H values still referenced
-- The `PokerCategoryCard` stack offsets and scale factors still work at larger sizes
-- `will-change` properties are present for GPU acceleration
+**6. Fix ZenithPrewarmer missing queryFn**
+- In `src/components/ZenithPrewarmer.tsx` line 44-47: add a proper `queryFn` to the `prefetchQuery` call, or remove the prefetch entirely since it has no fetch function
 
 ---
 
-### Result
+### Files to modify
 
-Cards will feel immersive and edge-to-edge on iPad Pro, scale naturally on tablets, and remain proportional on phones -- big photos, big experience on every screen.
+| File | Change |
+|------|--------|
+| `src/hooks/smartMatching/useSmartClientMatching.tsx` | Remove `TULUM_MOCKS`, remove mock injection, add self-exclusion, add admin filtering |
+| `src/hooks/smartMatching/useSmartListingMatching.tsx` | Add `.neq('user_id', userId)` for self-exclusion |
+| `src/hooks/useWelcomeState.tsx` | Reset logic: remove time-based check, use notification existence only |
+| `src/components/ZenithPrewarmer.tsx` | Fix missing `queryFn` for token-packages prefetch |
+| `src/hooks/useDiscoveryCounts.ts` | **New** -- lightweight hook for live category counts |
+| `src/components/swipe/SwipeAllDashboard.tsx` or relevant header | Display count badge from `useDiscoveryCounts` |
+
+### Data operation (one-time reset)
+- DELETE all welcome notifications so every user sees the welcome again
+- This will be executed via the insert tool (which supports DELETE)
 
