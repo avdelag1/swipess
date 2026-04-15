@@ -38,7 +38,9 @@ import { useModalStore } from '@/state/modalStore';
 
 const ICON_SIZE = 23;
 const ICON_SIZE_COMPACT = 20;
+const ICON_SIZE_TABLET = 26;
 const TOUCH_TARGET = 46;
+const TOUCH_TARGET_TABLET = 54;
 
 interface BottomNavigationProps {
   userRole: 'client' | 'owner' | 'admin';
@@ -96,8 +98,12 @@ export const BottomNavigation = memo(({
 
   // Detect narrow screens for icon-only compact mode
   const [isNarrow, setIsNarrow] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
   useEffect(() => {
-    const check = () => setIsNarrow(window.innerWidth < 360);
+    const check = () => {
+      setIsNarrow(window.innerWidth < 360);
+      setIsTablet(window.innerWidth >= 768);
+    };
     check();
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
@@ -358,7 +364,7 @@ export const BottomNavigation = memo(({
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className="pointer-events-auto w-full max-w-md mx-auto"
+        className="pointer-events-auto w-full max-w-md md:max-w-2xl lg:max-w-3xl mx-auto"
         style={{
           // LAYER 1: Truly transparent base for floating icons
           backgroundColor: 'transparent',
@@ -461,9 +467,9 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transform-gpu',
                 )}
                 style={{
-                  minWidth: '68px',
+                  minWidth: isTablet ? '80px' : '68px',
                   scrollSnapAlign: 'start',
-                  minHeight: TOUCH_TARGET,
+                  minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
                   padding: '6px 8px',
                   background: active
                     ? (isLight ? 'rgba(255,255,255,0.34)' : 'rgba(255,255,255,0.07)')
@@ -530,8 +536,8 @@ export const BottomNavigation = memo(({
                   <Icon
                     className="transition-all duration-300 ease-out"
                     style={{
-                      width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                      height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                      width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE),
+                      height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE),
                       color: active ? activeColor : iconColorInactive,
                       fill: active ? activeColor : 'none',
                       strokeWidth: active ? 1.8 : 1.5,
@@ -544,7 +550,8 @@ export const BottomNavigation = memo(({
                   <div className="flex items-center justify-center w-full min-h-[14px]">
                     <span
                       className={cn(
-                        'text-[9px] tracking-tight transition-all duration-300 relative font-black uppercase italic whitespace-nowrap',
+                        'tracking-tight transition-all duration-300 relative font-black uppercase italic whitespace-nowrap',
+                        isTablet ? 'text-[11px]' : 'text-[9px]',
                       )}
                       style={{
                         color: active

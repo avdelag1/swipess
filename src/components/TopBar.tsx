@@ -96,7 +96,7 @@ function TopBarComponent({
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={handleBack}
-                className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center z-50 pointer-events-auto touch-manipulation"
+                className="flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center z-50 pointer-events-auto touch-manipulation"
                 style={glassSurfaceStyle}
                 aria-label="Go back"
               >
@@ -117,7 +117,7 @@ function TopBarComponent({
                 style={{ WebkitTapHighlightColor: 'transparent', ...glassSurfaceStyle }}
                 aria-label="Go to profile"
               >
-                <Avatar className="h-[32px] w-[32px] rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
+                <Avatar className="h-[32px] w-[32px] md:h-[38px] md:w-[38px] rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
                   <AvatarImage
                     src={profile?.avatar_url || ''}
                     className="object-cover w-full h-full rounded-full"
@@ -175,7 +175,7 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/radio');
                 }}
-                className="w-9 h-9 rounded-full flex items-center justify-center touch-manipulation pointer-events-auto"
+                className="w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center touch-manipulation pointer-events-auto"
                 style={{ WebkitTapHighlightColor: 'transparent', ...glassSurfaceStyle }}
                 aria-label="Open Radio"
               >

@@ -118,6 +118,20 @@ body::-webkit-scrollbar {
   mix-blend-mode: overlay;
 }
 
+/* ─── Tablet/iPad Responsive Card Dimensions ─── */
+:root {
+  --card-width: 340px;
+}
+@media (min-width: 768px) {
+  :root {
+    --card-width: 420px;
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --card-width: 480px;
+  }
+}
 
 .liquid-glass-card {
   @apply bg-card backdrop-blur-xl transition-all duration-300 overflow-hidden relative;

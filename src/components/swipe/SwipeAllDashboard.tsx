@@ -94,7 +94,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
         {/* External left arrow */}
         <button
           onClick={cycleLeft}
-          className="swipe-hint-left z-10 flex items-center justify-center w-10 h-10 rounded-full bg-foreground/5 border border-foreground/10 backdrop-blur-sm active:scale-90 transition-transform"
+          className="swipe-hint-left z-10 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-foreground/5 border border-foreground/10 backdrop-blur-sm active:scale-90 transition-transform"
           aria-label="Previous filter"
         >
           <ChevronLeft size={20} className="text-foreground/60" />
@@ -103,7 +103,11 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
         {/* Card stack — responsive height capped at PK_H */}
         <div
           className="relative"
-          style={{ width: `min(${PK_W}px, calc(100vw - 80px))`, height: 'calc(100dvh - 190px)' }}
+          style={{ 
+            width: 'min(var(--card-width, 340px), calc(100vw - 80px))',
+            height: 'calc(100dvh - 190px)',
+            maxHeight: 'min(700px, calc(100dvh - 190px))',
+          }}
         >
         {[...cards].reverse().map((card, reversedIdx) => {
             const index = cards.length - 1 - reversedIdx;
@@ -128,7 +132,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
         {/* External right arrow */}
         <button
           onClick={cycleRight}
-          className="swipe-hint-right z-10 flex items-center justify-center w-10 h-10 rounded-full bg-foreground/5 border border-foreground/10 backdrop-blur-sm active:scale-90 transition-transform"
+          className="swipe-hint-right z-10 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-foreground/5 border border-foreground/10 backdrop-blur-sm active:scale-90 transition-transform"
           aria-label="Next filter"
         >
           <ChevronRight size={20} className="text-foreground/60" />
