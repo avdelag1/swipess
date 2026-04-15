@@ -20,7 +20,7 @@ export default {
 		'grey-matte',
 		'black-matte',
 		'white-matte',
-		'red-matte',
+		'red-matte', // kept for backward compat
 		'pure-black',
 		'cheers',
 	],
