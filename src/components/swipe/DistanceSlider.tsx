@@ -96,7 +96,7 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
             {detecting ? '…' : detected ? 'FIXED' : 'AUTO'}
           </button>
         </div>
-      </div>
+      </motion.div>
       
       <div className="relative h-12 flex items-center group">
         <label htmlFor="radius-slider" className="sr-only">Search Radius</label>
@@ -153,6 +153,6 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
         <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.3em]">Local</span>
         <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.3em]">100 km+</span>
       </div>
-    </div>
+    </motion.div>
   );
 };
