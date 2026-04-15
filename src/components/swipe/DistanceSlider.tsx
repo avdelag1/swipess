@@ -54,8 +54,18 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
   const _thumbLeft = useTransform(springPct, (v) => `${v}%`);
 
   return (
-    <div className="w-full max-w-xs mx-auto mt-2 px-4 py-2">
-      <div className="flex items-center justify-between mb-4">
+    <motion.div 
+      className="w-full max-w-xs mx-auto mt-2 px-4 py-2"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <motion.div 
+        className="flex items-center justify-between mb-4"
+        initial={{ opacity: 0, x: -12 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      >
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-primary/10 border border-primary/20 shadow-sm">
             <MapPin className="w-4 h-4 text-primary" />
@@ -86,9 +96,15 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
             {detecting ? '…' : detected ? 'FIXED' : 'AUTO'}
           </button>
         </div>
-      </div>
+      </motion.div>
       
-      <div className="relative h-12 flex items-center group">
+      <motion.div 
+        className="relative h-12 flex items-center group"
+        initial={{ opacity: 0, scaleX: 0.7 }}
+        animate={{ opacity: 1, scaleX: 1 }}
+        transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        style={{ transformOrigin: 'left center' }}
+      >
         <label htmlFor="radius-slider" className="sr-only">Search Radius</label>
         
         {/* Track - Pure Glass Morphic with Liquid Highlight */}
@@ -137,12 +153,12 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
           <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-80" />
           <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,1)] z-10" />
         </motion.div>
-      </div>
+      </motion.div>
       
       <div className="flex justify-between mt-2 px-1">
         <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.3em]">Local</span>
         <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.3em]">100 km+</span>
       </div>
-    </div>
+    </motion.div>
   );
 };
