@@ -33,7 +33,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
 
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
     triggerHaptic('medium');
-    uiSounds.playPing(0.8);
+    uiSounds.playCardSwipe(direction);
     setCards(prev => {
       if (prev[0].id !== id) return prev;
       const next = [...prev];
@@ -44,7 +44,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
 
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
-    uiSounds.playPing(1.2);
+    uiSounds.playCategorySelect();
     if (id === 'radio') {
       navigate('/radio');
     } else if (id === 'vap') {
