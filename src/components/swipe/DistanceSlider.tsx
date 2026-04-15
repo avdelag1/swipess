@@ -103,7 +103,7 @@ export const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, det
         initial={{ opacity: 0, scaleX: 0.7 }}
         animate={{ opacity: 1, scaleX: 1 }}
         transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        style={{ transformOrigin: 'left center' }}
+        style={{ transformOrigin: 'left center', willChange: 'transform' }}
       >
         <label htmlFor="radius-slider" className="sr-only">Search Radius</label>
         

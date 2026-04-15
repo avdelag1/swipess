@@ -34,9 +34,9 @@ export default {
 			}
 		},
 		extend: {
-			fontFamily: {
+		fontFamily: {
+				sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'system-ui', 'sans-serif'],
 				'brand': ['Quicksand', 'Poppins', 'system-ui', 'sans-serif'],
-				'inter': ['Inter', 'system-ui', 'sans-serif'],
 			},
 			colors: {
 				// Brand color tokens (map from CSS vars in tokens.css)

@@ -9,11 +9,7 @@
   <meta name="msapplication-TileColor" content="#000000">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <!-- System fonts — no external font loading needed -->
 
 
   <script>
@@ -40,21 +36,23 @@
       root.style.backgroundColor = '#000000';
       root.style.colorScheme = 'dark';
       
-      const originalAddEventListener = window.EventTarget.prototype.addEventListener;
-      window.EventTarget.prototype.addEventListener = function(type, listener, options) {
-        let op = options;
-        if (type === 'touchstart' || type === 'touchmove') {
-          if (typeof options === 'boolean') op = { capture: options, passive: true };
-          else if (typeof options === 'object') op = { ...options, passive: true };
-          else op = { passive: true };
-        }
-        originalAddEventListener.call(this, type, listener, op);
-      };
+      // Passive touch patching deferred to requestIdleCallback
+      (window.requestIdleCallback || setTimeout)(function() {
+        var orig = window.EventTarget.prototype.addEventListener;
+        window.EventTarget.prototype.addEventListener = function(type, listener, options) {
+          var op = options;
+          if (type === 'touchstart' || type === 'touchmove') {
+            if (typeof options === 'boolean') op = { capture: options, passive: true };
+            else if (typeof options === 'object') op = { ...options, passive: true };
+            else op = { passive: true };
+          }
+          orig.call(this, type, listener, op);
+        };
+      });
     })();
   </script>
 
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=Outfit:wght@600;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=Outfit:wght@600;900&display=swap" rel="stylesheet"></noscript>
+  <!-- Fonts: using system font stack for instant LCP -->
 
   <meta name="app-version" content="2026.04.08.1">
   <title>Swipess | Find Your Best Deal in Tulum</title>
@@ -83,7 +81,7 @@
     *{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
     input,textarea,select,[contenteditable="true"]{-webkit-user-select:text;user-select:text;touch-action:auto}
     :root{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
-    html,body{margin:0;padding:0;overflow:hidden;background:#000;width:100%;height:100%;color:#fff;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+    html,body{margin:0;padding:0;overflow:hidden;background:#000;width:100%;height:100%;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 
     #initial-loader{
       display:flex;flex-direction:column;align-items:center;justify-content:center;

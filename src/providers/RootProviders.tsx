@@ -3,7 +3,7 @@ import { QueryClient, QueryCache } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createIDBPersister } from "@/lib/persister";
 import { BrowserRouter } from "react-router-dom";
-import { LazyMotion, domMax } from "framer-motion";
+import { LazyMotion, domAnimation } from "framer-motion";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
@@ -130,7 +130,7 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
         client={queryClient} 
         persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24, buster: 'v1.5' }}
       >
-        <LazyMotion features={domMax}>
+        <LazyMotion features={domAnimation}>
           <WarpPrefetcher />
           <VisualThemeProvider>
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>

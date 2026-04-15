@@ -13,11 +13,13 @@ import { AnimatedPage } from "@/components/AnimatedPage";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-import { SpeedOfLightPreloader } from "@/components/SpeedOfLightPreloader";
+// SpeedOfLightPreloader removed — redundant with WarpPrefetcher in RootProviders
 import Index from "./pages/Index";
 
 // Defer i18n init — loaded after first render to reduce critical JS
-const i18nReady = import('@/i18n'); // hmr-refresh
+// i18n deferred — loaded after first paint via AppLifecycleManager
+let _i18nReady: Promise<any> | null = null;
+const ensureI18n = () => { if (!_i18nReady) _i18nReady = import('@/i18n'); return _i18nReady; };
 
 // 🚀 SPEED OF LIGHT: LAZY PAGES
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -106,7 +108,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
   return (
     <GlobalErrorBoundary>
       <RootProviders authPromise={authPromise}>
-        <SpeedOfLightPreloader />
+        
         <AppLayout>
           <TooltipProvider>
           <WelcomeBonusModal />
