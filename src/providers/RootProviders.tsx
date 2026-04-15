@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { QueryClient, QueryCache } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createIDBPersister } from "@/lib/persister";
 import { BrowserRouter } from "react-router-dom";
-import { LazyMotion, domMax } from "framer-motion";
+import { LazyMotion, domAnimation } from "framer-motion";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
@@ -17,7 +17,9 @@ import { useForceUpdateOnVersionChange } from "@/hooks/useAutomaticUpdates";
 import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProfileAutoSync";
 import { useConnectionHealth } from "@/hooks/useConnectionHealth";
 import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
-import { ZenithPrewarmer } from "@/components/ZenithPrewarmer";
+// PERF: Lazy-load ZenithPrewarmer — its deps (routePrefetcher, performance) are heavy
+// It only activates after auth resolves, so no need in critical boot path
+const ZenithPrewarmer = lazy(() => import("@/components/ZenithPrewarmer").then(m => ({ default: m.ZenithPrewarmer })));
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Performance-First Query Client Configuration
@@ -130,13 +132,15 @@ export function RootProviders({ children, authPromise }: RootProvidersProps) {
         client={queryClient} 
         persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24, buster: 'v1.5' }}
       >
-        <LazyMotion features={domMax}>
+        <LazyMotion features={domAnimation}>
           <WarpPrefetcher />
           <VisualThemeProvider>
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <AuthProvider authPromise={authPromise}>
                 <AuthReadySignal />
-                <ZenithPrewarmer />
+                <Suspense fallback={null}>
+                  <ZenithPrewarmer />
+                </Suspense>
                 <ActiveModeProvider>
                   <ThemeProvider>
                     <PWAProvider>

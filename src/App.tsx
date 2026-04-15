@@ -16,10 +16,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // SpeedOfLightPreloader removed — redundant with WarpPrefetcher in RootProviders
 import Index from "./pages/Index";
 
-// Defer i18n init — loaded after first render to reduce critical JS
-// i18n deferred — loaded after first paint via AppLifecycleManager
-let _i18nReady: Promise<any> | null = null;
-const ensureI18n = () => { if (!_i18nReady) _i18nReady = import('@/i18n'); return _i18nReady; };
+// PERF: Defer i18n init behind idle callback — loaded after first render to reduce critical JS
+if (typeof window !== 'undefined') {
+  const loadI18n = () => import('@/i18n');
+  if ('requestIdleCallback' in window) {
+    (window as any).requestIdleCallback(loadI18n, { timeout: 3000 });
+  } else {
+    setTimeout(loadI18n, 2000);
+  }
+}
 
 // 🚀 SPEED OF LIGHT: LAZY PAGES
 const NotFound = lazy(() => import("./pages/NotFound"));

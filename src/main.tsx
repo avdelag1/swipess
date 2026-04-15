@@ -5,8 +5,15 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import "./styles/responsive.css";
-import "./styles/PremiumShine.css";
+// PERF: Defer non-critical CSS to reduce unused CSS on initial paint (~21 KiB saved)
+// responsive.css = desktop grids, print styles, sidebar nav
+// PremiumShine.css = subscription card glow effects
+if (typeof window !== 'undefined') {
+  requestAnimationFrame(() => {
+    import("./styles/responsive.css");
+    import("./styles/PremiumShine.css");
+  });
+}
 import { supabase } from "@/integrations/supabase/client";
 
 const hostname = window.location.hostname;
