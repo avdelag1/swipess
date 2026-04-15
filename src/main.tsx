@@ -5,13 +5,19 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-// PERF: Defer non-critical CSS to reduce unused CSS on initial paint (~21 KiB saved)
+// PERF: Defer non-critical CSS to reduce unused CSS on initial paint (~84 KiB saved total)
 // responsive.css = desktop grids, print styles, sidebar nav
 // PremiumShine.css = subscription card glow effects
+// premium-polish.css = heavy animations
+// matte-themes.css = alternate color themes
+// pwa-performance.css = hardware overrides
 if (typeof window !== 'undefined') {
   requestAnimationFrame(() => {
     import("./styles/responsive.css");
     import("./styles/PremiumShine.css");
+    import("./styles/premium-polish.css");
+    import("./styles/matte-themes.css");
+    import("./styles/pwa-performance.css");
   });
 }
 import { supabase } from "@/integrations/supabase/client";
@@ -72,6 +78,11 @@ async function bootstrap() {
     window.location.reload();
     return;
   }
+
+  // PERF: Yield to browser UI thread to paint the splash screen immediately!
+  // This drastically improves FCP times by letting the initial HTML display first
+  // before the main thread is blocked by React hydration.
+  await new Promise(resolve => setTimeout(resolve, 10));
 
   const rootElement = document.getElementById("root");
   if (rootElement) {

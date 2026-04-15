@@ -36,6 +36,8 @@ function SwipessLogoComponent({
         src={isIcon ? "/icons/swipess-logo-transparent.png" : "/icons/swipess-wordmark-transparent-v2.png"}
         alt="Swipess"
         draggable={false}
+        fetchpriority="high"
+        decoding={isIcon ? "async" : "sync"}
         className={cn(
           'select-none transition-all duration-300',
           isIcon ? 'w-full h-full object-contain' : cn('w-auto max-w-full', sizeMap[size])

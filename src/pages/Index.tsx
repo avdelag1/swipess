@@ -6,7 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
-import LegendaryLandingPage from "@/components/LegendaryLandingPage";
+import { lazy, Suspense } from "react";
+const LegendaryLandingPage = lazy(() => import("@/components/LegendaryLandingPage"));
 
 const Index = () => {
   const { user, loading, initialized } = useAuth();
@@ -245,7 +246,9 @@ const Index = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-black overflow-hidden">
-        <LegendaryLandingPage />
+        <Suspense fallback={<SuspenseFallback />}>
+          <LegendaryLandingPage />
+        </Suspense>
       </div>
     );
   }
