@@ -1,54 +1,61 @@
 
+Goal: remove the splash/frame transition artifact, fix the broken Events feed interactions, and expand the lighter glass effect across header/navigation controls without changing the app’s structure.
 
-## Softer, More Fluid Swipe Physics Across All Card Types
+1. Remove the splash/frame effect cleanly
+- Strip the remaining splash dissolve/“hydrated” transition behavior that can create a visible frame band before or after boot.
+- Keep the boot surface fully black and instantaneous, with no extra fade layer sitting above the app.
+- Preserve the wordmark-only loading feel if needed, but make the handoff to the app direct and frameless.
 
-### Problem
-The swipe cards feel "heavy" -- low `dragElastic`, high `stiffness`, high thresholds make the drag resist the finger. The Advertise page cards also have inconsistent physics. All swipe surfaces need a unified, silky feel.
+2. Fix the Events page interaction bugs
+- Remove or drastically shrink the oversized invisible tap zones inside `EventCard` that are intercepting scroll/swipe gestures and creating the mysterious “square/button” near the right-side actions.
+- Restore natural vertical swipe/scroll priority so the feed behaves like a proper snap-scroll story feed again.
+- Keep navigation affordances, but move them to smaller explicit controls or non-blocking edge hints so they do not sit on top of the content.
 
-### Changes
+3. Fix category switching on Events
+- Reset the feed to the first card whenever the category changes.
+- Reset the active index and scroll position so Beach/Jungle/All do not appear stuck or inconsistent.
+- Handle empty and short filtered lists safely so the page never feels frozen.
 
-**1. PokerCategoryCard.tsx (Category selector cards -- Client & Owner dashboards)**
-- `dragElastic`: 0.18 -> 0.65 (finger tracks more loosely, feels lighter)
-- Swipe trigger threshold: `dist > 60` -> `dist > 40`, `vel > 350` -> `vel > 250`
-- Exit spring: stiffness 800/damping 35 -> 500/28 (smoother exit arc)
-- Snap-back spring: stiffness 600/damping 25 -> 350/22 (softer bounce back)
+4. Harden the Events route loading
+- Replace the plain lazy load for `EventosFeed` with the same retry-safe lazy loading already used elsewhere.
+- Review related event-page imports so transient chunk fetch failures do not leave the page broken.
 
-**2. SimpleSwipeCard.tsx (Client discovery deck)**
-- `dragElastic`: 0.15 -> 0.55 (dramatic improvement in finger-follow feel)
-- `SWIPE_THRESHOLD`: 100 -> 65
-- `VELOCITY_THRESHOLD`: 400 -> 280
-- Switch `ACTIVE_SPRING` from `NATIVE` (800/22/0.1) to a new `SILK` config: stiffness 400, damping 24, mass 0.3 -- responsive but graceful
-- `MAX_ROTATION`: 28 -> 18 (less dramatic, more elegant)
+5. Refine the Events HUD glass and consistency
+- Keep the floating back button and filter row, but tune their glass styling to match the newer premium header treatment.
+- Ensure the HUD remains visible/usable without creating dark frame bands or obstructing gestures.
 
-**3. SimpleOwnerSwipeCard.tsx (Owner discovery deck)**
-- `dragElastic` is already 0.9 (good), keep it
-- Match spring physics to the new `SILK` config (stiffness 400, damping 24)
-- Ensure snap-back uses same soft spring
+6. Expand the glass effect across header buttons
+- Apply the glass treatment consistently to the actual header controls: back button, profile/name cluster, mode switcher, radio, theme toggle, and notifications.
+- Use a shared lighter glass recipe so these buttons feel individual and premium, not just grouped inside one blurred capsule.
+- Keep the current split-anchor layout and mobile fit intact.
 
-**4. CategorySwipeStack.tsx (Quick filter cards)**
-- `dragElastic`: 0.12 -> 0.55
-- `dragConstraints`: widen from `left: -150, right: 150` to `left: -200, right: 200`
-- Drag spring during drag: stiffness 800 -> 400, damping 35 -> 24
-- Swipe threshold: `info.offset.x > 80` -> `> 50`
+7. Reduce blur strength on bottom navigation active buttons
+- Lower the active button blur a bit and slightly increase transparency so more of the background comes through.
+- Preserve the existing glass feel, just make it clearer and less foggy.
 
-**5. AdvertisePage.tsx (Promote page swipe cards)**
-- `dragElastic`: 0.9 -> 0.6 (currently too loose, cards fly away)
-- Add `dragMomentum={false}` for controlled feel
-- Swipe dismiss threshold: `Math.abs(info.offset.x) > 100` -> `> 60`
-- Add snap-back animation when below threshold instead of just releasing
-- Add `rotate` transform matching the other cards for consistency
+Technical details
+- Files likely touched:
+  - `index.html`
+  - `src/pages/EventosFeed.tsx`
+  - `src/components/events/EventCard.tsx`
+  - `src/App.tsx`
+  - `src/components/TopBar.tsx`
+  - `src/components/BottomNavigation.tsx`
+  - possibly small related button components like `ThemeToggle.tsx`, `ModeSwitcher.tsx`, `NotificationPopover.tsx`
+- Root causes identified:
+  - splash handoff still relies on layered dissolve timing
+  - `EventCard` has large absolute buttons covering much of the card, likely blocking scroll and causing the phantom square/chevron behavior
+  - category changes do not reset feed position/index
+  - `EventosFeed` uses plain `lazy()` instead of the project’s retry-safe lazy loader
 
-### Unified "SILK" Spring Config
-All swipe cards will converge on this physics profile:
-```text
-SILK: { stiffness: 400, damping: 24, mass: 0.3 }
-```
-This gives an iOS-native feel: responsive without being stiff, with a slight organic settle.
-
-### Files Modified
-- `src/components/swipe/PokerCategoryCard.tsx`
-- `src/components/SimpleSwipeCard.tsx`
-- `src/components/SimpleOwnerSwipeCard.tsx`
-- `src/components/CategorySwipeStack.tsx`
-- `src/pages/AdvertisePage.tsx`
-
+Validation after implementation
+- Open app from cold start: no frame flash before or after splash
+- Events page:
+  - vertical swipe/scroll works anywhere on the card
+  - no phantom square/button near action buttons
+  - Beach/Jungle/All/Restaurants switch correctly and immediately
+  - back button and filters still float and remain usable
+- Header/nav:
+  - glass effect visible on header controls
+  - bottom nav shows more background through active buttons
+  - no layout crowding or loss of touch responsiveness
