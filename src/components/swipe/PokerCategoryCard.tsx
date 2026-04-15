@@ -178,7 +178,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       >
         <div
           className={cn(
-            'w-full h-full relative overflow-hidden rounded-[28px]',
+            'w-full h-full relative overflow-hidden rounded-[28px] md:rounded-[32px]',
             isTop
               ? 'border-2 border-white/15 shadow-[0_8px_40px_rgba(0,0,0,0.5)]'
               : 'border border-white/5 shadow-xl'
@@ -230,10 +230,10 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
             />
           )}
 
-          <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-8 pb-8">
+          <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-8 md:px-10 pb-8 md:pb-10">
             <div className="flex flex-col gap-0.5">
-              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/50 mb-1">{card.description}</p>
-              <h3 className="text-white text-3xl font-black tracking-tight uppercase leading-none">{card.label}</h3>
+              <p className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.35em] text-white/50 mb-1">{card.description}</p>
+              <h3 className="text-white text-3xl md:text-4xl font-black tracking-tight uppercase leading-none">{card.label}</h3>
             </div>
 
             {isTop && (
@@ -242,7 +242,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
                 onClick={(e) => { e.stopPropagation(); onSelect(card.id); }}
-                className="mt-6 w-full h-16 rounded-[1.5rem] font-black text-[13px] uppercase tracking-[0.25em] bg-white text-black active:scale-95 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.4)] flex items-center justify-center overflow-hidden relative group"
+                className="mt-6 w-full h-16 md:h-[72px] rounded-[1.5rem] font-black text-[13px] md:text-[15px] uppercase tracking-[0.25em] bg-white text-black active:scale-95 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.4)] flex items-center justify-center overflow-hidden relative group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer" />
                 <span>Launch {card.label}</span>
