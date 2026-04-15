@@ -71,9 +71,9 @@ const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const SubscriptionPackagesPage = lazy(() => import("./pages/SubscriptionPackagesPage"));
 const DJTurntableRadio = lazyWithRetry(() => import("./pages/DJTurntableRadio"));
-const EventosFeed = lazy(() => import("./pages/EventosFeed"));
-const EventoDetail = lazy(() => import("./pages/EventoDetail"));
-const EventosLikes = lazy(() => import("./pages/EventosLikes"));
+const EventosFeed = lazyWithRetry(() => import("./pages/EventosFeed"));
+const EventoDetail = lazyWithRetry(() => import("./pages/EventoDetail"));
+const EventosLikes = lazyWithRetry(() => import("./pages/EventosLikes"));
 const AdminEventos = lazy(() => import("./pages/AdminEventos"));
 const AdminPhotos = lazy(() => import("./pages/AdminPhotos"));
 const AdminPerformanceDashboard = lazy(() => import("./pages/AdminPerformanceDashboard"));

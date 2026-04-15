@@ -466,17 +466,17 @@ export const BottomNavigation = memo(({
                   minHeight: TOUCH_TARGET,
                   padding: '6px 8px',
                   background: active
-                    ? (isLight ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.1)')
+                    ? (isLight ? 'rgba(255,255,255,0.34)' : 'rgba(255,255,255,0.07)')
                     : 'none',
-                  backdropFilter: active ? 'blur(12px) saturate(1.3)' : 'none',
-                  WebkitBackdropFilter: active ? 'blur(12px) saturate(1.3)' : 'none',
+                  backdropFilter: active ? 'blur(8px) saturate(1.18)' : 'none',
+                  WebkitBackdropFilter: active ? 'blur(8px) saturate(1.18)' : 'none',
                   border: active
-                    ? (isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)')
+                    ? (isLight ? '1px solid rgba(0,0,0,0.04)' : '1px solid rgba(255,255,255,0.06)')
                     : 'none',
                   boxShadow: active
                     ? (isLight
-                      ? '0 1px 6px rgba(0,0,0,0.06)'
-                      : '0 1px 8px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.06)')
+                      ? '0 2px 10px rgba(0,0,0,0.05)'
+                      : '0 4px 14px rgba(0,0,0,0.16), inset 0 0.5px 0 rgba(255,255,255,0.04)')
                     : 'none',
                   cursor: 'pointer',
                   flexShrink: 0,
@@ -571,8 +571,8 @@ export const BottomNavigation = memo(({
         <div
           className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 z-30 rounded-l-[32px]"
           style={{
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
             maskImage: 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.05) 70%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.05) 70%, transparent 100%)',
           }}
@@ -580,8 +580,8 @@ export const BottomNavigation = memo(({
         <div
           className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 z-30 rounded-r-[32px]"
           style={{
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
             maskImage: 'linear-gradient(to left, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.05) 70%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.05) 70%, transparent 100%)',
           }}

@@ -46,6 +46,16 @@ function TopBarComponent({
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
+  const glassSurfaceStyle: React.CSSProperties = {
+    background: isLight ? 'rgba(255,255,255,0.34)' : 'rgba(18,18,22,0.18)',
+    backdropFilter: 'blur(10px) saturate(1.2)',
+    WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
+    border: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)',
+    boxShadow: isLight
+      ? '0 2px 10px rgba(0,0,0,0.06)'
+      : '0 8px 22px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.06)',
+  };
+
   const { data: profile } = useQuery({
     queryKey: ['topbar-user-profile', user?.id],
     enabled: !!user?.id,
@@ -86,8 +96,8 @@ function TopBarComponent({
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={handleBack}
-                className="flex-shrink-0 w-9 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation"
-                style={{ border: 'none' }}
+                className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center z-50 pointer-events-auto touch-manipulation"
+                style={glassSurfaceStyle}
                 aria-label="Go back"
               >
                 <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground" : "text-white/90")} strokeWidth={1.8} />
@@ -104,16 +114,7 @@ function TopBarComponent({
                   navigate(userRole === 'owner' ? '/owner/profile' : '/client/profile');
                 }}
                 className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 flex items-center gap-2 rounded-full px-1.5 py-1"
-                style={{
-                  WebkitTapHighlightColor: 'transparent',
-                  background: isLight ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.08)',
-                  backdropFilter: 'blur(16px) saturate(1.4)',
-                  WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-                  border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.1)',
-                  boxShadow: isLight
-                    ? '0 1px 6px rgba(0,0,0,0.06)'
-                    : '0 1px 8px rgba(0,0,0,0.25), inset 0 0.5px 0 rgba(255,255,255,0.08)',
-                }}
+                style={{ WebkitTapHighlightColor: 'transparent', ...glassSurfaceStyle }}
                 aria-label="Go to profile"
               >
                 <Avatar className="h-[32px] w-[32px] rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
@@ -144,7 +145,7 @@ function TopBarComponent({
             )}
 
             {!minimal && (
-              <div className="flex-shrink-0 pointer-events-auto">
+              <div className="flex-shrink-0 pointer-events-auto rounded-full overflow-hidden" style={glassSurfaceStyle}>
                 <ModeSwitcher variant="icon" size="sm" />
               </div>
             )}
@@ -163,16 +164,7 @@ function TopBarComponent({
           <div className="flex-1 min-w-0" />
 
           <div
-            className="flex-shrink-0 flex items-center gap-1 pointer-events-auto rounded-full px-1 py-1"
-            style={{
-              background: isLight ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.08)',
-              backdropFilter: 'blur(16px) saturate(1.4)',
-              WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-              border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.1)',
-              boxShadow: isLight
-                ? '0 1px 6px rgba(0,0,0,0.06)'
-                : '0 1px 8px rgba(0,0,0,0.25), inset 0 0.5px 0 rgba(255,255,255,0.08)',
-            }}
+            className="flex-shrink-0 flex items-center gap-1.5 pointer-events-none"
           >
             {!minimal && (
               <motion.button
@@ -183,18 +175,22 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/radio');
                 }}
-                className="w-9 h-9 flex items-center justify-center touch-manipulation"
-                style={{ WebkitTapHighlightColor: 'transparent' }}
+                className="w-9 h-9 rounded-full flex items-center justify-center touch-manipulation pointer-events-auto"
+                style={{ WebkitTapHighlightColor: 'transparent', ...glassSurfaceStyle }}
                 aria-label="Open Radio"
               >
                 <Radio className={cn("w-[19px] h-[19px]", isLight ? "text-foreground/70" : "text-white/70")} strokeWidth={1.5} />
               </motion.button>
             )}
             {!minimal && (
-              <ThemeToggle />
+              <div className="rounded-full overflow-hidden pointer-events-auto" style={glassSurfaceStyle}>
+                <ThemeToggle />
+              </div>
             )}
             {!minimal && (
-              <NotificationPopover />
+              <div className="rounded-full overflow-hidden pointer-events-auto" style={glassSurfaceStyle}>
+                <NotificationPopover />
+              </div>
             )}
           </div>
         </div>
