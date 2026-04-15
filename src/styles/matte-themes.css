@@ -132,46 +132,62 @@
     --overlay: rgba(0, 0, 0, 0.5);
 }
 
-/* THEME 4: RED MATTE (Bold Mexican spirit) */
+/* THEME 4: SUNSET (Warm cinematic red-orange) */
 .red-matte {
-    /* Background colors - Deep red-black palette */
-    --background: 0 65% 8%;
-    --foreground: 0 100% 92%;
-    --card: 0 65% 12%;
-    --card-foreground: 0 100% 92%;
-    --primary: 0 100% 61%;
+    /* Background colors - Deep warm sunset palette */
+    --background: 8 60% 7%;
+    --foreground: 10 100% 93%;
+    --card: 8 55% 11%;
+    --card-foreground: 10 100% 93%;
+    --primary: 10 95% 58%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 65% 16%;
-    --secondary-foreground: 0 100% 92%;
-    --muted: 0 65% 16%;
-    --muted-foreground: 0 100% 73%;
-    --accent: 0 100% 61%;
+    --secondary: 8 50% 15%;
+    --secondary-foreground: 10 100% 93%;
+    --muted: 8 50% 15%;
+    --muted-foreground: 10 80% 70%;
+    --accent: 10 95% 58%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 50% 20%;
-    --input: 0 50% 20%;
-    --ring: 0 100% 61%;
+    --border: 8 40% 18%;
+    --input: 8 40% 18%;
+    --ring: 10 95% 58%;
 
     /* Modern theme variables */
-    --bg-primary: 0 65% 8%;
-    --bg-secondary: 0 65% 12%;
-    --bg-tertiary: 0 65% 16%;
-    --text-primary: 0 100% 92%;
-    --text-secondary: 0 100% 73%;
-    --text-tertiary: 0 100% 53%;
-    --border-primary: 0 50% 20%;
-    --border-secondary: 0 50% 25%;
-    --accent-primary: 0 100% 61%;
-    --accent-secondary: 0 100% 71%;
+    --bg-primary: 8 60% 7%;
+    --bg-secondary: 8 55% 11%;
+    --bg-tertiary: 8 50% 15%;
+    --text-primary: 10 100% 93%;
+    --text-secondary: 10 80% 70%;
+    --text-tertiary: 10 60% 48%;
+    --border-primary: 8 40% 18%;
+    --border-secondary: 8 40% 24%;
+    --accent-primary: 10 95% 58%;
+    --accent-secondary: 12 90% 68%;
 
-    /* Shadows - Red-tinted shadows */
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 4px 16px rgba(139, 10, 10, 0.2);
-    --shadow-lg: 0 8px 32px rgba(139, 10, 10, 0.3);
-    --shadow-card: 0 20px 40px rgba(139, 10, 10, 0.4);
-    --shadow-glow: 0 0 30px rgba(255, 61, 61, 0.5);
-    --overlay: rgba(45, 10, 10, 0.7);
+    /* Shadows - Warm sunset shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 4px 16px rgba(120, 20, 10, 0.2);
+    --shadow-lg: 0 8px 32px rgba(120, 20, 10, 0.3);
+    --shadow-card: 0 20px 40px rgba(120, 20, 10, 0.4);
+    --shadow-glow: 0 0 30px rgba(255, 100, 50, 0.4);
+    --overlay: rgba(30, 8, 5, 0.75);
+}
+
+/* Sunset ambient glow */
+@keyframes sunset-glow {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.06; }
+}
+
+.red-matte::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(ellipse at 50% 30%, hsla(10, 90%, 50%, 0.12), transparent 70%);
+  animation: sunset-glow 12s ease-in-out infinite;
 }
 
 /* THEME 5: PURE BLACK (AMOLED void black) */

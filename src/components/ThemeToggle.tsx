@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Sunset } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
@@ -9,16 +9,13 @@ interface ThemeToggleProps {
     className?: string;
 }
 
+const THEME_CYCLE = { light: 'dark', dark: 'sunset', sunset: 'light' } as const;
+
 function ThemeToggleComponent({ className }: ThemeToggleProps) {
     const { theme, setTheme } = useTheme();
 
-    const nextTheme = theme === 'light' ? 'dark' : 'light';
-
-    const glassBg = theme === 'dark' ? 'var(--glass-bg)' : 'rgba(255, 255, 255, 0.95)';
-    const glassBorder = theme === 'dark' ? '1px solid var(--glass-border)' : '1px solid rgba(0, 0, 0, 0.05)';
-    const floatingShadow = theme === 'dark'
-        ? '0 10px 30px -10px rgba(0,0,0,0.5)'
-        : '0 10px 30px -10px rgba(0,0,0,0.1)';
+    const effectiveTheme = (theme === 'light' || theme === 'dark' || theme === 'sunset') ? theme : 'dark';
+    const nextTheme = THEME_CYCLE[effectiveTheme];
 
     const handlePointerDown = (e: React.PointerEvent) => {
         e.stopPropagation();
@@ -30,6 +27,14 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
         e.stopPropagation();
         setTheme(nextTheme, { x: e.clientX, y: e.clientY });
     };
+
+    const icon = effectiveTheme === 'light'
+        ? <Sun strokeWidth={1.5} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
+        : effectiveTheme === 'dark'
+            ? <Moon strokeWidth={1.5} className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
+            : <Sunset strokeWidth={1.5} className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400" />;
+
+    const nextLabel = nextTheme === 'light' ? 'Light' : nextTheme === 'dark' ? 'Dark' : 'Sunset';
 
     return (
         <button
@@ -49,22 +54,18 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
                 border: 'none',
                 boxShadow: 'none',
             }}
-            aria-label={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} mode`}
-            title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} mode`}
+            aria-label={`Switch to ${nextLabel} mode`}
+            title={`Switch to ${nextLabel} mode`}
         >
             <AnimatePresence mode="sync">
                 <motion.div
-                    key={theme}
+                    key={effectiveTheme}
                     initial={{ opacity: 0, scale: 0.6 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.6 }}
                     transition={{ duration: 0.1, ease: 'easeOut' }}
                 >
-                    {theme === 'light' ? (
-                        <Sun strokeWidth={1.5} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
-                    ) : (
-                        <Moon strokeWidth={1.5} className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
-                    )}
+                    {icon}
                 </motion.div>
             </AnimatePresence>
         </button>
