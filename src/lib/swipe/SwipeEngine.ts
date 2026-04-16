@@ -69,8 +69,8 @@ export interface SwipeState {
 const getDefaultExitDistance = () => typeof window !== 'undefined' ? window.innerWidth + 100 : 600;
 
 const DEFAULT_CONFIG: SwipeEngineConfig = {
-  swipeThreshold: 120,
-  velocityThreshold: 400,
+  swipeThreshold: 80,
+  velocityThreshold: 280,
   springStiffness: 500,
   springDamping: 35,
   springMass: 0.5,

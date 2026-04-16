@@ -32,8 +32,8 @@ export interface SimpleOwnerSwipeCardRef {
 }
 
 // Tinder-style thresholds
-const SWIPE_THRESHOLD = 65; // Distance to trigger swipe
-const VELOCITY_THRESHOLD = 280; // Velocity to trigger swipe
+const SWIPE_THRESHOLD = 45; // Distance to trigger swipe
+const VELOCITY_THRESHOLD = 200; // Velocity to trigger swipe
 
 // Max rotation angle (degrees) based on horizontal position
 const MAX_ROTATION = 15; // Slightly reduced for a more "expensive" feel

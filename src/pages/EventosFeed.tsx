@@ -20,7 +20,7 @@ import { EventCard } from '@/components/events/EventCard';
 import { ShareModal } from '@/components/events/ShareModal';
 
 // Static Data
-import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
+import { CATEGORIES } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
 
 /** Scroll-direction tracker for the HUD: hides on scroll-down, shows on scroll-up or idle */
@@ -195,16 +195,14 @@ export default function EventosFeed() {
         price_text: ev.price_text || null,
       }));
 
-      return formatted.length > 0 ? formatted : MOCK_EVENTS;
+      return formatted;
     },
     staleTime: 5 * 60 * 1000,
-    placeholderData: MOCK_EVENTS,
+    placeholderData: [],
   });
 
   const allEvents = useMemo(() => {
-    const real = rawEvents || [];
-    const mockUnique = MOCK_EVENTS.filter(m => !real.some(r => r.id === m.id));
-    const combined = [...real, ...mockUnique];
+    const combined = rawEvents || [];
     
     if (combined.length > 0 && typeof window !== 'undefined') {
       import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {

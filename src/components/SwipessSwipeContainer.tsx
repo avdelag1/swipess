@@ -56,7 +56,7 @@ import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
-import { DistanceSlider } from './swipe/DistanceSlider';
+import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 
 
 // Navigation guard to prevent double-taps
@@ -964,7 +964,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         <div className="relative z-50 w-full flex flex-col items-center shrink-0">
           <div className="w-full pt-1 pb-1 px-2">
             <div className="w-full flex justify-between items-center">
-              <DistanceSlider
+              <LocationRadiusSelector
                 radiusKm={radiusKm}
                 onRadiusChange={setRadiusKm}
                 onDetectLocation={detectLocation}

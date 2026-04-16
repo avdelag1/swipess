@@ -43,7 +43,7 @@ import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
-import { DistanceSlider } from './swipe/DistanceSlider';
+import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 
 // ── Distance Slider Component ─────────────────────────────────────────────────
 interface _DistanceSliderProps {
@@ -847,7 +847,7 @@ const ClientSwipeContainerComponent = ({
           <div className="relative z-50 w-full flex flex-col items-center shrink-0">
             <div className="w-full pt-1 pb-1 px-2">
               <div className="w-full flex justify-between items-center">
-                <DistanceSlider
+                <LocationRadiusSelector
                   radiusKm={radiusKm}
                   onRadiusChange={setRadiusKm}
                   onDetectLocation={detectLocation}

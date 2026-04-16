@@ -4,7 +4,7 @@ import { RefreshCw, RotateCcw, Zap, Home, Bike, Briefcase } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Button } from '@/components/ui/button';
 import { RadarSearchEffect } from '@/components/ui/RadarSearchEffect';
-import { DistanceSlider } from './DistanceSlider';
+import { LocationRadiusSelector } from './LocationRadiusSelector';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { cn } from '@/lib/utils';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
@@ -230,7 +230,7 @@ export const SwipeExhaustedState = ({
               transition={{ delay: 0.3 }}
               className="mx-auto w-full max-w-md"
             >
-              <DistanceSlider
+              <LocationRadiusSelector
                 radiusKm={radiusKm}
                 onRadiusChange={onRadiusChange}
                 onDetectLocation={onDetectLocation || (() => {})}
