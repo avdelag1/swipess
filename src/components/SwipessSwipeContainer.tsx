@@ -126,6 +126,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const radiusKm = useFilterStore((s) => s.radiusKm);
   const setRadiusKm = useFilterStore((s) => s.setRadiusKm);
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
+  const userLatitude = useFilterStore((s) => s.userLatitude);
+  const userLongitude = useFilterStore((s) => s.userLongitude);
   const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
@@ -976,8 +978,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 detecting={locationDetecting}
                 detected={locationDetected}
                 onCategorySelect={handleMapCategorySelect}
-                lat={useFilterStore.getState().userLatitude}
-                lng={useFilterStore.getState().userLongitude}
+                lat={userLatitude}
+                lng={userLongitude}
               />
             </div>
           </div>
