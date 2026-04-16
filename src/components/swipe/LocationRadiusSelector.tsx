@@ -57,7 +57,8 @@ export const LocationRadiusSelector = ({
   const maxKm = 100;
   const [localKm, setLocalKm] = useState(radiusKm);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { isLight } = useTheme();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const userLat = lat ?? 20.2114;
   const userLng = lng ?? -87.4654;
