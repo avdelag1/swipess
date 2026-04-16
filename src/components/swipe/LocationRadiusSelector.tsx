@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Navigation, Minus, Plus } from 'lucide-react';
+import { Navigation, Minus, Plus, Home, Bike, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+import { useFilterStore } from '@/state/filterStore';
+import type { QuickFilterCategory } from '@/types/filters';
 
 export interface LocationRadiusSelectorProps {
   radiusKm: number;
@@ -11,11 +14,19 @@ export interface LocationRadiusSelectorProps {
   onDetectLocation: () => void;
   detecting: boolean;
   detected: boolean;
+  onCategorySelect?: (category: QuickFilterCategory) => void;
   lat?: number | null;
   lng?: number | null;
 }
 
 const KM_PRESETS = [1, 5, 10, 25, 50, 100];
+
+const CATEGORY_BUTTONS: Array<{ id: QuickFilterCategory; Icon: typeof Home; edgeClassName: string }> = [
+  { id: 'property', Icon: Home, edgeClassName: 'top-3 left-3' },
+  { id: 'motorcycle', Icon: MotorcycleIcon as typeof Home, edgeClassName: 'top-3 right-3' },
+  { id: 'bicycle', Icon: Bike, edgeClassName: 'bottom-16 left-3' },
+  { id: 'services', Icon: Briefcase, edgeClassName: 'bottom-16 right-3' },
+];
 
 // Convert km to pixels at a given zoom level and latitude
 const kmToPixels = (km: number, lat: number, zoom: number) => {
@@ -59,6 +70,7 @@ export const LocationRadiusSelector = ({
   onDetectLocation,
   detecting,
   detected,
+  onCategorySelect,
   lat,
   lng,
 }: LocationRadiusSelectorProps) => {
@@ -67,6 +79,7 @@ export const LocationRadiusSelector = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
   const isLight = theme === 'light';
+  const activeCategory = useFilterStore((state) => state.activeCategory);
 
   // Pan state
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -228,6 +241,11 @@ export const LocationRadiusSelector = ({
     setLocalKm(km);
   }, []);
 
+  const handleCategorySelect = useCallback((category: QuickFilterCategory) => {
+    triggerHaptic('medium');
+    onCategorySelect?.(category);
+  }, [onCategorySelect]);
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Scroll active pill into view
@@ -250,8 +268,8 @@ export const LocationRadiusSelector = ({
       {/* Map Canvas — fills available space */}
       <div
         ref={containerRef}
-        className="flex-1 relative overflow-hidden rounded-2xl border border-border/30"
-        style={{ touchAction: 'none', cursor: 'grab', minHeight: 200 }}
+        className="flex-1 relative overflow-hidden rounded-[2rem] border border-border/30"
+        style={{ touchAction: 'none', cursor: 'grab', minHeight: 320 }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -263,8 +281,35 @@ export const LocationRadiusSelector = ({
           className="block"
         />
 
+        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(180deg,hsl(var(--background)/0.08)_0%,transparent_18%,transparent_72%,hsl(var(--background)/0.55)_100%)]" />
+
+        {CATEGORY_BUTTONS.map(({ id, Icon, edgeClassName }) => {
+          const isActive = activeCategory === id;
+
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCategorySelect(id);
+              }}
+              className={cn(
+                "absolute z-20 h-12 w-12 rounded-2xl border backdrop-blur-xl flex items-center justify-center transition-all active:scale-95",
+                edgeClassName,
+                isActive
+                  ? "bg-primary text-primary-foreground border-primary shadow-[0_0_18px_hsl(var(--primary)/0.45)]"
+                  : "bg-background/75 text-foreground border-border/60"
+              )}
+            >
+              <Icon className="w-5 h-5" />
+            </button>
+          );
+        })}
+
         {/* GPS Button — bottom right floating */}
         <button
+          type="button"
           onClick={(e) => { e.stopPropagation(); onDetectLocation(); setPanOffset({ x: 0, y: 0 }); }}
           disabled={detecting}
           className={cn(
@@ -280,12 +325,14 @@ export const LocationRadiusSelector = ({
         {/* +/- zoom for radius — bottom left */}
         <div className="absolute bottom-3 left-3 z-10 flex flex-col gap-1.5">
           <button
+            type="button"
             onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); setLocalKm(Math.min(100, localKm + 5)); }}
             className="w-9 h-9 rounded-full bg-background/80 backdrop-blur-md border border-border/50 flex items-center justify-center active:scale-90 transition-transform"
           >
             <Plus className="w-4 h-4 text-foreground" />
           </button>
           <button
+            type="button"
             onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); setLocalKm(Math.max(1, localKm - 5)); }}
             className="w-9 h-9 rounded-full bg-background/80 backdrop-blur-md border border-border/50 flex items-center justify-center active:scale-90 transition-transform"
           >
@@ -306,6 +353,7 @@ export const LocationRadiusSelector = ({
             return (
               <button
                 key={km}
+                type="button"
                 data-active={isActive}
                 onClick={() => handleKmSelect(km)}
                 className={cn(
