@@ -30,6 +30,9 @@ const CATEGORY_META: Record<string, { label: string; accent: string; accentRgb: 
   motorcycle: { label: 'Motorcycles', accent: '#f97316', accentRgb: '249,115,22' },
   bicycle:    { label: 'Bicycles',    accent: '#f43f5e', accentRgb: '244,63,94' },
   services:   { label: 'Workers',     accent: '#a855f7', accentRgb: '168,85,247' },
+  buyers:     { label: 'Buyers',      accent: '#3b82f6', accentRgb: '59,130,246' },
+  renters:    { label: 'Renters',     accent: '#10b981', accentRgb: '16,185,129' },
+  hire:       { label: 'Services',    accent: '#a855f7', accentRgb: '168,85,247' },
 };
 
 // ─── Map Math ──────────────────────────────────────────────────────────────────
@@ -499,9 +502,14 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         className={cn(
           "relative z-[10001] px-5 pt-6 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] flex flex-col gap-6",
           isLight
-            ? "bg-white/95"
-            : "bg-black/95 backdrop-blur-3xl"
+            ? "bg-white/40"
+            : "bg-black/10"
         )}
+        style={{
+          backdropFilter: 'blur(32px) saturate(1.5)',
+          WebkitBackdropFilter: 'blur(32px) saturate(1.5)',
+          borderTop: 'none',
+        }}
       >
         {/* KM Label */}
         <div className="flex items-center justify-between">

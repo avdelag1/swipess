@@ -24,55 +24,12 @@ import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
 import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 
 // Notification type configurations for visual consistency
-const typeConfigs = {
-  like: {
-    icon: Flame,
-    color: 'text-pink-500',
-    bg: 'bg-pink-500/10',
-    label: 'Like'
-  },
-  message: {
-    icon: MessageSquare,
-    color: 'text-blue-500',
-    bg: 'bg-blue-500/10',
-    label: 'Message'
-  },
-  super_like: {
-    icon: Star,
-    color: 'text-amber-500',
-    bg: 'bg-amber-500/10',
-    label: 'Super Like'
-  },
-  match: {
-    icon: Sparkles,
-    color: 'text-purple-500',
-    bg: 'bg-purple-500/10',
-    label: 'Match'
-  },
-  new_user: {
-    icon: UserPlus,
-    color: 'text-emerald-500',
-    bg: 'bg-emerald-500/10',
-    label: 'New User'
-  },
-  premium_purchase: {
-    icon: Crown,
-    color: 'text-violet-500',
-    bg: 'bg-violet-500/10',
-    label: 'Premium'
-  },
-  activation_purchase: {
-    icon: Zap,
-    color: 'text-orange-500',
-    bg: 'bg-orange-500/10',
-    label: 'Activation'
-  },
-};
 
 // Helper function to get notification role from metadata
 const getNotificationRole = (notification: any): 'client' | 'owner' | 'neutral' => {
@@ -160,11 +117,8 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                     )}
                   />
                   {/* Type indicator badge */}
-                  <div className={cn(
-                    "absolute -bottom-1.5 -right-1.5 p-1.5 rounded-lg",
-                    config.bg
-                  )}>
-                    <Icon className={cn("w-3 h-3", config.color)} />
+                  <div className="absolute -bottom-1.5 -right-1.5 p-1.5 rounded-lg" style={{ backgroundColor: config.bg }}>
+                    <Icon className="w-3 h-3" style={{ color: config.accentColor }} />
                   </div>
                 </div>
               ) : (
@@ -173,10 +127,10 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                   role === 'client' ? 'bg-cyan-500/10' : 
                   role === 'owner' ? 'bg-amber-500/10' : config.bg
                 )}>
-                  <Icon className={cn("w-5 h-5", 
-                    role === 'client' ? 'text-cyan-500' : 
-                    role === 'owner' ? 'text-amber-500' : config.color
-                  )} />
+                  <Icon className="w-5 h-5" style={{ 
+                    color: role === 'client' ? '#06b6d4' : 
+                          role === 'owner' ? '#f59e0b' : config.accentColor
+                  }} />
                 </div>
               )}
               
@@ -231,11 +185,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                     NEW
                   </Badge>
                 )}
-                <span className={cn(
-                  "text-[10px] font-medium px-1.5 py-0.5 rounded-md",
-                  config.bg,
-                  config.color
-                )}>
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md" style={{ backgroundColor: config.bg, color: config.accentColor }}>
                   {config.label}
                 </span>
               </div>
