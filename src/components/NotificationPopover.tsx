@@ -114,26 +114,21 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
         ease: "easeOut"
       }}
       drag="x"
-      dragConstraints={{ left: 0, right: 150 }}
-      dragElastic={0.2}
-      onDragStart={() => setIsSwiping(true)}
+      dragConstraints={{ left: -140, right: 0 }}
+      dragElastic={0.25}
+      onDragStart={() => { setIsSwiping(true); haptics.tap(); }}
       onDragEnd={(_, info) => {
         setIsSwiping(false);
-        if (info.offset.x > 80) {
+        if (info.offset.x < -70) {
+          haptics.notification('success');
           onDismiss();
         }
       }}
-      className="relative"
+      className="relative overflow-hidden rounded-xl"
     >
-      {/* Swipe to dismiss indicator */}
-      <div className="absolute right-0 top-0 bottom-0 flex items-center justify-center pr-4">
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isSwiping ? 1 : 0 }}
-          className="text-red-500"
-        >
-          <Trash2 className="w-5 h-5" />
-        </motion.div>
+      {/* Swipe to dismiss indicator — shown behind card */}
+      <div className="absolute inset-0 bg-destructive/10 flex items-center justify-end px-6 pointer-events-none">
+        <Trash2 className="w-5 h-5 text-destructive animate-pulse" />
       </div>
       
       <Card
@@ -142,7 +137,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
           !notification.read
             ? 'bg-card border-border/60 shadow-sm'
             : 'bg-card/50 border-border/20',
-          isSwiping && "opacity-0"
+          "relative z-10" // Ensure card is above indicator
         )}
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
@@ -203,13 +198,14 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                   </h4>
                 </div>
                 
-                {/* Dismiss button */}
+                {/* Dismiss button — ENLARGED TOUCH TARGET */}
                 <Button
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "h-7 w-7 p-0 flex-shrink-0 transition-all duration-200",
-                    isHovered ? "opacity-100" : "opacity-0"
+                    "h-9 w-9 p-0 flex-shrink-0 transition-all duration-200 rounded-full",
+                    "hover:bg-destructive/10 hover:text-destructive",
+                    isHovered ? "opacity-100" : "opacity-0 sm:opacity-0"
                   )}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -217,7 +213,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
                     onDismiss();
                   }}
                 >
-                  <X className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
+                  <X className="w-4 h-4" />
                 </Button>
               </div>
 

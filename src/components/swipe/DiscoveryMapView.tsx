@@ -540,8 +540,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
               style={{
                 top: '50%', transform: 'translateY(-50%)',
                 height: SLIDER_TRACK_H,
-                background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)',
-                border: isLight ? '1px solid rgba(0,0,0,0.04)' : '1px solid rgba(255,255,255,0.06)',
+                background: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.12)',
               }}
             >
               {/* Active fill */}
@@ -588,8 +587,8 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           whileTap={{ scale: 0.96 }}
           onClick={() => { triggerHaptic('medium'); onStartSwiping(); }}
           className={cn(
-            "relative w-full h-14 rounded-2xl font-black text-[13px] uppercase tracking-[0.25em] flex items-center justify-center gap-2.5 overflow-hidden",
-            "active:scale-[0.97] transition-transform"
+            "relative w-full h-[60px] rounded-[28px] font-black text-[13px] uppercase tracking-[0.3em] flex items-center justify-center gap-2.5 overflow-hidden",
+            "active:scale-[0.97] transition-all shadow-lg"
           )}
           style={{
             background: `linear-gradient(135deg, ${meta.accent}, ${meta.accent}cc)`,
