@@ -49,17 +49,17 @@ const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth 
 const SPRING_CONFIGS = {
   // SNAPPY: Quick response, minimal overshoot
   SNAPPY: { stiffness: 600, damping: 30, mass: 0.8 },
-  // SILK: iOS-native silky feel — responsive but graceful settling
-  SILK: { stiffness: 400, damping: 24, mass: 0.3 },
+  // HIGH-PERFORMANCE SILK: Hyper-responsive drag return
+  SILK: { stiffness: 500, damping: 25, mass: 0.4 },
   // SOFT: Playful with bounce - EXTREMELY FUN FEEL
   SOFT: { stiffness: 250, damping: 18, mass: 1.1 },
 };
 
-const ACTIVE_SPRING = SPRING_CONFIGS.SILK; // Silky iOS-like feel
+const ACTIVE_SPRING = SPRING_CONFIGS.SILK; // Hyper-snappy iOS feel
 
 /**
- * GLASS SHINE ANIMATION
- * Creates a "moving reflection" that follows the user's drag
+ * FAST GLASS SHINE ANIMATION
+ * Creates a "moving reflection" that follows the user's drag, hardware accelerated.
  */
 const GlassShine = ({ x, y }: { x: MotionValue<number>; y: MotionValue<number> }) => {
   const shineX = useTransform(x, [-300, 300], ['-50%', '150%']);

@@ -40,13 +40,28 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-xl overflow-hidden"
       >
-        {/* Particle/Glow Background effects */}
-        <div className="absolute inset-0 pointer-events-none">
+        {/* Explosive Shockwave Background Effects */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          {/* Core Glow */}
           <motion.div 
             initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: [0, 1.5, 1], opacity: [0, 0.5, 0.2] }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/40 rounded-full blur-[100px]"
+            animate={{ scale: [0, 2, 1.5], opacity: [0, 0.6, 0.2] }}
+            transition={{ duration: 2, ease: "easeOut" }}
+            className="absolute w-[800px] h-[800px] bg-primary/40 rounded-full blur-[100px]"
+          />
+          {/* Shockwave Ring 1 */}
+          <motion.div 
+            initial={{ scale: 0.1, opacity: 1, borderWidth: '100px' }}
+            animate={{ scale: 3, opacity: 0, borderWidth: '0px' }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="absolute w-[300px] h-[300px] rounded-full border-primary/50"
+          />
+          {/* Shockwave Ring 2 */}
+          <motion.div 
+            initial={{ scale: 0.1, opacity: 1, borderWidth: '50px' }}
+            animate={{ scale: 4, opacity: 0, borderWidth: '0px' }}
+            transition={{ duration: 1.2, delay: 0.1, ease: "easeOut" }}
+            className="absolute w-[200px] h-[200px] rounded-full border-pink-500/40"
           />
         </div>
 

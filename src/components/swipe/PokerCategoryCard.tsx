@@ -125,7 +125,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     <motion.div
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.65}
+      dragElastic={0.85}
       dragMomentum={false}
       onPointerDownCapture={isTop ? handlePointerDownCapture : undefined}
       onPointerUpCapture={isTop ? handlePointerReleaseCapture : undefined}
@@ -133,7 +133,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
       onDragStart={isTop ? handleDragStart : undefined}
       onDragEnd={isTop ? handleDragEnd : undefined}
       onClick={!isTop ? () => onBringToFront(index) : undefined}
-      initial={{ y: stackY + 30, opacity: 0, scale: stackScale * 0.96 }}
+      initial={{ y: stackY + 80, opacity: 0, scale: stackScale * 0.75 }}
       animate={{
         y: stackY,
         opacity: stackOpacity,
@@ -141,7 +141,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         filter: isTop ? undefined : `brightness(${1 - index * 0.12}) blur(${index * 2}px)`,
       }}
       transition={{
-        type: 'spring', stiffness: 400, damping: 32, mass: 0.6,
+        type: 'spring', stiffness: 500, damping: 26, mass: 0.4,
       }}
       style={{
         position: 'absolute',
