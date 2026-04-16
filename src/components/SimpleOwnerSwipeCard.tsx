@@ -748,6 +748,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           />
         )}
 
+        <div
           className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none"
           style={{
             height: '60%',
