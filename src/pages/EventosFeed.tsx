@@ -20,7 +20,7 @@ import { EventCard } from '@/components/events/EventCard';
 import { ShareModal } from '@/components/events/ShareModal';
 
 // Static Data
-import { CATEGORIES, MOCK_EVENTS } from '@/data/eventsData';
+import { CATEGORIES } from '@/data/eventsData';
 import { EventItem } from '@/types/events';
 
 /** Scroll-direction tracker for the HUD: hides on scroll-down, shows on scroll-up or idle */
