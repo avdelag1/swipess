@@ -226,6 +226,8 @@ interface SimpleOwnerSwipeCardProps {
   onMessage?: () => void;
   onShare?: () => void;
   onUndo?: () => void;
+  onLike?: () => void;
+  onDislike?: () => void;
   canUndo?: boolean;
   isTop?: boolean;
   fullScreen?: boolean;
@@ -241,6 +243,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onMessage,
   onShare,
   onUndo,
+  onLike,
+  onDislike,
   canUndo,
   isTop = true,
   fullScreen = false,
@@ -741,8 +745,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             onMessage={onMessage}
             onShare={onShare}
             onInsights={onInsights}
-            onLike={() => handleButtonSwipe('right')}
-            onDislike={() => handleButtonSwipe('left')}
+            onLike={onLike ?? (() => handleButtonSwipe('right'))}
+            onDislike={onDislike ?? (() => handleButtonSwipe('left'))}
             canUndo={canUndo}
             matchPercentage={'matchPercentage' in profile ? (profile as any).matchPercentage : undefined}
           />
