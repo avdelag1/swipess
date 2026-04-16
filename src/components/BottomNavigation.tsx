@@ -563,26 +563,6 @@ export const BottomNavigation = memo(({
             );
           })}
         </div>
-
-        {/* Tunnel glassmorphic masks — blur only, no dark shade, vanishing edges */}
-        <div
-          className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 z-30 rounded-l-[32px]"
-          style={{
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            maskImage: 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.05) 70%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.05) 70%, transparent 100%)',
-          }}
-        />
-        <div
-          className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 z-30 rounded-r-[32px]"
-          style={{
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            maskImage: 'linear-gradient(to left, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.05) 70%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.05) 70%, transparent 100%)',
-          }}
-        />
       </div>
 
       {/* SVG gradient defs for active icon */}

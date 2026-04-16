@@ -125,7 +125,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
     <motion.div
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.85}
+      dragElastic={0.4}
       dragMomentum={false}
       onPointerDownCapture={isTop ? handlePointerDownCapture : undefined}
       onPointerUpCapture={isTop ? handlePointerReleaseCapture : undefined}
@@ -141,7 +141,7 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         filter: isTop ? undefined : `brightness(${1 - index * 0.12}) blur(${index * 2}px)`,
       }}
       transition={{
-        type: 'spring', stiffness: 500, damping: 26, mass: 0.4,
+        type: 'spring', stiffness: 550, damping: 30, mass: 0.5,
       }}
       style={{
         position: 'absolute',
@@ -238,11 +238,13 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
 
             {isTop && (
               <motion.button
-                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                initial={{ opacity: 0, scale: 0.9, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
+                transition={{ delay: 0.15, duration: 0.3 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={(e) => { e.stopPropagation(); onSelect(card.id); }}
-                className="mt-6 w-full h-16 md:h-[72px] lg:h-20 rounded-[1.5rem] font-black text-[13px] md:text-[15px] lg:text-[17px] uppercase tracking-[0.25em] bg-white text-black active:scale-95 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.4)] flex items-center justify-center overflow-hidden relative group"
+                className="mt-6 w-full h-16 md:h-20 rounded-[28px] font-black text-[14px] md:text-[16px] uppercase tracking-[0.3em] bg-white text-black transition-all shadow-[0_20px_40px_rgba(255,255,255,0.3)] flex items-center justify-center overflow-hidden relative group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer" />
                 <span>Launch {card.label}</span>

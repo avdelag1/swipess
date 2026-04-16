@@ -110,7 +110,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
           className="relative flex items-center justify-center"
           style={{ 
             width: 'var(--card-width, 340px)',
-            height: 'min(calc(100dvh - 240px), 640px)',
+            height: 'min(460px, calc(100dvh - 280px))',
           }}
         >
         {[...cards].reverse().map((card, reversedIdx) => {
