@@ -734,7 +734,20 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           </div>
         </motion.div>
 
-        <div
+        {/* Discovery Sidebar — in-card action icons */}
+        {isTop && (
+          <DiscoverySidebar
+            onUndo={onUndo}
+            onMessage={onMessage}
+            onShare={onShare}
+            onInsights={onInsights}
+            onLike={() => handleButtonSwipe('right')}
+            onDislike={() => handleButtonSwipe('left')}
+            canUndo={canUndo}
+            matchPercentage={'matchPercentage' in profile ? (profile as any).matchPercentage : undefined}
+          />
+        )}
+
           className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none"
           style={{
             height: '60%',
