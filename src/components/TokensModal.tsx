@@ -169,7 +169,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 top-0 z-[10002] flex items-end sm:items-center justify-center p-0 sm:p-4"
+            className="fixed inset-x-0 bottom-0 top-0 z-[10002] flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none"
           >
             <div className={cn(
               "w-full max-w-md max-h-[92vh] sm:max-h-[85vh] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col pointer-events-auto",

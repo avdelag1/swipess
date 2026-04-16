@@ -195,16 +195,14 @@ export default function EventosFeed() {
         price_text: ev.price_text || null,
       }));
 
-      return formatted.length > 0 ? formatted : MOCK_EVENTS;
+      return formatted;
     },
     staleTime: 5 * 60 * 1000,
-    placeholderData: MOCK_EVENTS,
+    placeholderData: [],
   });
 
   const allEvents = useMemo(() => {
-    const real = rawEvents || [];
-    const mockUnique = MOCK_EVENTS.filter(m => !real.some(r => r.id === m.id));
-    const combined = [...real, ...mockUnique];
+    const combined = rawEvents || [];
     
     if (combined.length > 0 && typeof window !== 'undefined') {
       import('@/utils/imageOptimization').then(({ pwaImagePreloader, getCardImageUrl }) => {

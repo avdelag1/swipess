@@ -187,8 +187,8 @@ export const gesturePhysics = {
     springStiffness: 280,
     springDamping: 28,
     springMass: 0.6,
-    swipeThreshold: 120,
-    velocityThreshold: 400,
+    swipeThreshold: 80,
+    velocityThreshold: 280,
     minExitVelocity: 1200,
   },
 } as const;

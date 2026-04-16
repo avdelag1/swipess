@@ -94,10 +94,10 @@ async function searchPromotedContacts(query: string): Promise<string> {
     const promotedTagSet = new Set(["promoted", "featured", "sponsored", "paid", "priority", "local-legend", "local_legend", "vip"]);
 
     const scored = data.map((entry) => {
-      const tags = (entry.tags ?? []).map((tag) => tag.toLowerCase());
+      const tags = (entry.tags ?? []).map((tag: string) => tag.toLowerCase());
       const text = `${entry.title} ${entry.content} ${entry.category} ${tags.join(" ")}`.toLowerCase();
-      const keywordScore = keywords.reduce((score, kw) => score + (text.includes(kw) ? 2 : 0), 0);
-      const promotedScore = tags.some((tag) => promotedTagSet.has(tag)) ? 10 : 0;
+      const keywordScore = keywords.reduce((score: number, kw: string) => score + (text.includes(kw) ? 2 : 0), 0);
+      const promotedScore = tags.some((tag: string) => promotedTagSet.has(tag)) ? 10 : 0;
       const contactScore = (entry.phone ? 2 : 0) + (entry.website_url ? 1 : 0) + (entry.google_maps_url ? 1 : 0);
       return { ...entry, score: keywordScore + promotedScore + contactScore };
     }).filter((entry) => entry.score > 0)
@@ -107,8 +107,8 @@ async function searchPromotedContacts(query: string): Promise<string> {
     if (scored.length === 0) return "";
 
     return scored.map((entry) => {
-      const tags = (entry.tags ?? []).map((tag) => tag.toLowerCase());
-      const badge = tags.some((tag) => promotedTagSet.has(tag)) ? "PROMOTED LOCAL CONTACT" : "LOCAL CONTACT";
+      const tags = (entry.tags ?? []).map((tag: string) => tag.toLowerCase());
+      const badge = tags.some((tag: string) => promotedTagSet.has(tag)) ? "PROMOTED LOCAL CONTACT" : "LOCAL CONTACT";
       let formatted = `**${entry.title}** — ${badge} (${entry.category})\n${entry.content}`;
       if (entry.phone) formatted += `\nPhone: ${entry.phone}`;
       if (entry.website_url) formatted += `\nLink: ${entry.website_url}`;
