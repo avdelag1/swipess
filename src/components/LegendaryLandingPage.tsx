@@ -171,33 +171,13 @@ const LandingView = memo(({
           />
           <motion.div 
             initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.4, 0] }}
-            transition={{ duration: 4, repeat: Infinity, repeatDelay: 1 }}
-            className="mt-6 text-[10px] uppercase tracking-[0.4em] font-medium text-white/40 select-none pointer-events-none"
+            animate={{ opacity: [0.3, 0.9, 0.3] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            className="mt-8 text-sm uppercase tracking-[0.3em] font-bold text-white select-none pointer-events-none drop-shadow-md"
           >
             Swipe right to enter
           </motion.div>
         </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0, transition: { delay: 0.6, duration: 0.8, ease: "easeOut" } }}
-        className="mt-16 w-full max-w-xs flex flex-col gap-4"
-      >
-        <Button 
-          onClick={() => onEnterAuth('login')}
-          className="w-full h-12 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:shadow-[0_0_30px_rgba(249,115,22,0.5)] transition-all rounded-xl"
-        >
-          Sign In
-        </Button>
-        <Button 
-          onClick={() => onEnterAuth('signup')}
-          variant="outline"
-          className="w-full h-12 text-sm font-bold text-white border-white/20 bg-black/40 hover:bg-white/10 transition-all rounded-xl"
-        >
-          Create Account
-        </Button>
       </motion.div>
     </motion.div>
   );

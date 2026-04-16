@@ -456,25 +456,21 @@ export function AuthProvider({ children, authPromise }: { children: ReactNode, a
       // Store role before OAuth redirect
       localStorage.setItem('pendingOAuthRole', role);
 
-      const { lovable } = await import('@/integrations/lovable/index');
-
-      const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
-        ...(provider === 'google' ? { extraParams: { prompt: 'select_account' } } : {}),
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: window.location.origin + window.location.pathname,
+          queryParams: provider === 'google' ? { prompt: 'select_account' } : undefined,
+        }
       });
 
-      if (result.error) {
-        logger.error(`[Auth] ${provider} OAuth error:`, result.error);
+      if (error) {
+        logger.error(`[Auth] ${provider} OAuth error:`, error);
         localStorage.removeItem('pendingOAuthRole');
-        throw result.error;
+        throw error;
       }
 
-      if (result.redirected) {
-        // Browser will redirect to provider — just return
-        return { error: null };
-      }
-
-      // Tokens received and session set — user is authenticated
+      // Browser will redirect to provider
       return { error: null };
     } catch (error: any) {
       if (import.meta.env.DEV) logger.error(`[Auth] ${provider} OAuth error:`, error);
