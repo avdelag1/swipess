@@ -40,16 +40,17 @@ export default function ClientDashboard({
     onPropertyInsights?.(listingId);
   }, [onPropertyInsights]);
 
-  // When user selects a poker card → go to map
+  // When user selects a poker card → go to map.
+  // Must clear activeCategory first: if a previous session left it set, the
+  // showMap guard (!activeCategory) would be false and the map would never render.
   const handleCategorySelect = useCallback((ids: QuickFilterCategory[]) => {
     if (ids.length > 0) {
       const cat = ids[0];
-      // Don't set the filter store category yet — that triggers the swipe deck
-      // Just show the map for this category
+      setActiveCategory(null);
       setMapCategory(cat);
       setPhase('map');
     }
-  }, []);
+  }, [setActiveCategory]);
 
   // Map back → return to poker cards
   const handleMapBack = useCallback(() => {

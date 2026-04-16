@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react"; // cache-bust-v3
 import { lazyWithRetry } from "@/utils/lazyRetry";
+import { ChunkErrorBoundary } from "@/components/ChunkErrorBoundary";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { RootProviders } from "./providers/RootProviders";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,76 +27,76 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// 🚀 SPEED OF LIGHT: LAZY PAGES
-const NotFound = lazy(() => import("./pages/NotFound"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
-const TermsOfService = lazy(() => import("./pages/TermsOfService"));
-const LegalPage = lazy(() => import("./pages/LegalPage"));
-const AGLPage = lazy(() => import("./pages/AGLPage"));
-const AboutPage = lazy(() => import("./pages/AboutPage"));
-const FAQClientPage = lazy(() => import("./pages/FAQClientPage"));
-const FAQOwnerPage = lazy(() => import("./pages/FAQOwnerPage"));
+// 🚀 SPEED OF LIGHT: LAZY PAGES — all via lazyWithRetry so stale CDN chunks
+// after a redeploy get one automatic retry before surfacing to ChunkErrorBoundary.
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
+const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword"));
+const PrivacyPolicy = lazyWithRetry(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazyWithRetry(() => import("./pages/TermsOfService"));
+const LegalPage = lazyWithRetry(() => import("./pages/LegalPage"));
+const AGLPage = lazyWithRetry(() => import("./pages/AGLPage"));
+const AboutPage = lazyWithRetry(() => import("./pages/AboutPage"));
+const FAQClientPage = lazyWithRetry(() => import("./pages/FAQClientPage"));
+const FAQOwnerPage = lazyWithRetry(() => import("./pages/FAQOwnerPage"));
 
 // CLIENT PAGES
-const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
-const ClientProfile = lazy(() => import("./pages/ClientProfile"));
-const ClientSettings = lazy(() => import("./pages/ClientSettings"));
-const ClientLikedProperties = lazy(() => import("./pages/ClientLikedProperties"));
-const ClientWhoLikedYou = lazy(() => import("./pages/ClientWhoLikedYou"));
-const ClientSavedSearches = lazy(() => import("./pages/ClientSavedSearches"));
-const ClientSecurity = lazy(() => import("./pages/ClientSecurity"));
-const ClientWorkerDiscovery = lazy(() => import("./pages/ClientWorkerDiscovery"));
-const ClientContracts = lazy(() => import("./pages/ClientContracts"));
-const ClientLawyerServices = lazy(() => import("./pages/ClientLawyerServices"));
-const ClientSelfieCamera = lazy(() => import("./pages/ClientSelfieCamera"));
-const ClientFilters = lazy(() => import("./pages/ClientFilters"));
-const MaintenanceRequests = lazy(() => import("./pages/MaintenanceRequests"));
-const AdvertisePage = lazy(() => import("./pages/AdvertisePage"));
+const ClientDashboard = lazyWithRetry(() => import("./pages/ClientDashboard"));
+const ClientProfile = lazyWithRetry(() => import("./pages/ClientProfile"));
+const ClientSettings = lazyWithRetry(() => import("./pages/ClientSettings"));
+const ClientLikedProperties = lazyWithRetry(() => import("./pages/ClientLikedProperties"));
+const ClientWhoLikedYou = lazyWithRetry(() => import("./pages/ClientWhoLikedYou"));
+const ClientSavedSearches = lazyWithRetry(() => import("./pages/ClientSavedSearches"));
+const ClientSecurity = lazyWithRetry(() => import("./pages/ClientSecurity"));
+const ClientWorkerDiscovery = lazyWithRetry(() => import("./pages/ClientWorkerDiscovery"));
+const ClientContracts = lazyWithRetry(() => import("./pages/ClientContracts"));
+const ClientLawyerServices = lazyWithRetry(() => import("./pages/ClientLawyerServices"));
+const ClientSelfieCamera = lazyWithRetry(() => import("./pages/ClientSelfieCamera"));
+const ClientFilters = lazyWithRetry(() => import("./pages/ClientFilters"));
+const MaintenanceRequests = lazyWithRetry(() => import("./pages/MaintenanceRequests"));
+const AdvertisePage = lazyWithRetry(() => import("./pages/AdvertisePage"));
 
 // OWNER PAGES
-const EnhancedOwnerDashboard = lazy(() => import("./components/EnhancedOwnerDashboard"));
-const OwnerProfile = lazy(() => import("./pages/OwnerProfile"));
-const OwnerSettings = lazy(() => import("./pages/OwnerSettings"));
-const OwnerProperties = lazy(() => import("./pages/OwnerProperties"));
-const OwnerNewListing = lazy(() => import("./pages/OwnerNewListing"));
-
-const OwnerLikedClients = lazy(() => import("./pages/OwnerLikedClients"));
-const OwnerInterestedClients = lazy(() => import("./pages/OwnerInterestedClients"));
-const OwnerDiscovery = lazy(() => import("./pages/OwnerDiscovery"));
-const OwnerViewClientProfile = lazy(() => import("./pages/OwnerViewClientProfile"));
-const OwnerLawyerServices = lazy(() => import("./pages/OwnerLawyerServices"));
-const OwnerSecurity = lazy(() => import("./pages/OwnerSecurity"));
-const OwnerSavedSearches = lazy(() => import("./pages/OwnerSavedSearches"));
-const OwnerContracts = lazy(() => import("./pages/OwnerContracts"));
-const OwnerProfileCamera = lazy(() => import("./pages/OwnerProfileCamera"));
-const OwnerListingCamera = lazy(() => import("./pages/OwnerListingCamera"));
+const EnhancedOwnerDashboard = lazyWithRetry(() => import("./components/EnhancedOwnerDashboard"));
+const OwnerProfile = lazyWithRetry(() => import("./pages/OwnerProfile"));
+const OwnerSettings = lazyWithRetry(() => import("./pages/OwnerSettings"));
+const OwnerProperties = lazyWithRetry(() => import("./pages/OwnerProperties"));
+const OwnerNewListing = lazyWithRetry(() => import("./pages/OwnerNewListing"));
+const OwnerLikedClients = lazyWithRetry(() => import("./pages/OwnerLikedClients"));
+const OwnerInterestedClients = lazyWithRetry(() => import("./pages/OwnerInterestedClients"));
+const OwnerDiscovery = lazyWithRetry(() => import("./pages/OwnerDiscovery"));
+const OwnerViewClientProfile = lazyWithRetry(() => import("./pages/OwnerViewClientProfile"));
+const OwnerLawyerServices = lazyWithRetry(() => import("./pages/OwnerLawyerServices"));
+const OwnerSecurity = lazyWithRetry(() => import("./pages/OwnerSecurity"));
+const OwnerSavedSearches = lazyWithRetry(() => import("./pages/OwnerSavedSearches"));
+const OwnerContracts = lazyWithRetry(() => import("./pages/OwnerContracts"));
+const OwnerProfileCamera = lazyWithRetry(() => import("./pages/OwnerProfileCamera"));
+const OwnerListingCamera = lazyWithRetry(() => import("./pages/OwnerListingCamera"));
 
 // SHARED PAGES
-const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
-const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
-const SubscriptionPackagesPage = lazy(() => import("./pages/SubscriptionPackagesPage"));
+const MessagingDashboard = lazyWithRetry(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
+const NotificationsPage = lazyWithRetry(() => import("./pages/NotificationsPage"));
+const SubscriptionPackagesPage = lazyWithRetry(() => import("./pages/SubscriptionPackagesPage"));
 const DJTurntableRadio = lazyWithRetry(() => import("./pages/DJTurntableRadio"));
 const EventosFeed = lazyWithRetry(() => import("./pages/EventosFeed"));
 const EventoDetail = lazyWithRetry(() => import("./pages/EventoDetail"));
 const EventosLikes = lazyWithRetry(() => import("./pages/EventosLikes"));
-const AdminEventos = lazy(() => import("./pages/AdminEventos"));
-const AdminPhotos = lazy(() => import("./pages/AdminPhotos"));
-const AdminPerformanceDashboard = lazy(() => import("./pages/AdminPerformanceDashboard"));
-const PriceTracker = lazy(() => import("./pages/PriceTracker"));
-const VideoTours = lazy(() => import("./pages/VideoTours"));
-const LocalIntel = lazy(() => import("./pages/LocalIntel"));
-const RoommateMatching = lazy(() => import("./pages/RoommateMatching"));
-const DocumentVault = lazy(() => import("./pages/DocumentVault"));
-const EscrowDashboard = lazy(() => import("./pages/EscrowDashboard"));
-const ClientPerks = lazy(() => import("./pages/ClientPerks"));
-const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
-const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
+const AdminEventos = lazyWithRetry(() => import("./pages/AdminEventos"));
+const AdminPhotos = lazyWithRetry(() => import("./pages/AdminPhotos"));
+const AdminPerformanceDashboard = lazyWithRetry(() => import("./pages/AdminPerformanceDashboard"));
+const PriceTracker = lazyWithRetry(() => import("./pages/PriceTracker"));
+const VideoTours = lazyWithRetry(() => import("./pages/VideoTours"));
+const LocalIntel = lazyWithRetry(() => import("./pages/LocalIntel"));
+const RoommateMatching = lazyWithRetry(() => import("./pages/RoommateMatching"));
+const DocumentVault = lazyWithRetry(() => import("./pages/DocumentVault"));
+const EscrowDashboard = lazyWithRetry(() => import("./pages/EscrowDashboard"));
+const ClientPerks = lazyWithRetry(() => import("./pages/ClientPerks"));
+const PaymentSuccess = lazyWithRetry(() => import("./pages/PaymentSuccess"));
+const PaymentCancel = lazyWithRetry(() => import("./pages/PaymentCancel"));
 
 // PUBLIC PREVIEWS
-const PublicProfilePreview = lazy(() => import("./pages/PublicProfilePreview"));
-const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
-const VapValidate = lazy(() => import("./pages/VapValidate"));
+const PublicProfilePreview = lazyWithRetry(() => import("./pages/PublicProfilePreview"));
+const PublicListingPreview = lazyWithRetry(() => import("./pages/PublicListingPreview"));
+const VapValidate = lazyWithRetry(() => import("./pages/VapValidate"));
 
 // UI HELPERS
 const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDashboardLayout").then(m => ({ default: m.PersistentDashboardLayout })));
@@ -191,21 +192,21 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
             </Route>
 
             {/* Outside Layout */}
-            <Route path="/payment/success" element={<Suspense fallback={<SuspenseFallback />}><AnimatedPage><PaymentSuccess /></AnimatedPage></Suspense>} />
-            <Route path="/payment/cancel" element={<Suspense fallback={<SuspenseFallback />}><AnimatedPage><PaymentCancel /></AnimatedPage></Suspense>} />
-            <Route path="/privacy-policy" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PrivacyPolicy /></AnimatedPage></Suspense>} />
-            <Route path="/terms-of-service" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><TermsOfService /></AnimatedPage></Suspense>} />
-            <Route path="/agl" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><AGLPage /></AnimatedPage></Suspense>} />
-            <Route path="/legal" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><LegalPage /></AnimatedPage></Suspense>} />
+            <Route path="/payment/success" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback />}><AnimatedPage><PaymentSuccess /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/payment/cancel" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback />}><AnimatedPage><PaymentCancel /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/privacy-policy" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PrivacyPolicy /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/terms-of-service" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><TermsOfService /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/agl" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><AGLPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/legal" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><LegalPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/dashboard" element={<DashboardRedirect />} />
-            <Route path="/about" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><AboutPage /></AnimatedPage></Suspense>} />
-            <Route path="/faq/client" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQClientPage /></AnimatedPage></Suspense>} />
-            <Route path="/faq/owner" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQOwnerPage /></AnimatedPage></Suspense>} />
-            <Route path="/profile/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicProfilePreview /></AnimatedPage></Suspense>} />
-            <Route path="/listing/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicListingPreview /></AnimatedPage></Suspense>} />
-            <Route path="/vap-validate/:id" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><VapValidate /></AnimatedPage></Suspense>} />
+            <Route path="/about" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><AboutPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/faq/client" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQClientPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/faq/owner" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><FAQOwnerPage /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/profile/:id" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicProfilePreview /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/listing/:id" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><PublicListingPreview /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
+            <Route path="/vap-validate/:id" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><VapValidate /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
             <Route path="/share-target" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><NotFound /></AnimatedPage></Suspense>} />
+            <Route path="*" element={<ChunkErrorBoundary><Suspense fallback={<SuspenseFallback minimal />}><AnimatedPage><NotFound /></AnimatedPage></Suspense></ChunkErrorBoundary>} />
           </Routes>
           </TooltipProvider>
         </AppLayout>
