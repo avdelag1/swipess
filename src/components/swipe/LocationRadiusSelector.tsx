@@ -80,6 +80,7 @@ export const LocationRadiusSelector = ({
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const activeCategory = useFilterStore((state) => state.activeCategory);
+  const setActiveCategory = useFilterStore((state) => state.setActiveCategory);
 
   // Pan state
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -243,8 +244,13 @@ export const LocationRadiusSelector = ({
 
   const handleCategorySelect = useCallback((category: QuickFilterCategory) => {
     triggerHaptic('medium');
-    onCategorySelect?.(category);
-  }, [onCategorySelect]);
+    if (onCategorySelect) {
+      onCategorySelect(category);
+      return;
+    }
+
+    setActiveCategory(category);
+  }, [onCategorySelect, setActiveCategory]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -260,7 +266,7 @@ export const LocationRadiusSelector = ({
 
   return (
     <motion.div
-      className="w-full h-full flex flex-col relative"
+      className="w-full flex h-[min(58dvh,460px)] flex-col relative"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
