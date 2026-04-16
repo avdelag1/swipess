@@ -236,6 +236,7 @@ export const SwipeExhaustedState = ({
                 onDetectLocation={onDetectLocation || (() => {})}
                 detecting={detecting ?? false}
                 detected={detected ?? false}
+                onCategorySelect={(category) => setCategories([category])}
               />
             </motion.div>
           </div>

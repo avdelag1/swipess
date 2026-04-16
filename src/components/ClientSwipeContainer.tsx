@@ -102,6 +102,9 @@ const ClientSwipeContainerComponent = ({
   const radiusKm = useFilterStore((s) => s.radiusKm);
   const setRadiusKm = useFilterStore((s) => s.setRadiusKm);
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
+  const userLatitude = useFilterStore((s) => s.userLatitude);
+  const userLongitude = useFilterStore((s) => s.userLongitude);
+  const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
 
@@ -120,6 +123,10 @@ const ClientSwipeContainerComponent = ({
       { timeout: 8000, maximumAge: 60000 }
     );
   }, [setUserLocation]);
+
+  const handleMapCategorySelect = useCallback((nextCategory: 'property' | 'motorcycle' | 'bicycle' | 'services') => {
+    setActiveCategory(nextCategory);
+  }, [setActiveCategory]);
 
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
@@ -662,7 +669,7 @@ const ClientSwipeContainerComponent = ({
     }, 200);
   }, [executeSwipe, playSwipeSound]);
 
-  const _handleButtonLike = useCallback(() => {
+  const handleButtonLike = useCallback(() => {
     if (cardRef.current) {
       cardRef.current.triggerSwipe('right');
     } else {
@@ -670,7 +677,7 @@ const ClientSwipeContainerComponent = ({
     }
   }, [handleSwipe]);
 
-  const _handleButtonDislike = useCallback(() => {
+  const handleButtonDislike = useCallback(() => {
     if (cardRef.current) {
       cardRef.current.triggerSwipe('left');
     } else {
@@ -853,6 +860,9 @@ const ClientSwipeContainerComponent = ({
                   onDetectLocation={detectLocation}
                   detecting={locationDetecting}
                   detected={locationDetected}
+                  onCategorySelect={handleMapCategorySelect}
+                  lat={userLatitude}
+                  lng={userLongitude}
                 />
               </div>
             </div>
@@ -902,6 +912,8 @@ const ClientSwipeContainerComponent = ({
                   onMessage={() => handleConnect(topCard.user_id)}
                   onShare={handleShare}
                   onUndo={undoLastSwipe}
+                  onLike={handleButtonLike}
+                  onDislike={handleButtonDislike}
                   canUndo={canUndo}
                   isTop={true}
                   externalX={topCardX}
