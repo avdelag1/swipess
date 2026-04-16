@@ -73,7 +73,7 @@ const LandingView = memo(({
   isDark,
   onToggleDark,
 }: {
-  onEnterAuth: () => void;
+  onEnterAuth: (mode: 'login' | 'signup') => void;
   isDark: boolean;
   onToggleDark: (e: React.MouseEvent) => void;
 }) => {
@@ -110,7 +110,7 @@ const LandingView = memo(({
       triggerHaptic('success');
       // Animate logo flying off to the right before showing auth
       animate(x, window.innerWidth + 100, { type: 'spring', stiffness: 200, damping: 22, mass: 0.6 });
-      setTimeout(onEnterAuth, 280);
+      setTimeout(() => onEnterAuth('login'), 280);
     } else {
       animate(x, 0, { type: 'spring', stiffness: 600, damping: 32, mass: 0.5 });
       animate(torchBoost, 0, { duration: 0.22 });
@@ -124,7 +124,7 @@ const LandingView = memo(({
     triggerHaptic('light');
     // Same swipe-right exit animation on tap
     animate(x, window.innerWidth + 100, { type: 'spring', stiffness: 200, damping: 22, mass: 0.6 });
-    setTimeout(onEnterAuth, 280);
+    setTimeout(() => onEnterAuth('login'), 280);
   };
 
   return (
@@ -180,6 +180,25 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0, transition: { delay: 0.6, duration: 0.8, ease: "easeOut" } }}
+        className="mt-16 w-full max-w-xs flex flex-col gap-4"
+      >
+        <Button 
+          onClick={() => onEnterAuth('login')}
+          className="w-full h-12 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:shadow-[0_0_30px_rgba(249,115,22,0.5)] transition-all rounded-xl"
+        >
+          Sign In
+        </Button>
+        <Button 
+          onClick={() => onEnterAuth('signup')}
+          variant="outline"
+          className="w-full h-12 text-sm font-bold text-white border-white/20 bg-black/40 hover:bg-white/10 transition-all rounded-xl"
+        >
+          Create Account
+        </Button>
+      </motion.div>
     </motion.div>
   );
 });
@@ -242,8 +261,8 @@ const PasswordToggleButton = ({
 );
 
 /* ─── Auth view ──────────────────────────────────────────── */
-const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean }) => {
-  const [isLogin, setIsLogin] = useState(true);
+const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () => void, isDark: boolean, initialMode?: 'login' | 'signup' }) => {
+  const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -506,6 +525,7 @@ const AuthView = memo(({ onBack, isDark }: { onBack: () => void, isDark: boolean
 function LegendaryLandingPage() {
   const { theme, setTheme } = useTheme();
   const [view, setView] = useState<View>('landing');
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
 
   const isDark = true; // FORCE DARK EVERYWHERE
@@ -534,12 +554,15 @@ function LegendaryLandingPage() {
         {view === 'landing' ? (
           <LandingView
             key="landing"
-            onEnterAuth={() => setView('auth')}
+            onEnterAuth={(mode) => {
+              setAuthMode(mode);
+              setView('auth');
+            }}
             isDark={isDark}
             onToggleDark={toggleTheme}
           />
         ) : (
-          <AuthView key="auth" onBack={() => setView('landing')} isDark={isDark} />
+          <AuthView key="auth" onBack={() => setView('landing')} isDark={isDark} initialMode={authMode} />
         )}
       </AnimatePresence>
 
