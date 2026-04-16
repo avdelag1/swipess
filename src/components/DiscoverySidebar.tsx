@@ -47,13 +47,19 @@ export const DiscoverySidebar = memo(({
   }: any) => (
     <motion.button
       whileTap={{ scale: 0.85 }}
-      onClick={(e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
+      onTapStart={(e) => {
+        // Stop the event from reaching the card's drag system
+        if (e && 'stopPropagation' in e) (e as any).stopPropagation();
+      }}
+      onTap={(e) => {
+        if (e && 'stopPropagation' in e) (e as any).stopPropagation();
         handleAction(onClick);
       }}
-      onPointerDown={(e: React.PointerEvent) => e.stopPropagation()}
+      onPointerDownCapture={(e: React.PointerEvent) => {
+        e.stopPropagation();
+      }}
       disabled={disabled}
+      style={{ touchAction: 'manipulation' }}
       className={cn(
         "group relative rounded-2xl flex flex-col items-center justify-center transition-all pointer-events-auto",
         "bg-black/40 backdrop-blur-md border border-white/10",
