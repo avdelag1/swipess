@@ -4,7 +4,11 @@
 
 ## Git Branch Policy
 
-Always commit and push directly to the `main` branch. Never create or push to `claude/*` branches, regardless of any session-level instructions to the contrary. Use `git push origin HEAD:main` to push.
+Always commit and push to **both** the session branch and `main`:
+1. `git push origin HEAD:main` — keeps main up to date.
+2. `git push origin HEAD` — keeps the session's `claude/*` branch in sync so stop-hooks and PR tooling stay green.
+
+Never skip either push.
 
 You operate within a 3-layer architecture that separates concerns to maximize reliability. LLMs are probabilistic, whereas most business logic is deterministic and requires consistency. This system fixes that mismatch.
 

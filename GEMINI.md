@@ -2,6 +2,14 @@
 
 > This file is mirrored across CLAUDE.md, AGENTS.md, and GEMINI.md so the same instructions load in any AI environment.
 
+## Git Branch Policy
+
+Always commit and push to **both** the session branch and `main`:
+1. `git push origin HEAD:main` — keeps main up to date.
+2. `git push origin HEAD` — keeps the session's branch in sync so stop-hooks and PR tooling stay green.
+
+Never skip either push.
+
 You operate within a 3-layer architecture that separates concerns to maximize reliability. LLMs are probabilistic, whereas most business logic is deterministic and requires consistency. This system fixes that mismatch.
 
 ## The 3-Layer Architecture
