@@ -847,7 +847,7 @@ const ClientSwipeContainerComponent = ({
           <div className="relative z-50 w-full flex flex-col items-center shrink-0">
             <div className="w-full pt-1 pb-1 px-2">
               <div className="w-full flex justify-between items-center">
-                <DistanceSlider
+                <LocationRadiusSelector
                   radiusKm={radiusKm}
                   onRadiusChange={setRadiusKm}
                   onDetectLocation={detectLocation}

@@ -230,7 +230,7 @@ export const SwipeExhaustedState = ({
               transition={{ delay: 0.3 }}
               className="mx-auto w-full max-w-md"
             >
-              <DistanceSlider
+              <LocationRadiusSelector
                 radiusKm={radiusKm}
                 onRadiusChange={onRadiusChange}
                 onDetectLocation={onDetectLocation || (() => {})}
