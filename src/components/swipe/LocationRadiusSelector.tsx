@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { MapPin, Navigation, Minus, Plus } from 'lucide-react';
+import { Navigation, Minus, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Slider } from '@/components/ui/slider';
+import { motion } from 'framer-motion';
 import { useTheme } from '@/hooks/useTheme';
+import { triggerHaptic } from '@/utils/haptics';
 
 export interface LocationRadiusSelectorProps {
   radiusKm: number;
@@ -14,6 +14,8 @@ export interface LocationRadiusSelectorProps {
   lat?: number | null;
   lng?: number | null;
 }
+
+const KM_PRESETS = [1, 5, 10, 25, 50, 100];
 
 // Convert km to pixels at a given zoom level and latitude
 const kmToPixels = (km: number, lat: number, zoom: number) => {
@@ -43,7 +45,13 @@ const latLngToTile = (lat: number, lng: number, zoom: number) => {
   return { x, y };
 };
 
-const MAP_SIZE = 240;
+// Convert pixel offset back to lat/lng delta
+const pixelToLatLng = (dx: number, dy: number, lat: number, zoom: number) => {
+  const metersPerPixel = (156543.03392 * Math.cos((lat * Math.PI) / 180)) / Math.pow(2, zoom);
+  const dLng = (dx * metersPerPixel) / (111320 * Math.cos((lat * Math.PI) / 180));
+  const dLat = -(dy * metersPerPixel) / 110574;
+  return { dLat, dLng };
+};
 
 export const LocationRadiusSelector = ({
   radiusKm,
@@ -54,20 +62,36 @@ export const LocationRadiusSelector = ({
   lat,
   lng,
 }: LocationRadiusSelectorProps) => {
-  const maxKm = 100;
   const [localKm, setLocalKm] = useState(radiusKm);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
-  const userLat = lat ?? 20.2114;
-  const userLng = lng ?? -87.4654;
+  // Pan state
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const panStartRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
+  const velocityRef = useRef({ vx: 0, vy: 0 });
+  const lastMoveRef = useRef({ x: 0, y: 0, t: 0 });
+  const inertiaRef = useRef<number | null>(null);
+  const [mapSize, setMapSize] = useState({ w: 300, h: 400 });
 
-  useEffect(() => {
-    setLocalKm(radiusKm);
-  }, [radiusKm]);
+  const baseLat = lat ?? 20.2114;
+  const baseLng = lng ?? -87.4654;
 
-  // Debounce store update
+  // Effective center after pan offset
+  const zoom = useMemo(() => getZoomForRadius(localKm, baseLat, Math.min(mapSize.w, mapSize.h)), [localKm, baseLat, mapSize]);
+  
+  const effectiveCenter = useMemo(() => {
+    const { dLat, dLng } = pixelToLatLng(panOffset.x, panOffset.y, baseLat, zoom);
+    return { lat: baseLat + dLat, lng: baseLng + dLng };
+  }, [baseLat, baseLng, panOffset, zoom]);
+
+  const radiusPx = useMemo(() => kmToPixels(localKm, effectiveCenter.lat, zoom), [localKm, effectiveCenter.lat, zoom]);
+
+  useEffect(() => { setLocalKm(radiusKm); }, [radiusKm]);
+
+  // Debounce radius update
   useEffect(() => {
     const timer = setTimeout(() => {
       if (localKm !== radiusKm) onRadiusChange(localKm);
@@ -75,160 +99,227 @@ export const LocationRadiusSelector = ({
     return () => clearTimeout(timer);
   }, [localKm, radiusKm, onRadiusChange]);
 
-  const zoom = useMemo(() => getZoomForRadius(localKm, userLat, MAP_SIZE), [localKm, userLat]);
-  const radiusPx = useMemo(() => kmToPixels(localKm, userLat, zoom), [localKm, userLat, zoom]);
+  // Measure container
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(([entry]) => {
+      setMapSize({ w: entry.contentRect.width, h: entry.contentRect.height });
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Pan handlers
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (inertiaRef.current) { cancelAnimationFrame(inertiaRef.current); inertiaRef.current = null; }
+    panStartRef.current = { x: e.clientX, y: e.clientY, ox: panOffset.x, oy: panOffset.y };
+    lastMoveRef.current = { x: e.clientX, y: e.clientY, t: performance.now() };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, [panOffset]);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!panStartRef.current) return;
+    const dx = e.clientX - panStartRef.current.x;
+    const dy = e.clientY - panStartRef.current.y;
+    setPanOffset({ x: panStartRef.current.ox - dx, y: panStartRef.current.oy - dy });
+
+    const now = performance.now();
+    const dt = now - lastMoveRef.current.t;
+    if (dt > 0) {
+      velocityRef.current = {
+        vx: (e.clientX - lastMoveRef.current.x) / dt * 16,
+        vy: (e.clientY - lastMoveRef.current.y) / dt * 16,
+      };
+    }
+    lastMoveRef.current = { x: e.clientX, y: e.clientY, t: now };
+  }, []);
+
+  const handlePointerUp = useCallback(() => {
+    panStartRef.current = null;
+    // Inertia
+    const { vx, vy } = velocityRef.current;
+    if (Math.abs(vx) > 1 || Math.abs(vy) > 1) {
+      let cvx = vx, cvy = vy;
+      const decay = () => {
+        cvx *= 0.92; cvy *= 0.92;
+        if (Math.abs(cvx) < 0.5 && Math.abs(cvy) < 0.5) { inertiaRef.current = null; return; }
+        setPanOffset(prev => ({ x: prev.x - cvx, y: prev.y - cvy }));
+        inertiaRef.current = requestAnimationFrame(decay);
+      };
+      inertiaRef.current = requestAnimationFrame(decay);
+    }
+  }, []);
 
   // Draw map tiles + radius circle
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || mapSize.w < 10 || mapSize.h < 10) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const size = MAP_SIZE;
+    const { w, h } = mapSize;
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = size * dpr;
-    canvas.height = size * dpr;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
     ctx.scale(dpr, dpr);
 
-    const { x: tileX, y: tileY } = latLngToTile(userLat, userLng, zoom);
+    const { x: tileX, y: tileY } = latLngToTile(effectiveCenter.lat, effectiveCenter.lng, zoom);
     const centerTileX = Math.floor(tileX);
     const centerTileY = Math.floor(tileY);
     const offsetX = (tileX - centerTileX) * 256;
     const offsetY = (tileY - centerTileY) * 256;
 
-    // Clear with background
     ctx.fillStyle = isLight ? '#f1f5f9' : '#0a0a0a';
-    ctx.fillRect(0, 0, size, size);
+    ctx.fillRect(0, 0, w, h);
 
-    const tilesNeeded = 3;
-    const startTile = -1;
+    // How many tiles needed to cover the canvas
+    const tilesX = Math.ceil(w / 256) + 2;
+    const tilesY = Math.ceil(h / 256) + 2;
+    const startDx = -Math.ceil(tilesX / 2);
+    const startDy = -Math.ceil(tilesY / 2);
     let loaded = 0;
-    const total = tilesNeeded * tilesNeeded;
+    const total = tilesX * tilesY;
 
-    for (let dx = startTile; dx < startTile + tilesNeeded; dx++) {
-      for (let dy = startTile; dy < startTile + tilesNeeded; dy++) {
+    for (let dx = startDx; dx < startDx + tilesX; dx++) {
+      for (let dy = startDy; dy < startDy + tilesY; dy++) {
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => {
-          const drawX = size / 2 - offsetX + dx * 256;
-          const drawY = size / 2 - offsetY + dy * 256;
+          const drawX = w / 2 - offsetX + dx * 256;
+          const drawY = h / 2 - offsetY + dy * 256;
           ctx.drawImage(img, drawX, drawY, 256, 256);
           loaded++;
           if (loaded >= total) {
-            // Apply dark overlay for dark theme
+            // Dark overlay
             if (!isLight) {
-              ctx.fillStyle = 'rgba(0,0,0,0.55)';
-              ctx.fillRect(0, 0, size, size);
+              ctx.fillStyle = 'rgba(0,0,0,0.5)';
+              ctx.fillRect(0, 0, w, h);
             }
-            // Draw radius circle
-            const r = Math.min(radiusPx, size / 2 - 4);
+            // Radius circle
+            const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
             ctx.beginPath();
-            ctx.arc(size / 2, size / 2, r, 0, Math.PI * 2);
+            ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
             ctx.fillStyle = isLight ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.18)';
             ctx.fill();
             ctx.strokeStyle = isLight ? 'rgba(59,130,246,0.5)' : 'rgba(59,130,246,0.6)';
             ctx.lineWidth = 2;
+            ctx.setLineDash([6, 4]);
             ctx.stroke();
+            ctx.setLineDash([]);
             // Center dot
             ctx.beginPath();
-            ctx.arc(size / 2, size / 2, 5, 0, Math.PI * 2);
+            ctx.arc(w / 2, h / 2, 6, 0, Math.PI * 2);
             ctx.fillStyle = '#3b82f6';
             ctx.fill();
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = isLight ? '#fff' : '#fff';
+            ctx.lineWidth = 2.5;
             ctx.stroke();
           }
         };
-        img.onerror = () => {
-          loaded++;
-        };
+        img.onerror = () => { loaded++; };
         img.src = tileUrl(centerTileX + dx, centerTileY + dy, zoom);
       }
     }
-  }, [userLat, userLng, zoom, radiusPx, isLight]);
+  }, [effectiveCenter, zoom, radiusPx, isLight, mapSize]);
+
+  const handleKmSelect = useCallback((km: number) => {
+    triggerHaptic('light');
+    setLocalKm(km);
+  }, []);
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll active pill into view
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const active = container.querySelector('[data-active="true"]') as HTMLElement;
+    if (active) {
+      active.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
+    }
+  }, [localKm]);
 
   return (
     <motion.div
-      className="w-full max-w-xs mx-auto px-3 py-3"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="w-full h-full flex flex-col relative"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-primary/10 border border-primary/20">
-            <MapPin className="w-4 h-4 text-primary" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mb-0.5">Coverage</span>
-            <span className="text-xs font-bold text-foreground leading-none">Search Radius</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="px-2.5 py-1 rounded-md bg-muted/50 border border-border/50">
-            <span className="text-sm font-black text-primary tracking-tight">
-              {localKm} <span className="text-[10px] opacity-60 italic">km</span>
-            </span>
-          </div>
+      {/* Map Canvas — fills available space */}
+      <div
+        ref={containerRef}
+        className="flex-1 relative overflow-hidden rounded-2xl border border-border/30"
+        style={{ touchAction: 'none', cursor: 'grab', minHeight: 200 }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+      >
+        <canvas
+          ref={canvasRef}
+          style={{ width: '100%', height: '100%' }}
+          className="block"
+        />
+
+        {/* GPS Button — bottom right floating */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onDetectLocation(); setPanOffset({ x: 0, y: 0 }); }}
+          disabled={detecting}
+          className={cn(
+            "absolute bottom-3 right-3 z-10 w-10 h-10 rounded-full flex items-center justify-center border transition-all active:scale-90",
+            detected
+              ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_hsl(var(--primary)/0.4)]"
+              : "bg-background/80 backdrop-blur-md border-border/50 text-muted-foreground"
+          )}
+        >
+          <Navigation className={cn("w-4.5 h-4.5", detecting && "animate-spin")} />
+        </button>
+
+        {/* +/- zoom for radius — bottom left */}
+        <div className="absolute bottom-3 left-3 z-10 flex flex-col gap-1.5">
           <button
-            onClick={onDetectLocation}
-            disabled={detecting}
-            className={cn(
-              "flex items-center gap-1 h-7 px-2.5 rounded-lg text-[10px] font-black uppercase tracking-tight border transition-all active:scale-95",
-              detected
-                ? "bg-primary border-primary text-primary-foreground"
-                : "bg-background border-border text-muted-foreground hover:border-primary/50"
-            )}
+            onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); setLocalKm(Math.min(100, localKm + 5)); }}
+            className="w-9 h-9 rounded-full bg-background/80 backdrop-blur-md border border-border/50 flex items-center justify-center active:scale-90 transition-transform"
           >
-            <Navigation className={cn("w-3 h-3", detecting && "animate-spin")} />
-            {detecting ? '...' : detected ? 'FIXED' : 'GPS'}
+            <Plus className="w-4 h-4 text-foreground" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); setLocalKm(Math.max(1, localKm - 5)); }}
+            className="w-9 h-9 rounded-full bg-background/80 backdrop-blur-md border border-border/50 flex items-center justify-center active:scale-90 transition-transform"
+          >
+            <Minus className="w-4 h-4 text-foreground" />
           </button>
         </div>
       </div>
 
-      {/* Mini Map */}
-      <div className="relative mx-auto rounded-2xl overflow-hidden border border-border/40 shadow-lg" style={{ width: MAP_SIZE, height: MAP_SIZE }}>
-        <canvas
-          ref={canvasRef}
-          style={{ width: MAP_SIZE, height: MAP_SIZE }}
-          className="block"
-        />
-        {/* Glass overlay at bottom with km label */}
-        <div className="absolute bottom-0 inset-x-0 h-8 bg-gradient-to-t from-background/80 to-transparent flex items-end justify-center pb-1">
-          <span className="text-[10px] font-bold text-muted-foreground">{localKm} km radius</span>
-        </div>
-      </div>
-
-      {/* Slider */}
-      <div className="flex items-center gap-3 mt-3">
-        <button
-          onClick={() => setLocalKm(Math.max(1, localKm - 5))}
-          className="flex items-center justify-center w-7 h-7 rounded-lg bg-muted/50 border border-border/50 active:scale-90 transition-transform"
+      {/* KM Pill Selector — horizontal snap-scroll */}
+      <div className="pt-2.5 pb-1">
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-none px-2"
+          style={{ overscrollBehaviorX: 'contain', WebkitOverflowScrolling: 'touch' }}
         >
-          <Minus className="w-3.5 h-3.5 text-muted-foreground" />
-        </button>
-        <div className="flex-1">
-          <Slider
-            value={[localKm]}
-            min={1}
-            max={maxKm}
-            step={1}
-            onValueChange={([v]) => setLocalKm(v)}
-          />
+          {KM_PRESETS.map((km) => {
+            const isActive = localKm === km;
+            return (
+              <button
+                key={km}
+                data-active={isActive}
+                onClick={() => handleKmSelect(km)}
+                className={cn(
+                  "snap-center flex-shrink-0 h-9 min-w-[52px] px-3 rounded-full font-black text-xs tracking-tight transition-all active:scale-90 border",
+                  isActive
+                    ? "bg-primary text-primary-foreground border-primary shadow-[0_0_14px_hsl(var(--primary)/0.35)]"
+                    : "bg-muted/40 text-muted-foreground border-border/40 hover:bg-muted/60"
+                )}
+              >
+                {km}<span className="text-[9px] opacity-60 ml-0.5">km</span>
+              </button>
+            );
+          })}
         </div>
-        <button
-          onClick={() => setLocalKm(Math.min(maxKm, localKm + 5))}
-          className="flex items-center justify-center w-7 h-7 rounded-lg bg-muted/50 border border-border/50 active:scale-90 transition-transform"
-        >
-          <Plus className="w-3.5 h-3.5 text-muted-foreground" />
-        </button>
-      </div>
-
-      <div className="flex justify-between mt-1.5 px-10">
-        <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em]">Local</span>
-        <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em]">100km</span>
       </div>
     </motion.div>
   );

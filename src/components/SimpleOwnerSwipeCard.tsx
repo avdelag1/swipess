@@ -24,6 +24,7 @@ import { getWorkScheduleLabel } from '@/constants/profileConstants';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceParallax } from '@/hooks/useDeviceParallax';
+import { DiscoverySidebar } from '@/components/DiscoverySidebar';
 
 
 // Exposed interface for parent to trigger swipe animations
@@ -237,10 +238,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onTap: _onTap,
   onDetails,
   onInsights,
-  onMessage: _onMessage,
-  onShare: _onShare,
-  onUndo: _onUndo,
-  canUndo: _canUndo,
+  onMessage,
+  onShare,
+  onUndo,
+  canUndo,
   isTop = true,
   fullScreen = false,
 }, ref) => {
@@ -732,6 +733,20 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             NOPE
           </div>
         </motion.div>
+
+        {/* Discovery Sidebar — in-card action icons */}
+        {isTop && (
+          <DiscoverySidebar
+            onUndo={onUndo}
+            onMessage={onMessage}
+            onShare={onShare}
+            onInsights={onInsights}
+            onLike={() => handleButtonSwipe('right')}
+            onDislike={() => handleButtonSwipe('left')}
+            canUndo={canUndo}
+            matchPercentage={'matchPercentage' in profile ? (profile as any).matchPercentage : undefined}
+          />
+        )}
 
         <div
           className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none"
