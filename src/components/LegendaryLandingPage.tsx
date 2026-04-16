@@ -227,13 +227,13 @@ const PasswordToggleButton = ({
   showPassword: boolean;
   onClick: () => void;
 }) => (
-  <div className="absolute inset-y-0 right-0 flex items-center pr-2">
+  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
     <button
       type="button"
       onClick={onClick}
       title={showPassword ? 'Hide password' : 'Show password'}
       aria-label={showPassword ? 'Hide password' : 'Show password'}
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background/80 text-muted-foreground transition-all duration-150 hover:text-foreground active:scale-95"
+      className="flex h-full w-8 items-center justify-center text-muted-foreground transition-all duration-150 hover:text-foreground active:scale-90"
     >
       {showPassword ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
     </button>
@@ -357,7 +357,7 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
         transition={{ delay: 0.15, duration: 0.3 }}
         title="Go back to landing"
         aria-label="Go back to landing"
-        className="absolute top-4 left-4 z-20 text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted"
+        className="absolute top-4 left-4 z-50 text-white/50 hover:text-white px-3 py-2 rounded-lg hover:bg-white/10 backdrop-blur-sm transition-all"
         style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
       >
         <ArrowLeft className="w-5 h-5" />
@@ -373,35 +373,35 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
               <h1 className="text-3xl font-black tracking-tighter text-white italic mb-1">
                 {isLogin ? 'Welcome Back' : 'Join Swipess'}
               </h1>
-              <p className="text-muted-foreground text-sm font-medium leading-relaxed px-4">
+              <p className="text-white/60 text-sm font-medium leading-relaxed px-4">
                 {isLogin
                   ? 'Good luck finding your perfect deal today.'
                   : 'Your next perfect deal is one swipe away.'}
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-10 h-11" />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-orange-400 transition-colors" />
+                    <Input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-10 h-12 bg-black/40 border-white/10 text-white placeholder:text-white/30 focus-visible:border-orange-500/50 appearance-none shadow-inner" />
                   </GlowingField>
                 </motion.div>
               )}
 
               <motion.div variants={itemVariants}>
                 <GlowingField className="relative group">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
-                  <Input type="email" name="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-10 h-11" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-orange-400 transition-colors" />
+                  <Input type="email" name="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-10 h-12 bg-black/40 border-white/10 text-white placeholder:text-white/30 focus-visible:border-orange-500/50 appearance-none shadow-inner" />
                 </GlowingField>
               </motion.div>
 
               {!isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
-                    <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-10 pr-12 h-11" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-orange-400 transition-colors" />
+                    <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-10 pr-12 h-12 bg-black/40 border-white/10 text-white placeholder:text-white/30 focus-visible:border-orange-500/50 appearance-none shadow-inner" />
                     <PasswordToggleButton showPassword={showPassword} onClick={() => setShowPassword(!showPassword)} />
                   </GlowingField>
                 </motion.div>
@@ -410,25 +410,25 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
-                    <Input type={showPassword ? 'text' : 'password'} name="confirmPassword" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" className="pl-10 pr-12 h-11" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-orange-400 transition-colors" />
+                    <Input type={showPassword ? 'text' : 'password'} name="confirmPassword" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" className="pl-10 pr-12 h-12 bg-black/40 border-white/10 text-white placeholder:text-white/30 focus-visible:border-orange-500/50 appearance-none shadow-inner" />
                     <PasswordToggleButton showPassword={showPassword} onClick={() => setShowPassword(!showPassword)} />
                   </GlowingField>
                 </motion.div>
               )}
 
               {!isLogin && !isForgotPassword && (
-                <motion.div variants={itemVariants} className="flex items-center space-x-2 px-1 pt-1">
+                <motion.div variants={itemVariants} className="flex items-center space-x-2 px-1 pt-1 pb-1">
                   <input
                     type="checkbox"
                     id="terms"
                     checked={agreeToTerms}
                     onChange={(e) => setAgreeToTerms(e.target.checked)}
-                    className="w-4 h-4 rounded border border-white/20 bg-black/40 text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0"
+                    className="w-4 h-4 rounded-md border border-white/20 bg-black/40 text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0"
                     required
                   />
-                  <label htmlFor="terms" className="text-xs text-muted-foreground leading-snug cursor-pointer select-none">
-                    I agree to the <a href="#" onClick={e=>e.preventDefault()} className="text-orange-400 hover:text-orange-300 font-medium transition-colors">Terms of Service</a> and <a href="#" onClick={e=>e.preventDefault()} className="text-orange-400 hover:text-orange-300 font-medium transition-colors">Privacy Policy</a>
+                  <label htmlFor="terms" className="text-[13px] text-white/50 leading-snug cursor-pointer select-none">
+                    I agree to the <a href="#" onClick={e=>e.preventDefault()} className="text-white hover:text-orange-400 font-medium transition-colors">Terms of Service</a> and <a href="#" onClick={e=>e.preventDefault()} className="text-white hover:text-orange-400 font-medium transition-colors">Privacy Policy</a>
                   </label>
                 </motion.div>
               )}
