@@ -57,7 +57,6 @@ import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
-import type { QuickFilterCategory } from '@/types/filters';
 
 
 // Navigation guard to prevent double-taps
@@ -148,9 +147,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     );
   }, [setUserLocation]);
 
-  const handleMapCategorySelect = useCallback((category: QuickFilterCategory) => {
-    setActiveCategory(category);
-  }, [setActiveCategory]);
+
 
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
@@ -977,7 +974,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 onDetectLocation={detectLocation}
                 detecting={locationDetecting}
                 detected={locationDetected}
-                onCategorySelect={handleMapCategorySelect}
                 lat={userLatitude}
                 lng={userLongitude}
               />
