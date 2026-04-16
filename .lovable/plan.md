@@ -1,49 +1,79 @@
 
 
-## Fix ITMS-90683: Missing Purpose Strings in Info.plist
+## Fix Errors, Improve Swipe Sensitivity, Tokens Dismiss, Responsive Cards, and New Location Map Selector
 
-Apple rejected the build because `Info.plist` is missing `NSPhotoLibraryUsageDescription`. After auditing the full codebase, the app uses **five** protected resources that all need purpose strings.
+### 1. Fix Build Errors
 
----
-
-### Root Cause
-
-Capacitor 7 generates a bare `Info.plist` during `cap add ios`. The app uses Camera, Photo Library, Microphone, Location, and Push Notifications -- all require iOS privacy purpose strings. None are currently declared.
-
-### Solution
-
-Add all required purpose strings to `capacitor.config.ts` using the Capacitor 7 `ios.infoPlist` property. This automatically merges into `Info.plist` on `npx cap sync`.
-
-**File: `capacitor.config.ts`** -- Add to the `ios` block:
-
+**`supabase/functions/ai-concierge/index.ts`** -- Add `: string` type annotations to the 4 `tag` parameters at lines 97, 100, 110, 111:
 ```typescript
-ios: {
-  contentInset: 'always',
-  backgroundColor: '#000000',
-  scrollEnabled: false,
-  allowsLinkPreviews: false,
-  limitsNavigationsToAppBoundDomains: true,
-  infoPlist: {
-    NSPhotoLibraryUsageDescription:
-      'Swipess needs access to your photo library to upload profile photos and listing images.',
-    NSCameraUsageDescription:
-      'Swipess needs camera access to take profile photos and listing images.',
-    NSMicrophoneUsageDescription:
-      'Swipess needs microphone access for voice-to-text messaging with the AI concierge.',
-    NSLocationWhenInUseUsageDescription:
-      'Swipess uses your location to show nearby listings and match you with local services.',
-    NSFaceIDUsageDescription:
-      'Swipess uses Face ID for secure authentication.',
-  },
-},
+.map((tag: string) => ...)
+.some((tag: string) => ...)
 ```
 
-These six keys cover every protected API the app references:
-- **NSPhotoLibraryUsageDescription** -- Photo uploads (the one Apple flagged)
-- **NSCameraUsageDescription** -- `PhotoCamera.tsx`, `@capacitor/camera`
-- **NSMicrophoneUsageDescription** -- Voice-to-text in `ConciergeChat.tsx`
-- **NSLocationWhenInUseUsageDescription** -- Location detection in swipe containers
-- **NSFaceIDUsageDescription** -- Future-proofing for biometric auth
+**`src/components/SwipessLogo.tsx`** -- Rename `fetchpriority` to `fetchPriority` (React uses camelCase for this HTML attribute).
 
-No other files need changes. After this, run `npx cap sync ios` locally and re-upload to App Store Connect.
+### 2. Tokens Modal -- Tap Outside to Close
+
+The backdrop at line 164 already has `onClick={close}`. However the modal container at line 172 sits `inset-x-0 bottom-0 top-0` which covers the backdrop. Fix: add `pointer-events-none` to the container div, and `pointer-events-auto` only on the inner card (line 174, which already has it). This ensures tapping the area around the card triggers the backdrop close.
+
+### 3. More Sensitive Swipe Actions
+
+Lower swipe thresholds across the board to make swiping feel more responsive:
+
+- **`src/lib/swipe/SwipeEngine.ts`**: `swipeThreshold: 120 -> 80`, `velocityThreshold: 400 -> 280`
+- **`src/components/SimpleOwnerSwipeCard.tsx`**: `SWIPE_THRESHOLD: 65 -> 45`, `VELOCITY_THRESHOLD: 280 -> 200`
+- **`src/utils/springConfigs.ts`**: `swipeThreshold: 120 -> 80`, `velocityThreshold: 400 -> 280`
+- **`src/components/swipe/SwipeConstants.ts`**: `PK_DIST_THRESHOLD: 110 -> 70`, `PK_VEL_THRESHOLD: 480 -> 320`
+
+### 4. Owner Side Cards -- Responsive for All Devices
+
+In `src/components/swipe/OwnerAllDashboard.tsx` line 133, the card container uses hardcoded `PK_W` (340px). Replace with the same fluid sizing used on the client side:
+```typescript
+style={{ 
+  width: 'min(90vw, 520px)',  // fills iPad, caps on desktop
+  height: 'calc(100dvh - 190px)' 
+}}
+```
+
+Also update `SwipeConstants.ts` `PK_W`/`PK_H` to be used only as max caps, not fixed dimensions.
+
+### 5. Events Page Fix
+
+The EventosFeed still falls back to `MOCK_EVENTS` when real data is empty. Audit the query and ensure it works with the live database. If no events exist yet, show an empty state instead of mock data.
+
+### 6. New Location Radius Selector -- Map-Based
+
+Replace the current `DistanceSlider` with a new `LocationRadiusSelector` component that features:
+
+- A **mini interactive map** using a static map tile (Mapbox/OpenStreetMap static image centered on user's GPS location) -- no heavy map library needed
+- A **circular radius overlay** that visually shows the search area on the map
+- The radius slider integrated below the map
+- GPS auto-detect button
+- The radius circle grows/shrinks as you drag the slider
+- Clean glass-morphic design matching the app's aesthetic
+
+**Implementation approach:**
+- Use a static map image from OpenStreetMap tile server (no API key needed): `https://tile.openstreetmap.org/{z}/{x}/{y}.png`
+- Render a canvas/SVG circle overlay on top showing the radius
+- Slider underneath controls the radius
+- Works for both client and owner dashboards
+- New file: `src/components/swipe/LocationRadiusSelector.tsx`
+- Update both `SwipessSwipeContainer` and `ClientSwipeContainer` to use the new component
+- The map updates when GPS is detected or radius changes
+
+### Files to modify
+
+| File | Change |
+|------|--------|
+| `supabase/functions/ai-concierge/index.ts` | Add `: string` type to 4 tag params |
+| `src/components/SwipessLogo.tsx` | `fetchpriority` -> `fetchPriority` |
+| `src/components/TokensModal.tsx` | Add `pointer-events-none` to outer container |
+| `src/lib/swipe/SwipeEngine.ts` | Lower thresholds |
+| `src/components/SimpleOwnerSwipeCard.tsx` | Lower thresholds |
+| `src/utils/springConfigs.ts` | Lower thresholds |
+| `src/components/swipe/SwipeConstants.ts` | Lower thresholds |
+| `src/components/swipe/OwnerAllDashboard.tsx` | Fluid responsive width |
+| `src/pages/EventosFeed.tsx` | Remove mock fallback, add empty state |
+| `src/components/swipe/LocationRadiusSelector.tsx` | **New** -- Map-based radius selector |
+| `src/components/swipe/DistanceSlider.tsx` | Kept as fallback, updated imports |
 
