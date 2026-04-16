@@ -31,6 +31,21 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
 
   const [showVapModal, setShowVapModal] = useState(false);
 
+  const handleSelect = useCallback((id: string) => {
+    triggerHaptic('medium');
+    uiSounds.playCategorySelect();
+    if (id === 'radio') {
+      navigate('/radio');
+    } else if (id === 'vap') {
+      setShowVapModal(true);
+    } else if (id === 'all') {
+      // 'all' means show all categories — set to property as default entry
+      setCategories(['property']);
+    } else {
+      setCategories([id]);
+    }
+  }, [setCategories, navigate]);
+
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
     triggerHaptic('medium');
     uiSounds.playCardSwipe(direction);
@@ -46,21 +61,6 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
       });
     }
   }, [handleSelect]);
-
-  const handleSelect = useCallback((id: string) => {
-    triggerHaptic('medium');
-    uiSounds.playCategorySelect();
-    if (id === 'radio') {
-      navigate('/radio');
-    } else if (id === 'vap') {
-      setShowVapModal(true);
-    } else if (id === 'all') {
-      // 'all' means show all categories — set to property as default entry
-      setCategories(['property']);
-    } else {
-      setCategories([id]);
-    }
-  }, [setCategories, navigate]);
 
   const handleBringToFront = useCallback((index: number) => {
     triggerHaptic('light');

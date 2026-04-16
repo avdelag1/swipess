@@ -1,6 +1,6 @@
 import { memo, useCallback, useRef, useState, useEffect } from 'react';
 import { useTheme } from '@/hooks/useTheme';
-import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   POKER_CARD_PHOTOS,
