@@ -10,6 +10,7 @@ import {
   OwnerIntentCard,
   PK_W,
   PK_H,
+  OWNER_PK_H,
   POKER_CARD_PHOTOS,
 } from './SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
