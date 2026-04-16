@@ -945,18 +945,7 @@ const ClientSwipeContainerComponent = ({
         </div>
         </div>
 
-        {/* Action Buttons — only when a swipe card is showing */}
-        {topCard && (
-          <div className="pb-[calc(8px+env(safe-area-inset-bottom))] pt-0.5">
-            <SwipeActionButtonBar
-              onLike={() => cardRef.current?.triggerSwipe('right')}
-              onDislike={() => cardRef.current?.triggerSwipe('left')}
-              onUndo={undoLastSwipe}
-              canUndo={canUndo}
-              onSpeedMeet={() => useModalStore.getState().setModal('showAIChat', true)}
-            />
-          </div>
-        )}
+        {/* Action buttons now live inside the card via DiscoverySidebar */}
       </div>
 
       {typeof document !== 'undefined' && document.body && createPortal(

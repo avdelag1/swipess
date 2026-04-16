@@ -95,6 +95,8 @@ interface SimpleSwipeCardProps {
   onInsights?: () => void;
   onShare?: () => void;
   onMessage?: () => void;
+  onLike?: () => void;
+  onDislike?: () => void;
   isTop?: boolean;
   /** Optional shared MotionValue from parent — lets container animate the card below in real-time */
   externalX?: MotionValue<number>;
@@ -109,6 +111,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onInsights,
   onShare,
   onMessage,
+  onLike,
+  onDislike,
   isTop = true,
   externalX,
   externalY,
@@ -657,6 +661,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             onMessage={onMessage}
             onShare={onShare}
             onInsights={onInsights}
+            onLike={onLike}
+            onDislike={onDislike}
             canUndo={canUndo}
             matchPercentage={'matchPercentage' in listing ? (listing as MatchedListing).matchPercentage : undefined}
           />

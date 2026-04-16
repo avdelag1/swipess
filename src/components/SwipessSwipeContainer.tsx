@@ -1062,6 +1062,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   onInsights={handleInsights}
                   onMessage={handleMessage}
                   onShare={handleShare}
+                  onLike={handleButtonLike}
+                  onDislike={handleButtonDislike}
                   onDragStart={handleDragStart}
                   isTop={true}
                   externalX={topCardX}
@@ -1104,20 +1106,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         </div>
       </div>
 
-      {/* Action Buttons — only when a swipe card is showing */}
-      {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
-        <div className="pb-[calc(8px+env(safe-area-inset-bottom))] pt-0.5">
-          <SwipeActionButtonBar
-            onLike={handleButtonLike}
-            onDislike={handleButtonDislike}
-            onUndo={undoLastSwipe}
-            onShare={handleShare}
-            onMessage={handleMessage}
-            canUndo={canUndo}
-            onSpeedMeet={() => useModalStore.getState().setModal('showAIChat', true)}
-          />
-        </div>
-      )}
+      {/* Action buttons now live inside the card via DiscoverySidebar */}
 
       {/* Epic Match Celebration Modal */}
       {matchData && (
