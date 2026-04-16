@@ -95,52 +95,32 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
       className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent overflow-hidden"
       style={{ minHeight: 'auto' }}
     >
-      <div className="relative flex items-center justify-center gap-3">
-        {/* External left arrow */}
-        <button
-          onClick={cycleLeft}
-          className="swipe-hint-left z-10 flex items-center justify-center w-11 h-11 md:w-13 md:h-13 rounded-full bg-white/5 active:scale-95 transition-transform"
-          aria-label="Previous filter"
-        >
-          <ChevronLeft size={20} className="text-foreground/60" />
-        </button>
-
-        {/* Card stack — responsive height capped at PK_H */}
-        <div
-          className="relative flex items-center justify-center"
-          style={{ 
-            width: 'var(--card-width, 340px)',
-            height: 'min(460px, calc(100dvh - 280px))',
-          }}
-        >
-        {[...cards].reverse().map((card, reversedIdx) => {
-            const index = cards.length - 1 - reversedIdx;
-            if (index > 3) return null;
-            const isTop = index === 0;
-            return (
-              <PokerCategoryCard
-                key={card.id}
-                card={card}
-                index={index}
-                total={cards.length}
-                isTop={isTop}
-                isCollapsed={false}
-                onCycle={handleCycle}
-                onSelect={handleSelect}
-                onBringToFront={handleBringToFront}
-              />
-            );
-          })}
-        </div>
-
-        {/* External right arrow */}
-        <button
-          onClick={cycleRight}
-          className="swipe-hint-right z-10 flex items-center justify-center w-11 h-11 md:w-13 md:h-13 rounded-full bg-white/5 active:scale-95 transition-transform"
-          aria-label="Next filter"
-        >
-          <ChevronRight size={20} className="text-foreground/60" />
-        </button>
+      {/* Card stack — responsive height capped at PK_H */}
+      <div
+        className="relative flex items-center justify-center"
+        style={{ 
+          width: 'var(--card-width, 340px)',
+          height: 'min(460px, calc(100dvh - 280px))',
+        }}
+      >
+      {[...cards].reverse().map((card, reversedIdx) => {
+          const index = cards.length - 1 - reversedIdx;
+          if (index > 3) return null;
+          const isTop = index === 0;
+          return (
+            <PokerCategoryCard
+              key={card.id}
+              card={card}
+              index={index}
+              total={cards.length}
+              isTop={isTop}
+              isCollapsed={false}
+              onCycle={handleCycle}
+              onSelect={handleSelect}
+              onBringToFront={handleBringToFront}
+            />
+          );
+        })}
       </div>
 
       <VapIdCardModal 

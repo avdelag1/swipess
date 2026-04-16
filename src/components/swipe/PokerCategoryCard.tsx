@@ -8,7 +8,6 @@ import {
   PokerCardData,
 } from './SwipeConstants';
 import { cn } from '@/lib/utils';
-import { useDeviceParallax } from '@/hooks/useDeviceParallax';
 
 interface PokerCardProps {
   card: PokerCardData;
@@ -22,126 +21,85 @@ interface PokerCardProps {
   cardHeight?: number;
 }
 
-export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
+export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false, onCycle, onSelect, onBringToFront }: PokerCardProps) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const x = useMotionValue(0);
-  const dragTilt = useTransform(x, [-200, 0, 200], [-6, 0, 6]);
-  const isCycling = useRef(false);
+  
   const [isDragging, setIsDragging] = useState(false);
-  const [isInteracting, setIsInteracting] = useState(false);
-  const { tiltX, tiltY } = useDeviceParallax(0.3, 45, !isDragging && !isInteracting);
+  const dragTilt = useTransform(x, [-200, 0, 200], [-8, 0, 8]);
+  const exitOpacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
+  const exitScale = useTransform(x, [-200, 0, 200], [0.9, 1, 0.9]);
 
   const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
   const gradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
   const [imgReady, setImgReady] = useState(false);
-  const [imgError, setImgError] = useState(false);
-
-  const frozenTilt = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    setImgReady(false);
-    setImgError(false);
     const img = new Image();
     img.src = photo;
-    img.decode()
-      .then(() => setImgReady(true))
-      .catch(() => {
-        if (img.complete && img.naturalWidth > 0) {
-          setImgReady(true);
-        } else {
-          setImgError(true);
-        }
-      });
-    img.onerror = () => setImgError(true);
+    img.onload = () => setImgReady(true);
   }, [photo]);
 
-  const handlePointerDownCapture = useCallback(() => {
-    frozenTilt.current = { x: tiltX, y: tiltY };
-    setIsInteracting(true);
-  }, [tiltX, tiltY]);
-
-  const handlePointerReleaseCapture = useCallback(() => {
-    if (!isDragging) setIsInteracting(false);
-  }, [isDragging]);
-
-  const handleDragStart = useCallback(() => {
-    frozenTilt.current = { x: tiltX, y: tiltY };
-    setIsDragging(true);
-    setIsInteracting(true);
-  }, [tiltX, tiltY]);
-
   const handleDragEnd = useCallback((_: any, info: any) => {
-    if (isCycling.current) return;
-    const dist = Math.abs(info.offset.x);
-    const vel = Math.abs(info.velocity.x);
+    const dist = info.offset.x;
+    const vel = info.velocity.x;
 
-    if (dist > 40 || vel > 250) {
-      isCycling.current = true;
+    if (Math.abs(dist) > 50 || Math.abs(vel) > 300) {
       triggerHaptic('medium');
-      const direction = info.offset.x > 0 ? 'right' : 'left';
+      const direction = dist > 0 ? 'right' : 'left';
       const exitX = direction === 'right' ? 300 : -300;
 
       animate(x, exitX, {
-        type: 'spring',
-        stiffness: 500,
-        damping: 28,
-        mass: 0.3,
+        type: 'spring', stiffness: 500, damping: 30, mass: 0.5,
         onComplete: () => {
-          setIsDragging(false);
-          setIsInteracting(false);
           onCycle(card.id, direction);
           x.set(0);
-          isCycling.current = false;
+          setIsDragging(false);
         }
       });
     } else {
-      triggerHaptic('light');
-      animate(x, 0, {
-        type: 'spring',
-        stiffness: 350,
-        damping: 22,
-        mass: 0.3,
-        onComplete: () => {
-          setIsDragging(false);
-          setIsInteracting(false);
-        },
-      });
+      animate(x, 0, { type: 'spring', stiffness: 400, damping: 25 });
+      setIsDragging(false);
     }
   }, [card.id, onCycle, x]);
 
-  // iOS-style tight stack: minimal peek, aggressive scale-down, blur on bg cards
-  const stackY = isCollapsed ? 0 : index * 6;
-  const stackScale = 1 - (index * 0.035);
-  const stackOpacity = index === 0 ? 1 : index === 1 ? 0.6 : index === 2 ? 0.3 : 0;
+  // Stack styling
+  const stackY = isCollapsed ? 0 : index * 8;
+  const stackScale = 1 - (index * 0.04);
+  const stackOpacity = index === 0 ? 1 : index === 1 ? 0.7 : index === 2 ? 0.4 : 0;
 
-  const exitScale = useTransform(x, [-300, -120, 0, 120, 300], [0.88, 0.96, 1, 0.96, 0.88]);
-  const exitOpacity = useTransform(x, [-300, -240, 0, 240, 300], [0, 1, 1, 1, 0]);
-
-  // Only render top 3 cards for performance and clean look
   if (index > 3) return null;
 
   return (
     <motion.div
+      layout
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.4}
-      dragMomentum={false}
-      onPointerDownCapture={isTop ? handlePointerDownCapture : undefined}
-      onPointerUpCapture={isTop ? handlePointerReleaseCapture : undefined}
-      onPointerCancelCapture={isTop ? handlePointerReleaseCapture : undefined}
-      onDragStart={isTop ? handleDragStart : undefined}
-      onDragEnd={isTop ? handleDragEnd : undefined}
-      onClick={!isTop ? () => onBringToFront(index) : undefined}
-      initial={{ y: stackY + 80, opacity: 0, scale: stackScale * 0.75 }}
+      onDragStart={() => {
+        setIsDragging(true);
+        triggerHaptic('light');
+      }}
+      onDragEnd={handleDragEnd}
+      onTap={() => {
+        if (!isDragging) {
+          if (isTop) {
+            triggerHaptic('medium');
+            onSelect(card.id);
+          } else {
+            triggerHaptic('light');
+            onBringToFront(index);
+          }
+        }
+      }}
+      initial={{ y: 60, opacity: 0, scale: 0.9 }}
       animate={{
         y: stackY,
         opacity: stackOpacity,
         scale: isTop ? undefined : stackScale,
-        filter: isTop ? undefined : `brightness(${1 - index * 0.12}) blur(${index * 2}px)`,
-      }}
-      transition={{
-        type: 'spring', stiffness: 550, damping: 30, mass: 0.5,
+        filter: isTop ? undefined : `brightness(${0.9 - index * 0.1}) blur(${index * 1.5}px)`,
+        zIndex: 100 - index,
       }}
       style={{
         position: 'absolute',
@@ -149,113 +107,51 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
         left: 0,
         width: '100%',
         height: '100%',
-        zIndex: 50 - index,
         x: isTop ? x : 0,
-        scale: isTop ? ((isDragging || isInteracting) ? 1 : exitScale) : undefined,
         rotateZ: isTop ? dragTilt : 0,
-        opacity: isTop ? ((isDragging || isInteracting) ? 1 : exitOpacity) : undefined,
-        cursor: isTop ? 'grab' : 'pointer',
+        scale: isTop ? exitScale : undefined,
+        opacity: isTop ? exitOpacity : undefined,
+        cursor: isTop ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
         touchAction: 'none',
         willChange: 'transform, opacity',
       } as any}
-      whileDrag={{ cursor: 'grabbing' }}
-      className={cn('touch-manipulation select-none gpu-ultra isolation-isolate')}
+      transition={{ type: 'spring', stiffness: 550, damping: 32, mass: 0.8 }}
+      className="select-none touch-none"
     >
-      <div
-        className="w-full h-full"
-        style={{
-          transformStyle: 'preserve-3d',
-          willChange: 'transform',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          transform: isTop
-            ? (isDragging || isInteracting)
-              ? `rotateX(${-frozenTilt.current.y}deg) rotateY(${frozenTilt.current.x}deg)`
-              : `rotateX(${-tiltX}deg) rotateY(${tiltY}deg)`
-            : 'rotateX(4deg)',
-          transition: (isDragging || isInteracting) ? 'none' : 'transform 0.15s ease-out',
-        }}
-      >
-        <div
-          className={cn(
-            'w-full h-full relative overflow-hidden rounded-[28px] md:rounded-[32px]',
-            isTop
-              ? 'border-none shadow-none'
-              : 'border-none shadow-none text-white/40'
-          )}
-        >
-          <div
-            className="absolute inset-0 w-full h-full"
-            style={{ background: gradient }}
-          />
+      <div className="w-full h-full relative overflow-hidden rounded-[32px] bg-black">
+        {/* Gradient backdrop */}
+        <div className="absolute inset-0" style={{ background: gradient }} />
+        
+        {/* Photo with fade-in */}
+        <motion.img
+          src={photo}
+          alt={card.label}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: imgReady ? 1 : 0 }}
+          className="absolute inset-0 w-full h-full object-cover"
+          draggable={false}
+        />
 
-          {!imgError && (
-            <div
-              className="absolute inset-0 transition-[opacity,transform] duration-500 ease-out will-change-transform"
-              style={{
-                opacity: imgReady ? 1 : 0,
-                transform: imgReady ? 'translate3d(0,0,0)' : 'translate3d(20px,0,0)',
-              }}
-            >
-              <img
-                src={photo}
-                alt={card.label}
-                className="absolute inset-0 w-full h-full object-cover"
-                draggable={false}
-                loading="eager"
-                style={{
-                  transform: 'translateZ(0)',
-                  transformOrigin: 'center center',
-                  backfaceVisibility: 'hidden',
-                  filter: 'saturate(1.08) contrast(1.03)',
-                  animationName: imgReady && isTop ? 'photo-swim' : 'none',
-                  animationDuration: '14s',
-                  animationTimingFunction: 'ease-in-out',
-                  animationDelay: '0.4s',
-                  animationIterationCount: 'infinite',
-                  animationPlayState: (isDragging || isInteracting) ? 'paused' : 'running',
-                }}
-              />
-            </div>
-          )}
-
-          <div className="absolute inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/80 via-black/25 to-transparent pointer-events-none" />
-
-          {isTop && (
-            <div
-              className="absolute inset-0 pointer-events-none opacity-30 mix-blend-overlay"
-              style={{
-                background: 'radial-gradient(ellipse at 50% 120%, var(--primary) 0%, transparent 70%)'
-              }}
-            />
-          )}
-
-          <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-8 md:px-10 lg:px-14 pb-8 md:pb-10 lg:pb-14">
-            <div className="flex flex-col gap-0.5">
-              <p className="text-[10px] md:text-[12px] lg:text-sm font-black uppercase tracking-[0.35em] text-white/50 mb-1">{card.description}</p>
-              <h3 className="text-white text-3xl md:text-4xl lg:text-5xl font-black tracking-tight uppercase leading-none">{card.label}</h3>
-            </div>
-
-            {isTop && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.9, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.3 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={(e) => { e.stopPropagation(); onSelect(card.id); }}
-                className="mt-6 w-full h-16 md:h-20 rounded-[28px] font-black text-[14px] md:text-[16px] uppercase tracking-[0.3em] bg-white text-black transition-all shadow-[0_20px_40px_rgba(255,255,255,0.3)] flex items-center justify-center overflow-hidden relative group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer" />
-                <span>Launch {card.label}</span>
-              </motion.button>
-            )}
+        {/* Liquid Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
+        
+        {/* Content */}
+        <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-8 md:p-10 pointer-events-none">
+          <div className="mb-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 mb-1">{card.description}</p>
+            <h3 className="text-white text-3xl font-black tracking-tight leading-none uppercase">{card.label}</h3>
           </div>
 
-          {!isTop && index === 1 && (
-            <div className="absolute top-6 left-6 px-3 py-1 bg-black/50 rounded-full border border-white/10 backdrop-blur-sm">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-white/60">{card.label}</p>
-            </div>
+          {isTop && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="w-full h-[64px] rounded-2xl bg-white text-black font-black uppercase tracking-[0.3em] text-[12px] flex items-center justify-center shadow-[0_12px_24px_rgba(255,255,255,0.25)] active:scale-95 transition-all">
+                Launch {card.label}
+              </div>
+            </motion.div>
           )}
         </div>
       </div>

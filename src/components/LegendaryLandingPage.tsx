@@ -233,9 +233,9 @@ const PasswordToggleButton = ({
       onClick={onClick}
       title={showPassword ? 'Hide password' : 'Show password'}
       aria-label={showPassword ? 'Hide password' : 'Show password'}
-      className="flex h-full w-8 items-center justify-center text-muted-foreground transition-all duration-150 hover:text-foreground active:scale-90"
+      className="flex h-full w-10 items-center justify-center text-white/30 transition-all duration-200 hover:text-white/70 active:scale-90"
     >
-      {showPassword ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
+      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
     </button>
   </div>
 );
@@ -384,24 +384,24 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-orange-400 transition-colors" />
-                    <Input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-10 h-12 bg-black/40 border-white/10 text-white placeholder:text-white/30 focus-visible:border-orange-500/50 appearance-none shadow-inner" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors z-10" />
+                    <Input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-11 h-14 bg-white/[0.04] border-white/10 text-white placeholder:text-white/20 focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
                   </GlowingField>
                 </motion.div>
               )}
 
               <motion.div variants={itemVariants}>
                 <GlowingField className="relative group">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-orange-400 transition-colors" />
-                  <Input type="email" name="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-10 h-12 bg-black/40 border-white/10 text-white placeholder:text-white/30 focus-visible:border-orange-500/50 appearance-none shadow-inner" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors z-10" />
+                  <Input type="email" name="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-11 h-14 bg-white/[0.04] border-white/10 text-white placeholder:text-white/20 focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
                 </GlowingField>
               </motion.div>
 
               {!isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-orange-400 transition-colors" />
-                    <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-10 pr-12 h-12 bg-black/40 border-white/10 text-white placeholder:text-white/30 focus-visible:border-orange-500/50 appearance-none shadow-inner" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors z-10" />
+                    <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-11 pr-12 h-14 bg-white/[0.04] border-white/10 text-white placeholder:text-white/20 focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
                     <PasswordToggleButton showPassword={showPassword} onClick={() => setShowPassword(!showPassword)} />
                   </GlowingField>
                 </motion.div>
@@ -410,8 +410,8 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 group-focus-within:text-orange-400 transition-colors" />
-                    <Input type={showPassword ? 'text' : 'password'} name="confirmPassword" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" className="pl-10 pr-12 h-12 bg-black/40 border-white/10 text-white placeholder:text-white/30 focus-visible:border-orange-500/50 appearance-none shadow-inner" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors z-10" />
+                    <Input type={showPassword ? 'text' : 'password'} name="confirmPassword" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" className="pl-11 pr-12 h-14 bg-white/[0.04] border-white/10 text-white placeholder:text-white/20 focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
                     <PasswordToggleButton showPassword={showPassword} onClick={() => setShowPassword(!showPassword)} />
                   </GlowingField>
                 </motion.div>

@@ -417,12 +417,12 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         onClick={() => { triggerHaptic('light'); onBack(); }}
         className={cn(
           "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[10001] flex items-center gap-1.5 px-4 py-2.5 rounded-2xl",
-          "backdrop-blur-xl border active:scale-95 transition-transform",
+          "backdrop-blur-xl active:scale-95 transition-transform",
           isLight
-            ? "bg-white/70 border-black/5 text-black/80"
-            : "bg-white/10 border-white/15 text-white/95"
+            ? "bg-white/70 text-black/80 shadow-md"
+            : "bg-white/10 text-white/95 shadow-2xl"
         )}
-        style={{ boxShadow: isLight ? '0 4px 20px rgba(0,0,0,0.08)' : '0 8px 32px rgba(0,0,0,0.4)' }}
+        style={{ boxShadow: isLight ? '0 4px 20px rgba(0,0,0,0.1)' : '0 8px 32px rgba(0,0,0,0.5)' }}
       >
         <ChevronLeft className="w-5 h-5" />
         <span className="text-[12px] font-black uppercase tracking-[0.2em]">Back</span>
@@ -437,10 +437,10 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
       >
         <div
           className={cn(
-            "px-6 py-2.5 rounded-2xl border backdrop-blur-xl flex items-center gap-2.5",
+            "px-6 py-2.5 rounded-2xl backdrop-blur-xl flex items-center gap-2.5",
             isLight
-              ? "bg-white/70 border-black/5 shadow-sm"
-              : "bg-black/60 border-white/10 shadow-lg"
+              ? "bg-white/70 shadow-md"
+              : "bg-black/60 shadow-2xl"
           )}
           style={{ boxShadow: `0 0 40px rgba(${meta.accentRgb},0.2)` }}
         >
@@ -465,12 +465,12 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         onClick={() => { detectLocation(); }}
         disabled={detecting}
         className={cn(
-          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center border active:scale-90 transition-all backdrop-blur-xl",
+          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all backdrop-blur-xl",
           detected
-            ? "bg-white/10 border-white/15 text-white"
+            ? "bg-white/10 text-white shadow-lg"
             : isLight
-              ? "bg-white/70 border-black/5 text-black/60"
-              : "bg-white/10 border-white/15 text-white/60"
+              ? "bg-white/70 text-black/60 shadow-md"
+              : "bg-white/10 text-white/60 shadow-sm"
         )}
         style={detected ? { boxShadow: `0 0 20px ${meta.accent}50` } : {}}
       >
