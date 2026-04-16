@@ -476,14 +476,8 @@ export const BottomNavigation = memo(({
                     : 'none',
                   backdropFilter: active ? 'blur(8px) saturate(1.18)' : 'none',
                   WebkitBackdropFilter: active ? 'blur(8px) saturate(1.18)' : 'none',
-                  border: active
-                    ? (isLight ? '1px solid rgba(0,0,0,0.04)' : '1px solid rgba(255,255,255,0.06)')
-                    : 'none',
-                  boxShadow: active
-                    ? (isLight
-                      ? '0 2px 10px rgba(0,0,0,0.05)'
-                      : '0 4px 14px rgba(0,0,0,0.16), inset 0 0.5px 0 rgba(255,255,255,0.04)')
-                    : 'none',
+                  border: 'none',
+                  boxShadow: 'none',
                   cursor: 'pointer',
                   flexShrink: 0,
                   touchAction: 'manipulation',

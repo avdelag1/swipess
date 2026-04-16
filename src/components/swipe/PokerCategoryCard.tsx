@@ -180,8 +180,8 @@ export const PokerCategoryCard = memo(({ card, index, total: _total, isTop, isCo
           className={cn(
             'w-full h-full relative overflow-hidden rounded-[28px] md:rounded-[32px]',
             isTop
-              ? 'border-2 border-white/15 shadow-[0_8px_40px_rgba(0,0,0,0.5)]'
-              : 'border border-white/5 shadow-xl'
+              ? 'border-none shadow-none'
+              : 'border-none shadow-none text-white/40'
           )}
         >
           <div

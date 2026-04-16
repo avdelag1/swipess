@@ -403,10 +403,10 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
 
   return (
     <motion.div
-      className="relative w-full h-full flex flex-col overflow-hidden bg-background"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
+      className="fixed inset-0 z-[10000] flex flex-col overflow-hidden bg-background"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 1.05 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
       {/* ── Back Button — floating top-left ──────────────────────────────── */}
@@ -416,16 +416,16 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         transition={{ delay: 0.15, duration: 0.3 }}
         onClick={() => { triggerHaptic('light'); onBack(); }}
         className={cn(
-          "absolute top-4 left-4 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-2xl",
+          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[10001] flex items-center gap-1.5 px-4 py-2.5 rounded-2xl",
           "backdrop-blur-xl border active:scale-95 transition-transform",
           isLight
             ? "bg-white/70 border-black/5 text-black/80"
-            : "bg-white/8 border-white/10 text-white/90"
+            : "bg-white/10 border-white/15 text-white/95"
         )}
-        style={{ boxShadow: isLight ? '0 4px 20px rgba(0,0,0,0.08)' : '0 4px 24px rgba(0,0,0,0.4)' }}
+        style={{ boxShadow: isLight ? '0 4px 20px rgba(0,0,0,0.08)' : '0 8px 32px rgba(0,0,0,0.4)' }}
       >
-        <ChevronLeft className="w-4.5 h-4.5" />
-        <span className="text-[11px] font-black uppercase tracking-[0.2em]">Back</span>
+        <ChevronLeft className="w-5 h-5" />
+        <span className="text-[12px] font-black uppercase tracking-[0.2em]">Back</span>
       </motion.button>
 
       {/* ── Category Badge — top center ───────────────────────────────── */}
@@ -433,25 +433,25 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.3 }}
-        className="absolute top-4 left-1/2 -translate-x-1/2 z-50"
+        className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-1/2 -translate-x-1/2 z-[10001]"
       >
         <div
           className={cn(
-            "px-5 py-2 rounded-2xl border backdrop-blur-xl flex items-center gap-2",
+            "px-6 py-2.5 rounded-2xl border backdrop-blur-xl flex items-center gap-2.5",
             isLight
-              ? "bg-white/70 border-black/5"
-              : "bg-black/60 border-white/10"
+              ? "bg-white/70 border-black/5 shadow-sm"
+              : "bg-black/60 border-white/10 shadow-lg"
           )}
-          style={{ boxShadow: `0 0 30px rgba(${meta.accentRgb},0.15)` }}
+          style={{ boxShadow: `0 0 40px rgba(${meta.accentRgb},0.2)` }}
         >
           <div
-            className="w-2 h-2 rounded-full animate-pulse"
-            style={{ background: meta.accent, boxShadow: `0 0 8px ${meta.accent}` }}
+            className="w-2.5 h-2.5 rounded-full animate-pulse"
+            style={{ background: meta.accent, boxShadow: `0 0 12px ${meta.accent}` }}
           />
-          <span className="text-[11px] font-black uppercase tracking-[0.25em]" style={{ color: meta.accent }}>
+          <span className="text-[12px] font-black uppercase tracking-[0.25em]" style={{ color: meta.accent }}>
             {meta.label}
           </span>
-          <span className={cn("text-[10px] font-bold", isLight ? "text-black/40" : "text-white/40")}>
+          <span className={cn("text-[11px] font-bold", isLight ? "text-black/40" : "text-white/40")}>
             {dotCount} nearby
           </span>
         </div>
@@ -465,17 +465,18 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         onClick={() => { detectLocation(); }}
         disabled={detecting}
         className={cn(
-          "absolute top-4 right-4 z-50 w-11 h-11 rounded-2xl flex items-center justify-center border active:scale-90 transition-all backdrop-blur-xl",
+          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center border active:scale-90 transition-all backdrop-blur-xl",
           detected
             ? "bg-white/10 border-white/15 text-white"
             : isLight
               ? "bg-white/70 border-black/5 text-black/60"
-              : "bg-white/8 border-white/10 text-white/60"
+              : "bg-white/10 border-white/15 text-white/60"
         )}
-        style={detected ? { boxShadow: `0 0 16px ${meta.accent}40` } : {}}
+        style={detected ? { boxShadow: `0 0 20px ${meta.accent}50` } : {}}
       >
-        <Navigation className={cn("w-4.5 h-4.5", detecting && "animate-spin")} style={detected ? { color: meta.accent } : {}} />
+        <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} style={detected ? { color: meta.accent } : {}} />
       </motion.button>
+
 
       {/* ── MAP CANVAS — fills most of the space ─────────────────────── */}
       <div
@@ -488,15 +489,6 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         onPointerCancel={handlePointerUp}
       >
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} className="block" />
-
-        {/* Edge fade */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{
-            background: isLight
-              ? 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 15%, transparent 75%, rgba(255,255,255,0.6) 100%)'
-              : 'linear-gradient(180deg, rgba(10,10,11,0.15) 0%, transparent 15%, transparent 75%, rgba(10,10,11,0.7) 100%)',
-          }}
-        />
       </div>
 
       {/* ── BOTTOM PANEL: Slider + Start ─────────────────────────────── */}
@@ -505,14 +497,11 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className={cn(
-          "relative z-50 px-5 pt-5 pb-7 flex flex-col gap-5",
+          "relative z-[10001] px-5 pt-6 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] flex flex-col gap-6",
           isLight
-            ? "bg-white/90 border-t border-black/5"
-            : "bg-black/80 backdrop-blur-2xl border-t border-white/8"
+            ? "bg-white/95"
+            : "bg-black/95 backdrop-blur-3xl"
         )}
-        style={{
-          boxShadow: isLight ? '0 -8px 40px rgba(0,0,0,0.06)' : '0 -8px 40px rgba(0,0,0,0.5)',
-        }}
       >
         {/* KM Label */}
         <div className="flex items-center justify-between">

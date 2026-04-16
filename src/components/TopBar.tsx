@@ -50,10 +50,10 @@ function TopBarComponent({
     background: isLight ? 'rgba(255,255,255,0.34)' : 'rgba(18,18,22,0.18)',
     backdropFilter: 'blur(10px) saturate(1.2)',
     WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
-    border: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)',
-    boxShadow: isLight
+    border: _transparent ? 'none' : (isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)'),
+    boxShadow: _transparent ? 'none' : (isLight
       ? '0 2px 10px rgba(0,0,0,0.06)'
-      : '0 8px 22px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.06)',
+      : '0 8px 22px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.06)'),
   };
 
   const { data: profile } = useQuery({
