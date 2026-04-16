@@ -163,16 +163,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const handlePointerMoveForTilt = useCallback((e: React.PointerEvent) => {
     if (!isTop) return;
+    // Pointer tilt compounds with the drag rotation and caused visible wobble /
+    // re-render flicker when the user was swiping. Disable tilt while dragging.
+    if (isDragging.current) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const xPos = e.clientX - rect.left;
     const yPos = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    
+
     // Calculate relative offset (-1 to 1)
     const rotateYVal = ((xPos - centerX) / centerX) * 8; // Max 8 deg tilt
     const rotateXVal = ((centerY - yPos) / centerY) * 8; // Max 8 deg tilt
-    
+
     pointerRotateY.set(rotateYVal);
     pointerRotateX.set(rotateXVal);
   }, [isTop, pointerRotateX, pointerRotateY]);
@@ -289,9 +292,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const handleDragStart = useCallback((_: any, info: PanInfo) => {
     isDragging.current = true;
     dragStartY.current = info.point.y;
+    // Reset pointer tilt so the drag rotation isn't added on top of a stale tilt.
+    pointerRotateX.set(0);
+    pointerRotateY.set(0);
     triggerHaptic('light');
     onDragStart?.();
-  }, [onDragStart]);
+  }, [onDragStart, pointerRotateX, pointerRotateY]);
 
   const handleDragEnd = useCallback((_: any, info: PanInfo) => {
     const sweepX = info.offset.x;

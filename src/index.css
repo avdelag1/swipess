@@ -117,22 +117,39 @@ body::-webkit-scrollbar {
 }
 
 /* ─── Fluid Card Dimensions — fills viewport on all devices ─── */
+/* --card-height uses 100svh where supported so the iOS URL bar doesn't clip the card. */
 :root {
   --card-width: min(340px, calc(100vw - 80px));
+  --card-height: min(520px, calc(100vh - 260px));
+}
+@supports (height: 100svh) {
+  :root { --card-height: min(520px, calc(100svh - 260px)); }
 }
 @media (min-width: 768px) {
   :root {
     --card-width: min(520px, calc(100vw - 160px));
+    --card-height: min(640px, calc(100vh - 260px));
+  }
+  @supports (height: 100svh) {
+    :root { --card-height: min(640px, calc(100svh - 260px)); }
   }
 }
 @media (min-width: 1024px) {
   :root {
     --card-width: min(640px, calc(100vw - 200px));
+    --card-height: min(740px, calc(100vh - 280px));
+  }
+  @supports (height: 100svh) {
+    :root { --card-height: min(740px, calc(100svh - 280px)); }
   }
 }
 @media (min-width: 1366px) {
   :root {
     --card-width: min(720px, calc(100vw - 240px));
+    --card-height: min(820px, calc(100vh - 300px));
+  }
+  @supports (height: 100svh) {
+    :root { --card-height: min(820px, calc(100svh - 300px)); }
   }
 }
 

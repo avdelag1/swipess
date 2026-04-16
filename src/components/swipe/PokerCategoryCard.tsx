@@ -6,6 +6,9 @@ import {
   POKER_CARD_PHOTOS,
   POKER_CARD_GRADIENTS,
   PokerCardData,
+  PK_DIST_THRESHOLD,
+  PK_VEL_THRESHOLD,
+  PK_SPRING,
 } from './SwipeConstants';
 import { cn } from '@/lib/utils';
 
@@ -45,13 +48,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
     const dist = info.offset.x;
     const vel = info.velocity.x;
 
-    if (Math.abs(dist) > 50 || Math.abs(vel) > 300) {
-      triggerHaptic('medium');
+    if (Math.abs(dist) > PK_DIST_THRESHOLD || Math.abs(vel) > PK_VEL_THRESHOLD) {
+      triggerHaptic('light');
       const direction = dist > 0 ? 'right' : 'left';
-      const exitX = direction === 'right' ? 300 : -300;
+      const exitX = direction === 'right' ? 320 : -320;
 
       animate(x, exitX, {
-        type: 'spring', stiffness: 500, damping: 30, mass: 0.5,
+        ...PK_SPRING,
         onComplete: () => {
           onCycle(card.id, direction);
           x.set(0);
@@ -59,7 +62,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         }
       });
     } else {
-      animate(x, 0, { type: 'spring', stiffness: 400, damping: 25 });
+      animate(x, 0, { ...PK_SPRING });
       setIsDragging(false);
     }
   }, [card.id, onCycle, x]);
@@ -68,15 +71,17 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   const stackY = isCollapsed ? 0 : index * 8;
   const stackScale = 1 - (index * 0.04);
   const stackOpacity = index === 0 ? 1 : index === 1 ? 0.7 : index === 2 ? 0.4 : 0;
+  // Static blur/brightness for stacked (non-top) cards — avoids per-frame filter
+  // recomposite that caused visible jitter while the top card was being dragged.
+  const stackedFilter = isTop ? undefined : `brightness(${0.9 - index * 0.1}) blur(${index * 1.5}px)`;
 
   if (index > 3) return null;
 
   return (
     <motion.div
-      layout
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.4}
+      dragElastic={0.55}
       onDragStart={() => {
         setIsDragging(true);
         triggerHaptic('light');
@@ -93,12 +98,11 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
           }
         }
       }}
-      initial={{ y: 60, opacity: 0, scale: 0.9 }}
+      initial={isTop ? { y: 60, opacity: 0, scale: 0.9 } : false}
       animate={{
         y: stackY,
         opacity: stackOpacity,
         scale: isTop ? undefined : stackScale,
-        filter: isTop ? undefined : `brightness(${0.9 - index * 0.1}) blur(${index * 1.5}px)`,
         zIndex: 100 - index,
       }}
       style={{
@@ -111,14 +115,24 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         rotateZ: isTop ? dragTilt : 0,
         scale: isTop ? exitScale : undefined,
         opacity: isTop ? exitOpacity : undefined,
+        filter: stackedFilter,
         cursor: isTop ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
         touchAction: 'none',
         willChange: 'transform, opacity',
       } as any}
-      transition={{ type: 'spring', stiffness: 550, damping: 32, mass: 0.8 }}
+      transition={{ ...PK_SPRING }}
       className="select-none touch-none"
     >
-      <div className="w-full h-full relative overflow-hidden rounded-[32px] bg-black">
+      <div
+        className="w-full h-full relative overflow-hidden rounded-[28px] bg-black"
+        style={{
+          // iOS-style stacked shadow: tight ambient contact + soft key light + hairline rim.
+          boxShadow:
+            '0 2px 6px rgba(0,0,0,0.12),' +
+            '0 20px 40px -12px rgba(0,0,0,0.45),' +
+            'inset 0 0 0 0.5px rgba(255,255,255,0.08)',
+        }}
+      >
         {/* Gradient backdrop */}
         <div className="absolute inset-0" style={{ background: gradient }} />
         
@@ -136,8 +150,8 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
         
         {/* Content */}
-        <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-8 md:p-10 pointer-events-none">
-          <div className="mb-8">
+        <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-8 md:p-10">
+          <div className="mb-8 pointer-events-none">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 mb-1">{card.description}</p>
             <h3 className="text-white text-3xl font-black tracking-tight leading-none uppercase">{card.label}</h3>
           </div>
@@ -148,9 +162,18 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <div className="w-full h-[64px] rounded-2xl bg-white text-black font-black uppercase tracking-[0.3em] text-[12px] flex items-center justify-center shadow-[0_12px_24px_rgba(255,255,255,0.25)] active:scale-95 transition-all">
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  triggerHaptic('medium');
+                  onSelect(card.id);
+                }}
+                className="w-full h-[64px] rounded-2xl bg-white text-black font-black uppercase tracking-[0.3em] text-[12px] flex items-center justify-center shadow-[0_12px_24px_rgba(255,255,255,0.25)] active:scale-95 transition-all"
+              >
                 Launch {card.label}
-              </div>
+              </button>
             </motion.div>
           )}
         </div>

@@ -13,14 +13,13 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import { ChevronLeft, Navigation, Zap } from 'lucide-react';
+import { ChevronLeft, Navigation, Zap, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { useFilterStore } from '@/state/filterStore';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { SWIPE_CARD_FIELDS } from '@/hooks/smartMatching/useSmartListingMatching';
 import { logger } from '@/utils/prodLogger';
 import type { QuickFilterCategory } from '@/types/filters';
 
@@ -83,6 +82,8 @@ interface ListingDot {
   id: string;
   latitude: number;
   longitude: number;
+  category?: string;
+  kind?: 'listing' | 'profile';
 }
 
 interface DiscoveryMapViewProps {
@@ -153,50 +154,104 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
     if (!userLatitude && !userLongitude) detectLocation();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ─── Fetch real listing/profile dots ──────────────────────────────────────
-  useEffect(() => {
+  // ─── Fetch ALL discoverable dots (listings + profiles) ───────────────────
+  // User intent: show EVERY listing / user in the app on the map regardless of
+  // the currently selected category. Dots matching the active category are
+  // drawn with the category accent; everything else renders as a neutral dot
+  // so the user can still see the density of available users nearby.
+  const [refreshTick, setRefreshTick] = useState(0);
+  const [fetchingDots, setFetchingDots] = useState(false);
+
+  const fetchDots = useCallback(async () => {
     if (!user?.id) return;
-    const fetchDots = async () => {
-      try {
-        if (mode === 'owner') {
-          // Owner looking for clients
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('id, latitude, longitude')
-            .not('latitude', 'is', null)
-            .not('longitude', 'is', null)
-            .neq('id', user.id)
-            .limit(200);
+    setFetchingDots(true);
+    try {
+      const merged: ListingDot[] = [];
 
-          if (error) { logger.error('[DiscoveryMap] profile fetch error:', error); return; }
-          if (data) setDots(data as ListingDot[]);
-        } else {
-          // Client looking for listings
-          const categoryDb = category === 'services' ? 'worker' : category;
-          const { data, error } = await supabase
-            .from('listings')
-            .select('id, latitude, longitude')
-            .eq('status', 'active')
-            .eq('category', categoryDb)
-            .not('latitude', 'is', null)
-            .not('longitude', 'is', null)
-            .neq('user_id', user.id)
-            .limit(200);
+      const { data: listingData, error: listingErr } = await supabase
+        .from('listings')
+        .select('id, latitude, longitude, category')
+        .eq('status', 'active')
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null)
+        .neq('user_id', user.id)
+        .limit(500);
+      if (listingErr) {
+        logger.error('[DiscoveryMap] listing fetch error:', listingErr);
+      } else if (listingData) {
+        listingData.forEach((l: any) =>
+          merged.push({
+            id: `l_${l.id}`,
+            latitude: l.latitude,
+            longitude: l.longitude,
+            category: l.category,
+            kind: 'listing',
+          }),
+        );
+      }
 
-          if (error) { logger.error('[DiscoveryMap] listing fetch error:', error); return; }
-          if (data) setDots(data as ListingDot[]);
-        }
-      } catch (e) { logger.error('[DiscoveryMap] error:', e); }
-    };
-    fetchDots();
-  }, [user?.id, category, mode]);
+      const { data: profileData, error: profileErr } = await supabase
+        .from('profiles')
+        .select('id, latitude, longitude')
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null)
+        .neq('id', user.id)
+        .limit(500);
+      if (profileErr) {
+        logger.error('[DiscoveryMap] profile fetch error:', profileErr);
+      } else if (profileData) {
+        profileData.forEach((p: any) =>
+          merged.push({
+            id: `p_${p.id}`,
+            latitude: p.latitude,
+            longitude: p.longitude,
+            kind: 'profile',
+          }),
+        );
+      }
 
-  // Count dots within radius
+      setDots(merged);
+    } catch (e) {
+      logger.error('[DiscoveryMap] error:', e);
+    } finally {
+      setFetchingDots(false);
+    }
+  }, [user?.id]);
+
   useEffect(() => {
-    if (!baseLat || !baseLng) { setDotCount(dots.length); return; }
-    const count = dots.filter(d => haversineKm(baseLat, baseLng, d.latitude, d.longitude) <= localKm).length;
+    fetchDots();
+  }, [fetchDots, refreshTick]);
+
+  const handleRefresh = useCallback(() => {
+    triggerHaptic('medium');
+    setRefreshTick(t => t + 1);
+  }, []);
+
+  // Normalize the selected category once (DB uses "worker" instead of "services")
+  const selectedCategoryDb = category === 'services' ? 'worker' : category;
+
+  // A dot is considered a "match" if it's within the current km radius AND
+  // (in client mode) its listing category matches the active filter, OR (in
+  // owner mode) it's a profile. Profiles always count as a match since the
+  // owner is surfacing people regardless of intent.
+  const isDotMatching = useCallback(
+    (d: ListingDot) => {
+      if (mode === 'owner') return d.kind === 'profile';
+      if (d.kind === 'profile') return false;
+      return d.category === selectedCategoryDb;
+    },
+    [mode, selectedCategoryDb],
+  );
+
+  // Count matching dots within the current radius — used for the badge and
+  // the "N found" label on the Start Swiping button.
+  useEffect(() => {
+    if (!baseLat || !baseLng) { setDotCount(0); return; }
+    const count = dots.filter(d =>
+      isDotMatching(d) && haversineKm(baseLat, baseLng, d.latitude, d.longitude) <= localKm,
+    ).length;
     setDotCount(count);
-  }, [dots, localKm, baseLat, baseLng]);
+  }, [dots, localKm, baseLat, baseLng, isDotMatching]);
 
   // Debounce radius update
   useEffect(() => {
@@ -319,7 +374,10 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Listing dots
+            // Listing + profile dots. ALL dots are drawn (regardless of filter);
+            // only dots that match the active category AND are inside the radius
+            // get the category accent colour + glow. Everything else is a muted
+            // neutral dot so the user can still see overall density.
             dots.forEach(dot => {
               const dotTile = latLngToTile(dot.latitude, dot.longitude, zoom);
               const px = w / 2 + (dotTile.x - tileX) * 256;
@@ -328,20 +386,24 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
 
               const dist = haversineKm(baseLat, baseLng, dot.latitude, dot.longitude);
               const inRadius = dist <= localKm;
+              const matching = isDotMatching(dot);
+              const highlight = inRadius && matching;
 
-              // Glow
-              if (inRadius) {
+              if (highlight) {
                 ctx.beginPath();
                 ctx.arc(px, py, 10, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(${meta.accentRgb},0.25)`;
                 ctx.fill();
               }
-              // Dot
               ctx.beginPath();
-              ctx.arc(px, py, inRadius ? 5 : 3.5, 0, Math.PI * 2);
-              ctx.fillStyle = inRadius ? meta.accent : (isLight ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.2)');
+              ctx.arc(px, py, highlight ? 5 : 3, 0, Math.PI * 2);
+              ctx.fillStyle = highlight
+                ? meta.accent
+                : inRadius
+                  ? (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.45)')
+                  : (isLight ? 'rgba(0,0,0,0.22)' : 'rgba(255,255,255,0.2)');
               ctx.fill();
-              if (inRadius) {
+              if (highlight) {
                 ctx.strokeStyle = isLight ? '#fff' : 'rgba(255,255,255,0.6)';
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
@@ -369,7 +431,38 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         img.src = tileUrl(centerTileX + dx, centerTileY + dy, zoom);
       }
     }
-  }, [effectiveCenter, zoom, radiusPx, isLight, mapSize, dots, localKm, baseLat, baseLng, meta]);
+  }, [effectiveCenter, zoom, radiusPx, isLight, mapSize, dots, localKm, baseLat, baseLng, meta, isDotMatching]);
+
+  // ─── Bubble drag logic (finger-on-circle to resize radius) ───────────────
+  const isDraggingBubble = useRef(false);
+  const bubbleStartRef = useRef<{ clientX: number; startKm: number } | null>(null);
+
+  const handleBubblePointerDown = useCallback((e: React.PointerEvent) => {
+    e.stopPropagation();
+    isDraggingBubble.current = true;
+    bubbleStartRef.current = { clientX: e.clientX, startKm: localKm };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    triggerHaptic('light');
+  }, [localKm]);
+
+  const handleBubblePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!isDraggingBubble.current || !bubbleStartRef.current) return;
+    e.stopPropagation();
+    // Convert horizontal pixel delta to km via meters-per-pixel at current zoom.
+    const mpp = (156543.03392 * Math.cos((effectiveCenter.lat * Math.PI) / 180)) / Math.pow(2, zoom);
+    const dxPx = e.clientX - bubbleStartRef.current.clientX;
+    const dxKm = (dxPx * mpp) / 1000;
+    const nextKm = Math.max(MIN_KM, Math.min(MAX_KM, Math.round(bubbleStartRef.current.startKm + dxKm)));
+    if (nextKm !== localKm) setLocalKm(nextKm);
+  }, [effectiveCenter.lat, zoom, localKm]);
+
+  const handleBubblePointerUp = useCallback((e: React.PointerEvent) => {
+    if (!isDraggingBubble.current) return;
+    isDraggingBubble.current = false;
+    bubbleStartRef.current = null;
+    e.stopPropagation();
+    triggerHaptic('light');
+  }, []);
 
   // ─── Slider drag logic ────────────────────────────────────────────────────
   const isDraggingSlider = useRef(false);
@@ -480,6 +573,23 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} style={detected ? { color: meta.accent } : {}} />
       </motion.button>
 
+      {/* ── Refresh Button — sits below GPS, re-fetches every dot ───── */}
+      <motion.button
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
+        onClick={handleRefresh}
+        disabled={fetchingDots}
+        aria-label="Refresh nearby users"
+        className={cn(
+          "absolute top-[calc(env(safe-area-inset-top,0px)+68px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all backdrop-blur-xl",
+          isLight ? "bg-white/70 text-black/70 shadow-md" : "bg-white/10 text-white/90 shadow-lg",
+        )}
+        style={{ boxShadow: `0 0 18px rgba(${meta.accentRgb},0.3)` }}
+      >
+        <RefreshCw className={cn("w-5 h-5", fetchingDots && "animate-spin")} />
+      </motion.button>
+
 
       {/* ── MAP CANVAS — fills most of the space ─────────────────────── */}
       <div
@@ -492,6 +602,47 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         onPointerCancel={handlePointerUp}
       >
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} className="block" />
+
+        {/* Draggable bubble handle — drag to expand/shrink the km radius. */}
+        <div
+          role="slider"
+          aria-label="Radius in km"
+          aria-valuemin={MIN_KM}
+          aria-valuemax={MAX_KM}
+          aria-valuenow={localKm}
+          onPointerDown={handleBubblePointerDown}
+          onPointerMove={handleBubblePointerMove}
+          onPointerUp={handleBubblePointerUp}
+          onPointerCancel={handleBubblePointerUp}
+          className="absolute flex items-center justify-center rounded-full select-none touch-none"
+          style={{
+            width: 36,
+            height: 36,
+            left: mapSize.w / 2 + Math.min(radiusPx, Math.min(mapSize.w, mapSize.h) / 2 - 4) - 18,
+            top: mapSize.h / 2 - 18,
+            background: `radial-gradient(circle at 35% 30%, #fff 0%, ${meta.accent} 100%)`,
+            boxShadow: `0 4px 14px rgba(${meta.accentRgb},0.55), 0 0 0 2px rgba(255,255,255,0.7)`,
+            cursor: 'ew-resize',
+            zIndex: 10001,
+          }}
+        >
+          <span
+            className="block rounded-full"
+            style={{ width: 8, height: 8, background: '#fff' }}
+          />
+        </div>
+
+        {/* Empty-state toast when there are no dots at all. */}
+        {!fetchingDots && dots.length === 0 && (
+          <div
+            className={cn(
+              "absolute left-1/2 -translate-x-1/2 bottom-5 px-4 py-2 rounded-xl text-[11px] font-bold backdrop-blur-xl z-[10001]",
+              isLight ? "bg-white/80 text-black/70 shadow-md" : "bg-black/60 text-white/90 shadow-lg",
+            )}
+          >
+            No one nearby yet — tap ↻ to refresh or expand the radius.
+          </div>
+        )}
       </div>
 
       {/* ── BOTTOM PANEL: Slider + Start ─────────────────────────────── */}
@@ -509,6 +660,9 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           backdropFilter: 'blur(32px) saturate(1.5)',
           WebkitBackdropFilter: 'blur(32px) saturate(1.5)',
           borderTop: 'none',
+          // Cap the glass panel so the map always owns the majority of the
+          // viewport — feels like a portrait map window with controls below.
+          maxHeight: '40svh',
         }}
       >
         {/* KM Label */}

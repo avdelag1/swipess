@@ -5,7 +5,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
-  POKER_CARDS, PK_W, PK_H, POKER_CARD_PHOTOS,
+  POKER_CARDS, PK_ASPECT, POKER_CARD_PHOTOS,
 } from './SwipeConstants';
 import { PokerCategoryCard } from './PokerCategoryCard';
 import { VapIdCardModal } from '../VapIdCardModal';
@@ -46,21 +46,23 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
     }
   }, [setCategories, navigate]);
 
+  // Swipe left OR right just reorders the stack so the user can browse through the
+  // category cards. Selection is ALWAYS done by tapping (or the Launch button) —
+  // dragging must never navigate away from the dashboard.
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
-    triggerHaptic('medium');
+    triggerHaptic('light');
     uiSounds.playCardSwipe(direction);
-    
-    if (direction === 'right') {
-      handleSelect(id);
-    } else {
-      setCards(prev => {
-        if (prev[0].id !== id) return prev;
-        const next = [...prev];
-        const [current] = next.splice(0, 1);
-        return [...next, current];
-      });
-    }
-  }, [handleSelect]);
+    setCards(prev => {
+      if (prev[0].id !== id) return prev;
+      const next = [...prev];
+      if (direction === 'left') {
+        const [front] = next.splice(0, 1);
+        return [...next, front];
+      }
+      const last = next.pop()!;
+      return [last, ...next];
+    });
+  }, []);
 
   const handleBringToFront = useCallback((index: number) => {
     triggerHaptic('light');
@@ -95,13 +97,15 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
       className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent overflow-hidden"
       style={{ minHeight: 'auto' }}
     >
-      {/* Card stack — responsive height capped at PK_H */}
+      {/* Card stack — fluid dimensions via CSS vars; aspect ratio keeps the
+          iOS-card proportions intact on every screen size. */}
       <div
         className="relative flex items-center justify-center"
-        style={{ 
+        style={{
           width: 'var(--card-width, 340px)',
-          height: `${PK_H}px`,
-          maxHeight: 'calc(100vh - 280px)',
+          height: 'var(--card-height, 520px)',
+          aspectRatio: `${PK_ASPECT}`,
+          maxHeight: 'min(600px, calc(100svh - 240px))',
         }}
       >
       {[...cards].reverse().map((card, reversedIdx) => {
