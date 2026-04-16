@@ -34,13 +34,18 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
     triggerHaptic('medium');
     uiSounds.playCardSwipe(direction);
-    setCards(prev => {
-      if (prev[0].id !== id) return prev;
-      const next = [...prev];
-      const [current] = next.splice(0, 1);
-      return [...next, current];
-    });
-  }, []);
+    
+    if (direction === 'right') {
+      handleSelect(id);
+    } else {
+      setCards(prev => {
+        if (prev[0].id !== id) return prev;
+        const next = [...prev];
+        const [current] = next.splice(0, 1);
+        return [...next, current];
+      });
+    }
+  }, [handleSelect]);
 
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
