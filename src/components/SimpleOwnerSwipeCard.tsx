@@ -24,6 +24,7 @@ import { getWorkScheduleLabel } from '@/constants/profileConstants';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeviceParallax } from '@/hooks/useDeviceParallax';
+import { DiscoverySidebar } from '@/components/DiscoverySidebar';
 
 
 // Exposed interface for parent to trigger swipe animations
@@ -237,10 +238,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onTap: _onTap,
   onDetails,
   onInsights,
-  onMessage: _onMessage,
-  onShare: _onShare,
-  onUndo: _onUndo,
-  canUndo: _canUndo,
+  onMessage,
+  onShare,
+  onUndo,
+  canUndo,
   isTop = true,
   fullScreen = false,
 }, ref) => {
