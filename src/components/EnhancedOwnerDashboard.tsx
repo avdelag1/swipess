@@ -20,6 +20,8 @@ import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
 import { useFilterActions } from '@/state/filterStore';
 import type { OwnerIntentCard } from '@/components/swipe/SwipeConstants';
 import { triggerHaptic } from '@/utils/haptics';
+import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
+import type { QuickFilterCategory } from '@/types/filters';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -31,14 +33,17 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const [_selectedClientId, _setSelectedClientId] = useState<string | null>(null);
   const [_insightsOpen, _setInsightsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
+  
+  // Track 3-phase dashboard flow
+  const activeCategory = useFilterStore(s => s.activeCategory);
+  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
+  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
 
   const modalStore = useModalStore();
   const { user, loading: isAuthLoading } = useAuth();
   const { navigate } = useAppNavigate();
 
-  // Read activeCategory from store
-  const activeCategory = useFilterStore(s => s.activeCategory);
-  const { setCategories, setClientType, setListingType } = useFilterActions();
+  const { setCategories, setClientType, setListingType, setActiveCategory } = useFilterActions();
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs, isLoading: isPrefsLoading } = useOwnerClientPreferences();
@@ -112,10 +117,30 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   const handleCardSelect = useCallback((card: OwnerIntentCard) => {
     triggerHaptic('medium');
-    setCategories([(card.category || 'property') as any]);
+    const cat = (card.category || 'property') as QuickFilterCategory;
+    setMapCategory(cat);
     if (card.clientType) setClientType(card.clientType as any);
     if (card.listingType) setListingType(card.listingType as any);
-  }, [setCategories, setClientType, setListingType]);
+    setPhase('map');
+  }, [setClientType, setListingType]);
+
+  const handleMapBack = useCallback(() => {
+    setMapCategory(null);
+    setPhase('cards');
+    setActiveCategory(null);
+  }, [setActiveCategory]);
+
+  const handleStartSwiping = useCallback(() => {
+    if (mapCategory) {
+      setCategories([mapCategory]);
+      setPhase('swipe');
+    }
+  }, [mapCategory, setCategories]);
+
+  // Determine what to show based on phase + store state
+  const showCards = phase === 'cards' && !activeCategory;
+  const showMap = phase === 'map' && mapCategory && !activeCategory;
+  const showSwipe = phase === 'swipe' || !!activeCategory;
 
   // Loading state handling
   if (isAuthLoading || isPrefsLoading) {
@@ -181,7 +206,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           >
             <OwnerInsightsDashboard />
           </motion.div>
-        ) : !activeCategory ? (
+        ) : showCards ? (
           <motion.div 
             key="owner-dash-fan"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -193,7 +218,24 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           >
             <OwnerAllDashboard onCardSelect={handleCardSelect} />
           </motion.div>
-        ) : (
+        ) : showMap && mapCategory ? (
+          <motion.div
+            key="owner-dash-map"
+            initial={{ opacity: 0, y: 30, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.98 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full h-full"
+            style={{ willChange: 'transform, opacity' }}
+          >
+            <DiscoveryMapView
+              category={mapCategory}
+              onBack={handleMapBack}
+              onStartSwiping={handleStartSwiping}
+              mode="owner"
+            />
+          </motion.div>
+        ) : showSwipe ? (
           <motion.div 
             key="owner-dash-swipe"
             initial={{ opacity: 0, y: 30, scale: 0.97 }}
@@ -215,7 +257,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               filters={mergedFilters}
             />
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
   );

@@ -130,7 +130,10 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
           {/* Card stack — same responsive sizing as client */}
           <div
             className="relative"
-            style={{ width: 'min(90vw, 520px)', height: 'calc(100dvh - 190px)' }}
+            style={{ 
+              width: 'var(--card-width, 340px)',
+              height: 'calc(100dvh - 190px)',
+            }}
           >
             {[...cards].reverse().map((card, reversedIdx) => {
               const index = cards.length - 1 - reversedIdx;

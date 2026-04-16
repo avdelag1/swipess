@@ -86,6 +86,7 @@ interface DiscoveryMapViewProps {
   category: QuickFilterCategory;
   onBack: () => void;
   onStartSwiping: () => void;
+  mode?: 'client' | 'owner';
 }
 
 // ─── SLIDER CONSTANTS ──────────────────────────────────────────────────────────
@@ -94,7 +95,7 @@ const MAX_KM = 100;
 const SLIDER_TRACK_H = 6;
 const THUMB_SIZE = 28;
 
-export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping }: DiscoveryMapViewProps) => {
+export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode = 'client' }: DiscoveryMapViewProps) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { user } = useAuth();
@@ -149,30 +150,43 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping }: Disc
     if (!userLatitude && !userLongitude) detectLocation();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ─── Fetch real listing dots ──────────────────────────────────────────────
+  // ─── Fetch real listing/profile dots ──────────────────────────────────────
   useEffect(() => {
     if (!user?.id) return;
     const fetchDots = async () => {
       try {
-        const categoryDb = category === 'services' ? 'worker' : category;
-        const { data, error } = await supabase
-          .from('listings')
-          .select('id, latitude, longitude')
-          .eq('status', 'active')
-          .eq('category', categoryDb)
-          .not('latitude', 'is', null)
-          .not('longitude', 'is', null)
-          .neq('user_id', user.id)
-          .limit(200);
+        if (mode === 'owner') {
+          // Owner looking for clients
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('id, latitude, longitude')
+            .not('latitude', 'is', null)
+            .not('longitude', 'is', null)
+            .neq('id', user.id)
+            .limit(200);
 
-        if (error) { logger.error('[DiscoveryMap] fetch error:', error); return; }
-        if (data) {
-          setDots(data as ListingDot[]);
+          if (error) { logger.error('[DiscoveryMap] profile fetch error:', error); return; }
+          if (data) setDots(data as ListingDot[]);
+        } else {
+          // Client looking for listings
+          const categoryDb = category === 'services' ? 'worker' : category;
+          const { data, error } = await supabase
+            .from('listings')
+            .select('id, latitude, longitude')
+            .eq('status', 'active')
+            .eq('category', categoryDb)
+            .not('latitude', 'is', null)
+            .not('longitude', 'is', null)
+            .neq('user_id', user.id)
+            .limit(200);
+
+          if (error) { logger.error('[DiscoveryMap] listing fetch error:', error); return; }
+          if (data) setDots(data as ListingDot[]);
         }
       } catch (e) { logger.error('[DiscoveryMap] error:', e); }
     };
     fetchDots();
-  }, [user?.id, category]);
+  }, [user?.id, category, mode]);
 
   // Count dots within radius
   useEffect(() => {
