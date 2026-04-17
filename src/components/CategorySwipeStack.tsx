@@ -140,7 +140,7 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full h-[min(38dvh,320px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-[min(48dvh,420px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
 
             <AnimatePresence mode="sync" initial={false}>
                 {stack.map((cat, index) => {
@@ -176,7 +176,7 @@ export function CategorySwipeStack() {
             <motion.div 
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="absolute -bottom-6 left-0 right-0 text-center"
+                className="absolute -bottom-10 left-0 right-0 text-center"
             >
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[10px] font-bold text-muted-foreground tracking-[0.1em] uppercase">
                     <Sparkles className="w-3 h-3 text-brand-accent-2" />

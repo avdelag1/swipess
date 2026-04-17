@@ -19,6 +19,7 @@ export interface LocationRadiusSelectorProps {
 }
 
 const KM_PRESETS = [1, 5, 10, 25, 50, 100];
+const TILE_CACHE: Record<string, HTMLImageElement> = {};
 
 // Convert km to pixels at a given zoom level and latitude
 const kmToPixels = (km: number, lat: number, zoom: number) => {
@@ -142,7 +143,6 @@ export const LocationRadiusSelector = ({
 
   const handlePointerUp = useCallback(() => {
     panStartRef.current = null;
-    // Inertia
     const { vx, vy } = velocityRef.current;
     if (Math.abs(vx) > 1 || Math.abs(vy) > 1) {
       let cvx = vx, cvy = vy;
@@ -156,12 +156,11 @@ export const LocationRadiusSelector = ({
     }
   }, []);
 
-  // Draw map tiles + radius circle
+  // 🚀 HIGH PERFORMANCE PROGRESSIVE DRAWING
   useEffect(() => {
-    if (variant === 'minimal') return;
     const canvas = canvasRef.current;
     if (!canvas || mapSize.w < 10 || mapSize.h < 10) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
     const { w, h } = mapSize;
@@ -176,53 +175,72 @@ export const LocationRadiusSelector = ({
     const offsetX = (tileX - centerTileX) * 256;
     const offsetY = (tileY - centerTileY) * 256;
 
-    ctx.fillStyle = isLight ? '#f1f5f9' : '#0a0a0a';
+    const drawOverlay = () => {
+        if (!isLight) {
+            ctx.fillStyle = 'rgba(0,0,0,0.45)';
+            ctx.fillRect(0, 0, w, h);
+        }
+        const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
+        
+        ctx.beginPath();
+        ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
+        ctx.fillStyle = isLight ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.15)';
+        ctx.fill();
+        
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        ctx.beginPath();
+        ctx.arc(w / 2, h / 2, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#3b82f6';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+    };
+
+    // Initial fill
+    ctx.fillStyle = isLight ? '#f8fafc' : '#030303';
     ctx.fillRect(0, 0, w, h);
 
     const tilesX = Math.ceil(w / 256) + 2;
     const tilesY = Math.ceil(h / 256) + 2;
     const startDx = -Math.ceil(tilesX / 2);
     const startDy = -Math.ceil(tilesY / 2);
-    let loaded = 0;
-    const total = tilesX * tilesY;
+
+    const drawTile = (img: HTMLImageElement, dx: number, dy: number) => {
+        const drawX = w / 2 - offsetX + dx * 256;
+        const drawY = h / 2 - offsetY + dy * 256;
+        ctx.drawImage(img, drawX, drawY, 256, 256);
+        drawOverlay(); // Redraw overlay on top of every tile load
+    };
 
     for (let dx = startDx; dx < startDx + tilesX; dx++) {
       for (let dy = startDy; dy < startDy + tilesY; dy++) {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => {
-          const drawX = w / 2 - offsetX + dx * 256;
-          const drawY = h / 2 - offsetY + dy * 256;
-          ctx.drawImage(img, drawX, drawY, 256, 256);
-          loaded++;
-          if (loaded >= total) {
-            if (!isLight) {
-              ctx.fillStyle = 'rgba(0,0,0,0.5)';
-              ctx.fillRect(0, 0, w, h);
-            }
-            const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
-            ctx.beginPath();
-            ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
-            ctx.fillStyle = isLight ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.15)';
-            ctx.fill();
-            ctx.strokeStyle = isLight ? 'rgba(59,130,246,0.4)' : 'rgba(59,130,246,0.5)';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([4, 4]);
-            ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.beginPath();
-            ctx.arc(w / 2, h / 2, 5, 0, Math.PI * 2);
-            ctx.fillStyle = '#3b82f6';
-            ctx.fill();
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-          }
-        };
-        img.onerror = () => { loaded++; };
-        img.src = tileUrl(centerTileX + dx, centerTileY + dy, zoom);
+        const tx = centerTileX + dx;
+        const ty = centerTileY + dy;
+        const key = `${tx}-${ty}-${zoom}`;
+
+        if (TILE_CACHE[key]) {
+            drawTile(TILE_CACHE[key], dx, dy);
+        } else {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                TILE_CACHE[key] = img;
+                drawTile(img, dx, dy);
+            };
+            img.src = tileUrl(tx, ty, zoom);
+        }
       }
     }
+    
+    // Always draw overlay at least once even if tiles are loading
+    drawOverlay();
+
   }, [effectiveCenter, zoom, radiusPx, isLight, mapSize, variant]);
 
   const handleKmSelect = useCallback((km: number) => {
@@ -253,7 +271,7 @@ export const LocationRadiusSelector = ({
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
         >
-          <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} className="block opacity-80" />
+          <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} className="block opacity-90" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60 pointer-events-none" />
           
           <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
