@@ -109,13 +109,36 @@ deferredInit(async () => {
     body.classList.add('hw-high', 'perf-ultra');
     initHaptics();
 
-    // Register service worker in production only
+    // Register service worker with AGGRESSIVE update detection
     if ('serviceWorker' in navigator && !isPreviewHost) {
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .then(reg => {
-          setInterval(() => reg.update(), 3600000);
+          // Check for updates every 10 seconds while the app is active
+          setInterval(() => reg.update(), 10000);
+          
+          // If a new worker was waiting, skip waiting immediately
+          if (reg.waiting) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+          
+          reg.onupdatefound = () => {
+             const newWorker = reg.installing;
+             if (newWorker) {
+                 newWorker.onstatechange = () => {
+                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                         // New content available, force reload
+                         window.location.reload();
+                     }
+                 };
+             }
+          };
         })
         .catch(() => {});
+
+      // RELOAD CONTROL - when the new SW takes over, refresh the page
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+      });
     }
   } catch { /* intentional */ }
 }, 5000);
