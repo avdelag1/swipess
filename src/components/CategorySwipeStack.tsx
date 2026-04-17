@@ -100,13 +100,12 @@ export function CategorySwipeStack() {
         }
     };
 
-    const handleSwipeRight = (card: CategoryCardData) => {
-        haptics.success();
-        applyFilter(card);
+    const handleSwipeRight = (_card: CategoryCardData) => {
+        haptics.tap();
         
         // Move swiped card to the back of the stack
         setStack(prev => {
-            const index = prev.findIndex(c => c.id === card.id);
+            const index = prev.findIndex(c => c.id === _card.id);
             const newStack = [...prev];
             const [removed] = newStack.splice(index, 1);
             return [...newStack, removed];
@@ -126,9 +125,14 @@ export function CategorySwipeStack() {
 
     const handleSelect = (card: CategoryCardData) => {
         haptics.select();
+        // If it's already at the front, APPLY it
+        if (stack[0].id === card.id) {
+            applyFilter(card);
+            return;
+        }
+
         setStack(prev => {
             const index = prev.findIndex(c => c.id === card.id);
-            if (index === 0) return prev;
             const newStack = [...prev];
             const [removed] = newStack.splice(index, 1);
             return [removed, ...newStack];
@@ -176,7 +180,7 @@ export function CategorySwipeStack() {
             >
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-[10px] font-bold text-muted-foreground tracking-[0.1em] uppercase">
                     <Sparkles className="w-3 h-3 text-brand-accent-2" />
-                    Swipe to Filter • Tap to Stack
+                    Swipe to Cycle • Tap to Select
                 </div>
             </motion.div>
         </div>
@@ -295,7 +299,7 @@ function CategoryCard({
             dragElastic={0.55}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
-            onClick={() => !isTop && onSelect()}
+            onClick={() => onSelect()}
             initial={false}
             animate={{ 
                 scale, 
@@ -402,7 +406,7 @@ function CategoryCard({
                             style={{ opacity: selectOpacity }}
                             className="absolute top-4 left-4 border-2 border-emerald-500 text-emerald-500 font-black px-2 py-0.5 rounded-lg -rotate-12 uppercase text-[10px]"
                         >
-                            Select!
+                            Next
                         </motion.div>
                         <motion.div
                             initial={{ opacity: 0, scale: 0.5 }}

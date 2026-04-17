@@ -964,8 +964,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       <div className="absolute inset-0 pointer-events-none -z-10 bg-[#0a0a0b]" />
 
       {/* Top Controls — IN FLOW, not absolute */}
-      {storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length && (
-        <div className="relative z-50 w-full flex flex-col items-center shrink-0">
+      {(!isLoading || deckQueue.length > 0) && (
+        <div className="relative z-[60] w-full flex flex-col items-center shrink-0">
           <div className="w-full pt-1 pb-1 px-2">
             <div className="w-full flex justify-between items-center">
               <LocationRadiusSelector
@@ -980,7 +980,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               />
             </div>
           </div>
-          {/* searching badge removed — info already in map */}
         </div>
       )}
 

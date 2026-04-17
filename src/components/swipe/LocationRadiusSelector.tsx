@@ -243,44 +243,70 @@ export const LocationRadiusSelector = ({
 
   if (variant === 'minimal') {
     return (
-      <div className="w-full flex flex-col gap-2 pt-1 pb-1">
-        <div className="flex items-center justify-between px-2">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onDetectLocation}
-              disabled={detecting}
-              className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95",
-                detected ? "bg-primary/20 text-primary border border-primary/20" : "bg-white/5 text-white/40 border border-white/5"
-              )}
-            >
-              <Navigation className={cn("w-3.5 h-3.5", detecting && "animate-spin")} />
-            </button>
-            <span className="text-[10px] font-black uppercase tracking-widest text-white/60">
-              Radius: <span className="text-primary">{localKm}km</span>
-            </span>
-          </div>
+      <div className="w-full flex flex-col gap-2 pt-1 pb-1 relative">
+        <div 
+          ref={containerRef}
+          className="w-full h-16 rounded-2xl overflow-hidden relative border border-white/10 glass-nano-texture shadow-lg group active:h-24 transition-all duration-300"
+          style={{ touchAction: 'none' }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        >
+          <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} className="block opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60 pointer-events-none" />
           
-          <div 
-            ref={scrollContainerRef}
-            className="flex gap-1.5 overflow-x-auto scrollbar-none max-w-[200px]"
-          >
-            {KM_PRESETS.map((km) => {
-              const isActive = localKm === km;
-              return (
-                <button
-                  key={km}
-                  data-active={isActive}
-                  onClick={() => handleKmSelect(km)}
-                  className={cn(
-                    "flex-shrink-0 h-7 px-2.5 rounded-lg text-[9px] font-black transition-all border",
-                    isActive ? "bg-primary border-primary text-white" : "bg-white/5 border-white/5 text-white/30"
-                  )}
-                >
-                  {km}k
-                </button>
-              );
-            })}
+          <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
+            <div className="flex items-center gap-2 pointer-events-auto">
+              <button
+                onClick={(e) => { e.stopPropagation(); onDetectLocation(); setPanOffset({ x: 0, y: 0 }); }}
+                disabled={detecting}
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95 bg-black/40 backdrop-blur-md border border-white/10 shadow-xl",
+                  detected ? "text-primary" : "text-white/40"
+                )}
+              >
+                <Navigation className={cn("w-3.5 h-3.5", detecting && "animate-spin")} />
+              </button>
+              <div className="bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 shadow-lg">
+                <span className="text-[10px] font-black uppercase tracking-widest text-white/90">
+                  <span className="text-primary">{localKm}k</span> radius
+                </span>
+              </div>
+            </div>
+            
+            <div 
+              ref={scrollContainerRef}
+              className="flex gap-1 overflow-x-auto scrollbar-none max-w-[140px] pointer-events-auto"
+            >
+              {KM_PRESETS.map((km) => {
+                const isActive = localKm === km;
+                return (
+                  <button
+                    key={km}
+                    data-active={isActive}
+                    onClick={() => handleKmSelect(km)}
+                    className={cn(
+                      "flex-shrink-0 h-7 px-2.5 rounded-lg text-[9px] font-black transition-all border",
+                      isActive ? "bg-primary border-primary text-white" : "bg-black/40 backdrop-blur-md border-white/10 text-white/30"
+                    )}
+                  >
+                    {km}k
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity">
+             <input 
+               type="range"
+               min="1"
+               max="100"
+               value={localKm}
+               onChange={(e) => setLocalKm(parseInt(e.target.value))}
+               className="w-24 h-1 bg-white/20 rounded-full appearance-none cursor-pointer accent-primary"
+             />
           </div>
         </div>
       </div>
