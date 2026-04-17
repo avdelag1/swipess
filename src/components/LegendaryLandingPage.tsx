@@ -365,7 +365,14 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
 
       <div className="h-full flex flex-col justify-center p-4 sm:p-5 relative z-10">
         <motion.div className="w-full max-w-sm mx-auto" variants={containerVariants} initial="hidden" animate="visible">
-          <motion.div variants={itemVariants} className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
+          <motion.div variants={itemVariants} className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] backdrop-blur-2xl relative">
+            <button
+              onClick={() => { triggerHaptic('light'); setView('landing'); }}
+              className="absolute top-4 left-4 p-2 rounded-xl bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-95 z-20"
+              aria-label="Back to splash screen"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
             <div className="text-center mb-6">
               <div className="flex justify-center mb-6">
                 <SwipessLogo size="md" variant={isDark ? 'white' : 'black'} />
@@ -496,19 +503,28 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
               </>
             )}
 
-            <motion.div variants={itemVariants} className="mt-4 space-y-2 text-center">
+            <motion.div variants={itemVariants} className="mt-4 pt-2 border-t border-zinc-800/50 space-y-3 text-center">
               {isLogin && !isForgotPassword && (
-                <p className="text-xs text-zinc-500">
-                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-orange-400 font-bold hover:text-orange-300 transition-colors uppercase tracking-wider">
-                    Forgot password?
-                  </button>
-                </p>
+                <button 
+                  type="button" 
+                  onClick={() => setIsForgotPassword(true)} 
+                  className="text-[11px] font-black uppercase tracking-[0.15em] text-orange-400 hover:text-orange-300 transition-colors"
+                >
+                  Forgot password?
+                </button>
               )}
-              <div className="pt-2">
-                <p className="text-xs text-zinc-500 font-bold">
-                  {isLogin ? "New here? " : 'Already have an account? '}
-                  <button type="button" onClick={switchMode} className="text-white font-black hover:text-orange-400 transition-colors uppercase tracking-wider leading-relaxed">{isLogin ? 'Create a free account' : 'Sign In'}</button>
-                </p>
+              
+              <div className="flex flex-col gap-1 items-center justify-center">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+                  {isLogin ? "New to Swipess?" : "Already a member?"}
+                </span>
+                <button 
+                  type="button" 
+                  onClick={switchMode} 
+                  className="text-xs font-black uppercase tracking-[0.2em] text-white hover:text-orange-400 transition-colors border-b-2 border-orange-500/20 hover:border-orange-500 pb-0.5"
+                >
+                  {isLogin ? 'Create free account' : 'Sign In Now'}
+                </button>
               </div>
             </motion.div>
           </motion.div>
