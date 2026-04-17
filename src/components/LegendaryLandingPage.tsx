@@ -361,9 +361,18 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
         <motion.div className="w-full max-w-sm my-auto" variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="bg-[#0A0A0B]/98 border border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-[0_32px_120px_-16px_rgba(0,0,0,1)] backdrop-blur-3xl relative">
             <button
-              onClick={() => { triggerHaptic('light'); onBack(); }}
+              onClick={() => { 
+                triggerHaptic('light'); 
+                if (isForgotPassword) {
+                  setIsForgotPassword(false);
+                } else if (!isLogin) {
+                  setIsLogin(true);
+                } else {
+                  onBack(); 
+                }
+              }}
               className="absolute top-4 left-4 p-2.5 rounded-2xl bg-zinc-800/90 text-white hover:bg-zinc-700 transition-all active:scale-95 z-20 border border-white/5 shadow-lg"
-              aria-label="Back to splash screen"
+              aria-label="Back"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>

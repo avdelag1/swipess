@@ -369,10 +369,8 @@ export const DiscoveryMapView = memo(({
       for (let dy = startDy; dy < startDy + tilesY; dy++) {
         const img = new Image();
         img.crossOrigin = 'anonymous';
-        img.onload = () => {
-          const drawX = w / 2 - offsetX + dx * 256;
-          const drawY = h / 2 - offsetY + dy * 256;
-          ctx.drawImage(img, drawX, drawY, 256, 256);
+        
+        const onFinish = () => {
           loaded++;
           if (loaded >= total) {
             if (!isLight) {
@@ -392,9 +390,9 @@ export const DiscoveryMapView = memo(({
             ctx.setLineDash([]);
 
             dots.forEach(dot => {
-              const dotTile = latLngToTile(dot.latitude, dot.longitude, zoom);
-              const px = w / 2 + (dotTile.x - tileX) * 256;
-              const py = h / 2 + (dotTile.y - tileY) * 256;
+              const dTile = latLngToTile(dot.latitude, dot.longitude, zoom);
+              const px = w / 2 + (dTile.x - tileX) * 256;
+              const py = h / 2 + (dTile.y - tileY) * 256;
               if (px < -20 || px > w + 20 || py < -20 || py > h + 20) return;
 
               const dist = haversineKm(baseLat, baseLng, dot.latitude, dot.longitude);
@@ -438,8 +436,22 @@ export const DiscoveryMapView = memo(({
             ctx.stroke();
           }
         };
-        img.onerror = () => { loaded++; };
-        img.src = tileUrl(centerTileX + dx, centerTileY + dy, zoom);
+
+        img.onload = () => {
+          const drawX = w / 2 - offsetX + dx * 256;
+          const drawY = h / 2 - offsetY + dy * 256;
+          ctx.drawImage(img, drawX, drawY, 256, 256);
+          onFinish();
+        };
+        img.onerror = onFinish;
+
+        const wrappedX = (centerTileX + dx + (1 << zoom)) % (1 << zoom);
+        const wrappedY = centerTileY + dy;
+        if (wrappedY >= 0 && wrappedY < (1 << zoom)) {
+          img.src = tileUrl(wrappedX, wrappedY, zoom);
+        } else {
+          onFinish();
+        }
       }
     }
   }, [effectiveCenter, zoom, radiusPx, isLight, mapSize, dots, localKm, baseLat, baseLng, meta, isDotMatching]);

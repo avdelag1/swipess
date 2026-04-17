@@ -109,7 +109,7 @@ function TopBarComponent({
             )}
 
             {user && !minimal && (
-              <motion.button
+                <motion.button
                 whileTap={{ scale: 0.92 }}
                 onPointerDown={(e) => {
                   e.preventDefault();
@@ -117,11 +117,16 @@ function TopBarComponent({
                   haptics.select();
                   navigate(userRole === 'owner' ? '/owner/profile' : '/client/profile');
                 }}
-                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 flex items-center gap-2 rounded-xl px-2 py-1.5 border border-white/10"
-                style={{ WebkitTapHighlightColor: 'transparent', ...glassSurfaceStyle }}
+                className={cn(
+                  "flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 flex items-center gap-2 rounded-2xl px-2.5 py-1.5 border transition-all duration-300",
+                  isLight 
+                    ? "bg-white/80 border-black/10 shadow-sm" 
+                    : "bg-black/60 border-white/20 shadow-xl"
+                )}
+                style={{ WebkitTapHighlightColor: 'transparent' }}
                 aria-label="Go to profile"
               >
-                <Avatar className="h-[32px] w-[32px] md:h-[38px] md:w-[38px] rounded-lg overflow-hidden cursor-pointer border-none ring-0 shadow-none">
+                <Avatar className="h-[32px] w-[32px] md:h-[38px] md:w-[38px] rounded-xl overflow-hidden cursor-pointer border-none ring-0 shadow-lg">
                   <AvatarImage
                     src={profile?.avatar_url || ''}
                     className="object-cover w-full h-full"
@@ -139,10 +144,10 @@ function TopBarComponent({
                 </Avatar>
                 {profile?.full_name && (
                   <span className={cn(
-                    "text-[13.5px] font-black uppercase italic tracking-tight max-w-[140px] truncate",
-                    isLight ? "text-foreground" : "text-white"
+                    "text-[13px] font-black uppercase italic tracking-tighter max-w-[120px]",
+                    isLight ? "text-foreground" : "text-white/90"
                   )}>
-                    {profile.full_name.split(' ')[0]}
+                    {profile.full_name.split(' ')[0].substring(0, 10)}
                   </span>
                 )}
               </motion.button>
