@@ -158,139 +158,20 @@ export const BottomNavigation = memo(({
     }
   }, [location.pathname]);
 
-  // ── Tap vs drag detection ─────────────────────────────────────────────
-  // isDraggingRef tracks whether the user is scrolling the nav bar.
-  // onClick is the primary navigation trigger; pointer events just detect scroll.
   const isDraggingRef = useRef(false);
-  const touchState = useRef<{
-    x: number; y: number;
-  } | null>(null);
-  const horizontalDragRef = useRef({
-    pointerId: -1,
-    startX: 0,
-    startY: 0,
-    startScrollLeft: 0,
-    isDragging: false,
-  });
-  const dragResetTimeoutRef = useRef<number | null>(null);
-
-  const clearDragResetTimeout = useCallback(() => {
-    if (dragResetTimeoutRef.current !== null) {
-      window.clearTimeout(dragResetTimeoutRef.current);
-      dragResetTimeoutRef.current = null;
-    }
-  }, []);
-
-  const clearScrollGuardTimeout = useCallback(() => {
-    if (scrollGuardTimeoutRef.current !== null) {
-      window.clearTimeout(scrollGuardTimeoutRef.current);
-      scrollGuardTimeoutRef.current = null;
-    }
-  }, []);
-
-  const resetHorizontalDrag = useCallback((keepClickGuard = false) => {
-    const wasDragging = horizontalDragRef.current.isDragging;
-    horizontalDragRef.current = {
-      pointerId: -1,
-      startX: 0,
-      startY: 0,
-      startScrollLeft: scrollRef.current?.scrollLeft ?? 0,
-      isDragging: false,
-    };
-
-    if (wasDragging || keepClickGuard) {
-      clearDragResetTimeout();
-      dragResetTimeoutRef.current = window.setTimeout(() => {
-        isDraggingRef.current = false;
-        dragResetTimeoutRef.current = null;
-      }, 140);
-      return;
-    }
-
-    isDraggingRef.current = false;
-  }, [clearDragResetTimeout]);
-
-  const handleScrollPointerDownCapture = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    if (e.pointerType === 'touch') return;
-
-    clearDragResetTimeout();
-    horizontalDragRef.current = {
-      pointerId: e.pointerId,
-      startX: e.clientX,
-      startY: e.clientY,
-      startScrollLeft: scrollRef.current?.scrollLeft ?? 0,
-      isDragging: false,
-    };
-  }, [clearDragResetTimeout]);
-
-  const handleScrollPointerMoveCapture = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    const container = scrollRef.current;
-    const state = horizontalDragRef.current;
-    if (!container || state.pointerId !== e.pointerId) return;
-    if (e.pointerType === 'touch') return;
-
-    const dx = e.clientX - state.startX;
-    const dy = e.clientY - state.startY;
-
-    if (!state.isDragging) {
-      if (Math.abs(dx) < 6 || Math.abs(dx) <= Math.abs(dy)) return;
-      state.isDragging = true;
-      isDraggingRef.current = true;
-    }
-
-    container.scrollLeft = state.startScrollLeft - dx;
-    e.preventDefault();
-  }, []);
-
-  const handleScrollPointerUpCapture = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (horizontalDragRef.current.pointerId !== e.pointerId) return;
-    if (e.pointerType === 'touch') return;
-    resetHorizontalDrag(horizontalDragRef.current.isDragging);
-  }, [resetHorizontalDrag]);
-
-  const handleScrollPointerCancelCapture = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (horizontalDragRef.current.pointerId !== e.pointerId) return;
-    if (e.pointerType === 'touch') return;
-    resetHorizontalDrag(horizontalDragRef.current.isDragging);
-  }, [resetHorizontalDrag]);
-
-  const _handlePointerDown = useCallback(
-    (e: React.PointerEvent, item: NavItem) => {
-      e.stopPropagation();
-      isDraggingRef.current = false;
-      touchState.current = { x: e.clientX, y: e.clientY };
-      if (item.path) prefetch(item.path);
-    },
-    [prefetch],
-  );
+  const touchState = useRef<{ x: number; y: number } | null>(null);
+  const [ripple, setRipple] = useState<{ x: number, id: string } | null>(null);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!touchState.current) return;
     const dx = Math.abs(e.clientX - touchState.current.x);
     const dy = Math.abs(e.clientY - touchState.current.y);
-    if (dx > 8 || dy > 8) {
-      isDraggingRef.current = true;
-    }
+    if (dx > 8 || dy > 8) isDraggingRef.current = true;
   }, []);
 
-  const [ripple, setRipple] = useState<{ x: number, id: string } | null>(null);
-
-  const handleNavScroll = useCallback(() => {
-    isDraggingRef.current = true;
-    clearScrollGuardTimeout();
-    scrollGuardTimeoutRef.current = window.setTimeout(() => {
-      isDraggingRef.current = false;
-      scrollGuardTimeoutRef.current = null;
-    }, 140);
-  }, [clearScrollGuardTimeout]);
-
-  const handlePointerUp = useCallback(
-    (_e: React.PointerEvent) => {
-      touchState.current = null;
-    },
-    [],
-  );
+  const handlePointerUp = useCallback(() => {
+    touchState.current = null;
+  }, []);
 
   // Primary navigation handler — fires after pointer events, checks drag state
   const handleNavClick = useCallback(
@@ -413,14 +294,9 @@ export const BottomNavigation = memo(({
           ref={scrollRef}
           data-no-swipe-nav
           data-scroll-axis="x"
-          onScroll={handleNavScroll}
-          onPointerDownCapture={handleScrollPointerDownCapture}
-          onPointerMoveCapture={handleScrollPointerMoveCapture}
-          onPointerUpCapture={handleScrollPointerUpCapture}
-          onPointerCancelCapture={handleScrollPointerCancelCapture}
           onPointerMove={handlePointerMove}
           className={cn(
-            'relative flex items-center w-full justify-start gap-3 px-4 py-1.5 nav-scroll-hide transform-gpu select-none cursor-grab active:cursor-grabbing',
+            'relative flex items-center w-full justify-start gap-3 px-4 py-1.5 nav-scroll-hide transform-gpu select-none',
           )}
           style={{
             zIndex: 2,
