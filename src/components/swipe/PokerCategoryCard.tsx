@@ -129,8 +129,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
           // iOS-style stacked shadow: tight ambient contact + soft key light + hairline rim.
           boxShadow:
             '0 2px 6px rgba(0,0,0,0.12),' +
-            '0 20px 40px -12px rgba(0,0,0,0.45),' +
-            'inset 0 0 0 0.5px rgba(255,255,255,0.08)',
+            '0 20px 40px -12px rgba(0,0,0,0.45)',
         }}
       >
         {/* Gradient backdrop */}
@@ -147,7 +146,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         />
 
         {/* Liquid Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
+        {/* Liquid Overlays — SHADES REMOVED */}
         
         {/* Content */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-8 md:p-10">
