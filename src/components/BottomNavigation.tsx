@@ -245,16 +245,11 @@ export const BottomNavigation = memo(({
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className="pointer-events-auto w-full max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto"
+        className={cn(
+          "pointer-events-auto w-full max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto glass-pill-nav px-1",
+          isLight ? "bg-white/40" : "bg-slate-900/60"
+        )}
         style={{
-          // LAYER 1: Truly transparent base for floating icons
-          backgroundColor: 'transparent',
-          backdropFilter: 'none',
-          WebkitBackdropFilter: 'none',
-          // No hard borders — defined by shadows and a subtle rim light
-          border: 'none',
-          borderRadius: '32px',
-          boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
@@ -347,15 +342,13 @@ export const BottomNavigation = memo(({
                   scrollSnapAlign: 'start',
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
                   padding: isTablet ? '8px 12px' : '6px 8px',
-                   background: active
-                    ? (isLight ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.08)')
-                    : (isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.02)'),
-                  backdropFilter: active ? 'blur(12px) saturate(1.2)' : 'blur(4px)',
-                  WebkitBackdropFilter: active ? 'blur(12px) saturate(1.2)' : 'blur(4px)',
-                  border: active 
-                    ? `1px solid ${isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,107,53,0.3)'}` 
-                    : `1.5px solid ${isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)'}`,
-                  boxShadow: active ? (isLight ? '0 4px 12px rgba(0,0,0,0.05)' : '0 4px 20px rgba(0,0,0,0.3)') : 'none',
+                  background: active 
+                    ? (isLight ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)') 
+                    : 'transparent',
+                  backdropFilter: 'none',
+                  WebkitBackdropFilter: 'none',
+                  border: 'none',
+                  boxShadow: 'none',
                   cursor: 'pointer',
                   flexShrink: 0,
                   touchAction: 'manipulation',

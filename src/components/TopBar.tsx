@@ -139,7 +139,7 @@ function TopBarComponent({
                 </Avatar>
                 {profile?.full_name && (
                   <span className={cn(
-                    "text-[12px] font-black uppercase italic tracking-tight max-w-[80px] truncate",
+                    "text-[13.5px] font-black uppercase italic tracking-tight max-w-[140px] truncate",
                     isLight ? "text-foreground" : "text-white"
                   )}>
                     {profile.full_name.split(' ')[0]}
@@ -149,7 +149,7 @@ function TopBarComponent({
             )}
 
             {!minimal && (
-              <div className="flex-shrink-0 pointer-events-auto rounded-xl overflow-hidden border border-white/10" style={glassSurfaceStyle}>
+              <div className="flex-shrink-0 ml-2 pointer-events-auto rounded-xl overflow-hidden border border-white/10" style={glassSurfaceStyle}>
                 <ModeSwitcher variant="icon" size="sm" />
               </div>
             )}

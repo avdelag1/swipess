@@ -598,6 +598,25 @@ button:active, [role="button"]:active {
   filter: brightness(1.1);
 }
 
+.glass-pill-nav {
+  background: rgba(30, 41, 59, 0.4);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    inset 0 0 20px rgba(59, 130, 246, 0.15); /* Bluish glow */
+}
+
+.dark .glass-pill-nav {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
+  inset: 0 0 30px rgba(30, 64, 175, 0.2);
+}
+
+
 /* 🫁 CARD BREATHING: Subtle alive presence for top cards */
 @keyframes card-breathe {
   0%, 100% { transform: scale(1); }
