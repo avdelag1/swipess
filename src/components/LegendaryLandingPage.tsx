@@ -213,7 +213,7 @@ const SocialAuthButton = ({
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-zinc-700/50 text-white transition-colors duration-200 group-hover:bg-zinc-700">
         {icon}
       </span>
-      <span className="text-base font-black tracking-tighter uppercase">
+      <span className="text-base font-black tracking-tighter uppercase text-white">
         {isLoading ? 'Connecting...' : label}
       </span>
     </span>
@@ -448,16 +448,15 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                <Button
+                <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-14 text-sm font-black uppercase tracking-widest text-white bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_0_30px_rgba(249,115,22,0.4)] hover:shadow-[0_0_40px_rgba(249,115,22,0.6)] transition-all relative overflow-hidden group rounded-2xl"
+                  className="w-full h-14 text-base font-black uppercase tracking-[0.2em] text-white bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_0_40px_rgba(249,115,22,0.4)] hover:shadow-[0_0_60px_rgba(249,115,22,0.6)] active:scale-[0.98] transition-all relative overflow-hidden rounded-2xl flex items-center justify-center border-none outline-none cursor-pointer"
                 >
-                  <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                   <span className="relative z-10">
                     {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Join the Club'}
                   </span>
-                </Button>
+                </button>
               </motion.div>
             </form>
 
