@@ -245,10 +245,10 @@ export const BottomNavigation = memo(({
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className="pointer-events-auto w-full max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto glass-pill-nav px-1"
-        style={{
-          // Truly transparent - class handles the bluish glow
-          background: 'none',
+        className={cn(
+          "pointer-events-auto w-full max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto glass-pill-nav px-1",
+          isLight ? "bg-white/40" : "bg-slate-900/60"
+        )}
           // GPU acceleration
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
@@ -341,7 +341,9 @@ export const BottomNavigation = memo(({
                   scrollSnapAlign: 'start',
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
                   padding: isTablet ? '8px 12px' : '6px 8px',
-                  background: 'transparent',
+                  background: active 
+                    ? (isLight ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)') 
+                    : 'transparent',
                   backdropFilter: 'none',
                   WebkitBackdropFilter: 'none',
                   border: 'none',
