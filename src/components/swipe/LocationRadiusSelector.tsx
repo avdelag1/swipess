@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Navigation, Minus, Plus } from 'lucide-react';
+import { Navigation, Minus, Plus, X, Home, Bike, Wrench } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { useFilterStore } from '@/state/filterStore';
+
+export type QuickFilterCategoryLite = 'property' | 'motorcycle' | 'bicycle' | 'services';
 
 export interface LocationRadiusSelectorProps {
   radiusKm: number;
@@ -14,6 +17,10 @@ export interface LocationRadiusSelectorProps {
   detected: boolean;
   lat?: number | null;
   lng?: number | null;
+  /** Optional handler for floating category quick-filters on the map */
+  onCategorySelect?: (category: QuickFilterCategoryLite) => void;
+  /** Optional close/back handler — when omitted the active category is cleared */
+  onClose?: () => void;
 }
 
 const KM_PRESETS = [1, 5, 10, 25, 50, 100];
@@ -64,6 +71,8 @@ export const LocationRadiusSelector = ({
   detected,
   lat,
   lng,
+  onCategorySelect,
+  onClose,
 }: LocationRadiusSelectorProps) => {
   const [localKm, setLocalKm] = useState(radiusKm);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -71,6 +80,19 @@ export const LocationRadiusSelector = ({
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const activeCategory = useFilterStore((state) => state.activeCategory);
+  const setActiveCategory = useFilterStore((state) => state.setActiveCategory);
+
+  const handleCategoryTap = useCallback((category: QuickFilterCategoryLite) => {
+    triggerHaptic('medium');
+    if (onCategorySelect) onCategorySelect(category);
+    else setActiveCategory(category);
+  }, [onCategorySelect, setActiveCategory]);
+
+  const handleClose = useCallback(() => {
+    triggerHaptic('light');
+    if (onClose) onClose();
+    else setActiveCategory(null);
+  }, [onClose, setActiveCategory]);
 
   // Pan state
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -246,6 +268,13 @@ export const LocationRadiusSelector = ({
     }
   }, [localKm]);
 
+  const QUICK_FILTERS: { key: QuickFilterCategoryLite; Icon: any; label: string }[] = [
+    { key: 'property', Icon: Home, label: 'Property' },
+    { key: 'motorcycle', Icon: MotorcycleIcon, label: 'Moto' },
+    { key: 'bicycle', Icon: Bike, label: 'Bike' },
+    { key: 'services', Icon: Wrench, label: 'Service' },
+  ];
+
   return (
     <motion.div
       className="w-full flex h-[min(58dvh,460px)] flex-col relative"
@@ -253,7 +282,36 @@ export const LocationRadiusSelector = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Map Canvas — fills available space */}
+      {/* KM Pill Selector — TOP, horizontal snap-scroll */}
+      <div className="pb-2 pt-1">
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-none px-2"
+          style={{ overscrollBehaviorX: 'contain', WebkitOverflowScrolling: 'touch' }}
+        >
+          {KM_PRESETS.map((km) => {
+            const isActive = localKm === km;
+            return (
+              <button
+                key={km}
+                type="button"
+                data-active={isActive}
+                onClick={() => handleKmSelect(km)}
+                className={cn(
+                  "snap-center flex-shrink-0 h-9 min-w-[52px] px-3 rounded-full font-black text-xs tracking-tight transition-all active:scale-90 border",
+                  isActive
+                    ? "bg-primary text-primary-foreground border-primary shadow-[0_0_14px_hsl(var(--primary)/0.35)]"
+                    : "bg-muted/40 text-muted-foreground border-border/40 hover:bg-muted/60"
+                )}
+              >
+                {km}<span className="text-[9px] opacity-60 ml-0.5">km</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Map Canvas — fills available space below KM pills */}
       <div
         ref={containerRef}
         className="flex-1 relative overflow-hidden rounded-[2rem] border border-border/30"
@@ -269,9 +327,38 @@ export const LocationRadiusSelector = ({
           className="block"
         />
 
-        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(180deg,hsl(var(--background)/0.08)_0%,transparent_18%,transparent_72%,hsl(var(--background)/0.55)_100%)]" />
+        {/* Back / close button — top-left */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); handleClose(); }}
+          className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-background/80 backdrop-blur-md border border-border/50 flex items-center justify-center active:scale-90 transition-transform"
+          aria-label="Close map"
+        >
+          <X className="w-4 h-4 text-foreground" />
+        </button>
 
-
+        {/* Quick filter category icons — top-right vertical stack */}
+        <div className="absolute top-3 right-3 z-10 flex flex-col gap-1.5">
+          {QUICK_FILTERS.map(({ key, Icon, label }) => {
+            const isActive = activeCategory === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleCategoryTap(key); }}
+                aria-label={label}
+                className={cn(
+                  "w-9 h-9 rounded-full flex items-center justify-center border transition-all active:scale-90",
+                  isActive
+                    ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_hsl(var(--primary)/0.4)]"
+                    : "bg-background/80 backdrop-blur-md border-border/50 text-foreground"
+                )}
+              >
+                <Icon className="w-4 h-4" />
+              </button>
+            );
+          })}
+        </div>
 
         {/* GPS Button — bottom right floating */}
         <button
@@ -304,35 +391,6 @@ export const LocationRadiusSelector = ({
           >
             <Minus className="w-4 h-4 text-foreground" />
           </button>
-        </div>
-      </div>
-
-      {/* KM Pill Selector — horizontal snap-scroll */}
-      <div className="pt-2.5 pb-1">
-        <div
-          ref={scrollContainerRef}
-          className="flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-none px-2"
-          style={{ overscrollBehaviorX: 'contain', WebkitOverflowScrolling: 'touch' }}
-        >
-          {KM_PRESETS.map((km) => {
-            const isActive = localKm === km;
-            return (
-              <button
-                key={km}
-                type="button"
-                data-active={isActive}
-                onClick={() => handleKmSelect(km)}
-                className={cn(
-                  "snap-center flex-shrink-0 h-9 min-w-[52px] px-3 rounded-full font-black text-xs tracking-tight transition-all active:scale-90 border",
-                  isActive
-                    ? "bg-primary text-primary-foreground border-primary shadow-[0_0_14px_hsl(var(--primary)/0.35)]"
-                    : "bg-muted/40 text-muted-foreground border-border/40 hover:bg-muted/60"
-                )}
-              >
-                {km}<span className="text-[9px] opacity-60 ml-0.5">km</span>
-              </button>
-            );
-          })}
         </div>
       </div>
     </motion.div>

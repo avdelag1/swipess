@@ -5,16 +5,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
 
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
-
-
-interface Notification {
-  id: string;
-  type: string;
-  title: string;
-  message: string;
-  read: boolean;
-  timestamp: string;
-}
+import type { Notification } from '@/state/notificationStore';
 
 interface NotificationBarProps {
   notifications: Notification[];
@@ -75,7 +66,7 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
   }, []);
 
   const handleDragEnd = useCallback((_: any, info: any) => {
-    const threshold = 100;
+    const threshold = 60;
     if (info.offset.x > threshold) {
       startDismiss('right');
     } else if (info.offset.x < -threshold) {
@@ -109,7 +100,8 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
           <motion.div
             key={current.id}
             drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
+            dragConstraints={{ left: -200, right: 200 }}
+            dragElastic={0.4}
             onDragEnd={handleDragEnd}
             onDrag={() => { if (Math.abs(x.get()) > 10) triggerHaptic('light'); }}
             initial={{ y: -60, opacity: 0, scale: 0.9 }}
