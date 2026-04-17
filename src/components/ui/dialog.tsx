@@ -24,7 +24,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-[10001] bg-black/30 dark:bg-black/50 backdrop-blur-[2px] pointer-events-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-[10001] bg-black/60 backdrop-blur-[12px] pointer-events-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-100",
       className
     )}
     {...props}
@@ -47,7 +47,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-[10002] grid w-[calc(100%-24px)] max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] gap-5 border-0 bg-background/90 backdrop-blur-[var(--glass-blur-xl)] saturate-150 p-5 sm:p-[28px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] duration-[220ms] ease-out pointer-events-auto data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] rounded-[var(--radius-xl)] overflow-hidden",
+        "fixed left-[50%] top-[50%] z-[10002] grid w-[calc(100%-24px)] max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] gap-5 border border-white/10 bg-background/98 backdrop-blur-3xl saturate-150 p-5 sm:p-[28px] shadow-[0_25px_60px_rgba(0,0,0,0.5)] duration-[220ms] ease-out pointer-events-auto data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] rounded-[32px] overflow-hidden",
         className
       )}
       {...props}

@@ -245,7 +245,7 @@ export const BottomNavigation = memo(({
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className="pointer-events-auto w-full max-w-md md:max-w-2xl lg:max-w-3xl mx-auto"
+        className="pointer-events-auto w-full max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto"
         style={{
           // LAYER 1: Truly transparent base for floating icons
           backgroundColor: 'transparent',
@@ -343,23 +343,25 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transform-gpu',
                 )}
                 style={{
-                  minWidth: isTablet ? '80px' : '68px',
+                  minWidth: isTablet ? '100px' : (isNarrow ? '58px' : '68px'),
                   scrollSnapAlign: 'start',
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
-                  padding: '6px 8px',
-                  background: active
-                    ? (isLight ? 'rgba(255,255,255,0.34)' : 'rgba(255,255,255,0.07)')
-                    : 'none',
-                  backdropFilter: active ? 'blur(8px) saturate(1.18)' : 'none',
-                  WebkitBackdropFilter: active ? 'blur(8px) saturate(1.18)' : 'none',
-                  border: 'none',
-                  boxShadow: 'none',
+                  padding: isTablet ? '8px 12px' : '6px 8px',
+                   background: active
+                    ? (isLight ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.08)')
+                    : (isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.02)'),
+                  backdropFilter: active ? 'blur(12px) saturate(1.2)' : 'blur(4px)',
+                  WebkitBackdropFilter: active ? 'blur(12px) saturate(1.2)' : 'blur(4px)',
+                  border: active 
+                    ? `1px solid ${isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,107,53,0.3)'}` 
+                    : `1.5px solid ${isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)'}`,
+                  boxShadow: active ? (isLight ? '0 4px 12px rgba(0,0,0,0.05)' : '0 4px 20px rgba(0,0,0,0.3)') : 'none',
                   cursor: 'pointer',
                   flexShrink: 0,
                   touchAction: 'manipulation',
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
-                  transition: 'background 0.25s ease, backdrop-filter 0.25s ease, border 0.25s ease, box-shadow 0.25s ease',
+                  transition: 'all 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
                 }}
               >
                 {active && (

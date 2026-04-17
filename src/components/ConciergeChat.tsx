@@ -836,7 +836,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="fixed inset-0 z-[10020] flex h-full w-full flex-col overflow-hidden bg-[#0A1A2F] shadow-2xl"
+          className="fixed inset-0 z-[10020] flex h-full w-full flex-col overflow-hidden bg-zinc-950 shadow-2xl"
           style={{ willChange: 'transform, opacity' }}
         >
           {showAmbientLayer && (
@@ -898,8 +898,13 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           >
             <div className="flex items-center justify-between px-2.5 py-1">
               <div className="flex items-center gap-1.5">
-                <Button variant="ghost" size="icon" className="h-6.5 w-6.5 rounded-full" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                  <Menu className="h-3 w-3" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-9 w-9 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all active:scale-90" 
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                >
+                  <Menu className="h-4 w-4" />
                 </Button>
                 {/* Character avatar image */}
                 <button
@@ -925,16 +930,21 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 </div>
               </div>
               <div className="flex items-center gap-0.5">
-                <Button variant="ghost" size="icon" className="h-6.5 w-6.5 rounded-full" onClick={() => { createConversation(); }}>
-                  <Plus className="h-3 w-3 text-muted-foreground" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-9 w-9 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all active:scale-90" 
+                  onClick={() => { createConversation(); }}
+                >
+                  <Plus className="h-4 w-4 text-muted-foreground" />
                 </Button>
                 {activeConversationId && (
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "h-6.5 w-6.5 rounded-full transition-all",
-                      isDeleting ? "bg-destructive text-destructive-foreground hover:bg-destructive/80 scale-110 shadow-lg" : "text-muted-foreground hover:text-destructive"
+                      "h-9 w-9 rounded-xl transition-all border border-white/10 active:scale-90",
+                      isDeleting ? "bg-destructive text-destructive-foreground hover:bg-destructive/80 scale-105 shadow-lg border-transparent" : "bg-white/5 text-muted-foreground hover:text-destructive"
                     )} 
                     onClick={() => {
                       if (isDeleting) {
@@ -950,11 +960,16 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                     }}
                     title={isDeleting ? "Click again to confirm delete" : "Delete conversation"}
                   >
-                    {isDeleting ? <Check className="h-3 w-3" /> : <Trash2 className="h-3 w-3" />}
+                    {isDeleting ? <Check className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
                   </Button>
                 )}
-                <Button variant="ghost" size="icon" className="h-6.5 w-6.5 rounded-full text-muted-foreground" onClick={onClose}>
-                  <X className="h-3 w-3" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-9 w-9 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-muted-foreground transition-all active:scale-90" 
+                  onClick={onClose}
+                >
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
             </div>

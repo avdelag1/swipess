@@ -47,13 +47,13 @@ function TopBarComponent({
   const isLight = theme === 'light';
 
   const glassSurfaceStyle: React.CSSProperties = {
-    background: isLight ? 'rgba(255,255,255,0.34)' : 'rgba(18,18,22,0.18)',
-    backdropFilter: 'blur(10px) saturate(1.2)',
-    WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
-    border: 'none',
+    background: isLight ? 'rgba(255,255,255,0.45)' : 'rgba(25,25,30,0.3)',
+    backdropFilter: 'blur(16px) saturate(1.4)',
+    WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
+    border: `1.5px solid ${isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'}`,
     boxShadow: _transparent ? 'none' : (isLight
-      ? '0 2px 10px rgba(0,0,0,0.06)'
-      : '0 8px 22px rgba(0,0,0,0.2), inset 0 0.5px 0 rgba(255,255,255,0.06)'),
+      ? '0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.2)'
+      : '0 8px 22px rgba(0,0,0,0.4), inset 0 0.5px 1px rgba(255,255,255,0.1)'),
   };
 
   const { data: profile } = useQuery({
@@ -96,11 +96,15 @@ function TopBarComponent({
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={handleBack}
-                className="flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center z-50 pointer-events-auto touch-manipulation"
-                style={glassSurfaceStyle}
+                className="flex-shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-xl flex items-center justify-center z-50 pointer-events-auto touch-manipulation transition-all hover:scale-105 active:scale-95"
+                style={{
+                  ...glassSurfaceStyle,
+                  background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.12)',
+                  borderColor: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,107,53,0.4)',
+                }}
                 aria-label="Go back"
               >
-                <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground" : "text-white/90")} strokeWidth={1.8} />
+                <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground" : "text-white")} strokeWidth={2} />
               </motion.button>
             )}
 
@@ -113,19 +117,19 @@ function TopBarComponent({
                   haptics.select();
                   navigate(userRole === 'owner' ? '/owner/profile' : '/client/profile');
                 }}
-                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 flex items-center gap-2 rounded-full px-1.5 py-1"
+                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 flex items-center gap-2 rounded-xl px-2 py-1.5 border border-white/10"
                 style={{ WebkitTapHighlightColor: 'transparent', ...glassSurfaceStyle }}
                 aria-label="Go to profile"
               >
-                <Avatar className="h-[32px] w-[32px] md:h-[38px] md:w-[38px] rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
+                <Avatar className="h-[32px] w-[32px] md:h-[38px] md:w-[38px] rounded-lg overflow-hidden cursor-pointer border-none ring-0 shadow-none">
                   <AvatarImage
                     src={profile?.avatar_url || ''}
-                    className="object-cover w-full h-full rounded-full"
+                    className="object-cover w-full h-full"
                     loading="eager"
                     fetchPriority="high"
                   />
                   <AvatarFallback className={cn(
-                    "text-sm font-black uppercase rounded-full w-full h-full flex items-center justify-center",
+                    "text-sm font-black uppercase w-full h-full flex items-center justify-center",
                     isLight
                       ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/90"
                       : "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
@@ -135,8 +139,8 @@ function TopBarComponent({
                 </Avatar>
                 {profile?.full_name && (
                   <span className={cn(
-                    "text-[12px] font-bold tracking-tight max-w-[72px] truncate pr-1.5",
-                    isLight ? "text-foreground/80" : "text-white/85"
+                    "text-[12px] font-black uppercase italic tracking-tight max-w-[80px] truncate",
+                    isLight ? "text-foreground" : "text-white"
                   )}>
                     {profile.full_name.split(' ')[0]}
                   </span>
@@ -145,7 +149,7 @@ function TopBarComponent({
             )}
 
             {!minimal && (
-              <div className="flex-shrink-0 pointer-events-auto rounded-full overflow-hidden" style={glassSurfaceStyle}>
+              <div className="flex-shrink-0 pointer-events-auto rounded-xl overflow-hidden border border-white/10" style={glassSurfaceStyle}>
                 <ModeSwitcher variant="icon" size="sm" />
               </div>
             )}
@@ -175,11 +179,9 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/radio');
                 }}
-                className="w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center touch-manipulation pointer-events-auto"
-                style={{ WebkitTapHighlightColor: 'transparent', ...glassSurfaceStyle }}
-                aria-label="Open Radio"
-              >
-                <Radio className={cn("w-[19px] h-[19px]", isLight ? "text-foreground/70" : "text-white/70")} strokeWidth={1.5} />
+                <div className="w-11 h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center touch-manipulation pointer-events-auto bg-brand-primary/10 border border-brand-primary/30" style={glassSurfaceStyle}>
+                  <Radio className={cn("w-5 h-5", isLight ? "text-brand-primary" : "text-brand-primary")} strokeWidth={2} />
+                </div>
               </motion.button>
             )}
             {!minimal && (

@@ -515,11 +515,11 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           transition={{ duration: 0.3 }}
           onClick={() => { triggerHaptic('light'); onBack(); }}
           className={cn(
-            "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl",
-            isLight ? "bg-white/70 text-black/80 shadow-md" : "bg-black/40 text-white/90 shadow-2xl border border-white/5",
+            "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl border border-white/10",
+            isLight ? "bg-white/80 text-black/80 shadow-md" : "bg-black/60 text-white shadow-2xl",
           )}
         >
-          <ArrowLeft className="w-5 h-5" strokeWidth={2.5} />
+          <ArrowLeft className="w-6 h-6" strokeWidth={2.5} />
         </motion.button>
 
         <div className={cn(
@@ -573,16 +573,16 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           onClick={() => { detectLocation(); }}
           disabled={detecting}
           className={cn(
-            "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl",
+            "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl border border-white/10",
             detected
               ? "bg-white/10 text-white shadow-lg"
               : isLight
-                ? "bg-white/70 text-black/60 shadow-md"
-                : "bg-black/40 text-white/60 shadow-2xl border border-white/5"
+                ? "bg-white/80 text-black/60 shadow-md"
+                : "bg-black/60 text-white/60 shadow-2xl"
           )}
-          style={detected ? { backgroundColor: meta.accent, borderColor: meta.accent, color: '#fff' } : {}}
+          style={detected ? { backgroundColor: meta.accent, borderColor: 'rgba(255,255,255,0.2)', color: '#fff' } : {}}
         >
-          <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} />
+          <Navigation className={cn("w-6 h-6", detecting && "animate-spin")} />
         </motion.button>
       </div>
 
@@ -595,8 +595,8 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         disabled={fetchingDots}
         aria-label="Refresh nearby users"
         className={cn(
-          "absolute top-[calc(env(safe-area-inset-top,0px)+68px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all backdrop-blur-xl",
-          isLight ? "bg-white/70 text-black/70 shadow-md" : "bg-white/10 text-white/90 shadow-lg",
+          "absolute top-[calc(env(safe-area-inset-top,0px)+72px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all backdrop-blur-xl border border-white/10",
+          isLight ? "bg-white/80 text-black/70 shadow-md" : "bg-black/60 text-white shadow-lg",
         )}
         style={{ boxShadow: `0 0 18px rgba(${meta.accentRgb},0.3)` }}
       >
