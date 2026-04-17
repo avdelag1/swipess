@@ -140,7 +140,6 @@ export function CategorySwipeStack() {
     };
 
     return (
-    return (
         <div className="relative w-full h-[min(58dvh,520px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
 
             <AnimatePresence mode="sync" initial={false}>
