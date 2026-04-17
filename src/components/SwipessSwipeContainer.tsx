@@ -1008,7 +1008,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-full h-[calc(100%-10px)] max-w-3xl mx-auto"
+                className="relative mx-auto"
+                style={{
+                  width: 'min(94vw, 520px)',
+                  height: 'min(calc(100dvh - var(--top-offset, 88px) - var(--bottom-offset, 96px)), 760px)',
+                }}
               >
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (

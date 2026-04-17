@@ -118,13 +118,12 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent overflow-hidden"
         style={{ minHeight: 'auto' }}
       >
-        {/* Card stack — same responsive sizing as client */}
+        {/* Card stack — fluid sizing fits between header and nav, no overlap */}
         <div
           className="relative flex items-center justify-center"
           style={{ 
-            width: 'var(--card-width, 340px)',
-            height: `${OWNER_PK_H}px`,
-            maxHeight: 'calc(100vh - 280px)',
+            width: 'min(94vw, 520px)',
+            height: 'min(calc(100dvh - var(--top-offset, 88px) - var(--bottom-offset, 96px)), 760px)',
           }}
         >
           {[...cards].reverse().map((card, reversedIdx) => {
