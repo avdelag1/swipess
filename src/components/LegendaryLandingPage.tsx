@@ -525,9 +525,9 @@ function LegendaryLandingPage() {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
 
-  const isDark = theme !== 'light';
+  const isDark = true;
   const activeMode: EffectMode = view === 'auth' ? 'off' : 'stars';
-  const bgColor = isDark ? '#000000' : '#ffffff';
+  const bgColor = '#000000';
 
   const toggleTheme = (e?: React.MouseEvent) => {
     const nextTheme = isDark ? 'light' : 'dark';

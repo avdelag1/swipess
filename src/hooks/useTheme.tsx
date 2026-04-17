@@ -19,7 +19,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers'];
-const DEFAULT_THEME: Theme = 'light';
+const DEFAULT_THEME: Theme = 'dark';
 const STORAGE_KEY = 'swipess_theme_preference';
 
 /** Map legacy DB values to new theme names */
