@@ -1072,10 +1072,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                  radiusKm={radiusKm}
                  onRadiusChange={setRadiusKm}
                  onDetectLocation={detectLocation}
-                 detecting={locationDetecting}
                  detected={locationDetected}
                  error={error}
                  role={userRole === 'owner' ? 'owner' : 'client'}
+                 lat={userLatitude}
+                 lng={userLongitude}
                 />
               </motion.div>
             )}

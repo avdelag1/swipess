@@ -24,6 +24,8 @@ interface SwipeExhaustedStateProps {
   error?: any;
   isInitialLoad?: boolean;
   role?: 'client' | 'owner';
+  lat?: number | null;
+  lng?: number | null;
 }
 
 const CATEGORY_ICONS: Record<string, { icon: any; label: string; color: string }> = {
@@ -48,7 +50,9 @@ export const SwipeExhaustedState = ({
   detected,
   error,
   isInitialLoad = false,
-  role = 'client'
+  role = 'client',
+  lat,
+  lng
 }: SwipeExhaustedStateProps) => {
   const { setCategories } = useFilterActions();
   const activeCategory = useFilterStore(s => s.activeCategory);
@@ -165,6 +169,8 @@ export const SwipeExhaustedState = ({
               onDetectLocation={onDetectLocation || (() => {})}
               detecting={detecting ?? false}
               detected={detected ?? false}
+              lat={lat}
+              lng={lng}
               onCategorySelect={(category) => setCategories([category])}
             />
           </motion.div>
