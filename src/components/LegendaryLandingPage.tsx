@@ -207,10 +207,10 @@ const SocialAuthButton = ({
     onClick={onClick}
     disabled={isLoading}
     aria-label={`Sign in with ${label}`}
-    className="group flex h-14 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-border bg-card/90 px-4 text-sm font-semibold text-foreground shadow-lg shadow-black/20 transition-all duration-200 hover:border-primary/40 hover:bg-accent/50 active:scale-[0.98] disabled:opacity-60"
+    className="group flex h-14 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-border bg-card/95 px-4 text-sm font-semibold text-white shadow-lg shadow-black/20 transition-all duration-200 hover:border-primary/40 hover:bg-accent/50 active:scale-[0.98] disabled:opacity-60"
   >
     <span className="flex min-w-0 items-center gap-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background/50 text-foreground/90 transition-colors duration-200 group-hover:bg-background/70">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background/50 text-white transition-colors duration-200 group-hover:bg-background/70">
         {icon}
       </span>
       <span className="truncate text-base font-bold tracking-tight">
@@ -370,10 +370,10 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
               <div className="flex justify-center mb-6">
                 <SwipessLogo size="md" variant={isDark ? 'white' : 'black'} />
               </div>
-              <h1 className="text-3xl font-black tracking-tighter text-foreground italic mb-1">
+              <h1 className="text-3xl font-black tracking-tighter text-white italic mb-1">
                 {isLogin ? 'Welcome Back' : 'Join Swipess'}
               </h1>
-              <p className="text-muted-foreground text-sm font-medium leading-relaxed px-4">
+              <p className="text-white/60 text-sm font-medium leading-relaxed px-4">
                 {isLogin
                   ? 'Good luck finding your perfect deal today.'
                   : 'Your next perfect deal is one swipe away.'}
@@ -426,7 +426,7 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-4 h-4 rounded-md border border-border bg-muted text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0 cursor-pointer"
                   />
-                  <label htmlFor="rememberMe" className="text-[13px] text-muted-foreground leading-snug cursor-pointer select-none hover:text-foreground transition-colors">
+                  <label htmlFor="rememberMe" className="text-[13px] text-white/60 leading-snug cursor-pointer select-none hover:text-white transition-colors">
                     Remember email
                   </label>
                 </div>
@@ -440,8 +440,8 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                       className="w-4 h-4 rounded-md border border-border bg-muted text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0 cursor-pointer"
                       required
                     />
-                    <label htmlFor="terms" className="text-[13px] text-muted-foreground leading-snug cursor-pointer select-none">
-                      Agree to <a href="#" onClick={e=>e.preventDefault()} className="text-foreground hover:text-orange-400 font-medium transition-colors underline decoration-border">Terms</a>
+                    <label htmlFor="terms" className="text-[13px] text-white/60 leading-snug cursor-pointer select-none">
+                      Agree to <a href="#" onClick={e=>e.preventDefault()} className="text-white hover:text-orange-400 font-bold transition-colors underline decoration-white/20">Terms</a>
                     </label>
                   </div>
                 )}
@@ -499,15 +499,15 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
 
             <motion.div variants={itemVariants} className="mt-4 space-y-2 text-center">
               {isLogin && !isForgotPassword && (
-                <p className="text-xs text-muted-foreground">
-                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-orange-400/80 hover:text-orange-400">
+                <p className="text-xs text-white/40">
+                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-orange-400 hover:text-orange-300 transition-colors">
                     Forgot password?
                   </button>
                 </p>
               )}
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/40">
                 {isLogin ? "New here? " : 'Already have an account? '}
-                <button type="button" onClick={switchMode} className="text-orange-400 font-semibold">{isLogin ? 'Create a free account' : 'Sign In'}</button>
+                <button type="button" onClick={switchMode} className="text-orange-400 font-bold hover:text-orange-300 transition-colors">{isLogin ? 'Create a free account' : 'Sign In'}</button>
               </p>
             </motion.div>
           </motion.div>
