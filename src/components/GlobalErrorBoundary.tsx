@@ -35,6 +35,24 @@ class GlobalErrorBoundary extends Component<Props, State> {
     logger.error('User Agent:', navigator.userAgent);
     logger.error('Timestamp:', new Date().toISOString());
     logger.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
+    // AUTO-RELOAD on chunk load errors (standard Vite deployment issue)
+    const errMsg = error.message || '';
+    const isChunkError = 
+      errMsg.includes('dynamically imported module') || 
+      errMsg.includes('Loading chunk') || 
+      errMsg.includes('Failed to fetch');
+    
+    if (isChunkError) {
+      const alreadyReloaded = window.sessionStorage.getItem('global-auto-reload-error');
+      if (!alreadyReloaded) {
+        window.sessionStorage.setItem('global-auto-reload-error', 'true');
+        logger.error('[GlobalErrorBoundary] Detected chunk load failure. Auto-reloading...');
+        window.location.reload();
+        return;
+      }
+    }
+
     this.setState({ errorInfo });
   }
 

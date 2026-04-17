@@ -99,7 +99,7 @@ const PublicListingPreview = lazyWithRetry(() => import("./pages/PublicListingPr
 const VapValidate = lazyWithRetry(() => import("./pages/VapValidate"));
 
 // UI HELPERS
-const PersistentDashboardLayout = lazy(() => import("@/components/PersistentDashboardLayout").then(m => ({ default: m.PersistentDashboardLayout })));
+const PersistentDashboardLayout = lazyWithRetry(() => import("@/components/PersistentDashboardLayout").then(m => ({ default: m.PersistentDashboardLayout })));
 // Sonner toasts removed — all notifications now use premium NotificationBar
 const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 const PWAInstallPrompt = lazy(() => import("@/components/PWAInstallPrompt").then(m => ({ default: m.PWAInstallPrompt })));
