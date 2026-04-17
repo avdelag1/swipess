@@ -385,7 +385,7 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors z-10" />
-                    <Input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-11 h-14 bg-white/[0.04] border-white/10 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
+                    <Input type="text" name="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-11 h-14 bg-white/[0.04] border-white/10 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
                   </GlowingField>
                 </motion.div>
               )}
@@ -393,7 +393,7 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
               <motion.div variants={itemVariants}>
                 <GlowingField className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors z-10" />
-                  <Input type="email" name="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-11 h-14 bg-white/[0.04] border-white/10 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
+                  <Input type="email" name="email" autoComplete="username" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-11 h-14 bg-white/[0.04] border-white/10 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
                 </GlowingField>
               </motion.div>
 
