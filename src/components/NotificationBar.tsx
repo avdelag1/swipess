@@ -66,7 +66,7 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
   }, []);
 
   const handleDragEnd = useCallback((_: any, info: any) => {
-    const threshold = 100;
+    const threshold = 60;
     if (info.offset.x > threshold) {
       startDismiss('right');
     } else if (info.offset.x < -threshold) {
