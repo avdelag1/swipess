@@ -249,7 +249,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         return interests.includes(dbCat.toLowerCase()) || interests.includes(category.toLowerCase());
       }
       if (d.kind === 'profile') return false;
-      return d.category === dbCat;
+      return (d.category || '').toLowerCase() === dbCat.toLowerCase();
     },
     [category, mode]
   );
