@@ -149,7 +149,7 @@ function TopBarComponent({
             )}
 
             {!minimal && (
-              <div className="flex-shrink-0 ml-2 pointer-events-auto rounded-xl overflow-hidden border border-white/10" style={glassSurfaceStyle}>
+              <div className="flex-shrink-0 ml-4 md:ml-6 pointer-events-auto rounded-xl overflow-hidden border border-white/10" style={glassSurfaceStyle}>
                 <ModeSwitcher variant="icon" size="sm" />
               </div>
             )}
