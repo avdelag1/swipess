@@ -249,6 +249,7 @@ export const BottomNavigation = memo(({
           "pointer-events-auto w-full max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto glass-pill-nav px-1",
           isLight ? "bg-white/40" : "bg-slate-900/60"
         )}
+        style={{
           // GPU acceleration
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
