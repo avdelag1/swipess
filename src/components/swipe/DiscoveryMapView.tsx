@@ -102,7 +102,7 @@ const MAX_KM = 100;
 const SLIDER_TRACK_H = 6;
 const THUMB_SIZE = 28;
 
-export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode = 'client' }: DiscoveryMapViewProps) => {
+export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode = 'client', onCategoryChange }: DiscoveryMapViewProps) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { user } = useAuth();
@@ -507,27 +507,84 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
       exit={{ opacity: 0, scale: 1.05 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
-      </motion.div>
+      {/* ── Header: Back Button + Quick Categories ───────────────────── */}
+      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 right-4 z-[10001] flex items-center gap-3">
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+          onClick={() => { triggerHaptic('light'); onBack(); }}
+          className={cn(
+            "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl",
+            isLight ? "bg-white/70 text-black/80 shadow-md" : "bg-black/40 text-white/90 shadow-2xl border border-white/5",
+          )}
+        >
+          <ArrowLeft className="w-5 h-5" strokeWidth={2.5} />
+        </motion.button>
 
-      {/* ── GPS Button — top right ────────────────────────────────────── */}
-      <motion.button
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.15, duration: 0.3 }}
-        onClick={() => { detectLocation(); }}
-        disabled={detecting}
-        className={cn(
-          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all backdrop-blur-xl",
-          detected
-            ? "bg-white/10 text-white shadow-lg"
-            : isLight
-              ? "bg-white/70 text-black/60 shadow-md"
-              : "bg-white/10 text-white/60 shadow-sm"
-        )}
-        style={detected ? { boxShadow: `0 0 20px ${meta.accent}50` } : {}}
-      >
-        <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} style={detected ? { color: meta.accent } : {}} />
-      </motion.button>
+        <div className={cn(
+          "flex-1 flex bg-muted/20 p-1 rounded-[1.4rem] backdrop-blur-xl border border-white/5 shadow-2xl overflow-hidden",
+          isLight ? "bg-white/70" : "bg-black/40"
+        )}>
+           {[
+             { id: 'property', icon: Building2, label: 'Properties' },
+             { id: 'motorcycle', icon: Bike, label: 'Motorcycles' },
+             { id: 'bicycle', icon: Trophy, label: 'Bicycles' },
+             { id: 'services', icon: Wrench, label: 'Workers' }
+           ].map((cat) => {
+             const isActive = category === cat.id;
+             const catMeta = CATEGORY_META[cat.id] || CATEGORY_META['property'];
+             
+             return (
+               <button
+                 key={cat.id}
+                 onClick={() => { 
+                   triggerHaptic('medium'); 
+                   if (onCategoryChange) onCategoryChange(cat.id as QuickFilterCategory);
+                 }}
+                 title={`Switch to ${cat.label} radar`}
+                 className={cn(
+                   "flex-1 h-10 flex items-center justify-center rounded-xl transition-all relative overflow-hidden",
+                   isActive ? "" : "text-muted-foreground hover:bg-muted/40"
+                 )}
+                 style={isActive ? {
+                   background: catMeta.accent,
+                   color: '#fff',
+                   boxShadow: `0 4px 12px rgba(${catMeta.accentRgb},0.4)`
+                 } : {}}
+               >
+                 <cat.icon className="w-5 h-5" />
+                 {isActive && (
+                   <motion.div 
+                     layoutId="map-cat-active"
+                     className="absolute inset-0 bg-white/10"
+                     initial={false}
+                   />
+                 )}
+               </button>
+             );
+           })}
+        </div>
+
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.15, duration: 0.3 }}
+          onClick={() => { detectLocation(); }}
+          disabled={detecting}
+          className={cn(
+            "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl",
+            detected
+              ? "bg-white/10 text-white shadow-lg"
+              : isLight
+                ? "bg-white/70 text-black/60 shadow-md"
+                : "bg-black/40 text-white/60 shadow-2xl border border-white/5"
+          )}
+          style={detected ? { backgroundColor: meta.accent, borderColor: meta.accent, color: '#fff' } : {}}
+        >
+          <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} />
+        </motion.button>
+      </div>
 
       {/* ── Refresh Button — sits below GPS, re-fetches every dot ───── */}
       <motion.button
