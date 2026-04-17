@@ -104,6 +104,7 @@ export default function ClientDashboard({
               category={mapCategory}
               onBack={handleMapBack}
               onStartSwiping={handleStartSwiping}
+              onCategoryChange={(cat) => setMapCategory(cat)}
             />
           </motion.div>
         )}

@@ -26,6 +26,7 @@ export const APP_VERSION = `1.0.${BUILD_TIMESTAMP === 'v1.0.0' ? '999' : BUILD_T
 
 // Storage key for version tracking
 const VERSION_STORAGE_KEY = 'Swipess_app_version';
+const RELOAD_GUARD_KEY = 'swipess_reload_triggered';
 const _SW_REGISTRATION_KEY = 'Swipess_sw_registration';
 
 interface UpdateInfo {
@@ -119,6 +120,14 @@ export async function forceAppUpdate(): Promise<void> {
     // Update stored version
     markVersionAsInstalled();
 
+    // Session-level guard: track reload attempt to prevent infinite loops
+    const reloadCount = parseInt(sessionStorage.getItem(RELOAD_GUARD_KEY) || '0', 10);
+    if (reloadCount >= 2) {
+      logger.warn('[AutoUpdate] Max reload attempts reached. Skipping force reload.');
+      return;
+    }
+    sessionStorage.setItem(RELOAD_GUARD_KEY, (reloadCount + 1).toString());
+
     // Small delay before reload
     await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -148,9 +157,17 @@ export function useAutomaticUpdates() {
   const performUpdate = useCallback(async () => {
     if (isUpdating) return;
     
+    // GUARD: Check if we've already reloaded multiple times in this session
+    const reloadCount = parseInt(sessionStorage.getItem(RELOAD_GUARD_KEY) || '0', 10);
+    if (reloadCount >= 2) {
+      logger.warn('[AutoUpdate] Session reload cap reached. Blocking automatic reload.');
+      return;
+    }
+
     setIsUpdating(true);
     // Mark as seen in session immediately
     sessionStorage.setItem('swipess_update_seen', 'true');
+    sessionStorage.setItem(RELOAD_GUARD_KEY, (reloadCount + 1).toString());
 
     try {
       logger.info('[AutoUpdate] Performing manual update...');
@@ -362,8 +379,8 @@ export function useForceUpdateOnVersionChange() {
     }
 
     // GUARD 1: Session-level cooldown — only trigger one reload per session
-    const alreadyReloaded = sessionStorage.getItem('swipes_reload_triggered');
-    if (alreadyReloaded) return;
+    const alreadyReloaded = sessionStorage.getItem(RELOAD_GUARD_KEY);
+    if (alreadyReloaded && parseInt(alreadyReloaded, 10) >= 2) return;
 
     // GUARD 2: Minimum time on page — don't reload within the first 30s of a fresh load
     // This prevents the infinite reload loop on initial page visits
@@ -381,8 +398,11 @@ export function useForceUpdateOnVersionChange() {
         const stillMismatch = checkHtmlVersionMismatch();
         const versionChanged = localStorage.getItem(VERSION_STORAGE_KEY) !== BUILD_TIMESTAMP;
         if (stillMismatch || versionChanged) {
-          sessionStorage.setItem('swipes_reload_triggered', '1');
-          forceAppUpdate();
+          // Check if already reached cap during the wait
+          const currentReloads = parseInt(sessionStorage.getItem(RELOAD_GUARD_KEY) || '0', 10);
+          if (currentReloads < 2) {
+             forceAppUpdate();
+          }
         } else {
           markVersionAsInstalled();
         }
@@ -394,14 +414,11 @@ export function useForceUpdateOnVersionChange() {
     // If already been on page 30s+ (e.g. focus regain), do the normal check
     const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
     if (storedVersion && storedVersion !== BUILD_TIMESTAMP) {
-      sessionStorage.setItem('swipes_reload_triggered', '1');
       forceAppUpdate();
       return;
     }
 
     if (checkHtmlVersionMismatch()) {
-      if (import.meta.env.DEV) 
-      sessionStorage.setItem('swipes_reload_triggered', '1');
       forceAppUpdate();
       return;
     }

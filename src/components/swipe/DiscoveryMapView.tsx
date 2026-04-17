@@ -13,7 +13,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import { ChevronLeft, Navigation, Zap, RefreshCw } from 'lucide-react';
+import { ChevronLeft, Navigation, Zap, RefreshCw, Building2, Bike, Trophy, Wrench, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
@@ -84,6 +84,8 @@ interface ListingDot {
   longitude: number;
   category?: string;
   kind?: 'listing' | 'profile';
+  intentions?: string[];
+  interest_categories?: string[];
 }
 
 interface DiscoveryMapViewProps {
@@ -91,6 +93,7 @@ interface DiscoveryMapViewProps {
   onBack: () => void;
   onStartSwiping: () => void;
   mode?: 'client' | 'owner';
+  onCategoryChange?: (cat: QuickFilterCategory) => void;
 }
 
 // ─── SLIDER CONSTANTS ──────────────────────────────────────────────────────────
@@ -191,11 +194,11 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
       }
 
       const { data: profileData, error: profileErr } = await supabase
-        .from('profiles')
-        .select('id, latitude, longitude')
+        .from('client_profiles')
+        .select('id, user_id, latitude, longitude, intentions, interest_categories')
         .not('latitude', 'is', null)
         .not('longitude', 'is', null)
-        .neq('id', user.id)
+        .neq('user_id', user.id)
         .limit(500);
       if (profileErr) {
         logger.error('[DiscoveryMap] profile fetch error:', profileErr);
@@ -206,6 +209,8 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
             latitude: p.latitude,
             longitude: p.longitude,
             kind: 'profile',
+            intentions: Array.isArray(p.intentions) ? p.intentions : [],
+            interest_categories: Array.isArray(p.interest_categories) ? p.interest_categories : [],
           }),
         );
       }
@@ -228,7 +233,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
   }, []);
 
   // Normalize the selected category once (DB uses "worker" instead of "services")
-  const selectedCategoryDb = category === 'services' ? 'worker' : category;
+  const selectedCategoryDb = (category === 'services' || category === 'worker') ? 'worker' : category;
 
   // A dot is considered a "match" if it's within the current km radius AND
   // (in client mode) its listing category matches the active filter, OR (in
@@ -236,11 +241,17 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
   // owner is surfacing people regardless of intent.
   const isDotMatching = useCallback(
     (d: ListingDot) => {
-      if (mode === 'owner') return d.kind === 'profile';
+      const dbCat = (category === 'services' || category === 'worker') ? 'worker' : category;
+      if (mode === 'owner') {
+        if (d.kind !== 'profile') return false;
+        // In owner mode, we match if the client has the selected category in their interests or intentions
+        const interests = [...(d.interest_categories || []), ...(d.intentions || [])].map(i => i.toLowerCase());
+        return interests.includes(dbCat.toLowerCase()) || interests.includes(category.toLowerCase());
+      }
       if (d.kind === 'profile') return false;
-      return d.category === selectedCategoryDb;
+      return d.category === dbCat;
     },
-    [mode, selectedCategoryDb],
+    [category, mode]
   );
 
   // Count matching dots within the current radius — used for the badge and
@@ -356,13 +367,11 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           ctx.drawImage(img, drawX, drawY, 256, 256);
           loaded++;
           if (loaded >= total) {
-            // Dark overlay for dark mode
             if (!isLight) {
               ctx.fillStyle = 'rgba(0,0,0,0.55)';
               ctx.fillRect(0, 0, w, h);
             }
 
-            // Radius circle
             const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
             ctx.beginPath();
             ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
@@ -374,10 +383,6 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Listing + profile dots. ALL dots are drawn (regardless of filter);
-            // only dots that match the active category AND are inside the radius
-            // get the category accent colour + glow. Everything else is a muted
-            // neutral dot so the user can still see overall density.
             dots.forEach(dot => {
               const dotTile = latLngToTile(dot.latitude, dot.longitude, zoom);
               const px = w / 2 + (dotTile.x - tileX) * 256;
@@ -410,7 +415,6 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
               }
             });
 
-            // Center dot (user location)
             ctx.beginPath();
             ctx.arc(w / 2, h / 2, 7, 0, Math.PI * 2);
             ctx.fillStyle = meta.accent;
@@ -419,7 +423,6 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
             ctx.lineWidth = 3;
             ctx.stroke();
 
-            // Pulsing ring around center
             ctx.beginPath();
             ctx.arc(w / 2, h / 2, 14, 0, Math.PI * 2);
             ctx.strokeStyle = `rgba(${meta.accentRgb},0.35)`;
@@ -433,7 +436,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
     }
   }, [effectiveCenter, zoom, radiusPx, isLight, mapSize, dots, localKm, baseLat, baseLng, meta, isDotMatching]);
 
-  // ─── Bubble drag logic (finger-on-circle to resize radius) ───────────────
+  // ─── Bubble drag logic ───────────────
   const isDraggingBubble = useRef(false);
   const bubbleStartRef = useRef<{ clientX: number; startKm: number } | null>(null);
 
@@ -448,7 +451,6 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
   const handleBubblePointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDraggingBubble.current || !bubbleStartRef.current) return;
     e.stopPropagation();
-    // Convert horizontal pixel delta to km via meters-per-pixel at current zoom.
     const mpp = (156543.03392 * Math.cos((effectiveCenter.lat * Math.PI) / 180)) / Math.pow(2, zoom);
     const dxPx = e.clientX - bubbleStartRef.current.clientX;
     const dxKm = (dxPx * mpp) / 1000;
@@ -505,52 +507,6 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
       exit={{ opacity: 0, scale: 1.05 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
-      {/* ── Back Button — floating top-left ──────────────────────────────── */}
-      <motion.button
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.15, duration: 0.3 }}
-        onClick={() => { triggerHaptic('light'); onBack(); }}
-        className={cn(
-          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[10001] flex items-center gap-1.5 px-4 py-2.5 rounded-2xl",
-          "backdrop-blur-xl active:scale-95 transition-transform",
-          isLight
-            ? "bg-white/70 text-black/80 shadow-md"
-            : "bg-white/10 text-white/95 shadow-2xl"
-        )}
-        style={{ boxShadow: isLight ? '0 4px 20px rgba(0,0,0,0.1)' : '0 8px 32px rgba(0,0,0,0.5)' }}
-      >
-        <ChevronLeft className="w-5 h-5" />
-        <span className="text-[12px] font-black uppercase tracking-[0.2em]">Back</span>
-      </motion.button>
-
-      {/* ── Category Badge — top center ───────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.3 }}
-        className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-1/2 -translate-x-1/2 z-[10001]"
-      >
-        <div
-          className={cn(
-            "px-6 py-2.5 rounded-2xl backdrop-blur-xl flex items-center gap-2.5",
-            isLight
-              ? "bg-white/70 shadow-md"
-              : "bg-black/60 shadow-2xl"
-          )}
-          style={{ boxShadow: `0 0 40px rgba(${meta.accentRgb},0.2)` }}
-        >
-          <div
-            className="w-2.5 h-2.5 rounded-full animate-pulse"
-            style={{ background: meta.accent, boxShadow: `0 0 12px ${meta.accent}` }}
-          />
-          <span className="text-[12px] font-black uppercase tracking-[0.25em]" style={{ color: meta.accent }}>
-            {meta.label}
-          </span>
-          <span className={cn("text-[11px] font-bold", isLight ? "text-black/40" : "text-white/40")}>
-            {dotCount} nearby
-          </span>
-        </div>
       </motion.div>
 
       {/* ── GPS Button — top right ────────────────────────────────────── */}

@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Search, Filter, User, ArrowLeft, Sparkles, Building2, Bike, Trophy, Heart, Coins } from 'lucide-react';
+import { Search, Filter, User, ArrowLeft, Sparkles, Building2, Bike, Trophy, Heart, Coins, Wrench } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSmartClientMatching, ClientFilters } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,8 +19,10 @@ import OwnerInterestedClients from './OwnerInterestedClients';
 import OwnerLikedClients from './OwnerLikedClients';
 import { cn } from '@/lib/utils';
 
+import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
+
 type DiscoveryTab = 'radar' | 'interested' | 'saved';
-type RadarCategory = 'property' | 'motorcycle' | 'bicycle';
+type RadarCategory = 'property' | 'motorcycle' | 'bicycle' | 'worker';
 
 export default function OwnerDiscovery() {
   const navigate = useNavigate();
@@ -39,6 +41,7 @@ export default function OwnerDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, any>>({});
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
+  const [showMapView, setShowMapView] = useState(false);
   const startConversation = useStartConversation();
 
   const clientFilters: ClientFilters | undefined = useMemo(() => {
@@ -146,36 +149,54 @@ export default function OwnerDiscovery() {
           </div>
 
           {activeTab === 'radar' && (
-            <div className="flex items-center gap-3">
-               <div className="flex bg-muted/20 p-1 rounded-xl">
-                 {[
-                   { id: 'property', icon: Building2 },
-                   { id: 'motorcycle', icon: Bike },
-                   { id: 'bicycle', icon: Trophy }
-                 ].map((cat) => (
-                   <button
-                     key={cat.id}
-                     onClick={() => { triggerHaptic('medium'); setRadarCategory(cat.id as RadarCategory); }}
-                     title={`Switch to ${cat.id} radar`}
-                     aria-label={`Show ${cat.id} prospects`}
-                     className={cn(
-                       "w-10 h-10 flex items-center justify-center rounded-lg transition-all",
-                       radarCategory === cat.id ? "bg-primary text-white shadow-md" : "text-muted-foreground hover:bg-muted/40"
-                     )}
-                   >
-                     <cat.icon className="w-5 h-5" />
-                   </button>
-                 ))}
-               </div>
-               <div className="relative flex-1">
-                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                 <Input
-                   placeholder="Search profile name..."
-                   value={searchQuery}
-                   onChange={(e) => setSearchQuery(e.target.value)}
-                   className="pl-11 h-12 rounded-2xl bg-muted/20 border-border/20 focus:bg-muted/40 transition-all font-bold italic"
-                 />
-               </div>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <div className="flex bg-muted/20 p-1 rounded-xl">
+                   {[
+                     { id: 'property', icon: Building2, label: 'Properties' },
+                     { id: 'motorcycle', icon: Bike, label: 'Motorcycles' },
+                     { id: 'bicycle', icon: Trophy, label: 'Bicycles' },
+                     { id: 'worker', icon: Wrench, label: 'Workers' }
+                   ].map((cat) => (
+                     <button
+                       key={cat.id}
+                       onClick={() => { 
+                         triggerHaptic('medium'); 
+                         setRadarCategory(cat.id as RadarCategory);
+                       }}
+                       title={`Switch to ${cat.label} radar`}
+                       aria-label={`Show ${cat.label} prospects`}
+                       className={cn(
+                         "w-10 h-10 flex items-center justify-center rounded-lg transition-all",
+                         radarCategory === cat.id ? "bg-primary text-white shadow-md" : "text-muted-foreground hover:bg-muted/40"
+                       )}
+                     >
+                       <cat.icon className="w-5 h-5" />
+                     </button>
+                   ))}
+                </div>
+
+                <div className="relative flex-1">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search profile name..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-11 h-12 rounded-2xl bg-muted/20 border-border/20 focus:bg-muted/40 transition-all font-bold italic"
+                  />
+                </div>
+
+                <button
+                  onClick={() => { triggerHaptic('medium'); setShowMapView(!showMapView); }}
+                  className={cn(
+                    "h-12 px-4 rounded-2xl flex items-center gap-2 font-black uppercase tracking-widest text-[10px] border transition-all active:scale-95",
+                    showMapView ? "bg-primary text-white border-primary shadow-lg" : "bg-muted/20 text-foreground border-white/5"
+                  )}
+                >
+                  <Sparkles className={cn("w-4 h-4", showMapView && "animate-pulse")} />
+                  {showMapView ? 'Close Map' : 'Show Map'}
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -185,6 +206,17 @@ export default function OwnerDiscovery() {
          {activeTab === 'interested' ? (<OwnerInterestedClients />) : 
           activeTab === 'saved' ? (<OwnerLikedClients />) : (
             <div className="flex flex-col lg:flex-row gap-8">
+              {showMapView && activeTab === 'radar' ? (
+                <div className="w-full h-[600px] rounded-[3rem] overflow-hidden border border-white/5 shadow-2xl">
+                  <DiscoveryMapView
+                    category={radarCategory === 'worker' ? 'services' : radarCategory}
+                    onBack={() => setShowMapView(false)}
+                    onStartSwiping={() => navigate('/owner/dashboard')}
+                    mode="owner"
+                  />
+                </div>
+              ) : (
+                <>
               <aside className="hidden lg:block w-80">
                 <div className="sticky top-44 space-y-4">
                   <div className="flex items-center justify-between px-2 mb-2">
@@ -216,6 +248,8 @@ export default function OwnerDiscovery() {
                   )}
                 </AnimatePresence>
               </main>
+              </>
+              )}
             </div>
           )}
       </div>

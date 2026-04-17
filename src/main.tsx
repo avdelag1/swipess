@@ -126,8 +126,8 @@ deferredInit(async () => {
              if (newWorker) {
                  newWorker.onstatechange = () => {
                      if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                         // New content available, force reload
-                         window.location.reload();
+                         // Content available - handled by useAutomaticUpdates.tsx
+                         console.log('[SW] New content available');
                      }
                  };
              }
@@ -135,9 +135,9 @@ deferredInit(async () => {
         })
         .catch(() => {});
 
-      // RELOAD CONTROL - when the new SW takes over, refresh the page
+      // RELOAD CONTROL - when the new SW takes over, let the hook handle it
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-          window.location.reload();
+          console.log('[SW] Controller changed');
       });
     }
   } catch { /* intentional */ }

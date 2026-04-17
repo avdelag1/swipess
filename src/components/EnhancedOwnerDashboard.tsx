@@ -118,11 +118,16 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const handleCardSelect = useCallback((card: OwnerIntentCard) => {
     triggerHaptic('medium');
     const cat = (card.category || 'property') as QuickFilterCategory;
+    
+    // 🛡️ CRITICAL: Clear activeCategory to ensure the map phase renders
+    // If activeCategory is set, the dashboard logic bypasses the map and goes straight to swipe.
+    setActiveCategory(null);
+    
     setMapCategory(cat);
     if (card.clientType) setClientType(card.clientType as any);
     if (card.listingType) setListingType(card.listingType as any);
     setPhase('map');
-  }, [setClientType, setListingType]);
+  }, [setClientType, setListingType, setActiveCategory]);
 
   const handleMapBack = useCallback(() => {
     setMapCategory(null);
@@ -232,6 +237,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               category={mapCategory}
               onBack={handleMapBack}
               onStartSwiping={handleStartSwiping}
+              onCategoryChange={(cat) => setMapCategory(cat)}
               mode="owner"
             />
           </motion.div>

@@ -324,7 +324,7 @@ const ConversationSidebar = memo(({
     animate={{ x: 0, opacity: 1 }}
     exit={{ x: -300, opacity: 0 }}
     transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-    className="absolute inset-y-0 left-0 w-72 z-50 bg-background border-r border-border/50 flex flex-col"
+    className="absolute inset-y-0 left-0 w-72 z-50 bg-[#0A1A2F] border-r border-white/10 flex flex-col"
   >
     <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
       <h3 className="text-sm font-semibold text-foreground">Conversations</h3>
@@ -836,7 +836,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="fixed inset-0 z-[10020] flex h-full w-full flex-col overflow-hidden bg-background/98 backdrop-blur-xl shadow-2xl"
+          className="fixed inset-0 z-[10020] flex h-full w-full flex-col overflow-hidden bg-[#0A1A2F] shadow-2xl"
           style={{ willChange: 'transform, opacity' }}
         >
           {showAmbientLayer && (
@@ -893,7 +893,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
           {/* Header */}
           <div
-            className="relative z-10 border-b border-border/50 bg-background/95 backdrop-blur-xl"
+            className="relative z-10 border-b border-white/10 bg-[#0A1A2F]"
             style={{ paddingTop: 'max(2px, env(safe-area-inset-top, 0px))' }}
           >
             <div className="flex items-center justify-between px-2.5 py-1">
@@ -1015,7 +1015,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
           </div>
 
           {/* Input */}
-          <div className="border-t border-border/50 bg-background/95 px-3 py-1.5 pb-[calc(env(safe-area-inset-bottom,0px)+6px)] backdrop-blur-xl">
+          <div className="border-t border-white/10 bg-[#0A1A2F] px-3 py-1.5 pb-[calc(env(safe-area-inset-bottom,0px)+6px)]">
             {/* Countdown / ignition status */}
             {(ignitionFlash || countdown !== null) && (
               <div className="flex items-center gap-2 mb-2 px-1">
