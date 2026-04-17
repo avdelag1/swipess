@@ -959,9 +959,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // The 'Premiums Dashboard' (SwipeAllDashboard) is now the interactive Slide 0
   // of the vertical snap-scrolling reel.
   return (
-    <div className="relative w-full h-full overflow-hidden flex flex-col bg-background">
-      {/* Static ambient background — GPU-friendly, no infinite animations */}
-      <div className="absolute inset-0 pointer-events-none -z-10 bg-[#0a0a0b]" />
+    <div className="relative w-full h-full overflow-hidden flex flex-col bg-black">
+      <div className="absolute inset-0 pointer-events-none -z-10 bg-black" />
 
       {/* Top Controls — IN FLOW, not absolute */}
       {(!isLoading || deckQueue.length > 0) && (
@@ -985,8 +984,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
       {/* Card area — flex-1 fills remaining space */}
       <div className={cn(
-        "flex-1 relative flex flex-col items-center justify-center px-1.5 pt-1 z-10 pointer-events-none min-h-0",
-        (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? "pb-2" : ""
+        "flex-1 relative flex flex-col items-center justify-center px-0 pt-0 z-10 pointer-events-none min-h-0",
+        (storeActiveCategory && deckQueue.length > 0 && currentIndex < deckQueue.length) ? "pb-0" : ""
       )}>
 
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
@@ -1009,7 +1008,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-full h-[calc(100%-10px)] max-w-3xl mx-auto"
+                className="relative w-full h-full"
               >
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (

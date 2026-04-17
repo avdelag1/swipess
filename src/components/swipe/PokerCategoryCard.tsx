@@ -126,14 +126,11 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       <div
         className="w-full h-full relative overflow-hidden rounded-[28px] bg-black"
         style={{
-          // iOS-style stacked shadow: tight ambient contact + soft key light + hairline rim.
-          boxShadow:
-            '0 2px 6px rgba(0,0,0,0.12),' +
-            '0 20px 40px -12px rgba(0,0,0,0.45)',
+          boxShadow: 'none',
         }}
       >
         {/* Gradient backdrop */}
-        <div className="absolute inset-0" style={{ background: gradient }} />
+        <div className="absolute inset-0" style={{ background: gradient, opacity: 0.15 }} />
         
         {/* Photo with fade-in */}
         <motion.img

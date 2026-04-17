@@ -140,7 +140,7 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full h-[min(58dvh,520px)] max-w-lg mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-[calc(100svh-80px)] max-w-2xl mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
 
             <AnimatePresence mode="sync" initial={false}>
                 {stack.map((cat, index) => {
@@ -364,8 +364,7 @@ function CategoryCard({
                     isDragging ? "scale-105" : "scale-100"
                 )}
             />
-            {/* Dark overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-[5]" />
+            {/* Dark overlay REMOVED per user request */}
 
             {/* Icon Container - static for performance */}
             <motion.div

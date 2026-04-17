@@ -199,9 +199,17 @@ export const LocationRadiusSelector = ({
         ctx.stroke();
     };
 
-    // Initial fill
+    // Initial fill + Radar Grid Fallback
     ctx.fillStyle = isLight ? '#f1f5f9' : '#0a0a0b';
     ctx.fillRect(0, 0, w, h);
+    
+    if (!isLight) {
+        // Draw a subtle 'Radar Grid' so the map never looks 'broken' or blank
+        ctx.strokeStyle = 'rgba(59,130,246,0.1)';
+        ctx.lineWidth = 0.5;
+        for(let i=0; i<w; i+=40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
+        for(let j=0; j<h; j+=40) { ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(w, j); ctx.stroke(); }
+    }
 
     const tilesX = Math.ceil(w / 256) + 2;
     const tilesY = Math.ceil(h / 256) + 2;
@@ -276,7 +284,6 @@ export const LocationRadiusSelector = ({
             style={{ width: '100%', height: '100%', filter: mapFilter }} 
             className="block opacity-90 transition-opacity duration-500" 
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60 pointer-events-none" />
           
           <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
             <div className="flex items-center gap-2 pointer-events-auto">
