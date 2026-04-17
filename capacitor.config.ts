@@ -17,6 +17,8 @@ const config: CapacitorConfig = {
     infoPlist: {
       NSPhotoLibraryUsageDescription:
         'Swipess needs access to your photo library to upload profile photos and listing images.',
+      NSPhotoLibraryAddUsageDescription:
+        'Swipess saves downloaded receipts and QR codes to your photo library.',
       NSCameraUsageDescription:
         'Swipess needs camera access to take profile photos and listing images.',
       NSMicrophoneUsageDescription:
@@ -25,6 +27,8 @@ const config: CapacitorConfig = {
         'Swipess uses your location to show nearby listings and match you with local services.',
       NSFaceIDUsageDescription:
         'Swipess uses Face ID for secure authentication.',
+      NSContactsUsageDescription:
+        'Swipess can share listings with your contacts if you choose to.',
     },
   },
   plugins: {

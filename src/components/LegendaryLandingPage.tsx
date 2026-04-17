@@ -233,7 +233,7 @@ const PasswordToggleButton = ({
       onClick={onClick}
       title={showPassword ? 'Hide password' : 'Show password'}
       aria-label={showPassword ? 'Hide password' : 'Show password'}
-      className="flex h-full w-10 items-center justify-center text-white/30 transition-all duration-200 hover:text-white/70 active:scale-90"
+      className="flex h-full w-10 items-center justify-center text-muted-foreground/70 transition-all duration-200 hover:text-foreground active:scale-90"
     >
       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
     </button>
@@ -357,7 +357,7 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
         transition={{ delay: 0.15, duration: 0.3 }}
         title="Go back to landing"
         aria-label="Go back to landing"
-        className="absolute top-4 left-4 z-50 text-white/50 hover:text-white px-3 py-2 rounded-lg hover:bg-white/10 backdrop-blur-sm transition-all"
+        className="absolute top-4 left-4 z-50 text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-accent/40 backdrop-blur-sm transition-all"
         style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
       >
         <ArrowLeft className="w-5 h-5" />
@@ -368,12 +368,12 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
             <div className="text-center mb-6">
               <div className="flex justify-center mb-6">
-                <SwipessLogo size="md" variant="white" />
+                <SwipessLogo size="md" variant={isDark ? 'white' : 'black'} />
               </div>
-              <h1 className="text-3xl font-black tracking-tighter text-white italic mb-1">
+              <h1 className="text-3xl font-black tracking-tighter text-foreground italic mb-1">
                 {isLogin ? 'Welcome Back' : 'Join Swipess'}
               </h1>
-              <p className="text-white/60 text-sm font-medium leading-relaxed px-4">
+              <p className="text-muted-foreground text-sm font-medium leading-relaxed px-4">
                 {isLogin
                   ? 'Good luck finding your perfect deal today.'
                   : 'Your next perfect deal is one swipe away.'}
@@ -384,24 +384,24 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors z-10" />
-                    <Input type="text" name="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-11 h-14 bg-white/[0.04] border-white/10 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70 group-focus-within:text-orange-400 transition-colors z-10" />
+                    <Input type="text" name="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-11 h-14 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
                   </GlowingField>
                 </motion.div>
               )}
 
               <motion.div variants={itemVariants}>
                 <GlowingField className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors z-10" />
-                  <Input type="email" name="email" autoComplete="username" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-11 h-14 bg-white/[0.04] border-white/10 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70 group-focus-within:text-orange-400 transition-colors z-10" />
+                  <Input type="email" name="email" autoComplete="username" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-11 h-14 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
                 </GlowingField>
               </motion.div>
 
               {!isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors z-10" />
-                    <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-11 pr-12 h-14 bg-white/[0.04] border-white/10 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70 group-focus-within:text-orange-400 transition-colors z-10" />
+                    <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-11 pr-12 h-14 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
                     <PasswordToggleButton showPassword={showPassword} onClick={() => setShowPassword(!showPassword)} />
                   </GlowingField>
                 </motion.div>
@@ -410,8 +410,8 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors z-10" />
-                    <Input type={showPassword ? 'text' : 'password'} name="confirmPassword" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" className="pl-11 pr-12 h-14 bg-white/[0.04] border-white/10 text-foreground placeholder:text-muted-foreground/40 focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70 group-focus-within:text-orange-400 transition-colors z-10" />
+                    <Input type={showPassword ? 'text' : 'password'} name="confirmPassword" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" className="pl-11 pr-12 h-14 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
                     <PasswordToggleButton showPassword={showPassword} onClick={() => setShowPassword(!showPassword)} />
                   </GlowingField>
                 </motion.div>
@@ -424,9 +424,9 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                     id="rememberMe"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded-md border border-white/20 bg-black/40 text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0 cursor-pointer"
+                    className="w-4 h-4 rounded-md border border-border bg-muted text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0 cursor-pointer"
                   />
-                  <label htmlFor="rememberMe" className="text-[13px] text-white/50 leading-snug cursor-pointer select-none hover:text-white transition-colors">
+                  <label htmlFor="rememberMe" className="text-[13px] text-muted-foreground leading-snug cursor-pointer select-none hover:text-foreground transition-colors">
                     Remember email
                   </label>
                 </div>
@@ -437,11 +437,11 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                       id="terms"
                       checked={agreeToTerms}
                       onChange={(e) => setAgreeToTerms(e.target.checked)}
-                      className="w-4 h-4 rounded-md border border-white/20 bg-black/40 text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0 cursor-pointer"
+                      className="w-4 h-4 rounded-md border border-border bg-muted text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0 cursor-pointer"
                       required
                     />
-                    <label htmlFor="terms" className="text-[13px] text-white/50 leading-snug cursor-pointer select-none">
-                      Agree to <a href="#" onClick={e=>e.preventDefault()} className="text-white hover:text-orange-400 font-medium transition-colors underline decoration-white/20">Terms</a>
+                    <label htmlFor="terms" className="text-[13px] text-muted-foreground leading-snug cursor-pointer select-none">
+                      Agree to <a href="#" onClick={e=>e.preventDefault()} className="text-foreground hover:text-orange-400 font-medium transition-colors underline decoration-border">Terms</a>
                     </label>
                   </div>
                 )}
@@ -464,9 +464,9 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
             {!isForgotPassword && (
               <>
                 <motion.div variants={itemVariants} className="flex items-center gap-3 my-1">
-                  <div className="flex-1 h-px bg-white/10" />
+                  <div className="flex-1 h-px bg-border" />
                   <span className="text-[11px] text-muted-foreground/60 uppercase tracking-widest font-medium">or</span>
-                  <div className="flex-1 h-px bg-white/10" />
+                  <div className="flex-1 h-px bg-border" />
                 </motion.div>
 
                 <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
@@ -525,9 +525,9 @@ function LegendaryLandingPage() {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
 
-  const isDark = true; // FORCE DARK EVERYWHERE
+  const isDark = theme !== 'light';
   const activeMode: EffectMode = view === 'auth' ? 'off' : 'stars';
-  const bgColor = '#000000';
+  const bgColor = isDark ? '#000000' : '#ffffff';
 
   const toggleTheme = (e?: React.MouseEvent) => {
     const nextTheme = isDark ? 'light' : 'dark';
@@ -535,11 +535,11 @@ function LegendaryLandingPage() {
   };
 
   return (
-    <motion.div 
+    <motion.div
       className={cn(
         "h-screen h-dvh relative overflow-hidden transition-colors duration-300",
-        isDark ? "dark bg-black text-white" : "light bg-white text-zinc-900"
-      )} 
+        isDark ? "black-matte dark text-foreground" : "white-matte light text-foreground"
+      )}
       animate={{ backgroundColor: bgColor }}
     >
       <LandingBackgroundEffects

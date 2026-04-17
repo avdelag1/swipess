@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Upload, FileText, CheckCircle2, Loader2, Pencil,
+  X, Upload, FileText, CheckCircle2, Loader2, Save,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,6 +10,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 
 interface Props {
   isOpen: boolean;
@@ -22,27 +23,53 @@ const DOC_TYPES = [
   { key: 'drivers_license', label: 'License' },
 ] as const;
 
+const csvToArray = (csv: string) =>
+  csv.split(',').map((s) => s.trim()).filter((s) => s.length > 0);
+
+const arrayToCsv = (arr: unknown): string => {
+  if (!Array.isArray(arr)) return '';
+  return arr.filter((v): v is string => typeof v === 'string' && v.trim().length > 0).join(', ');
+};
+
 export function VapIdEditModal({ isOpen, onClose }: Props) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState<string | null>(null);
-  const [editingBio, setEditingBio] = useState(false);
-  const [bioValue, setBioValue] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  const { data: clientProfile } = useQuery({
+  const [bio, setBio] = useState('');
+  const [occupation, setOccupation] = useState('');
+  const [city, setCity] = useState('');
+  const [nationality, setNationality] = useState('');
+  const [yearsInCity, setYearsInCity] = useState<string>('');
+  const [languages, setLanguages] = useState('');
+  const [interests, setInterests] = useState('');
+
+  const { data: clientProfile, refetch } = useQuery({
     queryKey: ['vap-id-client-profile', user?.id],
     enabled: !!user?.id && isOpen,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('client_profiles')
-        .select('bio, occupation')
+        .select('bio, occupation, city, nationality, years_in_city, languages, interests, personality_traits, preferred_activities')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (error) throw error;
       return data;
     },
   });
+
+  useEffect(() => {
+    if (!clientProfile) return;
+    setBio(clientProfile.bio || '');
+    setOccupation((clientProfile as any).occupation || '');
+    setCity(clientProfile.city || '');
+    setNationality(clientProfile.nationality || '');
+    setYearsInCity(clientProfile.years_in_city != null ? String(clientProfile.years_in_city) : '');
+    setLanguages(arrayToCsv(clientProfile.languages));
+    setInterests(arrayToCsv(clientProfile.interests));
+  }, [clientProfile]);
 
   const { data: documents } = useQuery({
     queryKey: ['vap-documents', user?.id],
@@ -58,8 +85,6 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
       return data || [];
     },
   });
-
-  const bio = clientProfile?.bio || '';
 
   const documentSummary = useMemo(() => {
     const verified = documents?.filter(d => d.status === 'verified').length || 0;
@@ -95,18 +120,53 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
     input.click();
   }, [user?.id, queryClient]);
 
-  const handleSaveBio = useCallback(async () => {
-    if (!user?.id) return;
-    const { error } = await supabase
-      .from('client_profiles')
-      .upsert({ user_id: user.id, bio: bioValue }, { onConflict: 'user_id' });
-    if (error) { toast.error('Failed to update bio'); }
-    else {
-      toast.success('Bio updated');
-      queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
-      setEditingBio(false);
+  const handleSave = useCallback(async () => {
+    if (!user?.id) { toast.error('Not signed in'); return; }
+    setSaving(true);
+    try {
+      const yearsNum = yearsInCity.trim() === '' ? null : Number(yearsInCity);
+      const payload: Record<string, any> = {
+        user_id: user.id,
+        bio: bio.trim() || null,
+        occupation: occupation.trim() || null,
+        city: city.trim() || null,
+        nationality: nationality.trim() || null,
+        years_in_city: Number.isFinite(yearsNum as number) ? yearsNum : null,
+        languages: csvToArray(languages),
+        interests: csvToArray(interests),
+      };
+
+      const { data: existing, error: selectErr } = await supabase
+        .from('client_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (selectErr) throw selectErr;
+
+      if (existing?.id) {
+        const { error: updateErr } = await supabase
+          .from('client_profiles')
+          .update(payload)
+          .eq('user_id', user.id);
+        if (updateErr) throw updateErr;
+      } else {
+        const { error: insertErr } = await supabase
+          .from('client_profiles')
+          .insert(payload);
+        if (insertErr) throw insertErr;
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ['vap-id-client-profile', user.id] });
+      await queryClient.invalidateQueries({ queryKey: ['vap-id-profile', user.id] });
+      await refetch();
+      toast.success('Card saved');
+    } catch (err: any) {
+      console.error('[VapIdEdit] save failed', err);
+      toast.error(err?.message || 'Failed to save');
+    } finally {
+      setSaving(false);
     }
-  }, [user?.id, bioValue, queryClient]);
+  }, [user?.id, bio, occupation, city, nationality, yearsInCity, languages, interests, queryClient, refetch]);
 
   const getDocStatus = (docType: string) => documents?.find(d => d.document_type === docType)?.status || 'none';
   const getDocMeta = (docType: string) => documents?.find(d => d.document_type === docType);
@@ -131,34 +191,51 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-28 pt-5 scroll-smooth">
-            {/* Bio */}
+          <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-32 pt-5 scroll-smooth">
+            {/* About / Bio */}
             <section className="rounded-[24px] border border-border bg-card p-4 shadow-lg">
-              <div className="mb-3 flex items-center justify-between">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">About Me</p>
-                  <h3 className="mt-1 text-sm font-black text-foreground">Card description</h3>
-                </div>
-                {!editingBio && (
-                  <button onClick={() => { setBioValue(bio); setEditingBio(true); }} className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground">
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                )}
+              <div className="mb-3">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">About Me</p>
+                <h3 className="mt-1 text-sm font-black text-foreground">Card description</h3>
+                <p className="mt-1 text-[11px] text-muted-foreground">A short bio shown on the front of your card.</p>
               </div>
-              {editingBio ? (
-                <div className="space-y-3">
-                  <Textarea value={bioValue} onChange={(e) => setBioValue(e.target.value)} placeholder="I work as... I own a business called..." rows={3} maxLength={180} className="min-h-[90px] text-sm" />
-                  <p className="text-[10px] text-muted-foreground text-right">{bioValue.length}/180</p>
-                  <div className="flex justify-end gap-2">
-                    <button onClick={() => setEditingBio(false)} className="rounded-2xl border border-border bg-card px-4 py-2 text-xs font-semibold text-muted-foreground">Cancel</button>
-                    <button onClick={handleSaveBio} className="rounded-2xl bg-primary px-4 py-2 text-xs font-black text-primary-foreground active:scale-95">Save</button>
-                  </div>
-                </div>
-              ) : (
-                <p className="rounded-xl border border-border bg-muted/40 px-3 py-3 text-sm text-muted-foreground leading-relaxed">
-                  {bio || 'Tap edit to add a short description for your card.'}
-                </p>
-              )}
+              <Textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="I work as... I own a business called... I love..."
+                rows={3}
+                maxLength={240}
+                className="min-h-[90px] text-sm"
+              />
+              <p className="mt-1 text-[10px] text-muted-foreground text-right">{bio.length}/240</p>
+            </section>
+
+            {/* Details */}
+            <section className="mt-5 rounded-[24px] border border-border bg-card p-4 shadow-lg">
+              <div className="mb-3">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">Details</p>
+                <h3 className="mt-1 text-sm font-black text-foreground">Personal info</h3>
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <LabeledField label="Occupation">
+                  <Input value={occupation} onChange={(e) => setOccupation(e.target.value)} placeholder="Barista, Landlord, Dev…" maxLength={60} />
+                </LabeledField>
+                <LabeledField label="City">
+                  <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Tulum" maxLength={60} />
+                </LabeledField>
+                <LabeledField label="Nationality">
+                  <Input value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="Mexican" maxLength={40} />
+                </LabeledField>
+                <LabeledField label="Years in city">
+                  <Input value={yearsInCity} inputMode="numeric" pattern="[0-9]*" onChange={(e) => setYearsInCity(e.target.value.replace(/[^0-9]/g, ''))} placeholder="3" maxLength={2} />
+                </LabeledField>
+                <LabeledField label="Languages" hint="Comma separated" className="sm:col-span-2">
+                  <Input value={languages} onChange={(e) => setLanguages(e.target.value)} placeholder="English, Spanish, French" />
+                </LabeledField>
+                <LabeledField label="Interests" hint="Comma separated" className="sm:col-span-2">
+                  <Input value={interests} onChange={(e) => setInterests(e.target.value)} placeholder="Surf, Yoga, Coffee" />
+                </LabeledField>
+              </div>
             </section>
 
             {/* Documents */}
@@ -209,9 +286,43 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
               </div>
             </section>
           </div>
+
+          {/* Sticky save bar */}
+          <div className="sticky bottom-0 border-t border-border bg-background/95 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_hsl(var(--foreground)/0.08)]">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-primary-foreground text-sm font-black uppercase tracking-[0.2em] shadow-lg active:scale-[0.98] disabled:opacity-60"
+            >
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {saving ? 'Saving…' : 'Save card'}
+            </button>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>,
     document.body
+  );
+}
+
+function LabeledField({
+  label,
+  hint,
+  className,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={cn('flex flex-col gap-1.5', className)}>
+      <div className="flex items-baseline justify-between gap-2">
+        <label className="text-[10px] font-black uppercase tracking-[0.22em] text-muted-foreground">{label}</label>
+        {hint && <span className="text-[9px] font-medium text-muted-foreground/70">{hint}</span>}
+      </div>
+      {children}
+    </div>
   );
 }
