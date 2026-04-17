@@ -120,7 +120,7 @@ export const SwipeExhaustedState = ({
         initial="initial" 
         animate="animate" 
         exit="exit" 
-        className="relative z-50 h-full w-full overflow-y-auto overscroll-contain bg-background"
+        className="relative z-50 h-full w-full overflow-hidden bg-background flex flex-col pt-2"
       >
         <div className="absolute inset-0 pointer-events-none z-0">
           <div 
@@ -129,14 +129,56 @@ export const SwipeExhaustedState = ({
           />
         </div>
 
-        <div className="relative z-10 flex min-h-full flex-col px-4 pb-3 pt-2 sm:px-6 sm:pb-4 sm:pt-3">
+        {/* 1. MAP FIRST - Takes most of the space */}
+        <div className="flex-1 min-h-0 px-2 relative flex flex-col">
+          <div className="absolute top-4 left-0 right-0 z-20 flex justify-center pointer-events-none">
+             <div className="flex flex-col items-center gap-2">
+                <RadarSearchEffect
+                  key={scanIteration === 0 ? 'idle' : `scan-${scanIteration}`}
+                  size={64}
+                  color={activeCatInfo?.color || '#ec4899'}
+                  isActive={isScanBurstActive}
+                  autoStopMs={6000}
+                  icon={<ActiveIcon className="h-4 w-4 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" strokeWidth={1.5} />}
+                />
+                <motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-black/40 backdrop-blur-xl border border-white/10 px-4 py-1.5 rounded-2xl shadow-2xl"
+                >
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">
+                    {isRefreshing || isScanBurstActive ? 'Recalibrating Radar...' : 'No new listings found'}
+                  </span>
+                </motion.div>
+             </div>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex-1 relative"
+          >
+            <LocationRadiusSelector
+              radiusKm={radiusKm}
+              onRadiusChange={onRadiusChange}
+              onDetectLocation={onDetectLocation || (() => {})}
+              detecting={detecting ?? false}
+              detected={detected ?? false}
+              onCategorySelect={(category) => setCategories([category])}
+            />
+          </motion.div>
+        </div>
+
+        {/* 2. QUICK SEARCH BUTTONS UNDER MAP */}
+        <div className="shrink-0 pb-6 pt-3 px-4 flex flex-col items-center gap-4 bg-gradient-to-t from-background via-background to-transparent">
           <motion.div 
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ delay: 0.3 }}
             className="flex w-full justify-center"
           >
-            <div className="inline-flex items-center gap-1.5 p-1 rounded-2xl bg-card/40 backdrop-blur-xl border border-border/30 shadow-lg">
+            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-card/60 backdrop-blur-3xl border border-border/40 shadow-2xl">
               {Object.entries(CATEGORY_ICONS).filter(([k]) => k !== 'worker').map(([catId, info]) => {
                 const Icon = info.icon;
                 const isActive = activeCategory === catId;
@@ -146,99 +188,51 @@ export const SwipeExhaustedState = ({
                     onClick={() => handleCategorySwitch(catId)}
                     title={info.label}
                     className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-250 active:scale-90",
+                      "flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 active:scale-90",
                       isActive
-                        ? "bg-white/12 shadow-md"
+                        ? "bg-white/15 shadow-xl border border-white/10"
                         : "hover:bg-white/5"
                     )}
-                    style={isActive ? { boxShadow: `0 0 20px ${info.color}20, inset 0 1px 0 rgba(255,255,255,0.08)` } : undefined}
+                    style={isActive ? { boxShadow: `0 0 30px ${info.color}30, inset 0 1px 0 rgba(255,255,255,0.1)` } : undefined}
                   >
                     <Icon
-                      className="h-3.5 w-3.5 shrink-0"
-                      strokeWidth={isActive ? 1.8 : 1.5}
-                      style={{ color: isActive ? info.color : 'var(--muted-foreground)', opacity: isActive ? 1 : 0.5 }}
+                      className="h-4 w-4 shrink-0 transition-transform group-hover:scale-110"
+                      strokeWidth={isActive ? 2 : 1.5}
+                      style={{ color: isActive ? info.color : 'var(--muted-foreground)', opacity: isActive ? 1 : 0.6 }}
                     />
-                    {isActive && (
-                      <motion.span
-                        initial={{ width: 0, opacity: 0 }}
-                        animate={{ width: 'auto', opacity: 1 }}
-                        exit={{ width: 0, opacity: 0 }}
-                        className="text-[9px] font-black uppercase tracking-[0.2em] whitespace-nowrap overflow-hidden"
-                        style={{ color: info.color }}
-                      >
-                        {info.label}
-                      </motion.span>
-                    )}
+                    <span
+                      className={cn(
+                        "text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap overflow-hidden transition-all",
+                        isActive ? "w-auto opacity-100" : "w-0 opacity-0 hidden sm:block sm:w-auto sm:opacity-50"
+                      )}
+                      style={{ color: isActive ? info.color : undefined }}
+                    >
+                      {info.label}
+                    </span>
                   </button>
                 );
               })}
             </div>
           </motion.div>
 
-          <div className="flex min-h-0 flex-1 flex-col items-center gap-3 py-2 sm:gap-4 sm:py-3">
-            <div className="flex flex-col items-center gap-3 text-center">
-              <RadarSearchEffect
-                key={scanIteration === 0 ? 'idle' : `scan-${scanIteration}`}
-                size={96}
-                color={activeCatInfo?.color || '#ec4899'}
-                isActive={isScanBurstActive}
-                autoStopMs={6000}
-                icon={<ActiveIcon className="h-6 w-6 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" strokeWidth={1.5} />}
-              />
-              
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="flex max-w-sm flex-col items-center gap-3 text-center"
-              >
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  <div className={cn("h-1.5 w-1.5 rounded-full bg-primary", scanIteration > 0 && "animate-pulse")} />
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
-                    {isRefreshing || isScanBurstActive
-                      ? `Scanning for ${role === 'owner' ? 'clients' : activeCatInfo?.label?.toLowerCase() || 'listings'}`
-                      : 'Radar standing by'}
-                  </span>
-                  <div className={cn("h-1.5 w-1.5 rounded-full bg-primary", isScanBurstActive && "animate-pulse")} />
-                </div>
-                
-                <h3 className="text-base font-black tracking-tight text-foreground sm:text-lg">
-                  No new {role === 'owner' ? 'clients' : 'listings'} right now
-                </h3>
-                
-                <p className="max-w-[320px] text-[10px] font-bold uppercase tracking-[0.28em] text-muted-foreground/80">
-                  Expand your radius or launch another short scan
-                </p>
-              </motion.div>
-
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-                <Button
-                  onClick={handleRefreshClick}
-                  disabled={isRefreshing}
-                  className="relative h-10 overflow-hidden rounded-full border-0 px-7 text-[10px] font-black uppercase tracking-[0.24em] shadow-[var(--shadow-elegant)]"
-                >
-                  {isRefreshing && <div className="absolute inset-0 bg-background/15 animate-pulse" />}
-                  <RefreshCw className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")} />
-                  {isRefreshing ? 'Scanning...' : 'Refresh'}
-                </Button>
-              </motion.div>
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="mx-auto w-full max-w-md"
+          <div className="flex items-center gap-3 w-full max-w-sm">
+            <Button
+              onClick={handleRefreshClick}
+              disabled={isRefreshing}
+              className="flex-1 relative h-14 overflow-hidden rounded-2xl border-0 bg-white/5 hover:bg-white/10 text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 group"
             >
-              <LocationRadiusSelector
-                radiusKm={radiusKm}
-                onRadiusChange={onRadiusChange}
-                onDetectLocation={onDetectLocation || (() => {})}
-                detecting={detecting ?? false}
-                detected={detected ?? false}
-                onCategorySelect={(category) => setCategories([category])}
-              />
-            </motion.div>
+              {isRefreshing && <div className="absolute inset-0 bg-brand-primary/10 animate-pulse" />}
+              <RefreshCw className={cn("mr-2 h-4 w-4 text-brand-primary transition-transform group-hover:rotate-180 duration-700", isRefreshing && "animate-spin")} />
+              {isRefreshing ? 'Scanning...' : 'Refresh Radar'}
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => setCategories(['all'])}
+              className="h-14 w-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95"
+            >
+              <Zap className="h-5 w-5 text-pink-500" />
+            </Button>
           </div>
         </div>
       </motion.div>

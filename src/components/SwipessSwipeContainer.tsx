@@ -976,6 +976,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 detected={locationDetected}
                 lat={userLatitude}
                 lng={userLongitude}
+                variant="minimal"
               />
             </div>
           </div>

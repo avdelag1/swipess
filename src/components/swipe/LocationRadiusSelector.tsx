@@ -15,15 +15,18 @@ export interface LocationRadiusSelectorProps {
   lat?: number | null;
   lng?: number | null;
   onCategorySelect?: (cat: QuickFilterCategory) => void;
+  variant?: 'full' | 'minimal';
 }
 
 const KM_PRESETS = [1, 5, 10, 25, 50, 100];
 
+// Convert km to pixels at a given zoom level and latitude
 const kmToPixels = (km: number, lat: number, zoom: number) => {
   const metersPerPixel = (156543.03392 * Math.cos((lat * Math.PI) / 180)) / Math.pow(2, zoom);
   return (km * 1000) / metersPerPixel;
 };
 
+// Calculate optimal zoom to fit radius in container
 const getZoomForRadius = (km: number, lat: number, containerPx: number) => {
   for (let z = 16; z >= 2; z--) {
     const px = kmToPixels(km, lat, z);
@@ -32,9 +35,11 @@ const getZoomForRadius = (km: number, lat: number, containerPx: number) => {
   return 2;
 };
 
+// Tile URL
 const tileUrl = (x: number, y: number, z: number) =>
   `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
 
+// Convert lat/lng to tile coordinates
 const latLngToTile = (lat: number, lng: number, zoom: number) => {
   const n = Math.pow(2, zoom);
   const x = ((lng + 180) / 360) * n;
@@ -43,6 +48,7 @@ const latLngToTile = (lat: number, lng: number, zoom: number) => {
   return { x, y };
 };
 
+// Convert pixel offset back to lat/lng delta
 const pixelToLatLng = (dx: number, dy: number, lat: number, zoom: number) => {
   const metersPerPixel = (156543.03392 * Math.cos((lat * Math.PI) / 180)) / Math.pow(2, zoom);
   const dLng = (dx * metersPerPixel) / (111320 * Math.cos((lat * Math.PI) / 180));
@@ -59,25 +65,28 @@ export const LocationRadiusSelector = ({
   lat,
   lng,
   onCategorySelect: _onCategorySelect,
+  variant = 'full',
 }: LocationRadiusSelectorProps) => {
   const [localKm, setLocalKm] = useState(radiusKm);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
   const isLight = theme === 'light';
-
+  
+  // Pan state
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const panStartRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   const velocityRef = useRef({ vx: 0, vy: 0 });
   const lastMoveRef = useRef({ x: 0, y: 0, t: 0 });
   const inertiaRef = useRef<number | null>(null);
-  const [mapSize, setMapSize] = useState({ w: 300, h: 200 });
+  const [mapSize, setMapSize] = useState({ w: 300, h: 400 });
 
   const baseLat = lat ?? 20.2114;
   const baseLng = lng ?? -87.4654;
 
+  // Effective center after pan offset
   const zoom = useMemo(() => getZoomForRadius(localKm, baseLat, Math.min(mapSize.w, mapSize.h)), [localKm, baseLat, mapSize]);
-
+  
   const effectiveCenter = useMemo(() => {
     const { dLat, dLng } = pixelToLatLng(panOffset.x, panOffset.y, baseLat, zoom);
     return { lat: baseLat + dLat, lng: baseLng + dLng };
@@ -87,6 +96,7 @@ export const LocationRadiusSelector = ({
 
   useEffect(() => { setLocalKm(radiusKm); }, [radiusKm]);
 
+  // Debounce radius update
   useEffect(() => {
     const timer = setTimeout(() => {
       if (localKm !== radiusKm) onRadiusChange(localKm);
@@ -94,6 +104,7 @@ export const LocationRadiusSelector = ({
     return () => clearTimeout(timer);
   }, [localKm, radiusKm, onRadiusChange]);
 
+  // Measure container
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -104,6 +115,7 @@ export const LocationRadiusSelector = ({
     return () => obs.disconnect();
   }, []);
 
+  // Pan handlers
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     if (inertiaRef.current) { cancelAnimationFrame(inertiaRef.current); inertiaRef.current = null; }
     panStartRef.current = { x: e.clientX, y: e.clientY, ox: panOffset.x, oy: panOffset.y };
@@ -116,6 +128,7 @@ export const LocationRadiusSelector = ({
     const dx = e.clientX - panStartRef.current.x;
     const dy = e.clientY - panStartRef.current.y;
     setPanOffset({ x: panStartRef.current.ox - dx, y: panStartRef.current.oy - dy });
+
     const now = performance.now();
     const dt = now - lastMoveRef.current.t;
     if (dt > 0) {
@@ -129,6 +142,7 @@ export const LocationRadiusSelector = ({
 
   const handlePointerUp = useCallback(() => {
     panStartRef.current = null;
+    // Inertia
     const { vx, vy } = velocityRef.current;
     if (Math.abs(vx) > 1 || Math.abs(vy) > 1) {
       let cvx = vx, cvy = vy;
@@ -142,7 +156,9 @@ export const LocationRadiusSelector = ({
     }
   }, []);
 
+  // Draw map tiles + radius circle
   useEffect(() => {
+    if (variant === 'minimal') return;
     const canvas = canvasRef.current;
     if (!canvas || mapSize.w < 10 || mapSize.h < 10) return;
     const ctx = canvas.getContext('2d');
@@ -187,11 +203,11 @@ export const LocationRadiusSelector = ({
             const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
             ctx.beginPath();
             ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
-            ctx.fillStyle = isLight ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.18)';
+            ctx.fillStyle = isLight ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.15)';
             ctx.fill();
-            ctx.strokeStyle = isLight ? 'rgba(59,130,246,0.5)' : 'rgba(59,130,246,0.6)';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([6, 4]);
+            ctx.strokeStyle = isLight ? 'rgba(59,130,246,0.4)' : 'rgba(59,130,246,0.5)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
             ctx.stroke();
             ctx.setLineDash([]);
             ctx.beginPath();
@@ -207,7 +223,7 @@ export const LocationRadiusSelector = ({
         img.src = tileUrl(centerTileX + dx, centerTileY + dy, zoom);
       }
     }
-  }, [effectiveCenter, zoom, radiusPx, isLight, mapSize]);
+  }, [effectiveCenter, zoom, radiusPx, isLight, mapSize, variant]);
 
   const handleKmSelect = useCallback((km: number) => {
     triggerHaptic('light');
@@ -225,87 +241,143 @@ export const LocationRadiusSelector = ({
     }
   }, [localKm]);
 
-  return (
-    <div className="w-full flex flex-col gap-1.5">
-      {/* KM Pill Selector — TOP, swipe left/right */}
-      <div
-        ref={scrollContainerRef}
-        className="flex gap-1.5 overflow-x-auto snap-x snap-mandatory scrollbar-none px-1"
-        style={{ overscrollBehaviorX: 'contain', WebkitOverflowScrolling: 'touch' }}
-      >
-        {KM_PRESETS.map((km) => {
-          const isActive = localKm === km;
-          return (
+  if (variant === 'minimal') {
+    return (
+      <div className="w-full flex flex-col gap-2 pt-1 pb-1">
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-2">
             <button
-              key={km}
-              type="button"
-              data-active={isActive}
-              onClick={() => handleKmSelect(km)}
+              onClick={onDetectLocation}
+              disabled={detecting}
               className={cn(
-                "snap-center flex-shrink-0 h-8 min-w-[48px] px-2.5 rounded-full font-black text-[11px] tracking-tight transition-all active:scale-90 border",
-                isActive
-                  ? "bg-primary text-primary-foreground border-primary shadow-[0_0_12px_hsl(var(--primary)/0.4)]"
-                  : "bg-muted/40 text-muted-foreground border-border/40"
+                "w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95",
+                detected ? "bg-primary/20 text-primary border border-primary/20" : "bg-white/5 text-white/40 border border-white/5"
               )}
             >
-              {km}<span className="text-[8px] opacity-60 ml-0.5">km</span>
+              <Navigation className={cn("w-3.5 h-3.5", detecting && "animate-spin")} />
             </button>
-          );
-        })}
+            <span className="text-[10px] font-black uppercase tracking-widest text-white/60">
+              Radius: <span className="text-primary">{localKm}km</span>
+            </span>
+          </div>
+          
+          <div 
+            ref={scrollContainerRef}
+            className="flex gap-1.5 overflow-x-auto scrollbar-none max-w-[200px]"
+          >
+            {KM_PRESETS.map((km) => {
+              const isActive = localKm === km;
+              return (
+                <button
+                  key={km}
+                  data-active={isActive}
+                  onClick={() => handleKmSelect(km)}
+                  className={cn(
+                    "flex-shrink-0 h-7 px-2.5 rounded-lg text-[9px] font-black transition-all border",
+                    isActive ? "bg-primary border-primary text-white" : "bg-white/5 border-white/5 text-white/30"
+                  )}
+                >
+                  {km}k
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
+    );
+  }
 
-      {/* Map — BELOW pills, compact, fits viewport */}
-      <motion.div
+  return (
+    <motion.div
+      className="w-full h-full flex flex-col relative"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <div
         ref={containerRef}
-        className="w-full relative overflow-hidden rounded-2xl border border-border/30"
-        style={{
-          touchAction: 'none',
-          cursor: 'grab',
-          height: 'min(38dvh, 280px)',
-        }}
+        className="flex-1 relative overflow-hidden rounded-[2.5rem] border border-white/10"
+        style={{ touchAction: 'none', cursor: 'grab' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.25 }}
       >
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} className="block" />
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/10 via-transparent to-black/40" />
 
-        {/* GPS — bottom right */}
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); onDetectLocation(); setPanOffset({ x: 0, y: 0 }); }}
-          disabled={detecting}
-          className={cn(
-            "absolute bottom-2 right-2 z-10 w-9 h-9 rounded-full flex items-center justify-center border transition-all active:scale-90",
-            detected
-              ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_hsl(var(--primary)/0.4)]"
-              : "bg-background/80 backdrop-blur-md border-border/50 text-muted-foreground"
-          )}
-        >
-          <Navigation className={cn("w-4 h-4", detecting && "animate-spin")} />
-        </button>
+        <div className="absolute top-4 left-4 right-4 z-10">
+           <div className="w-full flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); onDetectLocation(); setPanOffset({ x: 0, y: 0 }); }}
+                  disabled={detecting}
+                  className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center border transition-all active:scale-90 shadow-2xl",
+                    detected ? "bg-primary border-primary text-white" : "bg-black/60 backdrop-blur-xl border-white/10 text-white/40"
+                  )}
+                >
+                  <Navigation className={cn("w-4 h-4", detecting && "animate-spin")} />
+                </button>
+                
+                <div className="bg-black/60 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-2xl shadow-2xl">
+                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">
+                      Scan Radius: <span className="text-primary">{localKm}km</span>
+                   </span>
+                </div>
+              </div>
 
-        {/* +/- zoom — bottom left */}
-        <div className="absolute bottom-2 left-2 z-10 flex flex-col gap-1">
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); setLocalKm(Math.min(100, localKm + 5)); }}
-            className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-md border border-border/50 flex items-center justify-center active:scale-90"
-          >
-            <Plus className="w-3.5 h-3.5 text-foreground" />
-          </button>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); setLocalKm(Math.max(1, localKm - 5)); }}
-            className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-md border border-border/50 flex items-center justify-center active:scale-90"
-          >
-            <Minus className="w-3.5 h-3.5 text-foreground" />
-          </button>
+              {/* SLIDER DETECTOR ON TOP */}
+              <div className="w-full px-2">
+                 <input 
+                   type="range"
+                   min="1"
+                   max="100"
+                   value={localKm}
+                   onChange={(e) => setLocalKm(parseInt(e.target.value))}
+                   className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
+                 />
+                 <div className="flex justify-between mt-1 px-0.5">
+                    <span className="text-[8px] font-bold text-white/30">1KM</span>
+                    <span className="text-[8px] font-bold text-white/30">100KM</span>
+                 </div>
+              </div>
+           </div>
         </div>
-      </motion.div>
-    </div>
+
+        <div className="absolute bottom-4 left-4 right-4 z-10 flex gap-2">
+           <div className="flex-1 flex gap-1.5 overflow-x-auto scrollbar-none bg-black/40 backdrop-blur-xl border border-white/10 p-1.5 rounded-2xl">
+              {KM_PRESETS.map((km) => (
+                <button
+                  key={km}
+                  onClick={() => handleKmSelect(km)}
+                  className={cn(
+                    "flex-shrink-0 h-9 min-w-[44px] rounded-xl text-[10px] font-black transition-all",
+                    localKm === km ? "bg-primary text-white shadow-lg" : "text-white/40 hover:text-white"
+                  )}
+                >
+                  {km}k
+                </button>
+              ))}
+           </div>
+           <div className="flex flex-col gap-1.5">
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setLocalKm(Math.min(100, localKm + 5)); }}
+                className="w-9 h-9 rounded-xl bg-black/60 backdrop-blur-xl border border-white/10 flex items-center justify-center active:scale-90"
+              >
+                <Plus className="w-3.5 h-3.5 text-white" />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setLocalKm(Math.max(1, localKm - 5)); }}
+                className="w-9 h-9 rounded-xl bg-black/60 backdrop-blur-xl border border-white/10 flex items-center justify-center active:scale-90"
+              >
+                <Minus className="w-3.5 h-3.5 text-white" />
+              </button>
+           </div>
+        </div>
+      </div>
+    </motion.div>
   );
 };
