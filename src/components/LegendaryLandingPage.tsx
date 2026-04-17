@@ -451,9 +451,12 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-12 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:shadow-[0_0_30px_rgba(249,115,22,0.5)] transition-all relative overflow-hidden group"
+                  className="w-full h-14 text-sm font-black uppercase tracking-widest text-white bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_0_30px_rgba(249,115,22,0.4)] hover:shadow-[0_0_40px_rgba(249,115,22,0.6)] transition-all relative overflow-hidden group rounded-2xl"
                 >
-                  {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Join the Club'}
+                  <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                  <span className="relative z-10">
+                    {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Join the Club'}
+                  </span>
                 </Button>
               </motion.div>
             </form>

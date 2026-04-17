@@ -124,11 +124,11 @@ export const SwipeExhaustedState = ({
         initial="initial" 
         animate="animate" 
         exit="exit" 
-        className="relative z-50 h-full w-full overflow-hidden bg-background flex flex-col pt-2"
+        className="relative z-50 h-full w-full overflow-hidden bg-black flex flex-col pt-2"
       >
         <div className="absolute inset-0 pointer-events-none z-0">
           <div 
-            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[150px] opacity-10"
+            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[150px] opacity-20"
             style={{ background: activeCatInfo?.color || '#ec4899' }}
           />
         </div>
@@ -176,15 +176,14 @@ export const SwipeExhaustedState = ({
           </motion.div>
         </div>
 
-        {/* 2. QUICK SEARCH BUTTONS UNDER MAP */}
-        <div className="shrink-0 pb-6 pt-3 px-4 flex flex-col items-center gap-4 bg-gradient-to-t from-background via-background to-transparent">
+        <div className="shrink-0 pb-6 pt-3 px-4 flex flex-col items-center gap-4 bg-gradient-to-t from-black via-black/80 to-transparent">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className="flex w-full justify-center"
           >
-            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-card/60 backdrop-blur-3xl border border-border/40 shadow-2xl">
+            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/5 backdrop-blur-3xl border border-white/10 shadow-2xl">
               {Object.entries(CATEGORY_ICONS).filter(([k]) => k !== 'worker').map(([catId, info]) => {
                 const Icon = info.icon;
                 const isActive = activeCategory === catId;
@@ -225,10 +224,10 @@ export const SwipeExhaustedState = ({
             <Button
               onClick={handleRefreshClick}
               disabled={isRefreshing}
-              className="flex-1 relative h-14 overflow-hidden rounded-2xl border-0 bg-white/5 hover:bg-white/10 text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 group"
+              className="flex-1 relative h-14 overflow-hidden rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 group text-white"
             >
-              {isRefreshing && <div className="absolute inset-0 bg-brand-primary/10 animate-pulse" />}
-              <RefreshCw className={cn("mr-2 h-4 w-4 text-brand-primary transition-transform group-hover:rotate-180 duration-700", isRefreshing && "animate-spin")} />
+              {isRefreshing && <div className="absolute inset-0 bg-primary/10 animate-pulse" />}
+              <RefreshCw className={cn("mr-2 h-4 w-4 text-primary transition-transform group-hover:rotate-180 duration-700", isRefreshing && "animate-spin")} />
               {isRefreshing ? 'Scanning...' : 'Refresh Radar'}
             </Button>
             
@@ -237,7 +236,7 @@ export const SwipeExhaustedState = ({
               onClick={() => setCategories(['all'])}
               className="h-14 w-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95"
             >
-              <Zap className="h-5 w-5 text-pink-500" />
+              <Zap className="h-5 w-5 text-primary" />
             </Button>
           </div>
         </div>
