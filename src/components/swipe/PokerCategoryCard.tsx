@@ -126,9 +126,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       <div
         className="w-full h-full relative overflow-hidden rounded-[28px] bg-black"
         style={{
-          // Single soft ambient shadow — eliminates the visible "hairline band"
-          // that the previous second shadow layer cast below the rounded corners.
-          boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+          // iOS-style stacked shadow: tight ambient contact + soft key light + hairline rim.
+          boxShadow:
+            '0 2px 6px rgba(0,0,0,0.12),' +
+            '0 20px 40px -12px rgba(0,0,0,0.45)',
         }}
       >
         {/* Gradient backdrop */}

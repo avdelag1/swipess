@@ -591,7 +591,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     // Non-top card: GLASS PEEK
     return (
       <div
-        className="absolute inset-x-2 bottom-4 top-4 rounded-[32px] overflow-hidden"
+        className="absolute inset-x-2 bottom-4 top-4 rounded-[32px] overflow-hidden shadow-sm"
         style={{
           pointerEvents: 'none',
           backgroundColor: 'rgba(255, 255, 255, 0.03)',

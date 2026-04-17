@@ -20,18 +20,6 @@ html, body, #root {
   background-color: hsl(var(--background));
 }
 
-/* ─── Adaptive layout offsets — single source of truth for header / nav heights ─── */
-:root {
-  --top-offset: 88px;
-  --bottom-offset: 96px;
-}
-@media (min-width: 768px) {
-  :root {
-    --top-offset: 96px;
-    --bottom-offset: 104px;
-  }
-}
-
 /* Force black root in dark mode — eliminates white frame bleed */
 .dark #root, .dark body, .black-matte #root, .black-matte body {
   background-color: #000000;

@@ -77,7 +77,7 @@ function NotificationItem({ notification, onClick, onDismiss, index }: Notificat
       onDragEnd={(_, info) => {
         setIsSwiping(false);
         if (info.offset.x < -70) {
-          haptics.success();
+          haptics.notification('success');
           onDismiss();
         }
       }}
