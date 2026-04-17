@@ -207,13 +207,14 @@ export default function OwnerDiscovery() {
           activeTab === 'saved' ? (<OwnerLikedClients />) : (
             <div className="flex flex-col lg:flex-row gap-8">
               {showMapView && activeTab === 'radar' ? (
-                <div className="w-full h-[600px] rounded-[3rem] overflow-hidden border border-white/5 shadow-2xl">
+                <div className="w-full h-[70vh] min-h-[500px] rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden border border-white/5 shadow-2xl relative mb-8">
                   <DiscoveryMapView
                     category={radarCategory === 'worker' ? 'services' : radarCategory}
                     onBack={() => setShowMapView(false)}
                     onStartSwiping={() => navigate('/owner/dashboard')}
                     onCategoryChange={(cat) => setRadarCategory(cat === 'services' ? 'worker' : cat as RadarCategory)}
                     mode="owner"
+                    isEmbedded={true}
                   />
                 </div>
               ) : (

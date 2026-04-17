@@ -33,6 +33,10 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   
   addNotification: (notification) => set((state) => {
     const id = notification.id || Math.random().toString(36).substring(2, 9);
+    
+    // 🛡️ DEDUPLICATION: Don't add if already exists
+    if (state.notifications.some(n => n.id === id)) return state;
+
     const newNotif: Notification = {
       id,
       type: notification.type || 'info',
@@ -41,9 +45,8 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       timestamp: notification.timestamp || new Date(),
       read: false,
       ...notification
-    };
+    } as Notification;
     
-    // Limits the list to 50 items
     return {
       notifications: [newNotif, ...state.notifications].slice(0, 50)
     };

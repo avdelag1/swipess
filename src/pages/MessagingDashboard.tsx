@@ -62,7 +62,7 @@ export function MessagingDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived' | 'listing' | 'client' | 'potential'>('all');
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const [_directConversationId, _setDirectConversationId] = useState<string | null>(null);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
@@ -113,9 +113,19 @@ export function MessagingDashboard() {
       const isUnread = conv.last_message?.sender_id !== user?.id && conv.last_message?.is_read === false;
 
       let matchesFilter = true;
-      if (activeFilter === 'unread') matchesFilter = isUnread;
-      else if (activeFilter === 'archived') matchesFilter = conv.status === 'archived';
-      else matchesFilter = conv.status !== 'archived';
+      if (activeFilter === 'unread') {
+        matchesFilter = isUnread;
+      } else if (activeFilter === 'archived') {
+        matchesFilter = conv.status === 'archived';
+      } else if (activeFilter === 'listing') {
+        matchesFilter = !!conv.listing_id && conv.status !== 'archived';
+      } else if (activeFilter === 'client') {
+        matchesFilter = !conv.listing_id && !!conv.match_id && conv.status !== 'archived';
+      } else if (activeFilter === 'potential') {
+        matchesFilter = !conv.listing_id && !conv.match_id && conv.status !== 'archived';
+      } else {
+        matchesFilter = conv.status !== 'archived';
+      }
 
       return matchesSearch && matchesMode && matchesFilter;
     });
@@ -230,16 +240,16 @@ export function MessagingDashboard() {
         <div className="w-full max-w-4xl mx-auto px-4 pt-4 sm:px-6">
           <div className="mb-0" />
 
-          <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar">
+          <div className="flex items-center gap-2 mb-2 overflow-x-auto pb-2 no-scrollbar">
             {[
               { id: 'all', label: 'Inbox', icon: Inbox },
               { id: 'unread', label: 'Unread', icon: CircleDot },
               { id: 'archived', label: 'Archived', icon: Archive }
             ].map((filter) => (
               <button key={filter.id} onClick={() => { setActiveFilter(filter.id as any); haptics.tap(); }}
-                className={cn("flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all",
+                className={cn("flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all shrink-0",
                   activeFilter === filter.id
-                    ? "bg-primary text-white shadow-lg"
+                    ? "bg-primary text-white shadow-lg shadow-primary/20"
                     : isLight
                       ? "bg-secondary border border-border/40 text-muted-foreground hover:bg-secondary/80"
                       : "bg-white/5 text-muted-foreground hover:bg-white/10")}>
@@ -247,6 +257,45 @@ export function MessagingDashboard() {
                 {filter.label}
               </button>
             ))}
+          </div>
+
+          <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar px-1">
+             {[
+              { id: 'listing', label: 'Listings', icon: Layers, color: 'text-blue-400', glow: 'bg-blue-500/10' },
+              { id: 'client', label: 'Clients', icon: MessageCircle, color: 'text-emerald-400', glow: 'bg-emerald-500/10' },
+              { id: 'potential', label: 'Potential', icon: Sparkles, color: 'text-amber-400', glow: 'bg-amber-500/10' }
+            ].map((filter) => {
+              const isActive = activeFilter === filter.id;
+              return (
+                <button 
+                  key={filter.id} 
+                  onClick={() => { setActiveFilter(filter.id as any); haptics.selection(); }}
+                  className={cn(
+                    "flex items-center gap-2 px-6 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-tighter transition-all shrink-0 relative overflow-hidden group",
+                    isActive
+                      ? "text-white"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <div className={cn(
+                    "absolute inset-0 transition-all duration-500",
+                    isActive 
+                      ? isLight ? "bg-slate-900" : "bg-white/10 backdrop-blur-xl"
+                      : "bg-transparent"
+                  )} />
+                  
+                  {isActive && (
+                    <motion.div 
+                      layoutId="message-active-glow"
+                      className={cn("absolute inset-0 opacity-40", filter.glow)}
+                    />
+                  )}
+
+                  <filter.icon className={cn("w-4 h-4 relative z-10 transition-colors", isActive ? "text-primary" : filter.color)} />
+                  <span className="relative z-10">{filter.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           <div className="relative mb-5">

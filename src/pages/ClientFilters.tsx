@@ -2,11 +2,8 @@ import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Sparkles, Home, Bike, Briefcase, RotateCcw, Zap,
-  ChevronLeft, Search, Filter, Layers, CreditCard,
-  Target, Rocket, MapPin
+  Sparkles, ChevronLeft, Search, Check, X, Users, Home, Package
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -14,45 +11,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { useSaveClientFilterPreferences, useClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { haptics } from '@/utils/microPolish';
 import type { QuickFilterCategory, QuickFilterListingType } from '@/types/filters';
-
-type ListingType = QuickFilterListingType;
-
-const categories: {
-  id: QuickFilterCategory;
-  label: string;
-  emoji: string;
-  description: string;
-  gradient: string;
-}[] = [
-  {
-    id: 'property',
-    label: 'Properties',
-    emoji: '🏡',
-    description: 'Homes & Rentals',
-    gradient: 'from-blue-500/20 to-indigo-600/20',
-  },
-  {
-    id: 'motorcycle',
-    label: 'Motos',
-    emoji: '🏍️',
-    description: 'Bikes & Scooters',
-    gradient: 'from-orange-500/20 to-rose-600/20',
-  },
-  {
-    id: 'bicycle',
-    label: 'Bicycles',
-    emoji: '🚲',
-    description: 'Cycles & E-bikes',
-    gradient: 'from-emerald-500/20 to-teal-600/20',
-  },
-  {
-    id: 'services',
-    label: 'Services',
-    emoji: '💼',
-    description: 'Workers & Pros',
-    gradient: 'from-purple-500/20 to-violet-600/20',
-  },
-];
 
 export default function ClientFilters() {
   const navigate = useNavigate();
@@ -64,45 +22,58 @@ export default function ClientFilters() {
   const urlParams = new URLSearchParams(location.search);
   const aiCategory = urlParams.get('category');
 
+  // STORE STATE
   const storeCategories = useFilterStore((state) => state.categories);
-  const storeListingType = useFilterStore((state) => state.listingType) as ListingType;
+  const storeListingType = useFilterStore((state) => state.listingType);
+  const storeBedrooms = useFilterStore((state) => state.bedrooms);
+  const storeBathrooms = useFilterStore((state) => state.bathrooms);
+  
   const setCategories = useFilterStore((state) => state.setCategories);
   const setListingType = useFilterStore((state) => state.setListingType);
+  const setBedrooms = useFilterStore((state) => state.setBedrooms);
+  const setBathrooms = useFilterStore((state) => state.setBathrooms);
   const resetFilters = useFilterStore((state) => state.resetClientFilters);
 
-  const { data: dbPrefs } = useClientFilterPreferences();
+  const { data: _dbPrefs } = useClientFilterPreferences();
   const savePrefs = useSaveClientFilterPreferences();
 
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // LOCAL UI STATE
   const [selectedCategories, setSelectedCategories] = useState<QuickFilterCategory[]>(() => {
     if (aiCategory) return [aiCategory as QuickFilterCategory];
     if (storeCategories.length > 0) return storeCategories;
-    if (dbPrefs?.preferred_categories && Array.isArray(dbPrefs.preferred_categories) && dbPrefs.preferred_categories.length > 0) {
-      return dbPrefs.preferred_categories as QuickFilterCategory[];
-    }
     return [];
   });
-  const [selectedListingType, setSelectedListingType] = useState<ListingType>(() => {
-    if (storeListingType !== 'both') return storeListingType;
-    if (dbPrefs?.preferred_listing_types && Array.isArray(dbPrefs.preferred_listing_types) && dbPrefs.preferred_listing_types.length === 1) {
-      return dbPrefs.preferred_listing_types[0] as ListingType;
-    }
-    return storeListingType;
-  });
+  const [selectedListingType, setSelectedListingType] = useState<QuickFilterListingType>(storeListingType);
+  const [selectedBedrooms, setSelectedBedrooms] = useState<number[]>(storeBedrooms);
+  const [selectedBathrooms, setSelectedBathrooms] = useState<number[]>(storeBathrooms);
 
-  const activeFilterCount = selectedCategories.length + (selectedListingType !== 'both' ? 1 : 0);
-  const hasChanges = activeFilterCount > 0;
+  const activeFilterCount = (selectedListingType !== 'both' ? 1 : 0) + selectedBedrooms.length + selectedBathrooms.length;
+  const hasChanges = activeFilterCount > 0 || selectedCategories.length > 0;
 
   const toggleCategory = useCallback((id: QuickFilterCategory) => {
     haptics.tap();
-    setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    );
+    setSelectedCategories([id]);
   }, []);
+
+  const toggleBedroom = (val: number) => {
+    haptics.selection();
+    setSelectedBedrooms(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]);
+  };
+
+  const toggleBathroom = (val: number) => {
+    haptics.selection();
+    setSelectedBathrooms(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]);
+  };
 
   const handleApply = useCallback(() => {
     haptics.success();
     setCategories(selectedCategories);
     setListingType(selectedListingType);
+    setBedrooms(selectedBedrooms);
+    setBathrooms(selectedBathrooms);
+    
     queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
 
     savePrefs.mutate({
@@ -110,176 +81,263 @@ export default function ClientFilters() {
       preferred_listing_types: selectedListingType === 'both' ? ['rent', 'sale'] : [selectedListingType],
     });
 
-    navigate(-1);
-  }, [selectedCategories, selectedListingType, setCategories, setListingType, queryClient, navigate, savePrefs]);
+    navigate('/client/dashboard');
+  }, [selectedCategories, selectedListingType, selectedBedrooms, selectedBathrooms, setCategories, setListingType, setBedrooms, setBathrooms, queryClient, navigate, savePrefs]);
 
   const handleReset = useCallback(() => {
     haptics.tap();
     setSelectedCategories([]);
     setSelectedListingType('both');
+    setSelectedBedrooms([]);
+    setSelectedBathrooms([]);
     resetFilters();
   }, [resetFilters]);
 
+  const activeCategory = selectedCategories[0] || 'property';
+
   return (
-    <div className="min-h-screen bg-background text-foreground pb-32">
-      {/* Liquid Header */}
-      <div className="sticky top-0 z-50 px-6 py-8 bg-background/80 backdrop-blur-2xl border-b border-border/10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => navigate(-1)}
-              className="p-3 rounded-2xl bg-secondary/50 border border-border/50 text-muted-foreground"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </motion.button>
-            <div>
-              <h1 className="text-xl font-black tracking-tight flex items-center gap-2">
-                Discover
-                <Sparkles className="w-4 h-4 text-primary fill-primary/20" />
-              </h1>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">Global Listing Filters</p>
+    <div className={cn(
+        "min-h-screen transition-colors duration-500 pb-32 lg:pb-0",
+        isDark ? "bg-background text-foreground" : "bg-[#F8FAFC] text-slate-900"
+    )}>
+      {/* Target Acquisition Header Style */}
+      <div className={cn(
+          "sticky top-0 z-50 bg-background/80 backdrop-blur-3xl border-b transition-all duration-300 safe-top-padding",
+          isDark ? "border-white/5 shadow-2xl" : "bg-white/80 border-slate-200 shadow-sm"
+      )}>
+        <div className="container mx-auto px-6 py-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => navigate(-1)}
+                className={cn(
+                    "w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90 border shadow-sm",
+                    isDark ? "bg-muted/40 border-white/10 text-white" : "bg-white border-slate-200 text-slate-600"
+                )}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </motion.button>
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary mb-0.5">Target Scope</span>
+                <h1 className="text-xl lg:text-3xl font-black tracking-tighter uppercase">Discovery Engine</h1>
+              </div>
+            </div>
+            {hasChanges && (
+              <button
+                onClick={handleReset}
+                className="text-[10px] font-black uppercase tracking-widest text-primary px-4 py-2 bg-primary/10 rounded-full border border-primary/20 hover:bg-primary/20 transition-all"
+              >
+                Reset
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex bg-muted/20 p-1 rounded-2xl border border-white/5">
+                {[
+                  { id: 'property', icon: Home, label: 'Properties' },
+                  { id: 'motorcycle', icon: Package, label: 'Motos' },
+                  { id: 'bicycle', icon: Sparkles, label: 'Bicycles' },
+                  { id: 'services', icon: Users, label: 'Workers' }
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => toggleCategory(cat.id as QuickFilterCategory)}
+                    className={cn(
+                      "w-11 h-11 flex items-center justify-center rounded-xl transition-all",
+                      activeCategory === cat.id ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:bg-muted/40"
+                    )}
+                  >
+                    <cat.icon className="w-5 h-5" />
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search target sector..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 h-13 rounded-2xl bg-muted/20 border border-white/5 focus:bg-muted/40 transition-all font-black italic text-sm placeholder:text-muted-foreground/40 outline-none"
+                />
+              </div>
             </div>
           </div>
-          <AnimatePresence>
-            {hasChanges && (
-              <motion.button
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                onClick={handleReset}
-                className="text-[10px] font-black uppercase tracking-widest text-primary px-4 py-2 bg-primary/10 rounded-full"
-              >
-                Reset All
-              </motion.button>
-            )}
-          </AnimatePresence>
         </div>
       </div>
 
-      <div className="px-6 py-10 space-y-12 max-w-2xl mx-auto">
-        {/* Sector Selection */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Layers className="w-4 h-4 text-primary" />
-            </div>
-            <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/80">Active Sectors</h2>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3">
-            {categories.map((cat) => {
-              const isActive = selectedCategories.includes(cat.id);
-              return (
-                <motion.button
-                  key={cat.id}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => toggleCategory(cat.id)}
-                  className={cn(
-                    "relative p-5 rounded-[2.5rem] text-left transition-all duration-300 border-2 overflow-hidden",
-                    isActive 
-                      ? "border-primary bg-primary/5 shadow-xl shadow-primary/10" 
-                      : "border-border/40 bg-secondary/20 grayscale-[0.8] opacity-60 hover:opacity-100 hover:grayscale-0"
-                  )}
-                >
-                  <div className="relative z-10 flex flex-col gap-3">
-                    <span className="text-3xl">{cat.emoji}</span>
-                    <div>
-                      <div className="font-black text-sm">{cat.label}</div>
-                      <div className="text-[10px] font-bold opacity-60 leading-none">{cat.description}</div>
+      <div className="container mx-auto px-6 py-10">
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
+          <aside className="w-full lg:w-80 shrink-0">
+             <div className="space-y-10 sticky top-48">
+               <section className="space-y-4">
+                 <div className="flex items-center justify-between px-1">
+                    <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Laser Filters</h2>
+                    <span className="text-[10px] font-bold uppercase opacity-30">Target Scope: {activeCategory}</span>
+                 </div>
+
+                 <div className={cn(
+                     "grid grid-cols-3 gap-2 p-1.5 rounded-3xl border",
+                     isDark ? "bg-muted/10 border-white/5" : "bg-white border-slate-200"
+                 )}>
+                   {(['rent', 'sale', 'both'] as const).map((type) => {
+                     const isActive = selectedListingType === type;
+                     return (
+                       <button
+                         key={type}
+                         onClick={() => { haptics.tap(); setSelectedListingType(type); }}
+                         className={cn(
+                           "py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                           isActive 
+                               ? "bg-primary text-white shadow-xl shadow-primary/20 scale-[1.02]" 
+                               : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                         )}
+                       >
+                         {type}
+                       </button>
+                     );
+                   })}
+                 </div>
+               </section>
+
+               <section className="space-y-6">
+                 <div className="flex items-center gap-3 opacity-60">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em]">Client DNA</span>
+                 </div>
+                 
+                 {activeCategory === 'property' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 pl-1">
+                        <div className="space-y-4">
+                            <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Bedrooms</label>
+                            <div className="flex flex-wrap gap-2">
+                                {[1, 2, 3, 4, 5].map(n => (
+                                    <button 
+                                        key={n} 
+                                        onClick={() => toggleBedroom(n)}
+                                        className={cn(
+                                          "h-11 px-5 rounded-2xl text-[10px] font-black transition-all border",
+                                          selectedBedrooms.includes(n) 
+                                            ? "bg-primary/20 border-primary text-primary shadow-inner" 
+                                            : "bg-muted/10 border-white/5 text-muted-foreground"
+                                        )}
+                                    >
+                                        {n}+
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Bathrooms</label>
+                            <div className="flex flex-wrap gap-2">
+                                {[1, 2, 3].map(n => (
+                                    <button 
+                                        key={n} 
+                                        onClick={() => toggleBathroom(n)}
+                                        className={cn(
+                                          "h-11 px-5 rounded-2xl text-[10px] font-black transition-all border",
+                                          selectedBathrooms.includes(n) 
+                                            ? "bg-primary/20 border-primary text-primary shadow-inner" 
+                                            : "bg-muted/10 border-white/5 text-muted-foreground"
+                                        )}
+                                    >
+                                        {n}+
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </motion.div>
+                 )}
+
+                 <div className="space-y-4 pl-1">
+                    <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Lifestyle Tags</label>
+                    <div className="flex flex-wrap gap-2">
+                      {['Pet Friendly', 'Furnished', 'City Center', 'Gym'].map(tag => (
+                        <button 
+                          key={tag}
+                          className="h-10 px-4 rounded-xl text-[9px] font-black uppercase tracking-tight bg-muted/10 border border-white/5 text-muted-foreground/60 hover:text-foreground transition-all"
+                        >
+                          {tag}
+                        </button>
+                      ))}
                     </div>
-                  </div>
-                  {isActive && (
-                    <motion.div 
-                      layoutId="client-category-glow"
-                      className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"
-                    />
-                  )}
-                </motion.button>
-              );
-            })}
-          </div>
-        </section>
+                 </div>
+               </section>
+             </div>
+          </aside>
 
-        {/* Transaction Mode */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-              <CreditCard className="w-4 h-4 text-emerald-500" />
+          <main className="flex-1">
+            <div className="flex flex-col items-center justify-center py-32 bg-muted/5 rounded-[3.5rem] border border-white/5 text-center px-6">
+               <motion.div
+                 initial={{ scale: 0.9, opacity: 0 }}
+                 animate={{ scale: 1, opacity: 1 }}
+                 className="relative mb-8"
+               >
+                 <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full scale-150" />
+                 <Users className="h-20 w-20 text-muted-foreground/20 relative z-10" strokeWidth={1} />
+               </motion.div>
+               <h3 className="text-2xl font-black uppercase tracking-tighter mb-3 scale-x-95">No Candidates Resolved</h3>
+               <p className="text-muted-foreground max-w-xs mx-auto text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed opacity-60">
+                 Refine your acquisition parameters to identify active targets.
+               </p>
             </div>
-            <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/80">Transaction Mode</h2>
-          </div>
-
-          <div className="flex gap-4 p-2 bg-secondary/20 rounded-[2rem] border border-border/40">
-            {(['rent', 'sale'] as ListingType[]).map((type) => {
-              const isActive = selectedListingType === type;
-              return (
-                <motion.button
-                  key={type}
-                  onClick={() => { haptics.tap(); setSelectedListingType(prev => prev === type ? 'both' : type); }}
-                  className={cn(
-                    "flex-1 relative py-4 rounded-[1.5rem] flex items-center justify-center gap-2 transition-all duration-300 capitalize",
-                    isActive ? "text-primary font-black" : "text-muted-foreground hover:text-foreground font-bold"
-                  )}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="listing-type-pill"
-                      className="absolute inset-0 bg-background shadow-lg rounded-[1.5rem] z-0"
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                  <span className="relative z-10">{type}</span>
-                </motion.button>
-              );
-            })}
-          </div>
-        </section>
-
-
+          </main>
+        </div>
       </div>
 
-      {/* Primary Apply Button */}
-      <div className="fixed bottom-10 left-0 right-0 px-6 z-50">
-        <div className="max-w-md mx-auto">
+      <div className="fixed bottom-12 left-0 right-0 px-6 z-50 pointer-events-none">
+        <div className="max-w-md mx-auto pointer-events-auto">
           <motion.button
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: 1.02, y: -5 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleApply}
             className={cn(
-              "w-full h-18 rounded-[2rem] flex items-center justify-between px-8 text-lg font-black transition-all duration-500 shadow-2xl relative overflow-hidden group",
+              "w-full h-22 rounded-[3.5rem] flex items-center justify-between px-10 text-xl font-black transition-all duration-500 shadow-[0_30px_70px_rgba(0,0,0,0.4)] relative overflow-hidden group",
               hasChanges 
-                ? "bg-primary text-primary-foreground shadow-primary/30" 
-                : "bg-slate-800 text-slate-400 border border-slate-700 backdrop-blur-xl"
+                ? "bg-primary text-white shadow-primary/30" 
+                : "bg-background border border-white/10 text-muted-foreground"
             )}
           >
             {hasChanges && (
               <motion.div 
-                animate={{ x: [-100, 100], opacity: [0.1, 0.3, 0.1] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-30"
+                animate={{ x: [-300, 300], opacity: [0, 0.4, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent skew-x-30 pointer-events-none"
               />
             )}
             
-            <div className="relative z-10 flex items-center gap-3">
-              <Search className="w-6 h-6" />
-              <span>Target Listings</span>
+            <div className="relative z-10 flex items-center gap-5">
+              <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-xl border border-white/20">
+                <Search className="w-5 h-5" />
+              </div>
+              <span className="tracking-tighter uppercase italic">Target Intelligence</span>
             </div>
 
-            <div className="relative z-10 flex items-center gap-2">
-              {activeFilterCount > 0 && (
-                <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-black">
-                  {activeFilterCount}
-                </span>
-              )}
-              <Filter className="w-6 h-6" />
+            <div className="relative z-10 flex items-center gap-4">
+              <AnimatePresence mode="popLayout">
+                {activeFilterCount > 0 && (
+                  <motion.span 
+                    initial={{ scale: 0, x: 20 }}
+                    animate={{ scale: 1, x: 0 }}
+                    exit={{ scale: 0, x: -20 }}
+                    className="bg-white text-primary px-5 py-2 rounded-full text-[11px] font-black shadow-2xl"
+                  >
+                    {activeFilterCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+              <div className="w-10 h-10 flex items-center justify-center">
+                <Sparkles className={cn("w-6 h-6", hasChanges && "animate-pulse")} />
+              </div>
             </div>
           </motion.button>
         </div>
       </div>
-
-
     </div>
   );
 }

@@ -207,10 +207,10 @@ const SocialAuthButton = ({
     onClick={onClick}
     disabled={isLoading}
     aria-label={`Sign in with ${label}`}
-    className="group flex h-14 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-800/95 px-4 text-sm font-bold text-white shadow-lg transition-all duration-200 hover:border-orange-500/50 hover:bg-zinc-800 active:scale-[0.98] disabled:opacity-60"
+    className="group flex h-14 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-800/80 px-4 text-sm font-bold text-white shadow-lg transition-all duration-200 hover:border-orange-500 hover:bg-zinc-800 active:scale-[0.98] disabled:opacity-60"
   >
     <span className="flex min-w-0 items-center justify-center gap-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-zinc-700/50 text-white transition-colors duration-200 group-hover:bg-zinc-700">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-zinc-700 text-white transition-colors duration-200 group-hover:bg-zinc-600">
         {icon}
       </span>
       <span className="text-base font-black tracking-tighter uppercase text-white">
@@ -258,8 +258,10 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
 
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('auth_client_email') || '';
+    const rememberedPassword = localStorage.getItem('auth_client_password') || '';
     if (rememberedEmail) {
       setEmail(rememberedEmail);
+      if (rememberedPassword) setPassword(rememberedPassword);
       setRememberMe(true);
     }
   }, []);
@@ -292,8 +294,13 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
         const validated = loginSchema.parse({ email, password });
         const { error } = await signIn(validated.email, validated.password);
         if (!error) {
-          if (rememberMe) localStorage.setItem('auth_client_email', validated.email);
-          else localStorage.removeItem('auth_client_email');
+          if (rememberMe) {
+            localStorage.setItem('auth_client_email', validated.email);
+            localStorage.setItem('auth_client_password', validated.password);
+          } else {
+            localStorage.removeItem('auth_client_email');
+            localStorage.removeItem('auth_client_password');
+          }
         }
       } else {
         if (!agreeToTerms) {
@@ -350,37 +357,24 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-400/[0.02] rounded-full" />
       </div>
 
-      <motion.button 
-        onClick={onBack} 
-        initial={{ opacity: 0, x: -12 }} 
-        animate={{ opacity: 1, x: 0 }} 
-        transition={{ delay: 0.15, duration: 0.3 }}
-        title="Go back to landing"
-        aria-label="Go back to landing"
-        className="absolute top-4 left-4 z-50 text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-accent/40 backdrop-blur-sm transition-all"
-        style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
-      >
-        <ArrowLeft className="w-5 h-5" />
-      </motion.button>
-
-      <div className="h-full flex flex-col justify-center p-4 sm:p-5 relative z-10">
-        <motion.div className="w-full max-w-sm mx-auto" variants={containerVariants} initial="hidden" animate="visible">
-          <motion.div variants={itemVariants} className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] backdrop-blur-2xl relative">
+      <div className="flex-1 min-h-0 relative z-10 overflow-y-auto no-scrollbar py-10 px-4 flex flex-col items-center">
+        <motion.div className="w-full max-w-sm my-auto" variants={containerVariants} initial="hidden" animate="visible">
+          <motion.div variants={itemVariants} className="bg-[#0A0A0B]/98 border border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-[0_32px_120px_-16px_rgba(0,0,0,1)] backdrop-blur-3xl relative">
             <button
-              onClick={() => { triggerHaptic('light'); setView('landing'); }}
-              className="absolute top-4 left-4 p-2 rounded-xl bg-zinc-800/50 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-95 z-20"
+              onClick={() => { triggerHaptic('light'); onBack(); }}
+              className="absolute top-4 left-4 p-2.5 rounded-2xl bg-zinc-800/90 text-white hover:bg-zinc-700 transition-all active:scale-95 z-20 border border-white/5 shadow-lg"
               aria-label="Back to splash screen"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
-            <div className="text-center mb-6">
+            <div className="text-center mb-8 pt-2">
               <div className="flex justify-center mb-6">
-                <SwipessLogo size="md" variant={isDark ? 'white' : 'black'} />
+                <SwipessLogo size="md" variant="white" />
               </div>
-              <h1 className="text-3xl font-black tracking-tighter text-white italic mb-1 uppercase">
+              <h1 className="text-4xl font-black tracking-tighter text-white italic mb-2 uppercase leading-none">
                 {isLogin ? 'Welcome Back' : 'Join Swipess'}
               </h1>
-              <p className="text-zinc-400 text-sm font-bold leading-relaxed px-4">
+              <p className="text-zinc-400 text-sm font-bold leading-relaxed px-4 opacity-80">
                 {isLogin
                   ? 'Good luck finding your perfect deal today.'
                   : 'Your next perfect deal is one swipe away.'}
@@ -391,24 +385,24 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70 group-focus-within:text-orange-400 transition-colors z-10" />
-                    <Input type="text" name="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-11 h-14 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-orange-400 transition-colors z-10" />
+                    <Input type="text" name="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-11 h-14 bg-zinc-800/40 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:border-orange-500 focus-visible:bg-zinc-800/60 appearance-none shadow-none caret-orange-500 rounded-2xl" />
                   </GlowingField>
                 </motion.div>
               )}
 
               <motion.div variants={itemVariants}>
                 <GlowingField className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70 group-focus-within:text-orange-400 transition-colors z-10" />
-                  <Input type="email" name="email" autoComplete="username" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-11 h-14 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-orange-400 transition-colors z-10" />
+                  <Input type="email" name="email" autoComplete="username" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-11 h-14 bg-zinc-800/40 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:border-orange-500 focus-visible:bg-zinc-800/60 appearance-none shadow-none caret-orange-500 rounded-2xl" />
                 </GlowingField>
               </motion.div>
 
               {!isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <GlowingField className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70 group-focus-within:text-orange-400 transition-colors z-10" />
-                    <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-11 pr-12 h-14 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-orange-400 transition-colors z-10" />
+                    <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-11 pr-12 h-14 bg-zinc-800/40 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:border-orange-500 focus-visible:bg-zinc-800/60 appearance-none shadow-none caret-orange-500 rounded-2xl" />
                     <PasswordToggleButton showPassword={showPassword} onClick={() => setShowPassword(!showPassword)} />
                   </GlowingField>
                 </motion.div>
@@ -434,7 +428,7 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                     className="w-4 h-4 rounded-md border border-border bg-muted text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0 cursor-pointer"
                   />
                   <label htmlFor="rememberMe" className="text-[13px] text-zinc-300 leading-snug cursor-pointer select-none hover:text-white transition-colors font-bold">
-                    Remember email
+                    Remember me (Password included)
                   </label>
                 </div>
                 {!isLogin && !isForgotPassword && (

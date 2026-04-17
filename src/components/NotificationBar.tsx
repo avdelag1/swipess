@@ -36,31 +36,62 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
 
   useEffect(() => {
     const next = unread[0];
+    
+    // Case 1: No more notifications -> if visible, start dismissing
     if (!next) {
-      if (visible) startDismiss('right');
+      if (visible && !isExiting.current) startDismiss('right');
       return;
     }
-    if (current?.id === next.id && visible) return;
-    if (isExiting.current) {
+
+    // Case 2: New notification arrived
+    if (visible) {
+      // If we are currently showing a different one, queue the new one
+      if (current?.id !== next.id) {
+        pendingRef.current = next;
+        // Optional: speed up current dismissal if multiple pending
+        if (unread.length > 2) {
+          if (timerRef.current) {
+            clearTimeout(timerRef.current);
+            timerRef.current = setTimeout(() => startDismiss('right'), 1000);
+          }
+        }
+      }
+      return;
+    }
+
+    // Case 3: Nothing currently visible, show the next one
+    if (!isExiting.current) {
+      showNotification(next);
+    } else {
       pendingRef.current = next;
-      return;
     }
-    showNotification(next);
-  }, [unread.map(n => n.id).join(',')]);
+  }, [unread.length, unread[0]?.id]); // Precision dependency to avoid thrashing
 
   const showNotification = useCallback((notif: Notification) => {
-    clearTimeout(timerRef.current);
+    // Clear any existing timer before starting new one
+    if (timerRef.current) clearTimeout(timerRef.current);
+    
+    // Explicitly reset isExiting flag when showing new one
+    isExiting.current = false;
+    
     setCurrent(notif);
     setVisible(true);
-    x.set(0); // Reset swipe position
-    timerRef.current = setTimeout(() => startDismiss('right'), 4000);
+    x.set(0); 
+    
+    // Auto-dismiss after 5s (slightly longer for readability)
+    timerRef.current = setTimeout(() => {
+      startDismiss('right');
+    }, 5000);
   }, [x]);
 
   const startDismiss = useCallback((dir: 'right' | 'left' = 'right') => {
+    // Do not allow re-dismiss if already exiting
     if (isExiting.current) return;
     isExiting.current = true;
+    
     setExitDir(dir);
-    clearTimeout(timerRef.current);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = undefined;
     setVisible(false);
     triggerHaptic('light');
   }, []);
@@ -76,15 +107,23 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
 
   const handleExitComplete = useCallback(() => {
     isExiting.current = false;
-    if (current) onDismiss(current.id);
-    const pending = pendingRef.current;
-    pendingRef.current = null;
-    if (pending) {
-      setTimeout(() => showNotification(pending), 150);
-    } else {
-      setCurrent(null);
-    }
+    const dismissedId = current?.id;
+    
+    // 1. Physically remove from unread state in parent
+    if (dismissedId) onDismiss(dismissedId);
+    
+    // 2. Clear current state to allow clean transition
+    setCurrent(null);
     x.set(0); 
+
+    // 3. Process next in queue if any
+    const nextInLine = pendingRef.current;
+    pendingRef.current = null;
+    
+    if (nextInLine) {
+      // Small pause for visual clarity between banners
+      setTimeout(() => showNotification(nextInLine), 100);
+    }
   }, [current, onDismiss, showNotification, x]);
 
   if (!current) return null;

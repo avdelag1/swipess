@@ -94,6 +94,7 @@ interface DiscoveryMapViewProps {
   onStartSwiping: () => void;
   mode?: 'client' | 'owner';
   onCategoryChange?: (cat: QuickFilterCategory) => void;
+  isEmbedded?: boolean;
 }
 
 // ─── SLIDER CONSTANTS ──────────────────────────────────────────────────────────
@@ -102,7 +103,14 @@ const MAX_KM = 100;
 const SLIDER_TRACK_H = 6;
 const THUMB_SIZE = 28;
 
-export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode = 'client', onCategoryChange }: DiscoveryMapViewProps) => {
+export const DiscoveryMapView = memo(({ 
+  category, 
+  onBack, 
+  onStartSwiping, 
+  mode = 'client', 
+  onCategoryChange,
+  isEmbedded = false
+}: DiscoveryMapViewProps) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { user } = useAuth();
@@ -501,14 +509,18 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
 
   return (
     <motion.div
-      className="fixed inset-0 z-[10000] flex flex-col overflow-hidden bg-background"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.05 }}
+      className={cn(
+        "flex flex-col overflow-hidden bg-background",
+        isEmbedded ? "relative w-full h-full" : "fixed inset-0 z-[10000]"
+      )}
+      initial={isEmbedded ? false : { opacity: 0, scale: 0.95 }}
+      animate={isEmbedded ? false : { opacity: 1, scale: 1 }}
+      exit={isEmbedded ? false : { opacity: 0, scale: 1.05 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
       {/* ── Header: Back Button + Quick Categories ───────────────────── */}
-      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 right-4 z-[10001] flex items-center gap-3">
+      {!isEmbedded && (
+        <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 right-4 z-[10001] flex items-center gap-3">
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -570,7 +582,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15, duration: 0.3 }}
-          onClick={() => { detectLocation(); }}
+          onClick={handleDetectLocation}
           disabled={detecting}
           className={cn(
             "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl border border-white/10",
@@ -585,23 +597,53 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           <Navigation className={cn("w-6 h-6", detecting && "animate-spin")} />
         </motion.button>
       </div>
+      )}
 
-      {/* ── Refresh Button — sits below GPS, re-fetches every dot ───── */}
-      <motion.button
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.2, duration: 0.3 }}
-        onClick={handleRefresh}
-        disabled={fetchingDots}
-        aria-label="Refresh nearby users"
-        className={cn(
-          "absolute top-[calc(env(safe-area-inset-top,0px)+72px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all backdrop-blur-xl border border-white/10",
-          isLight ? "bg-white/80 text-black/70 shadow-md" : "bg-black/60 text-white shadow-lg",
-        )}
-        style={{ boxShadow: `0 0 18px rgba(${meta.accentRgb},0.3)` }}
-      >
-        <RefreshCw className={cn("w-5 h-5", fetchingDots && "animate-spin")} />
-      </motion.button>
+      {/* ── Refresh/GPS Buttons for Embedded mode ─────────────────────── */}
+      {isEmbedded && (
+        <div className="absolute top-4 right-4 z-[10001] flex flex-col gap-3">
+          <motion.button
+            onClick={handleRefresh}
+            disabled={fetchingDots}
+            className={cn(
+              "w-11 h-11 rounded-[1.25rem] flex items-center justify-center active:scale-90 transition-all backdrop-blur-xl border border-white/10",
+              isLight ? "bg-white/80 text-black/70 shadow-md" : "bg-black/60 text-white shadow-lg",
+            )}
+          >
+            <RefreshCw className={cn("w-4.5 h-4.5", fetchingDots && "animate-spin")} />
+          </motion.button>
+          <motion.button
+            onClick={handleDetectLocation}
+            disabled={detecting}
+            className={cn(
+              "w-11 h-11 rounded-[1.25rem] flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl border border-white/10",
+              detected ? "bg-primary text-white" : (isLight ? "bg-white/80 text-black/60" : "bg-black/60 text-white/60"),
+            )}
+            style={detected ? { backgroundColor: meta.accent } : {}}
+          >
+            <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} />
+          </motion.button>
+        </div>
+      )}
+
+      {/* ── Refresh Button — sits below GPS, re-fetches every dot (Only if NOT embedded) ───── */}
+      {!isEmbedded && (
+        <motion.button
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.3 }}
+          onClick={handleRefresh}
+          disabled={fetchingDots}
+          aria-label="Refresh nearby users"
+          className={cn(
+            "absolute top-[calc(env(safe-area-inset-top,0px)+72px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all backdrop-blur-xl border border-white/10",
+            isLight ? "bg-white/80 text-black/70 shadow-md" : "bg-black/60 text-white shadow-lg",
+          )}
+          style={{ boxShadow: `0 0 18px rgba(${meta.accentRgb},0.3)` }}
+        >
+          <RefreshCw className={cn("w-5 h-5", fetchingDots && "animate-spin")} />
+        </motion.button>
+      )}
 
 
       {/* ── MAP CANVAS — fills most of the space ─────────────────────── */}
@@ -678,11 +720,47 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           maxHeight: '40svh',
         }}
       >
+        {/* Quick Filter: Category Toggle */}
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 px-1 -mx-5 px-5">
+           {[
+             { id: 'property', icon: Building2, label: 'Properties' },
+             { id: 'motorcycle', icon: Bike, label: 'Motorcycles' },
+             { id: 'bicycle', icon: Trophy, label: 'Bicycles' },
+             { id: 'services', icon: Wrench, label: 'Masters' }
+           ].map((cat) => {
+             const isActive = category === cat.id;
+             const catMeta = CATEGORY_META[cat.id] || CATEGORY_META['property'];
+             const displayLabel = (mode === 'owner' && cat.id === 'services') ? 'People' : cat.label;
+
+             return (
+               <button
+                 key={cat.id}
+                 onClick={() => { 
+                   triggerHaptic('medium'); 
+                   if (onCategoryChange) onCategoryChange(cat.id as QuickFilterCategory);
+                 }}
+                 className={cn(
+                   "flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                   isActive ? "shadow-lg scale-[1.02]" : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                 )}
+                 style={isActive ? {
+                   background: catMeta.accent,
+                   color: '#fff',
+                   boxShadow: `0 4px 20px rgba(${catMeta.accentRgb},0.3)`
+                 } : {}}
+               >
+                 <cat.icon className="w-4 h-4" />
+                 <span>{displayLabel}</span>
+               </button>
+             );
+           })}
+        </div>
+
         {/* KM Label */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isLight ? "text-black/40" : "text-white/40")}>
-              Distance
+              Scan Radius
             </span>
           </div>
           <div className="flex items-center gap-1">
