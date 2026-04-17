@@ -207,13 +207,13 @@ const SocialAuthButton = ({
     onClick={onClick}
     disabled={isLoading}
     aria-label={`Sign in with ${label}`}
-    className="group flex h-14 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-border bg-card/95 px-4 text-sm font-semibold text-white shadow-lg shadow-black/20 transition-all duration-200 hover:border-primary/40 hover:bg-accent/50 active:scale-[0.98] disabled:opacity-60"
+    className="group flex h-14 w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-800/95 px-4 text-sm font-bold text-white shadow-lg transition-all duration-200 hover:border-orange-500/50 hover:bg-zinc-800 active:scale-[0.98] disabled:opacity-60"
   >
-    <span className="flex min-w-0 items-center gap-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background/50 text-white transition-colors duration-200 group-hover:bg-background/70">
+    <span className="flex min-w-0 items-center justify-center gap-3">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-zinc-700/50 text-white transition-colors duration-200 group-hover:bg-zinc-700">
         {icon}
       </span>
-      <span className="truncate text-base font-bold tracking-tight">
+      <span className="text-base font-black tracking-tighter uppercase">
         {isLoading ? 'Connecting...' : label}
       </span>
     </span>
@@ -365,15 +365,15 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
 
       <div className="h-full flex flex-col justify-center p-4 sm:p-5 relative z-10">
         <motion.div className="w-full max-w-sm mx-auto" variants={containerVariants} initial="hidden" animate="visible">
-          <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5 shadow-2xl backdrop-blur-md bg-opacity-80">
+          <motion.div variants={itemVariants} className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
             <div className="text-center mb-6">
               <div className="flex justify-center mb-6">
                 <SwipessLogo size="md" variant={isDark ? 'white' : 'black'} />
               </div>
-              <h1 className="text-3xl font-black tracking-tighter text-white italic mb-1">
+              <h1 className="text-3xl font-black tracking-tighter text-white italic mb-1 uppercase">
                 {isLogin ? 'Welcome Back' : 'Join Swipess'}
               </h1>
-              <p className="text-white/60 text-sm font-medium leading-relaxed px-4">
+              <p className="text-zinc-400 text-sm font-bold leading-relaxed px-4">
                 {isLogin
                   ? 'Good luck finding your perfect deal today.'
                   : 'Your next perfect deal is one swipe away.'}
@@ -426,7 +426,7 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-4 h-4 rounded-md border border-border bg-muted text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0 cursor-pointer"
                   />
-                  <label htmlFor="rememberMe" className="text-[13px] text-white/60 leading-snug cursor-pointer select-none hover:text-white transition-colors">
+                  <label htmlFor="rememberMe" className="text-[13px] text-zinc-300 leading-snug cursor-pointer select-none hover:text-white transition-colors font-bold">
                     Remember email
                   </label>
                 </div>
@@ -440,8 +440,8 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                       className="w-4 h-4 rounded-md border border-border bg-muted text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0 cursor-pointer"
                       required
                     />
-                    <label htmlFor="terms" className="text-[13px] text-white/60 leading-snug cursor-pointer select-none">
-                      Agree to <a href="#" onClick={e=>e.preventDefault()} className="text-white hover:text-orange-400 font-bold transition-colors underline decoration-white/20">Terms</a>
+                    <label htmlFor="terms" className="text-[13px] text-zinc-300 leading-snug cursor-pointer select-none font-bold">
+                      Agree to <a href="#" onClick={e=>e.preventDefault()} className="text-white hover:text-orange-400 font-black transition-colors underline decoration-zinc-700">Terms</a>
                     </label>
                   </div>
                 )}
@@ -464,9 +464,9 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
             {!isForgotPassword && (
               <>
                 <motion.div variants={itemVariants} className="flex items-center gap-3 my-1">
-                  <div className="flex-1 h-px bg-border" />
-                  <span className="text-[11px] text-muted-foreground/60 uppercase tracking-widest font-medium">or</span>
-                  <div className="flex-1 h-px bg-border" />
+                  <div className="flex-1 h-px bg-zinc-800" />
+                  <span className="text-[11px] text-zinc-500 uppercase tracking-[0.2em] font-black">or</span>
+                  <div className="flex-1 h-px bg-zinc-800" />
                 </motion.div>
 
                 <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
@@ -499,16 +499,18 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
 
             <motion.div variants={itemVariants} className="mt-4 space-y-2 text-center">
               {isLogin && !isForgotPassword && (
-                <p className="text-xs text-white/40">
-                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-orange-400 hover:text-orange-300 transition-colors">
+                <p className="text-xs text-zinc-500">
+                  <button type="button" onClick={() => setIsForgotPassword(true)} className="text-orange-400 font-bold hover:text-orange-300 transition-colors uppercase tracking-wider">
                     Forgot password?
                   </button>
                 </p>
               )}
-              <p className="text-xs text-white/40">
-                {isLogin ? "New here? " : 'Already have an account? '}
-                <button type="button" onClick={switchMode} className="text-orange-400 font-bold hover:text-orange-300 transition-colors">{isLogin ? 'Create a free account' : 'Sign In'}</button>
-              </p>
+              <div className="pt-2">
+                <p className="text-xs text-zinc-500 font-bold">
+                  {isLogin ? "New here? " : 'Already have an account? '}
+                  <button type="button" onClick={switchMode} className="text-white font-black hover:text-orange-400 transition-colors uppercase tracking-wider leading-relaxed">{isLogin ? 'Create a free account' : 'Sign In'}</button>
+                </p>
+              </div>
             </motion.div>
           </motion.div>
         </motion.div>
