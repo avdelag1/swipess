@@ -1,4 +1,5 @@
 import { memo, useState, useRef, useMemo, useEffect } from 'react';
+import { useAppNavigate } from "@/hooks/useAppNavigate";
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
@@ -480,7 +481,7 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
 
                 <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
                   <SocialAuthButton
-                    label="Apple"
+                    label="Sign in with Apple"
                     onClick={() => handleSocialLogin('apple')}
                     isLoading={socialLoading === 'apple'}
                     icon={
@@ -490,7 +491,7 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                     }
                   />
                   <SocialAuthButton
-                    label="Google"
+                    label="Sign in with Google"
                     onClick={() => handleSocialLogin('google')}
                     isLoading={socialLoading === 'google'}
                     icon={
@@ -540,6 +541,7 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
 
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
+  const { navigate } = useAppNavigate();
   const { theme, setTheme } = useTheme();
   const [view, setView] = useState<View>('landing');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
@@ -583,6 +585,16 @@ function LegendaryLandingPage() {
         )}
       </AnimatePresence>
 
+      <div className="absolute bottom-6 left-0 right-0 z-20 flex flex-col items-center gap-1 opacity-40 hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.25em] text-white">
+          <button onClick={() => navigate('/privacy-policy')} className="hover:text-orange-400 transition-colors">Privacy</button>
+          <div className="w-1 h-1 rounded-full bg-white/20" />
+          <button onClick={() => navigate('/terms-of-service')} className="hover:text-orange-400 transition-colors">Terms</button>
+          <div className="w-1 h-1 rounded-full bg-white/20" />
+          <button onClick={() => navigate('/about')} className="hover:text-orange-400 transition-colors">About</button>
+        </div>
+        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 mt-1">© 2026 Swipess Global</p>
+      </div>
 
       </motion.div>
   );
