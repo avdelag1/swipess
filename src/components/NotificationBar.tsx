@@ -5,16 +5,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
 
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
-
-
-interface Notification {
-  id: string;
-  type: string;
-  title: string;
-  message: string;
-  read: boolean;
-  timestamp: string;
-}
+import type { Notification } from '@/state/notificationStore';
 
 interface NotificationBarProps {
   notifications: Notification[];
