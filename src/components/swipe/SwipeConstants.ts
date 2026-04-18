@@ -5,6 +5,16 @@ import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ListingFilters } from '@/hooks/useSmartMatching';
 import { logger } from '@/utils/prodLogger';
+import {
+  Radio,
+  Sparkles,
+  ShieldCheck,
+  Users,
+  ShoppingBag,
+  Key,
+  Scale,
+  Megaphone
+} from 'lucide-react';
 
 // Category configuration for dynamic empty states
 export const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>; label: string; plural: string; color: string }> = {
@@ -91,14 +101,12 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   promote:    'linear-gradient(135deg, #4a1942 0%, #2d1b69 100%)',
 };
 
-// Icon imports consolidated at top.
-
 export const POKER_CARDS = [
   { id: 'property'   as const, label: 'Properties',  description: 'Houses & apts',       accent: '#3b82f6', accentRgb: '59,130,246', icon: RealEstateIcon  },
   { id: 'motorcycle' as const, label: 'Motorcycles', description: 'Bikes & scooters',     accent: '#f97316', accentRgb: '249,115,22', icon: VespaIcon  },
   { id: 'bicycle'    as const, label: 'Bicycles',    description: 'City & mountain',      accent: '#f43f5e', accentRgb: '244,63,94', icon: BeachBicycleIcon   },
   { id: 'services'   as const, label: 'Workers',     description: 'Skilled freelancers',  accent: '#a855f7', accentRgb: '168,85,247', icon: WorkersIcon  },
-  { id: 'radio'      as const, label: 'Radio',       description: 'Sentient Beats',       accent: '#f43f5e', accentRgb: '244,63,94',  icon: RadioIcon },
+  { id: 'radio'      as const, label: 'Radio',       description: 'Sentient Beats',       accent: '#f43f5e', accentRgb: '244,63,94',  icon: Radio },
   { id: 'all'        as const, label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212', icon: Sparkles   },
   { id: 'vap'        as const, label: 'Resident Card', description: 'Local Discounts',    accent: '#10b981', accentRgb: '16,185,129', icon: ShieldCheck },
 ];
