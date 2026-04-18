@@ -22,13 +22,13 @@ import type { QuickFilterCategory } from '@/types/filters';
 
 // ─── Category display config ──────────────────────────────────────────────────
 const CATEGORY_META: Record<string, { label: string; accent: string; accentRgb: string }> = {
-  property:   { label: 'Properties',  accent: '#3b82f6', accentRgb: '59,130,246' },
-  motorcycle: { label: 'Motorcycles', accent: '#f97316', accentRgb: '249,115,22' },
-  bicycle:    { label: 'Bicycles',    accent: '#f43f5e', accentRgb: '244,63,94' },
-  services:   { label: 'Workers',     accent: '#a855f7', accentRgb: '168,85,247' },
-  buyers:     { label: 'Buyers',      accent: '#3b82f6', accentRgb: '59,130,246' },
-  renters:    { label: 'Renters',     accent: '#10b981', accentRgb: '16,185,129' },
-  hire:       { label: 'Services',    accent: '#a855f7', accentRgb: '168,85,247' },
+  property:   { label: 'Properties',  accent: '#ffffff', accentRgb: '255,255,255' },
+  motorcycle: { label: 'Motorcycles', accent: '#ffffff', accentRgb: '255,255,255' },
+  bicycle:    { label: 'Bicycles',    accent: '#ffffff', accentRgb: '255,255,255' },
+  services:   { label: 'Workers',     accent: '#ffffff', accentRgb: '255,255,255' },
+  buyers:     { label: 'Buyers',      accent: '#ffffff', accentRgb: '255,255,255' },
+  renters:    { label: 'Renters',     accent: '#ffffff', accentRgb: '255,255,255' },
+  hire:       { label: 'Services',    accent: '#ffffff', accentRgb: '255,255,255' },
 };
 
 // ─── Map Math ──────────────────────────────────────────────────────────────────
@@ -337,21 +337,15 @@ export const DiscoveryMapView = memo(({
     const total = tilesX * tilesY;
 
     const drawOverlay = () => {
-      // Background dim for dark mode
-      if (!isLight) {
-        ctx.fillStyle = 'rgba(0,0,0,0.25)';
-        ctx.fillRect(0, 0, w, h);
-      }
-
       // Radar Ring
       const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
       ctx.beginPath();
       ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${meta.accentRgb},${isLight ? 0.08 : 0.12})`;
+      ctx.fillStyle = isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.05)';
       ctx.fill();
-      ctx.strokeStyle = `rgba(${meta.accentRgb},${isLight ? 0.4 : 0.5})`;
-      ctx.lineWidth = 2;
-      ctx.setLineDash([8, 4]);
+      ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([8, 8]);
       ctx.stroke();
       ctx.setLineDash([]);
 
@@ -369,23 +363,29 @@ export const DiscoveryMapView = memo(({
         if (highlight || isSelected) {
           ctx.beginPath();
           ctx.arc(px, py, isSelected ? 14 : 10, 0, Math.PI * 2);
-          ctx.fillStyle = isSelected ? `rgba(${meta.accentRgb},0.4)` : `rgba(${meta.accentRgb},0.25)`;
+          ctx.fillStyle = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)';
           ctx.fill();
+          
+          if (isSelected) {
+            ctx.strokeStyle = isLight ? '#000' : '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
         }
 
         ctx.beginPath();
         ctx.arc(px, py, (highlight || isSelected) ? 5 : 3, 0, Math.PI * 2);
-        ctx.fillStyle = (highlight || isSelected) ? meta.accent : (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.45)');
+        ctx.fillStyle = (highlight || isSelected) ? (isLight ? '#000' : '#fff') : (isLight ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.3)');
         ctx.fill();
       });
 
       // Center marker
       ctx.beginPath();
-      ctx.arc(w / 2, h / 2, 7, 0, Math.PI * 2);
-      ctx.fillStyle = meta.accent;
+      ctx.arc(w / 2, h / 2, 8, 0, Math.PI * 2);
+      ctx.fillStyle = isLight ? '#000' : '#fff';
       ctx.fill();
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 3;
+      ctx.strokeStyle = isLight ? '#fff' : '#000';
+      ctx.lineWidth = 2;
       ctx.stroke();
     };
 
@@ -447,58 +447,100 @@ export const DiscoveryMapView = memo(({
         </div>
       )}
 
-      {/* HUD: Left Radius */}
-      <motion.div initial={{ x: -60, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="absolute left-4 top-1/2 -translate-y-1/2 z-[10001] flex flex-col gap-2">
-         <div className={cn("w-14 p-2 rounded-3xl flex flex-col gap-2 backdrop-blur-2xl border border-white/10 shadow-2xl", isLight ? "bg-white/70" : "bg-black/40")}>
-            <div className="flex flex-col items-center py-2"><span className="text-[10px] font-black" style={{ color: meta.accent }}>{localKm}</span><span className="text-[6px] font-bold opacity-40">KM</span></div>
-            {[1, 5, 10, 25, 50, 100].map(km => (
-              <button key={km} onClick={() => setLocalKm(km)} className={cn("w-10 h-10 rounded-xl text-[10px] font-black transition-all", localKm === km ? "text-white shadow-lg" : "text-muted-foreground")} style={localKm === km ? { backgroundColor: meta.accent } : {}}>{km}</button>
-            ))}
-         </div>
-      </motion.div>
-
-      {/* HUD: Right Categories */}
-      <motion.div initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="absolute right-4 top-1/2 -translate-y-1/2 z-[10001] flex flex-col gap-2">
-         <div className={cn("w-14 p-2 rounded-3xl flex flex-col gap-2 backdrop-blur-2xl border border-white/10 shadow-2xl", isLight ? "bg-white/70" : "bg-black/40")}>
-            {[
-              { id: 'property', icon: Building2 }, { id: 'motorcycle', icon: Bike }, { id: 'bicycle', icon: Trophy }, { id: 'services', icon: Wrench }
-            ].map(cat => (
-              <button key={cat.id} onClick={() => onCategoryChange?.(cat.id as QuickFilterCategory)} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all", category === cat.id ? "text-white shadow-lg" : "text-muted-foreground")} style={category === cat.id ? { background: CATEGORY_META[cat.id]?.accent } : {}}><cat.icon className="w-5 h-5" /></button>
-            ))}
-         </div>
-      </motion.div>
-
-       {/* GPS Button */}
-       {/* GPS Button */}
-       <motion.button 
-         onClick={detectLocation} 
-         className={cn(
-           "absolute bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+100px)] right-4 z-[10002] w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10", 
-           detected ? "bg-primary text-white" : "bg-black/60 text-white/60"
-         )} 
-         style={detected ? { backgroundColor: meta.accent } : {}}
-       >
+      {/* HUD: Right - GPS Indicator (Moved here to avoid overlap) */}
+      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] right-4 z-[10001]">
+        <motion.button 
+          whileTap={{ scale: 0.9 }}
+          onClick={detectLocation} 
+          className={cn(
+            "w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 shadow-2xl transition-all", 
+            detected ? (isLight ? "bg-black text-white" : "bg-white text-black") : "bg-black/60 text-white/60"
+          )} 
+        >
           <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} />
-       </motion.button>
+        </motion.button>
+      </div>
+
+      {/* HUD: Left Radius (Minimalist KM selector) */}
+      <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="absolute left-4 top-1/2 -translate-y-1/2 z-[10001] flex flex-col gap-2">
+         <div className={cn("w-14 p-2 rounded-3xl flex flex-col gap-2 backdrop-blur-3xl border border-white/10 shadow-2xl", isLight ? "bg-white/70" : "bg-black/40")}>
+            <div className="flex flex-col items-center py-2">
+              <span className="text-[10px] font-black" style={{ color: isLight ? '#000' : '#fff' }}>{localKm}</span>
+              <span className="text-[6px] font-bold opacity-40">KM</span>
+            </div>
+            {[1, 5, 10, 25, 50, 100].map(km => (
+              <button 
+                key={km} 
+                onClick={() => { triggerHaptic('light'); setLocalKm(km); }} 
+                className={cn(
+                  "w-10 h-10 rounded-xl text-[10px] font-black transition-all", 
+                  localKm === km 
+                    ? (isLight ? "bg-black text-white shadow-lg" : "bg-white text-black shadow-lg") 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {km}
+              </button>
+            ))}
+         </div>
+      </motion.div>
 
       {/* MAP CANVAS */}
       <div ref={containerRef} className="flex-1 relative overflow-hidden" style={{ touchAction: 'none' }} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
-        <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
+        <canvas ref={canvasRef} style={{ width: '100%', height: '100%', filter: isLight ? 'none' : 'contrast(1.1) brightness(0.9) saturate(1.2)' }} />
         
         {/* Radar Pulse Effect */}
         <AnimatePresence>
           {isRefreshing && (
             <motion.div key="pulse" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 pointer-events-none overflow-hidden">
-               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200vmax] h-[200vmax]" style={{ background: `conic-gradient(from 0deg, rgba(${meta.accentRgb}, 0.2) 0deg, transparent 90deg)`, animation: 'radar-rotate 2s linear infinite', opacity: 0.4 }} />
+               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200vmax] h-[200vmax]" style={{ background: `conic-gradient(from 0deg, rgba(${isLight ? '0,0,0' : '255,255,255'}, 0.1) 0deg, transparent 90deg)`, animation: 'radar-rotate 2s linear infinite', opacity: 0.4 }} />
                <style>{`@keyframes radar-rotate { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }`}</style>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Bottom Button - Precision cleared above Nav Bar */}
-      <div className="absolute inset-x-0 bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+12px)] z-[10002] flex flex-col items-center pb-8 px-5">
-        <button onClick={handleRefresh} className="w-full max-w-sm h-14 rounded-3xl text-white text-[12px] font-black uppercase tracking-[0.3em] active:scale-95 transition-all flex items-center justify-center gap-3" style={{ background: meta.accent, boxShadow: `0 16px 32px rgba(${meta.accentRgb},0.4)` }}>
+      {/* FLOAT HUD: BOTTOM GROUP (Quick Filters centered + Refresh) */}
+      <div className="absolute inset-x-0 bottom-0 z-[10002] flex flex-col items-center pb-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+12px)] px-5 gap-4">
+        
+        {/* Quick Filter Categories (Centered as requested) */}
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }} 
+          animate={{ y: 0, opacity: 1 }}
+          className={cn(
+            "p-2 rounded-3xl flex items-center gap-2 backdrop-blur-3xl border border-white/10 shadow-2xl", 
+            isLight ? "bg-white/70" : "bg-black/40"
+          )}
+        >
+          {[
+            { id: 'property', icon: Building2 }, 
+            { id: 'motorcycle', icon: Bike }, 
+            { id: 'bicycle', icon: Trophy }, 
+            { id: 'services', icon: Wrench }
+          ].map(cat => (
+            <button 
+              key={cat.id} 
+              onClick={() => { triggerHaptic('medium'); onCategoryChange?.(cat.id as QuickFilterCategory); }} 
+              className={cn(
+                "w-12 h-12 flex items-center justify-center rounded-2xl transition-all", 
+                category === cat.id 
+                  ? (isLight ? "bg-black text-white shadow-lg scale-105" : "bg-white text-black shadow-lg scale-105") 
+                  : "text-muted-foreground hover:text-foreground active:scale-90"
+              )}
+            >
+              <cat.icon className="w-6 h-6" />
+            </button>
+          ))}
+        </motion.div>
+
+        {/* Global Action Button */}
+        <button 
+          onClick={handleRefresh} 
+          className={cn(
+            "w-full max-w-sm h-14 rounded-3xl text-[12px] font-black uppercase tracking-[0.3em] active:scale-95 transition-all flex items-center justify-center gap-3 shadow-2xl",
+            isLight ? "bg-black text-white" : "bg-white text-black"
+          )}
+        >
           <RefreshCw className={cn("w-5 h-5", fetchingDots && "animate-spin")} />
           REFRESH RADAR ({dotCount})
         </button>
