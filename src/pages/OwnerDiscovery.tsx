@@ -227,7 +227,7 @@ export default function OwnerDiscovery() {
                       <button onClick={() => setFilters({})} className="text-[10px] font-black uppercase tracking-widest text-rose-500">Reset</button>
                     )}
                   </div>
-                  <DiscoveryFilters category={radarCategory} onApply={handleApplyFilters} initialFilters={filters} activeCount={activeFilterCount} />
+                  <DiscoveryFilters category={(radarCategory === 'worker' ? 'service' : radarCategory) as 'property' | 'motorcycle' | 'bicycle' | 'service'} onApply={handleApplyFilters} initialFilters={filters} activeCount={activeFilterCount} />
                 </div>
               </aside>
               <main className="flex-1">
