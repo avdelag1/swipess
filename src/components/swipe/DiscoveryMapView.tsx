@@ -6,8 +6,8 @@
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
-import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
-import { Navigation, Zap, RefreshCw, Building2, Bike, Trophy, Wrench, ArrowLeft, X, HardHat, PersonStanding } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Navigation, RefreshCw, Building2, Bike, ArrowLeft, HardHat } from 'lucide-react';
 import { toast } from 'sonner';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
@@ -51,16 +51,18 @@ export const DiscoveryMapView = memo(({
   category, 
   onBack, 
   onStartSwiping, 
-  onCategoryChange 
+  onCategoryChange,
+  isEmbedded = false
 }: {
   category: QuickFilterCategory;
   onBack: () => void;
   onStartSwiping: () => void;
   onCategoryChange?: (cat: QuickFilterCategory) => void;
+  isEmbedded?: boolean;
 }) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
-  const { user } = useAuth();
+  const { user } = userAuthHook(); // Simplified for local context, fixing reference below
 
   const radiusKm = useFilterStore(s => s.radiusKm);
   const setRadiusKm = useFilterStore(s => s.setRadiusKm);
@@ -69,7 +71,6 @@ export const DiscoveryMapView = memo(({
   const userLongitude = useFilterStore(s => s.userLongitude);
 
   const [localKm, setLocalKm] = useState(radiusKm);
-  const [dots, setDots] = useState<any[]>([]);
   const [detecting, setDetecting] = useState(false);
   const [detected, setDetected] = useState(!!userLatitude);
 
@@ -126,7 +127,18 @@ export const DiscoveryMapView = memo(({
 
   const radiusPx = kmToPixels(localKm, center.lat, zoom);
 
-  // MAPPING DRAWING
+  // ── Interaction Handlers ───────────────────────────────────────────────────
+  const handlePointerDown = (e: React.PointerEvent) => {
+    panStartRef.current = { x: e.clientX, y: e.clientY, ox: panOffset.x, oy: panOffset.y };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!panStartRef.current) return;
+    setPanOffset({ x: panStartRef.current.ox - (e.clientX - panStartRef.current.x), y: panStartRef.current.oy - (e.clientY - panStartRef.current.y) });
+  };
+  const handlePointerUp = () => { panStartRef.current = null; };
+
+  // ── Mapping Drawing ─────────────────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || mapSize.w < 10) return;
@@ -147,23 +159,17 @@ export const DiscoveryMapView = memo(({
     ctx.fillRect(0, 0, w, h);
 
     const tilesX = Math.ceil(w / 256) + 2; const tilesY = Math.ceil(h / 256) + 2;
-    let loaded = 0;
-    const tilesNeeded = tilesX * tilesY;
+    let loaded = 0; const tilesNeeded = tilesX * tilesY;
 
     const drawMap = () => {
         if (rid !== renderIdRef.current) return;
-        // Radar
         ctx.beginPath();
         ctx.arc(w/2, h/2, radiusPx, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(0,0,0,0.03)';
         ctx.fill();
         ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([5, 5]);
-        ctx.stroke();
-        ctx.setLineDash([]);
+        ctx.lineWidth = 1; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
 
-        // Center Marker
         ctx.beginPath(); ctx.arc(w/2, h/2, 6, 0, Math.PI * 2);
         ctx.fillStyle = '#111'; ctx.fill();
         ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
@@ -176,25 +182,20 @@ export const DiscoveryMapView = memo(({
             img.onload = () => {
                 if (rid !== renderIdRef.current) return;
                 ctx.drawImage(img, w/2 - oX + dx*256, h/2 - oY + dy*256, 256, 256);
-                loaded++;
-                if (loaded >= tilesNeeded) drawMap();
+                loaded++; if (loaded >= tilesNeeded) drawMap();
             };
-            img.onerror = () => {
-                loaded++;
-                if (loaded >= tilesNeeded) drawMap();
-            };
+            img.onerror = () => { loaded++; if (loaded >= tilesNeeded) drawMap(); };
             const tZ = Math.min(zoom, 18);
             const wX = (cTX + dx + (1<<tZ)) % (1<<tZ);
             const wY = cTY + dy;
-            if (wY >= 0 && wY < (1<<tZ)) {
-                img.src = `https://a.tile.openstreetmap.org/${tZ}/${wX}/${wY}.png`;
-            } else {
-                loaded++;
-                if (loaded >= tilesNeeded) drawMap();
-            }
+            if (wY >= 0 && wY < (1<<tZ)) img.src = `https://a.tile.openstreetmap.org/${tZ}/${wX}/${wY}.png`;
+            else { loaded++; if (loaded >= tilesNeeded) drawMap(); }
         }
     }
   }, [center, zoom, radiusPx, mapSize]);
+
+  // Fix hook reference issue
+  function userAuthHook() { return useAuth(); }
 
   return (
     <motion.div className="flex flex-col h-full w-full bg-[#f8fafc] relative overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -223,7 +224,7 @@ export const DiscoveryMapView = memo(({
       </div>
 
       {/* MAP VIEW */}
-      <div ref={containerRef} className="flex-1 relative overflow-hidden" onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
+      <div ref={containerRef} className="flex-1 relative overflow-hidden touch-none" onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
         <canvas ref={canvasRef} style={{ width: '100%', height: '100%', filter: 'contrast(1.05) saturate(1.2)' }} />
       </div>
 
@@ -247,8 +248,9 @@ export const DiscoveryMapView = memo(({
         </button>
       </div>
 
-      {/* SEPARATION LAYER: Ensures bottom nav bar pops */}
       <div className="absolute bottom-0 inset-x-0 h-[var(--bottom-nav-height,72px)] bg-black/10 backdrop-blur-sm pointer-events-none z-[999]" />
     </motion.div>
   );
 });
+
+DiscoveryMapView.displayName = 'DiscoveryMapView';
