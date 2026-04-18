@@ -68,12 +68,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   }, [card.id, onCycle, x]);
 
   // Stack styling
-  const stackY = isCollapsed ? 0 : index * 8;
-  const stackScale = 1 - (index * 0.04);
-  const stackOpacity = index === 0 ? 1 : index === 1 ? 0.7 : index === 2 ? 0.4 : 0;
-  // Static blur/brightness for stacked (non-top) cards — avoids per-frame filter
-  // recomposite that caused visible jitter while the top card was being dragged.
-  const stackedFilter = isTop ? undefined : `brightness(${0.9 - index * 0.1}) blur(${index * 1.5}px)`;
+  const stackY = isCollapsed ? 0 : index * 10;
+  const stackScale = 1 - (index * 0.05);
+  const stackOpacity = index === 0 ? 1 : index === 1 ? 0.7 : index === 2 ? 0.3 : 0;
+  const stackedFilter = isTop ? undefined : `brightness(${0.85 - index * 0.1}) blur(${index * 2}px)`;
 
   if (index > 3) return null;
 
@@ -81,7 +79,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
     <motion.div
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.55}
+      dragElastic={0.6}
       onDragStart={() => {
         setIsDragging(true);
         triggerHaptic('light');
@@ -98,7 +96,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
           }
         }
       }}
-      initial={isTop ? { y: 60, opacity: 0, scale: 0.9 } : false}
+      initial={isTop ? { y: 60, opacity: 0, scale: 0.95 } : false}
       animate={{
         y: stackY,
         opacity: stackOpacity,
@@ -123,40 +121,44 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       transition={{ ...PK_SPRING }}
       className="select-none touch-none"
     >
-      <div
-        className="w-full h-full relative overflow-hidden rounded-[28px] bg-black"
-        style={{
-          boxShadow: 'none',
-        }}
-      >
-        {/* Gradient backdrop */}
-        <div className="absolute inset-0" style={{ background: gradient, opacity: 0.15 }} />
+      <div className="w-full h-full relative overflow-hidden rounded-[2.5rem] bg-black shadow-2xl border border-white/5">
         
-        {/* Photo with fade-in */}
+        {/* Photo & Gradient Base */}
         <motion.img
           src={photo}
           alt={card.label}
           initial={{ opacity: 0 }}
           animate={{ opacity: imgReady ? 1 : 0 }}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700"
+          style={{ transform: isTop && isDragging ? 'scale(1.05)' : 'scale(1)' }}
           draggable={false}
         />
-
-        {/* Liquid Overlays */}
-        {/* Liquid Overlays — SHADES REMOVED */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#EB4898]/20 to-transparent opacity-40 mix-blend-overlay" />
         
-        {/* Content */}
-        <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-8 md:p-10">
-          <div className="mb-8 pointer-events-none">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 mb-1">{card.description}</p>
-            <h3 className="text-white text-3xl font-black tracking-tight leading-none uppercase">{card.label}</h3>
+        {/* 🛸 NEXUS METADATA CONTENT */}
+        <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8">
+          
+          <div className="space-y-2">
+            <motion.div 
+               initial={{ opacity: 0, x: -10 }}
+               animate={{ opacity: 1, x: 0 }}
+               className="flex items-center gap-2"
+            >
+              <div className="w-4 h-[1px] bg-[#EB4898] shadow-[0_0_8px_#EB4898]" />
+              <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">{card.description}</span>
+            </motion.div>
+            
+            <h3 className="text-white text-4xl font-black tracking-tighter leading-none uppercase italic">
+              {card.label}
+            </h3>
           </div>
 
           {isTop && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.15, type: 'spring', damping: 20 }}
             >
               <button
                 type="button"
@@ -166,13 +168,16 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
                   triggerHaptic('medium');
                   onSelect(card.id);
                 }}
-                className="w-full h-[64px] rounded-2xl bg-white text-black font-black uppercase tracking-[0.3em] text-[12px] flex items-center justify-center shadow-[0_12px_24px_rgba(255,255,255,0.25)] active:scale-95 transition-all"
+                className="w-full h-[72px] rounded-[2.2rem] bg-white text-black font-black uppercase italic tracking-widest text-[13px] flex items-center justify-center shadow-[0_25px_50px_-12px_rgba(255,255,255,0.3)] active:scale-95 transition-all"
               >
-                Launch {card.label}
+                Engage Discovery
               </button>
             </motion.div>
           )}
         </div>
+
+        {/* Glossy Perimeter Rim */}
+        <div className="absolute inset-0 border border-white/10 rounded-[2.5rem] pointer-events-none" />
       </div>
     </motion.div>
   );

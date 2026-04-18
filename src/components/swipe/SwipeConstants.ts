@@ -1,16 +1,19 @@
-import { Home, Bike, Briefcase, Sparkles, Users, ShoppingBag, Key, Wrench, Radio as RadioIcon, ShieldCheck, Scale, Megaphone } from 'lucide-react';
+import { VespaIcon } from '@/components/icons/VespaIcon';
+import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
+import { WorkersIcon } from '@/components/icons/WorkersIcon';
+import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ListingFilters } from '@/hooks/useSmartMatching';
 import { logger } from '@/utils/prodLogger';
 
 // Category configuration for dynamic empty states
 export const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>; label: string; plural: string; color: string }> = {
-  property: { icon: Home, label: 'Property', plural: 'Properties', color: 'text-primary' },
-  moto: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
-  motorcycle: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
-  bicycle: { icon: Bike, label: 'Bicycle', plural: 'Bicycles', color: 'text-rose-500' },
-  services: { icon: Briefcase, label: 'Service', plural: 'Services', color: 'text-purple-500' },
-  worker: { icon: Briefcase, label: 'Worker', plural: 'Workers', color: 'text-purple-500' },
+  property: { icon: RealEstateIcon, label: 'Property', plural: 'Properties', color: 'text-primary' },
+  moto: { icon: VespaIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
+  motorcycle: { icon: VespaIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
+  bicycle: { icon: BeachBicycleIcon, label: 'Bicycle', plural: 'Bicycles', color: 'text-rose-500' },
+  services: { icon: WorkersIcon, label: 'Service', plural: 'Services', color: 'text-purple-500' },
+  worker: { icon: WorkersIcon, label: 'Worker', plural: 'Workers', color: 'text-purple-500' },
 };
 
 /**
@@ -91,10 +94,10 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
 // Icon imports consolidated at top.
 
 export const POKER_CARDS = [
-  { id: 'property'   as const, label: 'Properties',  description: 'Houses & apts',       accent: '#3b82f6', accentRgb: '59,130,246', icon: Home  },
-  { id: 'motorcycle' as const, label: 'Motorcycles', description: 'Bikes & scooters',     accent: '#f97316', accentRgb: '249,115,22', icon: MotorcycleIcon  },
-  { id: 'bicycle'    as const, label: 'Bicycles',    description: 'City & mountain',      accent: '#f43f5e', accentRgb: '244,63,94', icon: Bike   },
-  { id: 'services'   as const, label: 'Workers',     description: 'Skilled freelancers',  accent: '#a855f7', accentRgb: '168,85,247', icon: Briefcase  },
+  { id: 'property'   as const, label: 'Properties',  description: 'Houses & apts',       accent: '#3b82f6', accentRgb: '59,130,246', icon: RealEstateIcon  },
+  { id: 'motorcycle' as const, label: 'Motorcycles', description: 'Bikes & scooters',     accent: '#f97316', accentRgb: '249,115,22', icon: VespaIcon  },
+  { id: 'bicycle'    as const, label: 'Bicycles',    description: 'City & mountain',      accent: '#f43f5e', accentRgb: '244,63,94', icon: BeachBicycleIcon   },
+  { id: 'services'   as const, label: 'Workers',     description: 'Skilled freelancers',  accent: '#a855f7', accentRgb: '168,85,247', icon: WorkersIcon  },
   { id: 'radio'      as const, label: 'Radio',       description: 'Sentient Beats',       accent: '#f43f5e', accentRgb: '244,63,94',  icon: RadioIcon },
   { id: 'all'        as const, label: 'All',         description: 'Browse everything',    accent: '#06b6d4', accentRgb: '6,182,212', icon: Sparkles   },
   { id: 'vap'        as const, label: 'Resident Card', description: 'Local Discounts',    accent: '#10b981', accentRgb: '16,185,129', icon: ShieldCheck },
@@ -181,7 +184,7 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
     accent: '#a855f7',
     accentRgb: '168,85,247',
     clientType: 'hire',
-    icon: Wrench,
+    icon: WorkersIcon,
   },
   {
     id: 'lawyer',

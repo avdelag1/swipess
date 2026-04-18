@@ -1,4 +1,3 @@
-/** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { OwnerProfileDialog } from "@/components/OwnerProfileDialog";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { useState } from "react";
@@ -8,219 +7,192 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone
+  LogOut, Building2, Camera, Flame, ThumbsUp, Settings, Megaphone, Scale, ChevronRight, Coins
 } from "lucide-react";
 import { ActivityFeed } from "@/components/ActivityFeed";
-import { Scale } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
-import { haptics } from "@/utils/microPolish";
+import { triggerHaptic } from "@/utils/haptics";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { cn } from "@/lib/utils";
-
+import { useMessagingQuota } from "@/hooks/useMessagingQuota";
 
 const OwnerProfile = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const { user, signOut } = useAuth();
   const { data: stats, isLoading: statsLoading } = useOwnerStats();
   const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
+  const { tokenBalance } = useMessagingQuota();
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
   const isLoading = statsLoading || profileLoading;
 
-  // SPEED OF LIGHT: Skip skeleton if data is already in cache
   if (isLoading && !ownerProfile) {
     return <ProfileSkeleton />;
   }
 
   return (
-    <>
-      <div className="w-full max-w-lg mx-auto p-4 pt-2 pb-32 space-y-6 bg-background relative">
-        {/* Profile Header */}
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen w-full bg-[#0a0a0c] text-white overflow-x-hidden">
+      {/* 🛸 CINEMATIC ATMOSPHERE */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-[-15%] left-[-10%] w-[70%] h-[50%] bg-[#EB4898]/10 blur-[130px] rounded-full" />
+        <div className="absolute top-[20%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[110px] rounded-full" />
+      </div>
+
+      <div className="w-full max-w-lg mx-auto p-6 pt-10 pb-40 space-y-8 relative z-10">
+        
+        {/* 🛸 OWNER HEADER: BRAND GLASS */}
+        <div className="flex flex-col items-center text-center gap-6">
           <div className="relative">
-            <div className="w-[84px] h-[84px] rounded-full p-[2.5px] bg-gradient-to-br from-primary to-orange-500">
+             <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="w-28 h-28 rounded-[2.5rem] p-[3px] bg-gradient-to-br from-[#EB4898] via-indigo-500 to-sky-400 shadow-[0_0_50px_rgba(235,72,152,0.2)]"
+            >
               <div
-                className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
-                onClick={() => { haptics.tap(); setShowEditDialog(true); }}
+                className="w-full h-full rounded-[2.4rem] bg-[#0d0d0f] overflow-hidden cursor-pointer flex items-center justify-center border border-white/10"
+                onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
               >
                 {ownerProfile?.profile_images?.[0] ? (
-                  <img src={ownerProfile.profile_images[0]} alt="Profile" className="w-full h-full object-cover" />
+                  <img src={ownerProfile.profile_images[0]} alt="Brand" className="w-full h-full object-cover" />
                 ) : (
-                  <Building2 className="w-9 h-9 text-muted-foreground/40" />
+                  <Building2 className="w-10 h-10 text-white/20" />
                 )}
               </div>
-            </div>
-            <button
-              onClick={() => { haptics.tap(); setShowEditDialog(true); }}
-              aria-label="Edit Profile"
-              title="Edit Profile"
-              className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-transform active:scale-90 bg-primary"
+            </motion.div>
+             <button
+              onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
+              className="absolute -bottom-2 -right-2 w-9 h-9 rounded-2xl flex items-center justify-center shadow-2xl transition-all active:scale-90 bg-white text-black border-2 border-[#0d0d0f]"
             >
-              <Camera className="w-3.5 h-3.5 text-primary-foreground" />
+              <Camera className="w-4 h-4" />
             </button>
           </div>
-          <div className="flex-1">
-            <h1 className="text-xl font-semibold text-foreground leading-tight tracking-tight">
-              {ownerProfile?.business_name || 'Set up your business'}
+
+          <div className="space-y-1.5">
+            <h1 className="text-3xl font-black uppercase italic tracking-tighter text-white">
+              {ownerProfile?.business_name || 'Incognito Entity'}
             </h1>
-            <p className="text-sm font-normal text-muted-foreground mt-0.5">{user?.email}</p>
+            <div className="flex items-center justify-center gap-2">
+               <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#EB4898] italic">Master Profile</span>
+               <div className="w-1 h-1 rounded-full bg-white/20" />
+               <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/30 italic">{user?.email}</span>
+            </div>
           </div>
         </div>
 
-        {/* Quick Stats Grid */}
-        <div className="grid grid-cols-3 gap-3">
+        {/* 🛸 METRIC GRID: NEXUS CARDS */}
+        <div className="grid grid-cols-3 gap-4">
           {[
-            { label: 'Liked', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-primary/70' },
-            { label: 'Interested', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-amber-500/70' },
-            { label: 'Listings', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-blue-500/70' },
+            { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#EB4898]' },
+            { label: 'Fans', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-amber-400' },
+            { label: 'Assets', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-sky-400' },
           ].map((stat, i) => (
-            <div
+            <motion.div
               key={i}
-              className={cn(
-                "rounded-xl p-4 text-center border",
-                isLight
-                  ? "bg-card border-border/30 shadow-sm"
-                  : "bg-white/[0.03] border-white/[0.06]"
-              )}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white/[0.03] backdrop-blur-3xl border border-white/[0.08] rounded-[1.8rem] p-5 text-center shadow-xl"
             >
-              <stat.icon className={cn("w-4 h-4 mx-auto mb-2", stat.color)} />
-              <div className="text-lg font-black leading-none mb-1 bg-gradient-to-br from-pink-500 to-orange-500 bg-clip-text text-transparent">
+              <stat.icon className={cn("w-4 h-4 mx-auto mb-2 opacity-60", stat.color)} />
+              <div className="text-xl font-black tabular-nums tracking-tighter text-white">
                 {stat.value}
               </div>
-              <div className="text-[10px] font-medium text-muted-foreground">{stat.label}</div>
-            </div>
+              <div className="text-[8px] font-black uppercase tracking-[0.2em] text-white/30 italic mt-1">{stat.label}</div>
+            </motion.div>
           ))}
         </div>
 
-        {/* Promote/Advertise Buttons */}
-        <div className="flex flex-col gap-2">
-          <Button
-            variant="outline"
-            size="lg"
-            elastic
-            onClick={() => { haptics.success(); navigate('/client/advertise'); }}
-            className="w-full h-14 font-black text-sm relative overflow-hidden group border-2 border-primary/20 hover:border-primary/40 bg-gradient-to-br from-primary/10 to-orange-500/10 shadow-sm transition-all"
-          >
-            <Megaphone className="w-5 h-5 text-primary mr-2 shrink-0" />
-            <span className="bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent font-black uppercase tracking-tight">
-              Promote Your Event
-            </span>
-          </Button>
-
+        {/* 🛸 TOKEN HUB: LIQUID GLASS */}
+        <div 
+          className="bg-gradient-to-r from-[#EB4898]/20 to-indigo-500/10 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] p-6 flex items-center justify-between cursor-pointer active:scale-[0.98] transition-all"
+          onClick={() => { triggerHaptic('selection'); navigate('/subscription/packages'); }}
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#EB4898] flex items-center justify-center shadow-[0_0_20px_rgba(235,72,152,0.4)]">
+              <Coins className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xs font-black uppercase tracking-widest text-white italic">Messaging Credits</h3>
+              <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Top-up to unlock connections</p>
+            </div>
+          </div>
+          <div className="text-2xl font-black italic tracking-tighter text-white mr-2">
+            {tokenBalance || 0}
+          </div>
         </div>
 
-        {/* Action Grid */}
+        {/* 🛸 PROMOTION CTA */}
+        <Button
+            onClick={() => { triggerHaptic('success'); navigate('/client/advertise'); }}
+            className="w-full h-16 rounded-[2.2rem] bg-white text-black font-black uppercase italic tracking-widest text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-2xl border-none"
+        >
+          <Megaphone className="w-5 h-5 mr-3" />
+          Promote Your Assets
+        </Button>
+
+        {/* 🛸 ACTION NAV GRID */}
         <div className="grid grid-cols-2 gap-4">
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => { haptics.tap(); navigate('/owner/liked-clients'); }}
-            className={cn(
-              "rounded-2xl p-5 flex flex-col gap-3 text-left transition-all",
-              isLight
-                ? "bg-card border border-border/40 hover:border-border shadow-sm"
-                : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
-            )}
-          >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10">
-              <Flame className="w-5 h-5 text-primary/70" />
-            </div>
-            <div>
-              <div className="text-sm font-medium text-foreground">Your Likes</div>
-              <div className="text-[11px] font-normal text-muted-foreground mt-0.5">
-                {stats?.likedClientsCount ?? 0} Clients
+          {[
+            { label: 'Outbound', sub: 'Liked Clients', icon: Flame, color: 'text-[#EB4898]', path: '/owner/liked-clients' },
+            { label: 'Inbound', sub: 'Interested', icon: ThumbsUp, color: 'text-amber-400', path: '/owner/interested-clients' }
+          ].map((nav, i) => (
+            <motion.button
+              key={i}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { triggerHaptic('light'); navigate(nav.path); }}
+              className="bg-white/[0.03] backdrop-blur-3xl border border-white/[0.08] rounded-[2.2rem] p-6 flex flex-col gap-4 text-left hover:bg-white/[0.05] transition-all"
+            >
+              <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center bg-white/5 border border-white/10", nav.color)}>
+                <nav.icon className="w-5 h-5" />
               </div>
-            </div>
-          </motion.button>
-
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => { haptics.tap(); navigate('/owner/interested-clients'); }}
-            className={cn(
-              "rounded-2xl p-5 flex flex-col gap-3 text-left transition-all",
-              isLight
-                ? "bg-card border border-border/40 hover:border-border shadow-sm"
-                : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
-            )}
-          >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10">
-              <ThumbsUp className="w-5 h-5 text-amber-500/70" />
-            </div>
-            <div>
-              <div className="text-sm font-medium text-foreground">Who Liked You</div>
-              <div className="text-[11px] font-normal text-muted-foreground mt-0.5">
-                {stats?.interestedClientsCount ?? 0} Interested
+              <div>
+                <div className="text-xs font-black uppercase tracking-widest text-white italic">{nav.label}</div>
+                <div className="text-[9px] font-bold mt-0.5 text-white/30 uppercase tracking-widest">{nav.sub}</div>
               </div>
-            </div>
-          </motion.button>
+            </motion.button>
+          ))}
         </div>
 
-        {/* Recent Activity */}
-        <div>
-          <h3 className="text-xs font-medium text-muted-foreground mb-3 px-1">
-            Recent Activity
-          </h3>
+        {/* 🛸 ACTIVITY FEED PANEL */}
+        <div className="bg-white/[0.02] backdrop-blur-md border border-white/5 rounded-[2.5rem] p-6">
+          <h3 className="text-[10px] font-black uppercase tracking-widest text-white/30 italic mb-5 px-2">Brand Activity</h3>
           <ActivityFeed />
         </div>
 
-        {/* Share Profile */}
-        <div>
-          <SharedProfileSection
-            profileId={user?.id}
-            profileName={ownerProfile?.business_name || 'Your Business'}
-            isClient={false}
-          />
-        </div>
+        <SharedProfileSection profileId={user?.id} profileName={ownerProfile?.business_name || 'Your Business'} isClient={false} />
+        <LanguageToggle />
 
-        {/* Language Selection */}
-        <div>
-          <LanguageToggle />
-        </div>
+        {/* 🛸 NAVIGATION STACK: GLASS BUTTONS */}
+        <div className="space-y-3">
+          {[
+            { label: 'Legal Center', icon: Scale, path: '/legal' },
+            { label: 'Account Systems', icon: Settings, path: '/owner/settings' }
+          ].map(btn => (
+             <button
+              key={btn.label}
+              onClick={() => { triggerHaptic('light'); navigate(btn.path); }}
+              className="w-full h-15 rounded-[2.2rem] bg-white/5 backdrop-blur-md border border-white/5 flex items-center px-8 gap-4 active:scale-[0.97] transition-all"
+            >
+              <btn.icon className="w-4 h-4 text-sky-400/60" />
+              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/70 italic">{btn.label}</span>
+            </button>
+          ))}
 
-        {/* Action Buttons - unified compact stack */}
-        <div className="space-y-2">
-          {/* Legal Hub */}
           <button
-            onClick={() => { haptics.select(); navigate('/legal', { state: { from: 'dashboard' } }); }}
-            className={cn(
-              "w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border",
-              isLight ? "bg-card border-border/40 text-foreground shadow-sm" : "bg-white/[0.04] border-white/[0.06] text-foreground"
-            )}
+            onClick={() => { triggerHaptic('medium'); signOut(); }}
+            className="w-full h-15 rounded-[2.2rem] bg-red-500/10 border border-red-500/20 flex items-center justify-center gap-3 active:scale-[0.97] transition-all text-red-500"
           >
-            <Scale className="w-5 h-5 opacity-70" />
-            Legal Hub & Contracts
-          </button>
-
-          {/* Settings */}
-          <button
-            onClick={() => { haptics.tap(); navigate('/owner/settings'); }}
-            className={cn(
-              "w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border",
-              isLight ? "bg-card border-border/40 text-foreground shadow-sm" : "bg-white/[0.04] border-white/[0.06] text-foreground"
-            )}
-          >
-            <Settings className="w-5 h-5 opacity-70" />
-            Settings
-          </button>
-
-          {/* Sign Out */}
-          <button
-            onClick={() => { haptics.warning(); signOut(); }}
-            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border border-red-500/20 bg-red-500/5 text-red-500"
-          >
-            <LogOut className="w-5 h-5" />
-            Sign Out
+            <LogOut className="w-4 h-4" />
+            <span className="text-[11px] font-black uppercase tracking-[0.2em] italic">De-authorize Device</span>
           </button>
         </div>
 
-        <div className="h-12" />
+        <div className="h-10" />
       </div>
 
       <OwnerProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
-    </>
+    </div>
   );
 };
 

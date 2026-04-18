@@ -6,7 +6,10 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
-import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+import { VespaIcon } from '@/components/icons/VespaIcon';
+import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
+import { WorkersIcon } from '@/components/icons/WorkersIcon';
+import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
 import { POKER_CARDS, POKER_CARD_PHOTOS, PK_SPRING, PK_W, PK_H } from './swipe/SwipeConstants';
 import { haptics } from '@/utils/microPolish';
@@ -33,10 +36,10 @@ interface QuickFilterBarProps {
 const _allCategories: QuickFilterCategory[] = ['property', 'motorcycle', 'bicycle', 'services'];
 
 const categories: { id: QuickFilterCategory; label: string; icon: React.ReactNode }[] = [
-  { id: 'property', label: 'Properties', icon: <Home className="w-4 h-4" /> },
-  { id: 'motorcycle', label: 'Motorcycles', icon: <MotorcycleIcon className="w-4 h-4" /> },
-  { id: 'bicycle', label: 'Bicycles', icon: <Bike className="w-4 h-4" /> },
-  { id: 'services', label: 'Workers', icon: <Wrench className="w-4 h-4" /> },
+  { id: 'property', label: 'Properties', icon: <RealEstateIcon className="w-5 h-5" /> },
+  { id: 'motorcycle', label: 'Motorcycles', icon: <VespaIcon className="w-5 h-5" /> },
+  { id: 'bicycle', label: 'Bicycles', icon: <BeachBicycleIcon className="w-5 h-5" /> },
+  { id: 'services', label: 'Workers', icon: <WorkersIcon className="w-5 h-5" /> },
 ];
 
 // Map category array to localStorage key

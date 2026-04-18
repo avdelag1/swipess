@@ -14,6 +14,10 @@ import { Button } from '@/components/ui/button';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
 import { useFilterStore } from '@/state/filterStore';
+import { VespaIcon } from '@/components/icons/VespaIcon';
+import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
+import { WorkersIcon } from '@/components/icons/WorkersIcon';
+import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
 
 // Predefined budget ranges for motorcycles (rent)
 const MOTO_RENT_BUDGET_RANGES = [

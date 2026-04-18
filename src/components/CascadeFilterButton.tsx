@@ -4,7 +4,10 @@ import { Home, Bike, RotateCcw, Users, User, ChevronDown, Wrench, Filter, X, Che
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
-import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+import { VespaIcon } from '@/components/icons/VespaIcon';
+import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
+import { WorkersIcon } from '@/components/icons/WorkersIcon';
+import { RealEstateIcon } from '@/components/icons/RealEstateIcon';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
 import { getCategoryColorClass } from '@/types/filters';
 
@@ -23,10 +26,10 @@ interface CascadeFilterButtonProps {
 }
 
 const categories: { id: QuickFilterCategory; label: string; icon: React.ReactNode }[] = [
-  { id: 'property', label: 'properties', icon: <Home className="w-4 h-4" /> },
-  { id: 'motorcycle', label: 'motos', icon: <MotorcycleIcon className="w-4 h-4" /> },
-  { id: 'bicycle', label: 'bikes', icon: <Bike className="w-4 h-4" /> },
-  { id: 'services', label: 'services', icon: <Wrench className="w-4 h-4" /> },
+  { id: 'property', label: 'properties', icon: <RealEstateIcon className="w-4 h-4" /> },
+  { id: 'motorcycle', label: 'motos', icon: <VespaIcon className="w-4 h-4" /> },
+  { id: 'bicycle', label: 'bikes', icon: <BeachBicycleIcon className="w-4 h-4" /> },
+  { id: 'services', label: 'services', icon: <WorkersIcon className="w-4 h-4" /> },
 ];
 
 const listingTypes: { id: QuickFilterListingType; label: string }[] = [
