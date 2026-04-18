@@ -94,7 +94,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const handleMessageActivationsClick = () => navigate('/subscription/packages');
 
   return (
-    <div className="min-h-screen w-full flex flex-col relative bg-background selection:bg-brand-primary/30">
+    <div className="w-full flex flex-col relative bg-background selection:bg-brand-primary/30">
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />
       
@@ -114,11 +114,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         </SentientHud>
       )}
 
+      {/* 🛸 NO-LOCK MAIN CONTAINER: Allows children to expand the body natively */}
       <main
         id="main-content"
         className={cn(
-          "flex-1 w-full relative z-0",
-          isFullScreen ? "h-screen overflow-hidden" : "min-h-screen"
+          "w-full relative z-0",
+          isFullScreen && "h-screen overflow-hidden fixed inset-0"
         )}
       >
         {children}
