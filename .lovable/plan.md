@@ -1,58 +1,63 @@
 
 
-## Full-Screen Map Discovery + In-Card Action Icons
+## Fix Map Visibility + Adaptive User Pill + Card Sizing
 
-### What Changes
+### Diagnosis
 
-**1. Redesign LocationRadiusSelector into a portrait-size interactive map**
-- Replace the current small 240px canvas with a **full-width, tall map** (`width: 100%, height: calc(100dvh - 200px)`) that fills the discovery area when no card is showing or when toggled
-- Make the map **touch-draggable** -- track pan gestures to offset the map center (finger panning shifts `userLat`/`userLng` offset), smooth momentum scrolling
-- **Km selector** becomes a horizontal sliding pill bar at the bottom of the map (same instant-slide feel as the nav bar buttons) with preset values (1, 5, 10, 25, 50, 100 km) that slide left/right with touch
-- **GPS button** as a floating icon in bottom-right corner of the map
-- **Category quick-filter buttons** overlaid on map corners/edges (top-left row or bottom edge)
-- **Remove all text labels/descriptions** -- icons only, self-explanatory with size and color
-- Radius circle overlay updates live as user slides the km selector
-- Load more tiles dynamically as user pans the map
+**Why the map won't open** (the critical issue): there are **9 build errors** blocking the app from compiling. The map specifically fails because `DiscoveryMapView.tsx` references `handleDetectLocation` (lines 597, 628) which doesn't exist — the actual function is `detectLocation`. Until these errors are fixed, no route renders properly.
 
-**2. Move action buttons INSIDE the swipe card**
-- **Remove** the external `SwipeActionButtonBar` from both `SwipessSwipeContainer` and `ClientSwipeContainer`
-- The `DiscoverySidebar` (already inside `SimpleSwipeCard`) becomes the sole action interface
-- Add **Like (flame)** and **Dislike (thumbs down)** icons to the `DiscoverySidebar` alongside existing Undo, Message, Share, Insights icons
-- Right swipe = like, left swipe = dislike -- the card itself IS the interaction, buttons are just shortcuts
-- Same treatment for `SimpleOwnerSwipeCard` -- add a similar sidebar with: Undo, Dislike, Like, Message, Share, Insights
-- **Tap center of card** = opens insights page (already wired)
+**Other blockers preventing the map from showing:**
+- `OwnerDiscovery.tsx:215` casts `'service'` to `RadarCategory` but the type union is `'worker'` not `'service'`.
+- `DiscoveryMapView.tsx:244,252` compare `category` (which is `QuickFilterCategory` = `'property'|'motorcycle'|'bicycle'|'services'`) against `'worker'`, which TS flags as impossible.
+- `DiscoveryMapView.tsx:530` passes `false` to `exit` prop — Framer requires `undefined`.
+- `SwipeExhaustedState.tsx:236` uses `'all'` which isn't in `QuickFilterCategory`.
+- Three other unrelated files (`BottomNavigation`, `VapIdEditModal`, `MessagingDashboard`, `ClientFilters`) have errors that also prevent build.
 
-**3. Apply to both Client and Owner sides + Roommates**
-- `SwipessSwipeContainer` (client side): remove bottom `SwipeActionButtonBar`, rely on in-card sidebar
-- `ClientSwipeContainer` (owner side): same removal, add sidebar to `SimpleOwnerSwipeCard`
-- Roommate swipe cards: same pattern
+### Plan
 
-### Files to Modify
+**1. Fix all 9 build errors so the app compiles and the map renders.**
 
-| File | Change |
-|------|--------|
-| `src/components/swipe/LocationRadiusSelector.tsx` | **Rewrite** -- portrait map, touch pan, sliding km pills, no text labels, corner filter buttons |
-| `src/components/DiscoverySidebar.tsx` | Add Like + Dislike buttons to the sidebar |
-| `src/components/SimpleSwipeCard.tsx` | Already has DiscoverySidebar -- no change needed |
-| `src/components/SimpleOwnerSwipeCard.tsx` | Add DiscoverySidebar with all action icons |
-| `src/components/SwipessSwipeContainer.tsx` | Remove `SwipeActionButtonBar` render block (lines 1108-1119) |
-| `src/components/ClientSwipeContainer.tsx` | Remove `SwipeActionButtonBar` render block (lines 948-958), pass action handlers to card |
-| `src/components/SwipeActionButtonBar.tsx` | Keep file but no longer rendered in swipe containers |
+| File | Fix |
+|---|---|
+| `DiscoveryMapView.tsx` | Rename `handleDetectLocation` → `detectLocation` (2 spots). Drop the `'worker'` comparisons in `selectedCategoryDb` and `isDotMatching` — just use `category` directly (DB normalization happens in the matching hook, not here). Replace `exit={isEmbedded ? false : {...}}` with `exit={isEmbedded ? undefined : {...}}`. |
+| `OwnerDiscovery.tsx` | Map `'worker' → 'services'` when passing to `DiscoveryMapView` (already done) and accept `'services'` back, converting to `'worker'` for local state (already done). The remaining error is the `category` prop type — narrow the cast to satisfy `QuickFilterCategory`. |
+| `SwipeExhaustedState.tsx:236` | Default to `'property'` instead of `'all'`. |
+| `BottomNavigation.tsx:329` | Remove the extra argument from the haptic call. |
+| `VapIdEditModal.tsx:155` | Wrap object in array or fix the upsert payload shape. |
+| `ClientFilters.tsx:61,66` & `MessagingDashboard.tsx:272` | `haptics.selection()` → `haptics.select()`. |
+| `MessagingDashboard.tsx:123,125` | Remove `match_id` references — use `id` instead. |
+| `MessagingDashboard.tsx:264,266` | Add missing `Layers, Sparkles` imports from `lucide-react`. |
+| `NotificationPopover.tsx` | Already pending — confirm `haptics.success()` was applied. |
 
-### Technical Approach
+**2. Make the user-name pill adapt to the actual name length.**
 
-**Map panning**: Track `onPointerDown/Move/Up` on the canvas container. Accumulate pixel deltas, convert to lat/lng offset using the tile math already in place. Apply inertia with `requestAnimationFrame` decay.
+In `TopBar.tsx` (lines 145–152): currently the name is clipped at `max-w-[120px]` and truncated at 10 chars via JS. Change to:
+- Drop `max-w-[120px]`, allow the pill to grow naturally.
+- Keep the 10-char hard cap (`.substring(0, 10)`) so super-long names don't break the layout.
+- Add `min-w-0` and `whitespace-nowrap` so flex wraps cleanly.
+- The right-side action cluster (`Radio`, `ThemeToggle`, `NotificationPopover`) already uses `flex-shrink-0` and the centered logo is absolutely positioned — they'll naturally compress/shift when the pill grows. To keep the layout fluid, change the centered logo hit area (line 163) to not block flex space: it's already `absolute`, good. Add `flex-wrap: nowrap` and `gap` adjustments so the right cluster moves rather than overlapping.
 
-**Km sliding selector**: Horizontal scrollable row of circular buttons (1, 5, 10, 25, 50, 100) with `scroll-snap-x` and `overscroll-behavior: contain`. Active button glows primary color. Same physics as nav bar horizontal scroll.
+**3. Make swipe cards reach closer to the bottom navigation bar.**
 
-**In-card sidebar layout** (vertical stack, right edge):
-```
-[Match %]
-[Undo]
-[Dislike - red]
-[Like - flame orange]  
-[Message]
-[Share]
-[Insights]
-```
+In `src/index.css`, the `--card-height` formula subtracts `200px` (mobile), which leaves a visible gap above the nav bar. Tighten:
+- Mobile: `calc(100svh - 156px)` (was `200px`) and bump `max` to `680px`.
+- Tablet: `calc(100svh - 200px)` and `max 720px`.
+- Desktop: keep larger margins.
+
+Also in `SwipeAllDashboard.tsx:108`: change `maxHeight: 'min(600px, calc(100svh - 240px))'` → `'min(720px, calc(100svh - 180px))'` so the poker stack fills nearly to the bottom nav, leaving only ~12–16px breathing room.
+
+**4. Verify the dashboard map flow end-to-end.**
+After the build compiles: tap a poker card on `/client/dashboard` → confirm `phase` flips to `'map'` and `DiscoveryMapView` mounts (it's `isEmbedded={false}` by default, rendering as `fixed inset-0 z-[10000]`). Same flow for owner: tap "Find Buyers" / "Find Workers" on Owner Discovery → confirm the map opens in the embedded container.
+
+### Files Modified
+- `src/components/swipe/DiscoveryMapView.tsx` — rename `handleDetectLocation`, drop `'worker'` literal compares, fix `exit` prop
+- `src/pages/OwnerDiscovery.tsx` — type-correct category cast
+- `src/components/swipe/SwipeExhaustedState.tsx` — default `'property'`
+- `src/components/BottomNavigation.tsx` — remove extra haptic arg
+- `src/components/VapIdEditModal.tsx` — fix upsert payload
+- `src/pages/ClientFilters.tsx` — `haptics.select`
+- `src/pages/MessagingDashboard.tsx` — imports, `match_id` → `id`, `haptics.select`
+- `src/components/TopBar.tsx` — adaptive pill width
+- `src/index.css` — tighter card-height math
+- `src/components/swipe/SwipeAllDashboard.tsx` — larger maxHeight cap
 
