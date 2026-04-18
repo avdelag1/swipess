@@ -332,50 +332,88 @@ export const DiscoveryMapView = memo(({
     const tilesY = Math.ceil(h / 256) + 2;
     const startDx = -Math.ceil(tilesX / 2);
     const startDy = -Math.ceil(tilesY / 2);
-    let loaded = 0; const total = tilesX * tilesY;
+
+    let loaded = 0;
+    const total = tilesX * tilesY;
+
+    const drawOverlay = () => {
+      // Background dim for dark mode
+      if (!isLight) {
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // Radar Ring
+      const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${meta.accentRgb},${isLight ? 0.08 : 0.12})`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(${meta.accentRgb},${isLight ? 0.4 : 0.5})`;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Dots
+      dots.forEach(dot => {
+        const dTile = latLngToTile(dot.latitude, dot.longitude, zoom);
+        const px = w / 2 + (dTile.x - tileX) * 256;
+        const py = h / 2 + (dTile.y - tileY) * 256;
+        if (px < -20 || px > w + 20 || py < -20 || py > h + 20) return;
+
+        const dist = haversineKm(baseLat, baseLng, dot.latitude, dot.longitude);
+        const highlight = dist <= localKm && isDotMatching(dot);
+        const isSelected = dot.id === selectedDotId;
+
+        if (highlight || isSelected) {
+          ctx.beginPath();
+          ctx.arc(px, py, isSelected ? 14 : 10, 0, Math.PI * 2);
+          ctx.fillStyle = isSelected ? `rgba(${meta.accentRgb},0.4)` : `rgba(${meta.accentRgb},0.25)`;
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.arc(px, py, (highlight || isSelected) ? 5 : 3, 0, Math.PI * 2);
+        ctx.fillStyle = (highlight || isSelected) ? meta.accent : (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.45)');
+        ctx.fill();
+      });
+
+      // Center marker
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, 7, 0, Math.PI * 2);
+      ctx.fillStyle = meta.accent;
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    };
+
+    const onFinish = () => {
+      loaded++;
+      // Draw overlay after all tiles attempt to load
+      if (loaded >= total) drawOverlay();
+    };
 
     for (let dx = startDx; dx < startDx + tilesX; dx++) {
       for (let dy = startDy; dy < startDy + tilesY; dy++) {
-        const img = new Image(); img.crossOrigin = 'anonymous';
-        const onFinish = () => {
-          loaded++;
-          if (loaded >= total) {
-            if (!isLight) { ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(0, 0, w, h); }
-            const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
-            ctx.beginPath(); ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${meta.accentRgb},${isLight ? 0.08 : 0.12})`; ctx.fill();
-            ctx.strokeStyle = `rgba(${meta.accentRgb},${isLight ? 0.4 : 0.5})`; ctx.lineWidth = 2;
-            ctx.setLineDash([8, 4]); ctx.stroke(); ctx.setLineDash([]);
-
-            dots.forEach(dot => {
-              const dTile = latLngToTile(dot.latitude, dot.longitude, zoom);
-              const px = w / 2 + (dTile.x - tileX) * 256; const py = h / 2 + (dTile.y - tileY) * 256;
-              if (px < -20 || px > w + 20 || py < -20 || py > h + 20) return;
-              const dist = haversineKm(baseLat, baseLng, dot.latitude, dot.longitude);
-              const highlight = dist <= localKm && isDotMatching(dot);
-              const isSelected = dot.id === selectedDotId;
-
-              if (highlight || isSelected) {
-                ctx.beginPath(); ctx.arc(px, py, isSelected ? 14 : 10, 0, Math.PI * 2);
-                ctx.fillStyle = isSelected ? `rgba(${meta.accentRgb},0.4)` : `rgba(${meta.accentRgb},0.25)`; ctx.fill();
-              }
-              ctx.beginPath(); ctx.arc(px, py, (highlight || isSelected) ? 5 : 3, 0, Math.PI * 2);
-              ctx.fillStyle = (highlight || isSelected) ? meta.accent : (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.45)');
-              ctx.fill();
-            });
-
-            ctx.beginPath(); ctx.arc(w / 2, h / 2, 7, 0, Math.PI * 2); ctx.fillStyle = meta.accent; ctx.fill();
-            ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
-          }
-        };
+        const img = new Image();
         img.onload = () => {
-          const drawX = w / 2 - offsetX + dx * 256; const drawY = h / 2 - offsetY + dy * 256;
-          ctx.drawImage(img, drawX, drawY, 256, 256); onFinish();
+          const drawX = w / 2 - offsetX + dx * 256;
+          const drawY = h / 2 - offsetY + dy * 256;
+          ctx.drawImage(img, drawX, drawY, 256, 256);
+          onFinish();
         };
         img.onerror = onFinish;
         const wrappedX = (centerTileX + dx + (1 << zoom)) % (1 << zoom);
         const wrappedY = centerTileY + dy;
-        if (wrappedY >= 0 && wrappedY < (1 << zoom)) img.src = tileUrl(wrappedX, wrappedY, zoom); else onFinish();
+        const tileZ = Math.min(zoom, 18);
+        
+        if (wrappedY >= 0 && wrappedY < (1 << tileZ)) {
+          img.src = `https://tile.openstreetmap.org/${tileZ}/${wrappedX}/${wrappedY}.png`;
+        } else {
+          onFinish();
+        }
       }
     }
   }, [effectiveCenter, zoom, radiusPx, isLight, mapSize, dots, localKm, baseLat, baseLng, meta, isDotMatching, selectedDotId]);
@@ -442,8 +480,8 @@ export const DiscoveryMapView = memo(({
         </AnimatePresence>
       </div>
 
-      {/* Bottom Button */}
-      <div className="absolute inset-x-0 bottom-0 z-[10001] flex flex-col items-center pb-8 px-5">
+      {/* Bottom Button - Lifted for clearance */}
+      <div className="absolute inset-x-0 bottom-6 z-[10001] flex flex-col items-center pb-8 px-5">
         <button onClick={handleRefresh} className="w-full max-w-sm h-14 rounded-3xl text-white text-[12px] font-black uppercase tracking-[0.3em] active:scale-95 transition-all flex items-center justify-center gap-3" style={{ background: meta.accent, boxShadow: `0 16px 32px rgba(${meta.accentRgb},0.4)` }}>
           <RefreshCw className={cn("w-5 h-5", fetchingDots && "animate-spin")} />
           REFRESH RADAR ({dotCount})
