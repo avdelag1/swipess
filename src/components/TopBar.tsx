@@ -144,17 +144,17 @@ function TopBarComponent({
                 </Avatar>
                 {profile?.full_name && (
                   <span className={cn(
-                    "text-[13px] font-black uppercase italic tracking-tighter whitespace-nowrap flex-shrink-0",
+                    "text-[13px] font-black uppercase italic tracking-tight whitespace-nowrap flex-shrink-0 max-w-[11ch] truncate",
                     isLight ? "text-foreground" : "text-white/90"
                   )}>
-                    {profile.full_name.split(' ')[0].substring(0, 10)}
+                    {profile.full_name.split(' ')[0].substring(0, 12)}
                   </span>
                 )}
               </motion.button>
             )}
 
             {!minimal && (
-              <div className="flex-shrink-0 ml-4 md:ml-6 pointer-events-auto rounded-xl overflow-hidden border border-white/10" style={glassSurfaceStyle}>
+              <div className="flex-shrink-0 ml-2 pointer-events-auto rounded-xl overflow-hidden border border-white/10" style={glassSurfaceStyle}>
                 <ModeSwitcher variant="icon" size="sm" />
               </div>
             )}

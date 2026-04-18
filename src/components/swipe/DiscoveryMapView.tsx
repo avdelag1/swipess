@@ -1,19 +1,21 @@
 /**
  * DISCOVERY MAP VIEW — Post Quick-Filter, Pre-Swipe
  *
- * Shown after the user taps a poker card category.
- * Displays a full-bleed pannable map with real listing dots,
- * a premium glass slider for km radius, and a back button.
+ * Compact iOS-style module shown after the user taps a poker card category.
+ *   · One small square radar module (no full-screen map)
+ *   · No self-motion / inertia — pan follows the finger only
+ *   · Clear blue center marker with halo + pulse ring
+ *   · Back top-left, Refresh + Location in a floating cluster at map top-right
+ *   · Compact category icon pills below the map
+ *   · Fast KM preset pills as the primary radius control
+ *   · Start Swiping CTA at the bottom
  *
- * The slider follows the bottom nav "Liquid Glass" aesthetic:
- *   - Frosted glass track with a glowing thumb
- *   - Instant haptic on drag
- *   - Category accent color glow
+ * Fits cleanly between the global TopBar and the bottom navigation.
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import { ChevronLeft, Navigation, Zap, RefreshCw, Building2, Bike, Trophy, Wrench, ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Navigation, Zap, RefreshCw, Building2, Bike, Trophy, Wrench, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
@@ -66,6 +68,9 @@ const pixelToLatLng = (dx: number, dy: number, lat: number, zoom: number) => {
 const tileUrl = (x: number, y: number, z: number) =>
   `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
 
+// Module-level tile cache so repeated renders don't re-fetch tiles.
+const TILE_CACHE: Record<string, HTMLImageElement> = {};
+
 // ─── Haversine distance ────────────────────────────────────────────────────────
 const haversineKm = (lat1: number, lng1: number, lat2: number, lng2: number) => {
   const R = 6371;
@@ -97,17 +102,15 @@ interface DiscoveryMapViewProps {
   isEmbedded?: boolean;
 }
 
-// ─── SLIDER CONSTANTS ──────────────────────────────────────────────────────────
 const MIN_KM = 1;
 const MAX_KM = 100;
-const SLIDER_TRACK_H = 6;
-const THUMB_SIZE = 28;
+const KM_PRESETS = [1, 5, 10, 25, 50, 100];
 
-export const DiscoveryMapView = memo(({ 
-  category, 
-  onBack, 
-  onStartSwiping, 
-  mode = 'client', 
+export const DiscoveryMapView = memo(({
+  category,
+  onBack,
+  onStartSwiping,
+  mode = 'client',
   onCategoryChange,
   isEmbedded = false
 }: DiscoveryMapViewProps) => {
@@ -129,15 +132,11 @@ export const DiscoveryMapView = memo(({
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Pan state
+  // Pan state — NO inertia. Pan follows the finger only.
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const panStartRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
-  const velocityRef = useRef({ vx: 0, vy: 0 });
-  const lastMoveRef = useRef({ x: 0, y: 0, t: 0 });
-  const inertiaRef = useRef<number | null>(null);
-  const [mapSize, setMapSize] = useState({ w: 300, h: 400 });
+  const [mapSize, setMapSize] = useState({ w: 300, h: 300 });
 
   const meta = CATEGORY_META[category] || CATEGORY_META.property;
   const baseLat = userLatitude ?? 20.2114;
@@ -160,16 +159,11 @@ export const DiscoveryMapView = memo(({
     );
   }, [setUserLocation]);
 
-  // Auto-detect on mount if no location
   useEffect(() => {
     if (!userLatitude && !userLongitude) detectLocation();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ─── Fetch ALL discoverable dots (listings + profiles) ───────────────────
-  // User intent: show EVERY listing / user in the app on the map regardless of
-  // the currently selected category. Dots matching the active category are
-  // drawn with the category accent; everything else renders as a neutral dot
-  // so the user can still see the density of available users nearby.
+  // ─── Fetch all discoverable dots (listings + profiles) ───────────────────
   const [refreshTick, setRefreshTick] = useState(0);
   const [fetchingDots, setFetchingDots] = useState(false);
 
@@ -240,19 +234,11 @@ export const DiscoveryMapView = memo(({
     setRefreshTick(t => t + 1);
   }, []);
 
-  // Normalize the selected category once (DB uses "worker" instead of "services")
-  const selectedCategoryDb = category === 'services' ? 'worker' : category;
-
-  // A dot is considered a "match" if it's within the current km radius AND
-  // (in client mode) its listing category matches the active filter, OR (in
-  // owner mode) it's a profile. Profiles always count as a match since the
-  // owner is surfacing people regardless of intent.
   const isDotMatching = useCallback(
     (d: ListingDot) => {
       const dbCat = category === 'services' ? 'worker' : category;
       if (mode === 'owner') {
         if (d.kind !== 'profile') return false;
-        // In owner mode, we match if the client has the selected category in their interests or intentions
         const interests = [...(d.interest_categories || []), ...(d.intentions || [])].map(i => i.toLowerCase());
         return interests.includes(dbCat.toLowerCase()) || interests.includes(category.toLowerCase());
       }
@@ -262,8 +248,6 @@ export const DiscoveryMapView = memo(({
     [category, mode]
   );
 
-  // Count matching dots within the current radius — used for the badge and
-  // the "N found" label on the Start Swiping button.
   useEffect(() => {
     if (!baseLat || !baseLng) { setDotCount(0); return; }
     const count = dots.filter(d =>
@@ -272,36 +256,41 @@ export const DiscoveryMapView = memo(({
     setDotCount(count);
   }, [dots, localKm, baseLat, baseLng, isDotMatching]);
 
-  // Debounce radius update
+  // Commit radius to store instantly — pill taps are the primary input now.
   useEffect(() => {
-    const t = setTimeout(() => { if (localKm !== radiusKm) setRadiusKm(localKm); }, 250);
-    return () => clearTimeout(t);
+    if (localKm !== radiusKm) setRadiusKm(localKm);
   }, [localKm, radiusKm, setRadiusKm]);
 
   // Measure container
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const obs = new ResizeObserver(([entry]) => setMapSize({ w: entry.contentRect.width, h: entry.contentRect.height }));
+    const obs = new ResizeObserver(([entry]) =>
+      setMapSize({ w: entry.contentRect.width, h: entry.contentRect.height }),
+    );
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
 
   // ─── Map rendering ───────────────────────────────────────────────────────
-  const zoom = useMemo(() => getZoomForRadius(localKm, baseLat, Math.min(mapSize.w, mapSize.h)), [localKm, baseLat, mapSize]);
+  const zoom = useMemo(
+    () => getZoomForRadius(localKm, baseLat, Math.min(mapSize.w, mapSize.h)),
+    [localKm, baseLat, mapSize],
+  );
 
   const effectiveCenter = useMemo(() => {
     const { dLat, dLng } = pixelToLatLng(panOffset.x, panOffset.y, baseLat, zoom);
     return { lat: baseLat + dLat, lng: baseLng + dLng };
   }, [baseLat, baseLng, panOffset, zoom]);
 
-  const radiusPx = useMemo(() => kmToPixels(localKm, effectiveCenter.lat, zoom), [localKm, effectiveCenter.lat, zoom]);
+  const radiusPx = useMemo(
+    () => kmToPixels(localKm, effectiveCenter.lat, zoom),
+    [localKm, effectiveCenter.lat, zoom],
+  );
 
-  // Pan handlers
+  // Pan handlers — finger-only. No velocity, no decay, no drift.
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (inertiaRef.current) { cancelAnimationFrame(inertiaRef.current); inertiaRef.current = null; }
     panStartRef.current = { x: e.clientX, y: e.clientY, ox: panOffset.x, oy: panOffset.y };
-    lastMoveRef.current = { x: e.clientX, y: e.clientY, t: performance.now() };
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   }, [panOffset]);
 
@@ -310,43 +299,24 @@ export const DiscoveryMapView = memo(({
     const dx = e.clientX - panStartRef.current.x;
     const dy = e.clientY - panStartRef.current.y;
     setPanOffset({ x: panStartRef.current.ox - dx, y: panStartRef.current.oy - dy });
-    const now = performance.now();
-    const dt = now - lastMoveRef.current.t;
-    if (dt > 0) {
-      velocityRef.current = {
-        vx: (e.clientX - lastMoveRef.current.x) / dt * 16,
-        vy: (e.clientY - lastMoveRef.current.y) / dt * 16,
-      };
-    }
-    lastMoveRef.current = { x: e.clientX, y: e.clientY, t: now };
   }, []);
 
   const handlePointerUp = useCallback(() => {
     panStartRef.current = null;
-    const { vx, vy } = velocityRef.current;
-    if (Math.abs(vx) > 1 || Math.abs(vy) > 1) {
-      let cvx = vx, cvy = vy;
-      const decay = () => {
-        cvx *= 0.92; cvy *= 0.92;
-        if (Math.abs(cvx) < 0.5 && Math.abs(cvy) < 0.5) { inertiaRef.current = null; return; }
-        setPanOffset(prev => ({ x: prev.x - cvx, y: prev.y - cvy }));
-        inertiaRef.current = requestAnimationFrame(decay);
-      };
-      inertiaRef.current = requestAnimationFrame(decay);
-    }
   }, []);
 
   // Draw map + radius + dots
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || mapSize.w < 10 || mapSize.h < 10) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
     const { w, h } = mapSize;
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
 
     const { x: tileX, y: tileY } = latLngToTile(effectiveCenter.lat, effectiveCenter.lng, zoom);
@@ -355,531 +325,340 @@ export const DiscoveryMapView = memo(({
     const offsetX = (tileX - centerTileX) * 256;
     const offsetY = (tileY - centerTileY) * 256;
 
-    ctx.fillStyle = isLight ? '#f1f5f9' : '#0a0a0a';
+    const drawOverlay = () => {
+      // Soft dim only *outside* the radar circle so the center stays clear.
+      if (!isLight) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.35)';
+        ctx.beginPath();
+        ctx.rect(0, 0, w, h);
+        ctx.arc(w / 2, h / 2, Math.min(radiusPx, Math.min(w, h) / 2 - 4), 0, Math.PI * 2, true);
+        ctx.fill('evenodd');
+        ctx.restore();
+      }
+
+      const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
+
+      // Radius disc + dashed border
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${meta.accentRgb},${isLight ? 0.08 : 0.14})`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(${meta.accentRgb},${isLight ? 0.45 : 0.6})`;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Dots
+      dots.forEach(dot => {
+        const dTile = latLngToTile(dot.latitude, dot.longitude, zoom);
+        const px = w / 2 + (dTile.x - tileX) * 256;
+        const py = h / 2 + (dTile.y - tileY) * 256;
+        if (px < -20 || px > w + 20 || py < -20 || py > h + 20) return;
+
+        const dist = haversineKm(baseLat, baseLng, dot.latitude, dot.longitude);
+        const inRadius = dist <= localKm;
+        const matching = isDotMatching(dot);
+        const highlight = inRadius && matching;
+
+        if (highlight) {
+          ctx.beginPath();
+          ctx.arc(px, py, 10, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${meta.accentRgb},0.25)`;
+          ctx.fill();
+        }
+        ctx.beginPath();
+        ctx.arc(px, py, highlight ? 5 : 3, 0, Math.PI * 2);
+        ctx.fillStyle = highlight
+          ? meta.accent
+          : inRadius
+            ? (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.55)')
+            : (isLight ? 'rgba(0,0,0,0.22)' : 'rgba(255,255,255,0.28)');
+        ctx.fill();
+        if (highlight) {
+          ctx.strokeStyle = isLight ? '#fff' : 'rgba(255,255,255,0.7)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      });
+
+      // ── Radar center stack (high contrast) ────────────────────────────
+      // Outer pulse ring
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, 18, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${meta.accentRgb},0.45)`;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // White halo
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, 12, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.92)';
+      ctx.fill();
+
+      // Blue dot
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, 7, 0, Math.PI * 2);
+      ctx.fillStyle = meta.accent;
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+    };
+
+    // Background
+    ctx.fillStyle = isLight ? '#f1f5f9' : '#0a0a0b';
     ctx.fillRect(0, 0, w, h);
+
+    if (!isLight) {
+      ctx.strokeStyle = 'rgba(59,130,246,0.08)';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < w; i += 40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
+      for (let j = 0; j < h; j += 40) { ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(w, j); ctx.stroke(); }
+    }
 
     const tilesX = Math.ceil(w / 256) + 2;
     const tilesY = Math.ceil(h / 256) + 2;
     const startDx = -Math.ceil(tilesX / 2);
     const startDy = -Math.ceil(tilesY / 2);
-    let loaded = 0;
-    const total = tilesX * tilesY;
 
     for (let dx = startDx; dx < startDx + tilesX; dx++) {
       for (let dy = startDy; dy < startDy + tilesY; dy++) {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        
-        const onFinish = () => {
-          loaded++;
-          if (loaded >= total) {
-            if (!isLight) {
-              ctx.fillStyle = 'rgba(0,0,0,0.55)';
-              ctx.fillRect(0, 0, w, h);
-            }
+        const tx = centerTileX + dx;
+        const ty = centerTileY + dy;
+        const key = `${tx}-${ty}-${zoom}`;
 
-            const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
-            ctx.beginPath();
-            ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${meta.accentRgb},${isLight ? 0.08 : 0.12})`;
-            ctx.fill();
-            ctx.strokeStyle = `rgba(${meta.accentRgb},${isLight ? 0.4 : 0.5})`;
-            ctx.lineWidth = 2;
-            ctx.setLineDash([8, 4]);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            dots.forEach(dot => {
-              const dTile = latLngToTile(dot.latitude, dot.longitude, zoom);
-              const px = w / 2 + (dTile.x - tileX) * 256;
-              const py = h / 2 + (dTile.y - tileY) * 256;
-              if (px < -20 || px > w + 20 || py < -20 || py > h + 20) return;
-
-              const dist = haversineKm(baseLat, baseLng, dot.latitude, dot.longitude);
-              const inRadius = dist <= localKm;
-              const matching = isDotMatching(dot);
-              const highlight = inRadius && matching;
-
-              if (highlight) {
-                ctx.beginPath();
-                ctx.arc(px, py, 10, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${meta.accentRgb},0.25)`;
-                ctx.fill();
-              }
-              ctx.beginPath();
-              ctx.arc(px, py, highlight ? 5 : 3, 0, Math.PI * 2);
-              ctx.fillStyle = highlight
-                ? meta.accent
-                : inRadius
-                  ? (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.45)')
-                  : (isLight ? 'rgba(0,0,0,0.22)' : 'rgba(255,255,255,0.2)');
-              ctx.fill();
-              if (highlight) {
-                ctx.strokeStyle = isLight ? '#fff' : 'rgba(255,255,255,0.6)';
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-              }
-            });
-
-            ctx.beginPath();
-            ctx.arc(w / 2, h / 2, 7, 0, Math.PI * 2);
-            ctx.fillStyle = meta.accent;
-            ctx.fill();
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(w / 2, h / 2, 14, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(${meta.accentRgb},0.35)`;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-          }
-        };
-
-        img.onload = () => {
+        const drawSingleTile = (img: HTMLImageElement) => {
           const drawX = w / 2 - offsetX + dx * 256;
           const drawY = h / 2 - offsetY + dy * 256;
           ctx.drawImage(img, drawX, drawY, 256, 256);
-          onFinish();
+          drawOverlay();
         };
-        img.onerror = onFinish;
 
-        const wrappedX = (centerTileX + dx + (1 << zoom)) % (1 << zoom);
-        const wrappedY = centerTileY + dy;
-        if (wrappedY >= 0 && wrappedY < (1 << zoom)) {
-          img.src = tileUrl(wrappedX, wrappedY, zoom);
+        if (TILE_CACHE[key]) {
+          drawSingleTile(TILE_CACHE[key]);
         } else {
-          onFinish();
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            TILE_CACHE[key] = img;
+            drawSingleTile(img);
+          };
+          img.onerror = () => { /* keep going — other tiles still draw */ };
+          const wrappedX = (tx + (1 << zoom)) % (1 << zoom);
+          if (ty >= 0 && ty < (1 << zoom)) {
+            img.src = tileUrl(wrappedX, ty, zoom);
+          }
         }
       }
     }
+
+    // Always draw overlay once up front so center is visible even while tiles load
+    drawOverlay();
   }, [effectiveCenter, zoom, radiusPx, isLight, mapSize, dots, localKm, baseLat, baseLng, meta, isDotMatching]);
 
-  // ─── Bubble drag logic ───────────────
-  const isDraggingBubble = useRef(false);
-  const bubbleStartRef = useRef<{ clientX: number; startKm: number } | null>(null);
-
-  const handleBubblePointerDown = useCallback((e: React.PointerEvent) => {
-    e.stopPropagation();
-    isDraggingBubble.current = true;
-    bubbleStartRef.current = { clientX: e.clientX, startKm: localKm };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  const handleKmSelect = useCallback((km: number) => {
     triggerHaptic('light');
-  }, [localKm]);
-
-  const handleBubblePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDraggingBubble.current || !bubbleStartRef.current) return;
-    e.stopPropagation();
-    const mpp = (156543.03392 * Math.cos((effectiveCenter.lat * Math.PI) / 180)) / Math.pow(2, zoom);
-    const dxPx = e.clientX - bubbleStartRef.current.clientX;
-    const dxKm = (dxPx * mpp) / 1000;
-    const nextKm = Math.max(MIN_KM, Math.min(MAX_KM, Math.round(bubbleStartRef.current.startKm + dxKm)));
-    if (nextKm !== localKm) setLocalKm(nextKm);
-  }, [effectiveCenter.lat, zoom, localKm]);
-
-  const handleBubblePointerUp = useCallback((e: React.PointerEvent) => {
-    if (!isDraggingBubble.current) return;
-    isDraggingBubble.current = false;
-    bubbleStartRef.current = null;
-    e.stopPropagation();
-    triggerHaptic('light');
-  }, []);
-
-  // ─── Slider drag logic ────────────────────────────────────────────────────
-  const isDraggingSlider = useRef(false);
-
-  const updateSliderFromX = useCallback((clientX: number) => {
-    const track = sliderRef.current;
-    if (!track) return;
-    const rect = track.getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    const km = Math.round(MIN_KM + ratio * (MAX_KM - MIN_KM));
     setLocalKm(km);
   }, []);
 
-  const handleSliderPointerDown = useCallback((e: React.PointerEvent) => {
-    e.stopPropagation();
-    isDraggingSlider.current = true;
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    triggerHaptic('light');
-    updateSliderFromX(e.clientX);
-  }, [updateSliderFromX]);
-
-  const handleSliderPointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDraggingSlider.current) return;
-    e.stopPropagation();
-    updateSliderFromX(e.clientX);
-  }, [updateSliderFromX]);
-
-  const handleSliderPointerUp = useCallback((e: React.PointerEvent) => {
-    isDraggingSlider.current = false;
-    triggerHaptic('light');
-  }, []);
-
-  const sliderRatio = (localKm - MIN_KM) / (MAX_KM - MIN_KM);
+  // ─── Render ──────────────────────────────────────────────────────────────
+  const categoryButtons = useMemo(() => [
+    { id: 'property' as const, icon: Building2, label: 'Properties' },
+    { id: 'motorcycle' as const, icon: Bike, label: 'Motorcycles' },
+    { id: 'bicycle' as const, icon: Trophy, label: 'Bicycles' },
+    { id: 'services' as const, icon: Wrench, label: mode === 'owner' ? 'People' : 'Workers' },
+  ], [mode]);
 
   return (
     <motion.div
       className={cn(
-        "flex flex-col overflow-hidden bg-background",
-        isEmbedded ? "relative w-full h-full" : "fixed inset-0 z-[10000]"
+        "relative w-full h-full flex flex-col bg-background overflow-hidden",
       )}
-      initial={isEmbedded ? false : { opacity: 0, scale: 0.95 }}
-      animate={isEmbedded ? undefined : { opacity: 1, scale: 1 }}
-      exit={isEmbedded ? undefined : { opacity: 0, scale: 1.05 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      initial={isEmbedded ? false : { opacity: 0 }}
+      animate={isEmbedded ? undefined : { opacity: 1 }}
+      exit={isEmbedded ? undefined : { opacity: 0 }}
+      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      style={{ contain: 'layout paint' }}
     >
-      {/* ── Header: Back Button + Quick Categories ───────────────────── */}
+      {/* ── Top utility row: Back (left) + Refresh (right). Location lives inside the map. ── */}
       {!isEmbedded && (
-        <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 right-4 z-[10001] flex items-center gap-3">
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-          onClick={() => { triggerHaptic('light'); onBack(); }}
-          className={cn(
-            "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl border border-white/10",
-            isLight ? "bg-white/80 text-black/80 shadow-md" : "bg-black/60 text-white shadow-2xl",
-          )}
-        >
-          <ArrowLeft className="w-6 h-6" strokeWidth={2.5} />
-        </motion.button>
-
-        <div className={cn(
-          "flex-1 flex bg-muted/20 p-1 rounded-[1.4rem] backdrop-blur-xl border border-white/5 shadow-2xl overflow-hidden",
-          isLight ? "bg-white/70" : "bg-black/40"
-        )}>
-           {[
-             { id: 'property', icon: Building2, label: 'Properties' },
-             { id: 'motorcycle', icon: Bike, label: 'Motorcycles' },
-             { id: 'bicycle', icon: Trophy, label: 'Bicycles' },
-             { id: 'services', icon: Wrench, label: 'Workers' }
-           ].map((cat) => {
-             const isActive = category === cat.id;
-             const catMeta = CATEGORY_META[cat.id] || CATEGORY_META['property'];
-             
-             return (
-               <button
-                 key={cat.id}
-                 onClick={() => { 
-                   triggerHaptic('medium'); 
-                   if (onCategoryChange) onCategoryChange(cat.id as QuickFilterCategory);
-                 }}
-                 title={`Switch to ${cat.label} radar`}
-                 className={cn(
-                   "flex-1 h-10 flex items-center justify-center rounded-xl transition-all relative overflow-hidden",
-                   isActive ? "" : "text-muted-foreground hover:bg-muted/40"
-                 )}
-                 style={isActive ? {
-                   background: catMeta.accent,
-                   color: '#fff',
-                   boxShadow: `0 4px 12px rgba(${catMeta.accentRgb},0.4)`
-                 } : {}}
-               >
-                 <cat.icon className="w-5 h-5" />
-                 {isActive && (
-                   <motion.div 
-                     layoutId="map-cat-active"
-                     className="absolute inset-0 bg-white/10"
-                     initial={false}
-                   />
-                 )}
-               </button>
-             );
-           })}
-        </div>
-
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.15, duration: 0.3 }}
-          onClick={detectLocation}
-          disabled={detecting}
-          className={cn(
-            "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl border border-white/10",
-            detected
-              ? "bg-white/10 text-white shadow-lg"
-              : isLight
-                ? "bg-white/80 text-black/60 shadow-md"
-                : "bg-black/60 text-white/60 shadow-2xl"
-          )}
-          style={detected ? { backgroundColor: meta.accent, borderColor: 'rgba(255,255,255,0.2)', color: '#fff' } : {}}
-        >
-          <Navigation className={cn("w-6 h-6", detecting && "animate-spin")} />
-        </motion.button>
-      </div>
-      )}
-
-      {/* ── Refresh/GPS Buttons for Embedded mode ─────────────────────── */}
-      {isEmbedded && (
-        <div className="absolute top-4 right-4 z-[10001] flex flex-col gap-3">
+        <div className="shrink-0 w-full flex items-center justify-between px-4 pt-2 pb-1 gap-2">
           <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={() => { triggerHaptic('light'); onBack(); }}
+            aria-label="Go back"
+            className={cn(
+              "w-10 h-10 rounded-xl flex items-center justify-center border backdrop-blur-xl transition-colors duration-150",
+              isLight
+                ? "bg-white/80 border-black/10 text-foreground shadow-sm"
+                : "bg-white/10 border-white/15 text-white shadow-lg"
+            )}
+          >
+            <ArrowLeft className="w-5 h-5" strokeWidth={2.25} />
+          </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.92 }}
             onClick={handleRefresh}
             disabled={fetchingDots}
+            aria-label="Refresh nearby"
             className={cn(
-              "w-11 h-11 rounded-[1.25rem] flex items-center justify-center active:scale-90 transition-all backdrop-blur-xl border border-white/10",
-              isLight ? "bg-white/80 text-black/70 shadow-md" : "bg-black/60 text-white shadow-lg",
+              "w-10 h-10 rounded-xl flex items-center justify-center border backdrop-blur-xl transition-colors duration-150",
+              isLight
+                ? "bg-white/80 border-black/10 text-foreground shadow-sm"
+                : "bg-white/10 border-white/15 text-white shadow-lg"
             )}
           >
             <RefreshCw className={cn("w-4.5 h-4.5", fetchingDots && "animate-spin")} />
           </motion.button>
-          <motion.button
-            onClick={detectLocation}
-            disabled={detecting}
-            className={cn(
-              "w-11 h-11 rounded-[1.25rem] flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl border border-white/10",
-              detected ? "bg-primary text-white" : (isLight ? "bg-white/80 text-black/60" : "bg-black/60 text-white/60"),
-            )}
-            style={detected ? { backgroundColor: meta.accent } : {}}
-          >
-            <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} />
-          </motion.button>
         </div>
       )}
 
-      {/* ── Refresh Button — sits below GPS, re-fetches every dot (Only if NOT embedded) ───── */}
-      {!isEmbedded && (
-        <motion.button
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.3 }}
-          onClick={handleRefresh}
-          disabled={fetchingDots}
-          aria-label="Refresh nearby users"
-          className={cn(
-            "absolute top-[calc(env(safe-area-inset-top,0px)+72px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all backdrop-blur-xl border border-white/10",
-            isLight ? "bg-white/80 text-black/70 shadow-md" : "bg-black/60 text-white shadow-lg",
-          )}
-          style={{ boxShadow: `0 0 18px rgba(${meta.accentRgb},0.3)` }}
-        >
-          <RefreshCw className={cn("w-5 h-5", fetchingDots && "animate-spin")} />
-        </motion.button>
-      )}
-
-
-      {/* ── MAP CANVAS — fills most of the space ─────────────────────── */}
-      <div
-        ref={containerRef}
-        className="flex-1 relative overflow-hidden"
-        style={{ touchAction: 'none', cursor: 'grab' }}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-      >
-        <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} className="block" />
-
-        {/* Draggable bubble handle — drag to expand/shrink the km radius. */}
+      {/* ── Square radar module ─────────────────────────────────────────── */}
+      <div className="shrink-0 w-full flex justify-center px-4 pt-1">
         <div
-          role="slider"
-          aria-label="Radius in km"
-          aria-valuemin={MIN_KM}
-          aria-valuemax={MAX_KM}
-          aria-valuenow={localKm}
-          onPointerDown={handleBubblePointerDown}
-          onPointerMove={handleBubblePointerMove}
-          onPointerUp={handleBubblePointerUp}
-          onPointerCancel={handleBubblePointerUp}
-          className="absolute flex items-center justify-center rounded-full select-none touch-none"
+          className="relative w-full"
           style={{
-            width: 36,
-            height: 36,
-            left: mapSize.w / 2 + Math.min(radiusPx, Math.min(mapSize.w, mapSize.h) / 2 - 4) - 18,
-            top: mapSize.h / 2 - 18,
-            background: `radial-gradient(circle at 35% 30%, #fff 0%, ${meta.accent} 100%)`,
-            boxShadow: `0 4px 14px rgba(${meta.accentRgb},0.55), 0 0 0 2px rgba(255,255,255,0.7)`,
-            cursor: 'ew-resize',
-            zIndex: 10001,
+            maxWidth: 'min(92vw, 360px)',
+            maxHeight: '46svh',
+            aspectRatio: '1 / 1',
           }}
         >
-          <span
-            className="block rounded-full"
-            style={{ width: 8, height: 8, background: '#fff' }}
-          />
-        </div>
-
-        {/* Empty-state toast when there are no dots at all. */}
-        {!fetchingDots && dots.length === 0 && (
           <div
+            ref={containerRef}
             className={cn(
-              "absolute left-1/2 -translate-x-1/2 bottom-5 px-4 py-2 rounded-xl text-[11px] font-bold backdrop-blur-xl z-[10001]",
-              isLight ? "bg-white/80 text-black/70 shadow-md" : "bg-black/60 text-white/90 shadow-lg",
+              "absolute inset-0 rounded-[2rem] overflow-hidden border shadow-xl",
+              isLight ? "border-black/10 bg-white" : "border-white/10 bg-[#0a0a0b]"
             )}
+            style={{ touchAction: 'none', cursor: 'grab' }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
           >
-            No one nearby yet — tap ↻ to refresh or expand the radius.
+            <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} className="block" />
+
+            {/* Floating location-detect button (bottom-right of map) */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={(e) => { e.stopPropagation(); detectLocation(); }}
+              disabled={detecting}
+              aria-label="Detect my location"
+              className={cn(
+                "absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center border backdrop-blur-xl transition-colors duration-150 shadow-lg",
+                detected
+                  ? "text-white"
+                  : isLight ? "bg-white/85 border-black/10 text-foreground/70" : "bg-black/55 border-white/15 text-white/70"
+              )}
+              style={detected ? { background: meta.accent, borderColor: 'rgba(255,255,255,0.25)' } : undefined}
+            >
+              <Navigation className={cn("w-4 h-4", detecting && "animate-spin")} />
+            </motion.button>
+
+            {/* Empty-state toast */}
+            {!fetchingDots && dots.length === 0 && (
+              <div
+                className={cn(
+                  "absolute left-1/2 -translate-x-1/2 bottom-3 px-3 py-1.5 rounded-full text-[10px] font-semibold backdrop-blur-xl",
+                  isLight ? "bg-white/85 text-black/70 border border-black/10" : "bg-black/60 text-white/90 border border-white/10",
+                )}
+              >
+                No one nearby — tap ↻ to refresh
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* ── BOTTOM PANEL: Slider + Start ─────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className={cn(
-          "relative z-[10001] px-5 pt-6 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] flex flex-col gap-6",
-          isLight
-            ? "bg-white/40"
-            : "bg-black/10"
-        )}
-        style={{
-          backdropFilter: 'blur(32px) saturate(1.5)',
-          WebkitBackdropFilter: 'blur(32px) saturate(1.5)',
-          borderTop: 'none',
-          // Cap the glass panel so the map always owns the majority of the
-          // viewport — feels like a portrait map window with controls below.
-          maxHeight: '40svh',
-        }}
-      >
-        {/* Quick Filter: Category Toggle */}
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 px-1 -mx-5 px-5">
-           {[
-             { id: 'property', icon: Building2, label: 'Properties' },
-             { id: 'motorcycle', icon: Bike, label: 'Motorcycles' },
-             { id: 'bicycle', icon: Trophy, label: 'Bicycles' },
-             { id: 'services', icon: Wrench, label: 'Masters' }
-           ].map((cat) => {
-             const isActive = category === cat.id;
-             const catMeta = CATEGORY_META[cat.id] || CATEGORY_META['property'];
-             const displayLabel = (mode === 'owner' && cat.id === 'services') ? 'People' : cat.label;
-
-             return (
-               <button
-                 key={cat.id}
-                 onClick={() => { 
-                   triggerHaptic('medium'); 
-                   if (onCategoryChange) onCategoryChange(cat.id as QuickFilterCategory);
-                 }}
-                 className={cn(
-                   "flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
-                   isActive ? "shadow-lg scale-[1.02]" : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
-                 )}
-                 style={isActive ? {
-                   background: catMeta.accent,
-                   color: '#fff',
-                   boxShadow: `0 4px 20px rgba(${catMeta.accentRgb},0.3)`
-                 } : {}}
-               >
-                 <cat.icon className="w-4 h-4" />
-                 <span>{displayLabel}</span>
-               </button>
-             );
-           })}
-        </div>
-
-        {/* KM Label */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isLight ? "text-black/40" : "text-white/40")}>
-              Scan Radius
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-2xl font-black tabular-nums" style={{ color: meta.accent }}>
-              {localKm}
-            </span>
-            <span className={cn("text-xs font-bold mt-1", isLight ? "text-black/30" : "text-white/30")}>km</span>
-          </div>
-        </div>
-
-        {/* ── PREMIUM GLASS SLIDER ────────────────────────────────────── */}
-        <div className="relative w-full select-none" style={{ height: THUMB_SIZE + 12 }}>
-          {/* Track container — captures the full touch area */}
-          <div
-            ref={sliderRef}
-            className="absolute left-0 right-0 flex items-center"
-            style={{
-              top: '50%', transform: 'translateY(-50%)',
-              height: THUMB_SIZE + 12,
-              touchAction: 'none', cursor: 'pointer',
-            }}
-            onPointerDown={handleSliderPointerDown}
-            onPointerMove={handleSliderPointerMove}
-            onPointerUp={handleSliderPointerUp}
-            onPointerCancel={handleSliderPointerUp}
-          >
-            {/* Track background — frosted glass */}
-            <div
-              className="absolute left-0 right-0 rounded-full overflow-hidden"
-              style={{
-                top: '50%', transform: 'translateY(-50%)',
-                height: SLIDER_TRACK_H,
-                background: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.12)',
-              }}
-            >
-              {/* Active fill */}
-              <div
-                className="absolute left-0 top-0 bottom-0 rounded-full"
-                style={{
-                  width: `${sliderRatio * 100}%`,
-                  background: `linear-gradient(90deg, ${meta.accent}60, ${meta.accent})`,
-                  boxShadow: `0 0 12px rgba(${meta.accentRgb},0.3)`,
-                  transition: isDraggingSlider.current ? 'none' : 'width 0.1s ease-out',
-                }}
-              />
-            </div>
-
-            {/* Thumb — glowing orb */}
-            <div
-              className="absolute rounded-full"
-              style={{
-                width: THUMB_SIZE,
-                height: THUMB_SIZE,
-                top: '50%',
-                left: `calc(${sliderRatio * 100}% - ${THUMB_SIZE / 2}px)`,
-                transform: 'translateY(-50%)',
-                background: isLight
-                  ? `radial-gradient(circle at 40% 35%, #fff 0%, ${meta.accent} 100%)`
-                  : `radial-gradient(circle at 40% 35%, rgba(255,255,255,0.3) 0%, ${meta.accent} 100%)`,
-                boxShadow: `0 2px 12px rgba(${meta.accentRgb},0.5), 0 0 20px rgba(${meta.accentRgb},0.25), inset 0 1px 1px rgba(255,255,255,0.3)`,
-                border: `2px solid rgba(255,255,255,${isLight ? 0.8 : 0.2})`,
-                transition: isDraggingSlider.current ? 'none' : 'left 0.1s ease-out',
-                pointerEvents: 'none',
-              }}
-            />
-          </div>
-
-          {/* Min/Max labels */}
-          <div className="absolute left-0 right-0 flex justify-between" style={{ bottom: -2, pointerEvents: 'none' }}>
-            <span className={cn("text-[9px] font-bold", isLight ? "text-black/25" : "text-white/20")}>{MIN_KM}km</span>
-            <span className={cn("text-[9px] font-bold", isLight ? "text-black/25" : "text-white/20")}>{MAX_KM}km</span>
-          </div>
-        </div>
-
-        {/* ── START SWIPING BUTTON ────────────────────────────────────── */}
-        <motion.button
-          whileTap={{ scale: 0.96 }}
-          onClick={() => { triggerHaptic('medium'); onStartSwiping(); }}
+      {/* ── Compact category icon pills ─────────────────────────────────── */}
+      <div className="shrink-0 w-full flex justify-center px-4 pt-3">
+        <div
           className={cn(
-            "relative w-full h-[60px] rounded-[28px] font-black text-[13px] uppercase tracking-[0.3em] flex items-center justify-center gap-2.5 overflow-hidden",
-            "active:scale-[0.97] transition-all shadow-lg"
+            "flex items-center gap-1.5 p-1 rounded-full border backdrop-blur-xl",
+            isLight ? "bg-white/70 border-black/5" : "bg-white/5 border-white/10"
           )}
+        >
+          {categoryButtons.map(cat => {
+            const isActive = category === cat.id;
+            const catMeta = CATEGORY_META[cat.id] || CATEGORY_META.property;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => {
+                  triggerHaptic('light');
+                  onCategoryChange?.(cat.id as QuickFilterCategory);
+                }}
+                aria-label={cat.label}
+                title={cat.label}
+                className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-150",
+                  !isActive && (isLight ? "text-foreground/60 hover:bg-black/5" : "text-white/55 hover:bg-white/10"),
+                )}
+                style={isActive ? {
+                  background: catMeta.accent,
+                  color: '#fff',
+                  boxShadow: `0 4px 14px rgba(${catMeta.accentRgb},0.35)`,
+                } : undefined}
+              >
+                <cat.icon className="w-4.5 h-4.5" strokeWidth={2.25} />
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Fast KM preset pills ────────────────────────────────────────── */}
+      <div className="shrink-0 w-full flex justify-center px-4 pt-2.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar max-w-full">
+          {KM_PRESETS.map(km => {
+            const isActive = localKm === km;
+            return (
+              <button
+                key={km}
+                onClick={() => handleKmSelect(km)}
+                className={cn(
+                  "shrink-0 h-9 px-3.5 rounded-full text-xs font-semibold tabular-nums transition-colors duration-150 border",
+                  isActive
+                    ? "text-white border-transparent"
+                    : isLight
+                      ? "bg-white/70 border-black/10 text-foreground/70 hover:bg-white"
+                      : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10",
+                )}
+                style={isActive ? {
+                  background: meta.accent,
+                  boxShadow: `0 3px 12px rgba(${meta.accentRgb},0.35)`,
+                } : undefined}
+              >
+                {km} km
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Start Swiping CTA ───────────────────────────────────────────── */}
+      <div className="flex-1 min-h-0 flex items-end justify-center px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-3">
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => { triggerHaptic('medium'); onStartSwiping(); }}
+          className="relative w-full max-w-[360px] h-[52px] rounded-2xl font-semibold text-sm uppercase tracking-wider flex items-center justify-center gap-2 overflow-hidden transition-all active:scale-[0.98]"
           style={{
-            background: `linear-gradient(135deg, ${meta.accent}, ${meta.accent}cc)`,
+            background: `linear-gradient(135deg, ${meta.accent}, ${meta.accent}dd)`,
             color: '#fff',
-            boxShadow: `0 4px 24px rgba(${meta.accentRgb},0.35), 0 0 0 1px rgba(255,255,255,0.1) inset`,
+            boxShadow: `0 6px 22px rgba(${meta.accentRgb},0.35), inset 0 1px 0 rgba(255,255,255,0.2)`,
           }}
         >
-          {/* Shine sweep */}
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.2) 48%, rgba(255,255,255,0.05) 52%, transparent 70%)',
-            }}
-            initial={{ x: '-120%' }}
-            animate={{ x: ['-120%', '180%', '180%'] }}
-            transition={{ duration: 1.8, ease: 'easeInOut', repeat: Infinity, repeatDelay: 4 }}
-          />
-          <Zap className="w-4.5 h-4.5" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.5))' }} />
+          <Zap className="w-4 h-4" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.5))' }} />
           <span>Start Swiping</span>
           {dotCount > 0 && (
-            <span className="text-[10px] opacity-60 font-bold normal-case tracking-normal">
-              ({dotCount} found)
+            <span className="text-[11px] opacity-80 font-medium normal-case tracking-normal">
+              · {dotCount} nearby
             </span>
           )}
         </motion.button>
-      </motion.div>
+      </div>
     </motion.div>
   );
 });

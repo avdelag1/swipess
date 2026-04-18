@@ -260,7 +260,7 @@ export default function RoommateMatching() {
              ? <Eye className="w-4 h-4 shrink-0" />
              : <EyeOff className="w-4 h-4 shrink-0" />
            }
-           <span className="text-[10px] font-black uppercase tracking-widest">
+           <span className="text-xs font-semibold tracking-wide">
              {roommateVisible ? 'Visible' : 'Hidden'}
            </span>
          </motion.button>
@@ -278,8 +278,11 @@ export default function RoommateMatching() {
          </motion.button>
       </motion.div>
 
-      {/* ── CARD STACK AREA ── */}
-      <div className="absolute inset-0 w-full h-full z-[1]">
+      {/* ── CARD STACK AREA — offset below the global TopBar so cards never underlap the header ── */}
+      <div
+        className="absolute left-0 right-0 bottom-0 w-full z-[1]"
+        style={{ top: 'calc(var(--top-bar-height, 60px) + var(--safe-top, 12px))' }}
+      >
         <div className="absolute inset-0 z-0">
           <AnimatePresence mode="popLayout" initial={false}>
             {isLoading ? (
@@ -314,18 +317,18 @@ export default function RoommateMatching() {
                     <Users className="w-14 h-14 text-primary" strokeWidth={1} />
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase", isLight ? "text-slate-900" : "text-white")}>
+                <div className="space-y-3 max-w-xs">
+                  <h2 className={cn("text-xl md:text-2xl font-bold leading-snug", isLight ? "text-slate-900" : "text-white")}>
                     {t('roommates.noMoreMatches')}
                   </h2>
-                  <p className={cn("text-sm font-bold uppercase tracking-widest leading-relaxed opacity-50", isLight ? "text-slate-600" : "text-white/50")}>
+                  <p className={cn("text-sm leading-relaxed", isLight ? "text-slate-500" : "text-white/60")}>
                     Everyone has been matched. Check back later for new arrivals.
                   </p>
                 </div>
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setCurrentIndex(0)}
-                  className="px-12 py-5 rounded-[2rem] bg-primary text-white font-black uppercase tracking-[0.25em] text-[11px] shadow-[0_20px_40px_rgba(var(--primary-rgb),0.3)]"
+                  className="px-10 h-12 rounded-2xl bg-primary text-white font-semibold tracking-wide text-sm shadow-lg transition-colors duration-150"
                 >
                   Find more
                 </motion.button>
@@ -365,7 +368,7 @@ export default function RoommateMatching() {
                          style={{ willChange: 'transform, opacity' }}
                        >
                          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                         <span className="text-[11px] font-black text-white uppercase tracking-[0.15em]">{(topCard as any).compatibility ?? 85}%</span>
+                         <span className="text-xs font-semibold text-white tabular-nums">{(topCard as any).compatibility ?? 85}% match</span>
                          <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_#f43f5e]" />
                        </motion.div>
                     </div>
@@ -435,9 +438,9 @@ export default function RoommateMatching() {
                        <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase leading-none">{topCard.name}</h2>
                        <span className="text-3xl font-bold text-white/40">{topCard.age}</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/30 w-fit">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/30 w-fit">
                        <ShieldCheck className="w-3 h-3 text-rose-400" />
-                       <span className="text-[9px] font-black text-rose-400 uppercase tracking-widest">Verified Human</span>
+                       <span className="text-[10px] font-semibold text-rose-400 uppercase tracking-wider">Verified Human</span>
                     </div>
                   </motion.div>
                </div>
@@ -454,24 +457,24 @@ export default function RoommateMatching() {
                </div>
 
                {/* BIO */}
-               <div className="space-y-4">
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">About</h3>
-                  <p className={cn("text-lg font-bold leading-snug", isLight ? "text-slate-900" : "text-white/90")}>
+               <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">About</h3>
+                  <p className={cn("text-base leading-relaxed", isLight ? "text-slate-800" : "text-white/90")}>
                     {(topCard as any).bio}
                   </p>
                </div>
 
                {/* TAGS */}
-               <div className="space-y-6">
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Personality & Interests</h3>
-                  <div className="flex flex-wrap gap-2.5">
+               <div className="space-y-4">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Personality & Interests</h3>
+                  <div className="flex flex-wrap gap-2">
                     {((topCard as any).personality_traits || []).map((tag: string) => (
-                      <span key={tag} className={cn("px-5 py-2.5 rounded-2xl border text-[11px] font-black uppercase tracking-widest", isLight ? "bg-secondary border-border/40 text-foreground/70" : "bg-white/5 border-white/5 text-white/70")}>
+                      <span key={tag} className={cn("px-3.5 py-1.5 rounded-xl border text-xs font-medium", isLight ? "bg-secondary border-border/40 text-foreground/80" : "bg-white/5 border-white/10 text-white/80")}>
                         {tag}
                       </span>
                     ))}
                     {topCard.interests.map(tag => (
-                      <span key={tag} className="px-5 py-2.5 rounded-2xl bg-primary/10 border border-primary/20 text-[11px] font-black uppercase tracking-widest text-primary">
+                      <span key={tag} className="px-3.5 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-xs font-medium text-primary">
                         {tag}
                       </span>
                     ))}
@@ -479,13 +482,13 @@ export default function RoommateMatching() {
                </div>
 
                {/* LANGUAGES */}
-               <div className="space-y-4">
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Languages</h3>
-                  <div className="flex items-center gap-4">
+               <div className="space-y-3">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Languages</h3>
+                  <div className="flex items-center flex-wrap gap-x-4 gap-y-2">
                     {(topCard.languages || []).map((lang: string) => (
                       <div key={lang} className="flex items-center gap-2">
                         <div className={cn("w-1.5 h-1.5 rounded-full", isLight ? "bg-foreground/30" : "bg-white/40")} />
-                        <span className={cn("text-sm font-bold", isLight ? "text-foreground/80" : "text-white/80")}>{lang}</span>
+                        <span className={cn("text-sm font-medium", isLight ? "text-foreground/80" : "text-white/80")}>{lang}</span>
                       </div>
                     ))}
                   </div>

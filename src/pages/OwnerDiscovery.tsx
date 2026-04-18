@@ -118,13 +118,13 @@ export default function OwnerDiscovery() {
                 <ArrowLeft className="w-5 h-5 text-foreground/80" strokeWidth={1.5} />
               </button>
               <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary mb-0.5">Prospect Shield</span>
-                <h1 className="text-xl lg:text-2xl font-black tracking-tighter text-foreground uppercase">Target Acquisition</h1>
+                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Prospect Shield</span>
+                <h1 className="text-xl md:text-2xl font-bold text-foreground leading-snug">Discovery</h1>
               </div>
             </div>
-            <div className="px-4 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center gap-2">
+            <div className="px-3.5 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center gap-1.5">
               <Coins className="w-4 h-4 text-primary" />
-              <span className="text-xs font-black text-primary">{tokens || 0}</span>
+              <span className="text-xs font-semibold text-primary tabular-nums">{tokens || 0}</span>
             </div>
           </div>
 
@@ -138,8 +138,8 @@ export default function OwnerDiscovery() {
                  key={tab.id}
                  onClick={() => { triggerHaptic('light'); setActiveTab(tab.id as DiscoveryTab); }}
                  className={cn(
-                   "flex-1 flex items-center justify-center gap-2 h-11 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                   activeTab === tab.id ? "bg-background text-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"
+                   "flex-1 flex items-center justify-center gap-2 h-11 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors duration-150",
+                   activeTab === tab.id ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                  )}
                >
                  <tab.icon className={cn("w-4 h-4", activeTab === tab.id ? "text-primary" : "")} />
@@ -189,8 +189,8 @@ export default function OwnerDiscovery() {
                 <button
                   onClick={() => { triggerHaptic('medium'); setShowMapView(!showMapView); }}
                   className={cn(
-                    "h-12 px-4 rounded-2xl flex items-center gap-2 font-black uppercase tracking-widest text-[10px] border transition-all active:scale-95",
-                    showMapView ? "bg-primary text-white border-primary shadow-lg" : "bg-muted/20 text-foreground border-white/5"
+                    "h-12 px-4 rounded-2xl flex items-center gap-2 text-xs font-semibold border transition-colors duration-150 active:scale-95",
+                    showMapView ? "bg-primary text-white border-primary shadow-md" : "bg-muted/20 text-foreground border-white/5"
                   )}
                 >
                   <Sparkles className={cn("w-4 h-4", showMapView && "animate-pulse")} />
@@ -202,10 +202,10 @@ export default function OwnerDiscovery() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-         {activeTab === 'interested' ? (<OwnerInterestedClients />) : 
+      <div className="container mx-auto px-4 pt-4 pb-8">
+         {activeTab === 'interested' ? (<OwnerInterestedClients />) :
           activeTab === 'saved' ? (<OwnerLikedClients />) : (
-            <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex flex-col lg:flex-row gap-6">
               {showMapView && activeTab === 'radar' ? (
                 <div className="w-full h-[70vh] min-h-[500px] md:min-h-[600px] rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden border border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.8)] relative mb-8 z-[5]">
                   <DiscoveryMapView
@@ -222,9 +222,9 @@ export default function OwnerDiscovery() {
               <aside className="hidden lg:block w-80">
                 <div className="sticky top-44 space-y-4">
                   <div className="flex items-center justify-between px-2 mb-2">
-                    <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Laser Filters</h2>
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Filters</h2>
                     {activeFilterCount > 0 && (
-                      <button onClick={() => setFilters({})} className="text-[10px] font-black uppercase tracking-widest text-rose-500">Reset</button>
+                      <button onClick={() => setFilters({})} className="text-xs font-medium text-rose-500 hover:text-rose-600 transition-colors duration-150">Reset</button>
                     )}
                   </div>
                   <DiscoveryFilters category={(radarCategory === 'worker' ? 'service' : radarCategory) as 'property' | 'motorcycle' | 'bicycle' | 'service'} onApply={handleApplyFilters} initialFilters={filters} activeCount={activeFilterCount} />
@@ -235,9 +235,9 @@ export default function OwnerDiscovery() {
                   {isLoading ? (<DiscoverySkeleton count={6} />) : 
                    filteredClients.length === 0 ? (
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center py-20 bg-muted/5 rounded-[3rem] border border-border/10 text-center">
-                      <User className="h-16 w-16 text-muted-foreground/20 mb-6" />
-                      <h3 className="text-xl font-black uppercase tracking-tight mb-2">No Prospects Found</h3>
-                      <p className="text-muted-foreground max-w-xs mx-auto text-sm font-bold uppercase tracking-widest">Adjust filters to find active clients.</p>
+                      <User className="h-16 w-16 text-muted-foreground/20 mb-5" />
+                      <h3 className="text-xl md:text-2xl font-bold leading-snug mb-2">No prospects yet</h3>
+                      <p className="text-sm text-muted-foreground max-w-xs mx-auto">Adjust filters to surface active clients.</p>
                     </motion.div>
                    ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

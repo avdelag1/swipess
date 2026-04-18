@@ -133,46 +133,50 @@ export const SwipeExhaustedState = ({
           />
         </div>
 
-        {/* 1. MAP FIRST - Takes most of the space */}
-        <div className="flex-1 min-h-0 px-2 relative flex flex-col">
-          <div className="absolute top-4 left-0 right-0 z-20 flex justify-center pointer-events-none">
-             <div className="flex flex-col items-center gap-2">
-                <RadarSearchEffect
-                  key={scanIteration === 0 ? 'idle' : `scan-${scanIteration}`}
-                  size={64}
-                  color={activeCatInfo?.color || '#ec4899'}
-                  isActive={isScanBurstActive}
-                  autoStopMs={6000}
-                  icon={<ActiveIcon className="h-4 w-4 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" strokeWidth={1.5} />}
-                />
-                <motion.div
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-black/40 backdrop-blur-xl border border-white/10 px-4 py-1.5 rounded-2xl shadow-2xl"
-                >
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">
-                    {isRefreshing || isScanBurstActive ? 'Recalibrating Radar...' : 'No new listings found'}
-                  </span>
-                </motion.div>
-             </div>
+        {/* 1. COMPACT RADAR — centered square matches DiscoveryMapView */}
+        <div className="flex-1 min-h-0 px-4 relative flex flex-col items-center justify-start pt-4 gap-3">
+          <div className="flex flex-col items-center gap-2 pointer-events-none">
+            <RadarSearchEffect
+              key={scanIteration === 0 ? 'idle' : `scan-${scanIteration}`}
+              size={56}
+              color={activeCatInfo?.color || '#ec4899'}
+              isActive={isScanBurstActive}
+              autoStopMs={6000}
+              icon={<ActiveIcon className="h-4 w-4 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" strokeWidth={1.5} />}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-black/40 backdrop-blur-xl border border-white/10 px-3 py-1 rounded-full shadow-xl"
+            >
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-white/90">
+                {isRefreshing || isScanBurstActive ? 'Recalibrating Radar…' : 'No new listings found'}
+              </span>
+            </motion.div>
           </div>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="flex-1 relative"
+            className="relative w-full flex justify-center"
+            style={{ maxWidth: 'min(92vw, 360px)' }}
           >
-            <LocationRadiusSelector
-              radiusKm={radiusKm}
-              onRadiusChange={onRadiusChange}
-              onDetectLocation={onDetectLocation || (() => {})}
-              detecting={detecting ?? false}
-              detected={detected ?? false}
-              lat={lat}
-              lng={lng}
-              onCategorySelect={(category) => setCategories([category])}
-            />
+            <div
+              className="relative w-full rounded-[2rem] overflow-hidden border border-white/10 shadow-xl"
+              style={{ aspectRatio: '1 / 1', maxHeight: '42svh' }}
+            >
+              <LocationRadiusSelector
+                radiusKm={radiusKm}
+                onRadiusChange={onRadiusChange}
+                onDetectLocation={onDetectLocation || (() => {})}
+                detecting={detecting ?? false}
+                detected={detected ?? false}
+                lat={lat}
+                lng={lng}
+                onCategorySelect={(category) => setCategories([category])}
+              />
+            </div>
           </motion.div>
         </div>
 

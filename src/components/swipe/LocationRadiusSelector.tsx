@@ -74,12 +74,9 @@ export const LocationRadiusSelector = ({
   const { theme } = useTheme();
   const isLight = theme === 'light';
   
-  // Pan state
+  // Pan state — no inertia. Pan follows the finger only.
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const panStartRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
-  const velocityRef = useRef({ vx: 0, vy: 0 });
-  const lastMoveRef = useRef({ x: 0, y: 0, t: 0 });
-  const inertiaRef = useRef<number | null>(null);
   const [mapSize, setMapSize] = useState({ w: 300, h: 400 });
 
   const baseLat = lat ?? 20.2114;
@@ -116,11 +113,9 @@ export const LocationRadiusSelector = ({
     return () => obs.disconnect();
   }, []);
 
-  // Pan handlers
+  // Pan handlers — finger-only. No velocity, no decay, no drift.
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (inertiaRef.current) { cancelAnimationFrame(inertiaRef.current); inertiaRef.current = null; }
     panStartRef.current = { x: e.clientX, y: e.clientY, ox: panOffset.x, oy: panOffset.y };
-    lastMoveRef.current = { x: e.clientX, y: e.clientY, t: performance.now() };
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   }, [panOffset]);
 
@@ -129,31 +124,10 @@ export const LocationRadiusSelector = ({
     const dx = e.clientX - panStartRef.current.x;
     const dy = e.clientY - panStartRef.current.y;
     setPanOffset({ x: panStartRef.current.ox - dx, y: panStartRef.current.oy - dy });
-
-    const now = performance.now();
-    const dt = now - lastMoveRef.current.t;
-    if (dt > 0) {
-      velocityRef.current = {
-        vx: (e.clientX - lastMoveRef.current.x) / dt * 16,
-        vy: (e.clientY - lastMoveRef.current.y) / dt * 16,
-      };
-    }
-    lastMoveRef.current = { x: e.clientX, y: e.clientY, t: now };
   }, []);
 
   const handlePointerUp = useCallback(() => {
     panStartRef.current = null;
-    const { vx, vy } = velocityRef.current;
-    if (Math.abs(vx) > 1 || Math.abs(vy) > 1) {
-      let cvx = vx, cvy = vy;
-      const decay = () => {
-        cvx *= 0.92; cvy *= 0.92;
-        if (Math.abs(cvx) < 0.5 && Math.abs(cvy) < 0.5) { inertiaRef.current = null; return; }
-        setPanOffset(prev => ({ x: prev.x - cvx, y: prev.y - cvy }));
-        inertiaRef.current = requestAnimationFrame(decay);
-      };
-      inertiaRef.current = requestAnimationFrame(decay);
-    }
   }, []);
 
   // 🚀 HIGH PERFORMANCE PROGRESSIVE DRAWING
@@ -176,22 +150,37 @@ export const LocationRadiusSelector = ({
     const offsetY = (tileY - centerTileY) * 256;
 
     const drawOverlay = () => {
-        // Redraw overlay on top
+        // Radius disc + dashed border
         const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
-        
+
         ctx.beginPath();
         ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
-        ctx.fillStyle = isLight ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.12)';
+        ctx.fillStyle = isLight ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.14)';
         ctx.fill();
-        
-        ctx.strokeStyle = '#3b82f6';
+
+        ctx.strokeStyle = isLight ? 'rgba(59,130,246,0.5)' : 'rgba(59,130,246,0.7)';
         ctx.lineWidth = 2;
         ctx.setLineDash([6, 4]);
         ctx.stroke();
         ctx.setLineDash([]);
-        
+
+        // ── Radar center stack (high contrast) ────────────────────
+        // Outer pulse ring
         ctx.beginPath();
-        ctx.arc(w / 2, h / 2, 6, 0, Math.PI * 2);
+        ctx.arc(w / 2, h / 2, 18, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(59,130,246,0.45)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // White halo
+        ctx.beginPath();
+        ctx.arc(w / 2, h / 2, 12, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.92)';
+        ctx.fill();
+
+        // Blue dot
+        ctx.beginPath();
+        ctx.arc(w / 2, h / 2, 7, 0, Math.PI * 2);
         ctx.fillStyle = '#3b82f6';
         ctx.fill();
         ctx.strokeStyle = '#fff';
