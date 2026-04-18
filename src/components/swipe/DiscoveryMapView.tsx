@@ -12,7 +12,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Navigation, Zap, RefreshCw, Building2, Bike, Trophy, Wrench, ArrowLeft, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
