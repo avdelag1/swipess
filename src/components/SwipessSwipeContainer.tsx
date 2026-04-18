@@ -1083,7 +1083,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       </div>
       {/* BUILD VERSION STAMP - VISUAL PROOF OF UPDATE */}
       <div className="absolute bottom-[90px] right-6 z-0 pointer-events-none opacity-20">
-          <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white">FLAGSHIP BUILD v1.0.88</span>
+          <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white">FLAGSHIP BUILD v1.0.91</span>
       </div>
     </div>
 

@@ -436,10 +436,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/explore/eventos'
     ].some(path => location.pathname === path || location.pathname === path + '/');
 
-    const isDashboard = location.pathname === '/client/dashboard' || location.pathname === '/owner/dashboard' || location.pathname === '/client/dashboard/' || location.pathname === '/owner/dashboard/';
-
+    const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
+    
     // Only truly immersive non-scroll pages should be fixed
-    return isCameraRoute || isRadioRoute || isRoommatesPage || isSpecialSubPage || isDashboard;
+    return isCameraRoute || isRadioRoute || isRoommatesPage || isSpecialSubPage;
   }, [location.pathname]);
 
   const isZeroScrollDashboard = useMemo(() => {
@@ -494,6 +494,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         className={cn(
           "flex-1 w-full min-h-0 bg-background relative z-0 touch-pan-y overscroll-y-contain",
            isRadioRoute ? "overflow-visible" 
+            : isZeroScrollDashboard ? "overflow-hidden"
             : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
