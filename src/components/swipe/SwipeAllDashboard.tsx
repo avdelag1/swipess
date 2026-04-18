@@ -105,7 +105,8 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
           width: 'var(--card-width, 340px)',
           height: 'var(--card-height, 520px)',
           aspectRatio: `${PK_ASPECT}`,
-          maxHeight: 'min(720px, calc(100svh - 180px))',
+          maxHeight: 'min(720px, calc(100svh - 220px))',
+          transform: 'translateY(-20px)',
         }}
       >
       {[...cards].reverse().map((card, reversedIdx) => {

@@ -333,8 +333,8 @@ export const DiscoveryMapView = memo(({
     const offsetX = (tileX - centerTileX) * 256;
     const offsetY = (tileY - centerTileY) * 256;
 
-    // Always fill light — CSS filter inverts to dark in dark mode
-    ctx.fillStyle = '#f8fafc';
+    // Background fill to prevent transparency issues
+    ctx.fillStyle = isLight ? '#f8fafc' : '#111827';
     ctx.fillRect(0, 0, w, h);
 
     const tilesX = Math.ceil(w / 256) + 2;
@@ -348,16 +348,16 @@ export const DiscoveryMapView = memo(({
     const drawOverlay = () => {
       if (rid !== renderIdRef.current) return;
 
-      const visualCenterY = h / 2 - 120; // Shift radar up to clear centered filter completely
+      const visualCenterY = h / 2;
       const visualCenterX = w / 2;
 
       // Radar Ring
       const r = Math.min(radiusPx, Math.min(w, h) / 2 - 40);
       ctx.beginPath();
       ctx.arc(visualCenterX, visualCenterY, r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,0,0,0.04)';
+      ctx.fillStyle = isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)';
       ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+      ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.4)';
       ctx.lineWidth = 1.5;
       ctx.setLineDash([8, 8]);
       ctx.stroke();
@@ -377,11 +377,11 @@ export const DiscoveryMapView = memo(({
         if (highlight || isSelected) {
           ctx.beginPath();
           ctx.arc(px, py, isSelected ? 14 : 10, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(0,0,0,0.09)';
+          ctx.fillStyle = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)';
           ctx.fill();
 
           if (isSelected) {
-            ctx.strokeStyle = '#111';
+            ctx.strokeStyle = isLight ? '#222' : '#fff';
             ctx.lineWidth = 2;
             ctx.stroke();
           }
@@ -389,16 +389,16 @@ export const DiscoveryMapView = memo(({
 
         ctx.beginPath();
         ctx.arc(px, py, (highlight || isSelected) ? 5 : 3, 0, Math.PI * 2);
-        ctx.fillStyle = (highlight || isSelected) ? '#111' : 'rgba(0,0,0,0.28)';
+        ctx.fillStyle = (highlight || isSelected) ? (isLight ? '#000' : '#fff') : (isLight ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.3)');
         ctx.fill();
       });
 
       // Center marker
       ctx.beginPath();
       ctx.arc(visualCenterX, visualCenterY, 8, 0, Math.PI * 2);
-      ctx.fillStyle = '#111';
+      ctx.fillStyle = isLight ? '#000' : '#fff';
       ctx.fill();
-      ctx.strokeStyle = '#fff';
+      ctx.strokeStyle = isLight ? '#fff' : '#000';
       ctx.lineWidth = 2;
       ctx.stroke();
     };
@@ -412,6 +412,7 @@ export const DiscoveryMapView = memo(({
     for (let dx = startDx; dx < startDx + tilesX; dx++) {
       for (let dy = startDy; dy < startDy + tilesY; dy++) {
         const img = new Image();
+        img.crossOrigin = "anonymous"; // Safe for OSM
         const drawX = w / 2 - offsetX + dx * 256;
         const drawY = h / 2 - offsetY + dy * 256;
         img.onload = () => {
@@ -419,15 +420,15 @@ export const DiscoveryMapView = memo(({
           try {
             ctx.drawImage(img, drawX, drawY, 256, 256);
           } catch {
-            ctx.fillStyle = '#e2e8f0';
-            ctx.fillRect(drawX, drawY, 255, 255);
+            ctx.fillStyle = isLight ? '#f1f5f9' : '#1f2937';
+            ctx.fillRect(drawX, drawY, 256, 256);
           }
           onFinish();
         };
         img.onerror = () => {
           if (rid !== renderIdRef.current) return;
-          ctx.fillStyle = '#e2e8f0';
-          ctx.fillRect(drawX, drawY, 255, 255);
+          ctx.fillStyle = isLight ? '#f1f5f9' : '#1f2937';
+          ctx.fillRect(drawX, drawY, 256, 256);
           onFinish();
         };
         const tileZ = Math.min(zoom, 18);
@@ -435,7 +436,6 @@ export const DiscoveryMapView = memo(({
         const wrappedY = centerTileY + dy;
 
         if (wrappedY >= 0 && wrappedY < (1 << tileZ)) {
-          // OSM tiles — whitelisted in CSP, no crossOrigin needed; CSS filter handles dark theme
           const s = 'abc'[Math.abs(wrappedX + wrappedY) % 3];
           img.src = `https://${s}.tile.openstreetmap.org/${tileZ}/${wrappedX}/${wrappedY}.png`;
         } else {
@@ -452,31 +452,58 @@ export const DiscoveryMapView = memo(({
       animate={isEmbedded ? false : { opacity: 1 }}
       exit={isEmbedded ? false : { opacity: 0 }}
     >
-      {/* HUD: Back */}
-      {!isEmbedded && (
-        <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[10001]">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => { triggerHaptic('light'); onBack(); }}
-            className={cn("w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10", isLight ? "bg-white/80 text-black shadow-md" : "bg-black/60 text-white shadow-2xl")}
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </motion.button>
-        </div>
-      )}
+      {/* HUD: Header Row */}
+      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] inset-x-0 px-4 z-[10001] flex items-center justify-between pointer-events-none">
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => { triggerHaptic('light'); onBack(); }}
+          className={cn("w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 pointer-events-auto", isLight ? "bg-white/80 text-black shadow-md" : "bg-black/60 text-white shadow-2xl")}
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </motion.button>
 
-      {/* HUD: Right - GPS Indicator (Moved here to avoid overlap) */}
-      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] right-4 z-[10001]">
         <motion.button 
           whileTap={{ scale: 0.9 }}
           onClick={detectLocation} 
           className={cn(
-            "w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 shadow-2xl transition-all", 
-            detected ? (isLight ? "bg-black text-white" : "bg-white text-black") : "bg-black/60 text-white/60"
+            "w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 shadow-2xl transition-all pointer-events-auto", 
+            detected ? (isLight ? "bg-black text-white" : "bg-white text-black") : "bg-black/40 text-white/50"
           )} 
         >
           <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} />
         </motion.button>
+      </div>
+
+      {/* FLOAT HUD: Top Quick Filters (Moved from center to avoid blocking radar) */}
+      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+72px)] inset-x-0 z-[10002] flex justify-center px-5 pointer-events-none">
+        <motion.div 
+          initial={{ y: -20, opacity: 0 }} 
+          animate={{ y: 0, opacity: 1 }}
+          className={cn(
+            "p-2 rounded-3xl flex items-center gap-2 backdrop-blur-3xl border border-white/10 shadow-2xl pointer-events-auto", 
+            isLight ? "bg-white/90" : "bg-black/60"
+          )}
+        >
+          {[
+            { id: 'property', icon: Building2 }, 
+            { id: 'motorcycle', icon: MotorcycleIcon }, 
+            { id: 'bicycle', icon: Bike }, 
+            { id: 'services', icon: HardHat }
+          ].map(cat => (
+            <button 
+              key={cat.id} 
+              onClick={() => { triggerHaptic('medium'); onCategoryChange?.(cat.id as QuickFilterCategory); }} 
+              className={cn(
+                "w-12 h-12 flex items-center justify-center rounded-2xl transition-all", 
+                category === cat.id 
+                  ? (isLight ? "bg-black text-white shadow-lg" : "bg-white text-black shadow-lg") 
+                  : "text-white/40 hover:text-white"
+              )}
+            >
+              <cat.icon className="w-5 h-5" />
+            </button>
+          ))}
+        </motion.div>
       </div>
 
       {/* HUD: Left Radius (Minimalist KM selector) */}
@@ -513,7 +540,7 @@ export const DiscoveryMapView = memo(({
 
       {/* MAP CANVAS */}
       <div ref={containerRef} className="flex-1 relative overflow-hidden" style={{ touchAction: 'none' }} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
-        <canvas ref={canvasRef} style={{ width: '100%', height: '100%', filter: isLight ? 'contrast(1.05) saturate(1.1)' : 'invert(1) hue-rotate(180deg) brightness(0.92) saturate(1.15)' }} />
+        <canvas ref={canvasRef} style={{ width: '100%', height: '100%', filter: isLight ? 'none' : 'invert(1) hue-rotate(180deg) brightness(1.1) contrast(1.15) saturate(1.1)' }} />
         
         {/* Radar Pulse Effect */}
         <AnimatePresence>
@@ -526,45 +553,13 @@ export const DiscoveryMapView = memo(({
         </AnimatePresence>
       </div>
 
-      {/* FLOAT HUD: Center Quick Filters — exactly centered vertically & horizontally */}
-      <div className="absolute inset-0 z-[10002] flex items-center justify-center pointer-events-none">
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }} 
-          animate={{ scale: 1, opacity: 1 }}
-          className={cn(
-            "p-3 rounded-[2.5rem] flex items-center gap-3 backdrop-blur-3xl border border-white/20 shadow-[0_32px_64px_rgba(0,0,0,0.5)] pointer-events-auto", 
-            isLight ? "bg-white/80" : "bg-black/60"
-          )}
-        >
-          {[
-            { id: 'property', icon: Building2 }, 
-            { id: 'motorcycle', icon: MotorcycleIcon }, 
-            { id: 'bicycle', icon: Bike }, 
-            { id: 'services', icon: HardHat }
-          ].map(cat => (
-            <button 
-              key={cat.id} 
-              onClick={() => { triggerHaptic('medium'); onCategoryChange?.(cat.id as QuickFilterCategory); }} 
-              className={cn(
-                "w-14 h-14 flex items-center justify-center rounded-3xl transition-all", 
-                category === cat.id 
-                  ? (isLight ? "bg-black text-white shadow-xl scale-110" : "bg-white text-black shadow-xl scale-110") 
-                  : "text-muted-foreground hover:text-foreground active:scale-90"
-              )}
-            >
-              <cat.icon className="w-6 h-6" />
-            </button>
-          ))}
-        </motion.div>
-      </div>
-
-      {/* BOTTOM ACTION: Refresh Radar — pinned above nav bar */}
+      {/* BOTTOM ACTION: Refresh Radar - Ultra High Contrast */}
       <div className="absolute inset-x-0 bottom-0 z-[10002] flex flex-col items-center pb-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+12px)] px-5">
         <button 
           onClick={handleRefresh} 
           className={cn(
-            "w-full max-w-sm h-14 rounded-3xl text-[12px] font-black uppercase tracking-[0.3em] active:scale-95 transition-all flex items-center justify-center gap-3 shadow-2xl",
-            isLight ? "bg-black text-white" : "bg-white text-black"
+            "w-full max-w-sm h-14 rounded-3xl text-[12px] font-black uppercase tracking-[0.3em] active:scale-95 transition-all flex items-center justify-center gap-3 shadow-[0_20px_40px_rgba(0,0,0,0.5)]",
+            isLight ? "bg-black text-white" : "bg-white text-black font-bold border-2 border-white/20"
           )}
         >
           <RefreshCw className={cn("w-5 h-5", fetchingDots && "animate-spin")} />
