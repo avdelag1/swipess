@@ -502,20 +502,16 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         style={{
           paddingTop: isFullScreenRoute
             ? '0px'
-            : isImmersiveDashboard
-              ? 'calc(var(--top-bar-height) + var(--safe-top) + 8px)'
-              : 'calc(var(--top-bar-height) + var(--safe-top))',
+            : 'calc(var(--top-bar-height) + var(--safe-top))',
           paddingBottom: isFullScreenRoute
             ? '0px'
-            : isImmersiveDashboard
-              ? 'calc(var(--bottom-nav-height) + var(--safe-bottom))'
-              : 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 32px)',
+            : 'calc(var(--bottom-nav-height) + var(--safe-bottom))',
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           
         }}
       >
-        <div className="min-h-full w-full flex flex-1 min-w-0 flex-col">
+        <div className="h-full w-full flex flex-1 min-w-0 flex-col">
           {enhancedChildren}
         </div>
       </main>
