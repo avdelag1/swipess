@@ -1,8 +1,9 @@
 /**
  * DISCOVERY MAP VIEW — Final Stability & Flagship UI
  * 
- * v3.1: Absolute Reality Fix. 
- * Resolves map visibility using an ultra-stable tile engine.
+ * v3.2: Absolute Reality Fix. 
+ * Implements a div-based map tile engine for absolute reliability.
+ * No square backgrounds. Ultra-rounded map window.
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
@@ -47,6 +48,12 @@ const pixelToLatLng = (dx: number, dy: number, lat: number, zoom: number) => {
   };
 };
 
+interface ListingDot {
+  id: string;
+  latitude: number;
+  longitude: number;
+}
+
 export const DiscoveryMapView = memo(({ 
   category, 
   onBack, 
@@ -60,6 +67,7 @@ export const DiscoveryMapView = memo(({
 }) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
+  const { user } = useAuth();
   
   const radiusKm = useFilterStore(s => s.radiusKm);
   const setRadiusKm = useFilterStore(s => s.setRadiusKm);
@@ -68,6 +76,7 @@ export const DiscoveryMapView = memo(({
   const userLongitude = useFilterStore(s => s.userLongitude);
 
   const [localKm, setLocalKm] = useState(radiusKm);
+  const [dots, setDots] = useState<ListingDot[]>([]);
   const [detecting, setDetecting] = useState(false);
   const [detected, setDetected] = useState(!!userLatitude);
 
@@ -104,6 +113,15 @@ export const DiscoveryMapView = memo(({
 
   useEffect(() => { if (!userLatitude) detectLocation(); }, []);
 
+  // Fetch users/listings to show as dots
+  useEffect(() => {
+    const fetchDots = async () => {
+      const { data } = await supabase.from('listings').select('id, latitude, longitude').eq('status', 'active');
+      if (data) setDots(data.map(d => ({ id: d.id, latitude: d.latitude, longitude: d.longitude })));
+    };
+    fetchDots();
+  }, [category]);
+
   useEffect(() => {
     const el = mapRef.current;
     if (!el) return;
@@ -115,8 +133,6 @@ export const DiscoveryMapView = memo(({
   }, []);
 
   const zoom = useMemo(() => getZoomForRadius(localKm, baseLat, Math.min(mapSize.w, mapSize.h)), [localKm, baseLat, mapSize]);
-  
-  // Pan calculation
   const currentCenter = useMemo(() => {
     const { dLat, dLng } = pixelToLatLng(panOffset.x, panOffset.y, baseLat, zoom);
     return { lat: baseLat + dLat, lng: baseLng + dLng };
@@ -125,7 +141,6 @@ export const DiscoveryMapView = memo(({
   const tileCenter = useMemo(() => latLngToTile(currentCenter.lat, currentCenter.lng, zoom), [currentCenter, zoom]);
   const radiusPx = kmToPixels(localKm, currentCenter.lat, zoom);
 
-  // Interaction
   const onPointerDown = (e: React.PointerEvent) => {
     panStartRef.current = { x: e.clientX, y: e.clientY, ox: panOffset.x, oy: panOffset.y };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -139,29 +154,26 @@ export const DiscoveryMapView = memo(({
   };
   const onPointerUp = () => { panStartRef.current = null; };
 
-  // Tile Gridding
   const tiles = useMemo(() => {
     const res = [];
-    const cols = Math.ceil(mapSize.w / 256) + 3;
-    const rows = Math.ceil(mapSize.h / 256) + 3;
+    const cols = Math.ceil(mapSize.w / 256) + 4;
+    const rows = Math.ceil(mapSize.h / 256) + 4;
     const startX = Math.floor(tileCenter.x) - Math.floor(cols / 2);
     const startY = Math.floor(tileCenter.y) - Math.floor(rows / 2);
 
     for (let x = startX; x < startX + cols; x++) {
       for (let y = startY; y < startY + rows; y++) {
         const wrappedX = (x + (1 << zoom)) % (1 << zoom);
-        if (y >= 0 && y < (1 << zoom)) {
-            res.push({ x: wrappedX, y, origX: x, origY: y });
-        }
+        if (y >= 0 && y < (1 << zoom)) res.push({ x: wrappedX, y, origX: x, origY: y });
       }
     }
     return res;
   }, [tileCenter, zoom, mapSize]);
 
   return (
-    <motion.div className="flex flex-col h-full w-full bg-white relative overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <motion.div className="flex flex-col h-full w-full bg-[#f8fafc] relative overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       
-      {/* HUD: Header Pills */}
+      {/* HUD: Header */}
       <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] inset-x-0 px-4 z-[10001] flex items-center justify-between pointer-events-none">
         <button onClick={onBack} className="w-12 h-12 rounded-3xl flex items-center justify-center bg-white shadow-2xl border border-black/5 pointer-events-auto active:scale-95 transition-all">
           <ArrowLeft className="w-6 h-6 text-black" />
@@ -172,9 +184,9 @@ export const DiscoveryMapView = memo(({
                 <span className="text-[10px] font-black uppercase text-black/40">Radius:</span>
                 <span className="text-[16px] font-black text-primary">{localKm}KM</span>
             </div>
-            <div className="flex items-center gap-1 p-1 rounded-full bg-white/95 shadow-xl border border-black/5 pointer-events-auto backdrop-blur-xl">
+            <div className="flex items-center gap-1 p-1 rounded-full bg-white shadow-xl border border-black/5 pointer-events-auto backdrop-blur-xl">
                 {[1, 5, 25, 50, 100].map(km => (
-                    <button key={km} onClick={() => { triggerHaptic('light'); setLocalKm(km); }} className={cn("px-4 py-2 rounded-full text-[11px] font-black transition-all", localKm === km ? "bg-black text-white shadow-md" : "text-black/50")}>{km}</button>
+                    <button key={km} onClick={() => setLocalKm(km)} className={cn("px-4 py-2 rounded-full text-[11px] font-black transition-all", localKm === km ? "bg-black text-white" : "text-black/50")}>{km}</button>
                 ))}
             </div>
         </div>
@@ -184,23 +196,23 @@ export const DiscoveryMapView = memo(({
         </button>
       </div>
 
-      {/* HUD: Dashboard Filters (Vertical Right) */}
+      {/* RIGHT SIDE FILTERS */}
       <div className="absolute top-1/2 -translate-y-1/2 right-4 z-[10001] flex items-center">
-        <div className="p-3 rounded-[3rem] flex flex-col items-center gap-4 bg-white shadow-[0_16px_48px_rgba(0,0,0,0.2)] border border-black/10">
+        <div className="p-3 rounded-[3rem] flex flex-col items-center gap-4 bg-white shadow-2xl border border-black/10">
           {[
             { id: 'property', icon: Building2 }, { id: 'motorcycle', icon: MotorcycleIcon }, { id: 'bicycle', icon: Bike }, { id: 'services', icon: HardHat }
           ].map(cat => (
-            <button key={cat.id} onClick={() => onCategoryChange?.(cat.id as any)} className={cn("w-15 h-15 flex items-center justify-center rounded-[1.5rem] transition-all", category === cat.id ? "bg-black text-white scale-110 shadow-xl" : "text-black/30 hover:bg-black/5")}>
+            <button key={cat.id} onClick={() => onCategoryChange?.(cat.id as any)} className={cn("w-14 h-14 flex items-center justify-center rounded-[1.5rem] transition-all", category === cat.id ? "bg-primary text-white scale-110 shadow-xl" : "text-black/30")}>
               <cat.icon className="w-7 h-7" />
             </button>
           ))}
         </div>
       </div>
 
-      {/* MAP VIEW: ULTRA ROUNDED */}
+      {/* MAP ENGINE: NO SQUARE BACKGROUND */}
       <div 
         ref={mapRef}
-        className="flex-1 relative overflow-hidden bg-[#f1f5f9] rounded-[4rem] m-2 shadow-inner border-[12px] border-white/50"
+        className="flex-1 relative overflow-hidden bg-[#e5e7eb] rounded-[3.5rem] m-2 shadow-inner"
         onPointerDown={onPointerDown} 
         onPointerMove={onPointerMove} 
         onPointerUp={onPointerUp}
@@ -210,33 +222,50 @@ export const DiscoveryMapView = memo(({
             {tiles.map(t => (
                 <img 
                     key={`${t.origX}-${t.origY}`}
-                    src={`https://basemaps.cartocdn.com/rastertiles/light_all/${zoom}/${t.x}/${t.y}.png`}
+                    src={`https://tile.openstreetmap.org/${zoom}/${t.x}/${t.y}.png`}
                     className="absolute w-[256px] h-[256px] select-none pointer-events-none"
                     style={{
-                        left: mapSize.w/2 - (tileCenter.x - Math.floor(tileCenter.x)) * 256 + (t.origX - Math.floor(tileCenter.x)) * 256,
-                        top: mapSize.h/2 - (tileCenter.y - Math.floor(tileCenter.y)) * 256 + (t.origY - Math.floor(tileCenter.y)) * 256,
+                        left: mapSize.w/2 - (tileCenter.x % 1) * 256 + (t.origX - Math.floor(tileCenter.x)) * 256,
+                        top: mapSize.h/2 - (tileCenter.y % 1) * 256 + (t.origY - Math.floor(tileCenter.y)) * 256,
                     }}
                     onDragStart={e => e.preventDefault()}
                 />
             ))}
         </div>
 
+        {/* DOTS LAYER (NOT CLICKABLE) */}
+        <div className="absolute inset-0 pointer-events-none">
+            {dots.map(dot => {
+                const dotTile = latLngToTile(dot.latitude, dot.longitude, zoom);
+                const px = mapSize.w/2 + (dotTile.x - tileCenter.x) * 256;
+                const py = mapSize.h/2 + (dotTile.y - tileCenter.y) * 256;
+                if (px < -10 || px > mapSize.w + 10 || py < -10 || py > mapSize.h + 10) return null;
+                return (
+                    <div 
+                        key={dot.id}
+                        className="absolute w-2 h-2 rounded-full bg-black border border-white shadow-xl"
+                        style={{ left: px, top: py, transform: 'translate(-50%, -50%)' }}
+                    />
+                );
+            })}
+        </div>
+
         {/* RADAR OVERLAY */}
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-             <div className="rounded-full border-[3px] border-dashed border-black/10 bg-black/5 flex items-center justify-center" style={{ width: radiusPx*2, height: radiusPx*2 }}>
-                <div className="w-5 h-5 rounded-full bg-black border-[3px] border-white shadow-2xl" />
+             <div className="rounded-full border-2 border-dashed border-black/20 bg-black/5 flex items-center justify-center" style={{ width: radiusPx*2, height: radiusPx*2 }}>
+                <div className="w-4 h-4 rounded-full bg-black border-2 border-white shadow-xl" />
              </div>
         </div>
       </div>
 
-      {/* REFRESH RADAR - ALWAYS BLACK */}
+      {/* REFRESH RADAR */}
       <div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+12px)] inset-x-0 z-[10002] flex justify-center px-5 pointer-events-none">
-        <button onClick={handleRefresh} className="w-full max-w-[340px] h-16 rounded-[2rem] text-[13px] font-black uppercase tracking-[0.45em] bg-black text-white shadow-[0_24px_48px_rgba(0,0,0,0.5)] flex items-center justify-center gap-3 pointer-events-auto active:scale-95 transition-all">
+        <button onClick={handleRefresh} className="w-full max-w-[340px] h-15 rounded-[2rem] text-[13px] font-black uppercase tracking-[0.4em] bg-black text-white shadow-2xl flex items-center justify-center gap-3 pointer-events-auto active:scale-95 transition-all">
           <RefreshCw className={cn("w-6 h-6", isRefreshing && "animate-spin")} /> REFRESH RADAR
         </button>
       </div>
 
-      <div className="absolute bottom-0 inset-x-0 h-[calc(var(--bottom-nav-height,72px)+40px)] bg-gradient-to-t from-black/40 to-transparent pointer-events-none z-[999]" />
+      <div className="absolute bottom-0 inset-x-0 h-[calc(var(--bottom-nav-height,72px)+40px)] bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-[999]" />
     </motion.div>
   );
 });
