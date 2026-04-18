@@ -3,21 +3,23 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, X, Image, Star, Camera, MoveVertical } from 'lucide-react';
+import { Upload, X, Image, Star, Camera, MoveVertical, Sparkles, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { validateImageFile, formatFileSize, FILE_SIZE_LIMITS } from '@/utils/fileValidation';
 import { logger } from '@/utils/prodLogger';
-import { motion, Reorder } from 'framer-motion';
+import { motion, Reorder, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface PhotoUploadManagerProps {
-  maxPhotos: number; // minimum 1 photo required for all listing types and profiles
+  maxPhotos: number;
   currentPhotos: string[];
   onPhotosChange: (photos: string[]) => void;
   uploadType: 'property' | 'profile';
-  onUpload?: (file: File) => Promise<string>; // Returns URL
+  onUpload?: (file: File) => Promise<string>;
   listingId?: string;
   showCameraButton?: boolean;
-  replaceOnFull?: boolean; // When true and at capacity, replaces instead of blocking
+  replaceOnFull?: boolean;
 }
 
 export function PhotoUploadManager({
@@ -36,6 +38,7 @@ export function PhotoUploadManager({
   const location = useLocation();
 
   const handleOpenCamera = () => {
+    triggerHaptic('medium');
     if (uploadType === 'property') {
       navigate('/owner/camera/listing', {
         state: {
@@ -46,7 +49,6 @@ export function PhotoUploadManager({
         },
       });
     } else {
-      // For profile photos
       const isOwner = location.pathname.includes('/owner');
       navigate(isOwner ? '/owner/camera' : '/client/camera', {
         state: { returnPath: location.pathname },
@@ -56,307 +58,228 @@ export function PhotoUploadManager({
 
   const handleFileSelect = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
+    triggerHaptic('light');
 
     let effectiveCurrentPhotos = currentPhotos;
     let remainingSlots = maxPhotos - currentPhotos.length;
 
     if (remainingSlots <= 0) {
       if (replaceOnFull) {
-        // Clear existing photos so the new upload replaces them
         onPhotosChange([]);
         effectiveCurrentPhotos = [];
         remainingSlots = maxPhotos;
       } else {
-        toast.error("Photo Limit Reached", { description: `You can only upload ${maxPhotos} photos for ${uploadType}s.` });
+        toast.error("Capacity Reached", { description: "You've initialized the maximum photo count." });
         return;
       }
     }
 
-    const filesToUpload = Array.from(files).slice(0, remainingSlots);
-
-    // Validate all files first (before setting uploading state)
-    const validatedFiles = filesToUpload.map(file => ({
-      file,
-      validation: validateImageFile(file)
-    }));
-
-    // Show validation errors
-    const invalidFiles = validatedFiles.filter(f => !f.validation.isValid);
-    if (invalidFiles.length > 0) {
-      invalidFiles.forEach(({ file, validation }) => {
-        toast.error("Invalid File", { description: `${file.name}: ${validation.error}` });
+    const validFiles = Array.from(files)
+      .slice(0, remainingSlots)
+      .filter(f => {
+        const v = validateImageFile(f);
+        if (!v.isValid) toast.error("Invalid Asset", { description: `${f.name}: ${v.error}` });
+        return v.isValid;
       });
-    }
 
-    // Get valid files
-    const validFiles = validatedFiles.filter(f => f.validation.isValid);
-    if (validFiles.length === 0) {
-      // Don't start upload if no valid files
-      return;
-    }
+    if (validFiles.length === 0) return;
 
-    // Now set uploading state only for valid files
     setUploading(true);
     try {
-
-      const uploadPromises = validFiles.map(async ({ file }) => {
-        if (onUpload) {
-          // Add timeout to prevent hanging uploads
-          const uploadWithTimeout = Promise.race([
-            onUpload(file),
-            new Promise<string>((_, reject) =>
-              setTimeout(() => reject(new Error('Upload timeout')), 30000)
-            )
-          ]);
-          return uploadWithTimeout;
-        } else {
-          // Fallback: create object URL for demo
-          return URL.createObjectURL(file);
-        }
+      const uploadPromises = validFiles.map(async file => {
+        if (onUpload) return onUpload(file);
+        return URL.createObjectURL(file);
       });
 
       const results = await Promise.allSettled(uploadPromises);
+      const newUrls = results
+        .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled')
+        .map(r => r.value);
 
-      // Collect successfully uploaded URLs
-      const newUrls: string[] = [];
-      let successCount = 0;
-      let failCount = 0;
-
-      results.forEach((result, index) => {
-        if (result.status === 'fulfilled') {
-          newUrls.push(result.value);
-          successCount++;
-        } else {
-          failCount++;
-          if (import.meta.env.DEV) {
-            logger.error(`Failed to upload ${validFiles[index].file.name}:`, result.reason);
-          }
-        }
-      });
-
-      // Update photos with successfully uploaded ones
       if (newUrls.length > 0) {
-        const updatedPhotos = [...effectiveCurrentPhotos, ...newUrls];
-        onPhotosChange(updatedPhotos);
-      }
-
-      // Show appropriate success/error message
-      if (successCount > 0 && failCount === 0) {
-        toast.success("Photos Uploaded", { description: `${successCount} photo(s) uploaded successfully!` });
-      } else if (successCount > 0 && failCount > 0) {
-        toast("Partial Upload", { description: `${successCount} photo(s) uploaded, ${failCount} failed. Please retry failed uploads.` });
-      } else {
-        toast.error("Upload Failed", { description: "All photos failed to upload. Please check your connection and try again." });
+        onPhotosChange([...effectiveCurrentPhotos, ...newUrls]);
+        triggerHaptic('success');
+        toast.success("Assets Synced", { description: `${newUrls.length} photos added to your nexus.` });
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
-        logger.error('Upload error:', error);
-      }
-      toast.error("Upload Error", { description: "An unexpected error occurred. Please try again." });
+      logger.error('Upload Error:', error);
+      toast.error("Transmission Error", { description: "Failed to upload assets. Check your connection." });
     } finally {
       setUploading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPhotos, maxPhotos, uploadType, onUpload, onPhotosChange]);
-
-  const handleRemovePhoto = (index: number) => {
-    const updatedPhotos = currentPhotos.filter((_, i) => i !== index);
-    onPhotosChange(updatedPhotos);
-  };
-
-  const _handleReorderPhoto = (fromIndex: number, toIndex: number) => {
-    const updatedPhotos = [...currentPhotos];
-    const [movedPhoto] = updatedPhotos.splice(fromIndex, 1);
-    updatedPhotos.splice(toIndex, 0, movedPhoto);
-    onPhotosChange(updatedPhotos);
-  };
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    handleFileSelect(e.dataTransfer.files);
-  }, [handleFileSelect]);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-  }, []);
+  }, [currentPhotos, maxPhotos, onPhotosChange, onUpload, replaceOnFull]);
 
   return (
-    <div className="space-y-4">
-      {/* Existing Photos Grid - Show First */}
-      {currentPhotos.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <p className="text-sm font-medium text-white/90">
-              Your Photos ({currentPhotos.length}/{maxPhotos}){currentPhotos.length > 1 && ' • Drag to reorder'}
-            </p>
-            <Badge variant="secondary" className="bg-white/10 text-white border-white/20">
-              {currentPhotos.length >= maxPhotos ? 'Full' : `${maxPhotos - currentPhotos.length} left`}
-            </Badge>
-          </div>
-          
-          <Reorder.Group
-            axis="x"
-            values={currentPhotos}
-            onReorder={onPhotosChange}
-            className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3 list-none p-0 m-0"
-          >
-            {currentPhotos.map((photo, index) => (
-              <Reorder.Item
-                key={photo}
-                value={photo}
-                className="relative group list-none"
-              >
-                <motion.div
-                  className="aspect-square relative rounded-lg overflow-hidden border-2 border-white/20 cursor-grab active:cursor-grabbing"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.95 }}
+    <div className="space-y-6">
+      {/* 🛸 PHOTO GALLERY REORDERING */}
+      <AnimatePresence mode="popLayout">
+        {currentPhotos.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#EB4898]" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 italic">
+                  Gallery Matrix ({currentPhotos.length}/{maxPhotos})
+                </span>
+              </div>
+            </div>
+            
+            <Reorder.Group
+              axis="x"
+              values={currentPhotos}
+              onReorder={(newOrder) => {
+                triggerHaptic('light');
+                onPhotosChange(newOrder);
+              }}
+              className="flex gap-4 overflow-x-auto pb-4 no-scrollbar list-none p-0 m-0"
+            >
+              {currentPhotos.map((photo, index) => (
+                <Reorder.Item
+                  key={photo}
+                  value={photo}
+                  className="relative shrink-0 list-none"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.5 }}
                 >
-                  <img
-                    src={photo}
-                    alt={`${uploadType} photo ${index + 1}`}
-                    className="w-full h-full object-cover pointer-events-none"
-                  />
+                  <motion.div
+                    className={cn(
+                      "w-48 h-64 relative rounded-[2rem] overflow-hidden border-2 cursor-grab active:cursor-grabbing shadow-2xl transition-all",
+                      index === 0 ? "border-[#EB4898]/50 shadow-[#EB4898]/10" : "border-white/10"
+                    )}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <img src={photo} alt="" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
 
-                  {/* Main Photo Badge */}
-                  {index === 0 && (
-                    <div className="absolute top-1 left-1">
-                      <Badge className="bg-yellow-500 text-black text-[10px] h-5 px-1.5">
-                        <Star className="w-2.5 h-2.5 mr-0.5 fill-current" />
-                        Main
-                      </Badge>
-                    </div>
-                  )}
-
-                  {/* Drag Handle */}
-                  {currentPhotos.length > 1 && (
-                    <div className="absolute top-1 right-9 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                      <div className="bg-black/70 rounded p-0.5">
-                        <MoveVertical className="w-3.5 h-3.5 text-white" />
+                    {/* 🛸 MAIN ASSET INDICATOR */}
+                    {index === 0 && (
+                      <div className="absolute top-4 left-4">
+                        <Badge className="bg-[#EB4898] text-white text-[9px] font-black uppercase italic tracking-widest px-2 py-1 shadow-[0_0_15px_#EB4898]">
+                          Primary
+                        </Badge>
                       </div>
+                    )}
+
+                    {/* 🛸 REMOVE CONTROL */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        triggerHaptic('medium');
+                        onPhotosChange(currentPhotos.filter((_, i) => i !== index));
+                      }}
+                      className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:bg-red-500/50 transition-all"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+
+                    <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                       <span className="text-[10px] font-black text-white/40 italic uppercase tracking-widest">Asset #{index + 1}</span>
                     </div>
-                  )}
+                  </motion.div>
+                </Reorder.Item>
+              ))}
 
-                  {/* Remove Button - Always visible on mobile */}
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="absolute top-1 right-1 w-8 h-8 p-0 flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-manipulation"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemovePhoto(index);
-                    }}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
+              {/* 🛸 INLINE ADD BUTTON */}
+              {currentPhotos.length < maxPhotos && (
+                 <button
+                    onClick={() => document.getElementById('photo-upload')?.click()}
+                    className="w-48 h-64 rounded-[2rem] border-2 border-dashed border-white/10 bg-white/5 flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-all group shrink-0"
+                 >
+                    <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:scale-110 group-hover:border-[#EB4898]/50 transition-all">
+                       <Plus className="w-6 h-6 text-white/40 group-hover:text-[#EB4898]" />
+                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-widest italic text-white/30 group-hover:text-white/60">Upload Asset</span>
+                 </button>
+              )}
+            </Reorder.Group>
+          </div>
+        )}
+      </AnimatePresence>
 
-                  {/* Photo Number */}
-                  <Badge
-                    variant="outline"
-                    className="absolute bottom-1 left-1 bg-black/70 text-white border-white/30 text-[10px] h-5 px-1.5"
-                  >
-                    #{index + 1}
-                  </Badge>
-                </motion.div>
-              </Reorder.Item>
-            ))}
-          </Reorder.Group>
+      {/* 🛸 MAIN UPLOAD CONTROL (shown if empty) */}
+      {currentPhotos.length === 0 && (
+        <div
+          className={cn(
+            "w-full h-80 border-2 border-dashed rounded-[3rem] transition-all cursor-pointer flex items-center justify-center bg-[#0d0d0f]/40 backdrop-blur-xl relative overflow-hidden group",
+            dragOver ? "border-[#EB4898] bg-[#EB4898]/10" : "border-white/10 hover:border-white/20"
+          )}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onClick={() => document.getElementById('photo-upload')?.click()}
+        >
+          {/* BACKGROUND AMBIANCE */}
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(235,72,152,0.05)_0%,transparent_70%)] pointer-events-none" />
+          
+          <div className="relative z-10 text-center flex flex-col items-center gap-6 p-8">
+            <div className="w-20 h-20 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center group-hover:scale-110 group-hover:border-[#EB4898]/50 transition-all shadow-2xl">
+              <Camera className="w-8 h-8 text-white/40 group-hover:text-[#EB4898]" />
+            </div>
+            <div className="space-y-2">
+              <h4 className="text-xl font-black uppercase italic tracking-tighter text-white">Initialize Visual Identity</h4>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 italic">Drag Assets or Tap to Browse</p>
+            </div>
+
+            <div className="flex gap-4">
+               {showCameraButton && (
+                 <Button 
+                   onClick={(e) => { e.stopPropagation(); handleOpenCamera(); }}
+                   className="h-14 px-8 rounded-2xl bg-[#EB4898] text-white hover:bg-[#ff5bb0] shadow-[0_15px_30px_rgba(235,72,152,0.3)] group-hover:scale-105 transition-all"
+                 >
+                    <Camera className="w-4 h-4 mr-2" />
+                    <span className="font-black italic uppercase tracking-widest text-xs">Capture</span>
+                 </Button>
+               )}
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Upload Area */}
-      {currentPhotos.length < maxPhotos && (
-        <>
-          <div
-            className={`border-2 border-dashed rounded-xl transition-all cursor-pointer touch-manipulation ${
-              dragOver 
-                ? 'border-red-400 bg-red-500/10' 
-                : 'border-white/30 hover:border-white/50 bg-white/5'
-            }`}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onClick={() => document.getElementById('photo-upload')?.click()}
-          >
-            <div className="p-6 sm:p-8 text-center">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-red-500/20 flex items-center justify-center">
-                  <Upload className="w-6 h-6 sm:w-7 sm:h-7 text-red-400" />
-                </div>
-                <div>
-                  <p className="text-sm sm:text-base font-semibold text-white mb-1">
-                    {currentPhotos.length === 0 ? 'Add Your Photos' : 'Add More Photos'}
-                  </p>
-                  <p className="text-xs sm:text-sm text-white/60">
-                    Tap to browse • JPG, PNG, WebP, GIF • Max {formatFileSize(FILE_SIZE_LIMITS.IMAGE_MAX_SIZE)}
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3 items-center">
-                  {showCameraButton && (
-                    <Button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenCamera();
-                      }}
-                      className="h-10 sm:h-11 px-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-                    >
-                      <Camera className="w-4 h-4 mr-2" />
-                      Take Photo
-                    </Button>
-                  )}
-                  <Button
-                    type="button"
-                    disabled={uploading}
-                    className="h-10 sm:h-11 px-6 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600"
-                  >
-                    <Image className="w-4 h-4 mr-2" />
-                    {uploading ? 'Uploading...' : currentPhotos.length === 0 ? 'Choose Photos' : `Add More (${maxPhotos - currentPhotos.length} left)`}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
+      <input
+        id="photo-upload"
+        type="file"
+        multiple
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => handleFileSelect(e.target.files)}
+      />
 
-          <input
-            id="photo-upload"
-            type="file"
-            multiple
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => handleFileSelect(e.target.files)}
-          />
-        </>
-      )}
-
-      {/* Tips */}
-      <Card className="bg-muted/50">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <Image className="w-5 h-5 text-primary mt-0.5" />
-            <div className="text-sm">
-              <p className="font-medium mb-1">Photo Tips:</p>
-              <ul className="text-muted-foreground space-y-1">
-                <li>• First photo will be your main/cover image</li>
-                <li>• Use high-quality, well-lit photos</li>
-                <li>• Show different angles and key features</li>
-                {uploadType === 'property' && (
-                  <li>• Include exterior, interior, and amenity photos</li>
-                )}
-                {uploadType === 'profile' && (
-                  <li>• Include clear face photos and lifestyle images</li>
-                )}
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* 🛸 PRO TIPS HUD */}
+      <div className="p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 space-y-4">
+        <div className="flex items-center gap-3">
+           <Sparkles className="w-4 h-4 text-[#EB4898]" />
+           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80 italic">Nexus Photo Optimization</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+           {[
+             { label: 'Primary Asset', desc: 'The first photo is your global representational ID.' },
+             { label: 'High Fidelity', desc: 'Clear, well-lit assets significantly increase match parity.' },
+             { label: 'Lifestyle', desc: 'Show your natural environments for authentic resonance.' },
+             { label: 'Nexus Ready', desc: 'Optimized for mobile-first edge-to-edge viewing.' }
+           ].map((tip) => (
+             <div key={tip.label} className="space-y-1">
+                <p className="text-[9px] font-black uppercase text-[#EB4898] italic">{tip.label}</p>
+                <p className="text-[10px] text-white/40 leading-relaxed font-medium uppercase italic">{tip.desc}</p>
+             </div>
+           ))}
+        </div>
+      </div>
     </div>
   );
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    handleFileSelect(e.dataTransfer.files);
+  }
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(true);
+  }
+  function handleDragLeave(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+  }
 }

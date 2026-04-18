@@ -1,7 +1,7 @@
 
 import { useEffect, useState, useMemo, memo } from 'react';
-import { motion } from 'framer-motion';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import { useClientProfile, useSaveClientProfile } from '@/hooks/useClientProfile
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
-import { Check, MapPin, Search } from 'lucide-react';
+import { Check, MapPin, Search, User, Compass, Target, LifeBuoy, Sparkles, X, Save } from 'lucide-react';
 import {
   getRegions,
   getCountriesInRegion,
@@ -22,12 +22,9 @@ import {
 } from '@/data/worldLocations';
 import { logger } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
+import { triggerHaptic } from '@/utils/haptics';
 
 import {
-  PROPERTY_TAGS,
-  TRANSPORTATION_TAGS,
-  LIFESTYLE_TAGS,
-  FINANCIAL_TAGS,
   NATIONALITY_OPTIONS,
   LANGUAGE_OPTIONS,
   RELATIONSHIP_STATUS_OPTIONS,
@@ -35,12 +32,9 @@ import {
   DRINKING_HABIT_OPTIONS,
   CLEANLINESS_OPTIONS,
   NOISE_TOLERANCE_OPTIONS,
-  WORK_SCHEDULE_OPTIONS,
-  DIETARY_OPTIONS,
-  PERSONALITY_OPTIONS,
-  INTEREST_OPTIONS,
   CLIENT_INTENTION_OPTIONS as INTENTION_OPTIONS
 } from '@/constants/profileConstants';
+import { cn } from '@/lib/utils';
 
 type Props = {
   open: boolean;
@@ -48,7 +42,7 @@ type Props = {
 };
 
 function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
-  const { data, isLoading } = useClientProfile();
+  const { data } = useClientProfile();
   const saveMutation = useSaveClientProfile();
 
   const [name, setName] = useState<string>('');
@@ -71,11 +65,6 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   const [noiseTolerance, setNoiseTolerance] = useState<string>('medium');
   const [workSchedule, setWorkSchedule] = useState<string>('');
 
-  // Cultural and personality fields
-  const [dietaryPreferences, setDietaryPreferences] = useState<string[]>([]);
-  const [personalityTraits, setPersonalityTraits] = useState<string[]>([]);
-  const [interestCategories, setInterestCategories] = useState<string[]>([]);
-
   // Location fields
   const [country, setCountry] = useState<string>('');
   const [city, setCity] = useState<string>('');
@@ -86,14 +75,11 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   const [countrySearch, setCountrySearch] = useState('');
   const [citySearch, setCitySearch] = useState('');
 
-  // Client intentions - what they're looking for
+  // Client intentions
   const [intentions, setIntentions] = useState<string[]>([]);
-
-  // Verification fields
   const [occupation, setOccupation] = useState<string>('');
   const [yearsInCity, setYearsInCity] = useState<number | ''>('');
 
-  // Get all unique countries across all regions (static data — computed once)
   const allCountries = useMemo(() => {
     const countries = new Set<string>();
     const regions = getRegions();
@@ -104,44 +90,36 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     return Array.from(countries).sort();
   }, []);
 
-  // Filtered countries based on search
   const filteredCountries = useMemo(() =>
     allCountries.filter(c => c.toLowerCase().includes(countrySearch.toLowerCase())),
     [allCountries, countrySearch]
   );
 
-  // Get cities for the selected country
   const availableCities = useMemo(() => {
     if (!country || !selectedRegion) return [];
     return getCitiesInCountry(selectedRegion, country);
   }, [country, selectedRegion]);
 
-  // Filtered cities based on search
   const filteredCities = useMemo(() =>
     availableCities.filter(c => c.name.toLowerCase().includes(citySearch.toLowerCase())),
     [availableCities, citySearch]
   );
 
-  // Get neighborhoods for the selected city
   const availableNeighborhoods = useMemo(() => {
     if (!city) return [];
     const cityData = getCityByName(city);
     return cityData?.city.neighborhoods || [];
   }, [city]);
 
-  // Find region for a country
   const findRegionForCountry = (countryName: string): string => {
     const regions = getRegions();
     for (const region of regions) {
       const countriesInRegion = getCountriesInRegion(region);
-      if (countriesInRegion.includes(countryName)) {
-        return region;
-      }
+      if (countriesInRegion.includes(countryName)) return region;
     }
     return '';
   };
 
-  // Handle country change
   const handleCountryChange = (newCountry: string) => {
     setCountry(newCountry);
     setCountrySearch('');
@@ -150,17 +128,14 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     setCitySearch('');
     setLatitude(null);
     setLongitude(null);
-
     const region = findRegionForCountry(newCountry);
     setSelectedRegion(region);
   };
 
-  // Handle city change
   const handleCityChange = (newCity: string) => {
     setCity(newCity);
     setCitySearch('');
     setNeighborhood('');
-
     const cityData = getCityByName(newCity);
     if (cityData?.city.coordinates) {
       setLatitude(cityData.city.coordinates.lat);
@@ -176,26 +151,15 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     setInterests(data.interests ?? []);
     setActivities(data.preferred_activities ?? []);
     setProfileImages(data.profile_images ?? []);
-
-    // Load new demographic fields with type safety
     setNationality((data as any).nationality ?? '');
     setLanguages((data as any).languages ?? []);
     setRelationshipStatus((data as any).relationship_status ?? '');
     setHasChildren((data as any).has_children ?? false);
-
-    // Load lifestyle habit fields
     setSmokingHabit((data as any).smoking_habit ?? 'never');
     setDrinkingHabit((data as any).drinking_habit ?? 'never');
     setCleanlinessLevel((data as any).cleanliness_level ?? 'medium');
     setNoiseTolerance((data as any).noise_tolerance ?? 'medium');
     setWorkSchedule((data as any).work_schedule ?? '');
-
-    // Load cultural and personality fields
-    setDietaryPreferences((data as any).dietary_preferences ?? []);
-    setPersonalityTraits((data as any).personality_traits ?? []);
-    setInterestCategories((data as any).interest_categories ?? []);
-
-    // Load location fields
     const loadedCountry = (data as any).country ?? '';
     const loadedCity = (data as any).city ?? '';
     setCountry(loadedCountry);
@@ -203,860 +167,277 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     setNeighborhood((data as any).neighborhood ?? '');
     setLatitude((data as any).latitude ?? null);
     setLongitude((data as any).longitude ?? null);
-
-    // Load client intentions
     setIntentions((data as any).intentions ?? []);
-
-    // Load verification fields
     setOccupation((data as any).occupation ?? '');
     setYearsInCity((data as any).years_in_city ?? '');
-
-    // Find and set the region for the loaded country
-    if (loadedCountry) {
-      const region = findRegionForCountry(loadedCountry);
-      setSelectedRegion(region);
-    }
+    if (loadedCountry) setSelectedRegion(findRegionForCountry(loadedCountry));
   }, [data]);
 
   const handleImageUpload = async (file: File): Promise<string> => {
-    try {
-      const user = await supabase.auth.getUser();
-      if (!user.data.user) throw new Error('Not authenticated');
-
-      const fileExt = file.name.split('.').pop() || 'jpg';
-      const uniqueId = crypto.randomUUID();
-      const fileName = `${uniqueId}.${fileExt}`;
-      const filePath = `${user.data.user.id}/${fileName}`;
-
-      const { data: _data, error } = await supabase.storage
-        .from('profile-images')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false,
-        });
-
-      if (error) {
-        logger.error('Storage upload error:', error);
-        toast.error('Upload Failed', { description: error.message || 'Could not upload image. Please try again.' });
-        throw error;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('profile-images')
-        .getPublicUrl(filePath);
-
-      return publicUrl;
-    } catch (error) {
-      logger.error('Error uploading image:', error);
-      throw error;
-    }
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) throw new Error('Not authenticated');
+    const fileExt = file.name.split('.').pop() || 'jpg';
+    const filePath = `${user.data.user.id}/${crypto.randomUUID()}.${fileExt}`;
+    const { error } = await supabase.storage.from('profile-images').upload(filePath, file);
+    if (error) throw error;
+    return supabase.storage.from('profile-images').getPublicUrl(filePath).data.publicUrl;
   };
 
   const handleSave = async () => {
-    const payload = {
-      name: name || null,
-      age: age === '' ? null : Number(age),
-      gender: gender || null,
-      bio: null, // No longer using bio field
-      interests: interests,
-      preferred_activities: activities,
-      profile_images: profileImages,
-
-      // New demographic fields
-      nationality: nationality || null,
-      languages: languages,
-      relationship_status: relationshipStatus || null,
-      has_children: hasChildren,
-
-      // Lifestyle habit fields
-      smoking_habit: smokingHabit,
-      drinking_habit: drinkingHabit,
-      cleanliness_level: cleanlinessLevel,
-      noise_tolerance: noiseTolerance,
-      work_schedule: workSchedule || null,
-
-      // Cultural and personality fields
-      dietary_preferences: dietaryPreferences,
-      personality_traits: personalityTraits,
-      interest_categories: interestCategories,
-
-      // Location fields
-      country: country || null,
-      city: city || null,
-      neighborhood: neighborhood || null,
-      latitude: latitude,
-      longitude: longitude,
-
-      // Client intentions
-      intentions: intentions,
-
-      // Verification fields
-      occupation: occupation || null,
-      years_in_city: yearsInCity === '' ? null : Number(yearsInCity),
-    };
-
-    // Content moderation on name
-    if (name) {
-      const nameCheck = validateContent(name);
-      if (!nameCheck.isClean) {
-        toast.error('Content blocked', { description: nameCheck.message || undefined });
-        return;
-      }
+    triggerHaptic('medium');
+    if (name && !validateContent(name).isClean) {
+      toast.error('Content Blocked', { description: 'Please check your Station ID.' });
+      return;
     }
-
     try {
-      await saveMutation.mutateAsync(payload);
-      toast.success('Profile saved', { description: 'Your comprehensive profile has been updated.' });
+      await saveMutation.mutateAsync({
+        name, age: age === '' ? null : Number(age), gender,
+        interests, preferred_activities: activities, profile_images: profileImages,
+        nationality, languages, relationship_status: relationshipStatus, has_children: hasChildren,
+        smoking_habit: smokingHabit, drinking_habit: drinkingHabit, cleanliness_level: cleanlinessLevel,
+        noise_tolerance: noiseTolerance, work_schedule: workSchedule,
+        country, city, neighborhood, latitude, longitude,
+        intentions, occupation, years_in_city: yearsInCity === '' ? null : Number(yearsInCity),
+      });
+      toast.success('Identity Updated', { description: 'Your Nexus profile is now in parity.' });
       onOpenChange(false);
     } catch (error) {
-      logger.error('Error saving profile:', error);
-      toast.error('Error saving profile', { description: error instanceof Error ? error.message : 'Please try again' });
-    }
-  };
-
-  const toggleTag = (tag: string, isInterestTag: boolean) => {
-    const totalTags = interests.length + activities.length;
-
-    if (isInterestTag) {
-      if (interests.includes(tag)) {
-        setInterests(interests.filter(t => t !== tag));
-      } else if (totalTags < 10) {
-        setInterests([...interests, tag]);
-      }
-    } else {
-      if (activities.includes(tag)) {
-        setActivities(activities.filter(t => t !== tag));
-      } else if (totalTags < 10) {
-        setActivities([...activities, tag]);
-      }
-    }
-  };
-
-  const toggleLanguage = (lang: string) => {
-    if (languages.includes(lang)) {
-      setLanguages(languages.filter(l => l !== lang));
-    } else if (languages.length < 5) {
-      setLanguages([...languages, lang]);
-    }
-  };
-
-  const toggleDietaryPref = (pref: string) => {
-    if (dietaryPreferences.includes(pref)) {
-      setDietaryPreferences(dietaryPreferences.filter(p => p !== pref));
-    } else if (dietaryPreferences.length < 3) {
-      setDietaryPreferences([...dietaryPreferences, pref]);
-    }
-  };
-
-  const togglePersonalityTrait = (trait: string) => {
-    if (personalityTraits.includes(trait)) {
-      setPersonalityTraits(personalityTraits.filter(t => t !== trait));
-    } else if (personalityTraits.length < 5) {
-      setPersonalityTraits([...personalityTraits, trait]);
-    }
-  };
-
-  const toggleInterestCategory = (interest: string) => {
-    if (interestCategories.includes(interest)) {
-      setInterestCategories(interestCategories.filter(i => i !== interest));
-    } else if (interestCategories.length < 6) {
-      setInterestCategories([...interestCategories, interest]);
+       toast.error('Sync Error');
     }
   };
 
   const toggleIntention = (intentionId: string) => {
-    if (intentions.includes(intentionId)) {
-      setIntentions(intentions.filter(i => i !== intentionId));
-    } else {
-      setIntentions([...intentions, intentionId]);
-    }
+    triggerHaptic('light');
+    if (intentions.includes(intentionId)) setIntentions(intentions.filter(i => i !== intentionId));
+    else setIntentions([...intentions, intentionId]);
   };
 
-  const totalTags = interests.length + activities.length;
   const completionPercentage = Math.round(
-    ((name ? 20 : 0) + (age ? 10 : 0) + (gender ? 5 : 0) + (profileImages.length > 0 ? 15 : 0) + (intentions.length > 0 ? 20 : 0) + (totalTags >= 5 ? 30 : totalTags * 6)) / 100 * 100
+    ((name ? 20 : 0) + (age ? 10 : 0) + (profileImages.length > 0 ? 30 : 0) + (intentions.length > 0 ? 20 : 0) + (city ? 20 : 0))
   );
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-white/10 text-white">
-        <DialogHeader className="px-4 sm:px-6 py-4 border-b border-white/10 shrink-0">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">
-              Edit Your Profile
-            </DialogTitle>
-            <Badge variant="outline" className="bg-white/10 border-white/20 text-white">
-              {completionPercentage}% Complete
-            </Badge>
-          </div>
-        </DialogHeader>
-
-        <ScrollArea className="flex-1 overflow-y-auto">
-          <div className="px-4 sm:px-6 py-4 space-y-6">
-            {/* Profile Photos Section - Priority #1 */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-white text-lg sm:text-xl font-bold">📸 Profile Photos</Label>
-                  <p className="text-white/60 text-xs sm:text-sm mt-1">Upload your profile photo</p>
-                </div>
-                <Badge variant="secondary" className="bg-red-500/20 text-red-400 border-red-400">
-                  {profileImages.length}/1
-                </Badge>
+    <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
+      <DialogContent className="sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 border-none bg-black/90 backdrop-blur-3xl overflow-hidden rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,0.9)]">
+        
+        {/* 🛸 NEXUS HEADER */}
+        <div className="relative px-8 pt-8 pb-6 border-b border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent">
+           <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                 <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#EB4898]" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 italic">Identity Terminal</span>
+                 </div>
+                 <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white">Edit Nexus Profile</h2>
               </div>
-              <PhotoUploadManager
-                maxPhotos={1}
-                currentPhotos={profileImages}
-                onPhotosChange={setProfileImages}
-                uploadType="profile"
-                onUpload={handleImageUpload}
-                showCameraButton={false}
-                replaceOnFull
-              />
-            </div>
-
-            {/* Basic Info Section */}
-            <div className="space-y-4">
-              <Label className="text-white text-lg sm:text-xl font-bold">👤 Basic Information</Label>
-
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-white/90 text-sm sm:text-base">Full Name *</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your full name"
-                  className="h-12 text-base bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-white/20"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="age" className="text-white/90 text-sm sm:text-base">Age</Label>
-                  <Input
-                    id="age"
-                    type="number"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value ? Number(e.target.value) : '')}
-                    placeholder="25"
-                    className="h-12 text-base bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-white/20"
-                    min="18"
-                    max="99"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-white/90 text-sm sm:text-base">Gender</Label>
-                  <Select value={gender ?? ''} onValueChange={setGender}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-white/20 text-white">
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="non-binary">Non-binary</SelectItem>
-                      <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Intentions Section - What are you looking for? */}
-            <div className="space-y-4">
-              <Label className="text-white text-lg sm:text-xl font-bold">🎯 What Are You Looking For?</Label>
-              <p className="text-white/60 text-xs sm:text-sm -mt-2">Select all that apply • Helps owners understand your needs</p>
-
-              <div className="grid grid-cols-1 gap-3">
-                {INTENTION_OPTIONS.map((option) => {
-                  const isSelected = intentions.includes(option.id);
-
-                  return (
-                    <motion.button
-                      key={option.id}
-                      onClick={() => toggleIntention(option.id)}
-                      whileTap={{ scale: 0.96 }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                      className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${isSelected
-                        ? "bg-red-500/10 border-red-500/50 shadow-lg shadow-red-500/10"
-                        : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
-                        }`}
-                    >
-                      <div className={`p-2 rounded-lg shrink-0 ${isSelected ? "bg-red-500/20 text-red-400" : "bg-white/10 text-white/70"
-                        }`}>
-                        <Search className="w-5 h-5" />
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-white">{option.label}</span>
-                          {isSelected && (
-                            <Badge className="bg-red-500 text-white text-xs">
-                              <Check className="w-3 h-3 mr-1" /> Selected
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-white/50 truncate">{option.description}</p>
-                      </div>
-
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected
-                        ? "border-red-500 bg-red-500 text-white"
-                        : "border-white/30"
-                        }`}>
-                        {isSelected && <Check className="w-3 h-3" />}
-                      </div>
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              {intentions.length === 0 && (
-                <p className="text-orange-400 text-sm">Select at least one option to continue</p>
-              )}
-            </div>
-
-            {/* Occupation & Local Status */}
-            <div className="space-y-4">
-              <Label className="text-white text-lg sm:text-xl font-bold">💼 Occupation & Local Status</Label>
-              <p className="text-white/60 text-xs sm:text-sm -mt-2">Helps verify your resident profile</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-white/80 text-sm">What do you do?</Label>
-                  <Input
-                    value={occupation}
-                    onChange={(e) => setOccupation(e.target.value)}
-                    placeholder="e.g. Chef, DJ, Developer..."
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/30"
-                    maxLength={60}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-white/80 text-sm">Years in this city</Label>
-                  <Input
-                    type="number"
-                    value={yearsInCity}
-                    onChange={(e) => setYearsInCity(e.target.value === '' ? '' : Number(e.target.value))}
-                    placeholder="e.g. 3"
-                    min={0}
-                    max={50}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/30"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <Label className="text-white text-lg sm:text-xl font-bold">📍 Your Location</Label>
-              <p className="text-white/60 text-xs sm:text-sm -mt-2">Where are you looking to rent or buy?</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Country Select */}
-                <div className="space-y-2">
-                  <Label className="text-white/90 text-sm sm:text-base">Country *</Label>
-                  <Select value={country} onValueChange={handleCountryChange}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
-                      <SelectValue placeholder="Select a country" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-white/20 text-white max-h-72">
-                      <div className="p-2 sticky top-0 bg-slate-800 border-b border-white/10 z-10">
-                        <div className="relative">
-                          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/50" />
-                          <Input
-                            placeholder="Search countries..."
-                            value={countrySearch}
-                            onChange={(e) => setCountrySearch(e.target.value)}
-                            className="h-8 pl-8 text-sm bg-white/5 border-white/20 text-white placeholder:text-white/50"
-                            onClick={(e) => e.stopPropagation()}
-                            onKeyDown={(e) => e.stopPropagation()}
-                          />
-                        </div>
-                      </div>
-                      <div className="max-h-48 overflow-y-auto">
-                        {filteredCountries.length > 0 ? (
-                          filteredCountries.map((c) => (
-                            <SelectItem key={c} value={c}>{c}</SelectItem>
-                          ))
-                        ) : (
-                          <div className="p-2 text-center text-white/50 text-sm">
-                            No countries found
-                          </div>
-                        )}
-                      </div>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* City Select */}
-                <div className="space-y-2">
-                  <Label className="text-white/90 text-sm sm:text-base">City *</Label>
-                  <Select value={city} onValueChange={handleCityChange} disabled={!country}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20 disabled:opacity-50">
-                      <SelectValue placeholder={country ? 'Select a city' : 'Select country first'} />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-white/20 text-white max-h-72">
-                      {availableCities.length > 0 && (
-                        <div className="p-2 sticky top-0 bg-slate-800 border-b border-white/10 z-10">
-                          <div className="relative">
-                            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/50" />
-                            <Input
-                              placeholder="Search cities..."
-                              value={citySearch}
-                              onChange={(e) => setCitySearch(e.target.value)}
-                              className="h-8 pl-8 text-sm bg-white/5 border-white/20 text-white placeholder:text-white/50"
-                              onClick={(e) => e.stopPropagation()}
-                              onKeyDown={(e) => e.stopPropagation()}
-                            />
-                          </div>
-                        </div>
-                      )}
-                      <div className="max-h-48 overflow-y-auto">
-                        {filteredCities.length > 0 ? (
-                          filteredCities.map((c) => (
-                            <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>
-                          ))
-                        ) : availableCities.length > 0 ? (
-                          <div className="p-2 text-center text-white/50 text-sm">
-                            No cities found
-                          </div>
-                        ) : (
-                          <div className="p-2 text-center text-white/50 text-sm">
-                            {country ? 'No cities available' : 'Select a country first'}
-                          </div>
-                        )}
-                      </div>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Neighborhood Select */}
-                <div className="space-y-2">
-                  <Label className="text-white/90 text-sm sm:text-base">Neighborhood</Label>
-                  <Select
-                    value={neighborhood}
-                    onValueChange={setNeighborhood}
-                    disabled={!city || availableNeighborhoods.length === 0}
-                  >
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20 disabled:opacity-50">
-                      <SelectValue placeholder={
-                        !city ? 'Select city first' :
-                          availableNeighborhoods.length === 0 ? 'No neighborhoods' :
-                            'Select (optional)'
-                      } />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-white/20 text-white max-h-60">
-                      {availableNeighborhoods.map((n) => (
-                        <SelectItem key={n} value={n}>{n}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Selected Location Display */}
-              {(city || country) && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {country && (
-                    <Badge variant="secondary" className="text-xs py-0.5 bg-white/10 text-white/80">
-                      {country}
-                    </Badge>
-                  )}
-                  {city && (
-                    <Badge className="text-xs py-0.5 bg-gradient-to-r from-red-600 to-red-500 text-white">
-                      <MapPin className="w-3 h-3 mr-1" />
-                      {city}
-                    </Badge>
-                  )}
-                  {neighborhood && (
-                    <Badge variant="outline" className="text-xs py-0.5 border-white/20 text-white/80">
-                      {neighborhood}
-                    </Badge>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Demographics & Background Section */}
-            <div className="space-y-4">
-              <Label className="text-white text-lg sm:text-xl font-bold">🌍 Demographics & Background</Label>
-
-              <div className="space-y-2">
-                <Label className="text-white/90 text-sm sm:text-base">Nationality</Label>
-                <Select value={nationality} onValueChange={setNationality}>
-                  <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
-                    <SelectValue placeholder="Select nationality" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-white/20 text-white">
-                    {NATIONALITY_OPTIONS.map(nat => (
-                      <SelectItem key={nat} value={nat}>{nat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-white/90 text-sm sm:text-base">Languages ({languages.length}/5)</Label>
-                <div className="flex flex-wrap gap-2">
-                  {LANGUAGE_OPTIONS.map(lang => (
-                    <Badge
-                      key={lang}
-                      variant={languages.includes(lang) ? 'default' : 'outline'}
-                      className={`cursor-pointer transition-all ${languages.includes(lang)
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-transparent'
-                        : 'bg-white/5 border-white/20 text-white/70 hover:border-blue-400 hover:bg-white/10'
-                        }`}
-                      onClick={() => toggleLanguage(lang)}
-                    >
-                      {lang}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-white/90 text-sm sm:text-base">Relationship Status</Label>
-                  <Select value={relationshipStatus} onValueChange={setRelationshipStatus}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-white/20 text-white">
-                      {RELATIONSHIP_STATUS_OPTIONS.map(status => (
-                        <SelectItem key={status} value={status}>{status}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-white/90 text-sm sm:text-base">Has Children</Label>
-                  <div className="flex items-center h-12 px-4 bg-white/5 border border-white/20 rounded-md">
-                    <Switch
-                      checked={hasChildren}
-                      onCheckedChange={setHasChildren}
-                      className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-red-600 data-[state=checked]:to-red-500"
+              <div className="flex flex-col items-end gap-2">
+                 <div className="h-2 w-32 bg-white/5 rounded-full overflow-hidden border border-white/10">
+                    <motion.div 
+                      className="h-full bg-gradient-to-r from-[#EB4898] to-[#ff5bb0]" 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${completionPercentage}%` }}
                     />
-                    <span className="ml-3 text-white">{hasChildren ? 'Yes' : 'No'}</span>
+                 </div>
+                 <span className="text-[9px] font-black uppercase tracking-widest text-[#EB4898] italic">{completionPercentage}% Parity</span>
+              </div>
+           </div>
+           
+           <button onClick={() => { triggerHaptic('light'); onOpenChange(false); }} className="absolute -top-2 -right-2 sm:top-6 sm:right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all active:scale-90">
+             <X className="w-5 h-5" />
+           </button>
+        </div>
+
+        <ScrollArea className="flex-1 px-8 py-6">
+          <div className="space-y-12 pb-12">
+            
+            {/* 📸 ASSET REPOSITORY */}
+            <section className="space-y-6">
+               <div className="flex flex-col gap-1">
+                  <h3 className="text-sm font-black uppercase italic tracking-widest text-white/90">Visual Assets</h3>
+                  <p className="text-[10px] uppercase tracking-widest text-white/30 italic">High-fidelity primary and lifestyle imagery</p>
+               </div>
+               <PhotoUploadManager
+                 maxPhotos={6}
+                 currentPhotos={profileImages}
+                 onPhotosChange={setProfileImages}
+                 uploadType="profile"
+                 onUpload={handleImageUpload}
+                 showCameraButton={true}
+                 replaceOnFull={false}
+               />
+            </section>
+
+            {/* 👤 IDENTITY CORE */}
+            <section className="space-y-6">
+                <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/30 flex items-center justify-center text-[#EB4898]">
+                      <User className="w-4 h-4" />
+                   </div>
+                   <h3 className="text-sm font-black uppercase italic tracking-widest text-white">Identity Core</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                   <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">Station ID (Name)</Label>
+                      <Input value={name} onChange={(e) => setName(e.target.value)} className="h-14 rounded-2xl bg-white/5 border-white/10 text-white font-bold italic focus:border-[#EB4898]/50 transition-all px-6" />
+                   </div>
+                   <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">Cycle (Age)</Label>
+                        <Input type="number" value={age} onChange={(e) => setAge(e.target.value ? Number(e.target.value) : '')} className="h-14 rounded-2xl bg-white/5 border-white/10 text-white font-bold italic focus:border-[#EB4898]/50 transition-all px-6 text-center" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">Spectrum</Label>
+                        <Select value={gender} onValueChange={setGender}>
+                          <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-white font-bold italic focus:border-[#EB4898]/50 transition-all px-6">
+                            <SelectValue placeholder="Gender" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-[#0d0d0f] border-white/10 text-white">
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="non-binary">Spectrum</SelectItem>
+                            <SelectItem value="prefer-not-to-say">Private</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                   </div>
+                </div>
+            </section>
+
+            {/* 🎯 OBJECTIVE TERMINAL */}
+            <section className="space-y-6">
+               <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/30 flex items-center justify-center text-[#EB4898]">
+                     <Target className="w-4 h-4" />
                   </div>
-                </div>
-              </div>
-            </div>
+                  <h3 className="text-sm font-black uppercase italic tracking-widest text-white">Objective Terminal</h3>
+               </div>
+               
+               <div className="grid grid-cols-1 gap-4">
+                 {INTENTION_OPTIONS.map((opt) => {
+                   const active = intentions.includes(opt.id);
+                   return (
+                     <motion.button
+                       key={opt.id}
+                       onClick={() => toggleIntention(opt.id)}
+                       whileTap={{ scale: 0.98 }}
+                       className={cn(
+                         "flex items-center gap-4 p-5 rounded-[2rem] border-2 transition-all text-left group",
+                         active ? "bg-[#EB4898]/10 border-[#EB4898] shadow-[0_10px_30px_rgba(235,72,152,0.1)]" : "bg-white/5 border-white/5 hover:bg-white/10"
+                       )}
+                     >
+                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-colors", active ? "bg-[#EB4898] text-white" : "bg-white/5 text-white/40")}>
+                           <Compass className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1">
+                           <div className="flex items-center gap-2">
+                              <span className="font-black italic uppercase tracking-tighter text-white group-hover:text-[#EB4898] transition-colors">{opt.label}</span>
+                              {active && <Badge className="bg-[#EB4898] text-white text-[8px] font-black uppercase italic">Active</Badge>}
+                           </div>
+                           <p className="text-[10px] font-medium uppercase tracking-widest text-white/30 italic">{opt.description}</p>
+                        </div>
+                        <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all", active ? "border-[#EB4898] bg-[#EB4898]" : "border-white/20")}>
+                           {active && <Check className="w-3 h-3 text-white" />}
+                        </div>
+                     </motion.button>
+                   )
+                 })}
+               </div>
+            </section>
 
-            {/* Lifestyle Habits Section */}
-            <div className="space-y-4">
-              <Label className="text-white text-lg sm:text-xl font-bold">🏠 Lifestyle Habits</Label>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-white/90 text-sm sm:text-base">Smoking Habit</Label>
-                  <Select value={smokingHabit} onValueChange={setSmokingHabit}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-white/20 text-white">
-                      {SMOKING_HABIT_OPTIONS.map(habit => (
-                        <SelectItem key={habit.value} value={habit.value}>{habit.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-white/90 text-sm sm:text-base">Drinking Habit</Label>
-                  <Select value={drinkingHabit} onValueChange={setDrinkingHabit}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-white/20 text-white">
-                      {DRINKING_HABIT_OPTIONS.map(habit => (
-                        <SelectItem key={habit.value} value={habit.value}>{habit.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-white/90 text-sm sm:text-base">Cleanliness Level</Label>
-                  <Select value={cleanlinessLevel} onValueChange={setCleanlinessLevel}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-white/20 text-white">
-                      {CLEANLINESS_OPTIONS.map(level => (
-                        <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-white/90 text-sm sm:text-base">Noise Tolerance</Label>
-                  <Select value={noiseTolerance} onValueChange={setNoiseTolerance}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-white/20 text-white">
-                      {NOISE_TOLERANCE_OPTIONS.map(level => (
-                        <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-white/90 text-sm sm:text-base">Work Schedule</Label>
-                <Select value={workSchedule} onValueChange={setWorkSchedule}>
-                  <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
-                    <SelectValue placeholder="Select work schedule" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-white/20 text-white">
-                    {WORK_SCHEDULE_OPTIONS.map(schedule => (
-                      <SelectItem key={schedule.value} value={schedule.value}>{schedule.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Cultural & Personality Section */}
-            <div className="space-y-4">
-              <Label className="text-white text-lg sm:text-xl font-bold">✨ Cultural & Personality</Label>
-
-              <div className="space-y-2">
-                <Label className="text-white/90 text-sm sm:text-base">Dietary Preferences ({dietaryPreferences.length}/3)</Label>
-                <div className="flex flex-wrap gap-2">
-                  {DIETARY_OPTIONS.map(diet => (
-                    <Badge
-                      key={diet}
-                      variant={dietaryPreferences.includes(diet) ? 'default' : 'outline'}
-                      className={`cursor-pointer transition-all ${dietaryPreferences.includes(diet)
-                        ? 'bg-gradient-to-r from-rose-500 to-rose-500 hover:from-rose-600 hover:to-rose-600 text-white border-transparent'
-                        : 'bg-white/5 border-white/20 text-white/70 hover:border-rose-400 hover:bg-white/10'
-                        }`}
-                      onClick={() => toggleDietaryPref(diet)}
-                    >
-                      {diet}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-white/90 text-sm sm:text-base">Personality Traits ({personalityTraits.length}/5)</Label>
-                <div className="flex flex-wrap gap-2">
-                  {PERSONALITY_OPTIONS.map(trait => (
-                    <Badge
-                      key={trait}
-                      variant={personalityTraits.includes(trait) ? 'default' : 'outline'}
-                      className={`cursor-pointer transition-all ${personalityTraits.includes(trait)
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-transparent'
-                        : 'bg-white/5 border-white/20 text-white/70 hover:border-purple-400 hover:bg-white/10'
-                        }`}
-                      onClick={() => togglePersonalityTrait(trait)}
-                    >
-                      {trait}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-white/90 text-sm sm:text-base">Interest Categories ({interestCategories.length}/6)</Label>
-                <div className="flex flex-wrap gap-2">
-                  {INTEREST_OPTIONS.map(interest => (
-                    <Badge
-                      key={interest}
-                      variant={interestCategories.includes(interest) ? 'default' : 'outline'}
-                      className={`cursor-pointer transition-all ${interestCategories.includes(interest)
-                        ? 'bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white border-transparent'
-                        : 'bg-white/5 border-white/20 text-white/70 hover:border-red-400 hover:bg-white/10'
-                        }`}
-                      onClick={() => toggleInterestCategory(interest)}
-                    >
-                      {interest}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-
-            {/* Profile Tags Section */}
-            <div className="space-y-4">
-              <div>
-                <Label className="text-white text-lg sm:text-xl font-bold">🏷️ Describe Yourself</Label>
-                <p className="text-white/60 text-xs sm:text-sm mt-1">Select 5-10 tags that best describe your needs and preferences</p>
-              </div>
-
-              {/* Property Interest Tags */}
-              <div className="space-y-3">
-                <h4 className="text-sm sm:text-base font-semibold text-blue-400 flex items-center gap-2">
-                  🏠 Property & Housing
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  {PROPERTY_TAGS.map(tag => (
-                    <motion.div
-                      key={tag}
-                      whileTap={{ scale: 0.95 }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                      className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all ${interests.includes(tag)
-                        ? 'bg-blue-500/20 border-blue-400 text-white shadow-lg shadow-blue-500/20'
-                        : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
-                        }`}
-                      onClick={() => toggleTag(tag, true)}
-                    >
-                      <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${interests.includes(tag)
-                        ? 'bg-blue-500 border-blue-500'
-                        : 'border-white/40 bg-transparent'
-                        }`}>
-                        {interests.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
-                      </div>
-                      <span className="text-xs sm:text-sm leading-tight">{tag}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Transportation Tags */}
-              <div className="space-y-3">
-                <h4 className="text-sm sm:text-base font-semibold text-red-400 flex items-center gap-2">
-                  🚗 Transportation & Mobility
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  {TRANSPORTATION_TAGS.map(tag => (
-                    <motion.div
-                      key={tag}
-                      whileTap={{ scale: 0.95 }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                      className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all ${activities.includes(tag)
-                        ? 'bg-red-500/20 border-red-400 text-white shadow-lg shadow-red-500/20'
-                        : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
-                        }`}
-                      onClick={() => toggleTag(tag, false)}
-                    >
-                      <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${activities.includes(tag)
-                        ? 'bg-red-500 border-red-500'
-                        : 'border-white/40 bg-transparent'
-                        }`}>
-                        {activities.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
-                      </div>
-                      <span className="text-xs sm:text-sm leading-tight">{tag}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Lifestyle Tags */}
-              <div className="space-y-3">
-                <h4 className="text-sm sm:text-base font-semibold text-purple-400 flex items-center gap-2">
-                  ✨ Lifestyle & Preferences
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  {LIFESTYLE_TAGS.map(tag => (
-                    <motion.div
-                      key={tag}
-                      whileTap={{ scale: 0.95 }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                      className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all ${interests.includes(tag)
-                        ? 'bg-purple-500/20 border-purple-400 text-white shadow-lg shadow-purple-500/20'
-                        : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
-                        }`}
-                      onClick={() => toggleTag(tag, true)}
-                    >
-                      <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${interests.includes(tag)
-                        ? 'bg-purple-500 border-purple-500'
-                        : 'border-white/40 bg-transparent'
-                        }`}>
-                        {interests.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
-                      </div>
-                      <span className="text-xs sm:text-sm leading-tight">{tag}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Financial & Verification Tags */}
-              <div className="space-y-3">
-                <h4 className="text-sm sm:text-base font-semibold text-rose-400 flex items-center gap-2">
-                  💰 Financial & Verification
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  {FINANCIAL_TAGS.map(tag => (
-                    <motion.div
-                      key={tag}
-                      whileTap={{ scale: 0.95 }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                      className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all ${activities.includes(tag)
-                        ? 'bg-rose-500/20 border-rose-400 text-white shadow-lg shadow-green-500/20'
-                        : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
-                        }`}
-                      onClick={() => toggleTag(tag, false)}
-                    >
-                      <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${activities.includes(tag)
-                        ? 'bg-rose-500 border-rose-500'
-                        : 'border-white/40 bg-transparent'
-                        }`}>
-                        {activities.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
-                      </div>
-                      <span className="text-xs sm:text-sm leading-tight">{tag}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Tag Counter & Clear Button */}
-              <div className="flex items-center justify-between p-4 sm:p-5 bg-gradient-to-r from-white/10 to-white/5 rounded-xl border-2 border-white/20">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold text-sm sm:text-lg">
-                    {totalTags}
+            {/* 📍 GEOLOCATION SYNC */}
+            <section className="space-y-6">
+               <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/30 flex items-center justify-center text-[#EB4898]">
+                     <MapPin className="w-4 h-4" />
                   </div>
-                  <div>
-                    <p className="text-sm sm:text-base font-semibold text-white">
-                      {totalTags} / 10 tags selected
-                    </p>
-                    <p className="text-xs text-white/60">
-                      {totalTags < 5 ? 'Select at least 5 tags' : totalTags >= 10 ? 'Maximum reached!' : 'Good progress!'}
-                    </p>
+                  <h3 className="text-sm font-black uppercase italic tracking-widest text-white">Geolocation Sync</h3>
+               </div>
+
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                     <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">Region Control</Label>
+                     <Select value={country} onValueChange={handleCountryChange}>
+                        <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-white font-bold italic px-6 uppercase tracking-widest">
+                           <SelectValue placeholder="Station Country" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#0d0d0f] border-white/10 text-white max-h-72">
+                           <div className="p-3 border-b border-white/5">
+                              <Input placeholder="Filter..." value={countrySearch} onChange={(e) => setCountrySearch(e.target.value)} className="bg-white/5 border-white/10 h-10" />
+                           </div>
+                           {filteredCountries.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        </SelectContent>
+                     </Select>
                   </div>
-                </div>
-                {totalTags > 0 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setInterests([]);
-                      setActivities([]);
-                    }}
-                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-10 px-4"
-                  >
-                    Clear all
-                  </Button>
-                )}
-              </div>
-            </div>
+                  <div className="space-y-2">
+                     <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">Sector (City)</Label>
+                     <Select value={city} onValueChange={handleCityChange} disabled={!country}>
+                        <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-white font-bold italic px-6 uppercase tracking-widest">
+                           <SelectValue placeholder="City ID" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#0d0d0f] border-white/10 text-white max-h-72">
+                           {filteredCities.map(c => <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>)}
+                        </SelectContent>
+                     </Select>
+                  </div>
+               </div>
+            </section>
+
+            {/* 🏠 HABIT PARITY */}
+            <section className="space-y-6">
+               <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#EB4898]/10 border border-[#EB4898]/30 flex items-center justify-center text-[#EB4898]">
+                     <LifeBuoy className="w-4 h-4" />
+                  </div>
+                  <h3 className="text-sm font-black uppercase italic tracking-widest text-white">Habit Parity</h3>
+               </div>
+               
+               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  {[
+                    { label: 'Smke', val: smokingHabit, set: setSmokingHabit, opts: SMOKING_HABIT_OPTIONS },
+                    { label: 'Drnk', val: drinkingHabit, set: setDrinkingHabit, opts: DRINKING_HABIT_OPTIONS },
+                    { label: 'Clen', val: cleanlinessLevel, set: setCleanlinessLevel, opts: CLEANLINESS_OPTIONS }
+                  ].map((group) => (
+                    <div key={group.label} className="space-y-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-white/40 italic ml-1">{group.label}</Label>
+                       <Select value={group.val} onValueChange={group.set}>
+                          <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-white font-bold italic px-4 uppercase tracking-tighter">
+                             <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-[#0d0d0f] border-white/10 text-white">
+                             {group.opts.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                          </SelectContent>
+                       </Select>
+                    </div>
+                  ))}
+               </div>
+            </section>
+
           </div>
         </ScrollArea>
 
-        <DialogFooter className="px-4 sm:px-6 py-4 border-t border-white/10 flex-row gap-3 shrink-0">
-          <Button
-            variant="ghost"
-            onClick={() => onOpenChange(false)}
-            className="flex-1 h-12 text-white/70 hover:text-white hover:bg-white/10"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={saveMutation.isPending || isLoading || !name.trim()}
-            className="flex-1 h-12 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-semibold text-base"
-          >
-            {saveMutation.isPending ? 'Saving...' : 'Save Profile'}
-          </Button>
-        </DialogFooter>
-      </DialogContent >
-    </Dialog >
+        {/* 🛸 NEXUS FOOTER ACTIONS */}
+        <div className="px-8 py-6 border-t border-white/5 bg-gradient-to-t from-white/[0.03] to-transparent flex items-center justify-between gap-4">
+           <Button 
+             variant="ghost" 
+             onClick={() => onOpenChange(false)}
+             className="h-14 px-8 rounded-2xl font-black italic uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/5"
+           >
+              Cancel
+           </Button>
+           
+           <Button 
+              onClick={handleSave}
+              disabled={saveMutation.isPending}
+              className="h-14 pl-8 pr-10 rounded-2xl bg-white text-black font-black italic uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95 transition-all group"
+           >
+              <Save className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
+              {saveMutation.isPending ? 'Syncing...' : 'Commit Changes'}
+           </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
-
 
 export const ClientProfileDialog = memo(ClientProfileDialogComponent);
