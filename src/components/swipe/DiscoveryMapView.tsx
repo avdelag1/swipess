@@ -39,7 +39,7 @@ const kmToPixels = (km: number, lat: number, zoom: number) => {
 
 const getZoomForRadius = (km: number, lat: number, containerPx: number) => {
   for (let z = 16; z >= 2; z--) {
-    if (kmToPixels(km, lat, z) * 2 < containerPx * 0.6) return z;
+    if (kmToPixels(km, lat, z) * 2 < containerPx * 0.4) return z;
   }
   return 2;
 };
@@ -340,7 +340,7 @@ export const DiscoveryMapView = memo(({
         const onFinish = () => {
           loaded++;
           if (loaded >= total) {
-            if (!isLight) { ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(0, 0, w, h); }
+            if (!isLight) { ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(0, 0, w, h); }
             const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
             ctx.beginPath(); ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
             ctx.fillStyle = `rgba(${meta.accentRgb},${isLight ? 0.08 : 0.12})`; ctx.fill();
