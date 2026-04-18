@@ -168,7 +168,7 @@ export const SwipeExhaustedState = ({
               </div>
               <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Discovery Over</h3>
               <p className="text-white/40 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
-                You've scanned everything in {localKm}km. Expand your radius or change categories to find more.
+                You've scanned everything in {radiusKm}km. Expand your radius or change categories to find more.
               </p>
             </div>
           </motion.div>
