@@ -58,12 +58,16 @@ export const DiscoveryMapView = memo(({
   category, 
   onBack, 
   onStartSwiping, 
-  onCategoryChange 
+  onCategoryChange,
+  isEmbedded = false,
+  mode = 'client'
 }: {
   category: QuickFilterCategory;
   onBack: () => void;
   onStartSwiping: () => void;
   onCategoryChange?: (cat: QuickFilterCategory) => void;
+  isEmbedded?: boolean;
+  mode?: 'client' | 'owner';
 }) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
@@ -113,11 +117,19 @@ export const DiscoveryMapView = memo(({
 
   useEffect(() => { if (!userLatitude) detectLocation(); }, []);
 
-  // Fetch users/listings to show as dots
+  // Fetch users/listings to show as dots (non-clickable)
   useEffect(() => {
     const fetchDots = async () => {
-      const { data } = await supabase.from('listings').select('id, latitude, longitude').eq('status', 'active');
-      if (data) setDots(data.map(d => ({ id: d.id, latitude: d.latitude, longitude: d.longitude })));
+      const [{ data: listings }, { data: profiles }] = await Promise.all([
+        supabase.from('listings').select('id, latitude, longitude').eq('status', 'active'),
+        supabase.from('profiles').select('id, latitude, longitude').eq('status', 'published')
+      ]);
+      
+      const combined = [
+        ...(listings || []).map(l => ({ id: l.id, latitude: l.latitude, longitude: l.longitude })),
+        ...(profiles || []).map(p => ({ id: p.id, latitude: p.latitude, longitude: p.longitude }))
+      ];
+      setDots(combined);
     };
     fetchDots();
   }, [category]);
@@ -258,10 +270,17 @@ export const DiscoveryMapView = memo(({
         </div>
       </div>
 
-      {/* REFRESH RADAR */}
+      {/* REFRESH RADAR / START SWIPING */}
       <div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+12px)] inset-x-0 z-[10002] flex justify-center px-5 pointer-events-none">
-        <button onClick={handleRefresh} className="w-full max-w-[340px] h-15 rounded-[2rem] text-[13px] font-black uppercase tracking-[0.4em] bg-black text-white shadow-2xl flex items-center justify-center gap-3 pointer-events-auto active:scale-95 transition-all">
-          <RefreshCw className={cn("w-6 h-6", isRefreshing && "animate-spin")} /> REFRESH RADAR
+        <button 
+          onClick={() => {
+            handleRefresh();
+            // Launch swiping after a short delay for feedback
+            setTimeout(onStartSwiping, 800);
+          }} 
+          className="w-full max-w-[340px] h-15 rounded-[2.5rem] text-[13px] font-black uppercase tracking-[0.45em] bg-black text-white shadow-[0_32px_64px_rgba(0,0,0,0.6)] flex items-center justify-center gap-3 pointer-events-auto active:scale-95 transition-all"
+        >
+          <RefreshCw className={cn("w-6 h-6", isRefreshing && "animate-spin")} /> START SCANNING
         </button>
       </div>
 
