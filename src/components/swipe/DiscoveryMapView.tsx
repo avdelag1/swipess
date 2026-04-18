@@ -10,7 +10,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
-import { Navigation, Zap, RefreshCw, Building2, Bike, ArrowLeft, HardHat } from 'lucide-react';
+import { Navigation, Zap, RefreshCw, Building2, Bike, Trophy, Wrench, ArrowLeft, X, HardHat, PersonStanding } from 'lucide-react';
 import { toast } from 'sonner';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
@@ -348,14 +348,13 @@ export const DiscoveryMapView = memo(({
     const drawOverlay = () => {
       if (rid !== renderIdRef.current) return;
 
-      // All overlay colors use dark-on-light values.
-      // CSS filter: invert(1) hue-rotate(180deg) in dark mode makes them appear
-      // white-on-dark automatically without touching the overlay drawing code.
+      const visualCenterY = h / 2 - 120; // Shift radar up to clear centered filter completely
+      const visualCenterX = w / 2;
 
       // Radar Ring
-      const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
+      const r = Math.min(radiusPx, Math.min(w, h) / 2 - 40);
       ctx.beginPath();
-      ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
+      ctx.arc(visualCenterX, visualCenterY, r, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0,0,0,0.04)';
       ctx.fill();
       ctx.strokeStyle = 'rgba(0,0,0,0.35)';
@@ -367,8 +366,8 @@ export const DiscoveryMapView = memo(({
       // Dots
       dots.forEach(dot => {
         const dTile = latLngToTile(dot.latitude, dot.longitude, zoom);
-        const px = w / 2 + (dTile.x - tileX) * 256;
-        const py = h / 2 + (dTile.y - tileY) * 256;
+        const px = visualCenterX + (dTile.x - tileX) * 256;
+        const py = visualCenterY + (dTile.y - tileY) * 256;
         if (px < -20 || px > w + 20 || py < -20 || py > h + 20) return;
 
         const dist = haversineKm(baseLat, baseLng, dot.latitude, dot.longitude);
@@ -396,7 +395,7 @@ export const DiscoveryMapView = memo(({
 
       // Center marker
       ctx.beginPath();
-      ctx.arc(w / 2, h / 2, 8, 0, Math.PI * 2);
+      ctx.arc(visualCenterX, visualCenterY, 8, 0, Math.PI * 2);
       ctx.fillStyle = '#111';
       ctx.fill();
       ctx.strokeStyle = '#fff';
@@ -527,50 +526,42 @@ export const DiscoveryMapView = memo(({
         </AnimatePresence>
       </div>
 
-      {/* FLOAT HUD: Quick Filters — centered vertically in available space */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="absolute inset-x-0 z-[10002] flex justify-center px-5 pointer-events-none"
-        style={{
-          top: 'calc(env(safe-area-inset-top, 0px) + 72px)',
-          bottom: 'calc(var(--bottom-nav-height, 72px) + env(safe-area-inset-bottom, 0px) + 72px)',
-          alignItems: 'center',
-          display: 'flex',
-        }}
-      >
-        <div
+      {/* FLOAT HUD: Center Quick Filters — exactly centered vertically & horizontally */}
+      <div className="absolute inset-0 z-[10002] flex items-center justify-center pointer-events-none">
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }} 
+          animate={{ scale: 1, opacity: 1 }}
           className={cn(
-            "p-2 rounded-3xl flex items-center gap-2 backdrop-blur-3xl border border-white/10 shadow-2xl pointer-events-auto",
-            isLight ? "bg-white/70" : "bg-black/40"
+            "p-3 rounded-[2.5rem] flex items-center gap-3 backdrop-blur-3xl border border-white/20 shadow-[0_32px_64px_rgba(0,0,0,0.5)] pointer-events-auto", 
+            isLight ? "bg-white/80" : "bg-black/60"
           )}
         >
           {[
-            { id: 'property',   icon: Building2      },
-            { id: 'motorcycle', icon: MotorcycleIcon },
-            { id: 'bicycle',    icon: Bike           },
-            { id: 'services',   icon: HardHat        },
+            { id: 'property', icon: Building2 }, 
+            { id: 'motorcycle', icon: MotorcycleIcon }, 
+            { id: 'bicycle', icon: Bike }, 
+            { id: 'services', icon: HardHat }
           ].map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => { triggerHaptic('medium'); onCategoryChange?.(cat.id as QuickFilterCategory); }}
+            <button 
+              key={cat.id} 
+              onClick={() => { triggerHaptic('medium'); onCategoryChange?.(cat.id as QuickFilterCategory); }} 
               className={cn(
-                "w-12 h-12 flex items-center justify-center rounded-2xl transition-all",
-                category === cat.id
-                  ? (isLight ? "bg-black text-white shadow-lg scale-105" : "bg-white text-black shadow-lg scale-105")
+                "w-14 h-14 flex items-center justify-center rounded-3xl transition-all", 
+                category === cat.id 
+                  ? (isLight ? "bg-black text-white shadow-xl scale-110" : "bg-white text-black shadow-xl scale-110") 
                   : "text-muted-foreground hover:text-foreground active:scale-90"
               )}
             >
               <cat.icon className="w-6 h-6" />
             </button>
           ))}
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
 
-      {/* FLOAT HUD: Refresh — pinned above nav bar */}
-      <div className="absolute inset-x-0 bottom-0 z-[10002] flex justify-center px-5 pb-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+12px)]">
-        <button
-          onClick={handleRefresh}
+      {/* BOTTOM ACTION: Refresh Radar — pinned above nav bar */}
+      <div className="absolute inset-x-0 bottom-0 z-[10002] flex flex-col items-center pb-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+12px)] px-5">
+        <button 
+          onClick={handleRefresh} 
           className={cn(
             "w-full max-w-sm h-14 rounded-3xl text-[12px] font-black uppercase tracking-[0.3em] active:scale-95 transition-all flex items-center justify-center gap-3 shadow-2xl",
             isLight ? "bg-black text-white" : "bg-white text-black"
