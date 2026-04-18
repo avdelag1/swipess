@@ -962,23 +962,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     <div className="relative w-full h-full overflow-hidden flex flex-col bg-black">
       <div className="absolute inset-0 pointer-events-none -z-10 bg-black" />
 
-      {/* Top Controls — IN FLOW, not absolute */}
+      {/* Top Controls — REMOVED redundant radius selector */}
       {(!isLoading || deckQueue.length > 0) && (
         <div className="relative z-[60] w-full flex flex-col items-center shrink-0">
-          <div className="w-full pt-1 pb-1 px-2">
-            <div className="w-full flex justify-between items-center">
-              <LocationRadiusSelector
-                radiusKm={radiusKm}
-                onRadiusChange={setRadiusKm}
-                onDetectLocation={detectLocation}
-                detecting={locationDetecting}
-                detected={locationDetected}
-                lat={userLatitude}
-                lng={userLongitude}
-                variant="minimal"
-              />
-            </div>
-          </div>
+          <div className="w-full pt-1 pb-1 px-2" />
         </div>
       )}
 
@@ -991,16 +978,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         <div className="w-full h-full flex items-center justify-center pointer-events-auto">
           <AnimatePresence mode="sync" initial={false}>
             {!storeActiveCategory ? (
-              <motion.div 
-                key="category-stack"
-                initial={false}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.05 }}
-                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full h-full flex flex-col items-center justify-center"
-              >
-                <CategorySwipeStack />
-              </motion.div>
+              <div className="w-full h-full flex items-center justify-center bg-black/50 backdrop-blur-md">
+                 <p className="text-white/40 text-[10px] uppercase font-black tracking-[0.3em]">No category active</p>
+              </div>
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <motion.div 
                 key={`deck-${storeActiveCategory}`}

@@ -42,6 +42,7 @@ export default function OwnerDiscovery() {
   const [filters, setFilters] = useState<Record<string, any>>({});
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [showMapView, setShowMapView] = useState(false);
+  const [scanPulse, setScanPulse] = useState(0);
   const startConversation = useStartConversation();
 
   const clientFilters: ClientFilters | undefined = useMemo(() => {
@@ -163,6 +164,9 @@ export default function OwnerDiscovery() {
                        onClick={() => { 
                          triggerHaptic('medium'); 
                          setRadarCategory(cat.id as RadarCategory);
+                         setScanPulse(p => p + 1);
+                         // Reset scroll to top on category change
+                         window.scrollTo({ top: 0, behavior: 'smooth' });
                        }}
                        title={`Switch to ${cat.label} radar`}
                        aria-label={`Show ${cat.label} prospects`}
@@ -230,7 +234,16 @@ export default function OwnerDiscovery() {
                   <DiscoveryFilters category={radarCategory} onApply={handleApplyFilters} initialFilters={filters} activeCount={activeFilterCount} />
                 </div>
               </aside>
-              <main className="flex-1">
+              <main className="flex-1 relative">
+                <AnimatePresence mode="popLayout">
+                  <motion.div
+                    key={`owner-scan-${scanPulse}`}
+                    initial={{ scale: 0, opacity: 0.5 }}
+                    animate={{ scale: 2, opacity: 0 }}
+                    transition={{ duration: 1 }}
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border-4 border-primary/20 pointer-events-none z-[10]"
+                  />
+                </AnimatePresence>
                 <AnimatePresence mode="popLayout">
                   {isLoading ? (<DiscoverySkeleton count={6} />) : 
                    filteredClients.length === 0 ? (

@@ -32,9 +32,10 @@ export default function ClientDashboard({
   const { setCategories, setActiveCategory } = useFilterActions();
   const { theme } = useTheme();
 
-  // Track dashboard phase locally for smooth transitions
-  const [phase, setPhase] = useState<DashboardPhase>(activeCategory ? 'swipe' : 'cards');
-  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
+  // DASHBOARD PHASE: 'map' is now the primary discovery experience.
+  // We default to 'property' category if nothing is selected yet.
+  const [phase, setPhase] = useState<DashboardPhase>('map');
+  const [mapCategory, setMapCategory] = useState<QuickFilterCategory>(activeCategory || 'property');
 
   const handleListingTap = useCallback((listingId: string) => {
     onPropertyInsights?.(listingId);
@@ -43,35 +44,37 @@ export default function ClientDashboard({
   // When user selects a poker card → go to map.
   // Must clear activeCategory first: if a previous session left it set, the
   // showMap guard (!activeCategory) would be false and the map would never render.
+  // When user selects a category (from cards or map chips) → update logic
   const handleCategorySelect = useCallback((ids: QuickFilterCategory[]) => {
     if (ids.length > 0) {
       const cat = ids[0];
-      setActiveCategory(null);
       setMapCategory(cat);
       setPhase('map');
+      // If we were swiping, we return to the map first to see new pins
+      setActiveCategory(null);
     }
   }, [setActiveCategory]);
 
-  // Map back → return to poker cards
+  // Map back → return to poker cards (optional secondary discovery)
   const handleMapBack = useCallback(() => {
-    setMapCategory(null);
     setPhase('cards');
-    // Clear any active category so swipe container doesn't show
     setActiveCategory(null);
   }, [setActiveCategory]);
 
   // Map "Start Swiping" → activate category and show deck
   const handleStartSwiping = useCallback(() => {
-    if (mapCategory) {
-      setCategories([mapCategory]);
-      setPhase('swipe');
-    }
-  }, [mapCategory, setCategories]);
+    setActiveCategory(mapCategory);
+    setCategories([mapCategory]);
+    triggerHaptic('medium');
+    setPhase('swipe');
+  }, [mapCategory, setCategories, setActiveCategory]);
 
-  // Determine what to show based on phase + store state
-  const showCards = phase === 'cards' && !activeCategory;
-  const showMap = phase === 'map' && mapCategory && !activeCategory;
-  const showSwipe = phase === 'swipe' || !!activeCategory;
+  // Determine what to show based on phase + store state. 
+  // We MUST be strictly exclusive to avoid "ghost designs" appearing behind.
+  const isSwiping = phase === 'swipe' || !!activeCategory;
+  const showCards = phase === 'cards' && !isSwiping;
+  const showMap = phase === 'map' && !isSwiping;
+  const showSwipe = isSwiping;
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">

@@ -13,7 +13,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import { ChevronLeft, Navigation, Zap, RefreshCw, Building2, Bike, Trophy, Wrench, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, Navigation, Zap, RefreshCw, Building2, Bike, Trophy, Wrench, ArrowLeft, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
@@ -131,6 +131,10 @@ export const DiscoveryMapView = memo(({
   const containerRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
 
+  // Interaction State
+  const [selectedDotId, setSelectedDotId] = useState<string | null>(null);
+  const selectedDot = useMemo(() => dots.find(d => d.id === selectedDotId), [dots, selectedDotId]);
+
   // Pan state
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const panStartRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
@@ -179,6 +183,15 @@ export const DiscoveryMapView = memo(({
     try {
       const merged: ListingDot[] = [];
 
+      // Demo/Ghost dots for empty state (centers around Tulum)
+      const GHOST_DOTS: ListingDot[] = [
+        { id: 'ghost_1', latitude: 20.2114 + 0.005, longitude: -87.4654 + 0.003, category: 'property', kind: 'listing' },
+        { id: 'ghost_2', latitude: 20.2114 - 0.008, longitude: -87.4654 - 0.004, category: 'motorcycle', kind: 'listing' },
+        { id: 'ghost_3', latitude: 20.2114 + 0.012, longitude: -87.4654 - 0.009, category: 'bicycle', kind: 'listing' },
+        { id: 'ghost_4', latitude: 20.2114 - 0.003, longitude: -87.4654 + 0.011, category: 'services', kind: 'listing' },
+        { id: 'ghost_5', latitude: 20.2114 + 0.015, longitude: -87.4654 + 0.012, category: 'property', kind: 'listing' },
+      ];
+
       const { data: listingData, error: listingErr } = await supabase
         .from('listings')
         .select('id, latitude, longitude, category')
@@ -223,6 +236,11 @@ export const DiscoveryMapView = memo(({
         );
       }
 
+      // Merge ghost dots if results are thin
+      if (merged.length < 5) {
+        merged.push(...GHOST_DOTS);
+      }
+
       setDots(merged);
     } catch (e) {
       logger.error('[DiscoveryMap] error:', e);
@@ -235,10 +253,20 @@ export const DiscoveryMapView = memo(({
     fetchDots();
   }, [fetchDots, refreshTick]);
 
+  const [scanPulse, setScanPulse] = useState(0);
+
   const handleRefresh = useCallback(() => {
     triggerHaptic('medium');
     setRefreshTick(t => t + 1);
+    setScanPulse(p => p + 1);
+    setSelectedDotId(null);
   }, []);
+
+  // Trigger scan animation when category changes
+  useEffect(() => {
+    setScanPulse(p => p + 1);
+    setSelectedDotId(null);
+  }, [category]);
 
   // Normalize the selected category once (DB uses "worker" instead of "services")
   const selectedCategoryDb = (category === 'services' || category === 'worker') ? 'worker' : category;
@@ -321,7 +349,50 @@ export const DiscoveryMapView = memo(({
     lastMoveRef.current = { x: e.clientX, y: e.clientY, t: now };
   }, []);
 
-  const handlePointerUp = useCallback(() => {
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    // Check if it was a tap instead of a pan
+    if (panStartRef.current) {
+      const dx = Math.abs(e.clientX - panStartRef.current.x);
+      const dy = Math.abs(e.clientY - panStartRef.current.y);
+      if (dx < 5 && dy < 5) {
+        // It's a tap! Look for a dot.
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (rect) {
+          const px = e.clientX - rect.left;
+          const py = e.clientY - rect.top;
+          
+          // Find closest matching dot within 24px hit area
+          let closestDist = 24;
+          let foundId = null;
+          
+          const { x: curTileX, y: curTileY } = latLngToTile(effectiveCenter.lat, effectiveCenter.lng, zoom);
+
+          dots.forEach(dot => {
+            if (!isDotMatching(dot)) return;
+            const distKm = haversineKm(baseLat, baseLng, dot.latitude, dot.longitude);
+            if (distKm > localKm) return;
+
+            const dTile = latLngToTile(dot.latitude, dot.longitude, zoom);
+            const dpx = mapSize.w / 2 + (dTile.x - curTileX) * 256;
+            const dpy = mapSize.h / 2 + (dTile.y - curTileY) * 256;
+            
+            const tapDist = Math.sqrt((px - dpx)**2 + (py - dpy)**2);
+            if (tapDist < closestDist) {
+              closestDist = tapDist;
+              foundId = dot.id;
+            }
+          });
+          
+          if (foundId) {
+            triggerHaptic('medium');
+            setSelectedDotId(foundId);
+          } else {
+            setSelectedDotId(null);
+          }
+        }
+      }
+    }
+
     panStartRef.current = null;
     const { vx, vy } = velocityRef.current;
     if (Math.abs(vx) > 1 || Math.abs(vy) > 1) {
@@ -398,23 +469,29 @@ export const DiscoveryMapView = memo(({
               const dist = haversineKm(baseLat, baseLng, dot.latitude, dot.longitude);
               const inRadius = dist <= localKm;
               const matching = isDotMatching(dot);
+              const isSelected = dot.id === selectedDotId;
               const highlight = inRadius && matching;
 
-              if (highlight) {
+              if (highlight || isSelected) {
                 ctx.beginPath();
-                ctx.arc(px, py, 10, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${meta.accentRgb},0.25)`;
+                ctx.arc(px, py, isSelected ? 14 : 10, 0, Math.PI * 2);
+                ctx.fillStyle = isSelected ? `rgba(${meta.accentRgb},0.4)` : `rgba(${meta.accentRgb},0.25)`;
                 ctx.fill();
+                if (isSelected) {
+                   ctx.strokeStyle = meta.accent;
+                   ctx.lineWidth = 2;
+                   ctx.stroke();
+                }
               }
               ctx.beginPath();
-              ctx.arc(px, py, highlight ? 5 : 3, 0, Math.PI * 2);
-              ctx.fillStyle = highlight
+              ctx.arc(px, py, (highlight || isSelected) ? 5 : 3, 0, Math.PI * 2);
+              ctx.fillStyle = (highlight || isSelected)
                 ? meta.accent
                 : inRadius
                   ? (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.45)')
                   : (isLight ? 'rgba(0,0,0,0.22)' : 'rgba(255,255,255,0.2)');
               ctx.fill();
-              if (highlight) {
+              if (highlight || isSelected) {
                 ctx.strokeStyle = isLight ? '#fff' : 'rgba(255,255,255,0.6)';
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
@@ -597,7 +674,7 @@ export const DiscoveryMapView = memo(({
           onClick={handleDetectLocation}
           disabled={detecting}
           className={cn(
-            "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl border border-white/10",
+            "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl border border-white/10 ml-auto",
             detected
               ? "bg-white/10 text-white shadow-lg"
               : isLight
@@ -610,6 +687,80 @@ export const DiscoveryMapView = memo(({
         </motion.button>
       </div>
       )}
+
+      {/* ── LEFT HUD: Radius Selector ───────────────────────────────── */}
+      <motion.div
+        initial={{ x: -60, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-[10001] flex flex-col gap-3"
+      >
+        <div className={cn(
+          "w-14 p-2 rounded-3xl flex flex-col gap-2 backdrop-blur-2xl border border-white/10 shadow-2xl",
+          isLight ? "bg-white/70" : "bg-black/40"
+        )}>
+           <div className="flex flex-col items-center py-2 mb-1">
+             <span className="text-[10px] font-black" style={{ color: meta.accent }}>{localKm}</span>
+             <span className="text-[6px] font-bold opacity-40 uppercase">KM</span>
+           </div>
+           {[1, 5, 10, 25, 50, 100].map((km) => (
+              <button
+                key={km}
+                onClick={() => {
+                  triggerHaptic('light');
+                  setLocalKm(km);
+                }}
+                className={cn(
+                  "w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-black transition-all",
+                  localKm === km 
+                    ? "bg-primary text-white shadow-lg" 
+                    : "text-muted-foreground hover:bg-muted/40"
+                )}
+                style={localKm === km ? { backgroundColor: meta.accent } : {}}
+              >
+                {km}
+              </button>
+            ))}
+        </div>
+      </motion.div>
+
+      {/* ── RIGHT HUD: Category Selector ────────────────────────────── */}
+      <motion.div
+        initial={{ x: 60, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-[10001] flex flex-col gap-3"
+      >
+        <div className={cn(
+          "w-14 p-2 rounded-3xl flex flex-col gap-2 backdrop-blur-2xl border border-white/10 shadow-2xl",
+          isLight ? "bg-white/70" : "bg-black/40"
+        )}>
+           {[
+             { id: 'property', icon: Building2 },
+             { id: 'motorcycle', icon: Bike },
+             { id: 'bicycle', icon: Trophy },
+             { id: 'services', icon: Wrench }
+           ].map((cat) => {
+             const isActive = category === cat.id;
+             const catMeta = CATEGORY_META[cat.id] || CATEGORY_META['property'];
+             
+             return (
+               <button
+                 key={cat.id}
+                 onClick={() => { 
+                   triggerHaptic('medium'); 
+                   if (onCategoryChange) onCategoryChange(cat.id as QuickFilterCategory);
+                 }}
+                 className={cn(
+                   "w-10 h-10 flex items-center justify-center rounded-xl transition-all relative overflow-hidden",
+                   isActive ? "text-white shadow-lg" : "text-muted-foreground hover:bg-muted/40"
+                 )}
+                 style={isActive ? { background: catMeta.accent } : {}}
+               >
+                 <cat.icon className="w-5 h-5" />
+               </button>
+             );
+           })}
+        </div>
+      </motion.div>
 
       {/* ── Refresh/GPS Buttons for Embedded mode ─────────────────────── */}
       {isEmbedded && (
@@ -710,176 +861,92 @@ export const DiscoveryMapView = memo(({
             No one nearby yet — tap ↻ to refresh or expand the radius.
           </div>
         )}
-      </div>
 
-      {/* ── BOTTOM PANEL: Slider + Start ─────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className={cn(
-          "relative z-[10001] px-5 pt-6 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] flex flex-col gap-6",
-          isLight
-            ? "bg-white/40"
-            : "bg-black/10"
-        )}
-        style={{
-          backdropFilter: 'blur(32px) saturate(1.5)',
-          WebkitBackdropFilter: 'blur(32px) saturate(1.5)',
-          borderTop: 'none',
-          // Cap the glass panel so the map always owns the majority of the
-          // viewport — feels like a portrait map window with controls below.
-          maxHeight: '40svh',
-        }}
-      >
-        {/* Quick Filter: Category Toggle */}
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 px-1 -mx-5 px-5">
-           {[
-             { id: 'property', icon: Building2, label: 'Properties' },
-             { id: 'motorcycle', icon: Bike, label: 'Motorcycles' },
-             { id: 'bicycle', icon: Trophy, label: 'Bicycles' },
-             { id: 'services', icon: Wrench, label: 'Masters' }
-           ].map((cat) => {
-             const isActive = category === cat.id;
-             const catMeta = CATEGORY_META[cat.id] || CATEGORY_META['property'];
-             const displayLabel = (mode === 'owner' && cat.id === 'services') ? 'People' : cat.label;
+        {/* Scan Sonar Animation */}
+        <AnimatePresence mode="popLayout">
+          <motion.div
+            key={`scan-${scanPulse}`}
+            initial={{ scale: 0, opacity: 0.8 }}
+            animate={{ scale: 4, opacity: 0 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-2 border-primary/40 pointer-events-none z-[10]"
+          />
+        </AnimatePresence>
 
-             return (
-               <button
-                 key={cat.id}
-                 onClick={() => { 
-                   triggerHaptic('medium'); 
-                   if (onCategoryChange) onCategoryChange(cat.id as QuickFilterCategory);
-                 }}
-                 className={cn(
-                   "flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
-                   isActive ? "shadow-lg scale-[1.02]" : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
-                 )}
-                 style={isActive ? {
-                   background: catMeta.accent,
-                   color: '#fff',
-                   boxShadow: `0 4px 20px rgba(${catMeta.accentRgb},0.3)`
-                 } : {}}
-               >
-                 <cat.icon className="w-4 h-4" />
-                 <span>{displayLabel}</span>
-               </button>
-             );
-           })}
-        </div>
-
-        {/* KM Label */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isLight ? "text-black/40" : "text-white/40")}>
-              Scan Radius
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-2xl font-black tabular-nums" style={{ color: meta.accent }}>
-              {localKm}
-            </span>
-            <span className={cn("text-xs font-bold mt-1", isLight ? "text-black/30" : "text-white/30")}>km</span>
-          </div>
-        </div>
-
-        {/* ── PREMIUM GLASS SLIDER ────────────────────────────────────── */}
-        <div className="relative w-full select-none" style={{ height: THUMB_SIZE + 12 }}>
-          {/* Track container — captures the full touch area */}
-          <div
-            ref={sliderRef}
-            className="absolute left-0 right-0 flex items-center"
-            style={{
-              top: '50%', transform: 'translateY(-50%)',
-              height: THUMB_SIZE + 12,
-              touchAction: 'none', cursor: 'pointer',
-            }}
-            onPointerDown={handleSliderPointerDown}
-            onPointerMove={handleSliderPointerMove}
-            onPointerUp={handleSliderPointerUp}
-            onPointerCancel={handleSliderPointerUp}
-          >
-            {/* Track background — frosted glass */}
-            <div
-              className="absolute left-0 right-0 rounded-full overflow-hidden"
+        {/* ── DOT PREVIEW CARD ────────────────────────────────────────── */}
+        <AnimatePresence>
+          {selectedDot && (
+            <motion.div
+              initial={{ y: 100, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 20, opacity: 0, scale: 0.95 }}
+              className="absolute left-4 right-4 bottom-4 z-[10002] rounded-3xl p-4 overflow-hidden shadow-2xl"
               style={{
-                top: '50%', transform: 'translateY(-50%)',
-                height: SLIDER_TRACK_H,
-                background: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.12)',
+                background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(15,15,20,0.85)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.1)'
               }}
             >
-              {/* Active fill */}
-              <div
-                className="absolute left-0 top-0 bottom-0 rounded-full"
-                style={{
-                  width: `${sliderRatio * 100}%`,
-                  background: `linear-gradient(90deg, ${meta.accent}60, ${meta.accent})`,
-                  boxShadow: `0 0 12px rgba(${meta.accentRgb},0.3)`,
-                  transition: isDraggingSlider.current ? 'none' : 'width 0.1s ease-out',
-                }}
-              />
-            </div>
-
-            {/* Thumb — glowing orb */}
-            <div
-              className="absolute rounded-full"
-              style={{
-                width: THUMB_SIZE,
-                height: THUMB_SIZE,
-                top: '50%',
-                left: `calc(${sliderRatio * 100}% - ${THUMB_SIZE / 2}px)`,
-                transform: 'translateY(-50%)',
-                background: isLight
-                  ? `radial-gradient(circle at 40% 35%, #fff 0%, ${meta.accent} 100%)`
-                  : `radial-gradient(circle at 40% 35%, rgba(255,255,255,0.3) 0%, ${meta.accent} 100%)`,
-                boxShadow: `0 2px 12px rgba(${meta.accentRgb},0.5), 0 0 20px rgba(${meta.accentRgb},0.25), inset 0 1px 1px rgba(255,255,255,0.3)`,
-                border: `2px solid rgba(255,255,255,${isLight ? 0.8 : 0.2})`,
-                transition: isDraggingSlider.current ? 'none' : 'left 0.1s ease-out',
-                pointerEvents: 'none',
-              }}
-            />
-          </div>
-
-          {/* Min/Max labels */}
-          <div className="absolute left-0 right-0 flex justify-between" style={{ bottom: -2, pointerEvents: 'none' }}>
-            <span className={cn("text-[9px] font-bold", isLight ? "text-black/25" : "text-white/20")}>{MIN_KM}km</span>
-            <span className={cn("text-[9px] font-bold", isLight ? "text-black/25" : "text-white/20")}>{MAX_KM}km</span>
-          </div>
-        </div>
-
-        {/* ── START SWIPING BUTTON ────────────────────────────────────── */}
-        <motion.button
-          whileTap={{ scale: 0.96 }}
-          onClick={() => { triggerHaptic('medium'); onStartSwiping(); }}
-          className={cn(
-            "relative w-full h-[60px] rounded-[28px] font-black text-[13px] uppercase tracking-[0.3em] flex items-center justify-center gap-2.5 overflow-hidden",
-            "active:scale-[0.97] transition-all shadow-lg"
+               <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-muted/40 overflow-hidden flex-shrink-0 border border-white/10">
+                    <img 
+                      src={selectedDot.kind === 'listing' ? '/placeholder-listing.jpg' : '/placeholder-profile.jpg'} 
+                      className="w-full h-full object-cover" 
+                      alt="Preview"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                       <h4 className="text-sm font-black uppercase tracking-tight truncate pr-2">
+                         {selectedDot.kind === 'listing' ? 'Verified Listing' : 'Active Profile'}
+                       </h4>
+                       <span className="text-[10px] font-black uppercase text-primary">
+                         {haversineKm(baseLat, baseLng, selectedDot.latitude, selectedDot.longitude).toFixed(1)}km
+                       </span>
+                    </div>
+                    <p className="text-[11px] font-bold opacity-60 uppercase mb-3 line-clamp-1 italic">
+                      {selectedDot.kind === 'profile' ? (selectedDot.intentions?.[0] || 'Discovery Profile') : (selectedDot.category || 'General Listing')}
+                    </p>
+                    <button 
+                      onClick={() => onStartSwiping()}
+                      className="w-full h-9 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                    >
+                      View Details
+                    </button>
+                  </div>
+                  <button onClick={() => setSelectedDotId(null)} className="p-1 opacity-40">
+                    <X className="w-4 h-4" />
+                  </button>
+               </div>
+            </motion.div>
           )}
-          style={{
-            background: `linear-gradient(135deg, ${meta.accent}, ${meta.accent}cc)`,
-            color: '#fff',
-            boxShadow: `0 4px 24px rgba(${meta.accentRgb},0.35), 0 0 0 1px rgba(255,255,255,0.1) inset`,
+        </AnimatePresence>
+      </div>
+
+      {/* ── BOTTOM PANEL: Finalized Start Scan ────────────────────────── */}
+      <div
+        className={cn(
+          "absolute inset-x-0 bottom-0 z-[10001] px-5 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] flex flex-col items-center",
+          isLight ? "bg-white/10" : "bg-black/5"
+        )}
+        style={{
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+        }}
+      >
+        <button
+          onClick={() => onStartSwiping()}
+          className="w-full max-w-sm h-14 rounded-2xl bg-primary text-white text-[12px] font-black uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3 mt-4"
+          style={{ 
+            background: meta.accent,
+            boxShadow: `0 12px 24px rgba(${meta.accentRgb},0.4)`
           }}
         >
-          {/* Shine sweep */}
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.2) 48%, rgba(255,255,255,0.05) 52%, transparent 70%)',
-            }}
-            initial={{ x: '-120%' }}
-            animate={{ x: ['-120%', '180%', '180%'] }}
-            transition={{ duration: 1.8, ease: 'easeInOut', repeat: Infinity, repeatDelay: 4 }}
-          />
-          <Zap className="w-4.5 h-4.5" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.5))' }} />
-          <span>Start Swiping</span>
-          {dotCount > 0 && (
-            <span className="text-[10px] opacity-60 font-bold normal-case tracking-normal">
-              ({dotCount} found)
-            </span>
-          )}
-        </motion.button>
-      </motion.div>
+          <Zap className="w-5 h-5 fill-current" />
+          Start {meta.label} Scan ({dotCount})
+        </button>
+      </div>
     </motion.div>
   );
 });

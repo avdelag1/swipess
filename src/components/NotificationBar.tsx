@@ -29,43 +29,45 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
   const x = useMotionValue(0);
   const opacity = useTransform(x, [-150, 0, 150], [0, 1, 0]);
 
-  const unread = useMemo(
-    () => notifications.filter(n => !n.read),
-    [notifications],
-  );
+  const sortedUnread = useMemo(() => {
+    return [...notifications]
+      .filter(n => !n.read)
+      .sort((a, b) => {
+        const priorityA = typeConfigs[a.type]?.priority || 0;
+        const priorityB = typeConfigs[b.type]?.priority || 0;
+        if (priorityA !== priorityB) return priorityB - priorityA;
+        return b.timestamp.getTime() - a.timestamp.getTime();
+      });
+  }, [notifications]);
 
   useEffect(() => {
-    const next = unread[0];
+    const next = sortedUnread[0];
     
-    // Case 1: No more notifications -> if visible, start dismissing
     if (!next) {
       if (visible && !isExiting.current) startDismiss('right');
       return;
     }
 
-    // Case 2: New notification arrived
     if (visible) {
-      // If we are currently showing a different one, queue the new one
       if (current?.id !== next.id) {
-        pendingRef.current = next;
-        // Optional: speed up current dismissal if multiple pending
-        if (unread.length > 2) {
+        const currentPrio = typeConfigs[current?.type || '']?.priority || 0;
+        const nextPrio = typeConfigs[next.id]?.priority || 0;
+        
+        // If a higher priority notification arrives, accelerate dismissal
+        if (nextPrio > currentPrio || sortedUnread.length > 2) {
           if (timerRef.current) {
             clearTimeout(timerRef.current);
-            timerRef.current = setTimeout(() => startDismiss('right'), 1000);
+            timerRef.current = setTimeout(() => startDismiss('right'), 800);
           }
         }
       }
       return;
     }
 
-    // Case 3: Nothing currently visible, show the next one
     if (!isExiting.current) {
       showNotification(next);
-    } else {
-      pendingRef.current = next;
     }
-  }, [unread.length, unread[0]?.id]); // Precision dependency to avoid thrashing
+  }, [sortedUnread[0]?.id, sortedUnread.length]);
 
   const showNotification = useCallback((notif: Notification) => {
     // Clear any existing timer before starting new one
@@ -130,7 +132,7 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
 
   const config = typeConfigs[current.type] ?? typeConfigs.like;
   const Icon   = config.icon;
-  const unreadCount = unread.length;
+  const unreadCount = sortedUnread.length;
 
   return (
     <div className="fixed z-[99999] px-4 flex justify-center pointer-events-none left-0 right-0" style={{ top: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}>

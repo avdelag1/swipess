@@ -4,7 +4,6 @@ import { RefreshCw, RotateCcw, Zap, Home, Bike, Briefcase } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Button } from '@/components/ui/button';
 import { RadarSearchEffect } from '@/components/ui/RadarSearchEffect';
-import { LocationRadiusSelector } from './LocationRadiusSelector';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { cn } from '@/lib/utils';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
@@ -161,18 +160,17 @@ export const SwipeExhaustedState = ({
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="flex-1 relative"
+            className="flex-1 relative flex items-center justify-center"
           >
-            <LocationRadiusSelector
-              radiusKm={radiusKm}
-              onRadiusChange={onRadiusChange}
-              onDetectLocation={onDetectLocation || (() => {})}
-              detecting={detecting ?? false}
-              detected={detected ?? false}
-              lat={lat}
-              lng={lng}
-              onCategorySelect={(category) => setCategories([category])}
-            />
+            <div className="w-full max-w-[280px] p-8 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-xl text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
+                 <ActiveIcon className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Discovery Over</h3>
+              <p className="text-white/40 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
+                You've scanned everything in {localKm}km. Expand your radius or change categories to find more.
+              </p>
+            </div>
           </motion.div>
         </div>
 

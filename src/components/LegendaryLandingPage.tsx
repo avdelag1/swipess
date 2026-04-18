@@ -372,10 +372,10 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                   onBack(); 
                 }
               }}
-              className="absolute top-4 left-4 p-2.5 rounded-2xl bg-zinc-800/90 text-white hover:bg-zinc-700 transition-all active:scale-95 z-20 border border-white/5 shadow-lg"
+              className="absolute top-4 left-4 p-3 rounded-2xl bg-brand-primary text-white hover:scale-105 active:scale-95 z-30 border-2 border-white/20 shadow-[0_0_20px_rgba(249,115,22,0.4)] transition-all flex items-center justify-center"
               aria-label="Back"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-5 h-5 drop-shadow-md" strokeWidth={3} />
             </button>
             <div className="text-center mb-8 pt-2">
               <div className="flex justify-center mb-6">
@@ -437,8 +437,8 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-4 h-4 rounded-md border border-border bg-muted text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0 cursor-pointer"
                   />
-                  <label htmlFor="rememberMe" className="text-[13px] text-zinc-300 leading-snug cursor-pointer select-none hover:text-white transition-colors font-bold">
-                    Remember me (Password included)
+                  <label htmlFor="rememberMe" className="text-[14px] text-white leading-snug cursor-pointer select-none hover:text-orange-400 transition-colors font-black uppercase tracking-tighter">
+                    Save Secure Password
                   </label>
                 </div>
                 {!isLogin && !isForgotPassword && (

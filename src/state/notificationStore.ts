@@ -34,8 +34,21 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   addNotification: (notification) => set((state) => {
     const id = notification.id || Math.random().toString(36).substring(2, 9);
     
-    // 🛡️ DEDUPLICATION: Don't add if already exists
+    // 🛡️ BURST PROTECTION & DEDUPLICATION
+    // Don't add if already exists by ID
     if (state.notifications.some(n => n.id === id)) return state;
+
+    // Don't add if a similar notification (same related user + same message) 
+    // arrived in the last 5 seconds to prevent onboarding spam
+    const now = new Date();
+    const isSpam = state.notifications.some(n => {
+      const timeDiff = now.getTime() - n.timestamp.getTime();
+      return n.relatedUserId === notification.relatedUserId && 
+             n.message === notification.message && 
+             timeDiff < 5000;
+    });
+    
+    if (isSpam) return state;
 
     const newNotif: Notification = {
       id,
