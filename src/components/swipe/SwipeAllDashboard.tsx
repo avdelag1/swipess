@@ -1,16 +1,15 @@
-// cache-bust: 2026-04-14
+// cache-bust: 2026-04-18-v14
 import { useState, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   POKER_CARDS, PK_ASPECT, POKER_CARD_PHOTOS,
 } from './SwipeConstants';
 import { PokerCategoryCard } from './PokerCategoryCard';
 import { VapIdCardModal } from '../VapIdCardModal';
+import { motion } from 'framer-motion';
 
-// Preload all card images on module load for instant display
 const preloadedImages = new Set<string>();
 POKER_CARDS.forEach(card => {
   const src = POKER_CARD_PHOTOS[card.id];
@@ -28,27 +27,17 @@ export interface SwipeAllDashboardProps {
 export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps) => {
   const [cards, setCards] = useState([...POKER_CARDS]);
   const navigate = useNavigate();
-
   const [showVapModal, setShowVapModal] = useState(false);
 
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
     uiSounds.playCategorySelect();
-    if (id === 'radio') {
-      navigate('/radio');
-    } else if (id === 'vap') {
-      setShowVapModal(true);
-    } else if (id === 'all') {
-      // 'all' means show all categories — set to property as default entry
-      setCategories(['property']);
-    } else {
-      setCategories([id]);
-    }
+    if (id === 'radio') navigate('/radio');
+    else if (id === 'vap') setShowVapModal(true);
+    else if (id === 'all') setCategories(['property']);
+    else setCategories([id]);
   }, [setCategories, navigate]);
 
-  // Swipe left OR right just reorders the stack so the user can browse through the
-  // category cards. Selection is ALWAYS done by tapping (or the Launch button) —
-  // dragging must never navigate away from the dashboard.
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
     triggerHaptic('light');
     uiSounds.playCardSwipe(direction);
@@ -74,39 +63,22 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
     });
   }, []);
 
-  const cycleLeft = useCallback(() => {
-    triggerHaptic('light');
-    setCards(prev => {
-      const next = [...prev];
-      const [current] = next.splice(0, 1);
-      return [...next, current];
-    });
-  }, []);
-
-  const cycleRight = useCallback(() => {
-    triggerHaptic('light');
-    setCards(prev => {
-      const next = [...prev];
-      const last = next.pop()!;
-      return [last, ...next];
-    });
-  }, []);
-
   return (
     <div
       className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent overflow-hidden"
       style={{ minHeight: 'auto' }}
     >
-      {/* Card stack — fluid dimensions via CSS vars; aspect ratio keeps the
-          iOS-card proportions intact on every screen size. */}
-      <div
-        className="relative flex items-center justify-center"
+      {/* 🛸 NEXUS CENTERED STACK v14.0 */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative flex items-center justify-center transition-all"
         style={{
-          width: 'var(--card-width, 340px)',
-          height: 'var(--card-height, 520px)',
+          width: 'var(--card-width, 360px)',
+          height: 'var(--card-height, 540px)',
           aspectRatio: `${PK_ASPECT}`,
-          maxHeight: 'min(640px, calc(100svh - 260px))',
-          transform: 'translateY(-40px)',
+          maxHeight: 'min(660px, calc(100svh - 220px))',
+          // Removed manual translateY to bring it perfectly into the vertical middle
         }}
       >
       {[...cards].reverse().map((card, reversedIdx) => {
@@ -127,7 +99,7 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
             />
           );
         })}
-      </div>
+      </motion.div>
 
       <VapIdCardModal 
         isOpen={showVapModal}

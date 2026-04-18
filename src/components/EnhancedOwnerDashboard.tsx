@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
-import { User, Megaphone } from 'lucide-react';
+import { User, Megaphone, RefreshCw, Cpu, Activity } from 'lucide-react';
 import { useModalStore } from '@/state/modalStore';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,7 @@ import type { OwnerIntentCard } from '@/components/swipe/SwipeConstants';
 import { triggerHaptic } from '@/utils/haptics';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 import type { QuickFilterCategory } from '@/types/filters';
+import { useTheme } from '@/hooks/useTheme';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -30,11 +31,12 @@ interface EnhancedOwnerDashboardProps {
 }
 
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const [_selectedClientId, _setSelectedClientId] = useState<string | null>(null);
   const [_insightsOpen, _setInsightsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
   
-  // Track 3-phase dashboard flow
   const activeCategory = useFilterStore(s => s.activeCategory);
   const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
   const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
@@ -82,12 +84,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const storeFilterVersion = useFilterStore((s) => s.filterVersion);
   const clientFilters = useMemo(() => {
     return useFilterStore.getState().getClientFilters();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeFilterVersion]);
 
   const mergedFilters = useMemo(() => {
     return { ...filters, ...clientFilters };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeFilterVersion, filters]);
 
   const filterCategory = mergedFilters?.categories?.[0] || undefined;
@@ -100,10 +100,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     mergedFilters as ClientFilters
   );
 
-  if (import.meta.env.DEV && error) {
-    console.error('[EnhancedOwnerDashboard] Profile fetch error:', error);
-  }
-
   const handleClientTap = useCallback((clientId: string) => {
     onClientInsights?.(clientId);
   }, [onClientInsights]);
@@ -112,17 +108,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     onClientInsights?.(clientId);
   }, [onClientInsights]);
 
-  // Conditionally hide category fan when in insights mode
-  const effectiveCategory = viewMode === 'insights' ? 'insights-active' : activeCategory;
-
   const handleCardSelect = useCallback((card: OwnerIntentCard) => {
     triggerHaptic('medium');
     const cat = (card.category || 'property') as QuickFilterCategory;
-    
-    // 🛡️ CRITICAL: Clear activeCategory to ensure the map phase renders
-    // If activeCategory is set, the dashboard logic bypasses the map and goes straight to swipe.
     setActiveCategory(null);
-    
     setMapCategory(cat);
     if (card.clientType) setClientType(card.clientType as any);
     if (card.listingType) setListingType(card.listingType as any);
@@ -142,72 +131,62 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }, [mapCategory, setCategories]);
 
-  // Determine what to show based on phase + store state
   const showCards = phase === 'cards' && !activeCategory;
   const showMap = phase === 'map' && mapCategory && !activeCategory;
   const showSwipe = phase === 'swipe' || !!activeCategory;
 
-  // Loading state handling
   if (isAuthLoading || isPrefsLoading) {
     return (
-      <div className="w-full h-full flex items-center justify-center p-8">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-          <p className="text-sm font-medium text-muted-foreground animate-pulse">Loading Owner Experience...</p>
-        </div>
+      <div className={cn("w-full h-full flex flex-col items-center justify-center p-8 transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+         <div className="relative">
+            <div className="w-24 h-24 rounded-[2.5rem] border-[6px] border-[#EB4898]/10 border-t-[#EB4898] animate-spin shadow-2xl" />
+            <Cpu className="absolute inset-0 m-auto w-8 h-8 text-[#EB4898]/40 animate-pulse" />
+         </div>
+         <p className="text-[11px] font-black uppercase italic tracking-[0.4em] text-[#EB4898] mt-10 animate-pulse">Syncing Owner Logic...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="w-full h-full flex items-center justify-center p-8 text-center bg-background/50 backdrop-blur-md">
-        <div className="max-w-xs space-y-6">
-          <div className="w-20 h-20 bg-destructive/20 rounded-3xl flex items-center justify-center mx-auto border border-destructive/30">
-            <Megaphone className="w-10 h-10 text-destructive animate-pulse" />
+      <div className={cn("w-full h-full flex items-center justify-center p-8 text-center transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+        <div className="max-w-sm space-y-10">
+          <div className="w-24 h-24 bg-red-500/10 rounded-[2.5rem] flex items-center justify-center mx-auto border border-red-500/20 shadow-2xl">
+            <Activity className="w-10 h-10 text-red-500 animate-bounce" />
           </div>
-          <div className="space-y-2">
-            <h2 className="text-xl font-bold tracking-tight">Sync Interrupted</h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              We couldn't reach the matching engine. This usually fixes itself in a few seconds.
-            </p>
+          <div className="space-y-4">
+            <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>Connection Lost</h2>
+            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting matrix re-sync.</p>
           </div>
           <Button 
-            onClick={() => window.location.reload()}
-            variant="outline" 
-            className="w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px]"
+            onClick={() => { triggerHaptic('medium'); window.location.reload(); }}
+            className="w-full h-18 rounded-[2rem] bg-[#EB4898] text-white font-black uppercase italic tracking-widest shadow-2xl active:scale-95"
           >
-            Reconnect
+            Reconnect Terminal
           </Button>
         </div>
       </div>
     );
   }
 
-  if (!user) {
-    return (
-      <div className="w-full h-full flex items-center justify-center p-8 text-center">
-        <div className="max-w-xs space-y-4">
-          <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto">
-            <User className="w-8 h-8 text-destructive" />
-          </div>
-          <h2 className="text-lg font-bold">Access Required</h2>
-          <p className="text-sm text-muted-foreground">Please log in to access the owner dashboard features.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col h-full w-full bg-background">
+    <div className={cn("flex flex-col h-full w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+      
+      {/* 🛸 CINEMATIC ATMOSPHERE */}
+      <div className="absolute inset-x-0 top-0 h-96 pointer-events-none opacity-20">
+         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[100%] bg-indigo-500/30 blur-[130px] rounded-full" />
+         <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[80%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
+      </div>
+
       <AnimatePresence mode="popLayout">
         {viewMode === 'insights' ? (
           <motion.div
             key="owner-insights"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="flex-1 overflow-y-auto pt-2"
+            initial={{ opacity: 0, y: 30, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.98 }}
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+            className="flex-1 overflow-y-auto z-10"
           >
             <OwnerInsightsDashboard />
           </motion.div>
@@ -217,8 +196,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden z-10"
             style={{ willChange: 'transform, opacity' }}
           >
             <OwnerAllDashboard onCardSelect={handleCardSelect} />
@@ -226,11 +205,11 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         ) : showMap && mapCategory ? (
           <motion.div
             key="owner-dash-map"
-            initial={{ opacity: 0, y: 30, scale: 0.97 }}
+            initial={{ opacity: 0, y: 40, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.98 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full h-full"
+            exit={{ opacity: 0, y: -30, scale: 0.98 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full h-full z-10"
             style={{ willChange: 'transform, opacity' }}
           >
             <DiscoveryMapView
@@ -244,11 +223,11 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         ) : showSwipe ? (
           <motion.div 
             key="owner-dash-swipe"
-            initial={{ opacity: 0, y: 30, scale: 0.97 }}
+            initial={{ opacity: 0, y: 40, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.98 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="flex-1 min-h-0 relative"
+            exit={{ opacity: 0, y: -30, scale: 0.98 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="flex-1 min-h-0 relative z-10"
             style={{ willChange: 'transform, opacity' }}
           >
             <ClientSwipeContainer
@@ -265,9 +244,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           </motion.div>
         ) : null}
       </AnimatePresence>
+
+      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Nexus Admin Dashboard</p>
     </div>
   );
 };
 
-// Memoize to prevent re-renders from parent state changes
 export default memo(EnhancedOwnerDashboard);

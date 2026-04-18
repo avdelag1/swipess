@@ -10,7 +10,7 @@ import { DirectMessageDialog } from '@/components/DirectMessageDialog';
 import {
   Home, MapPin, Bed, Bath, Square, LogIn, UserPlus,
   Anchor, Bike, Car, Eye, Flame, MessageCircle,
-  ArrowLeft, Users, Calendar
+  ArrowLeft, Users, Calendar, Sparkles, ChevronLeft, ChevronRight, Share2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
@@ -18,6 +18,8 @@ import { STORAGE } from '@/constants/app';
 import { cn } from '@/lib/utils';
 import { SwipessLogo } from '@/components/SwipessLogo';
 import { SaveButton } from '@/components/SaveButton';
+import { triggerHaptic } from '@/utils/haptics';
+import { useTheme } from '@/hooks/useTheme';
 
 const FREE_MESSAGING_CATEGORIES = ['motorcycle', 'bicycle'];
 
@@ -26,13 +28,15 @@ export default function PublicListingPreview() {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   const [showDirectMessageDialog, setShowDirectMessageDialog] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imgLoaded, setImgLoaded] = useState(false);
 
   const canGoBack = typeof window !== 'undefined' && window.history.length > 1;
 
-  // Capture referral code
   useEffect(() => {
     const refCode = searchParams.get('ref');
     if (refCode && refCode.length > 0) {
@@ -56,101 +60,60 @@ export default function PublicListingPreview() {
     enabled: !!id,
   });
 
-  // View count increment
-  useQuery({
-    queryKey: ['listing-view', id],
-    queryFn: async () => {
-      if (!id) return null;
-      try {
-        await supabase
-          .from('listings')
-          .update({ views: ((listing as any)?.views || 0) + 1 })
-          .eq('id', id);
-      } catch { /* silent */ }
-      return true;
-    },
-    enabled: !!id && !!listing,
-    staleTime: Infinity,
-  });
-
   const getCategoryIcon = (cat: string) => {
     switch (cat) {
-      case 'yacht': return <Anchor className="w-3.5 h-3.5" />;
-      case 'motorcycle': return <MotorcycleIcon className="w-3.5 h-3.5" />;
-      case 'bicycle': return <Bike className="w-3.5 h-3.5" />;
-      case 'vehicle': return <Car className="w-3.5 h-3.5" />;
-      default: return <Home className="w-3.5 h-3.5" />;
+      case 'yacht': return <Anchor className="w-4 h-4" />;
+      case 'motorcycle': return <MotorcycleIcon className="w-4 h-4" />;
+      case 'bicycle': return <Bike className="w-4 h-4" />;
+      case 'vehicle': return <Car className="w-4 h-4" />;
+      default: return <Home className="w-4 h-4" />;
     }
   };
 
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
-      case 'yacht': return 'Yacht';
-      case 'motorcycle': return 'Motorcycle';
-      case 'bicycle': return 'Bicycle';
-      case 'vehicle': return 'Vehicle';
-      default: return 'Property';
+      case 'yacht': return 'Admiral Class';
+      case 'motorcycle': return 'Vespa/Moto';
+      case 'bicycle': return 'Beach Cruiser';
+      case 'vehicle': return 'Luxe Vehicle';
+      default: return 'Nexus Estate';
     }
   };
 
-  const prevImage = useCallback(() => {
-    setCurrentImageIndex(i => Math.max(0, i - 1));
+  const nextImg = useCallback(() => {
+    if (!listing?.images) return;
+    triggerHaptic('light');
+    setCurrentImageIndex(i => (i + 1) % listing.images.length);
     setImgLoaded(false);
-  }, []);
+  }, [listing?.images]);
 
-  const nextImage = useCallback((total: number) => {
-    setCurrentImageIndex(i => Math.min(total - 1, i + 1));
+  const prevImg = useCallback(() => {
+    if (!listing?.images) return;
+    triggerHaptic('light');
+    setCurrentImageIndex(i => (i - 1 + listing.images.length) % listing.images.length);
     setImgLoaded(false);
-  }, []);
+  }, [listing?.images]);
 
-  // ── Loading State ──────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-background">
-        <Skeleton className="absolute inset-0 rounded-none" />
-        {/* Top bar skeleton */}
-        <div className="absolute top-0 left-0 right-0 h-16 bg-background/60 backdrop-blur-lg" />
-        {/* Bottom sheet skeleton */}
-        <div className="absolute bottom-0 left-0 right-0 bg-background/90 backdrop-blur-2xl rounded-t-3xl border-t border-border/20 p-6 space-y-4">
-          <div className="w-10 h-1 bg-border rounded-full mx-auto mb-2" />
-          <div className="flex gap-2">
-            <Skeleton className="h-5 w-24 rounded-full" />
-            <Skeleton className="h-5 w-20 rounded-full" />
-          </div>
-          <div className="flex justify-between items-start">
-            <div className="space-y-2 flex-1">
-              <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-            <Skeleton className="h-8 w-24 rounded-lg" />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <Skeleton className="h-16 rounded-xl" />
-            <Skeleton className="h-16 rounded-xl" />
-            <Skeleton className="h-16 rounded-xl" />
-          </div>
-          <Skeleton className="h-12 rounded-xl" />
+      <div className="fixed inset-0 bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-6">
+          <div className="w-16 h-16 rounded-[2rem] border-4 border-[#EB4898]/20 border-t-[#EB4898] animate-spin" />
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] animate-pulse">Synchronizing Asset...</p>
         </div>
       </div>
     );
   }
 
-  // ── Error / Not Found ──────────────────────────────────────────────
   if (error || !listing) {
     return (
-      <div className="fixed inset-0 bg-background flex flex-col items-center justify-center p-6">
-        <div className="text-center max-w-sm">
-          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
-            <Home className="w-10 h-10 text-muted-foreground" />
-          </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">Listing Not Found</h1>
-          <p className="text-muted-foreground mb-8">
-            This listing may have been removed or is no longer available.
-          </p>
-          <Button onClick={() => navigate('/')} size="lg" className="w-full rounded-2xl">
-            Go to Homepage
-          </Button>
+      <div className="fixed inset-0 bg-[#0a0a0c] flex flex-col items-center justify-center p-8 text-center">
+        <div className="w-24 h-24 rounded-[2.5rem] bg-white/5 flex items-center justify-center mb-8 border border-white/10">
+          <Home className="w-10 h-10 text-white/20" />
         </div>
+        <h1 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-4 leading-none">Asset Not Found</h1>
+        <p className="text-white/40 text-sm font-medium max-w-xs mb-10 leading-relaxed uppercase tracking-widest">The requested digital twin has been de-listed or moved to another cluster.</p>
+        <Button onClick={() => navigate('/')} className="w-full max-w-[280px] h-16 rounded-[2rem] bg-white text-black font-black uppercase italic tracking-widest shadow-2xl">Return to Nexus</Button>
       </div>
     );
   }
@@ -158,381 +121,175 @@ export default function PublicListingPreview() {
   const category = listing.category || 'property';
   const mode = (listing as any).listing_type || 'rent';
   const images = (listing.images && Array.isArray(listing.images) ? listing.images : []) as string[];
-  const hasImages = images.length > 0;
-  const currentImage = hasImages ? images[currentImageIndex] : null;
-  const isFreeMessagingCategory = FREE_MESSAGING_CATEGORIES.includes(category);
-  const _canDirectMessage = user && isFreeMessagingCategory && user.id !== listing.owner_id;
+  const currentImage = images[currentImageIndex] || null;
 
-  const locationStr = [
-    listing.address,
-    listing.neighborhood || (listing as any).neighborhood,
-    listing.city,
-  ].filter(Boolean).join(', ');
-
-  // ── Main Render ────────────────────────────────────────────────────
   return (
-    <div className="fixed inset-0 overflow-hidden bg-black">
-
-      {/* ── BACKGROUND IMAGE ─────────────────────────────────────────── */}
-      <div className="absolute inset-0">
-        <AnimatePresence mode="wait" initial={false}>
+    <div className={cn("fixed inset-0 overflow-hidden transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+      
+      {/* 🛸 CINEMATIC IMAGE MATRIX */}
+      <div className="absolute inset-x-0 top-0 h-[65%] overflow-hidden">
+        <AnimatePresence mode="wait">
           <motion.div
             key={currentImageIndex}
-            initial={{ opacity: 0, scale: 1.04 }}
+            initial={{ opacity: 0, scale: 1.1 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="absolute inset-0"
           >
             {currentImage ? (
               <img
                 src={currentImage}
-                alt={listing.title || 'Listing'}
+                alt="Asset"
                 className="w-full h-full object-cover"
                 onLoad={() => setImgLoaded(true)}
-                style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.2s' }}
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-orange-500/40 via-pink-500/30 to-purple-500/40" />
+              <div className="w-full h-full bg-gradient-to-br from-[#EB4898] to-indigo-900" />
             )}
           </motion.div>
         </AnimatePresence>
 
-        {/* Gradient overlays — never block image but ensure legibility */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/75 via-black/20 to-transparent pointer-events-none" />
-      </div>
+        {/* HUD OVERLAYS */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
 
-      {/* ── IMAGE TAP ZONES (left/right to navigate) ─────────────────── */}
-      {images.length > 1 && (
-        <>
-          <div
-            className="absolute left-0 top-[20%] bottom-[45%] w-1/3 z-10 cursor-pointer"
-            onClick={prevImage}
-          />
-          <div
-            className="absolute right-0 top-[20%] bottom-[45%] w-1/3 z-10 cursor-pointer"
-            onClick={() => nextImage(images.length)}
-          />
-        </>
-      )}
-
-      {/* ── TOP BAR ──────────────────────────────────────────────────── */}
-      <div
-        className="absolute top-0 left-0 right-0 z-[60] flex items-center justify-between px-4 py-3"
-        style={{ paddingTop: 'max(12px, env(safe-area-inset-top, 12px))' }}
-      >
-        {/* Back button */}
-        {canGoBack ? (
-          <motion.button
-            onClick={() => navigate(-1)}
-            whileTap={{ scale: 0.88 }}
-            className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white shadow-lg"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </motion.button>
-        ) : (
-          <div className="w-9" />
-        )}
-
-        {/* Swipess logo pill */}
-        <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full shadow-lg h-9">
-          <SwipessLogo size="xs" />
+        {/* TAP ZONES */}
+        <div className="absolute inset-0 flex z-10">
+          <div className="flex-1 cursor-w-resize" onClick={prevImg} />
+          <div className="flex-1 cursor-e-resize" onClick={nextImg} />
         </div>
 
-        {/* Save/Favorite action */}
-        {listing && (
-          <SaveButton 
-            targetId={listing.id}
-            targetType="listing"
-            className="w-9 h-9"
-            variant="circular"
-          />
-        )}
-
-        {/* Auth action */}
-        {!user ? (
-          <motion.button
-            onClick={() => navigate('/')}
-            whileTap={{ scale: 0.92 }}
-            className="text-xs font-semibold text-white bg-white/20 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full shadow-lg"
-          >
-            Sign In
-          </motion.button>
-        ) : (
-          <div className="w-16" />
-        )}
-      </div>
-
-      {/* ── IMAGE DOTS ───────────────────────────────────────────────── */}
-      {images.length > 1 && (
-        <div
-          className="absolute z-[60] left-0 right-0 flex justify-center gap-1.5"
-          style={{ top: 'max(62px, calc(env(safe-area-inset-top, 0px) + 50px))' }}
-        >
+        {/* PAGINATION HUD */}
+        <div className="absolute bottom-10 inset-x-0 flex justify-center gap-1.5 z-20 pointer-events-none">
           {images.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => { setCurrentImageIndex(i); setImgLoaded(false); }}
-              className={cn(
-                'h-1 rounded-full transition-all duration-200',
-                i === currentImageIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/40'
-              )}
-            />
+            <div key={i} className={cn("h-1 rounded-full transition-all duration-300", i === currentImageIndex ? "w-8 bg-[#EB4898]" : "w-2 bg-white/30")} />
           ))}
         </div>
-      )}
-
-      {/* ── BOTTOM CONTENT SHEET ─────────────────────────────────────── */}
-      <div
-        className="absolute bottom-0 left-0 right-0 z-[60]"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-      >
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-          className="bg-background/92 backdrop-blur-2xl rounded-t-[28px] border-t border-white/10 shadow-[0_-20px_60px_rgba(0,0,0,0.4)]"
-          style={{ '--tw-bg-opacity': 0.92 } as React.CSSProperties}
-        >
-          {/* Drag handle */}
-          <div className="flex justify-center pt-3 pb-1">
-            <div className="w-10 h-1 bg-border/60 rounded-full" />
-          </div>
-
-          <div className="px-5 pt-2 pb-5 space-y-4 max-h-[58vh] overflow-y-auto overscroll-contain">
-
-            {/* Category + Mode badges */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge className="bg-primary/15 text-primary border border-primary/25 text-xs font-medium flex items-center gap-1 py-0.5">
-                {getCategoryIcon(category)}
-                {getCategoryLabel(category)}
-              </Badge>
-              <Badge className={cn(
-                'text-xs font-medium py-0.5 border',
-                mode === 'sale' ? 'bg-purple-500/15 text-purple-500 border-purple-500/25' :
-                mode === 'both' ? 'bg-amber-500/15 text-amber-600 border-amber-500/25' :
-                'bg-blue-500/15 text-blue-500 border-blue-500/25'
-              )}>
-                {mode === 'sale' ? 'For Sale' : mode === 'both' ? 'Rent / Sale' : 'For Rent'}
-              </Badge>
-              {(listing as any).verified && (
-                <Badge className="bg-rose-500/15 text-rose-600 border border-rose-500/25 text-xs font-medium py-0.5">
-                  Verified
-                </Badge>
-              )}
-            </div>
-
-            {/* Title + Price */}
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <h1 className="text-xl font-bold text-foreground leading-snug">
-                  {listing.title || 'Untitled Listing'}
-                </h1>
-                {locationStr && (
-                  <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                    <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span className="truncate">{locationStr}</span>
-                  </p>
-                )}
-              </div>
-              <div className="text-right flex-shrink-0">
-                <div className="text-2xl font-bold text-primary leading-none">
-                  ${listing.price?.toLocaleString() || 'TBD'}
-                </div>
-                <div className="text-xs text-muted-foreground mt-0.5">
-                  {mode === 'rent' ? '/ month' : mode === 'sale' ? 'total' : 'sale/rent'}
-                </div>
-              </div>
-            </div>
-
-            {/* Property stats */}
-            {category === 'property' && (listing.beds || listing.baths || listing.square_footage) && (
-              <div className="grid grid-cols-3 gap-2">
-                {listing.beds && (
-                  <div className="flex flex-col items-center gap-1 p-3 bg-muted/50 rounded-xl border border-border/30">
-                    <Bed className="w-4 h-4 text-primary" />
-                    <span className="text-base font-bold text-foreground">{listing.beds}</span>
-                    <span className="text-[11px] text-muted-foreground">Beds</span>
-                  </div>
-                )}
-                {listing.baths && (
-                  <div className="flex flex-col items-center gap-1 p-3 bg-muted/50 rounded-xl border border-border/30">
-                    <Bath className="w-4 h-4 text-primary" />
-                    <span className="text-base font-bold text-foreground">{listing.baths}</span>
-                    <span className="text-[11px] text-muted-foreground">Baths</span>
-                  </div>
-                )}
-                {listing.square_footage && (
-                  <div className="flex flex-col items-center gap-1 p-3 bg-muted/50 rounded-xl border border-border/30">
-                    <Square className="w-4 h-4 text-primary" />
-                    <span className="text-base font-bold text-foreground">{listing.square_footage}</span>
-                    <span className="text-[11px] text-muted-foreground">Sq ft</span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Yacht stats */}
-            {category === 'yacht' && (
-              <div className="grid grid-cols-3 gap-2">
-                {(listing as any).length_m && (
-                  <div className="flex flex-col items-center gap-1 p-3 bg-muted/50 rounded-xl border border-border/30">
-                    <Anchor className="w-4 h-4 text-primary" />
-                    <span className="text-base font-bold text-foreground">{(listing as any).length_m}m</span>
-                    <span className="text-[11px] text-muted-foreground">Length</span>
-                  </div>
-                )}
-                {(listing as any).berths && (
-                  <div className="flex flex-col items-center gap-1 p-3 bg-muted/50 rounded-xl border border-border/30">
-                    <Bed className="w-4 h-4 text-primary" />
-                    <span className="text-base font-bold text-foreground">{(listing as any).berths}</span>
-                    <span className="text-[11px] text-muted-foreground">Berths</span>
-                  </div>
-                )}
-                {(listing as any).max_passengers && (
-                  <div className="flex flex-col items-center gap-1 p-3 bg-muted/50 rounded-xl border border-border/30">
-                    <Users className="w-4 h-4 text-primary" />
-                    <span className="text-base font-bold text-foreground">{(listing as any).max_passengers}</span>
-                    <span className="text-[11px] text-muted-foreground">Guests</span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Vehicle/Moto/Bicycle stats */}
-            {(category === 'motorcycle' || category === 'bicycle' || category === 'vehicle') && (
-              <div className="grid grid-cols-3 gap-2">
-                {(listing as any).engine_cc && (
-                  <div className="flex flex-col items-center gap-1 p-3 bg-muted/50 rounded-xl border border-border/30">
-                    <MotorcycleIcon className="w-4 h-4 text-primary" />
-                    <span className="text-base font-bold text-foreground">{(listing as any).engine_cc}cc</span>
-                    <span className="text-[11px] text-muted-foreground">Engine</span>
-                  </div>
-                )}
-                {(listing as any).mileage && (
-                  <div className="flex flex-col items-center gap-1 p-3 bg-muted/50 rounded-xl border border-border/30">
-                    <Car className="w-4 h-4 text-primary" />
-                    <span className="text-base font-bold text-foreground">{(listing as any).mileage?.toLocaleString()}</span>
-                    <span className="text-[11px] text-muted-foreground">Miles</span>
-                  </div>
-                )}
-                {((listing as any).condition || (listing as any).vehicle_condition) && (
-                  <div className="flex flex-col items-center gap-1 p-3 bg-muted/50 rounded-xl border border-border/30">
-                    <span className="text-base">✓</span>
-                    <span className="text-base font-bold text-foreground capitalize">
-                      {(listing as any).condition || (listing as any).vehicle_condition}
-                    </span>
-                    <span className="text-[11px] text-muted-foreground">Condition</span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Feature tags */}
-            {(listing.property_type || (listing as any).furnished || (listing as any).pet_friendly || (listing as any).availability_date) && (
-              <div className="flex flex-wrap gap-1.5">
-                {listing.property_type && (
-                  <Badge variant="secondary" className="text-xs rounded-full">
-                    {listing.property_type}
-                  </Badge>
-                )}
-                {(listing as any).furnished && (
-                  <Badge variant="outline" className="text-xs rounded-full border-border/50">
-                    Furnished
-                  </Badge>
-                )}
-                {(listing as any).pet_friendly && (
-                  <Badge variant="outline" className="text-xs rounded-full border-border/50">
-                    🐾 Pet Friendly
-                  </Badge>
-                )}
-                {(listing as any).availability_date && (
-                  <Badge variant="outline" className="text-xs rounded-full border-border/50 flex items-center gap-1">
-                    <Calendar className="w-2.5 h-2.5" />
-                    {new Date((listing as any).availability_date).toLocaleDateString()}
-                  </Badge>
-                )}
-              </div>
-            )}
-
-            {/* Quick stats row */}
-            <div className="flex items-center gap-4 text-xs text-muted-foreground border-t border-border/30 pt-3">
-              <span className="flex items-center gap-1">
-                <Eye className="w-3.5 h-3.5" />
-                {(listing as any).views || 0} views
-              </span>
-              <span className="flex items-center gap-1">
-                <Flame className="w-3.5 h-3.5 text-orange-400" />
-                {(listing as any).likes || 0} likes
-              </span>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col gap-2 pt-1">
-              {user ? (
-                <>
-                  <Button
-                    size="lg"
-                    className="w-full rounded-2xl bg-primary hover:bg-primary/90 text-white font-semibold h-12 text-base shadow-lg shadow-primary/25"
-                    onClick={() => setShowDirectMessageDialog(true)}
-                  >
-                    <MessageCircle className="w-5 h-5 mr-2" />
-                    Message Owner
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full rounded-2xl h-11 font-medium border-border/50"
-                    onClick={() => {
-                      if (user?.user_metadata?.role === 'owner') {
-                        navigate('/owner/properties');
-                      } else {
-                        navigate('/client/dashboard');
-                      }
-                    }}
-                  >
-                    Back to Workspace
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    size="lg"
-                    className="w-full rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold h-12 text-base shadow-lg shadow-primary/25"
-                    onClick={() => navigate(`/?returnTo=/listing/${id}`)}
-                  >
-                    <UserPlus className="w-5 h-5 mr-2" />
-                    Create Free Account
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full rounded-2xl h-11 font-medium border-border/50"
-                    onClick={() => navigate('/')}
-                  >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Sign In
-                  </Button>
-                </>
-              )}
-            </div>
-
-            {/* Footer note */}
-            <p className="text-center text-[11px] text-muted-foreground/60 pb-1">
-              Swipess · Find Your Perfect Match
-            </p>
-          </div>
-        </motion.div>
       </div>
 
-      {/* Direct Message Dialog */}
+      {/* 🛸 FLAGSHIP TOP BAR */}
+      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+16px)] inset-x-6 z-50 flex items-center justify-between pointer-events-none">
+         <button onClick={() => navigate(-1)} className="w-12 h-12 rounded-[1.2rem] bg-black/30 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white pointer-events-auto active:scale-90 shadow-2xl">
+            <ArrowLeft className="w-6 h-6" />
+         </button>
+         <div className="bg-black/30 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-full h-12 flex items-center shadow-2xl">
+            <SwipessLogo size="sm" invert />
+         </div>
+         <div className="flex gap-2 pointer-events-auto">
+            <button className="w-12 h-12 rounded-[1.2rem] bg-black/30 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 shadow-2xl">
+               <Share2 className="w-5 h-5" />
+            </button>
+            <SaveButton targetId={listing.id} targetType="listing" className="w-12 h-12 rounded-[1.2rem] shadow-2xl" variant="circular" />
+         </div>
+      </div>
+
+      {/* 🛸 NEXUS BOTTOM TERMINAL */}
+      <motion.div
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        className={cn(
+           "absolute inset-x-0 bottom-0 z-40 rounded-t-[3.5rem] shadow-[0_-30px_70px_rgba(0,0,0,0.5)] border-t transition-colors duration-500",
+           isLight ? "bg-white border-black/5" : "bg-[#0d0d0f] border-white/10"
+        )}
+      >
+         {/* DRAG HANDLE */}
+         <div className="flex justify-center pt-5 pb-3">
+            <div className={cn("w-14 h-1.5 rounded-full transition-colors", isLight ? "bg-black/10" : "bg-white/10")} />
+         </div>
+
+         <div className={cn(
+            "px-8 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+32px)] space-y-8 max-h-[70vh] overflow-y-auto no-scrollbar",
+            isLight ? "text-black" : "text-white"
+         )}>
+            {/* BADGE MATRIX */}
+            <div className="flex flex-wrap gap-2">
+               <Badge className="bg-[#EB4898]/10 text-[#EB4898] border border-[#EB4898]/20 text-[10px] font-black uppercase italic tracking-widest px-3 py-1.5 rounded-[0.8rem]">
+                  {getCategoryIcon(category)}
+                  <span className="ml-2">{getCategoryLabel(category)}</span>
+               </Badge>
+               <Badge className={cn("text-[10px] font-black uppercase italic tracking-widest px-3 py-1.5 rounded-[0.8rem] border", 
+                  mode === 'sale' ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+               )}>
+                  {mode === 'sale' ? 'Liquidation' : 'Nexus Residency'}
+               </Badge>
+               {(listing as any).verified && (
+                 <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase italic tracking-widest px-3 py-1.5 rounded-[0.8rem]">
+                    Verified Hub
+                 </Badge>
+               )}
+            </div>
+
+            {/* IDENTITY CORE */}
+            <div className="flex items-start justify-between gap-6 px-1">
+               <div className="space-y-3 flex-1">
+                  <h1 className="text-4xl font-black italic tracking-tighter leading-none uppercase">{listing.title || 'Nexus Asset'}</h1>
+                  <div className="flex items-center gap-2 opacity-40">
+                    <MapPin className="w-4 h-4" />
+                    <span className="text-[11px] font-black uppercase tracking-widest truncate max-w-[200px]">{listing.city || 'Tulum'}, {listing.neighborhood || 'Tulum Central'}</span>
+                  </div>
+               </div>
+               <div className="text-right">
+                  <div className="text-3xl font-black italic tracking-tighter text-[#EB4898] leading-none">${listing.price?.toLocaleString()}</div>
+                  <div className="text-[9px] font-black uppercase tracking-widest opacity-30 mt-2">{mode === 'rent' ? 'Per Cycle' : 'Full Authority'}</div>
+               </div>
+            </div>
+
+            {/* DATA GRID */}
+            <div className="grid grid-cols-3 gap-4">
+               {[
+                 { label: 'Beds', value: listing.beds || '-', icon: Bed },
+                 { label: 'Baths', value: listing.baths || '-', icon: Bath },
+                 { label: 'Sq Ft', value: listing.square_footage || '-', icon: Square },
+               ].map((stat, i) => (
+                 <div key={i} className={cn("p-5 rounded-[2rem] border flex flex-col items-center gap-2 text-center transition-all", isLight ? "bg-black/5 border-black/5 shadow-inner" : "bg-white/5 border-white/5")}>
+                    <stat.icon className="w-5 h-5 text-[#EB4898]/60" />
+                    <span className="text-lg font-black italic tracking-tighter leading-none">{stat.value}</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest opacity-30">{stat.label}</span>
+                 </div>
+               ))}
+            </div>
+
+            {/* SYNC ACTIONS */}
+            <div className="space-y-4 pt-4">
+                {user ? (
+                   <Button
+                      onClick={() => { triggerHaptic('medium'); setShowDirectMessageDialog(true); }}
+                      className="w-full h-20 rounded-[2.5rem] bg-[#EB4898] text-white font-black uppercase italic tracking-[0.2em] shadow-[0_20px_50px_rgba(235,72,152,0.4)] border-none hover:scale-[1.02] active:scale-95 transition-all text-[15px]"
+                   >
+                      <MessageCircle className="w-7 h-7 mr-4" />
+                      Manifest DM
+                   </Button>
+                ) : (
+                   <div className="space-y-3">
+                      <Button
+                        onClick={() => { triggerHaptic('medium'); navigate(`/?returnTo=/listing/${id}`); }}
+                        className="w-full h-20 rounded-[2.5rem] bg-[#EB4898] text-white font-black uppercase italic tracking-[0.2em] shadow-[0_20px_50px_rgba(235,72,152,0.4)] border-none"
+                      >
+                         <UserPlus className="w-7 h-7 mr-4" />
+                         Engage Reality
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => { triggerHaptic('light'); navigate('/'); }}
+                        className={cn("w-full h-16 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] italic opacity-40 hover:opacity-100 transition-all")}
+                      >
+                         De-cloak & Sign In
+                      </Button>
+                   </div>
+                )}
+            </div>
+
+            <p className="text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-10 pb-4">Nexus Core Identity</p>
+         </div>
+      </motion.div>
+
       {listing && user && (
         <DirectMessageDialog
           open={showDirectMessageDialog}
           onOpenChange={setShowDirectMessageDialog}
           onConfirm={() => setShowDirectMessageDialog(false)}
-          recipientName="the owner"
+          recipientName="Asset Authority"
           category={category}
         />
       )}
