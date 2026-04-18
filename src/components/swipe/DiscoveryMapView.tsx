@@ -183,8 +183,8 @@ export const DiscoveryMapView = memo(({
     const cTX = Math.floor(tileX); const cTY = Math.floor(tileY);
     const oX = (tileX - cTX) * 256; const oY = (tileY - cTY) * 256;
 
-    // ALWAYS DRAW AS IF LIGHT MODE - CSS FILTER HANDLES INVERSION
-    ctx.fillStyle = '#f8fafc';
+    // USE LIGHT TECH GRAY REGARDLESS OF THEME
+    ctx.fillStyle = '#f1f5f9';
     ctx.fillRect(0, 0, w, h);
 
     const tilesX = Math.ceil(w / 256) + 2; const tilesY = Math.ceil(h / 256) + 2;
@@ -192,9 +192,10 @@ export const DiscoveryMapView = memo(({
 
     const drawOverlay = () => {
       if (rid !== renderIdRef.current) return;
+      // Radar Ring
       ctx.beginPath();
       ctx.arc(w/2, h/2, radiusPx, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,0,0,0.04)';
+      ctx.fillStyle = 'rgba(0,0,0,0.03)';
       ctx.fill();
       ctx.strokeStyle = 'rgba(0,0,0,0.2)';
       ctx.lineWidth = 1; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
@@ -228,55 +229,52 @@ export const DiscoveryMapView = memo(({
   }, [centerLat, centerLng, zoom, radiusPx, dots, isLight, mapSize]);
 
   return (
-    <motion.div className="flex flex-col h-full w-full bg-[#0d0d0f] relative overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <motion.div className="flex flex-col h-full w-full bg-white relative overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       {/* HEADER: Back & GPS */}
       <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] inset-x-0 px-4 z-[10001] flex items-center justify-between">
-        <button onClick={onBack} className={cn("w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 shadow-2xl transition-all", isLight ? "bg-white/80 text-black" : "bg-black/60 text-white")}>
+        <button onClick={onBack} className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/90 text-black shadow-xl border border-black/5 active:scale-95 transition-all">
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <button onClick={detectLocation} className={cn("w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 shadow-2xl transition-all", detected ? (isLight ? "bg-black text-white" : "bg-white text-black") : "bg-black/40 text-white")}>
-          <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} />
+        <button onClick={detectLocation} className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl border border-black/5 active:scale-95 transition-all", detected ? "bg-black text-white" : "bg-white/90 text-black")}>
+          <Navigation className={cn("w-6 h-6", detecting && "animate-spin")} />
         </button>
       </div>
 
       {/* RADIUS SELECTOR: Center Top Horizontal */}
       <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-1/2 -translate-x-1/2 z-[10001] flex flex-col items-center gap-2">
-        <div className={cn("px-5 py-2 rounded-2xl flex items-center gap-1.5 backdrop-blur-xl border border-white/10 shadow-2xl transition-all", isLight ? "bg-white/90" : "bg-black/80")}>
+        <div className="px-5 py-2 rounded-2xl flex items-center gap-1.5 bg-white/95 text-black shadow-2xl border border-black/5">
             <span className="text-[11px] font-black tracking-tighter uppercase opacity-50">Scan Radius:</span>
-            <span className={cn("text-[13px] font-black", isLight ? "text-primary" : "text-white")}>{localKm}KM</span>
+            <span className="text-[14px] font-black text-primary">{localKm}KM</span>
         </div>
-        <div className={cn("flex items-center gap-1 p-1 rounded-2xl backdrop-blur-xl border border-white/10 shadow-lg", isLight ? "bg-white/70" : "bg-black/50")}>
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/80 shadow-lg border border-black/5">
             {[1, 5, 10, 25, 50, 100].map(km => (
-                <button key={km} onClick={() => setLocalKm(km)} className={cn("px-3.5 py-1.5 rounded-xl text-[10px] font-black transition-all", localKm === km ? (isLight ? "bg-black text-white" : "bg-white text-black scale-105") : "text-muted-foreground opacity-50")}>{km}</button>
+                <button key={km} onClick={() => setLocalKm(km)} className={cn("px-3.5 py-2 rounded-xl text-[11px] font-black transition-all", localKm === km ? "bg-black text-white scale-105 shadow-md" : "text-black opacity-40")}>{km}</button>
             ))}
         </div>
       </div>
 
       {/* MAP CANVAS */}
       <div ref={containerRef} className="flex-1 relative overflow-hidden" onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
-        <canvas ref={canvasRef} style={{ width: '100%', height: '100%', filter: isLight ? 'none' : 'invert(1) hue-rotate(180deg) brightness(1.1) contrast(1.1)' }} />
+        <canvas ref={canvasRef} style={{ width: '100%', height: '100%', filter: 'contrast(1.1) saturate(1.1)' }} />
       </div>
 
-      {/* QUICK FILTERS: Bottom Floating Bar */}
-      <div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+72px)] inset-x-0 z-[10002] flex justify-center px-5">
-        <motion.div 
-          initial={{ y: 20 }} animate={{ y: 0 }}
-          className={cn("p-2 rounded-3xl flex items-center gap-2 backdrop-blur-3xl border border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.5)]", isLight ? "bg-white/90" : "bg-black/70")}
-        >
+      {/* QUICK FILTERS: Bottom Floating Bar - White Glass */}
+      <div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+84px)] inset-x-0 z-[10002] flex justify-center px-5">
+        <div className="p-3 rounded-[2.5rem] flex items-center gap-4 bg-white/95 shadow-[0_32px_64px_rgba(0,0,0,0.15)] border border-black/5">
           {[
             { id: 'property', icon: Building2 }, { id: 'motorcycle', icon: MotorcycleIcon }, { id: 'bicycle', icon: Bike }, { id: 'services', icon: HardHat }
           ].map(cat => (
-            <button key={cat.id} onClick={() => onCategoryChange?.(cat.id as any)} className={cn("w-13 h-13 flex items-center justify-center rounded-2xl transition-all", category === cat.id ? (isLight ? "bg-black text-white" : "bg-white text-black shadow-xl") : "opacity-30")}>
-              <cat.icon className="w-6 h-6" />
+            <button key={cat.id} onClick={() => onCategoryChange?.(cat.id as any)} className={cn("w-14 h-14 flex items-center justify-center rounded-3xl transition-all", category === cat.id ? "bg-black text-white scale-110 shadow-xl" : "text-black opacity-30 active:scale-90")}>
+              <cat.icon className="w-7 h-7" />
             </button>
           ))}
-        </motion.div>
+        </div>
       </div>
 
-      {/* REFRESH BAR */}
+      {/* REFRESH BAR - High Contrast White */}
       <div className="absolute inset-x-0 bottom-0 z-[10002] flex items-center justify-center pb-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+12px)] px-5">
-        <button onClick={handleRefresh} className={cn("w-full max-w-sm h-14 rounded-3xl text-[12px] font-black uppercase tracking-[0.3em] transition-all shadow-2xl flex items-center justify-center gap-3", isLight ? "bg-black text-white" : "bg-white text-black border-4 border-black/10")}>
-          <RefreshCw className={cn("w-5 h-5", isRefreshing && "animate-spin")} /> REFRESH RADAR
+        <button onClick={handleRefresh} className="w-full max-w-sm h-14 rounded-3xl text-[13px] font-black uppercase tracking-[0.4em] transition-all shadow-[0_24px_48px_rgba(0,0,0,0.2)] bg-black text-white hover:bg-black/90 active:scale-95 flex items-center justify-center gap-3">
+          <RefreshCw className={cn("w-6 h-6", isRefreshing && "animate-spin")} /> REFRESH RADAR
         </button>
       </div>
     </motion.div>
