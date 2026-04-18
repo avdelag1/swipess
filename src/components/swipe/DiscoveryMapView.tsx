@@ -147,6 +147,23 @@ export const DiscoveryMapView = memo(({
   const baseLat = userLatitude ?? 20.2114;
   const baseLng = userLongitude ?? -87.4654;
 
+  const [scanTick, setScanTick] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(() => {
+    triggerHaptic('medium');
+    setIsRefreshing(true);
+    setScanTick(t => t + 1);
+    setRefreshTick(t => t + 1);
+    setScanPulse(p => p + 1);
+    setSelectedDotId(null);
+    setTimeout(() => setIsRefreshing(false), 2000);
+  }, []);
+
+  useEffect(() => {
+     handleRefresh();
+  }, [category]);
+
   // ─── Detect location ─────────────────────────────────────────────────────
   const detectLocation = useCallback(() => {
     if (!navigator.geolocation) return;
@@ -255,12 +272,6 @@ export const DiscoveryMapView = memo(({
 
   const [scanPulse, setScanPulse] = useState(0);
 
-  const handleRefresh = useCallback(() => {
-    triggerHaptic('medium');
-    setRefreshTick(t => t + 1);
-    setScanPulse(p => p + 1);
-    setSelectedDotId(null);
-  }, []);
 
   // Trigger scan animation when category changes
   useEffect(() => {
@@ -599,14 +610,42 @@ export const DiscoveryMapView = memo(({
   return (
     <motion.div
       className={cn(
-        "flex flex-col overflow-hidden bg-background",
-        isEmbedded ? "relative w-full h-full" : "fixed inset-0 z-[10000]"
+        "flex flex-col overflow-hidden bg-background relative",
+        isEmbedded ? "w-full h-full" : "fixed inset-0 z-[10000]"
       )}
       initial={isEmbedded ? false : { opacity: 0, scale: 0.95 }}
       animate={isEmbedded ? false : { opacity: 1, scale: 1 }}
       exit={isEmbedded ? false : { opacity: 0, scale: 1.05 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
+      {/* 📡 SENTINEL RADAR SWEEP EFFECT */}
+      <AnimatePresence>
+        {isRefreshing && (
+          <motion.div
+            key="radar-sweep"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-10 pointer-events-none overflow-hidden"
+          >
+             <div 
+               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200vmax] h-[200vmax]"
+               style={{
+                 background: `conic-gradient(from 0deg, rgba(${meta.accentRgb}, 0.2) 0deg, transparent 90deg)`,
+                 animation: 'radar-rotate 2s linear infinite',
+                 opacity: 0.4,
+               }}
+             />
+             <style>{`
+               @keyframes radar-rotate {
+                 from { transform: translate(-50%, -50%) rotate(0deg); }
+                 to { transform: translate(-50%, -50%) rotate(360deg); }
+               }
+             `}</style>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Header: Back Button + Quick Categories ───────────────────── */}
       {!isEmbedded && (
         <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 right-4 z-[10001] flex items-center gap-3">
@@ -927,7 +966,8 @@ export const DiscoveryMapView = memo(({
       {/* ── BOTTOM PANEL: Finalized Start Scan ────────────────────────── */}
       <div
         className={cn(
-          "absolute inset-x-0 bottom-0 z-[10001] px-5 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] flex flex-col items-center",
+          "absolute inset-x-0 bottom-0 z-[10001] flex flex-col items-center pt-2 px-5",
+          isEmbedded ? "pb-[calc(var(--bottom-nav-height)+var(--safe-bottom)+8px)]" : "pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]",
           isLight ? "bg-white/10" : "bg-black/5"
         )}
         style={{
@@ -937,10 +977,10 @@ export const DiscoveryMapView = memo(({
       >
         <button
           onClick={() => onStartSwiping()}
-          className="w-full max-w-sm h-14 rounded-2xl bg-primary text-white text-[12px] font-black uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3 mt-4"
+          className="w-full max-w-sm h-14 rounded-3xl bg-primary text-white text-[12px] font-black uppercase tracking-[0.3em] active:scale-95 transition-all flex items-center justify-center gap-3"
           style={{ 
             background: meta.accent,
-            boxShadow: `0 12px 24px rgba(${meta.accentRgb},0.4)`
+            boxShadow: `0 16px 32px rgba(${meta.accentRgb},0.4), inset 0 1px 0 rgba(255,255,255,0.3)`
           }}
         >
           <Zap className="w-5 h-5 fill-current" />

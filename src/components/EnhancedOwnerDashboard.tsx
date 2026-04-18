@@ -238,6 +238,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               onStartSwiping={handleStartSwiping}
               onCategoryChange={(cat) => setMapCategory(cat)}
               mode="owner"
+              isEmbedded={true}
             />
           </motion.div>
         ) : showSwipe ? (

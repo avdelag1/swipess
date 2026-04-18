@@ -69,6 +69,18 @@ export default function ClientDashboard({
     setPhase('swipe');
   }, [mapCategory, setCategories, setActiveCategory]);
 
+  // CATEGORY SELECT (from cards) → go to map phase, NOT swipe.
+  const handleLaunch = useCallback((ids: QuickFilterCategory[]) => {
+    if (ids.length > 0) {
+      const cat = ids[0];
+      setMapCategory(cat);
+      setPhase('map');
+      setActiveCategory(null);
+      triggerHaptic('success');
+    }
+  }, [setActiveCategory]);
+
+
   // Determine what to show based on phase + store state. 
   // We MUST be strictly exclusive to avoid "ghost designs" appearing behind.
   const isSwiping = phase === 'swipe' || !!activeCategory;
@@ -89,7 +101,8 @@ export default function ClientDashboard({
             className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
             style={{ willChange: 'transform, opacity' }}
           >
-            <SwipeAllDashboard setCategories={handleCategorySelect} />
+            <SwipeAllDashboard setCategories={handleLaunch} />
+
           </motion.div>
         )}
 
@@ -108,7 +121,9 @@ export default function ClientDashboard({
               onBack={handleMapBack}
               onStartSwiping={handleStartSwiping}
               onCategoryChange={(cat) => setMapCategory(cat)}
+              isEmbedded={true}
             />
+
           </motion.div>
         )}
 
