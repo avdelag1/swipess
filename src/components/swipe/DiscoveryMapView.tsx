@@ -19,16 +19,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import type { QuickFilterCategory } from '@/types/filters';
 
-const CATEGORY_META: Record<string, { label: string; accent: string; accentRgb: string }> = {
-  property:   { label: 'Properties',  accent: '#ffffff', accentRgb: '255,255,255' },
-  motorcycle: { label: 'Motorcycles', accent: '#ffffff', accentRgb: '255,255,255' },
-  bicycle:    { label: 'Bicycles',    accent: '#ffffff', accentRgb: '255,255,255' },
-  services:   { label: 'Workers',     accent: '#ffffff', accentRgb: '255,255,255' },
-  buyers:     { label: 'Buyers',      accent: '#ffffff', accentRgb: '255,255,255' },
-  renters:    { label: 'Renters',     accent: '#ffffff', accentRgb: '255,255,255' },
-  hire:       { label: 'Services',    accent: '#ffffff', accentRgb: '255,255,255' },
-};
-
 const kmToPixels = (km: number, lat: number, zoom: number) => {
   const mpp = (156543.03392 * Math.cos((lat * Math.PI) / 180)) / Math.pow(2, zoom);
   return (km * 1000) / mpp;
@@ -71,8 +61,6 @@ interface ListingDot {
   longitude: number;
   category?: string;
   kind?: 'listing' | 'profile';
-  intentions?: string[];
-  interest_categories?: string[];
 }
 
 export const DiscoveryMapView = memo(({ 
@@ -108,7 +96,6 @@ export const DiscoveryMapView = memo(({
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [selectedDotId, setSelectedDotId] = useState<string | null>(null);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const panStartRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   const [mapSize, setMapSize] = useState({ w: 400, h: 600 });
@@ -121,7 +108,6 @@ export const DiscoveryMapView = memo(({
   const handleRefresh = useCallback(() => {
     triggerHaptic('medium');
     setIsRefreshing(true);
-    setSelectedDotId(null);
     setTimeout(() => setIsRefreshing(false), 1500);
   }, []);
 
@@ -197,35 +183,26 @@ export const DiscoveryMapView = memo(({
     const cTX = Math.floor(tileX); const cTY = Math.floor(tileY);
     const oX = (tileX - cTX) * 256; const oY = (tileY - cTY) * 256;
 
-    ctx.fillStyle = isLight ? '#f8fafc' : '#1a1f2c';
+    // ALWAYS DRAW AS IF LIGHT MODE - CSS FILTER HANDLES INVERSION
+    ctx.fillStyle = '#f8fafc';
     ctx.fillRect(0, 0, w, h);
 
     const tilesX = Math.ceil(w / 256) + 2; const tilesY = Math.ceil(h / 256) + 2;
-    let loaded = 0; const total = tilesX * tilesY;
+    let loadedCount = 0; const total = tilesX * tilesY;
 
     const drawOverlay = () => {
       if (rid !== renderIdRef.current) return;
-      // Radar Ring
       ctx.beginPath();
       ctx.arc(w/2, h/2, radiusPx, 0, Math.PI * 2);
-      ctx.fillStyle = isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.06)';
+      ctx.fillStyle = 'rgba(0,0,0,0.04)';
       ctx.fill();
-      ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.3)';
+      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
       ctx.lineWidth = 1; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
-
-      // Dots
-      dots.forEach(d => {
-        const dTile = latLngToTile(d.latitude, d.longitude, zoom);
-        const px = w/2 + (dTile.x - tileX) * 256; const py = h/2 + (dTile.y - tileY) * 256;
-        if (px < -10 || px > w+10 || py < -10 || py > h+10) return;
-        ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2);
-        ctx.fillStyle = isLight ? '#000' : '#fff'; ctx.fill();
-      });
 
       // Center
       ctx.beginPath(); ctx.arc(w/2, h/2, 6, 0, Math.PI * 2);
-      ctx.fillStyle = isLight ? '#000' : '#fff'; ctx.fill();
-      ctx.strokeStyle = isLight ? '#fff' : '#000'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = '#000'; ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
     };
 
     const drawTiles = () => {
@@ -236,14 +213,14 @@ export const DiscoveryMapView = memo(({
                 img.onload = () => {
                     if (rid !== renderIdRef.current) return;
                     ctx.drawImage(img, w/2 - oX + dx*256, h/2 - oY + dy*256, 256, 256);
-                    loaded++; if (loaded === total) drawOverlay();
+                    loadedCount++; if (loadedCount === total) drawOverlay();
                 };
-                img.onerror = () => { loaded++; if (loaded === total) drawOverlay(); };
+                img.onerror = () => { loadedCount++; if (loadedCount === total) drawOverlay(); };
                 const tZ = Math.min(zoom, 18);
                 const wX = (cTX + dx + (1<<tZ)) % (1<<tZ);
                 const wY = cTY + dy;
                 if (wY >= 0 && wY < (1<<tZ)) img.src = `https://tile.openstreetmap.org/${tZ}/${wX}/${wY}.png`;
-                else { loaded++; if (loaded === total) drawOverlay(); }
+                else { loadedCount++; if (loadedCount === total) drawOverlay(); }
             }
         }
     };
@@ -254,48 +231,51 @@ export const DiscoveryMapView = memo(({
     <motion.div className="flex flex-col h-full w-full bg-[#0d0d0f] relative overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       {/* HEADER: Back & GPS */}
       <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] inset-x-0 px-4 z-[10001] flex items-center justify-between">
-        <button onClick={onBack} className={cn("w-10 h-10 rounded-xl flex items-center justify-center backdrop-blur-xl border border-white/10", isLight ? "bg-white/80" : "bg-black/60")}>
-          <ArrowLeft className="w-5 h-5" />
+        <button onClick={onBack} className={cn("w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 shadow-2xl transition-all", isLight ? "bg-white/80 text-black" : "bg-black/60 text-white")}>
+          <ArrowLeft className="w-6 h-6" />
         </button>
-        <button onClick={detectLocation} className={cn("w-10 h-10 rounded-xl flex items-center justify-center backdrop-blur-xl border border-white/10", detected ? "bg-white text-black" : "bg-black/40 text-white")}>
+        <button onClick={detectLocation} className={cn("w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10 shadow-2xl transition-all", detected ? (isLight ? "bg-black text-white" : "bg-white text-black") : "bg-black/40 text-white")}>
           <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} />
         </button>
       </div>
 
-      {/* RADIUS SELECTOR: Top Horizontal Pill */}
+      {/* RADIUS SELECTOR: Center Top Horizontal */}
       <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-1/2 -translate-x-1/2 z-[10001] flex flex-col items-center gap-2">
-        <div className={cn("px-4 py-2 rounded-2xl flex items-center gap-1 backdrop-blur-xl border border-white/10 shadow-2xl", isLight ? "bg-white/80" : "bg-black/60")}>
-            <span className="text-[10px] font-black tracking-tighter uppercase opacity-60">Scan Radius:</span>
-            <span className="text-[12px] font-black text-primary">{localKm}KM</span>
+        <div className={cn("px-5 py-2 rounded-2xl flex items-center gap-1.5 backdrop-blur-xl border border-white/10 shadow-2xl transition-all", isLight ? "bg-white/90" : "bg-black/80")}>
+            <span className="text-[11px] font-black tracking-tighter uppercase opacity-50">Scan Radius:</span>
+            <span className={cn("text-[13px] font-black", isLight ? "text-primary" : "text-white")}>{localKm}KM</span>
         </div>
-        <div className={cn("flex items-center gap-1 p-1 rounded-2xl backdrop-blur-xl border border-white/10", isLight ? "bg-white/60" : "bg-black/40")}>
+        <div className={cn("flex items-center gap-1 p-1 rounded-2xl backdrop-blur-xl border border-white/10 shadow-lg", isLight ? "bg-white/70" : "bg-black/50")}>
             {[1, 5, 10, 25, 50, 100].map(km => (
-                <button key={km} onClick={() => setLocalKm(km)} className={cn("px-3 py-1 rounded-xl text-[10px] font-black transition-all", localKm === km ? (isLight ? "bg-black text-white" : "bg-white text-black") : "text-muted-foreground")}>{km}</button>
+                <button key={km} onClick={() => setLocalKm(km)} className={cn("px-3.5 py-1.5 rounded-xl text-[10px] font-black transition-all", localKm === km ? (isLight ? "bg-black text-white" : "bg-white text-black scale-105") : "text-muted-foreground opacity-50")}>{km}</button>
             ))}
         </div>
       </div>
 
       {/* MAP CANVAS */}
       <div ref={containerRef} className="flex-1 relative overflow-hidden" onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
-        <canvas ref={canvasRef} style={{ width: '100%', height: '100%', filter: isLight ? 'none' : 'invert(1) hue-rotate(180deg) brightness(1.2) contrast(1.2) grayscale(0.2)' }} />
+        <canvas ref={canvasRef} style={{ width: '100%', height: '100%', filter: isLight ? 'none' : 'invert(1) hue-rotate(180deg) brightness(1.1) contrast(1.1)' }} />
       </div>
 
       {/* QUICK FILTERS: Bottom Floating Bar */}
       <div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+72px)] inset-x-0 z-[10002] flex justify-center px-5">
-        <div className={cn("p-2 rounded-3xl flex items-center gap-2 backdrop-blur-3xl border border-white/10 shadow-2xl", isLight ? "bg-white/90" : "bg-black/60")}>
+        <motion.div 
+          initial={{ y: 20 }} animate={{ y: 0 }}
+          className={cn("p-2 rounded-3xl flex items-center gap-2 backdrop-blur-3xl border border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.5)]", isLight ? "bg-white/90" : "bg-black/70")}
+        >
           {[
             { id: 'property', icon: Building2 }, { id: 'motorcycle', icon: MotorcycleIcon }, { id: 'bicycle', icon: Bike }, { id: 'services', icon: HardHat }
           ].map(cat => (
-            <button key={cat.id} onClick={() => onCategoryChange?.(cat.id as any)} className={cn("w-12 h-12 flex items-center justify-center rounded-2xl transition-all", category === cat.id ? "bg-primary text-black" : "text-white/40")}>
-              <cat.icon className="w-5 h-5" />
+            <button key={cat.id} onClick={() => onCategoryChange?.(cat.id as any)} className={cn("w-13 h-13 flex items-center justify-center rounded-2xl transition-all", category === cat.id ? (isLight ? "bg-black text-white" : "bg-white text-black shadow-xl") : "opacity-30")}>
+              <cat.icon className="w-6 h-6" />
             </button>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* REFRESH BAR */}
       <div className="absolute inset-x-0 bottom-0 z-[10002] flex items-center justify-center pb-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+12px)] px-5">
-        <button onClick={handleRefresh} className={cn("w-full max-w-sm h-14 rounded-3xl text-[11px] font-black uppercase tracking-widest transition-all shadow-2xl flex items-center justify-center gap-3", isLight ? "bg-black text-white" : "bg-white text-black border-4 border-black/10")}>
+        <button onClick={handleRefresh} className={cn("w-full max-w-sm h-14 rounded-3xl text-[12px] font-black uppercase tracking-[0.3em] transition-all shadow-2xl flex items-center justify-center gap-3", isLight ? "bg-black text-white" : "bg-white text-black border-4 border-black/10")}>
           <RefreshCw className={cn("w-5 h-5", isRefreshing && "animate-spin")} /> REFRESH RADAR
         </button>
       </div>
