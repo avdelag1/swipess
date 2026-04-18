@@ -58,12 +58,12 @@ export default function ClientFilters() {
   }, []);
 
   const toggleBedroom = (val: number) => {
-    haptics.selection();
+    haptics.select();
     setSelectedBedrooms(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]);
   };
 
   const toggleBathroom = (val: number) => {
-    haptics.selection();
+    haptics.select();
     setSelectedBathrooms(prev => prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]);
   };
 

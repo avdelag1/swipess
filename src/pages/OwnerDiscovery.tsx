@@ -212,7 +212,7 @@ export default function OwnerDiscovery() {
                     category={radarCategory === 'worker' ? 'services' : radarCategory}
                     onBack={() => setShowMapView(false)}
                     onStartSwiping={() => navigate('/owner/dashboard')}
-                    onCategoryChange={(cat) => setRadarCategory(cat === 'services' ? 'worker' : cat as RadarCategory)}
+                    onCategoryChange={(cat) => setRadarCategory((cat === 'services' ? 'worker' : cat) as RadarCategory)}
                     mode="owner"
                     isEmbedded={true}
                   />

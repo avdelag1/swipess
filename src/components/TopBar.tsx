@@ -144,7 +144,7 @@ function TopBarComponent({
                 </Avatar>
                 {profile?.full_name && (
                   <span className={cn(
-                    "text-[13px] font-black uppercase italic tracking-tighter max-w-[120px]",
+                    "text-[13px] font-black uppercase italic tracking-tighter whitespace-nowrap min-w-0",
                     isLight ? "text-foreground" : "text-white/90"
                   )}>
                     {profile.full_name.split(' ')[0].substring(0, 10)}

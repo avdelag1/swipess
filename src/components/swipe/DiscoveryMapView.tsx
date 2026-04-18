@@ -241,7 +241,7 @@ export const DiscoveryMapView = memo(({
   }, []);
 
   // Normalize the selected category once (DB uses "worker" instead of "services")
-  const selectedCategoryDb = (category === 'services' || category === 'worker') ? 'worker' : category;
+  const selectedCategoryDb = category === 'services' ? 'worker' : category;
 
   // A dot is considered a "match" if it's within the current km radius AND
   // (in client mode) its listing category matches the active filter, OR (in
@@ -249,7 +249,7 @@ export const DiscoveryMapView = memo(({
   // owner is surfacing people regardless of intent.
   const isDotMatching = useCallback(
     (d: ListingDot) => {
-      const dbCat = (category === 'services' || category === 'worker') ? 'worker' : category;
+      const dbCat = category === 'services' ? 'worker' : category;
       if (mode === 'owner') {
         if (d.kind !== 'profile') return false;
         // In owner mode, we match if the client has the selected category in their interests or intentions
@@ -526,8 +526,8 @@ export const DiscoveryMapView = memo(({
         isEmbedded ? "relative w-full h-full" : "fixed inset-0 z-[10000]"
       )}
       initial={isEmbedded ? false : { opacity: 0, scale: 0.95 }}
-      animate={isEmbedded ? false : { opacity: 1, scale: 1 }}
-      exit={isEmbedded ? false : { opacity: 0, scale: 1.05 }}
+      animate={isEmbedded ? undefined : { opacity: 1, scale: 1 }}
+      exit={isEmbedded ? undefined : { opacity: 0, scale: 1.05 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
       {/* ── Header: Back Button + Quick Categories ───────────────────── */}
@@ -594,7 +594,7 @@ export const DiscoveryMapView = memo(({
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15, duration: 0.3 }}
-          onClick={handleDetectLocation}
+          onClick={detectLocation}
           disabled={detecting}
           className={cn(
             "w-12 h-12 rounded-2xl flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl border border-white/10",
@@ -625,7 +625,7 @@ export const DiscoveryMapView = memo(({
             <RefreshCw className={cn("w-4.5 h-4.5", fetchingDots && "animate-spin")} />
           </motion.button>
           <motion.button
-            onClick={handleDetectLocation}
+            onClick={detectLocation}
             disabled={detecting}
             className={cn(
               "w-11 h-11 rounded-[1.25rem] flex items-center justify-center active:scale-95 transition-all backdrop-blur-xl border border-white/10",

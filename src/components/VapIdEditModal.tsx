@@ -152,7 +152,7 @@ export function VapIdEditModal({ isOpen, onClose }: Props) {
       } else {
         const { error: insertErr } = await supabase
           .from('client_profiles')
-          .insert(payload);
+          .insert(payload as any);
         if (insertErr) throw insertErr;
       }
 
