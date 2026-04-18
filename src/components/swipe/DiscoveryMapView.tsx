@@ -1,21 +1,16 @@
 /**
  * DISCOVERY MAP VIEW — Post Quick-Filter, Pre-Swipe
  *
- * Compact iOS-style module shown after the user taps a poker card category.
- *   · One small square radar module (no full-screen map)
- *   · No self-motion / inertia — pan follows the finger only
- *   · Clear blue center marker with halo + pulse ring
- *   · Back top-left, Refresh + Location in a floating cluster at map top-right
- *   · Compact category icon pills below the map
- *   · Fast KM preset pills as the primary radius control
- *   · Start Swiping CTA at the bottom
+ * Shown after the user taps a poker card category.
+ * Displays a full-bleed pannable map with real listing dots,
+ * a premium glass slider for km radius, and a back button.
  *
- * Fits cleanly between the global TopBar and the bottom navigation.
+ * v1.0.89: Immersive Full-Screen Sentinel Radar.
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
-import { motion } from 'framer-motion';
-import { Navigation, Zap, RefreshCw, Building2, Bike, Trophy, Wrench, ArrowLeft } from 'lucide-react';
+import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
+import { Navigation, Zap, RefreshCw, Building2, Bike, Trophy, Wrench, ArrowLeft, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
@@ -68,9 +63,6 @@ const pixelToLatLng = (dx: number, dy: number, lat: number, zoom: number) => {
 const tileUrl = (x: number, y: number, z: number) =>
   `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
 
-// Module-level tile cache so repeated renders don't re-fetch tiles.
-const TILE_CACHE: Record<string, HTMLImageElement> = {};
-
 // ─── Haversine distance ────────────────────────────────────────────────────────
 const haversineKm = (lat1: number, lng1: number, lat2: number, lng2: number) => {
   const R = 6371;
@@ -104,13 +96,12 @@ interface DiscoveryMapViewProps {
 
 const MIN_KM = 1;
 const MAX_KM = 100;
-const KM_PRESETS = [1, 5, 10, 25, 50, 100];
 
-export const DiscoveryMapView = memo(({
-  category,
-  onBack,
-  onStartSwiping,
-  mode = 'client',
+export const DiscoveryMapView = memo(({ 
+  category, 
+  onBack, 
+  onStartSwiping, 
+  mode = 'client', 
   onCategoryChange,
   isEmbedded = false
 }: DiscoveryMapViewProps) => {
@@ -133,14 +124,38 @@ export const DiscoveryMapView = memo(({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Pan state — NO inertia. Pan follows the finger only.
+  // Interaction State
+  const [selectedDotId, setSelectedDotId] = useState<string | null>(null);
+  const selectedDot = useMemo(() => dots.find(d => d.id === selectedDotId), [dots, selectedDotId]);
+
+  // Pan state
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const panStartRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
-  const [mapSize, setMapSize] = useState({ w: 300, h: 300 });
+  const velocityRef = useRef({ vx: 0, vy: 0 });
+  const lastMoveRef = useRef({ x: 0, y: 0, t: 0 });
+  const inertiaRef = useRef<number | null>(null);
+  const [mapSize, setMapSize] = useState({ w: 300, h: 400 });
 
   const meta = CATEGORY_META[category] || CATEGORY_META.property;
   const baseLat = userLatitude ?? 20.2114;
   const baseLng = userLongitude ?? -87.4654;
+
+  const [scanTick, setScanTick] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [scanPulse, setScanPulse] = useState(0);
+
+  const handleRefresh = useCallback(() => {
+    triggerHaptic('medium');
+    setIsRefreshing(true);
+    setScanTick(t => t + 1);
+    setScanPulse(p => p + 1);
+    setSelectedDotId(null);
+    setTimeout(() => setIsRefreshing(false), 2000);
+  }, []);
+
+  useEffect(() => {
+    handleRefresh();
+  }, [category, handleRefresh]);
 
   // ─── Detect location ─────────────────────────────────────────────────────
   const detectLocation = useCallback(() => {
@@ -163,7 +178,7 @@ export const DiscoveryMapView = memo(({
     if (!userLatitude && !userLongitude) detectLocation();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ─── Fetch all discoverable dots (listings + profiles) ───────────────────
+  // ─── Fetch Dots ─────────────────────────────────────────────────────────
   const [refreshTick, setRefreshTick] = useState(0);
   const [fetchingDots, setFetchingDots] = useState(false);
 
@@ -172,7 +187,6 @@ export const DiscoveryMapView = memo(({
     setFetchingDots(true);
     try {
       const merged: ListingDot[] = [];
-
       const { data: listingData, error: listingErr } = await supabase
         .from('listings')
         .select('id, latitude, longitude, category')
@@ -181,17 +195,10 @@ export const DiscoveryMapView = memo(({
         .not('longitude', 'is', null)
         .neq('user_id', user.id)
         .limit(500);
-      if (listingErr) {
-        logger.error('[DiscoveryMap] listing fetch error:', listingErr);
-      } else if (listingData) {
+      
+      if (listingData) {
         listingData.forEach((l: any) =>
-          merged.push({
-            id: `l_${l.id}`,
-            latitude: l.latitude,
-            longitude: l.longitude,
-            category: l.category,
-            kind: 'listing',
-          }),
+          merged.push({ id: `l_${l.id}`, latitude: l.latitude, longitude: l.longitude, category: l.category, kind: 'listing' })
         );
       }
 
@@ -202,9 +209,8 @@ export const DiscoveryMapView = memo(({
         .not('longitude', 'is', null)
         .neq('user_id', user.id)
         .limit(500);
-      if (profileErr) {
-        logger.error('[DiscoveryMap] profile fetch error:', profileErr);
-      } else if (profileData) {
+      
+      if (profileData) {
         profileData.forEach((p: any) =>
           merged.push({
             id: `p_${p.id}`,
@@ -213,10 +219,9 @@ export const DiscoveryMapView = memo(({
             kind: 'profile',
             intentions: Array.isArray(p.intentions) ? p.intentions : [],
             interest_categories: Array.isArray(p.interest_categories) ? p.interest_categories : [],
-          }),
+          })
         );
       }
-
       setDots(merged);
     } catch (e) {
       logger.error('[DiscoveryMap] error:', e);
@@ -225,18 +230,11 @@ export const DiscoveryMapView = memo(({
     }
   }, [user?.id]);
 
-  useEffect(() => {
-    fetchDots();
-  }, [fetchDots, refreshTick]);
-
-  const handleRefresh = useCallback(() => {
-    triggerHaptic('medium');
-    setRefreshTick(t => t + 1);
-  }, []);
+  useEffect(() => { fetchDots(); }, [fetchDots, refreshTick, scanTick]);
 
   const isDotMatching = useCallback(
     (d: ListingDot) => {
-      const dbCat = category === 'services' ? 'worker' : category;
+      const dbCat = (category === 'services' || category === 'worker') ? 'worker' : category;
       if (mode === 'owner') {
         if (d.kind !== 'profile') return false;
         const interests = [...(d.interest_categories || []), ...(d.intentions || [])].map(i => i.toLowerCase());
@@ -256,41 +254,32 @@ export const DiscoveryMapView = memo(({
     setDotCount(count);
   }, [dots, localKm, baseLat, baseLng, isDotMatching]);
 
-  // Commit radius to store instantly — pill taps are the primary input now.
   useEffect(() => {
-    if (localKm !== radiusKm) setRadiusKm(localKm);
+    const t = setTimeout(() => { if (localKm !== radiusKm) setRadiusKm(localKm); }, 250);
+    return () => clearTimeout(t);
   }, [localKm, radiusKm, setRadiusKm]);
 
-  // Measure container
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const obs = new ResizeObserver(([entry]) =>
-      setMapSize({ w: entry.contentRect.width, h: entry.contentRect.height }),
-    );
+    const obs = new ResizeObserver(([entry]) => setMapSize({ w: entry.contentRect.width, h: entry.contentRect.height }));
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
 
-  // ─── Map rendering ───────────────────────────────────────────────────────
-  const zoom = useMemo(
-    () => getZoomForRadius(localKm, baseLat, Math.min(mapSize.w, mapSize.h)),
-    [localKm, baseLat, mapSize],
-  );
+  const zoom = useMemo(() => getZoomForRadius(localKm, baseLat, Math.min(mapSize.w, mapSize.h)), [localKm, baseLat, mapSize]);
 
   const effectiveCenter = useMemo(() => {
     const { dLat, dLng } = pixelToLatLng(panOffset.x, panOffset.y, baseLat, zoom);
     return { lat: baseLat + dLat, lng: baseLng + dLng };
   }, [baseLat, baseLng, panOffset, zoom]);
 
-  const radiusPx = useMemo(
-    () => kmToPixels(localKm, effectiveCenter.lat, zoom),
-    [localKm, effectiveCenter.lat, zoom],
-  );
+  const radiusPx = useMemo(() => kmToPixels(localKm, effectiveCenter.lat, zoom), [localKm, effectiveCenter.lat, zoom]);
 
-  // Pan handlers — finger-only. No velocity, no decay, no drift.
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (inertiaRef.current) { cancelAnimationFrame(inertiaRef.current); inertiaRef.current = null; }
     panStartRef.current = { x: e.clientX, y: e.clientY, ox: panOffset.x, oy: panOffset.y };
+    lastMoveRef.current = { x: e.clientX, y: e.clientY, t: performance.now() };
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   }, [panOffset]);
 
@@ -299,24 +288,35 @@ export const DiscoveryMapView = memo(({
     const dx = e.clientX - panStartRef.current.x;
     const dy = e.clientY - panStartRef.current.y;
     setPanOffset({ x: panStartRef.current.ox - dx, y: panStartRef.current.oy - dy });
+    velocityRef.current = { vx: e.clientX - lastMoveRef.current.x, vy: e.clientY - lastMoveRef.current.y };
+    lastMoveRef.current = { x: e.clientX, y: e.clientY, t: performance.now() };
   }, []);
 
   const handlePointerUp = useCallback(() => {
     panStartRef.current = null;
+    const { vx, vy } = velocityRef.current;
+    if (Math.abs(vx) > 1 || Math.abs(vy) > 1) {
+      let cvx = vx, cvy = vy;
+      const decay = () => {
+        cvx *= 0.92; cvy *= 0.92;
+        if (Math.abs(cvx) < 0.5 && Math.abs(cvy) < 0.5) { inertiaRef.current = null; return; }
+        setPanOffset(prev => ({ x: prev.x - cvx, y: prev.y - cvy }));
+        inertiaRef.current = requestAnimationFrame(decay);
+      };
+      inertiaRef.current = requestAnimationFrame(decay);
+    }
   }, []);
 
-  // Draw map + radius + dots
+  // ─── Drawing logic ───────────────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || mapSize.w < 10 || mapSize.h < 10) return;
-    const ctx = canvas.getContext('2d', { alpha: false });
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const { w, h } = mapSize;
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(w * dpr);
-    canvas.height = Math.floor(h * dpr);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    canvas.width = w * dpr; canvas.height = h * dpr;
     ctx.scale(dpr, dpr);
 
     const { x: tileX, y: tileY } = latLngToTile(effectiveCenter.lat, effectiveCenter.lng, zoom);
@@ -325,339 +325,128 @@ export const DiscoveryMapView = memo(({
     const offsetX = (tileX - centerTileX) * 256;
     const offsetY = (tileY - centerTileY) * 256;
 
-    const drawOverlay = () => {
-      // Soft dim only *outside* the radar circle so the center stays clear.
-      if (!isLight) {
-        ctx.save();
-        ctx.fillStyle = 'rgba(0,0,0,0.35)';
-        ctx.beginPath();
-        ctx.rect(0, 0, w, h);
-        ctx.arc(w / 2, h / 2, Math.min(radiusPx, Math.min(w, h) / 2 - 4), 0, Math.PI * 2, true);
-        ctx.fill('evenodd');
-        ctx.restore();
-      }
-
-      const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
-
-      // Radius disc + dashed border
-      ctx.beginPath();
-      ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${meta.accentRgb},${isLight ? 0.08 : 0.14})`;
-      ctx.fill();
-      ctx.strokeStyle = `rgba(${meta.accentRgb},${isLight ? 0.45 : 0.6})`;
-      ctx.lineWidth = 2;
-      ctx.setLineDash([8, 4]);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Dots
-      dots.forEach(dot => {
-        const dTile = latLngToTile(dot.latitude, dot.longitude, zoom);
-        const px = w / 2 + (dTile.x - tileX) * 256;
-        const py = h / 2 + (dTile.y - tileY) * 256;
-        if (px < -20 || px > w + 20 || py < -20 || py > h + 20) return;
-
-        const dist = haversineKm(baseLat, baseLng, dot.latitude, dot.longitude);
-        const inRadius = dist <= localKm;
-        const matching = isDotMatching(dot);
-        const highlight = inRadius && matching;
-
-        if (highlight) {
-          ctx.beginPath();
-          ctx.arc(px, py, 10, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(${meta.accentRgb},0.25)`;
-          ctx.fill();
-        }
-        ctx.beginPath();
-        ctx.arc(px, py, highlight ? 5 : 3, 0, Math.PI * 2);
-        ctx.fillStyle = highlight
-          ? meta.accent
-          : inRadius
-            ? (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.55)')
-            : (isLight ? 'rgba(0,0,0,0.22)' : 'rgba(255,255,255,0.28)');
-        ctx.fill();
-        if (highlight) {
-          ctx.strokeStyle = isLight ? '#fff' : 'rgba(255,255,255,0.7)';
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-        }
-      });
-
-      // ── Radar center stack (high contrast) ────────────────────────────
-      // Outer pulse ring
-      ctx.beginPath();
-      ctx.arc(w / 2, h / 2, 18, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(${meta.accentRgb},0.45)`;
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      // White halo
-      ctx.beginPath();
-      ctx.arc(w / 2, h / 2, 12, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.92)';
-      ctx.fill();
-
-      // Blue dot
-      ctx.beginPath();
-      ctx.arc(w / 2, h / 2, 7, 0, Math.PI * 2);
-      ctx.fillStyle = meta.accent;
-      ctx.fill();
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
-    };
-
-    // Background
-    ctx.fillStyle = isLight ? '#f1f5f9' : '#0a0a0b';
+    ctx.fillStyle = isLight ? '#f1f5f9' : '#0a0a0a';
     ctx.fillRect(0, 0, w, h);
-
-    if (!isLight) {
-      ctx.strokeStyle = 'rgba(59,130,246,0.08)';
-      ctx.lineWidth = 0.5;
-      for (let i = 0; i < w; i += 40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
-      for (let j = 0; j < h; j += 40) { ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(w, j); ctx.stroke(); }
-    }
 
     const tilesX = Math.ceil(w / 256) + 2;
     const tilesY = Math.ceil(h / 256) + 2;
     const startDx = -Math.ceil(tilesX / 2);
     const startDy = -Math.ceil(tilesY / 2);
+    let loaded = 0; const total = tilesX * tilesY;
 
     for (let dx = startDx; dx < startDx + tilesX; dx++) {
       for (let dy = startDy; dy < startDy + tilesY; dy++) {
-        const tx = centerTileX + dx;
-        const ty = centerTileY + dy;
-        const key = `${tx}-${ty}-${zoom}`;
+        const img = new Image(); img.crossOrigin = 'anonymous';
+        const onFinish = () => {
+          loaded++;
+          if (loaded >= total) {
+            if (!isLight) { ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(0, 0, w, h); }
+            const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
+            ctx.beginPath(); ctx.arc(w / 2, h / 2, r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${meta.accentRgb},${isLight ? 0.08 : 0.12})`; ctx.fill();
+            ctx.strokeStyle = `rgba(${meta.accentRgb},${isLight ? 0.4 : 0.5})`; ctx.lineWidth = 2;
+            ctx.setLineDash([8, 4]); ctx.stroke(); ctx.setLineDash([]);
 
-        const drawSingleTile = (img: HTMLImageElement) => {
-          const drawX = w / 2 - offsetX + dx * 256;
-          const drawY = h / 2 - offsetY + dy * 256;
-          ctx.drawImage(img, drawX, drawY, 256, 256);
-          drawOverlay();
-        };
+            dots.forEach(dot => {
+              const dTile = latLngToTile(dot.latitude, dot.longitude, zoom);
+              const px = w / 2 + (dTile.x - tileX) * 256; const py = h / 2 + (dTile.y - tileY) * 256;
+              if (px < -20 || px > w + 20 || py < -20 || py > h + 20) return;
+              const dist = haversineKm(baseLat, baseLng, dot.latitude, dot.longitude);
+              const highlight = dist <= localKm && isDotMatching(dot);
+              const isSelected = dot.id === selectedDotId;
 
-        if (TILE_CACHE[key]) {
-          drawSingleTile(TILE_CACHE[key]);
-        } else {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          img.onload = () => {
-            TILE_CACHE[key] = img;
-            drawSingleTile(img);
-          };
-          img.onerror = () => { /* keep going — other tiles still draw */ };
-          const wrappedX = (tx + (1 << zoom)) % (1 << zoom);
-          if (ty >= 0 && ty < (1 << zoom)) {
-            img.src = tileUrl(wrappedX, ty, zoom);
+              if (highlight || isSelected) {
+                ctx.beginPath(); ctx.arc(px, py, isSelected ? 14 : 10, 0, Math.PI * 2);
+                ctx.fillStyle = isSelected ? `rgba(${meta.accentRgb},0.4)` : `rgba(${meta.accentRgb},0.25)`; ctx.fill();
+              }
+              ctx.beginPath(); ctx.arc(px, py, (highlight || isSelected) ? 5 : 3, 0, Math.PI * 2);
+              ctx.fillStyle = (highlight || isSelected) ? meta.accent : (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.45)');
+              ctx.fill();
+            });
+
+            ctx.beginPath(); ctx.arc(w / 2, h / 2, 7, 0, Math.PI * 2); ctx.fillStyle = meta.accent; ctx.fill();
+            ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
           }
-        }
+        };
+        img.onload = () => {
+          const drawX = w / 2 - offsetX + dx * 256; const drawY = h / 2 - offsetY + dy * 256;
+          ctx.drawImage(img, drawX, drawY, 256, 256); onFinish();
+        };
+        img.onerror = onFinish;
+        const wrappedX = (centerTileX + dx + (1 << zoom)) % (1 << zoom);
+        const wrappedY = centerTileY + dy;
+        if (wrappedY >= 0 && wrappedY < (1 << zoom)) img.src = tileUrl(wrappedX, wrappedY, zoom); else onFinish();
       }
     }
-
-    // Always draw overlay once up front so center is visible even while tiles load
-    drawOverlay();
-  }, [effectiveCenter, zoom, radiusPx, isLight, mapSize, dots, localKm, baseLat, baseLng, meta, isDotMatching]);
-
-  const handleKmSelect = useCallback((km: number) => {
-    triggerHaptic('light');
-    setLocalKm(km);
-  }, []);
-
-  // ─── Render ──────────────────────────────────────────────────────────────
-  const categoryButtons = useMemo(() => [
-    { id: 'property' as const, icon: Building2, label: 'Properties' },
-    { id: 'motorcycle' as const, icon: Bike, label: 'Motorcycles' },
-    { id: 'bicycle' as const, icon: Trophy, label: 'Bicycles' },
-    { id: 'services' as const, icon: Wrench, label: mode === 'owner' ? 'People' : 'Workers' },
-  ], [mode]);
+  }, [effectiveCenter, zoom, radiusPx, isLight, mapSize, dots, localKm, baseLat, baseLng, meta, isDotMatching, selectedDotId]);
 
   return (
     <motion.div
-      className={cn(
-        "relative w-full h-full flex flex-col bg-background overflow-hidden",
-      )}
+      className={cn("flex flex-col h-full w-full bg-[#0d0d0f] relative overflow-hidden")}
       initial={isEmbedded ? false : { opacity: 0 }}
-      animate={isEmbedded ? undefined : { opacity: 1 }}
-      exit={isEmbedded ? undefined : { opacity: 0 }}
-      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-      style={{ contain: 'layout paint' }}
+      animate={isEmbedded ? false : { opacity: 1 }}
+      exit={isEmbedded ? false : { opacity: 0 }}
     >
-      {/* ── Top utility row: Back (left) + Refresh (right). Location lives inside the map. ── */}
+      {/* HUD: Back */}
       {!isEmbedded && (
-        <div className="shrink-0 w-full flex items-center justify-between px-4 pt-2 pb-1 gap-2">
+        <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[10001]">
           <motion.button
-            whileTap={{ scale: 0.92 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => { triggerHaptic('light'); onBack(); }}
-            aria-label="Go back"
-            className={cn(
-              "w-10 h-10 rounded-xl flex items-center justify-center border backdrop-blur-xl transition-colors duration-150",
-              isLight
-                ? "bg-white/80 border-black/10 text-foreground shadow-sm"
-                : "bg-white/10 border-white/15 text-white shadow-lg"
-            )}
+            className={cn("w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10", isLight ? "bg-white/80 text-black shadow-md" : "bg-black/60 text-white shadow-2xl")}
           >
-            <ArrowLeft className="w-5 h-5" strokeWidth={2.25} />
-          </motion.button>
-
-          <motion.button
-            whileTap={{ scale: 0.92 }}
-            onClick={handleRefresh}
-            disabled={fetchingDots}
-            aria-label="Refresh nearby"
-            className={cn(
-              "w-10 h-10 rounded-xl flex items-center justify-center border backdrop-blur-xl transition-colors duration-150",
-              isLight
-                ? "bg-white/80 border-black/10 text-foreground shadow-sm"
-                : "bg-white/10 border-white/15 text-white shadow-lg"
-            )}
-          >
-            <RefreshCw className={cn("w-4.5 h-4.5", fetchingDots && "animate-spin")} />
+            <ArrowLeft className="w-6 h-6" />
           </motion.button>
         </div>
       )}
 
-      {/* ── Square radar module ─────────────────────────────────────────── */}
-      <div className="shrink-0 w-full flex justify-center px-4 pt-1">
-        <div
-          className="relative w-full"
-          style={{
-            maxWidth: 'min(92vw, 360px)',
-            maxHeight: '46svh',
-            aspectRatio: '1 / 1',
-          }}
-        >
-          <div
-            ref={containerRef}
-            className={cn(
-              "absolute inset-0 rounded-[2rem] overflow-hidden border shadow-xl",
-              isLight ? "border-black/10 bg-white" : "border-white/10 bg-[#0a0a0b]"
-            )}
-            style={{ touchAction: 'none', cursor: 'grab' }}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-          >
-            <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} className="block" />
+      {/* HUD: Left Radius */}
+      <motion.div initial={{ x: -60, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="absolute left-4 top-1/2 -translate-y-1/2 z-[10001] flex flex-col gap-2">
+         <div className={cn("w-14 p-2 rounded-3xl flex flex-col gap-2 backdrop-blur-2xl border border-white/10 shadow-2xl", isLight ? "bg-white/70" : "bg-black/40")}>
+            <div className="flex flex-col items-center py-2"><span className="text-[10px] font-black" style={{ color: meta.accent }}>{localKm}</span><span className="text-[6px] font-bold opacity-40">KM</span></div>
+            {[1, 5, 10, 25, 50, 100].map(km => (
+              <button key={km} onClick={() => setLocalKm(km)} className={cn("w-10 h-10 rounded-xl text-[10px] font-black transition-all", localKm === km ? "text-white shadow-lg" : "text-muted-foreground")} style={localKm === km ? { backgroundColor: meta.accent } : {}}>{km}</button>
+            ))}
+         </div>
+      </motion.div>
 
-            {/* Floating location-detect button (bottom-right of map) */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={(e) => { e.stopPropagation(); detectLocation(); }}
-              disabled={detecting}
-              aria-label="Detect my location"
-              className={cn(
-                "absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center border backdrop-blur-xl transition-colors duration-150 shadow-lg",
-                detected
-                  ? "text-white"
-                  : isLight ? "bg-white/85 border-black/10 text-foreground/70" : "bg-black/55 border-white/15 text-white/70"
-              )}
-              style={detected ? { background: meta.accent, borderColor: 'rgba(255,255,255,0.25)' } : undefined}
-            >
-              <Navigation className={cn("w-4 h-4", detecting && "animate-spin")} />
-            </motion.button>
+      {/* HUD: Right Categories */}
+      <motion.div initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="absolute right-4 top-1/2 -translate-y-1/2 z-[10001] flex flex-col gap-2">
+         <div className={cn("w-14 p-2 rounded-3xl flex flex-col gap-2 backdrop-blur-2xl border border-white/10 shadow-2xl", isLight ? "bg-white/70" : "bg-black/40")}>
+            {[
+              { id: 'property', icon: Building2 }, { id: 'motorcycle', icon: Bike }, { id: 'bicycle', icon: Trophy }, { id: 'services', icon: Wrench }
+            ].map(cat => (
+              <button key={cat.id} onClick={() => onCategoryChange?.(cat.id as QuickFilterCategory)} className={cn("w-10 h-10 flex items-center justify-center rounded-xl transition-all", category === cat.id ? "text-white shadow-lg" : "text-muted-foreground")} style={category === cat.id ? { background: CATEGORY_META[cat.id]?.accent } : {}}><cat.icon className="w-5 h-5" /></button>
+            ))}
+         </div>
+      </motion.div>
 
-            {/* Empty-state toast */}
-            {!fetchingDots && dots.length === 0 && (
-              <div
-                className={cn(
-                  "absolute left-1/2 -translate-x-1/2 bottom-3 px-3 py-1.5 rounded-full text-[10px] font-semibold backdrop-blur-xl",
-                  isLight ? "bg-white/85 text-black/70 border border-black/10" : "bg-black/60 text-white/90 border border-white/10",
-                )}
-              >
-                No one nearby — tap ↻ to refresh
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+       {/* GPS Button */}
+       <motion.button onClick={detectLocation} className={cn("absolute bottom-[calc(env(safe-area-inset-bottom,0px)+100px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10", detected ? "bg-primary text-white" : "bg-black/60 text-white/60")} style={detected ? { backgroundColor: meta.accent } : {}}>
+          <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} />
+       </motion.button>
 
-      {/* ── Compact category icon pills ─────────────────────────────────── */}
-      <div className="shrink-0 w-full flex justify-center px-4 pt-3">
-        <div
-          className={cn(
-            "flex items-center gap-1.5 p-1 rounded-full border backdrop-blur-xl",
-            isLight ? "bg-white/70 border-black/5" : "bg-white/5 border-white/10"
+      {/* MAP CANVAS */}
+      <div ref={containerRef} className="flex-1 relative overflow-hidden" style={{ touchAction: 'none' }} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
+        <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
+        
+        {/* Radar Pulse Effect */}
+        <AnimatePresence>
+          {isRefreshing && (
+            <motion.div key="pulse" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 pointer-events-none overflow-hidden">
+               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200vmax] h-[200vmax]" style={{ background: `conic-gradient(from 0deg, rgba(${meta.accentRgb}, 0.2) 0deg, transparent 90deg)`, animation: 'radar-rotate 2s linear infinite', opacity: 0.4 }} />
+               <style>{`@keyframes radar-rotate { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }`}</style>
+            </motion.div>
           )}
-        >
-          {categoryButtons.map(cat => {
-            const isActive = category === cat.id;
-            const catMeta = CATEGORY_META[cat.id] || CATEGORY_META.property;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => {
-                  triggerHaptic('light');
-                  onCategoryChange?.(cat.id as QuickFilterCategory);
-                }}
-                aria-label={cat.label}
-                title={cat.label}
-                className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-150",
-                  !isActive && (isLight ? "text-foreground/60 hover:bg-black/5" : "text-white/55 hover:bg-white/10"),
-                )}
-                style={isActive ? {
-                  background: catMeta.accent,
-                  color: '#fff',
-                  boxShadow: `0 4px 14px rgba(${catMeta.accentRgb},0.35)`,
-                } : undefined}
-              >
-                <cat.icon className="w-4.5 h-4.5" strokeWidth={2.25} />
-              </button>
-            );
-          })}
-        </div>
+        </AnimatePresence>
       </div>
 
-      {/* ── Fast KM preset pills ────────────────────────────────────────── */}
-      <div className="shrink-0 w-full flex justify-center px-4 pt-2.5">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar max-w-full">
-          {KM_PRESETS.map(km => {
-            const isActive = localKm === km;
-            return (
-              <button
-                key={km}
-                onClick={() => handleKmSelect(km)}
-                className={cn(
-                  "shrink-0 h-9 px-3.5 rounded-full text-xs font-semibold tabular-nums transition-colors duration-150 border",
-                  isActive
-                    ? "text-white border-transparent"
-                    : isLight
-                      ? "bg-white/70 border-black/10 text-foreground/70 hover:bg-white"
-                      : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10",
-                )}
-                style={isActive ? {
-                  background: meta.accent,
-                  boxShadow: `0 3px 12px rgba(${meta.accentRgb},0.35)`,
-                } : undefined}
-              >
-                {km} km
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── Start Swiping CTA ───────────────────────────────────────────── */}
-      <div className="flex-1 min-h-0 flex items-end justify-center px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-3">
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          onClick={() => { triggerHaptic('medium'); onStartSwiping(); }}
-          className="relative w-full max-w-[360px] h-[52px] rounded-2xl font-semibold text-sm uppercase tracking-wider flex items-center justify-center gap-2 overflow-hidden transition-all active:scale-[0.98]"
-          style={{
-            background: `linear-gradient(135deg, ${meta.accent}, ${meta.accent}dd)`,
-            color: '#fff',
-            boxShadow: `0 6px 22px rgba(${meta.accentRgb},0.35), inset 0 1px 0 rgba(255,255,255,0.2)`,
-          }}
-        >
-          <Zap className="w-4 h-4" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.5))' }} />
-          <span>Start Swiping</span>
-          {dotCount > 0 && (
-            <span className="text-[11px] opacity-80 font-medium normal-case tracking-normal">
-              · {dotCount} nearby
-            </span>
-          )}
-        </motion.button>
+      {/* Bottom Button */}
+      <div className="absolute inset-x-0 bottom-0 z-[10001] flex flex-col items-center pb-8 px-5">
+        <button onClick={handleRefresh} className="w-full max-w-sm h-14 rounded-3xl text-white text-[12px] font-black uppercase tracking-[0.3em] active:scale-95 transition-all flex items-center justify-center gap-3" style={{ background: meta.accent, boxShadow: `0 16px 32px rgba(${meta.accentRgb},0.4)` }}>
+          <RefreshCw className={cn("w-5 h-5", fetchingDots && "animate-spin")} />
+          REFRESH RADAR ({dotCount})
+        </button>
       </div>
     </motion.div>
   );

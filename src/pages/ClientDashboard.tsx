@@ -18,60 +18,58 @@ interface ClientDashboardProps {
  *   1. Poker card fan (category selection)
  *   2. Discovery Map (shows dots, set km radius)
  *   3. Swipe deck (full swipe experience)
- *
- * Back button in Discovery Map returns to phase 1.
+ * 
+ * We maintain a strict 'phase' state here to ensure perfect 
+ * UI transitions and state isolation.
  */
-
-type DashboardPhase = 'cards' | 'map' | 'swipe';
-
-export default function ClientDashboard({
-  onPropertyInsights,
-  onMessageClick,
-}: ClientDashboardProps) {
-  const activeCategory = useFilterStore(s => s.activeCategory);
-  const { setCategories, setActiveCategory } = useFilterActions();
+export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { theme } = useTheme();
-
-  // Track dashboard phase locally for smooth transitions
-  const [phase, setPhase] = useState<DashboardPhase>(activeCategory ? 'swipe' : 'cards');
+  const isLight = theme === 'light';
+  
+  // Phase state: 'cards' | 'map' | 'swipe'
+  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>('cards');
   const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
 
-  const handleListingTap = useCallback((listingId: string) => {
-    onPropertyInsights?.(listingId);
-  }, [onPropertyInsights]);
+  const activeCategory = useFilterStore(s => s.activeCategory);
+  const { setActiveCategory } = useFilterActions();
 
-  // When user selects a poker card → go to map.
-  // Must clear activeCategory first: if a previous session left it set, the
-  // showMap guard (!activeCategory) would be false and the map would never render.
-  const handleCategorySelect = useCallback((ids: QuickFilterCategory[]) => {
-    if (ids.length > 0) {
-      const cat = ids[0];
-      setActiveCategory(null);
-      setMapCategory(cat);
-      setPhase('map');
-    }
-  }, [setActiveCategory]);
+  // ─── Actions ─────────────────────────────────────────────────────────────
+  
+  const handleLaunch = useCallback((category: QuickFilterCategory) => {
+    setMapCategory(category);
+    setPhase('map');
+  }, []);
 
-  // Map back → return to poker cards
   const handleMapBack = useCallback(() => {
-    setMapCategory(null);
     setPhase('cards');
-    // Clear any active category so swipe container doesn't show
-    setActiveCategory(null);
-  }, [setActiveCategory]);
+    setMapCategory(null);
+  }, []);
 
-  // Map "Start Swiping" → activate category and show deck
   const handleStartSwiping = useCallback(() => {
     if (mapCategory) {
-      setCategories([mapCategory]);
+      setActiveCategory(mapCategory);
       setPhase('swipe');
     }
-  }, [mapCategory, setCategories]);
+  }, [mapCategory, setActiveCategory]);
 
-  // Determine what to show based on phase + store state
-  const showCards = phase === 'cards' && !activeCategory;
-  const showMap = phase === 'map' && mapCategory && !activeCategory;
-  const showSwipe = phase === 'swipe' || !!activeCategory;
+  const handleListingTap = useCallback(() => {
+    // In v1.0, tapping the mini-card on map takes you to swipe phase
+    handleStartSwiping();
+  }, [handleStartSwiping]);
+
+  // Handle case where user exits swipe deck via some other nav
+  const handleBackToMap = useCallback(() => {
+    setActiveCategory(null);
+    setPhase('map');
+  }, [setActiveCategory]);
+
+
+  // Determine what to show based on phase + store state. 
+  // We MUST be strictly exclusive to avoid "ghost designs" appearing behind.
+  const isSwiping = phase === 'swipe' || !!activeCategory;
+  const showCards = phase === 'cards' && !isSwiping;
+  const showMap = phase === 'map' && !isSwiping;
+  const showSwipe = isSwiping;
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">
@@ -86,7 +84,7 @@ export default function ClientDashboard({
             className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
             style={{ willChange: 'transform, opacity' }}
           >
-            <SwipeAllDashboard setCategories={handleCategorySelect} />
+            <SwipeAllDashboard setCategories={handleLaunch} />
           </motion.div>
         )}
 
@@ -105,6 +103,7 @@ export default function ClientDashboard({
               onBack={handleMapBack}
               onStartSwiping={handleStartSwiping}
               onCategoryChange={(cat) => setMapCategory(cat)}
+              isEmbedded={false}
             />
           </motion.div>
         )}
