@@ -10,7 +10,9 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
-import { Navigation, Zap, RefreshCw, Building2, Bike, Trophy, Wrench, ArrowLeft, X } from 'lucide-react';
+import { Navigation, Zap, RefreshCw, Building2, Bike, ArrowLeft, HardHat } from 'lucide-react';
+import { toast } from 'sonner';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
@@ -134,6 +136,7 @@ export const DiscoveryMapView = memo(({
   const velocityRef = useRef({ vx: 0, vy: 0 });
   const lastMoveRef = useRef({ x: 0, y: 0, t: 0 });
   const inertiaRef = useRef<number | null>(null);
+  const renderIdRef = useRef(0);
   const [mapSize, setMapSize] = useState({ w: 300, h: 400 });
 
   const meta = CATEGORY_META[category] || CATEGORY_META.property;
@@ -169,7 +172,10 @@ export const DiscoveryMapView = memo(({
         setDetecting(false);
         setPanOffset({ x: 0, y: 0 });
       },
-      () => setDetecting(false),
+      () => {
+        setDetecting(false);
+        toast.error('Enable location permissions to use the radar');
+      },
       { timeout: 8000, maximumAge: 60000 },
     );
   }, [setUserLocation]);
@@ -309,6 +315,8 @@ export const DiscoveryMapView = memo(({
 
   // ─── Drawing logic ───────────────────────────────────────────────────────
   useEffect(() => {
+    const rid = ++renderIdRef.current;
+
     const canvas = canvasRef.current;
     if (!canvas || mapSize.w < 10 || mapSize.h < 10) return;
     const ctx = canvas.getContext('2d');
@@ -325,7 +333,7 @@ export const DiscoveryMapView = memo(({
     const offsetX = (tileX - centerTileX) * 256;
     const offsetY = (tileY - centerTileY) * 256;
 
-    ctx.fillStyle = isLight ? '#f1f5f9' : '#0a0a0a';
+    ctx.fillStyle = isLight ? '#f1f5f9' : '#0f1117';
     ctx.fillRect(0, 0, w, h);
 
     const tilesX = Math.ceil(w / 256) + 2;
@@ -337,6 +345,8 @@ export const DiscoveryMapView = memo(({
     const total = tilesX * tilesY;
 
     const drawOverlay = () => {
+      if (rid !== renderIdRef.current) return;
+
       // Radar Ring
       const r = Math.min(radiusPx, Math.min(w, h) / 2 - 4);
       ctx.beginPath();
@@ -365,7 +375,7 @@ export const DiscoveryMapView = memo(({
           ctx.arc(px, py, isSelected ? 14 : 10, 0, Math.PI * 2);
           ctx.fillStyle = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)';
           ctx.fill();
-          
+
           if (isSelected) {
             ctx.strokeStyle = isLight ? '#000' : '#fff';
             ctx.lineWidth = 2;
@@ -390,36 +400,43 @@ export const DiscoveryMapView = memo(({
     };
 
     const onFinish = () => {
+      if (rid !== renderIdRef.current) return;
       loaded++;
-      // Draw overlay after all tiles attempt to load
       if (loaded >= total) drawOverlay();
     };
 
     for (let dx = startDx; dx < startDx + tilesX; dx++) {
       for (let dy = startDy; dy < startDy + tilesY; dy++) {
         const img = new Image();
+        img.crossOrigin = 'anonymous';
+        const drawX = w / 2 - offsetX + dx * 256;
+        const drawY = h / 2 - offsetY + dy * 256;
         img.onload = () => {
-          const drawX = w / 2 - offsetX + dx * 256;
-          const drawY = h / 2 - offsetY + dy * 256;
-          ctx.drawImage(img, drawX, drawY, 256, 256);
+          if (rid !== renderIdRef.current) return;
+          try {
+            ctx.drawImage(img, drawX, drawY, 256, 256);
+          } catch {
+            ctx.fillStyle = isLight ? '#e8ecf0' : '#1a1f2e';
+            ctx.fillRect(drawX, drawY, 255, 255);
+          }
           onFinish();
         };
         img.onerror = () => {
-          // Draw a faint tile-shaped filler on error so we don't have black spots
-          const drawX = w / 2 - offsetX + dx * 256;
-          const drawY = h / 2 - offsetY + dy * 256;
-          ctx.fillStyle = isLight ? '#f1f5f9' : '#1a1a1a';
+          if (rid !== renderIdRef.current) return;
+          ctx.fillStyle = isLight ? '#e8ecf0' : '#1a1f2e';
           ctx.fillRect(drawX, drawY, 255, 255);
           onFinish();
         };
         const tileZ = Math.min(zoom, 18);
         const wrappedX = (centerTileX + dx + (1 << tileZ)) % (1 << tileZ);
         const wrappedY = centerTileY + dy;
-        
+
         if (wrappedY >= 0 && wrappedY < (1 << tileZ)) {
-          // Use a rotating subdomain for better loading
-          const s = 'abc'[Math.abs(wrappedX + wrappedY) % 3];
-          img.src = `https://${s}.tile.openstreetmap.org/${tileZ}/${wrappedX}/${wrappedY}.png`;
+          // CartoDB tiles — reliable CORS headers, great dark/light themes
+          const s = 'abcd'[Math.abs(wrappedX + wrappedY) % 4];
+          img.src = isLight
+            ? `https://${s}.basemaps.cartocdn.com/light_all/${tileZ}/${wrappedX}/${wrappedY}.png`
+            : `https://${s}.basemaps.cartocdn.com/dark_all/${tileZ}/${wrappedX}/${wrappedY}.png`;
         } else {
           onFinish();
         }
@@ -462,7 +479,15 @@ export const DiscoveryMapView = memo(({
       </div>
 
       {/* HUD: Left Radius (Minimalist KM selector) */}
-      <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="absolute left-4 top-1/2 -translate-y-1/2 z-[10001] flex flex-col gap-2">
+      <motion.div
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        className="absolute left-4 z-[10001] flex items-center"
+        style={{
+          top: 'calc(env(safe-area-inset-top, 0px) + 72px)',
+          bottom: 'calc(var(--bottom-nav-height, 72px) + env(safe-area-inset-bottom, 0px) + 100px)',
+        }}
+      >
          <div className={cn("w-14 p-2 rounded-3xl flex flex-col gap-2 backdrop-blur-3xl border border-white/10 shadow-2xl", isLight ? "bg-white/70" : "bg-black/40")}>
             <div className="flex flex-col items-center py-2">
               <span className="text-[10px] font-black" style={{ color: isLight ? '#000' : '#fff' }}>{localKm}</span>
@@ -487,7 +512,7 @@ export const DiscoveryMapView = memo(({
 
       {/* MAP CANVAS */}
       <div ref={containerRef} className="flex-1 relative overflow-hidden" style={{ touchAction: 'none' }} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
-        <canvas ref={canvasRef} style={{ width: '100%', height: '100%', filter: isLight ? 'none' : 'contrast(1.1) brightness(0.9) saturate(1.2)' }} />
+        <canvas ref={canvasRef} style={{ width: '100%', height: '100%', filter: isLight ? 'contrast(1.05) saturate(1.1)' : 'none' }} />
         
         {/* Radar Pulse Effect */}
         <AnimatePresence>
@@ -513,10 +538,10 @@ export const DiscoveryMapView = memo(({
           )}
         >
           {[
-            { id: 'property', icon: Building2 }, 
-            { id: 'motorcycle', icon: Bike }, 
-            { id: 'bicycle', icon: Trophy }, 
-            { id: 'services', icon: Wrench }
+            { id: 'property',   icon: Building2      },
+            { id: 'motorcycle', icon: MotorcycleIcon },
+            { id: 'bicycle',    icon: Bike           },
+            { id: 'services',   icon: HardHat        },
           ].map(cat => (
             <button 
               key={cat.id} 
