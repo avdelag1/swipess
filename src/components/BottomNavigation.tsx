@@ -326,7 +326,7 @@ export const BottomNavigation = memo(({
                 onPointerEnter={() => {
                   if (item.path) prefetch(item.path);
                 }}
-                onPointerUp={(e) => handlePointerUp(e)}
+                onPointerUp={() => handlePointerUp()}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
                 onClick={(e) => handleNavClick(item, e)}
                 aria-label={item.label}

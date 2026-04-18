@@ -120,18 +120,18 @@ body::-webkit-scrollbar {
 /* --card-height uses 100svh where supported so the iOS URL bar doesn't clip the card. */
 :root {
   --card-width: min(340px, calc(100vw - 80px));
-  --card-height: min(620px, calc(100vh - 200px));
+  --card-height: min(680px, calc(100vh - 156px));
 }
 @supports (height: 100svh) {
-  :root { --card-height: min(620px, calc(100svh - 200px)); }
+  :root { --card-height: min(680px, calc(100svh - 156px)); }
 }
 @media (min-width: 768px) {
   :root {
     --card-width: min(520px, calc(100vw - 160px));
-    --card-height: min(640px, calc(100vh - 260px));
+    --card-height: min(720px, calc(100vh - 200px));
   }
   @supports (height: 100svh) {
-    :root { --card-height: min(640px, calc(100svh - 260px)); }
+    :root { --card-height: min(720px, calc(100svh - 200px)); }
   }
 }
 @media (min-width: 1024px) {

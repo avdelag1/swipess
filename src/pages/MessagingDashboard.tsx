@@ -7,6 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   MessageCircle, Search,
   MoreVertical, Archive, Trash, Check, Inbox, CircleDot,
+  Layers, Sparkles,
 } from 'lucide-react';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useAuth } from '@/hooks/useAuth';
@@ -120,9 +121,9 @@ export function MessagingDashboard() {
       } else if (activeFilter === 'listing') {
         matchesFilter = !!conv.listing_id && conv.status !== 'archived';
       } else if (activeFilter === 'client') {
-        matchesFilter = !conv.listing_id && !!conv.match_id && conv.status !== 'archived';
+        matchesFilter = !conv.listing_id && !!conv.id && conv.status !== 'archived';
       } else if (activeFilter === 'potential') {
-        matchesFilter = !conv.listing_id && !conv.match_id && conv.status !== 'archived';
+        matchesFilter = !conv.listing_id && !conv.id && conv.status !== 'archived';
       } else {
         matchesFilter = conv.status !== 'archived';
       }
@@ -269,7 +270,7 @@ export function MessagingDashboard() {
               return (
                 <button 
                   key={filter.id} 
-                  onClick={() => { setActiveFilter(filter.id as any); haptics.selection(); }}
+                  onClick={() => { setActiveFilter(filter.id as any); haptics.select(); }}
                   className={cn(
                     "flex items-center gap-2 px-6 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-tighter transition-all shrink-0 relative overflow-hidden group",
                     isActive

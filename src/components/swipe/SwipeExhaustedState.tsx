@@ -233,7 +233,7 @@ export const SwipeExhaustedState = ({
             
             <Button
               variant="outline"
-              onClick={() => setCategories(['all'])}
+              onClick={() => setCategories(['property'])}
               className="h-14 w-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95"
             >
               <Zap className="h-5 w-5 text-primary" />
