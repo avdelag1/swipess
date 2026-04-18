@@ -39,7 +39,7 @@ const kmToPixels = (km: number, lat: number, zoom: number) => {
 
 const getZoomForRadius = (km: number, lat: number, containerPx: number) => {
   for (let z = 16; z >= 2; z--) {
-    if (kmToPixels(km, lat, z) * 2 < containerPx * 0.8) return z;
+    if (kmToPixels(km, lat, z) * 2 < containerPx * 0.6) return z;
   }
   return 2;
 };
@@ -389,7 +389,7 @@ export const DiscoveryMapView = memo(({
     >
       {/* HUD: Back */}
       {!isEmbedded && (
-        <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[10001]">
+        <div className="absolute top-[calc(var(--top-bar-height,52px)+env(safe-area-inset-top,0px)+12px)] left-4 z-[10001]">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => { triggerHaptic('light'); onBack(); }}
@@ -401,7 +401,11 @@ export const DiscoveryMapView = memo(({
       )}
 
       {/* HUD: Left Radius */}
-      <motion.div initial={{ x: -60, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="absolute left-4 top-1/2 -translate-y-1/2 z-[10001] flex flex-col gap-2">
+      <motion.div 
+        initial={{ x: -60, opacity: 0 }} 
+        animate={{ x: 0, opacity: 1 }} 
+        className="absolute left-4 top-[calc(var(--top-bar-height,52px)+((100dvh-var(--top-bar-height,52px)-var(--bottom-nav-height,72px))/2))] -translate-y-1/2 z-[10001] flex flex-col gap-2"
+      >
          <div className={cn("w-14 p-2 rounded-3xl flex flex-col gap-2 backdrop-blur-2xl border border-white/10 shadow-2xl", isLight ? "bg-white/70" : "bg-black/40")}>
             <div className="flex flex-col items-center py-2"><span className="text-[10px] font-black" style={{ color: meta.accent }}>{localKm}</span><span className="text-[6px] font-bold opacity-40">KM</span></div>
             {[1, 5, 10, 25, 50, 100].map(km => (
@@ -411,7 +415,11 @@ export const DiscoveryMapView = memo(({
       </motion.div>
 
       {/* HUD: Right Categories */}
-      <motion.div initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="absolute right-4 top-1/2 -translate-y-1/2 z-[10001] flex flex-col gap-2">
+      <motion.div 
+        initial={{ x: 60, opacity: 0 }} 
+        animate={{ x: 0, opacity: 1 }} 
+        className="absolute right-4 top-[calc(var(--top-bar-height,52px)+((100dvh-var(--top-bar-height,52px)-var(--bottom-nav-height,72px))/2))] -translate-y-1/2 z-[10001] flex flex-col gap-2"
+      >
          <div className={cn("w-14 p-2 rounded-3xl flex flex-col gap-2 backdrop-blur-2xl border border-white/10 shadow-2xl", isLight ? "bg-white/70" : "bg-black/40")}>
             {[
               { id: 'property', icon: Building2 }, { id: 'motorcycle', icon: Bike }, { id: 'bicycle', icon: Trophy }, { id: 'services', icon: Wrench }
@@ -422,7 +430,14 @@ export const DiscoveryMapView = memo(({
       </motion.div>
 
        {/* GPS Button */}
-       <motion.button onClick={detectLocation} className={cn("absolute bottom-[calc(env(safe-area-inset-bottom,0px)+100px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10", detected ? "bg-primary text-white" : "bg-black/60 text-white/60")} style={detected ? { backgroundColor: meta.accent } : {}}>
+       <motion.button 
+         onClick={detectLocation} 
+         className={cn(
+           "absolute bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+100px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10", 
+           detected ? "bg-primary text-white" : "bg-black/60 text-white/60"
+         )} 
+         style={detected ? { backgroundColor: meta.accent } : {}}
+       >
           <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} />
        </motion.button>
 
@@ -442,7 +457,7 @@ export const DiscoveryMapView = memo(({
       </div>
 
       {/* Bottom Button */}
-      <div className="absolute inset-x-0 bottom-0 z-[10001] flex flex-col items-center pb-8 px-5">
+      <div className="absolute inset-x-0 bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+12px)] z-[10001] flex flex-col items-center pb-8 px-5">
         <button onClick={handleRefresh} className="w-full max-w-sm h-14 rounded-3xl text-white text-[12px] font-black uppercase tracking-[0.3em] active:scale-95 transition-all flex items-center justify-center gap-3" style={{ background: meta.accent, boxShadow: `0 16px 32px rgba(${meta.accentRgb},0.4)` }}>
           <RefreshCw className={cn("w-5 h-5", fetchingDots && "animate-spin")} />
           REFRESH RADAR ({dotCount})
