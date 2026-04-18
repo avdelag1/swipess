@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   MessageCircle, Search,
-  MoreVertical, Archive, Trash, Check, Inbox, CircleDot, Layers, Sparkles
+  MoreVertical, Archive, Trash, Check, Inbox, CircleDot,
+  Layers, Sparkles,
 } from 'lucide-react';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useAuth } from '@/hooks/useAuth';
@@ -120,9 +121,9 @@ export function MessagingDashboard() {
       } else if (activeFilter === 'listing') {
         matchesFilter = !!conv.listing_id && conv.status !== 'archived';
       } else if (activeFilter === 'client') {
-        matchesFilter = !conv.listing_id && !!conv.match_id && conv.status !== 'archived';
+        matchesFilter = !conv.listing_id && !!conv.id && conv.status !== 'archived';
       } else if (activeFilter === 'potential') {
-        matchesFilter = !conv.listing_id && !conv.match_id && conv.status !== 'archived';
+        matchesFilter = !conv.listing_id && !conv.id && conv.status !== 'archived';
       } else {
         matchesFilter = conv.status !== 'archived';
       }
@@ -259,32 +260,40 @@ export function MessagingDashboard() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-4 no-scrollbar px-1 -mx-1">
+          <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar px-1">
              {[
-              { id: 'listing', label: 'Listing Leads', icon: Layers, color: 'text-blue-400', glow: 'bg-blue-500/10' },
-              { id: 'client', label: 'Client Inquiries', icon: MessageCircle, color: 'text-emerald-400', glow: 'bg-emerald-500/10' },
-              { id: 'potential', label: 'Prospects', icon: Sparkles, color: 'text-amber-400', glow: 'bg-amber-500/10' }
+              { id: 'listing', label: 'Listings', icon: Layers, color: 'text-blue-400', glow: 'bg-blue-500/10' },
+              { id: 'client', label: 'Clients', icon: MessageCircle, color: 'text-emerald-400', glow: 'bg-emerald-500/10' },
+              { id: 'potential', label: 'Potential', icon: Sparkles, color: 'text-amber-400', glow: 'bg-amber-500/10' }
             ].map((filter) => {
               const isActive = activeFilter === filter.id;
               return (
                 <button 
                   key={filter.id} 
-                  onClick={() => { setActiveFilter(filter.id as any); triggerHaptic('light'); }}
+                  onClick={() => { setActiveFilter(filter.id as any); haptics.select(); }}
                   className={cn(
-                    "flex items-center gap-3 px-6 py-4 rounded-[2rem] text-[11px] font-black uppercase tracking-widest transition-all shrink-0 relative overflow-hidden group border",
+                    "flex items-center gap-2 px-6 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-tighter transition-all shrink-0 relative overflow-hidden group",
                     isActive
-                      ? isLight ? "bg-slate-900 text-white shadow-xl" : "bg-white/10 border-primary text-white shadow-[0_0_30px_rgba(249,115,22,0.15)]"
-                      : isLight ? "bg-white border-slate-200 text-muted-foreground hover:bg-slate-50" : "bg-white/[0.03] border-white/5 text-muted-foreground hover:bg-white/[0.08]"
+                      ? "text-white"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <filter.icon className={cn("w-4 h-4 relative z-10 transition-transform duration-500 group-hover:scale-125", isActive ? "text-primary" : filter.color)} />
-                  <span className="relative z-10">{filter.label}</span>
+                  <div className={cn(
+                    "absolute inset-0 transition-all duration-500",
+                    isActive 
+                      ? isLight ? "bg-slate-900" : "bg-white/10 backdrop-blur-xl"
+                      : "bg-transparent"
+                  )} />
+                  
                   {isActive && (
-                     <motion.div 
-                       layoutId="filter-indicator-dot"
-                       className="absolute right-3 top-3 w-1 h-1 rounded-full bg-primary"
-                     />
+                    <motion.div 
+                      layoutId="message-active-glow"
+                      className={cn("absolute inset-0 opacity-40", filter.glow)}
+                    />
                   )}
+
+                  <filter.icon className={cn("w-4 h-4 relative z-10 transition-colors", isActive ? "text-primary" : filter.color)} />
+                  <span className="relative z-10">{filter.label}</span>
                 </button>
               );
             })}

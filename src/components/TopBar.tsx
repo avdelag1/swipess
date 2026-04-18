@@ -118,7 +118,7 @@ function TopBarComponent({
                   navigate(userRole === 'owner' ? '/owner/profile' : '/client/profile');
                 }}
                 className={cn(
-                  "flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 flex items-center gap-2 rounded-2xl px-2.5 py-1.5 border transition-all duration-300",
+                  "flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 inline-flex items-center gap-2 rounded-2xl pl-1.5 pr-3.5 py-1.5 border transition-all duration-300 w-auto",
                   isLight 
                     ? "bg-white/80 border-black/10 shadow-sm" 
                     : "bg-black/60 border-white/20 shadow-xl"
@@ -126,7 +126,7 @@ function TopBarComponent({
                 style={{ WebkitTapHighlightColor: 'transparent' }}
                 aria-label="Go to profile"
               >
-                <Avatar className="h-[32px] w-[32px] md:h-[38px] md:w-[38px] rounded-xl overflow-hidden cursor-pointer border-none ring-0 shadow-lg">
+                <Avatar className="h-[32px] w-[32px] md:h-[38px] md:w-[38px] rounded-xl overflow-hidden cursor-pointer border-none ring-0 shadow-lg flex-shrink-0">
                   <AvatarImage
                     src={profile?.avatar_url || ''}
                     className="object-cover w-full h-full"
@@ -144,17 +144,17 @@ function TopBarComponent({
                 </Avatar>
                 {profile?.full_name && (
                   <span className={cn(
-                    "text-[13px] font-black uppercase italic tracking-tighter max-w-[120px]",
+                    "text-[13px] font-black uppercase italic tracking-tight whitespace-nowrap flex-shrink-0 max-w-[11ch] truncate",
                     isLight ? "text-foreground" : "text-white/90"
                   )}>
-                    {profile.full_name.split(' ')[0].substring(0, 10)}
+                    {profile.full_name.split(' ')[0].substring(0, 12)}
                   </span>
                 )}
               </motion.button>
             )}
 
             {!minimal && (
-              <div className="flex-shrink-0 ml-4 md:ml-6 pointer-events-auto rounded-xl overflow-hidden border border-white/10" style={glassSurfaceStyle}>
+              <div className="flex-shrink-0 ml-2 pointer-events-auto rounded-xl overflow-hidden border border-white/10" style={glassSurfaceStyle}>
                 <ModeSwitcher variant="icon" size="sm" />
               </div>
             )}

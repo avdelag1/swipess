@@ -4,6 +4,7 @@ import { RefreshCw, RotateCcw, Zap, Home, Bike, Briefcase } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Button } from '@/components/ui/button';
 import { RadarSearchEffect } from '@/components/ui/RadarSearchEffect';
+import { LocationRadiusSelector } from './LocationRadiusSelector';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { cn } from '@/lib/utils';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
@@ -132,44 +133,49 @@ export const SwipeExhaustedState = ({
           />
         </div>
 
-        {/* 1. MAP FIRST - Takes most of the space */}
-        <div className="flex-1 min-h-0 px-2 relative flex flex-col">
-          <div className="absolute top-4 left-0 right-0 z-20 flex justify-center pointer-events-none">
-             <div className="flex flex-col items-center gap-2">
-                <RadarSearchEffect
-                  key={scanIteration === 0 ? 'idle' : `scan-${scanIteration}`}
-                  size={64}
-                  color={activeCatInfo?.color || '#ec4899'}
-                  isActive={isScanBurstActive}
-                  autoStopMs={6000}
-                  icon={<ActiveIcon className="h-4 w-4 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" strokeWidth={1.5} />}
-                />
-                <motion.div
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-black/40 backdrop-blur-xl border border-white/10 px-4 py-1.5 rounded-2xl shadow-2xl"
-                >
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">
-                    {isRefreshing || isScanBurstActive ? 'Recalibrating Radar...' : 'No new listings found'}
-                  </span>
-                </motion.div>
-             </div>
+        {/* 1. COMPACT RADAR — centered square matches DiscoveryMapView */}
+        <div className="flex-1 min-h-0 px-4 relative flex flex-col items-center justify-start pt-4 gap-3">
+          <div className="flex flex-col items-center gap-2 pointer-events-none">
+            <RadarSearchEffect
+              key={scanIteration === 0 ? 'idle' : `scan-${scanIteration}`}
+              size={56}
+              color={activeCatInfo?.color || '#ec4899'}
+              isActive={isScanBurstActive}
+              autoStopMs={6000}
+              icon={<ActiveIcon className="h-4 w-4 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" strokeWidth={1.5} />}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-black/40 backdrop-blur-xl border border-white/10 px-3 py-1 rounded-full shadow-xl"
+            >
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-white/90">
+                {isRefreshing || isScanBurstActive ? 'Recalibrating Radar…' : 'No new listings found'}
+              </span>
+            </motion.div>
           </div>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="flex-1 relative flex items-center justify-center"
+            className="relative w-full flex justify-center"
+            style={{ maxWidth: 'min(92vw, 360px)' }}
           >
-            <div className="w-full max-w-[280px] p-8 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-xl text-center">
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
-                 <ActiveIcon className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Discovery Over</h3>
-              <p className="text-white/40 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
-                You've scanned everything in {radiusKm}km. Expand your radius or change categories to find more.
-              </p>
+            <div
+              className="relative w-full rounded-[2rem] overflow-hidden border border-white/10 shadow-xl"
+              style={{ aspectRatio: '1 / 1', maxHeight: '42svh' }}
+            >
+              <LocationRadiusSelector
+                radiusKm={radiusKm}
+                onRadiusChange={onRadiusChange}
+                onDetectLocation={onDetectLocation || (() => {})}
+                detecting={detecting ?? false}
+                detected={detected ?? false}
+                lat={lat}
+                lng={lng}
+                onCategorySelect={(category) => setCategories([category])}
+              />
             </div>
           </motion.div>
         </div>
@@ -231,7 +237,7 @@ export const SwipeExhaustedState = ({
             
             <Button
               variant="outline"
-              onClick={() => setCategories(['all'])}
+              onClick={() => setCategories(['property'])}
               className="h-14 w-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95"
             >
               <Zap className="h-5 w-5 text-primary" />

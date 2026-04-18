@@ -1,5 +1,6 @@
+import { useState, useEffect, useRef, memo, useMemo, lazy, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
+import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 const _ClientInsightsDialog = lazy(() =>
   import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
 );
@@ -238,7 +239,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               onStartSwiping={handleStartSwiping}
               onCategoryChange={(cat) => setMapCategory(cat)}
               mode="owner"
-              isEmbedded={true}
             />
           </motion.div>
         ) : showSwipe ? (
@@ -251,10 +251,16 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             className="flex-1 min-h-0 relative"
             style={{ willChange: 'transform, opacity' }}
           >
-            <SwipessSwipeContainer
-              onListingTap={handleClientTap}
+            <ClientSwipeContainer
+              onClientTap={handleClientTap}
               onInsights={handleInsights}
               onMessageClick={onMessageClick}
+              profiles={clientProfiles}
+              isLoading={isLoading}
+              error={error}
+              insightsOpen={false}
+              category={filterCategory || 'default'}
+              filters={mergedFilters}
             />
           </motion.div>
         ) : null}

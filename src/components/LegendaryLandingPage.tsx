@@ -47,6 +47,8 @@ function LogoImage({ className }: { className?: string }) {
   );
 }
 
+
+
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
 
@@ -182,6 +184,14 @@ const LandingView = memo(({
   );
 });
 
+const GlowingField = ({ children, className }: { children: React.ReactNode; className?: string }) => {
+  return (
+    <div className={cn("relative", className)}>
+      {children}
+    </div>
+  );
+};
+
 const SocialAuthButton = ({
   label,
   onClick,
@@ -246,7 +256,6 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
   const { signIn, signUp, signInWithOAuth } = useAuth();
   const [socialLoading, setSocialLoading] = useState<'apple' | 'google' | null>(null);
   const _passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
-  const { navigate } = useAppNavigate();
 
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('auth_client_email') || '';
@@ -350,139 +359,129 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
       </div>
 
       <div className="flex-1 min-h-0 relative z-10 overflow-y-auto no-scrollbar py-10 px-4 flex flex-col items-center">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="w-full max-w-sm flex flex-col items-center"
-        >
-          <motion.button
-            variants={itemVariants}
-            onClick={onBack}
-            className="flex items-center gap-2 self-start mb-8 text-white/40 hover:text-white transition-colors py-2 group"
-          >
-            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-            <span className="text-[10px] uppercase font-black tracking-[0.2em]">Back</span>
-          </motion.button>
-
-          <motion.div variants={itemVariants} className="flex flex-col items-center mb-10">
-            <SwipessLogo size="lg" variant="white" className="mb-4" />
-            <h2 className="text-2xl font-black uppercase tracking-[0.15em] text-white">
-              {isForgotPassword ? 'Reset' : isLogin ? 'Sign In' : 'Join Now'}
-            </h2>
-          </motion.div>
-
-          {/* FORM */}
-          <motion.form variants={itemVariants} onSubmit={handleSubmit} className="w-full space-y-4">
-            {!isLogin && !isForgotPassword && (
-              <div className="relative group">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 group-focus-within:text-orange-500 transition-colors" />
-                <Input
-                  placeholder="FULL NAME"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="h-14 pl-12 rounded-2xl bg-zinc-900/80 border-zinc-800 text-white placeholder:text-zinc-600 focus:border-orange-500/50 focus:ring-orange-500/20 uppercase text-xs font-bold tracking-[0.1em] transition-all"
-                  required
-                />
+        <motion.div className="w-full max-w-sm my-auto" variants={containerVariants} initial="hidden" animate="visible">
+          <motion.div variants={itemVariants} className="bg-[#0A0A0B]/98 border border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-[0_32px_120px_-16px_rgba(0,0,0,1)] backdrop-blur-3xl relative">
+            <button
+              onClick={() => { 
+                triggerHaptic('light'); 
+                if (isForgotPassword) {
+                  setIsForgotPassword(false);
+                } else if (!isLogin) {
+                  setIsLogin(true);
+                } else {
+                  onBack(); 
+                }
+              }}
+              className="absolute top-4 left-4 p-2.5 rounded-2xl bg-zinc-800/90 text-white hover:bg-zinc-700 transition-all active:scale-95 z-20 border border-white/5 shadow-lg"
+              aria-label="Back"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <div className="text-center mb-8 pt-2">
+              <div className="flex justify-center mb-6">
+                <SwipessLogo size="md" variant="white" />
               </div>
-            )}
-
-            <div className="relative group">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 group-focus-within:text-orange-500 transition-colors" />
-              <Input
-                type="email"
-                placeholder="EMAIL ADDRESS"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-14 pl-12 rounded-2xl bg-zinc-900/80 border-zinc-800 text-white placeholder:text-zinc-600 focus:border-orange-500/50 focus:ring-orange-500/20 uppercase text-xs font-bold tracking-[0.1em] transition-all"
-                required
-              />
+              <h1 className="text-4xl font-black tracking-tighter text-white italic mb-2 uppercase leading-none">
+                {isLogin ? 'Welcome Back' : 'Join Swipess'}
+              </h1>
+              <p className="text-zinc-400 text-sm font-bold leading-relaxed px-4 opacity-80">
+                {isLogin
+                  ? 'Good luck finding your perfect deal today.'
+                  : 'Your next perfect deal is one swipe away.'}
+              </p>
             </div>
 
-            {!isForgotPassword && (
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 group-focus-within:text-orange-500 transition-colors" />
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="PASSWORD"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-14 pl-12 rounded-2xl bg-zinc-900/80 border-zinc-800 text-white placeholder:text-zinc-600 focus:border-orange-500/50 focus:ring-orange-500/20 uppercase text-xs font-bold tracking-[0.1em] transition-all"
-                  required
-                />
-                <PasswordToggleButton showPassword={showPassword} onClick={() => setShowPassword(!showPassword)} />
-              </div>
-            )}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {!isLogin && !isForgotPassword && (
+                <motion.div variants={itemVariants}>
+                  <GlowingField className="relative group">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-orange-400 transition-colors z-10" />
+                    <Input type="text" name="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-11 h-14 bg-zinc-800/40 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:border-orange-500 focus-visible:bg-zinc-800/60 appearance-none shadow-none caret-orange-500 rounded-2xl" />
+                  </GlowingField>
+                </motion.div>
+              )}
 
-            {!isLogin && !isForgotPassword && (
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 group-focus-within:text-orange-500 transition-colors" />
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="CONFIRM PASSWORD"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="h-14 pl-12 rounded-2xl bg-zinc-900/80 border-zinc-800 text-white placeholder:text-zinc-600 focus:border-orange-500/50 focus:ring-orange-500/20 uppercase text-xs font-bold tracking-[0.1em] transition-all"
-                  required
-                />
-              </div>
-            )}
+              <motion.div variants={itemVariants}>
+                <GlowingField className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-orange-400 transition-colors z-10" />
+                  <Input type="email" name="email" autoComplete="username" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-11 h-14 bg-zinc-800/40 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:border-orange-500 focus-visible:bg-zinc-800/60 appearance-none shadow-none caret-orange-500 rounded-2xl" />
+                </GlowingField>
+              </motion.div>
 
-            {isLogin && !isForgotPassword && (
-              <div className="flex items-center justify-between px-1">
-                <button
-                  type="button"
-                  onClick={() => setRememberMe(!rememberMe)}
-                  className="flex items-center gap-2 group cursor-pointer"
-                >
-                  <div className={cn(
-                    "w-4 h-4 rounded border flex items-center justify-center transition-all",
-                    rememberMe ? "bg-orange-500 border-orange-500" : "border-zinc-700 bg-zinc-900"
-                  )}>
-                    {rememberMe && <div className="w-1.5 h-1.5 rounded-full bg-white animate-in zoom-in duration-300" />}
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white/30 group-hover:text-white/50 transition-colors">Remember Me</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsForgotPassword(true)}
-                  className="text-[10px] font-black uppercase tracking-widest text-white/30 hover:text-white transition-colors"
-                >
-                  Forgot?
-                </button>
-              </div>
-            )}
+              {!isForgotPassword && (
+                <motion.div variants={itemVariants}>
+                  <GlowingField className="relative group">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-orange-400 transition-colors z-10" />
+                    <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-11 pr-12 h-14 bg-zinc-800/40 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:border-orange-500 focus-visible:bg-zinc-800/60 appearance-none shadow-none caret-orange-500 rounded-2xl" />
+                    <PasswordToggleButton showPassword={showPassword} onClick={() => setShowPassword(!showPassword)} />
+                  </GlowingField>
+                </motion.div>
+              )}
 
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-14 rounded-2xl bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-[0.2em] text-xs shadow-xl active:scale-95 transition-all mt-6"
-            >
-              {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Enter App' : 'Create Account'}
-            </Button>
+              {!isLogin && !isForgotPassword && (
+                <motion.div variants={itemVariants}>
+                  <GlowingField className="relative group">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/70 group-focus-within:text-orange-400 transition-colors z-10" />
+                    <Input type={showPassword ? 'text' : 'password'} name="confirmPassword" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm Password" className="pl-11 pr-12 h-14 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:border-orange-500/50 appearance-none shadow-none caret-orange-500" />
+                    <PasswordToggleButton showPassword={showPassword} onClick={() => setShowPassword(!showPassword)} />
+                  </GlowingField>
+                </motion.div>
+              )}
 
-            <button
-              type="button"
-              onClick={switchMode}
-              className="w-full text-[10px] font-black uppercase tracking-[0.2em] text-white/30 py-4 hover:text-white transition-colors"
-            >
-              {isLogin ? "Don't have an account? Join" : "Already have an account? In"}
-            </button>
-          </motion.form>
-
-          {/* Social & Legal Section */}
-          <motion.div variants={itemVariants} className="mt-8 mb-12 w-full max-w-sm space-y-6">
-            {!isForgotPassword && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-px bg-zinc-800/50" />
-                  <span className="text-[10px] text-zinc-600 uppercase tracking-[0.25em] font-black">Secure Connect</span>
-                  <div className="flex-1 h-px bg-zinc-800/50" />
+              <motion.div variants={itemVariants} className="flex items-center justify-between px-1 pt-1 pb-1">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="rememberMe"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded-md border border-border bg-muted text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0 cursor-pointer"
+                  />
+                  <label htmlFor="rememberMe" className="text-[13px] text-zinc-300 leading-snug cursor-pointer select-none hover:text-white transition-colors font-bold">
+                    Remember me (Password included)
+                  </label>
                 </div>
+                {!isLogin && !isForgotPassword && (
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="terms"
+                      checked={agreeToTerms}
+                      onChange={(e) => setAgreeToTerms(e.target.checked)}
+                      className="w-4 h-4 rounded-md border border-border bg-muted text-orange-500 focus:ring-orange-500/50 accent-orange-500 flex-shrink-0 cursor-pointer"
+                      required
+                    />
+                    <label htmlFor="terms" className="text-[13px] text-zinc-300 leading-snug cursor-pointer select-none font-bold">
+                      Agree to <a href="#" onClick={e=>e.preventDefault()} className="text-white hover:text-orange-400 font-black transition-colors underline decoration-zinc-700">Terms</a>
+                    </label>
+                  </div>
+                )}
+              </motion.div>
 
-                <div className="grid grid-cols-2 gap-3">
+              <motion.div variants={itemVariants}>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-14 text-base font-black uppercase tracking-[0.2em] text-white bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_0_40px_rgba(249,115,22,0.4)] hover:shadow-[0_0_60px_rgba(249,115,22,0.6)] active:scale-[0.98] transition-all relative overflow-hidden rounded-2xl flex items-center justify-center border-none outline-none cursor-pointer"
+                >
+                  <span className="relative z-10">
+                    {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Join the Club'}
+                  </span>
+                </button>
+              </motion.div>
+            </form>
+
+            {!isForgotPassword && (
+              <>
+                <motion.div variants={itemVariants} className="flex items-center gap-3 my-1">
+                  <div className="flex-1 h-px bg-zinc-800" />
+                  <span className="text-[11px] text-zinc-500 uppercase tracking-[0.2em] font-black">or</span>
+                  <div className="flex-1 h-px bg-zinc-800" />
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
                   <SocialAuthButton
-                    label="Apple"
+                    label="Sign in with Apple"
                     onClick={() => handleSocialLogin('apple')}
                     isLoading={socialLoading === 'apple'}
                     icon={
@@ -492,7 +491,7 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                     }
                   />
                   <SocialAuthButton
-                    label="Google"
+                    label="Sign in with Google"
                     onClick={() => handleSocialLogin('google')}
                     isLoading={socialLoading === 'google'}
                     icon={
@@ -504,21 +503,38 @@ const AuthView = memo(({ onBack, isDark, initialMode = 'login' }: { onBack: () =
                       </svg>
                     }
                   />
-                </div>
-              </div>
+                </motion.div>
+              </>
             )}
 
-            <div className="flex flex-col items-center gap-4 text-center">
-              <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-[0.25em] text-white/40">
-                <button type="button" onClick={() => navigate('/privacy-policy')} className="hover:text-orange-400 transition-colors">Privacy</button>
-                <button type="button" onClick={() => navigate('/terms-of-service')} className="hover:text-orange-400 transition-colors">Terms</button>
-                <button type="button" onClick={() => navigate('/about')} className="hover:text-orange-400 transition-colors">About</button>
+            <motion.div variants={itemVariants} className="mt-4 pt-2 border-t border-zinc-800/50 space-y-3 text-center">
+              {isLogin && !isForgotPassword && (
+                <button 
+                  type="button" 
+                  onClick={() => setIsForgotPassword(true)} 
+                  className="text-[11px] font-black uppercase tracking-[0.15em] text-orange-400 hover:text-orange-300 transition-colors"
+                >
+                  Forgot password?
+                </button>
+              )}
+              
+              <div className="flex flex-col gap-1 items-center justify-center">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+                  {isLogin ? "New to Swipess?" : "Already a member?"}
+                </span>
+                <button 
+                  type="button" 
+                  onClick={switchMode} 
+                  className="text-xs font-black uppercase tracking-[0.2em] text-white hover:text-orange-400 transition-colors border-b-2 border-orange-500/20 hover:border-orange-500 pb-0.5"
+                >
+                  {isLogin ? 'Create free account' : 'Sign In Now'}
+                </button>
               </div>
-              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 select-none">© 2026 Swipess Global</p>
-            </div>
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>
+
     </motion.div>
   );
 });
@@ -529,6 +545,7 @@ function LegendaryLandingPage() {
   const { theme, setTheme } = useTheme();
   const [view, setView] = useState<View>('landing');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+
 
   const isDark = true;
   const activeMode: EffectMode = view === 'auth' ? 'off' : 'stars';
@@ -567,7 +584,19 @@ function LegendaryLandingPage() {
           <AuthView key="auth" onBack={() => setView('landing')} isDark={isDark} initialMode={authMode} />
         )}
       </AnimatePresence>
-    </motion.div>
+
+      <div className="absolute bottom-6 left-0 right-0 z-20 flex flex-col items-center gap-1 opacity-40 hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.25em] text-white">
+          <button onClick={() => navigate('/privacy-policy')} className="hover:text-orange-400 transition-colors">Privacy</button>
+          <div className="w-1 h-1 rounded-full bg-white/20" />
+          <button onClick={() => navigate('/terms-of-service')} className="hover:text-orange-400 transition-colors">Terms</button>
+          <div className="w-1 h-1 rounded-full bg-white/20" />
+          <button onClick={() => navigate('/about')} className="hover:text-orange-400 transition-colors">About</button>
+        </div>
+        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 mt-1">© 2026 Swipess Global</p>
+      </div>
+
+      </motion.div>
   );
 }
 

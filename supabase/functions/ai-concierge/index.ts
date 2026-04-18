@@ -6,8 +6,6 @@ const corsHeaders = {
 };
 
 const MINIMAX_API_KEY = Deno.env.get("MINIMAX_API_KEY") || "";
-// Primary Native Endpoint: api.minimax.chat or api.minimax.io
-const MINIMAX_URL = "https://api.minimax.chat/v1/text/chatcompletion_v2";
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") || "";
 const TAVILY_API_KEY = Deno.env.get("TAVILY_API_KEY") || "";
 // Use the production Supabase for data queries
@@ -310,7 +308,7 @@ Return ONLY the JSON array, no markdown:`;
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${LOVABLE_API_KEY}` },
       body: JSON.stringify({
-        model: "google/gemini-1.5-flash",
+        model: "google/gemini-2.5-flash-lite",
         messages: [{ role: "user", content: extractionPrompt }],
         max_tokens: 300,
         temperature: 0.1,
@@ -938,7 +936,7 @@ TONE EXAMPLES:
 async function streamMiniMax(messages: ChatMessage[]): Promise<Response> {
   if (!MINIMAX_API_KEY) throw new Error("MINIMAX_API_KEY not configured");
 
-  const res = await fetch(MINIMAX_URL, {
+  const res = await fetch("https://api.minimaxi.chat/v1/text/chatcompletion_v2", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -993,7 +991,7 @@ async function streamLovableAI(messages: ChatMessage[]): Promise<Response> {
       "Authorization": `Bearer ${LOVABLE_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "google/gemini-2.0-flash",
+      model: "google/gemini-3-flash-preview",
       messages,
       max_tokens: 280,
       temperature: 0.6,

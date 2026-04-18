@@ -52,105 +52,73 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
 
   // ── UNIFIED DESIGN SYSTEM ──
   const isClient = activeMode === 'client';
-  const roleText = activeMode.toUpperCase() + '!';
+  const btnH = size === 'sm' ? 32 : size === 'md' ? 36 : 40;
+  const iconW = Math.round(btnH * 1.15); // Perfectly wide enough for the icons
+
+  const pillBg = 'transparent';
+  const pillBorder = 'none';
   
-  // Design metrics from screenshot
-  const pillHeight = 44; // Premium oversized pill
-  const pillPadding = 12;
-
-  const glassStyle: React.CSSProperties = {
-    background: isLight ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.1)',
-    backdropFilter: 'blur(20px) saturate(1.8)',
-    WebkitBackdropFilter: 'blur(20px) saturate(1.8)',
-    border: `1.5px solid ${isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)'}`,
-    boxShadow: isLight 
-      ? '0 6px 18px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.4)' 
-      : '0 8px 32px rgba(0,0,0,0.45), inset 0 0.5px 1px rgba(255,255,255,0.1)',
-  };
-
-  const clientColor = '#f43f5e';
-  const ownerColor = '#f97316';
-  const activeColor = isClient ? clientColor : ownerColor;
+  const clientColor = isClient ? '#f43f5e' : (isLight ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.35)');
+  const ownerColor = !isClient ? '#f97316' : (isLight ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.35)');
 
   return (
-    <motion.button 
+    <button 
       onPointerDown={onPointerDown}
       onClick={handleToggle}
       disabled={!canSwitchMode}
-      whileTap={{ scale: 0.96 }}
       className={cn(
-        'relative flex items-center gap-1.5 rounded-2xl overflow-hidden',
-        'transition-all duration-300 ease-out',
+        'relative flex items-center justify-center rounded-full overflow-hidden',
+        'transition-all duration-150 ease-out',
+        'active:scale-[0.92]',
         'disabled:opacity-50 disabled:cursor-not-allowed',
-        'touch-manipulation select-none pointer-events-auto',
+        'touch-manipulation select-none',
         className
       )}
       style={{
-        ...glassStyle,
-        height: pillHeight,
-        paddingLeft: pillPadding,
-        paddingRight: 6, // icons on right have less padding
+        height: btnH,
+        minWidth: iconW * 2,
+        background: pillBg,
+        border: pillBorder,
+        padding: '0 4px',
       }}
       aria-label={`Switch to ${isClient ? 'Business' : 'Client'} mode`}
     >
-      {/* Role Identity (Logo + Text) */}
-      <div className="flex items-center gap-2 pr-2 border-r border-white/10 h-3/5">
-        <div className="w-7 h-7 shrink-0 rounded-[10px] overflow-hidden bg-black/40 flex items-center justify-center p-1.5 border border-white/10 shadow-lg">
-          <img src="/favicon-32x32.png" alt="" className="w-full h-full object-contain" />
-        </div>
-        <AnimatePresence mode="wait">
+      <div
+        className="relative flex items-center w-full h-full"
+        style={{ width: iconW * 2 }}
+      >
+        <motion.div
+          layoutId="mode-highlight"
+          className="absolute rounded-full"
+          initial={false}
+          animate={{ left: isClient ? '4%' : '54%' }}
+          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+          style={{
+            width: '42%',
+            height: '80%',
+            background: 'transparent',
+            top: '50%',
+            y: '-50%',
+          }}
+        />
 
-          <motion.span
-            key={roleText}
-            initial={{ opacity: 0, x: -5 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 5 }}
-            className={cn(
-              "text-[14px] font-black italic tracking-tighter whitespace-nowrap",
-              isLight ? "text-foreground" : "text-white"
-            )}
-            style={{ color: activeColor }}
-          >
-            {roleText}
-          </motion.span>
-        </AnimatePresence>
-      </div>
-
-      {/* Mode Selectors */}
-      <div className="flex items-center gap-1">
-        <div className={cn(
-          "relative w-7 h-7 flex items-center justify-center rounded-xl transition-all duration-300",
-          isClient ? "bg-white/10 shadow-lg" : "opacity-30"
-        )}>
+        <div className="flex-1 flex items-center justify-center relative z-10">
           <User
-             strokeWidth={isClient ? 3 : 2}
-             className="h-4 w-4"
-             style={{ color: isClient ? clientColor : (isLight ? '#000' : '#fff') }}
+            strokeWidth={isClient ? 2 : 1.5}
+            className="h-[18px] w-[18px] transition-all duration-200"
+            style={{ color: clientColor, transform: isClient ? 'scale(1.1)' : 'scale(1)' }}
           />
         </div>
-        <div className={cn(
-          "relative w-7 h-7 flex items-center justify-center rounded-xl transition-all duration-300",
-          !isClient ? "bg-white/10 shadow-lg" : "opacity-30"
-        )}>
+
+        <div className="flex-1 flex items-center justify-center relative z-10">
           <UserCheck
-             strokeWidth={!isClient ? 3 : 2}
-             className="h-4 w-4"
-             style={{ color: !isClient ? ownerColor : (isLight ? '#000' : '#fff') }}
+            strokeWidth={!isClient ? 2 : 1.5}
+            className="h-[18px] w-[18px] transition-all duration-200"
+            style={{ color: ownerColor, transform: !isClient ? 'scale(1.1)' : 'scale(1)' }}
           />
         </div>
       </div>
-
-      {/* Switching indicator */}
-      {isSwitching && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="absolute inset-0 bg-background/40 backdrop-blur-md flex items-center justify-center"
-        >
-          <Loader2 className="w-5 h-5 animate-spin text-brand-primary" />
-        </motion.div>
-      )}
-    </motion.button>
+    </button>
   );
 }
 

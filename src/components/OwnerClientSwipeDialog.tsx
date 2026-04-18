@@ -1,7 +1,7 @@
 
 import { useState, lazy, Suspense } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
+import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 // Lazy-load the 50kb ClientInsightsDialog — only needed when insights panel opens
 const ClientInsightsDialog = lazy(() =>
   import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
@@ -40,9 +40,11 @@ export function OwnerClientSwipeDialog({ open, onOpenChange }: OwnerClientSwipeD
             <DialogTitle>Discover Potential Clients</DialogTitle>
           </DialogHeader>
           <div className="py-2">
-            <SwipessSwipeContainer
-              onListingTap={handleClientTap}
+            <ClientSwipeContainer
+              onClientTap={handleClientTap}
               onInsights={handleInsights}
+              onMessageClick={() => { }}
+              insightsOpen={showInsights}
             />
           </div>
         </DialogContent>

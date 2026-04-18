@@ -7,54 +7,47 @@ export const SparklesIcon = () => (
   </svg>
 );
 
-export const notificationTypeConfigs: Record<string, { icon: any; bg: string; accentColor: string; label: string; priority: number }> = {
+export const notificationTypeConfigs: Record<string, { icon: any; bg: string; accentColor: string; label: string }> = {
   like: {
     icon: ThumbsUp,
     bg: 'rgba(244, 63, 94, 0.1)',
     accentColor: '#f43f5e',
-    label: 'Like',
-    priority: 1
+    label: 'Like'
   },
   super_like: {
     icon: Star,
     bg: 'rgba(245, 158, 11, 0.15)',
     accentColor: '#f59e0b',
-    label: 'Super Like',
-    priority: 2
+    label: 'Super Like'
   },
   message: {
     icon: MessageCircle,
     bg: 'rgba(59, 130, 246, 0.12)',
     accentColor: '#3b82f6',
-    label: 'Message',
-    priority: 4
+    label: 'Message'
   },
   match: {
     icon: SparklesIcon,
     bg: 'rgba(168, 85, 247, 0.15)',
     accentColor: '#a855f7',
-    label: 'Match',
-    priority: 5
+    label: 'Match'
   },
   new_user: {
     icon: UserPlus,
     bg: 'rgba(16, 185, 129, 0.12)',
     accentColor: '#10b981',
-    label: 'New User',
-    priority: 1
+    label: 'New User'
   },
   premium_purchase: {
     icon: Crown,
     bg: 'rgba(139, 92, 246, 0.15)',
     accentColor: '#8b5cf6',
-    label: 'Premium',
-    priority: 5
+    label: 'Premium'
   },
   activation_purchase: {
     icon: Zap,
     bg: 'rgba(249, 115, 22, 0.12)',
     accentColor: '#f97316',
-    label: 'Activation',
-    priority: 5
+    label: 'Activation'
   },
 };
