@@ -46,7 +46,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   useFocusManagement();
   useOfflineDetection();
   useErrorReporting();
-  useInstantReactivity(); // ZERO-LATENCY GLOBAL BINDINGS
+  useInstantReactivity(); 
 
   useEffect(() => {
     const recover = () => window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
@@ -62,21 +62,15 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   useEffect(() => {
     if (isAuthRoute || !user) return;
-
-    const prewarm = () => {
-      import('@/components/ConciergeChat').catch(() => {});
-    };
-
+    const prewarm = () => { import('@/components/ConciergeChat').catch(() => {}); };
     if ('requestIdleCallback' in window) {
       const idleId = window.requestIdleCallback(prewarm, { timeout: 1500 });
       return () => window.cancelIdleCallback(idleId);
     }
-
     const timeoutId = globalThis.setTimeout(prewarm, 900);
     return () => globalThis.clearTimeout(timeoutId);
   }, [isAuthRoute, user]);
   
-  // Immersive sections where header starts transparent
   const isImmersive = useMemo(() => {
     const immersiveRoutes = [
       '/client/dashboard', 
@@ -95,18 +89,12 @@ export function AppLayout({ children }: AppLayoutProps) {
            hideHUDRoutes.some(r => location.pathname.startsWith(r));
   }, [location.pathname]);
 
-  // Fullscreen routes hide HUD entirely
   const { showAIChat } = useModalStore();
 
   const isFullScreen = useMemo(() => {
     const path = location.pathname;
     const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
-    return isCameraRoute || 
-           isRadioRoute || 
-           path.includes('/camera') || 
-           path.includes('roommates') || 
-           path.includes('eventos') ||
-           showAIChat;
+    return isCameraRoute || isRadioRoute || path.includes('/camera') || path.includes('roommates') || path.includes('eventos') || showAIChat;
   }, [isCameraRoute, isRadioRoute, location.pathname, showAIChat]);
 
   const handleMessageActivationsClick = () => navigate('/subscription/packages');
@@ -120,10 +108,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     else navigate('/client/filters');
   };
 
-  const usesLayoutManagedScroll = !isAuthRoute && !isPublicPreview;
-
   return (
-    <div className={cn("flex flex-col h-full w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
+    <div className={cn("flex flex-col h-screen w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />
       
@@ -147,17 +133,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         <main
           id="main-content"
           className={cn(
-            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y overflow-x-hidden",
-            usesLayoutManagedScroll ? "overflow-visible" : "overflow-y-auto scroll-smooth"
+            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y overflow-x-hidden overflow-y-auto scroll-smooth",
           )}
-          style={{
-            paddingTop: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive && !usesLayoutManagedScroll)
-              ? 'calc(var(--top-bar-height) + var(--safe-top))'
-              : undefined,
-            paddingBottom: (!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive && !usesLayoutManagedScroll)
-              ? 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 32px)'
-              : undefined,
-          }}
         >
           {children}
         </main>
@@ -197,5 +174,3 @@ export function AppLayout({ children }: AppLayoutProps) {
     </div>
   );
 }
-
-// 🛰️ BUILD STATUS: 2026-04-05T17:00:00Z - AI RESET & NAVIGATION BRIDGE LIVE
