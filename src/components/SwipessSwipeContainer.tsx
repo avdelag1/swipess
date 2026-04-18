@@ -962,8 +962,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     <div className="relative w-full h-full overflow-hidden flex flex-col bg-black">
       <div className="absolute inset-0 pointer-events-none -z-10 bg-black" />
 
-      {/* Top Controls — IN FLOW, not absolute */}
-      {(!isLoading || deckQueue.length > 0) && (
+      {/* Top Controls — IN FLOW, not absolute. Hidden when the exhausted state is showing because that view has its own large map. */}
+      {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (
         <div className="relative z-[60] w-full flex flex-col items-center shrink-0">
           <div className="w-full pt-1 pb-1 px-2">
             <div className="w-full flex justify-between items-center">
