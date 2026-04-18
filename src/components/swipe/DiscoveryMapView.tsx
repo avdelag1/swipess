@@ -1,15 +1,14 @@
 /**
  * DISCOVERY MAP VIEW — High Fidelity Radar
  * 
- * v4.2: Production Leaflet Implementation.
- * White-Themed, Rounded Map Window, High Contrast.
+ * v4.3: Absolute Visibility Fix.
+ * Uses Direct CDN Leaflet to bypass bundle issues.
+ * Fixed HUD scaling for all devices.
  */
 
-import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navigation, RefreshCw, Building2, Bike, ArrowLeft, HardHat, PersonStanding } from 'lucide-react';
-import { MapContainer, TileLayer, Circle, Marker, useMap, ZoomControl } from 'react-leaflet';
-import L from 'leaflet';
 import { toast } from 'sonner';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
@@ -18,39 +17,9 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useFilterStore } from '@/state/filterStore';
 import { useAuth } from '@/hooks/useAuth';
 
-// Fix Leaflet icons
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
-
-const createCustomIcon = (iconName: string, active: boolean) => {
-  return L.divIcon({
-    className: 'custom-map-marker',
-    html: `
-      <div class="flex items-center justify-center w-11 h-11 rounded-full bg-white shadow-2xl border-2 ${active ? 'border-primary' : 'border-black/5'} transition-all transform hover:scale-110">
-        <div class="text-black pointer-events-none">
-          ${iconName === 'property' ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M3 7v1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7m0 1a3 3 0 0 0 6 0V7H3"></path><path d="M19 21v-4a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v4"></path><path d="M9 21h6"></path></svg>' : 
-            iconName === 'motorcycle' ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18.5" cy="17.5" r="3.5"></circle><circle cx="5.5" cy="17.5" r="3.5"></circle><circle cx="15" cy="5" r="1"></circle><path d="M12 17.5V14l-2-3 4-3 2 3h2"></path></svg>' :
-            iconName === 'services' ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z"></path><path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5"></path><path d="M4 15V9a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v6"></path><path d="M6 19v2"></path><path d="M18 19v2"></path></svg>' :
-            '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'}
-        </div>
-      </div>
-    `,
-    iconSize: [44, 44],
-    iconAnchor: [22, 22],
-  });
-};
-
-const MapController = ({ center }: { center: [number, number] }) => {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center, map.getZoom(), { animate: true });
-    setTimeout(() => map.invalidateSize(), 200);
-  }, [center, map]);
-  return null;
+// 🚀 COMPONENT-LEVEL STYLING
+const HUD_STYLE = {
+  glass: "bg-white/95 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-black/5"
 };
 
 export const DiscoveryMapView = memo(({ 
@@ -64,6 +33,9 @@ export const DiscoveryMapView = memo(({
   onStartSwiping: () => void;
   onCategoryChange?: (cat: QuickFilterCategory) => void;
 }) => {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const leafletRef = useRef<any>(null);
+  
   const radiusKm = useFilterStore(s => s.radiusKm);
   const setRadiusKm = useFilterStore(s => s.setRadiusKm);
   const setUserLocation = useFilterStore(s => s.setUserLocation);
@@ -72,7 +44,6 @@ export const DiscoveryMapView = memo(({
 
   const [localKm, setLocalKm] = useState(radiusKm);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [markers, setMarkers] = useState<any[]>([]);
 
   const tulumCenter: [number, number] = [20.2114, -87.4654];
   const currentCenter: [number, number] = userLatitude ? [userLatitude, userLongitude] : tulumCenter;
@@ -81,17 +52,10 @@ export const DiscoveryMapView = memo(({
     triggerHaptic('medium');
     setIsRefreshing(true);
     setTimeout(() => {
-      const samples = [
-        { id: '1', lat: currentCenter[0] + 0.005, lng: currentCenter[1] + 0.008, cat: 'property' },
-        { id: '2', lat: currentCenter[0] - 0.007, lng: currentCenter[1] - 0.005, cat: 'motorcycle' },
-        { id: '3', lat: currentCenter[0] + 0.012, lng: currentCenter[1] - 0.012, cat: 'bicycle' },
-        { id: '4', lat: currentCenter[0] - 0.003, lng: currentCenter[1] + 0.015, cat: 'services' },
-      ];
-      setMarkers(samples);
       setIsRefreshing(false);
-      toast.success('Radar synced');
+      toast.success('Radar live');
     }, 1000);
-  }, [currentCenter]);
+  }, []);
 
   useEffect(() => { handleRefresh(); }, [category, localKm]);
 
@@ -105,84 +69,162 @@ export const DiscoveryMapView = memo(({
     );
   }, [setUserLocation]);
 
+  // ── 🌍 DIRECT LEAFLET INJECTION (FOOLPROOF) ────────────────────────────────
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    const initMap = async () => {
+      // Ensure Leaflet is loaded from CDN
+      if (!(window as any).L) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(link);
+
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        document.head.appendChild(script);
+
+        await new Promise(resolve => { script.onload = resolve; });
+      }
+
+      const L = (window as any).L;
+      if (leafletRef.current) {
+        leafletRef.current.remove();
+      }
+
+      // Initialize map
+      const map = L.map(mapRef.current, {
+        zoomControl: false,
+        attributionControl: false
+      }).setView(currentCenter, 13);
+
+      // Add White/Normal Carto Tiles
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}@2x.png', {
+        maxZoom: 20
+      }).addTo(map);
+
+      // Radar Circle
+      const circle = L.circle(currentCenter, {
+        color: '#000',
+        fillColor: '#000',
+        fillOpacity: 0.05,
+        weight: 1.5,
+        dashArray: '10, 10',
+        radius: localKm * 1000
+      }).addTo(map);
+
+      // Center Dot Marker
+      const centerIcon = L.divIcon({
+        className: 'center-dot',
+        html: '<div style="width:16px; height:16px; background:black; border:3px solid white; border-radius:50%; box-shadow:0 4px 12px rgba(0,0,0,0.3);"></div>',
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+      });
+      L.marker(currentCenter, { icon: centerIcon }).addTo(map);
+
+      // Sample Markers
+      const samples = [
+        { lat: currentCenter[0] + 0.005, lng: currentCenter[1] + 0.008, cat: 'property' },
+        { lat: currentCenter[0] - 0.007, lng: currentCenter[1] - 0.005, cat: 'motorcycle' },
+        { lat: currentCenter[0] + 0.012, lng: currentCenter[1] - 0.012, cat: 'services' },
+      ];
+
+      samples.forEach(s => {
+        if (category && s.cat !== category) return;
+        const icon = L.divIcon({
+          className: 'sample-icon',
+          html: '<div style="width:40px; height:40px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,0,0,0.25); border:1px solid rgba(0,0,0,0.05);">📍</div>',
+          iconSize: [40, 40],
+          iconAnchor: [20, 20]
+        });
+        L.marker([s.lat, s.lng], { icon }).addTo(map);
+      });
+
+      leafletRef.current = map;
+      
+      // Critical: Ensure map layout update
+      setTimeout(() => map.invalidateSize(), 300);
+    };
+
+    initMap();
+
+    return () => {
+      if (leafletRef.current) leafletRef.current.remove();
+    };
+  }, [currentCenter, localKm, category]);
+
   return (
     <motion.div className="flex flex-col h-full w-full bg-white relative overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossOrigin="" />
-
-      {/* HEADER HUD */}
-      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+16px)] inset-x-0 px-5 z-[2000] flex items-center justify-between pointer-events-none">
-        <button onClick={onBack} className="w-13 h-13 rounded-full flex items-center justify-center bg-white shadow-2xl border border-black/5 pointer-events-auto active:scale-95 transition-all">
+      
+      {/* HUD: FIXED SCALING */}
+      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+16px)] inset-x-0 px-6 z-[2000] flex items-center justify-between pointer-events-none">
+        <button onClick={onBack} className={cn("w-14 h-14 rounded-full flex items-center justify-center pointer-events-auto active:scale-90 transition-all", HUD_STYLE.glass)}>
           <ArrowLeft className="w-7 h-7 text-black" />
         </button>
         
-        <div className="flex flex-col items-center gap-2 pointer-events-none">
-            <div className="px-6 py-2.5 rounded-full bg-white shadow-2xl border border-black/5 flex items-center gap-2 pointer-events-auto">
-                <span className="text-[11px] font-black uppercase text-black/40">Radius:</span>
-                <span className="text-[16px] font-black text-primary">{localKm}KM</span>
+        <div className="flex flex-col items-center gap-3">
+            <div className={cn("px-8 py-3 rounded-full flex items-center gap-2 pointer-events-auto", HUD_STYLE.glass)}>
+                <span className="text-[12px] font-black uppercase tracking-widest text-black/30">KM:</span>
+                <span className="text-[18px] font-black text-black">{localKm}</span>
             </div>
-            <div className="flex items-center gap-1.5 p-1 rounded-full bg-white/95 shadow-xl border border-black/5 pointer-events-auto backdrop-blur-xl">
+            <div className={cn("flex items-center gap-2 p-1.5 rounded-full pointer-events-auto", HUD_STYLE.glass)}>
                 {[1, 5, 25, 100].map(km => (
-                    <button key={km} onClick={() => { triggerHaptic('light'); setLocalKm(km); setRadiusKm(km); }} className={cn("px-4.5 py-1.5 rounded-full text-[11px] font-black transition-all", localKm === km ? "bg-black text-white shadow-lg" : "text-black/50")}>{km}K</button>
+                    <button 
+                      key={km} 
+                      onClick={() => { triggerHaptic('light'); setLocalKm(km); setRadiusKm(km); }} 
+                      className={cn("min-w-[48px] h-10 px-4 rounded-full text-[12px] font-black transition-all", localKm === km ? "bg-black text-white shadow-lg scale-105" : "text-black/40 hover:bg-black/5")}
+                    >
+                      {km}K
+                    </button>
                 ))}
             </div>
         </div>
 
-        <button onClick={detectLocation} className={cn("w-13 h-13 rounded-full flex items-center justify-center shadow-2xl border border-black/5 pointer-events-auto active:scale-95 transition-all", userLatitude ? "bg-black text-white" : "bg-white text-black")}>
+        <button onClick={detectLocation} className={cn("w-14 h-14 rounded-full flex items-center justify-center pointer-events-auto active:scale-90 transition-all", userLatitude ? "bg-black text-white" : HUD_STYLE.glass)}>
           <Navigation className="w-6 h-6" />
         </button>
       </div>
 
-      {/* QUICK FILTERS */}
-      <div className="absolute top-1/2 -translate-y-1/2 right-4 z-[2000] flex items-center">
-        <div className="p-3.5 rounded-[3rem] flex flex-col items-center gap-5 bg-white shadow-2xl border border-black/5 backdrop-blur-md">
+      {/* RIGHT FILTERS: FIXED SCALING */}
+      <div className="absolute top-1/2 -translate-y-1/2 right-4 z-[2000] flex flex-col items-center">
+        <div className={cn("p-4 rounded-[2.5rem] flex flex-col items-center gap-5 pointer-events-auto", HUD_STYLE.glass)}>
           {[
-            { id: 'property', icon: Building2 }, { id: 'motorcycle', icon: MotorcycleIcon }, { id: 'bicycle', icon: Bike }, { id: 'services', icon: HardHat }, { id: 'roommate', icon: PersonStanding }
+            { id: 'property', icon: Building2 }, 
+            { id: 'motorcycle', icon: MotorcycleIcon }, 
+            { id: 'bicycle', icon: Bike }, 
+            { id: 'services', icon: HardHat }, 
+            { id: 'roommate', icon: PersonStanding }
           ].map(cat => (
-            <button key={cat.id} onClick={() => { triggerHaptic('light'); onCategoryChange?.(cat.id as any); }} className={cn("w-15 h-15 flex items-center justify-center rounded-[1.5rem] transition-all", category === cat.id ? "bg-black text-white scale-110 shadow-xl" : "text-black/30 hover:bg-black/5")}>
-              <cat.icon className="w-7 h-7" />
+            <button 
+              key={cat.id} 
+              onClick={() => { triggerHaptic('light'); onCategoryChange?.(cat.id as any); }} 
+              className={cn("w-16 h-16 flex items-center justify-center rounded-3xl transition-all", category === cat.id ? "bg-black text-white scale-110 shadow-2xl" : "text-black/30 hover:bg-black/5")}
+            >
+              <cat.icon className="w-8 h-8" />
             </button>
           ))}
         </div>
       </div>
 
-      {/* ROUNDED MAP AREA */}
-      <div className="flex-1 relative overflow-hidden bg-[#e5e7eb] rounded-[3.5rem] m-2 shadow-inner border-[1px] border-black/5 z-10">
-        <MapContainer center={currentCenter} zoom={13} className="w-full h-full" zoomControl={false} scrollWheelZoom={true}>
-          <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}@2x.png" attribution='&copy; CartoDB' />
-          <MapController center={currentCenter} />
-          
-          <Circle
-            center={currentCenter}
-            radius={localKm * 1000}
-            pathOptions={{ color: '#000', fillColor: '#000', fillOpacity: 0.05, weight: 2, dashArray: '10, 10' }}
-          />
+      {/* MAP CONTAINER: GUARANTEED VISIBILITY */}
+      <div 
+        ref={mapRef}
+        className="flex-1 m-4 rounded-[3.5rem] bg-[#f8fafc] shadow-inner border border-black/5 z-10"
+        style={{ minHeight: '400px' }}
+      />
 
-          <Marker position={currentCenter} icon={L.divIcon({ 
-            className: 'center-dot', 
-            html: '<div class="w-5 h-5 rounded-full bg-black border-[3px] border-white shadow-2xl"></div>',
-            iconSize: [20, 20], iconAnchor: [10, 10]
-          })} />
-
-          {markers.filter(m => !category || m.cat === category).map(m => (
-            <Marker 
-              key={m.id} 
-              position={[m.lat, m.lng]} 
-              icon={createCustomIcon(m.cat, false)}
-              eventHandlers={{ click: () => { triggerHaptic('medium'); toast.info(`View details: ${m.cat}`); } }}
-            />
-          ))}
-          <ZoomControl position="bottomright" />
-        </MapContainer>
-      </div>
-
-      {/* DISCOVERY CTA */}
-      <div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+12px)] inset-x-0 z-[2000] flex justify-center px-6 pointer-events-none">
-        <button onClick={handleRefresh} className="w-full max-w-[340px] h-16 rounded-[2rem] text-[13px] font-black uppercase tracking-[0.45em] bg-black text-white shadow-2xl pointer-events-auto active:scale-95 transition-all flex items-center justify-center gap-3">
-          <RefreshCw className={cn("w-5 h-5", isRefreshing && "animate-spin")} /> START SCANNING
+      {/* BOTTOM CTA: START SCANNING */}
+      <div className="absolute bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+16px)] inset-x-0 z-[2000] flex justify-center px-10 pointer-events-none">
+        <button 
+          onClick={handleRefresh} 
+          className="w-full max-w-[360px] h-18 rounded-[2.25rem] text-[14px] font-black uppercase tracking-[0.5em] bg-black text-white shadow-[0_32px_64px_rgba(0,0,0,0.5)] pointer-events-auto active:scale-95 transition-all flex items-center justify-center gap-4"
+        >
+          <RefreshCw className={cn("w-6 h-6", isRefreshing && "animate-spin")} /> START SCANNING
         </button>
       </div>
 
-      <div className="absolute bottom-0 inset-x-0 h-[calc(var(--bottom-nav-height,72px)+60px)] bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-[2000]" />
+      <div className="absolute bottom-0 inset-x-0 h-40 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-[2000]" />
     </motion.div>
   );
 });
