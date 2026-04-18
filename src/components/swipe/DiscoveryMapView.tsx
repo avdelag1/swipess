@@ -404,13 +404,22 @@ export const DiscoveryMapView = memo(({
           ctx.drawImage(img, drawX, drawY, 256, 256);
           onFinish();
         };
-        img.onerror = onFinish;
-        const wrappedX = (centerTileX + dx + (1 << zoom)) % (1 << zoom);
-        const wrappedY = centerTileY + dy;
+        img.onerror = () => {
+          // Draw a faint tile-shaped filler on error so we don't have black spots
+          const drawX = w / 2 - offsetX + dx * 256;
+          const drawY = h / 2 - offsetY + dy * 256;
+          ctx.fillStyle = isLight ? '#f1f5f9' : '#1a1a1a';
+          ctx.fillRect(drawX, drawY, 255, 255);
+          onFinish();
+        };
         const tileZ = Math.min(zoom, 18);
+        const wrappedX = (centerTileX + dx + (1 << tileZ)) % (1 << tileZ);
+        const wrappedY = centerTileY + dy;
         
         if (wrappedY >= 0 && wrappedY < (1 << tileZ)) {
-          img.src = `https://tile.openstreetmap.org/${tileZ}/${wrappedX}/${wrappedY}.png`;
+          // Use a rotating subdomain for better loading
+          const s = 'abc'[Math.abs(wrappedX + wrappedY) % 3];
+          img.src = `https://${s}.tile.openstreetmap.org/${tileZ}/${wrappedX}/${wrappedY}.png`;
         } else {
           onFinish();
         }
@@ -461,7 +470,14 @@ export const DiscoveryMapView = memo(({
 
        {/* GPS Button */}
        {/* GPS Button */}
-       <motion.button onClick={detectLocation} className={cn("absolute bottom-[calc(env(safe-area-inset-bottom,0px)+100px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10", detected ? "bg-primary text-white" : "bg-black/60 text-white/60")} style={detected ? { backgroundColor: meta.accent } : {}}>
+       <motion.button 
+         onClick={detectLocation} 
+         className={cn(
+           "absolute bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+100px)] right-4 z-[10002] w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10", 
+           detected ? "bg-primary text-white" : "bg-black/60 text-white/60"
+         )} 
+         style={detected ? { backgroundColor: meta.accent } : {}}
+       >
           <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} />
        </motion.button>
 
@@ -480,8 +496,8 @@ export const DiscoveryMapView = memo(({
         </AnimatePresence>
       </div>
 
-      {/* Bottom Button - Lifted for clearance */}
-      <div className="absolute inset-x-0 bottom-6 z-[10001] flex flex-col items-center pb-8 px-5">
+      {/* Bottom Button - Precision cleared above Nav Bar */}
+      <div className="absolute inset-x-0 bottom-[calc(var(--bottom-nav-height,72px)+env(safe-area-inset-bottom,0px)+12px)] z-[10002] flex flex-col items-center pb-8 px-5">
         <button onClick={handleRefresh} className="w-full max-w-sm h-14 rounded-3xl text-white text-[12px] font-black uppercase tracking-[0.3em] active:scale-95 transition-all flex items-center justify-center gap-3" style={{ background: meta.accent, boxShadow: `0 16px 32px rgba(${meta.accentRgb},0.4)` }}>
           <RefreshCw className={cn("w-5 h-5", fetchingDots && "animate-spin")} />
           REFRESH RADAR ({dotCount})

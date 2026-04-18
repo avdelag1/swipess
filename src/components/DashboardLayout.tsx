@@ -503,9 +503,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           paddingTop: isFullScreenRoute
             ? '0px'
             : 'calc(var(--top-bar-height) + var(--safe-top))',
-          paddingBottom: isFullScreenRoute
-            ? '0px'
-            : 'calc(var(--bottom-nav-height) + var(--safe-bottom))',
+          paddingBottom: 0,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           
