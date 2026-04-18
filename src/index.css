@@ -9,16 +9,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Hide Scrollbars ─── */
+/* ─── Global Scroll & Touch Optimization ─── */
 html, body, #root {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   overflow-x: hidden;
   -webkit-touch-callout: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: hsl(var(--background));
+  height: 100%;
 }
 
 /* Force black root in dark mode — eliminates white frame bleed */
@@ -26,20 +27,12 @@ html, body, #root {
   background-color: #000000;
 }
 
-/* GPU acceleration only where needed — not universal */
-.gpu-accelerate,
-.swipe-card,
-.modal-overlay {
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-
 html::-webkit-scrollbar, 
 body::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
+  display: none;
 }
 
-/* ─── View Transitions: High-Fidelity ripple reveal from toggle button ─── */
+/* ─── View Transitions ─── */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 0.15s;
@@ -57,53 +50,17 @@ body::-webkit-scrollbar {
   mix-blend-mode: normal;
 }
 
-/* 🏎️ ULTRA-FAST RIPPLE: Includes a subtle scale-up for 'Warp' feel */
 @keyframes theme-ripple-reveal {
-  0% {
-    clip-path: circle(0% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%));
-  }
-  100% {
-    clip-path: circle(150% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%));
-  }
-}
-
-/* 🚀 HARDWARE-AWARE: Simpler transition for budget devices to avoid GPU thrashing */
-.hw-low ::view-transition-new(root) {
-  animation: theme-instant-fade 0.15s ease-out forwards;
-  clip-path: none !important;
-}
-
-@keyframes theme-instant-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none !important;
-  }
-}
-
-/* 🌊 Photo Swimming / Breathing Effect — slow zoom in/out */
-@keyframes photo-swim {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.08); }
-  100% { transform: scale(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .photo-swim { animation: none !important; }
+  0% { clip-path: circle(0% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%)); }
+  100% { clip-path: circle(150% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%)); }
 }
 
 :root {
   --glass-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  --glass-refraction: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0) 100%);
 }
 
 .glass-nano-texture {
   position: relative;
-  /* Isolate this layer's repaints from the rest of the document */
   contain: layout style;
 }
 .glass-nano-texture::before {
@@ -117,41 +74,13 @@ body::-webkit-scrollbar {
   mix-blend-mode: overlay;
 }
 
-/* ─── Fluid Card Dimensions — fills viewport on all devices ─── */
-/* --card-height uses 100svh where supported so the iOS URL bar doesn't clip the card. */
+/* ─── Fluid Card Dimensions ─── */
 :root {
   --card-width: min(340px, calc(100vw - 80px));
   --card-height: min(680px, calc(100vh - 156px));
 }
 @supports (height: 100svh) {
   :root { --card-height: min(680px, calc(100svh - 156px)); }
-}
-@media (min-width: 768px) {
-  :root {
-    --card-width: min(520px, calc(100vw - 160px));
-    --card-height: min(720px, calc(100vh - 200px));
-  }
-  @supports (height: 100svh) {
-    :root { --card-height: min(720px, calc(100svh - 200px)); }
-  }
-}
-@media (min-width: 1024px) {
-  :root {
-    --card-width: min(640px, calc(100vw - 200px));
-    --card-height: min(740px, calc(100vh - 280px));
-  }
-  @supports (height: 100svh) {
-    :root { --card-height: min(740px, calc(100svh - 280px)); }
-  }
-}
-@media (min-width: 1366px) {
-  :root {
-    --card-width: min(720px, calc(100vw - 240px));
-    --card-height: min(820px, calc(100vh - 300px));
-  }
-  @supports (height: 100svh) {
-    :root { --card-height: min(820px, calc(100svh - 300px)); }
-  }
 }
 
 .liquid-glass-card {
@@ -161,26 +90,7 @@ body::-webkit-scrollbar {
   contain: layout style paint;
 }
 
-/* 💎 RAM (Rent a Mac) PREMIUM CARD */
-.ram-card {
-  @apply bg-white dark:bg-zinc-900 transition-all duration-300 relative border overflow-hidden;
-  border-color: var(--ram-border-inactive);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-ram-card);
-}
-
-.ram-card.active {
-  border-color: var(--ram-blue) !important;
-  background-color: var(--ram-blue-light) !important;
-  box-shadow: var(--ram-blue-glow);
-}
-
-.ram-card:hover {
-  box-shadow: var(--shadow-ram-card-hover);
-  transform: translateY(-2px);
-}
-
-/* Hide ALL scrollbars — physical app feeling */
+/* Hide ALL scrollbars */
 * {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
@@ -189,131 +99,52 @@ body::-webkit-scrollbar {
   display: none !important;
 }
 
-.no-scrollbar {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-}
-.no-scrollbar::-webkit-scrollbar {
-  display: none !important;
-}
-
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
   width: 100%;
-  touch-action: manipulation;
+  touch-action: pan-y pinch-zoom;
   -webkit-overflow-scrolling: touch;
-  background-color: unset;
-  color: unset;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --top-bar-height: 60px;
 }
 
-html, body {
+body {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100dvh;
-  overflow: hidden;
+  min-height: 100dvh;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  overscroll-behavior-y: none; /* 🚫 DISABLING WEBVIEW BOUNCE FOR NATIVE FEEL */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-/* Allow bounce ONLY in scrollable areas */
 main, .scrollable-content, .overflow-y-auto {
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
-}
-
-@media (min-width: 768px) {
-  .dashboard-container, main {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .dashboard-container, main {
-    padding-left: 4rem;
-    padding-right: 4rem;
-  }
 }
 
 #root {
   width: 100%;
   height: 100%;
   position: relative;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-  /* 🚀 ZENITH GLOBAL ISOLATION */
-  contain: layout paint;
-  isolation: isolate;
 }
 
-.swipe-card {
-  will-change: transform, opacity;
-  transform: translateZ(0);
-  -webkit-touch-callout: none;
-  user-select: none;
-  -webkit-user-select: none;
-  /* 🚀 ZENITH CONTENT ISOLATION */
-  contain: layout style;
-  content-visibility: auto;
-  contain-intrinsic-size: 100%;
+.interactive, button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.1s cubic-bezier(0.2, 0, 0, 1);
+  will-change: transform;
 }
 
-.discovery-grid {
-  display: grid;
-  gap: 1.25rem;
-  /* 🚀 ZENITH GRID ISOLATION */
-  contain: layout style;
-  content-visibility: auto;
-  contain-intrinsic-size: 500px;
-}
-
-.app-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  padding-top: var(--safe-top);
-  height: calc(var(--top-bar-height) + var(--safe-top));
-  display: flex;
-  align-items: center;
-  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
-  will-change: transform, opacity;
-  contain: layout style;
-  transform: translateZ(0);
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.app-bottom-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  padding-bottom: var(--safe-bottom);
-  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
-  will-change: transform, opacity;
-  /* 🚀 ZENITH HUD ISOLATION */
-  contain: layout style;
-  transform: translateZ(0);
+button:active, [role="button"]:active {
+  transform: scale(0.96) !important;
 }
 
 @layer base {
@@ -330,293 +161,21 @@ main, .scrollable-content, .overflow-y-auto {
   }
 }
 
-/* 🏎️ ZENITH FRAME BUDGET: Pause non-essential animations on touch to guarantee 60fps for interactions */
-@media (hover: none) {
-  html:active *, 
-  body:active * {
-    animation-play-state: paused !important;
-  }
-}
+.dark-matte { background-color: #000000 !important; color: #FFFFFF !important; }
+.white-matte { background-color: #FFFFFF !important; color: #000000 !important; }
 
-/* Fast interactive states */
-.interactive, button, [role="button"] {
-  -webkit-tap-highlight-color: transparent;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
-  will-change: transform;
-  -webkit-touch-callout: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
+.white-matte .swipess-logo img { filter: brightness(0); }
 
-/* ZERO-WAIT PRESS: Button responds at 0ms (60fps limit) */
-button:active, [role="button"]:active {
-  transform: scale(0.95) !important;
-  transition-duration: 0ms !important;
-}
-
-.interactive:active, button:active {
-  transform: scale(0.96) translateZ(0);
-}
-
-/* 🚀 ZENITH HARDWARE ACCELERATION 🚀 */
-.gpu-accelerate, .zenith-surface {
-  transform: translate3d(0,0,0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-  will-change: transform, opacity;
-  contain: layout style paint;
-}
-
-.zenith-layer {
-  isolation: isolate;
-}
-
-/* 🚀 INSTANT REALITY: Content Isolation Protocol */
-.zenith-content-node {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 100px; /* Skips rendering for off-screen nodes */
-}
-
-.zenith-interaction-isolation {
-  contain: layout style paint;
-}
-
-.gpu-ultra {
-  transform: translate3d(0,0,0);
-  will-change: transform, opacity;
-  image-rendering: high-quality;
-  backface-visibility: hidden;
-}
-
-/* 📸 Photo Slide-In — premium entrance for decoded images */
-@keyframes photo-slide-in {
-  0%   { transform: translateX(20px) scale(1); opacity: 0; }
-  100% { transform: translateX(0) scale(1); opacity: 1; }
-}
-
-
-/* ─── Premium Animations ─── */
-@keyframes sweep {
-  0% { transform: translateX(-100%); }
-  50% { transform: translateX(100%); }
-  100% { transform: translateX(100%); }
-}
-
-.animate-sweep {
-  animation: sweep 2.5s infinite;
-}
-
-@keyframes pulse-soft {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.02); }
-}
-
-.animate-pulse-soft {
-  animation: pulse-soft 3s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.shimmer {
-  background: linear-gradient(90deg, 
-    rgba(255,255,255,0) 0%, 
-    rgba(255,255,255,0.05) 50%, 
-    rgba(255,255,255,0) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite linear;
-}
-
-.animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite linear;
-}
-
-
-
-.dark-matte {
-  background-color: #0A0A0B !important;
-  color: #FFFFFF !important;
-}
-
-.white-matte {
-  background-color: #FFFFFF !important;
-  color: #000000 !important;
-}
-
-/* 🚀 UNIVERSAL CONTRAST LOCK: Force dark assets in light mode */
-.white-matte .text-muted-foreground { color: #555555 !important; }
-.white-matte .text-foreground { color: #000000 !important; }
-.white-matte button:not(.mexican-pink-premium) { color: #000000 !important; }
-.white-matte .ram-card { background-color: #FFFFFF; color: #000000; }
-.white-matte svg { color: inherit; }
-
-/* 💎 LOGO CONTRAST: Auto-invert PNG wordmark in light mode */
-.white-matte .swipess-logo img {
-  filter: brightness(0);
-}
-
-/* ─── Layout Utils (Safe Areas) ─── */
-.layout-padding-top {
-  padding-top: calc(var(--top-bar-height) + var(--safe-top, 12px) + 20px);
-}
-
-@media (min-width: 768px) {
-  .layout-padding-top {
-    padding-top: calc(var(--top-bar-height) + var(--safe-top, 12px) + 40px);
-  }
-}
-
-.layout-padding-bottom {
-  padding-bottom: calc(68px + var(--safe-bottom, 0px));
-}
-
-.safe-header-padding {
-  padding-top: var(--safe-top, 0px);
-}
-
-.safe-footer-padding {
-  padding-bottom: var(--safe-bottom, 0px);
-}
-
-.brand-gradient-text {
-  background: linear-gradient(135deg, #f97316, #fb923c, #a855f7);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* 🚀 PREMIUM GLASS UTILITIES 🚀 */
-.glass-premium-border {
-  position: relative;
-}
-.glass-premium-border::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.1) 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.text-glass {
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-  letter-spacing: -0.02em;
-}
-
-@keyframes gps-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.4); }
-  70% { box-shadow: 0 0 0 8px rgba(236, 72, 153, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
-}
-
-.animate-gps-pulse {
-  animation: gps-pulse 2s infinite;
-}
-
-/* 🏎️ HI-SPEED SHIMMER (for nano-texture depth) */
-.glass-shimmer-fast {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.03) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite linear;
-}
-
-/* 🧪 LIQUID GLASS ANIMATION */
-@keyframes liquid-drift {
-  0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-  50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-}
-
-.animate-liquid-drift {
-  animation: liquid-drift 15s infinite ease-in-out;
-}
-
-/* 🌬️ BREATHING BLOOM ANIMATION */
-@keyframes breathing-bloom {
-  0%, 100% { transform: scale(1); filter: brightness(1) saturate(1); }
-  50% { transform: scale(1.06); filter: brightness(1.1) saturate(1.15); }
-}
-
-.animate-breathing-bloom {
-  animation: breathing-bloom 12s ease-in-out infinite;
-}
-
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  ⚡ SCROLL BOUNCE PHYSICS — Liquid Momentum Foundation          */
-/*  GPU-isolated 3D transforms for navigation bounce effects       */
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-/* 3D perspective context for tilt/skew physics */
-[data-no-swipe-nav],
-.tinder-nav-scroll {
-  perspective: 800px;
-  transform-style: preserve-3d;
-}
-
-/* Children need their own composite layer for jank-free transforms */
-[data-no-swipe-nav] > button,
-.tinder-nav-scroll > button {
-  transform: translateZ(0);
-  will-change: transform;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-
-
-/* 🚀 SPEED OF LIGHT: Deck Layout Constants */
-.swipe-card-size {
-  width: min(340px, 92vw); /* PK_W optimized for mobile */
-  height: 100%; /* Fill the component's calculated height container */
-  aspect-ratio: auto;
-}
-
-.glass-matte-surface {
-  background: rgba(10, 10, 11, 0.6);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
-}
-
-/* Removed fixed height media queries to let component h-dvh decide */
-
-/* 🏎️ PERFORMANCE: Zero-latency hover transitions */
-.interactive-hover {
-  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), filter 0.2s ease;
-}
-
-.interactive-hover:hover {
-  transform: translateY(-4px) scale(1.02);
-  filter: brightness(1.1);
-}
+.layout-padding-top { padding-top: calc(var(--top-bar-height) + var(--safe-top, 12px) + 20px); }
+.layout-padding-bottom { padding-bottom: calc(80px + var(--safe-bottom, 0px)); }
 
 .glass-pill-nav {
-  background: rgba(15, 23, 42, 0.15); /* Vividly transparent */
+  background: rgba(15, 23, 42, 0.15);
   -webkit-backdrop-filter: blur(28px) saturate(200%);
   backdrop-filter: blur(28px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 9999px;
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.3),
-    inset 0 1px 1px rgba(255, 255, 255, 0.05),
-    inset 0 0 30px rgba(59, 130, 246, 0.2); /* Premium bluish glow */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
 }
 
 .dark .glass-pill-nav {
@@ -624,40 +183,5 @@ button:active, [role="button"]:active {
   border-color: rgba(255, 255, 255, 0.05);
 }
 
-
-
-/* 🫁 CARD BREATHING: Subtle alive presence for top cards */
-@keyframes card-breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.015); }
-}
-
-.card-breathe {
-  animation: card-breathe 4s ease-in-out infinite;
-}
-
-/* ─── Instant Tap Responsiveness ─── */
-button:active,
-a:active,
-[role="button"]:active,
-.interactive:active {
-  transform: scale(0.97);
-  transition: transform 40ms cubic-bezier(0.2, 0, 0, 1);
-}
-
-.leaflet-container {
-  width: 100%;
-  height: 100%;
-  background: #f1f5f9;
-  outline: none;
-}
-
-/* Remove default Leaflet attribution for Apple-style clean look */
-.leaflet-control-attribution {
-  display: none !important;
-}
-
-.leaflet-bar {
-  border: none !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-}
+.leaflet-container { width: 100%; height: 100%; background: #f1f5f9; outline: none; }
+.leaflet-control-attribution { display: none !important; }

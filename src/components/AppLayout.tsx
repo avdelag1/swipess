@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useEffect, useRef } from 'react';
+import { Suspense, lazy, useMemo, useEffect } from 'react';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/components/PullToRefreshIndicator';
 
@@ -20,9 +20,6 @@ import { cn } from '@/lib/utils';
 import { SentientHud } from './SentientHud';
 import { VapIdCardModal } from './VapIdCardModal';
 
-const RadioMiniPlayer = lazy(() =>
-  import('@/components/RadioMiniPlayer').then(m => ({ default: m.RadioMiniPlayer }))
-);
 const NotificationSystem = lazy(() =>
   import('@/components/NotificationSystem').then(m => ({ default: m.NotificationSystem }))
 );
@@ -60,17 +57,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
 
-  useEffect(() => {
-    if (isAuthRoute || !user) return;
-    const prewarm = () => { import('@/components/ConciergeChat').catch(() => {}); };
-    if ('requestIdleCallback' in window) {
-      const idleId = window.requestIdleCallback(prewarm, { timeout: 1500 });
-      return () => window.cancelIdleCallback(idleId);
-    }
-    const timeoutId = globalThis.setTimeout(prewarm, 900);
-    return () => globalThis.clearTimeout(timeoutId);
-  }, [isAuthRoute, user]);
-  
   const isImmersive = useMemo(() => {
     const immersiveRoutes = [
       '/client/dashboard', 
@@ -80,36 +66,35 @@ export function AppLayout({ children }: AppLayoutProps) {
       '/owner/interested-clients',
       '/owner/liked-clients',
       '/client/advertise',
-      '/explore/eventos'
+      '/explore/eventos',
+      '/client/profile',
+      '/owner/profile'
     ];
-    const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
     return immersiveRoutes.some(r => location.pathname.startsWith(r)) || 
            location.pathname.includes('discovery') || 
-           location.pathname.includes('/listing/') ||
-           hideHUDRoutes.some(r => location.pathname.startsWith(r));
+           location.pathname.includes('/listing/');
   }, [location.pathname]);
 
   const { showAIChat } = useModalStore();
 
   const isFullScreen = useMemo(() => {
-    const path = location.pathname;
-    const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
-    return isCameraRoute || isRadioRoute || path.includes('/camera') || path.includes('roommates') || path.includes('eventos') || showAIChat;
-  }, [isCameraRoute, isRadioRoute, location.pathname, showAIChat]);
-
-  const handleMessageActivationsClick = () => navigate('/subscription/packages');
-  const handleListingsClick = () => {
-    if (userRole === 'owner') navigate('/owner/properties');
-    else navigate('/client/liked-properties');
-  };
+    return isCameraRoute || isRadioRoute || showAIChat;
+  }, [isCameraRoute, isRadioRoute, showAIChat]);
 
   const handleFilterClick = () => {
     if (userRole === 'owner') navigate('/owner/filters');
     else navigate('/client/filters');
   };
 
+  const handleListingsClick = () => {
+    if (userRole === 'owner') navigate('/owner/properties');
+    else navigate('/client/liked-properties');
+  };
+
+  const handleMessageActivationsClick = () => navigate('/subscription/packages');
+
   return (
-    <div className={cn("flex flex-col h-screen w-full bg-background relative selection:bg-brand-primary/30", isRadioRoute ? "overflow-visible" : "overflow-hidden")}>
+    <div className="min-h-screen w-full flex flex-col relative bg-background selection:bg-brand-primary/30">
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />
       
@@ -117,59 +102,41 @@ export function AppLayout({ children }: AppLayoutProps) {
         <NotificationSystem />
       </Suspense>
  
-      <div className="flex flex-col flex-1 h-full w-full min-h-0 overflow-hidden relative">
-        {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
-          <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[9999]">
-            <TopBar
-              userRole={userRole}
-              onMessageActivationsClick={handleMessageActivationsClick}
-              onFilterClick={handleFilterClick}
-              transparent={isImmersive}
-              showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
-            />
-          </SentientHud>
-        )}
- 
-        <main
-          id="main-content"
-          className={cn(
-            "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y overflow-x-hidden overflow-y-auto scroll-smooth",
-          )}
-        >
-          {children}
-        </main>
+      {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
+        <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[9999]">
+          <TopBar
+            userRole={userRole}
+            onMessageActivationsClick={handleMessageActivationsClick}
+            onFilterClick={handleFilterClick}
+            transparent={isImmersive}
+            showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
+          />
+        </SentientHud>
+      )}
 
-        <VapIdCardModal
-          isOpen={modalStore.showVapId}
-          onClose={() => modalStore.setModal('showVapId', false)}
-        />
-      </div>
+      <main
+        id="main-content"
+        className={cn(
+          "flex-1 w-full relative z-0",
+          isFullScreen ? "h-screen overflow-hidden" : "min-h-screen"
+        )}
+      >
+        {children}
+      </main>
+
+      <VapIdCardModal
+        isOpen={modalStore.showVapId}
+        onClose={() => modalStore.setModal('showVapId', false)}
+      />
 
       {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
-        <>
-          <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[9999]">
-            <BottomNavigation
-              userRole={userRole}
-              onFilterClick={handleFilterClick}
-              onListingsClick={handleListingsClick}
-            />
-          </SentientHud>
-
-          {!([
-            '/client/liked-properties',
-            '/owner/liked-clients',
-            '/owner/interested-clients',
-            '/client/who-liked-you',
-          ].some(path => location.pathname === path || location.pathname.startsWith(`${path}/`)) || showAIChat) && (
-            <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+80px)] left-4 right-4 z-50 pointer-events-none">
-              <div className="pointer-events-auto">
-                <Suspense fallback={null}>
-                  <RadioMiniPlayer />
-                </Suspense>
-              </div>
-            </div>
-          )}
-        </>
+        <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-[9999]">
+          <BottomNavigation
+            userRole={userRole}
+            onFilterClick={handleFilterClick}
+            onListingsClick={handleListingsClick}
+          />
+        </SentientHud>
       )}
     </div>
   );

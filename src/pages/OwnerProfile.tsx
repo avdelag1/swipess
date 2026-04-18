@@ -26,6 +26,7 @@ const OwnerProfile = () => {
   const { tokenBalance } = useMessagingQuota();
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const isLoading = statsLoading || profileLoading;
 
@@ -34,49 +35,58 @@ const OwnerProfile = () => {
   }
 
   return (
-    <div className="min-h-full w-full bg-[#0a0a0c] text-white overflow-y-visible">
+    <div className={cn("min-h-full w-full transition-colors duration-300", isLight ? "bg-white text-black" : "bg-[#0a0a0c] text-white")}>
       {/* 🛸 CINEMATIC ATMOSPHERE */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-15%] left-[-10%] w-[70%] h-[50%] bg-[#EB4898]/10 blur-[130px] rounded-full" />
-        <div className="absolute top-[20%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[110px] rounded-full" />
+        <div className={cn("absolute top-[-15%] left-[-10%] w-[70%] h-[50%] blur-[130px] rounded-full", isLight ? "bg-[#EB4898]/10" : "bg-[#EB4898]/10")} />
+        <div className={cn("absolute top-[20%] right-[-10%] w-[40%] h-[40%] blur-[110px] rounded-full", isLight ? "bg-blue-500/10" : "bg-blue-500/5")} />
       </div>
 
-      <div className="w-full max-w-lg mx-auto p-6 pt-24 pb-48 space-y-10 relative z-10 overflow-y-visible">
+      <div className="w-full max-w-lg mx-auto p-6 pt-24 pb-48 space-y-10 relative z-10">
         
         {/* 🛸 OWNER HEADER: BRAND GLASS */}
         <div className="flex flex-col items-center text-center gap-6">
           <div className="relative">
              <motion.div 
               whileHover={{ scale: 1.05 }}
-              className="w-32 h-32 rounded-[2.8rem] p-[3px] bg-gradient-to-br from-[#EB4898] via-indigo-500 to-sky-400 shadow-[0_0_50px_rgba(235,72,152,0.4)]"
+              className={cn(
+                 "w-32 h-32 rounded-[2.8rem] p-[3px] bg-gradient-to-br from-[#EB4898] via-indigo-500 to-sky-400 shadow-2xl",
+                 isLight ? "shadow-indigo-200/50" : "shadow-[0_0_50px_rgba(235,72,152,0.4)]"
+              )}
             >
               <div
-                className="w-full h-full rounded-[2.7rem] bg-[#0d0d0f] overflow-hidden cursor-pointer flex items-center justify-center border border-white/10"
+                className={cn(
+                   "w-full h-full rounded-[2.7rem] overflow-hidden cursor-pointer flex items-center justify-center border",
+                   isLight ? "bg-white border-black/5" : "bg-[#0d0d0f] border-white/10"
+                )}
                 onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
               >
                 {ownerProfile?.profile_images?.[0] ? (
                   <img src={ownerProfile.profile_images[0]} alt="Brand" className="w-full h-full object-cover" />
                 ) : (
-                  <Building2 className="w-12 h-12 text-white/20" />
+                  <Building2 className={cn("w-12 h-12", isLight ? "text-black/10" : "text-white/20")} />
                 )}
               </div>
             </motion.div>
              <button
               onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
-              className="absolute -bottom-1 -right-1 w-11 h-11 rounded-2xl flex items-center justify-center shadow-2xl transition-all active:scale-90 bg-white text-black border-[3px] border-[#0d0d0f] z-20"
+              className={cn(
+                 "absolute -bottom-1 -right-1 w-11 h-11 rounded-2xl flex items-center justify-center shadow-2xl transition-all active:scale-90 border-[3px] z-20",
+                 isLight ? "bg-black text-white border-white" : "bg-white text-black border-[#0d0d0f]"
+              )}
             >
               <Camera className="w-5 h-5" />
             </button>
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-4xl font-black uppercase italic tracking-tighter text-white leading-none">
+            <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
               {ownerProfile?.business_name || 'Brand ID'}
             </h1>
             <div className="flex items-center justify-center gap-3">
                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#EB4898] italic">Master Status</span>
                <div className="w-1 h-1 rounded-full bg-white/20" />
-               <span className="text-[11px] font-black uppercase tracking-[0.3em] text-white/30 italic">{user?.email}</span>
+               <span className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/30" : "text-white/30")}>{user?.email}</span>
             </div>
           </div>
         </div>
@@ -85,19 +95,22 @@ const OwnerProfile = () => {
         <div className="grid grid-cols-3 gap-4">
           {[
             { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#EB4898]' },
-            { label: 'Fans', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-amber-400' },
-            { label: 'Assets', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-sky-400' },
+            { label: 'Fans', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-amber-500' },
+            { label: 'Assets', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-sky-500' },
           ].map((stat, i) => (
             <motion.div
               key={i}
               whileTap={{ scale: 0.95 }}
-              className="bg-white/[0.03] backdrop-blur-3xl border border-white/[0.08] rounded-[2rem] p-5 text-center shadow-xl"
+              className={cn(
+                 "backdrop-blur-3xl border rounded-[2rem] p-5 text-center shadow-xl transition-all",
+                 isLight ? "bg-black/5 border-black/5" : "bg-white/[0.03] border-white/[0.08]"
+              )}
             >
               <stat.icon className={cn("w-5 h-5 mx-auto mb-2 opacity-80", stat.color)} />
-              <div className="text-2xl font-black tabular-nums tracking-tighter text-white leading-none">
+              <div className={cn("text-2xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
                 {stat.value}
               </div>
-              <div className="text-[9px] font-black uppercase tracking-widest text-white/30 italic mt-2">{stat.label}</div>
+              <div className={cn("text-[9px] font-black uppercase tracking-[0.2em] italic mt-2", isLight ? "text-black/30" : "text-white/30")}>{stat.label}</div>
             </motion.div>
           ))}
         </div>
@@ -109,17 +122,20 @@ const OwnerProfile = () => {
           className="bg-gradient-to-r from-[#EB4898] to-indigo-600 backdrop-blur-3xl p-[2px] rounded-[2.5rem] shadow-2xl cursor-pointer"
           onClick={() => { triggerHaptic('selection'); navigate('/subscription/packages'); }}
         >
-          <div className="bg-[#0d0d0f]/95 backdrop-blur-3xl rounded-[2.4rem] p-6 flex items-center justify-between border border-white/5">
+          <div className={cn(
+             "backdrop-blur-3xl rounded-[2.4rem] p-6 flex items-center justify-between border",
+             isLight ? "bg-white border-white/5" : "bg-[#0d0d0f]/95 border-white/5"
+          )}>
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20">
                 <Coins className="w-7 h-7 text-[#EB4898]" />
               </div>
               <div>
-                <h3 className="text-[13px] font-black uppercase tracking-[0.2em] text-white italic leading-tight">Identity Credits</h3>
-                <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.15em] mt-1">Available messaging tokens</p>
+                <h3 className={cn("text-[13px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-black" : "text-white")}>Identity Credits</h3>
+                <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-1", isLight ? "text-black/30" : "text-white/30")}>Available messaging tokens</p>
               </div>
             </div>
-            <div className="text-3xl font-black italic tracking-tighter text-white mr-3">
+            <div className={cn("text-3xl font-black italic tracking-tighter mr-3", isLight ? "text-black" : "text-white")}>
               {tokenBalance || 0}
             </div>
           </div>
@@ -129,7 +145,10 @@ const OwnerProfile = () => {
         <div className="space-y-4">
           <Button
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
-            className="w-full h-18 rounded-[2.2rem] bg-white text-black font-black uppercase italic tracking-[0.1em] text-[15px] hover:scale-[1.02] active:scale-95 transition-all shadow-[0_25px_50px_rgba(255,255,255,0.15)] border-none"
+            className={cn(
+              "w-full h-18 rounded-[2.2rem] font-black uppercase italic tracking-[0.1em] text-[15px] hover:scale-[1.02] active:scale-95 transition-all shadow-2xl border-none",
+              isLight ? "bg-black text-white" : "bg-white text-black"
+            )}
           >
             <User className="w-6 h-6 mr-3" />
             Control Brand Identity
@@ -137,10 +156,13 @@ const OwnerProfile = () => {
 
           <Button
             onClick={() => { triggerHaptic('medium'); navigate('/client/advertise'); }}
-            className="w-full h-18 rounded-[2.2rem] bg-[#EB4898]/10 backdrop-blur-xl border border-[#EB4898]/30 hover:bg-[#EB4898]/20 transition-all active:scale-95"
+            className={cn(
+               "w-full h-18 rounded-[2.2rem] backdrop-blur-xl border transition-all active:scale-95",
+               isLight ? "bg-[#EB4898]/5 border-[#EB4898]/20 hover:bg-[#EB4898]/10" : "bg-[#EB4898]/10 border-[#EB4898]/30 hover:bg-[#EB4898]/20"
+            )}
           >
             <Megaphone className="w-6 h-6 text-[#EB4898] mr-3" />
-            <span className="bg-gradient-to-r from-[#EB4898] to-orange-400 bg-clip-text text-transparent font-black uppercase italic tracking-[0.15em] text-[14px]">
+            <span className="bg-gradient-to-r from-[#EB4898] to-orange-500 bg-clip-text text-transparent font-black uppercase italic tracking-[0.15em] text-[14px]">
               Promote Brand Assets
             </span>
           </Button>
@@ -150,20 +172,23 @@ const OwnerProfile = () => {
         <div className="grid grid-cols-2 gap-4">
           {[
             { label: 'Outbound', sub: 'Linked Ready', icon: Flame, color: 'text-[#EB4898]', path: '/owner/liked-clients' },
-            { label: 'Inbound', sub: 'Interested Fans', icon: ThumbsUp, color: 'text-orange-400', path: '/owner/interested-clients' }
+            { label: 'Inbound', sub: 'Interested Fans', icon: ThumbsUp, color: 'text-amber-500', path: '/owner/interested-clients' }
           ].map((nav, i) => (
             <motion.button
               key={i}
               whileTap={{ scale: 0.95 }}
               onClick={() => { triggerHaptic('light'); navigate(nav.path); }}
-              className="bg-white/[0.03] backdrop-blur-3xl border border-white/[0.08] rounded-[2.2rem] p-7 flex flex-col gap-5 text-left hover:bg-white/[0.05] transition-all"
+              className={cn(
+                 "backdrop-blur-3xl border rounded-[2.2rem] p-7 flex flex-col gap-5 text-left hover:bg-black/5 transition-all",
+                 isLight ? "bg-black/5 border-black/5 shadow-lg" : "bg-white/[0.03] border-white/[0.08]"
+              )}
             >
               <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10", nav.color)}>
                 <nav.icon className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-[13px] font-black uppercase tracking-widest text-white italic leading-tight">{nav.label}</div>
-                <div className="text-[10px] font-bold mt-1 text-white/30 uppercase tracking-widest">{nav.sub}</div>
+                <div className={cn("text-[13px] font-black uppercase tracking-widest italic leading-tight", isLight ? "text-black" : "text-white")}>{nav.label}</div>
+                <div className={cn("text-[10px] font-bold mt-1 uppercase tracking-widest", isLight ? "text-black/30" : "text-white/30")}>{nav.sub}</div>
               </div>
             </motion.button>
           ))}
@@ -173,12 +198,14 @@ const OwnerProfile = () => {
         <div className="space-y-6">
           <div className="flex items-center gap-3 px-2">
              <div className="w-1.5 h-1.5 rounded-full bg-[#EB4898] animate-pulse" />
-             <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-white/40 italic">Global Brand Pulse</h3>
+             <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Global Brand Pulse</h3>
           </div>
           <ActivityFeed />
         </div>
 
-        <SharedProfileSection profileId={user?.id} profileName={ownerProfile?.business_name || 'Your Business'} isClient={false} />
+        <div className={cn("p-1 rounded-[2.5rem]", isLight ? "bg-black/5" : "bg-white/5")}>
+           <SharedProfileSection profileId={user?.id} profileName={ownerProfile?.business_name || 'Your Business'} isClient={false} />
+        </div>
         
         <div className="flex justify-center pt-4">
            <LanguageToggle />
@@ -209,10 +236,14 @@ const OwnerProfile = () => {
                   }}
                   className={cn(
                     "w-full h-16 rounded-[2.2rem] backdrop-blur-md flex items-center px-10 gap-5 active:scale-[0.97] transition-all border",
-                    btn.urgent ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-white/5 border-white/5 text-white/70"
+                    btn.urgent 
+                      ? "bg-red-500/10 border-red-500/20 text-red-500" 
+                      : isLight 
+                        ? "bg-black/5 border-black/10 text-black/70 hover:bg-black/10" 
+                        : "bg-white/5 border-white/5 text-white/70 hover:bg-white/10"
                   )}
                 >
-                  <btn.icon className={cn("w-5 h-5", btn.urgent ? "text-red-500" : "text-white/30")} />
+                  <btn.icon className={cn("w-5 h-5", btn.urgent ? "text-red-500" : isLight ? "text-black/30" : "text-white/30")} />
                   <span className="text-[12px] font-black uppercase tracking-[0.2em] italic">{btn.label}</span>
                 </button>
               ))}
