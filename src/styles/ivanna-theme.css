@@ -69,12 +69,14 @@
 }
 
 /* Texture Overlay for Ivanna cards */
-.ivanna-style .bg-card {
-    background-image: linear-gradient(135deg, hsla(35, 56%, 91%, 0.9), hsla(167, 47%, 91%, 0.8));
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsla(40, 47%, 60%, 0.25) !important;
-    border-radius: 24px !important;
+.ivanna-style .bg-card,
+.ivanna-style .glass-card {
+    background-image: linear-gradient(135deg, hsla(35, 56%, 91%, 0.85), hsla(167, 47%, 91%, 0.75));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 2px solid #111111 !important; /* Bold Sketchy Outline */
+    border-radius: 20px 28px 22px 30px / 28px 22px 30px 20px !important; /* Artisan Irregularity */
+    box-shadow: 6px 6px 0px hsla(40, 47%, 20%, 0.1) !important;
     position: relative;
     overflow: hidden;
 }
@@ -96,21 +98,27 @@
         0 10px 40px rgba(200, 169, 107, 0.1);
 }
 
-/* Buttons */
-.ivanna-style button.bg-primary {
+/* Artisan Buttons */
+.ivanna-style button:not(.ivanna-style .glass-pill-nav button),
+.ivanna-style .primary-button {
     background-color: #C8A96B !important;
+    border: 2px solid #111111 !important; /* Bold Sketchy Outline */
+    border-radius: 12px 18px 14px 16px / 16px 14px 18px 12px !important; /* Artisan Irregularity */
     color: #111111 !important;
-    border-radius: 18px !important;
-    box-shadow: 0 4px 14px rgba(200, 169, 107, 0.4) !important;
-    border: none !important;
-    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 4px 4px 0px #111111 !important;
 }
 
-.ivanna-style button.bg-secondary {
+.ivanna-style button:active {
+    box-shadow: 1px 1px 0px #111111 !important;
+    transform: translate(2px, 2px);
+}
+
+.ivanna-style .secondary-button {
     background-color: transparent !important;
-    border: 1px solid rgba(200, 169, 107, 0.5) !important;
+    border: 2px solid #111111 !important;
     color: #111111 !important;
-    border-radius: 18px !important;
+    border-radius: 12px 18px 14px 16px / 16px 14px 18px 12px !important;
 }
 
 /* Inputs */
@@ -131,7 +139,8 @@
 
 /* Hand-painted contour lines simulation */
 .ivanna-style .border-b, .ivanna-style .border-t, .ivanna-style .border-l, .ivanna-style .border-r {
-    border-color: hsla(175, 78%, 23%, 0.1) !important;
+    border-color: #111111 !important;
+    border-width: 2px !important;
 }
 
 /* Animation for Ivanna Style */
