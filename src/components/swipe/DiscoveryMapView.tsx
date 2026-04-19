@@ -94,11 +94,12 @@ export const DiscoveryMapView = ({
     return activeRole === 'owner' ? getClientFilters() : getListingFilters();
   }, [activeRole, getListingFilters, getClientFilters]);
 
-  // 🛰️ DUAL-MODE MATCHING ENGINE
-  const { data: listingsRaw = [] } = useSmartListingMatching(user?.id, [], filters, activeRole === 'client');
-  const { data: clientsRaw = [] } = useSmartClientMatching(user?.id, activeCategory, 0, 50, activeRole === 'owner', filters as any);
+  // 🛰️ DUAL-MODE MATCHING ENGINE: Ensure page 0 is targeted correctly
+  const { data: listingsRaw = [], isLoading: isListingsLoading } = useSmartListingMatching(user?.id, [], filters, 0, 50, false);
+  const { data: clientsRaw = [], isLoading: isClientsLoading } = useSmartClientMatching(user?.id, activeCategory, 0, 50, false, filters as any);
   
   const rawNodes = activeRole === 'owner' ? clientsRaw : listingsRaw;
+  const isLoading = activeRole === 'owner' ? isClientsLoading : isListingsLoading;
 
   // SANITIZATION: Filter out items with missing coordinates to prevent Leaflet crashes
   const nodes = useMemo(() => {
@@ -138,21 +139,30 @@ export const DiscoveryMapView = ({
   };
 
   // Safe fail-render if critical data is missing (though defaults are set)
-  if (!mapCenter || !mapCenter[0]) return <div className="w-full h-full bg-black flex items-center justify-center text-white/20 uppercase font-black text-[10px] tracking-widest">Awaiting Nexus Link...</div>;
+  if (!mapCenter || !mapCenter[0]) return (
+    <div className="w-full h-full bg-black flex flex-col items-center justify-center p-12 text-center">
+       <RefreshCw className="w-12 h-12 text-primary animate-spin mb-6" />
+       <p className="text-[10px] font-black uppercase tracking-[0.5em] text-white/40">Nexus Link Awaiting Coordinate Sync...</p>
+    </div>
+  );
 
   return (
     <motion.div 
-      className="w-full h-full relative overflow-hidden bg-black"
+      className="w-full h-full relative overflow-hidden bg-black flex flex-col"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
+      {/* 📡 COMPONENT ALIVE INDICATOR (Failsafe Visibility) */}
+      <div className="absolute inset-0 bg-[#0a0a0b] pointer-events-none" />
+      
       <MapContainer 
         center={mapCenter} 
         zoom={zoom} 
         zoomControl={false}
         attributionControl={false}
-        className="w-full h-full z-0 pointer-events-auto"
+        className="w-full flex-1 z-[1] pointer-events-auto"
+        style={{ height: '100%', minHeight: '400px' }}
       >
         <TileLayer 
           url={TILE_URL} 
