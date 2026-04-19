@@ -35,15 +35,6 @@ const VIBES = [
     textColor: 'text-white',
     preview: 'bg-zinc-800'
   },
-  { 
-    id: 'nexus-style', 
-    name: 'Nexus Radar', 
-    desc: 'High-tech neon matrix', 
-    icon: Zap,
-    color: 'bg-black',
-    textColor: 'text-pink-500',
-    preview: 'bg-blue-950/20'
-  }
 ] as const;
 
 export function ThemeSelector() {

@@ -164,8 +164,8 @@ export const DiscoveryMapView = memo(({
         L.tileLayer(initialTiles, { maxZoom: 20, crossOrigin: true }).addTo(map);
 
         radarCircle.current = L.circle(currentCenter, {
-            color: '#EB4898',
-            fillColor: '#EB4898',
+            color: '#007AFF',
+            fillColor: '#007AFF',
             fillOpacity: 0.1,
             weight: 2,
             radius: localKm * 1000,
@@ -176,7 +176,7 @@ export const DiscoveryMapView = memo(({
             className: 'radar-center',
             html: `
               <div class="relative w-8 h-8 flex items-center justify-center">
-                <div class="absolute inset-0 bg-[#EB4898] opacity-30 rounded-full animate-ping"></div>
+                <div class="absolute inset-0 bg-[#007AFF] opacity-30 rounded-full animate-ping"></div>
                 <div class="w-2.5 h-2.5 bg-black border-[2px] border-white rounded-full shadow-2xl relative z-10"></div>
               </div>
             `,
@@ -208,7 +208,7 @@ export const DiscoveryMapView = memo(({
     markersRef.current.clearLayers();
 
     entities.forEach(entity => {
-        const iconColor = '#EB4898';
+        const iconColor = '#007AFF';
         const iconHtml = `
             <div class="relative group cursor-pointer active:scale-95 transition-transform" id="marker-${entity.id}">
                 <div class="absolute -inset-2 bg-black/40 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -312,7 +312,11 @@ export const DiscoveryMapView = memo(({
                       onClick={() => { triggerHaptic('light'); setLocalKm(km); setRadiusKm(km); }} 
                       className={cn(
                         "w-8 h-6 rounded-lg text-[9px] font-black uppercase transition-all border", 
-                        localKm === km ? "bg-[#EB4898] text-white shadow-lg border-[#EB4898]" : isLight ? "text-black/90 bg-black/10 border-black/10 hover:bg-black/20" : "text-white/40 bg-white/5 border-white/10 hover:bg-white/15"
+                        localKm === km 
+                          ? "bg-black text-white shadow-xl border-black" 
+                          : isLight 
+                            ? "text-black font-bold bg-white border-black/20 hover:border-black/50" 
+                            : "text-white bg-white/10 border-white/30 hover:border-white/60"
                       )}
                     >
                       {km}K
@@ -338,8 +342,8 @@ export const DiscoveryMapView = memo(({
                       className={cn(
                         "w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90",
                         theme === vibe.id 
-                          ? (isLight ? "bg-black/10 scale-110" : "bg-white/10 scale-110") 
-                          : "opacity-40 hover:opacity-100"
+                          ? (isLight ? "bg-black/20 scale-110 shadow-inner" : "bg-white/20 scale-110 shadow-inner") 
+                          : "opacity-60 hover:opacity-100"
                       )}
                     >
                       <vibe.icon className={cn("w-4 h-4", theme === vibe.id ? vibe.color : (isLight ? "text-black" : "text-white"))} strokeWidth={2.5} />
@@ -347,23 +351,20 @@ export const DiscoveryMapView = memo(({
                   ))}
               </div>
               <div className="w-[1px] h-4 bg-black/10 dark:bg-white/10" />
-              <button 
-                onClick={detectLocation} 
-                className={cn("w-8 h-8 rounded-xl flex items-center justify-center transition-all", userLatitude ? "bg-[#EB4898] text-white" : isLight ? "bg-black/5 text-black" : "bg-white/5 text-white")}
-              >
+              <button onClick={detectLocation} className={cn("w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90", isLight ? "text-black" : "text-white")}>
                   <Navigation className="w-4 h-4" />
               </button>
           </div>
       </div>
 
-      {/* 🛸 NEXUS MAP WINDOW */}
+      {/* 🛸 MAP WINDOW */}
       <div className="flex-1 w-full relative z-0 p-3 pt-24 pb-32 flex flex-col min-h-[400px]">
         <div 
-          id="nexus-radar-map"
+          id="radar-map"
           ref={mapContainerRef} 
           className={cn(
             "flex-1 w-full rounded-[3.5rem] border overflow-hidden shadow-[0_20px_100px_rgba(0,0,0,0.2)] transition-all duration-700 relative",
-            theme === 'nexus-style' ? "border-white/20 shadow-black/80" : "border-black/10 shadow-black/10"
+            theme === 'ivanna-style' ? "border-white/20 shadow-black/80" : "border-black/10 shadow-black/10"
           )} 
           style={{ minHeight: '300px' }}
         />
@@ -415,7 +416,7 @@ export const DiscoveryMapView = memo(({
           )}
         </AnimatePresence>
 
-        {/* 🛸 BOTTOM COMMAND: CATEGORY MATRIX (ICON DESIGN) */}
+        {/* 🛸 BOTTOM COMMAND: CATEGORY MATRIX */}
         <div className="absolute bottom-6 inset-x-0 z-[2010] flex justify-center px-6 pointer-events-none">
             {!selectedEntity && (
             <motion.div 
@@ -441,14 +442,16 @@ export const DiscoveryMapView = memo(({
                         key={cat.id} 
                         onClick={() => { triggerHaptic('medium'); onCategoryChange?.(cat.id as any); }} 
                         className={cn(
-                            "h-10 px-4 flex items-center gap-2 rounded-[2rem] transition-all whitespace-nowrap active:scale-95 border", 
+                            "h-10 px-5 flex items-center gap-2 rounded-2xl transition-all whitespace-nowrap active:scale-95 border", 
                             category === cat.id 
-                              ? "bg-[#EB4898] text-white shadow-xl shadow-[#EB4898]/25 scale-105 z-10 border-[#EB4898]" 
-                              : isLight ? "text-black/90 bg-white border-black/10 shadow-sm" : "text-white/60 bg-black/40 border-white/10"
+                              ? (isLight ? "bg-black text-white border-black" : "bg-white text-black border-white")
+                              : (isLight ? "text-black bg-white border-black/10" : "text-white/80 bg-black/40 border-white/10")
                         )}
                     >
-                        <cat.icon className="w-4 h-4" strokeWidth={3} />
-                        <span className="text-[10px] font-black uppercase tracking-[0.1em] italic">{cat.label}</span>
+                        <cat.icon className={cn("w-4 h-4", category === cat.id ? "" : "opacity-60")} strokeWidth={2.5} />
+                        <span className={cn("text-[10px] font-black uppercase tracking-widest", category === cat.id ? "opacity-100" : "opacity-60")}>
+                            {cat.label}
+                        </span>
                     </button>
                 ))}
             </motion.div>
