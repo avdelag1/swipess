@@ -23,15 +23,15 @@ export function DashboardMapCard({ children, className }: DashboardMapCardProps)
 
   return (
     <div
-      className="w-full flex-1 relative flex items-stretch justify-center px-3 sm:px-5 md:px-8 py-2 sm:py-3 md:py-4 min-h-0"
+      className="w-full flex-1 relative flex items-stretch justify-center px-0 py-0 min-h-0"
     >
       <div
         className={cn(
-          'w-full max-w-[1200px] h-full rounded-3xl overflow-hidden flex flex-col relative',
-          'shadow-[0_30px_80px_-20px_rgba(0,0,0,0.35)]',
+          'w-full h-full overflow-hidden flex flex-col relative',
+          'shadow-none', // Removed heavy shadow for full-bleed feel
           isLight
-            ? 'bg-white border border-black/5'
-            : 'bg-[#0f0f12] border border-white/10',
+            ? 'bg-white'
+            : 'bg-[#0f0f12]',
           className,
         )}
       >

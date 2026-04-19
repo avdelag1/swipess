@@ -329,6 +329,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     // Core routes that should go full-bleed behind the header ONLY for hero effects.
     // Standard dashboards should now have padding to prevent button overlap.
     const immersiveRoutes = [
+      '/client/dashboard',
+      '/owner/dashboard',
       '/client/liked-properties',
       '/owner/interested-clients',
       '/owner/liked-clients',
@@ -489,12 +491,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
         }}
         className={cn(
-          "flex-1 w-full min-h-0 bg-background relative z-0 touch-pan-y overscroll-y-contain",
+          "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y overscroll-y-contain",
            isRadioRoute ? "overflow-visible" 
             : isZeroScrollDashboard ? "overflow-hidden"
             : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
-          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
+          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard) ? "bg-black" : "bg-background"
         )}
         style={{
           paddingTop: isFullScreenRoute || isImmersiveDashboard

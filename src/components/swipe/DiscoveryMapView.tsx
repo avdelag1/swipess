@@ -251,7 +251,7 @@ export const DiscoveryMapView = ({
       {/* 🧭 INTELLIGENT HUD CONTROLS */}
       <div className={cn(
         "absolute left-6 right-6 z-20 flex flex-col gap-4 pointer-events-none",
-        isEmbedded ? "top-24" : "top-32"
+        isEmbedded ? "top-28" : "top-36" 
       )}>
         <div className="w-full flex items-center justify-between pointer-events-auto">
           {onBack && (
@@ -309,7 +309,7 @@ export const DiscoveryMapView = ({
       {!isEmbedded && (
         <>
           {/* Bottom Bar: Action & Radius */}
-          <div className="absolute bottom-10 left-8 right-8 z-10 flex flex-col gap-6 items-center pointer-events-none">
+          <div className="absolute bottom-24 left-8 right-8 z-10 flex flex-col gap-6 items-center pointer-events-none">
              
              {/* Igniter Button */}
              <motion.button
@@ -354,7 +354,7 @@ export const DiscoveryMapView = ({
 
       {/* 🎯 EMBEDDED HUD — slim floating pill anchored inside the card */}
       {isEmbedded && (
-        <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col gap-3 items-center pointer-events-none">
+        <div className="absolute bottom-[108px] left-4 right-4 z-10 flex flex-col gap-3 items-center pointer-events-none">
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={handleIgnite}
