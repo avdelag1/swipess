@@ -61,7 +61,7 @@ export const DiscoveryMapView = memo(({
   const [selectedEntity, setSelectedEntity] = useState<any>(null);
 
   const tulumCenter: [number, number] = [20.2114, -87.4654];
-  const currentCenter: [number, number] = userLatitude ? [userLatitude, userLongitude] : tulumCenter;
+  const currentCenter: [number, number] = (userLatitude != null && userLongitude != null) ? [userLatitude, userLongitude] : tulumCenter;
 
   // 📡 DATA PIPELINE: Fetch nearby entities
   const { data: entities = [] } = useQuery({
@@ -181,7 +181,7 @@ export const DiscoveryMapView = memo(({
             <div class="relative group cursor-pointer active:scale-95 transition-transform" id="marker-${entity.id}">
                 <div class="absolute -inset-2 bg-black/40 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div class="w-10 h-10 rounded-2xl bg-white border-2 border-white shadow-3xl overflow-hidden relative z-10">
-                    <img src="${entity.images?.[0] || '/placeholder.svg'}" class="w-full h-full object-cover" />
+                    <img src="${(entity.images as any)?.[0] || '/placeholder.svg'}" class="w-full h-full object-cover" />
                     <div class="absolute inset-0 bg-black/10"></div>
                     <div class="absolute bottom-0 inset-x-0 h-1" style="background: ${iconColor}"></div>
                 </div>
@@ -191,7 +191,7 @@ export const DiscoveryMapView = memo(({
             </div>
         `;
 
-        const marker = L.marker([entity.latitude, entity.longitude], {
+        const marker = L.marker([entity.latitude as number, entity.longitude as number], {
             icon: L.divIcon({
                 className: 'nexus-marker',
                 html: iconHtml,
@@ -204,7 +204,7 @@ export const DiscoveryMapView = memo(({
             L.DomEvent.stopPropagation(e);
             triggerHaptic('medium');
             setSelectedEntity(entity);
-            map.flyTo([entity.latitude, entity.longitude], 17, { animate: true, duration: 1 });
+            map.flyTo([entity.latitude as number, entity.longitude as number], 17, { animate: true, duration: 1 });
         });
 
         marker.addTo(markersRef.current!);
@@ -334,7 +334,7 @@ export const DiscoveryMapView = memo(({
                            <span className={cn("text-[10px] font-bold uppercase tracking-widest opacity-40")}>{selectedEntity.type}</span>
                         </div>
                         <button 
-                          onClick={() => { triggerHaptic('heavy'); onStartSwiping?.(); }}
+                          onClick={() => { triggerHaptic('heavy'); _onStartSwiping?.(); }}
                           className="w-full h-10 mt-2 rounded-2xl bg-[#EB4898]/10 text-[#EB4898] text-[10px] font-black uppercase italic tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-[#EB4898]/20 pointer-events-auto"
                         >
                             View Protocol <ChevronRight className="w-4 h-4" />

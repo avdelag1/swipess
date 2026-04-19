@@ -4,8 +4,10 @@ import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
+import { triggerHaptic } from '@/utils/haptics';
 import type { QuickFilterCategory } from '@/types/filters';
 
 interface ClientDashboardProps {
@@ -84,7 +86,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
             style={{ willChange: 'transform, opacity' }}
           >
-            <SwipeAllDashboard setCategories={handleLaunch} />
+            <SwipeAllDashboard setCategories={handleLaunch as any} />
           </motion.div>
         )}
 
