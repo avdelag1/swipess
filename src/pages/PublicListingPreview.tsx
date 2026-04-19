@@ -76,7 +76,7 @@ export default function PublicListingPreview() {
       case 'motorcycle': return 'Vespa/Moto';
       case 'bicycle': return 'Beach Cruiser';
       case 'vehicle': return 'Luxe Vehicle';
-      default: return 'Nexus Estate';
+      default: return 'Property';
     }
   };
 
@@ -113,7 +113,7 @@ export default function PublicListingPreview() {
         </div>
         <h1 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-4 leading-none">Asset Not Found</h1>
         <p className="text-white/40 text-sm font-medium max-w-xs mb-10 leading-relaxed uppercase tracking-widest">The requested digital twin has been de-listed or moved to another cluster.</p>
-        <Button onClick={() => navigate('/')} className="w-full max-w-[280px] h-16 rounded-[2rem] bg-white text-black font-black uppercase italic tracking-widest shadow-2xl">Return to Nexus</Button>
+        <Button onClick={() => navigate('/')} className="w-full max-w-[280px] h-16 rounded-[2rem] bg-white text-black font-black uppercase italic tracking-widest shadow-2xl">Return Home</Button>
       </div>
     );
   }
@@ -211,7 +211,7 @@ export default function PublicListingPreview() {
                <Badge className={cn("text-[10px] font-black uppercase italic tracking-widest px-3 py-1.5 rounded-[0.8rem] border", 
                   mode === 'sale' ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
                )}>
-                  {mode === 'sale' ? 'Liquidation' : 'Nexus Residency'}
+                  {mode === 'sale' ? 'Liquidation' : 'Rental'}
                </Badge>
                {(listing as any).verified && (
                  <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase italic tracking-widest px-3 py-1.5 rounded-[0.8rem]">
@@ -223,7 +223,7 @@ export default function PublicListingPreview() {
             {/* IDENTITY CORE */}
             <div className="flex items-start justify-between gap-6 px-1">
                <div className="space-y-3 flex-1">
-                  <h1 className="text-4xl font-black italic tracking-tighter leading-none uppercase">{listing.title || 'Nexus Asset'}</h1>
+                  <h1 className="text-4xl font-black italic tracking-tighter leading-none uppercase">{listing.title || 'Listing'}</h1>
                   <div className="flex items-center gap-2 opacity-40">
                     <MapPin className="w-4 h-4" />
                     <span className="text-[11px] font-black uppercase tracking-widest truncate max-w-[200px]">{listing.city || 'Tulum'}, {listing.neighborhood || 'Tulum Central'}</span>
@@ -280,7 +280,7 @@ export default function PublicListingPreview() {
                 )}
             </div>
 
-            <p className="text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-10 pb-4">Nexus Core Identity</p>
+            <p className="text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-10 pb-4">Profile</p>
          </div>
       </motion.div>
 

@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
 import type { QuickFilterCategory } from '@/types/filters';
+import { triggerHaptic } from '@/utils/haptics';
+import { Sparkles } from 'lucide-react';
 
 interface ClientDashboardProps {
   onPropertyInsights?: (listingId: string) => void;
@@ -36,9 +38,10 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   // ─── Actions ─────────────────────────────────────────────────────────────
   
   const handleLaunch = useCallback((category: QuickFilterCategory) => {
+    setActiveCategory(null);
     setMapCategory(category);
     setPhase('map');
-  }, []);
+  }, [setActiveCategory]);
 
   const handleMapBack = useCallback(() => {
     setPhase('cards');

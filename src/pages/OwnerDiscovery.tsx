@@ -160,9 +160,10 @@ export default function OwnerDiscovery() {
                    ].map((cat) => (
                      <button
                        key={cat.id}
-                       onClick={() => { 
-                         triggerHaptic('medium'); 
+                       onClick={() => {
+                         triggerHaptic('medium');
                          setRadarCategory(cat.id as RadarCategory);
+                         setShowMapView(true);
                        }}
                        title={`Switch to ${cat.label} radar`}
                        aria-label={`Show ${cat.label} prospects`}

@@ -19,9 +19,9 @@ const faqItems: FAQItem[] = [
   { question: "How do I list my property?", answer: "Access the Asset Matrix and tap 'Deploy Asset'. Fill in all technical logs including high-fidelity photos, price, and amenities for total synchronization." },
   { question: "How do I find tenants?", answer: "Scan through potential entity profiles. Authorize interest by swiping right. When a mutual sync occurs, a direct transmission channel is opened." },
   { question: "What happens when an entity likes my property?", answer: "You'll receive a high-priority notification. Review their identity logs and either authorize the match or pass to preserve matrix integrity." },
-  { question: "What are business transmission credits?", answer: "Establishing direct links requires credit consumption. Professional Owners receive high-energy quotas based on their Nexus Package." },
+  { question: "What are business transmission credits?", answer: "Establishing direct links requires credit consumption. Professional Owners receive high-energy quotas based on their plan." },
   { question: "How do I verify my identity?", answer: "Complete the Identity Verification flow in Settings. Professional verification increases your Trust Index and discovery ranking." },
-  { question: "How many assets can I deploy?", answer: "The deployment capacity is determined by your current Nexus Package. Elite Owners enjoy unlimited asset deployment." },
+  { question: "How many assets can I deploy?", answer: "The deployment capacity is determined by your current plan. Elite Owners enjoy unlimited asset deployment." },
 ];
 
 export default function FAQOwnerPage() {

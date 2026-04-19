@@ -87,7 +87,7 @@ export default function PrivacyPolicy() {
             >
                RETURN TO HUB
             </Button>
-            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Swipess Nexus Security Council • 2025-2026 </p>
+            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Swipess • 2025-2026 </p>
         </div>
 
       </div>

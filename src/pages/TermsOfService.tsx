@@ -29,7 +29,7 @@ export default function TermsOfService() {
            </button>
            <h1 className={cn("text-5xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Terms of Service</h1>
            <div className="flex items-center gap-4 mt-2">
-              <Badge variant="outline" className="border-[#EB4898]/30 text-[#EB4898] bg-[#EB4898]/5 text-[9px] font-black uppercase tracking-widest italic">Nexus v14.0 Official Protocol</Badge>
+              <Badge variant="outline" className="border-[#EB4898]/30 text-[#EB4898] bg-[#EB4898]/5 text-[9px] font-black uppercase tracking-widest italic">Official Protocol</Badge>
               <span className={cn("text-[9px] font-black uppercase tracking-widest opacity-30 italic", isLight ? "text-black" : "text-white")}>Last Sync: Nov 2025</span>
            </div>
         </div>
@@ -83,7 +83,7 @@ export default function TermsOfService() {
             >
                RETURN TO HUB
             </Button>
-            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Swipess Nexus Registry • 2025-2026 </p>
+            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Swipess • 2025-2026 </p>
         </div>
 
       </div>

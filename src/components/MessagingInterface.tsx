@@ -104,7 +104,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     return (
       <div className={cn("flex-1 flex flex-col items-center justify-center p-8", isLight ? "bg-white" : "bg-black")}>
          <div className="w-12 h-12 rounded-xl border-4 border-[#EB4898]/10 border-t-[#EB4898] animate-spin" />
-         <p className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] mt-6 animate-pulse">Establishing Nexus Link...</p>
+         <p className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] mt-6 animate-pulse">Connecting...</p>
       </div>
     );
   }

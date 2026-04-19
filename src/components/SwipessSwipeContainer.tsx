@@ -7,6 +7,8 @@ import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
+import { DiscoveryMapView } from './swipe/DiscoveryMapView';
+import type { QuickFilterCategory } from '@/types/filters';
 import {
   getActiveCategoryInfo,
 } from './swipe/SwipeConstants';
@@ -34,7 +36,7 @@ import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { useSwipePrefetch, usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
-import { useFilterStore } from '@/state/filterStore';
+import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
@@ -128,6 +130,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const userLatitude = useFilterStore((s) => s.userLatitude);
   const userLongitude = useFilterStore((s) => s.userLongitude);
   const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
+  const { setCategories } = useFilterActions();
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
 
@@ -1063,19 +1066,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 exit={{ opacity: 0 }}
                 className="w-full h-full z-50 overflow-hidden"
               >
-                <SwipeExhaustedState 
-                 onRefresh={handleRefresh}
-                 isRefreshing={isRefreshing}
-                 categoryLabel={storeActiveCategory || 'Listings'}
-                 CategoryIcon={Home}
-                 radiusKm={radiusKm}
-                 onRadiusChange={setRadiusKm}
-                 onDetectLocation={detectLocation}
-                 detected={locationDetected}
-                 error={error}
-                 role={userRole === 'owner' ? 'owner' : 'client'}
-                 lat={userLatitude}
-                 lng={userLongitude}
+                <DiscoveryMapView
+                  category={(storeActiveCategory as QuickFilterCategory) || 'property'}
+                  onBack={() => setActiveCategory(null)}
+                  onStartSwiping={handleRefresh}
+                  onCategoryChange={(cat) => setCategories([cat as any])}
+                  isEmbedded={false}
                 />
               </motion.div>
             )}

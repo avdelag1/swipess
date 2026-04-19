@@ -27,7 +27,7 @@ export default function LegalPage() {
   const legalItems = [
     { icon: Scale, label: 'Protocols & Contracts', description: 'Digital rental agreements & authorization logs', bg: '#06b6d4', action: () => navigate('/client/contracts') },
     { icon: Gavel, label: 'Legal Authority', description: 'Professional legal dispatch assistance', bg: '#8b5cf6', action: () => setShowLawyerModal(true) },
-    { icon: FileText, label: 'Nexus Terms', description: 'Core service terms & conditions', bg: '#f97316', action: () => navigate('/terms-of-service') },
+    { icon: FileText, label: 'Terms', description: 'Core service terms & conditions', bg: '#f97316', action: () => navigate('/terms-of-service') },
     { icon: Shield, label: 'Data Integrity', description: 'Privacy policy & data protection protocols', bg: '#EB4898', action: () => navigate('/privacy-policy') },
     { icon: BookOpen, label: 'Entity Conduct (AGL)', description: 'Community standards & behavioral matrix', bg: '#indigo-500', action: () => navigate('/agl') },
   ];

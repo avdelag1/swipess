@@ -440,7 +440,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                           <AlertDialogContent className={cn("rounded-[2.5rem] border backdrop-blur-3xl", isLight ? 'bg-white border-black/5' : 'bg-[#101012] border-white/10')}>
                             <AlertDialogHeader>
                               <AlertDialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Purge Asset?</AlertDialogTitle>
-                              <AlertDialogDescription className="text-[11px] font-black uppercase tracking-widest opacity-50">This action will permanently disconnect this property from the Global Nexus.</AlertDialogDescription>
+                              <AlertDialogDescription className="text-[11px] font-black uppercase tracking-widest opacity-50">This action will permanently remove this property from the platform.</AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter className="gap-3">
                               <AlertDialogCancel className="rounded-2xl h-14 font-black uppercase tracking-widest text-[10px]">Abort</AlertDialogCancel>
