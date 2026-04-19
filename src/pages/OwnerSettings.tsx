@@ -12,6 +12,7 @@ import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
 import { BackgroundThemeSettings } from "@/components/BackgroundThemeSettings";
+import { GlobalThemeSettings } from "@/components/GlobalThemeSettings";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useTranslation } from "react-i18next";
 import { PWAInstallButton } from "@/components/PWAInstallButton";
@@ -31,8 +32,7 @@ const OwnerSettings = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useTheme();
 
   const settingsGroups = [
     {
@@ -78,6 +78,7 @@ const OwnerSettings = () => {
                     {activeSection === 'language' && <LanguageToggle />}
                     {activeSection === 'preferences' && (
                         <div className="space-y-10">
+                            <GlobalThemeSettings />
                             <BackgroundThemeSettings />
                             <SwipeSoundSettings />
                         </div>
