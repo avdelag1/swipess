@@ -153,11 +153,6 @@ export const DiscoveryMapView = memo(({
         const marker = L.marker([entity.latitude, entity.longitude], {
             icon: L.divIcon({
                 className: 'swipess-marker',
-                html: `<div class="w-10 h-10 rounded-xl bg-white border-2 border-white shadow-lg overflow-hidden"><img src="${entity.images?.[0] || ''}" class="w-full h-full object-cover"></div>`
-            })
-        });
-            icon: L.divIcon({
-                className: 'swipess-marker',
                 html: `
                     <div class="relative group cursor-pointer active:scale-95 transition-transform" id="marker-${entity.id}">
                         <div class="w-10 h-10 rounded-2xl bg-white border-2 border-white shadow-lg overflow-hidden relative z-10">
