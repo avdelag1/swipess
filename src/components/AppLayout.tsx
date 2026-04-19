@@ -34,6 +34,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
   const modalStore = useModalStore();
+  const { showAIChat } = modalStore;
   const { activeMode } = useActiveMode();
   const { isRefreshing, pullDistance, triggered } = usePullToRefresh();
 
@@ -74,8 +75,6 @@ export function AppLayout({ children }: AppLayoutProps) {
            location.pathname.includes('discovery') || 
            location.pathname.includes('/listing/');
   }, [location.pathname]);
-
-  const { showAIChat } = useModalStore();
 
   const isFullScreen = useMemo(() => {
     return isCameraRoute || isRadioRoute || showAIChat || modalStore.showMapFullscreen;

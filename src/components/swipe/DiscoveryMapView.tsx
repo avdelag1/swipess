@@ -59,18 +59,22 @@ interface DiscoveryMapViewProps {
   onBack?: () => void;
   onStartSwiping?: () => void;
   isEmbedded?: boolean;
+  showHUD?: boolean;
   category?: QuickFilterCategory | string;
   mode?: 'client' | 'owner';
+  /** @deprecated passed by LocationRadiusSelector but unused — kept to avoid prop-type warnings */
+  variant?: string;
 }
 
 /**
  * 🛰️ RADAR NEXUS ENGINE (UNIFIED v3.0)
  * One Map, One Style. The final source of truth for discovery.
  */
-export const DiscoveryMapView = ({ 
-  onBack, 
+export const DiscoveryMapView = ({
+  onBack,
   onStartSwiping,
   isEmbedded = false,
+  showHUD = true,
   category: _passedCategory,
   mode = 'client'
 }: DiscoveryMapViewProps) => {
@@ -251,7 +255,7 @@ export const DiscoveryMapView = ({
       </MapContainer>
 
       {/* 🧭 INTELLIGENT HUD CONTROLS */}
-      <div className={cn(
+      {showHUD && <div className={cn(
         "absolute left-6 right-6 z-20 flex flex-col gap-4 pointer-events-none transition-all duration-500",
         modalStore.showMapFullscreen 
           ? "top-[calc(var(--safe-top,20px)+12px)]" 
@@ -321,9 +325,9 @@ export const DiscoveryMapView = ({
             );
           })}
         </div>
-      </div>
+      </div>}
 
-      {!isEmbedded && (
+      {!isEmbedded && showHUD && (
         <>
           {/* Bottom Bar: Action & Radius */}
           <div className="absolute bottom-24 left-8 right-8 z-10 flex flex-col gap-6 items-center pointer-events-none">
@@ -382,7 +386,7 @@ export const DiscoveryMapView = ({
       )}
 
       {/* 🎯 EMBEDDED HUD — slim floating pill anchored inside the card */}
-      {isEmbedded && (
+      {isEmbedded && showHUD && (
         <div className={cn(
           "absolute left-4 right-4 z-10 flex flex-col gap-3 items-center pointer-events-none transition-all duration-500",
           modalStore.showMapFullscreen 

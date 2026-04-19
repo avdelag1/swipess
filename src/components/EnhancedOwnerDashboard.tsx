@@ -109,11 +109,11 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const storeFilterVersion = useFilterStore((s) => s.filterVersion);
   const clientFilters = useMemo(() => {
     return useFilterStore.getState().getClientFilters();
-  }, [storeFilterVersion, useFilterStore]);
+  }, [storeFilterVersion]);
 
   const mergedFilters = useMemo(() => {
     return { ...filters, ...clientFilters };
-  }, [storeFilterVersion, filters]);
+  }, [filters, clientFilters]);
 
   const filterCategory = mergedFilters?.categories?.[0] || undefined;
   const { data: clientProfiles = [], isLoading, error } = useSmartClientMatching(

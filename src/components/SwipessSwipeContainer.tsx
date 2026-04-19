@@ -1109,7 +1109,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   category={(storeActiveCategory as QuickFilterCategory) || 'property'}
                   onBack={() => setActiveCategory(null)}
                   onStartSwiping={handleRefresh}
-                  onCategoryChange={(cat) => setCategories([cat as any])}
                   isEmbedded={false}
                 />
               </motion.div>
