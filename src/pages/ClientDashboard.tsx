@@ -7,9 +7,8 @@ import { DashboardMapCard } from '@/components/swipe/DashboardMapCard';
 import { MapFilterChipRow } from '@/components/swipe/MapFilterChipRow';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuickFilterCategory } from '@/types/filters';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import ClientFilters from './ClientFilters';
-import { Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -38,7 +37,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const [showFilters, setShowFilters] = useState(false);
 
   const activeCategory = useFilterStore(s => s.activeCategory);
-  const { setActiveCategory, setCategories } = useFilterActions();
+  const { setActiveCategory } = useFilterActions();
 
   // ─── Actions ─────────────────────────────────────────────────────────────
   
@@ -64,7 +63,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
 
   const handleExhaustedMap = useCallback(() => {
     setPhase('map');
-  }, [setActiveCategory]);
+  }, []);
 
   const handleMapBack = useCallback(() => {
     setActiveCategory(null);
@@ -83,13 +82,6 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
     // In v1.0, tapping the mini-card on map takes you to swipe phase
     handleStartSwiping();
   }, [handleStartSwiping]);
-
-  // Handle case where user exits swipe deck via some other nav
-  const handleBackToMap = useCallback(() => {
-    setActiveCategory(null);
-    setPhase('map');
-  }, [setActiveCategory]);
-
 
   // Determine what to show based on phase + store state. 
   // We MUST be strictly exclusive to avoid "ghost designs" appearing behind.

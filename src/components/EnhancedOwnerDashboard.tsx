@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
-import { User, Megaphone, RefreshCw, Cpu, Activity, Sparkles } from 'lucide-react';
+import { Cpu, Activity } from 'lucide-react';
 import { useModalStore } from '@/state/modalStore';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -37,9 +37,7 @@ interface EnhancedOwnerDashboardProps {
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
-  const [_selectedClientId, _setSelectedClientId] = useState<string | null>(null);
-  const [_insightsOpen, _setInsightsOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
+  const [viewMode] = useState<'discovery' | 'insights'>('discovery');
   
   useEffect(() => {
     const handleOpenFilters = () => setShowFilters(true);
@@ -104,7 +102,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const storeFilterVersion = useFilterStore((s) => s.filterVersion);
   const clientFilters = useMemo(() => {
     return useFilterStore.getState().getClientFilters();
-  }, [storeFilterVersion]);
+  }, [storeFilterVersion, useFilterStore]);
 
   const mergedFilters = useMemo(() => {
     return { ...filters, ...clientFilters };
@@ -316,7 +314,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
                   <DiscoveryFilters
                     category={mapCategory || 'property'}
                     initialFilters={mergedFilters}
-                    onApply={(newFilters) => {
+                    onApply={(_newFilters) => {
                       setShowFilters(false);
                     }}
                     activeCount={0}

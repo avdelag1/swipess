@@ -35,8 +35,7 @@ interface ChipDef {
  *   - "Clients":  owner-side toggle to clientType === 'all'
  */
 export function MapFilterChipRow({ mode, onBack }: MapFilterChipRowProps) {
-  const { theme } = useTheme();
-  const isLight = theme === 'light' || theme === 'ivanna-style';
+  const { theme, isLight } = useTheme();
 
   const activeCategory = useFilterStore((s) => s.activeCategory);
   const categories = useFilterStore((s) => s.categories);

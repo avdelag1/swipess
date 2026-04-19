@@ -7,7 +7,7 @@ import { useSmartListingMatching, useSmartClientMatching } from '@/hooks/useSmar
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RefreshCw, Map as MapIcon, ChevronLeft, Sparkles } from 'lucide-react';
+import { RefreshCw, ChevronLeft, Sparkles } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { POKER_CARDS, OWNER_INTENT_CARDS } from './SwipeConstants';
 import { Button } from '@/components/ui/button';
@@ -16,16 +16,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { LeafletAutoResize } from './useLeafletAutoResize';
 import type { QuickFilterCategory } from '@/types/filters';
 
-// 🗝️ OFFICIAL MAPBOX ASSETS — ONE STYLE, ONE KEY
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
-const MAPBOX_STYLE = 'mapbox/navigation-night-v1';
-
-// FLAGSHIP FALLBACK: If Mapbox is blocked/missing, use a high-contrast dark OSM layer
-// We ENFORCE a dark baseline for the Radar because light-theme maps often hide the streets
-// when HUD overlays are present.
-const TILE_URL = MAPBOX_TOKEN 
-  ? `https://api.mapbox.com/styles/v1/${MAPBOX_STYLE}/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`
-  : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 
 // 📏 GEODESIC MATH FOR ONE-STYLE RADIUS PARITY
 const getGeodesicRadius = (radiusKm: number, lat: number) => {
@@ -83,9 +74,17 @@ export const DiscoveryMapView = ({
   mode = 'client'
 }: DiscoveryMapViewProps) => {
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme, isLight } = useTheme();
   const { data: roleFromDb } = useUserRole(user?.id);
   const activeRole = mode || (roleFromDb as any) || 'client';
+
+  const mapStyle = useMemo(() => isLight ? 'mapbox/navigation-day-v1' : 'mapbox/navigation-night-v1', [isLight]);
+  const tileUrl = useMemo(() => {
+    if (MAPBOX_TOKEN) return `https://api.mapbox.com/styles/v1/${mapStyle}/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`;
+    return isLight 
+      ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  }, [mapStyle, isLight]);
 
   const { radiusKm, userLatitude, userLongitude, activeCategory: storeCategory } = useFilterStore();
   const { setActiveCategory, setRadiusKm } = useFilterActions();
@@ -104,7 +103,8 @@ export const DiscoveryMapView = ({
   const { data: clientsRaw = [], isLoading: isClientsLoading } = useSmartClientMatching(user?.id, activeCategory, 0, 50, false, filters as any);
   
   const rawNodes = activeRole === 'owner' ? clientsRaw : listingsRaw;
-  const isLoading = activeRole === 'owner' ? isClientsLoading : isListingsLoading;
+  // Note: isLoading was here but unused. Data-ready checks are handled by nodes.length.
+
 
   // Role-Aware Categories for HUD
   const availableCategories = useMemo(() => {
@@ -163,7 +163,7 @@ export const DiscoveryMapView = ({
     <motion.div
       className={cn(
         'w-full h-full relative overflow-hidden flex flex-col',
-        isEmbedded ? 'bg-[#0a0a0b]' : 'bg-black',
+        isLight ? 'bg-white' : (isEmbedded ? 'bg-[#0a0a0b]' : 'bg-black'),
       )}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -171,7 +171,7 @@ export const DiscoveryMapView = ({
     >
       {/* 📡 COMPONENT ALIVE INDICATOR (Failsafe Visibility) */}
       {!isEmbedded && (
-        <div className="absolute inset-0 bg-[#0a0a0b] pointer-events-none" />
+        <div className={cn("absolute inset-0 pointer-events-none", isLight ? "bg-white" : "bg-[#0a0a0b]")} />
       )}
 
       <MapContainer
@@ -184,13 +184,13 @@ export const DiscoveryMapView = ({
       >
         <LeafletAutoResize />
         <TileLayer
-          url={TILE_URL}
+          url={tileUrl}
           tileSize={MAPBOX_TOKEN ? 512 : 256}
           zoomOffset={MAPBOX_TOKEN ? -1 : 0}
           className="nexus-tiles"
         />
         {/* FALLBACK LAYER: Always active with low opacity to ensure grid visibility */}
-        {!MAPBOX_TOKEN && (
+        {!MAPBOX_TOKEN && !isLight && (
           <TileLayer
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             opacity={0.3}
@@ -259,7 +259,12 @@ export const DiscoveryMapView = ({
               variant="ghost"
               size="icon"
               onClick={() => { triggerHaptic('light'); onBack(); }}
-              className="w-12 h-12 rounded-2xl backdrop-blur-3xl border bg-black/80 border-white/10 text-white hover:text-primary transition-all shadow-2xl"
+              className={cn(
+                "w-12 h-12 rounded-2xl backdrop-blur-3xl border transition-all shadow-2xl",
+                isLight 
+                  ? "bg-white/90 border-black/10 text-black hover:text-primary"
+                  : "bg-black/80 border-white/10 text-white hover:text-primary"
+              )}
             >
               <ChevronLeft className="w-6 h-6" />
             </Button>
@@ -267,9 +272,15 @@ export const DiscoveryMapView = ({
           
           {!onBack && <div className="w-12 h-12" />}
           
-          <div className="backdrop-blur-3xl border bg-black/80 border-white/10 px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3">
+          <div className={cn(
+            "backdrop-blur-3xl border px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3",
+            isLight ? "bg-white/90 border-black/10" : "bg-black/80 border-white/10"
+          )}>
              <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-             <span className="text-[10px] font-black uppercase tracking-[0.35em] text-white">
+             <span className={cn(
+               "text-[10px] font-black uppercase tracking-[0.35em]",
+               isLight ? "text-black" : "text-white"
+             )}>
                 RADAR: <span className="text-primary italic">{nodes.length} {activeRole === 'owner' ? 'CLIENTS' : 'NODES'}</span>
              </span>
           </div>
@@ -295,7 +306,9 @@ export const DiscoveryMapView = ({
                   "h-11 px-5 rounded-2xl flex items-center gap-2 transition-all border shadow-2xl backdrop-blur-3xl flex-shrink-0",
                   isActive 
                     ? "bg-primary text-white border-primary shadow-[0_15px_35px_rgba(235,72,152,0.5)] scale-105" 
-                    : "bg-slate-900/90 text-white border-white/10 hover:text-white hover:bg-slate-800"
+                    : isLight
+                      ? "bg-white/90 text-black border-black/10 hover:text-black hover:bg-white"
+                      : "bg-slate-900/90 text-white border-white/10 hover:text-white hover:bg-slate-800"
                 )}
               >
                 <Icon className="w-5 h-5" />
@@ -317,8 +330,12 @@ export const DiscoveryMapView = ({
                onClick={handleIgnite}
                disabled={isScanning}
                className={cn(
-                 "group relative w-full max-w-[280px] h-18 rounded-[2.5rem] border-2 border-primary/30 flex items-center justify-center overflow-hidden transition-all duration-500 shadow-[0_30px_60px_rgba(var(--color-brand-primary-rgb),0.3)] pointer-events-auto",
-                 isScanning ? "bg-primary text-white" : "bg-black/80 backdrop-blur-3xl hover:bg-black"
+                 "group relative w-full max-w-[280px] h-18 rounded-[2.5rem] border-2 flex items-center justify-center overflow-hidden transition-all duration-500 shadow-[0_30px_60px_rgba(var(--color-brand-primary-rgb),0.3)] pointer-events-auto",
+                 isScanning 
+                   ? "bg-primary text-white border-primary/30" 
+                   : isLight
+                     ? "bg-black text-white border-black/20 hover:bg-zinc-900"
+                     : "bg-black/80 backdrop-blur-3xl border-primary/30 hover:bg-black"
                )}
              >
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-white/10 to-primary/20 opacity-30 skew-x-12 animate-shimmer" />
@@ -338,14 +355,22 @@ export const DiscoveryMapView = ({
              </motion.button>
 
              {/* Radius Micro-Control */}
-             <div className="w-full max-w-[240px] flex items-center gap-4 bg-black/60 backdrop-blur-3xl px-6 py-3 rounded-[2rem] border border-white/10 pointer-events-auto shadow-2xl">
-                <span className="text-[10px] font-black text-white/30 uppercase tracking-widest min-w-[40px]">{radiusKm}KM</span>
+             <div className={cn(
+               "w-full max-w-[240px] flex items-center gap-4 backdrop-blur-3xl px-6 py-3 rounded-[2rem] border pointer-events-auto shadow-2xl",
+               isLight
+                 ? "bg-white/90 border-black/10"
+                 : "bg-black/60 border-white/10"
+             )}>
+                <span className={cn(
+                  "text-[10px] font-black uppercase tracking-widest min-w-[40px]",
+                  isLight ? "text-black/40" : "text-white/30"
+                )}>{radiusKm}KM</span>
                 <input
                   type="range"
                   min="1" max="100"
                   value={radiusKm}
                   onChange={(e) => setRadiusKm(parseInt(e.target.value))}
-                  className="flex-1 h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary"
+                  className="flex-1 h-1 bg-primary/20 rounded-full appearance-none cursor-pointer accent-primary"
                 />
              </div>
           </div>
@@ -361,7 +386,7 @@ export const DiscoveryMapView = ({
             disabled={isScanning}
             className={cn(
               'relative w-full max-w-[280px] h-14 rounded-full flex items-center justify-center overflow-hidden transition-all shadow-2xl pointer-events-auto',
-              theme === 'light'
+              isLight
                 ? 'bg-black text-white border border-black/20'
                 : 'bg-primary text-white border border-primary/60',
               isScanning && 'opacity-80',
@@ -385,7 +410,7 @@ export const DiscoveryMapView = ({
           <div
             className={cn(
               'w-full max-w-[260px] flex items-center gap-3 px-5 py-2 rounded-full border pointer-events-auto shadow-lg backdrop-blur-xl',
-              theme === 'light'
+              isLight
                 ? 'bg-white/90 border-black/10'
                 : 'bg-black/60 border-white/10',
             )}
@@ -393,7 +418,7 @@ export const DiscoveryMapView = ({
             <span
               className={cn(
                 'text-[10px] font-black uppercase tracking-widest min-w-[36px]',
-                theme === 'light' ? 'text-black/60' : 'text-white/60',
+                isLight ? 'text-black/60' : 'text-white/60',
               )}
             >
               {radiusKm}km

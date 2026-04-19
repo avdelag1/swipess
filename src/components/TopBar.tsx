@@ -43,8 +43,7 @@ function TopBarComponent({
 }: TopBarProps) {
   const { navigate, prefetch: _prefetch } = useAppNavigate();
   const { user } = useAuth();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useTheme();
 
   const glassSurfaceStyle: React.CSSProperties = {
     background: _transparent ? 'transparent' : (isLight ? 'rgba(255,255,255,0.45)' : 'rgba(25,25,30,0.3)'),

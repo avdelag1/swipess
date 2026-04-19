@@ -87,7 +87,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const { theme } = useTheme()
-  const isDark = theme === 'dark' || theme === 'cheers'
+  const isDark = theme === 'dark' || theme === 'cheers' || theme === 'nexus-style';
   const [_showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingChecked, setOnboardingChecked] = useState(false)
   
@@ -344,18 +344,16 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     return isMatch;
   }, [location.pathname]);
 
-  const { isFocused, resetFocus } = useFocusMode(6000);
+  const { resetFocus } = useFocusMode(6000);
 
   // 🧘 IMMERSIVE HUD: Combine scroll direction and focus mode for "Sentient Navigation"
   // UI hides when scrolling down or after inactivity, and restores on scroll up or interaction.
-  const { isVisible: isScrollVisible } = useScrollDirection({
+  useScrollDirection({
     threshold: 20,
     showAtTop: true,
     targetSelector: '#dashboard-scroll-container',
     resetTrigger: location.pathname
   });
-
-  const showHUD = !isFocused && isScrollVisible;
 
   // Reset nav visibility on every route change so buttons always appear on new pages
   useEffect(() => {
@@ -380,26 +378,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const _activeUiCategory = categories.length === 1 ? categories[0] : null;
 
 
-  // Check if we're on a discovery page where filters should be shown
-  // MUST be declared BEFORE enhancedChildren useMemo that references it
-  const isOnDiscoveryPage = (userRole === 'client' && location.pathname === '/client/dashboard') ||
-    (userRole === 'owner' && location.pathname === '/owner/dashboard');
-
-  // PERF FIX: Do NOT clone children with props — route elements (MyHub, ClientProfile, etc.)
-  // get their data from hooks/stores directly, not from cloneElement props.
-  // The old cloneElement pattern caused cascading re-renders (React #185) because
-  // combinedFilters changed identity on every filter store update, triggering
-  // AnimatedOutlet to re-clone the outlet element with new props on every render.
-  const enhancedChildren = children;
-
-  // PERF FIX: Detect camera and radio routes to hide TopBar/BottomNav (fullscreen UX)
-  // Camera and radio routes are now INSIDE layout to prevent dashboard remount on navigate back
-  // IMMERSIVE FULLSCREEN: Routes that take over the entire screen (e.g. Camera, Radio, Stories-style feeds)
-  const isCameraRoute = location.pathname.includes('/camera');
-  const isRadioRoute = location.pathname.includes('/radio');
-  const isRoommatesPage = location.pathname.startsWith('/explore/roommates');
-  const isImmersiveFeed = isRoommatesPage || location.pathname.startsWith('/explore/eventos');
-
   // IMMERSIVE MODE: Handled above for swipe navigation dependency
 
 
@@ -410,9 +388,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const scrollExclusions = ['likes', 'interested', 'liked'];
     if (scrollExclusions.some(path => location.pathname.includes(path))) return false;
 
-    const isCameraRoute = location.pathname.includes('/camera');
-    const isRadioRoute = location.pathname.includes('/radio');
-    const isRoommatesPage = location.pathname.startsWith('/explore/roommates');
+    const isCameraRouteLocal = location.pathname.includes('/camera');
+    const isRadioRouteLocal = location.pathname.includes('/radio');
+    const isRoommatesPageLocal = location.pathname.startsWith('/explore/roommates');
     
     // Admin and helper subpages should also be scrollable (not fixed)
     const isSpecialSubPage = [
@@ -434,38 +412,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/explore/eventos'
     ].some(path => location.pathname === path || location.pathname === path + '/');
 
-    const hideHUDRoutes = ['/explore/eventos', '/explore/roommates'];
-    
     // Only truly immersive non-scroll pages should be fixed
-    return isCameraRoute || isRadioRoute || isRoommatesPage || isSpecialSubPage;
+    return isCameraRouteLocal || isRadioRouteLocal || isRoommatesPageLocal || isSpecialSubPage;
   }, [location.pathname]);
 
   const isZeroScrollDashboard = useMemo(() => {
     const path = location.pathname;
     return path === '/client/dashboard' || path === '/owner/dashboard' || path === '/client/dashboard/' || path === '/owner/dashboard/';
   }, [location.pathname]);
-
-  const handleMessageActivationsClick = useCallback(() => {
-    navigate('/subscription/packages');
-  }, [navigate]);
-
-  const handleListingsClick = useCallback(() => {
-    if (userRole === 'owner') {
-      navigate('/owner/properties');
-    } else {
-      navigate('/client/liked-properties');
-    }
-  }, [navigate, userRole]);
-
-  // Dynamic page titles disabled per user request: "Remove any title or description on the top header"
-  // Icons and context already convey location; clear header improves tap-to-dashboard UX.
-  const pageTitle = useMemo(() => {
-    return '';
-  }, []);
-
-  // Calculate responsive layout values
-  const topBarHeight = responsive.isMobile ? 52 : 56;
-  const bottomNavHeight = responsive.isMobile ? 68 : 72;
 
   useSwipeNavigation({
     paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
@@ -507,7 +461,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         }}
       >
         <div className="h-full w-full flex flex-1 min-w-0 flex-col">
-          {enhancedChildren}
+          {children}
         </div>
       </main>
 
