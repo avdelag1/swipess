@@ -29,7 +29,7 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  useTheme();
+  const { theme } = useTheme();
   const location = useLocation();
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
