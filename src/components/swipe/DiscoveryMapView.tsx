@@ -6,6 +6,7 @@ import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useSmartListingMatching, useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useModalStore } from '@/state/modalStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RefreshCw, ChevronLeft, Sparkles } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
@@ -77,6 +78,7 @@ export const DiscoveryMapView = ({
   const { theme, isLight } = useTheme();
   const { data: roleFromDb } = useUserRole(user?.id);
   const activeRole = mode || (roleFromDb as any) || 'client';
+  const modalStore = useModalStore();
 
   const mapStyle = useMemo(() => isLight ? 'mapbox/navigation-day-v1' : 'mapbox/navigation-night-v1', [isLight]);
   const tileUrl = useMemo(() => {
