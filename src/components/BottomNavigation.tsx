@@ -82,8 +82,7 @@ export const BottomNavigation = memo(({
   const setModal = useModalStore((s) => s.setModal);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight, isDark } = useTheme();
 
   const { t } = useTranslation();
 
@@ -233,8 +232,8 @@ export const BottomNavigation = memo(({
     return location.pathname === item.path || location.pathname.startsWith(item.path + '/');
   };
 
-  const iconColorInactive = 'rgba(255,255,255,0.65)';
-  const activeColor = 'var(--color-brand-primary)';
+  const iconColorInactive = isLight ? 'rgba(17,17,17,0.45)' : 'rgba(255,255,255,0.65)';
+  const activeColor = isLight ? '#0D6A63' : 'var(--color-brand-primary)';
 
   const barShadow = 'none';
 

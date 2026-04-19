@@ -86,8 +86,7 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark' || theme === 'cheers'
+  const { theme, isLight, isDark } = useTheme()
   const [_showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingChecked, setOnboardingChecked] = useState(false)
   
@@ -477,8 +476,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className={cn(
-      "dashboard-root w-full h-full min-h-0 bg-background relative flex flex-col overflow-hidden",
-      isDark ? "dark dark-matte" : "light white-matte"
+      "dashboard-root w-full h-full min-h-0 relative flex flex-col overflow-hidden",
+      isDark ? "dark dark-matte bg-background" : (theme === 'ivanna-style' ? "ivanna-style bg-transparent" : "light white-matte bg-background")
     )}>
 
     {/* HUD is now managed globally in AppLayout.tsx to ensure a universal immersive experience */}
@@ -497,7 +496,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             : isZeroScrollDashboard ? "overflow-hidden"
             : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
-          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
+          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : (theme === 'ivanna-style' ? "bg-transparent" : "bg-background")
         )}
         style={{
           paddingTop: (isFullScreenRoute || isZeroScrollDashboard)
