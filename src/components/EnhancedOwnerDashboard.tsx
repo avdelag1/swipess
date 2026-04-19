@@ -209,7 +209,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
          <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[80%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
       </div>
 
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence mode="wait">
         {viewMode === 'insights' ? (
           <motion.div
             key="owner-insights"
@@ -239,11 +239,11 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="flex-1 w-full min-h-0 relative z-10 flex flex-col items-stretch overflow-hidden"
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="absolute inset-0 w-full h-full flex flex-col overflow-hidden bg-black"
           >
-            <DashboardMapCard>
-              <div className="flex-1 relative min-h-0">
+            <DashboardMapCard className="h-full w-full">
+              <div className="flex-1 relative w-full h-full min-h-0">
                 <DiscoveryMapView
                   category={mapCategory}
                   onBack={handleMapBack}

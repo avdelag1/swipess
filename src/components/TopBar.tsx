@@ -47,10 +47,10 @@ function TopBarComponent({
   const isLight = theme === 'light';
 
   const glassSurfaceStyle: React.CSSProperties = {
-    background: isLight ? 'rgba(255,255,255,0.45)' : 'rgba(25,25,30,0.3)',
-    backdropFilter: 'blur(16px) saturate(1.4)',
-    WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-    border: `1.5px solid ${isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'}`,
+    background: _transparent ? 'transparent' : (isLight ? 'rgba(255,255,255,0.45)' : 'rgba(25,25,30,0.3)'),
+    backdropFilter: _transparent ? 'none' : 'blur(16px) saturate(1.4)',
+    WebkitBackdropFilter: _transparent ? 'none' : 'blur(16px) saturate(1.4)',
+    border: _transparent ? 'none' : `1.5px solid ${isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'}`,
     boxShadow: _transparent ? 'none' : (isLight
       ? '0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.2)'
       : '0 8px 22px rgba(0,0,0,0.4), inset 0 0.5px 1px rgba(255,255,255,0.1)'),

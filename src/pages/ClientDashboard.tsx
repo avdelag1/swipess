@@ -100,7 +100,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden relative">
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence mode="wait">
         {showCards && (
           <motion.div
             key="dash-fan"
@@ -108,7 +108,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
+            className="flex flex-col items-center justify-center h-full w-full overflow-hidden"
             style={{ willChange: 'transform, opacity' }}
           >
             <SwipeAllDashboard setCategories={(ids: any) => handleLaunch((Array.isArray(ids) ? ids[0] : ids) as QuickFilterCategory)} />
@@ -121,12 +121,11 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="flex-1 w-full relative"
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="absolute inset-0 w-full h-full flex flex-col overflow-hidden bg-black"
           >
-            <DashboardMapCard>
-              <MapFilterChipRow mode="client" />
-              <div className="flex-1 relative min-h-0">
+            <DashboardMapCard className="h-full w-full">
+              <div className="flex-1 relative w-full h-full min-h-0">
                 <DiscoveryMapView
                   category={mapCategory}
                   onBack={handleMapBack}
@@ -146,7 +145,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.98 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full h-full"
+            className="w-full h-full flex flex-col"
             style={{ willChange: 'transform, opacity' }}
           >
             <SwipessSwipeContainer

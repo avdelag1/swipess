@@ -326,8 +326,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // On these routes, TopBar becomes transparent and content extends behind it
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
-    // Core routes that should go full-bleed behind the header ONLY for hero effects.
-    // Standard dashboards should now have padding to prevent button overlap.
     const immersiveRoutes = [
       '/client/dashboard',
       '/owner/dashboard',
@@ -336,11 +334,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/owner/liked-clients',
       '/client/advertise'
     ];
-
-    const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
-      path.includes('discovery') ||
-      path.includes('view-client') ||
-      path.includes('/listing/');
+    
+    const isMatch = immersiveRoutes.some(route => 
+      path === route || 
+      path === route + '/' || 
+      path.startsWith(route + '/')
+    );
     
     return isMatch;
   }, [location.pathname]);
@@ -493,10 +492,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         className={cn(
           "flex-1 w-full h-full min-h-0 relative z-0 touch-pan-y overscroll-y-contain",
            isRadioRoute ? "overflow-visible" 
-            : isZeroScrollDashboard ? "overflow-hidden"
+            : (isZeroScrollDashboard || isImmersiveDashboard) ? "overflow-hidden"
             : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
-          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard) ? "bg-black" : "bg-background"
+          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard || location.pathname.includes('dashboard')) ? "bg-black" : "bg-background"
         )}
         style={{
           paddingTop: isFullScreenRoute || isImmersiveDashboard
