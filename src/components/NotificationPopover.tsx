@@ -239,6 +239,7 @@ interface NotificationPopoverProps {
 export function NotificationPopover({ className, children }: NotificationPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -282,12 +283,17 @@ export function NotificationPopover({ className, children }: NotificationPopover
       markNotificationAsRead(notification.id);
     }
     
-    // Handle click navigation
-    handleNotificationClick(notification);
-    
-    // Close popover and navigate
-    setIsOpen(false);
-  }, [handleNotificationClick, markNotificationAsRead]);
+    // Open detailed view instead of immediate navigation
+    setSelectedNotification(notification);
+  }, [markNotificationAsRead]);
+
+  const proceedWithNavigation = useCallback(() => {
+    if (selectedNotification) {
+      handleNotificationClick(selectedNotification);
+      setSelectedNotification(null);
+      setIsOpen(false);
+    }
+  }, [selectedNotification, handleNotificationClick]);
 
   const handleDismiss = useCallback((id: string) => {
     haptics.tap();
@@ -358,7 +364,52 @@ export function NotificationPopover({ className, children }: NotificationPopover
           )}
           onInteractOutside={() => setIsOpen(false)}
         >
-          <DialogTitle className="sr-only">Notifications</DialogTitle>
+          {selectedNotification ? (
+            <div className="flex flex-col h-[500px] max-h-[85vh]">
+              {/* Detailed Header */}
+              <div className="px-5 pt-5 pb-4 border-b border-border/40 flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur-md z-10">
+                <h3 className="font-bold text-lg">Notification Details</h3>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setSelectedNotification(null)}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Scrollable Content */}
+              <ScrollArea className="flex-1 px-5 py-6">
+                <div className="flex flex-col items-center text-center space-y-4 mb-6">
+                  {selectedNotification.avatar ? (
+                    <img src={selectedNotification.avatar} alt="Avatar" className="w-16 h-16 rounded-2xl object-cover shadow-lg border border-border/20" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                      <Bell className="w-7 h-7 text-primary" />
+                    </div>
+                  )}
+                  <div>
+                    <h2 className="text-xl font-bold tracking-tight text-foreground">{selectedNotification.title}</h2>
+                    <p className="text-xs text-muted-foreground mt-1.5 font-medium uppercase tracking-widest">{formatDistanceToNow(selectedNotification.timestamp, { addSuffix: true })}</p>
+                  </div>
+                </div>
+
+                <div className="bg-muted/30 rounded-2xl p-5 border border-border/40 shadow-inner">
+                  <p className="text-sm font-medium leading-relaxed text-foreground/80 whitespace-pre-wrap">
+                    {selectedNotification.message}
+                  </p>
+                </div>
+              </ScrollArea>
+
+              {/* Action Footer */}
+              <div className="p-4 border-t border-border/40 bg-background/95 sticky bottom-0 z-10">
+                <Button 
+                  onClick={proceedWithNavigation}
+                  className="w-full h-12 rounded-xl text-[13px] font-bold shadow-lg bg-primary hover:bg-primary/90 text-white"
+                >
+                  View Details
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <DialogTitle className="sr-only">Notifications</DialogTitle>
 
           {/* Header */}
           <div className="px-4 pt-4 pb-3 border-b border-border/40 bg-background/80 backdrop-blur-sm">
@@ -479,6 +530,8 @@ export function NotificationPopover({ className, children }: NotificationPopover
                 View All Notifications
               </Button>
             </div>
+          )}
+            </>
           )}
         </DialogContent>
       </Dialog>
