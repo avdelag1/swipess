@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
-import { Building2, Users } from 'lucide-react';
+import { Building2, Users, ChevronLeft } from 'lucide-react';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
-import { POKER_CARDS } from './SwipeConstants';
+import { POKER_CARDS, OWNER_INTENT_CARDS } from './SwipeConstants';
 import { triggerHaptic } from '@/utils/haptics';
 import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
@@ -9,6 +9,7 @@ import type { QuickFilterCategory } from '@/types/filters';
 
 interface MapFilterChipRowProps {
   mode: 'client' | 'owner';
+  onBack?: () => void;
 }
 
 type RealChipId = QuickFilterCategory;
@@ -33,7 +34,7 @@ interface ChipDef {
  *   - "Listings": setCategories(['property','motorcycle','bicycle']) — meta multi-select
  *   - "Clients":  owner-side toggle to clientType === 'all'
  */
-export function MapFilterChipRow({ mode }: MapFilterChipRowProps) {
+export function MapFilterChipRow({ mode, onBack }: MapFilterChipRowProps) {
   const { theme } = useTheme();
   const isLight = theme === 'light' || theme === 'ivanna-style';
 
@@ -43,19 +44,25 @@ export function MapFilterChipRow({ mode }: MapFilterChipRowProps) {
   const { setActiveCategory, setCategories, setClientType } = useFilterActions();
 
   const chips: ChipDef[] = useMemo(() => {
+    if (mode === 'owner') {
+      return OWNER_INTENT_CARDS.filter(c => ['seekers', 'buyers', 'renters', 'hire'].includes(c.id)).map(c => ({
+        id: c.id as any,
+        label: c.label,
+        Icon: c.icon,
+        accent: c.accent
+      }));
+    }
     const prop = POKER_CARDS.find((c) => c.id === 'property')!;
     const moto = POKER_CARDS.find((c) => c.id === 'motorcycle')!;
     const bike = POKER_CARDS.find((c) => c.id === 'bicycle')!;
     const serv = POKER_CARDS.find((c) => c.id === 'services')!;
     return [
       { id: 'property',   label: 'Properties',  Icon: prop.icon, accent: prop.accent },
-      { id: 'listings',   label: 'Listings',    Icon: Building2, accent: '#06b6d4' },
       { id: 'motorcycle', label: 'Motorcycles', Icon: moto.icon, accent: moto.accent },
       { id: 'bicycle',    label: 'Bicycles',    Icon: bike.icon, accent: bike.accent },
       { id: 'services',   label: 'Workers',     Icon: serv.icon, accent: serv.accent },
-      { id: 'clients',    label: 'Clients',     Icon: Users,     accent: '#10b981' },
     ];
-  }, []);
+  }, [mode]);
 
   const isActive = useCallback(
     (id: ChipId) => {
@@ -99,6 +106,19 @@ export function MapFilterChipRow({ mode }: MapFilterChipRowProps) {
         touchAction: 'pan-x',
       }}
     >
+      {onBack && (
+        <button
+          type="button"
+          onClick={() => { triggerHaptic('light'); onBack(); }}
+          className={cn(
+            'flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all',
+            isLight ? 'bg-black/5 text-black/60 hover:bg-black/10' : 'bg-white/10 text-white/60 hover:bg-white/20'
+          )}
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+      )}
+
       {chips.map(({ id, label, Icon, accent }) => {
         const active = isActive(id);
         return (

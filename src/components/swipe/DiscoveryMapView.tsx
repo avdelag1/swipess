@@ -9,7 +9,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RefreshCw, Map as MapIcon, ChevronLeft, Sparkles } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
-import { POKER_CARDS } from './SwipeConstants';
+import { POKER_CARDS, OWNER_INTENT_CARDS } from './SwipeConstants';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
@@ -109,8 +109,7 @@ export const DiscoveryMapView = ({
   // Role-Aware Categories for HUD
   const availableCategories = useMemo(() => {
     if (activeRole === 'owner') {
-      const { OWNER_INTENT_CARDS } = require('./SwipeConstants');
-      return OWNER_INTENT_CARDS.filter((c: any) => ['buyers', 'renters', 'hire'].includes(c.id));
+      return OWNER_INTENT_CARDS.filter((c: any) => ['seekers', 'buyers', 'renters', 'hire'].includes(c.id));
     }
     return POKER_CARDS.filter(c => ['property', 'motorcycle', 'services'].includes(c.id));
   }, [activeRole]);
@@ -242,70 +241,76 @@ export const DiscoveryMapView = ({
       </MapContainer>
 
       {/* 🧭 INTELLIGENT HUD CONTROLS */}
-      {!isEmbedded && (
-        <>
-          {/* Top Bar: Nav & Info (Shifted down for TopBar transparency) */}
-          <div className="absolute top-28 left-6 right-6 z-20 flex flex-col gap-4 pointer-events-none">
-            <div className="w-full flex items-center justify-between pointer-events-auto">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => { triggerHaptic('light'); onBack?.(); }}
+      <div className={cn(
+        "absolute left-6 right-6 z-20 flex flex-col gap-4 pointer-events-none",
+        isEmbedded ? "top-20" : "top-28"
+      )}>
+        <div className="w-full flex items-center justify-between pointer-events-auto">
+          {onBack && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => { triggerHaptic('light'); onBack(); }}
+              className={cn(
+                "w-12 h-12 rounded-2xl backdrop-blur-3xl border transition-colors",
+                theme === 'light' 
+                  ? "bg-white/80 border-black/10 text-black/60 hover:text-black" 
+                  : "bg-black/60 border-white/10 text-white/40 hover:text-white"
+              )}
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </Button>
+          )}
+          
+          {!onBack && <div className="w-12 h-12" />}
+          
+          <div className={cn(
+            "backdrop-blur-3xl border px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3",
+            theme === 'light' ? "bg-white/80 border-black/10" : "bg-black/60 border-white/10"
+          )}>
+             <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+             <span className={cn(
+                "text-[10px] font-black uppercase tracking-[0.35em]",
+                theme === 'light' ? "text-black" : "text-white"
+             )}>
+                RADAR: <span className="text-primary italic">{nodes.length} {activeRole === 'owner' ? 'CLIENTS' : 'NODES'}</span>
+             </span>
+          </div>
+        </div>
+
+        {/* Quick Category Chips */}
+        <div className="flex justify-center gap-2 pointer-events-auto overflow-x-auto no-scrollbar pb-1">
+          {availableCategories.map((cat: any) => {
+            const Icon = cat.icon;
+            const isActive = activeCategory === cat.id || (activeRole === 'owner' && (filters as any).clientType === cat.clientType);
+            return (
+              <button
+                key={cat.id}
+                onClick={() => { 
+                  triggerHaptic('medium'); 
+                  if (activeRole === 'owner' && cat.clientType) {
+                    useFilterStore.getState().setClientType(cat.clientType);
+                  } else {
+                    setActiveCategory(cat.id as any); 
+                  }
+                }}
                 className={cn(
-                  "w-12 h-12 rounded-2xl backdrop-blur-3xl border transition-colors",
-                  theme === 'light' 
-                    ? "bg-white/80 border-black/10 text-black/60 hover:text-black" 
-                    : "bg-black/60 border-white/10 text-white/40 hover:text-white"
+                  "h-10 px-4 rounded-xl flex items-center gap-2 transition-all border shadow-xl backdrop-blur-3xl flex-shrink-0",
+                  isActive 
+                    ? "bg-primary text-white border-primary shadow-[0_0_20px_rgba(235,72,152,0.3)]" 
+                    : "bg-black/60 text-white/40 border-white/10 hover:text-white hover:bg-black/80"
                 )}
               >
-                <ChevronLeft className="w-6 h-6" />
-              </Button>
-              
-              <div className={cn(
-                "backdrop-blur-3xl border px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3",
-                theme === 'light' ? "bg-white/80 border-black/10" : "bg-black/60 border-white/10"
-              )}>
-                 <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-                 <span className={cn(
-                    "text-[10px] font-black uppercase tracking-[0.35em]",
-                    theme === 'light' ? "text-black" : "text-white"
-                 )}>
-                    RADAR: <span className="text-primary italic">{nodes.length} {activeRole === 'owner' ? 'CLIENTS' : 'NODES'}</span>
-                 </span>
-              </div>
-            </div>
+                <Icon className="w-4 h-4" />
+                <span className="text-[9px] font-black uppercase tracking-widest">{cat.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-            {/* Quick Category Chips */}
-            <div className="flex justify-center gap-2 pointer-events-auto">
-              {availableCategories.map((cat: any) => {
-                const Icon = cat.icon;
-                const isActive = activeCategory === cat.id || (activeRole === 'owner' && (filters as any).clientType === cat.clientType);
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => { 
-                      triggerHaptic('medium'); 
-                      if (activeRole === 'owner' && cat.clientType) {
-                        require('@/state/filterStore').useFilterStore.getState().setClientType(cat.clientType);
-                      } else {
-                        setActiveCategory(cat.id as any); 
-                      }
-                    }}
-                    className={cn(
-                      "h-10 px-4 rounded-xl flex items-center gap-2 transition-all border shadow-xl backdrop-blur-3xl",
-                      isActive 
-                        ? "bg-primary text-white border-primary shadow-[0_0_20px_rgba(235,72,152,0.3)]" 
-                        : "bg-black/60 text-white/40 border-white/10 hover:text-white hover:bg-black/80"
-                    )}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="text-[9px] font-black uppercase tracking-widest">{cat.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
+      {!isEmbedded && (
+        <>
           {/* Bottom Bar: Action & Radius */}
           <div className="absolute bottom-10 left-8 right-8 z-10 flex flex-col gap-6 items-center pointer-events-none">
              
