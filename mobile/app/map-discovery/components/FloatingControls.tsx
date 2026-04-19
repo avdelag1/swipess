@@ -1,64 +1,76 @@
 import React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
+import { Navigation, Layers, Compass, Zap } from 'lucide-react-native';
 import { useMapStore } from '../../../src/store/useMapStore';
-import { Target, Layers, Map as MapIcon, Compass } from 'lucide-react-native';
+import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { cn } from '../../../src/utils/cn';
 
-const RADIUS_PRESETS = [1, 5, 10, 25, 100];
+interface FloatingControlsProps {
+  onRecenter: () => void;
+}
 
-export function FloatingControls({ onRecenter }: { onRecenter: () => void }) {
-  const { radiusKm, setRadiusKm, vibe, setVibe } = useMapStore();
+export function FloatingControls({ onRecenter }: FloatingControlsProps) {
+  const { vibe, setVibe, radiusKm, setRadiusKm } = useMapStore();
 
-  const handlePreset = (km: number) => {
+  const handleRecenter = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setRadiusKm(km);
+    onRecenter();
+  };
+
+  const toggleVibe = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setVibe(vibe === 'dark' ? 'light' : 'dark');
   };
 
   return (
-    <View className="absolute bottom-36 right-4 gap-4 items-end">
+    <View className="absolute right-6 top-1/3 z-30 flex-col gap-4">
+      {/* 🧭 NAVIGATION GROUP */}
+      <View className="flex-col gap-2">
+        <TouchableOpacity onPress={handleRecenter} activeOpacity={0.8}>
+          <BlurView intensity={40} tint="dark" className="w-14 h-14 rounded-2xl items-center justify-center border border-white/10 overflow-hidden">
+            <Navigation size={24} color="white" />
+          </BlurView>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={toggleVibe} activeOpacity={0.8}>
+          <BlurView intensity={40} tint="dark" className="w-14 h-14 rounded-2xl items-center justify-center border border-white/10 overflow-hidden">
+            <Layers size={21} color={vibe === 'dark' ? '#EB4898' : 'white'} />
+          </BlurView>
+        </TouchableOpacity>
+      </View>
+
+      {/* 📏 RADIUS PRESETS (VERTICAL) */}
+      <View className="flex-col gap-2 mt-4 bg-black/40 p-1 rounded-3xl border border-white/10">
+        {[5, 10, 25, 50].map((km) => {
+          const isActive = radiusKm === km;
+          return (
+            <TouchableOpacity 
+              key={km} 
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setRadiusKm(km);
+              }}
+              className={cn(
+                "w-12 h-12 rounded-2xl items-center justify-center",
+                isActive ? "bg-primary" : "bg-transparent"
+              )}
+            >
+              <Text className={cn(
+                "text-[10px] font-black uppercase tracking-tighter",
+                isActive ? "text-white" : "text-white/40"
+              )}>{km}k</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
       
-      {/* 📡 RADIUS PRESET PILLS */}
-      <View className="bg-black/60 backdrop-blur-3xl rounded-3xl p-1.5 border border-white/10">
-        {RADIUS_PRESETS.map((km) => (
-          <TouchableOpacity
-            key={km}
-            onPress={() => handlePreset(km)}
-            className={cn(
-              "w-12 h-10 items-center justify-center rounded-2xl mb-1 last:mb-0",
-              radiusKm === km ? "bg-primary" : "bg-transparent"
-            )}
-          >
-            <Text className={cn(
-              "text-[10px] font-black italic uppercase",
-              radiusKm === km ? "text-white" : "text-white/40"
-            )}>
-              {km}K
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* 🕹️ MACRO CONTROLS */}
-      <View className="gap-3">
-        <TouchableOpacity 
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-            setVibe(vibe === 'dark' ? 'light' : 'dark');
-          }}
-          className="w-14 h-14 bg-black/80 backdrop-blur-2xl rounded-full items-center justify-center border border-white/20 shadow-2xl"
-        >
-          <Compass size={24} color={vibe === 'dark' ? '#EB4898' : '#007AFF'} />
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          onPress={onRecenter}
-          className="w-14 h-14 bg-primary rounded-full items-center justify-center border border-white/30 shadow-2xl shadow-primary/40"
-        >
-          <Target size={24} color="white" />
-        </TouchableOpacity>
-      </View>
-
+      {/* ⚡ RADAR ENGINE STATUS */}
+      <TouchableOpacity className="items-center justify-center mt-4">
+         <BlurView intensity={40} tint="dark" className="w-14 h-14 rounded-full items-center justify-center border border-primary/20 overflow-hidden">
+            <Zap size={20} color="#EB4898" fill="#EB4898" />
+         </BlurView>
+      </TouchableOpacity>
     </View>
   );
 }

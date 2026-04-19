@@ -1,82 +1,122 @@
-import React, { useMemo, useCallback } from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import React, { useMemo, useRef, useEffect } from 'react';
+import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useMapStore, DiscoverItem } from '../../../src/store/useMapStore';
-import { Star, MapPin, ShieldCheck, Zap } from 'lucide-react-native';
+import { DiscoverItem } from '../../../src/store/useMapStore';
+import { BlurView } from 'expo-blur';
+import { Star, MapPin, Zap, MessageCircle, Heart, Share2, Verified } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
+import { cn } from '../../../src/utils/cn';
 
 interface BottomSheetCardProps {
   item: DiscoverItem | null;
   onClose: () => void;
 }
 
-export function BottomSheetCard({ item, onClose }: BottomSheetCardProps) {
-  const snapPoints = useMemo(() => ['25%', '50%'], []);
-  
-  const bottomSheetRef = React.useRef<BottomSheet>(null);
+const { width } = Dimensions.get('window');
 
-  const handleSheetChanges = useCallback((index: number) => {
-    if (index === -1) onClose();
-  }, [onClose]);
+export function BottomSheetCard({ item, onClose }: BottomSheetCardProps) {
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ['45%'], []);
+
+  useEffect(() => {
+    if (item) {
+      bottomSheetRef.current?.expand();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      bottomSheetRef.current?.close();
+    }
+  }, [item]);
 
   if (!item) return null;
 
   return (
     <BottomSheet
       ref={bottomSheetRef}
-      index={0}
       snapPoints={snapPoints}
-      onChange={handleSheetChanges}
       enablePanDownToClose
-      backgroundStyle={{ backgroundColor: '#111', borderRadius: 40 }}
-      handleIndicatorStyle={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+      onClose={onClose}
+      backgroundStyle={{ backgroundColor: 'transparent' }}
+      handleIndicatorStyle={{ backgroundColor: 'rgba(255,255,255,0.2)', width: 40 }}
     >
-      <BottomSheetView className="p-6">
-        <View className="flex-row gap-4">
-          <Image 
-            source={{ uri: item.photo }} 
-            className="w-24 h-24 rounded-2xl bg-white/10"
-          />
-          <View className="flex-1 justify-center">
-            <View className="flex-row items-center gap-2 mb-1">
-              <Text className="text-xl font-black italic uppercase text-white leading-tight">
-                {item.title}
-              </Text>
-              {item.isVerified && <ShieldCheck size={16} color="#007AFF" />}
-            </View>
-            
-            <View className="flex-row items-center gap-3">
-              <View className="flex-row items-center">
-                <MapPin size={12} color="rgba(255,255,255,0.4)" />
-                <Text className="text-[10px] text-white/40 font-bold ml-1">
-                  {item.distanceKm.toFixed(1)} KM
-                </Text>
-              </View>
-              <View className="flex-row items-center">
-                <Star size={12} color="#FFD700" fill="#FFD700" />
-                <Text className="text-[10px] text-white/40 font-bold ml-1">
-                  {item.rating || '4.9'}
-                </Text>
-              </View>
+      <BlurView intensity={80} tint="dark" className="flex-1 mx-2 mb-4 rounded-[3.5rem] border border-white/10 overflow-hidden shadow-2xl">
+        <BottomSheetView className="flex-1 p-6">
+          <View className="flex-row gap-6">
+            {/* 📸 IMAGE STACK */}
+            <View className="relative">
+               <Image 
+                 source={{ uri: item.photo }} 
+                 className="w-32 h-44 rounded-3xl bg-white/5" 
+                 resizeMode="cover"
+               />
+               {item.isVerified && (
+                 <View className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-lg">
+                    <Verified size={14} color="#007AFF" />
+                 </View>
+               )}
             </View>
 
-            <View className="mt-3 self-start px-2 py-0.5 bg-primary/20 rounded-md border border-primary/30">
-               <Text className="text-[8px] font-black uppercase text-primary italic tracking-widest">
-                  {item.category}
-               </Text>
+            {/* 📝 INFO STACK */}
+            <View className="flex-1 justify-between py-2">
+              <View>
+                <View className="flex-row items-center gap-1.5 mb-2">
+                   <Text className="text-primary text-[9px] font-black uppercase tracking-[0.2em] italic">Premium Discover</Text>
+                   {item.isVIP && <Text className="bg-yellow-400 text-black text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase">VIP</Text>}
+                </View>
+                <Text className="text-white text-3xl font-black italic uppercase tracking-tighter leading-none mb-3" numberOfLines={2}>
+                  {item.title}
+                </Text>
+                
+                <View className="flex-row items-center gap-2 mb-2">
+                   <Star size={14} color="#FFD700" fill="#FFD700" />
+                   <Text className="text-white/80 text-[11px] font-black">{item.rating || '4.9'}</Text>
+                   <Text className="text-white/20 text-[10px] font-black uppercase tracking-widest">• {item.category}</Text>
+                </View>
+
+                <View className="flex-row items-center gap-1 opacity-40">
+                   <MapPin size={10} color="white" />
+                   <Text className="text-white text-[9px] font-bold uppercase tracking-widest">{item.distanceKm.toFixed(1)}km near you</Text>
+                </View>
+              </View>
+
+              {/* ⚡ ACTION HUD */}
+              <View className="flex-row gap-3">
+                 <TouchableOpacity 
+                   className="flex-1 h-14 bg-primary rounded-2xl items-center justify-center flex-row gap-2 shadow-xl border-t border-white/20"
+                   onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)}
+                 >
+                    <Zap size={18} color="white" fill="white" />
+                    <Text className="text-white font-black uppercase italic tracking-widest text-[11px]">Ignite</Text>
+                 </TouchableOpacity>
+
+                 <TouchableOpacity 
+                   className="w-14 h-14 bg-white/10 rounded-2xl items-center justify-center border border-white/5"
+                   onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}
+                 >
+                    <MessageCircle size={20} color="white" />
+                 </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
 
-        <TouchableOpacity 
-          className="w-full h-14 bg-primary rounded-2xl mt-6 items-center justify-center flex-row shadow-xl shadow-primary/40"
-          activeOpacity={0.8}
-        >
-          <Zap size={18} color="white" />
-          <Text className="text-white font-black italic uppercase tracking-widest ml-2">
-            View Protocol
-          </Text>
-        </TouchableOpacity>
-      </BottomSheetView>
+          {/* 🔗 QUICK REEL */}
+          <View className="mt-8 pt-6 border-t border-white/5 flex-row justify-around">
+             <TouchableOpacity className="items-center gap-1.5 opacity-40">
+                <Heart size={18} color="white" />
+                <Text className="text-white text-[7px] font-black uppercase tracking-widest">Savvy</Text>
+             </TouchableOpacity>
+             <TouchableOpacity className="items-center gap-1.5 opacity-40">
+                <Share2 size={18} color="white" />
+                <Text className="text-white text-[7px] font-black uppercase tracking-widest">Blast</Text>
+             </TouchableOpacity>
+             <TouchableOpacity className="items-center gap-1.5" onPress={() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)}>
+                <View className="bg-primary/20 p-2 rounded-xl">
+                   <Zap size={16} color="#EB4898" />
+                </View>
+                <Text className="text-primary text-[7px] font-black uppercase tracking-widest">Super ignite</Text>
+             </TouchableOpacity>
+          </View>
+        </BottomSheetView>
+      </BlurView>
     </BottomSheet>
   );
 }

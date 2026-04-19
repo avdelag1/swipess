@@ -1,25 +1,31 @@
-import React, { useRef, useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useRef, useMemo, useEffect } from 'react';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import { useMapStore, DiscoverItem } from '../../../src/store/useMapStore';
 import { useRadiusGesture } from '../../../src/hooks/useRadiusGesture';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { GestureDetector } from 'react-native-gesture-handler';
+import * as Haptics from 'expo-haptics';
 
-// User specified the token in the prompt
-Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_TOKEN || '');
+// 🗝️ OFFICIAL MAPBOX ACCESS
+Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN || "");
 
 interface MapViewProps {
   items: DiscoverItem[];
   onItemSelect: (item: DiscoverItem) => void;
 }
 
+/**
+ * 🛰️ RADAR NEXUS ENGINE v2.0
+ * High-performance Mapbox discovery with geodesic radius and clustering.
+ */
 export function MapDiscoveryView({ items, onItemSelect }: MapViewProps) {
-  const { userLocation, radiusKm, vibe } = useMapStore();
+  const { userLocation, radiusKm, vibe, dashboardMode } = useMapStore();
   const cameraRef = useRef<Mapbox.Camera>(null);
   
   const { panGesture, animatedRadius } = useRadiusGesture();
 
+  // 💎 DATA TRANSFORM: Clusters & Points
   const featureCollection = useMemo(() => {
     return {
       type: 'FeatureCollection',
@@ -35,88 +41,105 @@ export function MapDiscoveryView({ items, onItemSelect }: MapViewProps) {
     };
   }, [items]);
 
-  // ANIMATED STYLES FOR RADAR PULSE
-  const radarStyle = useAnimatedStyle(() => ({
-     // We can't easily animate Mapbox layers via Reanimated directly without
-     // using the 'style' prop or custom layers. 
-     // For radius resize, we'll update the 'circle-radius' property via props.
-     transform: [{ scale: 1 }]
-  }));
+  // 📏 GEODESIC CIRCLE GENERATOR (Accurate meters)
+  const radiusCircle = useMemo(() => {
+    if (!userLocation) return null;
+    const center = [userLocation.lng, userLocation.lat];
+    const points = 64;
+    const coords = [];
+    const distance = radiusKm / 6371; // Earth radius in KM
+    const lat1 = (center[1] * Math.PI) / 180;
+    const lon1 = (center[0] * Math.PI) / 180;
+
+    for (let i = 0; i <= points; i++) {
+        const bearing = (i * 360) / points * Math.PI / 180;
+        const lat2 = Math.asin(Math.sin(lat1) * Math.cos(distance) + Math.cos(lat1) * Math.sin(distance) * Math.cos(bearing));
+        const lon2 = lon1 + Math.atan2(Math.sin(bearing) * Math.sin(distance) * Math.cos(lat1), Math.cos(distance) - Math.sin(lat1) * Math.sin(lat2));
+        coords.push([(lon2 * 180) / Math.PI, (lat2 * 180) / Math.PI]);
+    }
+
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [coords]
+      }
+    };
+  }, [userLocation, radiusKm]);
 
   return (
     <View className="flex-1 bg-black">
       <Mapbox.MapView 
         style={styles.map} 
-        styleURL={vibe === 'dark' ? Mapbox.StyleURL.Dark : Mapbox.StyleURL.Street}
+        styleURL={vibe === 'dark' ? Mapbox.StyleURL.Dark : Mapbox.StyleURL.Light}
         logoEnabled={false}
         attributionEnabled={false}
+        compassEnabled={false}
       >
         <Mapbox.Camera
           ref={cameraRef}
-          zoomLevel={12}
+          zoomLevel={12 - (radiusKm / 20)}
           centerCoordinate={userLocation ? [userLocation.lng, userLocation.lat] : undefined}
           animationMode="flyTo"
-          animationDuration={2000}
+          animationDuration={1500}
         />
 
-        {/* 🆘 USER LOCATION PULSE */}
+        {/* 🆘 USER CORE */}
         {userLocation && (
            <Mapbox.PointAnnotation id="user-location" coordinate={[userLocation.lng, userLocation.lat]}>
-              <View className="w-6 h-6 bg-primary/20 rounded-full items-center justify-center">
-                 <View className="w-3 h-3 bg-primary rounded-full border-2 border-white" />
+              <View className="w-10 h-10 items-center justify-center">
+                 <View className="absolute w-8 h-8 rounded-full bg-primary/20 border border-primary/40 scale-125 opacity-40" />
+                 <View className="w-4 h-4 bg-primary rounded-full border-2 border-white shadow-xl" />
               </View>
            </Mapbox.PointAnnotation>
         )}
 
-        {/* 🎯 NEXUS SEARCH RADIUS */}
-        {userLocation && (
-          <Mapbox.ShapeSource
-            id="radiusSource"
-            shape={{
-              type: 'Feature',
-              geometry: {
-                type: 'Point',
-                coordinates: [userLocation.lng, userLocation.lat]
-              },
-              properties: {}
-            }}
-          >
-            <Mapbox.CircleLayer
+        {/* 🎯 NEXUS RADAR FIELD (Geodesic Fill) */}
+        {radiusCircle && (
+          <Mapbox.ShapeSource id="radiusSource" shape={radiusCircle as any}>
+            <Mapbox.FillLayer
               id="radiusFill"
               style={{
-                circleRadius: radiusKm * 100, // Approximate screen-space or use meters
-                circleColor: '#EB4898',
-                circleOpacity: 0.1,
-                circleStrokeColor: '#EB4898',
-                circleStrokeWidth: 2
+                fillColor: dashboardMode === 'client' ? '#EB4898' : '#007AFF',
+                fillOpacity: 0.12,
+              }}
+            />
+            <Mapbox.LineLayer
+              id="radiusLine"
+              style={{
+                lineColor: dashboardMode === 'client' ? '#EB4898' : '#007AFF',
+                lineWidth: 2,
+                lineDasharray: [4, 4],
+                lineOpacity: 0.8,
               }}
             />
           </Mapbox.ShapeSource>
         )}
 
-        {/* 📍 CLUSTERED MARKERS */}
+        {/* 📍 CLUSTERED INTELLIGENCE */}
         <Mapbox.ShapeSource
           id="itemSource"
           cluster
-          clusterRadius={50}
-          clusterMaxZoom={14}
+          clusterRadius={60}
+          clusterMaxZoom={15}
           shape={featureCollection as any}
           onPress={(e) => {
              const feature = e.features[0];
              if (feature && feature.properties && !feature.properties.cluster) {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 onItemSelect(feature.properties as DiscoverItem);
              }
           }}
         >
-          {/* Cluster Circles */}
+          {/* Cluster Disks */}
           <Mapbox.CircleLayer
             id="clusteredPoints"
             belowLayerID="pointCount"
             filter={['has', 'point_count']}
             style={{
-              circleColor: '#EB4898',
-              circleRadius: 20,
-              circleOpacity: 0.6,
+              circleColor: dashboardMode === 'client' ? '#EB4898' : '#007AFF',
+              circleRadius: 24,
+              circleOpacity: 0.7,
               circleStrokeWidth: 2,
               circleStrokeColor: 'white',
             }}
@@ -128,36 +151,37 @@ export function MapDiscoveryView({ items, onItemSelect }: MapViewProps) {
               textField: ['get', 'point_count_abbreviated'],
               textSize: 12,
               textColor: 'white',
+              textFont: ['DIN Offc Pro Bold'],
             }}
           />
 
-          {/* Individual Pins */}
+          {/* Individual Discovery Nodes */}
           <Mapbox.CircleLayer
              id="unclusteredPoints"
              filter={['!', ['has', 'point_count']]}
              style={{
-                circleRadius: 8,
-                circleColor: '#007AFF',
-                circleStrokeWidth: 3,
+                circleRadius: 10,
+                circleColor: dashboardMode === 'client' ? '#EB4898' : '#007AFF',
+                circleStrokeWidth: 4,
                 circleStrokeColor: 'white',
-                circleOpacity: 0.8
+                circleOpacity: 1,
+                circleBlur: 0.1,
              }}
           />
         </Mapbox.ShapeSource>
 
-        {/* 🕹️ INTERACTIVE RADIUS HANDLE (FINGER RESIZE) */}
+        {/* 🕹️ RADIUS RESIZE GRABBER (High Performance) */}
         {userLocation && (
           <Mapbox.PointAnnotation 
-            id="radius-handle" 
-            coordinate={[userLocation.lng, userLocation.lat + (radiusKm * 0.009)]} // Approx offset for radius
+            id="radius-grabber" 
+            coordinate={[userLocation.lng, userLocation.lat + (radiusKm * 0.0089)]}
           >
             <GestureDetector gesture={panGesture}>
-               <Animated.View 
-                 className="w-10 h-10 bg-white rounded-full items-center justify-center shadow-xl border-4 border-primary"
-                 style={radarStyle}
-               >
-                  <View className="w-1.5 h-6 bg-primary rounded-full opacity-20" />
-               </Animated.View>
+              <Animated.View 
+                className="w-12 h-12 bg-white rounded-full items-center justify-center shadow-2xl border-4 border-primary"
+              >
+                 <View className="w-1.5 h-6 bg-primary rounded-full" />
+              </Animated.View>
             </GestureDetector>
           </Mapbox.PointAnnotation>
         )}
