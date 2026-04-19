@@ -307,12 +307,12 @@ export const DiscoveryMapView = memo(({
       </div>
 
       {/* 🛸 NEXUS MAP WINDOW */}
-      <div className="flex-1 w-full relative z-0 p-4 pt-32 pb-44">
+      <div className="flex-1 w-full relative z-0 p-4 pt-28 pb-32 flex flex-col">
         <div 
           id="map-container" 
           ref={mapContainerRef} 
           className={cn(
-            "w-full h-full rounded-[3.5rem] border overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.5)] transition-all duration-700",
+            "flex-1 w-full rounded-[3rem] border overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.5)] transition-all duration-700 relative",
             theme === 'nexus-style' ? "border-white/20" : "border-white/5"
           )} 
         />
@@ -324,7 +324,7 @@ export const DiscoveryMapView = memo(({
                   initial={{ opacity: 0, y: 100, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 100, scale: 0.9 }}
-                  className="absolute bottom-48 inset-x-10 z-[3000] flex justify-center pointer-events-none"
+                  className="absolute bottom-40 inset-x-10 z-[3000] flex justify-center pointer-events-none"
               >
                   <div className={cn(
                       "w-full max-w-[360px] p-4 rounded-[2.5rem] border backdrop-blur-3xl shadow-[0_40px_100px_rgba(0,0,0,0.6)] pointer-events-auto flex items-center gap-5",
@@ -365,7 +365,7 @@ export const DiscoveryMapView = memo(({
         </AnimatePresence>
 
         {/* 🛸 BOTTOM COMMAND: CATEGORY MATRIX */}
-        <div className="absolute bottom-8 inset-x-0 z-[2010] flex justify-center px-10 pointer-events-none">
+        <div className="absolute bottom-6 inset-x-0 z-[2010] flex justify-center px-10 pointer-events-none">
             {!selectedEntity && (
             <motion.div 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
@@ -403,7 +403,7 @@ export const DiscoveryMapView = memo(({
         <button 
           onClick={handleRefresh} 
           className={cn(
-            "w-full max-w-[320px] h-14 rounded-[2rem] text-[11px] font-black uppercase italic tracking-[0.4em] transition-all flex items-center justify-center gap-4 border-none pointer-events-auto shadow-[0_30px_60px_rgba(235,72,152,0.4)] backdrop-blur-xl",
+            "w-full max-w-[300px] h-12 rounded-[2rem] text-[10px] font-black uppercase italic tracking-[0.4em] transition-all flex items-center justify-center gap-4 border-none pointer-events-auto shadow-[0_20px_40px_rgba(235,72,152,0.4)] backdrop-blur-xl",
             isRefreshing ? "bg-black text-white" : "bg-[#EB4898] text-white active:scale-95"
           )}
         >
@@ -414,7 +414,7 @@ export const DiscoveryMapView = memo(({
 
       <style dangerouslySetInnerHTML={{ __html: `
         .leaflet-container { width: 100%; height: 100%; outline: none; background: ${isLight ? '#f8fafc' : '#0d0d0f'} !important; }
-        .leaflet-tile { transition: opacity 0.6s ease; ${isLight ? '' : 'filter: brightness(0.5) contrast(1.3) saturate(0.8);'} } 
+        .leaflet-tile { transition: opacity 0.6s ease; ${isLight ? '' : 'filter: brightness(0.9) contrast(1.2) saturate(0.8) invert(0.9) hue-rotate(180deg);'} } 
         .sentient-radar-circle { 
             animation: radar-pulse-v14 3.5s infinite ease-in-out; 
             transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
