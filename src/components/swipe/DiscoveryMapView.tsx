@@ -64,6 +64,7 @@ interface DiscoveryMapViewProps {
   onStartSwiping?: () => void;
   isEmbedded?: boolean;
   category?: QuickFilterCategory | string;
+  mode?: 'client' | 'owner';
 }
 
 /**
@@ -74,33 +75,51 @@ export const DiscoveryMapView = ({
   onBack, 
   onStartSwiping,
   isEmbedded = false,
-  category: _passedCategory
+  category: _passedCategory,
+  mode = 'client'
 }: DiscoveryMapViewProps) => {
   const { user } = useAuth();
-  const { data: role } = useUserRole(user?.id);
+  const { data: roleFromDb } = useUserRole(user?.id);
+  const activeRole = mode || (roleFromDb as any) || 'client';
+
   const { radiusKm, userLatitude, userLongitude, activeCategory: storeCategory } = useFilterStore();
   const { setActiveCategory, setRadiusKm } = useFilterActions();
   const getListingFilters = useFilterStore(s => s.getListingFilters);
+  const getClientFilters = useFilterStore(s => s.getClientFilters);
   
   const [isScanning, setIsScanning] = useState(false);
   const activeCategory = (_passedCategory || storeCategory || 'property') as QuickFilterCategory;
 
-  const filters = useMemo(() => getListingFilters(), [getListingFilters]);
-  const { data: listingsRaw = [] } = useSmartListingMatching(user?.id, [], filters);
+  const filters = useMemo(() => {
+    return activeRole === 'owner' ? getClientFilters() : getListingFilters();
+  }, [activeRole, getListingFilters, getClientFilters]);
+
+  // 🛰️ DUAL-MODE MATCHING ENGINE
+  const { data: listingsRaw = [] } = useSmartListingMatching(user?.id, [], filters, activeRole === 'client');
+  const { data: clientsRaw = [] } = useSmartClientMatching(user?.id, activeCategory, 0, 50, activeRole === 'owner', filters as any);
   
+  const rawNodes = activeRole === 'owner' ? clientsRaw : listingsRaw;
+
   // SANITIZATION: Filter out items with missing coordinates to prevent Leaflet crashes
-  const listings = useMemo(() => {
-    return (listingsRaw || []).filter(item => {
+  const nodes = useMemo(() => {
+    return (rawNodes || []).filter(item => {
       const lat = item.latitude || item.lat;
       const lng = item.longitude || item.lng;
       return typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng);
-    });
-  }, [listingsRaw]);
+    }).map(item => ({
+      id: item.id || item.user_id,
+      lat: item.latitude || item.lat,
+      lng: item.longitude || item.lng,
+      title: item.title || item.full_name || 'Active User',
+      price: item.price || (item.budget_min ? `$${item.budget_min}-$${item.budget_max}` : 'Seeking'),
+      image: item.images?.[0] || item.avatar_url || null
+    }));
+  }, [rawNodes]);
 
   const defaultCenterCenter: [number, number] = [20.2114, -87.4654];
   const mapCenter: [number, number] = (userLatitude && userLongitude) ? [userLatitude, userLongitude] : defaultCenterCenter;
 
-  const accentColor = role === 'owner' ? '#3b82f6' : '#EB4898';
+  const accentColor = activeRole === 'owner' ? '#3b82f6' : '#EB4898';
 
   const zoom = useMemo(() => {
     if (radiusKm <= 2) return 14;
@@ -168,24 +187,22 @@ export const DiscoveryMapView = ({
         />
 
         {/* 📍 NODES */}
-        {listings.map((item: any) => {
-          const lat = item.latitude || item.lat;
-          const lng = item.longitude || item.lng;
+        {nodes.map((node: any) => {
           return (
             <Marker 
-              key={item.id} 
-              position={[lat, lng]}
+              key={node.id} 
+              position={[node.lat, node.lng]}
               icon={createCustomIcon(accentColor)}
             >
               <Popup className="nexus-popup">
                 <div className="p-3 min-w-[150px] bg-black/60 backdrop-blur-3xl rounded-2xl border border-white/10 shadow-3xl">
-                  {item.images?.[0] && (
-                    <img src={item.images[0]} className="w-full h-32 object-cover rounded-xl mb-3 shadow-inner" alt="" />
+                  {node.image && (
+                    <img src={node.image} className="w-full h-32 object-cover rounded-xl mb-3 shadow-inner" alt="" />
                   )}
-                  <p className="text-white font-black uppercase text-[10px] tracking-widest leading-tight mb-1">{item.title}</p>
+                  <p className="text-white font-black uppercase text-[10px] tracking-widest leading-tight mb-1">{node.title}</p>
                   <div className="flex justify-between items-center">
-                    <p className="text-primary text-[10px] font-black italic">${item.price}</p>
-                    <p className="text-white/20 text-[8px] font-black tracking-widest">ACTIVE NODE</p>
+                    <p className="text-primary text-[10px] font-black italic">{node.price}</p>
+                    <p className="text-white/20 text-[8px] font-black tracking-widest uppercase">{activeRole === 'owner' ? 'CLIENT' : 'NODE'}</p>
                   </div>
                 </div>
               </Popup>
@@ -212,7 +229,7 @@ export const DiscoveryMapView = ({
               <div className="bg-black/60 backdrop-blur-3xl border border-white/10 px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3">
                  <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
                  <span className="text-[10px] font-black uppercase tracking-[0.35em] text-white">
-                    RADAR: <span className="text-primary italic">{listings.length} NODES</span>
+                    RADAR: <span className="text-primary italic">{nodes.length} {activeRole === 'owner' ? 'CLIENTS' : 'NODES'}</span>
                  </span>
               </div>
             </div>

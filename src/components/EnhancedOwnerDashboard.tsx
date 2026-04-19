@@ -128,16 +128,14 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     triggerHaptic('medium');
     const cat = (card.category || 'property') as QuickFilterCategory;
     
-    // Set in store to trigger query in ClientSwipeContainer
-    setCategories([cat]);
-    setActiveCategory(cat);
-    
+    // Set map context first instead of jumping to swipe deck
     setMapCategory(cat);
+    setPhase('map');
+    setActiveCategory(null);
+    
     if (card.clientType) setClientType(card.clientType as any);
     if (card.listingType) setListingType(card.listingType as any);
-    
-    setPhase('swipe');
-  }, [setCategories, setActiveCategory, setClientType, setListingType]);
+  }, [setClientType, setListingType, setActiveCategory]);
 
   const handleExhaustedMap = useCallback(() => {
     setPhase('map');
@@ -152,9 +150,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const handleStartSwiping = useCallback(() => {
     if (mapCategory) {
       setCategories([mapCategory]);
+      setActiveCategory(mapCategory);
       setPhase('swipe');
     }
-  }, [mapCategory, setCategories]);
+  }, [mapCategory, setCategories, setActiveCategory]);
 
   const showCards = phase === 'cards' && !activeCategory;
   const showMap = phase === 'map' && mapCategory && !activeCategory;

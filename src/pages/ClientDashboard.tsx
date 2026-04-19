@@ -52,11 +52,10 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   }, [activeCategory, phase]);
   
   const handleLaunch = useCallback((category: QuickFilterCategory) => {
-    setActiveCategory(null);
     setMapCategory(category);
-    setPhase('swipe');
-    setCategories([category]); // Also set in store to trigger SwipessSwipeContainer logic
-  }, [setCategories]);
+    setPhase('map');
+    setActiveCategory(null);
+  }, [setActiveCategory]);
 
   const handleExhaustedMap = useCallback(() => {
     setPhase('map');
