@@ -109,15 +109,12 @@ const SocialAuthButton = ({
   onClick: () => void;
   icon: React.ReactNode;
 }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="group flex h-16 w-full items-center justify-center gap-4 rounded-[1.8rem] bg-black border border-white/10 hover:border-white/30 active:scale-[0.97] transition-all shadow-xl"
+    className="group flex h-16 w-full items-center justify-center gap-4 rounded-[2rem] bg-[#0a0a0b] border border-white/10 hover:border-white/20 active:scale-[0.97] transition-all shadow-2xl"
   >
-    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white group-hover:bg-brand-primary/20 transition-colors">
+    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 group-hover:bg-[#FF4D00]/20 group-hover:text-[#FF4D00] transition-colors border border-white/5">
       {icon}
     </div>
-    <span className="text-[11px] font-black tracking-[0.2em] uppercase text-white drop-shadow-md italic">
+    <span className="text-[11px] font-black tracking-[0.25em] uppercase text-white drop-shadow-md">
       {label}
     </span>
   </button>
@@ -236,30 +233,30 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           {!isLogin && !isForgotPassword && (
             <div className="relative">
               <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="VERIFY CYPHER" className="pl-12 h-15 bg-black/60 border-white/10 text-white placeholder:text-white/20 rounded-[1.5rem] focus:border-brand-primary/50 transition-all font-bold italic text-sm" />
+              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="VERIFY CYPHER KEY" className="pl-12 h-15 bg-[#0d0d0f] border-white/10 text-white placeholder:text-white/20 rounded-[1.2rem] focus:border-[#FF4D00]/50 transition-all font-bold italic text-sm" />
             </div>
           )}
 
-          <div className="flex items-center justify-between px-1">
+          <div className="flex items-center justify-between px-2 pt-2 pb-1">
              <button 
                type="button" 
-               onClick={() => setRememberMe(!rememberMe)}
-               className="flex items-center gap-2 group"
+               onClick={() => { triggerHaptic('light'); setRememberMe(!rememberMe); }}
+               className="flex items-center gap-2 group transition-all"
              >
                 <div className={cn(
-                  "w-4 h-4 rounded-md border transition-all flex items-center justify-center",
-                  rememberMe ? "bg-brand-primary border-brand-primary" : "border-white/20 group-hover:border-white/40"
+                  "w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center",
+                  rememberMe ? "bg-[#FF4D00] border-[#FF4D00] scale-110" : "border-white/10 group-hover:border-white/20"
                 )}>
-                  {rememberMe && <Check className="w-2.5 h-2.5 text-white" />}
+                  {rememberMe && <Check className="w-3 h-3 text-white stroke-[4px]" />}
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Remember Key</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-white/60 group-hover:text-white">Save Access?</span>
              </button>
              
              {isLogin && (
                <button 
                  type="button" 
-                 onClick={() => setIsForgotPassword(true)}
-                 className="text-[10px] font-black uppercase tracking-widest text-brand-primary italic opacity-80 hover:opacity-100"
+                 onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }}
+                 className="text-[10px] font-black uppercase tracking-widest text-[#FF4D00] hover:text-[#FF4D00] transition-all"
                >
                  Forgot Key?
                </button>
@@ -269,10 +266,12 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-16 rounded-[1.8rem] bg-brand-primary text-white font-black uppercase italic tracking-[0.2em] text-[12px] shadow-[0_20px_40px_rgba(235,72,152,0.2)] active:scale-95 transition-all flex items-center justify-center gap-2 border-none"
+            className="w-full h-16 rounded-[2rem] bg-[#FF4D00] text-white font-black uppercase tracking-[0.3em] text-[13px] shadow-[0_15px_45px_rgba(255,77,0,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 border-none mt-2"
           >
             <Sparkles className="w-4 h-4" />
-            {isLoading ? 'SYNCING...' : isForgotPassword ? 'RESET LINK' : isLogin ? 'AUTHORIZE' : 'INITIALIZE'}
+            <span className="drop-shadow-md">
+              {isLoading ? 'SYNCING...' : isForgotPassword ? 'RESET ACCESS' : isLogin ? 'AUTHORIZE' : 'INITIALIZE'}
+            </span>
           </button>
         </form>
 
@@ -289,14 +288,19 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
               <SocialAuthButton label="Authorized Google" onClick={() => handleSocialLogin('google')} icon={<Sparkles className="w-4 h-4" />} />
             </div>
 
-            <div className="flex flex-col gap-3 items-center justify-center pt-2">
-               <div className="flex items-center gap-4">
-                  <button onClick={() => { setIsForgotPassword(true); triggerHaptic('light'); }} className="text-[9px] font-black text-white/40 uppercase tracking-widest italic hover:text-brand-primary transition-colors">Forgot Password?</button>
-                  <div className="w-1 h-1 rounded-full bg-white/10" />
-                  <button onClick={() => triggerHaptic('light')} className="text-[9px] font-black text-white/40 uppercase tracking-widest italic hover:text-brand-primary transition-colors">Forgot Email?</button>
+            <div className="flex flex-col gap-4 items-center justify-center pt-6">
+               <div className="flex items-center gap-6">
+                  <button onClick={() => { setIsForgotPassword(true); triggerHaptic('light'); }} className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] hover:text-white transition-colors">Forgot Password?</button>
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/5" />
+                  <button onClick={() => triggerHaptic('light')} className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] hover:text-white transition-colors">Forgot Email?</button>
                </div>
-               <button onClick={() => { triggerHaptic('medium'); setIsLogin(!isLogin); }} className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic mt-2 hover:text-brand-primary transition-colors">
-                 {isLogin ? 'Create Account' : 'Back to Login'}
+               
+               <button 
+                 onClick={() => { triggerHaptic('medium'); setIsLogin(!isLogin); }} 
+                 className="w-full py-4 rounded-[1.5rem] bg-white/5 border border-white/5 text-[11px] font-black text-white uppercase tracking-[0.3em] hover:bg-white/10 transition-all flex items-center justify-center gap-2 group"
+               >
+                 {isLogin ? 'Create Station ID' : 'Back to Comm-Link'}
+                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                </button>
             </div>
           </div>
