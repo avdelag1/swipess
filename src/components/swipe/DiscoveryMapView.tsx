@@ -240,7 +240,15 @@ export const DiscoveryMapView = memo(({
   }, []);
 
   return (
-    <motion.div className={cn("flex flex-col h-full w-full relative overflow-hidden transition-colors duration-500", isLight ? "bg-white" : "bg-black", isEmbedded && "rounded-[3.5rem]")} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <motion.div 
+      className={cn(
+        "flex flex-col h-full w-full relative transition-colors duration-500", 
+        isLight ? "bg-white" : "bg-black", 
+        isEmbedded && "rounded-[3.5rem]"
+      )} 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }}
+    >
       
       {/* 🛸 TOP HUD: CENTERED LOGIC */}
       <div className="absolute top-[calc(env(safe-area-inset-top,0px)+20px)] inset-x-0 z-[2000] px-6 pointer-events-none flex items-center justify-between">
@@ -298,98 +306,108 @@ export const DiscoveryMapView = memo(({
           </div>
       </div>
 
-      {/* 🛸 ENTITY OVERLAY GLASS */}
-      <AnimatePresence>
-        {selectedEntity && (
-            <motion.div
-                initial={{ opacity: 0, y: 100, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 100, scale: 0.9 }}
-                className="absolute bottom-[110px] inset-x-6 z-[3000] flex justify-center pointer-events-none"
-            >
-                <div className={cn(
-                    "w-full max-w-[360px] p-4 rounded-[2.5rem] border backdrop-blur-3xl shadow-[0_40px_100px_rgba(0,0,0,0.6)] pointer-events-auto flex items-center gap-5",
-                    isLight ? "bg-white/95 border-black/5" : "bg-black/95 border-white/10"
-                )}>
-                    <div className="w-24 h-24 rounded-[1.8rem] overflow-hidden shadow-2xl flex-shrink-0">
-                        <img src={selectedEntity.images?.[0] || '/placeholder.svg'} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]">Discovered</span>
-                            <button onClick={() => setSelectedEntity(null)} className="p-1 opacity-20 hover:opacity-100 transition-opacity">
-                                <X className="w-4 h-4" />
-                            </button>
-                        </div>
-                        <h4 className={cn("text-[15px] font-black uppercase italic tracking-tighter truncate", isLight ? "text-black" : "text-white")}>
-                            {selectedEntity.title}
-                        </h4>
-                        <div className="flex items-center gap-2">
-                           {mode === 'client' ? (
-                               <span className="text-sm font-black text-emerald-500 italic">${selectedEntity.price}</span>
-                           ) : (
-                               <span className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{selectedEntity.metadata?.age} • {selectedEntity.metadata?.gender}</span>
-                           )}
-                           <span className="w-1 h-1 rounded-full bg-white/10" />
-                           <span className={cn("text-[10px] font-bold uppercase tracking-widest opacity-40")}>{selectedEntity.type}</span>
-                        </div>
-                        <button 
-                          onClick={() => { triggerHaptic('heavy'); onStartSwiping?.(); }}
-                          className="w-full h-10 mt-2 rounded-2xl bg-[#EB4898]/10 text-[#EB4898] text-[10px] font-black uppercase italic tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-[#EB4898]/20 pointer-events-auto"
-                        >
-                            View Protocol <ChevronRight className="w-4 h-4" />
-                        </button>
-                    </div>
-                </div>
-            </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 🛸 BOTTOM COMMAND: CATEGORY MATRIX */}
-      <div className="absolute bottom-[130px] inset-x-0 z-[2010] flex justify-center px-10 pointer-events-none">
-          {!selectedEntity && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className={cn(
-             "p-2 rounded-[2.5rem] flex items-center gap-3 shadow-[0_20px_60px_rgba(0,0,0,0.4)] pointer-events-auto border transition-all backdrop-blur-3xl overflow-x-auto no-scrollbar",
-             isLight ? "bg-white/90 border-black/5" : "bg-black/90 border-white/10"
-          )}>
-              {[
-                  { id: 'property', icon: RealEstateIcon, label: 'Estate' }, 
-                  { id: 'motorcycle', icon: VespaIcon, label: 'Moto' }, 
-                  { id: 'bicycle', icon: BeachBicycleIcon, label: 'Aqua' }, 
-                  { id: 'services', icon: WorkersIcon, label: 'Crew' }
-              ].map(cat => (
-                  <button 
-                      key={cat.id} 
-                      onClick={() => { triggerHaptic('light'); onCategoryChange?.(cat.id as any); }} 
-                      className={cn(
-                          "h-12 px-5 flex items-center gap-3 rounded-[1.8rem] transition-all whitespace-nowrap", 
-                          category === cat.id 
-                            ? "bg-[#EB4898] text-white shadow-lg shadow-[#EB4898]/20" 
-                            : isLight ? "text-black/30 bg-black/5" : "text-white/20 bg-white/5"
-                      )}
-                  >
-                      <cat.icon className="w-5 h-5" />
-                      <span className="text-[10px] font-black uppercase tracking-widest italic">{cat.label}</span>
-                  </button>
-              ))}
-          </motion.div>
+      {/* 🛸 NEXUS MAP WINDOW */}
+      <div className="flex-1 w-full relative z-0 p-4 pt-32 pb-44">
+        <div 
+          id="map-container" 
+          ref={mapContainerRef} 
+          className={cn(
+            "w-full h-full rounded-[3.5rem] border overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.5)] transition-all duration-700",
+            theme === 'nexus-style' ? "border-white/20" : "border-white/5"
+          )} 
+        />
+        
+        {/* 🛸 ENTITY OVERLAY GLASS */}
+        <AnimatePresence>
+          {selectedEntity && (
+              <motion.div
+                  initial={{ opacity: 0, y: 100, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 100, scale: 0.9 }}
+                  className="absolute bottom-48 inset-x-10 z-[3000] flex justify-center pointer-events-none"
+              >
+                  <div className={cn(
+                      "w-full max-w-[360px] p-4 rounded-[2.5rem] border backdrop-blur-3xl shadow-[0_40px_100px_rgba(0,0,0,0.6)] pointer-events-auto flex items-center gap-5",
+                      isLight ? "bg-white/95 border-black/5" : "bg-black/95 border-white/10"
+                  )}>
+                      <div className="w-24 h-24 rounded-[1.8rem] overflow-hidden shadow-2xl flex-shrink-0">
+                          <img src={selectedEntity.images?.[0] || '/placeholder.svg'} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                          <div className="flex items-center justify-between">
+                              <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]">Discovered</span>
+                              <button onClick={() => setSelectedEntity(null)} className="p-1 opacity-20 hover:opacity-100 transition-opacity">
+                                  <X className="w-4 h-4" />
+                              </button>
+                          </div>
+                          <h4 className={cn("text-[15px] font-black uppercase italic tracking-tighter truncate", isLight ? "text-black" : "text-white")}>
+                              {selectedEntity.title}
+                          </h4>
+                          <div className="flex items-center gap-2">
+                             {mode === 'client' ? (
+                                 <span className="text-sm font-black text-emerald-500 italic">${selectedEntity.price}</span>
+                             ) : (
+                                 <span className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{selectedEntity.metadata?.age} • {selectedEntity.metadata?.gender}</span>
+                             )}
+                             <span className="w-1 h-1 rounded-full bg-white/10" />
+                             <span className={cn("text-[10px] font-bold uppercase tracking-widest opacity-40")}>{selectedEntity.type}</span>
+                          </div>
+                          <button 
+                            onClick={() => { triggerHaptic('heavy'); onStartSwiping?.(); }}
+                            className="w-full h-10 mt-2 rounded-2xl bg-[#EB4898]/10 text-[#EB4898] text-[10px] font-black uppercase italic tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-[#EB4898]/20 pointer-events-auto"
+                          >
+                              View Protocol <ChevronRight className="w-4 h-4" />
+                          </button>
+                      </div>
+                  </div>
+              </motion.div>
           )}
+        </AnimatePresence>
+
+        {/* 🛸 BOTTOM COMMAND: CATEGORY MATRIX */}
+        <div className="absolute bottom-8 inset-x-0 z-[2010] flex justify-center px-10 pointer-events-none">
+            {!selectedEntity && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              className={cn(
+               "p-2 rounded-[2.5rem] flex items-center gap-2 shadow-[0_20px_60px_rgba(0,0,0,0.4)] pointer-events-auto border transition-all backdrop-blur-3xl no-scrollbar",
+               isLight ? "bg-white/90 border-black/5" : "bg-black/90 border-white/10"
+            )}>
+                {[
+                    { id: 'property', icon: RealEstateIcon, label: 'Estate' }, 
+                    { id: 'motorcycle', icon: VespaIcon, label: 'Moto' }, 
+                    { id: 'bicycle', icon: BeachBicycleIcon, label: 'Aqua' }, 
+                    { id: 'services', icon: WorkersIcon, label: 'Crew' }
+                ].map(cat => (
+                    <button 
+                        key={cat.id} 
+                        onClick={() => { triggerHaptic('light'); onCategoryChange?.(cat.id as any); }} 
+                        className={cn(
+                            "h-11 px-4 flex items-center gap-2 rounded-[1.8rem] transition-all whitespace-nowrap", 
+                            category === cat.id 
+                              ? "bg-[#EB4898] text-white shadow-lg shadow-[#EB4898]/20" 
+                              : isLight ? "text-black/30 bg-black/5" : "text-white/20 bg-white/5"
+                        )}
+                    >
+                        <cat.icon className="w-4 h-4" />
+                        <span className="text-[9px] font-black uppercase tracking-widest italic">{cat.label}</span>
+                    </button>
+                ))}
+            </motion.div>
+            )}
+        </div>
       </div>
 
-      <div id="map-container" ref={mapContainerRef} className="absolute inset-0 w-full h-full z-0" />
-
       {/* 📡 SCAN TRIGGER */}
-      <div className="absolute bottom-[40px] inset-x-0 z-[2000] flex justify-center px-10 pointer-events-none">
+      <div className="absolute bottom-[20px] inset-x-0 z-[2000] flex justify-center px-10 pointer-events-none">
         <button 
           onClick={handleRefresh} 
           className={cn(
-            "w-full max-w-[340px] h-16 rounded-[2rem] text-[12px] font-black uppercase italic tracking-[0.4em] transition-all flex items-center justify-center gap-4 border-none pointer-events-auto shadow-[0_30px_60px_rgba(235,72,152,0.4)] backdrop-blur-xl",
+            "w-full max-w-[320px] h-14 rounded-[2rem] text-[11px] font-black uppercase italic tracking-[0.4em] transition-all flex items-center justify-center gap-4 border-none pointer-events-auto shadow-[0_30px_60px_rgba(235,72,152,0.4)] backdrop-blur-xl",
             isRefreshing ? "bg-black text-white" : "bg-[#EB4898] text-white active:scale-95"
           )}
         >
-          <RefreshCw className={cn("w-5 h-5", isRefreshing && "animate-spin")} /> 
+          <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} /> 
           <span>{isRefreshing ? 'Optimizing Radar...' : 'Start Radar Scan'}</span>
         </button>
       </div>

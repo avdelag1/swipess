@@ -8,6 +8,8 @@ import type { QuickFilterCategory } from '@/types/filters';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import ClientFilters from './ClientFilters';
 import { Filter } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 
 interface ClientDashboardProps {
   onPropertyInsights?: (listingId: string) => void;
@@ -24,6 +26,7 @@ interface ClientDashboardProps {
  * UI transitions and state isolation.
  */
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
+  const { theme } = useTheme();
   // Phase state: 'cards' | 'map' | 'swipe'
   const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>('cards');
   const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
