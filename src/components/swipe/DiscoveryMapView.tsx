@@ -12,6 +12,8 @@ import { triggerHaptic } from '@/utils/haptics';
 import { POKER_CARDS } from './SwipeConstants';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
+import { LeafletAutoResize } from './useLeafletAutoResize';
 import type { QuickFilterCategory } from '@/types/filters';
 
 // 🗝️ OFFICIAL MAPBOX ASSETS — ONE STYLE, ONE KEY
@@ -79,6 +81,7 @@ export const DiscoveryMapView = ({
   mode = 'client'
 }: DiscoveryMapViewProps) => {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const { data: roleFromDb } = useUserRole(user?.id);
   const activeRole = mode || (roleFromDb as any) || 'client';
 
@@ -147,27 +150,33 @@ export const DiscoveryMapView = ({
   );
 
   return (
-    <motion.div 
-      className="w-full h-full relative overflow-hidden bg-black flex flex-col"
+    <motion.div
+      className={cn(
+        'w-full h-full relative overflow-hidden flex flex-col',
+        isEmbedded ? 'bg-transparent' : 'bg-black',
+      )}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
       {/* 📡 COMPONENT ALIVE INDICATOR (Failsafe Visibility) */}
-      <div className="absolute inset-0 bg-[#0a0a0b] pointer-events-none" />
-      
-      <MapContainer 
-        center={mapCenter} 
-        zoom={zoom} 
+      {!isEmbedded && (
+        <div className="absolute inset-0 bg-[#0a0a0b] pointer-events-none" />
+      )}
+
+      <MapContainer
+        center={mapCenter}
+        zoom={zoom}
         zoomControl={false}
         attributionControl={false}
         className="w-full flex-1 z-[1] pointer-events-auto"
-        style={{ height: '100%', minHeight: '400px' }}
+        style={{ height: '100%', minHeight: '300px' }}
       >
-        <TileLayer 
-          url={TILE_URL} 
-          tileSize={MAPBOX_TOKEN ? 512 : 256} 
-          zoomOffset={MAPBOX_TOKEN ? -1 : 0} 
+        <LeafletAutoResize />
+        <TileLayer
+          url={TILE_URL}
+          tileSize={MAPBOX_TOKEN ? 512 : 256}
+          zoomOffset={MAPBOX_TOKEN ? -1 : 0}
         />
         <MapController center={mapCenter} zoom={zoom} />
 
@@ -313,7 +322,7 @@ export const DiscoveryMapView = ({
              {/* Radius Micro-Control */}
              <div className="w-full max-w-[240px] flex items-center gap-4 bg-black/60 backdrop-blur-3xl px-6 py-3 rounded-[2rem] border border-white/10 pointer-events-auto shadow-2xl">
                 <span className="text-[10px] font-black text-white/30 uppercase tracking-widest min-w-[40px]">{radiusKm}KM</span>
-                <input 
+                <input
                   type="range"
                   min="1" max="100"
                   value={radiusKm}
@@ -323,6 +332,67 @@ export const DiscoveryMapView = ({
              </div>
           </div>
         </>
+      )}
+
+      {/* 🎯 EMBEDDED HUD — slim floating pill anchored inside the card */}
+      {isEmbedded && (
+        <div className="absolute bottom-4 left-4 right-4 z-10 flex flex-col gap-3 items-center pointer-events-none">
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={handleIgnite}
+            disabled={isScanning}
+            className={cn(
+              'relative w-full max-w-[280px] h-14 rounded-full flex items-center justify-center overflow-hidden transition-all shadow-2xl pointer-events-auto',
+              theme === 'light'
+                ? 'bg-black text-white border border-black/20'
+                : 'bg-primary text-white border border-primary/60',
+              isScanning && 'opacity-80',
+            )}
+          >
+            <AnimatePresence mode="wait">
+              {isScanning ? (
+                <motion.div key="scan-emb" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-3">
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">Engaging</span>
+                </motion.div>
+              ) : (
+                <motion.div key="ready-emb" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-3">
+                  <Sparkles className="w-4 h-4" />
+                  <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">Start Swiping</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
+
+          <div
+            className={cn(
+              'w-full max-w-[260px] flex items-center gap-3 px-5 py-2 rounded-full border pointer-events-auto shadow-lg backdrop-blur-xl',
+              theme === 'light'
+                ? 'bg-white/90 border-black/10'
+                : 'bg-black/60 border-white/10',
+            )}
+          >
+            <span
+              className={cn(
+                'text-[10px] font-black uppercase tracking-widest min-w-[36px]',
+                theme === 'light' ? 'text-black/60' : 'text-white/60',
+              )}
+            >
+              {radiusKm}km
+            </span>
+            <input
+              type="range"
+              min="1"
+              max="100"
+              value={radiusKm}
+              onChange={(e) => setRadiusKm(parseInt(e.target.value))}
+              className={cn(
+                'flex-1 h-1 rounded-full appearance-none cursor-pointer accent-primary',
+                theme === 'light' ? 'bg-black/10' : 'bg-white/10',
+              )}
+            />
+          </div>
+        </div>
       )}
 
       {/* Flagship Animation Keyframes */}

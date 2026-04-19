@@ -3,6 +3,8 @@ import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
+import { DashboardMapCard } from '@/components/swipe/DashboardMapCard';
+import { MapFilterChipRow } from '@/components/swipe/MapFilterChipRow';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuickFilterCategory } from '@/types/filters';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -27,9 +29,12 @@ interface ClientDashboardProps {
  */
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { theme } = useTheme();
-  // Phase state: 'cards' | 'map' | 'swipe'
-  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>('cards');
-  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
+  // Phase state: 'cards' | 'map' | 'swipe'.
+  // Default landing = map (replaces the legacy "ENGAGE DISCOVERY" intro).
+  // 'cards' remains reachable when the user re-taps Dashboard in the bottom nav,
+  // which clears activeCategory and triggers the cards fallback via useEffect.
+  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>('map');
+  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>('property');
   const [showFilters, setShowFilters] = useState(false);
 
   const activeCategory = useFilterStore(s => s.activeCategory);
@@ -113,20 +118,24 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
         {showMap && mapCategory && (
           <motion.div
             key="dash-map"
-            initial={{ opacity: 0, y: 30, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.98 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             className="flex-1 w-full relative"
-            style={{ willChange: 'transform, opacity' }}
           >
-            <DiscoveryMapView
-              category={mapCategory}
-              onBack={handleMapBack}
-              onStartSwiping={handleStartSwiping}
-              onCategoryChange={(cat) => setMapCategory(cat)}
-              isEmbedded={false}
-            />
+            <DashboardMapCard>
+              <MapFilterChipRow mode="client" />
+              <div className="flex-1 relative min-h-0">
+                <DiscoveryMapView
+                  category={mapCategory}
+                  onBack={handleMapBack}
+                  onStartSwiping={handleStartSwiping}
+                  isEmbedded={true}
+                  mode="client"
+                />
+              </div>
+            </DashboardMapCard>
           </motion.div>
         )}
 

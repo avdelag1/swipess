@@ -21,6 +21,8 @@ import { useFilterActions } from '@/state/filterStore';
 import type { OwnerIntentCard } from '@/components/swipe/SwipeConstants';
 import { triggerHaptic } from '@/utils/haptics';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
+import { DashboardMapCard } from '@/components/swipe/DashboardMapCard';
+import { MapFilterChipRow } from '@/components/swipe/MapFilterChipRow';
 import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -46,8 +48,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }, []);
   
   const activeCategory = useFilterStore(s => s.activeCategory);
-  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
-  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
+  // Default landing = map (replaces the legacy "ENGAGE DISCOVERY" intro).
+  // 'cards' is still reachable when activeCategory clears (bottom-nav re-tap).
+  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'map');
+  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>('property');
   const [showFilters, setShowFilters] = useState(false);
 
   const modalStore = useModalStore();
@@ -229,37 +233,46 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         ) : showMap && mapCategory ? (
           <motion.div
             key="owner-dash-map"
-            initial={{ opacity: 0, y: 40, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -30, scale: 0.98 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             className="flex-1 w-full relative z-10"
-            style={{ willChange: 'transform, opacity' }}
           >
-            <DiscoveryMapView
-              category={mapCategory}
-              onBack={handleMapBack}
-              onStartSwiping={handleStartSwiping}
-              onCategoryChange={(cat) => setMapCategory(cat)}
-              mode="owner"
-            />
+            <DashboardMapCard>
+              <MapFilterChipRow mode="owner" />
+              <div className="flex-1 relative min-h-0">
+                <DiscoveryMapView
+                  category={mapCategory}
+                  onBack={handleMapBack}
+                  onStartSwiping={handleStartSwiping}
+                  isEmbedded={true}
+                  mode="owner"
+                />
+              </div>
+            </DashboardMapCard>
           </motion.div>
         ) : showSwipe && !isLoading && clientProfiles.length === 0 ? (
           <motion.div
             key="owner-dash-map-empty"
-            initial={{ opacity: 0, y: 40, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -30, scale: 0.98 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             className="w-full h-full z-10"
-            style={{ willChange: 'transform, opacity' }}
           >
-            <DiscoveryMapView
-              category={mapCategory || (filterCategory as any) || 'property'}
-              onBack={handleMapBack}
-              onStartSwiping={handleStartSwiping}
-              mode="owner"
-            />
+            <DashboardMapCard>
+              <MapFilterChipRow mode="owner" />
+              <div className="flex-1 relative min-h-0">
+                <DiscoveryMapView
+                  category={mapCategory || (filterCategory as any) || 'property'}
+                  onBack={handleMapBack}
+                  onStartSwiping={handleStartSwiping}
+                  isEmbedded={true}
+                  mode="owner"
+                />
+              </div>
+            </DashboardMapCard>
           </motion.div>
         ) : showSwipe ? (
           <motion.div
