@@ -216,27 +216,27 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && !isForgotPassword && (
             <div className="relative">
-              <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-              <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="STATION ID (NAME)" className="pl-12 h-15 bg-white/5 border-white/5 text-white placeholder:text-white/10 rounded-[1.5rem] focus:border-[#EB4898]/30 transition-all font-bold italic text-sm" />
+              <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+              <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="STATION ID (NAME)" className="pl-12 h-15 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-[1.5rem] focus:border-[#EB4898]/50 transition-all font-bold italic text-sm" />
             </div>
           )}
 
           <div className="relative">
-            <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="COMM-LINK (EMAIL)" className="pl-12 h-15 bg-white/5 border-white/5 text-white placeholder:text-white/10 rounded-[1.5rem] focus:border-[#EB4898]/30 transition-all font-bold italic text-sm" />
+            <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="COMM-LINK (EMAIL)" className="pl-12 h-15 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-[1.5rem] focus:border-[#EB4898]/50 transition-all font-bold italic text-sm" />
           </div>
 
           {!isForgotPassword && (
             <div className="relative">
-              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="CYPHER KEY" className="pl-12 h-15 bg-white/5 border-white/5 text-white placeholder:text-white/10 rounded-[1.5rem] focus:border-[#EB4898]/30 transition-all font-bold italic text-sm" />
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="CYPHER KEY" className="pl-12 h-15 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-[1.5rem] focus:border-[#EB4898]/50 transition-all font-bold italic text-sm" />
             </div>
           )}
 
           {!isLogin && !isForgotPassword && (
             <div className="relative">
-              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="VERIFY CYPHER" className="pl-12 h-15 bg-white/5 border-white/5 text-white placeholder:text-white/10 rounded-[1.5rem] focus:border-[#EB4898]/30 transition-all font-bold italic text-sm" />
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="VERIFY CYPHER" className="pl-12 h-15 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-[1.5rem] focus:border-[#EB4898]/50 transition-all font-bold italic text-sm" />
             </div>
           )}
 
@@ -268,9 +268,9 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {!isForgotPassword && (
           <div className="mt-8 space-y-6">
             <div className="flex items-center gap-4">
-               <div className="flex-1 h-[1px] bg-white/5" />
-               <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] italic">Or Auth via ID</span>
-               <div className="flex-1 h-[1px] bg-white/5" />
+               <div className="flex-1 h-[1px] bg-white/10" />
+               <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em] italic">Or Auth via ID</span>
+               <div className="flex-1 h-[1px] bg-white/10" />
             </div>
             
             <div className="grid grid-cols-1 gap-3">

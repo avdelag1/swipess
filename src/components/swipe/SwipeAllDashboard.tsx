@@ -44,12 +44,8 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
     setCards(prev => {
       if (prev[0].id !== id) return prev;
       const next = [...prev];
-      if (direction === 'left') {
-        const [front] = next.splice(0, 1);
-        return [...next, front];
-      }
-      const last = next.pop()!;
-      return [last, ...next];
+      const [front] = next.splice(0, 1);
+      return [...next, front];
     });
   }, []);
 

@@ -500,10 +500,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
         )}
         style={{
-          paddingTop: isFullScreenRoute
+          paddingTop: (isFullScreenRoute || isZeroScrollDashboard)
             ? '0px'
             : 'calc(var(--top-bar-height) + var(--safe-top))',
-          paddingBottom: 0,
+          paddingBottom: (isFullScreenRoute || isZeroScrollDashboard)
+            ? '0px'
+            : 'calc(var(--bottom-nav-height) + var(--safe-bottom))',
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           
