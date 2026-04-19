@@ -25,11 +25,11 @@ export default function LegalPage() {
   };
 
   const legalItems = [
-    { icon: Scale, label: 'Agreements & Contracts', description: 'Digital rental agreements & authorization logs', bg: '#06b6d4', action: () => navigate('/client/contracts') },
+    { icon: Scale, label: 'Protocols & Contracts', description: 'Digital rental agreements & authorization logs', bg: '#06b6d4', action: () => navigate('/client/contracts') },
     { icon: Gavel, label: 'Legal Authority', description: 'Professional legal dispatch assistance', bg: '#8b5cf6', action: () => setShowLawyerModal(true) },
-    { icon: FileText, label: 'Swipess Terms', description: 'Core service terms & conditions', bg: '#f97316', action: () => navigate('/terms-of-service') },
-    { icon: Shield, label: 'Data Integrity', description: 'Privacy policy & data protection', bg: '#EB4898', action: () => navigate('/privacy-policy') },
-    { icon: BookOpen, label: 'Entity Conduct (AGL)', description: 'Community standards & behavioral code', bg: '#indigo-500', action: () => navigate('/agl') },
+    { icon: FileText, label: 'Nexus Terms', description: 'Core service terms & conditions', bg: '#f97316', action: () => navigate('/terms-of-service') },
+    { icon: Shield, label: 'Data Integrity', description: 'Privacy policy & data protection protocols', bg: '#EB4898', action: () => navigate('/privacy-policy') },
+    { icon: BookOpen, label: 'Entity Conduct (AGL)', description: 'Community standards & behavioral matrix', bg: '#indigo-500', action: () => navigate('/agl') },
   ];
 
   return (
@@ -45,7 +45,7 @@ export default function LegalPage() {
         
         {/* 🛸 HEADER */}
         <div className="space-y-3">
-           <PageHeader title="LEGAL HUB" showBack={true} onBack={handleBack} />
+           <PageHeader title="LEGAL MATRIX" showBack={true} onBack={handleBack} />
            <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed max-w-sm", isLight ? "text-black" : "text-white")}> Global Legal Standards v14.0 </p>
         </div>
 
@@ -57,7 +57,7 @@ export default function LegalPage() {
                 </div>
                 <div>
                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">Entity Integrity</p>
-                   <h4 className={cn("text-xl font-black italic tracking-tighter uppercase leading-none mt-1", isLight ? "text-black" : "text-white")}>Secure Platform</h4>
+                   <h4 className={cn("text-xl font-black italic tracking-tighter uppercase leading-none mt-1", isLight ? "text-black" : "text-white")}>Secure Protocol</h4>
                 </div>
              </div>
              <div className="bg-white/5 px-4 py-2 rounded-full border border-white/10">
@@ -102,7 +102,7 @@ export default function LegalPage() {
         <div className="flex flex-col items-center gap-6 pt-12">
             <Shield className={cn("w-12 h-12 opacity-10", isLight ? "text-black" : "text-white")} />
             <p className={cn("text-[10px] font-black uppercase tracking-[0.3em] italic opacity-20 text-center max-w-xs", isLight ? "text-black" : "text-white")}>
-               Transmissions protected by high-standard encryption standards.
+               Transmissions protected by high-standard matrix encryption protocols.
             </p>
         </div>
       </div>

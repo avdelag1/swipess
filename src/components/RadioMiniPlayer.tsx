@@ -5,7 +5,6 @@ import { Play, Pause, SkipBack, SkipForward, X, Radio, Volume2, VolumeX } from '
 import { useNavigate, useLocation } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
 
 type MiniMode = 'bubble' | 'expanded' | 'docked';
 
@@ -13,8 +12,6 @@ function RadioMiniPlayerInner() {
   const { state, togglePlayPause, changeStation, pause, setMiniPlayerMode, setVolume } = useRadio();
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
   
   const [mode, setMode] = useState<MiniMode>('bubble');
   const [isHovered, setIsHovered] = useState(false);
@@ -205,39 +202,28 @@ function RadioMiniPlayerInner() {
           transition={{ type: 'spring', stiffness: 400, damping: 26 }}
           className="fixed bottom-32 right-4 z-[100] w-[300px]"
         >
-            {/* Liquid Glass Container */}
-            <div
-              className={cn(
-                "rounded-[28px] overflow-hidden shadow-2xl border",
-                isLight ? "border-black/5 bg-white/80" : "border-white/10 glass-ultra-dark"
-              )}
-              style={isLight ? {
-                  backdropFilter: 'blur(30px) saturate(1.5)',
-              } : { 
-                  background: 'rgba(0,0,0,0.85)',
-                  backdropFilter: 'blur(40px) saturate(1.8)'
-              }}
-            >
-              {/* Top rim catch-light */}
-              {!isLight && <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />}
-  
-              {/* Top bar */}
-              <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
-                <button
-                  onClick={handleMinimize}
-                  className={cn(
-                      "text-[10px] font-black uppercase tracking-[0.2em] transition-colors",
-                      isLight ? "text-black/40 hover:text-black/60" : "text-white/30 hover:text-white/60"
-                  )}
-                >
+          {/* Liquid Glass Container */}
+          <div
+            className="rounded-[28px] overflow-hidden shadow-[0_22px_70px_8px_rgba(0,0,0,0.56)] border border-white/10 glass-ultra-dark"
+            style={{ 
+                background: 'rgba(0,0,0,0.85)',
+                backdropFilter: 'blur(40px) saturate(1.8)'
+            }}
+          >
+            {/* Top rim catch-light */}
+            <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+            {/* Top bar */}
+            <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
+              <button
+                onClick={handleMinimize}
+                className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] hover:text-white/60 transition-colors"
+              >
                 Minimize
               </button>
               <button
                 onClick={handleClose}
-                className={cn(
-                  "w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-90",
-                  isLight ? "bg-black/5 text-black/40 hover:bg-black/10 hover:text-black" : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white"
-                )}
+                className="w-7 h-7 rounded-full flex items-center justify-center bg-white/5 text-white/40 hover:bg-white/10 hover:text-white transition-all active:scale-90"
               >
                 <X className="w-4 h-4" strokeWidth={2.5} />
               </button>
@@ -260,8 +246,8 @@ function RadioMiniPlayerInner() {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className={cn("text-[15px] font-black truncate tracking-tight", isLight ? "text-black" : "text-white")}>{station.name}</p>
-                <p className={cn("text-[11px] font-bold truncate uppercase tracking-widest mt-0.5", isLight ? "text-blue-600/70" : "text-blue-400/60")}>
+                <p className="text-[15px] font-black text-white truncate tracking-tight">{station.name}</p>
+                <p className="text-[11px] font-bold text-blue-400/60 truncate uppercase tracking-widest mt-0.5">
                   {station.frequency} · {station.genre || 'LIVE'}
                 </p>
               </div>
@@ -271,10 +257,7 @@ function RadioMiniPlayerInner() {
             <div className="flex items-center justify-between px-4 pb-5 pt-1">
               <button
                 onClick={handleMute}
-                className={cn(
-                  "w-10 h-10 rounded-full flex items-center justify-center transition-colors active:scale-90",
-                  isLight ? "text-black/30 hover:text-black" : "text-white/30 hover:text-white"
-                )}
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white/30 hover:text-white transition-colors active:scale-90"
               >
                 {state.volume > 0 ? (
                   <Volume2 className="w-4.5 h-4.5" />
@@ -286,17 +269,14 @@ function RadioMiniPlayerInner() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handlePrev}
-                  className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-all", isLight ? "text-black/40 hover:text-black" : "text-white/40 hover:text-white")}
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white/40 hover:text-white active:scale-90 transition-all"
                 >
                   <SkipBack className="w-5 h-5 fill-current" />
                 </button>
 
                 <button
                   onClick={handleTogglePlay}
-                  className={cn(
-                    "w-14 h-14 rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-all",
-                    isLight ? "bg-black text-white" : "bg-white text-black"
-                  )}
+                  className="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center shadow-2xl active:scale-90 transition-all"
                 >
                   {state.isPlaying ? (
                     <Pause className="w-7 h-7 fill-current" />
@@ -307,7 +287,7 @@ function RadioMiniPlayerInner() {
 
                 <button
                   onClick={handleNext}
-                  className={cn("w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-all", isLight ? "text-black/40 hover:text-black" : "text-white/40 hover:text-white")}
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white/40 hover:text-white active:scale-90 transition-all"
                 >
                   <SkipForward className="w-5 h-5 fill-current" />
                 </button>

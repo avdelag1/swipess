@@ -181,7 +181,7 @@ export function MessagingDashboard() {
             ) : (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-[#EB4898]/40 uppercase font-black italic">
                 <div className="w-16 h-16 rounded-full border-4 border-[#EB4898]/10 border-t-[#EB4898] animate-spin" />
-                <span className="animate-pulse tracking-[0.3em] text-[10px]">Syncing Link...</span>
+                <span className="animate-pulse tracking-[0.3em] text-[10px]">Syncing Nexus Link...</span>
               </div>
             )}
           </motion.div>
@@ -202,18 +202,18 @@ export function MessagingDashboard() {
       
       <div className="w-full max-w-4xl mx-auto px-6 pt-16 pb-48 relative z-10 space-y-12">
         
-        {/* 🛸 HEADER: MEGA SYNC */}
+        {/* 🛸 HEADER: MEGA NEXUS SYNC */}
         <div className="flex items-center gap-6">
            <div className="w-18 h-18 rounded-[1.8rem] bg-[#EB4898] flex items-center justify-center shadow-2xl shadow-[#EB4898]/20">
               <MessageCircle className="w-8 h-8 text-white" />
            </div>
            <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">Global Network</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">Global Nexus</span>
               <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isLight ? "text-black" : "text-white")}>Direct Transmissions</h1>
            </div>
         </div>
 
-        {/* 🛸 SEARCH & FILTERS */}
+        {/* 🛸 SEARCH & MATRIX FILTERS */}
         <div className="space-y-6">
           <div className="relative group">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#EB4898] opacity-50 z-10" />
@@ -347,7 +347,7 @@ export function MessagingDashboard() {
                  <MessageCircle className="w-10 h-10 text-indigo-500 animate-pulse" />
               </div>
               <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-4">No Transmissions</h3>
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-xs leading-relaxed">Your communication network is silent. Connect with identities on the radar to begin chatting.</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-xs leading-relaxed">The Nexus communication matrix is silent. Connect with identities on the radar to begin syncing.</p>
             </motion.div>
           )}
         </div>

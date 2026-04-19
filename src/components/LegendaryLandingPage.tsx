@@ -112,12 +112,12 @@ const SocialAuthButton = ({
   <button
     type="button"
     onClick={onClick}
-    className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-white text-black hover:bg-neutral-100 active:scale-[0.97] transition-all font-semibold shadow-md"
+    className="group flex h-16 w-full items-center justify-center gap-4 rounded-[1.8rem] bg-white/[0.03] border border-white/5 hover:bg-white/5 active:scale-[0.97] transition-all"
   >
-    <div className="w-6 h-6 flex items-center justify-center">
+    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white group-hover:bg-white/10 transition-colors">
       {icon}
     </div>
-    <span className="text-[14px] font-semibold tracking-wide">
+    <span className="text-[11px] font-black tracking-widest uppercase text-white/70 italic">
       {label}
     </span>
   </button>
@@ -131,7 +131,6 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
-  const [savePassword, setSavePassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp, signInWithOAuth } = useAuth();
 
@@ -144,7 +143,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast({ title: 'Login Link Sent', description: "Check your inbox for reset instructions." });
+      toast({ title: 'Nexus Link Sent', description: "Check your neural inbox for reset parameters." });
       setIsForgotPassword(false);
     } catch (error: any) {
       toast({ title: 'System Error', description: error.message, variant: 'destructive' });
@@ -206,52 +205,37 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
             <SwipessLogo size="md" variant="white" />
           </div>
           <h1 className="text-3xl font-black italic tracking-tighter text-white uppercase leading-none mb-3">
-             {isForgotPassword ? 'Reset Access' : isLogin ? 'Access Portal' : 'Swipess Entry'}
+             {isForgotPassword ? 'Reset Access' : isLogin ? 'Access Portal' : 'Nexus Entry'}
           </h1>
           <p className="text-[10px] font-black tracking-[0.25em] text-white/30 uppercase italic">
-            Secure Connection Required
+            Secure Neural Connection Required
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && !isForgotPassword && (
             <div className="relative">
-              <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
-              <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="STATION ID (NAME)" className="pl-12 h-15 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-[1.5rem] focus:border-[#EB4898]/50 transition-all font-bold italic text-sm" />
+              <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+              <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="STATION ID (NAME)" className="pl-12 h-15 bg-white/5 border-white/5 text-white placeholder:text-white/10 rounded-[1.5rem] focus:border-[#EB4898]/30 transition-all font-bold italic text-sm" />
             </div>
           )}
 
           <div className="relative">
-            <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="COMM-LINK (EMAIL)" className="pl-12 h-15 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-[1.5rem] focus:border-[#EB4898]/50 transition-all font-bold italic text-sm" />
+            <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="COMM-LINK (EMAIL)" className="pl-12 h-15 bg-white/5 border-white/5 text-white placeholder:text-white/10 rounded-[1.5rem] focus:border-[#EB4898]/30 transition-all font-bold italic text-sm" />
           </div>
 
           {!isForgotPassword && (
             <div className="relative">
-              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="CYPHER KEY" className="pl-12 h-15 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-[1.5rem] focus:border-[#EB4898]/50 transition-all font-bold italic text-sm" />
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="CYPHER KEY" className="pl-12 h-15 bg-white/5 border-white/5 text-white placeholder:text-white/10 rounded-[1.5rem] focus:border-[#EB4898]/30 transition-all font-bold italic text-sm" />
             </div>
           )}
 
           {!isLogin && !isForgotPassword && (
             <div className="relative">
-              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
-              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="VERIFY CYPHER" className="pl-12 h-15 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-[1.5rem] focus:border-[#EB4898]/50 transition-all font-bold italic text-sm" />
-            </div>
-          )}
-
-          {!isForgotPassword && (
-            <div className="flex items-center justify-between px-2 pt-2">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <div className={cn(
-                  "w-4 h-4 rounded border flex items-center justify-center transition-colors",
-                  savePassword ? "bg-[#EB4898] border-[#EB4898]" : "bg-white/5 border-white/20 group-hover:border-white/40"
-                )}>
-                  {savePassword && <Sparkles className="w-2.5 h-2.5 text-white" />}
-                </div>
-                <input type="checkbox" className="hidden" checked={savePassword} onChange={(e) => setSavePassword(e.target.checked)} />
-                <span className="text-[10px] font-black text-white/50 uppercase tracking-widest italic group-hover:text-white/80 transition-colors">Save Password</span>
-              </label>
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="VERIFY CYPHER" className="pl-12 h-15 bg-white/5 border-white/5 text-white placeholder:text-white/10 rounded-[1.5rem] focus:border-[#EB4898]/30 transition-all font-bold italic text-sm" />
             </div>
           )}
 
@@ -268,28 +252,20 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {!isForgotPassword && (
           <div className="mt-8 space-y-6">
             <div className="flex items-center gap-4">
-               <div className="flex-1 h-[1px] bg-white/10" />
-               <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em] italic">Or Auth via ID</span>
-               <div className="flex-1 h-[1px] bg-white/10" />
+               <div className="flex-1 h-[1px] bg-white/5" />
+               <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] italic">Or Auth via ID</span>
+               <div className="flex-1 h-[1px] bg-white/5" />
             </div>
             
             <div className="grid grid-cols-1 gap-3">
-              <SocialAuthButton 
-                label="Sign in with Apple" 
-                onClick={() => handleSocialLogin('apple')} 
-                icon={<svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M16.365 21.43c-1.396.953-2.61.953-3.957 0-3.32-2.316-6.408-7.23-6.408-11.45 0-3.411 2.05-5.26 4.316-5.26 1.346 0 2.658.736 3.499.736.816 0 2.028-.736 3.518-.736 2.008 0 3.826 1.054 4.881 2.76-4.148 2.378-3.41 8.28.916 10.015-1.026 2.502-2.455 4.908-4.52 6.305h-.001zm-3.04-16.71c.08-.228.12-.48.12-.752 0-2.038-1.576-3.83-3.565-3.968-.052.261-.06.516-.06.776 0 1.953 1.585 3.656 3.505 3.944z"/></svg>} 
-              />
-              <SocialAuthButton 
-                label="Sign in with Google" 
-                onClick={() => handleSocialLogin('google')} 
-                icon={<svg viewBox="0 0 48 48" className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20c11.045 0 20-8.955 20-20 0-1.341-.138-2.65-.389-3.917z" fill="#FFC107"/><path d="M43.611 20.083L43.595 20H24v8h11.303a11.96 11.96 0 01-4.004 5.485C34.802 36.315 39 30.643 39 24c0-1.341-.138-2.65-.389-3.917z" fill="#FF3D00"/><path d="M24 44c5.166 0 9.858-1.977 13.409-5.192l-6.19-5.238c-2.008 1.521-4.504 2.43-7.219 2.43-5.222 0-9.653-3.342-11.303-8l-7.736 5.96C8.847 40.59 15.82 44 24 44z" fill="#4CAF50"/><path d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.004 5.485l6.19 5.238C41.05 35.15 44 29.932 44 24c0-1.341-.138-2.65-.389-3.917z" fill="#1976D2"/></svg>} 
-              />
+              <SocialAuthButton label="Authorized Apple" onClick={() => handleSocialLogin('apple')} icon={<ChevronRight className="w-4 h-4" />} />
+              <SocialAuthButton label="Authorized Google" onClick={() => handleSocialLogin('google')} icon={<Sparkles className="w-4 h-4" />} />
             </div>
 
             <div className="flex flex-col gap-2 items-center justify-center pt-2">
-               <button onClick={() => setIsForgotPassword(true)} className="text-[10px] font-black text-[#EB4898] uppercase tracking-widest hover:opacity-100 opacity-80 transition-opacity">Forgot password or email?</button>
+               <button onClick={() => setIsForgotPassword(true)} className="text-[9px] font-black text-[#EB4898] uppercase tracking-widest italic hover:opacity-100 opacity-60 transition-opacity">Forgotten Access?</button>
                <button onClick={() => { triggerHaptic('light'); setIsLogin(!isLogin); }} className="text-[10px] font-black text-white uppercase tracking-[0.2em] italic">
-                 {isLogin ? 'Sign up for Swipess' : 'Access existing account'}
+                 {isLogin ? 'Sign up for nexus' : 'Access existing link'}
                </button>
             </div>
           </div>
@@ -328,7 +304,7 @@ function LegendaryLandingPage() {
           <div className="w-1 h-1 rounded-full bg-white/20" />
           <button onClick={() => navigate('/terms-of-service')} className="hover:text-[#EB4898] transition-colors">Terms</button>
         </div>
-        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 SWIPESS SYSTEM v12.0</p>
+        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 NEXUS PROTOCOL v12.0</p>
       </div>
     </div>
   );

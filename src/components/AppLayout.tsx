@@ -29,7 +29,7 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { theme } = useTheme();
+  useTheme();
   const location = useLocation();
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
@@ -94,7 +94,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const handleMessageActivationsClick = () => navigate('/subscription/packages');
 
   return (
-    <div className={cn("w-full flex flex-col relative selection:bg-brand-primary/30", theme === 'ivanna-style' ? "bg-transparent" : "bg-background")}>
+    <div className="w-full flex flex-col relative bg-background selection:bg-brand-primary/30">
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />
       

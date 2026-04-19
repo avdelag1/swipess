@@ -23,7 +23,6 @@ export default {
 		'red-matte', // kept for backward compat
 		'pure-black',
 		'cheers',
-		'ivanna-style',
 	],
 	prefix: "",
 	theme: {

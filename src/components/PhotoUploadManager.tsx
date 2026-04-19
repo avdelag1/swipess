@@ -99,7 +99,7 @@ export function PhotoUploadManager({
       if (newUrls.length > 0) {
         onPhotosChange([...effectiveCurrentPhotos, ...newUrls]);
         triggerHaptic('success');
-        toast.success("Assets Synced", { description: `${newUrls.length} photos added to your profile.` });
+        toast.success("Assets Synced", { description: `${newUrls.length} photos added to your nexus.` });
       }
     } catch (error) {
       logger.error('Upload Error:', error);
@@ -119,7 +119,7 @@ export function PhotoUploadManager({
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[#EB4898]" />
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 italic">
-                  Gallery ({currentPhotos.length}/{maxPhotos})
+                  Gallery Matrix ({currentPhotos.length}/{maxPhotos})
                 </span>
               </div>
             </div>
@@ -250,14 +250,14 @@ export function PhotoUploadManager({
       <div className="p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 space-y-4">
         <div className="flex items-center gap-3">
            <Sparkles className="w-4 h-4 text-[#EB4898]" />
-           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80 italic">Photo Optimization</span>
+           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80 italic">Nexus Photo Optimization</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
            {[
              { label: 'Primary Asset', desc: 'The first photo is your global representational ID.' },
              { label: 'High Fidelity', desc: 'Clear, well-lit assets significantly increase match parity.' },
              { label: 'Lifestyle', desc: 'Show your natural environments for authentic resonance.' },
-             { label: 'System Ready', desc: 'Optimized for mobile-first edge-to-edge viewing.' }
+             { label: 'Nexus Ready', desc: 'Optimized for mobile-first edge-to-edge viewing.' }
            ].map((tip) => (
              <div key={tip.label} className="space-y-1">
                 <p className="text-[9px] font-black uppercase text-[#EB4898] italic">{tip.label}</p>

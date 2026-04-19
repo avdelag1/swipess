@@ -22,19 +22,19 @@ export default function TermsOfService() {
 
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-48 relative z-10 space-y-12">
         
-        {/* 🛸 HEADER */}
+        {/* 🛸 NEXUS HEADER */}
         <div className="flex flex-col gap-3">
            <button onClick={() => { triggerHaptic('medium'); navigate(-1); }} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic mb-4">
               <ArrowLeft className="w-4 h-4" /> BACK TO IDENTITY
            </button>
            <h1 className={cn("text-5xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Terms of Service</h1>
            <div className="flex items-center gap-4 mt-2">
-              <Badge variant="outline" className="border-[#EB4898]/30 text-[#EB4898] bg-[#EB4898]/5 text-[9px] font-black uppercase tracking-widest italic">Swipess v14.0 Official System</Badge>
+              <Badge variant="outline" className="border-[#EB4898]/30 text-[#EB4898] bg-[#EB4898]/5 text-[9px] font-black uppercase tracking-widest italic">Nexus v14.0 Official Protocol</Badge>
               <span className={cn("text-[9px] font-black uppercase tracking-widest opacity-30 italic", isLight ? "text-black" : "text-white")}>Last Sync: Nov 2025</span>
            </div>
         </div>
 
-        {/* 🛡️ STATUS */}
+        {/* 🛡️ PROTOCOL STATUS */}
         <div className={cn("p-8 rounded-[2.8rem] border flex items-center justify-between backdrop-blur-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}>
              <div className="flex items-center gap-6">
                 <div className="w-16 h-16 rounded-[1.4rem] bg-indigo-500 flex items-center justify-center shadow-2xl">
@@ -54,12 +54,12 @@ export default function TermsOfService() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className={cn("p-12 rounded-[3.5rem] border shadow-3xl backdrop-blur-3xl", isLight ? "bg-black/5 border-black/10" : "bg-white/[0.03] border-white/5")}>
              <div className="space-y-16">
                 {[
-                  { id: '01', title: 'Acceptance of Terms', content: 'By using the Swipess app, you agree to be bound by these Legal Terms. Access is denied to non-compliant users.' },
-                  { id: '02', title: 'User Eligibility', content: 'Minimum age of 18 years required. You must possess the legal authority to enter binding digital agreements.' },
-                  { id: '03', title: 'Account Security', content: 'You are solely responsible for the security of your access credentials. Notify use immediately upon unauthorized access.' },
-                  { id: '04', title: 'Prohibited Actions', content: 'Users shall not transmit fraudulent data, harass other users, or bypass platform security. Violations result in immediate account deactivation.' },
-                  { id: '05', title: 'Asset Responsibility (Owners)', content: 'Owners must provide accurate asset information and maintain direct authorization for all property listings.' },
-                  { id: '06', title: 'User Compliance', content: 'Users must maintain truthful profile data and respect the operational guidelines of the property owners.' },
+                  { id: '01', title: 'Acceptance of Matrix Terms', content: 'By initializing the Swipess nexus, you agree to be bound by these Legal Protocols. Access is denied to non-compliant entities.' },
+                  { id: '02', title: 'Entity Eligibility', content: 'Minimum age of 18 orbits required. You must possess the legal authority to enter binding digital agreements within the matrix.' },
+                  { id: '03', title: 'Identity Security', content: 'You are solely responsible for the encryption integrity of your access credentials. Notify the Registry immediately upon unauthorized sync.' },
+                  { id: '04', title: 'Prohibited Transmissions', content: 'Entities shall not transmit fraudulent logs, harass other users, or bypass platform security firewalls. Violations result in immediate identity purging.' },
+                  { id: '05', title: 'Asset Authority (Owners)', content: 'Owners must provide certified asset logs and maintain direct authorization for all property deployments within the matrix.' },
+                  { id: '06', title: 'Client Compliance', content: 'Clients must maintain truthful identity logs and respect the operational guidelines of the property authority.' },
                 ].map((section) => (
                   <section key={section.id} className="group">
                     <div className="flex items-center gap-4 mb-6">
@@ -83,7 +83,7 @@ export default function TermsOfService() {
             >
                RETURN TO HUB
             </Button>
-            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Swipess Registry • 2025-2026 </p>
+            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Swipess Nexus Registry • 2025-2026 </p>
         </div>
 
       </div>

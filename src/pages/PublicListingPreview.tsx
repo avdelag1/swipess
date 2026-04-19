@@ -76,23 +76,21 @@ export default function PublicListingPreview() {
       case 'motorcycle': return 'Vespa/Moto';
       case 'bicycle': return 'Beach Cruiser';
       case 'vehicle': return 'Luxe Vehicle';
-      default: return 'Estate';
+      default: return 'Nexus Estate';
     }
   };
 
   const nextImg = useCallback(() => {
-    const imgs = (listing?.images as any) as string[] | null;
-    if (!imgs || !imgs.length) return;
+    if (!listing?.images) return;
     triggerHaptic('light');
-    setCurrentImageIndex(i => (i + 1) % imgs.length);
+    setCurrentImageIndex(i => (i + 1) % listing.images.length);
     setImgLoaded(false);
   }, [listing?.images]);
 
   const prevImg = useCallback(() => {
-    const imgs = (listing?.images as any) as string[] | null;
-    if (!imgs || !imgs.length) return;
+    if (!listing?.images) return;
     triggerHaptic('light');
-    setCurrentImageIndex(i => (i - 1 + imgs.length) % imgs.length);
+    setCurrentImageIndex(i => (i - 1 + listing.images.length) % listing.images.length);
     setImgLoaded(false);
   }, [listing?.images]);
 
@@ -101,7 +99,7 @@ export default function PublicListingPreview() {
       <div className="fixed inset-0 bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <div className="w-16 h-16 rounded-[2rem] border-4 border-[#EB4898]/20 border-t-[#EB4898] animate-spin" />
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] animate-pulse">Loading Listing...</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] animate-pulse">Synchronizing Asset...</p>
         </div>
       </div>
     );
@@ -115,7 +113,7 @@ export default function PublicListingPreview() {
         </div>
         <h1 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-4 leading-none">Asset Not Found</h1>
         <p className="text-white/40 text-sm font-medium max-w-xs mb-10 leading-relaxed uppercase tracking-widest">The requested digital twin has been de-listed or moved to another cluster.</p>
-        <Button onClick={() => navigate('/')} className="w-full max-w-[280px] h-16 rounded-[2rem] bg-white text-black font-black uppercase italic tracking-widest shadow-2xl">Return Home</Button>
+        <Button onClick={() => navigate('/')} className="w-full max-w-[280px] h-16 rounded-[2rem] bg-white text-black font-black uppercase italic tracking-widest shadow-2xl">Return to Nexus</Button>
       </div>
     );
   }
@@ -128,7 +126,7 @@ export default function PublicListingPreview() {
   return (
     <div className={cn("fixed inset-0 overflow-hidden transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
       
-      {/* 🛸 CINEMATIC IMAGE GALLERY */}
+      {/* 🛸 CINEMATIC IMAGE MATRIX */}
       <div className="absolute inset-x-0 top-0 h-[65%] overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
@@ -176,7 +174,7 @@ export default function PublicListingPreview() {
             <ArrowLeft className="w-6 h-6" />
          </button>
          <div className="bg-black/30 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-full h-12 flex items-center shadow-2xl">
-            <SwipessLogo size="sm" />
+            <SwipessLogo size="sm" invert />
          </div>
          <div className="flex gap-2 pointer-events-auto">
             <button className="w-12 h-12 rounded-[1.2rem] bg-black/30 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 shadow-2xl">
@@ -186,7 +184,7 @@ export default function PublicListingPreview() {
          </div>
       </div>
 
-      {/* 🛸 BOTTOM SHEET */}
+      {/* 🛸 NEXUS BOTTOM TERMINAL */}
       <motion.div
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
@@ -204,7 +202,7 @@ export default function PublicListingPreview() {
             "px-8 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+32px)] space-y-8 max-h-[70vh] overflow-y-auto no-scrollbar",
             isLight ? "text-black" : "text-white"
          )}>
-            {/* BADGE LAYOUT */}
+            {/* BADGE MATRIX */}
             <div className="flex flex-wrap gap-2">
                <Badge className="bg-[#EB4898]/10 text-[#EB4898] border border-[#EB4898]/20 text-[10px] font-black uppercase italic tracking-widest px-3 py-1.5 rounded-[0.8rem]">
                   {getCategoryIcon(category)}
@@ -213,7 +211,7 @@ export default function PublicListingPreview() {
                <Badge className={cn("text-[10px] font-black uppercase italic tracking-widest px-3 py-1.5 rounded-[0.8rem] border", 
                   mode === 'sale' ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
                )}>
-                  {mode === 'sale' ? 'Liquidation' : 'Hosting'}
+                  {mode === 'sale' ? 'Liquidation' : 'Nexus Residency'}
                </Badge>
                {(listing as any).verified && (
                  <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase italic tracking-widest px-3 py-1.5 rounded-[0.8rem]">
@@ -225,7 +223,7 @@ export default function PublicListingPreview() {
             {/* IDENTITY CORE */}
             <div className="flex items-start justify-between gap-6 px-1">
                <div className="space-y-3 flex-1">
-                  <h1 className="text-4xl font-black italic tracking-tighter leading-none uppercase">{listing.title || 'Swipess Asset'}</h1>
+                  <h1 className="text-4xl font-black italic tracking-tighter leading-none uppercase">{listing.title || 'Nexus Asset'}</h1>
                   <div className="flex items-center gap-2 opacity-40">
                     <MapPin className="w-4 h-4" />
                     <span className="text-[11px] font-black uppercase tracking-widest truncate max-w-[200px]">{listing.city || 'Tulum'}, {listing.neighborhood || 'Tulum Central'}</span>
@@ -255,13 +253,13 @@ export default function PublicListingPreview() {
             {/* SYNC ACTIONS */}
             <div className="space-y-4 pt-4">
                 {user ? (
-                       <Button
-                          onClick={() => { triggerHaptic('medium'); setShowDirectMessageDialog(true); }}
-                          className="w-full h-20 rounded-[2.5rem] bg-[#EB4898] text-white font-black uppercase italic tracking-[0.2em] shadow-[0_20px_50px_rgba(235,72,152,0.4)] border-none hover:scale-[1.02] active:scale-95 transition-all text-[15px]"
-                       >
-                          <MessageCircle className="w-7 h-7 mr-4" />
-                          Send Message
-                       </Button>
+                   <Button
+                      onClick={() => { triggerHaptic('medium'); setShowDirectMessageDialog(true); }}
+                      className="w-full h-20 rounded-[2.5rem] bg-[#EB4898] text-white font-black uppercase italic tracking-[0.2em] shadow-[0_20px_50px_rgba(235,72,152,0.4)] border-none hover:scale-[1.02] active:scale-95 transition-all text-[15px]"
+                   >
+                      <MessageCircle className="w-7 h-7 mr-4" />
+                      Manifest DM
+                   </Button>
                 ) : (
                    <div className="space-y-3">
                       <Button
@@ -269,7 +267,7 @@ export default function PublicListingPreview() {
                         className="w-full h-20 rounded-[2.5rem] bg-[#EB4898] text-white font-black uppercase italic tracking-[0.2em] shadow-[0_20px_50px_rgba(235,72,152,0.4)] border-none"
                       >
                          <UserPlus className="w-7 h-7 mr-4" />
-                         Sign Up to Contact
+                         Engage Reality
                       </Button>
                       <Button
                         variant="ghost"
@@ -282,7 +280,7 @@ export default function PublicListingPreview() {
                 )}
             </div>
 
-            <p className="text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-10 pb-4">Swipess Core Identity</p>
+            <p className="text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-10 pb-4">Nexus Core Identity</p>
          </div>
       </motion.div>
 

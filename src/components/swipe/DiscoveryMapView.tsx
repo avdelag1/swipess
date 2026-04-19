@@ -1,14 +1,15 @@
 /**
- * DISCOVERY MAP VIEW — 🛸 RADAR SYSTEM v14.3 (Absolute Visibility Engine)
+ * DISCOVERY MAP VIEW — 🛸 RADAR NEXUS v14.0
  * 
- * EMERGENCY RECOVERY:
- * 1. Z-INDEX OVERDRIVE: Enforced z-[999999] on the map container to bypass any possible layout masking.
- * 2. NO-ANIMATION MOUNT: Removed all Framer Motion wrappers from the map canvas to prevent stuck opacity.
- * 3. FALLBACK SURFACE: Added a bright #FFF (Light) / #111 (Dark) solid background to the container.
- * 4. SYSTEM TOASTS: Added technical feedback for every stage of the Leaflet lifecycle.
+ * Final Ergonomic Polish:
+ * 1. Balanced Center Hud: Shifted KM selects and Category Matrix to the horizontal center axis.
+ * 2. Visual Breathing Room: Adjusted z-index and spacing for maximum document momentum.
+ * 3. Liquid Glass Command Pill: Unified horizontal category rail at the bottom for thumb-reach ergonomics.
+ * 4. REAL-TIME MARKERS: Now fetches and renders live markers for listings & clients.
  */
 
-import { useState, useEffect, useCallback, useRef, memo, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Navigation, RefreshCw, ArrowLeft, Layers, Sparkles, MapPin, ChevronRight, X } from 'lucide-react';
 import { toast } from 'sonner';
 import L from 'leaflet';
@@ -39,229 +40,377 @@ export const DiscoveryMapView = memo(({
   isEmbedded?: boolean;
   mode?: 'client' | 'owner';
 }) => {
-  const { theme, isLight } = useTheme();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
   
+  const radiusKm = useFilterStore(s => s.radiusKm);
+  const setRadiusKm = useFilterStore(s => s.setRadiusKm);
   const setUserLocation = useFilterStore(s => s.setUserLocation);
   const userLatitude = useFilterStore(s => s.userLatitude);
   const userLongitude = useFilterStore(s => s.userLongitude);
-  const setRadiusKm = useFilterStore(s => s.setRadiusKm);
 
   const radarCircle = useRef<L.Circle | null>(null);
   const centerMarker = useRef<L.Marker | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
-  const tilesRef = useRef<L.TileLayer | null>(null);
 
-  const [localKm, setLocalKm] = useState(1);
+  const [localKm, setLocalKm] = useState(radiusKm || 1);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [mapStyle, setMapStyle] = useState<'streets' | 'satellite'>(isLight ? 'streets' : 'satellite');
+  const [mapStyle, setMapStyle] = useState<'streets' | 'satellite'>(isEmbedded ? 'satellite' : 'streets');
   const [selectedEntity, setSelectedEntity] = useState<any>(null);
 
-  const currentCenter = useMemo<[number, number]>(() => 
-    (userLatitude != null && userLongitude != null) ? [userLatitude, userLongitude] : [20.2114, -87.4654]
-  , [userLatitude, userLongitude]);
+  const tulumCenter: [number, number] = [20.2114, -87.4654];
+  const currentCenter: [number, number] = userLatitude ? [userLatitude, userLongitude] : tulumCenter;
 
+  // 📡 DATA PIPELINE: Fetch nearby entities
   const { data: entities = [] } = useQuery({
-    queryKey: ['radar-entities-v14.3', mode, category, userLatitude, userLongitude, localKm],
+    queryKey: ['radar-entities', mode, category, userLatitude, userLongitude, localKm],
     queryFn: async () => {
-      try {
-        if (mode === 'client') {
-          const { data } = await supabase.from('listings').select('id, title, price, images, latitude, longitude, category').eq('status', 'active');
-          return (data || []).filter(i => i.category === category).map(item => ({ ...item, type: 'listing' }));
-        } else {
-          const { data } = await supabase.from('client_profiles').select('user_id, name, age, profile_images, latitude, longitude');
-          return (data || []).map(item => ({ id: item.user_id, title: item.name, images: item.profile_images, latitude: item.latitude, longitude: item.longitude, type: 'client' }));
-        }
-      } catch (e) { return []; }
-    }
+      if (mode === 'client') {
+        const { data, error } = await supabase
+          .from('listings')
+          .select('id, title, price, images, latitude, longitude, category, created_at')
+          .eq('status', 'active')
+          .eq('is_active', true)
+          .not('latitude', 'is', null)
+          .not('longitude', 'is', null)
+          .eq('category', category)
+          .limit(50);
+        
+        if (error) return [];
+        return data.map(item => ({ ...item, type: 'listing' }));
+      } else {
+        const { data, error } = await supabase
+            .from('client_profiles')
+            .select('user_id, name, age, gender, profile_images, latitude, longitude, city')
+            .not('latitude', 'is', null)
+            .not('longitude', 'is', null)
+            .limit(50);
+        
+        if (error) return [];
+        return data.map(item => ({ 
+            id: item.user_id, 
+            title: item.name, 
+            images: item.profile_images as string[], 
+            latitude: item.latitude, 
+            longitude: item.longitude, 
+            type: 'client',
+            metadata: { age: item.age, gender: item.gender }
+        }));
+      }
+    },
+    staleTime: 60000
   });
 
-  const initMap = useCallback(() => {
+  const handleRefresh = useCallback(() => {
+    triggerHaptic('medium');
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setIsRefreshing(false);
+      toast.success('Radar Synchronized');
+    }, 1200);
+  }, []);
+
+  // 🛰️ Engine Mount
+  useEffect(() => {
     if (!mapContainerRef.current || mapInstance.current) return;
-    
-    console.log("[Radar] Initializing Engine...");
-    toast.info("Radar Engine: Initializing...", { id: 'map-status' });
 
     try {
         const map = L.map(mapContainerRef.current, {
             zoomControl: false,
             attributionControl: false,
-            center: currentCenter,
-            zoom: 15
-        });
+            fadeAnimation: true,
+            markerZoomAnimation: true,
+            worldCopyJump: true
+        }).setView(currentCenter, 15);
 
         const lightTiles = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
         const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-        const satelliteTiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-        
-        const initialTiles = mapStyle === 'satellite' ? satelliteTiles : (isLight ? lightTiles : darkTiles);
-        tilesRef.current = L.tileLayer(initialTiles, { maxZoom: 20 }).addTo(map);
-        markersRef.current = L.layerGroup().addTo(map);
-        
-        radarCircle.current = L.circle(currentCenter, { color: '#EB4898', fillOpacity: 0.1, radius: localKm * 1000 }).addTo(map);
-        centerMarker.current = L.marker(currentCenter, { icon: L.divIcon({ className: 'gps-dot', html: '<div class="w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow-xl"></div>' }) }).addTo(map);
+        const initialTiles = mapStyle === 'satellite' 
+            ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+            : isLight ? lightTiles : darkTiles;
 
-        // Multiple invalidations to handle animation/layout settle
-        setTimeout(() => map.invalidateSize(), 100);
-        setTimeout(() => map.invalidateSize(), 400);
-        setTimeout(() => map.invalidateSize(), 800);
+        L.tileLayer(initialTiles, { maxZoom: 20, crossOrigin: true }).addTo(map);
 
-        // ResizeObserver to recalc on any size change (parent animations, keyboard, etc.)
-        const ro = new ResizeObserver(() => {
-          if (mapInstance.current) mapInstance.current.invalidateSize();
+        radarCircle.current = L.circle(currentCenter, {
+            color: '#EB4898',
+            fillColor: '#EB4898',
+            fillOpacity: 0.1,
+            weight: 2,
+            radius: localKm * 1000,
+            className: 'sentient-radar-circle'
+        }).addTo(map);
+
+        const centerIcon = L.divIcon({
+            className: 'radar-center',
+            html: `
+              <div class="relative w-8 h-8 flex items-center justify-center">
+                <div class="absolute inset-0 bg-[#EB4898] opacity-30 rounded-full animate-ping"></div>
+                <div class="w-2.5 h-2.5 bg-black border-[2px] border-white rounded-full shadow-2xl relative z-10"></div>
+              </div>
+            `,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
         });
-        ro.observe(mapContainerRef.current);
-        (mapInstance.current as any).__ro = ro;
-
+        centerMarker.current = L.marker(currentCenter, { icon: centerIcon }).addTo(map);
+        markersRef.current = L.layerGroup().addTo(map);
         mapInstance.current = map;
-        map.invalidateSize();
         
-        setTimeout(() => { 
-            map.invalidateSize(); 
-            toast.success("Radar Engine: Ready", { id: 'map-status' });
-        }, 500);
+        setTimeout(() => map.invalidateSize(), 300);
+    } catch (e) { console.error("Map Error:", e); }
 
-    } catch (e) {
-        console.error(e);
-        toast.error("Radar Engine: Failed");
-    }
-  }, [currentCenter, isLight, mapStyle, localKm]);
-
-  useEffect(() => {
-    const timer = setTimeout(initMap, 200);
     return () => {
-        clearTimeout(timer);
         if (mapInstance.current) {
-            const ro = (mapInstance.current as any).__ro as ResizeObserver | undefined;
-            ro?.disconnect();
             mapInstance.current.remove();
             mapInstance.current = null;
         }
     };
-  }, [initMap]);
+  }, []);
 
+  // 🛰️ marker Sync
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || !markersRef.current) return;
+
     markersRef.current.clearLayers();
+
     entities.forEach(entity => {
-        if (!entity.latitude || !entity.longitude) return;
         const iconColor = mode === 'client' ? '#EB4898' : '#3b82f6';
-        let imageUrl = (entity.images as any)?.[0] || '/placeholder.svg';
+        const iconHtml = `
+            <div class="relative group cursor-pointer active:scale-95 transition-transform" id="marker-${entity.id}">
+                <div class="absolute -inset-2 bg-black/40 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="w-10 h-10 rounded-2xl bg-white border-2 border-white shadow-3xl overflow-hidden relative z-10">
+                    <img src="${entity.images?.[0] || '/placeholder.svg'}" class="w-full h-full object-cover" />
+                    <div class="absolute inset-0 bg-black/10"></div>
+                    <div class="absolute bottom-0 inset-x-0 h-1" style="background: ${iconColor}"></div>
+                </div>
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white border-2 border-white flex items-center justify-center shadow-lg z-20">
+                   <div class="w-1.5 h-1.5 rounded-full" style="background: ${iconColor}"></div>
+                </div>
+            </div>
+        `;
+
         const marker = L.marker([entity.latitude, entity.longitude], {
             icon: L.divIcon({
-                className: 'swipess-marker',
-                html: `
-                    <div class="relative group cursor-pointer active:scale-95 transition-transform" id="marker-${entity.id}">
-                        <div class="w-10 h-10 rounded-2xl bg-white border-2 border-white shadow-lg overflow-hidden relative z-10">
-                            <img src="${imageUrl}" class="w-full h-full object-cover" />
-                            <div class="absolute bottom-0 inset-x-0 h-1" style="background: ${iconColor}"></div>
-                        </div>
-                    </div>
-                `
+                className: 'nexus-marker',
+                html: iconHtml,
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
             })
         });
 
         marker.on('click', (e) => {
-            L.DomEvent.stopPropagation(e as any);
+            L.DomEvent.stopPropagation(e);
             triggerHaptic('medium');
             setSelectedEntity(entity);
             map.flyTo([entity.latitude, entity.longitude], 17, { animate: true, duration: 1 });
         });
+
         marker.addTo(markersRef.current!);
     });
-  }, [entities]);
+  }, [entities, mode]);
+
+  // 🛰️ Sync Overlays
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map || !radarCircle.current) return;
+
+    radarCircle.current.setRadius(localKm * 1000);
+    radarCircle.current.setLatLng(currentCenter);
+    centerMarker.current?.setLatLng(currentCenter);
+
+    map.invalidateSize({ animate: false });
+    
+    const zoomLevel = localKm === 1 ? 14.5 : localKm === 5 ? 12.8 : localKm === 25 ? 10.8 : 8.8;
+    map.flyTo(currentCenter, zoomLevel, { animate: true, duration: 1.4 });
+  }, [localKm, currentCenter]);
+
+  const detectLocation = useCallback(() => {
+    if (!navigator.geolocation) return;
+    triggerHaptic('medium');
+    navigator.geolocation.getCurrentPosition(
+      pos => { 
+        setUserLocation(pos.coords.latitude, pos.coords.longitude); 
+        toast.success('GPS Latched'); 
+      },
+      () => toast.error('Enable GPS'),
+      { timeout: 8000 }
+    );
+  }, []);
 
   return (
-    <div className={cn("flex flex-col bg-background", isEmbedded ? "absolute inset-0 z-[10]" : "fixed inset-0 z-[999999]")}>
+    <motion.div className={cn("flex flex-col h-full w-full relative overflow-hidden transition-colors duration-500", isLight ? "bg-white" : "bg-black", isEmbedded && "rounded-[3.5rem]")} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       
-      {/* 📡 THE CORE CANVAS container */}
-      <div 
-        ref={mapContainerRef} 
-        className="flex-1 w-full h-full relative bg-neutral-800/20"
-        style={{ isolation: 'isolate' }}
-      >
-          {/* Diagnostic Overlay */}
-          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center opacity-10 pointer-events-none z-[10]">
-              <Sparkles className="w-20 h-20 animate-pulse text-[#EB4898]" />
-              <p className="text-[10px] font-black uppercase tracking-[0.6em] mt-4">Searching Area</p>
+      {/* 🛸 TOP HUD: CENTERED LOGIC */}
+      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+20px)] inset-x-0 z-[2000] px-6 pointer-events-none flex items-center justify-between">
+          <button 
+            onClick={onBack} 
+            className={cn(
+               "w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl pointer-events-auto active:scale-90 transition-all border",
+               isLight ? "bg-white border-black/5 text-black" : "bg-black border-white/10 text-white"
+            )}
+          >
+              <ArrowLeft className="w-6 h-6" />
+          </button>
+
+          <div className={cn(
+             "px-6 py-2 rounded-2xl shadow-2xl flex items-center gap-3 pointer-events-auto border transition-all backdrop-blur-3xl",
+             isLight ? "bg-white/90 border-black/5" : "bg-black/90 border-white/10"
+          )}>
+              <div className="flex flex-col items-center">
+                 <span className="text-[7px] font-black uppercase tracking-[0.4em] text-[#EB4898]">Range</span>
+                 <span className={cn("text-[13px] font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>{localKm} KM</span>
+              </div>
+              <div className="w-[1px] h-6 bg-white/10 mx-1" />
+              <div className="flex gap-1">
+                 {[1, 5, 25, 100].map(km => (
+                    <button 
+                      key={km} 
+                      onClick={() => { triggerHaptic('light'); setLocalKm(km); setRadiusKm(km); }} 
+                      className={cn(
+                        "w-10 h-8 rounded-xl text-[9px] font-black uppercase transition-all", 
+                        localKm === km ? "bg-[#EB4898] text-white" : isLight ? "text-black/30 hover:bg-black/5" : "text-white/20 hover:bg-white/5"
+                      )}
+                    >
+                      {km}K
+                    </button>
+                 ))}
+              </div>
+          </div>
+
+          <div className={cn(
+             "p-1 rounded-2xl shadow-2xl pointer-events-auto backdrop-blur-3xl border flex gap-1",
+             isLight ? "bg-white/95 border-black/5" : "bg-black/95 border-white/10"
+          )}>
+              <button 
+                onClick={() => { triggerHaptic('light'); setMapStyle(prev => prev === 'streets' ? 'satellite' : 'streets'); }} 
+                className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all", mapStyle === 'satellite' ? "bg-indigo-500 text-white" : isLight ? "bg-black text-white" : "bg-white text-black")}
+              >
+                  <Layers className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={detectLocation} 
+                className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all", userLatitude ? "bg-[#EB4898] text-white" : isLight ? "bg-black/5 text-black" : "bg-white/5 text-white")}
+              >
+                  <Navigation className="w-5 h-5" />
+              </button>
           </div>
       </div>
 
-      {/* 🛸 HUD OVERLAY */}
-      <div className="absolute inset-0 pointer-events-none z-[1000000]">
-          <div className="absolute top-10 left-6 pointer-events-auto">
-              <button onClick={onBack} className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center shadow-2xl border border-white/10 active:scale-90 transition-all">
-                  <ArrowLeft className="w-6 h-6" />
-              </button>
-          </div>
-
-          <div className="absolute top-10 right-6 flex flex-col gap-2 pointer-events-auto">
-              <button onClick={() => setMapStyle(prev => prev === 'streets' ? 'satellite' : 'streets')} className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl border transition-all", mapStyle === 'satellite' ? "bg-indigo-500 text-white" : "bg-black text-white")}>
-                  <Layers className="w-6 h-6" />
-              </button>
-              <button onClick={() => navigator.geolocation.getCurrentPosition(p => setUserLocation(p.coords.latitude, p.coords.longitude))} className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center shadow-2xl border border-white/10">
-                  <Navigation className="w-6 h-6" />
-              </button>
-          </div>
-
-          <div className="absolute bottom-10 inset-x-6 flex flex-col items-center gap-4 pointer-events-none">
-                {selectedEntity && (
-                    <div className="w-full max-w-[340px] p-4 rounded-[2rem] bg-black border border-white/10 shadow-2xl pointer-events-auto flex items-center gap-4">
-                        <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-lg border border-white/5"><img src={selectedEntity.images?.[0]} className="w-full h-full object-cover" /></div>
-                        <div className="flex-1 min-w-0">
-                            <h4 className="text-white text-[13px] font-black uppercase tracking-tight truncate italic">{selectedEntity.title}</h4>
-                            <button onClick={() => _onStartSwiping?.()} className="mt-2 w-full h-8 rounded-xl bg-[#EB4898] text-white text-[10px] font-black uppercase tracking-widest">Connect</button>
+      {/* 🛸 ENTITY OVERLAY GLASS */}
+      <AnimatePresence>
+        {selectedEntity && (
+            <motion.div
+                initial={{ opacity: 0, y: 100, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 100, scale: 0.9 }}
+                className="absolute bottom-[110px] inset-x-6 z-[3000] flex justify-center pointer-events-none"
+            >
+                <div className={cn(
+                    "w-full max-w-[360px] p-4 rounded-[2.5rem] border backdrop-blur-3xl shadow-[0_40px_100px_rgba(0,0,0,0.6)] pointer-events-auto flex items-center gap-5",
+                    isLight ? "bg-white/95 border-black/5" : "bg-black/95 border-white/10"
+                )}>
+                    <div className="w-24 h-24 rounded-[1.8rem] overflow-hidden shadow-2xl flex-shrink-0">
+                        <img src={selectedEntity.images?.[0] || '/placeholder.svg'} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between">
+                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]">Discovered</span>
+                            <button onClick={() => setSelectedEntity(null)} className="p-1 opacity-20 hover:opacity-100 transition-opacity">
+                                <X className="w-4 h-4" />
+                            </button>
                         </div>
-                        <button onClick={() => setSelectedEntity(null)} className="p-2 text-white/40"><X className="w-4 h-4" /></button>
+                        <h4 className={cn("text-[15px] font-black uppercase italic tracking-tighter truncate", isLight ? "text-black" : "text-white")}>
+                            {selectedEntity.title}
+                        </h4>
+                        <div className="flex items-center gap-2">
+                           {mode === 'client' ? (
+                               <span className="text-sm font-black text-emerald-500 italic">${selectedEntity.price}</span>
+                           ) : (
+                               <span className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{selectedEntity.metadata?.age} • {selectedEntity.metadata?.gender}</span>
+                           )}
+                           <span className="w-1 h-1 rounded-full bg-white/10" />
+                           <span className={cn("text-[10px] font-bold uppercase tracking-widest opacity-40")}>{selectedEntity.type}</span>
+                        </div>
+                        <button 
+                          onClick={() => { triggerHaptic('heavy'); onStartSwiping?.(); }}
+                          className="w-full h-10 mt-2 rounded-2xl bg-[#EB4898]/10 text-[#EB4898] text-[10px] font-black uppercase italic tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-[#EB4898]/20 pointer-events-auto"
+                        >
+                            View Protocol <ChevronRight className="w-4 h-4" />
+                        </button>
                     </div>
-                )}
+                </div>
+            </motion.div>
+        )}
+      </AnimatePresence>
 
-                {!selectedEntity && (
-                    <div className="p-2 rounded-[2rem] bg-black/90 border border-white/10 flex gap-2 pointer-events-auto backdrop-blur-3xl shadow-2xl">
-                        {[1, 5, 25, 100].map(km => (
-                            <button key={km} onClick={() => { triggerHaptic('light'); setLocalKm(km); setRadiusKm(km); }} className={cn("px-4 h-8 rounded-xl text-[10px] font-black uppercase transition-all", localKm === km ? "bg-[#EB4898] text-white" : "text-white/40")}>
-                                {km}KM
-                            </button>
-                        ))}
-                    </div>
-                )}
+      {/* 🛸 BOTTOM COMMAND: CATEGORY MATRIX */}
+      <div className="absolute bottom-[130px] inset-x-0 z-[2010] flex justify-center px-10 pointer-events-none">
+          {!selectedEntity && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            className={cn(
+             "p-2 rounded-[2.5rem] flex items-center gap-3 shadow-[0_20px_60px_rgba(0,0,0,0.4)] pointer-events-auto border transition-all backdrop-blur-3xl overflow-x-auto no-scrollbar",
+             isLight ? "bg-white/90 border-black/5" : "bg-black/90 border-white/10"
+          )}>
+              {[
+                  { id: 'property', icon: RealEstateIcon, label: 'Estate' }, 
+                  { id: 'motorcycle', icon: VespaIcon, label: 'Moto' }, 
+                  { id: 'bicycle', icon: BeachBicycleIcon, label: 'Aqua' }, 
+                  { id: 'services', icon: WorkersIcon, label: 'Crew' }
+              ].map(cat => (
+                  <button 
+                      key={cat.id} 
+                      onClick={() => { triggerHaptic('light'); onCategoryChange?.(cat.id as any); }} 
+                      className={cn(
+                          "h-12 px-5 flex items-center gap-3 rounded-[1.8rem] transition-all whitespace-nowrap", 
+                          category === cat.id 
+                            ? "bg-[#EB4898] text-white shadow-lg shadow-[#EB4898]/20" 
+                            : isLight ? "text-black/30 bg-black/5" : "text-white/20 bg-white/5"
+                      )}
+                  >
+                      <cat.icon className="w-5 h-5" />
+                      <span className="text-[10px] font-black uppercase tracking-widest italic">{cat.label}</span>
+                  </button>
+              ))}
+          </motion.div>
+          )}
+      </div>
 
-                {!selectedEntity && (
-                    <div className="p-2 rounded-[2rem] bg-black/90 border border-white/10 flex gap-2 pointer-events-auto backdrop-blur-3xl shadow-2xl">
-                        {[
-                          { id: 'property', icon: RealEstateIcon }, { id: 'motorcycle', icon: VespaIcon }, { id: 'bicycle', icon: BeachBicycleIcon }, { id: 'services', icon: WorkersIcon }
-                        ].map(cat => (
-                            <button key={cat.id} onClick={() => onCategoryChange?.(cat.id)} className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all", category === cat.id ? "bg-indigo-500 text-white shadow-xl shadow-indigo-500/20" : "text-white/40")}>
-                                <cat.icon className="w-5 h-5" />
-                            </button>
-                        ))}
-                    </div>
-                )}
-          </div>
+      <div id="map-container" ref={mapContainerRef} className="absolute inset-0 w-full h-full z-0" />
+
+      {/* 📡 SCAN TRIGGER */}
+      <div className="absolute bottom-[40px] inset-x-0 z-[2000] flex justify-center px-10 pointer-events-none">
+        <button 
+          onClick={handleRefresh} 
+          className={cn(
+            "w-full max-w-[340px] h-16 rounded-[2rem] text-[12px] font-black uppercase italic tracking-[0.4em] transition-all flex items-center justify-center gap-4 border-none pointer-events-auto shadow-[0_30px_60px_rgba(235,72,152,0.4)] backdrop-blur-xl",
+            isRefreshing ? "bg-black text-white" : "bg-[#EB4898] text-white active:scale-95"
+          )}
+        >
+          <RefreshCw className={cn("w-5 h-5", isRefreshing && "animate-spin")} /> 
+          <span>{isRefreshing ? 'Optimizing Radar...' : 'Start Radar Scan'}</span>
+        </button>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .leaflet-container { 
-            position: absolute !important; 
-            inset: 0 !important; 
-            width: 100% !important; 
-            height: 100% !important; 
-            z-index: 1 !important; 
-            background: transparent !important;
+        .leaflet-container { width: 100%; height: 100%; outline: none; background: ${isLight ? '#f8fafc' : '#0d0d0f'} !important; }
+        .leaflet-tile { transition: opacity 0.6s ease; ${isLight ? '' : 'filter: brightness(0.5) contrast(1.3) saturate(0.8);'} } 
+        .sentient-radar-circle { 
+            animation: radar-pulse-v14 3.5s infinite ease-in-out; 
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .swipess-marker { transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
-        .swipess-marker:hover { transform: scale(1.2) translateY(-5px); z-index: 1000 !important; }
-        
-        .ivanna-style .leaflet-tile-container {
-            filter: sepia(0.2) saturate(1.2) hue-rotate(-10deg) opacity(0.9);
+        @keyframes radar-pulse-v14 {
+          0%, 100% { stroke-opacity: 0.8; stroke-width: 2; fill-opacity: 0.1; }
+          50% { stroke-opacity: 0.2; stroke-width: 4; fill-opacity: 0.05; }
         }
-        .ivanna-style .leaflet-container {
-            background: #DDF4EF !important;
+        .nexus-marker { 
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1); 
         }
+        .nexus-marker:hover { transform: scale(1.15) translateY(-5px) !important; z-index: 1000 !important; }
       `}} />
-    </div>
+    </motion.div>
   );
 });
 

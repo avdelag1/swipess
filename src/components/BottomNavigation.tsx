@@ -82,7 +82,8 @@ export const BottomNavigation = memo(({
   const setModal = useModalStore((s) => s.setModal);
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
-  const { theme, isLight, isDark } = useTheme();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const { t } = useTranslation();
 
@@ -232,8 +233,8 @@ export const BottomNavigation = memo(({
     return location.pathname === item.path || location.pathname.startsWith(item.path + '/');
   };
 
-  const iconColorInactive = isLight ? 'rgba(17,17,17,0.45)' : 'rgba(255,255,255,0.65)';
-  const activeColor = isLight ? '#0D6A63' : 'var(--color-brand-primary)';
+  const iconColorInactive = 'rgba(255,255,255,0.65)';
+  const activeColor = 'var(--color-brand-primary)';
 
   const barShadow = 'none';
 
@@ -246,6 +247,8 @@ export const BottomNavigation = memo(({
       <div
         className="pointer-events-auto w-full max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto glass-pill-nav px-1"
         style={{
+          background: 'rgba(0,0,0,0.85)', // Force dark glass for high-contrast visibility
+          border: '1px solid rgba(255,255,255,0.1)',
           backdropFilter: 'blur(32px)',
           WebkitBackdropFilter: 'blur(32px)',
           // GPU acceleration

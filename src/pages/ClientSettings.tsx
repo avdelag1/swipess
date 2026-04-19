@@ -10,8 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
+import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
 import { BackgroundThemeSettings } from "@/components/BackgroundThemeSettings";
-import { GlobalThemeSettings } from "@/components/GlobalThemeSettings";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ClientVerificationFlow } from "@/components/ClientVerificationFlow";
 import { useTranslation } from "react-i18next";
@@ -32,7 +32,8 @@ const ClientSettings = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const { theme, isLight } = useTheme();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const settingsGroups = [
     {
@@ -79,7 +80,6 @@ const ClientSettings = () => {
                     {activeSection === 'language' && <LanguageToggle />}
                     {activeSection === 'preferences' && (
                         <div className="space-y-10">
-                            <GlobalThemeSettings />
                             <BackgroundThemeSettings />
                             <SwipeSoundSettings />
                         </div>
@@ -127,7 +127,7 @@ const ClientSettings = () => {
                   "rounded-[3rem] overflow-hidden border shadow-3xl transition-all",
                   isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/[0.08] backdrop-blur-3xl"
               )}>
-                {group.items.map((item: any, idx) => (
+                {group.items.map((item, idx) => (
                   <div key={item.label}>
                     <button
                       onClick={() => {
@@ -159,7 +159,7 @@ const ClientSettings = () => {
           ))}
         </motion.div>
 
-        {/* 🛸 FOOTER */}
+        {/* 🛸 NEXUS FOOTER */}
         <div className="flex flex-col items-center gap-6 pt-16">
             <div className="w-16 h-16 rounded-[1.6rem] bg-black flex items-center justify-center shadow-2xl border border-white/10">
                <SwipessLogo size="sm" />
@@ -171,7 +171,7 @@ const ClientSettings = () => {
                      <span className="text-[9px] font-black text-[#EB4898] uppercase tracking-widest font-mono">V3.3.1</span>
                   </div>
                </div>
-               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Tulum Direct • Elite Discovery</p>
+               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Tulum Nexus Direct • Elite Discovery</p>
             </div>
         </div>
 

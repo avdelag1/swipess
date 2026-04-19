@@ -16,12 +16,12 @@ interface FAQItem {
 }
 
 const faqItems: FAQItem[] = [
-  { question: "How do I list my property?", answer: "Access the Asset Manager and tap 'Deploy Asset'. Fill in all technical logs including high-fidelity photos, price, and amenities for total synchronization." },
+  { question: "How do I list my property?", answer: "Access the Asset Matrix and tap 'Deploy Asset'. Fill in all technical logs including high-fidelity photos, price, and amenities for total synchronization." },
   { question: "How do I find tenants?", answer: "Scan through potential entity profiles. Authorize interest by swiping right. When a mutual sync occurs, a direct transmission channel is opened." },
-  { question: "What happens when an entity likes my property?", answer: "You'll receive a high-priority notification. Review their identity logs and either authorize the match or pass to preserve platform integrity." },
-  { question: "What are business transmission credits?", answer: "Establishing direct links requires credit consumption. Professional Owners receive high-energy quotas based on their Swipess Package." },
+  { question: "What happens when an entity likes my property?", answer: "You'll receive a high-priority notification. Review their identity logs and either authorize the match or pass to preserve matrix integrity." },
+  { question: "What are business transmission credits?", answer: "Establishing direct links requires credit consumption. Professional Owners receive high-energy quotas based on their Nexus Package." },
   { question: "How do I verify my identity?", answer: "Complete the Identity Verification flow in Settings. Professional verification increases your Trust Index and discovery ranking." },
-  { question: "How many assets can I deploy?", answer: "The deployment capacity is determined by your current Swipess Package. Elite Owners enjoy unlimited asset deployment." },
+  { question: "How many assets can I deploy?", answer: "The deployment capacity is determined by your current Nexus Package. Elite Owners enjoy unlimited asset deployment." },
 ];
 
 export default function FAQOwnerPage() {
@@ -45,7 +45,7 @@ export default function FAQOwnerPage() {
 
       <div className="max-w-3xl mx-auto px-6 pt-24 pb-48 relative z-10 space-y-12">
         <div className="space-y-3">
-           <PageHeader title="OWNER HELP CENTER" showBack={true} backTo="/owner/settings" />
+           <PageHeader title="OWNER HELP MATRIX" showBack={true} backTo="/owner/settings" />
            <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed max-w-sm", isLight ? "text-black" : "text-white")}> Professional Assistance Hub v14.0 </p>
         </div>
 

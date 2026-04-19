@@ -55,18 +55,22 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
     if (Math.abs(dist) > PK_DIST_THRESHOLD || Math.abs(vel) > PK_VEL_THRESHOLD) {
       triggerHaptic('light');
       const direction = dist > 0 ? 'right' : 'left';
-      const vanishX = direction === 'right' ? 100 : -100;
+      const exitX = direction === 'right' ? 320 : -320;
 
-      // Beautiful elegant vanish effect instead of flying rigidly off-screen
-      animate(x, vanishX, { duration: 0.25, ease: 'easeOut' });
-      animate(exitOpacityValue, 0, { duration: 0.2, ease: 'easeOut' });
-      animate(exitScaleValue, 0.7, { duration: 0.25, ease: 'easeOut', onComplete: () => {
+      animate(x, exitX, {
+        type: 'spring',
+        stiffness: 700,
+        damping: 35,
+        velocity: vel,
+        onComplete: () => {
           onCycle(card.id, direction);
+          // 🚀 SPEED OF LIGHT: x.set(0) removed to prevent flickering during parent re-render
           setIsDragging(false);
-          x.set(0);
-          exitOpacityValue.set(1);
-          exitScaleValue.set(1);
-      } });
+        }
+      });
+      // Simultaneous vanishing effects
+      animate(exitOpacityValue, 0, { duration: 0.35 });
+      animate(exitScaleValue, 0.4, { duration: 0.4 });
     } else {
       animate(x, 0, { ...PK_SPRING });
       animate(exitOpacityValue, 1, { duration: 0.3 });
@@ -76,7 +80,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   }, [card.id, onCycle, x]);
 
   // Stack styling
-  // Stack styling — 🚀 Swipess v14.0 Reveal Logic
+  // Stack styling — 🚀 NEXUS v14.0 Reveal Logic
   const stackY = isCollapsed ? 0 : index * 12; // Deeper stack
   const stackScale = 1 - (index * 0.04);
   const stackOpacity = index === 0 ? 1 : index === 1 ? 1 : index === 2 ? 0.6 : 0;
@@ -118,6 +122,12 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         left: 0,
         width: '100%',
         height: '100%',
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
         x: isTop ? x : 0,
         rotateZ: isTop ? dragTilt : 0,
         scale: isTop ? exitScaleValue : stackScale,
@@ -130,12 +140,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       transition={{ ...PK_SPRING }}
       className="select-none touch-none"
     >
-      <div className={cn(
-        "w-full h-full relative overflow-hidden rounded-[2.5rem] shadow-2xl transition-all duration-500",
-        theme === 'ivanna-style' 
-          ? "bg-[#F5EBDD] border border-[#C8A96B]/30" 
-          : "bg-black border border-white/5"
-      )}>
+      <div className="w-full h-full relative overflow-hidden rounded-[2.5rem] bg-black shadow-2xl border border-white/5">
         
         {/* Photo & Gradient Base */}
         <motion.img
@@ -147,10 +152,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
           style={{ transform: isTop && isDragging ? 'scale(1.05)' : 'scale(1)' }}
           draggable={false}
         />
-        <div className={cn("absolute inset-0 bg-gradient-to-t via-transparent to-transparent opacity-80", theme === 'ivanna-style' ? "from-[#F5EBDD]/80" : "from-black")} />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#EB4898]/10 to-transparent opacity-40 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#EB4898]/20 to-transparent opacity-40 mix-blend-overlay" />
         
-        {/* 🛸 METADATA CONTENT */}
+        {/* 🛸 NEXUS METADATA CONTENT */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8">
           
           <div className="space-y-2">
@@ -163,7 +168,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
               <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">{card.description}</span>
             </motion.div>
             
-            <h3 className={cn("text-4xl font-black tracking-tighter leading-none uppercase italic", theme === 'ivanna-style' ? "text-[#111111]" : "text-white")}>
+            <h3 className="text-white text-4xl font-black tracking-tighter leading-none uppercase italic">
               {card.label}
             </h3>
           </div>
@@ -182,10 +187,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
                   triggerHaptic('medium');
                   onSelect(card.id);
                 }}
-                className={cn(
-                  "w-full h-[72px] rounded-[2.2rem] font-black uppercase italic tracking-widest text-[13px] flex items-center justify-center active:scale-95 transition-all shadow-xl",
-                   theme === 'ivanna-style' ? "bg-[#C8A96B] text-[#F5EBDD]" : "bg-white text-black"
-                )}
+                className="w-full h-[72px] rounded-[2.2rem] bg-white text-black font-black uppercase italic tracking-widest text-[13px] flex items-center justify-center shadow-[0_25px_50px_-12px_rgba(255,255,255,0.3)] active:scale-95 transition-all"
               >
                 Engage Discovery
               </button>

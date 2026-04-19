@@ -199,7 +199,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
         country, city, neighborhood, latitude, longitude,
         intentions, occupation, years_in_city: yearsInCity === '' ? null : Number(yearsInCity),
       });
-      toast.success('Identity Updated', { description: 'Your profile is now in parity.' });
+      toast.success('Identity Updated', { description: 'Your Nexus profile is now in parity.' });
       onOpenChange(false);
     } catch (error) {
        toast.error('Sync Error');
@@ -220,7 +220,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
       <DialogContent className="sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 border-none bg-black/90 backdrop-blur-3xl overflow-hidden rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,0.9)]">
         
-        {/* 🛸 HEADER */}
+        {/* 🛸 NEXUS HEADER */}
         <div className="relative px-8 pt-8 pb-6 border-b border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent">
            <div className="flex items-center justify-between">
               <div className="space-y-1">
@@ -228,7 +228,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     <Sparkles className="w-4 h-4 text-[#EB4898]" />
                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 italic">Identity Terminal</span>
                  </div>
-                 <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white">Edit Profile</h2>
+                 <h2 className="text-3xl font-black italic uppercase tracking-tighter text-white">Edit Nexus Profile</h2>
               </div>
               <div className="flex flex-col items-end gap-2">
                  <div className="h-2 w-32 bg-white/5 rounded-full overflow-hidden border border-white/10">
@@ -416,7 +416,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
           </div>
         </ScrollArea>
 
-        {/* 🛸 FOOTER ACTIONS */}
+        {/* 🛸 NEXUS FOOTER ACTIONS */}
         <div className="px-8 py-6 border-t border-white/5 bg-gradient-to-t from-white/[0.03] to-transparent flex items-center justify-between gap-4">
            <Button 
              variant="ghost" 

@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
-import { User, Megaphone, RefreshCw, Cpu, Activity, Sparkles } from 'lucide-react';
+import { User, Megaphone, RefreshCw, Cpu, Activity } from 'lucide-react';
 import { useModalStore } from '@/state/modalStore';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -156,7 +156,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           </div>
           <div className="space-y-4">
             <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>Connection Lost</h2>
-            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting network re-sync.</p>
+            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting matrix re-sync.</p>
           </div>
           <Button 
             onClick={() => { triggerHaptic('medium'); window.location.reload(); }}
@@ -170,7 +170,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }
 
   return (
-    <div className="flex flex-col h-full w-full relative transition-colors duration-500">
+    <div className={cn("flex flex-col h-full w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
       
       {/* 🛸 CINEMATIC ATMOSPHERE */}
       <div className="absolute inset-x-0 top-0 h-96 pointer-events-none opacity-20">
@@ -209,7 +209,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -30, scale: 0.98 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="flex-1 w-full relative z-10"
+            className="w-full h-full z-10"
             style={{ willChange: 'transform, opacity' }}
           >
             <DiscoveryMapView
@@ -266,7 +266,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         </motion.button>
       )}
 
-      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Swipess Owner Dashboard</p>
+      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Nexus Admin Dashboard</p>
     </div>
   );
 };

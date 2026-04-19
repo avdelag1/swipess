@@ -44,8 +44,12 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
     setCards(prev => {
       if (prev[0].id !== id) return prev;
       const next = [...prev];
-      const [front] = next.splice(0, 1);
-      return [...next, front];
+      if (direction === 'left') {
+        const [front] = next.splice(0, 1);
+        return [...next, front];
+      }
+      const last = next.pop()!;
+      return [last, ...next];
     });
   }, []);
 
@@ -64,15 +68,17 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
       className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent overflow-hidden"
       style={{ minHeight: 'auto' }}
     >
-      {/* 🛸 CENTERED STACK v14.0 */}
+      {/* 🛸 NEXUS CENTERED STACK v14.0 */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         className="relative flex items-center justify-center transition-all"
         style={{
-          width: '100%',
-          height: '100%',
-          maxWidth: '500px',
+          width: 'var(--card-width, 360px)',
+          height: 'var(--card-height, 540px)',
+          aspectRatio: `${PK_ASPECT}`,
+          maxHeight: 'min(660px, calc(100svh - 220px))',
+          // Removed manual translateY to bring it perfectly into the vertical middle
         }}
       >
       {[...cards].reverse().map((card, reversedIdx) => {

@@ -1,59 +1,87 @@
 
+Goal: make the discovery screen feel like one fast, clean iOS-style module: one map only, no self-motion, compact quick filters + KM controls, visible blue radar center, a real back button, and everything fitting between the header and bottom nav.
 
-## Fix Build Error Blocking Map on Production
+1. Replace the current “full-screen flexible map” with a fixed square-ish radar module
+- In `DiscoveryMapView.tsx`, stop letting the map consume `flex-1`.
+- Build a tighter vertical layout:
+  - top utility row
+  - compact square map
+  - quick category filters
+  - fast horizontal KM selector
+  - primary action
+- Cap the map to something like `min(46svh, 360px)` and use `aspect-square`/near-square sizing so it stays centered and never feels oversized.
 
-### Root Cause
+2. Remove the “map moving by itself” behavior
+- Delete or disable inertia in both `DiscoveryMapView.tsx` and `LocationRadiusSelector.tsx`.
+- Keep drag-to-pan only while the finger is actually down.
+- Prevent any auto-shift after release.
+- Also ensure location detect does not visually re-pan in a floaty way; it should snap cleanly back to the user center.
 
-The published site (and any non-Lovable browser) shows a broken/blank state because the bundle won't compile. `src/components/swipe/PokerCategoryCard.tsx` has a **duplicate `style={{` block** at lines 119–125 — a leftover from the previous edit that wasn't cleanly merged. This produces 27 TypeScript syntax errors and prevents the entire app from building, so the deployed version is stuck on an old bundle (or fails entirely on a fresh load), which is why you only see the map "working" inside Lovable's HMR preview where partial state is held in memory.
+3. Make the radar center obvious again
+- Strengthen the blue center marker and radar ring in the canvas draw logic.
+- Increase contrast of:
+  - center blue dot
+  - white outline
+  - outer pulse/ring
+- Make sure dark overlay does not wash it out.
 
-### The Bug
+4. Stop rendering duplicate map experiences
+- Right now the app mixes:
+  - `DiscoveryMapView`
+  - `LocationRadiusSelector` minimal
+  - `LocationRadiusSelector` full inside exhausted state
+- Unify the client flow so each state shows only one map module at a time.
+- For empty/exhausted state, keep the same compact map structure instead of switching to a different oversized layout.
 
-```tsx
-style={{
-  position: 'absolute',
-  top: 0, left: 0,
-  width: '100%', height: '100%',
-  style={{                  // ← DUPLICATE OPENING — syntax error
-  position: 'absolute',
-  ...
-} as any}
-```
+5. Add the missing compact quick filters under the map
+- Reintroduce the small category selectors as compact icon pills under the map, not as a giant header bar.
+- Match existing compact category pattern from memory:
+  - 40px circular/compact buttons
+  - strong active accent
+  - minimal labels or icon-first treatment
+- Keep them responsive and horizontally scrollable only if needed.
 
-### The Fix (single file, single edit)
+6. Replace the slow slider feel with fast KM pills
+- The user wants the KM selector to feel as fast as the nav buttons.
+- Prioritize the preset KM chips as the main control under the map.
+- Keep any continuous slider secondary or remove it if it adds lag.
+- Improve responsiveness by:
+  - reducing transition weight
+  - using immediate state updates for presets
+  - simplifying motion on active-chip centering
 
-Merge the two `style` blocks into one valid object in `src/components/swipe/PokerCategoryCard.tsx` (lines 119–139):
+7. Move the location detector and add a proper back button
+- In `DiscoveryMapView.tsx`, remove the current location button from the top-left area.
+- Put Back on the left top corner.
+- Move location detect into a secondary map control position, likely top-right or bottom-right of the map, with a smaller iOS-style glass button.
+- Keep Refresh separate but visually subordinate.
 
-```tsx
-style={{
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  x: isTop ? x : 0,
-  rotateZ: isTop ? dragTilt : 0,
-  scale: isTop ? exitScaleValue : stackScale,
-  opacity: isTop ? exitOpacityValue : stackOpacity,
-  filter: stackedFilter,
-  cursor: isTop ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
-  touchAction: 'none',
-  willChange: 'transform, opacity',
-} as any}
-```
+8. Fix the top-left profile/name pill so it truly fits the name
+- In `TopBar.tsx`, make the pill width content-driven instead of visually clipping the text.
+- Keep max 10 visible characters, but size the pill around those 10 characters rather than forcing the text into a too-tight shell.
+- Adjust left cluster spacing so the right-side icons shift naturally instead of compressing the pill.
 
-### Why this fixes the "map only works in Lovable" problem
+9. Tighten the overall vertical fit between header and bottom nav
+- Recheck `ClientDashboard.tsx`, `SwipeAllDashboard.tsx`, `SwipessSwipeContainer.tsx`, and map-related wrappers.
+- Remove extra vertical dead space so the map + filters + action area sit comfortably within the safe viewport.
+- Use the layout memory rule: rely on dashboard/header/nav spacing as the source of truth instead of stacking extra local padding.
 
-- Once the file compiles, Vite produces a clean production bundle.
-- When you click **Publish → Update**, the new bundle deploys to `swipess.lovable.app` and the map renders everywhere (Safari, Chrome, mobile, etc.).
-- For users on the old cached version, a hard refresh (or the existing service worker auto-update logic in `main.tsx`) will pull the new bundle.
+Files to update
+- `src/components/swipe/DiscoveryMapView.tsx`
+- `src/components/swipe/LocationRadiusSelector.tsx`
+- `src/components/swipe/SwipeExhaustedState.tsx`
+- `src/components/SwipessSwipeContainer.tsx`
+- `src/components/TopBar.tsx`
+- possibly `src/pages/ClientDashboard.tsx` for container sizing cleanup
 
-### Verification After Fix
-
-1. Confirm the build error list is empty (no more `PokerCategoryCard.tsx` errors).
-2. Reload `/client/dashboard` — poker stack should render, tap a card → map opens.
-3. Click **Publish → Update** so the production site picks up the fix.
-4. Open `https://swipess.lovable.app` in a fresh incognito window on another browser to confirm the map renders.
-
-### Files Modified
-- `src/components/swipe/PokerCategoryCard.tsx` — collapse duplicate `style={{` block into one
-
+Expected result
+- One map only
+- Smaller centered square radar
+- No automatic drifting
+- Visible blue radar center
+- Back button in the correct place
+- Location detector moved away from top-left
+- Small quick filters below the map
+- Fast KM selection below that
+- Better name pill fit
+- Everything fitting cleanly between the top header and bottom navigation

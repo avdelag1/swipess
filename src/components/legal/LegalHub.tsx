@@ -90,7 +90,7 @@ export function LegalHub() {
             <h2 className={cn("text-2xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>Legal Integrity Hub</h2>
             <div className="flex items-center gap-3 mt-2">
                <div className="w-1.5 h-1.5 rounded-full bg-[#EB4898] animate-pulse" />
-               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Operational System v14.0</p>
+               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Operational Matrix v14.0</p>
             </div>
           </div>
         </div>
@@ -116,7 +116,7 @@ export function LegalHub() {
                   <div className="w-16 h-16 rounded-[1.4rem] bg-white/20 flex items-center justify-center border border-white/10">
                     <Plus className="w-8 h-8 text-white" />
                   </div>
-                  <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">Initialize Draft</span>
+                  <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">Initialize Protocol</span>
                 </Button>
 
                 <div className={cn("p-10 rounded-[3rem] border flex flex-col justify-between backdrop-blur-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.03] border-white/5")}>
@@ -128,7 +128,7 @@ export function LegalHub() {
                   </div>
                   <div className="flex items-center gap-3 mt-8">
                     <Activity className="w-4 h-4 text-[#EB4898] animate-pulse" />
-                    <span className={cn("text-[9px] font-black uppercase tracking-widest italic opacity-40 leading-none", isLight ? "text-black" : "text-white")}>System Sync Nominal</span>
+                    <span className={cn("text-[9px] font-black uppercase tracking-widest italic opacity-40 leading-none", isLight ? "text-black" : "text-white")}>Matrix Sync Nominal</span>
                   </div>
                 </div>
               </div>
@@ -202,7 +202,7 @@ export function LegalHub() {
           {view === 'browse' && (
             <motion.div key="browse" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }} className="space-y-10">
                <div className="flex flex-col gap-2">
-                  <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Agreement Form</h3>
+                  <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Protocol Matrix</h3>
                   <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Select a verified legal framework</p>
                </div>
                
@@ -246,7 +246,7 @@ export function LegalHub() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                     <div className="space-y-3 col-span-full">
-                       <label className="text-[10px] font-black uppercase tracking-[0.3em] italic opacity-40 ml-4">Agreement Identification</label>
+                       <label className="text-[10px] font-black uppercase tracking-[0.3em] italic opacity-40 ml-4">Protocol Identification</label>
                        <input 
                          type="text" 
                          defaultValue={selectedTemplate?.name}
@@ -264,7 +264,7 @@ export function LegalHub() {
 
                     {selectedTemplate?.category === 'lease' && (
                       <div className="space-y-3">
-                         <label className="text-[10px] font-black uppercase tracking-[0.3em] italic opacity-40 ml-4">Monthly Rate</label>
+                         <label className="text-[10px] font-black uppercase tracking-[0.3em] italic opacity-40 ml-4">Matrix Rate (Monthly)</label>
                          <input type="number" placeholder="$0.00" className={cn("w-full h-18 rounded-[2rem] border px-8 font-black uppercase tracking-widest outline-none", isLight ? "bg-white/50 border-black/5" : "bg-black/40 border-white/10")} />
                       </div>
                     )}
@@ -284,10 +284,10 @@ export function LegalHub() {
                </div>
 
                <Button 
-                 onClick={() => { triggerHaptic('success'); toast.success('Agreement Synthesized'); setView('dashboard'); }}
+                 onClick={() => { triggerHaptic('success'); toast.success('Protocol Synthesized'); setView('dashboard'); }}
                  className="w-full h-20 rounded-[2.5rem] bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase italic tracking-[0.3em] text-[13px] shadow-3xl shadow-emerald-500/30 transition-all hover:scale-[1.01]"
                >
-                 Execute Final Draft
+                 Execute Final Protocol Draft
                  <CheckCircle2 className="w-5 h-5 ml-4" />
                </Button>
             </motion.div>
@@ -306,7 +306,7 @@ export function LegalHub() {
 
               <div className="text-center space-y-4 px-10">
                  <h3 className={cn("text-3xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>Liquid Authority Signature</h3>
-                 <p className={cn("text-[11px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Transmitting biometric cryptographic ink to the system</p>
+                 <p className={cn("text-[11px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Transmitting biometric cryptographic ink to the matrix</p>
               </div>
 
               <DigitalSignaturePad 
@@ -324,7 +324,7 @@ export function LegalHub() {
       {/* 🛸 HUD WATERMARK */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-20 pointer-events-none flex items-center gap-3">
         <Activity className={cn("w-3 h-3 animate-pulse", isLight ? "text-black" : "text-white")} />
-        <span className={cn("text-[9px] font-black uppercase tracking-[0.6em] italic", isLight ? "text-black" : "text-white")}>Swipess Legal Trust v14.0</span>
+        <span className={cn("text-[9px] font-black uppercase tracking-[0.6em] italic", isLight ? "text-black" : "text-white")}>Swipess Legal Trust Matrix v14.0</span>
       </div>
     </div>
   );

@@ -45,7 +45,7 @@ const legalIssueCategories: LegalIssueCategory[] = [
     id: 'rent-issues',
     title: 'Payment Disputes',
     icon: DollarSign,
-    description: 'System payment errors',
+    description: 'Matrix payment errors',
     subcategories: [
       { id: 'rent-increase', title: 'Unlawful Increase', description: 'Rate changes without notice' },
       { id: 'hidden-fees', title: 'Hidden Extraction', description: 'Unexpected platform charges' },
@@ -88,14 +88,6 @@ const ClientLawyerServices = () => {
     setSelectedIssue({ category: categoryId, subcategory: subcategoryId });
   };
 
-  const handleReset = () => {
-    triggerHaptic('light');
-    setSelectedIssue(null);
-    setDescription('');
-    setExpandedCategory(null);
-    setSubmitted(false);
-  };
-
   const handleSubmitRequest = async () => {
     if (!selectedIssue || !description.trim()) {
       toast.error('Select an issue type and describe the situation');
@@ -120,10 +112,10 @@ const ClientLawyerServices = () => {
 
       <div className="p-6 pt-24 pb-48 max-w-4xl mx-auto space-y-12 relative z-10">
         
-        {/* 🛸 HEADER */}
+        {/* 🛸 NEXUS HEADER */}
         <div className="flex flex-col gap-3">
            <PageHeader title="LAWYER SERVICES" showBack={true} />
-           <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed max-w-sm", isLight ? "text-black" : "text-white")}> Professional Legal Authority v14.0 </p>
+           <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed max-w-sm", isLight ? "text-black" : "text-white")}> Professional Legal Authority Matrix v14.0 </p>
         </div>
 
         {/* 🛸 IDENTITY SYNC STATUS */}
@@ -178,14 +170,14 @@ const ClientLawyerServices = () => {
                </div>
                <div className="space-y-4">
                   <h3 className="text-3xl font-black uppercase italic tracking-tighter">Request Confirmed</h3>
-                  <p className="text-[12px] font-black uppercase tracking-[0.2em] opacity-40 max-w-xs mx-auto leading-relaxed">System logs have been successfully transmitted to the Legal Team. Await contact.</p>
+                  <p className="text-[12px] font-black uppercase tracking-[0.2em] opacity-40 max-w-xs mx-auto leading-relaxed">System logs have been successfully transmitted to the Legal Matrix. Await contact.</p>
                </div>
                <Button onClick={handleReset} className="h-16 px-12 rounded-[2rem] bg-[#EB4898] text-white font-black uppercase tracking-widest">Back to Hub</Button>
           </motion.div>
         ) : (
           <div className="space-y-12">
             
-            {/* 🛸 CATEGORIES */}
+            {/* 🛸 MATRIX CATEGORIES */}
             <div className="space-y-6">
                <div className="flex items-center gap-4 px-2">
                   <span className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-40", isLight ? "text-black" : "text-white")}>Case Classification</span>
@@ -274,13 +266,13 @@ const ClientLawyerServices = () => {
                </motion.div>
             )}
 
-            {/* Submission Logic */}
+            {/* Matrix Logic */}
             <div className={cn("p-10 rounded-[3.5rem] border backdrop-blur-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.02] border-white/[0.05]")}>
               <h4 className={cn("text-lg font-black uppercase italic tracking-tighter mb-8", isLight ? "text-black" : "text-white")}>Authority Framework</h4>
               <div className="grid gap-10">
                 {[
                   { id: 1, label: 'CLASSIFICATION', desc: 'Identify the specific legal category that matches your event.' },
-                  { id: 2, label: 'DESCRIPTION', desc: 'Describe the situation in technical detail for our review.' },
+                  { id: 2, label: 'DESCRIPTION', desc: 'Describe the situation in technical detail for our matrix review.' },
                   { id: 3, label: 'DISPATCH', desc: 'Execute the transmission. Our authority team will initialize case sync.' },
                 ].map(step => (
                    <div key={step.id} className="flex gap-6">

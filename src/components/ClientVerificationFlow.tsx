@@ -83,7 +83,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
       toast.success('Identity Authority Transmitted! 🚀');
       onComplete?.();
     } catch (err) {
-      toast.error('Submission failed.');
+      toast.error('Submission protocol failure.');
     } finally {
       setSubmitting(false);
     }
@@ -92,7 +92,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
   return (
     <div className="space-y-12">
       
-      {/* 🛸 PROGRESS STEPS */}
+      {/* 🛸 NEXUS PROGRESS STEPS */}
       <div className="flex items-center justify-between px-6">
         {steps.map((s, i) => {
           const StepIcon = s.icon;
@@ -109,7 +109,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                   isActive ? "border-primary bg-primary/10" :
                   "border-white/5 bg-white/5 opacity-40"
                 )}
-                style={isActive ? { borderColor: s.color, backgroundColor: `${s.color}20`, boxShadow: `0 0 24px ${s.color}40` } : (isDone ? { backgroundColor: '#10b981', borderColor: '#10b981' } : {})}
+                style={isActive ? { borderColor: s.color, backgroundColor: `${s.color}20`, shadowColor: `${s.color}40` } : (isDone ? { backgroundColor: '#10b981', borderColor: '#10b981' } : {})}
               >
                 {isDone ? (
                   <Check className="w-7 h-7 text-white" />
@@ -183,7 +183,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                     <div className="relative h-18 rounded-[2rem] bg-[#EB4898] text-white font-black uppercase tracking-widest text-[11px] italic flex items-center justify-center gap-4 transition active:scale-95 shadow-2xl">
                       <input type="file" accept="image/*" capture="user" onChange={(e) => handleFileSelect(e, 'selfie')} className="hidden" />
                       {uploading ? <Activity className="w-5 h-5 animate-pulse" /> : <Camera className="w-5 h-5" />}
-                      {uploading ? 'Processing Image...' : (selfieUrl ? 'Change Image' : 'Take Selfie')}
+                      {uploading ? 'Processing Matrix...' : (selfieUrl ? 'Change Protocol' : 'Execute Selfie')}
                     </div>
                   </label>
                   <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20 italic">Biometric Scan Hub Active</p>
@@ -216,7 +216,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                     <div className="relative h-18 rounded-[2rem] bg-indigo-500 text-white font-black uppercase tracking-widest text-[11px] italic flex items-center justify-center gap-4 transition active:scale-95 shadow-2xl">
                       <input type="file" accept="image/*" onChange={(e) => handleFileSelect(e, 'id_document')} className="hidden" />
                       {uploading ? <Activity className="w-5 h-5 animate-pulse" /> : <FileCheck className="w-5 h-5" />}
-                      {uploading ? 'Syncing Docs...' : (documentUrl ? 'Replace Document' : 'Scan ID')}
+                      {uploading ? 'Syncing Docs...' : (documentUrl ? 'Replace Protocol' : 'Scan Hub ID')}
                     </div>
                   </label>
                   <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20 italic">OCR Authorization Enabled</p>
@@ -245,8 +245,8 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                 <div className={cn("rounded-[2rem] p-8 border flex items-start gap-6 text-left", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
                    <Activity className="w-6 h-6 text-emerald-500 animate-pulse shrink-0 mt-1" />
                    <div className="space-y-2">
-                       <h4 className="text-[12px] font-black uppercase italic tracking-tighter leading-none">Authorization Process</h4>
-                       <p className="text-[10px] font-bold italic opacity-30 leading-relaxed uppercase tracking-widest">Manual review initialized. 24h expected processing time. AES-256 Encryption active.</p>
+                       <h4 className="text-[12px] font-black uppercase italic tracking-tighter leading-none">Authorization Protocol</h4>
+                       <p className="text-[10px] font-bold italic opacity-30 leading-relaxed uppercase tracking-widest">Manual matrix review initialized. 24h expected sync time. AES-256 Encryption active.</p>
                    </div>
                 </div>
 
