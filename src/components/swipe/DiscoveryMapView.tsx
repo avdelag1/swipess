@@ -307,14 +307,15 @@ export const DiscoveryMapView = memo(({
       </div>
 
       {/* 🛸 NEXUS MAP WINDOW */}
-      <div className="flex-1 w-full relative z-0 p-4 pt-28 pb-32 flex flex-col">
+      <div className="flex-1 w-full relative z-0 p-4 pt-24 pb-32 flex flex-col min-h-[400px]">
         <div 
-          id="map-container" 
+          id="nexus-radar-map"
           ref={mapContainerRef} 
           className={cn(
-            "flex-1 w-full rounded-[3rem] border overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.5)] transition-all duration-700 relative",
+            "flex-1 w-full rounded-[3.5rem] border overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.5)] transition-all duration-700 relative",
             theme === 'nexus-style' ? "border-white/20" : "border-white/5"
           )} 
+          style={{ minHeight: '300px' }}
         />
         
         {/* 🛸 ENTITY OVERLAY GLASS */}
@@ -413,8 +414,8 @@ export const DiscoveryMapView = memo(({
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .leaflet-container { width: 100%; height: 100%; outline: none; background: ${isLight ? '#f8fafc' : '#0d0d0f'} !important; }
-        .leaflet-tile { transition: opacity 0.6s ease; ${isLight ? '' : 'filter: brightness(1.1) contrast(1.3) saturate(1.2) hue-rotate(190deg);'} } 
+        .leaflet-container { width: 100%; height: 100%; outline: none; background: ${isLight ? '#f8fafc' : '#0d0d0f'} !important; border-radius: 3.5rem; }
+        .leaflet-tile { transition: opacity 0.6s ease; ${isLight ? '' : 'filter: brightness(1.2) contrast(1.2) saturate(1.5);'} } 
         .sentient-radar-circle { 
             animation: radar-pulse-v14 3.5s infinite ease-in-out; 
             transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
