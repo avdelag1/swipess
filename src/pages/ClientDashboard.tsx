@@ -11,6 +11,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import ClientFilters from './ClientFilters';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
+import { useModalStore } from '@/state/modalStore';
 
 interface ClientDashboardProps {
   onPropertyInsights?: (listingId: string) => void;
