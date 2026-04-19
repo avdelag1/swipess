@@ -245,27 +245,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         ) : null}
       </AnimatePresence>
 
-      {/* 📡 SENTINEL RADAR: FLOATING TRIGGER */}
-      {!showMap && !showSwipe && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => { triggerHaptic('heavy'); handleCardSelect({ id: 'radar', category: 'property' } as any); }}
-          className={cn(
-            "fixed bottom-28 right-8 w-16 h-16 rounded-full flex items-center justify-center shadow-[0_20px_40px_rgba(59,130,246,0.4)] z-[5000] border-2 border-white/20 backdrop-blur-3xl overflow-hidden",
-            isLight ? "bg-white text-black" : "bg-black text-white"
-          )}
-        >
-           <motion.div 
-             animate={{ scale: [1, 1.5, 1], opacity: [0.1, 0.4, 0.1] }} 
-             transition={{ duration: 3, repeat: Infinity }} 
-             className="absolute inset-0 bg-indigo-500" 
-           />
-           <Sparkles className="w-6 h-6 text-indigo-500 relative z-10" />
-        </motion.button>
-      )}
-
       <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Nexus Admin Dashboard</p>
     </div>
   );

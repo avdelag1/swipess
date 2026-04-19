@@ -1,30 +1,27 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
-import { Camera, FileCheck, ShieldCheck, ChevronRight, Check, Sparkles, AlertCircle, Activity } from 'lucide-react';
+import { Camera, FileCheck, ShieldCheck, ChevronRight, Check, Sparkles, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import browserImageCompression from 'browser-image-compression';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
-import { useTheme } from '@/hooks/useTheme';
 
 interface ClientVerificationFlowProps {
   onComplete?: () => void;
 }
 
 const steps = [
-  { id: 'selfie', title: 'Selfie Check', description: 'Biometric face verification', icon: Camera, color: '#EB4898' },
-  { id: 'document', title: 'Identity Hub', description: 'National ID/Passport Sync', icon: FileCheck, color: '#3b82f6' },
-  { id: 'review', title: 'Authorization', description: 'Securing identity logs', icon: ShieldCheck, color: '#10b981' },
+  { id: 'selfie', title: 'Selfie Check', description: 'Real-time face verification', icon: Camera, color: '#f43f5e' },
+  { id: 'document', title: 'Identity Document', description: 'National ID or Passport', icon: FileCheck, color: '#3b82f6' },
+  { id: 'review', title: 'Final Submission', description: 'Securing your identity', icon: ShieldCheck, color: '#10b981' },
 ];
 
 export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowProps) {
   const { user } = useAuth();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
   const [step, setStep] = useState(0);
   const [selfieUrl, setSelfieUrl] = useState<string | null>(null);
   const [documentUrl, setDocumentUrl] = useState<string | null>(null);
@@ -33,30 +30,47 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
 
   const uploadFile = async (file: File, type: 'selfie' | 'id_document'): Promise<string> => {
     if (!user) throw new Error('Not authenticated');
-    const compressed = await browserImageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1600, useWebWorker: true });
+    
+    // Pro-level compression
+    const compressed = await browserImageCompression(file, {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1600,
+      useWebWorker: true,
+    });
+    
     const path = `verification/${user.id}/${type}-${Date.now()}.jpg`;
     const { error } = await supabase.storage.from('legal-documents').upload(path, compressed);
     if (error) throw error;
+
     return path;
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>, type: 'selfie' | 'id_document') => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
     triggerHaptic('medium');
     uiSounds.playPop();
     setUploading(true);
+    
     try {
-      await uploadFile(file, type);
+      const path = await uploadFile(file, type);
+      
       const reader = new FileReader();
       reader.onloadend = () => {
-        if (type === 'selfie') { setSelfieUrl(reader.result as string); setStep(1); }
-        else { setDocumentUrl(reader.result as string); setStep(2); }
+        if (type === 'selfie') {
+          setSelfieUrl(reader.result as string);
+          setStep(1);
+        } else {
+          setDocumentUrl(reader.result as string);
+          setStep(2);
+        }
         triggerHaptic('success');
       };
       reader.readAsDataURL(file);
     } catch (err) {
-      toast.error(`Upload failed. System error.`);
+      console.error(err);
+      toast.error(`Upload failed. Please try again.`);
     } finally {
       setUploading(false);
     }
@@ -64,11 +78,16 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
 
   const handleSubmit = async () => {
     if (!user || !selfieUrl || !documentUrl) return;
+    
     triggerHaptic('heavy');
     uiSounds.playPing(1.5);
     setSubmitting(true);
+    
     try {
-      const { error: requestError } = await supabase.from('legal_documents').insert({
+      // 1. Create a legal document record for verification
+      const { error: requestError } = await supabase
+        .from('legal_documents')
+        .insert({
           user_id: user.id,
           document_type: 'identity_verification',
           file_name: 'verification_bundle.json',
@@ -76,23 +95,35 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
           file_size: 0,
           mime_type: 'application/json',
           status: 'pending',
-          verification_notes: JSON.stringify([{ type: 'selfie' }, { type: 'id_document' }])
-      });
+          verification_notes: JSON.stringify([
+            { type: 'selfie', preview: selfieUrl.substring(0, 100) + '...' },
+            { type: 'id_document', preview: documentUrl.substring(0, 100) + '...' }
+          ])
+        });
+
       if (requestError) throw requestError;
-      await supabase.from('client_profiles').update({ verification_submitted_at: new Date().toISOString() }).eq('user_id', user.id);
-      toast.success('Identity Authority Transmitted! 🚀');
+
+      // 2. Update client profile verification timestamp
+      await supabase
+        .from('client_profiles')
+        .update({
+          verification_submitted_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+
+      toast.success('Identity submitted for review! 🚀');
       onComplete?.();
     } catch (err) {
-      toast.error('Submission protocol failure.');
+      console.error(err);
+      toast.error('Failed to submit. Protocol error.');
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="space-y-12">
-      
-      {/* 🛸 NEXUS PROGRESS STEPS */}
+    <div className="space-y-10">
+      {/* Liquid Progress Steps */}
       <div className="flex items-center justify-between px-6">
         {steps.map((s, i) => {
           const StepIcon = s.icon;
@@ -101,161 +132,178 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
           return (
             <div key={s.id} className="relative flex flex-col items-center gap-3">
               <motion.div 
-                animate={isActive ? { scale: [1, 1.1, 1] } : {}}
+                animate={isActive ? { scale: [1, 1.1, 1], boxShadow: `0 0 20px ${s.color}40` } : {}}
                 transition={{ duration: 2, repeat: Infinity }}
                 className={cn(
-                  "w-16 h-16 rounded-[1.4rem] flex items-center justify-center border-2 transition-all duration-700 shadow-2xl",
-                  isDone ? "bg-emerald-500 border-emerald-500" :
+                  "w-14 h-14 rounded-2xl flex items-center justify-center border-2 transition-all duration-500",
+                  isDone ? "bg-primary border-primary shadow-lg shadow-primary/20" :
                   isActive ? "border-primary bg-primary/10" :
                   "border-white/5 bg-white/5 opacity-40"
                 )}
-                style={isActive ? { borderColor: s.color, backgroundColor: `${s.color}20`, shadowColor: `${s.color}40` } : (isDone ? { backgroundColor: '#10b981', borderColor: '#10b981' } : {})}
+                style={isActive ? { borderColor: s.color } : {}}
               >
                 {isDone ? (
-                  <Check className="w-7 h-7 text-white" />
+                  <Check className="w-6 h-6 text-primary-foreground" />
                 ) : (
-                  <StepIcon className={cn("w-7 h-7", isActive ? "" : "text-white/40")} style={isActive ? { color: s.color } : {}} />
+                  <StepIcon className={cn("w-6 h-6", isActive ? "text-primary" : "text-white/40")} style={isActive ? { color: s.color } : {}} />
                 )}
               </motion.div>
-              <span className={cn("text-[9px] font-black uppercase tracking-[0.3em] italic leading-none", isActive ? (isLight ? "text-black" : "text-white") : "text-white/20")}>
+              <span className={cn("text-[8px] font-black uppercase tracking-[0.2em]", isActive ? "text-white" : "text-white/20")}>
                 {s.title}
               </span>
+              {i < steps.length - 1 && (
+                <div className="absolute left-[120%] top-7 w-[calc(100%-80px)] h-px bg-white/5 overflow-hidden">
+                  <motion.div 
+                    initial={{ x: '-100%' }}
+                    animate={isDone ? { x: '0' } : { x: '-100%' }}
+                    className="w-full h-full bg-primary"
+                  />
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
-      {/* 🛸 IMMERSIVE TERMINAL */}
+      {/* Immersive Step Content */}
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
-          initial={{ opacity: 0, y: 30, scale: 0.98 }}
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -30, scale: 1.02 }}
-          transition={ { type: "spring", stiffness: 350, damping: 30 } }
+          exit={{ opacity: 0, y: -20, scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="relative group"
         >
           {/* Subtle Back Glow */}
-          <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[40%] bg-indigo-500/10 blur-[130px] rounded-full" />
+          <div className="absolute -inset-4 bg-gradient-to-b from-white/[0.03] to-transparent rounded-[3rem] blur-2xl" />
           
-          <div className={cn(
-             "relative rounded-[3.5rem] border backdrop-blur-3xl p-12 text-center space-y-10 shadow-3xl overflow-hidden",
-             isLight ? "bg-black/5 border-black/10 text-black" : "bg-white/[0.04] border-white/5 text-white"
-          )}>
-            
+          <div className="relative rounded-[2.5rem] border border-white/10 bg-black/40 backdrop-blur-3xl p-10 text-center space-y-8 shadow-2xl overflow-hidden">
+            {/* Liquid Background Pulse */}
             <motion.div 
-              animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.1, 0.05] }}
-              transition={{ duration: 10, repeat: Infinity }}
-              className="absolute -top-32 -right-32 w-80 h-80 rounded-full blur-[100px]"
+              animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
+              transition={{ duration: 8, repeat: Infinity }}
+              className="absolute -top-24 -right-24 w-64 h-64 rounded-full blur-[80px]"
               style={{ background: steps[step].color }}
             />
 
             <div className="space-y-3">
-              <h3 className="text-3xl font-black italic tracking-tighter uppercase leading-none">{steps[step].title}</h3>
-              <p className="text-[12px] font-black uppercase tracking-[0.2em] opacity-40 italic">{steps[step].description}</p>
+              <h3 className="text-2xl font-black text-white tracking-tight">{steps[step].title}</h3>
+              <p className="text-sm text-white/40 font-medium max-w-xs mx-auto">{steps[step].description}</p>
             </div>
 
             {step === 0 && (
-              <div className="space-y-10">
-                <div className="relative w-48 h-48 mx-auto">
+              <div className="space-y-8">
+                <div className="relative w-40 h-40 mx-auto">
                   <AnimatePresence>
                     {selfieUrl ? (
                       <motion.img 
-                        initial={{ opacity: 0, scale: 0.8 }}
+                        initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
                         src={selfieUrl} 
-                        className="w-full h-full rounded-full object-cover border-8 border-[#EB4898] shadow-3xl" 
+                        alt="Selfie preview" 
+                        className="w-full h-full rounded-full object-cover border-4 border-primary shadow-2xl" 
                       />
                     ) : (
-                      <motion.div className="w-full h-full rounded-full bg-black/20 border-6 border-dashed border-white/10 flex items-center justify-center">
-                        <Camera className="w-16 h-16 text-white/10 group-hover:text-[#EB4898]/40 transition-colors" />
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="w-full h-full rounded-full bg-white/5 border-4 border-dashed border-white/10 flex items-center justify-center group-hover:border-primary/40 transition-colors"
+                      >
+                        <Camera className="w-12 h-12 text-white/10 group-hover:text-primary/40 transition-colors" />
                       </motion.div>
                     )}
                   </AnimatePresence>
+                  
+                  {/* Face Guide Overlay */}
                   {!selfieUrl && (
-                    <div className="absolute inset-2 rounded-full border border-[#EB4898]/20 animate-pulse pointer-events-none" />
+                    <div className="absolute inset-0 rounded-full border border-white/10 scale-90 animate-pulse pointer-events-none" />
                   )}
                 </div>
 
-                <div className="flex flex-col items-center gap-6">
-                  <label className="relative group cursor-pointer w-full max-w-xs">
-                    <div className="absolute -inset-1 bg-[#EB4898] blur opacity-20 group-hover:opacity-40 transition" />
-                    <div className="relative h-18 rounded-[2rem] bg-[#EB4898] text-white font-black uppercase tracking-widest text-[11px] italic flex items-center justify-center gap-4 transition active:scale-95 shadow-2xl">
+                <div className="flex flex-col items-center gap-4">
+                  <label className="relative group cursor-pointer">
+                    <div className="absolute -inset-1 bg-primary blur opacity-20 group-hover:opacity-40 transition" />
+                    <div className="relative px-10 py-5 rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-[0.2em] text-[10px] flex items-center gap-3 transition active:scale-95">
                       <input type="file" accept="image/*" capture="user" onChange={(e) => handleFileSelect(e, 'selfie')} className="hidden" />
-                      {uploading ? <Activity className="w-5 h-5 animate-pulse" /> : <Camera className="w-5 h-5" />}
-                      {uploading ? 'Processing Matrix...' : (selfieUrl ? 'Change Protocol' : 'Execute Selfie')}
+                      {uploading ? <Sparkles className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+                      {uploading ? 'Processing...' : (selfieUrl ? 'Change Photo' : 'Capture Selfie')}
                     </div>
                   </label>
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20 italic">Biometric Scan Hub Active</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white/20">Biometric Check active</p>
                 </div>
               </div>
             )}
 
             {step === 1 && (
-              <div className="space-y-10">
-                <div className="relative w-80 h-52 mx-auto">
+              <div className="space-y-8">
+                <div className="relative w-64 h-40 mx-auto">
                   <AnimatePresence>
                     {documentUrl ? (
                       <motion.img 
-                        initial={{ opacity: 0, scale: 0.8 }}
+                        initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
                         src={documentUrl} 
-                        className="w-full h-full rounded-[2.5rem] object-cover border-8 border-indigo-500 shadow-3xl" 
+                        alt="ID preview" 
+                        className="w-full h-full rounded-3xl object-cover border-4 border-primary shadow-2xl" 
                       />
                     ) : (
-                      <motion.div className="w-full h-full rounded-[2.5rem] bg-black/20 border-6 border-dashed border-white/10 flex items-center justify-center">
-                        <FileCheck className="w-16 h-16 text-white/10 group-hover:text-indigo-500/40 transition-colors" />
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="w-full h-full rounded-3xl bg-white/5 border-4 border-dashed border-white/10 flex items-center justify-center group-hover:border-primary/40 transition-colors"
+                      >
+                        <FileCheck className="w-12 h-12 text-white/10 group-hover:text-primary/40 transition-colors" />
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
 
-                <div className="flex flex-col items-center gap-6">
-                  <label className="relative group cursor-pointer w-full max-w-xs">
-                    <div className="absolute -inset-1 bg-indigo-500 blur opacity-20 group-hover:opacity-40 transition" />
-                    <div className="relative h-18 rounded-[2rem] bg-indigo-500 text-white font-black uppercase tracking-widest text-[11px] italic flex items-center justify-center gap-4 transition active:scale-95 shadow-2xl">
+                <div className="flex flex-col items-center gap-4">
+                  <label className="relative group cursor-pointer">
+                    <div className="absolute -inset-1 bg-primary blur opacity-20 group-hover:opacity-40 transition" />
+                    <div className="relative px-10 py-5 rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-[0.2em] text-[10px] flex items-center gap-3 transition active:scale-95">
                       <input type="file" accept="image/*" onChange={(e) => handleFileSelect(e, 'id_document')} className="hidden" />
-                      {uploading ? <Activity className="w-5 h-5 animate-pulse" /> : <FileCheck className="w-5 h-5" />}
-                      {uploading ? 'Syncing Docs...' : (documentUrl ? 'Replace Protocol' : 'Scan Hub ID')}
+                      {uploading ? <Sparkles className="w-4 h-4 animate-spin" /> : <FileCheck className="w-4 h-4" />}
+                      {uploading ? 'Scanning...' : (documentUrl ? 'Replace ID' : 'Scan Document')}
                     </div>
                   </label>
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20 italic">OCR Authorization Enabled</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white/20">Automatic OCR enabled</p>
                 </div>
               </div>
             )}
 
             {step === 2 && (
-              <div className="space-y-12">
-                <div className="flex items-center justify-center gap-14">
+              <div className="space-y-10">
+                <div className="flex items-center justify-center gap-10">
                   <div className="relative">
-                    <img src={selfieUrl!} className="w-24 h-24 rounded-full object-cover border-4 border-[#EB4898] shadow-2xl" alt="Selfie" />
-                    <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center border-4 border-black">
-                      <Check className="w-4 h-4 text-white" />
+                    <img src={selfieUrl!} className="w-20 h-20 rounded-full object-cover border-2 border-white/10" alt="Selfie" />
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center border-4 border-black">
+                      <Check className="w-3 h-3 text-white" />
                     </div>
                   </div>
-                  <ChevronRight className="w-8 h-8 opacity-10" />
+                  <ChevronRight className="w-6 h-6 text-white/10" />
                   <div className="relative">
-                    <img src={documentUrl!} className="w-32 h-24 rounded-[1.5rem] object-cover border-4 border-indigo-500 shadow-2xl" alt="ID" />
-                    <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center border-4 border-black">
-                      <Check className="w-4 h-4 text-white" />
+                    <img src={documentUrl!} className="w-28 h-20 rounded-xl object-cover border-2 border-white/10" alt="ID" />
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center border-4 border-black">
+                      <Check className="w-3 h-3 text-white" />
                     </div>
                   </div>
                 </div>
 
-                <div className={cn("rounded-[2rem] p-8 border flex items-start gap-6 text-left", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
-                   <Activity className="w-6 h-6 text-emerald-500 animate-pulse shrink-0 mt-1" />
-                   <div className="space-y-2">
-                       <h4 className="text-[12px] font-black uppercase italic tracking-tighter leading-none">Authorization Protocol</h4>
-                       <p className="text-[10px] font-bold italic opacity-30 leading-relaxed uppercase tracking-widest">Manual matrix review initialized. 24h expected sync time. AES-256 Encryption active.</p>
-                   </div>
+                <div className="bg-white/5 rounded-2xl p-6 border border-white/5 flex items-start gap-4 text-left">
+                  <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-white/40 leading-relaxed font-medium">
+                    Our compliance engine will review these documents manually. This usually takes less than 24 hours. Your sensitive data is encrypted at rest using AES-256.
+                  </p>
                 </div>
 
                 <Button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="w-full h-20 rounded-[2.5rem] bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase italic tracking-[0.3em] text-[12px] shadow-3xl shadow-emerald-500/30 transition-all active:scale-[0.98]"
+                  className="w-full h-16 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase tracking-[0.25em] text-[11px] shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all active:scale-[0.98]"
                 >
-                  {submitting ? 'TRANSMITTING HUB...' : 'EXECUTE AUTHORIZATION'}
+                  {submitting ? 'Authenticating...' : 'Confirm Submission'}
                 </Button>
               </div>
             )}

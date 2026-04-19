@@ -1,11 +1,15 @@
+/** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { useState } from 'react';
-import { CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Scale, MessageSquare, ChevronRight, ChevronDown,
-  Gavel, Lock, Send, CheckCircle2, Home, DollarSign, Users, Sparkles, Activity
+  Scale, Clock, MessageSquare, ChevronRight, ChevronDown,
+  ArrowLeft, AlertTriangle, FileText, Home, DollarSign,
+  Users, Gavel, Lock, Send, CheckCircle2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -13,13 +17,11 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { PageHeader } from '@/components/PageHeader';
 import { triggerHaptic } from '@/utils/haptics';
-import { useTheme } from '@/hooks/useTheme';
-import { cn } from '@/lib/utils';
 
 interface LegalIssueCategory {
   id: string;
   title: string;
-  icon: any;
+  icon: React.ReactNode;
   description: string;
   subcategories: {
     id: string;
@@ -32,35 +34,62 @@ const legalIssueCategories: LegalIssueCategory[] = [
   {
     id: 'landlord-issues',
     title: 'Landlord Issues',
-    icon: Home,
-    description: 'Problems with property management',
+    icon: <Home className="w-5 h-5" />,
+    description: 'Problems with your landlord or property owner',
     subcategories: [
-      { id: 'lease-violation', title: 'Lease Violations', description: 'Breach of agreement terms' },
-      { id: 'security-deposit', title: 'Security Deposits', description: 'Disputes over refunds' },
-      { id: 'maintenance', title: 'Asset Maintenance', description: 'Failed property upkeep' },
-      { id: 'illegal-entry', title: 'Privacy Intrusions', description: 'Unauthorized entries' }
+      { id: 'lease-violation', title: 'Lease Violations', description: 'Landlord not following the lease terms' },
+      { id: 'security-deposit', title: 'Security Deposit Disputes', description: 'Issues recovering your deposit' },
+      { id: 'maintenance', title: 'Maintenance Issues', description: 'Landlord not maintaining the property' },
+      { id: 'illegal-entry', title: 'Illegal Entry', description: 'Landlord entering without notice' },
+      { id: 'eviction', title: 'Wrongful Eviction', description: 'Being evicted unfairly or illegally' }
     ]
   },
   {
     id: 'rent-issues',
-    title: 'Payment Disputes',
-    icon: DollarSign,
-    description: 'Matrix payment errors',
+    title: 'Rent & Payment Issues',
+    icon: <DollarSign className="w-5 h-5" />,
+    description: 'Disputes about rent payments or charges',
     subcategories: [
-      { id: 'rent-increase', title: 'Unlawful Increase', description: 'Rate changes without notice' },
-      { id: 'hidden-fees', title: 'Hidden Extraction', description: 'Unexpected platform charges' },
-      { id: 'late-fees', title: 'Excessive Penalties', description: 'Unfair late payment fees' }
+      { id: 'rent-increase', title: 'Unlawful Rent Increase', description: 'Rent raised without proper notice' },
+      { id: 'hidden-fees', title: 'Hidden Fees', description: 'Unexpected charges not in the lease' },
+      { id: 'payment-disputes', title: 'Payment Disputes', description: 'Disagreements about amounts paid' },
+      { id: 'late-fees', title: 'Excessive Late Fees', description: 'Unfair late payment penalties' }
+    ]
+  },
+  {
+    id: 'contract-issues',
+    title: 'Contract & Agreement Issues',
+    icon: <FileText className="w-5 h-5" />,
+    description: 'Problems with rental agreements or contracts',
+    subcategories: [
+      { id: 'unfair-terms', title: 'Unfair Contract Terms', description: 'One-sided or illegal clauses' },
+      { id: 'contract-review', title: 'Contract Review', description: 'Need help understanding terms' },
+      { id: 'contract-breach', title: 'Contract Breach', description: 'Other party not honoring agreement' },
+      { id: 'early-termination', title: 'Early Termination', description: 'Need to break lease early' }
     ]
   },
   {
     id: 'discrimination',
-    title: 'Identity Rights',
-    icon: Users,
-    description: 'Protection & Integrity',
+    title: 'Discrimination & Rights',
+    icon: <Users className="w-5 h-5" />,
+    description: 'Discrimination or rights violations',
     subcategories: [
-      { id: 'housing-discrimination', title: 'Discrimination', description: 'Bias in selection process' },
-      { id: 'harassment', title: 'Entity Harassment', description: 'Persistent unwanted contact' },
-      { id: 'privacy-violation', title: 'Data Breaches', description: 'Private info exposure' }
+      { id: 'housing-discrimination', title: 'Housing Discrimination', description: 'Denied housing unfairly' },
+      { id: 'harassment', title: 'Harassment', description: 'Being harassed by landlord' },
+      { id: 'privacy-violation', title: 'Privacy Violations', description: 'Your privacy being invaded' },
+      { id: 'accessibility', title: 'Accessibility Issues', description: 'Disability accommodation problems' }
+    ]
+  },
+  {
+    id: 'other-legal',
+    title: 'Other Legal Matters',
+    icon: <Gavel className="w-5 h-5" />,
+    description: 'Other legal questions or concerns',
+    subcategories: [
+      { id: 'general-advice', title: 'General Legal Advice', description: 'General questions about tenant rights' },
+      { id: 'document-help', title: 'Document Assistance', description: 'Help with legal documents' },
+      { id: 'mediation', title: 'Mediation Request', description: 'Need third-party mediation' },
+      { id: 'other', title: 'Other Issue', description: 'Issue not listed above' }
     ]
   }
 ];
@@ -68,8 +97,6 @@ const legalIssueCategories: LegalIssueCategory[] = [
 const ClientLawyerServices = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [selectedIssue, setSelectedIssue] = useState<{ category: string; subcategory: string } | null>(null);
   const [description, setDescription] = useState('');
@@ -78,218 +105,319 @@ const ClientLawyerServices = () => {
   const [lawyerContactRequested, setLawyerContactRequested] = useState(false);
 
   const handleCategoryClick = (categoryId: string) => {
-    triggerHaptic('light');
     setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
     setSelectedIssue(null);
   };
 
   const handleSubcategorySelect = (categoryId: string, subcategoryId: string) => {
-    triggerHaptic('medium');
     setSelectedIssue({ category: categoryId, subcategory: subcategoryId });
   };
 
   const handleSubmitRequest = async () => {
     if (!selectedIssue || !description.trim()) {
-      toast.error('Select an issue type and describe the situation');
+      toast.error('Please select an issue type and provide a description');
       return;
     }
+
     setIsSubmitting(true);
-    triggerHaptic('success');
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
     setIsSubmitting(false);
     setSubmitted(true);
-    toast.success('Legal Help Dispatched');
+    toast.success('Legal help request submitted!');
+  };
+
+  const handleReset = () => {
+    setSelectedIssue(null);
+    setDescription('');
+    setSubmitted(false);
+    setExpandedCategory(null);
   };
 
   return (
-    <div className={cn("min-h-screen w-full transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
-      
-      {/* 🛸 CINEMATIC AMBIENCE */}
-      <div className="fixed inset-0 pointer-events-none opacity-20 z-0">
-         <div className="absolute top-[5%] left-[-10%] w-[60%] h-[40%] bg-blue-600/30 blur-[130px] rounded-full" />
-         <div className="absolute bottom-[20%] right-[-10%] w-[50%] h-[40%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
-      </div>
+    <div className="w-full overflow-x-hidden p-4 sm:p-6 lg:p-8 pb-24 sm:pb-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <PageHeader 
+          title="Lawyer Services" 
+          subtitle="Get professional legal assistance for your rental issues"
+          showBack={true}
+        />
 
-      <div className="p-6 pt-24 pb-48 max-w-4xl mx-auto space-y-12 relative z-10">
-        
-        {/* 🛸 NEXUS HEADER */}
-        <div className="flex flex-col gap-3">
-           <PageHeader title="LAWYER SERVICES" showBack={true} />
-           <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed max-w-sm", isLight ? "text-black" : "text-white")}> Professional Legal Authority Matrix v14.0 </p>
+        {/* Preloaded User Info - Trust Indicator */}
+        <div className="mb-6 flex items-center justify-between px-4 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+              {user?.email?.[0].toUpperCase()}
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-black">Authorized Party</p>
+              <h4 className="text-sm font-bold text-white leading-tight">{user?.email}</h4>
+            </div>
+          </div>
+          <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 bg-emerald-500/5">
+            Verified Account
+          </Badge>
         </div>
 
-        {/* 🛸 IDENTITY SYNC STATUS */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className={cn("p-8 rounded-[2.8rem] border flex items-center justify-between backdrop-blur-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}>
-             <div className="flex items-center gap-6">
-                <div className="w-16 h-16 rounded-[1.4rem] bg-indigo-500 flex items-center justify-center shadow-2xl">
-                   <Activity className="w-8 h-8 text-white" />
-                </div>
-                <div>
-                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-500 italic">Verified Entity</p>
-                   <h4 className={cn("text-xl font-black italic tracking-tighter uppercase leading-none mt-1", isLight ? "text-black" : "text-white")}>{user?.email?.split('@')[0]}</h4>
-                </div>
-             </div>
-             <div className="bg-[#EB4898] px-4 py-2 rounded-full shadow-lg">
-                <span className="text-[9px] font-black text-white uppercase tracking-widest italic">Sync Active</span>
-             </div>
-        </motion.div>
-
-        {/* 🚩 DIRECT DISPATCH CARD */}
-        <motion.div 
-          whileHover={{ y: -8 }}
-          className={cn(
-            "p-10 rounded-[3.5rem] border shadow-3xl overflow-hidden relative group",
-            isLight ? "bg-black/5 border-black/5" : "bg-gradient-to-br from-indigo-900/40 to-black border-indigo-500/20"
-          )}
-        >
-          <Gavel className="absolute -top-10 -right-10 w-48 h-48 opacity-5 -rotate-12 transition-transform group-hover:rotate-0 duration-700" />
-          <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
-            <div className="w-24 h-24 bg-indigo-500 rounded-[2.2rem] flex items-center justify-center shrink-0 shadow-3xl">
-              <Sparkles className="w-10 h-10 text-white animate-pulse" />
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-4">Urgent Dispatch</h3>
-              <p className="text-white/60 text-[13px] font-bold leading-relaxed mb-8 max-w-lg italic">
-                Connect directly with our specialized Legal Authority. We will transmit your identity logs for an immediate priority case review.
-              </p>
-              <Button 
-                onClick={() => { setLawyerContactRequested(true); toast.success("Dispatch Notification Sent"); triggerHaptic('success'); }}
-                disabled={lawyerContactRequested}
-                className="h-16 px-12 rounded-[2rem] bg-white hover:bg-white/90 text-indigo-900 font-black uppercase italic tracking-[0.2em] shadow-2xl transition-all"
-              >
-                {lawyerContactRequested ? "Contact Requested" : "DISPATCH NOW"}
-              </Button>
-            </div>
+        {/* Personal Lawyer Direct Contact Trigger */}
+        <Card className="mb-6 bg-gradient-to-br from-indigo-900/50 via-blue-900/40 to-slate-900/50 border-blue-500/30 shadow-xl overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Gavel className="w-24 h-24 rotate-12" />
           </div>
-        </motion.div>
-
-        {submitted ? (
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className={cn("p-12 rounded-[3.5rem] border text-center space-y-8", isLight ? "bg-emerald-500/10 border-emerald-500/20" : "bg-emerald-500/5 border-emerald-500/10")}>
-               <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-emerald-500/40">
-                  <CheckCircle2 className="w-10 h-10 text-white" />
-               </div>
-               <div className="space-y-4">
-                  <h3 className="text-3xl font-black uppercase italic tracking-tighter">Request Confirmed</h3>
-                  <p className="text-[12px] font-black uppercase tracking-[0.2em] opacity-40 max-w-xs mx-auto leading-relaxed">System logs have been successfully transmitted to the Legal Matrix. Await contact.</p>
-               </div>
-               <Button onClick={handleReset} className="h-16 px-12 rounded-[2rem] bg-[#EB4898] text-white font-black uppercase tracking-widest">Back to Hub</Button>
-          </motion.div>
-        ) : (
-          <div className="space-y-12">
-            
-            {/* 🛸 MATRIX CATEGORIES */}
-            <div className="space-y-6">
-               <div className="flex items-center gap-4 px-2">
-                  <span className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-40", isLight ? "text-black" : "text-white")}>Case Classification</span>
-                  <div className={cn("h-[1px] flex-1", isLight ? "bg-black/5" : "bg-white/10")} />
-               </div>
-               
-               <div className={cn("rounded-[3rem] overflow-hidden border shadow-3xl backdrop-blur-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.03] border-white/5")}>
-                  {legalIssueCategories.map((cat, idx) => (
-                    <div key={cat.id}>
-                       <button onClick={() => handleCategoryClick(cat.id)} className="w-full p-8 flex items-center justify-between hover:bg-white/[0.02] transition-all">
-                          <div className="flex items-center gap-6">
-                             <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
-                                <cat.icon className="w-6 h-6" />
-                             </div>
-                             <div>
-                                <h4 className={cn("text-lg font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>{cat.title}</h4>
-                                <p className={cn("text-[9px] font-black uppercase tracking-widest mt-2 opacity-30", isLight ? "text-black" : "text-white")}>{cat.description}</p>
-                             </div>
-                          </div>
-                          <ChevronDown className={cn("w-6 h-6 transition-transform duration-500", expandedCategory === cat.id ? "rotate-180 text-white" : "text-white/20")} />
-                       </button>
-
-                       <AnimatePresence>
-                          {expandedCategory === cat.id && (
-                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className={cn("overflow-hidden", isLight ? "bg-black/[0.02]" : "bg-white/[0.02]")}>
-                                {cat.subcategories.map(sub => (
-                                   <button 
-                                      key={sub.id} 
-                                      onClick={() => handleSubcategorySelect(cat.id, sub.id)}
-                                      className={cn(
-                                        "w-full pl-24 pr-8 py-5 flex items-center justify-between hover:bg-white/[0.02] transition-colors border-t",
-                                        isLight ? "border-black/5" : "border-white/5",
-                                        selectedIssue?.subcategory === sub.id ? "bg-indigo-500/10" : ""
-                                      )}
-                                   >
-                                      <div>
-                                         <h5 className={cn("text-[14px] font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>{sub.title}</h5>
-                                         <p className={cn("text-[8px] font-black uppercase tracking-widest mt-1 opacity-20", isLight ? "text-black" : "text-white")}>{sub.description}</p>
-                                      </div>
-                                      <div className={cn("w-5 h-5 rounded-full border-4 transition-all", selectedIssue?.subcategory === sub.id ? "bg-indigo-500 border-white/20 shadow-[0_0_10px_#6366f1]" : "border-white/10")} />
-                                   </button>
-                                ))}
-                             </motion.div>
-                          )}
-                       </AnimatePresence>
-                       {idx < legalIssueCategories.length - 1 && <div className={cn("h-[1px] mx-8", isLight ? "bg-black/5" : "bg-white/10")} />}
-                    </div>
-                  ))}
-               </div>
-            </div>
-
-            {selectedIssue && (
-               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                   <div className="flex items-center gap-4 px-2">
-                      <span className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-40", isLight ? "text-black" : "text-white")}>Issue Analysis</span>
-                      <div className={cn("h-[1px] flex-1", isLight ? "bg-black/5" : "bg-white/10")} />
-                   </div>
-                   
-                   <div className={cn("p-10 rounded-[3rem] border backdrop-blur-3xl shadow-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}>
-                      <div className="space-y-6">
-                        <div className="flex items-center gap-4 mb-4">
-                           <MessageSquare className="w-5 h-5 text-[#EB4898]" />
-                           <h3 className={cn("text-xl font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>Case Description</h3>
-                        </div>
-                        <Textarea
-                          placeholder="TRANSMIT CASE LOGS (MAX 2000 CHARS)..."
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          className={cn(
-                            "min-h-[200px] rounded-[2rem] p-8 text-[14px] font-bold border transition-all resize-none outline-none",
-                            isLight ? "bg-black/5 border-black/5 text-black" : "bg-white/[0.02] border-white/5 text-white placeholder:text-white/20 focus:border-white/20"
-                          )}
-                        />
-                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                            <Button onClick={handleReset} variant="ghost" className="h-16 rounded-[2rem] px-10 text-[10px] uppercase font-black tracking-widest opacity-40 hover:opacity-100">Cancel</Button>
-                            <Button
-                                onClick={handleSubmitRequest}
-                                disabled={isSubmitting || !description.trim()}
-                                className="h-16 flex-1 rounded-[2rem] bg-indigo-500 hover:bg-indigo-600 text-white font-black uppercase italic tracking-widest shadow-2xl shadow-indigo-500/30"
-                            >
-                                {isSubmitting ? "TRANSMITTING..." : "DISPATCH CASE LOGS"}
-                            </Button>
-                        </div>
-                      </div>
-                   </div>
-               </motion.div>
-            )}
-
-            {/* Matrix Logic */}
-            <div className={cn("p-10 rounded-[3.5rem] border backdrop-blur-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.02] border-white/[0.05]")}>
-              <h4 className={cn("text-lg font-black uppercase italic tracking-tighter mb-8", isLight ? "text-black" : "text-white")}>Authority Framework</h4>
-              <div className="grid gap-10">
-                {[
-                  { id: 1, label: 'CLASSIFICATION', desc: 'Identify the specific legal category that matches your event.' },
-                  { id: 2, label: 'DESCRIPTION', desc: 'Describe the situation in technical detail for our matrix review.' },
-                  { id: 3, label: 'DISPATCH', desc: 'Execute the transmission. Our authority team will initialize case sync.' },
-                ].map(step => (
-                   <div key={step.id} className="flex gap-6">
-                      <div className="w-12 h-12 rounded-full border border-indigo-500/40 flex items-center justify-center shrink-0">
-                         <span className="text-indigo-500 font-black italic">{step.id}</span>
-                      </div>
-                      <div>
-                         <h5 className={cn("text-[10px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black" : "text-white")}>{step.label}</h5>
-                         <p className={cn("text-[11px] font-bold opacity-30 mt-1 leading-relaxed italic", isLight ? "text-black" : "text-white")}>{step.desc}</p>
-                      </div>
-                   </div>
-                ))}
+          <CardContent className="p-6 sm:p-8 relative z-10">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="w-20 h-20 bg-blue-500/20 rounded-[2rem] flex items-center justify-center shrink-0 border border-blue-500/30">
+                <Users className="w-10 h-10 text-blue-400" />
+              </div>
+              <div className="flex-1 text-center md:text-left">
+                <h3 className="text-xl font-bold text-white mb-2 tracking-tight">Direct Lawyer Consultation</h3>
+                <p className="text-blue-100/70 text-sm leading-relaxed mb-4 max-w-lg">
+                  Would you like our specialized rental lawyer to contact you directly? We will notify them with your profile details for an immediate case review.
+                </p>
+                <Button 
+                  onClick={() => {
+                    setLawyerContactRequested(true);
+                    toast.success("Notification sent! A lawyer will contact you shortly.");
+                    triggerHaptic('success');
+                  }}
+                  disabled={lawyerContactRequested}
+                  className="h-12 px-8 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-all"
+                >
+                  {lawyerContactRequested ? (
+                    <><CheckCircle2 className="w-4 h-4 mr-2" /> Contact Requested</>
+                  ) : (
+                    "Contact Personal Lawyer"
+                  )}
+                </Button>
               </div>
             </div>
+          </CardContent>
+        </Card>
 
-          </div>
+        {/* Package Info */}
+        <Card className="mb-6 bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start gap-4">
+              <Lock className="w-5 h-5 text-purple-400 shrink-0 mt-1" />
+              <div>
+                <h3 className="text-white font-semibold mb-1">Premium Legal Service</h3>
+                <p className="text-gray-400 text-sm mb-3">
+                  To receive a personalized legal solution, you'll need to purchase a legal consultation package.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge className="bg-purple-500/20 text-purple-300">Basic Consultation</Badge>
+                  <Badge className="bg-purple-500/20 text-purple-300">Document Review</Badge>
+                  <Badge className="bg-purple-500/20 text-purple-300">Full Representation</Badge>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {submitted ? (
+          /* Success State */
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="bg-rose-900/30 border-rose-700/50">
+              <CardContent className="p-6 sm:p-8 text-center">
+                <div className="w-16 h-16 bg-rose-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="w-8 h-8 text-rose-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Request Submitted!</h3>
+                <p className="text-gray-300 mb-6">
+                  Your legal help request has been submitted. Our team will review your case and get back to you with available options and pricing.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button variant="outline" onClick={handleReset} className="border-gray-600">
+                    Submit Another Request
+                  </Button>
+                  <Button onClick={() => navigate('/client/settings')} className="bg-rose-600 hover:bg-rose-700">
+                    Back to Profile
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ) : (
+          <>
+            {/* Issue Selection */}
+            <Card className="mb-6 bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-orange-400" />
+                  How Can We Help?
+                </CardTitle>
+                <CardDescription>Select the category that best describes your situation</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <ScrollArea className="max-h-[400px]">
+                  <div className="divide-y divide-gray-700/50">
+                    {legalIssueCategories.map((category) => (
+                      <div key={category.id}>
+                        <button
+                          onClick={() => handleCategoryClick(category.id)}
+                          className="w-full p-4 flex items-center gap-4 hover:bg-gray-700/30 transition-colors text-left"
+                        >
+                          <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center shrink-0 text-blue-400">
+                            {category.icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-white">{category.title}</h4>
+                            <p className="text-sm text-gray-400 truncate">{category.description}</p>
+                          </div>
+                          {expandedCategory === category.id ? (
+                            <ChevronDown className="w-5 h-5 text-gray-400" />
+                          ) : (
+                            <ChevronRight className="w-5 h-5 text-gray-400" />
+                          )}
+                        </button>
+
+                        <AnimatePresence>
+                          {expandedCategory === category.id && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden bg-gray-900/30"
+                            >
+                              {category.subcategories.map((sub) => (
+                                <button
+                                  key={sub.id}
+                                  onClick={() => handleSubcategorySelect(category.id, sub.id)}
+                                  className={`w-full pl-16 pr-4 py-3 flex items-center gap-3 hover:bg-gray-700/30 transition-colors text-left ${selectedIssue?.subcategory === sub.id ? 'bg-blue-500/20' : ''
+                                    }`}
+                                >
+                                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${selectedIssue?.subcategory === sub.id
+                                      ? 'border-blue-500 bg-blue-500'
+                                      : 'border-gray-500'
+                                    }`}>
+                                    {selectedIssue?.subcategory === sub.id && (
+                                      <div className="w-2 h-2 bg-white rounded-full" />
+                                    )}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h5 className="text-sm font-medium text-white">{sub.title}</h5>
+                                    <p className="text-xs text-gray-400">{sub.description}</p>
+                                  </div>
+                                </button>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+
+            {/* Description Input */}
+            {selectedIssue && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="mb-6 bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <MessageSquare className="w-5 h-5 text-rose-400" />
+                      Describe Your Situation
+                    </CardTitle>
+                    <CardDescription>
+                      Provide details about your issue so our legal team can better assist you
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="description" className="text-white">Your Message</Label>
+                        <Textarea
+                          id="description"
+                          placeholder="Describe what happened, when it occurred, and any relevant details..."
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          rows={6}
+                          className="mt-2 bg-gray-900/50 border-gray-600 text-white placeholder:text-gray-500"
+                        />
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                        <Button
+                          variant="outline"
+                          onClick={handleReset}
+                          className="border-gray-600"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleSubmitRequest}
+                          disabled={isSubmitting || !description.trim()}
+                          className="bg-blue-600 hover:bg-blue-700 flex-1"
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                              Submitting...
+                            </>
+                          ) : (
+                            <>
+                              <Send className="w-4 h-4 mr-2" />
+                              Submit Request
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+          </>
         )}
+
+        {/* How It Works */}
+        <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
+          <CardHeader>
+            <CardTitle className="text-white">How It Works</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center shrink-0 text-blue-400 font-semibold">1</div>
+                <div>
+                   <h4 className="font-medium text-white">How Can We Help?</h4>
+                   <p className="text-sm text-gray-400">Choose the category that best matches your situation</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center shrink-0 text-blue-400 font-semibold">2</div>
+                <div>
+                  <h4 className="font-medium text-white">Describe Your Situation</h4>
+                  <p className="text-sm text-gray-400">Provide details so we can understand your case</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center shrink-0 text-blue-400 font-semibold">3</div>
+                <div>
+                  <h4 className="font-medium text-white">Get a Response</h4>
+                  <p className="text-sm text-gray-400">Our team reviews and provides solution options</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center shrink-0 text-purple-400 font-semibold">4</div>
+                <div>
+                  <h4 className="font-medium text-white">Purchase & Resolve</h4>
+                  <p className="text-sm text-gray-400">Choose a legal package to get your personalized solution</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

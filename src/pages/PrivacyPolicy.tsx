@@ -1,96 +1,204 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Database, Eye, Globe, Lock } from "lucide-react";
-import { motion } from "framer-motion";
-import { useTheme } from "@/hooks/useTheme";
-import { cn } from "@/lib/utils";
-import { triggerHaptic } from "@/utils/haptics";
+import { ArrowLeft } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SentientHud } from "@/components/SentientHud";
 
 export default function PrivacyPolicy() {
   const navigate = useNavigate();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
 
   return (
-    <div className={cn("min-h-screen transition-colors duration-500 overflow-x-hidden", isLight ? "bg-white" : "bg-black")}>
-      
-      {/* 🛸 CINEMATIC ATMOSPHERE */}
-      <div className="fixed inset-0 pointer-events-none opacity-20">
-         <div className="absolute top-[5%] left-[-15%] w-[70%] h-[40%] bg-[#EB4898]/30 blur-[130px] rounded-full" />
-         <div className="absolute bottom-[20%] right-[-10%] w-[50%] h-[40%] bg-indigo-500/30 blur-[110px] rounded-full" />
-      </div>
-
-      <div className="max-w-4xl mx-auto px-6 pt-24 pb-48 relative z-10 space-y-12">
-        
-        {/* 🛸 NEXUS HEADER */}
-        <div className="flex flex-col gap-3">
-           <button onClick={() => { triggerHaptic('medium'); navigate(-1); }} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic mb-4">
-              <ArrowLeft className="w-4 h-4" /> BACK TO IDENTITY
-           </button>
-           <h1 className={cn("text-5xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Privacy Policy</h1>
-           <div className="flex items-center gap-4 mt-2">
-              <div className="px-3 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/5">
-                 <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest italic">Data Sovereignty Protocol</span>
-              </div>
-              <span className={cn("text-[9px] font-black uppercase tracking-widest opacity-30 italic", isLight ? "text-black" : "text-white")}>Last Sync: Nov 2025</span>
-           </div>
-        </div>
-
-        {/* 🛡️ DATA STATUS */}
-        <div className={cn("p-8 rounded-[2.8rem] border flex items-center justify-between backdrop-blur-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}>
-             <div className="flex items-center gap-6">
-                <div className="w-16 h-16 rounded-[1.4rem] bg-[#EB4898] flex items-center justify-center shadow-2xl">
-                   <Lock className="w-8 h-8 text-white" />
-                </div>
-                <div>
-                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">Entity Protection</p>
-                   <h4 className={cn("text-xl font-black italic tracking-tighter uppercase leading-none mt-1", isLight ? "text-black" : "text-white")}>End-to-End Encryption</h4>
-                </div>
-             </div>
-             <div className="bg-indigo-500 px-4 py-2 rounded-full shadow-lg">
-                <span className="text-[9px] font-black text-white uppercase tracking-widest italic">Certified Secure</span>
-             </div>
-        </div>
-
-        {/* 🛸 DECRYPTED PRIVACY STREAM */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className={cn("p-12 rounded-[3.5rem] border shadow-3xl backdrop-blur-3xl", isLight ? "bg-black/5 border-black/10" : "bg-white/[0.03] border-white/5")}>
-             <div className="space-y-16">
-                {[
-                  { id: '01', icon: Database, title: 'Inbound Data Capture', content: 'We collect identity logs you provide directly: Profile metadata, atmospheric preferences, discovery criteria, and decrypted communications.' },
-                  { id: '02', icon: Eye, title: 'Network Influence', content: 'Logs are utilized to optimize the discovery matrix, connect property authorities with compliant clients, and process priority syncs.' },
-                  { id: '03', icon: Globe, title: 'Sovereign Synchronization', content: 'Data is shared only with authorized matrix partners (Supabase, Google) and relevant entities for establishing direct matches.' },
-                  { id: '04', icon: ShieldCheck, title: 'Entity Rights', content: 'You maintain total sovereignty over your identity logs. Access, correction, and permanent purging are available via the Identity Config.' },
-                  { id: '05', icon: Lock, title: 'Encryption Protocol', content: 'We implement high-standard SSL and OAuth 2.0 encryption layers to maintain the total integrity of the matrix.' },
-                ].map((section) => (
-                  <section key={section.id} className="group">
-                    <div className="flex items-center gap-4 mb-6">
-                       <span className="text-[10px] font-black text-indigo-500 font-mono tracking-widest bg-indigo-500/10 px-3 py-1 rounded-lg">PROTOCOL {section.id}</span>
-                       <div className={cn("h-[1px] flex-1 opacity-10", isLight ? "bg-black" : "bg-white")} />
-                    </div>
-                    <div className="flex items-center gap-4 mb-4">
-                       <section.icon className={cn("w-6 h-6", isLight ? "text-black" : "text-white")} />
-                       <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>{section.title}</h2>
-                    </div>
-                    <p className={cn("text-[14px] font-bold leading-relaxed italic opacity-40 group-hover:opacity-100 transition-opacity", isLight ? "text-black" : "text-white")}>
-                       {section.content}
-                    </p>
-                  </section>
-                ))}
-             </div>
-        </motion.div>
-
-        {/* 🛸 ACTION BAR */}
-        <div className="flex flex-col items-center pt-10">
+    <div className="h-screen flex flex-col bg-background">
+      {/* 🧘 IMMERSIVE HUD HEADER */}
+      <SentientHud className="fixed top-0 left-0 right-0 z-50">
+        <div className="flex-shrink-0 bg-background/95 backdrop-blur-sm border-b px-4 pt-[calc(var(--safe-top)+0.75rem)] pb-3">
+          <div className="max-w-4xl mx-auto flex items-center gap-3">
             <Button
-              onClick={() => { triggerHaptic('medium'); navigate(-1); }}
-              className="h-16 px-16 rounded-[2rem] bg-indigo-500 hover:bg-indigo-600 text-white font-black uppercase italic tracking-[0.2em] shadow-2xl shadow-indigo-500/20"
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="rounded-full"
             >
-               RETURN TO HUB
+              <ArrowLeft className="w-5 h-5" />
             </Button>
-            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Swipess Nexus Security Council • 2025-2026 </p>
+            <h1 className="text-lg font-semibold">Privacy Policy</h1>
+          </div>
         </div>
+      </SentientHud>
 
-      </div>
+      {/* Scrollable Content */}
+      <ScrollArea className="flex-1">
+        <div className="max-w-4xl mx-auto px-4 py-6 pb-24">
+          <div className="prose prose-invert max-w-none">
+            <p className="text-muted-foreground mb-8">Last Updated: November 23, 2025</p>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">1. Information We Collect</h2>
+              <p className="mb-4">
+                We collect information you provide directly to us, including:
+              </p>
+              <ul className="list-disc pl-6 mb-4 space-y-2">
+                <li>Profile information (name, age, photos, bio)</li>
+                <li>Location preferences and search criteria</li>
+                <li>Messages and communications with other users</li>
+                <li>Property listings and preferences</li>
+                <li>Payment and subscription information</li>
+                <li>Device information and usage data</li>
+              </ul>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">2. How We Use Your Information</h2>
+              <p className="mb-4">We use the collected information to:</p>
+              <ul className="list-disc pl-6 mb-4 space-y-2">
+                <li>Provide and improve our matching services</li>
+                <li>Connect property owners with potential clients</li>
+                <li>Process transactions and subscriptions</li>
+                <li>Send notifications about matches and messages</li>
+                <li>Analyze usage patterns and enhance user experience</li>
+                <li>Prevent fraud and ensure platform security</li>
+              </ul>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">3. Data Sharing and Disclosure</h2>
+              <p className="mb-4">
+                We may share your information with:
+              </p>
+              <ul className="list-disc pl-6 mb-4 space-y-2">
+                <li><strong>Other Users:</strong> Profile information is visible to other users for matching purposes</li>
+                <li><strong>Service Providers:</strong> Supabase (database hosting), Google (authentication)</li>
+                <li><strong>Legal Requirements:</strong> When required by law or to protect rights and safety</li>
+                <li><strong>Business Transfers:</strong> In connection with mergers, acquisitions, or asset sales</li>
+              </ul>
+              <p className="mt-4">
+                We do not sell your personal information to third parties.
+              </p>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">4. Your Rights and Choices</h2>
+              <p className="mb-4">You have the right to:</p>
+              <ul className="list-disc pl-6 mb-4 space-y-2">
+                <li><strong>Access:</strong> Request a copy of your personal data</li>
+                <li><strong>Correction:</strong> Update or correct your information</li>
+                <li><strong>Deletion:</strong> Request deletion of your account and data</li>
+                <li><strong>Export:</strong> Download your data in a portable format</li>
+                <li><strong>Opt-out:</strong> Unsubscribe from marketing communications</li>
+                <li><strong>Object:</strong> Object to certain data processing activities</li>
+              </ul>
+              <p className="mt-4">
+                To exercise these rights, contact us at privacy@swipess.com
+              </p>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">5. Data Security</h2>
+              <p className="mb-4">
+                We implement industry-standard security measures to protect your information:
+              </p>
+              <ul className="list-disc pl-6 mb-4 space-y-2">
+                <li>End-to-end encryption for sensitive data</li>
+                <li>Secure authentication with OAuth 2.0</li>
+                <li>Regular security audits and updates</li>
+                <li>Access controls and monitoring</li>
+                <li>Secure cloud infrastructure (Supabase)</li>
+              </ul>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">6. Cookies and Tracking</h2>
+              <p className="mb-4">
+                We use cookies and similar technologies to:
+              </p>
+              <ul className="list-disc pl-6 mb-4 space-y-2">
+                <li>Maintain your login session</li>
+                <li>Remember your preferences</li>
+                <li>Analyze site traffic and usage</li>
+                <li>Improve platform performance</li>
+              </ul>
+              <p className="mt-4">
+                You can control cookies through your browser settings.
+              </p>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">7. Children's Privacy</h2>
+              <p className="mb-4">
+                Our service is not intended for users under 18 years of age. We do not knowingly collect
+                information from children. If you believe we have collected information from a minor,
+                please contact us immediately.
+              </p>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">8. International Data Transfers</h2>
+              <p className="mb-4">
+                Your information may be transferred to and processed in countries other than your own.
+                We ensure appropriate safeguards are in place for international data transfers in
+                compliance with GDPR and other applicable laws.
+              </p>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">9. Data Retention</h2>
+              <p className="mb-4">
+                We retain your information for as long as necessary to provide our services and comply
+                with legal obligations. When you delete your account, we will delete or anonymize your
+                personal information within 30 days, except where retention is required by law.
+              </p>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">10. Changes to This Policy</h2>
+              <p className="mb-4">
+                We may update this Privacy Policy from time to time. We will notify you of significant
+                changes via email or through the platform. Your continued use of our service after
+                changes are posted constitutes acceptance of the updated policy.
+              </p>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">11. Contact Us</h2>
+              <p className="mb-4">
+                For privacy-related questions or requests, contact us at:
+              </p>
+              <ul className="list-none pl-0 mb-4 space-y-2">
+                <li><strong>Email:</strong> privacy@swipess.com</li>
+                <li><strong>Data Protection Officer:</strong> dpo@swipess.com</li>
+              </ul>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">12. GDPR & CCPA Compliance</h2>
+              <p className="mb-4">
+                <strong>For EU Users (GDPR):</strong> You have rights under the General Data Protection
+                Regulation, including rights to access, rectification, erasure, and data portability.
+              </p>
+              <p className="mb-4">
+                <strong>For California Users (CCPA):</strong> You have the right to know what personal
+                information is collected, to delete your information, and to opt-out of the sale of
+                personal information (we do not sell personal information).
+              </p>
+            </section>
+          </div>
+        </div>
+      </ScrollArea>
+
+      {/* 🧘 IMMERSIVE HUD FOOTER */}
+      <SentientHud side="bottom" className="fixed bottom-0 left-0 right-0 z-50">
+        <div className="flex-shrink-0 bg-background/95 backdrop-blur-sm border-t p-4">
+          <div className="max-w-4xl mx-auto">
+            <Button
+              onClick={() => navigate(-1)}
+              className="w-full rounded-xl h-12"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Go Back
+            </Button>
+          </div>
+        </div>
+      </SentientHud>
     </div>
   );
 }

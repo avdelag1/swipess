@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Send, AlertCircle, Zap, ChevronLeft, Info, Star, Smile, Sparkles } from 'lucide-react';
+import { Send, AlertCircle, Zap, ChevronLeft, Info, Star, Smile } from 'lucide-react';
 import { useConversationMessages, useSendMessage } from '@/hooks/useConversations';
 import { useRealtimeChat } from '@/hooks/useRealtimeChat';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { useAuth } from '@/hooks/useAuth';
 import { useMonthlyMessageLimits } from '@/hooks/useMonthlyMessageLimits';
+import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { useQueryClient } from '@tanstack/react-query';
 import { MessageActivationPackages } from '@/components/MessageActivationPackages';
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
@@ -19,7 +21,6 @@ import { RatingSubmissionDialog } from '@/components/RatingSubmissionDialog';
 import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
 import { usePresence } from '@/hooks/usePresence';
-import { triggerHaptic } from '@/utils/haptics';
 
 interface MessagingInterfaceProps {
   conversationId: string;
@@ -43,7 +44,80 @@ interface MessagingInterfaceProps {
   onBack: () => void;
 }
 
-const QUICK_EMOJIS = ['👋', '😊', '😍', '🤩', '🙏', '👍', '🔥', '❤️', '✨', '💯'];
+// iOS-style message bubble colors based on conversation type
+const getBubbleColors = (otherUserRole: string, isMyMessage: boolean) => {
+  if (!isMyMessage) {
+    // Received messages - always gray/muted
+    return {
+      background: 'bg-[#3A3A3C]',
+      text: 'text-white',
+      timestamp: 'text-white/50'
+    };
+  }
+
+  // Sent messages - different colors based on who you're talking to
+  if (otherUserRole === 'owner') {
+    // Talking to Owner - Purple-Indigo gradient (modern & vibrant)
+    return {
+      background: 'bg-gradient-to-br from-[#8B5CF6] to-[#6366F1]',
+      text: 'text-white',
+      timestamp: 'text-white/60'
+    };
+  } else {
+    // Talking to Client - Blue gradient (iMessage style)
+    return {
+      background: 'bg-gradient-to-br from-[#007AFF] to-[#5856D6]',
+      text: 'text-white',
+      timestamp: 'text-white/60'
+    };
+  }
+};
+
+interface MessageType {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  message_text: string;
+  message_type: string;
+  created_at: string;
+  is_read?: boolean;
+  sender?: {
+    id: string;
+    full_name: string;
+    avatar_url?: string;
+  };
+}
+
+// Memoized iOS-style message bubble component
+const MessageBubble = memo(({ message, isMyMessage, otherUserRole }: { message: MessageType; isMyMessage: boolean; otherUserRole: string }) => {
+  const colors = getBubbleColors(otherUserRole, isMyMessage);
+
+  return (
+    <div className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'} mb-1`}>
+      <div
+        className={`max-w-[75%] px-4 py-2.5 ${colors.background} ${colors.text} ${
+          isMyMessage
+            ? 'rounded-[20px] rounded-br-[6px]'
+            : 'rounded-[20px] rounded-bl-[6px]'
+        } shadow-sm`}
+      >
+        <p className="text-[15px] break-words whitespace-pre-wrap leading-[1.35]">{message.message_text}</p>
+        <p className={`text-[10px] mt-1 ${colors.timestamp} text-right`}>
+          {formatDistanceToNow(new Date(message.created_at), { addSuffix: false })}
+        </p>
+      </div>
+    </div>
+  );
+});
+
+MessageBubble.displayName = 'MessageBubble';
+
+// Curated positive / friendly emojis — no angry or negative faces
+const QUICK_EMOJIS = [
+  '👋', '😊', '😄', '😂', '🥰', '😍', '🤩', '😎',
+  '🙏', '👍', '🔥', '❤️', '🎉', '✨', '💯', '🤝',
+  '💪', '👏', '🥳', '😇', '🤗', '😁', '🌟', '💬',
+];
 
 export const MessagingInterface = memo(({ conversationId, otherUser, listing, currentUserRole = 'client', onBack }: MessagingInterfaceProps) => {
   const [newMessage, setNewMessage] = useState('');
@@ -54,227 +128,435 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { user } = useAuth();
+  const _navigate = useNavigate();
   const { data: messages = [], isLoading } = useConversationMessages(conversationId);
   const sendMessage = useSendMessage();
+  const _queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const previousMessageCountRef = useRef(0);
   const [showConnecting, setShowConnecting] = useState(false);
   const connectingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Check monthly message limits
   const { isAtLimit, hasMonthlyLimit, messagesRemaining } = useMonthlyMessageLimits();
+
+  // Real-time presence indicator
   const { isOnline } = usePresence(otherUser.id);
+
+  // Enable realtime chat for live message updates
   const { startTyping, stopTyping, typingUsers, isConnected } = useRealtimeChat(conversationId);
 
+  // Mark messages as read when viewing this conversation
   useMarkMessagesAsRead(conversationId, true);
+
+  // Prefetch manager for conversation messages
   const { prefetchTopConversationMessages } = usePrefetchManager();
 
+  // Prefetch messages on mount for faster subsequent loads
   useEffect(() => {
-    if (conversationId) prefetchTopConversationMessages(conversationId);
+    if (conversationId) {
+      // Use requestIdleCallback for non-blocking prefetch
+      if ('requestIdleCallback' in window) {
+        (window as Window).requestIdleCallback(() => {
+          prefetchTopConversationMessages(conversationId);
+        }, { timeout: 2000 });
+      } else {
+        setTimeout(() => {
+          prefetchTopConversationMessages(conversationId);
+        }, 100);
+      }
+    }
   }, [conversationId, prefetchTopConversationMessages]);
 
+  // Debounce showing "Connecting" message to prevent flicker
   useEffect(() => {
     if (!isConnected) {
-      connectingTimeoutRef.current = setTimeout(() => setShowConnecting(true), 500);
+      // Only show "Connecting" message after 500ms of being disconnected
+      connectingTimeoutRef.current = setTimeout(() => {
+        setShowConnecting(true);
+      }, 500);
     } else {
-      if (connectingTimeoutRef.current) clearTimeout(connectingTimeoutRef.current);
+      // Clear timeout and hide connecting message immediately when connected
+      if (connectingTimeoutRef.current) {
+        clearTimeout(connectingTimeoutRef.current);
+        connectingTimeoutRef.current = null;
+      }
       setShowConnecting(false);
     }
-    return () => { if (connectingTimeoutRef.current) clearTimeout(connectingTimeoutRef.current); };
+
+    return () => {
+      if (connectingTimeoutRef.current) {
+        clearTimeout(connectingTimeoutRef.current);
+        connectingTimeoutRef.current = null;
+      }
+    };
   }, [isConnected]);
+
+  // Check if user is scrolled to bottom
+  const isScrolledToBottom = useCallback(() => {
+    if (!messagesContainerRef.current) return true;
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+    // Consider "bottom" if within 100px of the bottom
+    return scrollHeight - scrollTop - clientHeight < 100;
+  }, []);
+
+  // Auto-scroll to bottom only when:
+  // 1. User is already at the bottom (to show new messages)
+  // 2. User sends a message (previousMessageCountRef tracks this)
+  useEffect(() => {
+    const messageCountIncreased = messages.length > previousMessageCountRef.current;
+    previousMessageCountRef.current = messages.length;
+
+    if (messageCountIncreased && isScrolledToBottom()) {
+      // Use instant scroll to prevent flickering
+      messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+    }
+  }, [messages, isScrolledToBottom]);
 
   const { moderate } = useContentModeration();
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
+
     const messageText = newMessage.trim();
+
+    // Content moderation check
     if (!moderate(messageText, 'message', conversationId)) return;
-    
-    triggerHaptic('medium');
+
     setNewMessage('');
-    stopTyping();
+    stopTyping(); // Stop typing indicator when message is sent
 
     try {
-      await sendMessage.mutateAsync({ conversationId, message: messageText });
+      await sendMessage.mutateAsync({
+        conversationId,
+        message: messageText
+      });
     } catch (error: unknown) {
-      setNewMessage(messageText);
+      const err = error as { message?: string; code?: string };
+      if (import.meta.env.DEV) {
+        logger.error('Failed to send message:', error);
+      }
+
+      const errorMessage = err?.message || 'Unknown error occurred';
+
+      if (import.meta.env.DEV) {
+        const errorDetails = {
+          message: errorMessage,
+          code: err?.code,
+          conversationId,
+          timestamp: new Date().toISOString()
+        };
+        logger.error('Send error details:', errorDetails);
+
+        if (errorMessage.includes('message_text')) {
+          logger.error('❌ Database schema issue detected - message_text column may not exist');
+        } else if (errorMessage.includes('receiver_id')) {
+          logger.error('❌ Conversation error - receiver_id could not be determined');
+        } else if (errorMessage.includes('RLS') || errorMessage.includes('policy')) {
+          logger.error('❌ Permission error - Row Level Security policy may be blocking the insert');
+        }
+      }
+
+      setNewMessage(messageText); // Restore message on error
     }
   };
 
   if (isLoading) {
     return (
-      <div className={cn("flex-1 flex flex-col items-center justify-center p-8", isLight ? "bg-white" : "bg-black")}>
-         <div className="w-12 h-12 rounded-xl border-4 border-[#EB4898]/10 border-t-[#EB4898] animate-spin" />
-         <p className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] mt-6 animate-pulse">Establishing Nexus Link...</p>
+      <div className="flex-1 flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-1 mb-3">
+            <span className="w-2 h-2 bg-foreground/20 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+            <span className="w-2 h-2 bg-foreground/20 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+            <span className="w-2 h-2 bg-foreground/20 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+          </div>
+          <p className="text-muted-foreground text-sm">Loading conversation...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <>
-      <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={currentUserRole} variant="activation-required" />
+      {/* Activation Banner */}
+      <MessageActivationBanner
+        isVisible={showActivationBanner}
+        onClose={() => setShowActivationBanner(false)}
+        userRole={currentUserRole}
+        variant="activation-required"
+      />
 
-      <div className={cn("flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
-        
-        {/* 🛸 NEXUS HUD HEADER (v14) */}
-        <div className={cn(
-            "shrink-0 px-6 py-4 z-20 backdrop-blur-3xl border-b transition-all",
-            isLight ? "bg-white/80 border-black/5" : "bg-black/40 border-white/5"
-        )}>
-          <div className="flex items-center gap-4">
+      <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
+        {/* Premium Header */}
+        <div
+          className="shrink-0 px-3 py-2.5 z-20"
+          style={{
+            background: isLight 
+              ? 'linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0))' 
+              : 'linear-gradient(to bottom, rgba(12, 12, 14, 0.85) 0%, rgba(12, 12, 14, 0) 100%)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            borderBottom: '1px solid hsla(var(--border) / 0.1)',
+          }}
+        >
+          <div className="flex items-center gap-2">
+            {/* Visible glass-pill back button */}
             <button
               onClick={onBack}
-              className={cn(
-                 "shrink-0 flex items-center justify-center w-11 h-11 rounded-2xl active:scale-90 transition-all border",
-                 isLight ? "bg-black/5 border-black/5 text-black" : "bg-white/[0.08] border-white/10 text-white"
-              )}
+              aria-label="Go back to conversations"
+              className="shrink-0 flex items-center justify-center w-9 h-9 rounded-xl transition-all active:scale-90"
+              style={{
+                background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.09)',
+                border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.13)',
+              }}
             >
-              <ChevronLeft className="w-6 h-6" />
+              <ChevronLeft className={cn("w-5 h-5", isLight ? "text-foreground" : "text-white")} />
             </button>
 
-            <div className="flex-1 flex items-center gap-4 min-w-0">
+            {/* Center: Avatar + Name */}
+            <div
+              className="flex-1 flex items-center gap-2.5 min-w-0 py-0.5 rounded-xl"
+            >
               <div className="relative shrink-0">
-                <div className={cn("p-[2px] rounded-2xl bg-gradient-to-br from-[#EB4898] to-orange-500 shadow-xl")}>
-                   <Avatar className="w-11 h-11 rounded-[0.9rem] border-2 border-black/80">
-                    <AvatarImage src={otherUser.avatar_url} className="object-cover" />
-                    <AvatarFallback className="bg-black text-white font-black uppercase italic text-xs">
-                      {otherUser.full_name?.charAt(0)}
+                <div className={`p-[1.5px] rounded-full ${
+                  otherUser.role === 'owner'
+                    ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                    : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                }`}>
+                  <Avatar className="w-9 h-9 border-[1.5px] border-background">
+                    <AvatarImage src={otherUser.avatar_url} />
+                    <AvatarFallback className={`font-semibold text-white text-xs ${
+                      otherUser.role === 'owner'
+                        ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                        : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                    }`}>
+                      {otherUser.full_name?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
                 </div>
                 <div className={cn(
-                  "absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-[3px] border-black transition-all",
-                  isOnline ? "bg-green-500 shadow-[0_0_10px_#22c55e]" : "bg-slate-600"
+                  "absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-background transition-colors duration-500",
+                  isOnline ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-slate-500"
                 )} />
               </div>
-              <div className="flex flex-col min-w-0">
-                <h3 className={cn("font-black text-[15px] uppercase italic tracking-tighter truncate leading-none", isLight ? "text-black" : "text-white")}>
+              <div className="flex flex-col items-start min-w-0">
+                <h3 className="font-semibold text-[14px] text-foreground truncate max-w-[160px] sm:max-w-[220px]">
                   {otherUser.full_name}
                 </h3>
-                <div className="flex items-center gap-1.5 mt-1">
-                   <div className={cn("w-1 h-1 rounded-full", isOnline ? "bg-green-500 animate-pulse" : "bg-white/20")} />
-                   <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] italic", isOnline ? "text-green-500" : "opacity-30")}>
-                    {isOnline ? 'Active Sync' : 'Offline'}
-                  </span>
-                </div>
+                <span className={cn(
+                  "text-[10px] font-bold transition-colors duration-500",
+                  isOnline ? "text-green-500" : "text-muted-foreground/60"
+                )}>
+                  {isOnline ? 'Online' : 'Recently active'}
+                </span>
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <button 
+            {/* Actions */}
+            <div className="flex gap-1.5 shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setShowRatingDialog(true)}
-                className={cn("w-10 h-10 rounded-2xl flex items-center justify-center border transition-all", isLight ? "bg-amber-500/10 border-amber-500/20 text-amber-600" : "bg-white/5 border-white/5 text-amber-400")}
+                className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-amber-400"
               >
-                <Star className="w-5 h-5 fill-current" />
-              </button>
-              <button className={cn("w-10 h-10 rounded-2xl flex items-center justify-center border transition-all", isLight ? "bg-black/5 border-black/5 text-black" : "bg-white/5 border-white/5 text-white/40")}>
-                <Info className="w-5 h-5" />
+                <Star className="w-3.5 h-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground"
+              >
+                <Info className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Connection Status */}
+        {showConnecting && (
+          <div className="px-4 py-2 text-center" style={{ background: 'rgba(251,191,36,0.08)', borderBottom: '1px solid rgba(251,191,36,0.15)' }}>
+            <p className="text-xs text-amber-400 flex items-center justify-center gap-2">
+              <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
+              Connecting to chat...
+            </p>
+          </div>
+        )}
+
+        {/* Messages */}
+        {messages.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5" style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.12), rgba(249,115,22,0.12))', border: '1px solid rgba(236,72,153,0.18)' }}>
+              <Send className="w-9 h-9" style={{ color: '#ec4899' }} />
+            </div>
+            <p className="text-base font-semibold text-foreground mb-1.5">
+              Start the conversation
+            </p>
+            <p className="text-sm text-muted-foreground max-w-[200px]">
+              Say hello to {otherUser.full_name?.split(' ')?.[0] || 'your match'}!
+            </p>
+          </div>
+        ) : (
+          <VirtualizedMessageList
+            messages={messages}
+            currentUserId={user?.id || ''}
+            otherUserRole={otherUser.role}
+            typingUsers={typingUsers}
+          />
+        )}
+        <div ref={messagesEndRef} />
+
+        {/* Limit Warning */}
+        {hasMonthlyLimit && isAtLimit && (
+          <div className="px-4 py-2.5" style={{ background: 'rgba(239,68,68,0.08)', borderTop: '1px solid rgba(239,68,68,0.15)' }}>
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+              <p className="font-medium text-xs text-red-400 flex-1">Monthly limit reached</p>
+              <button
+                onClick={() => {
+                  setShowActivationBanner(true);
+                  setShowUpgradeDialog(true);
+                }}
+                className="shrink-0 h-7 px-3 rounded-full text-white text-[11px] font-semibold"
+                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+              >
+                Upgrade
               </button>
             </div>
           </div>
+        )}
 
-          {listing && (
-             <motion.div 
-               initial={{ opacity: 0, y: -10 }} 
-               animate={{ opacity: 1, y: 0 }}
-               className={cn("mt-4 p-3 rounded-2xl flex items-center gap-4 border", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}
-             >
-                <div className="w-12 h-12 rounded-xl overflow-hidden shadow-xl shrink-0">
-                   <img src={listing.images?.[0]} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 min-w-0">
-                   <h4 className={cn("text-[10px] font-black uppercase italic tracking-widest truncate leading-none", isLight ? "text-black" : "text-white")}>{listing.title}</h4>
-                   <p className="text-[#EB4898] text-[12px] font-black italic mt-1">${listing.price?.toLocaleString()}</p>
-                </div>
-                <div className="px-3 py-1 bg-[#EB4898]/10 rounded-full border border-[#EB4898]/20">
-                   <span className="text-[8px] font-black uppercase text-[#EB4898] tracking-widest italic">{listing.category}</span>
-                </div>
-             </motion.div>
+        {/* Limit Info */}
+        {hasMonthlyLimit && !isAtLimit && (
+          <div className="px-4 py-2 flex items-center justify-center" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/60">
+              <Zap className="w-3 h-3 text-amber-500" />
+              <span>{messagesRemaining} messages remaining</span>
+            </div>
+          </div>
+        )}
+
+        {/* Input Area */}
+        <div
+          className="shrink-0"
+          style={{
+            background: 'hsl(var(--background) / 0.97)',
+            borderTop: '1px solid hsl(var(--border))',
+          }}
+        >
+          {/* Emoji quick-pick panel */}
+          {showEmojiPicker && (
+            <div className="px-3 pt-2 pb-1">
+              <div className="flex flex-wrap gap-1">
+                {QUICK_EMOJIS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => {
+                      setNewMessage(prev => prev + emoji);
+                      setShowEmojiPicker(false);
+                    }}
+                    className="text-xl w-9 h-9 flex items-center justify-center rounded-xl transition-all active:scale-90 hover:bg-muted"
+                    style={{ lineHeight: 1 }}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
-        </div>
 
-        {/* Transmission Feed */}
-        <div className="flex-1 relative min-h-0">
-            {showConnecting && (
-              <div className="absolute top-2 left-0 right-0 z-50 flex justify-center px-6">
-                <div className="bg-amber-500/10 backdrop-blur-3xl border border-amber-500/20 px-6 py-2 rounded-full flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-amber-500">Wait: Re-Syncing Matrix...</span>
-                </div>
-              </div>
-            )}
-
-            {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-10 opacity-30">
-                <Sparkles className="w-12 h-12 mb-6 animate-pulse" />
-                <h3 className="text-xl font-black uppercase italic tracking-tighter">Initial Burst</h3>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] mt-3 max-w-[200px] leading-relaxed">System ready for decrypted transmissions. Initiate sync now.</p>
-              </div>
-            ) : (
-              <VirtualizedMessageList messages={messages} currentUserId={user?.id || ''} otherUserRole={otherUser.role} typingUsers={typingUsers} />
-            )}
-            <div ref={messagesEndRef} />
-        </div>
-
-        {/* 🛸 COMMAND INPUT (v14) */}
-        <div className={cn("p-6 backdrop-blur-3xl border-t transition-all", isLight ? "bg-white border-black/5" : "bg-black/20 border-white/5")}>
-          
-          <AnimatePresence>
-              {showEmojiPicker && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="pb-4 flex flex-wrap gap-2 justify-center">
-                    {QUICK_EMOJIS.map(emoji => (
-                        <button key={emoji} onClick={() => { setNewMessage(p => p + emoji); setShowEmojiPicker(false); }} className="w-10 h-10 flex items-center justify-center text-xl rounded-xl hover:bg-white/10 transition-all active:scale-90">{emoji}</button>
-                    ))}
-                </motion.div>
-              )}
-          </AnimatePresence>
-
-          <form onSubmit={handleSendMessage} className="flex gap-3 items-center">
-            <button
+          <form
+            onSubmit={handleSendMessage}
+            className="px-3 py-3"
+          >
+            <div className="flex gap-2 items-center">
+              {/* Emoji toggle button */}
+              <button
                 type="button"
-                onClick={() => { triggerHaptic('light'); setShowEmojiPicker(p => !p); }}
-                className={cn("shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all border", isLight ? "bg-black/5 border-black/5 text-black" : "bg-white/5 border-white/10 text-white/40")}
-            >
-                <Smile className={cn("w-6 h-6", showEmojiPicker && "text-[#EB4898]")} />
-            </button>
+                onClick={() => setShowEmojiPicker(p => !p)}
+                aria-label={showEmojiPicker ? "Close emoji picker" : "Open emoji picker"}
+                className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
+                style={{
+                  background: showEmojiPicker ? 'linear-gradient(135deg, #ec4899, #f97316)' : 'hsl(var(--muted))',
+                  border: '1px solid hsl(var(--border))',
+                }}
+              >
+                <Smile className={`w-4 h-4 ${showEmojiPicker ? 'text-white' : 'text-muted-foreground'}`} />
+              </button>
 
-            <div className="flex-1 relative">
+              <div className="flex-1 relative">
                 <input
                   value={newMessage}
-                  onChange={(e) => { setNewMessage(e.target.value); if (e.target.value.trim()) startTyping(); else stopTyping(); }}
-                  placeholder={isAtLimit ? "LIMIT REACHED" : "TRANSMIT LOGS..."}
-                  className={cn(
-                      "w-full h-14 pl-6 pr-14 rounded-2xl text-[14px] font-bold outline-none transition-all border",
-                      isLight ? "bg-black/5 border-black/5 text-black" : "bg-white/[0.05] border-white/5 text-white placeholder:text-white/20"
-                  )}
+                  onChange={(e) => {
+                    setNewMessage(e.target.value);
+                    if (e.target.value.trim()) startTyping();
+                    else stopTyping();
+                  }}
+                  placeholder={isAtLimit ? "Monthly limit reached" : "Type a message..."}
+                  className="w-full text-[15px] px-4 py-2.5 rounded-full text-foreground placeholder:text-muted-foreground outline-none transition-all"
+                  style={{
+                    background: 'hsl(var(--muted))',
+                    border: '1px solid hsl(var(--border))',
+                    minHeight: '42px',
+                  }}
                   disabled={sendMessage.isPending || isAtLimit}
+                  maxLength={1000}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage(e as any);
+                    }
+                  }}
                 />
-                <button
-                    type="submit"
-                    disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
-                    className={cn(
-                        "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl flex items-center justify-center transition-all",
-                        newMessage.trim() ? "bg-[#EB4898] text-white shadow-xl" : "bg-white/5 text-white/20"
-                    )}
-                >
-                    <Send className={cn("w-4 h-4", newMessage.trim() && "animate-pulse")} />
-                </button>
+                {newMessage.length > 800 && (
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-white/30">
+                    {1000 - newMessage.length}
+                  </span>
+                )}
+              </div>
+              <motion.button
+                type="submit"
+                disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
+                aria-label="Send message"
+                className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                whileTap={{ scale: 0.82, rotate: -8, transition: { type: "spring", stiffness: 400, damping: 10, mass: 0.7 } }}
+                whileHover={{ scale: 1.08, transition: { type: "spring", stiffness: 300, damping: 15 } }}
+                style={{
+                  background: newMessage.trim() && !isAtLimit
+                    ? 'linear-gradient(135deg, #ec4899, #f97316)'
+                    : 'rgba(255,255,255,0.07)',
+                  border: newMessage.trim() && !isAtLimit ? 'none' : '1px solid rgba(255,255,255,0.10)',
+                  boxShadow: newMessage.trim() && !isAtLimit ? '0 4px 16px rgba(236,72,153,0.4)' : 'none',
+                }}
+              >
+                <Send className={`w-4 h-4 ${newMessage.trim() && !isAtLimit ? 'text-white' : 'text-white/30'}`} />
+              </motion.button>
             </div>
           </form>
-
-          {hasMonthlyLimit && (
-              <div className="flex justify-center mt-4">
-                  <div className={cn("px-4 py-1.5 rounded-full border flex items-center gap-2", isAtLimit ? "bg-red-500/10 border-red-500/20" : "bg-[#EB4898]/5 border-[#EB4898]/10")}>
-                      <Zap className={cn("w-3.5 h-3.5", isAtLimit ? "text-red-500" : "text-[#EB4898]")} />
-                      <span className={cn("text-[9px] font-black uppercase tracking-widest italic", isAtLimit ? "text-red-500" : "text-[#EB4898]/60")}>
-                        {isAtLimit ? 'Monthly Quota Exceeded' : `${messagesRemaining} Decryptions Remaining`}
-                      </span>
-                  </div>
-              </div>
-          )}
         </div>
 
-        <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={otherUser.role === 'client' ? 'owner' : 'client'} />
-        <RatingSubmissionDialog open={showRatingDialog} onOpenChange={setShowRatingDialog} targetId={listing?.id || otherUser.id} targetType={listing?.id ? 'listing' : 'user'} targetName={listing?.title || otherUser.full_name} categoryId={listing?.id ? 'property' : 'client'} onSuccess={() => setShowRatingDialog(false)} />
+        {/* Upgrade Dialog */}
+        <MessageActivationPackages
+          isOpen={showUpgradeDialog}
+          onClose={() => setShowUpgradeDialog(false)}
+          userRole={otherUser.role === 'client' ? 'owner' : 'client'}
+        />
+
+
+
+        {/* Rating Submission Dialog */}
+        <RatingSubmissionDialog
+          open={showRatingDialog}
+          onOpenChange={setShowRatingDialog}
+          targetId={listing?.id || otherUser.id}
+          targetType={listing?.id ? 'listing' : 'user'}
+          targetName={listing?.title || otherUser.full_name}
+          categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'}
+          onSuccess={() => setShowRatingDialog(false)}
+        />
       </div>
     </>
   );

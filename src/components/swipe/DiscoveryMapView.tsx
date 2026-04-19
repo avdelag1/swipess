@@ -5,12 +5,11 @@
  * 1. Balanced Center Hud: Shifted KM selects and Category Matrix to the horizontal center axis.
  * 2. Visual Breathing Room: Adjusted z-index and spacing for maximum document momentum.
  * 3. Liquid Glass Command Pill: Unified horizontal category rail at the bottom for thumb-reach ergonomics.
- * 4. REAL-TIME MARKERS: Now fetches and renders live markers for listings & clients.
  */
 
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Navigation, RefreshCw, ArrowLeft, Layers, Sparkles, MapPin, ChevronRight, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Navigation, RefreshCw, ArrowLeft, Layers, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -22,8 +21,6 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useFilterStore } from '@/state/filterStore';
 import { useTheme } from '@/hooks/useTheme';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
 
 export const DiscoveryMapView = memo(({ 
   category, 
@@ -58,50 +55,9 @@ export const DiscoveryMapView = memo(({
   const [localKm, setLocalKm] = useState(radiusKm || 1);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [mapStyle, setMapStyle] = useState<'streets' | 'satellite'>(isEmbedded ? 'satellite' : 'streets');
-  const [selectedEntity, setSelectedEntity] = useState<any>(null);
 
   const tulumCenter: [number, number] = [20.2114, -87.4654];
   const currentCenter: [number, number] = userLatitude ? [userLatitude, userLongitude] : tulumCenter;
-
-  // 📡 DATA PIPELINE: Fetch nearby entities
-  const { data: entities = [] } = useQuery({
-    queryKey: ['radar-entities', mode, category, userLatitude, userLongitude, localKm],
-    queryFn: async () => {
-      if (mode === 'client') {
-        const { data, error } = await supabase
-          .from('listings')
-          .select('id, title, price, images, latitude, longitude, category, created_at')
-          .eq('status', 'active')
-          .eq('is_active', true)
-          .not('latitude', 'is', null)
-          .not('longitude', 'is', null)
-          .eq('category', category)
-          .limit(50);
-        
-        if (error) return [];
-        return data.map(item => ({ ...item, type: 'listing' }));
-      } else {
-        const { data, error } = await supabase
-            .from('client_profiles')
-            .select('user_id, name, age, gender, profile_images, latitude, longitude, city')
-            .not('latitude', 'is', null)
-            .not('longitude', 'is', null)
-            .limit(50);
-        
-        if (error) return [];
-        return data.map(item => ({ 
-            id: item.user_id, 
-            title: item.name, 
-            images: item.profile_images as string[], 
-            latitude: item.latitude, 
-            longitude: item.longitude, 
-            type: 'client',
-            metadata: { age: item.age, gender: item.gender }
-        }));
-      }
-    },
-    staleTime: 60000
-  });
 
   const handleRefresh = useCallback(() => {
     triggerHaptic('medium');
@@ -168,50 +124,7 @@ export const DiscoveryMapView = memo(({
     };
   }, []);
 
-  // 🛰️ marker Sync
-  useEffect(() => {
-    const map = mapInstance.current;
-    if (!map || !markersRef.current) return;
-
-    markersRef.current.clearLayers();
-
-    entities.forEach(entity => {
-        const iconColor = mode === 'client' ? '#EB4898' : '#3b82f6';
-        const iconHtml = `
-            <div class="relative group cursor-pointer active:scale-95 transition-transform" id="marker-${entity.id}">
-                <div class="absolute -inset-2 bg-black/40 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div class="w-10 h-10 rounded-2xl bg-white border-2 border-white shadow-3xl overflow-hidden relative z-10">
-                    <img src="${entity.images?.[0] || '/placeholder.svg'}" class="w-full h-full object-cover" />
-                    <div class="absolute inset-0 bg-black/10"></div>
-                    <div class="absolute bottom-0 inset-x-0 h-1" style="background: ${iconColor}"></div>
-                </div>
-                <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white border-2 border-white flex items-center justify-center shadow-lg z-20">
-                   <div class="w-1.5 h-1.5 rounded-full" style="background: ${iconColor}"></div>
-                </div>
-            </div>
-        `;
-
-        const marker = L.marker([entity.latitude, entity.longitude], {
-            icon: L.divIcon({
-                className: 'nexus-marker',
-                html: iconHtml,
-                iconSize: [40, 40],
-                iconAnchor: [20, 20]
-            })
-        });
-
-        marker.on('click', (e) => {
-            L.DomEvent.stopPropagation(e);
-            triggerHaptic('medium');
-            setSelectedEntity(entity);
-            map.flyTo([entity.latitude, entity.longitude], 17, { animate: true, duration: 1 });
-        });
-
-        marker.addTo(markersRef.current!);
-    });
-  }, [entities, mode]);
-
-  // 🛰️ Sync Overlays
+  // 🛰️ Sync Overlays & Layer Swap
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || !radarCircle.current) return;
@@ -224,7 +137,14 @@ export const DiscoveryMapView = memo(({
     
     const zoomLevel = localKm === 1 ? 14.5 : localKm === 5 ? 12.8 : localKm === 25 ? 10.8 : 8.8;
     map.flyTo(currentCenter, zoomLevel, { animate: true, duration: 1.4 });
-  }, [localKm, currentCenter]);
+
+    const tileUrl = mapStyle === 'satellite' 
+        ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+        : isLight 
+            ? lightTiles : darkTiles; // reused constants
+    
+    // Logic for layer refresh...
+  }, [localKm, mapStyle, currentCenter, isLight]);
 
   const detectLocation = useCallback(() => {
     if (!navigator.geolocation) return;
@@ -298,59 +218,9 @@ export const DiscoveryMapView = memo(({
           </div>
       </div>
 
-      {/* 🛸 ENTITY OVERLAY GLASS */}
-      <AnimatePresence>
-        {selectedEntity && (
-            <motion.div
-                initial={{ opacity: 0, y: 100, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 100, scale: 0.9 }}
-                className="absolute bottom-[110px] inset-x-6 z-[3000] flex justify-center pointer-events-none"
-            >
-                <div className={cn(
-                    "w-full max-w-[360px] p-4 rounded-[2.5rem] border backdrop-blur-3xl shadow-[0_40px_100px_rgba(0,0,0,0.6)] pointer-events-auto flex items-center gap-5",
-                    isLight ? "bg-white/95 border-black/5" : "bg-black/95 border-white/10"
-                )}>
-                    <div className="w-24 h-24 rounded-[1.8rem] overflow-hidden shadow-2xl flex-shrink-0">
-                        <img src={selectedEntity.images?.[0] || '/placeholder.svg'} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]">Discovered</span>
-                            <button onClick={() => setSelectedEntity(null)} className="p-1 opacity-20 hover:opacity-100 transition-opacity">
-                                <X className="w-4 h-4" />
-                            </button>
-                        </div>
-                        <h4 className={cn("text-[15px] font-black uppercase italic tracking-tighter truncate", isLight ? "text-black" : "text-white")}>
-                            {selectedEntity.title}
-                        </h4>
-                        <div className="flex items-center gap-2">
-                           {mode === 'client' ? (
-                               <span className="text-sm font-black text-emerald-500 italic">${selectedEntity.price}</span>
-                           ) : (
-                               <span className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{selectedEntity.metadata?.age} • {selectedEntity.metadata?.gender}</span>
-                           )}
-                           <span className="w-1 h-1 rounded-full bg-white/10" />
-                           <span className={cn("text-[10px] font-bold uppercase tracking-widest opacity-40")}>{selectedEntity.type}</span>
-                        </div>
-                        <button 
-                          onClick={() => { triggerHaptic('heavy'); onStartSwiping?.(); }}
-                          className="w-full h-10 mt-2 rounded-2xl bg-[#EB4898]/10 text-[#EB4898] text-[10px] font-black uppercase italic tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-[#EB4898]/20 pointer-events-auto"
-                        >
-                            View Protocol <ChevronRight className="w-4 h-4" />
-                        </button>
-                    </div>
-                </div>
-            </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 🛸 BOTTOM COMMAND: CATEGORY MATRIX */}
-      <div className="absolute bottom-[130px] inset-x-0 z-[2010] flex justify-center px-10 pointer-events-none">
-          {!selectedEntity && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className={cn(
+      {/* 🛸 CENTER COMMAND: CATEGORY MATRIX (Now Unified at Bottom-Middle) */}
+      <div className="absolute bottom-[110px] inset-x-0 z-[2010] flex justify-center px-10 pointer-events-none">
+          <div className={cn(
              "p-2 rounded-[2.5rem] flex items-center gap-3 shadow-[0_20px_60px_rgba(0,0,0,0.4)] pointer-events-auto border transition-all backdrop-blur-3xl overflow-x-auto no-scrollbar",
              isLight ? "bg-white/90 border-black/5" : "bg-black/90 border-white/10"
           )}>
@@ -374,14 +244,13 @@ export const DiscoveryMapView = memo(({
                       <span className="text-[10px] font-black uppercase tracking-widest italic">{cat.label}</span>
                   </button>
               ))}
-          </motion.div>
-          )}
+          </div>
       </div>
 
       <div id="map-container" ref={mapContainerRef} className="absolute inset-0 w-full h-full z-0" />
 
       {/* 📡 SCAN TRIGGER */}
-      <div className="absolute bottom-[40px] inset-x-0 z-[2000] flex justify-center px-10 pointer-events-none">
+      <div className="absolute bottom-[32px] inset-x-0 z-[2000] flex justify-center px-10 pointer-events-none">
         <button 
           onClick={handleRefresh} 
           className={cn(
@@ -405,10 +274,6 @@ export const DiscoveryMapView = memo(({
           0%, 100% { stroke-opacity: 0.8; stroke-width: 2; fill-opacity: 0.1; }
           50% { stroke-opacity: 0.2; stroke-width: 4; fill-opacity: 0.05; }
         }
-        .nexus-marker { 
-            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1); 
-        }
-        .nexus-marker:hover { transform: scale(1.15) translateY(-5px) !important; z-index: 1000 !important; }
       `}} />
     </motion.div>
   );

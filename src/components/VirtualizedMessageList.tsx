@@ -1,8 +1,6 @@
 import { memo, useRef, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
-import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface MessageType {
   id: string;
@@ -31,63 +29,84 @@ interface VirtualizedMessageListProps {
   typingUsers: TypingUser[];
 }
 
+// iOS-style message bubble colors based on conversation type
+const getBubbleColors = (otherUserRole: string, isMyMessage: boolean) => {
+  if (!isMyMessage) {
+    return {
+      background: 'bg-[#3A3A3C]',
+      text: 'text-white',
+      timestamp: 'text-white/50'
+    };
+  }
+
+  if (otherUserRole === 'owner') {
+    return {
+      background: 'bg-gradient-to-br from-[#8B5CF6] to-[#6366F1]',
+      text: 'text-white',
+      timestamp: 'text-white/60'
+    };
+  } else {
+    return {
+      background: 'bg-gradient-to-br from-[#007AFF] to-[#5856D6]',
+      text: 'text-white',
+      timestamp: 'text-white/60'
+    };
+  }
+};
+
+// Memoized message bubble
 const MessageBubble = memo(({ 
   message, 
   isMyMessage, 
-  otherUserRole: _otherUserRole 
+  otherUserRole 
 }: { 
   message: MessageType; 
   isMyMessage: boolean; 
   otherUserRole: string;
 }) => {
+  const colors = getBubbleColors(otherUserRole, isMyMessage);
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95, x: isMyMessage ? 10 : -10 }}
-      animate={{ opacity: 1, scale: 1, x: 0 }}
-      className={cn("flex mb-2 px-6", isMyMessage ? 'justify-end' : 'justify-start')}
-    >
+    <div className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'} mb-1 px-4`}>
       <div
-        className={cn(
-          "max-w-[85%] px-5 py-3.5 shadow-2xl transition-all relative",
+        className={`max-w-[75%] px-4 py-2.5 ${colors.background} ${colors.text} ${
           isMyMessage
-            ? "bg-gradient-to-br from-[#EB4898] via-[#FF1493] to-orange-500 text-white rounded-[1.8rem] rounded-br-[0.4rem] shadow-[#EB4898]/20"
-            : "bg-white/[0.04] backdrop-blur-3xl border border-white/[0.08] text-white rounded-[1.8rem] rounded-bl-[0.4rem]"
-        )}
+            ? 'rounded-[20px] rounded-br-[6px]'
+            : 'rounded-[20px] rounded-bl-[6px]'
+        } shadow-sm`}
       >
-        <p className="text-[14px] font-bold break-words whitespace-pre-wrap leading-relaxed tracking-tight">
+        <p className="text-[15px] break-words whitespace-pre-wrap leading-[1.35]">
           {message.message_text}
         </p>
-        <div className={cn(
-            "text-[8px] mt-2 font-black uppercase tracking-widest opacity-30 text-right italic",
-            isMyMessage ? "text-white/80" : "text-white/40"
-        )}>
+        <p className={`text-[10px] mt-1 ${colors.timestamp} text-right`}>
           {formatDistanceToNow(new Date(message.created_at), { addSuffix: false })}
-        </div>
+        </p>
       </div>
-    </motion.div>
+    </div>
   );
 });
 
 MessageBubble.displayName = 'MessageBubble';
 
+// Typing indicator
 const TypingIndicator = memo(() => (
-  <motion.div 
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="flex justify-start items-end gap-2 mt-4 px-6 pb-4"
-  >
-    <div className="px-5 py-4 bg-white/[0.04] backdrop-blur-3xl border border-white/[0.08] rounded-[1.8rem] rounded-bl-[0.4rem]">
-      <div className="flex items-center gap-1.5">
-        <span className="w-1.5 h-1.5 bg-[#EB4898] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-        <span className="w-1.5 h-1.5 bg-[#EB4898] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-        <span className="w-1.5 h-1.5 bg-[#EB4898] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+  <div className="flex justify-start items-end gap-2 mt-1 px-4">
+    <div className="px-4 py-3 bg-[#3A3A3C] rounded-[20px] rounded-bl-[6px]">
+      <div className="flex items-center gap-1">
+        <span className="w-2 h-2 bg-[#8E8E93] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+        <span className="w-2 h-2 bg-[#8E8E93] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+        <span className="w-2 h-2 bg-[#8E8E93] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
       </div>
     </div>
-  </motion.div>
+  </div>
 ));
 
 TypingIndicator.displayName = 'TypingIndicator';
 
+/**
+ * Virtualized message list - only renders visible messages
+ * Maintains 60fps scrolling even with 500+ messages
+ */
 export const VirtualizedMessageList = memo(({
   messages,
   currentUserId,
@@ -99,10 +118,11 @@ export const VirtualizedMessageList = memo(({
   const virtualizer = useVirtualizer({
     count: messages.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 70, 
-    overscan: 12,
+    estimateSize: () => 60, // Estimated message height
+    overscan: 10, // Render 10 extra items for smooth scrolling
   });
 
+  // Auto-scroll to bottom on new messages
   useEffect(() => {
     if (messages.length > 0) {
       virtualizer.scrollToIndex(messages.length - 1, {
@@ -121,8 +141,8 @@ export const VirtualizedMessageList = memo(({
   return (
     <div
       ref={parentRef}
-      className="flex-1 overflow-y-auto py-6 space-y-2 no-scrollbar"
-      style={{ contain: 'strict', backgroundColor: 'transparent' }}
+      className="flex-1 overflow-y-auto py-3 bg-background"
+      style={{ contain: 'strict' }}
     >
       <div
         style={{
@@ -161,9 +181,8 @@ export const VirtualizedMessageList = memo(({
         </div>
       </div>
       
-      <AnimatePresence>
-        {typingUsers.length > 0 && <TypingIndicator />}
-      </AnimatePresence>
+      {/* Typing indicator at bottom */}
+      {typingUsers.length > 0 && <TypingIndicator />}
     </div>
   );
 });

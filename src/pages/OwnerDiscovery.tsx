@@ -41,7 +41,7 @@ export default function OwnerDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, any>>({});
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
-  const [showMapView, setShowMapView] = useState(true);
+  const [showMapView, setShowMapView] = useState(false);
   const startConversation = useStartConversation();
 
   const clientFilters: ClientFilters | undefined = useMemo(() => {

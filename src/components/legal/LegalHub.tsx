@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ShieldCheck, PenTool, CheckCircle2, Cloud,
+  FileText, ShieldCheck, PenTool, CheckCircle2, 
   Clock, Plus, ChevronRight, X, Sparkles,
-  ArrowRight, Download, Activity, FileText
+  ArrowRight, Search, Filter, Download
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ownerTemplates, clientTemplates, ContractTemplate } from '@/data/contractTemplates';
@@ -15,14 +15,11 @@ import { uiSounds } from '@/utils/uiSounds';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useTheme } from '@/hooks/useTheme';
 
 type HubView = 'dashboard' | 'browse' | 'editor' | 'signing';
 
 export function LegalHub() {
   const { user } = useAuth();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
   const [view, setView] = useState<HubView>('dashboard');
   const [contracts, setContracts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,254 +61,260 @@ export function LegalHub() {
   };
 
   const handleClose = () => {
-    triggerHaptic('light');
     setView('dashboard');
     setSelectedTemplate(null);
     setActiveContract(null);
   };
 
   return (
-    <div className={cn(
-        "relative min-h-[85vh] w-full backdrop-blur-3xl rounded-[3.5rem] border overflow-hidden shadow-3xl transition-colors duration-500",
-        isLight ? "bg-black/5 border-black/10" : "bg-white/[0.02] border-white/5"
-    )}>
-      
-      {/* 🛸 HUD DECOR */}
-      <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[40%] bg-indigo-500/10 blur-[130px] rounded-full" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[40%] bg-[#EB4898]/10 blur-[110px] rounded-full" />
+    <div className="relative min-h-[80vh] w-full bg-background/50 backdrop-blur-3xl rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl">
+      {/* Background Decor */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2" />
 
-      {/* 🛸 MEGA-HEADER */}
-      <div className={cn("relative z-10 p-10 flex items-center justify-between border-b transition-colors", isLight ? "border-black/5" : "border-white/5")}>
-        <div className="flex items-center gap-6">
-          <div className="w-16 h-16 rounded-[1.4rem] bg-[#EB4898] flex items-center justify-center shadow-3xl">
-            <ShieldCheck className="w-8 h-8 text-white" />
+      {/* Header */}
+      <div className="relative z-10 p-8 flex items-center justify-between border-b border-white/5">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+            <ShieldCheck className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h2 className={cn("text-2xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>Legal Integrity Hub</h2>
-            <div className="flex items-center gap-3 mt-2">
-               <div className="w-1.5 h-1.5 rounded-full bg-[#EB4898] animate-pulse" />
-               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Operational Matrix v14.0</p>
-            </div>
+            <h2 className="text-xl font-black text-white tracking-tight">Legal Integrity Center</h2>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">Secured Digital Protocols v2.0</p>
           </div>
         </div>
         
         {view !== 'dashboard' && (
-          <Button onClick={handleClose} variant="ghost" className={cn("rounded-full w-14 h-14 p-0 transition-all", isLight ? "bg-black/5 hover:bg-black/10" : "bg-white/5 hover:bg-white/10")}>
-            <X className={cn("w-6 h-6", isLight ? "text-black" : "text-white")} />
+          <Button variant="ghost" onClick={handleClose} className="rounded-full w-10 h-10 p-0 hover:bg-white/5">
+            <X className="w-5 h-5 text-white/40" />
           </Button>
         )}
       </div>
 
-      <div className="relative z-10 p-10 h-[calc(85vh-120px)] overflow-y-auto no-scrollbar">
+      <div className="relative z-10 p-8 h-[calc(80vh-100px)] overflow-y-auto custom-scrollbar">
         <AnimatePresence mode="wait">
           {view === 'dashboard' && (
-            <motion.div key="dashboard" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-12">
-              
-              {/* 🛸 DRAFT TERMINAL */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <motion.div 
+              key="dashboard"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-8"
+            >
+              {/* Stats & Actions */}
+              <div className="grid grid-cols-2 gap-4">
                 <Button 
                   onClick={handleCreateNew}
-                  className="h-44 rounded-[3rem] bg-[#EB4898] hover:bg-[#EB4898]/90 flex flex-col items-center justify-center gap-5 transition-all hover:scale-[1.02] active:scale-95 shadow-[0_30px_60px_-15px_rgba(235,72,152,0.4)]"
+                  className="h-40 rounded-[2.5rem] bg-primary hover:bg-primary/90 flex flex-col items-center justify-center gap-4 transition-all hover:scale-[1.02] active:scale-95 shadow-[0_20px_40px_-15px_rgba(244,63,94,0.3)]"
                 >
-                  <div className="w-16 h-16 rounded-[1.4rem] bg-white/20 flex items-center justify-center border border-white/10">
-                    <Plus className="w-8 h-8 text-white" />
+                  <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center">
+                    <Plus className="w-7 h-7 text-white" />
                   </div>
-                  <span className="text-[11px] font-black uppercase tracking-[0.3em] italic">Initialize Protocol</span>
+                  <span className="text-xs font-black uppercase tracking-[0.2em]">Draft New Contract</span>
                 </Button>
 
-                <div className={cn("p-10 rounded-[3rem] border flex flex-col justify-between backdrop-blur-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.03] border-white/5")}>
+                <div className="p-8 rounded-[2.5rem] bg-white/5 border border-white/10 flex flex-col justify-between">
                   <div>
-                    <h4 className={cn("text-[10px] font-black uppercase tracking-[0.45em] mb-3 italic opacity-40", isLight ? "text-black" : "text-white")}>Awaiting Action</h4>
-                    <p className={cn("text-5xl font-black italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-white/30 mb-1">Awaiting Action</h4>
+                    <p className="text-3xl font-black text-white">
                       {contracts.filter(c => c.status === 'sent' && !c.client_signature).length}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3 mt-8">
-                    <Activity className="w-4 h-4 text-[#EB4898] animate-pulse" />
-                    <span className={cn("text-[9px] font-black uppercase tracking-widest italic opacity-40 leading-none", isLight ? "text-black" : "text-white")}>Matrix Sync Nominal</span>
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-400">
+                    <Clock className="w-3 h-3" />
+                    <span>Real-time Syncing</span>
                   </div>
                 </div>
               </div>
 
-              {/* 🛸 ASSET VAULT */}
-              <div className="space-y-6">
-                <div className="flex items-center gap-4 px-4">
-                  <span className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-40", isLight ? "text-black" : "text-white")}>Identity Vault</span>
-                  <div className={cn("h-[1px] flex-1", isLight ? "bg-black/5" : "bg-white/10")} />
+              {/* Recent Active Documents */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between px-2">
+                  <h3 className="text-sm font-black text-white tracking-widest uppercase opacity-40">Active Vault</h3>
+                  <Download className="w-4 h-4 text-white/20" />
                 </div>
 
                 {loading ? (
-                  <div className="space-y-4">
-                    <Skeleton className="h-28 w-full rounded-[2.5rem] bg-white/5" />
-                    <Skeleton className="h-28 w-full rounded-[2.5rem] bg-white/5" />
-                  </div>
+                  Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-3xl bg-white/5" />)
                 ) : contracts.length === 0 ? (
-                  <div className={cn("p-20 text-center rounded-[3rem] border border-dashed border-white/10", isLight ? "bg-black/[0.02]" : "bg-white/[0.01]")}>
-                    <Cloud className="w-16 h-16 text-white/5 mx-auto mb-6" />
-                    <p className={cn("text-[11px] font-black uppercase tracking-[0.4em] opacity-20 italic", isLight ? "text-black" : "text-white")}>No synchronized records in the vault</p>
+                  <div className="p-12 text-center rounded-[2rem] border border-dashed border-white/5 bg-white/[0.02]">
+                    <FileText className="w-12 h-12 text-white/5 mx-auto mb-4" />
+                    <p className="text-xs font-black text-white/20 uppercase tracking-widest">No legal records found</p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {contracts.map((contract, i) => (
-                      <motion.div
-                        key={contract.id}
-                        initial={{ opacity: 0, x: -30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.1, duration: 0.5 }}
-                        className={cn(
-                          "group p-8 rounded-[2.8rem] border transition-all flex items-center justify-between",
-                          isLight ? "bg-black/[0.02] border-black/5 hover:border-black/20" : "bg-white/[0.03] border-white/5 hover:border-[#EB4898]/40"
-                        )}
-                      >
-                        <div className="flex items-center gap-8">
-                          <div className="w-16 h-16 rounded-[1.2rem] bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center group-hover:bg-[#EB4898] group-hover:border-white/20 transition-all duration-500">
-                             <FileText className={cn("w-7 h-7 transition-colors", isLight ? "text-indigo-500" : "text-indigo-400 group-hover:text-white")} />
-                          </div>
-                          <div>
-                            <h4 className={cn("text-lg font-black uppercase italic tracking-tighter transition-colors", isLight ? "text-black" : "text-white group-hover:text-white")}>{contract.title}</h4>
-                            <div className="flex items-center gap-4 mt-2">
-                               <span className={cn(
-                                 "text-[8px] font-black uppercase px-3 py-1 rounded-full border tracking-widest italic",
-                                 contract.status === 'signed' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" :
-                                 contract.status === 'sent' ? "bg-amber-500/10 border-amber-500/20 text-amber-500" :
-                                 "bg-white/5 border-white/10 text-white/40"
-                               )}>
-                                 {contract.status}
-                               </span>
-                               <span className={cn("text-[9px] font-black uppercase tracking-widest opacity-20 italic", isLight ? "text-black" : "text-white")}>{new Date(contract.updated_at).toLocaleDateString()}</span>
-                            </div>
+                  contracts.map((contract, i) => (
+                    <motion.div
+                      key={contract.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="group p-5 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/20 transition-all flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/20 transition-colors">
+                          <FileText className="w-6 h-6 text-white/40 group-hover:text-primary transition-colors" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-black text-white group-hover:text-primary transition-colors">{contract.title}</h4>
+                          <div className="flex items-center gap-3">
+                            <span className={cn(
+                              "text-[8px] font-black uppercase px-2 py-0.5 rounded-full border",
+                              contract.status === 'signed' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" :
+                              contract.status === 'sent' ? "bg-amber-500/10 border-amber-500/20 text-amber-500" :
+                              "bg-white/5 border-white/10 text-white/40"
+                            )}>
+                              {contract.status}
+                            </span>
+                            <span className="text-[9px] font-medium text-white/20">Updated {new Date(contract.updated_at).toLocaleDateString()}</span>
                           </div>
                         </div>
-                        <Button
-                          onClick={() => handleStartSigning(contract)}
-                          className={cn(
-                            "h-14 px-8 rounded-2xl text-[10px] font-black uppercase tracking-widest italic transition-all",
-                            isLight ? "bg-black text-white" : "bg-white/10 text-white group-hover:bg-[#EB4898]"
-                          )}
-                        >
-                          ACCESS <ChevronRight className="w-4 h-4 ml-2" />
-                        </Button>
-                      </motion.div>
-                    ))}
-                  </div>
+                      </div>
+                      
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleStartSigning(contract)}
+                        className="rounded-xl h-10 px-4 bg-white/5 hover:bg-primary text-[10px] font-black uppercase tracking-widest"
+                      >
+                        {contract.status === 'signed' ? 'View' : 'Open'}
+                        <ChevronRight className="w-3 h-3 ml-2" />
+                      </Button>
+                    </motion.div>
+                  ))
                 )}
               </div>
             </motion.div>
           )}
 
           {view === 'browse' && (
-            <motion.div key="browse" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }} className="space-y-10">
-               <div className="flex flex-col gap-2">
-                  <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Protocol Matrix</h3>
-                  <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Select a verified legal framework</p>
-               </div>
-               
-               <div className="grid grid-cols-1 gap-4">
-                 {[...ownerTemplates, ...clientTemplates].map((template, i) => (
-                   <motion.button
-                     key={template.id}
-                     initial={{ opacity: 0, y: 15 }}
-                     animate={{ opacity: 1, y: 0 }}
-                     transition={{ delay: i * 0.05 }}
-                     onClick={() => handleSelectTemplate(template)}
-                     className={cn(
-                       "group relative p-8 rounded-[2.8rem] border transition-all text-left overflow-hidden active:scale-[0.98]",
-                       isLight ? "bg-black/[0.03] border-black/5 hover:border-black/20" : "bg-white/[0.03] border-white/5 hover:border-indigo-500/40 shadow-3xl"
-                     )}
-                   >
-                     <div className="relative flex items-center gap-8">
-                        <div className="w-16 h-16 rounded-[1.2rem] bg-indigo-500 flex items-center justify-center shrink-0 shadow-2xl transition-transform group-hover:scale-110">
-                           <PenTool className="w-8 h-8 text-white" />
-                        </div>
-                        <div className="flex-1">
-                           <h4 className={cn("text-lg font-black uppercase italic tracking-tighter transition-colors", isLight ? "text-black" : "text-white group-hover:text-indigo-400")}>{template.name}</h4>
-                           <p className={cn("text-[11px] font-bold italic opacity-30 leading-relaxed max-w-sm mt-1 mb-2", isLight ? "text-black" : "text-white")}>{template.description}</p>
-                           <span className="text-[9px] font-black uppercase tracking-[0.3em] text-indigo-500 italic">Encrypted Framework</span>
-                        </div>
-                        <ArrowRight className="w-6 h-6 text-white/10 group-hover:text-indigo-500 group-hover:translate-x-2 transition-all duration-500" />
-                     </div>
-                   </motion.button>
-                 ))}
-               </div>
+            <motion.div 
+              key="browse"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="space-y-6"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-black text-white uppercase tracking-widest">Protocol Templates</h3>
+                <div className="flex gap-2">
+                  <Badge className="bg-primary/20 text-primary border-primary/20">Properties</Badge>
+                  <Badge variant="outline" className="opacity-40">Vehicles</Badge>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                {[...ownerTemplates, ...clientTemplates].map((template, i) => (
+                  <motion.button
+                    key={template.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    onClick={() => handleSelectTemplate(template)}
+                    className="group relative p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-left overflow-hidden active:scale-[0.98]"
+                  >
+                    {/* Animated Hover Background */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    
+                    <div className="relative flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <PenTool className="w-6 h-6 text-white/20 group-hover:text-primary transition-colors" />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <h4 className="text-sm font-black text-white uppercase tracking-wider">{template.name}</h4>
+                        <p className="text-[11px] text-white/40 font-medium leading-relaxed">{template.description}</p>
+                      </div>
+                      <ArrowRight className="w-5 h-5 text-white/10 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
             </motion.div>
           )}
 
           {view === 'editor' && (
-            <motion.div key="editor" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
-               <div className={cn("p-12 rounded-[3.5rem] border backdrop-blur-3xl space-y-12", isLight ? "bg-black/5 border-black/5 text-black" : "bg-white/[0.03] border-white/5 text-white")}>
-                  <div className="flex items-center gap-4 mb-2">
-                    <Sparkles className="w-7 h-7 text-[#EB4898] animate-pulse" />
-                    <h3 className="text-2xl font-black uppercase italic tracking-tighter">AI Consensus Logic</h3>
+            <motion.div 
+              key="editor"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-8"
+            >
+               <div className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 space-y-8">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/40">AI Protocol Generation</span>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div className="space-y-3 col-span-full">
-                       <label className="text-[10px] font-black uppercase tracking-[0.3em] italic opacity-40 ml-4">Protocol Identification</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2 col-span-full">
+                       <label className="text-[10px] font-black uppercase text-white/40 tracking-[0.2em] ml-1">Document Title</label>
                        <input 
                          type="text" 
                          defaultValue={selectedTemplate?.name}
-                         className={cn(
-                            "w-full h-18 rounded-[2rem] border px-8 text-lg font-black uppercase italic tracking-tighter outline-none transition-all",
-                            isLight ? "bg-white/50 border-black/5" : "bg-black/40 border-white/10 focus:border-[#EB4898]"
-                         )}
+                         className="w-full h-14 rounded-2xl bg-white/5 border border-white/10 px-6 text-sm text-white focus:border-primary outline-none transition-all font-black uppercase tracking-widest"
                        />
                     </div>
 
-                    <div className="space-y-3">
-                       <label className="text-[10px] font-black uppercase tracking-[0.3em] italic opacity-40 ml-4">Verification Date</label>
-                       <input type="date" className={cn("w-full h-18 rounded-[2rem] border px-8 font-black uppercase tracking-widest outline-none", isLight ? "bg-white/50 border-black/5" : "bg-black/40 border-white/10")} />
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-white/40 tracking-[0.2em] ml-1">Effective Date</label>
+                       <input type="date" className="w-full h-14 rounded-2xl bg-white/5 border border-white/10 px-6 text-sm text-white outline-none" />
                     </div>
 
                     {selectedTemplate?.category === 'lease' && (
-                      <div className="space-y-3">
-                         <label className="text-[10px] font-black uppercase tracking-[0.3em] italic opacity-40 ml-4">Matrix Rate (Monthly)</label>
-                         <input type="number" placeholder="$0.00" className={cn("w-full h-18 rounded-[2rem] border px-8 font-black uppercase tracking-widest outline-none", isLight ? "bg-white/50 border-black/5" : "bg-black/40 border-white/10")} />
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-black uppercase text-white/40 tracking-[0.2em] ml-1">Monthly Rent</label>
+                         <input type="number" placeholder="$0.00" className="w-full h-14 rounded-2xl bg-white/5 border border-white/10 px-6 text-sm text-white outline-none" />
                       </div>
                     )}
 
-                    <div className="space-y-3 col-span-full">
-                       <label className="text-[10px] font-black uppercase tracking-[0.3em] italic opacity-40 ml-4">Authorized Entity (Email/User_ID)</label>
-                       <input type="text" placeholder="QUERY ENTITY HUB..." className={cn("w-full h-18 rounded-[2rem] border px-8 font-black uppercase tracking-widest outline-none transition-all", isLight ? "bg-white/50 border-black/5" : "bg-black/40 border-white/10 focus:border-[#EB4898]")} />
+                    <div className="space-y-2 col-span-full">
+                       <label className="text-[10px] font-black uppercase text-white/40 tracking-[0.2em] ml-1">Counterparty (Email/ID)</label>
+                       <input type="text" placeholder="Search verified users..." className="w-full h-14 rounded-2xl bg-white/5 border border-white/10 px-6 text-sm text-white outline-none" />
                     </div>
                   </div>
                   
-                  <div className="p-8 rounded-[2.5rem] bg-[#EB4898]/5 border border-[#EB4898]/20 flex items-start gap-6">
-                    <ShieldCheck className="w-8 h-8 text-[#EB4898] flex-shrink-0 mt-1" />
-                    <p className="text-[12px] text-[#EB4898] leading-relaxed font-black italic uppercase tracking-widest">
-                      Legal Integrity Hub v14 confirms cryptographic non-repudiation. Total encryption hash will be computed upon execution.
+                  <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10 flex items-start gap-4">
+                    <ShieldCheck className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                    <p className="text-[11px] text-primary/80 leading-relaxed font-bold">
+                      Swipess Legal Trust v2.0 ensures this document is non-repudiable once signed. 
+                      Biometric data will be attached to the final cryptographic hash.
                     </p>
                   </div>
                </div>
 
                <Button 
-                 onClick={() => { triggerHaptic('success'); toast.success('Protocol Synthesized'); setView('dashboard'); }}
-                 className="w-full h-20 rounded-[2.5rem] bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase italic tracking-[0.3em] text-[13px] shadow-3xl shadow-emerald-500/30 transition-all hover:scale-[1.01]"
+                 onClick={() => {
+                   toast.success('Legal Draft Synthesized');
+                   setView('dashboard');
+                 }}
+                 className="w-full h-16 rounded-[2rem] bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase tracking-[0.25em] text-[11px] shadow-[0_20px_40px_rgba(16,185,129,0.2)] transition-all hover:scale-[1.01]"
                >
-                 Execute Final Protocol Draft
-                 <CheckCircle2 className="w-5 h-5 ml-4" />
+                 Initialize Protocol Draft
+                 <CheckCircle2 className="w-4 h-4 ml-3" />
                </Button>
             </motion.div>
           )}
 
           {view === 'signing' && (
-            <motion.div key="signing" initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} className="space-y-12">
-              {/* Cinematic Preview */}
-              <div className={cn(
-                "relative p-12 rounded-[3.5rem] border shadow-inner h-[400px] overflow-y-auto no-scrollbar pointer-events-none opacity-90 blur-[1.2px] grayscale transition-colors",
-                isLight ? "bg-white border-black/20" : "bg-black border-white/10"
-              )}>
-                <div className={isLight ? "text-black" : "text-white"} dangerouslySetInnerHTML={{ __html: activeContract?.content || (selectedTemplate?.content || '') }} />
-                <div className={cn("absolute inset-0 bg-gradient-to-t via-transparent to-transparent", isLight ? "from-white" : "from-black")} />
+            <motion.div 
+              key="signing"
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="space-y-10"
+            >
+              {/* Immersive Doc Preview */}
+              <div className="relative p-8 rounded-[3rem] bg-white border border-white/10 shadow-inner h-96 overflow-y-auto no-scrollbar pointer-events-none opacity-90 blur-[1px] grayscale">
+                <div dangerouslySetInnerHTML={{ __html: activeContract?.content || (selectedTemplate?.content || '') }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
               </div>
 
-              <div className="text-center space-y-4 px-10">
-                 <h3 className={cn("text-3xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>Liquid Authority Signature</h3>
-                 <p className={cn("text-[11px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Transmitting biometric cryptographic ink to the matrix</p>
+              <div className="text-center space-y-3 px-6">
+                 <h3 className="text-2xl font-black text-white tracking-tighter">Liquid Signature Protocol</h3>
+                 <p className="text-[11px] text-white/40 font-medium uppercase tracking-widest">Digital authenticity via cryptographic biometric ink</p>
               </div>
 
               <DigitalSignaturePad 
                 onSignatureCapture={(sig) => {
-                  toast.success('Authority Encrypted');
+                  toast.success('Signature Encrypted Successfully');
                   triggerHaptic('success');
                   setView('dashboard');
                 }}
@@ -321,11 +324,22 @@ export function LegalHub() {
         </AnimatePresence>
       </div>
 
-      {/* 🛸 HUD WATERMARK */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-20 pointer-events-none flex items-center gap-3">
-        <Activity className={cn("w-3 h-3 animate-pulse", isLight ? "text-black" : "text-white")} />
-        <span className={cn("text-[9px] font-black uppercase tracking-[0.6em] italic", isLight ? "text-black" : "text-white")}>Swipess Legal Trust Matrix v14.0</span>
+      {/* Footer Branding */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-20 pointer-events-none">
+        <span className="text-[9px] font-black uppercase tracking-[0.4em] text-white">Swipess Legal Trust Foundation</span>
       </div>
     </div>
+  );
+}
+
+function Badge({ children, className, variant = "secondary" }: any) {
+  return (
+    <span className={cn(
+      "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest",
+      variant === "secondary" ? "bg-white/5 text-white/40" : "bg-primary/10 text-primary border border-primary/20",
+      className
+    )}>
+      {children}
+    </span>
   );
 }

@@ -1,155 +1,254 @@
-import { useState } from "react";
+/** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { PageHeader } from "@/components/PageHeader";
 import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Shield, FileText, HelpCircle, Info, ChevronRight,
-  Scale, Volume2, Building2, Globe, Users, Activity, Sparkles
+  Scale, Volume2, Building2, Globe, Users
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
 import { BackgroundThemeSettings } from "@/components/BackgroundThemeSettings";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PWAInstallButton } from "@/components/PWAInstallButton";
 import { SwipessLogo } from "@/components/SwipessLogo";
-import { useTheme } from "@/hooks/useTheme";
-import { cn } from "@/lib/utils";
-import { triggerHaptic } from "@/utils/haptics";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
-const stagger = { staggerChildren: 0.05 };
+const stagger = { staggerChildren: 0.04 };
 const itemVariant = {
-  hidden: { opacity: 0, y: 15 },
-  visible: { opacity: 1, y: 0, transition: fastSpring },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: fastSpring },
 };
+
+type SettingsItem = {
+  icon: any;
+  label: string;
+  description: string;
+  bg: string;
+  section?: string;
+  route?: string;
+};
+
+type SettingsGroup = {
+  label: string;
+  items: SettingsItem[];
+};
+
+// settingsGroups is now built inside the component to support translations
 
 const OwnerSettings = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
 
-  const settingsGroups = [
+  const settingsGroups: SettingsGroup[] = [
     {
       label: t('settings.security'),
       items: [
-        { icon: Shield, label: t('settings.security'), description: t('settings.securityDesc'), bg: '#EB4898', section: 'security' },
-        { icon: Globe, label: t('settings.language'), description: t('settings.languageDesc'), bg: '#6366f1', section: 'language' },
-        { icon: Volume2, label: t('settings.preferences'), description: t('settings.preferencesDesc'), bg: '#orange-500', section: 'preferences' },
+        {
+          icon: Shield,
+          label: t('settings.security'),
+          description: t('settings.securityDesc'),
+          bg: 'linear-gradient(135deg, #064e3b, #10b981)',
+          section: 'security',
+        },
+        {
+          icon: Globe,
+          label: t('settings.language'),
+          description: t('settings.languageDesc'),
+          bg: 'linear-gradient(135deg, #3730a3, #818cf8)',
+          section: 'language',
+        },
+        {
+          icon: Volume2,
+          label: t('settings.preferences'),
+          description: t('settings.preferencesDesc'),
+          bg: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
+          section: 'preferences',
+        },
       ],
     },
     {
       label: t('settings.contracts'),
       items: [
-        { icon: Building2, label: 'Asset Matrix', description: 'Manage your property deployments', bg: '#06b6d4', route: '/owner/properties' },
-        { icon: FileText, label: t('settings.contracts'), description: t('settings.contractsDesc'), bg: '#f97316', route: '/owner/contracts' },
-        { icon: Scale, label: t('settings.legal'), description: t('settings.legalDesc'), bg: '#8b5cf6', route: '/owner/legal-services' },
+        {
+          icon: Building2,
+          label: t('settings.about'),
+          description: 'View, edit, and create your listings',
+          bg: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
+          route: '/owner/properties',
+        },
+        {
+          icon: FileText,
+          label: t('settings.contracts'),
+          description: t('settings.contractsDesc'),
+          bg: 'linear-gradient(135deg, #7c2d12, #f97316)',
+          route: '/owner/contracts',
+        },
+        {
+          icon: Scale,
+          label: t('settings.legal'),
+          description: t('settings.legalDesc'),
+          bg: 'linear-gradient(135deg, #312e81, #6366f1)',
+          route: '/owner/legal-services',
+        },
       ],
     },
     {
-      label: 'Network & Support',
+      label: t('settings.faq'),
       items: [
-        { icon: Users, label: "Partner Sync", description: "Collab with another owner entity", bg: '#db2777', route: '/partner/sync' },
-        { icon: HelpCircle, label: t('settings.faq'), description: t('settings.faqDesc'), bg: '#3b82f6', route: '/faq/owner' },
-        { icon: Info, label: t('settings.about'), description: t('settings.aboutDesc'), bg: '#4c1d95', route: '/about' },
+        {
+          icon: Users,
+          label: "Partner Sync",
+          description: "Invite a partner to find shared matches",
+          bg: 'linear-gradient(135deg, #db2777, #f472b6)',
+          route: '/partner/sync',
+        },
+        {
+          icon: HelpCircle,
+          label: t('settings.faq'),
+          description: t('settings.faqDesc'),
+          bg: 'linear-gradient(135deg, #164e63, #06b6d4)',
+          route: '/faq/owner',
+        },
+        {
+          icon: Info,
+          label: t('settings.about'),
+          description: t('settings.aboutDesc'),
+          bg: 'linear-gradient(135deg, #4c1d95, #a855f7)',
+          route: '/about',
+        },
+        {
+          icon: FileText,
+          label: t('settings.legalPage'),
+          description: t('settings.legalPageDesc'),
+          bg: 'linear-gradient(135deg, #78350f, #d97706)',
+          route: '/legal',
+        },
       ],
     },
   ];
 
-  if (activeSection) {
-      return (
-        <div className={cn("min-h-full w-full transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
-            <div className="w-full max-w-lg mx-auto p-6 pt-24 pb-48 relative z-10">
-                <PageHeader title={activeSection.toUpperCase()} showBack={true} onBack={() => { triggerHaptic('medium'); setActiveSection(null); }} />
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10 mt-10">
-                    {activeSection === 'security' && (
-                        <div className="space-y-12">
-                            <div className={cn("p-8 rounded-[2.8rem] border backdrop-blur-3xl shadow-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
-                                <AccountSecurity userRole="owner" />
-                            </div>
-                            <DeleteAccountSection />
-                        </div>
-                    )}
-                    {activeSection === 'language' && <LanguageToggle />}
-                    {activeSection === 'preferences' && (
-                        <div className="space-y-10">
-                            <BackgroundThemeSettings />
-                            <SwipeSoundSettings />
-                        </div>
-                    )}
-                </motion.div>
+  if (activeSection === 'security') {
+    return (
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-4 pb-32 bg-background">
+        <div className="max-w-3xl mx-auto">
+
+
+          <PageHeader title={t('settings.security')} subtitle={t('settings.securityDesc')} showBack={true} onBack={() => setActiveSection(null)} />
+
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6">
+            <div className="rounded-2xl overflow-hidden bg-card border border-border">
+              <CardContent className="p-6">
+                <AccountSecurity userRole="owner" />
+              </CardContent>
             </div>
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <h3 className="text-sm font-medium text-destructive">{t('settings.security')}</h3>
+                <p className="text-xs text-muted-foreground">{t('settings.securityDesc')}</p>
+              </div>
+              <DeleteAccountSection />
+            </div>
+          </motion.div>
         </div>
-      );
+      </div>
+    );
+  }
+
+  if (activeSection === 'language') {
+    return (
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-4 pb-32 bg-background">
+        <div className="max-w-3xl mx-auto">
+          <PageHeader title={t('settings.language')} subtitle={t('settings.languageDesc')} showBack={true} onBack={() => setActiveSection(null)} />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6">
+            <LanguageToggle />
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeSection === 'preferences') {
+    return (
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-4 pb-32 bg-background">
+        <div className="max-w-3xl mx-auto">
+
+
+          <PageHeader title={t('settings.preferences')} subtitle={t('settings.preferencesDesc')} showBack={true} onBack={() => setActiveSection(null)} />
+
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={fastSpring} className="space-y-6">
+            <BackgroundThemeSettings />
+            <SwipeSoundSettings />
+          </motion.div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className={cn("min-h-full w-full transition-colors duration-500 overflow-y-auto no-scrollbar", isLight ? "bg-white" : "bg-black")}>
-      
-      {/* 🛸 CINEMATIC AMBIENCE */}
-      <div className="fixed inset-0 pointer-events-none opacity-20">
-         <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[40%] bg-purple-600/30 blur-[130px] rounded-full" />
-         <div className="absolute bottom-[20%] right-[-10%] w-[50%] h-[40%] bg-indigo-500/30 blur-[110px] rounded-full" />
-      </div>
+    <div className="w-full min-h-full overflow-y-auto px-6 pt-4 pb-40 scrollbar-hide bg-background">
+      <div className="max-w-3xl mx-auto space-y-10">
+        <PWAInstallButton className="mb-2" />
 
-      <div className="w-full max-w-lg mx-auto p-6 pt-24 pb-48 space-y-12 relative z-10">
-        
-        <div className="space-y-3">
-           <div className="flex items-center gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-purple-500 italic">Owner Config</span>
-           </div>
-           <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>System Settings</h1>
-           <PWAInstallButton className="pt-2" />
-        </div>
+
 
         <motion.div
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: stagger } }}
-          className="space-y-12"
+          className="space-y-10"
         >
           {settingsGroups.map((group) => (
-            <motion.div key={group.label} variants={itemVariant} className="space-y-4">
-              <div className="flex items-center gap-4 px-2">
-                 <span className={cn("text-[10px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>{group.label}</span>
-                 <div className={cn("h-[1px] flex-1", isLight ? "bg-black/5" : "bg-white/10")} />
+            <motion.div key={group.label} variants={itemVariant} className="space-y-3">
+              {/* Section pill label */}
+              <div className="px-1 flex items-center gap-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{group.label}</span>
+                <div className="h-px flex-1 bg-gradient-to-r from-muted-foreground/20 to-transparent" />
               </div>
 
-              <div className={cn(
-                  "rounded-[3rem] overflow-hidden border shadow-3xl transition-all",
-                  isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/[0.08] backdrop-blur-3xl"
-              )}>
+              {/* Group card - Moscow style matte container */}
+              <div className="rounded-[32px] overflow-hidden bg-card/40 backdrop-blur-2xl border border-border shadow-2xl">
                 {group.items.map((item, idx) => (
                   <div key={item.label}>
-                    <button
+                    <motion.button
+                      whileHover={{ backgroundColor: "rgba(255,255,255,0.03)" }}
+                      whileTap={{ scale: 0.985 }}
                       onClick={() => {
-                        triggerHaptic('medium');
                         if (item.section) setActiveSection(item.section);
                         else if (item.route) navigate(item.route);
                       }}
-                      className="w-full flex items-center gap-6 py-6 px-8 transition-all text-left active:bg-black/5"
+                      className="w-full flex items-center gap-5 py-5 px-6 transition-all text-left"
                     >
+                      {/* iOS-style colored icon badge with depth */}
                       <div
-                        className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-2xl border border-white/10"
-                        style={{ backgroundColor: item.bg }}
+                        className="w-11 h-11 rounded-[14px] flex items-center justify-center flex-shrink-0 shadow-lg border border-white/10"
+                        style={{ background: item.bg }}
                       >
-                        <item.icon className="w-7 h-7 text-white" />
+                        <item.icon className="w-5 h-5 text-white shadow-sm" />
                       </div>
 
                       <div className="flex-1">
-                        <div className={cn("text-[16px] font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>{item.label}</div>
-                        <div className={cn("text-[10px] font-black uppercase tracking-widest mt-1 opacity-40 leading-relaxed", isLight ? "text-black" : "text-white")}>{item.description}</div>
+                        <div className="text-[15px] font-bold text-foreground/95 tracking-tight">{item.label}</div>
+                        <div className="text-[12px] text-muted-foreground font-medium mt-0.5 leading-relaxed">{item.description}</div>
                       </div>
 
-                      <ChevronRight className={cn("w-5 h-5 opacity-20", isLight ? "text-black" : "text-white")} />
-                    </button>
-                    {idx < group.items.length - 1 && <div className={cn("mx-8 h-[1px]", isLight ? "bg-black/5" : "bg-white/10")} />}
+                      <div className="flex items-center gap-2">
+                        {item.section && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
+                        )}
+                        <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      </div>
+                    </motion.button>
+
+                    {idx < group.items.length - 1 && (
+                      <div className="mx-6 h-px bg-border/50" />
+                    )}
                   </div>
                 ))}
               </div>
@@ -157,22 +256,24 @@ const OwnerSettings = () => {
           ))}
         </motion.div>
 
-        {/* 🛸 NEXUS FOOTER */}
-        <div className="flex flex-col items-center gap-6 pt-16">
-            <div className="w-16 h-16 rounded-[1.6rem] bg-black flex items-center justify-center shadow-2xl border border-white/10">
-               <SwipessLogo size="sm" />
+        {/* App Version - Elegant footer */}
+        <div className="text-center pt-10 pb-12">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="flex flex-col items-center gap-4"
+          >
+            <SwipessLogo size="md" className="transition-transform duration-500 hover:scale-110" />
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="flex items-center gap-2">
+                <span className="swipess-text text-xl font-black tracking-tighter text-foreground/80">Swipess</span>
+                <Badge variant="outline" className="text-[10px] font-black tracking-widest uppercase py-0.5 px-2 bg-brand-primary/10 border-brand-primary/20 text-brand-primary font-mono">v3.3.0</Badge>
+              </div>
+              <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.25em] opacity-40">Elite Discovery Engine</p>
             </div>
-            <div className="text-center space-y-2">
-               <div className="flex items-center justify-center gap-3">
-                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>Swipess</span>
-                  <div className="bg-purple-600/10 px-3 py-1 rounded-full border border-purple-600/20">
-                     <span className="text-[9px] font-black text-purple-600 uppercase tracking-widest font-mono">V3.3.1</span>
-                  </div>
-               </div>
-               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Property Authority Matrix • Elite Discovery</p>
-            </div>
+          </motion.div>
         </div>
-
       </div>
     </div>
   );
