@@ -105,7 +105,7 @@ export default function OwnerDiscovery() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="bg-background pb-2 pt-2 px-0 safe-top-padding">
+      <div className="pb-2 pt-2 px-0 safe-top-padding">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">

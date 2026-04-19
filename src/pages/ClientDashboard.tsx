@@ -67,7 +67,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const showSwipe = isSwiping;
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">
+    <div className="flex flex-col h-full w-full overflow-hidden relative">
       <AnimatePresence mode="popLayout">
         {showCards && (
           <motion.div
