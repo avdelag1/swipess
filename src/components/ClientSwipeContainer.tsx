@@ -44,6 +44,7 @@ import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
+import { DiscoveryMapView } from './swipe/DiscoveryMapView';
 
 // ── Distance Slider Component ─────────────────────────────────────────────────
 interface _DistanceSliderProps {
