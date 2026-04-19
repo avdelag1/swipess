@@ -205,7 +205,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   return (
     <div className={cn(
       "flex flex-col h-full w-full relative transition-colors duration-500",
-      (showMap || showSwipe) ? "bg-black" : (isLight ? "bg-white" : "bg-black")
+      isLight ? "bg-white" : "bg-black"
     )}>
       
       {/* 🛸 CINEMATIC ATMOSPHERE */}
@@ -245,7 +245,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="flex-1 w-full h-full flex flex-col items-stretch overflow-hidden bg-black"
+            className={cn("flex-1 w-full h-full flex flex-col items-stretch overflow-hidden", isLight ? 'bg-white' : 'bg-black')}
           >
             <DashboardMapCard className="flex-1 h-full w-full">
               <MapFilterChipRow mode="owner" onBack={handleMapBack} />

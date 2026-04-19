@@ -100,7 +100,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const showSwipe = isSwiping;
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden relative">
+    <div className={cn("flex flex-col h-full w-full overflow-hidden relative", theme === 'light' || theme === 'ivanna-style' ? 'bg-white' : 'bg-black')}>
       <AnimatePresence mode="wait">
         {showCards && (
           <motion.div
@@ -123,7 +123,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="flex-1 w-full h-full flex flex-col items-stretch overflow-hidden bg-black"
+            className={cn("flex-1 w-full h-full flex flex-col items-stretch overflow-hidden", theme === 'light' || theme === 'ivanna-style' ? 'bg-white' : 'bg-black')}
           >
             <DashboardMapCard className="flex-1 h-full w-full">
               <MapFilterChipRow mode="client" onBack={handleMapBack} />

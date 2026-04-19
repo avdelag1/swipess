@@ -430,7 +430,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className={cn(
-      "dashboard-root w-full h-full min-h-0 bg-background relative flex flex-col overflow-hidden",
+      "dashboard-root w-full h-full min-h-0 relative flex flex-col overflow-hidden",
+      (isImmersiveDashboard || location.pathname.includes('dashboard')) ? "bg-black" : "bg-background",
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
 
