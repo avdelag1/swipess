@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
-import { User, Megaphone, RefreshCw, Cpu, Activity } from 'lucide-react';
+import { User, Megaphone, RefreshCw, Cpu, Activity, Sparkles } from 'lucide-react';
 import { useModalStore } from '@/state/modalStore';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -23,6 +23,8 @@ import { triggerHaptic } from '@/utils/haptics';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -37,9 +39,16 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const [_insightsOpen, _setInsightsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
   
+  useEffect(() => {
+    const handleOpenFilters = () => setShowFilters(true);
+    window.addEventListener('open-owner-filters', handleOpenFilters);
+    return () => window.removeEventListener('open-owner-filters', handleOpenFilters);
+  }, []);
+  
   const activeCategory = useFilterStore(s => s.activeCategory);
   const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
   const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const modalStore = useModalStore();
   const { user, loading: isAuthLoading } = useAuth();
@@ -111,12 +120,21 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const handleCardSelect = useCallback((card: OwnerIntentCard) => {
     triggerHaptic('medium');
     const cat = (card.category || 'property') as QuickFilterCategory;
-    setActiveCategory(null);
+    
+    // Set in store to trigger query in ClientSwipeContainer
+    setCategories([cat]);
+    setActiveCategory(cat);
+    
     setMapCategory(cat);
     if (card.clientType) setClientType(card.clientType as any);
     if (card.listingType) setListingType(card.listingType as any);
+    
+    setPhase('swipe');
+  }, [setCategories, setActiveCategory, setClientType, setListingType]);
+
+  const handleExhaustedMap = useCallback(() => {
     setPhase('map');
-  }, [setClientType, setListingType, setActiveCategory]);
+  }, []);
 
   const handleMapBack = useCallback(() => {
     setMapCategory(null);
@@ -156,7 +174,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           </div>
           <div className="space-y-4">
             <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>Connection Lost</h2>
-            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting matrix re-sync.</p>
+            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting network re-sync.</p>
           </div>
           <Button 
             onClick={() => { triggerHaptic('medium'); window.location.reload(); }}
@@ -170,7 +188,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }
 
   return (
-    <div className={cn("flex flex-col h-full w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+    <div className="flex flex-col h-full w-full relative transition-colors duration-500">
       
       {/* 🛸 CINEMATIC ATMOSPHERE */}
       <div className="absolute inset-x-0 top-0 h-96 pointer-events-none opacity-20">
@@ -209,7 +227,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -30, scale: 0.98 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full h-full z-10"
+            className="flex-1 w-full relative z-10"
             style={{ willChange: 'transform, opacity' }}
           >
             <DiscoveryMapView
@@ -252,6 +270,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               onClientTap={handleClientTap}
               onInsights={handleInsights}
               onMessageClick={onMessageClick}
+              onExhaustedMap={handleExhaustedMap}
               profiles={clientProfiles}
               isLoading={isLoading}
               error={error}
@@ -284,6 +303,26 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         </motion.button>
       )}
 
+      <Sheet open={showFilters} onOpenChange={setShowFilters}>
+         <SheetContent side="bottom" className="h-[92vh] p-0 border-none bg-transparent overflow-hidden">
+            <div className="w-full h-full glass-morphism rounded-t-[3.5rem] border-t border-white/10 overflow-y-auto">
+               <div className="sticky top-0 z-[60] flex items-center justify-center pt-4 pb-2">
+                  <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+               </div>
+               <div className="px-6 pb-20 pt-4">
+                  <h2 className="text-xl font-black uppercase tracking-widest italic mb-6">Advanced Target Radar</h2>
+                  <DiscoveryFilters
+                    category={mapCategory || 'property'}
+                    initialFilters={mergedFilters}
+                    onApply={(newFilters) => {
+                      setShowFilters(false);
+                    }}
+                    activeCount={0}
+                  />
+               </div>
+            </div>
+         </SheetContent>
+      </Sheet>
     </div>
   );
 };

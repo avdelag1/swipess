@@ -18,6 +18,7 @@ import { useMessagingQuota } from '@/hooks/useMessagingQuota';
 import OwnerInterestedClients from './OwnerInterestedClients';
 import OwnerLikedClients from './OwnerLikedClients';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 
@@ -28,8 +29,12 @@ export default function OwnerDiscovery() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { theme } = useTheme();
   const { tokenBalance: tokens } = useMessagingQuota();
   
+  const isDark = theme === 'dark' || theme === 'nexus-style';
+  const isIvanna = theme === 'ivanna-style';
+
   const initialCategory = useMemo(() => {
     if (location.pathname.includes('/moto')) return 'motorcycle';
     if (location.pathname.includes('/bicycle')) return 'bicycle';
@@ -41,7 +46,6 @@ export default function OwnerDiscovery() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, any>>({});
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
-  const [showMapView, setShowMapView] = useState(true);
   const startConversation = useStartConversation();
 
   const clientFilters: ClientFilters | undefined = useMemo(() => {
@@ -104,22 +108,28 @@ export default function OwnerDiscovery() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-24 lg:pb-0">
-      <div className="bg-background pb-4 pt-2 px-0 safe-top-padding">
+    <div className={cn(
+        "min-h-screen transition-colors duration-500",
+        theme === 'nexus-style' ? "bg-black text-white" : 
+        (isIvanna ? "bg-transparent text-foreground ivanna-style" : "bg-background text-foreground")
+    )}>
+      <div className="pb-2 pt-2 px-0 safe-top-padding">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/owner/dashboard')}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-muted/40 border border-border/10 hover:bg-muted transition-all active:scale-90"
+                className={cn(
+                    "w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90 border",
+                    isDark ? "bg-muted/40 border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"
+                )}
                 title="Back to Dashboard"
-                aria-label="Back to Dashboard"
               >
-                <ArrowLeft className="w-5 h-5 text-foreground/80" strokeWidth={1.5} />
+                <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
               </button>
               <div className="flex flex-col">
                 <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Prospect Shield</span>
-                <h1 className="text-xl md:text-2xl font-bold text-foreground leading-snug">Discovery</h1>
+                <h1 className="text-xl md:text-2xl font-bold leading-snug">Discovery</h1>
               </div>
             </div>
             <div className="px-3.5 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center gap-1.5">
@@ -128,7 +138,7 @@ export default function OwnerDiscovery() {
             </div>
           </div>
 
-          <div className="flex p-1 bg-muted/30 rounded-2xl mb-4 border border-white/5">
+          <div className={cn("flex p-1 rounded-2xl mb-4 border", isDark ? "bg-muted/30 border-white/5" : "bg-slate-100 border-slate-200")}>
              {[
                { id: 'radar', icon: Sparkles, label: 'Radar' },
                { id: 'interested', icon: Heart, label: 'Fans' },
@@ -151,7 +161,7 @@ export default function OwnerDiscovery() {
           {activeTab === 'radar' && (
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
-                <div className="flex bg-muted/20 p-1 rounded-xl">
+                <div className={cn("flex p-1 rounded-xl", isDark ? "bg-muted/20" : "bg-slate-200")}>
                    {[
                      { id: 'property', icon: Building2, label: 'Properties' },
                      { id: 'motorcycle', icon: Bike, label: 'Motorcycles' },
@@ -165,8 +175,6 @@ export default function OwnerDiscovery() {
                          setRadarCategory(cat.id as RadarCategory);
                          setShowMapView(true);
                        }}
-                       title={`Switch to ${cat.label} radar`}
-                       aria-label={`Show ${cat.label} prospects`}
                        className={cn(
                          "w-10 h-10 flex items-center justify-center rounded-lg transition-all",
                          radarCategory === cat.id ? "bg-primary text-white shadow-md" : "text-muted-foreground hover:bg-muted/40"
@@ -183,19 +191,19 @@ export default function OwnerDiscovery() {
                     placeholder="Search profile name..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-11 h-12 rounded-2xl bg-muted/20 border-border/20 focus:bg-muted/40 transition-all font-bold italic"
+                    className={cn(
+                        "pl-11 h-12 rounded-2xl transition-all font-bold italic",
+                        isDark ? "bg-muted/20 border-white/5" : "bg-white border-slate-200"
+                    )}
                   />
                 </div>
 
                 <button
-                  onClick={() => { triggerHaptic('medium'); setShowMapView(!showMapView); }}
-                  className={cn(
-                    "h-12 px-4 rounded-2xl flex items-center gap-2 text-xs font-semibold border transition-colors duration-150 active:scale-95",
-                    showMapView ? "bg-primary text-white border-primary shadow-md" : "bg-muted/20 text-foreground border-white/5"
-                  )}
+                  onClick={() => { triggerHaptic('medium'); navigate('/owner/dashboard'); }}
+                  className="h-12 px-6 rounded-2xl flex items-center gap-2 text-xs font-black uppercase tracking-widest bg-primary text-white border border-primary shadow-[0_10px_20px_rgba(235,72,152,0.3)] transition-all duration-300 active:scale-95"
                 >
-                  <Sparkles className={cn("w-4 h-4", showMapView && "animate-pulse")} />
-                  {showMapView ? 'Close Map' : 'Show Map'}
+                  <Sparkles className="w-4 h-4 animate-pulse" />
+                  Launch Matching Deck
                 </button>
               </div>
             </div>
@@ -207,20 +215,7 @@ export default function OwnerDiscovery() {
          {activeTab === 'interested' ? (<OwnerInterestedClients />) :
           activeTab === 'saved' ? (<OwnerLikedClients />) : (
             <div className="flex flex-col lg:flex-row gap-6">
-              {showMapView && activeTab === 'radar' ? (
-                <div className="w-full h-[70vh] min-h-[500px] md:min-h-[600px] rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden border border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.8)] relative mb-8 z-[5]">
-                  <DiscoveryMapView
-                    category={radarCategory === 'worker' ? 'services' : radarCategory}
-                    onBack={() => setShowMapView(false)}
-                    onStartSwiping={() => navigate('/owner/dashboard')}
-                    onCategoryChange={(cat) => setRadarCategory((cat === 'services' ? 'worker' : cat) as RadarCategory)}
-                    mode="owner"
-                    isEmbedded={true}
-                  />
-                </div>
-              ) : (
-                <>
-              <aside className="hidden lg:block w-80">
+               <aside className="hidden lg:block w-80">
                 <div className="sticky top-44 space-y-4">
                   <div className="flex items-center justify-between px-2 mb-2">
                     <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Filters</h2>
@@ -235,7 +230,10 @@ export default function OwnerDiscovery() {
                 <AnimatePresence mode="popLayout">
                   {isLoading ? (<DiscoverySkeleton count={6} />) : 
                    filteredClients.length === 0 ? (
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center py-20 bg-muted/5 rounded-[3rem] border border-border/10 text-center">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className={cn(
+                        "flex flex-col items-center justify-center py-20 rounded-[3rem] border text-center",
+                        isDark ? "bg-muted/5 border-white/5" : "bg-white border-slate-200"
+                    )}>
                       <User className="h-16 w-16 text-muted-foreground/20 mb-5" />
                       <h3 className="text-xl md:text-2xl font-bold leading-snug mb-2">No prospects yet</h3>
                       <p className="text-sm text-muted-foreground max-w-xs mx-auto">Adjust filters to surface active clients.</p>
@@ -248,11 +246,9 @@ export default function OwnerDiscovery() {
                         </motion.div>
                       ))}
                     </div>
-                  )}
+                   )}
                 </AnimatePresence>
               </main>
-              </>
-              )}
             </div>
           )}
       </div>

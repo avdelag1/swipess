@@ -1,5 +1,7 @@
 @import 'leaflet/dist/leaflet.css';
 @import './styles/tokens.css';
+@import './styles/ivanna-theme.css';
+@import './styles/nexus-theme.css';
 
 
 /* ─── Splash Screen Styles (Inlined in index.html for Performance) ─── */
@@ -22,7 +24,7 @@ html, body, #root {
 }
 
 /* Force black root in dark mode — eliminates white frame bleed */
-.dark #root, .dark body, .black-matte #root, .black-matte body {
+.dark #root, .dark body, .black-matte #root, .black-matte body, .nexus-style #root, .nexus-style body {
   background-color: #000000;
 }
 
@@ -161,6 +163,41 @@ button:active, [role="button"]:active {
     --foreground: 0 0% 100%;
     --primary: 352 83% 58%;
   }
+}
+
+/* 🛸 NEXUS GLOBAL OVERRIDES */
+.nexus-style .liquid-glass-card, 
+.nexus-style .glass-card, 
+.nexus-style .bg-card {
+  background: rgba(10, 10, 10, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(24px) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 🎨 IVANNA GLOBAL TRANSPARENCY */
+.ivanna-style #root, 
+.ivanna-style main, 
+.ivanna-style .min-h-screen,
+.ivanna-style .bg-background {
+    background-color: transparent !important;
+}
+
+.ivanna-style .bg-card {
+    background-image: linear-gradient(135deg, hsla(35, 56%, 91%, 0.85), hsla(167, 47%, 91%, 0.75)) !important;
+}
+
+.nexus-style .text-muted-foreground {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.nexus-style .border, 
+.nexus-style .border-border {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.nexus-style button:not(.nexus-btn) {
+  border-radius: 1rem;
 }
 
 .dark-matte { background-color: #000000 !important; color: #FFFFFF !important; }

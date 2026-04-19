@@ -1,0 +1,191 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  IVANNA STYLE THEME                                               */
+/*  Inspired by the artistic universe of Ivanna Fredes              */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.ivanna-style {
+    /* Background colors - Soft artistic plaster palette */
+    --background: 167 47% 91%;    /* #DDF4EF soft aqua plaster */
+    --foreground: 0 0% 7%;        /* #111111 */
+    --card: 35 56% 91% / 0.8;    /* #F5EBDD warm cream with transparency */
+    --card-foreground: 0 0% 7%;
+    --primary: 40 47% 60%;        /* #C8A96B champagne gold */
+    --primary-foreground: 0 0% 7%;
+    --secondary: 170 36% 85%;    /* #CBE8E3 seafoam */
+    --secondary-foreground: 0 0% 7%;
+    --muted: 22 73% 87%;         /* #F6D8C7 peach blush */
+    --muted-foreground: 0 0% 7% / 0.65;
+    --accent: 175 78% 23%;       /* #0D6A63 deep jade */
+    --accent-foreground: 167 47% 91%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 40 47% 60% / 0.3;
+    --input: 35 56% 91% / 0.5;
+    --ring: 40 47% 60%;
+
+    /* Modern theme variables */
+    --bg-primary: 167 47% 91%;
+    --bg-secondary: 170 36% 85%;
+    --bg-tertiary: 22 73% 87%;
+    --text-primary: 0 0% 7%;
+    --text-secondary: 0 0% 7% / 0.65;
+    --text-tertiary: 0 0% 7% / 0.45;
+    --border-primary: 40 47% 60% / 0.2;
+    --border-secondary: 175 78% 23% / 0.15;
+    --accent-primary: 40 47% 60%;
+    --accent-secondary: 175 78% 23%;
+
+    /* Shadows - Soft luxury deep shadows */
+    --shadow-sm: 0 4px 12px rgba(200, 169, 107, 0.1);
+    --shadow-md: 0 8px 24px rgba(200, 169, 107, 0.15);
+    --shadow-lg: 0 16px 48px rgba(200, 169, 107, 0.2);
+    --shadow-card: 0 24px 64px rgba(13, 106, 99, 0.1);
+    --shadow-glow: 0 0 40px rgba(200, 169, 107, 0.3);
+    --overlay: rgba(27, 27, 27, 0.4);
+
+    --radius: 1.5rem; /* 24px */
+}
+
+/* Global Background for Ivanna Style */
+.ivanna-style body {
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(167, 47%, 91%, 1) 0%, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(170, 36%, 85%, 1) 0%, transparent 50%),
+        radial-gradient(at 100% 100%, hsla(22, 73%, 87%, 1) 0%, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(35, 56%, 91%, 1) 0%, transparent 50%);
+    background-attachment: fixed;
+    position: relative;
+}
+
+.ivanna-style body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.12;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1000 1000' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='plaster'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='discrete' tableValues='0 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23plaster)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+}
+
+/* Texture Overlay for Ivanna cards */
+.ivanna-style .bg-card,
+.ivanna-style .glass-card {
+    background-image: linear-gradient(135deg, hsla(35, 56%, 91%, 0.85), hsla(167, 47%, 91%, 0.75));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 2px solid #111111 !important; /* Bold Sketchy Outline */
+    border-radius: 20px 28px 22px 30px / 28px 22px 30px 20px !important; /* Artisan Irregularity */
+    box-shadow: 6px 6px 0px hsla(40, 47%, 20%, 0.1) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.ivanna-style .bg-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+}
+
+/* Artisan Outline for Cards */
+.ivanna-style .bg-card {
+    box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.04),
+        0 10px 40px rgba(200, 169, 107, 0.1);
+}
+
+/* Artisan Buttons */
+.ivanna-style button:not(.ivanna-style .glass-pill-nav button),
+.ivanna-style .primary-button {
+    background-color: #C8A96B !important;
+    border: 2px solid #111111 !important; /* Bold Sketchy Outline */
+    border-radius: 12px 18px 14px 16px / 16px 14px 18px 12px !important; /* Artisan Irregularity */
+    color: #111111 !important;
+    transition: all 0.2s ease;
+    box-shadow: 4px 4px 0px #111111 !important;
+}
+
+.ivanna-style button:active {
+    box-shadow: 1px 1px 0px #111111 !important;
+    transform: translate(2px, 2px);
+}
+
+.ivanna-style .secondary-button {
+    background-color: transparent !important;
+    border: 2px solid #111111 !important;
+    color: #111111 !important;
+    border-radius: 12px 18px 14px 16px / 16px 14px 18px 12px !important;
+}
+
+/* Inputs */
+.ivanna-style input, .ivanna-style textarea, .ivanna-style select {
+    background-color: hsla(35, 56%, 91%, 0.5) !important;
+    border: 1px solid hsla(40, 47%, 60%, 0.2) !important;
+    border-radius: 18px !important;
+    color: #111111 !important;
+}
+
+/* Typography */
+.ivanna-style h1, .ivanna-style h2, .ivanna-style h3 {
+    font-family: 'Poppins', 'Nunito', sans-serif !important;
+    letter-spacing: -0.01em;
+    font-weight: 700;
+    color: #111111;
+}
+
+/* Hand-painted contour lines simulation */
+.ivanna-style .border-b, .ivanna-style .border-t, .ivanna-style .border-l, .ivanna-style .border-r {
+    border-color: #111111 !important;
+    border-width: 2px !important;
+}
+
+/* Animation for Ivanna Style */
+@keyframes ivanna-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(0.5deg); }
+}
+
+.ivanna-style .floating-element {
+    animation: ivanna-float 6s ease-in-out infinite;
+}
+
+/* Watercolor Section Dividers */
+.ivanna-style .watercolor-divider {
+    height: 12px;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, hsla(167, 47%, 91%, 0.8), hsla(22, 73%, 87%, 0.8), transparent);
+    filter: blur(4px);
+    margin: 20px 0;
+    position: relative;
+}
+
+.ivanna-style .watercolor-divider::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1000 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 Q 250 20, 500 10 T 1000 10' stroke='hsla(40, 47%, 60%, 0.2)' fill='none' stroke-width='2'/%3E%3C/svg%3E");
+    opacity: 0.5;
+}
+
+/* Scrollbar styling for Ivanna */
+.ivanna-style ::-webkit-scrollbar {
+    display: block !important;
+    width: 6px;
+    height: 6px;
+}
+.ivanna-style ::-webkit-scrollbar-track {
+    background: transparent;
+}
+.ivanna-style ::-webkit-scrollbar-thumb {
+    background: hsla(40, 47%, 60%, 0.3);
+    border-radius: 10px;
+}
+
+/* Preview Utilities */
+.ivanna-preview-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}

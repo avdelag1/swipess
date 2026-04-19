@@ -29,7 +29,7 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  useTheme();
+  const { theme } = useTheme();
   const location = useLocation();
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
@@ -82,6 +82,15 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [isCameraRoute, isRadioRoute, showAIChat]);
 
   const handleFilterClick = () => {
+    if (location.pathname === '/client/dashboard') {
+      window.dispatchEvent(new CustomEvent('open-client-filters'));
+      return;
+    }
+    if (location.pathname === '/owner/dashboard') {
+      window.dispatchEvent(new CustomEvent('open-owner-filters'));
+      return;
+    }
+
     if (userRole === 'owner') navigate('/owner/filters');
     else navigate('/client/filters');
   };
@@ -94,7 +103,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   const handleMessageActivationsClick = () => navigate('/subscription/packages');
 
   return (
-    <div className="w-full flex flex-col relative bg-background selection:bg-brand-primary/30">
+    <div className={cn(
+      "w-full flex flex-col relative selection:bg-brand-primary/30", 
+      theme === 'ivanna-style' ? "bg-transparent ivanna-style" : "bg-background",
+      theme === 'nexus-style' && "nexus-style"
+    )}>
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />
       
