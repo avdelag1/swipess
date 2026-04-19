@@ -52,7 +52,14 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>('property');
   const [showFilters, setShowFilters] = useState(false);
 
-  const modalStore = useModalStore();
+  const { setModal } = useModalStore();
+
+  // 🌍 FULLSCREEN MAP ENGINE: Control global HUD visibility based on dash phase
+  useEffect(() => {
+    setModal('showMapFullscreen', phase === 'map');
+    return () => setModal('showMapFullscreen', false);
+  }, [phase, setModal]);
+
   const { user, loading: isAuthLoading } = useAuth();
   const { navigate } = useAppNavigate();
 

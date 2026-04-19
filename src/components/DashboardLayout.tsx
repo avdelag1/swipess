@@ -413,8 +413,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     ].some(path => location.pathname === path || location.pathname === path + '/');
 
     // Only truly immersive non-scroll pages should be fixed
-    return isCameraRouteLocal || isRadioRouteLocal || isRoommatesPageLocal || isSpecialSubPage;
-  }, [location.pathname]);
+    return isCameraRouteLocal || isRadioRouteLocal || isRoommatesPageLocal || isSpecialSubPage || modalStore.showMapFullscreen;
+  }, [location.pathname, modalStore.showMapFullscreen]);
 
   const isZeroScrollDashboard = useMemo(() => {
     const path = location.pathname;

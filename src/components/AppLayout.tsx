@@ -78,8 +78,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { showAIChat } = useModalStore();
 
   const isFullScreen = useMemo(() => {
-    return isCameraRoute || isRadioRoute || showAIChat;
-  }, [isCameraRoute, isRadioRoute, showAIChat]);
+    return isCameraRoute || isRadioRoute || showAIChat || modalStore.showMapFullscreen;
+  }, [isCameraRoute, isRadioRoute, showAIChat, modalStore.showMapFullscreen]);
 
   const handleFilterClick = () => {
     if (location.pathname === '/client/dashboard') {

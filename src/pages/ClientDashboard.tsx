@@ -55,6 +55,14 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
     }
   }, [activeCategory, phase]);
   
+  const setModal = useModalStore(s => s.setModal);
+
+  // 🌍 FULLSCREEN MAP ENGINE: Control global HUD visibility based on dash phase
+  useEffect(() => {
+    setModal('showMapFullscreen', phase === 'map');
+    return () => setModal('showMapFullscreen', false);
+  }, [phase, setModal]);
+
   const handleLaunch = useCallback((category: QuickFilterCategory) => {
     setMapCategory(category);
     setPhase('map');
