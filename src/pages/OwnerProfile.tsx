@@ -133,7 +133,7 @@ const OwnerProfile = () => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="bg-gradient-to-r from-[#EB4898] via-indigo-600 to-indigo-700 backdrop-blur-3xl p-[2px] rounded-[2.8rem] shadow-2xl cursor-pointer"
-          onClick={() => { triggerHaptic('selection'); navigate('/subscription/packages'); }}
+          onClick={() => { triggerHaptic('medium'); navigate('/subscription/packages'); }}
         >
           <div className={cn(
              "backdrop-blur-3xl rounded-[2.7rem] p-7 flex items-center justify-between border",

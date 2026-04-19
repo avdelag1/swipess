@@ -178,7 +178,7 @@ const ClientProfile = () => {
            whileHover={{ scale: 1.02 }}
            whileTap={{ scale: 0.98 }}
            className="p-[2px] rounded-[2.8rem] bg-gradient-to-r from-[#EB4898] via-indigo-500 to-orange-500 shadow-3xl transition-all cursor-pointer"
-           onClick={() => { triggerHaptic('selection'); setIsVapModalOpen(true); }}
+           onClick={() => { triggerHaptic('medium'); setIsVapModalOpen(true); }}
         >
           <div className={cn(
              "backdrop-blur-3xl rounded-[2.7rem] p-7 flex items-center gap-6 border",

@@ -1,6 +1,7 @@
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect, memo, useCallback } from 'react';
 import { CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useOwnerListings, type Listing } from '@/hooks/useListings';
@@ -173,7 +174,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   };
 
   const tabItems = [
-    { id: 'all', label: 'Matrix', icon: activity, count: listings.length },
+    { id: 'all', label: 'Matrix', icon: Activity, count: listings.length },
     { id: 'property', label: 'Estates', icon: Home, count: listings.filter(l => !l.category || l.category === 'property').length },
     { id: 'motorcycle', label: 'Motos', icon: MotorcycleIcon, count: listings.filter(l => l.category === 'motorcycle').length },
     { id: 'bicycle', label: 'Aqua', icon: Bike, count: listings.filter(l => l.category === 'bicycle').length },
