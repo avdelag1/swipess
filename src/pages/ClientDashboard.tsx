@@ -1,12 +1,13 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme } from '@/hooks/useTheme';
-import { cn } from '@/lib/utils';
 import type { QuickFilterCategory } from '@/types/filters';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import ClientFilters from './ClientFilters';
+import { Filter } from 'lucide-react';
 
 interface ClientDashboardProps {
   onPropertyInsights?: (listingId: string) => void;
@@ -23,20 +24,29 @@ interface ClientDashboardProps {
  * UI transitions and state isolation.
  */
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
-  
   // Phase state: 'cards' | 'map' | 'swipe'
   const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>('cards');
   const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const activeCategory = useFilterStore(s => s.activeCategory);
-  const { setActiveCategory } = useFilterActions();
+  const { setActiveCategory, setCategories } = useFilterActions();
 
   // ─── Actions ─────────────────────────────────────────────────────────────
   
+  useEffect(() => {
+    const handleOpenFilters = () => setShowFilters(true);
+    window.addEventListener('open-client-filters', handleOpenFilters);
+    return () => window.removeEventListener('open-client-filters', handleOpenFilters);
+  }, []);
+  
   const handleLaunch = useCallback((category: QuickFilterCategory) => {
     setMapCategory(category);
+    setPhase('swipe');
+    setCategories([category]); // Also set in store to trigger SwipessSwipeContainer logic
+  }, [setCategories]);
+
+  const handleExhaustedMap = useCallback(() => {
     setPhase('map');
   }, []);
 
@@ -72,7 +82,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const showSwipe = isSwiping;
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">
+    <div className="flex flex-col h-full w-full overflow-hidden relative">
       <AnimatePresence mode="popLayout">
         {showCards && (
           <motion.div
@@ -84,7 +94,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
             style={{ willChange: 'transform, opacity' }}
           >
-            <SwipeAllDashboard setCategories={handleLaunch} />
+            <SwipeAllDashboard setCategories={(ids: any) => handleLaunch((Array.isArray(ids) ? ids[0] : ids) as QuickFilterCategory)} />
           </motion.div>
         )}
 
@@ -95,7 +105,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.98 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full h-full"
+            className="flex-1 w-full relative"
             style={{ willChange: 'transform, opacity' }}
           >
             <DiscoveryMapView
@@ -120,6 +130,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
           >
             <SwipessSwipeContainer
               onListingTap={handleListingTap}
+              onExhaustedMap={handleExhaustedMap}
               onInsights={handleListingTap}
               onMessageClick={onMessageClick}
             />
@@ -127,26 +138,22 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
         )}
       </AnimatePresence>
 
-      {/* 📡 SENTINEL RADAR: FLOATING TRIGGER */}
-      {!showMap && !showSwipe && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => { triggerHaptic('heavy'); handleLaunch('property'); }}
-          className={cn(
-            "fixed bottom-28 right-8 w-16 h-16 rounded-full flex items-center justify-center shadow-[0_20px_40px_rgba(235,72,152,0.4)] z-[5000] border-2 border-white/20 backdrop-blur-3xl overflow-hidden",
-            isLight ? "bg-white text-black" : "bg-black text-white"
-          )}
-        >
-           <motion.div 
-             animate={{ scale: [1, 1.5, 1], opacity: [0.1, 0.4, 0.1] }} 
-             transition={{ duration: 3, repeat: Infinity }} 
-             className="absolute inset-0 bg-[#EB4898]" 
-           />
-           <Sparkles className="w-6 h-6 text-[#EB4898] relative z-10" />
-        </motion.button>
-      )}
+      <Sheet open={showFilters} onOpenChange={setShowFilters}>
+          <SheetContent side="bottom" className="h-[92vh] p-0 border-none bg-transparent overflow-hidden">
+            <div className={cn(
+              "w-full h-full transition-all duration-500 rounded-t-[3.5rem] border-t overflow-y-auto",
+              theme === 'nexus-style' ? "bg-black/90 border-white/10" : 
+              (theme === 'ivanna-style' ? "bg-card border-foreground/30 shadow-artisan" : "glass-morphism border-white/10")
+            )}>
+               <div className="sticky top-0 z-[60] flex items-center justify-center pt-4 pb-2">
+                  <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+               </div>
+               <div className="px-1 pb-20">
+                  <ClientFilters isEmbedded={true} onClose={() => setShowFilters(false)} />
+               </div>
+            </div>
+         </SheetContent>
+      </Sheet>
     </div>
   );
 }

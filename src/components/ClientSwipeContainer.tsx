@@ -60,6 +60,7 @@ interface ClientSwipeContainerProps {
   onClientTap: (clientId: string) => void;
   onInsights?: (clientId: string) => void;
   onMessageClick?: (clientId: string) => void;
+  onExhaustedMap?: () => void;
   profiles?: any[]; // Accept profiles from parent
   isLoading?: boolean;
   error?: any;
@@ -72,6 +73,7 @@ const ClientSwipeContainerComponent = ({
   onClientTap,
   onInsights: _onInsights,
   onMessageClick: _onMessageClick,
+  onExhaustedMap,
   profiles: externalProfiles,
   isLoading: externalIsLoading,
   error: externalError,
@@ -940,6 +942,7 @@ const ClientSwipeContainerComponent = ({
                     detected={locationDetected}
                     error={externalError}
                     role="owner"
+                    onGoToMap={onExhaustedMap}
                  />
                </motion.div>
             ) : (
