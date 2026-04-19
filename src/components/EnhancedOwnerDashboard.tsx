@@ -206,9 +206,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           >
             <OwnerInsightsDashboard />
           </motion.div>
-        ) : showMap ? (
           <motion.div
-            key="owner-dash-map"
+            key="owner-all-dash"
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.02 }}
@@ -216,16 +215,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             className="flex-1 w-full relative z-10"
             style={{ willChange: 'transform, opacity' }}
           >
-            <DiscoveryMapView
-              category={mapCategory}
-              onBack={handleMapBack}
-              onStartSwiping={handleStartSwiping}
-              onCategoryChange={(cat) => {
-                  setMapCategory(cat);
-                  setCategories([cat]);
-              }}
-              mode="owner"
-            />
+            <OwnerAllDashboard onSelectCard={handleCardSelect} />
           </motion.div>
         ) : showSwipe && !isLoading && clientProfiles.length === 0 && mapCategory ? (
           <motion.div
@@ -237,13 +227,11 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             className="w-full h-full z-10"
             style={{ willChange: 'transform, opacity' }}
           >
-            <DiscoveryMapView
-              category={mapCategory}
-              onBack={handleMapBack}
-              onStartSwiping={handleStartSwiping}
-              onCategoryChange={(cat) => setMapCategory(cat)}
-              mode="owner"
-            />
+            <div className="flex flex-col items-center justify-center h-full p-8 text-center opacity-50">
+               <Sparkles className="w-12 h-12 mb-4" />
+               <p className="text-[10px] font-black uppercase tracking-widest">No target data found for this category</p>
+               <Button variant="link" onClick={() => setPhase('map')} className="mt-4 text-[10px] font-black uppercase tracking-widest text-[#EB4898]">Return to Base</Button>
+            </div>
           </motion.div>
         ) : showSwipe ? (
           <motion.div

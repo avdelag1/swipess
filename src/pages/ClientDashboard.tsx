@@ -2,7 +2,6 @@ import { useCallback, useState, useEffect } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
-import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuickFilterCategory } from '@/types/filters';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -28,7 +27,7 @@ interface ClientDashboardProps {
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { theme } = useTheme();
   // Phase state: 'map' | 'swipe' (Removed 'cards' phase forever)
-  const [phase, setPhase] = useState<'map' | 'swipe'>('map');
+  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
   const [mapCategory, setMapCategory] = useState<QuickFilterCategory>('property');
   const [showFilters, setShowFilters] = useState(false);
 
@@ -73,26 +72,16 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   return (
     <div className="flex flex-col h-full w-full overflow-hidden relative">
       <AnimatePresence mode="popLayout">
-        {showMap && (
+        {phase === 'cards' && !activeCategory && (
           <motion.div
-            key="dash-map"
+            key="dash-cards"
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.02 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 w-full relative"
           >
-            <DiscoveryMapView
-              category={mapCategory}
-              onBack={() => {}} // Disabled back for primary dashboard
-              onStartSwiping={handleStartSwiping}
-              onCategoryChange={(cat) => {
-                  setMapCategory(cat);
-                  // Sync store so filters match
-                  setCategories([cat]);
-              }}
-              isEmbedded={false}
-            />
+            <SwipeAllDashboard onSelectCard={(card) => handleLaunch(card.id as QuickFilterCategory)} />
           </motion.div>
         )}
 

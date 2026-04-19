@@ -977,23 +977,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           <AnimatePresence mode="sync" initial={false}>
             {!storeActiveCategory ? (
               <motion.div 
-                key="discovery-root"
+                key="category-stack"
                 initial={false}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.05 }}
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full h-full"
+                className="w-full h-full flex flex-col items-center justify-center"
               >
-                <DiscoveryMapView
-                  category="property"
-                  onBack={() => {}} // Root level, no back
-                  onStartSwiping={(cat) => {
-                    triggerHaptic('heavy');
-                    setActiveCategory(cat || 'property');
-                  }}
-                  onCategoryChange={(cat) => setCategories([cat as any])}
-                  mode="client"
-                />
+                <CategorySwipeStack />
               </motion.div>
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <motion.div 
@@ -1057,12 +1048,16 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 exit={{ opacity: 0 }}
                 className="w-full h-full z-50 overflow-hidden"
               >
-                <DiscoveryMapView
-                  category={(storeActiveCategory as QuickFilterCategory) || 'property'}
-                  onBack={() => setActiveCategory(null)}
-                  onStartSwiping={handleRefresh}
-                  onCategoryChange={(cat) => setCategories([cat as any])}
-                  isEmbedded={false}
+                <SwipeExhaustedState
+                  categoryLabel={categoryInfo.label}
+                  CategoryIcon={categoryInfo.icon}
+                  iconColor={categoryInfo.color}
+                  isRefreshing={isRefreshing}
+                  onRefresh={handleRefresh}
+                  radiusKm={radiusKm}
+                  onRadiusChange={setRadiusKm}
+                  onDetectLocation={() => {}}
+                  role="client"
                 />
               </motion.div>
             )}
