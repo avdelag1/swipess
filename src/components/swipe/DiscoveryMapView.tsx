@@ -224,21 +224,32 @@ export const DiscoveryMapView = ({
       {/* 🧭 INTELLIGENT HUD CONTROLS */}
       {!isEmbedded && (
         <>
-          {/* Top Bar: Nav & Info */}
-          <div className="absolute top-8 left-6 right-6 z-10 flex flex-col gap-4 pointer-events-none">
+          {/* Top Bar: Nav & Info (Shifted down for TopBar transparency) */}
+          <div className="absolute top-28 left-6 right-6 z-20 flex flex-col gap-4 pointer-events-none">
             <div className="w-full flex items-center justify-between pointer-events-auto">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => { triggerHaptic('light'); onBack?.(); }}
-                className="w-12 h-12 rounded-2xl bg-black/60 backdrop-blur-3xl border border-white/10 text-white/40 hover:text-white"
+                className={cn(
+                  "w-12 h-12 rounded-2xl backdrop-blur-3xl border transition-colors",
+                  theme === 'light' 
+                    ? "bg-white/80 border-black/10 text-black/60 hover:text-black" 
+                    : "bg-black/60 border-white/10 text-white/40 hover:text-white"
+                )}
               >
                 <ChevronLeft className="w-6 h-6" />
               </Button>
               
-              <div className="bg-black/60 backdrop-blur-3xl border border-white/10 px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3">
+              <div className={cn(
+                "backdrop-blur-3xl border px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3",
+                theme === 'light' ? "bg-white/80 border-black/10" : "bg-black/60 border-white/10"
+              )}>
                  <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-                 <span className="text-[10px] font-black uppercase tracking-[0.35em] text-white">
+                 <span className={cn(
+                    "text-[10px] font-black uppercase tracking-[0.35em]",
+                    theme === 'light' ? "text-black" : "text-white"
+                 )}>
                     RADAR: <span className="text-primary italic">{nodes.length} {activeRole === 'owner' ? 'CLIENTS' : 'NODES'}</span>
                  </span>
               </div>
@@ -256,8 +267,10 @@ export const DiscoveryMapView = ({
                     className={cn(
                       "h-10 px-4 rounded-xl flex items-center gap-2 transition-all border shadow-xl backdrop-blur-3xl",
                       isActive 
-                        ? "bg-white border-white text-black underline-offset-4" 
-                        : "bg-black/40 border-white/10 text-white/40"
+                        ? "bg-primary text-white border-primary shadow-[0_0_20px_rgba(235,72,152,0.3)]" 
+                        : (theme === 'light' 
+                            ? "bg-white/80 text-black/40 border-black/5 hover:text-black hover:bg-white" 
+                            : "bg-black/60 text-white/40 border-white/10 hover:text-white hover:bg-black/80")
                     )}
                   >
                     <Icon className="w-4 h-4" />

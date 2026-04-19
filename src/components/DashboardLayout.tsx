@@ -500,13 +500,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
         )}
         style={{
-          paddingTop: isFullScreenRoute
+          paddingTop: isFullScreenRoute || isImmersiveDashboard
             ? '0px'
             : 'calc(var(--top-bar-height) + var(--safe-top))',
           paddingBottom: 0,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
-          
         }}
       >
         <div className="h-full w-full flex flex-1 min-w-0 flex-col">
