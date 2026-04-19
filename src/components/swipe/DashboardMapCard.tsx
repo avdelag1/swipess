@@ -23,11 +23,7 @@ export function DashboardMapCard({ children, className }: DashboardMapCardProps)
 
   return (
     <div
-      className="w-full relative flex items-stretch justify-center px-3 sm:px-5 md:px-8 py-2 sm:py-3 md:py-4"
-      style={{
-        height:
-          'calc(100dvh - var(--top-bar-height) - var(--bottom-nav-height) - var(--safe-top, 0px) - var(--safe-bottom, 0px))',
-      }}
+      className="w-full flex-1 relative flex items-stretch justify-center px-3 sm:px-5 md:px-8 py-2 sm:py-3 md:py-4 min-h-0"
     >
       <div
         className={cn(
