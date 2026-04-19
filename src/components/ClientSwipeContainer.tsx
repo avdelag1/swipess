@@ -854,8 +854,47 @@ const ClientSwipeContainerComponent = ({
         {/* Top Controls — IN FLOW, not absolute (matches client-side pattern) */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
           <div className="relative z-50 w-full flex flex-col items-center shrink-0">
-            <div className="w-full pt-1 pb-1 px-2">
-              <div className="w-full flex justify-between items-center">
+            <div className="w-full pt-1 pb-1 px-4">
+              <div className="w-full flex justify-between items-center gap-4">
+                {/* HUD: Back button */}
+                <button
+                  onClick={() => { triggerHaptic('light'); handleRefresh(); }}
+                  className="w-10 h-10 rounded-xl bg-black/40 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white/40 active:scale-95 transition-all"
+                >
+                  <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
+                </button>
+
+                {/* HUD: Quick Filters (Unifying with Client side) */}
+                <div className="flex-1 flex justify-center gap-2">
+                  {[
+                    { id: 'property', icon: Building2 },
+                    { id: 'motorcycle', icon: Bike },
+                    { id: 'worker', icon: Wrench }
+                  ].map((cat) => {
+                    const Icon = cat.icon;
+                    const isActive = category === cat.id;
+                    return (
+                      <motion.button
+                        key={cat.id}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          triggerHaptic('light');
+                          handleMapCategorySelect(cat.id as any);
+                        }}
+                        className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center border transition-all relative overflow-hidden",
+                          isActive 
+                            ? "bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)]" 
+                            : "bg-black/40 backdrop-blur-3xl border-white/10 text-white/20"
+                        )}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </motion.button>
+                    );
+                  })}
+                </div>
+
+                {/* HUD: Unified Radar HUD */}
                 <LocationRadiusSelector
                   radiusKm={radiusKm}
                   onRadiusChange={setRadiusKm}
@@ -865,6 +904,7 @@ const ClientSwipeContainerComponent = ({
                   onCategorySelect={handleMapCategorySelect}
                   lat={userLatitude}
                   lng={userLongitude}
+                  variant="minimal"
                 />
               </div>
             </div>
@@ -929,21 +969,11 @@ const ClientSwipeContainerComponent = ({
                  exit={{ opacity: 0 }}
                  className="w-full h-full z-50 overflow-hidden"
                >
-                 <SwipeExhaustedState 
-                    onRefresh={handleRefresh}
-                    isRefreshing={isRefreshing}
-                    categoryLabel={labels.plural}
-                    CategoryIcon={labels.Icon}
-                    iconColor={labels.color}
-                    radiusKm={radiusKm}
-                    onRadiusChange={setRadiusKm}
-                    onDetectLocation={detectLocation}
-                    detecting={locationDetecting}
-                    detected={locationDetected}
-                    error={externalError}
-                    role="owner"
-                    onGoToMap={onExhaustedMap}
-                 />
+                <DiscoveryMapView
+                  onBack={() => setActiveCategory(null)}
+                  onStartSwiping={handleRefresh}
+                  isEmbedded={false}
+                />
                </motion.div>
             ) : (
               <motion.div 

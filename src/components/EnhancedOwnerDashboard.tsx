@@ -69,6 +69,13 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   );
   const hydratedRef = useRef(false);
 
+  // 🛰️ DISCOVERY SYNC: If active category is cleared elsewhere, revert phase to 'cards'
+  useEffect(() => {
+    if (!activeCategory && phase === 'swipe') {
+      setPhase('cards');
+    }
+  }, [activeCategory, phase]);
+
   useEffect(() => {
     if (!ownerPrefs || hydratedRef.current) return;
     hydratedRef.current = true;

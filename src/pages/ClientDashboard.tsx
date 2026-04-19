@@ -42,6 +42,14 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
     window.addEventListener('open-client-filters', handleOpenFilters);
     return () => window.removeEventListener('open-client-filters', handleOpenFilters);
   }, []);
+
+  // 🛰️ DISCOVERY SYNC: If active category is cleared elsewhere (e.g. via 'Back' button in container), 
+  // revert phase to 'cards' to show the Poker Fan.
+  useEffect(() => {
+    if (!activeCategory && phase === 'swipe') {
+      setPhase('cards');
+    }
+  }, [activeCategory, phase]);
   
   const handleLaunch = useCallback((category: QuickFilterCategory) => {
     setActiveCategory(null);
@@ -55,9 +63,10 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   }, [setActiveCategory]);
 
   const handleMapBack = useCallback(() => {
+    setActiveCategory(null);
     setPhase('cards');
     setMapCategory(null);
-  }, []);
+  }, [setActiveCategory]);
 
   const handleStartSwiping = useCallback(() => {
     if (mapCategory) {
