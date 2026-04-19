@@ -240,7 +240,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="flex-1 w-full relative z-10"
+            className="flex-1 w-full min-h-0 relative z-10 flex flex-col items-stretch overflow-hidden"
           >
             <DashboardMapCard>
               <div className="flex-1 relative min-h-0">
@@ -261,7 +261,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="w-full h-full z-10"
+            className="w-full h-full z-10 flex flex-col"
           >
             <DashboardMapCard>
               <MapFilterChipRow mode="owner" />

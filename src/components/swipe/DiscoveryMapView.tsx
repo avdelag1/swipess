@@ -18,7 +18,7 @@ import type { QuickFilterCategory } from '@/types/filters';
 
 // 🗝️ OFFICIAL MAPBOX ASSETS — ONE STYLE, ONE KEY
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
-const MAPBOX_STYLE = 'mapbox/dark-v11';
+const MAPBOX_STYLE = 'mapbox/navigation-night-v1';
 
 // FLAGSHIP FALLBACK: If Mapbox is blocked/missing, use a high-contrast dark OSM layer
 // We ENFORCE a dark baseline for the Radar because light-theme maps often hide the streets
@@ -163,7 +163,7 @@ export const DiscoveryMapView = ({
     <motion.div
       className={cn(
         'w-full h-full relative overflow-hidden flex flex-col',
-        isEmbedded ? 'bg-transparent' : 'bg-black',
+        isEmbedded ? 'bg-[#0a0a0b]' : 'bg-black',
       )}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -294,8 +294,8 @@ export const DiscoveryMapView = ({
                 className={cn(
                   "h-11 px-5 rounded-2xl flex items-center gap-2 transition-all border shadow-2xl backdrop-blur-3xl flex-shrink-0",
                   isActive 
-                    ? "bg-primary text-white border-primary shadow-[0_15px_35px_rgba(235,72,152,0.5)]" 
-                    : "bg-black text-white/70 border-white/10 hover:text-white hover:bg-black"
+                    ? "bg-primary text-white border-primary shadow-[0_15px_35px_rgba(235,72,152,0.5)] scale-105" 
+                    : "bg-slate-900/90 text-white border-white/10 hover:text-white hover:bg-slate-800"
                 )}
               >
                 <Icon className="w-5 h-5" />
