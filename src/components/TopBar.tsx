@@ -11,7 +11,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
-import { ThemeToggle } from './ThemeToggle';
+import { ThemeSelector } from './ThemeSelector';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -191,8 +191,8 @@ function TopBarComponent({
               </motion.button>
             )}
             {!minimal && (
-              <div className="rounded-full overflow-hidden pointer-events-auto" style={glassSurfaceStyle}>
-                <ThemeToggle />
+              <div className="flex-shrink-0 pointer-events-auto">
+                <ThemeSelector />
               </div>
             )}
             {!minimal && (
