@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
+import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuickFilterCategory } from '@/types/filters';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -26,13 +27,13 @@ interface ClientDashboardProps {
  */
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { theme } = useTheme();
+  // Phase state: 'cards' | 'map' | 'swipe'
+  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>('cards');
+  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setActiveCategory, setCategories } = useFilterActions();
-
-  // Phase state: 'map' | 'swipe' (Removed 'cards' phase forever)
-  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
-  const [mapCategory, setMapCategory] = useState<QuickFilterCategory>('property');
-  const [showFilters, setShowFilters] = useState(false);
 
   // ─── Actions ─────────────────────────────────────────────────────────────
   
@@ -43,15 +44,20 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   }, []);
   
   const handleLaunch = useCallback((category: QuickFilterCategory) => {
-    setActiveCategory(category);
-    setPhase('swipe'); 
-    setCategories([category]);
-  }, [setCategories, setActiveCategory]);
+    setActiveCategory(null);
+    setMapCategory(category);
+    setPhase('swipe');
+    setCategories([category]); // Also set in store to trigger SwipessSwipeContainer logic
+  }, [setCategories]);
 
   const handleExhaustedMap = useCallback(() => {
-    setActiveCategory(null);
-    setPhase('cards');
+    setPhase('map');
   }, [setActiveCategory]);
+
+  const handleMapBack = useCallback(() => {
+    setPhase('cards');
+    setMapCategory(null);
+  }, []);
 
   const handleStartSwiping = useCallback(() => {
     if (mapCategory) {
@@ -61,27 +67,58 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   }, [mapCategory, setActiveCategory]);
 
   const handleListingTap = useCallback(() => {
+    // In v1.0, tapping the mini-card on map takes you to swipe phase
     handleStartSwiping();
   }, [handleStartSwiping]);
 
-  // Determine what to show strictly
+  // Handle case where user exits swipe deck via some other nav
+  const handleBackToMap = useCallback(() => {
+    setActiveCategory(null);
+    setPhase('map');
+  }, [setActiveCategory]);
+
+
+  // Determine what to show based on phase + store state. 
+  // We MUST be strictly exclusive to avoid "ghost designs" appearing behind.
   const isSwiping = phase === 'swipe' || !!activeCategory;
+  const showCards = phase === 'cards' && !isSwiping;
   const showMap = phase === 'map' && !isSwiping;
   const showSwipe = isSwiping;
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden relative">
       <AnimatePresence mode="popLayout">
-        {phase === 'cards' && !activeCategory && (
+        {showCards && (
           <motion.div
-            key="dash-cards"
-            initial={{ opacity: 0, scale: 0.98 }}
+            key="dash-fan"
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.02 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="flex-1 w-full relative"
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
+            style={{ willChange: 'transform, opacity' }}
           >
-            <SwipeAllDashboard onSelectCard={(card) => handleLaunch(card.id as QuickFilterCategory)} />
+            <SwipeAllDashboard setCategories={(ids: any) => handleLaunch((Array.isArray(ids) ? ids[0] : ids) as QuickFilterCategory)} />
+          </motion.div>
+        )}
+
+        {showMap && mapCategory && (
+          <motion.div
+            key="dash-map"
+            initial={{ opacity: 0, y: 30, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.98 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="flex-1 w-full relative"
+            style={{ willChange: 'transform, opacity' }}
+          >
+            <DiscoveryMapView
+              category={mapCategory}
+              onBack={handleMapBack}
+              onStartSwiping={handleStartSwiping}
+              onCategoryChange={(cat) => setMapCategory(cat)}
+              isEmbedded={false}
+            />
           </motion.div>
         )}
 
@@ -91,8 +128,9 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             initial={{ opacity: 0, y: 30, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.98 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="w-full h-full"
+            style={{ willChange: 'transform, opacity' }}
           >
             <SwipessSwipeContainer
               onListingTap={handleListingTap}

@@ -13,7 +13,6 @@ import { uiSounds } from '@/utils/uiSounds';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useTheme } from '@/hooks/useTheme';
 import { createPortal } from 'react-dom';
-import { useSpeechToText } from '@/hooks/useSpeechToText';
 
 /* ─── Character Avatars ─── */
 const CHARACTER_AVATARS: Record<string, string> = {
@@ -233,21 +232,6 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
     createConversation, switchConversation, deleteConversation, clearHistory,
     activeCharacter, setActiveCharacter,
   } = useConciergeAI();
-
-  const { isListening, toggleListening, supported } = useSpeechToText((transcript) => {
-    setInput(prev => {
-        const newVal = prev.trim() + (prev.trim().length > 0 ? ' ' : '') + transcript;
-        return newVal;
-    });
-    triggerHaptic('light');
-    uiSounds.playMicOff();
-  });
-
-  useEffect(() => {
-    if (isListening) {
-        uiSounds.playMicOn();
-    }
-  }, [isListening]);
 
   // ── Session Reset Logic ──
   useEffect(() => {
@@ -475,24 +459,10 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                   <div className="flex items-center justify-between px-2 pt-1 pb-2">
                     <div className="flex items-center gap-1.5">
                       <button
-                        onClick={() => { triggerHaptic('light'); toggleListening(); }}
-                        disabled={!supported}
-                        className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center transition-all relative",
-                          isListening 
-                            ? (isNexus ? "bg-cyan-500 text-black shadow-[0_0_20px_rgba(34,211,238,0.6)] scale-110" : "bg-primary text-white scale-110 shadow-lg")
-                            : "bg-background/20 border border-current opacity-40 hover:opacity-100"
-                        )}
+                        onClick={() => { triggerHaptic('light'); }}
+                        className="w-10 h-10 rounded-xl flex items-center justify-center bg-background/20 border border-current transition-all opacity-40 hover:opacity-100"
                       >
-                        {isListening && (
-                          <motion.div 
-                            layoutId="pulse"
-                            className={cn("absolute inset-0 rounded-xl", isNexus ? "bg-cyan-400" : "bg-primary")}
-                            animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
-                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                          />
-                        )}
-                        {isListening ? <Square className="w-4 h-4 relative z-10" /> : <Mic className={cn("w-4.5 h-4.5 relative z-10", !supported && "strike-through")} />}
+                        <Mic className="w-4.5 h-4.5" />
                       </button>
                       <button
                         onClick={() => { triggerHaptic('medium'); createConversation(); }}

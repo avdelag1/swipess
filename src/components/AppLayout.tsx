@@ -115,7 +115,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <NotificationSystem />
       </Suspense>
  
-      {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && !isImmersive && (
+      {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
         <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[9999]">
           <TopBar
             userRole={userRole}

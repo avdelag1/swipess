@@ -20,6 +20,7 @@ import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
 import { useFilterActions } from '@/state/filterStore';
 import type { OwnerIntentCard } from '@/components/swipe/SwipeConstants';
 import { triggerHaptic } from '@/utils/haptics';
+import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -45,9 +46,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }, []);
   
   const activeCategory = useFilterStore(s => s.activeCategory);
-  // Phase state: 'map' | 'swipe' (Removed 'cards' phase forever)
-  const [phase, setPhase] = useState<'map' | 'swipe'>(activeCategory ? 'swipe' : 'map');
-  const [mapCategory, setMapCategory] = useState<QuickFilterCategory>('property');
+  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
+  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
   const modalStore = useModalStore();
@@ -137,8 +137,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }, []);
 
   const handleMapBack = useCallback(() => {
-    // Disabled back for primary discovery
-  }, []);
+    setMapCategory(null);
+    setPhase('cards');
+    setActiveCategory(null);
+  }, [setActiveCategory]);
 
   const handleStartSwiping = useCallback(() => {
     if (mapCategory) {
@@ -147,7 +149,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }, [mapCategory, setCategories]);
 
-  const showMap = phase === 'map' && !activeCategory;
+  const showCards = phase === 'cards' && !activeCategory;
+  const showMap = phase === 'map' && mapCategory && !activeCategory;
   const showSwipe = phase === 'swipe' || !!activeCategory;
 
   if (isAuthLoading || isPrefsLoading) {
@@ -205,17 +208,35 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           >
             <OwnerInsightsDashboard />
           </motion.div>
-        ) : !activeCategory ? (
-          <motion.div
-            key="owner-all-dash"
-            initial={{ opacity: 0, scale: 0.98 }}
+        ) : showCards ? (
+          <motion.div 
+            key="owner-dash-fan"
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.02 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden z-10"
+            style={{ willChange: 'transform, opacity' }}
+          >
+            <OwnerAllDashboard onCardSelect={handleCardSelect} />
+          </motion.div>
+        ) : showMap && mapCategory ? (
+          <motion.div
+            key="owner-dash-map"
+            initial={{ opacity: 0, y: 40, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -30, scale: 0.98 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 w-full relative z-10"
             style={{ willChange: 'transform, opacity' }}
           >
-            <OwnerAllDashboard onSelectCard={handleCardSelect} />
+            <DiscoveryMapView
+              category={mapCategory}
+              onBack={handleMapBack}
+              onStartSwiping={handleStartSwiping}
+              onCategoryChange={(cat) => setMapCategory(cat)}
+              mode="owner"
+            />
           </motion.div>
         ) : showSwipe && !isLoading && clientProfiles.length === 0 && mapCategory ? (
           <motion.div
@@ -227,11 +248,13 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             className="w-full h-full z-10"
             style={{ willChange: 'transform, opacity' }}
           >
-            <div className="flex flex-col items-center justify-center h-full p-8 text-center opacity-50">
-               <Sparkles className="w-12 h-12 mb-4" />
-               <p className="text-[10px] font-black uppercase tracking-widest">No target data found for this category</p>
-               <Button variant="link" onClick={() => setPhase('map')} className="mt-4 text-[10px] font-black uppercase tracking-widest text-[#EB4898]">Return to Base</Button>
-            </div>
+            <DiscoveryMapView
+              category={mapCategory}
+              onBack={handleMapBack}
+              onStartSwiping={handleStartSwiping}
+              onCategoryChange={(cat) => setMapCategory(cat)}
+              mode="owner"
+            />
           </motion.div>
         ) : showSwipe ? (
           <motion.div
