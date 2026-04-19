@@ -4,10 +4,6 @@ import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
-import { useTheme } from '@/hooks/useTheme';
-import { cn } from '@/lib/utils';
-import { triggerHaptic } from '@/utils/haptics';
 import type { QuickFilterCategory } from '@/types/filters';
 
 interface ClientDashboardProps {
@@ -25,9 +21,6 @@ interface ClientDashboardProps {
  * UI transitions and state isolation.
  */
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
-  
   // Phase state: 'cards' | 'map' | 'swipe'
   const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>('cards');
   const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
@@ -128,27 +121,6 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* 📡 SENTINEL RADAR: FLOATING TRIGGER */}
-      {!showMap && !showSwipe && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => { triggerHaptic('heavy'); handleLaunch('property'); }}
-          className={cn(
-            "fixed bottom-28 right-8 w-16 h-16 rounded-full flex items-center justify-center shadow-[0_20px_40px_rgba(235,72,152,0.4)] z-[5000] border-2 border-white/20 backdrop-blur-3xl overflow-hidden",
-            isLight ? "bg-white text-black" : "bg-black text-white"
-          )}
-        >
-           <motion.div 
-             animate={{ scale: [1, 1.5, 1], opacity: [0.1, 0.4, 0.1] }} 
-             transition={{ duration: 3, repeat: Infinity }} 
-             className="absolute inset-0 bg-[#EB4898]" 
-           />
-           <Sparkles className="w-6 h-6 text-[#EB4898] relative z-10" />
-        </motion.button>
-      )}
     </div>
   );
 }
