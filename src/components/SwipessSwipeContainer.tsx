@@ -963,6 +963,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   return (
     <div className="relative w-full h-full overflow-hidden flex flex-col bg-black">
       <div className="absolute inset-0 pointer-events-none -z-10 bg-black" />
+      
+      {(() => {
+        const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
+        return (
+          <>
 
       {/* Top Controls — IN FLOW, not absolute. Hidden when the exhausted state is showing because that view has its own large map. */}
       {/* Removed redundant LocationRadiusSelector header — replaced by unified Map HUD */}
@@ -1120,6 +1125,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         </Suspense>,
         document.body
       )}
+    </>
+        );
+      })()}
     </div>
   );
 };
