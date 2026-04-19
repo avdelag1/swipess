@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useDiscoveryStore } from '@/store/useDiscoveryStore';
+import { useFilterStore } from '@/state/filterStore';
+import { useSmartListingMatching } from '@/hooks/useSmartMatching';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { motion } from 'framer-motion';
 
 // 🗝️ OFFICIAL MAPBOX ASSETS
@@ -42,12 +45,22 @@ const MapController = ({ center }: { center: [number, number] }) => {
  * High-performance Leaflet implementation using Mapbox tiles and Nexus aesthetics.
  */
 export const DiscoveryMapView = () => {
-  const { userLocation, radiusKm, filteredListings, dashboardMode } = useDiscoveryStore();
+  const { user } = useAuth();
+  const { data: role } = useUserRole(user?.id);
+  const radiusKm = useFilterStore((s) => s.radiusKm);
+  const userLatitude = useFilterStore((s) => s.userLatitude);
+  const userLongitude = useFilterStore((s) => s.userLongitude);
+  const getListingFilters = useFilterStore((s) => s.getListingFilters);
+  
+  const filters = useMemo(() => getListingFilters(), [getListingFilters]);
+  const { data: listings = [] } = useSmartListingMatching(user?.id, [], filters);
   
   const defaultCenter: [number, number] = [20.2114, -87.4654]; // Tulum Default
-  const mapCenter: [number, number] = userLocation ? [userLocation.lat, userLocation.lng] : defaultCenter;
+  const mapCenter: [number, number] = (userLatitude && userLongitude) 
+    ? [userLatitude, userLongitude] 
+    : defaultCenter;
 
-  const accentColor = dashboardMode === 'client' ? '#EB4898' : '#3b82f6';
+  const accentColor = role === 'owner' ? '#3b82f6' : '#EB4898';
 
   return (
     <motion.div 
@@ -89,7 +102,7 @@ export const DiscoveryMapView = () => {
         {/* 🎯 RADAR RADIUS FIELD */}
         <CircleMarker
           center={mapCenter}
-          radius={radiusKm * 100} // Approximate visualization
+          radius={Math.max(10, radiusKm * 10)} // Approximate visualization adjustment for web zoom
           pathOptions={{ 
             fillColor: accentColor, 
             fillOpacity: 0.05, 
@@ -100,20 +113,22 @@ export const DiscoveryMapView = () => {
         />
 
         {/* 📍 DISCOVERY NODES (Listings/Clients) */}
-        {filteredListings.map((item) => (
+        {listings.map((item: any) => (
           <Marker 
             key={item.id} 
-            position={[item.lat, item.lng]}
+            position={[item.latitude || item.lat, item.longitude || item.lng]}
             icon={createCustomIcon(accentColor)}
           >
             <Popup className="nexus-popup">
               <div className="p-2 min-w-[120px]">
-                <img 
-                  src={item.images?.[0] || 'https://via.placeholder.com/150'} 
-                  className="w-full h-24 object-cover rounded-xl mb-3 border border-white/10" 
-                  alt={item.title}
-                />
-                <p className="text-white font-black uppercase text-[10px] tracking-widest">{item.title}</p>
+                {item.images?.[0] && (
+                  <img 
+                    src={item.images[0]} 
+                    className="w-full h-24 object-cover rounded-xl mb-3 border border-white/10" 
+                    alt={item.title}
+                  />
+                )}
+                <p className="text-white font-black uppercase text-[10px] tracking-widest leading-tight">{item.title}</p>
                 <p className="text-primary text-[9px] font-bold mt-1 italic">${item.price}</p>
               </div>
             </Popup>
@@ -122,10 +137,10 @@ export const DiscoveryMapView = () => {
       </MapContainer>
 
       {/* 🧭 HUD OVERLAYS */}
-      <div className="absolute top-6 left-6 z-10">
+      <div className="absolute top-6 left-6 z-10 pointer-events-none">
          <div className="bg-black/80 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-2xl shadow-2xl">
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">
-               Radar: <span className="text-white">{filteredListings.length} Nodes Found</span>
+               Radar: <span className="text-white">{listings.length} Nodes Found</span>
             </span>
          </div>
       </div>
