@@ -30,9 +30,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   const x = useMotionValue(0);
   
   const [isDragging, setIsDragging] = useState(false);
-  const dragTilt = useTransform(x, [-200, 0, 200], [-8, 0, 8]);
-  const exitOpacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
-  const exitScale = useTransform(x, [-200, 0, 200], [0.9, 1, 0.9]);
+  const dragTilt = useTransform(x, [-300, 0, 300], [-15, 0, 15]);
+  const exitOpacityValue = useMotionValue(1);
+  const exitScaleValue = useMotionValue(1);
+  
+  // Combine internal drag logic with custom vanish logic
+  const dragOpacity = useTransform(x, [-250, -150, 0, 150, 250], [0, 1, 1, 1, 0]);
+  const dragScale = useTransform(x, [-250, 0, 250], [0.8, 1, 0.8]);
 
   const photo = POKER_CARD_PHOTOS[card.id] || POKER_CARD_PHOTOS.property;
   const gradient = POKER_CARD_GRADIENTS[card.id] || POKER_CARD_GRADIENTS.property;
@@ -54,23 +58,32 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       const exitX = direction === 'right' ? 320 : -320;
 
       animate(x, exitX, {
-        ...PK_SPRING,
+        type: 'spring',
+        stiffness: 700,
+        damping: 35,
+        velocity: vel,
         onComplete: () => {
           onCycle(card.id, direction);
-          x.set(0);
+          // 🚀 SPEED OF LIGHT: x.set(0) removed to prevent flickering during parent re-render
           setIsDragging(false);
         }
       });
+      // Simultaneous vanishing effects
+      animate(exitOpacityValue, 0, { duration: 0.35 });
+      animate(exitScaleValue, 0.4, { duration: 0.4 });
     } else {
       animate(x, 0, { ...PK_SPRING });
+      animate(exitOpacityValue, 1, { duration: 0.3 });
+      animate(exitScaleValue, 1, { duration: 0.3 });
       setIsDragging(false);
     }
   }, [card.id, onCycle, x]);
 
   // Stack styling
-  const stackY = isCollapsed ? 0 : index * 10;
-  const stackScale = 1 - (index * 0.05);
-  const stackOpacity = index === 0 ? 1 : index === 1 ? 0.7 : index === 2 ? 0.3 : 0;
+  // Stack styling — 🚀 NEXUS v14.0 Reveal Logic
+  const stackY = isCollapsed ? 0 : index * 12; // Deeper stack
+  const stackScale = 1 - (index * 0.04);
+  const stackOpacity = index === 0 ? 1 : index === 1 ? 1 : index === 2 ? 0.6 : 0;
   const stackedFilter = isTop ? undefined : `brightness(${0.85 - index * 0.1}) blur(${index * 2}px)`;
 
   if (index > 3) return null;
@@ -109,10 +122,16 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         left: 0,
         width: '100%',
         height: '100%',
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
         x: isTop ? x : 0,
         rotateZ: isTop ? dragTilt : 0,
-        scale: isTop ? exitScale : undefined,
-        opacity: isTop ? exitOpacity : undefined,
+        scale: isTop ? exitScaleValue : stackScale,
+        opacity: isTop ? exitOpacityValue : stackOpacity,
         filter: stackedFilter,
         cursor: isTop ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
         touchAction: 'none',
