@@ -5,7 +5,7 @@ import {
   Trash2, Menu, Check, Zap, Flame, Sun, Crown, Moon, 
   ChevronRight, Copy, Languages, CornerDownRight, Search
 } from 'lucide-react';
-import { Button } from '@/components/ui/sonner';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { useConciergeAI, ChatMessage, AiCharacter } from '@/hooks/useConciergeAI';

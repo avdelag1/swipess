@@ -122,12 +122,6 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         left: 0,
         width: '100%',
         height: '100%',
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
         x: isTop ? x : 0,
         rotateZ: isTop ? dragTilt : 0,
         scale: isTop ? exitScaleValue : stackScale,

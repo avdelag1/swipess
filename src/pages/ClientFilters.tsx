@@ -179,6 +179,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
             </div>
           </div>
         </div>
+      </div>
       )}
 
       <div className={cn("container mx-auto px-6 pt-4 pb-10", isEmbedded && "pt-10")}>
