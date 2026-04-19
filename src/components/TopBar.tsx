@@ -153,7 +153,7 @@ function TopBarComponent({
             )}
 
             {!minimal && (
-              <div className="flex-shrink-0 ml-2 pointer-events-auto rounded-xl overflow-hidden border border-white/10" style={glassSurfaceStyle}>
+              <div className="flex-shrink-0 ml-2 pointer-events-auto">
                 <ModeSwitcher variant="icon" size="sm" />
               </div>
             )}
@@ -190,12 +190,12 @@ function TopBarComponent({
               </motion.button>
             )}
             {!minimal && (
-              <div className="rounded-full overflow-hidden pointer-events-auto" style={glassSurfaceStyle}>
+              <div className="pointer-events-auto">
                 <ThemeToggle />
               </div>
             )}
             {!minimal && (
-              <div className="rounded-full overflow-hidden pointer-events-auto" style={glassSurfaceStyle}>
+              <div className="pointer-events-auto">
                 <NotificationPopover />
               </div>
             )}

@@ -77,11 +77,11 @@ body::-webkit-scrollbar {
 
 /* ─── Fluid Card Dimensions ─── */
 :root {
-  --card-width: min(340px, calc(100vw - 80px));
-  --card-height: min(680px, calc(100vh - 156px));
+  --card-width: min(400px, calc(100vw - 32px));
+  --card-height: min(740px, calc(100vh - var(--top-bar-height, 60px) - var(--bottom-nav-height, 72px) - 16px));
 }
 @supports (height: 100svh) {
-  :root { --card-height: min(680px, calc(100svh - 156px)); }
+  :root { --card-height: min(740px, calc(100svh - var(--top-bar-height, 60px) - var(--bottom-nav-height, 72px) - 16px)); }
 }
 
 .liquid-glass-card {

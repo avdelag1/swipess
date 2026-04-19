@@ -246,16 +246,15 @@ export const BottomNavigation = memo(({
       <div
         className="pointer-events-auto w-full max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto glass-pill-nav px-1"
         style={{
-          background: 'rgba(0,0,0,0.85)', // Force dark glass for high-contrast visibility
-          border: '1px solid rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(32px)',
-          WebkitBackdropFilter: 'blur(32px)',
-          // GPU acceleration
+          background: 'transparent',
+          border: 'none',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           position: 'relative',
-          overflow: 'hidden',
+          overflow: 'visible',
           zIndex: 1000,
         }}
       >

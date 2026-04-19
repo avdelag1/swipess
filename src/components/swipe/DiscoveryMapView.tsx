@@ -256,71 +256,70 @@ export const DiscoveryMapView = ({
 
       {/* 🧭 INTELLIGENT HUD CONTROLS */}
       {showHUD && <div className={cn(
-        "absolute left-6 right-6 z-20 flex flex-col gap-4 pointer-events-none transition-all duration-500",
-        modalStore.showMapFullscreen 
-          ? "top-[calc(var(--safe-top,20px)+12px)]" 
-          : isEmbedded ? "top-36" : "top-44" 
+        "absolute left-4 right-4 z-20 flex flex-col gap-3 pointer-events-none transition-all duration-500",
+        modalStore.showMapFullscreen
+          ? "top-[calc(var(--safe-top,20px)+10px)]"
+          : isEmbedded ? "top-3" : "top-4"
       )}>
-        <div className="w-full flex items-center justify-between pointer-events-auto">
-          {onBack && (
-            <Button
-              variant="ghost"
-              size="icon"
+        {/* Row 1: back + radar pill */}
+        <div className="w-full flex items-center justify-between pointer-events-auto gap-3">
+          {onBack ? (
+            <button
               onClick={() => { triggerHaptic('light'); onBack(); }}
-              className={cn(
-                "w-12 h-12 rounded-2xl backdrop-blur-3xl border transition-all shadow-2xl",
-                isLight 
-                  ? "bg-white/90 border-black/10 text-black hover:text-primary"
-                  : "bg-black/80 border-white/10 text-white hover:text-primary"
-              )}
+              className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all active:scale-90 flex-shrink-0"
+              style={{ background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(20px)' }}
             >
-              <ChevronLeft className="w-6 h-6" />
-            </Button>
-          )}
-          
-          {!onBack && <div className="w-12 h-12" />}
-          
-          <div className={cn(
-            "backdrop-blur-3xl border px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3",
-            isLight ? "bg-white/90 border-black/10" : "bg-black/80 border-white/10"
-          )}>
-             <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-             <span className={cn(
-               "text-[10px] font-black uppercase tracking-[0.35em]",
-               isLight ? "text-black" : "text-white"
-             )}>
-                RADAR: <span className="text-primary italic">{nodes.length} {activeRole === 'owner' ? 'CLIENTS' : 'NODES'}</span>
-             </span>
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+          ) : <div className="w-10 h-10 flex-shrink-0" />}
+
+          {/* Radar pill — Nexus accent */}
+          <div
+            className="flex items-center gap-2 px-4 py-2 rounded-2xl flex-shrink-0"
+            style={{
+              background: `linear-gradient(135deg, ${accentColor}22, ${accentColor}11)`,
+              border: `1px solid ${accentColor}55`,
+              backdropFilter: 'blur(20px)',
+            }}
+          >
+            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: accentColor, boxShadow: `0 0 8px ${accentColor}` }} />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">
+              RADAR <span style={{ color: accentColor }}>{nodes.length}</span>
+            </span>
           </div>
         </div>
 
-        {/* Quick Category Chips */}
-        <div className="flex justify-center gap-2 pointer-events-auto overflow-x-auto no-scrollbar pb-1">
+        {/* Row 2: Category chips */}
+        <div className="flex gap-2 pointer-events-auto overflow-x-auto no-scrollbar pb-0.5">
           {availableCategories.map((cat: any) => {
             const Icon = cat.icon;
             const isActive = activeCategory === cat.id || (activeRole === 'owner' && (filters as any).clientType === cat.clientType);
             return (
               <button
                 key={cat.id}
-                onClick={() => { 
-                  triggerHaptic('medium'); 
+                onClick={() => {
+                  triggerHaptic('medium');
                   if (activeRole === 'owner' && cat.clientType) {
                     useFilterStore.getState().setClientType(cat.clientType);
                   } else {
-                    setActiveCategory(cat.id as any); 
+                    setActiveCategory(cat.id as any);
                   }
                 }}
-                className={cn(
-                  "h-11 px-5 rounded-2xl flex items-center gap-2 transition-all border shadow-2xl backdrop-blur-3xl flex-shrink-0",
-                  isActive 
-                    ? "bg-primary text-white border-primary shadow-[0_15px_35px_rgba(235,72,152,0.5)] scale-105" 
-                    : isLight
-                      ? "bg-white/90 text-black border-black/10 hover:text-black hover:bg-white"
-                      : "bg-slate-900/90 text-white border-white/10 hover:text-white hover:bg-slate-800"
-                )}
+                className="h-9 px-4 rounded-2xl flex items-center gap-1.5 transition-all flex-shrink-0 active:scale-95"
+                style={isActive ? {
+                  background: accentColor,
+                  border: `1px solid ${accentColor}`,
+                  boxShadow: `0 8px 24px ${accentColor}55`,
+                  color: '#fff',
+                } : {
+                  background: 'rgba(0,0,0,0.65)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  backdropFilter: 'blur(20px)',
+                  color: 'rgba(255,255,255,0.8)',
+                }}
               >
-                <Icon className="w-5 h-5" />
-                <span className="text-[11px] font-black uppercase tracking-[0.1em]">{cat.label}</span>
+                <Icon className="w-4 h-4 flex-shrink-0" />
+                <span className="text-[10px] font-black uppercase tracking-[0.08em] whitespace-nowrap">{cat.label}</span>
               </button>
             );
           })}
