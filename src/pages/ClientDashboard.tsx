@@ -21,9 +21,6 @@ interface ClientDashboardProps {
  * UI transitions and state isolation.
  */
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
-  
   // Phase state: 'cards' | 'map' | 'swipe'
   const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>('cards');
   const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
