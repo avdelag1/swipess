@@ -12,6 +12,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { POKER_CARDS } from './SwipeConstants';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import type { QuickFilterCategory } from '@/types/filters';
 
 // 🗝️ OFFICIAL MAPBOX ASSETS — ONE STYLE, ONE KEY
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
