@@ -253,34 +253,34 @@ export const DiscoveryMapView = memo(({
     >
       
       {/* 🛸 TOP HUD: CENTERED LOGIC */}
-      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+20px)] inset-x-0 z-[2000] px-6 pointer-events-none flex items-center justify-between">
+      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+15px)] inset-x-0 z-[2000] px-4 pointer-events-none flex items-center justify-between">
           <button 
             onClick={onBack} 
             className={cn(
-               "w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl pointer-events-auto active:scale-90 transition-all border",
-               isLight ? "bg-white border-black/5 text-black" : "bg-black border-white/10 text-white"
+               "w-10 h-10 rounded-2xl flex items-center justify-center shadow-2xl pointer-events-auto active:scale-90 transition-all border",
+               isLight ? "bg-white border-black/10 text-black shadow-[0_8px_30px_rgb(0,0,0,0.12)]" : "bg-black border-white/20 text-white"
             )}
           >
-              <ArrowLeft className="w-6 h-6" />
+              <ArrowLeft className="w-5 h-5" />
           </button>
 
           <div className={cn(
-             "px-6 py-2 rounded-2xl shadow-2xl flex items-center gap-3 pointer-events-auto border transition-all backdrop-blur-3xl",
-             isLight ? "bg-white/90 border-black/5" : "bg-black/90 border-white/10"
+             "px-4 py-1.5 rounded-2xl shadow-2xl flex items-center gap-2 pointer-events-auto border transition-all backdrop-blur-3xl",
+             isLight ? "bg-white/95 border-black/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)]" : "bg-black/95 border-white/20"
           )}>
-              <div className="flex flex-col items-center">
-                 <span className="text-[7px] font-black uppercase tracking-[0.4em] text-[#EB4898]">Range</span>
-                 <span className={cn("text-[13px] font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>{localKm} KM</span>
+              <div className="flex flex-col items-center min-w-[45px]">
+                 <span className="text-[6px] font-black uppercase tracking-[0.4em] text-[#EB4898]">Range</span>
+                 <span className={cn("text-[11px] font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>{localKm} KM</span>
               </div>
-              <div className="w-[1px] h-6 bg-white/10 mx-1" />
+              <div className="w-[1px] h-5 bg-black/5 dark:bg-white/10 mx-1" />
               <div className="flex gap-1">
                  {[1, 5, 25, 100].map(km => (
                     <button 
                       key={km} 
                       onClick={() => { triggerHaptic('light'); setLocalKm(km); setRadiusKm(km); }} 
                       className={cn(
-                        "w-10 h-8 rounded-xl text-[9px] font-black uppercase transition-all", 
-                        localKm === km ? "bg-[#EB4898] text-white" : isLight ? "text-black/30 hover:bg-black/5" : "text-white/20 hover:bg-white/5"
+                        "w-9 h-7 rounded-lg text-[9px] font-black uppercase transition-all", 
+                        localKm === km ? "bg-[#EB4898] text-white shadow-lg" : isLight ? "text-black/60 bg-black/5 hover:bg-black/10" : "text-white/40 bg-white/5 hover:bg-white/10"
                       )}
                     >
                       {km}K
@@ -291,31 +291,31 @@ export const DiscoveryMapView = memo(({
 
           <div className={cn(
              "p-1 rounded-2xl shadow-2xl pointer-events-auto backdrop-blur-3xl border flex gap-1",
-             isLight ? "bg-white/95 border-black/5" : "bg-black/95 border-white/10"
+             isLight ? "bg-white/95 border-black/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)]" : "bg-black/95 border-white/20"
           )}>
               <button 
                 onClick={() => { triggerHaptic('light'); setMapStyle(prev => prev === 'streets' ? 'satellite' : 'streets'); }} 
-                className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all", mapStyle === 'satellite' ? "bg-indigo-500 text-white" : isLight ? "bg-black text-white" : "bg-white text-black")}
+                className={cn("w-9 h-9 rounded-xl flex items-center justify-center transition-all", mapStyle === 'satellite' ? "bg-indigo-500 text-white" : isLight ? "bg-black text-white" : "bg-white text-black")}
               >
-                  <Layers className="w-5 h-5" />
+                  <Layers className="w-4 h-4" />
               </button>
               <button 
                 onClick={detectLocation} 
-                className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-all", userLatitude ? "bg-[#EB4898] text-white" : isLight ? "bg-black/5 text-black" : "bg-white/5 text-white")}
+                className={cn("w-9 h-9 rounded-xl flex items-center justify-center transition-all", userLatitude ? "bg-[#EB4898] text-white" : isLight ? "bg-black/5 text-black hover:bg-black/10" : "bg-white/5 text-white hover:bg-white/10")}
               >
-                  <Navigation className="w-5 h-5" />
+                  <Navigation className="w-4 h-4" />
               </button>
           </div>
       </div>
 
       {/* 🛸 NEXUS MAP WINDOW */}
-      <div className="flex-1 w-full relative z-0 p-4 pt-24 pb-32 flex flex-col min-h-[400px]">
+      <div className="flex-1 w-full relative z-0 p-3 pt-24 pb-32 flex flex-col min-h-[400px]">
         <div 
           id="nexus-radar-map"
           ref={mapContainerRef} 
           className={cn(
-            "flex-1 w-full rounded-[3.5rem] border overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.5)] transition-all duration-700 relative",
-            theme === 'nexus-style' ? "border-white/20" : "border-white/5"
+            "flex-1 w-full rounded-[3rem] border overflow-hidden shadow-[0_20px_100px_rgba(0,0,0,0.2)] transition-all duration-700 relative",
+            theme === 'nexus-style' ? "border-white/20 shadow-black/60" : "border-black/5"
           )} 
           style={{ minHeight: '300px' }}
         />
@@ -327,39 +327,39 @@ export const DiscoveryMapView = memo(({
                   initial={{ opacity: 0, y: 100, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 100, scale: 0.9 }}
-                  className="absolute bottom-40 inset-x-10 z-[3000] flex justify-center pointer-events-none"
+                  className="absolute bottom-40 inset-x-8 z-[3000] flex justify-center pointer-events-none"
               >
                   <div className={cn(
-                      "w-full max-w-[360px] p-4 rounded-[2.5rem] border backdrop-blur-3xl shadow-[0_40px_100px_rgba(0,0,0,0.6)] pointer-events-auto flex items-center gap-5",
-                      isLight ? "bg-white/95 border-black/5" : "bg-black/95 border-white/10"
+                      "w-full max-w-[340px] p-3 rounded-[2.5rem] border backdrop-blur-3xl shadow-[0_40px_120px_rgba(0,0,0,0.4)] pointer-events-auto flex items-center gap-4",
+                      isLight ? "bg-white/95 border-black/10" : "bg-black/95 border-white/20"
                   )}>
-                      <div className="w-24 h-24 rounded-[1.8rem] overflow-hidden shadow-2xl flex-shrink-0">
+                      <div className="w-20 h-20 rounded-[1.5rem] overflow-hidden shadow-2xl flex-shrink-0">
                           <img src={selectedEntity.images?.[0] || '/placeholder.svg'} className="w-full h-full object-cover" />
                       </div>
-                      <div className="flex-1 space-y-1">
+                      <div className="flex-1 min-w-0 space-y-1">
                           <div className="flex items-center justify-between">
-                              <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]">Discovered</span>
-                              <button onClick={() => setSelectedEntity(null)} className="p-1 opacity-20 hover:opacity-100 transition-opacity">
+                              <span className="text-[8px] font-black uppercase tracking-[0.3em] text-[#EB4898]">Protocol</span>
+                              <button onClick={() => setSelectedEntity(null)} className={cn("p-1", isLight ? "text-black/20" : "text-white/20")}>
                                   <X className="w-4 h-4" />
                               </button>
                           </div>
-                          <h4 className={cn("text-[15px] font-black uppercase italic tracking-tighter truncate", isLight ? "text-black" : "text-white")}>
+                          <h4 className={cn("text-[14px] font-black uppercase italic tracking-tighter truncate", isLight ? "text-black" : "text-white")}>
                               {selectedEntity.title}
                           </h4>
                           <div className="flex items-center gap-2">
                              {mode === 'client' ? (
-                                 <span className="text-sm font-black text-emerald-500 italic">${selectedEntity.price}</span>
+                                 <span className="text-xs font-black text-emerald-500 italic">${selectedEntity.price}</span>
                              ) : (
-                                 <span className="text-[10px] font-bold opacity-40 uppercase tracking-widest">{selectedEntity.metadata?.age} • {selectedEntity.metadata?.gender}</span>
+                                 <span className="text-[9px] font-bold opacity-60 uppercase tracking-widest">{selectedEntity.metadata?.age} • {selectedEntity.metadata?.gender}</span>
                              )}
-                             <span className="w-1 h-1 rounded-full bg-white/10" />
-                             <span className={cn("text-[10px] font-bold uppercase tracking-widest opacity-40")}>{selectedEntity.type}</span>
+                             <span className="w-1 h-1 rounded-full bg-black/10 dark:bg-white/10" />
+                             <span className={cn("text-[9px] font-bold uppercase tracking-widest opacity-60")}>{selectedEntity.type}</span>
                           </div>
                           <button 
                             onClick={() => { triggerHaptic('heavy'); onStartSwiping?.(); }}
-                            className="w-full h-10 mt-2 rounded-2xl bg-[#EB4898]/10 text-[#EB4898] text-[10px] font-black uppercase italic tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-[#EB4898]/20 pointer-events-auto"
+                            className="w-full h-9 mt-1.5 rounded-xl bg-[#EB4898] text-white text-[9px] font-black uppercase italic tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-[#EB4898]/80 pointer-events-auto shadow-lg shadow-[#EB4898]/20"
                           >
-                              View Protocol <ChevronRight className="w-4 h-4" />
+                              Engage Deck <ChevronRight className="w-4 h-4" />
                           </button>
                       </div>
                   </div>
@@ -368,13 +368,13 @@ export const DiscoveryMapView = memo(({
         </AnimatePresence>
 
         {/* 🛸 BOTTOM COMMAND: CATEGORY MATRIX */}
-        <div className="absolute bottom-6 inset-x-0 z-[2010] flex justify-center px-10 pointer-events-none">
+        <div className="absolute bottom-6 inset-x-0 z-[2010] flex justify-center px-6 pointer-events-none">
             {!selectedEntity && (
             <motion.div 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               className={cn(
-               "p-2 rounded-[2.5rem] flex items-center gap-2 shadow-[0_20px_60px_rgba(0,0,0,0.4)] pointer-events-auto border transition-all backdrop-blur-3xl no-scrollbar",
-               isLight ? "bg-white/90 border-black/5" : "bg-black/90 border-white/10"
+               "p-1.5 rounded-[2.5rem] flex items-center gap-1.5 shadow-[0_20px_100px_rgba(0,0,0,0.15)] pointer-events-auto border transition-all backdrop-blur-3xl no-scrollbar",
+               isLight ? "bg-white/95 border-black/10" : "bg-black/95 border-white/20"
             )}>
                 {[
                     { id: 'property', icon: RealEstateIcon, label: 'Estate' }, 
@@ -386,10 +386,10 @@ export const DiscoveryMapView = memo(({
                         key={cat.id} 
                         onClick={() => { triggerHaptic('light'); onCategoryChange?.(cat.id as any); }} 
                         className={cn(
-                            "h-11 px-4 flex items-center gap-2 rounded-[1.8rem] transition-all whitespace-nowrap", 
+                            "h-10 px-4 flex items-center gap-2 rounded-[1.8rem] transition-all whitespace-nowrap", 
                             category === cat.id 
-                              ? "bg-[#EB4898] text-white shadow-lg shadow-[#EB4898]/20" 
-                              : isLight ? "text-black/30 bg-black/5" : "text-white/20 bg-white/5"
+                              ? "bg-[#EB4898] text-white shadow-xl shadow-[#EB4898]/25 scale-105 z-10" 
+                              : isLight ? "text-black/60 bg-black/5 hover:bg-black/10" : "text-white/40 bg-white/5 hover:bg-white/10"
                         )}
                     >
                         <cat.icon className="w-4 h-4" />
@@ -402,16 +402,16 @@ export const DiscoveryMapView = memo(({
       </div>
 
       {/* 📡 SCAN TRIGGER */}
-      <div className="absolute bottom-[20px] inset-x-0 z-[2000] flex justify-center px-10 pointer-events-none">
+      <div className="absolute bottom-[15px] inset-x-0 z-[2000] flex justify-center px-10 pointer-events-none">
         <button 
           onClick={handleRefresh} 
           className={cn(
-            "w-full max-w-[300px] h-12 rounded-[2rem] text-[10px] font-black uppercase italic tracking-[0.4em] transition-all flex items-center justify-center gap-4 border-none pointer-events-auto shadow-[0_20px_40px_rgba(235,72,152,0.4)] backdrop-blur-xl",
-            isRefreshing ? "bg-black text-white" : "bg-[#EB4898] text-white active:scale-95"
+            "w-full max-w-[280px] h-12 rounded-[1.8rem] text-[10px] font-black uppercase italic tracking-[0.4em] transition-all flex items-center justify-center gap-3 border-none pointer-events-auto shadow-[0_20px_50px_rgba(235,72,152,0.3)] backdrop-blur-xl",
+            isRefreshing ? (isLight ? "bg-black text-white" : "bg-white text-black") : "bg-[#EB4898] text-white active:scale-95 shadow-[#EB4898]/30"
           )}
         >
           <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} /> 
-          <span>{isRefreshing ? 'Optimizing Radar...' : 'Start Radar Scan'}</span>
+          <span>{isRefreshing ? 'Optimizing Matrix...' : 'Sync Radar'}</span>
         </button>
       </div>
 
