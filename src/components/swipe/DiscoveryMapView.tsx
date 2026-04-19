@@ -414,7 +414,7 @@ export const DiscoveryMapView = memo(({
 
       <style dangerouslySetInnerHTML={{ __html: `
         .leaflet-container { width: 100%; height: 100%; outline: none; background: ${isLight ? '#f8fafc' : '#0d0d0f'} !important; }
-        .leaflet-tile { transition: opacity 0.6s ease; ${isLight ? '' : 'filter: brightness(0.9) contrast(1.2) saturate(0.8) invert(0.9) hue-rotate(180deg);'} } 
+        .leaflet-tile { transition: opacity 0.6s ease; ${isLight ? '' : 'filter: brightness(1.1) contrast(1.3) saturate(1.2) hue-rotate(190deg);'} } 
         .sentient-radar-circle { 
             animation: radar-pulse-v14 3.5s infinite ease-in-out; 
             transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
