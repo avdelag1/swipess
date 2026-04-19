@@ -157,11 +157,23 @@ export const DiscoveryMapView = memo(({
         markersRef.current = L.layerGroup().addTo(map);
         mapInstance.current = map;
         
-        setTimeout(() => map.invalidateSize(), 300);
+        // Multiple invalidations to handle animation/layout settle
+        setTimeout(() => map.invalidateSize(), 100);
+        setTimeout(() => map.invalidateSize(), 400);
+        setTimeout(() => map.invalidateSize(), 800);
+
+        // ResizeObserver to recalc on any size change (parent animations, keyboard, etc.)
+        const ro = new ResizeObserver(() => {
+          if (mapInstance.current) mapInstance.current.invalidateSize();
+        });
+        ro.observe(mapContainerRef.current);
+        (mapInstance.current as any).__ro = ro;
     } catch (e) { console.error("Map Error:", e); }
 
     return () => {
         if (mapInstance.current) {
+            const ro = (mapInstance.current as any).__ro as ResizeObserver | undefined;
+            ro?.disconnect();
             mapInstance.current.remove();
             mapInstance.current = null;
         }

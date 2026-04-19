@@ -79,7 +79,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
             style={{ willChange: 'transform, opacity' }}
           >
-            <SwipeAllDashboard setCategories={handleLaunch as any} />
+            <SwipeAllDashboard setCategories={(ids: any) => handleLaunch((Array.isArray(ids) ? ids[0] : ids) as QuickFilterCategory)} />
           </motion.div>
         )}
 
