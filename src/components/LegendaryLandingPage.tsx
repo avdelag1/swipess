@@ -6,7 +6,7 @@ import {
 import { triggerHaptic } from '@/utils/haptics';
 import { playRandomZen } from '@/utils/sounds';
 import {
-  Mail, Lock, User, ArrowLeft, Sparkles, ChevronRight
+  Mail, Lock, User, ArrowLeft, Sparkles, ChevronRight, Check
 } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects, { type EffectMode } from './LandingBackgroundEffects';
@@ -112,12 +112,12 @@ const SocialAuthButton = ({
   <button
     type="button"
     onClick={onClick}
-    className="group flex h-16 w-full items-center justify-center gap-4 rounded-[1.8rem] bg-white/[0.03] border border-white/5 hover:bg-white/5 active:scale-[0.97] transition-all"
+    className="group flex h-16 w-full items-center justify-center gap-4 rounded-[1.8rem] bg-black border border-white/10 hover:border-white/30 active:scale-[0.97] transition-all shadow-xl"
   >
-    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white group-hover:bg-white/10 transition-colors">
+    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white group-hover:bg-brand-primary/20 transition-colors">
       {icon}
     </div>
-    <span className="text-[11px] font-black tracking-widest uppercase text-white/70 italic">
+    <span className="text-[11px] font-black tracking-[0.2em] uppercase text-white drop-shadow-md italic">
       {label}
     </span>
   </button>
@@ -132,6 +132,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const { signIn, signUp, signInWithOAuth } = useAuth();
 
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -207,42 +208,68 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           <h1 className="text-3xl font-black italic tracking-tighter text-white uppercase leading-none mb-3">
              {isForgotPassword ? 'Reset Access' : isLogin ? 'Access Portal' : 'Get Started'}
           </h1>
-          <p className="text-[10px] font-black tracking-[0.25em] text-white/30 uppercase italic">
-            Secure Neural Connection Required
+          <p className="text-[10px] font-black tracking-[0.25em] text-white/40 uppercase italic">
+            SECURE NEURAL CONNECTION REQUIRED
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && !isForgotPassword && (
             <div className="relative">
-              <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-              <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="STATION ID (NAME)" className="pl-12 h-15 bg-white/5 border-white/5 text-white placeholder:text-white/10 rounded-[1.5rem] focus:border-[#EB4898]/30 transition-all font-bold italic text-sm" />
+              <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+              <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="STATION ID (NAME)" className="pl-12 h-15 bg-black/60 border-white/10 text-white placeholder:text-white/20 rounded-[1.5rem] focus:border-brand-primary/50 transition-all font-bold italic text-sm" />
             </div>
           )}
 
           <div className="relative">
-            <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="COMM-LINK (EMAIL)" className="pl-12 h-15 bg-white/5 border-white/5 text-white placeholder:text-white/10 rounded-[1.5rem] focus:border-[#EB4898]/30 transition-all font-bold italic text-sm" />
+            <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="COMM-LINK (EMAIL)" className="pl-12 h-15 bg-black/60 border-white/10 text-white placeholder:text-white/20 rounded-[1.5rem] focus:border-brand-primary/50 transition-all font-bold italic text-sm" />
           </div>
 
           {!isForgotPassword && (
             <div className="relative">
-              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="CYPHER KEY" className="pl-12 h-15 bg-white/5 border-white/5 text-white placeholder:text-white/10 rounded-[1.5rem] focus:border-[#EB4898]/30 transition-all font-bold italic text-sm" />
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="CYPHER KEY" className="pl-12 h-15 bg-black/60 border-white/10 text-white placeholder:text-white/20 rounded-[1.5rem] focus:border-brand-primary/50 transition-all font-bold italic text-sm" />
             </div>
           )}
 
           {!isLogin && !isForgotPassword && (
             <div className="relative">
-              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
-              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="VERIFY CYPHER" className="pl-12 h-15 bg-white/5 border-white/5 text-white placeholder:text-white/10 rounded-[1.5rem] focus:border-[#EB4898]/30 transition-all font-bold italic text-sm" />
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="VERIFY CYPHER" className="pl-12 h-15 bg-black/60 border-white/10 text-white placeholder:text-white/20 rounded-[1.5rem] focus:border-brand-primary/50 transition-all font-bold italic text-sm" />
             </div>
           )}
+
+          <div className="flex items-center justify-between px-1">
+             <button 
+               type="button" 
+               onClick={() => setRememberMe(!rememberMe)}
+               className="flex items-center gap-2 group"
+             >
+                <div className={cn(
+                  "w-4 h-4 rounded-md border transition-all flex items-center justify-center",
+                  rememberMe ? "bg-brand-primary border-brand-primary" : "border-white/20 group-hover:border-white/40"
+                )}>
+                  {rememberMe && <Check className="w-2.5 h-2.5 text-white" />}
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Remember Key</span>
+             </button>
+             
+             {isLogin && (
+               <button 
+                 type="button" 
+                 onClick={() => setIsForgotPassword(true)}
+                 className="text-[10px] font-black uppercase tracking-widest text-brand-primary italic opacity-80 hover:opacity-100"
+               >
+                 Forgot Key?
+               </button>
+             )}
+          </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-16 rounded-[1.8rem] bg-white text-black font-black uppercase italic tracking-[0.2em] text-[12px] shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95 transition-all flex items-center justify-center gap-2 border-none"
+            className="w-full h-16 rounded-[1.8rem] bg-brand-primary text-white font-black uppercase italic tracking-[0.2em] text-[12px] shadow-[0_20px_40px_rgba(235,72,152,0.2)] active:scale-95 transition-all flex items-center justify-center gap-2 border-none"
           >
             <Sparkles className="w-4 h-4" />
             {isLoading ? 'SYNCING...' : isForgotPassword ? 'RESET LINK' : isLogin ? 'AUTHORIZE' : 'INITIALIZE'}
@@ -262,10 +289,14 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
               <SocialAuthButton label="Authorized Google" onClick={() => handleSocialLogin('google')} icon={<Sparkles className="w-4 h-4" />} />
             </div>
 
-            <div className="flex flex-col gap-2 items-center justify-center pt-2">
-               <button onClick={() => setIsForgotPassword(true)} className="text-[9px] font-black text-[#EB4898] uppercase tracking-widest italic hover:opacity-100 opacity-60 transition-opacity">Forgotten Access?</button>
-               <button onClick={() => { triggerHaptic('light'); setIsLogin(!isLogin); }} className="text-[10px] font-black text-white uppercase tracking-[0.2em] italic">
-                 {isLogin ? 'Create an account' : 'Access existing link'}
+            <div className="flex flex-col gap-3 items-center justify-center pt-2">
+               <div className="flex items-center gap-4">
+                  <button onClick={() => { setIsForgotPassword(true); triggerHaptic('light'); }} className="text-[9px] font-black text-white/40 uppercase tracking-widest italic hover:text-brand-primary transition-colors">Forgot Password?</button>
+                  <div className="w-1 h-1 rounded-full bg-white/10" />
+                  <button onClick={() => triggerHaptic('light')} className="text-[9px] font-black text-white/40 uppercase tracking-widest italic hover:text-brand-primary transition-colors">Forgot Email?</button>
+               </div>
+               <button onClick={() => { triggerHaptic('medium'); setIsLogin(!isLogin); }} className="text-[11px] font-black text-white uppercase tracking-[0.2em] italic mt-2 hover:text-brand-primary transition-colors">
+                 {isLogin ? 'Create Account' : 'Back to Login'}
                </button>
             </div>
           </div>

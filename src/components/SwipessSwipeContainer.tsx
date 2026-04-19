@@ -981,9 +981,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
               {/* Quick Filters */}
               <div className="flex-1 flex justify-center gap-2">
-                {POKER_CARDS.filter(c => ['property', 'motorcycle', 'services'].includes(c.id)).map((cat) => {
+                {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter(c => 
+                  userRole === 'owner' 
+                    ? ['all-clients', 'buyers', 'renters', 'hire'].includes(c.id) 
+                    : ['property', 'motorcycle', 'services'].includes(c.id)
+                ).map((cat: any) => {
                   const Icon = cat.icon;
-                  const isActive = storeActiveCategory === cat.id;
+                  const isActive = storeActiveCategory === cat.id || (userRole === 'owner' && (filters as any).clientType === (cat as any).clientType);
                   return (
                     <motion.button
                       key={cat.id}

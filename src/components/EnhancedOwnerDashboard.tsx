@@ -198,7 +198,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }
 
   return (
-    <div className="flex flex-col h-full w-full relative transition-colors duration-500">
+    <div className={cn(
+      "flex flex-col h-full w-full relative transition-colors duration-500",
+      (showMap || showSwipe) ? "bg-black" : (isLight ? "bg-white" : "bg-black")
+    )}>
       
       {/* 🛸 CINEMATIC ATMOSPHERE */}
       <div className="absolute inset-x-0 top-0 h-96 pointer-events-none opacity-20">

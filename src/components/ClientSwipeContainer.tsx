@@ -8,6 +8,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { preloadClientImageToCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
+import { POKER_CARDS, OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 
@@ -867,13 +868,13 @@ const ClientSwipeContainerComponent = ({
 
                 {/* HUD: Quick Filters (Unifying with Client side) */}
                 <div className="flex-1 flex justify-center gap-2">
-                  {[
-                    { id: 'property', icon: Building2 },
-                    { id: 'motorcycle', icon: Bike },
-                    { id: 'worker', icon: Wrench }
-                  ].map((cat) => {
+                  {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter(c => 
+                    userRole === 'owner' 
+                      ? ['all-clients', 'buyers', 'renters', 'hire'].includes(c.id) 
+                      : ['property', 'motorcycle', 'services'].includes(c.id)
+                  ).map((cat: any) => {
                     const Icon = cat.icon;
-                    const isActive = category === cat.id;
+                    const isActive = category === cat.id || (userRole === 'owner' && (filters as any).clientType === (cat as any).clientType);
                     return (
                       <motion.button
                         key={cat.id}

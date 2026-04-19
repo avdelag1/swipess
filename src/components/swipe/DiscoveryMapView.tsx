@@ -21,6 +21,8 @@ const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 const MAPBOX_STYLE = 'mapbox/dark-v11';
 
 // FLAGSHIP FALLBACK: If Mapbox is blocked/missing, use a high-contrast dark OSM layer
+// We ENFORCE a dark baseline for the Radar because light-theme maps often hide the streets
+// when HUD overlays are present.
 const TILE_URL = MAPBOX_TOKEN 
   ? `https://api.mapbox.com/styles/v1/${MAPBOX_STYLE}/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`
   : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
@@ -103,6 +105,15 @@ export const DiscoveryMapView = ({
   
   const rawNodes = activeRole === 'owner' ? clientsRaw : listingsRaw;
   const isLoading = activeRole === 'owner' ? isClientsLoading : isListingsLoading;
+
+  // Role-Aware Categories for HUD
+  const availableCategories = useMemo(() => {
+    if (activeRole === 'owner') {
+      const { OWNER_INTENT_CARDS } = require('./SwipeConstants');
+      return OWNER_INTENT_CARDS.filter((c: any) => ['buyers', 'renters', 'hire'].includes(c.id));
+    }
+    return POKER_CARDS.filter(c => ['property', 'motorcycle', 'services'].includes(c.id));
+  }, [activeRole]);
 
   // SANITIZATION: Filter out items with missing coordinates to prevent Leaflet crashes
   const nodes = useMemo(() => {
@@ -266,20 +277,25 @@ export const DiscoveryMapView = ({
 
             {/* Quick Category Chips */}
             <div className="flex justify-center gap-2 pointer-events-auto">
-              {POKER_CARDS.filter(c => ['property','motorcycle','services'].includes(c.id)).map(cat => {
+              {availableCategories.map((cat: any) => {
                 const Icon = cat.icon;
-                const isActive = activeCategory === cat.id;
+                const isActive = activeCategory === cat.id || (activeRole === 'owner' && (filters as any).clientType === cat.clientType);
                 return (
                   <button
                     key={cat.id}
-                    onClick={() => { triggerHaptic('medium'); setActiveCategory(cat.id as any); }}
+                    onClick={() => { 
+                      triggerHaptic('medium'); 
+                      if (activeRole === 'owner' && cat.clientType) {
+                        require('@/state/filterStore').useFilterStore.getState().setClientType(cat.clientType);
+                      } else {
+                        setActiveCategory(cat.id as any); 
+                      }
+                    }}
                     className={cn(
                       "h-10 px-4 rounded-xl flex items-center gap-2 transition-all border shadow-xl backdrop-blur-3xl",
                       isActive 
                         ? "bg-primary text-white border-primary shadow-[0_0_20px_rgba(235,72,152,0.3)]" 
-                        : (theme === 'light' 
-                            ? "bg-white/80 text-black/40 border-black/5 hover:text-black hover:bg-white" 
-                            : "bg-black/60 text-white/40 border-white/10 hover:text-white hover:bg-black/80")
+                        : "bg-black/60 text-white/40 border-white/10 hover:text-white hover:bg-black/80"
                     )}
                   >
                     <Icon className="w-4 h-4" />
@@ -300,18 +316,18 @@ export const DiscoveryMapView = ({
                disabled={isScanning}
                className={cn(
                  "group relative w-full max-w-[280px] h-18 rounded-[2.5rem] border-2 border-primary/30 flex items-center justify-center overflow-hidden transition-all duration-500 shadow-[0_30px_60px_rgba(var(--color-brand-primary-rgb),0.3)] pointer-events-auto",
-                 isScanning ? "bg-primary/20" : "bg-black/40 backdrop-blur-3xl hover:bg-primary/10"
+                 isScanning ? "bg-primary text-white" : "bg-black/80 backdrop-blur-3xl hover:bg-black"
                )}
              >
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-white/5 to-primary/10 opacity-50 skew-x-12 animate-shimmer" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-white/10 to-primary/20 opacity-30 skew-x-12 animate-shimmer" />
                 <AnimatePresence mode="wait">
                   {isScanning ? (
-                    <motion.div key="scan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-3">
-                      <RefreshCw className="w-5 h-5 text-primary animate-spin" />
-                      <span className="text-xs font-black uppercase tracking-[0.4em] italic text-primary">Engaging...</span>
+                    <motion.div key="scan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-3 relative z-10">
+                      <RefreshCw className="w-5 h-5 text-white animate-spin" />
+                      <span className="text-xs font-black uppercase tracking-[0.4em] italic text-white">Engaging...</span>
                     </motion.div>
                   ) : (
-                    <motion.div key="ready" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-3">
+                    <motion.div key="ready" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-3 relative z-10">
                       <Sparkles className="w-5 h-5 text-primary" />
                       <span className="text-xs font-black uppercase tracking-[0.4em] italic text-white group-hover:text-primary transition-colors">Start Swiping</span>
                     </motion.div>
