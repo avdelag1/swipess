@@ -127,7 +127,7 @@ const ClientSettings = () => {
                   "rounded-[3rem] overflow-hidden border shadow-3xl transition-all",
                   isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/[0.08] backdrop-blur-3xl"
               )}>
-                {group.items.map((item, idx) => (
+                {group.items.map((item: any, idx) => (
                   <div key={item.label}>
                     <button
                       onClick={() => {

@@ -86,6 +86,14 @@ const OwnerLawyerServices = () => {
     setSelectedIssue({ category: categoryId, subcategory: subcategoryId });
   };
 
+  const handleReset = () => {
+    triggerHaptic('light');
+    setSelectedIssue(null);
+    setDescription('');
+    setExpandedCategory(null);
+    setSubmitted(false);
+  };
+
   const handleSubmitRequest = async () => {
     if (!selectedIssue || !description.trim()) {
       toast.error('Select an issue category and describe the situation');

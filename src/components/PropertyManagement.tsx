@@ -475,7 +475,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         </AnimatePresence>
       </div>
 
-      <ListingPreviewDialog isOpen={showPreview} onClose={handleClosePreview} property={viewingProperty} onEdit={handleEditFromPreview} showEditButton={true} />
+      <ListingPreviewDialog isOpen={showPreview} onClose={() => { setShowPreview(false); setViewingProperty(null); }} property={viewingProperty} onEdit={(p) => { setShowPreview(false); setEditingProperty(p); setIsFormOpen(true); }} showEditButton={true} />
       <CategorySelectionDialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog} onCategorySelect={handleCategorySelect} />
       <UnifiedListingForm isOpen={isFormOpen} onClose={() => { setIsFormOpen(false); setEditingProperty(null); }} editingProperty={editingProperty as any ?? undefined} />
       <ShareDialog open={showShareDialog} onOpenChange={(open) => { setShowShareDialog(open); if (!open) setSharingListing(null); }} listingId={sharingListing?.id} title={sharingListing?.title || 'Listing'} description={`${sharingListing?.title}`} />
