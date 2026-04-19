@@ -93,7 +93,7 @@ const OwnerProfile = () => {
 
           <div className="space-y-2">
             <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
-              {ownerProfile?.business_name || 'Owner Profile'}
+              BUSINESS SIDE
             </h1>
             <div className="flex items-center justify-center gap-3">
                <div className="bg-[#EB4898]/10 px-3 py-1 rounded-full border border-[#EB4898]/20">
