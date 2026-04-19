@@ -80,9 +80,9 @@ export const DiscoveryMapView = ({
 }: DiscoveryMapViewProps) => {
   const { user } = useAuth();
   const { theme, isLight } = useTheme();
+  const showMapFullscreen = useModalStore(s => s.showMapFullscreen);
   const { data: roleFromDb } = useUserRole(user?.id);
   const activeRole = mode || (roleFromDb as any) || 'client';
-  const modalStore = useModalStore();
 
   const mapStyle = useMemo(() => isLight ? 'mapbox/navigation-day-v1' : 'mapbox/navigation-night-v1', [isLight]);
   const tileUrl = useMemo(() => {
@@ -257,7 +257,7 @@ export const DiscoveryMapView = ({
       {/* 🧭 INTELLIGENT HUD CONTROLS */}
       {showHUD && <div className={cn(
         "absolute left-4 right-4 z-20 flex flex-col gap-3 pointer-events-none transition-all duration-500",
-        modalStore.showMapFullscreen
+        showMapFullscreen
           ? "top-[calc(var(--safe-top,20px)+10px)]"
           : isEmbedded ? "top-3" : "top-4"
       )}>
@@ -271,11 +271,10 @@ export const DiscoveryMapView = ({
             >
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
-          ) : <div className="w-10 h-10 flex-shrink-0" />}
+          ) : <div className="w-10 h-10" />}
 
-          {/* Radar pill — Nexus accent */}
           <div
-            className="flex items-center gap-2 px-4 py-2 rounded-2xl flex-shrink-0"
+            className="px-4 py-2 rounded-2xl flex items-center gap-2.5 flex-shrink-0"
             style={{
               background: `linear-gradient(135deg, ${accentColor}22, ${accentColor}11)`,
               border: `1px solid ${accentColor}55`,
@@ -287,42 +286,6 @@ export const DiscoveryMapView = ({
               RADAR <span style={{ color: accentColor }}>{nodes.length}</span>
             </span>
           </div>
-        </div>
-
-        {/* Row 2: Category chips */}
-        <div className="flex gap-2 pointer-events-auto overflow-x-auto no-scrollbar pb-0.5">
-          {availableCategories.map((cat: any) => {
-            const Icon = cat.icon;
-            const isActive = activeCategory === cat.id || (activeRole === 'owner' && (filters as any).clientType === cat.clientType);
-            return (
-              <button
-                key={cat.id}
-                onClick={() => {
-                  triggerHaptic('medium');
-                  if (activeRole === 'owner' && cat.clientType) {
-                    useFilterStore.getState().setClientType(cat.clientType);
-                  } else {
-                    setActiveCategory(cat.id as any);
-                  }
-                }}
-                className="h-9 px-4 rounded-2xl flex items-center gap-1.5 transition-all flex-shrink-0 active:scale-95"
-                style={isActive ? {
-                  background: accentColor,
-                  border: `1px solid ${accentColor}`,
-                  boxShadow: `0 8px 24px ${accentColor}55`,
-                  color: '#fff',
-                } : {
-                  background: 'rgba(0,0,0,0.65)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  backdropFilter: 'blur(20px)',
-                  color: 'rgba(255,255,255,0.8)',
-                }}
-              >
-                <Icon className="w-4 h-4 flex-shrink-0" />
-                <span className="text-[10px] font-black uppercase tracking-[0.08em] whitespace-nowrap">{cat.label}</span>
-              </button>
-            );
-          })}
         </div>
       </div>}
 
@@ -388,7 +351,7 @@ export const DiscoveryMapView = ({
       {isEmbedded && showHUD && (
         <div className={cn(
           "absolute left-4 right-4 z-10 flex flex-col gap-3 items-center pointer-events-none transition-all duration-500",
-          modalStore.showMapFullscreen 
+          showMapFullscreen 
             ? "bottom-[calc(var(--safe-bottom,20px)+24px)]" 
             : "bottom-[98px]"
         )}>
