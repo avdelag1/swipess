@@ -12,7 +12,6 @@ import type { QuickFilterCategory } from '@/types/filters';
 import {
   getActiveCategoryInfo,
 } from './swipe/SwipeConstants';
-import { CategorySwipeStack } from './CategorySwipeStack';
 import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -58,7 +57,6 @@ import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
-import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 
 
 // Navigation guard to prevent double-taps
@@ -967,24 +965,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       <div className="absolute inset-0 pointer-events-none -z-10 bg-black" />
 
       {/* Top Controls — IN FLOW, not absolute. Hidden when the exhausted state is showing because that view has its own large map. */}
-      {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (
-        <div className="relative z-[60] w-full flex flex-col items-center shrink-0">
-          <div className="w-full pt-1 pb-1 px-2">
-            <div className="w-full flex justify-between items-center">
-              <LocationRadiusSelector
-                radiusKm={radiusKm}
-                onRadiusChange={setRadiusKm}
-                onDetectLocation={detectLocation}
-                detecting={locationDetecting}
-                detected={locationDetected}
-                lat={userLatitude}
-                lng={userLongitude}
-                variant="minimal"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Removed redundant LocationRadiusSelector header — replaced by unified Map HUD */}
 
       {/* Card area — flex-1 fills remaining space */}
       <div className={cn(
@@ -996,14 +977,23 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           <AnimatePresence mode="sync" initial={false}>
             {!storeActiveCategory ? (
               <motion.div 
-                key="category-stack"
+                key="discovery-root"
                 initial={false}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.05 }}
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full h-full flex flex-col items-center justify-center"
+                className="w-full h-full"
               >
-                <CategorySwipeStack />
+                <DiscoveryMapView
+                  category="property"
+                  onBack={() => {}} // Root level, no back
+                  onStartSwiping={(cat) => {
+                    triggerHaptic('heavy');
+                    setActiveCategory(cat || 'property');
+                  }}
+                  onCategoryChange={(cat) => setCategories([cat as any])}
+                  mode="client"
+                />
               </motion.div>
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <motion.div 

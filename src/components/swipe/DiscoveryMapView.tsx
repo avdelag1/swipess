@@ -10,7 +10,7 @@
 
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Navigation, RefreshCw, ArrowLeft, Layers, Sparkles, MapPin, ChevronRight, X } from 'lucide-react';
+import { Navigation, RefreshCw, ArrowLeft, Layers, Sparkles, MapPin, ChevronRight, X, Users, Key, Megaphone } from 'lucide-react';
 import { toast } from 'sonner';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -24,6 +24,8 @@ import { useFilterStore } from '@/state/filterStore';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { Sun, Moon, Palette, Zap } from 'lucide-react';
+import { POKER_CARD_PHOTOS } from './SwipeConstants';
 
 export const DiscoveryMapView = memo(({ 
   category, 
@@ -40,7 +42,7 @@ export const DiscoveryMapView = memo(({
   isEmbedded?: boolean;
   mode?: 'client' | 'owner';
 }) => {
-  const { theme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const isLight = theme === 'light';
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
@@ -81,14 +83,42 @@ export const DiscoveryMapView = memo(({
         if (error) return [];
         return data.map(item => ({ ...item, type: 'listing' }));
       } else {
+        // OWNER MODE: Fetch clients based on their intent (category)
+        const mappedIntent = 
+          category === 'rent' ? 'rent' : 
+          category === 'hire' ? 'services' : 'property';
+
         const { data, error } = await supabase
             .from('client_profiles')
-            .select('user_id, name, age, gender, profile_images, latitude, longitude, city')
+            .select(`
+                user_id, name, age, gender, profile_images, latitude, longitude, city,
+                profiles!inner(preferred_listing_types)
+            `)
             .not('latitude', 'is', null)
             .not('longitude', 'is', null)
+            .contains('profiles.preferred_listing_types', [mappedIntent])
             .limit(50);
         
-        if (error) return [];
+        if (error) {
+            console.error("Owner Search Error:", error);
+            // Fallback: Fetch any clients with location
+            const { data: fallback } = await supabase
+                .from('client_profiles')
+                .select('user_id, name, age, gender, profile_images, latitude, longitude, city')
+                .not('latitude', 'is', null)
+                .not('longitude', 'is', null)
+                .limit(20);
+            return (fallback || []).map(item => ({ 
+                id: item.user_id, 
+                title: item.name, 
+                images: item.profile_images as string[], 
+                latitude: item.latitude, 
+                longitude: item.longitude, 
+                type: 'client',
+                metadata: { age: item.age, gender: item.gender }
+            }));
+        }
+
         return data.map(item => ({ 
             id: item.user_id, 
             title: item.name, 
@@ -178,7 +208,7 @@ export const DiscoveryMapView = memo(({
     markersRef.current.clearLayers();
 
     entities.forEach(entity => {
-        const iconColor = mode === 'client' ? '#EB4898' : '#3b82f6';
+        const iconColor = '#EB4898';
         const iconHtml = `
             <div class="relative group cursor-pointer active:scale-95 transition-transform" id="marker-${entity.id}">
                 <div class="absolute -inset-2 bg-black/40 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -252,35 +282,37 @@ export const DiscoveryMapView = memo(({
       animate={{ opacity: 1 }}
     >
       
-      {/* 🛸 TOP HUD: CENTERED LOGIC */}
-      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+15px)] inset-x-0 z-[2000] px-4 pointer-events-none flex items-center justify-between">
-          <button 
-            onClick={onBack} 
-            className={cn(
-               "w-10 h-10 rounded-2xl flex items-center justify-center shadow-2xl pointer-events-auto active:scale-90 transition-all border",
-               isLight ? "bg-white border-black/20 text-black shadow-xl" : "bg-black border-white/20 text-white"
-            )}
-          >
-              <ArrowLeft className="w-5 h-5" />
-          </button>
+      {/* 🛸 TOP HUD: Range & Vibe Switcher */}
+      <div className="absolute top-[calc(env(safe-area-inset-top,0px)+12px)] inset-x-0 z-[2000] px-4 pointer-events-none flex items-center justify-between">
+          <div className="flex items-center gap-2">
+          {!isEmbedded && !location.pathname.includes('dashboard') ? (
+            <button 
+              onClick={onBack} 
+              className={cn(
+                 "w-10 h-10 rounded-2xl flex items-center justify-center shadow-2xl pointer-events-auto active:scale-90 transition-all border",
+                 isLight ? "bg-white border-black/20 text-black shadow-xl" : "bg-black border-white/20 text-white"
+              )}
+            >
+                <ArrowLeft className="w-5 h-5" />
+            </button>
+          ) : (
+            <div className="w-10 h-10" /> 
+          )}
 
-          <div className={cn(
-             "px-4 py-1.5 rounded-2xl shadow-2xl flex items-center gap-2 pointer-events-auto border transition-all backdrop-blur-3xl",
-             isLight ? "bg-white border-black/20" : "bg-black/95 border-white/20"
-          )}>
-              <div className="flex flex-col items-center min-w-[45px]">
-                 <span className="text-[6px] font-black uppercase tracking-[0.4em] text-[#EB4898]">Range</span>
-                 <span className={cn("text-[11px] font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>{localKm} KM</span>
-              </div>
-              <div className="w-[1px] h-5 bg-black/10 dark:bg-white/10 mx-1" />
+           <div className={cn(
+              "px-3 py-1.5 rounded-2xl shadow-2xl flex items-center gap-2 pointer-events-auto border transition-all backdrop-blur-3xl",
+              isLight ? "bg-white border-black/30" : "bg-black/95 border-white/30"
+           )}>
+              <span className={cn("text-[11px] font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>{localKm} KM</span>
+              <div className="w-[1px] h-4 bg-black/10 dark:bg-white/10 mx-1" />
               <div className="flex gap-1">
                  {[1, 5, 25, 100].map(km => (
                     <button 
                       key={km} 
                       onClick={() => { triggerHaptic('light'); setLocalKm(km); setRadiusKm(km); }} 
                       className={cn(
-                        "w-9 h-7 rounded-lg text-[9px] font-black uppercase transition-all", 
-                        localKm === km ? "bg-[#EB4898] text-white shadow-lg" : isLight ? "text-black/80 bg-black/5 hover:bg-black/10" : "text-white/40 bg-white/5 hover:bg-white/10"
+                        "w-8 h-6 rounded-lg text-[9px] font-black uppercase transition-all border", 
+                        localKm === km ? "bg-[#EB4898] text-white shadow-lg border-[#EB4898]" : isLight ? "text-black/90 bg-black/10 border-black/10 hover:bg-black/20" : "text-white/40 bg-white/5 border-white/10 hover:bg-white/15"
                       )}
                     >
                       {km}K
@@ -288,20 +320,36 @@ export const DiscoveryMapView = memo(({
                  ))}
               </div>
           </div>
+          </div>
 
           <div className={cn(
-             "p-1 rounded-2xl shadow-2xl pointer-events-auto backdrop-blur-3xl border flex gap-1",
-             isLight ? "bg-white border-black/20" : "bg-black/95 border-white/20"
+             "p-1 rounded-2xl shadow-2xl pointer-events-auto backdrop-blur-3xl border flex items-center gap-1",
+             isLight ? "bg-white border-black/30" : "bg-black/95 border-white/30"
           )}>
-              <button 
-                onClick={() => { triggerHaptic('light'); setMapStyle(prev => prev === 'streets' ? 'satellite' : 'streets'); }} 
-                className={cn("w-9 h-9 rounded-xl flex items-center justify-center transition-all", mapStyle === 'satellite' ? "bg-indigo-500 text-white" : isLight ? "bg-black text-white" : "bg-white text-black")}
-              >
-                  <Layers className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-0.5 px-0.5">
+                  {[
+                    { id: 'light', icon: Sun, color: 'text-orange-400' },
+                    { id: 'dark', icon: Moon, color: 'text-blue-400' },
+                    { id: 'ivanna-style', icon: Palette, color: 'text-[#2C4C45]' }
+                  ].map(vibe => (
+                    <button 
+                      key={vibe.id}
+                      onClick={(e) => { triggerHaptic('light'); setTheme(vibe.id as any, { x: e.clientX, y: e.clientY }); }}
+                      className={cn(
+                        "w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90",
+                        theme === vibe.id 
+                          ? (isLight ? "bg-black/10 scale-110" : "bg-white/10 scale-110") 
+                          : "opacity-40 hover:opacity-100"
+                      )}
+                    >
+                      <vibe.icon className={cn("w-4 h-4", theme === vibe.id ? vibe.color : (isLight ? "text-black" : "text-white"))} strokeWidth={2.5} />
+                    </button>
+                  ))}
+              </div>
+              <div className="w-[1px] h-4 bg-black/10 dark:bg-white/10" />
               <button 
                 onClick={detectLocation} 
-                className={cn("w-9 h-9 rounded-xl flex items-center justify-center transition-all", userLatitude ? "bg-[#EB4898] text-white" : isLight ? "bg-black/5 text-black" : "bg-white/5 text-white")}
+                className={cn("w-8 h-8 rounded-xl flex items-center justify-center transition-all", userLatitude ? "bg-[#EB4898] text-white" : isLight ? "bg-black/5 text-black" : "bg-white/5 text-white")}
               >
                   <Navigation className="w-4 h-4" />
               </button>
@@ -353,13 +401,13 @@ export const DiscoveryMapView = memo(({
                                  <span className="text-[9px] font-bold opacity-70 uppercase tracking-widest">{selectedEntity.metadata?.age} • {selectedEntity.metadata?.gender}</span>
                              )}
                              <span className="w-1 h-1 rounded-full bg-black/10 dark:bg-white/10" />
-                             <span className={cn("text-[9px] font-bold uppercase tracking-widest opacity-70")}>{selectedEntity.type}</span>
+                             <span className={cn("text-[9px] font-black uppercase tracking-widest opacity-70")}>{selectedEntity.type}</span>
                           </div>
                           <button 
-                            onClick={() => { triggerHaptic('heavy'); onStartSwiping?.(); }}
-                            className="w-full h-9 mt-1.5 rounded-xl bg-[#EB4898] text-white text-[9px] font-black uppercase italic tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-[#EB4898]/80 pointer-events-auto shadow-lg shadow-[#EB4898]/20"
+                            onClick={(e) => { e.stopPropagation(); triggerHaptic('heavy'); onStartSwiping?.(); }}
+                            className="w-full h-11 mt-1.5 rounded-2xl bg-[#EB4898] text-white text-[10px] font-black uppercase italic tracking-[0.2em] flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-95 pointer-events-auto shadow-[0_8px_25px_rgba(235,72,152,0.5)] border border-white/20"
                           >
-                              Engage Deck <ChevronRight className="w-4 h-4" />
+                              <Sparkles className="w-4 h-4" /> Start Swiping <ChevronRight className="w-4 h-4" />
                           </button>
                       </div>
                   </div>
@@ -367,33 +415,40 @@ export const DiscoveryMapView = memo(({
           )}
         </AnimatePresence>
 
-        {/* 🛸 BOTTOM COMMAND: CATEGORY MATRIX */}
+        {/* 🛸 BOTTOM COMMAND: CATEGORY MATRIX (ICON DESIGN) */}
         <div className="absolute bottom-6 inset-x-0 z-[2010] flex justify-center px-6 pointer-events-none">
             {!selectedEntity && (
             <motion.div 
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 30 }} 
+              animate={{ opacity: 1, y: 0 }}
               className={cn(
-               "p-1.5 rounded-[2.5rem] flex items-center gap-1.5 shadow-[0_20px_100px_rgba(0,0,0,0.15)] pointer-events-auto border transition-all backdrop-blur-3xl no-scrollbar",
-               isLight ? "bg-white border-black/20" : "bg-black/95 border-white/20"
-            )}>
-                {[
+                "p-1 rounded-[2.5rem] flex items-center gap-1 shadow-[0_20px_100px_rgba(0,0,0,0.15)] pointer-events-auto border transition-all backdrop-blur-3xl no-scrollbar",
+                isLight ? "bg-white border-black/20" : "bg-black/95 border-white/20"
+             )}
+            >
+                {(mode === 'client' ? [
                     { id: 'property', icon: RealEstateIcon, label: 'Estate' }, 
                     { id: 'motorcycle', icon: VespaIcon, label: 'Moto' }, 
                     { id: 'bicycle', icon: BeachBicycleIcon, label: 'Aqua' }, 
                     { id: 'services', icon: WorkersIcon, label: 'Crew' }
-                ].map(cat => (
+                ] : [
+                    { id: 'property', icon: Users, label: 'Buyers' }, 
+                    { id: 'rent', icon: Key, label: 'Renters' }, 
+                    { id: 'hire', icon: WorkersIcon, label: 'Hire' }, 
+                    { id: 'promote', icon: Megaphone, label: 'Target' }
+                ]).map(cat => (
                     <button 
                         key={cat.id} 
-                        onClick={() => { triggerHaptic('light'); onCategoryChange?.(cat.id as any); }} 
+                        onClick={() => { triggerHaptic('medium'); onCategoryChange?.(cat.id as any); }} 
                         className={cn(
-                            "h-10 px-4 flex items-center gap-2 rounded-[1.8rem] transition-all whitespace-nowrap", 
+                            "h-10 px-4 flex items-center gap-2 rounded-[2rem] transition-all whitespace-nowrap active:scale-95 border", 
                             category === cat.id 
-                              ? "bg-[#EB4898] text-white shadow-xl shadow-[#EB4898]/25 scale-105 z-10" 
-                              : isLight ? "text-black/60 bg-black/5 hover:bg-black/10" : "text-white/40 bg-white/5 hover:bg-white/10"
+                              ? "bg-[#EB4898] text-white shadow-xl shadow-[#EB4898]/25 scale-105 z-10 border-[#EB4898]" 
+                              : isLight ? "text-black/90 bg-white border-black/10 shadow-sm" : "text-white/60 bg-black/40 border-white/10"
                         )}
                     >
-                        <cat.icon className="w-4 h-4" />
-                        <span className="text-[9px] font-black uppercase tracking-widest italic">{cat.label}</span>
+                        <cat.icon className="w-4 h-4" strokeWidth={3} />
+                        <span className="text-[10px] font-black uppercase tracking-[0.1em] italic">{cat.label}</span>
                     </button>
                 ))}
             </motion.div>

@@ -157,29 +157,7 @@ export const SwipeExhaustedState = ({
             </motion.div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="relative w-full flex justify-center"
-            style={{ maxWidth: 'min(92vw, 360px)' }}
-          >
-            <div
-              className="relative w-full rounded-[2rem] overflow-hidden border border-white/10 shadow-xl"
-              style={{ aspectRatio: '1 / 1', maxHeight: '42svh' }}
-            >
-              <LocationRadiusSelector
-                radiusKm={radiusKm}
-                onRadiusChange={onRadiusChange}
-                onDetectLocation={onDetectLocation || (() => {})}
-                detecting={detecting ?? false}
-                detected={detected ?? false}
-                lat={lat}
-                lng={lng}
-                onCategorySelect={(category) => setCategories([category])}
-              />
-            </div>
-          </motion.div>
+            {/* Location Radius Selector removed as per user request — HUD on map is the truth */}
         </div>
 
         <div className="shrink-0 pb-6 pt-3 px-4 flex flex-col items-center gap-4 bg-gradient-to-t from-black via-black/80 to-transparent">

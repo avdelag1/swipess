@@ -851,25 +851,7 @@ const ClientSwipeContainerComponent = ({
         {/* Static ambient background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10" />
 
-        {/* Top Controls — IN FLOW, not absolute (matches client-side pattern) */}
-        {deckQueue.length > 0 && currentIndex < deckQueue.length && (
-          <div className="relative z-50 w-full flex flex-col items-center shrink-0">
-            <div className="w-full pt-1 pb-1 px-2">
-              <div className="w-full flex justify-between items-center">
-                <LocationRadiusSelector
-                  radiusKm={radiusKm}
-                  onRadiusChange={setRadiusKm}
-                  onDetectLocation={detectLocation}
-                  detecting={locationDetecting}
-                  detected={locationDetected}
-                  onCategorySelect={handleMapCategorySelect}
-                  lat={userLatitude}
-                  lng={userLongitude}
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Top Controls Eradicated as per user request — HUD on map is the single truth */}
 
         {/* Card area — flex-1 fills remaining space */}
         <div className="flex-1 relative flex flex-col items-center justify-center px-1.5 pt-1 z-10 min-h-0">

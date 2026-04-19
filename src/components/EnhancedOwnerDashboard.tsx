@@ -46,8 +46,9 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }, []);
   
   const activeCategory = useFilterStore(s => s.activeCategory);
-  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
-  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
+  // Phase state: 'map' | 'swipe' (Removed 'cards' phase forever)
+  const [phase, setPhase] = useState<'map' | 'swipe'>(activeCategory ? 'swipe' : 'map');
+  const [mapCategory, setMapCategory] = useState<QuickFilterCategory>('property');
   const [showFilters, setShowFilters] = useState(false);
 
   const modalStore = useModalStore();
@@ -137,10 +138,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }, []);
 
   const handleMapBack = useCallback(() => {
-    setMapCategory(null);
-    setPhase('cards');
-    setActiveCategory(null);
-  }, [setActiveCategory]);
+    // Disabled back for primary discovery
+  }, []);
 
   const handleStartSwiping = useCallback(() => {
     if (mapCategory) {
@@ -149,8 +148,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }, [mapCategory, setCategories]);
 
-  const showCards = phase === 'cards' && !activeCategory;
-  const showMap = phase === 'map' && mapCategory && !activeCategory;
+  const showMap = phase === 'map' && !activeCategory;
   const showSwipe = phase === 'swipe' || !!activeCategory;
 
   if (isAuthLoading || isPrefsLoading) {
@@ -208,24 +206,12 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           >
             <OwnerInsightsDashboard />
           </motion.div>
-        ) : showCards ? (
-          <motion.div 
-            key="owner-dash-fan"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden z-10"
-            style={{ willChange: 'transform, opacity' }}
-          >
-            <OwnerAllDashboard onCardSelect={handleCardSelect} />
-          </motion.div>
-        ) : showMap && mapCategory ? (
+        ) : showMap ? (
           <motion.div
             key="owner-dash-map"
-            initial={{ opacity: 0, y: 40, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -30, scale: 0.98 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.02 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 w-full relative z-10"
             style={{ willChange: 'transform, opacity' }}
@@ -234,7 +220,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               category={mapCategory}
               onBack={handleMapBack}
               onStartSwiping={handleStartSwiping}
-              onCategoryChange={(cat) => setMapCategory(cat)}
+              onCategoryChange={(cat) => {
+                  setMapCategory(cat);
+                  setCategories([cat]);
+              }}
               mode="owner"
             />
           </motion.div>
