@@ -26,13 +26,13 @@ interface ClientDashboardProps {
  */
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { theme } = useTheme();
+  const activeCategory = useFilterStore(s => s.activeCategory);
+  const { setActiveCategory, setCategories } = useFilterActions();
+
   // Phase state: 'map' | 'swipe' (Removed 'cards' phase forever)
   const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
   const [mapCategory, setMapCategory] = useState<QuickFilterCategory>('property');
   const [showFilters, setShowFilters] = useState(false);
-
-  const activeCategory = useFilterStore(s => s.activeCategory);
-  const { setActiveCategory, setCategories } = useFilterActions();
 
   // ─── Actions ─────────────────────────────────────────────────────────────
   
