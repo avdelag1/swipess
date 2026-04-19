@@ -16,10 +16,15 @@ import { cn } from '@/lib/utils';
 // 🗝️ OFFICIAL MAPBOX ASSETS — ONE STYLE, ONE KEY
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 const MAPBOX_STYLE = 'mapbox/dark-v11';
-const TILE_URL = `https://api.mapbox.com/styles/v1/${MAPBOX_STYLE}/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`;
+
+// FLAGSHIP FALLBACK: If Mapbox is blocked/missing, use a high-contrast dark OSM layer
+const TILE_URL = MAPBOX_TOKEN 
+  ? `https://api.mapbox.com/styles/v1/${MAPBOX_STYLE}/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`
+  : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 
 // 📏 GEODESIC MATH FOR ONE-STYLE RADIUS PARITY
 const getGeodesicRadius = (radiusKm: number, lat: number) => {
+  if (!lat) return radiusKm * 1000;
   // Simple adjustment for Mercator projection distortion
   const metersPerPixel = (156543.03392 * Math.cos((lat * Math.PI) / 180)) / Math.pow(2, 13);
   return (radiusKm * 1000) / metersPerPixel;
@@ -29,7 +34,7 @@ const getGeodesicRadius = (radiusKm: number, lat: number) => {
 const createCustomIcon = (color: string) => L.divIcon({
   className: 'nexus-marker',
   html: `
-    <div style="position: relative; width: 22px; height: 22px; display: flex; align-items: center; justify-center: center;">
+    <div style="position: relative; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;">
       <div style="position: absolute; width: 300%; height: 300%; background: ${color}; opacity: 0.15; border-radius: 50%; top: -100%; left: -100%; animation: pulse 2s infinite;"></div>
       <div style="width: 14px; height: 14px; background: ${color}; border: 3px solid white; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.5);"></div>
     </div>
@@ -46,7 +51,9 @@ interface MapControllerProps {
 const MapController = ({ center, zoom }: MapControllerProps) => {
   const map = useMap();
   useEffect(() => {
-    map.flyTo(center, zoom, { duration: 1.5, easeLinearity: 0.25 });
+    if (center && center[0] && center[1]) {
+      map.flyTo(center, zoom, { duration: 1.5, easeLinearity: 0.25 });
+    }
   }, [center, zoom, map]);
   return null;
 };
@@ -55,6 +62,7 @@ interface DiscoveryMapViewProps {
   onBack?: () => void;
   onStartSwiping?: () => void;
   isEmbedded?: boolean;
+  category?: QuickFilterCategory | string;
 }
 
 /**
@@ -64,19 +72,30 @@ interface DiscoveryMapViewProps {
 export const DiscoveryMapView = ({ 
   onBack, 
   onStartSwiping,
-  isEmbedded = false 
+  isEmbedded = false,
+  category: _passedCategory
 }: DiscoveryMapViewProps) => {
   const { user } = useAuth();
   const { data: role } = useUserRole(user?.id);
-  const { radiusKm, userLatitude, userLongitude, activeCategory } = useFilterStore();
+  const { radiusKm, userLatitude, userLongitude, activeCategory: storeCategory } = useFilterStore();
   const { setActiveCategory, setRadiusKm } = useFilterActions();
   const getListingFilters = useFilterStore(s => s.getListingFilters);
   
   const [isScanning, setIsScanning] = useState(false);
+  const activeCategory = (_passedCategory || storeCategory || 'property') as QuickFilterCategory;
 
   const filters = useMemo(() => getListingFilters(), [getListingFilters]);
-  const { data: listings = [] } = useSmartListingMatching(user?.id, [], filters);
+  const { data: listingsRaw = [] } = useSmartListingMatching(user?.id, [], filters);
   
+  // SANITIZATION: Filter out items with missing coordinates to prevent Leaflet crashes
+  const listings = useMemo(() => {
+    return (listingsRaw || []).filter(item => {
+      const lat = item.latitude || item.lat;
+      const lng = item.longitude || item.lng;
+      return typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng);
+    });
+  }, [listingsRaw]);
+
   const defaultCenterCenter: [number, number] = [20.2114, -87.4654];
   const mapCenter: [number, number] = (userLatitude && userLongitude) ? [userLatitude, userLongitude] : defaultCenterCenter;
 
@@ -98,6 +117,9 @@ export const DiscoveryMapView = ({
     }, 1200);
   };
 
+  // Safe fail-render if critical data is missing (though defaults are set)
+  if (!mapCenter || !mapCenter[0]) return <div className="w-full h-full bg-black flex items-center justify-center text-white/20 uppercase font-black text-[10px] tracking-widest">Awaiting Nexus Link...</div>;
+
   return (
     <motion.div 
       className="w-full h-full relative overflow-hidden bg-black"
@@ -112,7 +134,11 @@ export const DiscoveryMapView = ({
         attributionControl={false}
         className="w-full h-full z-0 pointer-events-auto"
       >
-        <TileLayer url={TILE_URL} tileSize={512} zoomOffset={-1} />
+        <TileLayer 
+          url={TILE_URL} 
+          tileSize={MAPBOX_TOKEN ? 512 : 256} 
+          zoomOffset={MAPBOX_TOKEN ? -1 : 0} 
+        />
         <MapController center={mapCenter} zoom={zoom} />
 
         {/* 🆘 NEXUS CORE */}
@@ -141,26 +167,30 @@ export const DiscoveryMapView = ({
         />
 
         {/* 📍 NODES */}
-        {listings.map((item: any) => (
-          <Marker 
-            key={item.id} 
-            position={[item.latitude || item.lat, item.longitude || item.lng]}
-            icon={createCustomIcon(accentColor)}
-          >
-            <Popup className="nexus-popup">
-              <div className="p-3 min-w-[150px] bg-black/60 backdrop-blur-3xl rounded-2xl border border-white/10 shadow-3xl">
-                {item.images?.[0] && (
-                  <img src={item.images[0]} className="w-full h-32 object-cover rounded-xl mb-3 shadow-inner" alt="" />
-                )}
-                <p className="text-white font-black uppercase text-[10px] tracking-widest leading-tight mb-1">{item.title}</p>
-                <div className="flex justify-between items-center">
-                  <p className="text-primary text-[10px] font-black italic">${item.price}</p>
-                  <p className="text-white/20 text-[8px] font-black tracking-widest">ACTIVE NODE</p>
+        {listings.map((item: any) => {
+          const lat = item.latitude || item.lat;
+          const lng = item.longitude || item.lng;
+          return (
+            <Marker 
+              key={item.id} 
+              position={[lat, lng]}
+              icon={createCustomIcon(accentColor)}
+            >
+              <Popup className="nexus-popup">
+                <div className="p-3 min-w-[150px] bg-black/60 backdrop-blur-3xl rounded-2xl border border-white/10 shadow-3xl">
+                  {item.images?.[0] && (
+                    <img src={item.images[0]} className="w-full h-32 object-cover rounded-xl mb-3 shadow-inner" alt="" />
+                  )}
+                  <p className="text-white font-black uppercase text-[10px] tracking-widest leading-tight mb-1">{item.title}</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-primary text-[10px] font-black italic">${item.price}</p>
+                    <p className="text-white/20 text-[8px] font-black tracking-widest">ACTIVE NODE</p>
+                  </div>
                 </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          );
+        })}
       </MapContainer>
 
       {/* 🧭 INTELLIGENT HUD CONTROLS */}

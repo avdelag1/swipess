@@ -245,7 +245,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               mode="owner"
             />
           </motion.div>
-        ) : showSwipe && !isLoading && clientProfiles.length === 0 && mapCategory ? (
+        ) : showSwipe && !isLoading && clientProfiles.length === 0 ? (
           <motion.div
             key="owner-dash-map-empty"
             initial={{ opacity: 0, y: 40, scale: 0.96 }}
@@ -256,10 +256,9 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             style={{ willChange: 'transform, opacity' }}
           >
             <DiscoveryMapView
-              category={mapCategory}
+              category={mapCategory || (filterCategory as any) || 'property'}
               onBack={handleMapBack}
               onStartSwiping={handleStartSwiping}
-              onCategoryChange={(cat) => setMapCategory(cat)}
               mode="owner"
             />
           </motion.div>
