@@ -136,10 +136,10 @@ export const DiscoveryMapView = ({
   const accentColor = activeRole === 'owner' ? '#3b82f6' : '#EB4898';
 
   const zoom = useMemo(() => {
-    if (radiusKm <= 2) return 14;
-    if (radiusKm <= 8) return 13;
-    if (radiusKm <= 20) return 11;
-    return 10;
+    if (radiusKm <= 2) return 16; // Even closer for 1-2km
+    if (radiusKm <= 8) return 15;
+    if (radiusKm <= 20) return 13;
+    return 11;
   }, [radiusKm]);
 
   const handleIgnite = () => {
@@ -187,7 +187,15 @@ export const DiscoveryMapView = ({
           url={TILE_URL}
           tileSize={MAPBOX_TOKEN ? 512 : 256}
           zoomOffset={MAPBOX_TOKEN ? -1 : 0}
+          className="nexus-tiles"
         />
+        {/* FALLBACK LAYER: Always active with low opacity to ensure grid visibility */}
+        {!MAPBOX_TOKEN && (
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            opacity={0.3}
+          />
+        )}
         <MapController center={mapCenter} zoom={zoom} />
 
         {/* 🆘 NEXUS CORE */}
@@ -243,7 +251,7 @@ export const DiscoveryMapView = ({
       {/* 🧭 INTELLIGENT HUD CONTROLS */}
       <div className={cn(
         "absolute left-6 right-6 z-20 flex flex-col gap-4 pointer-events-none",
-        isEmbedded ? "top-20" : "top-28"
+        isEmbedded ? "top-24" : "top-32"
       )}>
         <div className="w-full flex items-center justify-between pointer-events-auto">
           {onBack && (
@@ -251,12 +259,7 @@ export const DiscoveryMapView = ({
               variant="ghost"
               size="icon"
               onClick={() => { triggerHaptic('light'); onBack(); }}
-              className={cn(
-                "w-12 h-12 rounded-2xl backdrop-blur-3xl border transition-colors",
-                theme === 'light' 
-                  ? "bg-white/80 border-black/10 text-black/60 hover:text-black" 
-                  : "bg-black/60 border-white/10 text-white/40 hover:text-white"
-              )}
+              className="w-12 h-12 rounded-2xl backdrop-blur-3xl border bg-black/80 border-white/10 text-white hover:text-primary transition-all shadow-2xl"
             >
               <ChevronLeft className="w-6 h-6" />
             </Button>
@@ -264,15 +267,9 @@ export const DiscoveryMapView = ({
           
           {!onBack && <div className="w-12 h-12" />}
           
-          <div className={cn(
-            "backdrop-blur-3xl border px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3",
-            theme === 'light' ? "bg-white/80 border-black/10" : "bg-black/60 border-white/10"
-          )}>
+          <div className="backdrop-blur-3xl border bg-black/80 border-white/10 px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3">
              <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-             <span className={cn(
-                "text-[10px] font-black uppercase tracking-[0.35em]",
-                theme === 'light' ? "text-black" : "text-white"
-             )}>
+             <span className="text-[10px] font-black uppercase tracking-[0.35em] text-white">
                 RADAR: <span className="text-primary italic">{nodes.length} {activeRole === 'owner' ? 'CLIENTS' : 'NODES'}</span>
              </span>
           </div>
@@ -295,14 +292,14 @@ export const DiscoveryMapView = ({
                   }
                 }}
                 className={cn(
-                  "h-10 px-4 rounded-xl flex items-center gap-2 transition-all border shadow-xl backdrop-blur-3xl flex-shrink-0",
+                  "h-11 px-5 rounded-2xl flex items-center gap-2 transition-all border shadow-2xl backdrop-blur-3xl flex-shrink-0",
                   isActive 
-                    ? "bg-primary text-white border-primary shadow-[0_0_20px_rgba(235,72,152,0.3)]" 
-                    : "bg-black/60 text-white/40 border-white/10 hover:text-white hover:bg-black/80"
+                    ? "bg-primary text-white border-primary shadow-[0_15px_35px_rgba(235,72,152,0.5)]" 
+                    : "bg-black text-white/70 border-white/10 hover:text-white hover:bg-black"
                 )}
               >
-                <Icon className="w-4 h-4" />
-                <span className="text-[9px] font-black uppercase tracking-widest">{cat.label}</span>
+                <Icon className="w-5 h-5" />
+                <span className="text-[11px] font-black uppercase tracking-[0.1em]">{cat.label}</span>
               </button>
             );
           })}

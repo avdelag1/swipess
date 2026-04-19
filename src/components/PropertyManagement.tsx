@@ -172,8 +172,15 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
     );
   };
 
+  const handleClosePreview = () => setShowPreview(false);
+  const handleEditFromPreview = (listing: Listing) => {
+    setShowPreview(false);
+    setEditingProperty(listing);
+    setIsFormOpen(true);
+  };
+
   const tabItems = [
-    { id: 'all', label: 'Matrix', icon: activity, count: listings.length },
+    { id: 'all', label: 'Matrix', icon: Activity, count: listings.length },
     { id: 'property', label: 'Estates', icon: Home, count: listings.filter(l => !l.category || l.category === 'property').length },
     { id: 'motorcycle', label: 'Motos', icon: MotorcycleIcon, count: listings.filter(l => l.category === 'motorcycle').length },
     { id: 'bicycle', label: 'Aqua', icon: Bike, count: listings.filter(l => l.category === 'bicycle').length },
