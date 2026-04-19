@@ -39,8 +39,7 @@ export const DiscoveryMapView = memo(({
   isEmbedded?: boolean;
   mode?: 'client' | 'owner';
 }) => {
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useTheme();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
   
@@ -254,6 +253,13 @@ export const DiscoveryMapView = memo(({
         }
         .swipess-marker { transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
         .swipess-marker:hover { transform: scale(1.2) translateY(-5px); z-index: 1000 !important; }
+        
+        .ivanna-style .leaflet-tile-container {
+            filter: sepia(0.2) saturate(1.2) hue-rotate(-10deg) opacity(0.9);
+        }
+        .ivanna-style .leaflet-container {
+            background: #DDF4EF !important;
+        }
       `}} />
     </div>
   );
