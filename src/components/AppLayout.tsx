@@ -104,7 +104,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className={cn(
-      "w-full flex flex-col relative selection:bg-brand-primary/30", 
+      "w-full min-h-screen flex flex-col relative selection:bg-brand-primary/30", 
       theme === 'ivanna-style' ? "bg-transparent ivanna-style" : "bg-background",
       theme === 'nexus-style' && "nexus-style"
     )}>
@@ -131,7 +131,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <main
         id="main-content"
         className={cn(
-          "w-full relative z-0",
+          "w-full flex-1 relative z-0",
           isFullScreen && "h-screen overflow-hidden fixed inset-0"
         )}
       >

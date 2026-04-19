@@ -157,7 +157,9 @@ export const DiscoveryMapView = memo(({
         markersRef.current = L.layerGroup().addTo(map);
         mapInstance.current = map;
         
-        setTimeout(() => map.invalidateSize(), 300);
+        // 🛰️ RADAR RECOVERY: Multiple attempts to fix size during layout shift
+        const intervals = [100, 500, 1500, 3000];
+        intervals.forEach(ms => setTimeout(() => map.invalidateSize(), ms));
     } catch (e) { console.error("Map Error:", e); }
 
     return () => {
@@ -414,8 +416,9 @@ export const DiscoveryMapView = memo(({
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .leaflet-container { width: 100%; height: 100%; outline: none; background: ${isLight ? '#f8fafc' : '#0d0d0f'} !important; border-radius: 3.5rem; }
-        .leaflet-tile { transition: opacity 0.6s ease; ${isLight ? '' : 'filter: brightness(1.2) contrast(1.2) saturate(1.5);'} } 
+        .leaflet-container { width: 100%; height: 100%; outline: none; background: ${isLight ? '#f8fafc' : '#0d0d0f'} !important; border-radius: 3.5rem; z-index: 1; }
+        .leaflet-tile { transition: opacity 0.6s ease; ${isLight ? '' : 'filter: brightness(1) contrast(1.1) saturate(1.2);'} } 
+        .leaflet-tile-container { z-index: 2; }
         .sentient-radar-circle { 
             animation: radar-pulse-v14 3.5s infinite ease-in-out; 
             transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
