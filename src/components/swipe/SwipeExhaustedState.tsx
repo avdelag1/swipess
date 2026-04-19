@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RefreshCw, RotateCcw, Zap, Home, Bike, Briefcase } from 'lucide-react';
+import { RefreshCw, RotateCcw, Zap, Home, Bike, Briefcase, Sparkles } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Button } from '@/components/ui/button';
 import { RadarSearchEffect } from '@/components/ui/RadarSearchEffect';
