@@ -381,6 +381,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // IMMERSIVE MODE: Handled above for swipe navigation dependency
 
 
+  const isRadioRoute = useMemo(() => location.pathname.includes('/radio'), [location.pathname]);
+  const isCameraRoute = useMemo(() => location.pathname.includes('/camera'), [location.pathname]);
+
   // FULLSCREEN MODE: These routes hide the global TopBar and BottomNav entirely
   // and take over the full screen height with 0 padding.
   const isFullScreenRoute = useMemo(() => {
@@ -388,8 +391,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const scrollExclusions = ['likes', 'interested', 'liked'];
     if (scrollExclusions.some(path => location.pathname.includes(path))) return false;
 
-    const isCameraRouteLocal = location.pathname.includes('/camera');
-    const isRadioRouteLocal = location.pathname.includes('/radio');
     const isRoommatesPageLocal = location.pathname.startsWith('/explore/roommates');
     
     // Admin and helper subpages should also be scrollable (not fixed)
@@ -413,8 +414,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     ].some(path => location.pathname === path || location.pathname === path + '/');
 
     // Only truly immersive non-scroll pages should be fixed
-    return isCameraRouteLocal || isRadioRouteLocal || isRoommatesPageLocal || isSpecialSubPage || modalStore.showMapFullscreen;
-  }, [location.pathname, modalStore.showMapFullscreen]);
+    return isCameraRoute || isRadioRoute || isRoommatesPageLocal || isSpecialSubPage || modalStore.showMapFullscreen;
+  }, [location.pathname, isCameraRoute, isRadioRoute, modalStore.showMapFullscreen]);
 
   const isZeroScrollDashboard = useMemo(() => {
     const path = location.pathname;
