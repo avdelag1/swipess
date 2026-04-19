@@ -109,6 +109,8 @@ const SocialAuthButton = ({
   onClick: () => void;
   icon: React.ReactNode;
 }) => (
+  <button
+    onClick={onClick}
     className="group flex h-16 w-full items-center justify-center gap-4 rounded-[2rem] bg-[#0a0a0b] border border-white/10 hover:border-white/20 active:scale-[0.97] transition-all shadow-2xl"
   >
     <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 group-hover:bg-[#FF4D00]/20 group-hover:text-[#FF4D00] transition-colors border border-white/5">
