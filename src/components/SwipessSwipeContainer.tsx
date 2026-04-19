@@ -40,7 +40,7 @@ import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { Home, Bike, Briefcase } from 'lucide-react';
+import { Home, Bike, Briefcase, ChevronLeft } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 
 const CATEGORY_ICON_MAP: Record<string, any> = {
@@ -968,9 +968,44 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
       {/* Top Controls — IN FLOW, not absolute. Hidden when the exhausted state is showing because that view has its own large map. */}
       {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (
-        <div className="relative z-[60] w-full flex flex-col items-center shrink-0">
-          <div className="w-full pt-1 pb-1 px-2">
-            <div className="w-full flex justify-between items-center">
+        <div className="relative z-[60] w-full flex flex-col items-center shrink-0 px-6 pt-4">
+           <div className="w-full flex items-center justify-between gap-4">
+              {/* Back / Reset Category */}
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setActiveCategory(null)}
+                className="w-10 h-10 rounded-xl bg-black/40 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white/40 hover:text-white"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </motion.button>
+
+              {/* Quick Filters */}
+              <div className="flex-1 flex justify-center gap-2">
+                {POKER_CARDS.filter(c => ['property', 'motorcycle', 'services'].includes(c.id)).map((cat) => {
+                  const Icon = cat.icon;
+                  const isActive = storeActiveCategory === cat.id;
+                  return (
+                    <motion.button
+                      key={cat.id}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        triggerHaptic('light');
+                        setActiveCategory(cat.id);
+                      }}
+                      className={cn(
+                        "w-10 h-10 rounded-xl flex items-center justify-center border transition-all relative overflow-hidden",
+                        isActive 
+                          ? "bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)]" 
+                          : "bg-black/40 backdrop-blur-3xl border-white/10 text-white/20"
+                      )}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {/* Radar Context */}
               <LocationRadiusSelector
                 radiusKm={radiusKm}
                 onRadiusChange={setRadiusKm}
@@ -981,8 +1016,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 lng={userLongitude}
                 variant="minimal"
               />
-            </div>
-          </div>
+           </div>
         </div>
       )}
 
