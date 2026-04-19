@@ -143,7 +143,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast({ title: 'Nexus Link Sent', description: "Check your neural inbox for reset parameters." });
+      toast({ title: 'Login Link Sent', description: "Check your inbox for reset instructions." });
       setIsForgotPassword(false);
     } catch (error: any) {
       toast({ title: 'System Error', description: error.message, variant: 'destructive' });
@@ -205,10 +205,10 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
             <SwipessLogo size="md" variant="white" />
           </div>
           <h1 className="text-3xl font-black italic tracking-tighter text-white uppercase leading-none mb-3">
-             {isForgotPassword ? 'Reset Access' : isLogin ? 'Access Portal' : 'Nexus Entry'}
+             {isForgotPassword ? 'Reset Access' : isLogin ? 'Access Portal' : 'Swipess Entry'}
           </h1>
           <p className="text-[10px] font-black tracking-[0.25em] text-white/30 uppercase italic">
-            Secure Neural Connection Required
+            Secure Connection Required
           </p>
         </div>
 
@@ -265,7 +265,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
             <div className="flex flex-col gap-2 items-center justify-center pt-2">
                <button onClick={() => setIsForgotPassword(true)} className="text-[9px] font-black text-[#EB4898] uppercase tracking-widest italic hover:opacity-100 opacity-60 transition-opacity">Forgotten Access?</button>
                <button onClick={() => { triggerHaptic('light'); setIsLogin(!isLogin); }} className="text-[10px] font-black text-white uppercase tracking-[0.2em] italic">
-                 {isLogin ? 'Sign up for nexus' : 'Access existing link'}
+                 {isLogin ? 'Sign up for Swipess' : 'Access existing account'}
                </button>
             </div>
           </div>
@@ -304,7 +304,7 @@ function LegendaryLandingPage() {
           <div className="w-1 h-1 rounded-full bg-white/20" />
           <button onClick={() => navigate('/terms-of-service')} className="hover:text-[#EB4898] transition-colors">Terms</button>
         </div>
-        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 NEXUS PROTOCOL v12.0</p>
+        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 SWIPESS SYSTEM v12.0</p>
       </div>
     </div>
   );

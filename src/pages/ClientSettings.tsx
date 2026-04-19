@@ -159,7 +159,7 @@ const ClientSettings = () => {
           ))}
         </motion.div>
 
-        {/* 🛸 NEXUS FOOTER */}
+        {/* 🛸 FOOTER */}
         <div className="flex flex-col items-center gap-6 pt-16">
             <div className="w-16 h-16 rounded-[1.6rem] bg-black flex items-center justify-center shadow-2xl border border-white/10">
                <SwipessLogo size="sm" />
@@ -171,7 +171,7 @@ const ClientSettings = () => {
                      <span className="text-[9px] font-black text-[#EB4898] uppercase tracking-widest font-mono">V3.3.1</span>
                   </div>
                </div>
-               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Tulum Nexus Direct • Elite Discovery</p>
+               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Tulum Direct • Elite Discovery</p>
             </div>
         </div>
 

@@ -114,7 +114,7 @@ const ClientProfile = () => {
           
           <div className="space-y-2">
             <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
-              {profile?.name || 'Nexus ID'}
+              {profile?.name || 'Swipess ID'}
             </h1>
             <div className="bg-[#EB4898]/10 px-4 py-1.5 rounded-full border border-[#EB4898]/20 inline-block">
                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#EB4898] italic">{user?.email}</span>
@@ -224,7 +224,7 @@ const ClientProfile = () => {
           <div className="flex items-center justify-between px-2">
              <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-[#EB4898] animate-pulse" />
-                <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Global Nexus Pulse</h3>
+                <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Global Swipess Pulse</h3>
              </div>
              <Sparkles className="w-4 h-4 text-[#EB4898]/40" />
           </div>

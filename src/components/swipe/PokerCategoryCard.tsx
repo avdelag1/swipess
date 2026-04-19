@@ -55,22 +55,18 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
     if (Math.abs(dist) > PK_DIST_THRESHOLD || Math.abs(vel) > PK_VEL_THRESHOLD) {
       triggerHaptic('light');
       const direction = dist > 0 ? 'right' : 'left';
-      const exitX = direction === 'right' ? 320 : -320;
+      const vanishX = direction === 'right' ? 100 : -100;
 
-      animate(x, exitX, {
-        type: 'spring',
-        stiffness: 700,
-        damping: 35,
-        velocity: vel,
-        onComplete: () => {
+      // Beautiful elegant vanish effect instead of flying rigidly off-screen
+      animate(x, vanishX, { duration: 0.25, ease: 'easeOut' });
+      animate(exitOpacityValue, 0, { duration: 0.2, ease: 'easeOut' });
+      animate(exitScaleValue, 0.7, { duration: 0.25, ease: 'easeOut', onComplete: () => {
           onCycle(card.id, direction);
-          // 🚀 SPEED OF LIGHT: x.set(0) removed to prevent flickering during parent re-render
           setIsDragging(false);
-        }
-      });
-      // Simultaneous vanishing effects
-      animate(exitOpacityValue, 0, { duration: 0.35 });
-      animate(exitScaleValue, 0.4, { duration: 0.4 });
+          x.set(0);
+          exitOpacityValue.set(1);
+          exitScaleValue.set(1);
+      } });
     } else {
       animate(x, 0, { ...PK_SPRING });
       animate(exitOpacityValue, 1, { duration: 0.3 });
@@ -80,7 +76,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   }, [card.id, onCycle, x]);
 
   // Stack styling
-  // Stack styling — 🚀 NEXUS v14.0 Reveal Logic
+  // Stack styling — 🚀 Swipess v14.0 Reveal Logic
   const stackY = isCollapsed ? 0 : index * 12; // Deeper stack
   const stackScale = 1 - (index * 0.04);
   const stackOpacity = index === 0 ? 1 : index === 1 ? 1 : index === 2 ? 0.6 : 0;
@@ -149,7 +145,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
         <div className="absolute inset-0 bg-gradient-to-br from-[#EB4898]/20 to-transparent opacity-40 mix-blend-overlay" />
         
-        {/* 🛸 NEXUS METADATA CONTENT */}
+        {/* 🛸 METADATA CONTENT */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8">
           
           <div className="space-y-2">

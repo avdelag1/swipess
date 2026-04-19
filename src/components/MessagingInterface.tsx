@@ -104,7 +104,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     return (
       <div className={cn("flex-1 flex flex-col items-center justify-center p-8", isLight ? "bg-white" : "bg-black")}>
          <div className="w-12 h-12 rounded-xl border-4 border-[#EB4898]/10 border-t-[#EB4898] animate-spin" />
-         <p className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] mt-6 animate-pulse">Establishing Nexus Link...</p>
+         <p className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] mt-6 animate-pulse">Establishing Connection...</p>
       </div>
     );
   }
@@ -115,7 +115,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
       <div className={cn("flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
         
-        {/* 🛸 NEXUS HUD HEADER (v14) */}
+        {/* 🛸 HUD HEADER (v14) */}
         <div className={cn(
             "shrink-0 px-6 py-4 z-20 backdrop-blur-3xl border-b transition-all",
             isLight ? "bg-white/80 border-black/5" : "bg-black/40 border-white/5"
@@ -198,7 +198,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               <div className="absolute top-2 left-0 right-0 z-50 flex justify-center px-6">
                 <div className="bg-amber-500/10 backdrop-blur-3xl border border-amber-500/20 px-6 py-2 rounded-full flex items-center gap-3">
                   <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-amber-500">Wait: Re-Syncing Matrix...</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-amber-500">Wait: Re-Syncing Network...</span>
                 </div>
               </div>
             )}

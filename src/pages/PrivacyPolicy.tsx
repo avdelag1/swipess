@@ -22,7 +22,7 @@ export default function PrivacyPolicy() {
 
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-48 relative z-10 space-y-12">
         
-        {/* 🛸 NEXUS HEADER */}
+        {/* 🛸 HEADER */}
         <div className="flex flex-col gap-3">
            <button onClick={() => { triggerHaptic('medium'); navigate(-1); }} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic mb-4">
               <ArrowLeft className="w-4 h-4" /> BACK TO IDENTITY
@@ -30,7 +30,7 @@ export default function PrivacyPolicy() {
            <h1 className={cn("text-5xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Privacy Policy</h1>
            <div className="flex items-center gap-4 mt-2">
               <div className="px-3 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/5">
-                 <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest italic">Data Sovereignty Protocol</span>
+                 <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest italic">Data Sovereignty Policy</span>
               </div>
               <span className={cn("text-[9px] font-black uppercase tracking-widest opacity-30 italic", isLight ? "text-black" : "text-white")}>Last Sync: Nov 2025</span>
            </div>
@@ -57,14 +57,14 @@ export default function PrivacyPolicy() {
              <div className="space-y-16">
                 {[
                   { id: '01', icon: Database, title: 'Inbound Data Capture', content: 'We collect identity logs you provide directly: Profile metadata, atmospheric preferences, discovery criteria, and decrypted communications.' },
-                  { id: '02', icon: Eye, title: 'Network Influence', content: 'Logs are utilized to optimize the discovery matrix, connect property authorities with compliant clients, and process priority syncs.' },
-                  { id: '03', icon: Globe, title: 'Sovereign Synchronization', content: 'Data is shared only with authorized matrix partners (Supabase, Google) and relevant entities for establishing direct matches.' },
+                  { id: '02', icon: Eye, title: 'Network Influence', content: 'Logs are utilized to optimize the discovery network, connect property authorities with compliant clients, and process priority syncs.' },
+                  { id: '03', icon: Globe, title: 'Sovereign Synchronization', content: 'Data is shared only with authorized partners (Supabase, Google) and relevant entities for establishing direct matches.' },
                   { id: '04', icon: ShieldCheck, title: 'Entity Rights', content: 'You maintain total sovereignty over your identity logs. Access, correction, and permanent purging are available via the Identity Config.' },
-                  { id: '05', icon: Lock, title: 'Encryption Protocol', content: 'We implement high-standard SSL and OAuth 2.0 encryption layers to maintain the total integrity of the matrix.' },
+                  { id: '05', icon: Lock, title: 'Encryption Security', content: 'We implement high-standard SSL and OAuth 2.0 encryption layers to maintain the total integrity of the application.' },
                 ].map((section) => (
                   <section key={section.id} className="group">
                     <div className="flex items-center gap-4 mb-6">
-                       <span className="text-[10px] font-black text-indigo-500 font-mono tracking-widest bg-indigo-500/10 px-3 py-1 rounded-lg">PROTOCOL {section.id}</span>
+                       <span className="text-[10px] font-black text-indigo-500 font-mono tracking-widest bg-indigo-500/10 px-3 py-1 rounded-lg">SECTION {section.id}</span>
                        <div className={cn("h-[1px] flex-1 opacity-10", isLight ? "bg-black" : "bg-white")} />
                     </div>
                     <div className="flex items-center gap-4 mb-4">
@@ -87,7 +87,7 @@ export default function PrivacyPolicy() {
             >
                RETURN TO HUB
             </Button>
-            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Swipess Nexus Security Council • 2025-2026 </p>
+            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Swipess Security Council • 2025-2026 </p>
         </div>
 
       </div>

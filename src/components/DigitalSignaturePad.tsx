@@ -111,7 +111,7 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
     <div className="w-full space-y-6">
       <div className="relative group">
         
-        {/* 🛸 NEXUS GLOW */}
+        {/* 🛸 GLOW */}
         <div className="absolute -inset-1 bg-gradient-to-r from-[#EB4898]/40 via-[#8b5cf6]/40 to-[#EB4898]/40 rounded-[3rem] blur-2xl opacity-40 group-hover:opacity-100 transition duration-1000" />
         
         {/* 🛸 SIGNATURE HUB */}
@@ -158,7 +158,7 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
                 </div>
                 <div className="space-y-1">
                    <h4 className={cn("text-lg font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Execute Liquid Ink</h4>
-                   <p className={cn("text-[10px] font-black uppercase tracking-[0.3em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Verification Protocol Required</p>
+                   <p className={cn("text-[10px] font-black uppercase tracking-[0.3em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Verification Required</p>
                 </div>
               </motion.div>
             )}

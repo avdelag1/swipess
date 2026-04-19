@@ -46,7 +46,7 @@ const OwnerSettings = () => {
     {
       label: t('settings.contracts'),
       items: [
-        { icon: Building2, label: 'Asset Matrix', description: 'Manage your property deployments', bg: '#06b6d4', route: '/owner/properties' },
+        { icon: Building2, label: 'Asset Management', description: 'Manage your property deployments', bg: '#06b6d4', route: '/owner/properties' },
         { icon: FileText, label: t('settings.contracts'), description: t('settings.contractsDesc'), bg: '#f97316', route: '/owner/contracts' },
         { icon: Scale, label: t('settings.legal'), description: t('settings.legalDesc'), bg: '#8b5cf6', route: '/owner/legal-services' },
       ],
@@ -157,7 +157,7 @@ const OwnerSettings = () => {
           ))}
         </motion.div>
 
-        {/* 🛸 NEXUS FOOTER */}
+        {/* 🛸 FOOTER */}
         <div className="flex flex-col items-center gap-6 pt-16">
             <div className="w-16 h-16 rounded-[1.6rem] bg-black flex items-center justify-center shadow-2xl border border-white/10">
                <SwipessLogo size="sm" />
@@ -169,7 +169,7 @@ const OwnerSettings = () => {
                      <span className="text-[9px] font-black text-purple-600 uppercase tracking-widest font-mono">V3.3.1</span>
                   </div>
                </div>
-               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Property Authority Matrix • Elite Discovery</p>
+               <p className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic opacity-30", isLight ? "text-black" : "text-white")}>Property Authority • Elite Discovery</p>
             </div>
         </div>
 

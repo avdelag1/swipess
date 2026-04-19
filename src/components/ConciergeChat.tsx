@@ -40,7 +40,7 @@ const ConciergePrivacyPortal = memo(({ onAccept }: { onAccept: () => void }) => 
       <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-4 border border-primary/20 relative shadow-[0_0_40px_rgba(168,85,247,0.3)]">
         <Sparkles className="w-10 h-10 text-primary animate-pulse" />
       </div>
-      <h2 className="text-2xl font-black tracking-tight text-foreground uppercase">Swipess AI Protocol</h2>
+      <h2 className="text-2xl font-black tracking-tight text-foreground uppercase">Swipess AI Assistant</h2>
       <p className="text-xs text-muted-foreground leading-relaxed max-w-[280px]">
         Swipess AI is a highly-trained, secure concierge built purely to enhance your experience. Your data is strictly protected under our high standards and will never be used maliciously or sold to third parties. We are here to help you seamlessly.
       </p>

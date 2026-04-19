@@ -156,7 +156,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           </div>
           <div className="space-y-4">
             <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>Connection Lost</h2>
-            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting matrix re-sync.</p>
+            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting network re-sync.</p>
           </div>
           <Button 
             onClick={() => { triggerHaptic('medium'); window.location.reload(); }}
@@ -266,7 +266,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         </motion.button>
       )}
 
-      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Nexus Admin Dashboard</p>
+      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Swipess Owner Dashboard</p>
     </div>
   );
 };

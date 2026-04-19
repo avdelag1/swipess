@@ -82,17 +82,18 @@ const OwnerProfile = () => {
              <button
               onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
               className={cn(
-                 "absolute -bottom-1 -right-1 w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl transition-all active:scale-90 border-[4px] z-20",
+                 "absolute -bottom-3 left-1/2 -translate-x-1/2 px-5 h-10 rounded-xl flex items-center justify-center shadow-2xl transition-all active:scale-90 border-[4px] z-20 whitespace-nowrap",
                  isLight ? "bg-black text-white border-white" : "bg-white text-black border-[#0d0d0f]"
               )}
             >
-              <Camera className="w-5 h-5" />
+              <Camera className="w-3.5 h-3.5 mr-2" />
+              <span className="text-[10px] font-black uppercase tracking-widest mt-0.5">Edit</span>
             </button>
           </div>
 
           <div className="space-y-2">
             <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
-              {ownerProfile?.business_name || 'Nexus Brand'}
+              {ownerProfile?.business_name || 'Owner Profile'}
             </h1>
             <div className="flex items-center justify-center gap-3">
                <div className="bg-[#EB4898]/10 px-3 py-1 rounded-full border border-[#EB4898]/20">
@@ -104,7 +105,7 @@ const OwnerProfile = () => {
           </div>
         </div>
 
-        {/* 🛸 METRIC GRID: NEXUS CARDS */}
+        {/* 🛸 METRIC GRID: CARDS */}
         <div className="grid grid-cols-3 gap-4">
           {[
             { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#EB4898]' },
@@ -145,7 +146,7 @@ const OwnerProfile = () => {
               </div>
               <div>
                 <h3 className={cn("text-[14px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-black" : "text-white")}>Global Credits</h3>
-                <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-1.5", isLight ? "text-black/30" : "text-white/30")}>Nexus Messaging Reserve</p>
+                <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-1.5", isLight ? "text-black/30" : "text-white/30")}>Messaging Reserve</p>
               </div>
             </div>
             <div className={cn("text-3xl font-black italic tracking-tighter mr-3", isLight ? "text-black" : "text-white")}>

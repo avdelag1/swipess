@@ -43,7 +43,7 @@ const ownerLegalIssueCategories: LegalIssueCategory[] = [
   },
   {
     id: 'contract-legal',
-    title: 'Lease Matrix',
+    title: 'Lease Agreement',
     icon: FileText,
     description: 'Binding agreement authority',
     subcategories: [
@@ -121,7 +121,7 @@ const OwnerLawyerServices = () => {
         {/* 🛸 OWNER MEGA-HEADER */}
         <div className="flex flex-col gap-3">
            <PageHeader title="OWNER LAWYER HUB" showBack={true} />
-           <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed max-w-sm", isLight ? "text-black" : "text-white")}> Professional Property Authority Matrix v14.0 </p>
+           <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed max-w-sm", isLight ? "text-black" : "text-white")}> Professional Property Authority v14.0 </p>
         </div>
 
         {/* 🛸 AUTHORITY STATUS */}
@@ -136,7 +136,7 @@ const OwnerLawyerServices = () => {
                 </div>
              </div>
              <div className="bg-purple-600 px-4 py-2 rounded-full shadow-lg">
-                <span className="text-[9px] font-black text-white uppercase tracking-widest italic">Matrix Verified</span>
+                <span className="text-[9px] font-black text-white uppercase tracking-widest italic">System Verified</span>
              </div>
         </motion.div>
 
@@ -176,14 +176,14 @@ const OwnerLawyerServices = () => {
                </div>
                <div className="space-y-4">
                   <h3 className="text-3xl font-black uppercase italic tracking-tighter">Transmission Confirmed</h3>
-                  <p className="text-[12px] font-black uppercase tracking-[0.2em] opacity-40 max-w-xs mx-auto leading-relaxed">Asset logs have been successfully synced with the Property Authority Matrix. Await contact.</p>
+                  <p className="text-[12px] font-black uppercase tracking-[0.2em] opacity-40 max-w-xs mx-auto leading-relaxed">Asset logs have been successfully synced with the Property Authority. Await contact.</p>
                </div>
                <Button onClick={handleReset} className="h-16 px-12 rounded-[2rem] bg-purple-600 text-white font-black uppercase tracking-widest">Back to Hub</Button>
           </motion.div>
         ) : (
           <div className="space-y-12">
             
-            {/* 🛸 CLASSIFICATION MATRIX */}
+            {/* 🛸 CLASSIFICATION */}
             <div className="space-y-6">
                <div className="flex items-center gap-4 px-2">
                   <span className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-40", isLight ? "text-black" : "text-white")}>Asset Case Hub</span>
@@ -264,7 +264,7 @@ const OwnerLawyerServices = () => {
                                 disabled={isSubmitting || !description.trim()}
                                 className="h-16 flex-1 rounded-[2rem] bg-purple-600 hover:bg-purple-700 text-white font-black uppercase italic tracking-widest shadow-2xl shadow-purple-500/30"
                             >
-                                {isSubmitting ? "SYNCING MATRIX..." : "TRANSMIT ASSET LOGS"}
+                                {isSubmitting ? "SYNCING..." : "TRANSMIT ASSET LOGS"}
                             </Button>
                         </div>
                       </div>

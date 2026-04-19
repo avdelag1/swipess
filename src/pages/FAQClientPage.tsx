@@ -18,7 +18,7 @@ interface FAQItem {
 
 const faqItems: FAQItem[] = [
   { question: "How do I find properties to rent?", answer: "Sync with property listings by swiping. Swipe right to authorize interest, or swipe left to pass. When a mutual sync occurs, a Direct Transmission link opens." },
-  { question: "What happens when I authorize interest?", answer: "The property authority is notified. If they verify your profile and sync back, a Nexus Match is established, enabling decrypted direct messaging." },
+  { question: "What happens when I authorize interest?", answer: "The property authority is notified. If they verify your profile and sync back, a Match is established, enabling decrypted direct messaging." },
   { question: "How do I message property owners?", answer: "Once synced, access the Messaging Dashboard. Decrypted transmissions are available via your active credits." },
   { question: "What are message credits?", answer: "Direct transmissions require energy credits. Standard entities receive a set quota; Premium Operators receive unlimited priority syncs." },
   { question: "How do I upgrade my status?", answer: "Navigate to Settings > Identity Upgrades. Elite status grants priority discovery and expanded transmission capacity." },

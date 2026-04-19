@@ -147,7 +147,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       setAvailabilityStatus(prev => ({ ...prev, [listing.id]: newStatus }));
       const { error } = await supabase.from('listings').update({ status: newStatus }).eq('id', listing.id);
       if (error) throw error;
-      toast.success(`Matrix Updated: ${newStatus}`);
+      toast.success(`Status Updated: ${newStatus}`);
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
     } catch (_error: unknown) {
       setAvailabilityStatus(prev => ({ ...prev, [listing.id]: listing.status }));
@@ -174,7 +174,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   };
 
   const tabItems = [
-    { id: 'all', label: 'Matrix', icon: Activity, count: listings.length },
+    { id: 'all', label: 'All Assets', icon: Activity, count: listings.length },
     { id: 'property', label: 'Estates', icon: Home, count: listings.filter(l => !l.category || l.category === 'property').length },
     { id: 'motorcycle', label: 'Motos', icon: MotorcycleIcon, count: listings.filter(l => l.category === 'motorcycle').length },
     { id: 'bicycle', label: 'Aqua', icon: Bike, count: listings.filter(l => l.category === 'bicycle').length },
@@ -203,75 +203,74 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
          <div className="absolute bottom-[5%] right-[-10%] w-[50%] h-[40%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
       </div>
 
-      <div className="p-4 sm:p-8 pb-32 space-y-10 max-w-7xl mx-auto w-full relative z-10">
+      <div className="p-4 sm:p-6 pb-32 space-y-6 max-w-7xl mx-auto w-full relative z-10">
         
-        {/* 🛸 ASSET TERMINAL HEADER */}
+        {/* 🛸 COMPACT DASHBOARD COMMAND HEADER */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
           className={cn(
-            "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 p-10 rounded-[3rem] shadow-2xl transition-all border",
-            isLight ? "bg-black/[0.03] border-black/5" : "bg-white/[0.04] border-white/[0.06] backdrop-blur-3xl"
+            "flex flex-col gap-6 p-8 rounded-[2.5rem] shadow-2xl transition-all border backdrop-blur-3xl",
+            isLight ? "bg-white/80 border-black/5" : "bg-black/60 border-white/10"
           )}
         >
-          <div className="flex items-center gap-6">
-            <div className="w-18 h-18 rounded-[1.8rem] bg-gradient-to-br from-[#EB4898] to-orange-500 flex items-center justify-center shadow-2xl">
-              <Sparkles className="w-8 h-8 text-white animate-pulse" />
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#EB4898] to-indigo-500 flex items-center justify-center shadow-xl">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className={cn("text-2xl font-black tracking-tighter uppercase italic leading-none", isLight ? "text-black" : "text-white")}>Global Assets</h1>
+                <p className={cn("text-[9px] font-black uppercase tracking-[0.3em] italic mt-1.5 opacity-40", isLight ? "text-black" : "text-white")}>Swipess System v14.0</p>
+              </div>
             </div>
-            <div>
-              <h1 className={cn("text-3xl font-black tracking-tighter uppercase italic leading-none", isLight ? "text-black" : "text-white")}>Global Assets</h1>
-              <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic mt-2 opacity-50", isLight ? "text-black" : "text-white")}>Terminal Matrix v14.0</p>
-            </div>
+            
+            <Button
+              onClick={handleAddProperty}
+              className="h-14 px-8 rounded-2xl bg-[#EB4898] hover:bg-[#ff5bb0] text-white font-black uppercase italic tracking-[0.15em] shadow-[0_15px_30px_rgba(235,72,152,0.3)] border-none active:scale-95 transition-all text-xs"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Deploy Asset
+            </Button>
           </div>
-          <Button
-            onClick={handleAddProperty}
-            className="h-18 px-10 rounded-[2rem] bg-[#EB4898] hover:bg-[#ff5bb0] text-white font-black uppercase italic tracking-[0.2em] shadow-[0_20px_40px_rgba(235,72,152,0.4)] border-none active:scale-95 transition-all text-sm"
-          >
-            <Plus className="w-6 h-6 mr-3" />
-            Deploy Asset
-          </Button>
-        </motion.div>
 
-        {/* Statistics Hud */}
-        <OwnerListingsStats listings={listings} isLight={isLight} />
-
-        {/* Matrix Controls */}
-        <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1 group">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#EB4898] opacity-50 z-10" />
+          <div className="flex flex-col md:flex-row gap-3">
+             <div className="relative flex-1 group">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#EB4898] opacity-50 z-10" />
                 <Input
-                    placeholder="SCAN MATRIX..."
+                    placeholder="SEARCH ASSETS..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={cn(
-                        "h-16 pl-14 pr-6 rounded-[2rem] font-black uppercase tracking-widest text-[12px] transition-all border outline-none", 
-                        isLight ? 'bg-black/5 border-black/5 text-black placeholder:text-black/20' : 'bg-white/[0.05] border-white/5 text-white placeholder:text-white/20'
+                        "h-14 pl-12 pr-6 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all border outline-none", 
+                        isLight ? 'bg-black/5 border-black/5 text-black' : 'bg-black/40 border-white/5 text-white'
                     )}
                 />
             </div>
             
             <div className={cn(
-                "flex items-center gap-1.5 p-2 rounded-[2.2rem] border overflow-x-auto no-scrollbar backdrop-blur-3xl",
-                isLight ? 'bg-black/5 border-black/5' : 'bg-white/[0.03] border-white/5'
+                "flex items-center gap-1 p-1 rounded-2xl border overflow-x-auto no-scrollbar",
+                isLight ? 'bg-black/5 border-black/5' : 'bg-black/20 border-white/5'
             )}>
                 {tabItems.map((tab) => (
                     <button
                         key={tab.id}
                         onClick={() => { triggerHaptic('light'); setActiveTab(tab.id); }}
                         className={cn(
-                            "flex items-center gap-3 px-6 h-12 rounded-[1.8rem] transition-all whitespace-nowrap",
+                            "flex items-center gap-2.5 px-5 h-10 rounded-xl transition-all whitespace-nowrap",
                             activeTab === tab.id
-                                ? "bg-[#EB4898] text-white shadow-xl shadow-[#EB4898]/20"
+                                ? "bg-[#EB4898] text-white shadow-lg"
                                 : isLight ? "text-black/40 hover:bg-black/5" : "text-white/30 hover:bg-white/5"
                         )}
                     >
-                        <tab.icon className="w-4 h-4" />
-                        <span className="text-[10px] font-black uppercase tracking-widest italic">{tab.label}</span>
+                        <tab.icon className="w-3.5 h-3.5" />
+                        <span className="text-[9px] font-black uppercase tracking-widest italic">{tab.label}</span>
                         <span className="text-[8px] opacity-40">{tab.count}</span>
                     </button>
                 ))}
             </div>
-        </div>
+          </div>
+        </motion.div>
 
         {/* 🛸 ASSET GRID */}
         <AnimatePresence mode="wait">
@@ -441,7 +440,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                           <AlertDialogContent className={cn("rounded-[2.5rem] border backdrop-blur-3xl", isLight ? 'bg-white border-black/5' : 'bg-[#101012] border-white/10')}>
                             <AlertDialogHeader>
                               <AlertDialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Purge Asset?</AlertDialogTitle>
-                              <AlertDialogDescription className="text-[11px] font-black uppercase tracking-widest opacity-50">This action will permanently disconnect this property from the Global Nexus.</AlertDialogDescription>
+                              <AlertDialogDescription className="text-[11px] font-black uppercase tracking-widest opacity-50">This action will permanently disconnect this property from your fleet.</AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter className="gap-3">
                               <AlertDialogCancel className="rounded-2xl h-14 font-black uppercase tracking-widest text-[10px]">Abort</AlertDialogCancel>
@@ -468,11 +467,14 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                 <Sparkles className="w-10 h-10 animate-pulse" />
               </div>
               <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-4 text-center">No Assets Detected</h3>
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] opacity-40 max-w-xs text-center leading-relaxed mb-12">The asset matrix is empty. Deploy your first property to begin synchronization.</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] opacity-40 max-w-xs text-center leading-relaxed mb-12">The asset system is empty. Deploy your first property to begin synchronization.</p>
               <Button onClick={handleAddProperty} className="h-18 px-12 rounded-[2rem] bg-[#EB4898] text-white font-black uppercase italic tracking-widest shadow-2xl">Deploy Initial Asset</Button>
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Statistics Hud - Moved to bottom to eliminate empty space between buttons and listings */}
+        <OwnerListingsStats listings={listings} isLight={isLight} />
       </div>
 
       <ListingPreviewDialog isOpen={showPreview} onClose={() => { setShowPreview(false); setViewingProperty(null); }} property={viewingProperty} onEdit={() => { setShowPreview(false); setEditingProperty(viewingProperty); setIsFormOpen(true); }} showEditButton={true} />
