@@ -60,6 +60,7 @@ interface FilterState {
   bathrooms: number[];
   amenities: string[];
   propertyTypes: string[];
+  serviceTypes: string[];
   
   filterVersion: number;
   lastChangedAt: number;
@@ -82,6 +83,7 @@ interface FilterState {
   setBathrooms: (bathrooms: number[]) => void;
   setAmenities: (amenities: string[]) => void;
   setPropertyTypes: (types: string[]) => void;
+  setServiceTypes: (types: string[]) => void;
   setFilters: (filters: Partial<QuickFilters>) => void;
   resetClientFilters: () => void;
   resetOwnerFilters: () => void;
@@ -129,6 +131,7 @@ export const useFilterStore = create<FilterState>()(
     bathrooms: [],
     amenities: [],
     propertyTypes: [],
+    serviceTypes: [],
     filterVersion: 0,
     lastChangedAt: Date.now(),
 
@@ -259,6 +262,13 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
+    setServiceTypes: (types) => {
+      set((state) => ({
+        serviceTypes: types,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
     setFilters: (filters) => {
       set((state) => ({
         ...(filters.categories !== undefined && { categories: filters.categories }),
@@ -345,6 +355,7 @@ export const useFilterStore = create<FilterState>()(
         radiusKm: state.radiusKm,
         userLatitude: state.userLatitude ?? undefined,
         userLongitude: state.userLongitude ?? undefined,
+        serviceCategory: state.serviceTypes.length > 0 ? state.serviceTypes : undefined,
       };
     },
     getClientFilters: () => {

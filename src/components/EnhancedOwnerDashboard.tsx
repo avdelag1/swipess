@@ -18,10 +18,7 @@ import { ClientFilters } from '@/hooks/useSmartMatching';
 import { OwnerInsightsDashboard } from '@/components/OwnerInsightsDashboard';
 import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
 import { useFilterActions } from '@/state/filterStore';
-import type { OwnerIntentCard } from '@/components/swipe/SwipeConstants';
 import { triggerHaptic } from '@/utils/haptics';
-import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
-import DashboardMapCard from '@/components/swipe/DashboardMapCard';
 import { MapFilterChipRow } from '@/components/swipe/MapFilterChipRow';
 import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';
@@ -46,19 +43,16 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }, []);
   
   const activeCategory = useFilterStore(s => s.activeCategory);
-  // Default landing = map (replaces the legacy "ENGAGE DISCOVERY" intro).
-  // 'cards' is still reachable when activeCategory clears (bottom-nav re-tap).
-  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'map');
-  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>('property');
+  const [phase, setPhase] = useState<'cards' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
+  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(activeCategory || 'property');
   const [showFilters, setShowFilters] = useState(false);
 
   const { setModal } = useModalStore();
 
-  // 🌍 FULLSCREEN MAP ENGINE: Control global HUD visibility based on dash phase
   useEffect(() => {
-    setModal('showMapFullscreen', phase === 'map');
+    setModal('showMapFullscreen', false);
     return () => setModal('showMapFullscreen', false);
-  }, [phase, setModal]);
+  }, [setModal]);
 
   const { user, loading: isAuthLoading } = useAuth();
   const { navigate } = useAppNavigate();
@@ -133,21 +127,20 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     onClientInsights?.(clientId);
   }, [onClientInsights]);
 
-  const handleCardSelect = useCallback((card: OwnerIntentCard) => {
+  const handleCardSelect = useCallback((card: any) => {
     triggerHaptic('medium');
     const cat = (card.category || 'property') as QuickFilterCategory;
     
-    // Set map context first instead of jumping to swipe deck
     setMapCategory(cat);
-    setPhase('map');
-    setActiveCategory(null);
+    setCategories([cat]);
+    setActiveCategory(cat);
+    setPhase('swipe');
     
     if (card.clientType) setClientType(card.clientType as any);
     if (card.listingType) setListingType(card.listingType as any);
   }, [setClientType, setListingType, setActiveCategory]);
 
   const handleExhaustedMap = useCallback(() => {
-    setPhase('map');
   }, []);
 
   const handleMapBack = useCallback(() => {
@@ -164,9 +157,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }, [mapCategory, setCategories, setActiveCategory]);
 
-  const showCards = phase === 'cards' && !activeCategory;
-  const showMap = phase === 'map' && mapCategory && !activeCategory;
-  const showSwipe = phase === 'swipe' || !!activeCategory;
+  const showCards = !activeCategory;
+  const showSwipe = !!activeCategory;
 
   if (isAuthLoading || isPrefsLoading) {
     return (
@@ -237,50 +229,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             style={{ willChange: 'transform, opacity' }}
           >
             <OwnerAllDashboard onCardSelect={handleCardSelect} />
-          </motion.div>
-        ) : showMap && mapCategory ? (
-          <motion.div
-            key="owner-dash-map"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className={cn("flex-1 w-full h-full flex flex-col items-stretch overflow-hidden", isLight ? 'bg-white' : 'bg-black')}
-          >
-            <DashboardMapCard className="flex-1 h-full w-full">
-              <MapFilterChipRow mode="owner" onBack={handleMapBack} />
-              <div className="flex-1 relative w-full h-full min-h-0">
-                <DiscoveryMapView
-                  category={mapCategory}
-                  onBack={handleMapBack}
-                  onStartSwiping={handleStartSwiping}
-                  isEmbedded={true}
-                  mode="owner"
-                />
-              </div>
-            </DashboardMapCard>
-          </motion.div>
-        ) : showSwipe && !isLoading && clientProfiles.length === 0 ? (
-          <motion.div
-            key="owner-dash-map-empty"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="w-full h-full z-10 flex flex-col"
-          >
-            <DashboardMapCard className="flex-1 h-full w-full relative">
-              <MapFilterChipRow mode="owner" onBack={handleMapBack} />
-              <div className="flex-1 relative w-full h-full min-h-0">
-                <DiscoveryMapView
-                  category={mapCategory || (filterCategory as any) || 'property'}
-                  onBack={handleMapBack}
-                  onStartSwiping={handleStartSwiping}
-                  isEmbedded={true}
-                  mode="owner"
-                />
-              </div>
-            </DashboardMapCard>
           </motion.div>
         ) : showSwipe ? (
           <motion.div

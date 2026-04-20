@@ -246,31 +246,6 @@ export const SwipeExhaustedState = ({
             </Button>
           </div>
 
-          {onGoToMap && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="w-full max-w-sm mt-2"
-            >
-              <Button
-                onClick={() => { triggerHaptic('heavy'); onGoToMap(); }}
-                className={cn(
-                  "w-full h-16 rounded-[2rem] border-2 border-primary/30 bg-primary/10 hover:bg-primary/20",
-                  "text-xs font-black uppercase tracking-[0.3em] italic text-primary group transition-all duration-500",
-                  "relative overflow-hidden shadow-[0_20px_40px_rgba(var(--color-brand-primary-rgb),0.2)]"
-                )}
-              >
-                 <motion.div 
-                   animate={{ x: [-200, 200], opacity: [0, 1, 0] }}
-                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                   className="absolute inset-x-0 h-full w-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent skew-x-12"
-                 />
-                 <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
-                 Launch Discovery Map
-              </Button>
-            </motion.div>
-          )}
         </div>
       </motion.div>
     </AnimatePresence>

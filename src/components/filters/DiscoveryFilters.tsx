@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
-import { useFilterStore } from '@/state/filterStore';
+import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { VespaIcon } from '@/components/icons/VespaIcon';
 import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
 import { WorkersIcon } from '@/components/icons/WorkersIcon';
@@ -71,6 +71,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
   const savePreferencesMutation = useSaveClientFilterPreferences();
   const radiusKm = useFilterStore(s => s.radiusKm);
   const setRadiusKm = useFilterStore(s => s.setRadiusKm);
+  const { setServiceTypes: setStoreServiceTypes, setPropertyTypes: setStorePropertyTypes } = useFilterActions();
 
   // SHARED STATE
   const [interestType, setInterestType] = useState(initialFilters.interest_type || 'both');
@@ -99,6 +100,9 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
 
   // BICYCLE STATE
   const [bicycleTypes, setBicycleTypes] = useState<string[]>(initialFilters.bicycle_types || []);
+
+  // SERVICE STATE
+  const [serviceTypes, setServiceTypes] = useState<string[]>(initialFilters.service_types || []);
 
   const getBudgetRanges = () => {
     if (category === 'property') return interestType === 'buy' ? BUY_BUDGET_RANGES : RENT_BUDGET_RANGES;
@@ -133,6 +137,10 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
           moto_transmission: transmission !== 'any' ? [transmission] : null,
         });
       }
+      
+      setStoreServiceTypes(serviceTypes);
+      setStorePropertyTypes(propertyTypes);
+      
       toast.success('Filters applied!');
     } catch { toast.error('Failed to save preferences'); }
 
@@ -145,7 +153,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
       // Category Specific
       property_types: propertyTypes, bedrooms_min: bedrooms, bathrooms_min: bathrooms,
       moto_types: motoTypes, engine_cc_min: engineRange[0], engine_cc_max: engineRange[1],
-      bicycle_types: bicycleTypes
+      bicycle_types: bicycleTypes, service_types: serviceTypes
     });
   };
 
@@ -182,11 +190,16 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                 key={type}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setInterestType(type)}
-                className={`py-3 px-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                  interestType === type
-                    ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                    : 'bg-muted/40 text-muted-foreground hover:bg-muted/60'
-                }`}
+                className={cn(
+                   "flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 inline-flex items-center justify-center gap-2 rounded-2xl px-3.5 py-3 border transition-all duration-300 w-full text-[10px] font-black uppercase tracking-widest",
+                   interestType === type
+                    ? (_transparent ? "bg-primary text-white border-primary" : "bg-primary text-white shadow-lg shadow-primary/20")
+                    : (_transparent 
+                        ? "bg-white/10 border-white/10 text-white/70" 
+                        : isLight 
+                          ? "bg-white/80 border-black/10 shadow-sm text-muted-foreground" 
+                          : "bg-black/60 border-white/20 shadow-xl text-muted-foreground")
+                 )}
               >
                 {type}
               </motion.button>
@@ -315,6 +328,43 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
             </CardContent>
           </Card>
         </>
+      )}
+
+      {category === 'service' && (
+        <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
+          <CardHeader className="pb-2 px-6 pt-6">
+            <div className="flex items-center gap-2">
+              <WorkersIcon className="w-4 h-4 text-primary" />
+              <span className="text-xs font-black uppercase tracking-widest">Worker Types</span>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-2 px-6 pb-6">
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: 'Clean Ladies', value: 'cleaning' },
+                { label: 'Massage Pros', value: 'massage' },
+                { label: 'Personal Drivers', value: 'driver' },
+                { label: 'Security / Bodyguard', value: 'security' },
+                { label: 'Private Chef', value: 'chef' },
+                { label: 'Personal Assistant', value: 'pa' },
+                { label: 'Nanny / Kids', value: 'nanny' }
+              ].map((type) => (
+                <button
+                  key={type.value}
+                  onClick={() => toggleItem(serviceTypes, type.value, setServiceTypes)}
+                  className={cn(
+                    "py-3 px-3 rounded-2xl text-[10px] font-black uppercase tracking-tight text-left transition-all border",
+                    serviceTypes.includes(type.value)
+                      ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                      : "bg-muted/30 text-muted-foreground border-white/5 hover:bg-muted/50"
+                  )}
+                >
+                  {type.label}
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       <Button onClick={_handleApply} className="w-full h-14 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20">

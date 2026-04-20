@@ -143,6 +143,10 @@ export function useSmartListingMatching(
                     if (normalized) query = query.eq('category', normalized);
                 }
 
+                if (filters?.serviceCategory && filters.serviceCategory.length > 0) {
+                    query = query.in('service_category', filters.serviceCategory);
+                }
+
                 const { data: listings, error } = await query.range(page * pageSize, (page + 1) * pageSize - 1);
                 if (error) throw error;
 

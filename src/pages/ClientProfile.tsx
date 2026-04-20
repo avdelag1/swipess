@@ -74,7 +74,7 @@ const ClientProfile = () => {
         </div>
       </AnimatePresence>
 
-      <div className="w-full max-w-lg mx-auto p-6 pt-24 pb-48 space-y-12 relative z-10">
+      <div className="w-full max-w-lg mx-auto p-6 pt-12 pb-48 space-y-12 relative z-10">
         
         {/* 🛸 HERO HEADER: MEGA AVATAR CYCLE */}
         <div className="flex flex-col items-center text-center gap-6">

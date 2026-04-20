@@ -3,7 +3,7 @@ import { Navigation, Minus, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
-import { DiscoveryMapView } from './DiscoveryMapView';
+import { Navigation, Minus, Plus } from 'lucide-react';
 
 export interface LocationRadiusSelectorProps {
   radiusKm: number;
@@ -52,12 +52,9 @@ export const LocationRadiusSelector = ({
     return (
       <div className="w-full flex flex-col gap-2 relative">
         <div 
-          className="w-full h-16 rounded-2xl overflow-hidden relative border border-white/10 glass-nano-texture shadow-lg group hover:h-24 transition-all duration-500 cursor-pointer"
+          className="w-full h-16 rounded-2xl overflow-hidden relative border border-white/10 glass-nano-texture shadow-lg group hover:h-24 transition-all duration-500 cursor-pointer bg-black/40"
         >
-          {/* 🗝️ INJECTED UNIFIED MAP ENGINE */}
-          <div className="absolute inset-0 pointer-events-none opacity-60">
-             <DiscoveryMapView variant="mini" showHUD={false} />
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent" />
           
           <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
             <div className="flex items-center gap-3 pointer-events-auto">
@@ -104,11 +101,10 @@ export const LocationRadiusSelector = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      <div className="flex-1 relative">
-         {/* 🗝️ INJECTED UNIFIED MAP ENGINE (RADAR CONTEXT) */}
-         <DiscoveryMapView variant="radar" showHUD={false} />
+      <div className="flex-1 relative bg-black/40">
+         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--color-brand-primary-rgb),0.1)_0%,transparent_70%)]" />
          
-         <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/40 via-transparent to-black" />
+         <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/60 via-transparent to-black" />
 
          {/* TOP HUD */}
          <div className="absolute top-6 left-6 right-6 z-10 flex flex-col gap-4">

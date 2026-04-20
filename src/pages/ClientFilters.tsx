@@ -54,7 +54,10 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
   const [selectedBedrooms, setSelectedBedrooms] = useState<number[]>(storeBedrooms);
   const [selectedBathrooms, setSelectedBathrooms] = useState<number[]>(storeBathrooms);
 
-  const activeFilterCount = (selectedListingType !== 'both' ? 1 : 0) + selectedBedrooms.length + selectedBathrooms.length;
+  const { serviceTypes: storeServiceTypes, setServiceTypes } = useFilterStore();
+  const [selectedServiceTypes, setSelectedServiceTypes] = useState<string[]>(storeServiceTypes);
+
+  const activeFilterCount = (selectedListingType !== 'both' ? 1 : 0) + selectedBedrooms.length + selectedBathrooms.length + selectedServiceTypes.length;
   const hasChanges = activeFilterCount > 0 || selectedCategories.length > 0;
 
   const toggleCategory = useCallback((id: QuickFilterCategory) => {
@@ -78,6 +81,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
     setListingType(selectedListingType);
     setBedrooms(selectedBedrooms);
     setBathrooms(selectedBathrooms);
+    setServiceTypes(selectedServiceTypes);
     
     queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
 

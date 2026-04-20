@@ -7,7 +7,6 @@ import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
-import { DiscoveryMapView } from './swipe/DiscoveryMapView';
 import type { QuickFilterCategory } from '@/types/filters';
 import {
   getActiveCategoryInfo,
@@ -1105,18 +1104,21 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 exit={{ opacity: 0 }}
                 className="w-full h-full z-50 overflow-hidden"
               >
-                <DashboardMapCard className="flex-1 w-full h-full relative">
-                  <MapFilterChipRow mode="client" onBack={() => setActiveCategory(null)} />
-                  <div className="flex-1 relative w-full h-full min-h-0">
-                    <DiscoveryMapView
-                      category={(storeActiveCategory as QuickFilterCategory) || 'property'}
-                      onBack={() => setActiveCategory(null)}
-                      onStartSwiping={handleRefresh}
-                      isEmbedded={true}
-                      mode="client"
-                    />
-                  </div>
-                </DashboardMapCard>
+                <div className="flex-1 flex flex-col items-center justify-center w-full h-full p-6">
+                  <SwipeExhaustedState 
+                    categoryLabel={storeActiveCategory || 'Listings'}
+                    CategoryIcon={Home}
+                    isRefreshing={isRefreshing}
+                    onRefresh={handleRefresh}
+                    radiusKm={radiusKm}
+                    onRadiusChange={setRadiusKm}
+                    onDetectLocation={detectLocation}
+                    detecting={locationDetecting}
+                    detected={locationDetected}
+                    lat={userLatitude}
+                    lng={userLongitude}
+                  />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

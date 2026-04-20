@@ -118,9 +118,11 @@ function TopBarComponent({
                 }}
                 className={cn(
                   "flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 inline-flex items-center gap-2 rounded-2xl pl-1.5 pr-3.5 py-1.5 border transition-all duration-300 w-auto",
-                  isLight 
-                    ? "bg-white/80 border-black/10 shadow-sm" 
-                    : "bg-black/60 border-white/20 shadow-xl"
+                  _transparent 
+                    ? "bg-white/10 border-white/10" 
+                    : isLight 
+                      ? "bg-white/80 border-black/10 shadow-sm" 
+                      : "bg-black/60 border-white/20 shadow-xl"
                 )}
                 style={{ WebkitTapHighlightColor: 'transparent' }}
                 aria-label="Go to profile"

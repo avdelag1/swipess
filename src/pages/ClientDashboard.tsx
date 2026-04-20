@@ -2,8 +2,8 @@ import { useCallback, useState, useEffect } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
+import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
-import DashboardMapCard from '@/components/swipe/DashboardMapCard';
 import { MapFilterChipRow } from '@/components/swipe/MapFilterChipRow';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuickFilterCategory } from '@/types/filters';
@@ -31,12 +31,8 @@ interface ClientDashboardProps {
  */
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { theme } = useTheme();
-  // Phase state: 'cards' | 'map' | 'swipe'.
-  // Default landing = map (replaces the legacy "ENGAGE DISCOVERY" intro).
-  // 'cards' remains reachable when the user re-taps Dashboard in the bottom nav,
-  // which clears activeCategory and triggers the cards fallback via useEffect.
-  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>('map');
-  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>('property');
+  const [phase, setPhase] = useState<'cards' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
+  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(activeCategory);
   const [showFilters, setShowFilters] = useState(false);
 
   const activeCategory = useFilterStore(s => s.activeCategory);
@@ -52,7 +48,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
     getListingFilters(),
     0,
     20,
-    phase !== 'map' && phase !== 'swipe' // Disabled in cards phase
+    activeCategory ? 'swipe' : 'cards' // Always active
   );
 
   // ─── Actions ─────────────────────────────────────────────────────────────
@@ -73,20 +69,19 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   
   const setModal = useModalStore(s => s.setModal);
 
-  // 🌍 FULLSCREEN MAP ENGINE: Control global HUD visibility based on dash phase
   useEffect(() => {
-    setModal('showMapFullscreen', phase === 'map');
+    setModal('showMapFullscreen', false);
     return () => setModal('showMapFullscreen', false);
-  }, [phase, setModal]);
+  }, [setModal]);
 
   const handleLaunch = useCallback((category: QuickFilterCategory) => {
     setMapCategory(category);
-    setPhase('map');
-    setActiveCategory(null);
+    setActiveCategory(category);
+    setPhase('swipe');
   }, [setActiveCategory]);
 
   const handleExhaustedMap = useCallback(() => {
-    setPhase('map');
+    // Stays in swipe phase but shows the "refocus" UI
   }, []);
 
   const handleMapBack = useCallback(() => {
@@ -110,8 +105,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   // Determine what to show based on phase + store state. 
   // We MUST be strictly exclusive to avoid "ghost designs" appearing behind.
   const isSwiping = phase === 'swipe' || !!activeCategory;
-  const showCards = phase === 'cards' && !isSwiping;
-  const showMap = phase === 'map' && !isSwiping;
+  const showCards = !isSwiping;
   const showSwipe = isSwiping;
 
   return (
@@ -131,29 +125,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
           </motion.div>
         )}
 
-        {showMap && mapCategory && (
-          <motion.div
-            key="dash-map"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className={cn("flex-1 w-full h-full flex flex-col items-stretch overflow-hidden bg-transparent")}
-          >
-            <DashboardMapCard className="flex-1 h-full w-full relative">
-              <MapFilterChipRow mode="client" onBack={handleMapBack} />
-              <div className="flex-1 relative w-full h-full min-h-0">
-                <DiscoveryMapView
-                  category={mapCategory}
-                  onBack={handleMapBack}
-                  onStartSwiping={handleStartSwiping}
-                  isEmbedded={true}
-                  mode="client"
-                />
-              </div>
-            </DashboardMapCard>
-          </motion.div>
-        )}
+        {/* Map phase removed — redirected to swipe phase with radius HUD */}
 
         {showSwipe && (
           <motion.div
