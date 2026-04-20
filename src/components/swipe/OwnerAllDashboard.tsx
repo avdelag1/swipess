@@ -17,16 +17,8 @@ import {
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { PokerCategoryCard } from './PokerCategoryCard';
 
-// Preload all owner card images on module load
+// Preload all owner card images
 const preloadedOwnerImages = new Set<string>();
-OWNER_INTENT_CARDS.forEach(card => {
-  const src = POKER_CARD_PHOTOS[card.id];
-  if (src && !preloadedOwnerImages.has(src)) {
-    preloadedOwnerImages.add(src);
-    const img = new Image();
-    img.src = src;
-  }
-});
 
 export interface OwnerAllDashboardProps {
   onCardSelect: (card: OwnerIntentCard) => void;
@@ -37,6 +29,18 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+
+  useEffect(() => {
+    // Preload all owner card images safely on mount to prevent TDZ ReferenceError
+    OWNER_INTENT_CARDS.forEach(card => {
+      const src = POKER_CARD_PHOTOS[card.id];
+      if (src && !preloadedOwnerImages.has(src)) {
+        preloadedOwnerImages.add(src);
+        const img = new Image();
+        img.src = src;
+      }
+    });
+  }, []);
 
   // 🚀 SPEED OF LIGHT: Pre-fetch top card clients in background
   useEffect(() => {
@@ -123,10 +127,9 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         <div
           className="relative flex items-center justify-center transition-all"
           style={{ 
-            width: 'var(--card-width, 380px)',
-            height: 'var(--card-height, 600px)',
-            aspectRatio: `${PK_ASPECT}`,
-            maxHeight: 'min(85svh, calc(100svh - 120px))',
+            height: 'min(55svh, 420px)',
+            width: `calc(min(55svh, 420px) * ${PK_ASPECT})`,
+            padding: '1rem',
           }}
         >
           {[...cards].reverse().map((card, reversedIdx) => {
