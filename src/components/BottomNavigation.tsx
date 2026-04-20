@@ -245,8 +245,8 @@ export const BottomNavigation = memo(({
           through, reinforcing the "floating above" feeling. */}
       <div
         className={cn(
-          "pointer-events-auto w-full max-w-[440px] mx-auto glass-pill-nav px-1.5 shadow-[0_30px_80px_rgba(0,0,0,0.5)] border-t",
-          theme === 'ivanna-style' ? "border-sky-100/40" : "border-white/20"
+          "pointer-events-auto w-full max-w-[440px] mx-auto glass-pill-nav px-1.5 shadow-[0_30px_80px_rgba(0,0,0,0.5)]",
+          theme === 'ivanna-style' ? "" : ""
         )}
         style={{
           background: theme === 'ivanna-style' ? 'rgba(235, 245, 255, 0.95)' : 'var(--nav-bg)',
@@ -259,7 +259,7 @@ export const BottomNavigation = memo(({
             : (isLight 
                ? '0 20px 50px -10px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.2)' 
                : '0 30px 80px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.05)'),
-          border: theme === 'ivanna-style' ? '2px solid rgba(100, 160, 230, 0.5)' : (isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.15)'),
+          border: 'none',
         }}
       >
         {/* LAYER 3: Animated liquid highlight — the bar "shines" like glass */}
@@ -383,7 +383,9 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE),
-                      color: active ? activeColor : iconColorInactive,
+                      color: active 
+                        ? (isLight ? '#000000' : activeColor) 
+                        : iconColorInactive,
                       fill: active ? activeColor : 'none',
                       strokeWidth: active ? 1.8 : 1.5,
                       filter: active ? 'drop-shadow(0 0 4px rgba(255,107,53,0.3))' : 'none',
@@ -400,7 +402,7 @@ export const BottomNavigation = memo(({
                       )}
                       style={{
                         color: active
-                          ? 'var(--color-brand-primary)'
+                          ? (isLight ? '#000000' : 'var(--color-brand-primary)')
                           : (isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.65)'),
                         opacity: 1,
                         zIndex: 1,

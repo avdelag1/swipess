@@ -139,7 +139,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         "w-full h-full relative overflow-hidden transition-colors duration-500",
         theme === 'ivanna-style' 
           ? "bg-card rounded-[20px_24px_22px_26px_/_26px_22px_24px_20px] shadow-artisan" 
-          : "bg-black border border-white/5 rounded-[2.5rem] shadow-2xl"
+          : "bg-black rounded-[2.5rem] shadow-2xl"
       )}>
         {/* Photo & Gradient Base */}
         <motion.img
@@ -152,7 +152,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
           draggable={false}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#EB4898]/20 to-transparent opacity-40 mix-blend-overlay" />
+        {/* Removed pinky/skin color overlay per user request */}
         
         {/* 🛸 NEXUS METADATA CONTENT */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8">
@@ -163,8 +163,14 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
                animate={{ opacity: 1, x: 0 }}
                className="flex items-center gap-2"
             >
-              <div className="w-4 h-[1px] bg-[#EB4898] shadow-[0_0_8px_#EB4898]" />
-              <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">{card.description}</span>
+              <div className={cn(
+                "w-4 h-[1px] shadow-[0_0_8px_rgba(255,255,255,0.4)]",
+                theme === 'ivanna-style' ? "bg-black/20" : "bg-white/40"
+              )} />
+              <span className={cn(
+                "text-[9px] font-black uppercase tracking-[0.4em] italic",
+                theme === 'ivanna-style' ? "text-black/60" : "text-white/60"
+              )}>{card.description}</span>
             </motion.div>
             
             <h3 className={cn(

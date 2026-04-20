@@ -1023,7 +1023,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                       className={cn(
                         "w-10 h-10 rounded-full flex items-center justify-center transition-all relative overflow-hidden",
                         isActive 
-                          ? "text-primary drop-shadow-[0_0_10px_rgba(255,107,53,0.5)] scale-110" 
+                          ? (isLight ? "text-black drop-shadow-[0_0_10px_rgba(0,0,0,0.15)] scale-110" : "text-primary drop-shadow-[0_0_10px_rgba(255,107,53,0.5)] scale-110")
                           : (isLight ? "text-black/30 hover:text-black/60" : "text-white/30 hover:text-white/60")
                       )}
                     >
@@ -1150,7 +1150,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
       </div>
       {/* BUILD VERSION STAMP - VISUAL PROOF OF UPDATE */}
       <div className="absolute bottom-[90px] right-6 z-0 pointer-events-none opacity-20">
-          <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white">FLAGSHIP BUILD v1.0.95</span>
+          <span className={cn(
+            "text-[8px] font-black uppercase tracking-[0.4em]",
+            isLight ? "text-black" : "text-white"
+          )}>FLAGSHIP BUILD v1.0.95</span>
       </div>
     </div>
 
