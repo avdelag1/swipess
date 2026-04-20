@@ -69,6 +69,9 @@ interface DiscoveryMapViewProps {
   isEmbedded?: boolean;
   category?: QuickFilterCategory | string;
   mode?: 'client' | 'owner';
+  variant?: 'mini' | 'radar' | 'full';
+  showHUD?: boolean;
+  onCategoryChange?: (cat: any) => void;
 }
 
 /**
@@ -99,8 +102,12 @@ export const DiscoveryMapView = ({
     return activeRole === 'owner' ? getClientFilters() : getListingFilters();
   }, [activeRole, getListingFilters, getClientFilters]);
 
+  const listingFilters = useMemo(() => {
+    return activeRole === 'owner' ? undefined : (filters as any);
+  }, [activeRole, filters]);
+
   // 🛰️ DUAL-MODE MATCHING ENGINE: Ensure page 0 is targeted correctly
-  const { data: listingsRaw = [], isLoading: isListingsLoading } = useSmartListingMatching(user?.id, [], filters, 0, 50, false);
+  const { data: listingsRaw = [], isLoading: isListingsLoading } = useSmartListingMatching(user?.id, [], listingFilters, 0, 50, false);
   const { data: clientsRaw = [], isLoading: isClientsLoading } = useSmartClientMatching(user?.id, activeCategory, 0, 50, false, filters as any);
   
   const rawNodes = activeRole === 'owner' ? clientsRaw : listingsRaw;

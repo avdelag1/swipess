@@ -109,7 +109,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                   isActive ? "border-primary bg-primary/10" :
                   "border-white/5 bg-white/5 opacity-40"
                 )}
-                style={isActive ? { borderColor: s.color, backgroundColor: `${s.color}20`, shadowColor: `${s.color}40` } : (isDone ? { backgroundColor: '#10b981', borderColor: '#10b981' } : {})}
+                style={isActive ? { borderColor: s.color, backgroundColor: `${s.color}20`, boxShadow: `0 0 20px ${s.color}40` } : (isDone ? { backgroundColor: '#10b981', borderColor: '#10b981' } : {})}
               >
                 {isDone ? (
                   <Check className="w-7 h-7 text-white" />

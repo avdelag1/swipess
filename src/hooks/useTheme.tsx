@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
-type Theme = 'dark' | 'light' | 'cheers' | 'ivanna-style' | 'nexus-style';
+export type Theme = 'dark' | 'light' | 'cheers' | 'ivanna-style' | 'nexus-style';
 
 export interface ThemeToggleCoords {
   x: number;

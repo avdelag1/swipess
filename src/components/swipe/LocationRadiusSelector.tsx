@@ -14,6 +14,7 @@ export interface LocationRadiusSelectorProps {
   lat?: number | null;
   lng?: number | null;
   variant?: 'full' | 'minimal';
+  onCategorySelect?: (category: any) => void;
 }
 
 const KM_PRESETS = [1, 5, 10, 25, 50, 100];
