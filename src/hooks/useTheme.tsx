@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
-type Theme = 'dark' | 'light' | 'cheers' | 'ivanna-style' | 'nexus-style';
+export type Theme = 'dark' | 'light' | 'cheers' | 'ivanna-style' | 'nexus-style';
 
 export interface ThemeToggleCoords {
   x: number;
@@ -15,6 +15,7 @@ interface ThemeContextType {
   theme: Theme;
   isLight: boolean;
   isDark: boolean;
+  isIvanna: boolean;
   setTheme: (theme: Theme, coords?: ThemeToggleCoords) => void;
 }
 
@@ -27,16 +28,17 @@ const STORAGE_KEY = 'swipess_theme_preference';
 /** Map legacy DB values to new theme names */
 function normalizeTheme(raw: string | null | undefined): Theme {
   if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte' || raw === 'pure-black') return 'dark';
+  if (raw === 'white-matte' || raw === 'light') return 'light';
   if (raw === 'cheers') return 'cheers';
-  if (raw === 'ivanna-style') return 'ivanna-style';
+  if (raw === 'ivanna-style' || raw === 'ivana') return 'ivanna-style';
   if (raw === 'nexus-style' || raw === 'cyber' || raw === 'nexus') return 'nexus-style';
-  return 'light';
+  return 'dark';
 }
 
 const ALL_THEME_CLASSES = [
   'grey-matte', 'black-matte', 'white-matte', 'red-matte',
   'amber-matte', 'pure-black', 'cheers', 'dark', 'light',
-  'amber', 'red', 'ivanna-style', 'nexus-style',
+  'amber', 'red', 'ivanna-style', 'nexus-style', 'ivana'
 ];
 
 /** 
@@ -84,7 +86,7 @@ function applyThemeToDOM(theme: Theme) {
   if (theme === 'dark') targetColor = '#000000';
   else if (theme === 'cheers') targetColor = '#180800';
   else if (theme === 'nexus-style') targetColor = '#000000';
-  else if (theme === 'ivanna-style') targetColor = '#DDF4EF';
+  else if (theme === 'ivanna-style') targetColor = '#bbd4e8';
   else targetColor = '#ffffff';
   meta.setAttribute('content', targetColor);
 }
@@ -94,7 +96,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === 'undefined') return DEFAULT_THEME;
     const cached = localStorage.getItem(STORAGE_KEY);
-    return (cached as Theme) || DEFAULT_THEME;
+    return normalizeTheme(cached);
   });
   
   const { user, loading } = useAuth();
@@ -179,8 +181,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const isLight = theme === 'light' || theme === 'ivanna-style';
   const isDark = theme === 'dark' || theme === 'cheers' || theme === 'nexus-style';
+  const isIvanna = theme === 'ivanna-style';
 
-  const value = useMemo(() => ({ theme, isLight, isDark, setTheme }), [theme, isLight, isDark]); // setTheme is stable since it's a constant function in this scope
+  const value = useMemo(() => ({ theme, isLight, isDark, isIvanna, setTheme }), [theme, isLight, isDark, isIvanna]);
 
   return (
     <ThemeContext.Provider value={value}>
