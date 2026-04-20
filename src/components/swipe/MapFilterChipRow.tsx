@@ -93,9 +93,7 @@ export function MapFilterChipRow({ mode, onBack }: MapFilterChipRowProps) {
     <div
       data-no-swipe-nav
       className={cn(
-        'w-full flex gap-2 px-3 sm:px-4 py-3 overflow-x-auto scroll-smooth flex-shrink-0',
-        'border-b',
-        isLight ? 'bg-white border-black/5' : 'bg-[#0f0f12] border-white/10',
+        'absolute top-[calc(env(safe-area-inset-top,0px)+16px)] left-0 right-0 z-[60] w-full flex gap-2 px-3 sm:px-4 py-2 overflow-x-auto scroll-smooth flex-shrink-0 pointer-events-auto shadow-none bg-transparent border-none'
       )}
       style={{
         scrollSnapType: 'x proximity',

@@ -1105,12 +1105,18 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 exit={{ opacity: 0 }}
                 className="w-full h-full z-50 overflow-hidden"
               >
-                <DiscoveryMapView
-                  category={(storeActiveCategory as QuickFilterCategory) || 'property'}
-                  onBack={() => setActiveCategory(null)}
-                  onStartSwiping={handleRefresh}
-                  isEmbedded={false}
-                />
+                <DashboardMapCard className="flex-1 w-full h-full relative">
+                  <MapFilterChipRow mode="client" onBack={() => setActiveCategory(null)} />
+                  <div className="flex-1 relative w-full h-full min-h-0">
+                    <DiscoveryMapView
+                      category={(storeActiveCategory as QuickFilterCategory) || 'property'}
+                      onBack={() => setActiveCategory(null)}
+                      onStartSwiping={handleRefresh}
+                      isEmbedded={true}
+                      mode="client"
+                    />
+                  </div>
+                </DashboardMapCard>
               </motion.div>
             )}
           </AnimatePresence>

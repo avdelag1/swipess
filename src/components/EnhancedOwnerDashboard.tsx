@@ -269,9 +269,9 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className="w-full h-full z-10 flex flex-col"
           >
-            <DashboardMapCard>
-              <MapFilterChipRow mode="owner" />
-              <div className="flex-1 relative min-h-0">
+            <DashboardMapCard className="flex-1 h-full w-full relative">
+              <MapFilterChipRow mode="owner" onBack={handleMapBack} />
+              <div className="flex-1 relative w-full h-full min-h-0">
                 <DiscoveryMapView
                   category={mapCategory || (filterCategory as any) || 'property'}
                   onBack={handleMapBack}

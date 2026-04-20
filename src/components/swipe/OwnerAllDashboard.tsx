@@ -120,11 +120,12 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
       >
         {/* Card stack — same responsive sizing as client */}
         <div
-          className="relative flex items-center justify-center"
+          className="relative flex items-center justify-center transition-all"
           style={{ 
-            width: 'var(--card-width, 340px)',
-            height: `${OWNER_PK_H}px`,
-            maxHeight: 'calc(100vh - 280px)',
+            width: 'var(--card-width, 380px)',
+            height: 'var(--card-height, 600px)',
+            aspectRatio: `${PK_ASPECT}`,
+            maxHeight: 'min(85svh, calc(100svh - 120px))',
           }}
         >
           {[...cards].reverse().map((card, reversedIdx) => {
