@@ -83,7 +83,8 @@ export const BottomNavigation = memo(({
   const { unreadCount: _unreadCount } = useUnreadMessageCount();
   const { unreadCount: _unreadNotifCount } = useUnreadNotifications();
   const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const isLight = theme === 'light' || theme === 'ivanna-style';
+  const isIvanna = theme === 'ivanna-style';
 
   const { t } = useTranslation();
 
@@ -247,8 +248,8 @@ export const BottomNavigation = memo(({
       <div
         className="pointer-events-auto w-full max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto glass-pill-nav px-1"
         style={{
-          background: 'rgba(0,0,0,0.85)', // Force dark glass for high-contrast visibility
-          border: '1px solid rgba(255,255,255,0.1)',
+          background: isIvanna ? 'transparent' : 'rgba(0,0,0,0.85)',
+          border: isIvanna ? 'none' : '1px solid rgba(255,255,255,0.1)',
           backdropFilter: 'blur(32px)',
           WebkitBackdropFilter: 'blur(32px)',
           // GPU acceleration
@@ -400,7 +401,7 @@ export const BottomNavigation = memo(({
                     style={{
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE),
-                      color: active ? activeColor : iconColorInactive,
+                      color: active ? activeColor : (isIvanna ? 'hsl(var(--foreground) / 0.72)' : iconColorInactive),
                       fill: active ? activeColor : 'none',
                       strokeWidth: active ? 1.8 : 1.5,
                       filter: active ? 'drop-shadow(0 0 4px rgba(255,107,53,0.3))' : 'none',
@@ -418,7 +419,7 @@ export const BottomNavigation = memo(({
                       style={{
                         color: active
                           ? 'var(--color-brand-primary)'
-                          : 'rgba(255,255,255,0.65)',
+                          : (isIvanna ? 'hsl(var(--foreground) / 0.72)' : 'rgba(255,255,255,0.65)'),
                         opacity: 1,
                         zIndex: 1,
                       }}
