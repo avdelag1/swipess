@@ -12,6 +12,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
+import { logSupabaseError } from '@/lib/supabaseError';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 
@@ -148,7 +149,8 @@ export function usePushNotifications() {
     if (!isSupported || !user?.id) return false;
 
     if (isNative()) {
-      await supabase.from('push_subscriptions').delete().eq('user_id', user.id);
+      const { error } = await supabase.from('push_subscriptions').delete().eq('user_id', user.id);
+      logSupabaseError('push_subscriptions.delete(native)', error);
       setIsSubscribed(false);
       return true;
     }
@@ -159,7 +161,8 @@ export function usePushNotifications() {
       if (sub) {
         const endpoint = sub.endpoint;
         await sub.unsubscribe();
-        await supabase.from('push_subscriptions').delete().eq('user_id', user.id).eq('endpoint', endpoint);
+        const { error } = await supabase.from('push_subscriptions').delete().eq('user_id', user.id).eq('endpoint', endpoint);
+        logSupabaseError('push_subscriptions.delete(web)', error);
       }
       setIsSubscribed(false);
       return true;

@@ -54,7 +54,7 @@ const OwnerProfile = () => {
         </div>
       </AnimatePresence>
 
-      <div className="w-full max-w-lg mx-auto p-6 pt-20 pb-48 space-y-8 relative z-10">
+      <div className="w-full max-w-lg mx-auto p-6 pt-4 pb-12 space-y-8 relative z-10">
         
         {/* 🛸 OWNER HEADER: BRAND GLASS */}
         <div className="flex flex-col items-center text-center gap-6">

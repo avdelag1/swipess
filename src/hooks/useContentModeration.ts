@@ -7,6 +7,7 @@ import { validateContent, type FlagReason } from '@/utils/contactInfoValidation'
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
+import { logSupabaseError } from '@/lib/supabaseError';
 
 type ContentType = 'message' | 'listing_title' | 'listing_description' | 'listing_house_rules' | 'profile_name' | 'profile_business' | 'review';
 
@@ -20,7 +21,7 @@ async function logFlag(
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    await supabase.from('content_flags' as any).insert({
+    const { error } = await supabase.from('content_flags' as any).insert({
       user_id: user.id,
       content_type: contentType,
       content_text: contentText.substring(0, 500),
@@ -28,6 +29,7 @@ async function logFlag(
       source_id: sourceId || null,
       status: 'pending',
     } as any);
+    logSupabaseError('content_flags.insert', error);
   } catch (err) {
     logger.error('[ContentModeration] Failed to log flag:', err);
   }

@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
+import { logSupabaseError } from '@/lib/supabaseError';
 
 export interface Conversation {
   id: string;
@@ -441,7 +442,8 @@ export function useStartConversation() {
 
       if (messageError) throw new Error(`Failed to send message: ${messageError.message}`);
 
-      await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
+      const { error: updateError } = await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
+      logSupabaseError('conversations.update.last_message_at(starter)', updateError);
 
       return { conversationId, message };
     },
@@ -517,9 +519,10 @@ export function useSendMessage() {
         .single();
 
       if (error) throw error;
-      
+
       // Update basic conversation metadata silently
-      await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
+      const { error: updateError } = await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
+      logSupabaseError('conversations.update.last_message_at(send)', updateError);
       return data;
     },
     onError: (err, variables, context) => {

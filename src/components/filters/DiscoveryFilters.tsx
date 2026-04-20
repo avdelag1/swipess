@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,6 +13,8 @@ import { Button } from '@/components/ui/button';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { useTheme } from '@/hooks/useTheme';
+import { cn } from '@/lib/utils';
 import { VespaIcon } from '@/components/icons/VespaIcon';
 import { BeachBicycleIcon } from '@/components/icons/BeachBicycleIcon';
 import { WorkersIcon } from '@/components/icons/WorkersIcon';
@@ -175,8 +176,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
   };
 
   const { theme } = useTheme();
-  const isLight = theme === 'light';
-  const isDark = theme === 'dark';
+  const isLight = theme === 'light' || theme === 'ivanna-style';
 
   return (
     <div className="space-y-4">

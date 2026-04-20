@@ -7,6 +7,7 @@ import { appToast } from '@/utils/appNotification';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
+import { useFilterStore } from '@/state/filterStore';
 
 export type ActiveMode = 'client' | 'owner';
 
@@ -240,6 +241,9 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     } else {
       resetClientDeck();
     }
+
+    // Reset filters so client/owner filter selections don't carry across modes
+    useFilterStore.getState().resetAllFilters();
 
     // 7. Navigate with error handling
     try {

@@ -3,6 +3,7 @@ import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserSubscription } from '@/hooks/useSubscription';
 import { useTokens } from '@/hooks/useTokens';
+import { logSupabaseError } from '@/lib/supabaseError';
 
 export interface ChatMessage {
   id: string;
@@ -149,7 +150,8 @@ async function saveMessageCloud(userId: string, conversationId: string, msg: Cha
 async function deleteConversationCloud(convoId: string) {
   try {
     // Messages cascade-delete via FK
-    await supabase.from('ai_conversations').delete().eq('id', convoId);
+    const { error } = await supabase.from('ai_conversations').delete().eq('id', convoId);
+    logSupabaseError('ai_conversations.delete', error);
   } catch (e) {
     console.error('[AI Cloud] delete error:', e);
   }
@@ -157,7 +159,8 @@ async function deleteConversationCloud(convoId: string) {
 
 async function clearAllConversationsCloud(userId: string) {
   try {
-    await supabase.from('ai_conversations').delete().eq('user_id', userId);
+    const { error } = await supabase.from('ai_conversations').delete().eq('user_id', userId);
+    logSupabaseError('ai_conversations.deleteAll', error);
   } catch (e) {
     console.error('[AI Cloud] clear all error:', e);
   }
@@ -686,7 +689,8 @@ export function useConciergeAI() {
     const uid = userIdRef.current;
     if (uid) {
       try {
-        await supabase.from('ai_messages').delete().eq('id', messageId);
+        const { error } = await supabase.from('ai_messages').delete().eq('id', messageId);
+        logSupabaseError('ai_messages.delete', error);
       } catch (e) {
         console.error('[AI Cloud] delete message error:', e);
       }

@@ -36,7 +36,7 @@ const clientCategories = [
 const OwnerInterestedClients = () => {
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isLight = theme === "light";
+  const isLight = theme === "light" || theme === "ivanna-style";
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -95,6 +95,24 @@ const OwnerInterestedClients = () => {
     },
     enabled: !!user?.id,
   });
+
+  // Realtime: refetch when a client likes/unlikes one of this owner's listings
+  useEffect(() => {
+    if (!user?.id) return;
+    const channel = supabase
+      .channel(`owner-interested-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'likes', filter: 'target_type=eq.listing' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['owner-interested-clients', user.id] });
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
 
   // 🚀 SPEED OF LIGHT: Preload profile images instantly
   useEffect(() => {

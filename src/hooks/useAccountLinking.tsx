@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
 import { logger } from '@/utils/prodLogger';
+import { logSupabaseError } from '@/lib/supabaseError';
 
 export interface ExistingProfile {
   id: string;
@@ -92,13 +93,14 @@ export function useAccountLinking() {
       }
 
       // Update the OAuth user's metadata to match existing account
-      await supabase.auth.updateUser({
-        data: { 
+      const { error: linkUpdateError } = await supabase.auth.updateUser({
+        data: {
           role: existingProfile.role, // Use existing role
           account_linked: true,
           linked_at: new Date().toISOString()
         }
       });
+      logSupabaseError('auth.updateUser(link)', linkUpdateError);
 
       // Update existing profile with any new OAuth data if needed
       const profileUpdate: Record<string, unknown> = {
@@ -205,13 +207,14 @@ export function useAccountLinking() {
       }
 
       // Update user metadata
-      await supabase.auth.updateUser({
-        data: { 
+      const { error: signupUpdateError } = await supabase.auth.updateUser({
+        data: {
           role: role,
           oauth_signup: true,
           signup_completed_at: new Date().toISOString()
         }
       });
+      logSupabaseError('auth.updateUser(oauth-signup)', signupUpdateError);
 
       toast.success("Welcome aboard!", {
         description: `Your ${oauthUser.app_metadata?.provider} account has been connected successfully.`,
