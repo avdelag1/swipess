@@ -472,9 +472,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     enabled: userRole !== 'admin' && !isImmersiveDashboard && location.pathname !== '/client/liked-properties' && location.pathname !== '/owner/liked-clients',
   });
 
+  const isIvanna = theme === 'ivanna-style';
+
   return (
     <div className={cn(
-      "dashboard-root w-full h-full min-h-0 bg-background relative flex flex-col overflow-hidden",
+      "dashboard-root w-full h-full min-h-0 relative flex flex-col overflow-hidden",
+      isIvanna ? "bg-transparent" : "bg-background",
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
 
@@ -489,12 +492,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
         }}
         className={cn(
-          "flex-1 w-full min-h-0 bg-background relative z-0 touch-pan-y overscroll-y-contain",
+          "flex-1 w-full min-h-0 relative z-0 touch-pan-y overscroll-y-contain",
+          isIvanna ? "bg-transparent" : "bg-background",
            isRadioRoute ? "overflow-visible" 
             : isZeroScrollDashboard ? "overflow-hidden"
             : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
-          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
+          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : (isIvanna ? "bg-transparent" : "bg-background")
         )}
         style={{
           paddingTop: isFullScreenRoute || isImmersiveDashboard
