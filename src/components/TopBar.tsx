@@ -155,16 +155,21 @@ function TopBarComponent({
           )}
         </div>
 
-        {/* LOGO: Center Tap Target */}
-        <div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-12 w-24 z-10 pointer-events-auto touch-manipulation cursor-pointer flex items-center justify-center"
-          style={{ WebkitTapHighlightColor: 'transparent' }}
-          onClick={() => {
-            haptics.tap();
-            navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
-          }}
-          aria-label="Go to dashboard"
-        />
+        {/* LOGO: Center Tap Target (Dashboard Home) */}
+        <motion.div
+           whileTap={{ scale: 0.95 }}
+           onClick={() => {
+             haptics.tap();
+             navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
+           }}
+           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-12 px-6 z-10 pointer-events-auto touch-manipulation cursor-pointer flex items-center justify-center group"
+        >
+          <SwipessLogo 
+            size="md" 
+            variant={isLight ? "gradient" : "white"} 
+            className="group-hover:scale-105 transition-transform duration-500" 
+          />
+        </motion.div>
 
         <div className="flex-1 min-w-0" />
 
@@ -186,37 +191,21 @@ function TopBarComponent({
                   e.preventDefault();
                   e.stopPropagation();
                   haptics.tap();
-                  if (_onFilterClick) _onFilterClick(e);
-                }}
-                className="w-10 h-10 flex items-center justify-center p-0"
-              >
-                <SlidersHorizontal 
-                  className={cn("w-5 h-5", isIvanna ? "text-black" : (isLight ? "text-foreground" : "text-white"))} 
-                  strokeWidth={2.5} 
-                />
-              </motion.button>
-
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  haptics.tap();
                   navigate('/radio');
                 }}
                 className="w-10 h-10 flex items-center justify-center p-0"
               >
                 <Radio 
-                  className={cn("w-5 h-5", isLight ? "text-brand-primary" : "text-brand-primary")} 
+                  className={cn("w-5 h-5", isIvanna ? "text-black" : (isLight ? "text-brand-primary" : "text-brand-primary"))} 
                   strokeWidth={2.5} 
                 />
               </motion.button>
 
-              <div className="flex items-center">
+              <div className="flex items-center px-1">
                 <ThemeToggle />
               </div>
               
-              <div className="flex items-center">
+              <div className="flex items-center px-1">
                 <NotificationPopover />
               </div>
             </div>

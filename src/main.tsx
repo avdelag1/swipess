@@ -12,6 +12,20 @@ import "./index.css";
 // matte-themes.css = alternate color themes
 // pwa-performance.css = hardware overrides
 if (typeof window !== 'undefined') {
+  // Force reload on Vite preload errors (Failed to fetch dynamically imported module)
+  window.addEventListener('vite:preloadError', (event) => {
+    console.warn('[Vite] Preload error detected, reloading...');
+    window.location.reload();
+  });
+
+  window.addEventListener('error', (event: any) => {
+    if (event.message?.includes('Failed to fetch dynamically imported module') || 
+        (event.target && event.target.tagName === 'SCRIPT')) {
+      console.warn('[App] Script load error detected, reloading...');
+      window.location.reload();
+    }
+  }, true);
+
   requestAnimationFrame(() => {
     import("./styles/responsive.css");
     import("./styles/PremiumShine.css");
