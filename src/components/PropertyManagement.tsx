@@ -1,5 +1,6 @@
 import { useState, useEffect, memo } from 'react';
 import { CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -481,7 +482,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         </AnimatePresence>
       </div>
 
-      <ListingPreviewDialog isOpen={showPreview} onClose={handleClosePreview} property={viewingProperty} onEdit={handleEditFromPreview} showEditButton={true} />
+      <ListingPreviewDialog isOpen={showPreview} onClose={handleClosePreview} property={viewingProperty} onEdit={() => viewingProperty && handleEditFromPreview(viewingProperty)} showEditButton={true} />
       <CategorySelectionDialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog} onCategorySelect={handleCategorySelect} />
       <UnifiedListingForm isOpen={isFormOpen} onClose={() => { setIsFormOpen(false); setEditingProperty(null); }} editingProperty={editingProperty as any ?? undefined} />
       <ShareDialog open={showShareDialog} onOpenChange={(open) => { setShowShareDialog(open); if (!open) setSharingListing(null); }} listingId={sharingListing?.id} title={sharingListing?.title || 'Listing'} description={`${sharingListing?.title}`} />

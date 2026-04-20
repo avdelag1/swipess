@@ -33,13 +33,14 @@ import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Users, MapPin, Bike, Wrench } from 'lucide-react';
+import { Users, MapPin, Bike, Wrench, RefreshCw } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { appToast } from '@/utils/appNotification';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { cn } from '@/lib/utils';
 
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
@@ -866,15 +867,13 @@ const ClientSwipeContainerComponent = ({
                   <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
                 </button>
 
-                {/* HUD: Quick Filters (Unifying with Client side) */}
+                {/* HUD: Quick Filters (Client only) */}
                 <div className="flex-1 flex justify-center gap-2">
-                  {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter(c => 
-                    userRole === 'owner' 
-                      ? ['all-clients', 'buyers', 'renters', 'hire'].includes(c.id) 
-                      : ['property', 'motorcycle', 'services'].includes(c.id)
+                  {POKER_CARDS.filter(c => 
+                    ['property', 'motorcycle', 'services'].includes(c.id)
                   ).map((cat: any) => {
                     const Icon = cat.icon;
-                    const isActive = category === cat.id || (userRole === 'owner' && (filters as any).clientType === (cat as any).clientType);
+                    const isActive = category === cat.id;
                     return (
                       <motion.button
                         key={cat.id}
