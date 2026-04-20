@@ -45,7 +45,6 @@ import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
-import { DiscoveryMapView } from './swipe/DiscoveryMapView';
 
 // ── Distance Slider Component ─────────────────────────────────────────────────
 interface _DistanceSliderProps {
@@ -62,7 +61,6 @@ interface ClientSwipeContainerProps {
   onClientTap: (clientId: string) => void;
   onInsights?: (clientId: string) => void;
   onMessageClick?: (clientId: string) => void;
-  onExhaustedMap?: () => void;
   profiles?: any[]; // Accept profiles from parent
   isLoading?: boolean;
   error?: any;
@@ -75,7 +73,6 @@ const ClientSwipeContainerComponent = ({
   onClientTap,
   onInsights: _onInsights,
   onMessageClick: _onMessageClick,
-  onExhaustedMap,
   profiles: externalProfiles,
   isLoading: externalIsLoading,
   error: externalError,

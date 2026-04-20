@@ -14,12 +14,10 @@ import { useModalStore } from '@/state/modalStore';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { ClientFilters } from '@/hooks/useSmartMatching';
 import { OwnerInsightsDashboard } from '@/components/OwnerInsightsDashboard';
 import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
 import { useFilterActions } from '@/state/filterStore';
 import { triggerHaptic } from '@/utils/haptics';
-import { MapFilterChipRow } from '@/components/swipe/MapFilterChipRow';
 import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -43,21 +41,18 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }, []);
   
   const activeCategory = useFilterStore(s => s.activeCategory);
-  const [phase, setPhase] = useState<'cards' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
-  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(activeCategory || 'property');
-  const [showFilters, setShowFilters] = useState(false);
-
+  const { setCategories, setClientType, setListingType, setActiveCategory } = useFilterActions();
   const { setModal } = useModalStore();
 
+  const [phase, setPhase] = useState<'cards' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
+  const [showFilters, setShowFilters] = useState(false);
+
   useEffect(() => {
-    setModal('showMapFullscreen', false);
-    return () => setModal('showMapFullscreen', false);
-  }, [setModal]);
+    // Modal cleanup on mount
+  }, []);
 
   const { user, loading: isAuthLoading } = useAuth();
   const { navigate } = useAppNavigate();
-
-  const { setCategories, setClientType, setListingType, setActiveCategory } = useFilterActions();
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs, isLoading: isPrefsLoading } = useOwnerClientPreferences();
@@ -131,31 +126,19 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     triggerHaptic('medium');
     const cat = (card.category || 'property') as QuickFilterCategory;
     
-    setMapCategory(cat);
     setCategories([cat]);
     setActiveCategory(cat);
     setPhase('swipe');
     
     if (card.clientType) setClientType(card.clientType as any);
     if (card.listingType) setListingType(card.listingType as any);
-  }, [setClientType, setListingType, setActiveCategory]);
+  }, [setClientType, setListingType, setActiveCategory, setCategories]);
 
-  const handleExhaustedMap = useCallback(() => {
-  }, []);
 
-  const handleMapBack = useCallback(() => {
-    setMapCategory(null);
+  const handleDiscoveryBack = useCallback(() => {
     setPhase('cards');
     setActiveCategory(null);
   }, [setActiveCategory]);
-
-  const handleStartSwiping = useCallback(() => {
-    if (mapCategory) {
-      setCategories([mapCategory]);
-      setActiveCategory(mapCategory);
-      setPhase('swipe');
-    }
-  }, [mapCategory, setCategories, setActiveCategory]);
 
   const showCards = !activeCategory;
   const showSwipe = !!activeCategory;
@@ -244,7 +227,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               onClientTap={handleClientTap}
               onInsights={handleInsights}
               onMessageClick={onMessageClick}
-              onExhaustedMap={handleExhaustedMap}
               profiles={clientProfiles}
               isLoading={isLoading}
               error={error}
@@ -266,8 +248,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
                </div>
                <div className="px-6 pb-20 pt-4">
                   <h2 className="text-xl font-black uppercase tracking-widest italic mb-6">Advanced Target Radar</h2>
-                  <DiscoveryFilters
-                    category={mapCategory || 'property'}
+                   <DiscoveryFilters
+                    category={activeCategory || 'property'}
                     initialFilters={mergedFilters}
                     onApply={(_newFilters) => {
                       setShowFilters(false);

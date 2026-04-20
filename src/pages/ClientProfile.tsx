@@ -134,14 +134,16 @@ const ClientProfile = () => {
               whileTap={{ scale: 0.95 }}
               className={cn(
                  "backdrop-blur-3xl border rounded-[2rem] p-6 text-center shadow-2xl transition-all",
-                 isLight ? "bg-black/5 border-black/5 shadow-xl" : "bg-white/[0.03] border-white/[0.08]"
+                 isLight 
+                  ? "bg-white border-black/10 shadow-lg" 
+                  : "bg-white/[0.03] border-white/[0.08]"
               )}
             >
               <stat.icon className={cn("w-6 h-6 mx-auto mb-2 opacity-80", stat.color)} />
               <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
                 {stat.value}
               </div>
-              <div className={cn("text-[9px] font-black uppercase tracking-widest italic mt-2.5", isLight ? "text-black/30" : "text-white/30")}>{stat.label}</div>
+              <div className={cn("text-[9px] font-black uppercase tracking-widest italic mt-2.5", isLight ? "text-black/50" : "text-white/30")}>{stat.label}</div>
             </motion.div>
           ))}
         </div>
@@ -270,12 +272,12 @@ const ClientProfile = () => {
                     btn.urgent 
                       ? "bg-red-500/10 border-red-500/20 text-red-500" 
                       : isLight 
-                        ? "bg-black/5 border-black/10 text-black/80 shadow-sm" 
+                        ? "bg-white border-black/15 text-black shadow-md" 
                         : "bg-white/5 border-white/5 text-white/80"
                   )}
                 >
-                  <btn.icon className={cn("w-6 h-6", btn.urgent ? "text-red-500" : isLight ? "text-black/30" : "text-white/30")} />
-                  <span className="text-[13px] font-black uppercase tracking-[0.2em] italic">{btn.label}</span>
+                  <btn.icon className={cn("w-6 h-6", btn.urgent ? "text-red-500" : isLight ? "text-black/60" : "text-white/30")} />
+                  <span className={cn("text-[13px] font-black uppercase tracking-[0.2em] italic", isLight ? "text-black" : "text-white/80")}>{btn.label}</span>
                 </motion.button>
               ))}
            </div>

@@ -5,7 +5,6 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import "leaflet/dist/leaflet.css";
 // PERF: Defer non-critical CSS to reduce unused CSS on initial paint (~84 KiB saved total)
 // responsive.css = desktop grids, print styles, sidebar nav
 // PremiumShine.css = subscription card glow effects

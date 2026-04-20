@@ -2,9 +2,6 @@ import { useCallback, useState, useEffect } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
-import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
-import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
-import { MapFilterChipRow } from '@/components/swipe/MapFilterChipRow';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuickFilterCategory } from '@/types/filters';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -16,7 +13,6 @@ import { useSmartListingMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 
 interface ClientDashboardProps {
-  onPropertyInsights?: (listingId: string) => void;
   onMessageClick?: () => void;
 }
 
@@ -31,14 +27,14 @@ interface ClientDashboardProps {
  */
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { theme } = useTheme();
-  const [phase, setPhase] = useState<'cards' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
-  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(activeCategory);
-  const [showFilters, setShowFilters] = useState(false);
-
   const activeCategory = useFilterStore(s => s.activeCategory);
   const getListingFilters = useFilterStore(s => s.getListingFilters);
   const { user } = useAuth();
   const { setActiveCategory } = useFilterActions();
+
+  const [phase, setPhase] = useState<'cards' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
+  const [selectedCategory, setSelectedCategory] = useState<QuickFilterCategory | null>(activeCategory);
+  const [showFilters, setShowFilters] = useState(false);
 
   // 🚀 PERFORMANCE HYDRATION: Pre-fetch listing data while user is on map phase
   // so the swipe deck is ready instantly when they tap "Start Swiping".
@@ -48,7 +44,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
     getListingFilters(),
     0,
     20,
-    activeCategory ? 'swipe' : 'cards' // Always active
+    !!activeCategory // Cast to boolean for isRefreshMode
   );
 
   // ─── Actions ─────────────────────────────────────────────────────────────
@@ -70,32 +66,28 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const setModal = useModalStore(s => s.setModal);
 
   useEffect(() => {
-    setModal('showMapFullscreen', false);
-    return () => setModal('showMapFullscreen', false);
-  }, [setModal]);
+    // Modal cleanup on mount
+  }, []);
 
   const handleLaunch = useCallback((category: QuickFilterCategory) => {
-    setMapCategory(category);
+    setSelectedCategory(category);
     setActiveCategory(category);
     setPhase('swipe');
   }, [setActiveCategory]);
 
-  const handleExhaustedMap = useCallback(() => {
-    // Stays in swipe phase but shows the "refocus" UI
-  }, []);
 
   const handleMapBack = useCallback(() => {
     setActiveCategory(null);
     setPhase('cards');
-    setMapCategory(null);
+    setSelectedCategory(null);
   }, [setActiveCategory]);
 
   const handleStartSwiping = useCallback(() => {
-    if (mapCategory) {
-      setActiveCategory(mapCategory);
+    if (selectedCategory) {
+      setActiveCategory(selectedCategory);
       setPhase('swipe');
     }
-  }, [mapCategory, setActiveCategory]);
+  }, [selectedCategory, setActiveCategory]);
 
   const handleListingTap = useCallback(() => {
     // In v1.0, tapping the mini-card on map takes you to swipe phase
@@ -139,7 +131,6 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
           >
             <SwipessSwipeContainer
               onListingTap={handleListingTap}
-              onExhaustedMap={handleExhaustedMap}
               onInsights={handleListingTap}
               onMessageClick={onMessageClick}
             />

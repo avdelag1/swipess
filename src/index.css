@@ -1,4 +1,3 @@
-@import 'leaflet/dist/leaflet.css';
 @import './styles/tokens.css';
 @import './styles/ivanna-theme.css';
 @import './styles/nexus-theme.css';
@@ -232,5 +231,3 @@ button:active, [role="button"]:active {
   box-shadow: none !important;
 }
 
-.leaflet-container { width: 100%; height: 100%; background: transparent; outline: none; }
-.leaflet-control-attribution { display: none !important; }

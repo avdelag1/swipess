@@ -36,7 +36,6 @@ interface ModalState {
   showAIChat: boolean;
   showVapId: boolean;
   showTokensModal: boolean;
-  showMapFullscreen: boolean;
 
   // Actions
   setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason'>, value: boolean) => void;
@@ -70,7 +69,6 @@ export const useModalStore = create<ModalState>((set) => ({
   showAIChat: false,
   showVapId: false,
   showTokensModal: false,
-  showMapFullscreen: false,
 
   setModal: (key, value) => set({ [key]: value }),
   
@@ -97,6 +95,5 @@ export const useModalStore = create<ModalState>((set) => ({
     showAIChat: false,
     showVapId: false,
     showTokensModal: false,
-    showMapFullscreen: false,
   }),
 }));

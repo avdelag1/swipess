@@ -97,7 +97,6 @@ interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
   onInsights?: (listingId: string) => void;
   onMessageClick?: () => void;
-  onExhaustedMap?: () => void;
   locationFilter?: {
     latitude: number;
     longitude: number;
@@ -107,7 +106,7 @@ interface SwipessSwipeContainerProps {
   filters?: ListingFilters;
 }
 
-const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, onExhaustedMap, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
+const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);

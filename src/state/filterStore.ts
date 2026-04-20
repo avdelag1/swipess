@@ -7,6 +7,15 @@
 
 import { create } from 'zustand';
 import { subscribeWithSelector, persist } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
+import type { 
+  QuickFilterCategory, 
+  QuickFilterListingType, 
+  ClientGender, 
+  ClientType,
+  QuickFilters,
+  ListingFilters
+} from '@/types/filters';
 
 // Accent color lookup for categories (from SwipeConstants)
 const CATEGORY_ACCENTS: Record<string, string> = {
@@ -23,15 +32,6 @@ const CATEGORY_ACCENTS: Record<string, string> = {
   lawyer: '#6366f1',
   promote: '#ec4899',
 };
-import type { 
-  QuickFilterCategory, 
-  QuickFilterListingType, 
-  ClientGender, 
-  ClientType,
-  QuickFilters,
-  ListingFilters
-} from '@/types/filters';
-// import { logger } from '@/utils/prodLogger';
 
 
 
@@ -405,7 +405,6 @@ export const useClientGender = () => useFilterStore((state) => state.clientGende
 export const useClientType = () => useFilterStore((state) => state.clientType);
 export const useFilterVersion = () => useFilterStore((state) => state.filterVersion);
 
-import { useShallow } from 'zustand/react/shallow';
 
 export const useQuickFilters = () => useFilterStore(useShallow((state) => ({
   categories: state.categories,

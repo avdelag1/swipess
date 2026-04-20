@@ -63,7 +63,6 @@ const OwnerProperties = lazyWithRetry(() => import("./pages/OwnerProperties"));
 const OwnerNewListing = lazyWithRetry(() => import("./pages/OwnerNewListing"));
 const OwnerLikedClients = lazyWithRetry(() => import("./pages/OwnerLikedClients"));
 const OwnerInterestedClients = lazyWithRetry(() => import("./pages/OwnerInterestedClients"));
-const OwnerDiscovery = lazyWithRetry(() => import("./pages/OwnerDiscovery"));
 const OwnerViewClientProfile = lazyWithRetry(() => import("./pages/OwnerViewClientProfile"));
 const OwnerLawyerServices = lazyWithRetry(() => import("./pages/OwnerLawyerServices"));
 const OwnerSecurity = lazyWithRetry(() => import("./pages/OwnerSecurity"));
@@ -155,11 +154,6 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
 
               <Route path="/owner/liked-clients" element={<OwnerLikedClients />} />
               <Route path="/owner/interested-clients" element={<OwnerInterestedClients />} />
-              <Route path="/owner/discovery" element={<OwnerDiscovery />} />
-              <Route path="/owner/filters" element={<OwnerDiscovery />} />
-              <Route path="/owner/clients/property" element={<OwnerDiscovery />} />
-              <Route path="/owner/clients/moto" element={<OwnerDiscovery />} />
-              <Route path="/owner/clients/bicycle" element={<OwnerDiscovery />} />
               <Route path="/owner/view-client/:clientId" element={<OwnerViewClientProfile />} />
               <Route path="/owner/saved-searches" element={<OwnerSavedSearches />} />
               <Route path="/owner/security" element={<OwnerSecurity />} />

@@ -173,11 +173,18 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
     setter(arr.includes(item) ? arr.filter(i => i !== item) : [...arr, item]);
   };
 
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+  const isDark = theme === 'dark';
+
   return (
     <div className="space-y-4">
       {/* Category Header */}
       <div className="flex items-center justify-between px-2 mb-2">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground italic">Target Scope: {category}</h3>
+        <h3 className={cn(
+          "text-[10px] font-black uppercase tracking-[0.2em] italic",
+          isLight ? "text-foreground/60" : "text-muted-foreground"
+        )}>Discovery Scope: {category}</h3>
         <Badge variant="outline" className="text-[9px] font-bold border-primary/20 text-primary uppercase">{category}</Badge>
       </div>
 
@@ -193,12 +200,10 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
                 className={cn(
                    "flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 inline-flex items-center justify-center gap-2 rounded-2xl px-3.5 py-3 border transition-all duration-300 w-full text-[10px] font-black uppercase tracking-widest",
                    interestType === type
-                    ? (_transparent ? "bg-primary text-white border-primary" : "bg-primary text-white shadow-lg shadow-primary/20")
-                    : (_transparent 
-                        ? "bg-white/10 border-white/10 text-white/70" 
-                        : isLight 
-                          ? "bg-white/80 border-black/10 shadow-sm text-muted-foreground" 
-                          : "bg-black/60 border-white/20 shadow-xl text-muted-foreground")
+                    ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                    : isLight 
+                      ? "bg-white/80 border-black/10 shadow-sm text-muted-foreground" 
+                      : "bg-black/60 border-white/20 shadow-xl text-muted-foreground"
                  )}
               >
                 {type}
@@ -368,7 +373,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
       )}
 
       <Button onClick={_handleApply} className="w-full h-14 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20">
-        Apply Radar Scope
+        Apply Discovery Scope
       </Button>
     </div>
   );

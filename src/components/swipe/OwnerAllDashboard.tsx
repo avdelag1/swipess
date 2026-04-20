@@ -11,6 +11,7 @@ import {
   PK_W,
   PK_H,
   OWNER_PK_H,
+  PK_ASPECT,
   POKER_CARD_PHOTOS,
 } from './SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
