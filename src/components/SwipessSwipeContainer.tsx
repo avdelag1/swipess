@@ -107,7 +107,7 @@ interface SwipessSwipeContainerProps {
 
 const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme, isLight } = useTheme();
   const [page, setPage] = useState(0);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
@@ -987,64 +987,35 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
         isLight ? "bg-transparent" : "bg-black"
       )} />
 
-      {/* Top Controls — IN FLOW, not absolute. Hidden when the exhausted state is showing because that view has its own large map. */}
+      {/* Top Controls — LEAVE ONLY BACK BUTTON AND RADAR HERE */}
       {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (
-        <div className="relative z-[60] w-full flex flex-col items-center shrink-0 px-4 pt-[160px] pb-4">
-           <div className="w-full flex items-center justify-between gap-4">
-              {/* Back / Reset Category */}
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setActiveCategory(null)}
-                className={cn(
-                  "w-10 h-10 flex items-center justify-center transition-colors",
-                  isLight ? "text-black/40 hover:text-black" : "text-white/40 hover:text-white"
-                )}
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </motion.button>
+        <div className="absolute top-0 left-0 right-0 z-[60] w-full flex items-center justify-between px-6 pt-10 pb-4">
+            {/* Back / Reset Category */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => {
+                triggerHaptic('light');
+                setActiveCategory(null);
+              }}
+              className={cn(
+                "w-10 h-10 flex items-center justify-center transition-colors rounded-full backdrop-blur-md",
+                isLight ? "bg-white/10 text-black/40 hover:text-black" : "bg-black/20 text-white/40 hover:text-white"
+              )}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </motion.button>
 
-              {/* Quick Filters */}
-              <div className="flex-1 flex justify-center gap-2">
-                {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter(c => 
-                  userRole === 'owner' 
-                    ? ['all-clients', 'buyers', 'renters', 'hire'].includes(c.id) 
-                    : ['property', 'motorcycle', 'services'].includes(c.id)
-                ).map((cat: any) => {
-                  const Icon = cat.icon;
-                  const isActive = storeActiveCategory === cat.id || (userRole === 'owner' && (filters as any).clientType === (cat as any).clientType);
-                  return (
-                    <motion.button
-                      key={cat.id}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        triggerHaptic('light');
-                        setActiveCategory(cat.id);
-                      }}
-                      className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center transition-all relative overflow-hidden border",
-                        isActive 
-                          ? (isLight ? "text-black border-black/20 bg-white shadow-lg scale-110" : "text-primary border-primary bg-black/40 shadow-[0_0_15px_rgba(255,107,53,0.3)] scale-110")
-                          : (isLight ? "text-black/30 border-black/5 hover:text-black/60" : "text-white/30 border-white/10 hover:text-white/60 bg-black/20")
-                      )}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              {/* Radar Context */}
-              <LocationRadiusSelector
-                radiusKm={radiusKm}
-                onRadiusChange={setRadiusKm}
-                onDetectLocation={detectLocation}
-                detecting={locationDetecting}
-                detected={locationDetected}
-                lat={userLatitude}
-                lng={userLongitude}
-                variant="minimal"
-              />
-           </div>
+            {/* Radar Context (Top Right) */}
+            <LocationRadiusSelector
+              radiusKm={radiusKm}
+              onRadiusChange={setRadiusKm}
+              onDetectLocation={detectLocation}
+              detecting={locationDetecting}
+              detected={locationDetected}
+              lat={userLatitude}
+              lng={userLongitude}
+              variant="minimal"
+            />
         </div>
       )}
 
@@ -1149,7 +1120,43 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
           </AnimatePresence>
       </div>
       {/* BUILD VERSION STAMP - VISUAL PROOF OF UPDATE */}
-      <div className="absolute bottom-[90px] right-6 z-0 pointer-events-none opacity-20">
+      {/* 🚀 QUICK FILTERS: REPOSITIONED BY USER REQUEST (Bottom Near Nav) */}
+      {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (
+        <div className="absolute bottom-[100px] left-0 right-0 z-[60] w-full flex justify-center px-4 pointer-events-none">
+          <div className="flex gap-4 p-2 rounded-full backdrop-blur-3xl border border-white/10 bg-black/20 pointer-events-auto shadow-2xl">
+            {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter(c => 
+              userRole === 'owner' 
+                ? ['all-clients', 'buyers', 'renters', 'hire'].includes(c.id) 
+                : ['property', 'motorcycle', 'services'].includes(c.id)
+            ).map((cat: any) => {
+              const Icon = cat.icon;
+              const isActive = storeActiveCategory === cat.id || (userRole === 'owner' && (filters as any).clientType === (cat as any).clientType);
+              return (
+                <motion.button
+                  key={cat.id}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    triggerHaptic('light');
+                    setActiveCategory(cat.id);
+                  }}
+                  className={cn(
+                    "w-12 h-12 rounded-full flex items-center justify-center transition-all relative overflow-hidden border",
+                    isActive 
+                      ? (isLight ? "text-black border-black/20 bg-white shadow-lg scale-110" : "text-primary border-primary bg-black/60 shadow-[0_0_20px_rgba(255,107,53,0.4)] scale-110")
+                      : (isLight ? "text-black/30 border-black/5 hover:text-black/60" : "text-white/30 border-white/10 hover:text-white/60 bg-black/20")
+                  )}
+                >
+                  <Icon className="w-5 h-5" />
+                  {isActive && <motion.div layoutId="activeCat" className="absolute inset-0 bg-primary/10 -z-10" />}
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* BUILD VERSION STAMP */}
+      <div className="absolute bottom-[85px] right-6 z-0 pointer-events-none opacity-20">
           <span className={cn(
             "text-[8px] font-black uppercase tracking-[0.4em]",
             isLight ? "text-black" : "text-white"

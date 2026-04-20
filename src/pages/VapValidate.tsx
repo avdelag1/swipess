@@ -9,8 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 export default function VapValidate() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useTheme();
 
   const { data, isLoading } = useQuery({
     queryKey: ['vap-validate', id],

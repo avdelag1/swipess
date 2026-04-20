@@ -6,6 +6,7 @@ import QRCode from 'react-qr-code';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useTheme } from '@/hooks/useTheme';
 import { CARD_THEMES } from './vap-id/cardThemes';
 
 export interface VapIdProps {
@@ -17,6 +18,7 @@ const ICON_SIZE = 14;
 
 export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   const { user } = useAuth();
+  const { theme: appTheme, isLight: isAppLight } = useTheme();
   const [themeIndex, setThemeIndex] = useState(0);
   const theme = CARD_THEMES[themeIndex];
 

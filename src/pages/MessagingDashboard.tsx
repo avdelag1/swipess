@@ -50,8 +50,7 @@ export function MessagingDashboard() {
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
   const { activeMode } = useActiveMode();
-  const { theme, isIvanna } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight, isIvanna } = useTheme();
 
   const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
   const deleteConversation = useDeleteConversation();

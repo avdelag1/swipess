@@ -21,8 +21,7 @@ type HubView = 'dashboard' | 'browse' | 'editor' | 'signing';
 
 export function LegalHub() {
   const { user } = useAuth();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useTheme();
   const [view, setView] = useState<HubView>('dashboard');
   const [contracts, setContracts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

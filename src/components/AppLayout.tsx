@@ -121,6 +121,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col items-center",
+          !isFullScreen && "pt-[60px] pb-[80px]", // Safe area for fixed bars
           isFullScreen && "h-screen overflow-hidden fixed inset-0"
         )}
       >

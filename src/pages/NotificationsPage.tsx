@@ -67,8 +67,7 @@ export default function NotificationsPage() {
   
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useTheme();
 
   const handleBack = () => {
     haptics.tap();

@@ -28,8 +28,7 @@ export default function PublicListingPreview() {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useTheme();
 
   const [showDirectMessageDialog, setShowDirectMessageDialog] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);

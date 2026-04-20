@@ -17,8 +17,7 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
   onClear
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useTheme();
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
   const [points, setPoints] = useState<{x: number, y: number}[]>([]);

@@ -23,8 +23,7 @@ const steps = [
 
 export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowProps) {
   const { user } = useAuth();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useTheme();
   const [step, setStep] = useState(0);
   const [selfieUrl, setSelfieUrl] = useState<string | null>(null);
   const [documentUrl, setDocumentUrl] = useState<string | null>(null);

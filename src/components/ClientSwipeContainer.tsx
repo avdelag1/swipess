@@ -80,7 +80,7 @@ const ClientSwipeContainerComponent = ({
 }: ClientSwipeContainerProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { theme } = useTheme();
+  const { theme, isLight } = useTheme();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
 
@@ -869,48 +869,21 @@ const ClientSwipeContainerComponent = ({
 
         {/* Top Controls — IN FLOW, not absolute (matches client-side pattern) */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
-          <div className="relative z-50 w-full flex flex-col items-center shrink-0">
-            <div className="w-full pt-[160px] pb-1 px-4">
-              <div className="w-full flex justify-between items-center gap-4">
-                {/* HUD: Back button */}
-                <button
-                  onClick={() => { triggerHaptic('light'); handleRefresh(); }}
-                  className="w-10 h-10 rounded-xl bg-black/40 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white/40 active:scale-95 transition-all"
+          <div className="absolute top-0 left-0 right-0 z-50 w-full flex flex-col items-center">
+              <div className="w-full flex items-center justify-between px-6 pt-10 pb-4">
+                {/* Back (Top Left) */}
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => navigate(-1)}
+                  className={cn(
+                    "w-10 h-10 flex items-center justify-center transition-all rounded-full backdrop-blur-md border",
+                    isLight ? "bg-white/10 border-black/5 text-black/40 hover:text-black" : "bg-black/20 border-white/5 text-white/40 hover:text-white"
+                  )}
                 >
-                  <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
-                </button>
+                  <ChevronLeft className="w-5 h-5" />
+                </motion.button>
 
-                {/* HUD: Quick Filters (Unifying with Client side) */}
-                <div className="flex-1 flex justify-center gap-2">
-                  {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter(c => 
-                    userRole === 'owner' 
-                      ? ['all-clients', 'buyers', 'renters', 'hire'].includes(c.id) 
-                      : ['property', 'motorcycle', 'services'].includes(c.id)
-                  ).map((cat: any) => {
-                    const Icon = cat.icon;
-                    const isActive = category === cat.id || (userRole === 'owner' && (filters as any).clientType === (cat as any).clientType);
-                    return (
-                      <motion.button
-                        key={cat.id}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => {
-                          triggerHaptic('light');
-                          handleMapCategorySelect(cat.id as any);
-                        }}
-                        className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center border transition-all relative overflow-hidden",
-                          isActive 
-                            ? (isLight ? "bg-white border-black/20 text-black shadow-lg scale-110" : "bg-black/40 border-primary text-primary shadow-[0_0_15px_rgba(255,107,53,0.3)] scale-110")
-                            : (isLight ? "bg-white/50 border-black/5 text-black/30 hover:text-black/60" : "bg-black/20 border-white/10 text-white/20 hover:text-white/40")
-                        )}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </motion.button>
-                    );
-                  })}
-                </div>
-
-                {/* HUD: Unified Radar HUD */}
+                {/* Radar HUD (Top Right) */}
                 <LocationRadiusSelector
                   radiusKm={radiusKm}
                   onRadiusChange={setRadiusKm}
@@ -923,7 +896,6 @@ const ClientSwipeContainerComponent = ({
                   variant="minimal"
                 />
               </div>
-            </div>
           </div>
         )}
 
@@ -1015,7 +987,39 @@ const ClientSwipeContainerComponent = ({
         </div>
         </div>
 
-        {/* Action buttons now live inside the card via DiscoverySidebar */}
+        {/* 🚀 QUICK FILTERS: REPOSITIONED BY USER REQUEST (Bottom Near Nav) */}
+        {(!isLoading || deckQueue.length > 0) && (
+          <div className="absolute bottom-[100px] left-0 right-0 z-[60] w-full flex justify-center px-4 pointer-events-none">
+            <div className="flex gap-4 p-2 rounded-full backdrop-blur-3xl border border-white/10 bg-black/20 pointer-events-auto shadow-2xl">
+              {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter(c => 
+                userRole === 'owner' 
+                  ? ['all-clients', 'buyers', 'renters', 'hire'].includes(c.id) 
+                  : ['property', 'motorcycle', 'services'].includes(c.id)
+              ).map((cat: any) => {
+                const Icon = cat.icon;
+                const isActive = category === cat.id || (userRole === 'owner' && (filters as any).clientType === (cat as any).clientType);
+                return (
+                  <motion.button
+                    key={cat.id}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      triggerHaptic('light');
+                      handleMapCategorySelect(cat.id as any);
+                    }}
+                    className={cn(
+                      "w-12 h-12 rounded-full flex items-center justify-center transition-all relative overflow-hidden border",
+                      isActive 
+                        ? (isLight ? "text-black border-black/20 bg-white shadow-lg scale-110" : "text-primary border-primary bg-black/60 shadow-[0_0_20px_rgba(255,107,53,0.4)] scale-110")
+                        : (isLight ? "text-black/30 border-black/5 hover:text-black/60" : "text-white/30 border-white/10 hover:text-white/60 bg-black/20")
+                    )}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {typeof document !== 'undefined' && document.body && createPortal(
