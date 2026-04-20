@@ -256,7 +256,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
         )}
       >
         <div className="max-w-screen-xl mx-auto pt-1">
-          <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide pb-4 stagger-enter">
+          <div className="flex items-center justify-center gap-4 overflow-x-auto scrollbar-hide pb-4 stagger-enter">
             {ownerOptions.map((option) => {
               const isActive = currentClientType === option.id;
               
@@ -270,9 +270,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                       onChange({ ...filters, clientType: option.id as any });
                     }
                   }}
-                  className={cn(
                     smoothButtonClass, 
-                    'relative flex-shrink-0 w-36 h-56 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
+                    'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
                     isActive ? 'border-orange-500 shadow-lg scale-[1.03]' : 'border-border/40 opacity-90'
                   )}
                   style={{ contain: 'paint', willChange: 'transform, opacity' }}
@@ -341,7 +340,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     >
       <div className="max-w-screen-xl mx-auto pt-1">
         {/* Main filter cards — horizontal scroll */}
-        <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide pb-4 stagger-enter" style={{ willChange: 'scroll-position' }}>
+        <div className="flex items-center justify-center gap-4 overflow-x-auto scrollbar-hide pb-4 stagger-enter" style={{ willChange: 'scroll-position' }}>
           {/* ALL card */}
           <button
             onClick={() => {
@@ -350,7 +349,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             }}
             className={cn(
               smoothButtonClass, 
-              'relative flex-shrink-0 w-36 h-56 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
+              'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
               clientIsAllSelected ? 'border-orange-500 shadow-lg scale-[1.03]' : 'border-border/40 opacity-90'
             )}
             style={{ contain: 'paint', willChange: 'transform, opacity' }}
@@ -382,7 +381,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 onClick={() => handleCategorySelect(category.id)}
                 className={cn(
                   smoothButtonClass, 
-                  'relative flex-shrink-0 w-36 h-56 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
+                  'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
                   isActive ? 'border-orange-500 shadow-lg scale-[1.03]' : 'border-border/40 opacity-90'
                 )}
                 style={{ contain: 'paint', willChange: 'transform, opacity' }}

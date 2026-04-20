@@ -134,7 +134,7 @@ export const BottomNavigation = memo(({
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages' },
     { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise' },
     { id: 'legal', icon: Scale, label: 'Legal', path: '/owner/legal-services' },
-    { id: 'filters', icon: SlidersHorizontal, label: 'Filter', path: '/owner/clients/property' },
+    { id: 'filters', icon: SlidersHorizontal, label: 'Filter', onClick: onFilterClick },
   ];
 
   // Admin nav items — admin panel + messaging
@@ -244,17 +244,18 @@ export const BottomNavigation = memo(({
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className="pointer-events-auto w-full max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto glass-pill-nav px-1"
+        className="pointer-events-auto w-full max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto glass-pill-nav px-1 shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
         style={{
-          background: 'transparent',
-          border: 'none',
-          backdropFilter: 'none',
-          WebkitBackdropFilter: 'none',
+          background: isLight ? 'rgba(255, 255, 255, 0.75)' : 'rgba(10, 10, 11, 0.75)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          borderRadius: '2.5rem',
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           position: 'relative',
-          overflow: 'visible',
+          overflow: 'hidden',
           zIndex: 1000,
         }}
       >
@@ -331,17 +332,17 @@ export const BottomNavigation = memo(({
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center rounded-xl gap-1 w-auto flex-shrink-0 h-full',
-                  'touch-manipulation focus-visible:outline-none transform-gpu',
+                  'relative flex flex-col items-center justify-center rounded-2xl gap-1 w-auto flex-shrink-0 h-full',
+                  'touch-manipulation focus-visible:outline-none transform-gpu active:bg-white/10',
                 )}
                 style={{
                   minWidth: isTablet ? '100px' : (isNarrow ? '58px' : '68px'),
                   scrollSnapAlign: 'start',
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
                   padding: isTablet ? '8px 12px' : '6px 8px',
-                  background: 'transparent',
-                  backdropFilter: 'none',
-                  WebkitBackdropFilter: 'none',
+                  background: active ? (isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)') : 'transparent',
+                  backdropFilter: active ? 'blur(10px)' : 'none',
+                  WebkitBackdropFilter: active ? 'blur(10px)' : 'none',
                   border: 'none',
                   boxShadow: 'none',
                   cursor: 'pointer',
@@ -349,7 +350,7 @@ export const BottomNavigation = memo(({
                   touchAction: 'manipulation',
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
-                  transition: 'all 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
+                  transition: 'all 0.4s cubic-bezier(0.32, 0.72, 0, 1)',
                 }}
               >
                 {active && (

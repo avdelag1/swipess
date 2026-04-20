@@ -475,6 +475,7 @@ function LegendaryLandingPage() {
   const { navigate } = useAppNavigate();
   const [view, setView] = useState<View>('landing');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | null>(null);
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden bg-black text-white">
