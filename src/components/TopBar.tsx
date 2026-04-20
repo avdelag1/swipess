@@ -45,14 +45,16 @@ function TopBarComponent({
   const { user } = useAuth();
   const { theme, isLight } = useTheme();
 
+  const isIvanna = theme === 'ivanna-style';
   const glassSurfaceStyle: React.CSSProperties = {
-    background: _transparent ? 'transparent' : (isLight ? 'rgba(255,255,255,0.45)' : 'rgba(25,25,30,0.3)'),
+    background: _transparent ? 'transparent' : (isIvanna ? 'rgba(255,255,255,0.7)' : (isLight ? 'rgba(255,255,255,0.45)' : 'rgba(25,25,30,0.3)')),
     backdropFilter: _transparent ? 'none' : 'blur(16px) saturate(1.4)',
     WebkitBackdropFilter: _transparent ? 'none' : 'blur(16px) saturate(1.4)',
-    border: _transparent ? 'none' : `1.5px solid ${isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'}`,
-    boxShadow: _transparent ? 'none' : (isLight
+    border: _transparent ? 'none' : (isIvanna ? '3px solid #111111' : `1.5px solid ${isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'}`),
+    borderRadius: isIvanna ? '14px 18px 16px 14px' : '12px',
+    boxShadow: _transparent ? 'none' : (isIvanna ? 'shadow-artisan' : (isLight
       ? '0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.2)'
-      : '0 8px 22px rgba(0,0,0,0.4), inset 0 0.5px 1px rgba(255,255,255,0.1)'),
+      : '0 8px 22px rgba(0,0,0,0.4), inset 0 0.5px 1px rgba(255,255,255,0.1)')),
   };
 
   const { data: profile } = useQuery({
@@ -98,8 +100,9 @@ function TopBarComponent({
                 className="flex-shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-xl flex items-center justify-center z-50 pointer-events-auto touch-manipulation transition-all hover:scale-105 active:scale-95"
                 style={{
                   ...glassSurfaceStyle,
-                  background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.12)',
-                  borderColor: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,107,53,0.4)',
+                  background: isIvanna ? '#ffffff' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.12)'),
+                  borderColor: isIvanna ? '#111111' : (isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,107,53,0.4)'),
+                  borderWidth: isIvanna ? '3px' : '1.5px',
                 }}
                 aria-label="Go back"
               >

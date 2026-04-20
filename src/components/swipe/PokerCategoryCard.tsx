@@ -135,8 +135,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       className="select-none touch-none"
     >
       <div className={cn(
-        "w-full h-full relative overflow-hidden rounded-[2.5rem] shadow-2xl transition-colors duration-500",
-        theme === 'ivanna-style' ? "bg-card border-[3px] border-[#111111]" : "bg-black border border-white/5"
+        "w-full h-full relative overflow-hidden transition-colors duration-500",
+        theme === 'ivanna-style' 
+          ? "bg-card border-[4px] border-[#111111]/90 rounded-[20px_24px_22px_26px_/_26px_22px_24px_20px] shadow-artisan" 
+          : "bg-black border border-white/5 rounded-[2.5rem] shadow-2xl"
       )}>
         
         {/* Photo & Gradient Base */}
@@ -199,7 +201,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         </div>
 
         {/* Glossy Perimeter Rim */}
-        <div className="absolute inset-0 border border-white/10 rounded-[2.5rem] pointer-events-none" />
+
       </div>
     </motion.div>
   );

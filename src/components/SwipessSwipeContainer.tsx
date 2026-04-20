@@ -961,8 +961,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // The 'Premiums Dashboard' (SwipeAllDashboard) is now the interactive Slide 0
   // of the vertical snap-scrolling reel.
   return (
-    <div className="relative w-full h-full overflow-hidden flex flex-col bg-black">
-      <div className="absolute inset-0 pointer-events-none -z-10 bg-black" />
+    <div className={cn(
+      "relative w-full h-full overflow-hidden flex flex-col",
+      theme === 'ivanna-style' ? "bg-transparent" : "bg-black"
+    )}>
+      <div className={cn(
+        "absolute inset-0 pointer-events-none -z-10",
+        theme === 'ivanna-style' ? "bg-transparent" : "bg-black"
+      )} />
 
       {/* Top Controls — IN FLOW, not absolute. Hidden when the exhausted state is showing because that view has its own large map. */}
       {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (

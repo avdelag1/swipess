@@ -40,6 +40,7 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { Home } from 'lucide-react';
 
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
@@ -846,7 +847,10 @@ const ClientSwipeContainerComponent = ({
 
   return (
     <>
-      <div className="relative w-full h-full overflow-hidden flex flex-col bg-[#0a0a0b]">
+      <div className={cn(
+        "relative w-full h-full overflow-hidden flex flex-col",
+        theme === 'ivanna-style' ? "bg-transparent" : "bg-[#0a0a0b]"
+      )}>
         {/* Static ambient background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10" />
 
@@ -968,10 +972,19 @@ const ClientSwipeContainerComponent = ({
                  exit={{ opacity: 0 }}
                  className="w-full h-full z-50 overflow-hidden"
                >
-                <DiscoveryMapView
-                  onBack={() => setActiveCategory(null)}
-                  onStartSwiping={handleRefresh}
-                  isEmbedded={false}
+                <SwipeExhaustedState
+                  categoryLabel={category}
+                  CategoryIcon={Home}
+                  isRefreshing={isRefreshing}
+                  onRefresh={handleRefresh}
+                  radiusKm={radiusKm}
+                  onRadiusChange={setRadiusKm}
+                  onDetectLocation={detectLocation}
+                  detecting={locationDetecting}
+                  detected={locationDetected}
+                  lat={userLatitude}
+                  lng={userLongitude}
+                  role="owner"
                 />
                </motion.div>
             ) : (

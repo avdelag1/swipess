@@ -180,14 +180,16 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   return (
     <div className={cn(
       "flex flex-col h-full w-full relative transition-colors duration-500",
-      isLight ? "bg-white" : "bg-black"
+      theme === 'ivanna-style' ? "bg-transparent" : (isLight ? "bg-white" : "bg-black")
     )}>
       
       {/* 🛸 CINEMATIC ATMOSPHERE */}
-      <div className="absolute inset-x-0 top-0 h-96 pointer-events-none opacity-20">
-         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[100%] bg-indigo-500/30 blur-[130px] rounded-full" />
-         <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[80%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
-      </div>
+      {theme !== 'ivanna-style' && (
+        <div className="absolute inset-x-0 top-0 h-96 pointer-events-none opacity-20">
+           <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[100%] bg-indigo-500/30 blur-[130px] rounded-full" />
+           <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[80%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         {viewMode === 'insights' ? (

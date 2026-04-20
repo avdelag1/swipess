@@ -143,7 +143,7 @@ export function CategorySwipeStack() {
     };
 
     return (
-        <div className="relative w-full h-[calc(100svh-80px)] max-w-2xl mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-[calc(100svh-100px)] max-w-2xl mx-auto flex items-center justify-center perspective-[1000px] overflow-visible">
 
             <AnimatePresence mode="sync" initial={false}>
                 {stack.map((cat, index) => {
@@ -339,15 +339,16 @@ function CategoryCard({
                 } 
             }}
             className={cn(
-                "absolute flex flex-col items-center justify-center rounded-[32px] p-6 select-none overflow-hidden",
+                "absolute flex flex-col items-center justify-center select-none overflow-hidden",
                 "transition-[filter,transform] duration-300 gpu-ultra isolation-isolate",
                 isTop ? "cursor-grab active:cursor-grabbing shadow-2xl" : "cursor-pointer",
                 !isTop && "blur-[1px] brightness-75", // Depth effect for back cards
-                theme === 'ivanna-style' ? "bg-card border-[2.5px] border-[#111111] rounded-[32px]" : "bg-black border border-white/10 rounded-[32px]",
+                theme === 'ivanna-style' 
+                  ? "bg-card border-[4px] border-[#111111]/90 rounded-[20px_24px_22px_26px_/_26px_22px_24px_20px] shadow-artisan" 
+                  : "bg-black border border-white/10 rounded-[32px]",
                 "transform-gpu",
                 isActive && "ring-4 ring-brand-accent-2/50 ring-offset-4 ring-offset-background",
-                "swipe-card-size",
-                ""
+                "swipe-card-size"
             )}
 
             style={{ 

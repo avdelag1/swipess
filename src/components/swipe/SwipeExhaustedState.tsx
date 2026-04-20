@@ -126,7 +126,10 @@ export const SwipeExhaustedState = ({
         initial="initial" 
         animate="animate" 
         exit="exit" 
-        className="relative z-50 h-full w-full overflow-hidden bg-black flex flex-col pt-2"
+        className={cn(
+          "relative z-50 h-full w-full overflow-hidden flex flex-col pt-2",
+          theme === 'ivanna-style' ? "bg-transparent" : "bg-black"
+        )}
       >
         <div className="absolute inset-0 pointer-events-none z-0">
           <div 
@@ -149,10 +152,16 @@ export const SwipeExhaustedState = ({
             <motion.div
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-black/40 backdrop-blur-xl border border-white/10 px-3 py-1 rounded-full shadow-xl"
+              className={cn(
+                "px-3 py-1 rounded-full shadow-xl",
+                theme === 'ivanna-style' ? "bg-white border-2 border-[#111111]" : "bg-black/40 backdrop-blur-xl border border-white/10"
+              )}
             >
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-white/90">
-                {isRefreshing || isScanBurstActive ? 'Recalibrating Radar…' : 'No new listings found'}
+              <span className={cn(
+                "text-[10px] font-black uppercase tracking-wider",
+                theme === 'ivanna-style' ? "text-[#111111]" : "text-white/90"
+              )}>
+                {isRefreshing || isScanBurstActive ? 'Calibrating Discovery Intelligence…' : 'Market Resonance Exhausted'}
               </span>
             </motion.div>
           </div>
@@ -165,7 +174,10 @@ export const SwipeExhaustedState = ({
             style={{ maxWidth: 'min(92vw, 360px)' }}
           >
             <div
-              className="relative w-full rounded-[2rem] overflow-hidden border border-white/10 shadow-xl"
+              className={cn(
+                "relative w-full overflow-hidden shadow-xl",
+                theme === 'ivanna-style' ? "bg-white border-[3px] border-[#111111] rounded-[24px_32px_28px_36px_/_36px_28px_32px_24px]" : "rounded-[2rem] border border-white/10"
+              )}
               style={{ aspectRatio: '1 / 1', maxHeight: '42svh' }}
             >
               <LocationRadiusSelector
@@ -182,7 +194,10 @@ export const SwipeExhaustedState = ({
           </motion.div>
         </div>
 
-        <div className="shrink-0 pb-6 pt-3 px-4 flex flex-col items-center gap-4 bg-gradient-to-t from-black via-black/80 to-transparent">
+        <div className={cn(
+          "shrink-0 pb-6 pt-3 px-4 flex flex-col items-center gap-4",
+          theme === 'ivanna-style' ? "bg-transparent" : "bg-gradient-to-t from-black via-black/80 to-transparent"
+        )}>
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -230,11 +245,14 @@ export const SwipeExhaustedState = ({
             <Button
               onClick={handleRefreshClick}
               disabled={isRefreshing}
-              className="flex-1 relative h-14 overflow-hidden rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 group text-white"
+              className={cn(
+                "flex-1 relative h-14 overflow-hidden shadow-2xl transition-all active:scale-95 group",
+                theme === 'ivanna-style' ? "bg-white border-[3px] border-[#111111] text-[#111111]" : "rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+              )}
             >
               {isRefreshing && <div className="absolute inset-0 bg-primary/10 animate-pulse" />}
-              <RefreshCw className={cn("mr-2 h-4 w-4 text-primary transition-transform group-hover:rotate-180 duration-700", isRefreshing && "animate-spin")} />
-              {isRefreshing ? 'Scanning...' : 'Refresh Radar'}
+              <RefreshCw className={cn("mr-2 h-4 w-4 transition-transform group-hover:rotate-180 duration-700", isRefreshing && "animate-spin", theme === 'ivanna-style' ? "text-[#111111]" : "text-primary")} />
+              {isRefreshing ? 'Tuning Intelligence...' : 'Refresh Market Resonance'}
             </Button>
             
             <Button
