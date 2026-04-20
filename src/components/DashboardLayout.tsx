@@ -328,10 +328,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const path = location.pathname;
     const immersiveRoutes = [
       '/client/dashboard',
-      '/owner/dashboard',
-      '/client/liked-properties',
-      '/owner/interested-clients',
-      '/owner/liked-clients'
+      '/owner/dashboard'
     ];
     
     const isMatch = immersiveRoutes.some(route => 
