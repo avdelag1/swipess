@@ -1,5 +1,5 @@
 // cache-bust: 2026-04-18-v14
-import { useState, useCallback, memo } from 'react';
+import { useEffect, useState, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { uiSounds } from '@/utils/uiSounds';
@@ -11,14 +11,6 @@ import { VapIdCardModal } from '../VapIdCardModal';
 import { motion } from 'framer-motion';
 
 const preloadedImages = new Set<string>();
-POKER_CARDS.forEach(card => {
-  const src = POKER_CARD_PHOTOS[card.id];
-  if (src && !preloadedImages.has(src)) {
-    preloadedImages.add(src);
-    const img = new Image();
-    img.src = src;
-  }
-});
 
 export interface SwipeAllDashboardProps {
   setCategories: (ids: any[]) => void;
@@ -28,6 +20,18 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   const [cards, setCards] = useState([...POKER_CARDS]);
   const navigate = useNavigate();
   const [showVapModal, setShowVapModal] = useState(false);
+
+  useEffect(() => {
+    // Preload images safely on mount to prevent TDZ ReferenceErrors
+    POKER_CARDS.forEach(card => {
+      const src = POKER_CARD_PHOTOS[card.id];
+      if (src && !preloadedImages.has(src)) {
+        preloadedImages.add(src);
+        const img = new Image();
+        img.src = src;
+      }
+    });
+  }, []);
 
   const handleSelect = useCallback((id: string) => {
     triggerHaptic('medium');
