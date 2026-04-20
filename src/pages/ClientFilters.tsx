@@ -257,17 +257,17 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                         </div>
 
                         <div className="space-y-4">
-                            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Bathrooms</label>
-                            <div className="flex flex-wrap gap-2">
-                                {[1, 2, 3].map(n => (
+                            <label className="text-[11px] font-black uppercase tracking-[0.2em] text-[#3B82F6] px-1 opacity-60">Bathrooms</label>
+                            <div className="flex flex-wrap gap-3">
+                                {[1, 2, 3, 4].map(n => (
                                     <button 
                                         key={n} 
                                         onClick={() => toggleBathroom(n)}
                                         className={cn(
-                                          "h-11 px-5 rounded-2xl text-[10px] font-black transition-all border",
+                                          "w-12 h-12 rounded-full text-[11px] font-black transition-all border flex items-center justify-center",
                                           selectedBathrooms.includes(n) 
-                                            ? "bg-primary/20 border-primary text-primary shadow-inner" 
-                                            : "bg-muted/10 border-white/5 text-muted-foreground"
+                                            ? "bg-white text-slate-900 border-white shadow-xl scale-110" 
+                                            : "bg-muted/10 border-slate-200/50 text-muted-foreground"
                                         )}
                                     >
                                         {n}+
