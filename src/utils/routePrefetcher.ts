@@ -61,9 +61,6 @@ const routeImports: Record<string, RouteImport> = {
   '/owner/contracts': () => import('@/pages/OwnerContracts'),
   '/owner/saved-searches': () => import('@/pages/OwnerSavedSearches'),
   '/owner/security': () => import('@/pages/OwnerSecurity'),
-  '/owner/clients/property': () => import('@/pages/OwnerDiscovery'),
-  '/owner/clients/moto': () => import('@/pages/OwnerDiscovery'),
-  '/owner/clients/bicycle': () => import('@/pages/OwnerDiscovery'),
   // Shared routes
   '/messages': () => import('@/pages/MessagingDashboard').then(m => ({ default: m.MessagingDashboard })),
   '/notifications': () => import('@/pages/NotificationsPage'),
@@ -76,7 +73,6 @@ const routeImports: Record<string, RouteImport> = {
   '/explore/tours': () => import('@/pages/VideoTours'),
   // Filter routes
   '/client/filters': () => import('@/pages/ClientFilters'),
-  '/owner/filters': () => import('@/pages/OwnerDiscovery'),
 };
 
 // Cache for prefetched routes
@@ -179,15 +175,11 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
     scheduleIdle(() => {
       const remaining = [
         '/owner/liked-clients',
-        '/owner/filters',
-        '/owner/clients/property',
         '/owner/settings',
         '/owner/listings/new',
         '/owner/contracts',
         '/owner/saved-searches',
         '/owner/security',
-        '/owner/clients/moto',
-        '/owner/clients/bicycle'
       ];
       prefetchRoutesSequentially(remaining);
     });
