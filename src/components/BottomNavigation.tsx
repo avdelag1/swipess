@@ -352,17 +352,7 @@ export const BottomNavigation = memo(({
                   transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
               >
-                {/* ── Active Background Indicator — Unified Sliding Feel ── */}
-                {active && (
-                  <motion.div
-                    layoutId="nav-active-pill"
-                    className={cn(
-                      "absolute inset-1.5 rounded-[2rem] z-0",
-                      theme === 'ivanna-style' ? "bg-sky-500/10 border-sky-500/10" : (isLight ? "bg-black/10 border-black/5" : "bg-white/10 border-white/10")
-                    )}
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
+                {/* ── Removed Active Background Indicator per design spec ── */}
 
                 <motion.div
                   className="relative z-10"

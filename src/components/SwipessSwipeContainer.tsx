@@ -989,13 +989,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
       {/* Top Controls — IN FLOW, not absolute. Hidden when the exhausted state is showing because that view has its own large map. */}
       {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (
-        <div className="relative z-[60] w-full flex flex-col items-center shrink-0 px-6 pt-4">
+        <div className="relative z-[60] w-full flex flex-col items-center shrink-0 px-6 pt-24 pb-4">
            <div className="w-full flex items-center justify-between gap-4">
               {/* Back / Reset Category */}
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setActiveCategory(null)}
-                className="w-10 h-10 rounded-xl bg-black/40 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white/40 hover:text-white"
+                className="w-10 h-10 flex items-center justify-center text-white/40 hover:text-white transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
               </motion.button>
@@ -1018,10 +1018,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                         setActiveCategory(cat.id);
                       }}
                       className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center border transition-all relative overflow-hidden",
+                        "w-10 h-10 rounded-full flex items-center justify-center transition-all relative overflow-hidden",
                         isActive 
-                          ? "bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)]" 
-                          : "bg-black/40 backdrop-blur-3xl border-white/10 text-white/20"
+                          ? "text-primary drop-shadow-[0_0_10px_rgba(255,107,53,0.5)] scale-110" 
+                          : "text-white/20 hover:text-white/60"
                       )}
                     >
                       <Icon className="w-4 h-4" />

@@ -100,7 +100,7 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
               className="absolute z-10 w-32 h-40 rounded-2xl overflow-hidden border-4 border-black/50 shadow-2xl shadow-primary/20"
             >
               <img 
-                src={clientProfile.avatar_url || "/assets/placeholder-mesh.svg"} 
+                src={clientProfile.avatar_url || "/placeholder-avatar.svg"} 
                 alt="Client" 
                 className="w-full h-full object-cover"
               />
@@ -114,7 +114,7 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
               className="absolute z-20 w-32 h-40 rounded-2xl overflow-hidden border-4 border-black box-content shadow-2xl shadow-primary/20"
             >
               <img 
-                src={ownerProfile.avatar_url || "/assets/placeholder-mesh.svg"} 
+                src={ownerProfile.avatar_url || "/placeholder-avatar.svg"} 
                 alt="Owner" 
                 className="w-full h-full object-cover"
               />
