@@ -3,8 +3,6 @@ import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
-import { DashboardMapCard } from '@/components/swipe/DashboardMapCard';
-import { MapFilterChipRow } from '@/components/swipe/MapFilterChipRow';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuickFilterCategory } from '@/types/filters';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -68,8 +66,8 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
 
   const handleMapBack = useCallback(() => {
     setActiveCategory(null);
-    setPhase('cards');
-    setMapCategory(null);
+    setPhase('map');
+    setMapCategory((prev) => prev || 'property');
   }, [setActiveCategory]);
 
   const handleStartSwiping = useCallback(() => {
@@ -122,20 +120,15 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="flex-1 w-full relative"
+            className="flex-1 w-full relative overflow-hidden"
           >
-            <DashboardMapCard>
-              <MapFilterChipRow mode="client" />
-              <div className="flex-1 relative min-h-0">
-                <DiscoveryMapView
-                  category={mapCategory}
-                  onBack={handleMapBack}
-                  onStartSwiping={handleStartSwiping}
-                  isEmbedded={true}
-                  mode="client"
-                />
-              </div>
-            </DashboardMapCard>
+            <DiscoveryMapView
+              category={mapCategory}
+              onBack={handleMapBack}
+              onStartSwiping={handleStartSwiping}
+              isEmbedded={true}
+              mode="client"
+            />
           </motion.div>
         )}
 

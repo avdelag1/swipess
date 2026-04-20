@@ -21,8 +21,6 @@ import { useFilterActions } from '@/state/filterStore';
 import type { OwnerIntentCard } from '@/components/swipe/SwipeConstants';
 import { triggerHaptic } from '@/utils/haptics';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
-import { DashboardMapCard } from '@/components/swipe/DashboardMapCard';
-import { MapFilterChipRow } from '@/components/swipe/MapFilterChipRow';
 import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -146,9 +144,9 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }, []);
 
   const handleMapBack = useCallback(() => {
-    setMapCategory(null);
-    setPhase('cards');
     setActiveCategory(null);
+    setPhase('map');
+    setMapCategory((prev) => prev || 'property');
   }, [setActiveCategory]);
 
   const handleStartSwiping = useCallback(() => {
@@ -242,17 +240,13 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className="flex-1 w-full min-h-0 relative z-10 flex flex-col items-stretch overflow-hidden"
           >
-            <DashboardMapCard>
-              <div className="flex-1 relative min-h-0">
-                <DiscoveryMapView
-                  category={mapCategory}
-                  onBack={handleMapBack}
-                  onStartSwiping={handleStartSwiping}
-                  isEmbedded={true}
-                  mode="owner"
-                />
-              </div>
-            </DashboardMapCard>
+            <DiscoveryMapView
+              category={mapCategory}
+              onBack={handleMapBack}
+              onStartSwiping={handleStartSwiping}
+              isEmbedded={true}
+              mode="owner"
+            />
           </motion.div>
         ) : showSwipe && !isLoading && clientProfiles.length === 0 ? (
           <motion.div
@@ -263,18 +257,13 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className="w-full h-full z-10 flex flex-col"
           >
-            <DashboardMapCard>
-              <MapFilterChipRow mode="owner" />
-              <div className="flex-1 relative min-h-0">
-                <DiscoveryMapView
-                  category={mapCategory || (filterCategory as any) || 'property'}
-                  onBack={handleMapBack}
-                  onStartSwiping={handleStartSwiping}
-                  isEmbedded={true}
-                  mode="owner"
-                />
-              </div>
-            </DashboardMapCard>
+            <DiscoveryMapView
+              category={mapCategory || (filterCategory as any) || 'property'}
+              onBack={handleMapBack}
+              onStartSwiping={handleStartSwiping}
+              isEmbedded={true}
+              mode="owner"
+            />
           </motion.div>
         ) : showSwipe ? (
           <motion.div
