@@ -221,7 +221,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     setCurrentIndex(currentIndexRef.current);
   }, []);
 
-  // FILTER CHANGE DETECTION: Handled by the filterSignature-based effect below (lines ~556-578).
+  // FLICKER FIX: Track whether we've given the query a chance to start fetching.
+  // On quick filter change, deckQueue resets to [] before React Query re-triggers.
+  // During this ~100-300ms gap, isLoading is false → exhausted state flashes.
+  // We use a mount-settled ref to block exhausted state until after first fetch attempt.
+  const isMountSettledRef = useRef(false);
+  useEffect(() => {
+    const t = setTimeout(() => { isMountSettledRef.current = true; }, 400);
+    return () => clearTimeout(t);
+  }, []);
   // A single reset path prevents duplicate state mutations that cause React error #185.
 
   // PERF FIX: Track if we're returning to dashboard (has hydrated data AND is ready)
@@ -421,6 +429,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     // Reset the filter changed flag
     filterChangedRef.current = false;
 
+    // FLICKER FIX: reset settled guard so exhausted state can't flash during new fetch
+    isMountSettledRef.current = false;
+    const settledTimer = setTimeout(() => { isMountSettledRef.current = true; }, 400);
+
     // Clear deck for fresh results with new filters
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
@@ -437,6 +449,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     setCurrentIndex(0);
     setDeckLength(0);
 
+    return () => clearTimeout(settledTimer);
   }, [filterSignature, resetClientDeck]);
 
   // Get listings with filters - PERF: pass userId to avoid getUser() inside queryFn
@@ -1095,7 +1108,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                   externalX={topCardX}
                 />
               </motion.div>
-            ) : isLoading ? (
+            ) : (isLoading || isFetching || !isMountSettledRef.current) ? (
               <motion.div 
                 key="loading-skeleton"
                 initial={{ opacity: 0 }}
