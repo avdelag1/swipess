@@ -343,7 +343,8 @@ function CategoryCard({
                 "transition-[filter,transform] duration-300 gpu-ultra isolation-isolate",
                 isTop ? "cursor-grab active:cursor-grabbing shadow-2xl" : "cursor-pointer",
                 !isTop && "blur-[1px] brightness-75", // Depth effect for back cards
-                "bg-black border border-white/10 rounded-[32px] transform-gpu",
+                theme === 'ivanna-style' ? "bg-card border-[2.5px] border-[#111111] rounded-[32px]" : "bg-black border border-white/10 rounded-[32px]",
+                "transform-gpu",
                 isActive && "ring-4 ring-brand-accent-2/50 ring-offset-4 ring-offset-background",
                 "swipe-card-size",
                 ""

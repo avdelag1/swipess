@@ -21,7 +21,7 @@ import { useFilterActions } from '@/state/filterStore';
 import type { OwnerIntentCard } from '@/components/swipe/SwipeConstants';
 import { triggerHaptic } from '@/utils/haptics';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
-import { DashboardMapCard } from '@/components/swipe/DashboardMapCard';
+import DashboardMapCard from '@/components/swipe/DashboardMapCard';
 import { MapFilterChipRow } from '@/components/swipe/MapFilterChipRow';
 import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';

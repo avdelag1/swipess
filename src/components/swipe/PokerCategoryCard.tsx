@@ -134,7 +134,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       transition={{ ...PK_SPRING }}
       className="select-none touch-none"
     >
-      <div className="w-full h-full relative overflow-hidden rounded-[2.5rem] bg-black shadow-2xl border border-white/5">
+      <div className={cn(
+        "w-full h-full relative overflow-hidden rounded-[2.5rem] shadow-2xl transition-colors duration-500",
+        theme === 'ivanna-style' ? "bg-card border-[3px] border-[#111111]" : "bg-black border border-white/5"
+      )}>
         
         {/* Photo & Gradient Base */}
         <motion.img
@@ -162,7 +165,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
               <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">{card.description}</span>
             </motion.div>
             
-            <h3 className="text-white text-4xl font-black tracking-tighter leading-none uppercase italic">
+            <h3 className={cn(
+               "text-4xl font-black tracking-tighter leading-none uppercase italic",
+               theme === 'ivanna-style' ? "text-black" : "text-white"
+            )}>
               {card.label}
             </h3>
           </div>
@@ -181,7 +187,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
                   triggerHaptic('medium');
                   onSelect(card.id);
                 }}
-                className="w-full h-[72px] rounded-[2.2rem] bg-white text-black font-black uppercase italic tracking-widest text-[13px] flex items-center justify-center shadow-[0_25px_50px_-12px_rgba(255,255,255,0.3)] active:scale-95 transition-all"
+                className={cn(
+                  "w-full h-[72px] rounded-[2.2rem] bg-white text-black font-black uppercase italic tracking-widest text-[13px] flex items-center justify-center active:scale-95 transition-all",
+                  theme === 'ivanna-style' ? "shadow-none" : "shadow-[0_25px_50px_-12px_rgba(255,255,255,0.3)]"
+                )}
               >
                 Engage Discovery
               </button>

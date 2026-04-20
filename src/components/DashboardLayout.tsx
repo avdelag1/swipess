@@ -431,8 +431,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   return (
     <div className={cn(
       "dashboard-root w-full h-full min-h-0 relative flex flex-col overflow-hidden",
-      (isImmersiveDashboard || location.pathname.includes('dashboard')) ? "bg-black" : "bg-background",
-      isDark ? "dark dark-matte" : "light white-matte"
+      theme === 'ivanna-style' ? "bg-transparent" : ((isImmersiveDashboard || location.pathname.includes('dashboard')) ? "bg-black" : "bg-background"),
+      theme === 'ivanna-style' ? "ivanna-style" : (isDark ? "dark dark-matte" : "light white-matte")
     )}>
 
     {/* HUD is now managed globally in AppLayout.tsx to ensure a universal immersive experience */}
@@ -451,7 +451,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             : (isZeroScrollDashboard || isImmersiveDashboard) ? "overflow-hidden"
             : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
-          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard || location.pathname.includes('dashboard')) ? "bg-black" : "bg-background"
+          theme === 'ivanna-style' ? "bg-transparent" : ((location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard || location.pathname.includes('dashboard')) ? "bg-black" : "bg-background")
         )}
         style={{
           paddingTop: isFullScreenRoute || isImmersiveDashboard

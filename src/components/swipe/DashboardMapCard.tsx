@@ -31,3 +31,5 @@ export function DashboardMapCard({ children, className }: DashboardMapCardProps)
     </div>
   );
 }
+
+export default DashboardMapCard;

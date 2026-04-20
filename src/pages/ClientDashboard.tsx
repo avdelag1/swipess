@@ -3,7 +3,7 @@ import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
-import { DashboardMapCard } from '@/components/swipe/DashboardMapCard';
+import DashboardMapCard from '@/components/swipe/DashboardMapCard';
 import { MapFilterChipRow } from '@/components/swipe/MapFilterChipRow';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuickFilterCategory } from '@/types/filters';
