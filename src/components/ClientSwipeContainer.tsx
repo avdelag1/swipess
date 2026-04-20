@@ -870,7 +870,7 @@ const ClientSwipeContainerComponent = ({
         {/* Top Controls — IN FLOW, not absolute (matches client-side pattern) */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
           <div className="relative z-50 w-full flex flex-col items-center shrink-0">
-            <div className="w-full pt-1 pb-1 px-4">
+            <div className="w-full pt-28 pb-1 px-4">
               <div className="w-full flex justify-between items-center gap-4">
                 {/* HUD: Back button */}
                 <button
