@@ -150,7 +150,7 @@ export default function OwnerViewClientProfile() {
         </div>
 
         {/* Profile Content */}
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-4xl pb-28 sm:pb-24">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl pb-28 sm:pb-24">
           {/* Use the shared ClientProfilePreview component */}
           <ClientProfilePreview mode="owner-view" clientId={clientId} />
 

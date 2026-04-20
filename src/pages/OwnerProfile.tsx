@@ -54,7 +54,7 @@ const OwnerProfile = () => {
         </div>
       </AnimatePresence>
 
-      <div className="w-full max-w-lg mx-auto p-6 pt-4 pb-12 space-y-8 relative z-10">
+      <div className="w-full max-w-7xl mx-auto p-6 pt-4 pb-12 space-y-8 relative z-10">
         
         {/* 🛸 OWNER HEADER: BRAND GLASS */}
         <div className="flex flex-col items-center text-center gap-6">
@@ -74,7 +74,7 @@ const OwnerProfile = () => {
                    "w-full h-full overflow-hidden cursor-pointer flex items-center justify-center",
                    theme === 'ivanna-style' ? "rounded-[2rem] bg-ivanna-parchment" : "rounded-[3.1rem] bg-[#0d0d0f] border border-white/10"
                 )}
-                onClick={() => { haptics.tap(); setShowEditDialog(true); }}
+                onClick={() => { triggerHaptic('selection'); setShowEditDialog(true); }}
               >
                 {ownerProfile?.profile_images?.[0] ? (
                   <img src={ownerProfile.profile_images[0]} alt="Brand" className="w-full h-full object-cover" />
@@ -84,7 +84,7 @@ const OwnerProfile = () => {
               </div>
             </motion.div>
              <button
-              onClick={() => { haptics.tap(); setShowEditDialog(true); }}
+              onClick={() => { triggerHaptic('selection'); setShowEditDialog(true); }}
               className={cn(
                  "absolute -bottom-2 -right-2 w-14 h-14 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20",
                  theme === 'ivanna-style' 
@@ -172,7 +172,7 @@ const OwnerProfile = () => {
         </motion.div>
 
         {/* 🛸 PRIMARY HIGH-FIDELITY ACTIONS */}
-        <div className="space-y-4">
+        <div className="max-w-7xl mx-auto space-y-4">
           <Button
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
             className={cn(

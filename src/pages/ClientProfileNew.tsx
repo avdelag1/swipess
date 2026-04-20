@@ -84,7 +84,7 @@ const ClientProfileNew = () => {
         animate="visible"
         variants={{ visible: { transition: stagger } }}
       >
-        <div className="max-w-lg mx-auto space-y-4">
+        <div className="max-w-7xl mx-auto space-y-4">
           {/* Back Button */}
           <motion.button
             variants={childVariant}

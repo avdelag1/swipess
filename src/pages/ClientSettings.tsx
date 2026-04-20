@@ -99,7 +99,7 @@ const ClientSettings = () => {
          <div className="absolute bottom-[20%] right-[-10%] w-[50%] h-[40%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
       </div>
 
-      <div className="w-full max-w-lg mx-auto p-6 pt-24 pb-48 space-y-12 relative z-10">
+      <div className="w-full max-w-7xl mx-auto p-6 pt-24 pb-48 space-y-12 relative z-10">
         
         <div className="space-y-3">
            <div className="flex items-center gap-3">
