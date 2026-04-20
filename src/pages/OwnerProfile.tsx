@@ -136,11 +136,11 @@ const OwnerProfile = () => {
                    : "bg-white/[0.03] border-white/[0.08] rounded-[2rem]"
               )}
             >
-              <stat.icon className={cn("w-6 h-6 mb-2 opacity-80", stat.color)} />
-              <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", theme === 'ivanna-style' ? "text-black" : "text-white")}>
+              <stat.icon className={cn("w-6 h-6 mb-3 transition-transform group-hover:scale-110", stat.color)} />
+              <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", theme === 'ivanna-style' ? "text-black" : (isLight ? "text-slate-950 font-black" : "text-white"))}>
                 {stat.value}
               </div>
-              <div className={cn("text-[9px] font-black uppercase tracking-[0.2em] italic mt-2", theme === 'ivanna-style' ? "text-black opacity-40" : "text-white/30")}>{stat.label}</div>
+              <div className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic mt-2.5", theme === 'ivanna-style' ? "text-black opacity-60" : (isLight ? "text-slate-500 font-bold" : "text-white/40"))}>{stat.label}</div>
             </motion.div>
           ))}
         </div>

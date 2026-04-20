@@ -271,7 +271,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                             "flex items-center gap-3 px-6 h-12 rounded-[1.8rem] transition-all whitespace-nowrap",
                             activeTab === tab.id
                                 ? (isLight ? "bg-black text-white shadow-2xl" : "bg-white text-black shadow-2xl")
-                                : isLight ? "text-black/40 hover:bg-black/5" : "text-white/30 hover:bg-white/5"
+                                : isLight ? "text-black/60 hover:bg-black/10" : "text-white/30 hover:bg-white/5"
                         )}
                     >
                         <tab.icon className="w-4 h-4" />

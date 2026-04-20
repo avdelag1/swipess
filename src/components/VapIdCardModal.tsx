@@ -132,7 +132,7 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
               initial={{ opacity: 0.7 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.35 }}
-              className="relative rounded-[20px] overflow-hidden shadow-2xl max-h-[72vh] overflow-y-auto overscroll-contain"
+              className="relative rounded-[2.5rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.6)] max-h-[85vh] overflow-y-auto overscroll-contain border border-white/10"
               style={{ background: theme.background }}
             >
               {/* Pattern overlay */}
@@ -147,82 +147,92 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                 />
               )}
 
-              {/* Top accent bar */}
-              <div className="h-0.5 w-full" style={{ background: theme.accentBar }} />
+              {/* Cinematic Reflection Top */}
+              <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
 
-              <div className="relative z-10 p-5">
-                {/* Row 1: Badge + Name + ID */}
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-2.5">
-                      <ShieldCheck size={ICON_SIZE} style={{ color: theme.accentColor }} />
-                      <span
-                        className="text-[9px] font-black uppercase tracking-[0.22em]"
-                        style={{ color: theme.accentColor }}
-                      >
-                        Local Resident
-                      </span>
-                    </div>
-
-                    <h3
-                      className="text-xl font-black leading-tight tracking-tight"
-                      style={{ color: theme.textPrimary }}
+              <div className="relative z-10 p-8 sm:p-10">
+                {/* 🚀 IDENTITY GRID: PHOTO TOP LEFT */}
+                <div className="flex gap-8 mb-10">
+                  {/* AUTHORITATIVE PHOTO CORE */}
+                  <div className="relative shrink-0 group">
+                    <div 
+                      className="w-[120px] h-[150px] sm:w-[140px] sm:h-[180px] rounded-[2rem] overflow-hidden shadow-2xl relative z-10"
+                      style={{ border: `2px solid ${theme.accentColor}44` }}
                     >
-                      {name}
-                    </h3>
-                    {occupation && (
-                      <p className="text-[12px] font-semibold mt-0.5" style={{ color: theme.accentColor }}>
-                        {occupation}
-                      </p>
-                    )}
-
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
-                      {location && (
-                        <div className="flex items-center gap-1 text-[10px]" style={{ color: theme.textTertiary }}>
-                          <MapPin size={11} className="shrink-0" />
-                          <span>{location}</span>
-                        </div>
-                      )}
-                      {nationality && (
-                        <div className="flex items-center gap-1 text-[10px]" style={{ color: theme.textTertiary }}>
-                          <Globe2 size={11} className="shrink-0" />
-                          <span>{nationality}</span>
-                          {yearsInCity && (
-                            <span style={{ opacity: 0.6 }}>· {yearsInCity}yr</span>
-                          )}
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt={name} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-700" />
+                      ) : (
+                        <div
+                          className="w-full h-full flex items-center justify-center text-4xl font-black"
+                          style={{ color: theme.accentColor, background: theme.tagBg }}
+                        >
+                          {name.charAt(0).toUpperCase()}
                         </div>
                       )}
                     </div>
+                    {/* HOLOGRAPHIC GLOW BEHIND PHOTO */}
+                    <div className="absolute inset-0 blur-3xl opacity-30 bg-gradient-to-br from-indigo-500 to-[#EB4898] -z-10 animate-pulse" />
                   </div>
 
-                  <span
-                    className="text-[8px] font-mono font-bold tracking-widest pt-1 shrink-0"
-                    style={{ color: theme.textTertiary }}
-                  >
-                    {idNumber}
-                  </span>
+                  {/* IDENTITY DATA COLUMN */}
+                  <div className="flex-1 min-w-0 pt-2 space-y-5">
+                    <div className="flex flex-col gap-2">
+                       <div className="flex items-center gap-2">
+                          <ShieldCheck size={18} style={{ color: theme.accentColor }} />
+                          <span className="text-[10px] font-black uppercase tracking-[0.4em] italic" style={{ color: theme.accentColor }}>
+                             Authorized Resident
+                          </span>
+                       </div>
+                       <h3 className="text-3xl sm:text-4xl font-black leading-none tracking-tighter italic uppercase" style={{ color: theme.textPrimary }}>
+                          {name}
+                       </h3>
+                    </div>
+
+                    <div className="space-y-3">
+                       {occupation && (
+                          <div className="flex items-center gap-2">
+                             <div className="w-6 h-[1px]" style={{ background: theme.accentColor }} />
+                             <span className="text-[12px] font-black uppercase tracking-widest italic" style={{ color: theme.accentColor }}>
+                                {occupation}
+                             </span>
+                          </div>
+                       )}
+
+                       <div className="flex flex-col gap-2 opacity-60">
+                          {location && (
+                            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest" style={{ color: theme.textSecondary }}>
+                              <MapPin size={14} className="shrink-0" style={{ color: theme.accentColor }} />
+                              <span>{location}</span>
+                            </div>
+                          )}
+                          <span className="text-[9px] font-mono tracking-widest" style={{ color: theme.textTertiary }}>
+                             TXID: {idNumber}
+                          </span>
+                       </div>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Bio */}
+                {/* BIO TERMINAL */}
                 {bio && (
                   <div
-                    className="rounded-[10px] px-3 py-2 mb-3"
-                    style={{ background: theme.tagBg, border: `1px solid ${theme.tagBorder}` }}
+                    className="rounded-[1.5rem] p-6 mb-8 border backdrop-blur-md"
+                    style={{ background: `${theme.tagBg}44`, border: `1px solid ${theme.tagBorder}` }}
                   >
-                    <p className="text-[10px] leading-relaxed line-clamp-3" style={{ color: theme.textSecondary }}>
+                    <p className="text-[13px] leading-relaxed italic font-medium" style={{ color: theme.textSecondary }}>
                       {bio}
                     </p>
                   </div>
                 )}
 
-                {/* Tags + Languages */}
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-3">
+                {/* TAG CLOUD & SPEECH MATRIX */}
+                <div className="space-y-6 pt-2">
                   {allTags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-2">
                       {allTags.map((tag) => (
                         <span
                           key={tag}
-                          className="rounded-full px-2 py-0.5 text-[9px] font-semibold"
+                          className="rounded-[1rem] px-4 py-2 text-[10px] font-black uppercase italic tracking-widest border transition-all hover:scale-105"
                           style={{ background: theme.tagBg, border: `1px solid ${theme.tagBorder}`, color: theme.tagText }}
                         >
                           {tag}
@@ -230,74 +240,50 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
                       ))}
                     </div>
                   )}
-                  {spokenLanguages.length > 0 && (
-                    <div className="flex items-center gap-1 flex-wrap">
-                      <span className="text-[8px] font-black uppercase tracking-wider" style={{ color: theme.textTertiary }}>
-                        Speaks
-                      </span>
-                      {spokenLanguages.map((lang) => (
-                        <span
-                          key={lang}
-                          className="rounded-full px-1.5 py-0.5 text-[9px] font-semibold"
-                          style={{ background: theme.langTagBg, border: `1px solid ${theme.langTagBorder}`, color: theme.langTagText }}
-                        >
-                          {lang}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
 
-                {/* Divider */}
-                <div className="h-px mb-3" style={{ background: theme.tagBorder }} />
-
-                {/* Bottom: Photo + WhatsApp + QR */}
-                <div className="flex items-end justify-between gap-3">
-                  <div
-                    className="w-[72px] h-[90px] shrink-0 rounded-[12px] overflow-hidden shadow-xl"
-                    style={{ border: `1.5px solid ${theme.tagBorder}` }}
-                  >
-                    {avatarUrl ? (
-                      <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div
-                        className="w-full h-full flex items-center justify-center text-xl font-black"
-                        style={{ color: theme.accentColor, background: theme.tagBg }}
-                      >
-                        {name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex-1 flex flex-col items-end gap-1.5">
-                    {phone && (
-                      <a
-                        href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 rounded-[8px] px-2.5 py-1.5 text-[10px] font-semibold transition-transform active:scale-95"
-                        style={{ background: theme.tagBg, border: `1px solid ${theme.tagBorder}`, color: theme.textSecondary }}
-                      >
-                        <Phone size={11} style={{ color: '#4ade80' }} />
-                        <span className="truncate max-w-[120px]">{phone}</span>
-                      </a>
-                    )}
-                    <div className="flex items-center gap-1.5">
-                      <div className="flex flex-col items-end">
-                        <div className="flex items-center gap-0.5">
-                          <ScanLine size={9} style={{ color: theme.textTertiary }} />
-                          <span className="text-[7px] font-bold uppercase tracking-[0.1em]" style={{ color: theme.textTertiary }}>
-                            Verify
-                          </span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 pt-6 border-t" style={{ borderTopColor: theme.tagBorder }}>
+                     {spokenLanguages.length > 0 && (
+                        <div className="flex items-center gap-4">
+                           <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-30" style={{ color: theme.textTertiary }}>
+                              Linguistic Sync
+                           </span>
+                           <div className="flex gap-2">
+                              {spokenLanguages.map((lang) => (
+                                 <span
+                                    key={lang}
+                                    className="px-2.5 py-1 text-[10px] font-black uppercase italic"
+                                    style={{ color: theme.accentColor }}
+                                 >
+                                    {lang}
+                                 </span>
+                              ))}
+                           </div>
                         </div>
-                        <span className="text-[7px] font-bold uppercase tracking-[0.15em]" style={{ color: theme.textTertiary, opacity: 0.5 }}>
-                          swipess.app
-                        </span>
-                      </div>
-                      <div className="rounded-[6px] p-1 shadow-md" style={{ background: theme.qrBg }}>
-                        <QRCode value={validationUrl} size={44} level="H" />
-                      </div>
-                    </div>
+                     )}
+
+                     {/* QR & CONNECT COMMANDS */}
+                     <div className="flex items-center gap-6 self-end sm:self-auto">
+                        <div className="flex flex-col items-end">
+                           <div className="flex items-center gap-1.5 mb-1">
+                              <ScanLine size={12} style={{ color: theme.accentColor }} />
+                              <span className="text-[8px] font-black uppercase tracking-[0.2em]" style={{ color: theme.textTertiary }}>MATRIX VERIFIED</span>
+                           </div>
+                           {phone && (
+                              <a
+                                href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[11px] font-black italic tracking-tighter hover:scale-105 transition-all"
+                                style={{ color: '#4ade80' }}
+                              >
+                                CONNECT.APP
+                              </a>
+                           )}
+                        </div>
+                        <div className="rounded-[1.2rem] p-2 shadow-2xl bg-white transition-transform hover:scale-110" style={{ background: theme.qrBg }}>
+                           <QRCode value={validationUrl} size={64} level="H" />
+                        </div>
+                     </div>
                   </div>
                 </div>
               </div>

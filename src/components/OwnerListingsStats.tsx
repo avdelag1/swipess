@@ -89,18 +89,18 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
               <div className="relative p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <p className={cn("text-[9px] font-black uppercase tracking-[0.25em] truncate opacity-40 italic", isLight ? 'text-black' : 'text-white')}>
+                    <p className={cn("text-[10px] font-black uppercase tracking-[0.2em] truncate italic", isLight ? 'text-slate-500' : 'text-white/40')}>
                       {stat.title}
                     </p>
-                    <div className="flex items-baseline gap-1 mt-2">
-                      <h3 className={cn("text-2xl sm:text-3xl font-black tracking-tighter uppercase italic truncate", isLight ? "text-black" : "text-white")}>
+                    <div className="flex items-baseline gap-1 mt-2.5">
+                      <h3 className={cn("text-3xl sm:text-4xl font-black tracking-tighter uppercase italic truncate", isLight ? "text-slate-950" : "text-white")}>
                         {stat.value}
                       </h3>
                       {stat.trend && (
-                        <TrendingUp className="w-4 h-4 text-primary" strokeWidth={3} />
+                        <TrendingUp className="w-4 h-4 text-primary" strokeWidth={4} />
                       )}
                     </div>
-                    <p className={cn("text-[9px] font-black uppercase tracking-[0.1em] mt-1 opacity-30 italic", isLight ? 'text-black' : 'text-white')}>
+                    <p className={cn("text-[9px] font-black uppercase tracking-[0.3em] mt-2 italic", isLight ? 'text-slate-400' : 'text-white/30')}>
                       {stat.description}
                     </p>
                   </div>
