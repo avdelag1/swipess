@@ -81,6 +81,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     return isCameraRoute || isRadioRoute || showAIChat;
   }, [isCameraRoute, isRadioRoute, showAIChat]);
 
+  const isIvanna = theme === 'ivanna-style';
+
   const handleFilterClick = () => {
     if (location.pathname === '/client/dashboard') {
       window.dispatchEvent(new CustomEvent('open-client-filters'));
@@ -132,6 +134,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0",
+          isIvanna ? "bg-transparent" : "bg-background",
           isFullScreen && "h-screen overflow-hidden fixed inset-0"
         )}
       >

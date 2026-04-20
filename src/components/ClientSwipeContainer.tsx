@@ -971,7 +971,7 @@ const ClientSwipeContainerComponent = ({
                  className="w-full h-full z-50 overflow-hidden"
                >
                 <DiscoveryMapView
-                  onBack={() => setActiveCategory(null)}
+                  onBack={() => onExhaustedMap?.()}
                   onStartSwiping={handleRefresh}
                   isEmbedded={false}
                 />

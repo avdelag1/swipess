@@ -1109,7 +1109,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               >
                 <DiscoveryMapView
                   category={(storeActiveCategory as QuickFilterCategory) || 'property'}
-                  onBack={() => setActiveCategory(null)}
+                  onBack={() => onExhaustedMap?.()}
                   onStartSwiping={handleRefresh}
                   onCategoryChange={(cat) => setCategories([cat as any])}
                   isEmbedded={false}

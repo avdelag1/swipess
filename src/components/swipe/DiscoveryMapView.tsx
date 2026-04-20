@@ -97,6 +97,7 @@ export const DiscoveryMapView = ({
   
   const [isScanning, setIsScanning] = useState(false);
   const activeCategory = (_passedCategory || storeCategory || 'property') as QuickFilterCategory;
+  const isIvanna = theme === 'ivanna-style';
 
   const filters = useMemo(() => {
     return activeRole === 'owner' ? getClientFilters() : getListingFilters();
@@ -170,15 +171,15 @@ export const DiscoveryMapView = ({
     <motion.div
       className={cn(
         'w-full h-full relative overflow-hidden flex flex-col',
-        isEmbedded ? 'bg-[#0a0a0b]' : 'bg-black',
+        isIvanna ? 'bg-transparent' : (isEmbedded ? 'bg-background' : 'bg-black'),
       )}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
       {/* 📡 COMPONENT ALIVE INDICATOR (Failsafe Visibility) */}
-      {!isEmbedded && (
-        <div className="absolute inset-0 bg-[#0a0a0b] pointer-events-none" />
+      {!isEmbedded && !isIvanna && (
+        <div className="absolute inset-0 bg-background pointer-events-none" />
       )}
 
       <MapContainer
@@ -257,8 +258,8 @@ export const DiscoveryMapView = ({
 
       {/* 🧭 INTELLIGENT HUD CONTROLS */}
       <div className={cn(
-        "absolute left-6 right-6 z-20 flex flex-col gap-4 pointer-events-none",
-        isEmbedded ? "top-24" : "top-32"
+        "absolute left-4 right-4 z-20 flex flex-col gap-4 pointer-events-none",
+        isEmbedded ? "top-20" : "top-28"
       )}>
         <div className="w-full flex items-center justify-between pointer-events-auto">
           {onBack && (
@@ -266,7 +267,10 @@ export const DiscoveryMapView = ({
               variant="ghost"
               size="icon"
               onClick={() => { triggerHaptic('light'); onBack(); }}
-              className="w-12 h-12 rounded-2xl backdrop-blur-3xl border bg-black/80 border-white/10 text-white hover:text-primary transition-all shadow-2xl"
+                className={cn(
+                  "w-12 h-12 rounded-2xl backdrop-blur-3xl border transition-all shadow-2xl",
+                  isIvanna ? "bg-background/35 border-foreground/15 text-foreground hover:text-primary" : "bg-black/80 border-white/10 text-white hover:text-primary"
+                )}
             >
               <ChevronLeft className="w-6 h-6" />
             </Button>
@@ -274,9 +278,12 @@ export const DiscoveryMapView = ({
           
           {!onBack && <div className="w-12 h-12" />}
           
-          <div className="backdrop-blur-3xl border bg-black/80 border-white/10 px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3">
+           <div className={cn(
+             "backdrop-blur-3xl border px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3",
+             isIvanna ? "bg-background/35 border-foreground/15" : "bg-black/80 border-white/10"
+           )}>
              <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-             <span className="text-[10px] font-black uppercase tracking-[0.35em] text-white">
+              <span className={cn("text-[10px] font-black uppercase tracking-[0.35em]", isIvanna ? "text-foreground" : "text-white")}>
                 RADAR: <span className="text-primary italic">{nodes.length} {activeRole === 'owner' ? 'CLIENTS' : 'NODES'}</span>
              </span>
           </div>
@@ -301,8 +308,10 @@ export const DiscoveryMapView = ({
                 className={cn(
                   "h-11 px-5 rounded-2xl flex items-center gap-2 transition-all border shadow-2xl backdrop-blur-3xl flex-shrink-0",
                   isActive 
-                    ? "bg-primary text-white border-primary shadow-[0_15px_35px_rgba(235,72,152,0.5)] scale-105" 
-                    : "bg-slate-900/90 text-white border-white/10 hover:text-white hover:bg-slate-800"
+                    ? "bg-primary text-primary-foreground border-primary shadow-[0_15px_35px_hsl(var(--primary)/0.35)] scale-105" 
+                    : isIvanna
+                      ? "bg-background/35 text-foreground border-foreground/15 hover:bg-background/55"
+                      : "bg-slate-900/90 text-white border-white/10 hover:text-white hover:bg-slate-800"
                 )}
               >
                 <Icon className="w-5 h-5" />
@@ -324,8 +333,8 @@ export const DiscoveryMapView = ({
                onClick={handleIgnite}
                disabled={isScanning}
                className={cn(
-                 "group relative w-full max-w-[280px] h-18 rounded-[2.5rem] border-2 border-primary/30 flex items-center justify-center overflow-hidden transition-all duration-500 shadow-[0_30px_60px_rgba(var(--color-brand-primary-rgb),0.3)] pointer-events-auto",
-                 isScanning ? "bg-primary text-white" : "bg-black/80 backdrop-blur-3xl hover:bg-black"
+                  "group relative w-full max-w-[280px] h-18 rounded-[2.5rem] border-2 border-primary/30 flex items-center justify-center overflow-hidden transition-all duration-500 shadow-[0_30px_60px_hsl(var(--primary)/0.3)] pointer-events-auto",
+                  isScanning ? "bg-primary text-primary-foreground" : (isIvanna ? "bg-background/35 text-foreground backdrop-blur-3xl hover:bg-background/55" : "bg-black/80 backdrop-blur-3xl hover:bg-black")
                )}
              >
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-white/10 to-primary/20 opacity-30 skew-x-12 animate-shimmer" />
@@ -333,26 +342,29 @@ export const DiscoveryMapView = ({
                   {isScanning ? (
                     <motion.div key="scan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-3 relative z-10">
                       <RefreshCw className="w-5 h-5 text-white animate-spin" />
-                      <span className="text-xs font-black uppercase tracking-[0.4em] italic text-white">Engaging...</span>
+                       <span className={cn("text-xs font-black uppercase tracking-[0.4em] italic", isIvanna ? "text-foreground" : "text-white")}>Engaging...</span>
                     </motion.div>
                   ) : (
                     <motion.div key="ready" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-3 relative z-10">
                       <Sparkles className="w-5 h-5 text-primary" />
-                      <span className="text-xs font-black uppercase tracking-[0.4em] italic text-white group-hover:text-primary transition-colors">Start Swiping</span>
+                       <span className={cn("text-xs font-black uppercase tracking-[0.4em] italic group-hover:text-primary transition-colors", isIvanna ? "text-foreground" : "text-white")}>Start Swiping</span>
                     </motion.div>
                   )}
                 </AnimatePresence>
              </motion.button>
 
              {/* Radius Micro-Control */}
-             <div className="w-full max-w-[240px] flex items-center gap-4 bg-black/60 backdrop-blur-3xl px-6 py-3 rounded-[2rem] border border-white/10 pointer-events-auto shadow-2xl">
-                <span className="text-[10px] font-black text-white/30 uppercase tracking-widest min-w-[40px]">{radiusKm}KM</span>
+              <div className={cn(
+                "w-full max-w-[240px] flex items-center gap-4 backdrop-blur-3xl px-6 py-3 rounded-[2rem] border pointer-events-auto shadow-2xl",
+                isIvanna ? "bg-background/35 border-foreground/15" : "bg-black/60 border-white/10"
+              )}>
+                 <span className={cn("text-[10px] font-black uppercase tracking-widest min-w-[40px]", isIvanna ? "text-foreground" : "text-white/30")}>{radiusKm}KM</span>
                 <input
                   type="range"
                   min="1" max="100"
                   value={radiusKm}
                   onChange={(e) => setRadiusKm(parseInt(e.target.value))}
-                  className="flex-1 h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary"
+                   className={cn("flex-1 h-1 rounded-full appearance-none cursor-pointer accent-primary", isIvanna ? "bg-foreground/15" : "bg-white/10")}
                 />
              </div>
           </div>
@@ -368,7 +380,7 @@ export const DiscoveryMapView = ({
             disabled={isScanning}
             className={cn(
               'relative w-full max-w-[280px] h-14 rounded-full flex items-center justify-center overflow-hidden transition-all shadow-2xl pointer-events-auto',
-              theme === 'light'
+               theme === 'light' || theme === 'ivanna-style'
                 ? 'bg-black text-white border border-black/20'
                 : 'bg-primary text-white border border-primary/60',
               isScanning && 'opacity-80',
@@ -392,7 +404,7 @@ export const DiscoveryMapView = ({
           <div
             className={cn(
               'w-full max-w-[260px] flex items-center gap-3 px-5 py-2 rounded-full border pointer-events-auto shadow-lg backdrop-blur-xl',
-              theme === 'light'
+               theme === 'light' || theme === 'ivanna-style'
                 ? 'bg-white/90 border-black/10'
                 : 'bg-black/60 border-white/10',
             )}
@@ -400,7 +412,7 @@ export const DiscoveryMapView = ({
             <span
               className={cn(
                 'text-[10px] font-black uppercase tracking-widest min-w-[36px]',
-                theme === 'light' ? 'text-black/60' : 'text-white/60',
+                 theme === 'light' || theme === 'ivanna-style' ? 'text-black/60' : 'text-white/60',
               )}
             >
               {radiusKm}km
@@ -413,7 +425,7 @@ export const DiscoveryMapView = ({
               onChange={(e) => setRadiusKm(parseInt(e.target.value))}
               className={cn(
                 'flex-1 h-1 rounded-full appearance-none cursor-pointer accent-primary',
-                theme === 'light' ? 'bg-black/10' : 'bg-white/10',
+                 theme === 'light' || theme === 'ivanna-style' ? 'bg-black/10' : 'bg-white/10',
               )}
             />
           </div>
