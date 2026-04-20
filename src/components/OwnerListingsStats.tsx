@@ -30,10 +30,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
       title: 'Total Listings',
       value: totalListings,
       icon: Home,
-      gradient: 'from-blue-500 to-blue-600',
-      bgGradient: 'from-blue-500/20 to-blue-600/10',
-      iconBg: 'bg-blue-500/20',
-      iconColor: 'text-blue-400',
+      color: '#3b82f6',
       description: `${activeListings} active`,
       trend: activeListings > 0 ? '+' : ''
     },
@@ -41,10 +38,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
       title: 'Total Views',
       value: totalViews.toLocaleString(),
       icon: Eye,
-      gradient: 'from-purple-500 to-purple-600',
-      bgGradient: 'from-purple-500/20 to-purple-600/10',
-      iconBg: 'bg-purple-500/20',
-      iconColor: 'text-purple-400',
+      color: '#a855f7',
       description: 'All time',
       trend: totalViews > 100 ? '+' : ''
     },
@@ -52,10 +46,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
       title: 'Avg. Price',
       value: `$${avgPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
       icon: DollarSign,
-      gradient: 'from-rose-500 to-rose-600',
-      bgGradient: 'from-rose-500/20 to-rose-600/10',
-      iconBg: 'bg-rose-500/20',
-      iconColor: 'text-rose-400',
+      color: '#f43f5e',
       description: 'Per listing',
       trend: ''
     },
@@ -63,22 +54,19 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
       title: 'Categories',
       value: [propertiesCount, motorcyclesCount, bicyclesCount, workersCount, vehiclesCount].filter(c => c > 0).length,
       icon: Activity,
-      gradient: 'from-orange-500 to-red-500',
-      bgGradient: 'from-orange-500/20 to-red-500/10',
-      iconBg: 'bg-orange-500/20',
-      iconColor: 'text-orange-400',
+      color: '#f97316',
       description: 'Active types',
       trend: ''
     },
   ];
 
-  // Category breakdown for mini-chart
+  // Category breakdown
   const categoryBreakdown = [
-    { name: 'Properties', count: propertiesCount, icon: Home, color: 'bg-rose-500' },
-    { name: 'Motorcycles', count: motorcyclesCount, icon: MotorcycleIcon, color: 'bg-orange-500' },
-    { name: 'Bicycles', count: bicyclesCount, icon: Bike, color: 'bg-purple-500' },
-    { name: 'Services', count: workersCount, icon: Activity, color: 'bg-blue-500' },
-    { name: 'Vehicles', count: vehiclesCount, icon: Car, color: 'bg-yellow-500' },
+    { name: 'Properties', count: propertiesCount, icon: Home, color: '#f43f5e' },
+    { name: 'Motorcycles', count: motorcyclesCount, icon: MotorcycleIcon, color: '#f97316' },
+    { name: 'Bicycles', count: bicyclesCount, icon: Bike, color: '#a855f7' },
+    { name: 'Services', count: workersCount, icon: Activity, color: '#3b82f6' },
+    { name: 'Vehicles', count: vehiclesCount, icon: Car, color: '#eab308' },
   ].filter(c => c.count > 0);
 
   return (
@@ -88,45 +76,42 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
         {stats.map((stat, index) => (
           <motion.div
             key={stat.title}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.4 }}
+            transition={{ delay: index * 0.05, duration: 0.4 }}
           >
             <div className={cn(
-              "relative rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden",
+              "relative rounded-[2.2rem] shadow-2xl transition-all duration-300 overflow-hidden",
               isLight
-                ? "bg-white border border-border/50"
-                : "border border-white/[0.06] bg-white/[0.04] backdrop-blur-sm"
+                ? "bg-black/[0.03]"
+                : "bg-white/[0.04] backdrop-blur-3xl"
             )}>
-              {/* Background gradient effect */}
-              <div className={cn(
-                "absolute inset-0 opacity-20 bg-gradient-to-br",
-                stat.bgGradient
-              )} />
-
-              <div className="relative p-3 sm:p-4">
-                <div className="flex items-start justify-between gap-2">
+              <div className="relative p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <p className={cn("text-[10px] sm:text-xs font-medium uppercase tracking-wider truncate", isLight ? 'text-muted-foreground' : 'text-white/50')}>
+                    <p className={cn("text-[9px] font-black uppercase tracking-[0.25em] truncate opacity-40 italic", isLight ? 'text-black' : 'text-white')}>
                       {stat.title}
                     </p>
-                    <div className="flex items-baseline gap-1 mt-1">
-                      <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground truncate">
+                    <div className="flex items-baseline gap-1 mt-2">
+                      <h3 className={cn("text-2xl sm:text-3xl font-black tracking-tighter uppercase italic truncate", isLight ? "text-black" : "text-white")}>
                         {stat.value}
                       </h3>
                       {stat.trend && (
-                        <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-rose-400" />
+                        <TrendingUp className="w-4 h-4 text-primary" strokeWidth={3} />
                       )}
                     </div>
-                    <p className={cn("text-[10px] sm:text-xs mt-0.5 sm:mt-1", isLight ? 'text-muted-foreground' : 'text-white/40')}>
+                    <p className={cn("text-[9px] font-black uppercase tracking-[0.1em] mt-1 opacity-30 italic", isLight ? 'text-black' : 'text-white')}>
                       {stat.description}
                     </p>
                   </div>
-                  <div className={cn(
-                    "p-2.5 sm:p-3 rounded-2xl shrink-0",
-                    stat.iconBg
-                  )}>
-                    <stat.icon className={cn("w-4 h-4 sm:w-5 sm:h-5", stat.iconColor)} />
+                  <div className="relative">
+                    <div className="absolute inset-0 blur-2xl opacity-20 rounded-full" style={{ background: stat.color }} />
+                    <div className={cn(
+                        "w-12 h-12 rounded-2xl flex items-center justify-center relative z-10",
+                        isLight ? "bg-white shadow-sm" : "bg-black/40"
+                    )}>
+                        <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -138,41 +123,50 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
       {/* Category Breakdown - Only show if there are listings */}
       {totalListings > 0 && categoryBreakdown.length > 0 && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.4 }}
+          transition={{ delay: 0.25, duration: 0.4 }}
         >
           <div className={cn(
-            "rounded-3xl shadow-lg",
-            isLight ? "bg-white border border-border/50" : "bg-white/[0.04] backdrop-blur-sm border border-white/[0.06]"
+            "rounded-[2.5rem] shadow-2xl relative overflow-hidden",
+            isLight ? "bg-black/[0.03]" : "bg-white/[0.04] backdrop-blur-3xl"
           )}>
-            <div className="p-3 sm:p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className={cn("text-xs sm:text-sm font-semibold", isLight ? 'text-muted-foreground' : 'text-white/60')}>Category Breakdown</h4>
-                <span className={cn("text-[10px] sm:text-xs", isLight ? 'text-muted-foreground' : 'text-white/40')}>{totalListings} total</span>
+            <div className="p-6 sm:p-8">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className={cn("text-[10px] font-black uppercase tracking-[0.3em] italic", isLight ? 'text-black opacity-50' : 'text-white opacity-50')}>Asset Breakdown</h4>
+                <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                    <span className={cn("text-[10px] font-black uppercase tracking-widest italic opacity-40", isLight ? 'text-black' : 'text-white')}>{totalListings} Units synchronized</span>
+                </div>
               </div>
 
               {/* Progress bar showing category distribution */}
-              <div className={cn("h-2 sm:h-2.5 rounded-full overflow-hidden flex", isLight ? 'bg-secondary' : 'bg-white/[0.06]')}>
+              <div className={cn("h-1 rounded-full overflow-hidden flex", isLight ? 'bg-black/5' : 'bg-white/5')}>
                 {categoryBreakdown.map((cat, i) => (
                   <motion.div
                     key={cat.name}
-                    className={cn("h-full", cat.color)}
+                    className="h-full"
+                    style={{ backgroundColor: cat.color }}
                     initial={{ width: 0 }}
                     animate={{ width: `${(cat.count / totalListings) * 100}%` }}
-                    transition={{ delay: 0.5 + i * 0.1, duration: 0.5 }}
+                    transition={{ delay: 0.4 + i * 0.05, duration: 0.5 }}
                   />
                 ))}
               </div>
 
               {/* Category labels */}
-              <div className="flex flex-wrap gap-2 sm:gap-3 mt-3">
+              <div className="flex flex-wrap gap-x-6 gap-y-3 mt-6">
                 {categoryBreakdown.map((cat) => (
-                  <div key={cat.name} className="flex items-center gap-1.5">
-                    <div className={cn("w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full", cat.color)} />
-                    <span className={cn("text-[10px] sm:text-xs", isLight ? 'text-muted-foreground' : 'text-white/50')}>
-                      {cat.name} ({cat.count})
-                    </span>
+                  <div key={cat.name} className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full shadow-[0_0_10px_rgba(var(--color-primary-rgb),0.3)]" style={{ backgroundColor: cat.color }} />
+                    <div className="flex flex-col">
+                        <span className={cn("text-[10px] font-black uppercase tracking-widest italic leading-none", isLight ? 'text-black' : 'text-white')}>
+                        {cat.name}
+                        </span>
+                        <span className={cn("text-[8px] font-black uppercase tracking-[0.1em] opacity-30 mt-0.5", isLight ? 'text-black' : 'text-white')}>
+                        {cat.count} synchronized
+                        </span>
+                    </div>
                   </div>
                 ))}
               </div>

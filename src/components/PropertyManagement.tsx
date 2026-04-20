@@ -31,10 +31,10 @@ interface PropertyManagementProps {
 const getCategoryColor = (category: string) => {
   switch (category) {
     case 'worker':
-    case 'services': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
-    case 'motorcycle': return 'bg-orange-500/10 text-orange-500 border-orange-500/20';
-    case 'bicycle': return 'bg-purple-500/10 text-purple-500 border-purple-500/20';
-    default: return 'bg-[#EB4898]/10 text-[#EB4898] border-[#EB4898]/20';
+    case 'services': return 'text-blue-500 border-black/5';
+    case 'motorcycle': return 'text-orange-500 border-black/5';
+    case 'bicycle': return 'text-purple-500 border-black/5';
+    default: return 'text-primary border-black/5';
   }
 };
 
@@ -232,7 +232,10 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
           </div>
           <Button
             onClick={handleAddProperty}
-            className="h-18 px-10 rounded-[2rem] bg-[#EB4898] hover:bg-[#ff5bb0] text-white font-black uppercase italic tracking-[0.2em] shadow-[0_20px_40px_rgba(235,72,152,0.4)] border-none active:scale-95 transition-all text-sm"
+            className={cn(
+              "h-18 px-10 rounded-[2rem] font-black uppercase italic tracking-[0.2em] shadow-2xl border-none active:scale-95 transition-all text-sm",
+              isLight ? "bg-black text-white" : "bg-white text-black"
+            )}
           >
             <Plus className="w-6 h-6 mr-3" />
             Deploy Asset
@@ -245,21 +248,21 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         {/* Matrix Controls */}
         <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1 group">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#EB4898] opacity-50 z-10" />
+                <Search className={cn("absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 opacity-40 z-10", isLight ? "text-black" : "text-white")} />
                 <Input
                     placeholder="SCAN MATRIX..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={cn(
-                        "h-16 pl-14 pr-6 rounded-[2rem] font-black uppercase tracking-widest text-[12px] transition-all border outline-none", 
-                        isLight ? 'bg-black/5 border-black/5 text-black placeholder:text-black/20' : 'bg-white/[0.05] border-white/5 text-white placeholder:text-white/20'
+                        "h-16 pl-14 pr-6 rounded-[2rem] font-black uppercase tracking-widest text-[12px] transition-all border-none outline-none ring-0", 
+                        isLight ? 'bg-black/[0.03] text-black placeholder:text-black/20' : 'bg-white/[0.05] text-white placeholder:text-white/20'
                     )}
                 />
             </div>
             
             <div className={cn(
-                "flex items-center gap-1.5 p-2 rounded-[2.2rem] border overflow-x-auto no-scrollbar backdrop-blur-3xl",
-                isLight ? 'bg-black/5 border-black/5' : 'bg-white/[0.03] border-white/5'
+                "flex items-center gap-1.5 p-1.5 rounded-[2.2rem] overflow-x-auto no-scrollbar",
+                isLight ? 'bg-black/[0.03]' : 'bg-white/[0.03]'
             )}>
                 {tabItems.map((tab) => (
                     <button
@@ -268,13 +271,13 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                         className={cn(
                             "flex items-center gap-3 px-6 h-12 rounded-[1.8rem] transition-all whitespace-nowrap",
                             activeTab === tab.id
-                                ? "bg-[#EB4898] text-white shadow-xl shadow-[#EB4898]/20"
+                                ? (isLight ? "bg-black text-white shadow-2xl" : "bg-white text-black shadow-2xl")
                                 : isLight ? "text-black/40 hover:bg-black/5" : "text-white/30 hover:bg-white/5"
                         )}
                     >
                         <tab.icon className="w-4 h-4" />
                         <span className="text-[10px] font-black uppercase tracking-widest italic">{tab.label}</span>
-                        <span className="text-[8px] opacity-40">{tab.count}</span>
+                        {tab.count > 0 && <span className="text-[8px] opacity-40">{tab.count}</span>}
                     </button>
                 ))}
             </div>
