@@ -870,7 +870,7 @@ const ClientSwipeContainerComponent = ({
         {/* Top Controls — IN FLOW, not absolute (matches client-side pattern) */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
           <div className="relative z-50 w-full flex flex-col items-center shrink-0">
-            <div className="w-full pt-28 pb-1 px-4">
+            <div className="w-full pt-[160px] pb-1 px-4">
               <div className="w-full flex justify-between items-center gap-4">
                 {/* HUD: Back button */}
                 <button
@@ -900,8 +900,8 @@ const ClientSwipeContainerComponent = ({
                         className={cn(
                           "w-10 h-10 rounded-xl flex items-center justify-center border transition-all relative overflow-hidden",
                           isActive 
-                            ? "bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)]" 
-                            : "bg-black/40 backdrop-blur-3xl border-white/10 text-white/20"
+                            ? (isLight ? "bg-white border-black/20 text-black shadow-lg scale-110" : "bg-black/40 border-primary text-primary shadow-[0_0_15px_rgba(255,107,53,0.3)] scale-110")
+                            : (isLight ? "bg-white/50 border-black/5 text-black/30 hover:text-black/60" : "bg-black/20 border-white/10 text-white/20 hover:text-white/40")
                         )}
                       >
                         <Icon className="w-4 h-4" />

@@ -52,7 +52,8 @@ function TopBarComponent({
     borderRadius: isIvanna ? '2rem' : '1.8rem',
     boxShadow: _transparent ? 'none' : (isIvanna ? '0 10px 30px rgba(0,0,0,0.1)' : (isLight
       ? '0 10px 25px rgba(0,0,0,0.04), inset 0 0 15px rgba(255,255,255,0.2)'
-      : '0 20px 40px rgba(0,0,0,0.45), inset 0 0 15px rgba(255,255,255,0.05)')),
+      : '0 20px 40px rgba(0,0,0,0.45), inset 0 0 20px rgba(255,255,255,0.1)')),
+    border: _transparent ? 'none' : (isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.25)'),
   };
 
   const { data: profile } = useQuery({

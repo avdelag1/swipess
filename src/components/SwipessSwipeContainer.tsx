@@ -989,7 +989,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
       {/* Top Controls — IN FLOW, not absolute. Hidden when the exhausted state is showing because that view has its own large map. */}
       {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (
-        <div className="relative z-[60] w-full flex flex-col items-center shrink-0 px-4 pt-28 pb-4">
+        <div className="relative z-[60] w-full flex flex-col items-center shrink-0 px-4 pt-[160px] pb-4">
            <div className="w-full flex items-center justify-between gap-4">
               {/* Back / Reset Category */}
               <motion.button
@@ -1021,10 +1021,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                         setActiveCategory(cat.id);
                       }}
                       className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center transition-all relative overflow-hidden",
+                        "w-10 h-10 rounded-full flex items-center justify-center transition-all relative overflow-hidden border",
                         isActive 
-                          ? (isLight ? "text-black drop-shadow-[0_0_10px_rgba(0,0,0,0.15)] scale-110" : "text-primary drop-shadow-[0_0_10px_rgba(255,107,53,0.5)] scale-110")
-                          : (isLight ? "text-black/30 hover:text-black/60" : "text-white/30 hover:text-white/60")
+                          ? (isLight ? "text-black border-black/20 bg-white shadow-lg scale-110" : "text-primary border-primary bg-black/40 shadow-[0_0_15px_rgba(255,107,53,0.3)] scale-110")
+                          : (isLight ? "text-black/30 border-black/5 hover:text-black/60" : "text-white/30 border-white/10 hover:text-white/60 bg-black/20")
                       )}
                     >
                       <Icon className="w-4 h-4" />

@@ -259,7 +259,7 @@ export const BottomNavigation = memo(({
             : (isLight 
                ? '0 20px 50px -10px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.2)' 
                : '0 30px 80px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.05)'),
-          border: 'none',
+          border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1.5px solid rgba(255,255,255,0.2)',
         }}
       >
         {/* LAYER 3: Animated liquid highlight — the bar "shines" like glass */}
@@ -388,9 +388,12 @@ export const BottomNavigation = memo(({
                         : iconColorInactive,
                       fill: active ? activeColor : 'none',
                       strokeWidth: active ? 1.8 : 1.5,
-                      filter: active ? 'drop-shadow(0 0 4px rgba(255,107,53,0.3))' : 'none',
+                      filter: active ? (isLight ? 'drop-shadow(0 0 8px rgba(0,0,0,0.15))' : 'drop-shadow(0 0 12px rgba(255,107,53,0.6))') : 'none',
                     }}
                   />
+                  {active && !isLight && (
+                    <div className="absolute inset-0 bg-brand-primary/20 blur-xl rounded-full scale-150 -z-10" />
+                  )}
                 </motion.div>
                 {/* Label: Natural height, no clipping */}
                 {!isNarrow && (
