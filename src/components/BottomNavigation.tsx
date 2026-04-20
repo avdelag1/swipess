@@ -244,19 +244,17 @@ export const BottomNavigation = memo(({
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className="pointer-events-auto w-full max-w-sm md:max-w-2xl lg:max-w-4xl mx-auto glass-pill-nav px-1 shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
+        className="pointer-events-auto w-full max-w-[440px] mx-auto glass-pill-nav px-1.5 shadow-[0_30px_80px_rgba(0,0,0,0.5)] border-t border-white/20"
         style={{
-          background: isLight ? 'rgba(255, 255, 255, 0.75)' : 'rgba(10, 10, 11, 0.75)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(24px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          borderRadius: '2.5rem',
-          transform: 'translateZ(0)',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          position: 'relative',
-          overflow: 'hidden',
-          zIndex: 1000,
+          background: 'rgba(15, 15, 20, 0.12)',
+          backdropFilter: 'blur(40px) saturate(180%) contrast(1.1)',
+          WebkitBackdropFilter: 'blur(40px) saturate(180%) contrast(1.1)',
+          borderRadius: '3rem',
+          padding: '4px',
+          boxShadow: isLight 
+            ? '0 20px 50px -10px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.2)' 
+            : '0 30px 80px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.05)',
+          border: isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.15)',
         }}
       >
         {/* LAYER 3: Animated liquid highlight — the bar "shines" like glass */}
@@ -336,42 +334,33 @@ export const BottomNavigation = memo(({
                   'touch-manipulation focus-visible:outline-none transform-gpu active:bg-white/10',
                 )}
                 style={{
-                  minWidth: isTablet ? '100px' : (isNarrow ? '58px' : '68px'),
+                  minWidth: isTablet ? '100px' : (isNarrow ? '54px' : '64px'),
                   scrollSnapAlign: 'start',
                   minHeight: isTablet ? TOUCH_TARGET_TABLET : TOUCH_TARGET,
                   padding: isTablet ? '8px 12px' : '6px 8px',
-                  background: active ? (isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)') : 'transparent',
-                  backdropFilter: active ? 'blur(10px)' : 'none',
-                  WebkitBackdropFilter: active ? 'blur(10px)' : 'none',
-                  border: 'none',
-                  boxShadow: 'none',
+                  borderRadius: '3rem',
                   cursor: 'pointer',
                   flexShrink: 0,
                   touchAction: 'manipulation',
                   userSelect: 'none',
                   WebkitUserSelect: 'none' as any,
-                  transition: 'all 0.4s cubic-bezier(0.32, 0.72, 0, 1)',
+                  transition: 'all 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
               >
+                {/* ── Active Background Indicator — Unified Sliding Feel ── */}
                 {active && (
                   <motion.div
-                    layoutId="nav-pill"
-                    className="absolute inset-[4px] rounded-2xl z-0 pointer-events-none"
-                    initial={false}
-                    transition={{
-                      type: 'spring',
-                      stiffness: 850, // SLINGSHOT
-                      damping: 38,
-                      mass: 0.6,
-                    }}
-                     style={{
-                       background: 'transparent',
-                       boxShadow: 'none',
-                     }}
+                    layoutId="nav-active-pill"
+                    className={cn(
+                      "absolute inset-1.5 rounded-[2rem] z-0",
+                      isLight ? "bg-black/10 border-black/5" : "bg-white/10 border-white/10"
+                    )}
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
+
                 <motion.div
-                  className="relative"
+                  className="relative z-10"
                   animate={{ scale: active ? 1.15 : 1 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.6 }}
                   style={{ zIndex: 1, display: 'flex', alignItems: 'center', justifyItems: 'center' }}

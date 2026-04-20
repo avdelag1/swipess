@@ -199,7 +199,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
     >
       <div className="flex-1 flex flex-col p-4 pt-0 sm:p-8 sm:pt-0 max-w-7xl mx-auto w-full">
         {/* Category tabs and Sync button */}
-        <div className="flex items-center justify-between gap-4 mb-6 pb-2 pt-6">
+        <div className="flex items-center justify-between gap-4 mb-6 pb-2 pt-20">
           <div className="flex-1 flex gap-3 overflow-x-auto scrollbar-hide no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             {categories.map(({ id, label, icon: Icon }) => (
               <motion.button
@@ -211,7 +211,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                   selectedCategory === id
                     ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-lg shadow-[var(--color-brand-accent-2)]/20"
                     : isLight
-                    ? "bg-card border-border/60 text-foreground hover:bg-secondary shadow-sm"
+                    ? "bg-card border-border/60 text-black font-black hover:bg-secondary shadow-sm"
                     : "bg-white/[0.04] border-white/[0.08] text-muted-foreground hover:text-foreground hover:bg-white/[0.08]"
                 )}
               >

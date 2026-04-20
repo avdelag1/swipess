@@ -225,18 +225,6 @@ button:active, [role="button"]:active {
 .layout-padding-top { padding-top: calc(var(--top-bar-height) + var(--safe-top, 12px) + 20px); }
 .layout-padding-bottom { padding-bottom: calc(80px + var(--safe-bottom, 0px)); }
 
-.glass-pill-nav {
-  background: transparent !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-  border: none !important;
-  border-radius: 9999px;
-  box-shadow: none !important;
-}
+/* Removed legacy glass-pill-nav overrides to allow localized Liquid Glass styling */
 
-.dark .glass-pill-nav {
-  background: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-}
 

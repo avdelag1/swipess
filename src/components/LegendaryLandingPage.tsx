@@ -115,14 +115,14 @@ const LandingView = memo(({
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-[2rem] bg-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(255,77,0,0.3)] active:scale-[0.97] transition-all flex items-center justify-center gap-3"
+          className="w-full h-14 rounded-[2rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(255,255,255,0.15)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/50"
         >
           <LogIn className="w-4 h-4" />
           Sign In
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          className="w-full h-14 rounded-[2rem] bg-white/10 backdrop-blur-md border border-white/15 text-white font-black uppercase tracking-[0.25em] text-[12px] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:bg-white/15"
+          className="w-full h-14 rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/20 text-white font-black uppercase tracking-[0.25em] text-[12px] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:bg-white/10 shadow-xl"
         >
           <Sparkles className="w-4 h-4" />
           Create Account
@@ -143,10 +143,10 @@ const LandingView = memo(({
 const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="group flex h-[52px] w-full items-center justify-center gap-3 rounded-2xl bg-white text-black active:scale-[0.97] transition-all shadow-lg"
+    className="group flex h-[56px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white text-black active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.2)] border border-white/50"
   >
     <AppleIcon />
-    <span className="text-[14px] font-semibold tracking-tight">
+    <span className="text-[14px] font-black uppercase tracking-widest leading-none pt-0.5">
       Sign in with Apple
     </span>
   </button>
@@ -155,10 +155,10 @@ const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
 const GoogleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="group flex h-[52px] w-full items-center justify-center gap-3 rounded-2xl bg-[#0a0a0b] border border-white/15 hover:border-white/25 active:scale-[0.97] transition-all shadow-lg"
+    className="group flex h-[56px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-black/40 backdrop-blur-xl border border-white/15 hover:border-white/30 active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.3)]"
   >
     <GoogleIcon />
-    <span className="text-[14px] font-semibold tracking-tight text-white">
+    <span className="text-[14px] font-black uppercase tracking-widest text-white leading-none pt-0.5">
       Continue with Google
     </span>
   </button>
@@ -300,15 +300,15 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           ) : (
             <>
               {/* ─── Fix #1: Prominent Login / Sign Up tab toggle ─── */}
-              <div className="flex items-center justify-center gap-1 bg-white/5 rounded-2xl p-1 mb-3">
+              <div className="flex items-center justify-center gap-1.5 bg-black/40 backdrop-blur-md rounded-[1.8rem] p-1.5 mb-4 border border-white/5">
                 <button
                   type="button"
                   onClick={() => { triggerHaptic('light'); setIsLogin(true); setFieldErrors({}); }}
                   className={cn(
-                    "flex-1 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.15em] transition-all",
+                    "flex-1 py-3 rounded-[1.4rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300",
                     isLogin
-                      ? "bg-[#FF4D00] text-white shadow-lg"
-                      : "text-white/40 hover:text-white/60"
+                      ? "bg-white text-black shadow-[0_5px_15px_rgba(255,255,255,0.2)] scale-[1.02]"
+                      : "text-white/30 hover:text-white/50"
                   )}
                 >
                   Sign In
@@ -317,10 +317,10 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                   type="button"
                   onClick={() => { triggerHaptic('light'); setIsLogin(false); setFieldErrors({}); }}
                   className={cn(
-                    "flex-1 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.15em] transition-all",
+                    "flex-1 py-3 rounded-[1.4rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300",
                     !isLogin
-                      ? "bg-[#FF4D00] text-white shadow-lg"
-                      : "text-white/40 hover:text-white/60"
+                      ? "bg-white text-black shadow-[0_5px_15px_rgba(255,255,255,0.2)] scale-[1.02]"
+                      : "text-white/30 hover:text-white/50"
                   )}
                 >
                   Sign Up
@@ -442,11 +442,11 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-[52px] rounded-2xl bg-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[13px] shadow-[0_12px_40px_rgba(255,77,0,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 border-none mt-3 disabled:opacity-60 disabled:pointer-events-none"
+            className="w-full h-[58px] rounded-[1.5rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[13px] shadow-[0_15px_35px_rgba(255,255,255,0.15)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 border border-white/50 mt-4 disabled:opacity-60 disabled:pointer-events-none"
           >
             <Sparkles className="w-4 h-4" />
-            <span className="drop-shadow-md">
-              {isLoading ? 'Please wait...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Create Account'}
+            <span className="drop-shadow-sm">
+              {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Create Account'}
             </span>
           </button>
         </form>

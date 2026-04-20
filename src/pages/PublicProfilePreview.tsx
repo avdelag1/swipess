@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -20,6 +21,8 @@ export default function PublicProfilePreview() {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isIvanna = theme === 'ivanna-style';
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imgLoaded, setImgLoaded] = useState(false);
 
@@ -133,7 +136,10 @@ export default function PublicProfilePreview() {
 
   // ── Main Render ────────────────────────────────────────────────────
   return (
-    <div className="fixed inset-0 overflow-hidden bg-black">
+    <div className={cn(
+      "fixed inset-0 overflow-hidden",
+      isIvanna ? "bg-ivanna-parchment ivanna-style" : "bg-black"
+    )}>
 
       {/* ── BACKGROUND IMAGE ─────────────────────────────────────────── */}
       <div className="absolute inset-0">
@@ -247,7 +253,12 @@ export default function PublicProfilePreview() {
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-          className="bg-background/92 backdrop-blur-2xl rounded-t-[28px] border-t border-white/10 shadow-[0_-20px_60px_rgba(0,0,0,0.4)]"
+          className={cn(
+             "rounded-t-[28px] border-t shadow-[0_-20px_60px_rgba(0,0,0,0.4)] transition-all duration-500",
+             isIvanna 
+               ? "bg-white border-t-6 border-black" 
+               : "bg-background/92 backdrop-blur-2xl border-white/10"
+          )}
         >
           {/* Handle */}
           <div className="flex justify-center pt-3 pb-1">

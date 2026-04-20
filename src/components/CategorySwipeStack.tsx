@@ -218,7 +218,7 @@ function CategoryCard({
     // No "Poker Hand" fan to avoid the "mess"
     const fanRotation = 0; // Vertical stack, no rotation
     const fanX = 0; 
-    const fanY = index * -8; // Tighter vertical stack to save space
+    const fanY = index * 12; // Peeking from bottom for 'One Behind Another' consistency
     
     // Drag transformations
     const tilt = useTransform(x, [-150, 0, 150], [-10, 0, 10]);
@@ -342,7 +342,7 @@ function CategoryCard({
                 "absolute flex flex-col items-center justify-center select-none overflow-hidden",
                 "transition-[filter,transform] duration-300 gpu-ultra isolation-isolate",
                 isTop ? "cursor-grab active:cursor-grabbing shadow-2xl" : "cursor-pointer",
-                !isTop && "blur-[1px] brightness-75", // Depth effect for back cards
+                !isTop && "opacity-90 blur-[0.6px]", // Depth effect but keeping label visible
                 theme === 'ivanna-style' 
                   ? "bg-card rounded-[20px_24px_22px_26px_/_26px_22px_24px_20px] shadow-artisan" 
                   : "bg-black border border-white/10 rounded-[32px]",

@@ -270,9 +270,12 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                       onChange({ ...filters, clientType: option.id as any });
                     }
                   }}
+                  className={cn(
                     smoothButtonClass, 
-                    'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
-                    isActive ? 'border-orange-500 shadow-lg scale-[1.03]' : 'border-border/40 opacity-90'
+                    'relative flex-shrink-0 w-32 h-52 rounded-[3rem] overflow-hidden border-2 transition-all duration-200 group',
+                    isActive 
+                      ? (theme === 'ivanna-style' ? 'border-[#111111] shadow-[4px_4px_0px_#111111] scale-[1.03]' : 'border-orange-500 shadow-lg scale-[1.03]') 
+                      : (theme === 'ivanna-style' ? 'border-[#111111]/20 opacity-90' : 'border-border/40 opacity-90')
                   )}
                   style={{ contain: 'paint', willChange: 'transform, opacity' }}
                 >
@@ -349,8 +352,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             }}
             className={cn(
               smoothButtonClass, 
-              'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
-              clientIsAllSelected ? 'border-orange-500 shadow-lg scale-[1.03]' : 'border-border/40 opacity-90'
+              'relative flex-shrink-0 w-32 h-52 rounded-[3rem] overflow-hidden border-2 transition-all duration-200 group',
+              clientIsAllSelected 
+                ? (theme === 'ivanna-style' ? 'border-[#111111] shadow-[4px_4px_0px_#111111] scale-[1.03]' : 'border-orange-500 shadow-lg scale-[1.03]') 
+                : (theme === 'ivanna-style' ? 'border-[#111111]/20 opacity-90' : 'border-border/40 opacity-90')
             )}
             style={{ contain: 'paint', willChange: 'transform, opacity' }}
           >
@@ -381,8 +386,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 onClick={() => handleCategorySelect(category.id)}
                 className={cn(
                   smoothButtonClass, 
-                  'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border-2 transition-all duration-200 group',
-                  isActive ? 'border-orange-500 shadow-lg scale-[1.03]' : 'border-border/40 opacity-90'
+                  'relative flex-shrink-0 w-32 h-52 rounded-[3rem] overflow-hidden border-2 transition-all duration-200 group',
+                  isActive 
+                    ? (theme === 'ivanna-style' ? 'border-[#111111] shadow-[4px_4px_0px_#111111] scale-[1.03]' : 'border-orange-500 shadow-lg scale-[1.03]') 
+                    : (theme === 'ivanna-style' ? 'border-[#111111]/20 opacity-90' : 'border-border/40 opacity-90')
                 )}
                 style={{ contain: 'paint', willChange: 'transform, opacity' }}
               >

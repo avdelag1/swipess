@@ -70,6 +70,7 @@ const OwnerSavedSearches = lazyWithRetry(() => import("./pages/OwnerSavedSearche
 const OwnerContracts = lazyWithRetry(() => import("./pages/OwnerContracts"));
 const OwnerProfileCamera = lazyWithRetry(() => import("./pages/OwnerProfileCamera"));
 const OwnerListingCamera = lazyWithRetry(() => import("./pages/OwnerListingCamera"));
+const OwnerFilters = lazyWithRetry(() => import("./pages/OwnerFilters"));
 
 // SHARED PAGES
 const MessagingDashboard = lazyWithRetry(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
@@ -161,6 +162,7 @@ const App = ({ authPromise }: { authPromise?: Promise<any> }) => {
               <Route path="/owner/legal-services" element={<OwnerLawyerServices />} />
               <Route path="/owner/camera" element={<OwnerProfileCamera />} />
               <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
+              <Route path="/owner/filters" element={<OwnerFilters />} />
 
               {/* Shared routes */}
               <Route path="/messages" element={<MessagingDashboard />} />

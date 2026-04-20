@@ -200,7 +200,7 @@ export function MessagingDashboard() {
 
       <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={userRole} variant="conversation-limit" />
       
-      <div className="w-full max-w-4xl mx-auto px-6 pt-16 pb-48 relative z-10 space-y-12">
+      <div className="w-full max-w-4xl mx-auto px-6 pt-20 pb-48 relative z-10 space-y-12">
         
         {/* 🛸 HEADER: MEGA NEXUS SYNC */}
         <div className="flex items-center gap-6">
@@ -241,7 +241,7 @@ export function MessagingDashboard() {
                   "flex items-center gap-3 px-8 h-12 rounded-[1.8rem] text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border",
                   activeFilter === filter.id
                     ? "bg-[#EB4898] text-white border-[#EB4898] shadow-2xl shadow-[#EB4898]/30"
-                    : isLight ? "bg-black/5 border-black/5 text-black/40 hover:bg-black/10" : "bg-white/[0.04] border-white/5 text-white/30 hover:bg-white/10"
+                    : isLight ? "bg-black/5 border-black/5 text-black font-black hover:bg-black/10" : "bg-white/[0.04] border-white/5 text-white/30 hover:bg-white/10"
                 )}
               >
                 <filter.icon className="w-4 h-4" />

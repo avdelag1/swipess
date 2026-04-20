@@ -14,6 +14,7 @@ import { WorkerClientFilters } from '@/components/filters/WorkerClientFilters';
 import { useTheme } from '@/hooks/useTheme';
 import { getCategoryTextColorClass } from '@/types/filters';
 import { cn } from '@/lib/utils';
+import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
 
 interface AdvancedFiltersProps {
   isOpen: boolean;
@@ -250,32 +251,72 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
                 transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
               >
                 {activeCategory === 'property' && (
-                  <PropertyClientFilters
-                    onApply={(filters) => handleApplyFilters('property', filters)}
-                    initialFilters={categoryFilters.property}
-                    activeCount={filterCounts.property}
-                  />
+                  userRole === 'owner' ? (
+                    <DiscoveryFilters
+                      category="property"
+                      onApply={(filters) => handleApplyFilters('property', filters)}
+                      initialFilters={categoryFilters.property}
+                      activeCount={filterCounts.property}
+                      hideApplyButton={true}
+                    />
+                  ) : (
+                    <PropertyClientFilters
+                      onApply={(filters) => handleApplyFilters('property', filters)}
+                      initialFilters={categoryFilters.property}
+                      activeCount={filterCounts.property}
+                    />
+                  )
                 )}
                 {activeCategory === 'motorcycle' && (
-                  <MotoClientFilters
-                    onApply={(filters) => handleApplyFilters('motorcycle', filters)}
-                    initialFilters={categoryFilters.motorcycle}
-                    activeCount={filterCounts.motorcycle}
-                  />
+                  userRole === 'owner' ? (
+                    <DiscoveryFilters
+                      category="motorcycle"
+                      onApply={(filters) => handleApplyFilters('motorcycle', filters)}
+                      initialFilters={categoryFilters.motorcycle}
+                      activeCount={filterCounts.motorcycle}
+                      hideApplyButton={true}
+                    />
+                  ) : (
+                    <MotoClientFilters
+                      onApply={(filters) => handleApplyFilters('motorcycle', filters)}
+                      initialFilters={categoryFilters.motorcycle}
+                      activeCount={filterCounts.motorcycle}
+                    />
+                  )
                 )}
                 {activeCategory === 'bicycle' && (
-                  <BicycleClientFilters
-                    onApply={(filters) => handleApplyFilters('bicycle', filters)}
-                    initialFilters={categoryFilters.bicycle}
-                    activeCount={filterCounts.bicycle}
-                  />
+                  userRole === 'owner' ? (
+                    <DiscoveryFilters
+                      category="bicycle"
+                      onApply={(filters) => handleApplyFilters('bicycle', filters)}
+                      initialFilters={categoryFilters.bicycle}
+                      activeCount={filterCounts.bicycle}
+                      hideApplyButton={true}
+                    />
+                  ) : (
+                    <BicycleClientFilters
+                      onApply={(filters) => handleApplyFilters('bicycle', filters)}
+                      initialFilters={categoryFilters.bicycle}
+                      activeCount={filterCounts.bicycle}
+                    />
+                  )
                 )}
                 {activeCategory === 'services' && (
-                  <WorkerClientFilters
-                    onApply={(filters) => handleApplyFilters('services', filters)}
-                    initialFilters={categoryFilters.services}
-                    activeCount={filterCounts.services}
-                  />
+                  userRole === 'owner' ? (
+                    <DiscoveryFilters
+                      category="service"
+                      onApply={(filters) => handleApplyFilters('services', filters)}
+                      initialFilters={categoryFilters.services}
+                      activeCount={filterCounts.services}
+                      hideApplyButton={true}
+                    />
+                  ) : (
+                    <WorkerClientFilters
+                      onApply={(filters) => handleApplyFilters('services', filters)}
+                      initialFilters={categoryFilters.services}
+                      activeCount={filterCounts.services}
+                    />
+                  )
                 )}
               </motion.div>
             </AnimatePresence>

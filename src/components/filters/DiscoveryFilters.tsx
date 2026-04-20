@@ -65,9 +65,10 @@ interface DiscoveryFiltersProps {
   onApply: (filters: any) => void;
   initialFilters?: any;
   activeCount: number;
+  hideApplyButton?: boolean;
 }
 
-export function DiscoveryFilters({ category, onApply, initialFilters = {}, activeCount: _activeCount }: DiscoveryFiltersProps) {
+export function DiscoveryFilters({ category, onApply, initialFilters = {}, activeCount: _activeCount, hideApplyButton = false }: DiscoveryFiltersProps) {
   const savePreferencesMutation = useSaveClientFilterPreferences();
   const radiusKm = useFilterStore(s => s.radiusKm);
   const setRadiusKm = useFilterStore(s => s.setRadiusKm);
@@ -372,9 +373,11 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
         </Card>
       )}
 
-      <Button onClick={_handleApply} className="w-full h-14 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20">
-        Apply Discovery Scope
-      </Button>
+      {!hideApplyButton && (
+        <Button onClick={_handleApply} className="w-full h-14 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20">
+          Apply Discovery Scope
+        </Button>
+      )}
     </div>
   );
 }

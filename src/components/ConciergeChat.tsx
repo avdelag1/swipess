@@ -301,7 +301,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
           exit={{ opacity: 0, y: 100 }}
           className={cn(
             "fixed inset-0 z-[10000] flex flex-col overflow-hidden transition-colors duration-500",
-            isNexus ? "bg-black nexus-style" : (isIvanna ? "ivanna-style bg-transparent" : "bg-background")
+            isNexus ? "bg-black nexus-style" : (isIvanna ? "ivanna-style bg-transparent ivanna-bg-masterpiece" : "bg-background")
           )}
         >
           {/* Background Ambient */}
@@ -313,7 +313,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
           )}
 
           {isIvanna && (
-             <div className="absolute inset-0 pointer-events-none opacity-20 bg-primary/5 blur-[80px]" />
+             <div className="absolute inset-0 pointer-events-none ivanna-ai-wash opacity-60" />
           )}
 
           {!hasAcceptedPrivacy ? (
@@ -355,7 +355,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
               {/* Header */}
               <div className={cn(
                 "h-16 flex items-center justify-between px-5 border-b backdrop-blur-xl transition-all",
-                isNexus ? "border-white/5 bg-black/40" : (isIvanna ? "border-foreground bg-white/20" : "border-border bg-background/80")
+                isNexus ? "border-white/5 bg-black/40" : (isIvanna ? "border-black/10 bg-transparent" : "border-border bg-background/80")
               )}>
                 <div className="flex items-center gap-3">
                   <div className={cn(
@@ -441,7 +441,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
               {/* Input Area */}
               <div className={cn(
                  "p-4 border-t pb-[calc(env(safe-area-inset-bottom,0px)+16px)] transition-all",
-                 isNexus ? "bg-black border-white/5" : (isIvanna ? "bg-transparent border-foreground/10" : "bg-background border-border")
+                 isNexus ? "bg-black border-white/5" : (isIvanna ? "bg-transparent border-black/10" : "bg-background border-border")
               )}>
                 <div className={cn(
                   "nexus-panel p-1.5 nexus-glass relative overflow-hidden group transition-all",

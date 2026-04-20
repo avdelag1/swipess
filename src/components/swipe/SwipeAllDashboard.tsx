@@ -39,17 +39,13 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
   }, [setCategories, navigate]);
 
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
-    triggerHaptic('light');
+    triggerHaptic('medium');
     uiSounds.playCardSwipe(direction);
     setCards(prev => {
       if (prev[0].id !== id) return prev;
       const next = [...prev];
-      if (direction === 'left') {
-        const [front] = next.splice(0, 1);
-        return [...next, front];
-      }
-      const last = next.pop()!;
-      return [last, ...next];
+      const [current] = next.splice(0, 1);
+      return [...next, current];
     });
   }, []);
 
@@ -81,7 +77,6 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
       >
       {[...cards].reverse().map((card, reversedIdx) => {
           const index = cards.length - 1 - reversedIdx;
-          if (index > 3) return null;
           const isTop = index === 0;
           return (
             <PokerCategoryCard

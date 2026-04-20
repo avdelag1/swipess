@@ -89,7 +89,10 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
         <AdvancedFiltersDialog
           isOpen={store.showFilters}
           onClose={() => store.setModal('showFilters', false)}
-          onApplyFilters={() => {}}
+          onApplyFilters={(filters) => {
+            const { setFilters } = useFilterStore.getState();
+            setFilters(filters);
+          }}
           userRole={userRole}
           currentFilters={{}}
         />

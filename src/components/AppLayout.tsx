@@ -81,17 +81,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [isCameraRoute, isRadioRoute, showAIChat, modalStore.showMapFullscreen]);
 
   const handleFilterClick = () => {
-    if (location.pathname === '/client/dashboard') {
-      window.dispatchEvent(new CustomEvent('open-client-filters'));
-      return;
-    }
-    if (location.pathname === '/owner/dashboard') {
-      window.dispatchEvent(new CustomEvent('open-owner-filters'));
-      return;
-    }
-
-    if (userRole === 'owner') navigate('/owner/filters');
-    else navigate('/client/filters');
+    modalStore.setModal('showFilters', true);
   };
 
   const handleListingsClick = () => {
@@ -130,11 +120,13 @@ export function AppLayout({ children }: AppLayoutProps) {
       <main
         id="main-content"
         className={cn(
-          "w-full flex-1 relative z-0",
+          "w-full flex-1 relative z-0 flex flex-col items-center",
           isFullScreen && "h-screen overflow-hidden fixed inset-0"
         )}
       >
-        {children}
+        <div className="w-full max-w-xl mx-auto flex-1 flex flex-col">
+          {children}
+        </div>
       </main>
 
       <VapIdCardModal

@@ -57,7 +57,10 @@ const ClientProfile = () => {
   }
 
   return (
-    <div className={cn("min-h-full w-full transition-colors duration-500", isLight ? "bg-white text-black" : "bg-[#0a0a0c] text-white")}>
+    <div className={cn(
+      "min-h-full w-full transition-colors duration-500",
+      theme === 'ivanna-style' ? "bg-transparent ivanna-style" : (isLight ? "bg-white text-black" : "bg-[#0a0a0c] text-white")
+    )}>
       {/* 🛸 CINEMATIC BACKGROUND GLOW */}
       <AnimatePresence>
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -74,7 +77,7 @@ const ClientProfile = () => {
         </div>
       </AnimatePresence>
 
-      <div className="w-full max-w-lg mx-auto p-6 pt-12 pb-48 space-y-12 relative z-10">
+      <div className="w-full max-w-lg mx-auto p-6 pt-20 pb-48 space-y-8 relative z-10">
         
         {/* 🛸 HERO HEADER: MEGA AVATAR CYCLE */}
         <div className="flex flex-col items-center text-center gap-6">
@@ -83,16 +86,18 @@ const ClientProfile = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className={cn(
-                 "w-36 h-36 rounded-[3.2rem] p-[4px] bg-gradient-to-br from-[#EB4898] via-orange-500 to-amber-400 shadow-2xl transition-all",
-                 isLight ? "shadow-orange-200/50" : "shadow-[0_0_60px_rgba(235,72,152,0.4)]"
+                 "w-44 h-44 transition-all duration-500",
+                 theme === 'ivanna-style' 
+                   ? "rounded-[2.5rem] border-6 border-black shadow-artisan p-1 bg-white" 
+                   : "rounded-[3.2rem] p-[4px] bg-gradient-to-br from-[#EB4898] via-orange-500 to-amber-400 shadow-2xl"
               )}
             >
               <div
                 className={cn(
-                   "w-full h-full rounded-[3.1rem] overflow-hidden cursor-pointer flex items-center justify-center border",
-                   isLight ? "bg-white border-black/5" : "bg-[#0d0d0f] border-white/10"
+                   "w-full h-full overflow-hidden cursor-pointer flex items-center justify-center",
+                   theme === 'ivanna-style' ? "rounded-[2rem] bg-ivanna-parchment" : "rounded-[3.1rem] bg-[#0d0d0f] border border-white/10"
                 )}
-                onClick={() => { triggerHaptic('light'); if (profile?.profile_images?.length) { handlePhotoClick(0); } else { setShowEditDialog(true); } }}
+                onClick={() => { haptics.tap(); if (profile?.profile_images?.length) { handlePhotoClick(0); } else { setShowEditDialog(true); } }}
               >
                 {profile?.profile_images?.[0] ? (
                   <img src={profile.profile_images[0]} alt="Profile" className="w-full h-full object-cover" />
@@ -101,23 +106,35 @@ const ClientProfile = () => {
                 )}
               </div>
             </motion.div>
+            
             <button
-              onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
+              onClick={() => { haptics.tap(); setShowEditDialog(true); }}
               className={cn(
-                 "absolute -bottom-1 -right-1 w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xl transition-all active:scale-90 border-[4px] z-20",
-                 isLight ? "bg-black text-white border-white" : "bg-white text-black border-[#0d0d0f]"
+                "absolute -bottom-2 -right-2 w-14 h-14 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20",
+                theme === 'ivanna-style' 
+                  ? "bg-white border-4 border-black font-black rounded-2xl shadow-artisan text-black" 
+                  : "bg-brand-primary text-white rounded-3xl shadow-xl"
               )}
             >
-              <Camera className="w-5 h-5" />
+              <Camera className="w-6 h-6" />
             </button>
           </div>
-          
+
           <div className="space-y-2">
-            <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
+            <h1 className={cn(
+              "text-5xl font-black uppercase italic tracking-tighter leading-none transition-all",
+              theme === 'ivanna-style' ? "text-black drop-shadow-sm" : (isLight ? "text-black" : "text-white")
+            )}>
               {profile?.name || 'Profile'}
             </h1>
-            <div className="bg-[#EB4898]/10 px-4 py-1.5 rounded-full border border-[#EB4898]/20 inline-block">
-               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#EB4898] italic">{user?.email}</span>
+            <div className={cn(
+              "px-4 py-1.5 rounded-full inline-block transition-all",
+              theme === 'ivanna-style' ? "bg-white border-2 border-black shadow-artisan" : "bg-[#EB4898]/10 border border-[#EB4898]/20"
+            )}>
+               <span className={cn(
+                 "text-[10px] font-black uppercase tracking-[0.3em] italic",
+                 theme === 'ivanna-style' ? "text-black" : "text-[#EB4898]"
+               )}>{user?.email}</span>
             </div>
           </div>
         </div>

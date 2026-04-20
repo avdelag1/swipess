@@ -1,4 +1,5 @@
 import { memo, useCallback, useRef, useState, useEffect } from 'react';
+import { ThumbsUp, Sparkles, X } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
@@ -81,10 +82,10 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
 
   // Stack styling
   // Stack styling — 🚀 NEXUS v14.0 Reveal Logic
-  const stackY = isCollapsed ? 0 : index * 12; // Deeper stack
+  const stackY = index * 12; // Deeper stack peeking from bottom
   const stackScale = 1 - (index * 0.04);
-  const stackOpacity = index === 0 ? 1 : index === 1 ? 1 : index === 2 ? 0.6 : 0;
-  const stackedFilter = isTop ? undefined : `brightness(${0.85 - index * 0.1}) blur(${index * 2}px)`;
+  const stackOpacity = index === 0 ? 1 : index === 1 ? 0.9 : index === 2 ? 0.65 : index === 3 ? 0.35 : 0;
+  const stackedFilter = isTop ? undefined : `brightness(${0.92 - index * 0.1}) blur(${index * 1.5}px)`;
 
   if (index > 3) return null;
 
@@ -140,6 +141,48 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
           ? "bg-card rounded-[20px_24px_22px_26px_/_26px_22px_24px_20px] shadow-artisan" 
           : "bg-black border border-white/5 rounded-[2.5rem] shadow-2xl"
       )}>
+        {/* 🛸 DASHBOARD HEADER OVERLAY: Replicating Owner Design */}
+        {isTop && (
+          <div className="absolute top-6 inset-x-6 z-[60] flex items-center justify-center">
+            <div className={cn(
+              "w-full h-[72px] rounded-[1.8rem] flex items-center gap-4 px-6 shadow-2xl transition-all duration-500",
+              theme === 'ivanna-style' 
+                ? "bg-ivanna-parchment border-4 border-black" 
+                : "bg-white/95 backdrop-blur-xl border border-black/5"
+            )}>
+              {/* Icon Chip */}
+              <div className={cn(
+                "w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner",
+                card.id.includes('owner') || card.id === 'all-clients' 
+                  ? "bg-[#EB4898]/10 text-[#EB4898]" 
+                  : "bg-indigo-500/10 text-indigo-500"
+              )}>
+                {card.id.includes('owner') || card.id === 'all-clients' ? (
+                   <ThumbsUp className="w-6 h-6" />
+                ) : (
+                   <Sparkles className="w-6 h-6" />
+                )}
+              </div>
+
+              {/* Text content */}
+              <div className="flex-1 min-w-0">
+                <h4 className="text-black font-black text-sm uppercase tracking-tight truncate leading-tight">
+                  {card.id.includes('owner') || card.id === 'all-clients' ? 'Owner Dashboard' : 'Client Dashboard'}
+                </h4>
+                <p className="text-black/50 text-[10px] font-bold uppercase tracking-wider truncate">
+                  {card.id.includes('owner') || card.id === 'all-clients' 
+                    ? 'Managing listings and discovering clients' 
+                    : 'Discovering deals, services and properties'}
+                </p>
+              </div>
+
+              {/* Close Button Artifact */}
+              <div className="w-9 h-9 rounded-full bg-black/5 flex items-center justify-center opacity-30">
+                 <X className="w-4 h-4 text-black" />
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Photo & Gradient Base */}
         <motion.img

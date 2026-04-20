@@ -13,6 +13,7 @@ import { useHasPremiumFeature } from '@/hooks/useSubscription';
 import { Listing } from '@/hooks/useListings';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
+import { useTheme } from '@/hooks/useTheme';
 
 interface PropertyDetailsProps {
   listingId: string | null;
@@ -22,6 +23,8 @@ interface PropertyDetailsProps {
 }
 
 export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: PropertyDetailsProps) {
+  const { theme } = useTheme();
+  const isIvanna = theme === 'ivanna-style';
   const swipeMutation = useSwipe();
   const hasPremiumMessaging = useHasPremiumFeature('messaging');
   const [galleryState, setGalleryState] = useState<{
@@ -94,10 +97,15 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
+      <DialogContent className={cn(
+        "flex flex-col p-0 transition-all duration-700",
+        isIvanna 
+          ? "max-w-none w-full h-[100dvh] rounded-none border-none bg-transparent overflow-hidden" 
+          : "max-w-4xl h-[90vh]"
+      )}>
         {isLoading ? (
-          <div className="p-6 space-y-4">
-            <Skeleton className="h-64 w-full rounded-lg" />
+          <div className={cn("p-6 space-y-4", isIvanna && "pt-safe-top")}>
+            <Skeleton className={cn("h-64 w-full", isIvanna ? "rounded-none border-4 border-black" : "rounded-lg")} />
             <Skeleton className="h-8 w-3/4" />
             <Skeleton className="h-4 w-1/2" />
             <div className="flex gap-2">
@@ -112,132 +120,160 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
               <DialogTitle>Property Details</DialogTitle>
             </DialogHeader>
             
-            {/* Full Screen Image Gallery */}
             <div 
-              className="relative h-[60vh] overflow-hidden cursor-pointer group"
+              className={cn(
+                "relative overflow-hidden cursor-pointer group",
+                isIvanna ? "h-[50vh] border-b-6 border-black" : "h-[60vh]"
+              )}
               onClick={() => handleImageClick(listing, 0)}
             >
               <img
                 src={listing.images?.[0] || '/placeholder.svg'}
                 alt={listing.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
+              
+              {isIvanna && (
+                <div className="absolute inset-0 pointer-events-none mix-blend-multiply opacity-20 bg-[url('data:image/svg+xml,...')] invert" />
+              )}
               
               {/* Image overlay with camera icon */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 rounded-full p-3">
+                <div className={cn(
+                  "transition-opacity duration-300 rounded-full p-3",
+                  isIvanna ? "bg-white border-4 border-black shadow-artisan opacity-100" : "opacity-0 group-hover:opacity-100 bg-white/90"
+                )}>
                   <Camera className="w-6 h-6 text-gray-800" />
                 </div>
               </div>
               
               {listing.images && listing.images.length > 1 && (
-                <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-2 rounded-full text-sm backdrop-blur-sm">
+                <div className={cn(
+                  "absolute bottom-4 right-4 px-3 py-2 text-sm",
+                  isIvanna ? "bg-white border-3 border-black font-black" : "bg-black/70 text-white rounded-full backdrop-blur-sm"
+                )}>
                   1 / {listing.images.length}
                 </div>
               )}
               
               {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
             </div>
 
             {/* Scrollable Content */}
-            <ScrollArea className="flex-1 overflow-y-auto p-6" style={{ overscrollBehavior: 'contain' }}>
-              <div className="space-y-6">
+            <ScrollArea className={cn(
+              "flex-1 overflow-y-auto p-6",
+              isIvanna ? "bg-ivanna-parchment" : ""
+            )} style={{ overscrollBehavior: 'contain' }}>
+              <div className={cn("space-y-8", isIvanna ? "max-w-screen-md mx-auto py-10" : "")}>
               {/* Property Info */}
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h2 className="text-3xl font-bold mb-2">{listing.title}</h2>
+                  <h2 className={cn(
+                    "mb-2",
+                    isIvanna ? "text-5xl font-black italic tracking-tighter uppercase leading-none" : "text-3xl font-bold"
+                  )}>{listing.title}</h2>
                   <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <MapPin className="w-5 h-5" />
-                    <span className="text-lg">{listing.address}</span>
+                    <MapPin className={cn("w-5 h-5", isIvanna && "text-brand-primary")} />
+                    <span className={cn("text-lg", isIvanna && "font-black italic")}>{listing.address}</span>
                   </div>
                   <div className="text-muted-foreground">
                     {listing.neighborhood}, {listing.city}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-primary">${listing.price?.toLocaleString()}</div>
-                  <div className="text-muted-foreground">per month</div>
-                  {listing.status && listing.status !== 'available' && (
-                    <Badge
-                      variant="outline"
-                      className={`mt-2 ${
-                        listing.status === 'rented'
-                          ? 'bg-blue-100 text-blue-800 border-blue-300'
-                          : listing.status === 'sold'
-                          ? 'bg-purple-100 text-purple-800 border-purple-300'
-                          : 'bg-yellow-100 text-yellow-800 border-yellow-300'
-                      }`}
-                    >
-                      {listing.status === 'rented' && '🏠 Rented Out'}
-                      {listing.status === 'sold' && '💰 Sold'}
-                      {listing.status === 'pending' && '⏳ Pending'}
-                    </Badge>
-                  )}
+                  <div className={cn(
+                    "font-black tracking-tighter leading-none",
+                    isIvanna ? "text-5xl italic text-black" : "text-3xl text-primary"
+                  )}>${listing.price?.toLocaleString()}</div>
+                  <div className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest mt-1">per month</div>
                 </div>
               </div>
 
-              {/* Property Details */}
-              <div className="grid grid-cols-3 gap-6">
-                {listing.beds && (
-                  <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
-                    <Bed className="w-6 h-6 text-primary" />
-                    <div>
-                      <div className="font-semibold">{listing.beds}</div>
-                      <div className="text-sm text-muted-foreground">Bedroom{listing.beds !== 1 ? 's' : ''}</div>
-                    </div>
+              {/* Property Details Grid */}
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { icon: Bed, value: listing.beds, label: 'Beds' },
+                  { icon: Bath, value: listing.baths, label: 'Baths' },
+                  { icon: Square, value: listing.square_footage, label: 'Sq Ft' }
+                ].map((item, i) => (
+                  <div key={i} className={cn(
+                    "flex flex-col items-center justify-center p-4 transition-all hover:scale-105",
+                    isIvanna 
+                      ? "bg-white border-4 border-black shadow-artisan rounded-[1.5rem]" 
+                      : "bg-muted/30 rounded-lg"
+                  )}>
+                    <item.icon className={cn("w-6 h-6 mb-2", isIvanna ? "text-brand-primary" : "text-primary")} />
+                    <div className="font-black text-xl leading-none">{item.value}</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest opacity-40 mt-1">{item.label}</div>
                   </div>
-                )}
-                {listing.baths && (
-                  <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
-                    <Bath className="w-6 h-6 text-primary" />
-                    <div>
-                      <div className="font-semibold">{listing.baths}</div>
-                      <div className="text-sm text-muted-foreground">Bathroom{listing.baths !== 1 ? 's' : ''}</div>
-                    </div>
-                  </div>
-                )}
-                {listing.square_footage && (
-                  <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
-                    <Square className="w-6 h-6 text-primary" />
-                    <div>
-                      <div className="font-semibold">{listing.square_footage}</div>
-                      <div className="text-sm text-muted-foreground">Square ft</div>
-                    </div>
-                  </div>
-                )}
+                ))}
               </div>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary" className="text-sm px-3 py-1">{listing.property_type}</Badge>
-                {listing.furnished && <Badge variant="secondary" className="text-sm px-3 py-1">Furnished</Badge>}
+                <Badge className={cn(
+                  "text-[10px] font-black uppercase tracking-widest px-4 py-2",
+                  isIvanna ? "bg-white border-2 border-black text-black shadow-artisan" : "bg-secondary"
+                )}>
+                  {listing.property_type}
+                </Badge>
+                {listing.furnished && (
+                  <Badge className={cn(
+                    "text-[10px] font-black uppercase tracking-widest px-4 py-2",
+                    isIvanna ? "bg-white border-2 border-black text-black shadow-artisan" : "bg-secondary"
+                  )}>
+                    Furnished
+                  </Badge>
+                )}
                 {listing.amenities?.map((amenity) => (
-                  <Badge key={amenity} variant="outline" className="text-sm px-3 py-1">{amenity}</Badge>
+                  <Badge key={amenity} className={cn(
+                    "text-[10px] font-black uppercase tracking-widest px-4 py-2",
+                    isIvanna ? "bg-white border-2 border-black text-black opacity-60" : "variant-outline"
+                  )}>
+                    {amenity}
+                  </Badge>
                 ))}
               </div>
 
               {/* Description */}
               {listing.description && (
-                <div className="space-y-2">
-                  <h3 className="text-xl font-semibold">Description</h3>
-                  <p className="text-muted-foreground leading-relaxed text-lg">{listing.description}</p>
+                <div className="space-y-3">
+                  <h3 className={cn(
+                    "uppercase tracking-widest font-black",
+                    isIvanna ? "text-sm italic" : "text-xl font-semibold"
+                  )}>About this sanctuary</h3>
+                  <p className={cn(
+                    "leading-relaxed",
+                    isIvanna ? "text-xl font-black italic opacity-80" : "text-muted-foreground text-lg"
+                  )}>{listing.description}</p>
                 </div>
               )}
 
               {/* Owner Info */}
               {listing.profiles && (
-                <div className="border-t pt-6">
-                  <h3 className="text-xl font-semibold mb-4">Listed by</h3>
-                  <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-lg">
+                <div className={cn(
+                  "pt-10",
+                  isIvanna ? "border-t-4 border-black border-dashed" : "border-t"
+                )}>
+                  <h3 className={cn("mb-4 font-black uppercase tracking-widest", isIvanna ? "text-sm italic" : "text-xl font-semibold")}>Authority Presence</h3>
+                  <div className={cn(
+                    "flex items-center gap-6 p-6 transition-all",
+                    isIvanna ? "bg-white border-4 border-black shadow-artisan rounded-[2.5rem]" : "bg-muted/30 rounded-lg"
+                  )}>
                     <img
                       src={listing.profiles.avatar_url || '/placeholder.svg'}
                       alt={listing.profiles.full_name}
-                      className="w-16 h-16 rounded-full object-cover"
+                      className={cn(
+                        "object-cover",
+                        isIvanna ? "w-20 h-20 border-4 border-black shadow-artisan rounded-2xl p-1" : "w-16 h-16 rounded-full"
+                      )}
                     />
                     <div>
-                      <div className="font-semibold text-lg">{listing.profiles.full_name}</div>
-                      <div className="text-muted-foreground">Property Owner</div>
+                      <div className={cn("text-xl font-black uppercase italic leading-none", isIvanna && "tracking-tighter")}>
+                        {listing.profiles.full_name}
+                      </div>
+                      <div className="text-[11px] font-black uppercase tracking-widest opacity-40 mt-1">Certified Listing Authority</div>
                     </div>
                   </div>
                 </div>
@@ -246,16 +282,22 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
             </ScrollArea>
 
             {/* Action Buttons - Fixed at bottom */}
-            <div className="shrink-0 p-6 border-t bg-background/95 backdrop-blur-sm">
-              <div className="flex gap-4">
+            <div className={cn(
+              "shrink-0 p-8 pt-4 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]",
+              isIvanna ? "bg-white border-t-6 border-black" : "border-t bg-background/95 backdrop-blur-sm"
+            )}>
+              <div className="flex gap-4 max-w-screen-md mx-auto">
                 <Button
                   variant="outline"
-                  className="flex-1 gap-2 h-12"
+                  className={cn(
+                    "flex-1 gap-2 h-16",
+                    isIvanna ? "primary-button" : ""
+                  )}
                   onClick={() => handleSwipe('left')}
                   disabled={swipeMutation.isPending}
                 >
-                  <X className="w-5 h-5" />
-                  Pass
+                  <X className={cn("w-6 h-6", isIvanna && "text-[#EB4898]")} />
+                  <span className="hidden sm:inline">Pass</span>
                 </Button>
                 
                 {/* Check if direct messaging is available for this listing category */}
@@ -265,24 +307,30 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
                   return (
                     <Button
                       variant="outline"
-                      className="flex-1 gap-2 h-12"
+                      className={cn(
+                        "flex-1 gap-2 h-16",
+                        isIvanna ? "primary-button" : ""
+                      )}
                       onClick={canMessage ? onMessageClick : () => {}}
                       disabled={!canMessage}
                     >
-                      {isDirectMessaging && <Zap className="w-4 h-4 text-yellow-500" />}
-                      <MessageCircle className="w-5 h-5" />
-                      {isDirectMessaging ? 'Free Message' : (hasPremiumMessaging ? 'Message' : 'Premium Only')}
+                      {isDirectMessaging && <Zap className="w-4 h-4 text-amber-400" />}
+                      <MessageCircle className="w-6 h-6" />
+                      <span className="hidden sm:inline">{isDirectMessaging ? 'Free Message' : (hasPremiumMessaging ? 'Message' : 'Locked')}</span>
                     </Button>
                   );
                 })()}
                 
                 <Button
-                  className="flex-1 gap-2 h-12 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white"
+                  className={cn(
+                    "flex-1 gap-2 h-16",
+                    isIvanna ? "primary-button bg-brand-primary !text-white shadow-[6px_6px_0px_#000]" : "bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white"
+                  )}
                   onClick={() => handleSwipe('right')}
                   disabled={swipeMutation.isPending}
                 >
-                  <Flame className="w-5 h-5" />
-                  Like
+                  <Flame className="w-6 h-6" />
+                  <span className="hidden sm:inline">Like</span>
                 </Button>
               </div>
             </div>
