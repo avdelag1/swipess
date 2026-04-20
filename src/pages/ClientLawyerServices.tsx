@@ -101,6 +101,14 @@ const ClientLawyerServices = () => {
     toast.success('Legal Help Dispatched');
   };
 
+  const handleReset = () => {
+    triggerHaptic('light');
+    setSelectedIssue(null);
+    setDescription('');
+    setSubmitted(false);
+    setExpandedCategory(null);
+  };
+
   return (
     <div className={cn("min-h-screen w-full transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
       

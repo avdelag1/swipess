@@ -132,8 +132,8 @@ const ClientSettings = () => {
                     <button
                       onClick={() => {
                         triggerHaptic('medium');
-                        if (item.section) setActiveSection(item.section);
-                        else if (item.route) navigate(item.route);
+                        if ('section' in item && item.section) setActiveSection(item.section);
+                        else if ('route' in item && item.route) navigate(item.route);
                       }}
                       className="w-full flex items-center gap-6 py-6 px-8 transition-all text-left active:bg-black/5"
                     >

@@ -11,6 +11,8 @@ import { DiscoveryMapView } from './swipe/DiscoveryMapView';
 import type { QuickFilterCategory } from '@/types/filters';
 import {
   getActiveCategoryInfo,
+  POKER_CARDS,
+  OWNER_INTENT_CARDS,
 } from './swipe/SwipeConstants';
 import { CategorySwipeStack } from './CategorySwipeStack';
 import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
@@ -981,7 +983,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
               {/* Quick Filters */}
               <div className="flex-1 flex justify-center gap-2">
-                {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter(c => 
+                {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter((c: any) => 
                   userRole === 'owner' 
                     ? ['all-clients', 'buyers', 'renters', 'hire'].includes(c.id) 
                     : ['property', 'motorcycle', 'services'].includes(c.id)

@@ -411,6 +411,7 @@ export const useFilterActions = () => useFilterStore(useShallow((state) => ({
   setClientGender: state.setClientGender,
   setClientType: state.setClientType,
   setFilters: state.setFilters,
+  setRadiusKm: state.setRadiusKm,
   resetClientFilters: state.resetClientFilters,
   resetOwnerFilters: state.resetOwnerFilters,
   resetAllFilters: state.resetAllFilters,

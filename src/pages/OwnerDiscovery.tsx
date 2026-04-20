@@ -86,7 +86,7 @@ export default function OwnerDiscovery() {
                   </div>
                   
                   <DiscoveryFilters
-                    category={activeCategory || 'property'}
+                    category={(activeCategory as any) || 'property'}
                     onApply={() => setShowFilters(false)}
                     activeCount={0}
                   />

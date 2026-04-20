@@ -313,7 +313,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
                <div className="px-6 pb-20 pt-4">
                   <h2 className="text-xl font-black uppercase tracking-widest italic mb-6">Advanced Target Radar</h2>
                   <DiscoveryFilters
-                    category={mapCategory || 'property'}
+                    category={(mapCategory as any) || 'property'}
                     initialFilters={mergedFilters}
                     onApply={(newFilters) => {
                       setShowFilters(false);
