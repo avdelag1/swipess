@@ -168,13 +168,13 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
                 theme === 'ivanna-style' ? "bg-black/20" : "bg-white/40"
               )} />
               <span className={cn(
-                "text-[9px] font-black uppercase tracking-[0.4em] italic",
-                theme === 'ivanna-style' ? "text-black/60" : "text-white/60"
+                "text-[10px] font-black uppercase tracking-[0.4em] italic",
+                theme === 'ivanna-style' ? "text-black/80" : "text-white/80"
               )}>{card.description}</span>
             </motion.div>
             
             <h3 className={cn(
-               "text-4xl font-black tracking-tighter leading-none uppercase italic",
+               "text-5xl font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic",
                theme === 'ivanna-style' ? "text-black" : "text-white"
             )}>
               {card.label}

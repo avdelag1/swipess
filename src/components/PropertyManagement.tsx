@@ -210,16 +210,13 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
          <div className="absolute bottom-[5%] right-[-10%] w-[50%] h-[40%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
       </div>
 
-      <div className="p-4 sm:p-8 pb-32 space-y-10 max-w-7xl mx-auto w-full relative z-10">
+      <div className="pb-32 space-y-12 w-full relative z-10">
         
         {/* 🛸 ASSET TERMINAL HEADER */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className={cn(
-            "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 p-10 rounded-[3rem] shadow-2xl transition-all border",
-            isLight ? "bg-black/[0.03] border-black/5" : "bg-white/[0.04] border-white/[0.06] backdrop-blur-3xl"
-          )}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 px-6 pt-10"
         >
           <div className="flex items-center gap-6">
             <div className="w-18 h-18 rounded-[1.8rem] bg-gradient-to-br from-[#EB4898] to-orange-500 flex items-center justify-center shadow-2xl">
@@ -243,10 +240,12 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         </motion.div>
 
         {/* Statistics Hud */}
-        <OwnerListingsStats listings={listings} isLight={isLight} />
+        <div className="px-6">
+            <OwnerListingsStats listings={listings} isLight={isLight} />
+        </div>
 
         {/* Matrix Controls */}
-        <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col md:flex-row gap-4 px-6 opacity-90">
             <div className="relative flex-1 group">
                 <Search className={cn("absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 opacity-40 z-10", isLight ? "text-black" : "text-white")} />
                 <Input
@@ -291,7 +290,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 px-6"
             >
               {filteredListings.map((listing, index) => (
                 <motion.div

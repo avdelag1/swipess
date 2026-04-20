@@ -127,9 +127,9 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         <div
           className="relative flex items-center justify-center transition-all"
           style={{ 
-            height: 'min(75svh, 560px)',
-            width: `calc(min(75svh, 560px) * ${PK_ASPECT})`,
-            padding: '1.2rem',
+            height: 'min(82svh, 600px)',
+            width: `calc(min(82svh, 600px) * ${PK_ASPECT})`,
+            padding: '0.4rem',
           }}
         >
           {[...cards].reverse().map((card, reversedIdx) => {
