@@ -105,12 +105,12 @@ const VARIANTS: Record<Variant, VariantCfg> = {
     circleBorder: 'none',
   },
   default: {
-    iconColor: '#ffffff',
-    glow: '0 0 14px rgba(255,255,255,0.2)',
-    glowIntense: '0 0 28px rgba(255,255,255,0.3)',
-    dropShadow: '0 8px 16px -4px rgba(255, 255, 255, 0.3)',
-    circleBg: 'rgba(255, 255, 255, 0.15)',
-    circleBorder: 'none',
+    iconColor: 'currentColor',
+    glow: '0 0 14px rgba(255,255,255,0.1)',
+    glowIntense: '0 0 28px rgba(255,255,255,0.2)',
+    dropShadow: 'var(--shadow-cinematic-sm)',
+    circleBg: 'var(--secondary)',
+    circleBorder: '1px solid var(--border)',
   },
 };
 
@@ -178,6 +178,7 @@ const ActionButton = memo(({
         overflow: 'visible',
         position: 'relative',
         flexShrink: 0,
+        color: variant === 'default' ? 'var(--foreground)' : cfg.iconColor
       }}
       className="flex items-center justify-center touch-manipulation select-none"
     >

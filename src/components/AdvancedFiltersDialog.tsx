@@ -130,14 +130,14 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
         className={cn(
           "flex flex-col p-0 gap-0 overflow-hidden",
           isMobile
-            ? "w-full h-full max-w-full max-h-full inset-0 top-0 translate-x-0 translate-y-0 rounded-none border-0 bg-[#0A0A0C]"
-            : "max-w-2xl h-[70vh] sm:h-[75vh] max-h-[600px] top-[50%] bg-[#0A0A0C]/95 backdrop-blur-3xl border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)]"
+            ? "w-full h-full max-w-full max-h-full inset-0 top-0 translate-x-0 translate-y-0 rounded-none border-0 bg-background"
+            : "max-w-2xl h-[70vh] sm:h-[75vh] max-h-[600px] top-[50%] bg-background border-border shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
         )}
       >
-        {/* Header - Nexus High-Contrast */}
+        {/* Header - Theme Aware */}
         <DialogHeader className={cn(
-          "shrink-0 border-b border-white/5 transition-all text-white",
-          "bg-black/60 pt-8 pb-4 px-8"
+          "shrink-0 border-b border-border transition-all text-foreground",
+          "bg-background pt-8 pb-4 px-8"
         )}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -182,13 +182,13 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
           </div>
         </DialogHeader>
 
-        {/* Category Tabs - Nexus Glass */}
+        {/* Category Tabs - Theme Aware */}
         <div className={cn(
-          "shrink-0 border-b border-white/5 bg-black/40 px-8 py-4"
+          "shrink-0 border-b border-border bg-muted/30 px-8 py-4"
         )}>
           <Tabs value={activeCategory} onValueChange={(value) => setActiveCategory(value as CategoryType)} className="w-full">
             <TabsList className={cn(
-              "w-full grid grid-cols-4 p-1.5 rounded-[1.4rem] bg-white/[0.03] border border-white/5",
+              "w-full grid grid-cols-4 p-1.5 rounded-[1.4rem] bg-muted border border-border",
               isMobile ? "h-16 gap-1" : "h-14"
             )}>
               {categoryBase.map((cat) => {
@@ -322,15 +322,15 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
           </div>
         </ScrollArea>
 
-        {/* Footer - Nexus High-Contrast */}
+        {/* Footer - Theme Aware */}
         <DialogFooter className={cn(
-          "shrink-0 flex gap-4 border-t border-white/5 bg-black px-8 py-6"
+          "shrink-0 flex gap-4 border-t border-border bg-background px-8 py-6"
         )}>
           <Button
             variant="ghost"
             onClick={onClose}
             className={cn(
-              "flex-1 h-12 rounded-[1.2rem] border border-white/10 text-white/60 hover:bg-white/5",
+              "flex-1 h-12 rounded-[1.2rem] border border-border text-foreground hover:bg-accent",
               isMobile && "text-base"
             )}
           >
@@ -339,7 +339,7 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
           <Button
             onClick={handleApply}
             className={cn(
-              "flex-1 h-12 rounded-[1.2rem] bg-white text-black font-black uppercase italic tracking-widest hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.2)]",
+              "flex-1 h-12 rounded-[1.2rem] bg-primary text-primary-foreground font-black uppercase italic tracking-widest hover:brightness-110 shadow-lg",
               isMobile && "text-base"
             )}
           >

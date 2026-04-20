@@ -26,6 +26,14 @@
     --input: 0 0% 29%;
     --ring: 18 100% 50%;
 
+    /* Semantic UI Tokens */
+    --btn-primary-bg: #FF4D00;
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-bg: rgba(255, 255, 255, 0.1);
+    --btn-secondary-text: #FFFFFF;
+    --icon-active: #FF6B35;
+    --icon-inactive: rgba(255, 255, 255, 0.6);
+
     /* Modern theme variables */
     --bg-primary: 0 0% 18%;
     --bg-secondary: 0 0% 23%;
@@ -72,6 +80,14 @@
     --input: 0 0% 8%;
     --ring: 352 83% 62%;
 
+    /* Semantic UI Tokens */
+    --btn-primary-bg: #FF4D00;
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-bg: rgba(255, 255, 255, 0.1);
+    --btn-secondary-text: #FFFFFF;
+    --icon-active: #FF6B35;
+    --icon-inactive: rgba(255, 255, 255, 0.6);
+
     /* Modern theme variables */
     --bg-primary: 0 0% 0%;
     --bg-secondary: 0 0% 4%;
@@ -112,6 +128,14 @@
     --border: 0 0% 92%;
     --input: 0 0% 92%;
     --ring: 221 83% 53%;
+
+    /* Semantic UI Tokens */
+    --btn-primary-bg: #FF4D00;
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-bg: rgba(0, 0, 0, 0.05);
+    --btn-secondary-text: #111111;
+    --icon-active: #FF4D00;
+    --icon-inactive: rgba(0, 0, 0, 0.6);
 
     --bg-primary: 0 0% 100%;
     --bg-secondary: 0 0% 98%;

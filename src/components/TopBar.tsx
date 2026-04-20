@@ -45,10 +45,10 @@ function TopBarComponent({
   const isOwner = userRole === 'owner';
 
   const glassSurfaceStyle: React.CSSProperties = {
-    background: _transparent ? 'transparent' : (isIvanna ? 'rgba(255,255,255,0.7)' : (isLight ? 'rgba(255,255,255,0.3)' : 'rgba(15,15,20,0.12)')),
-    backdropFilter: _transparent ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
-    WebkitBackdropFilter: _transparent ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
-    border: _transparent ? 'none' : (isIvanna ? '1px solid rgba(140, 180, 230, 0.4)' : `1px solid ${isLight ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.12)'}`),
+    background: _transparent ? 'transparent' : 'var(--nav-bg)',
+    backdropFilter: (_transparent || isIvanna) ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
+    WebkitBackdropFilter: (_transparent || isIvanna) ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
+    border: _transparent ? 'none' : '1px solid var(--nav-border)',
     borderRadius: isIvanna ? '2rem' : '1.8rem',
     boxShadow: _transparent ? 'none' : (isIvanna ? '0 10px 30px rgba(0,0,0,0.1)' : (isLight
       ? '0 10px 25px rgba(0,0,0,0.04), inset 0 0 15px rgba(255,255,255,0.2)'

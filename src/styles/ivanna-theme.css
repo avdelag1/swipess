@@ -33,6 +33,16 @@ html.ivanna-style,
     --input: 210 40% 93%;
     --ring: 210 75% 48%;
 
+    /* Semantic UI Tokens */
+    --btn-primary-bg: #4A90E2;
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-bg: rgba(74, 144, 226, 0.1);
+    --btn-secondary-text: #1E3A8A;
+    --icon-active: #2563EB;
+    --icon-inactive: rgba(30, 58, 138, 0.6);
+    --nav-bg: rgba(235, 245, 255, 0.85);
+    --nav-border: rgba(74, 144, 226, 0.2);
+
     /* Legacy variables */
     --bg-primary: 210 55% 94%;
     --bg-secondary: 200 40% 98%;
@@ -92,18 +102,16 @@ html.ivanna-style,
 /* 🖋️ ARTISAN TYPOGRAPHY */
 .ivanna-style .text-foreground,
 .ivanna-style .text-card-foreground,
-.ivanna-style .text-primary,
-.ivanna-style .text-muted-foreground,
-.ivanna-style h1, .ivanna-style h2, .ivanna-style h3, .ivanna-style h4,
-.ivanna-style button,
-.ivanna-style span,
-.ivanna-style div:not(.bg-primary) {
+.ivanna-style h1, .ivanna-style h2, .ivanna-style h3, .ivanna-style h4 {
     color: hsl(220, 55%, 14%) !important;
 }
 
-.ivanna-style .text-primary,
-.ivanna-style .active .text-foreground {
-    color: hsl(210, 75% , 48%) !important;
+.ivanna-style .text-muted-foreground {
+    color: hsl(220, 30%, 38%) !important;
+}
+
+.ivanna-style .text-primary {
+    color: hsl(210, 75%, 48%) !important;
 }
 
 /* 🎨 SKY-BLUE BUTTONS */

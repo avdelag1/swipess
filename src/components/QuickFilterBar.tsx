@@ -33,6 +33,8 @@ interface QuickFilterBarProps {
   userRole?: 'client' | 'owner';
 }
 
+import { OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
+
 const _allCategories: QuickFilterCategory[] = ['property', 'motorcycle', 'bicycle', 'services'];
 
 const categories: { id: QuickFilterCategory; label: string; icon: React.ReactNode }[] = [
@@ -131,8 +133,8 @@ function FilterDropdown({
           'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold',
           'border',
           isActive
-            ? 'bg-orange-500 text-white border-orange-500'
-            : 'bg-muted text-foreground border-border hover:bg-muted/80'
+            ? 'bg-primary text-primary-foreground border-primary'
+            : 'bg-secondary text-secondary-foreground border-border hover:bg-muted/80'
         )}
       >
         {icon}
@@ -156,7 +158,7 @@ function FilterDropdown({
                 smoothButtonClass,
                 'w-full flex items-center gap-2 px-3 py-2.5 text-xs text-left',
                 value === option.id
-                  ? 'bg-orange-500 text-white'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-foreground hover:bg-muted'
               )}
             >
@@ -238,12 +240,13 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
   };
   // Owner Quick Filters - Specialized for client intent
   if (userRole === 'owner') {
-    const ownerOptions = [
-      { id: 'all', label: 'All Clients', description: 'Global View', icon: <Globe className="w-7 h-7 mb-1" />, image: POKER_CARD_PHOTOS['all-clients'] },
-      { id: 'buy', label: 'Buyers', description: 'Purchase Ready', icon: <ShoppingBag className="w-7 h-7 mb-1" />, image: POKER_CARD_PHOTOS.buyers },
-      { id: 'rent', label: 'Renters', description: 'Looking to Move', icon: <Key className="w-7 h-7 mb-1" />, image: POKER_CARD_PHOTOS.renters },
-      { id: 'hire', label: 'Services', description: 'Inbound Inquiries', icon: <Briefcase className="w-7 h-7 mb-1" />, image: POKER_CARD_PHOTOS.hire },
-    ];
+    const ownerOptions = OWNER_INTENT_CARDS.filter(c => ['all-clients', 'buy', 'rent', 'hire'].includes(c.id)).map(c => ({
+      id: c.clientType || 'all',
+      label: c.label,
+      description: c.description,
+      icon: <c.icon className="w-7 h-7 mb-1" />,
+      image: POKER_CARD_PHOTOS[c.id]
+    }));
 
     const currentClientType = filters.clientType || 'all';
 
@@ -272,10 +275,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                   }}
                   className={cn(
                     smoothButtonClass, 
-                    'relative flex-shrink-0 w-32 h-52 rounded-[3rem] overflow-hidden border-2 transition-all duration-200 group',
+                    'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border transition-all duration-200 group',
                     isActive 
-                      ? (theme === 'ivanna-style' ? 'border-[#111111] shadow-[4px_4px_0px_#111111] scale-[1.03]' : 'border-orange-500 shadow-lg scale-[1.03]') 
-                      : (theme === 'ivanna-style' ? 'border-[#111111]/20 opacity-90' : 'border-border/40 opacity-90')
+                      ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg' 
+                      : 'border-border/60 opacity-90'
                   )}
                   style={{ contain: 'paint', willChange: 'transform, opacity' }}
                 >
@@ -352,10 +355,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             }}
             className={cn(
               smoothButtonClass, 
-              'relative flex-shrink-0 w-32 h-52 rounded-[3rem] overflow-hidden border-2 transition-all duration-200 group',
+              'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border transition-all duration-200 group',
               clientIsAllSelected 
-                ? (theme === 'ivanna-style' ? 'border-[#111111] shadow-[4px_4px_0px_#111111] scale-[1.03]' : 'border-orange-500 shadow-lg scale-[1.03]') 
-                : (theme === 'ivanna-style' ? 'border-[#111111]/20 opacity-90' : 'border-border/40 opacity-90')
+                ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg' 
+                : 'border-border/60 opacity-90'
             )}
             style={{ contain: 'paint', willChange: 'transform, opacity' }}
           >
@@ -386,10 +389,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 onClick={() => handleCategorySelect(category.id)}
                 className={cn(
                   smoothButtonClass, 
-                  'relative flex-shrink-0 w-32 h-52 rounded-[3rem] overflow-hidden border-2 transition-all duration-200 group',
+                  'relative flex-shrink-0 w-32 h-52 rounded-[3.5rem] overflow-hidden border transition-all duration-200 group',
                   isActive 
-                    ? (theme === 'ivanna-style' ? 'border-[#111111] shadow-[4px_4px_0px_#111111] scale-[1.03]' : 'border-orange-500 shadow-lg scale-[1.03]') 
-                    : (theme === 'ivanna-style' ? 'border-[#111111]/20 opacity-90' : 'border-border/40 opacity-90')
+                    ? 'border-primary ring-2 ring-primary ring-offset-2 scale-[1.03] shadow-lg' 
+                    : 'border-border/60 opacity-90'
                 )}
                 style={{ contain: 'paint', willChange: 'transform, opacity' }}
               >
@@ -425,8 +428,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             )}
           >
             {clientIsAllSelected
-              ? '✨ Showing ALL Premium Vehicles & Properties ✨'
-              : `Showing ${activeCategoryLabel} Near You`}
+              ? '✨ Filtering ALL Active Client Intents ✨'
+              : `✨ Showing ${activeCategoryLabel} Near You ✨`}
           </p>
         </div>
       </div>

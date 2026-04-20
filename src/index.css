@@ -165,12 +165,52 @@ button:active, [role="button"]:active {
     --background: 0 0% 100%;
     --foreground: 0 0% 7%;
     --primary: 343 99% 62%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+    --accent: 343 99% 62%;
+    --accent-foreground: 0 0% 100%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 343 99% 62%;
     --radius: 1.25rem;
+
+    /* Semantic UI Tokens for consistency */
+    --btn-primary-bg: #FF4D00;
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-bg: rgba(0, 0, 0, 0.05);
+    --btn-secondary-text: #111111;
+    --icon-active: #FF4D00;
+    --icon-inactive: rgba(0, 0, 0, 0.6);
+    --nav-bg: rgba(255, 255, 255, 0.8);
+    --nav-border: rgba(0, 0, 0, 0.08);
   }
   .dark {
     --background: 216 15% 9%;
     --foreground: 0 0% 100%;
     --primary: 352 83% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 212 14% 15%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 352 83% 58%;
+    --accent-foreground: 0 0% 100%;
+    --muted: 212 14% 15%;
+    --muted-foreground: 212 10% 80%;
+    --border: 212 14% 18%;
+    --input: 212 14% 18%;
+    --ring: 352 83% 58%;
+
+    /* Semantic UI Tokens for consistency */
+    --btn-primary-bg: #FF4D00;
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-bg: rgba(255, 255, 255, 0.1);
+    --btn-secondary-text: #FFFFFF;
+    --icon-active: #FF6B35;
+    --icon-inactive: rgba(255, 255, 255, 0.6);
+    --nav-bg: rgba(10, 10, 12, 0.8);
+    --nav-border: rgba(255, 255, 255, 0.1);
   }
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -198,6 +238,14 @@ button:active, [role="button"]:active {
     --border: 0 0% 29%;
     --input: 0 0% 29%;
     --ring: 0 100% 50%;
+
+    /* Semantic UI Tokens */
+    --btn-primary-bg: #FF4D00;
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-bg: rgba(255, 255, 255, 0.1);
+    --btn-secondary-text: #FFFFFF;
+    --icon-active: #FF6B35;
+    --icon-inactive: rgba(255, 255, 255, 0.6);
 
     /* Modern theme variables */
     --bg-primary: 0 0% 18%;
@@ -241,6 +289,14 @@ button:active, [role="button"]:active {
     --input: 0 0% 16%;
     --ring: 0 100% 60%;
 
+    /* Semantic UI Tokens */
+    --btn-primary-bg: #FF4D00;
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-bg: rgba(255, 255, 255, 0.1);
+    --btn-secondary-text: #FFFFFF;
+    --icon-active: #FF6B35;
+    --icon-inactive: rgba(255, 255, 255, 0.6);
+
     /* Modern theme variables */
     --bg-primary: 0 0% 5%;
     --bg-secondary: 0 0% 10%;
@@ -282,6 +338,14 @@ button:active, [role="button"]:active {
     --border: 0 0% 88%;
     --input: 0 0% 88%;
     --ring: 0 100% 50%;
+
+    /* Semantic UI Tokens */
+    --btn-primary-bg: #FF4D00;
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-bg: rgba(0, 0, 0, 0.05);
+    --btn-secondary-text: #111111;
+    --icon-active: #FF4D00;
+    --icon-inactive: rgba(0, 0, 0, 0.6);
 
     /* Modern theme variables */
     --bg-primary: 0 0% 97%;

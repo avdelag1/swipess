@@ -232,8 +232,8 @@ export const BottomNavigation = memo(({
     return location.pathname === item.path || location.pathname.startsWith(item.path + '/');
   };
 
-  const iconColorInactive = isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.65)';
-  const activeColor = 'var(--color-brand-primary)';
+  const iconColorInactive = 'var(--icon-inactive)';
+  const activeColor = 'var(--icon-active)';
 
   const barShadow = 'none';
 
@@ -249,17 +249,17 @@ export const BottomNavigation = memo(({
           theme === 'ivanna-style' ? "border-sky-100/40" : "border-white/20"
         )}
         style={{
-          background: theme === 'ivanna-style' ? 'rgba(235, 245, 255, 0.75)' : 'rgba(15, 15, 20, 0.12)',
-          backdropFilter: 'blur(40px) saturate(180%) contrast(1.1)',
-          WebkitBackdropFilter: 'blur(40px) saturate(180%) contrast(1.1)',
+          background: theme === 'ivanna-style' ? 'rgba(235, 245, 255, 0.95)' : 'var(--nav-bg)',
+          backdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(40px) saturate(180%) contrast(1.1)',
+          WebkitBackdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(40px) saturate(180%) contrast(1.1)',
           borderRadius: '3rem',
           padding: '4px',
           boxShadow: theme === 'ivanna-style' 
-            ? '0 20px 50px -10px rgba(100,160,230,0.15), inset 0 0 20px rgba(255,255,255,0.4)'
+            ? '0 20px 50px -10px rgba(100,160,230,0.25), inset 0 0 20px rgba(255,255,255,0.4)'
             : (isLight 
                ? '0 20px 50px -10px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.2)' 
                : '0 30px 80px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.05)'),
-          border: theme === 'ivanna-style' ? '1px solid rgba(255,255,255,0.6)' : (isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.15)'),
+          border: theme === 'ivanna-style' ? '2px solid rgba(100, 160, 230, 0.5)' : (isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.15)'),
         }}
       >
         {/* LAYER 3: Animated liquid highlight — the bar "shines" like glass */}

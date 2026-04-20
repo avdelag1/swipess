@@ -58,8 +58,8 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   const pillBg = 'transparent';
   const pillBorder = 'none';
   
-  const clientColor = isClient ? '#f43f5e' : (isLight ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.35)');
-  const ownerColor = !isClient ? '#f97316' : (isLight ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.35)');
+  const clientColor = isClient ? '#f43f5e' : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.45)');
+  const ownerColor = !isClient ? '#f97316' : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.45)');
 
   return (
     <button 
