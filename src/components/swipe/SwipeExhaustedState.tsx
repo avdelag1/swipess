@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RefreshCw, RotateCcw, Zap, Home, Bike, Briefcase, Sparkles } from 'lucide-react';
+import { RefreshCw, RotateCcw, Zap, Home, Bike, Briefcase, Sparkles, ChevronLeft } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Button } from '@/components/ui/button';
 import { RadarSearchEffect } from '@/components/ui/RadarSearchEffect';
@@ -60,6 +60,7 @@ export const SwipeExhaustedState = ({
   const { theme } = useTheme();
   const { setCategories } = useFilterActions();
   const activeCategory = useFilterStore(s => s.activeCategory);
+  const setActiveCategory = useFilterStore(s => s.setActiveCategory);
   const [scanIteration, setScanIteration] = useState(0);
   const [isScanBurstActive, setIsScanBurstActive] = useState(false);
 
@@ -138,6 +139,26 @@ export const SwipeExhaustedState = ({
             className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[150px] opacity-20"
             style={{ background: activeCatInfo?.color || '#ec4899' }}
           />
+        </div>
+
+        {/* BACK TO QUICK FILTERS */}
+        <div className="absolute top-4 left-4 z-[90]">
+           <button
+             onClick={() => {
+               triggerHaptic('medium');
+               setActiveCategory(null);
+               setCategories([]);
+             }}
+             className={cn(
+               "flex items-center gap-2 px-4 h-11 rounded-2xl shadow-2xl backdrop-blur-3xl border transition-all active:scale-95 group",
+               theme === 'ivanna-style' 
+                 ? "bg-white/90 border-[#111111]/20 text-[#111111] border-[1px]" 
+                 : "bg-black/60 border-white/10 text-white"
+             )}
+           >
+             <ChevronLeft className="w-5 h-5 -ml-1 transition-transform group-hover:-translate-x-1" />
+             <span className="text-[10px] font-black uppercase tracking-[0.15em]">Back</span>
+           </button>
         </div>
 
         {/* 1. COMPACT RADAR — centered square matches DiscoveryMapView */}
