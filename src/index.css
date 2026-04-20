@@ -1956,11 +1956,11 @@ html[data-navigation-direction="back"] {
 
 /* 🎨 IVANNA GLOBAL OVERRIDES - Handled in ivanna-theme.css */
 
-/* Fix light mode bottom nav harsh border */
+/* Removed light mode bottom nav harsh border per user request */
 .light .app-bottom-bar,
 .white-matte .app-bottom-bar,
 .ivanna-style .app-bottom-bar {
-    border-top: 1px solid rgba(0,0,0,0.05) !important;
+    border-top: none !important;
 }
 
 .nexus-style .text-muted-foreground {
