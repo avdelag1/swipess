@@ -4,19 +4,12 @@ import { useModalStore } from '@/state/modalStore';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
-
 import { preloadClientImageToCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { POKER_CARDS, OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
-
-// FIX: Lazy-load modals via portal to prevent re-renders from bleeding into swipe tree
-// Modals lazy-loaded via portal
-const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
-const MessageConfirmationDialog = lazy(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
-
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
@@ -43,11 +36,13 @@ import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { Home, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
-
-
-// PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
+
+// FIX: Lazy-load modals via portal 
+const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
+const MessageConfirmationDialog = lazy(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
+
 
 // ── Distance Slider Component ─────────────────────────────────────────────────
 interface _DistanceSliderProps {
@@ -327,7 +322,22 @@ const ClientSwipeContainerComponent = ({
   // PERF: pass userId to avoid getUser() inside queryFn
   // Extract category from filters if available (for filtering client profiles by their interests)
   const filterCategory = filters?.categories?.[0] || filters?.category || undefined;
-  const { data: internalProfiles = [], isLoading: internalIsLoading, refetch, isRefetching: _isRefetching, error: internalError } = useSmartClientMatching(user?.id, filterCategory, page, 50, isRefreshMode, filters);
+  const { 
+    data: internalProfiles = [], 
+    isLoading: internalIsLoading, 
+    refetch, 
+    isRefetching: _isRefetching, 
+    error: internalError 
+  } = useSmartClientMatching(
+    user?.id, 
+    filterCategory, 
+    page, 
+    50, 
+    isRefreshMode, 
+    filters,
+    false,
+    !!externalProfiles // Pass a flag to disable if external profiles exist
+  );
 
   const clientProfiles = externalProfiles || internalProfiles;
   const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
@@ -928,7 +938,7 @@ const ClientSwipeContainerComponent = ({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-full h-[calc(100%-10px)] max-w-3xl mx-auto"
+                className="relative w-full h-[calc(100%-20px)] max-w-xl mx-auto"
               >
                 {/* Back card (Peek) */}
                 {_nextCard && (

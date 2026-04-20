@@ -87,8 +87,9 @@ body::-webkit-scrollbar {
 .swipe-card-size {
   width: var(--card-width);
   height: var(--card-height);
-  max-width: calc(100vw - 24px);
-  max-height: calc(100svh - 100px);
+  max-width: calc(100vw - 32px);
+  max-height: calc(100svh - 140px);
+  margin-top: -20px;
 }
 
 .liquid-glass-card {

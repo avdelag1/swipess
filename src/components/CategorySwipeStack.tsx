@@ -344,7 +344,7 @@ function CategoryCard({
                 isTop ? "cursor-grab active:cursor-grabbing shadow-2xl" : "cursor-pointer",
                 !isTop && "blur-[1px] brightness-75", // Depth effect for back cards
                 theme === 'ivanna-style' 
-                  ? "bg-card border-[4px] border-[#111111]/90 rounded-[20px_24px_22px_26px_/_26px_22px_24px_20px] shadow-artisan" 
+                  ? "bg-card rounded-[20px_24px_22px_26px_/_26px_22px_24px_20px] shadow-artisan" 
                   : "bg-black border border-white/10 rounded-[32px]",
                 "transform-gpu",
                 isActive && "ring-4 ring-brand-accent-2/50 ring-offset-4 ring-offset-background",

@@ -137,7 +137,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       <div className={cn(
         "w-full h-full relative overflow-hidden transition-colors duration-500",
         theme === 'ivanna-style' 
-          ? "bg-card border-[4px] border-[#111111]/90 rounded-[20px_24px_22px_26px_/_26px_22px_24px_20px] shadow-artisan" 
+          ? "bg-card rounded-[20px_24px_22px_26px_/_26px_22px_24px_20px] shadow-artisan" 
           : "bg-black border border-white/5 rounded-[2.5rem] shadow-2xl"
       )}>
         

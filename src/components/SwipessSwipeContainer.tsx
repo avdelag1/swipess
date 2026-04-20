@@ -9,20 +9,12 @@ import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import type { QuickFilterCategory } from '@/types/filters';
-import {
-  getActiveCategoryInfo,
-} from './swipe/SwipeConstants';
+import { getActiveCategoryInfo } from './swipe/SwipeConstants';
 import { CategorySwipeStack } from './CategorySwipeStack';
 import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
-
-
-// FIX #3: Lazy-load modals to prevent them from affecting swipe tree
-// These are rendered via portal outside the swipe container's React tree
-const SwipeInsightsModal = lazy(() => import('./SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
-const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
 import { useSmartListingMatching, ListingFilters } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -41,14 +33,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { Home, Bike, Briefcase, ChevronLeft } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-
-const CATEGORY_ICON_MAP: Record<string, any> = {
-  property: Home,
-  motorcycle: MotorcycleIcon,
-  bicycle: Bike,
-  services: Briefcase,
-  worker: Briefcase,
-};
+import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { appToast } from '@/utils/appNotification';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
@@ -58,6 +43,20 @@ import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
+
+
+// FIX #3: Lazy-load modals 
+const SwipeInsightsModal = lazy(() => import('./SwipeInsightsModal').then(m => ({ default: m.SwipeInsightsModal })));
+const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
+
+const CATEGORY_ICON_MAP: Record<string, any> = {
+  property: Home,
+  motorcycle: MotorcycleIcon,
+  bicycle: Bike,
+  services: Briefcase,
+  worker: Briefcase,
+};
+
 
 
 // Navigation guard to prevent double-taps
@@ -741,6 +740,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
     currentIndexRef.current = newIndex;
     swipedIdsRef.current.add(listing.id);
 
+    // SOUNDS: Play sound based on direction
+    playSwipeSound(direction);
+
     // Trigger exit animation direction (this is the ONLY React state we touch)
     setSwipeDirection(direction);
 
@@ -1045,7 +1047,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.05 }}
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full h-full flex flex-col items-center justify-center"
+                className="w-full h-full flex flex-col items-center justify-center max-w-xl mx-auto"
               >
                 <CategorySwipeStack />
               </motion.div>
@@ -1056,7 +1058,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-full h-full"
+                className="relative w-full h-full max-w-xl mx-auto"
               >
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (

@@ -156,7 +156,7 @@ export const SwipeExhaustedState = ({
               animate={{ opacity: 1, y: 0 }}
               className={cn(
                 "px-3 py-1 rounded-full shadow-xl",
-                theme === 'ivanna-style' ? "bg-white border-2 border-[#111111]" : "bg-black/40 backdrop-blur-xl border border-white/10"
+                theme === 'ivanna-style' ? "bg-white/50" : "bg-black/40 backdrop-blur-xl border border-white/10"
               )}
             >
               <span className={cn(
@@ -178,7 +178,7 @@ export const SwipeExhaustedState = ({
             <div
               className={cn(
                 "relative w-full overflow-hidden shadow-xl",
-                theme === 'ivanna-style' ? "bg-white border-[3px] border-[#111111] rounded-[24px_32px_28px_36px_/_36px_28px_32px_24px]" : "rounded-[2rem] border border-white/10"
+                theme === 'ivanna-style' ? "bg-white/60 backdrop-blur-md rounded-[24px_32px_28px_36px_/_36px_28px_32px_24px]" : "rounded-[2rem] border border-white/10"
               )}
               style={{ aspectRatio: '1 / 1', maxHeight: '42svh' }}
             >

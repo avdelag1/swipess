@@ -62,15 +62,15 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
                 <motion.div
                   key={ring}
                   initial={{ scale: 1, opacity: 0 }}
-                  animate={{ scale: [1, 4.5], opacity: [0.3, 0] }}
+                  animate={{ scale: [1, 2.8], opacity: [0.15, 0] }}
                   exit={{ opacity: 0 }}
                   transition={{
-                    duration: 2.6,
+                    duration: 3.5,
                     repeat: Infinity,
-                    ease: [0.1, 0, 0, 1],
-                    delay: ring * 0.6,
+                    ease: "linear",
+                    delay: ring * 0.9,
                   }}
-                  className="absolute rounded-full border border-primary/30"
+                  className="absolute rounded-full border border-primary/20"
                   style={{
                     width: coreSize,
                     height: coreSize,

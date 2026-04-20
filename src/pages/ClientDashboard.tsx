@@ -16,15 +16,8 @@ interface ClientDashboardProps {
   onMessageClick?: () => void;
 }
 
-/**
- * Client Dashboard — 3-phase UX flow:
- *   1. Poker card fan (category selection)
- *   2. Discovery Map (shows dots, set km radius)
- *   3. Swipe deck (full swipe experience)
- * 
- * We maintain a strict 'phase' state here to ensure perfect 
- * UI transitions and state isolation.
- */
+// Client Dashboard (v1.0.96-rc1) — 3-phase UX flow:
+// [CACHE_BUST_20240420_2230]
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { theme } = useTheme();
   const activeCategory = useFilterStore(s => s.activeCategory);

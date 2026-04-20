@@ -38,7 +38,8 @@ export function useSmartClientMatching(
     pageSize: number = 10,
     isRefreshMode: boolean = false,
     filters?: ClientFilters,
-    isRoommateSection: boolean = false
+    isRoommateSection: boolean = false,
+    isDisabled: boolean = false
 ) {
     const queryClient = useQueryClient();
     const filtersKey = useMemo(() => filters ? JSON.stringify(filters) : '', [filters]);
@@ -195,7 +196,7 @@ export function useSmartClientMatching(
                 return [];
             }
         },
-        enabled: !!userId,
+        enabled: !!userId && !isDisabled,
         refetchOnWindowFocus: false,
     });
 }
