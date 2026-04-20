@@ -48,7 +48,7 @@ function TopBarComponent({
     background: _transparent ? 'transparent' : (isIvanna ? 'rgba(255,255,255,0.7)' : (isLight ? 'rgba(255,255,255,0.3)' : 'rgba(15,15,20,0.12)')),
     backdropFilter: _transparent ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
     WebkitBackdropFilter: _transparent ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
-    border: _transparent ? 'none' : (isIvanna ? '3px solid #111111' : `1px solid ${isLight ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.12)'}`),
+    border: _transparent ? 'none' : (isIvanna ? '1px solid rgba(140, 180, 230, 0.4)' : `1px solid ${isLight ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.12)'}`),
     borderRadius: isIvanna ? '2rem' : '1.8rem',
     boxShadow: _transparent ? 'none' : (isIvanna ? '0 10px 30px rgba(0,0,0,0.1)' : (isLight
       ? '0 10px 25px rgba(0,0,0,0.04), inset 0 0 15px rgba(255,255,255,0.2)'
@@ -91,9 +91,9 @@ function TopBarComponent({
               className={cn("flex items-center gap-1.5 pointer-events-auto px-1.5 py-1.5 shadow-2xl transition-all duration-300")} 
               style={{
                 ...glassSurfaceStyle,
-                background: isIvanna ? 'rgba(255, 252, 240, 0.45)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(15,15,20,0.12)'),
+                background: isIvanna ? 'rgba(255, 252, 240, 0.65)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(15,15,20,0.12)'),
                 borderRadius: '2rem',
-                border: isIvanna ? '3px solid #111111' : '1px solid rgba(255,255,255,0.15)',
+                border: isIvanna ? '1px solid rgba(140, 180, 230, 0.4)' : '1px solid rgba(255,255,255,0.15)',
               }}
             >
               {onBack && (
@@ -175,9 +175,9 @@ function TopBarComponent({
               className={cn("flex items-center gap-1.5 pointer-events-auto px-1.5 py-1.5 shadow-2xl transition-all duration-300")} 
               style={{
                 ...glassSurfaceStyle,
-                background: isIvanna ? 'rgba(255, 252, 240, 0.45)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(15,15,20,0.12)'),
+                background: isIvanna ? 'rgba(255, 252, 240, 0.65)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(15,15,20,0.12)'),
                 borderRadius: '2rem',
-                border: isIvanna ? '3px solid #111111' : '1px solid rgba(255,255,255,0.15)',
+                border: isIvanna ? '1px solid rgba(140, 180, 230, 0.4)' : '1px solid rgba(255,255,255,0.15)',
               }}
             >
               <motion.button

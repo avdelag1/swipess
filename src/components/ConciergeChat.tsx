@@ -301,7 +301,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
           exit={{ opacity: 0, y: 100 }}
           className={cn(
             "fixed inset-0 z-[10000] flex flex-col overflow-hidden transition-colors duration-500",
-            isNexus ? "bg-black nexus-style" : (isIvanna ? "ivanna-style bg-transparent ivanna-bg-masterpiece" : "bg-background")
+            isNexus ? "bg-black nexus-style" : (isIvanna ? "ivanna-style bg-sky-50/90 backdrop-blur-3xl" : "bg-background")
           )}
         >
           {/* Background Ambient */}

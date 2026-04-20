@@ -54,18 +54,13 @@ html.ivanna-style,
     --overlay: rgba(20, 40, 80, 0.45);
 }
 
-/* 🎨 THE SKY: Global Transparency Overrides */
+/* 🎨 THE SKY: Focused Transparency Overrides */
 .ivanna-style #root,
 .ivanna-style body,
 .ivanna-style .app-root,
 .ivanna-style .dashboard-root,
 .ivanna-style main,
-.ivanna-style #dashboard-scroll-container,
-.ivanna-style .bg-background,
-.ivanna-style .min-h-screen,
-.ivanna-style .w-full.px-5.py-4,
-.ivanna-style .w-full.p-4.pb-32,
-.ivanna-style .w-full.pb-24.min-h-screen {
+.ivanna-style #dashboard-scroll-container {
     background: transparent !important;
     background-color: transparent !important;
 }
@@ -84,10 +79,14 @@ html.ivanna-style,
     color: hsl(220, 55%, 14%) !important;
 }
 
-.ivanna-style .bg-background,
-.ivanna-style .bg-white,
-.ivanna-style .bg-black {
-    background-color: transparent !important;
+/* Ensure background utility doesn't kill contrast on important panels */
+.ivanna-style .bg-background:not(.dashboard-root):not(main):not(body) {
+    background: rgba(235, 246, 255, 0.88) !important;
+    backdrop-filter: blur(20px) saturate(1.2) !important;
+}
+
+.ivanna-style .bg-white {
+    background-color: rgba(255, 255, 255, 0.85) !important;
 }
 
 /* 🖋️ ARTISAN TYPOGRAPHY */
@@ -178,8 +177,9 @@ html.ivanna-style,
 }
 
 /* 🌫️ Bottom fade gradient: sky-tinted instead of black */
-.ivanna-style .bg-gradient-to-t.from-black\/90 {
-    background: linear-gradient(to top, rgba(30, 60, 120, 0.55), transparent) !important;
+.ivanna-style .bg-gradient-to-t.from-black\/90,
+.ivanna-style .bg-gradient-to-b.from-black\/90 {
+    background: linear-gradient(to top, rgba(30, 60, 120, 0.45), transparent) !important;
 }
 
 /* 🖋️ Bolder navigation text for legibility */

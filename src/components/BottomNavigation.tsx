@@ -244,17 +244,22 @@ export const BottomNavigation = memo(({
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className="pointer-events-auto w-full max-w-[440px] mx-auto glass-pill-nav px-1.5 shadow-[0_30px_80px_rgba(0,0,0,0.5)] border-t border-white/20"
+        className={cn(
+          "pointer-events-auto w-full max-w-[440px] mx-auto glass-pill-nav px-1.5 shadow-[0_30px_80px_rgba(0,0,0,0.5)] border-t",
+          theme === 'ivanna-style' ? "border-sky-100/40" : "border-white/20"
+        )}
         style={{
-          background: 'rgba(15, 15, 20, 0.12)',
+          background: theme === 'ivanna-style' ? 'rgba(235, 245, 255, 0.75)' : 'rgba(15, 15, 20, 0.12)',
           backdropFilter: 'blur(40px) saturate(180%) contrast(1.1)',
           WebkitBackdropFilter: 'blur(40px) saturate(180%) contrast(1.1)',
           borderRadius: '3rem',
           padding: '4px',
-          boxShadow: isLight 
-            ? '0 20px 50px -10px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.2)' 
-            : '0 30px 80px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.05)',
-          border: isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.15)',
+          boxShadow: theme === 'ivanna-style' 
+            ? '0 20px 50px -10px rgba(100,160,230,0.15), inset 0 0 20px rgba(255,255,255,0.4)'
+            : (isLight 
+               ? '0 20px 50px -10px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.2)' 
+               : '0 30px 80px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.05)'),
+          border: theme === 'ivanna-style' ? '1px solid rgba(255,255,255,0.6)' : (isLight ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.15)'),
         }}
       >
         {/* LAYER 3: Animated liquid highlight — the bar "shines" like glass */}
@@ -353,7 +358,7 @@ export const BottomNavigation = memo(({
                     layoutId="nav-active-pill"
                     className={cn(
                       "absolute inset-1.5 rounded-[2rem] z-0",
-                      isLight ? "bg-black/10 border-black/5" : "bg-white/10 border-white/10"
+                      theme === 'ivanna-style' ? "bg-sky-500/10 border-sky-500/10" : (isLight ? "bg-black/10 border-black/5" : "bg-white/10 border-white/10")
                     )}
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />

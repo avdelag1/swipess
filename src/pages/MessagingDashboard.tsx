@@ -50,7 +50,7 @@ export function MessagingDashboard() {
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
   const { activeMode } = useActiveMode();
-  const { theme } = useTheme();
+  const { theme, isIvanna } = useTheme();
   const isLight = theme === 'light';
 
   const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
@@ -158,7 +158,7 @@ export function MessagingDashboard() {
     const listing = conversation?.listing;
 
     return (
-      <div className={cn("w-full flex flex-col transition-colors duration-500", isLight ? "bg-white" : "bg-black")} style={{ height: 'calc(100dvh - 52px - 68px - var(--safe-top, 0px) - var(--safe-bottom, 0px))' }}>
+      <div className={cn("w-full flex flex-col transition-colors duration-500", isIvanna ? "bg-transparent" : (isLight ? "bg-white" : "bg-black"))} style={{ height: 'calc(100dvh - 52px - 68px - var(--safe-top, 0px) - var(--safe-bottom, 0px))' }}>
         <AnimatePresence mode="wait">
           <motion.div 
             key="interface" 
@@ -167,7 +167,7 @@ export function MessagingDashboard() {
             exit={{ opacity: 0, scale: 0.98 }}
             className={cn(
               "w-full max-w-4xl mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
-              isLight ? "bg-white border-black/5" : "bg-[#0d0d0f] border-white/5"
+              isIvanna ? "bg-sky-50/80 backdrop-blur-3xl border-sky-100/50" : (isLight ? "bg-white border-black/5" : "bg-[#0d0d0f] border-white/5")
             )}
           >
             {otherUser ? (
@@ -191,7 +191,7 @@ export function MessagingDashboard() {
   }
 
   return (
-    <div className={cn("min-h-screen w-full transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+    <div className={cn("min-h-screen w-full transition-colors duration-500", isIvanna ? "bg-transparent" : (isLight ? "bg-white" : "bg-black"))}>
       {/* 🛸 CINEMATIC BACKGROUND GLOW */}
       <div className="fixed inset-0 pointer-events-none opacity-10">
         <div className="absolute top-[10%] left-[-15%] w-[80%] h-[40%] bg-indigo-500/30 blur-[130px] rounded-full" />
@@ -204,24 +204,28 @@ export function MessagingDashboard() {
         
         {/* 🛸 HEADER: MEGA NEXUS SYNC */}
         <div className="flex items-center gap-6">
-           <div className="w-18 h-18 rounded-[1.8rem] bg-[#EB4898] flex items-center justify-center shadow-2xl shadow-[#EB4898]/20">
-              <MessageCircle className="w-8 h-8 text-white" />
+           <div className={cn(
+             "w-18 h-18 rounded-[1.8rem] flex items-center justify-center shadow-2xl",
+             isIvanna ? "bg-sky-400/20 text-sky-600 shadow-sky-400/10" : "bg-[#EB4898] text-white shadow-[#EB4898]/20"
+           )}>
+              <MessageCircle className="w-8 h-8" />
            </div>
            <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic">Messages</span>
-              <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isLight ? "text-black" : "text-white")}>Direct Transmissions</h1>
+              <span className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic", isIvanna ? "text-sky-600" : "text-[#EB4898]")}>Messages</span>
+              <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isIvanna ? "text-sky-950" : (isLight ? "text-black" : "text-white"))}>Direct Transmissions</h1>
            </div>
         </div>
 
         {/* 🛸 SEARCH & MATRIX FILTERS */}
         <div className="space-y-6">
           <div className="relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#EB4898] opacity-50 z-10" />
+            <Search className={cn("absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 opacity-50 z-10", isIvanna ? "text-sky-600" : "text-[#EB4898]")} />
             <input 
               placeholder="SCAN IDENTITIES..." 
               className={cn(
                 "w-full pl-14 pr-8 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border",
-                isLight ? "bg-black/5 border-black/5 text-black placeholder:text-black/20" : "bg-white/[0.04] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
+                isIvanna ? "bg-sky-50/60 border-sky-100/50 text-sky-950 placeholder:text-sky-950/20 shadow-sm focus:bg-white/80" : 
+                (isLight ? "bg-black/5 border-black/5 text-black placeholder:text-black/20" : "bg-white/[0.04] border-white/5 text-white placeholder:text-white/20 focus:border-white/10")
               )}
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
@@ -240,8 +244,8 @@ export function MessagingDashboard() {
                 className={cn(
                   "flex items-center gap-3 px-8 h-12 rounded-[1.8rem] text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border",
                   activeFilter === filter.id
-                    ? "bg-[#EB4898] text-white border-[#EB4898] shadow-2xl shadow-[#EB4898]/30"
-                    : isLight ? "bg-black/5 border-black/5 text-black font-black hover:bg-black/10" : "bg-white/[0.04] border-white/5 text-white/30 hover:bg-white/10"
+                    ? (isIvanna ? "bg-sky-500 text-white border-sky-400 shadow-xl shadow-sky-500/20" : "bg-[#EB4898] text-white border-[#EB4898] shadow-2xl shadow-[#EB4898]/30")
+                    : (isIvanna ? "bg-sky-100/40 border-sky-200/30 text-sky-700 hover:bg-sky-100/60" : (isLight ? "bg-black/5 border-black/5 text-black font-black hover:bg-black/10" : "bg-white/[0.04] border-white/5 text-white/30 hover:bg-white/10"))
                 )}
               >
                 <filter.icon className="w-4 h-4" />
@@ -271,8 +275,8 @@ export function MessagingDashboard() {
                     className={cn(
                       "w-full flex items-center gap-6 p-6 rounded-[2.8rem] text-left transition-all border group relative overflow-hidden",
                       isUnread 
-                        ? (isLight ? "bg-black/[0.02] border-black/10 shadow-xl" : "bg-white/[0.05] border-white/10 shadow-2xl") 
-                        : (isLight ? "bg-transparent border-black/[0.04] hover:bg-black/[0.01]" : "bg-transparent border-white/[0.04] hover:bg-white/[0.02]")
+                        ? (isIvanna ? "bg-sky-50/80 border-sky-200 shadow-lg" : (isLight ? "bg-black/[0.02] border-black/10 shadow-xl" : "bg-white/[0.05] border-white/10 shadow-2xl")) 
+                        : (isIvanna ? "bg-white/30 border-transparent hover:bg-white/50" : (isLight ? "bg-transparent border-black/[0.04] hover:bg-black/[0.01]" : "bg-transparent border-white/[0.04] hover:bg-white/[0.02]"))
                     )} 
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
                   >

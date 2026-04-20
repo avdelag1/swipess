@@ -131,12 +131,16 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
           "flex flex-col p-0 gap-0 overflow-hidden",
           isMobile
             ? "w-full h-full max-w-full max-h-full inset-0 top-0 translate-x-0 translate-y-0 rounded-none border-0"
-            : "max-w-2xl h-[70vh] sm:h-[75vh] max-h-[600px] top-[50%]"
+            : cn(
+                "max-w-2xl h-[70vh] sm:h-[75vh] max-h-[600px] top-[50%]",
+                theme === 'ivanna-style' ? "bg-sky-50/95 backdrop-blur-3xl border-sky-200/50" : "bg-background"
+              )
         )}
       >
         {/* Header - Larger on mobile */}
         <DialogHeader className={cn(
-          "shrink-0 border-b bg-gradient-to-r from-primary/5 via-background to-background",
+          "shrink-0 border-b transition-all",
+          theme === 'ivanna-style' ? "bg-sky-100/30" : "bg-gradient-to-r from-primary/5 via-background to-background",
           isMobile ? "px-6 pt-6 pb-4" : "px-4 sm:px-6 pt-4 sm:pt-6 pb-3"
         )}>
           <div className="flex items-center justify-between">
@@ -184,12 +188,14 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
 
         {/* Category Tabs - Larger touch targets on mobile */}
         <div className={cn(
-          "shrink-0 border-b bg-background/50",
+          "shrink-0 border-b",
+          theme === 'ivanna-style' ? "bg-sky-100/20" : "bg-background/50",
           isMobile ? "px-6 py-4" : "px-4 sm:px-6 py-3"
         )}>
           <Tabs value={activeCategory} onValueChange={(value) => setActiveCategory(value as CategoryType)} className="w-full">
             <TabsList className={cn(
-              "w-full grid grid-cols-4 p-1 bg-muted/50 rounded-xl",
+              "w-full grid grid-cols-4 p-1 rounded-xl",
+              theme === 'ivanna-style' ? "bg-sky-200/20" : "bg-muted/50",
               isMobile ? "h-16 gap-1" : "h-12"
             )}>
               {categoryBase.map((cat) => {
