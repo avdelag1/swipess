@@ -430,7 +430,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   return (
     <div className={cn(
       "dashboard-root w-full h-full min-h-0 relative flex flex-col overflow-hidden",
-      theme === 'ivanna-style' ? "bg-transparent" : ((isImmersiveDashboard || location.pathname.includes('dashboard')) ? "bg-black" : "bg-background"),
+      theme === 'ivanna-style' ? "bg-transparent" : ((isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background"),
       theme === 'ivanna-style' ? "ivanna-style" : (isDark ? "dark dark-matte" : "light white-matte")
     )}>
 
@@ -450,7 +450,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             : (isZeroScrollDashboard || isImmersiveDashboard) ? "overflow-hidden"
             : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
-          theme === 'ivanna-style' ? "bg-transparent" : ((location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard || location.pathname.includes('dashboard')) ? "bg-black" : "bg-background")
+          theme === 'ivanna-style' ? "bg-transparent" : ((location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background")
         )}
         style={{
           paddingTop: isFullScreenRoute || isImmersiveDashboard

@@ -2,7 +2,6 @@
 import { useEffect, useState, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -123,7 +122,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
            </button>
         </div>
 
-        <ScrollArea className="flex-1 px-8 py-6">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-8 py-6 touch-pan-y overscroll-contain">
           <div className="space-y-12 pb-12">
             
             {/* 📸 BRAND ASSET REPOSITORY */}
@@ -225,7 +224,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
             </section>
 
           </div>
-        </ScrollArea>
+        </div>
 
         {/* 🛸 BRAND FOOTER ACTIONS */}
         <div className="px-8 py-6 border-t border-white/5 bg-gradient-to-t from-white/[0.03] to-transparent flex items-center justify-between gap-4">
