@@ -102,7 +102,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
   if (isLoading) {
     return (
-      <div className={cn("flex-1 flex flex-col items-center justify-center p-8", isLight ? "bg-white" : "bg-black")}>
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-background">
          <div className="w-12 h-12 rounded-xl border-4 border-[#EB4898]/10 border-t-[#EB4898] animate-spin" />
          <p className="text-[10px] font-black uppercase tracking-widest text-[#EB4898] mt-6 animate-pulse">Connecting...</p>
       </div>
@@ -113,7 +113,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     <>
       <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={currentUserRole} variant="activation-required" />
 
-      <div className={cn("flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+      <div className="flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500 bg-background">
         
         {/* 🛸 NEXUS HUD HEADER (v14) */}
         <div className={cn(
@@ -216,7 +216,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         </div>
 
         {/* 🛸 COMMAND INPUT (v14) */}
-        <div className={cn("p-6 backdrop-blur-3xl border-t transition-all", isLight ? "bg-white border-black/5" : "bg-black/20 border-white/5")}>
+        <div className="p-6 backdrop-blur-3xl border-t transition-all bg-background/50">
           
           <AnimatePresence>
               {showEmojiPicker && (

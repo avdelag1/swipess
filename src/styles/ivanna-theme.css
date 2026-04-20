@@ -81,23 +81,42 @@ html.ivanna-style,
     backdrop-filter: blur(14px) saturate(1.4) !important;
     box-shadow: 0 4px 24px rgba(40, 80, 160, 0.12), inset 0 1px 0 rgba(255,255,255,0.6) !important;
     border-radius: 24px !important;
+    color: hsl(220, 55%, 14%) !important;
+}
+
+.ivanna-style .bg-background,
+.ivanna-style .bg-white,
+.ivanna-style .bg-black {
+    background-color: transparent !important;
 }
 
 /* 🖋️ ARTISAN TYPOGRAPHY */
 .ivanna-style .text-foreground,
 .ivanna-style .text-card-foreground,
 .ivanna-style .text-primary,
-.ivanna-style h1, .ivanna-style h2, .ivanna-style h3 {
+.ivanna-style .text-muted-foreground,
+.ivanna-style h1, .ivanna-style h2, .ivanna-style h3, .ivanna-style h4,
+.ivanna-style button,
+.ivanna-style span,
+.ivanna-style div:not(.bg-primary) {
     color: hsl(220, 55%, 14%) !important;
 }
 
-.ivanna-style .text-muted-foreground {
-    color: hsl(220, 30%, 38%) !important;
+.ivanna-style .text-primary,
+.ivanna-style .active .text-foreground {
+    color: hsl(210, 75% , 48%) !important;
 }
 
 /* 🎨 SKY-BLUE BUTTONS */
 .ivanna-style .bg-primary {
     background-color: hsl(210, 75%, 48%) !important;
+}
+
+.ivanna-style .bg-primary,
+.ivanna-style .bg-primary *,
+.ivanna-style button.bg-primary,
+.ivanna-style button.bg-primary * {
+    color: #ffffff !important;
 }
 
 .ivanna-style button:not(.glass-pill-nav button):not(.top-bar-glass button):not(.top-bar-glass .glass-pill):not([role="tab"]) {
