@@ -10,7 +10,7 @@ import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import type { QuickFilterCategory } from '@/types/filters';
 import { getActiveCategoryInfo } from './swipe/SwipeConstants';
-import { CategorySwipeStack } from './CategorySwipeStack';
+import { SwipeAllDashboard } from './swipe/SwipeAllDashboard';
 import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -1062,7 +1062,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 className="w-full h-full flex flex-col items-center justify-center max-w-xl mx-auto"
               >
-                <CategorySwipeStack />
+                <SwipeAllDashboard setCategories={(ids) => setActiveCategory(Array.isArray(ids) ? ids[0] : ids)} />
               </motion.div>
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <motion.div 
