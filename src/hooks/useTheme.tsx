@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
-export type Theme = 'dark' | 'light' | 'cheers' | 'ivanna-style' | 'nexus-style';
+type Theme = 'dark' | 'light' | 'cheers';
 
 export interface ThemeToggleCoords {
   x: number;
@@ -13,14 +13,12 @@ export interface ThemeToggleCoords {
 
 interface ThemeContextType {
   theme: Theme;
-  isLight: boolean;
-  isDark: boolean;
   setTheme: (theme: Theme, coords?: ThemeToggleCoords) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers', 'ivanna-style', 'nexus-style'];
+const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers'];
 const DEFAULT_THEME: Theme = 'dark';
 const STORAGE_KEY = 'swipess_theme_preference';
 
@@ -28,15 +26,13 @@ const STORAGE_KEY = 'swipess_theme_preference';
 function normalizeTheme(raw: string | null | undefined): Theme {
   if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte' || raw === 'pure-black') return 'dark';
   if (raw === 'cheers') return 'cheers';
-  if (raw === 'ivanna-style') return 'ivanna-style';
-  if (raw === 'nexus-style' || raw === 'cyber' || raw === 'nexus') return 'nexus-style';
   return 'light';
 }
 
 const ALL_THEME_CLASSES = [
   'grey-matte', 'black-matte', 'white-matte', 'red-matte',
   'amber-matte', 'pure-black', 'cheers', 'dark', 'light',
-  'amber', 'red', 'ivanna-style', 'nexus-style',
+  'amber', 'red',
 ];
 
 /** 
@@ -52,7 +48,7 @@ function applyThemeToDOM(theme: Theme) {
   }
 
   // Mark transition start for smooth color shift
-  root.style.colorScheme = (theme === 'cheers' || theme === 'nexus-style') ? 'dark' : (theme === 'ivanna-style' ? 'light' : theme);
+  root.style.colorScheme = theme === 'cheers' ? 'dark' : theme;
   
   // PERFORMANCE: Only remove if we're actually changing
   root.classList.remove(...ALL_THEME_CLASSES);
@@ -68,7 +64,7 @@ function applyThemeToDOM(theme: Theme) {
     root.classList.add('white-matte');
   }
 
-  if (theme === 'cheers' || theme === 'nexus-style') {
+  if (theme === 'cheers') {
     root.classList.add('dark');
   }
 
@@ -83,9 +79,8 @@ function applyThemeToDOM(theme: Theme) {
   let targetColor: string;
   if (theme === 'dark') targetColor = '#000000';
   else if (theme === 'cheers') targetColor = '#180800';
-  else if (theme === 'nexus-style') targetColor = '#000000';
-  else if (theme === 'ivanna-style') targetColor = '#DDF4EF';
   else targetColor = '#ffffff';
+  
   meta.setAttribute('content', targetColor);
 }
 
@@ -177,10 +172,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const isLight = theme === 'light' || theme === 'ivanna-style';
-  const isDark = theme === 'dark' || theme === 'cheers' || theme === 'nexus-style';
-
-  const value = useMemo(() => ({ theme, isLight, isDark, setTheme }), [theme, isLight, isDark]); // setTheme is stable since it's a constant function in this scope
+  const value = useMemo(() => ({ theme, setTheme }), [theme]); // setTheme is stable since it's a constant function in this scope
 
   return (
     <ThemeContext.Provider value={value}>

@@ -329,7 +329,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     // Core routes that should go full-bleed behind the header ONLY for hero effects.
     // Standard dashboards should now have padding to prevent button overlap.
     const immersiveRoutes = [
+      '/client/dashboard',
+      '/owner/dashboard',
       '/client/liked-properties',
+      '/owner/properties',
       '/owner/interested-clients',
       '/owner/liked-clients',
       '/client/advertise'
@@ -472,12 +475,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     enabled: userRole !== 'admin' && !isImmersiveDashboard && location.pathname !== '/client/liked-properties' && location.pathname !== '/owner/liked-clients',
   });
 
-  const isIvanna = theme === 'ivanna-style';
-
   return (
     <div className={cn(
-      "dashboard-root w-full h-full min-h-0 relative flex flex-col overflow-hidden",
-      isIvanna ? "bg-transparent" : "bg-background",
+      "dashboard-root w-full h-full min-h-0 bg-background relative flex flex-col overflow-hidden",
       isDark ? "dark dark-matte" : "light white-matte"
     )}>
 
@@ -492,21 +492,21 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           window.dispatchEvent(new CustomEvent('sentient-ui-recovery'));
         }}
         className={cn(
-          "flex-1 w-full min-h-0 relative z-0 touch-pan-y overscroll-y-contain",
-          isIvanna ? "bg-transparent" : "bg-background",
+          "flex-1 w-full min-h-0 bg-background relative z-0 touch-pan-y overscroll-y-contain",
            isRadioRoute ? "overflow-visible" 
             : isZeroScrollDashboard ? "overflow-hidden"
             : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
-          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : (isIvanna ? "bg-transparent" : "bg-background")
+          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/') ? "bg-black" : "bg-background"
         )}
         style={{
-          paddingTop: isFullScreenRoute || isImmersiveDashboard
+          paddingTop: isFullScreenRoute
             ? '0px'
             : 'calc(var(--top-bar-height) + var(--safe-top))',
           paddingBottom: 0,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
+          
         }}
       >
         <div className="h-full w-full flex flex-1 min-w-0 flex-col">

@@ -8,7 +8,6 @@ import { triggerHaptic } from '@/utils/haptics';
 import { preloadClientImageToCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
-import { POKER_CARDS, OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 
@@ -33,20 +32,18 @@ import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Users, MapPin, Bike, Wrench, RefreshCw } from 'lucide-react';
+import { Users, MapPin, Bike, Wrench } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { appToast } from '@/utils/appNotification';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
-import { cn } from '@/lib/utils';
 
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
-import { DiscoveryMapView } from './swipe/DiscoveryMapView';
 
 // ── Distance Slider Component ─────────────────────────────────────────────────
 interface _DistanceSliderProps {
@@ -63,7 +60,6 @@ interface ClientSwipeContainerProps {
   onClientTap: (clientId: string) => void;
   onInsights?: (clientId: string) => void;
   onMessageClick?: (clientId: string) => void;
-  onExhaustedMap?: () => void;
   profiles?: any[]; // Accept profiles from parent
   isLoading?: boolean;
   error?: any;
@@ -76,7 +72,6 @@ const ClientSwipeContainerComponent = ({
   onClientTap,
   onInsights: _onInsights,
   onMessageClick: _onMessageClick,
-  onExhaustedMap,
   profiles: externalProfiles,
   isLoading: externalIsLoading,
   error: externalError,
@@ -857,45 +852,8 @@ const ClientSwipeContainerComponent = ({
         {/* Top Controls — IN FLOW, not absolute (matches client-side pattern) */}
         {deckQueue.length > 0 && currentIndex < deckQueue.length && (
           <div className="relative z-50 w-full flex flex-col items-center shrink-0">
-            <div className="w-full pt-1 pb-1 px-4">
-              <div className="w-full flex justify-between items-center gap-4">
-                {/* HUD: Back button */}
-                <button
-                  onClick={() => { triggerHaptic('light'); handleRefresh(); }}
-                  className="w-10 h-10 rounded-xl bg-black/40 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white/40 active:scale-95 transition-all"
-                >
-                  <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
-                </button>
-
-                {/* HUD: Quick Filters (Client only) */}
-                <div className="flex-1 flex justify-center gap-2">
-                  {POKER_CARDS.filter(c => 
-                    ['property', 'motorcycle', 'services'].includes(c.id)
-                  ).map((cat: any) => {
-                    const Icon = cat.icon;
-                    const isActive = category === cat.id;
-                    return (
-                      <motion.button
-                        key={cat.id}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => {
-                          triggerHaptic('light');
-                          handleMapCategorySelect(cat.id as any);
-                        }}
-                        className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center border transition-all relative overflow-hidden",
-                          isActive 
-                            ? "bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)]" 
-                            : "bg-black/40 backdrop-blur-3xl border-white/10 text-white/20"
-                        )}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </motion.button>
-                    );
-                  })}
-                </div>
-
-                {/* HUD: Unified Radar HUD */}
+            <div className="w-full pt-1 pb-1 px-2">
+              <div className="w-full flex justify-between items-center">
                 <LocationRadiusSelector
                   radiusKm={radiusKm}
                   onRadiusChange={setRadiusKm}
@@ -905,7 +863,6 @@ const ClientSwipeContainerComponent = ({
                   onCategorySelect={handleMapCategorySelect}
                   lat={userLatitude}
                   lng={userLongitude}
-                  variant="minimal"
                 />
               </div>
             </div>
@@ -970,11 +927,20 @@ const ClientSwipeContainerComponent = ({
                  exit={{ opacity: 0 }}
                  className="w-full h-full z-50 overflow-hidden"
                >
-                <DiscoveryMapView
-                  onBack={() => onExhaustedMap?.()}
-                  onStartSwiping={handleRefresh}
-                  isEmbedded={false}
-                />
+                 <SwipeExhaustedState 
+                    onRefresh={handleRefresh}
+                    isRefreshing={isRefreshing}
+                    categoryLabel={labels.plural}
+                    CategoryIcon={labels.Icon}
+                    iconColor={labels.color}
+                    radiusKm={radiusKm}
+                    onRadiusChange={setRadiusKm}
+                    onDetectLocation={detectLocation}
+                    detecting={locationDetecting}
+                    detected={locationDetected}
+                    error={externalError}
+                    role="owner"
+                 />
                </motion.div>
             ) : (
               <motion.div 

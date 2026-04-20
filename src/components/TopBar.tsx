@@ -44,17 +44,16 @@ function TopBarComponent({
   const { navigate, prefetch: _prefetch } = useAppNavigate();
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isLight = theme === 'light' || theme === 'ivanna-style';
-  const isIvanna = theme === 'ivanna-style';
+  const isLight = theme === 'light';
 
   const glassSurfaceStyle: React.CSSProperties = {
-    background: isIvanna ? 'transparent' : (isLight ? 'rgba(255,255,255,0.45)' : 'rgba(25,25,30,0.3)'),
+    background: isLight ? 'rgba(255,255,255,0.45)' : 'rgba(25,25,30,0.3)',
     backdropFilter: 'blur(16px) saturate(1.4)',
     WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-    border: isIvanna ? 'none' : `1.5px solid ${isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'}`,
-    boxShadow: isIvanna ? 'none' : (_transparent ? 'none' : (isLight
+    border: `1.5px solid ${isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'}`,
+    boxShadow: _transparent ? 'none' : (isLight
       ? '0 4px 12px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.2)'
-      : '0 8px 22px rgba(0,0,0,0.4), inset 0 0.5px 1px rgba(255,255,255,0.1)')),
+      : '0 8px 22px rgba(0,0,0,0.4), inset 0 0.5px 1px rgba(255,255,255,0.1)'),
   };
 
   const { data: profile } = useQuery({
@@ -100,8 +99,8 @@ function TopBarComponent({
                 className="flex-shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-xl flex items-center justify-center z-50 pointer-events-auto touch-manipulation transition-all hover:scale-105 active:scale-95"
                 style={{
                   ...glassSurfaceStyle,
-                  background: isIvanna ? 'hsla(var(--background) / 0.28)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.12)'),
-                  borderColor: isIvanna ? 'hsla(var(--foreground) / 0.18)' : (isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,107,53,0.4)'),
+                  background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.12)',
+                  borderColor: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,107,53,0.4)',
                 }}
                 aria-label="Go back"
               >
@@ -155,7 +154,7 @@ function TopBarComponent({
             )}
 
             {!minimal && (
-              <div className={cn("flex-shrink-0 ml-2 pointer-events-auto rounded-xl overflow-hidden", !isIvanna && "border border-white/10")} style={glassSurfaceStyle}>
+              <div className="flex-shrink-0 ml-2 pointer-events-auto rounded-xl overflow-hidden border border-white/10" style={glassSurfaceStyle}>
                 <ModeSwitcher variant="icon" size="sm" />
               </div>
             )}

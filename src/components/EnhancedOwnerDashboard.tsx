@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
-import { User, Megaphone, RefreshCw, Cpu, Activity, Sparkles } from 'lucide-react';
+import { User, Megaphone, RefreshCw, Cpu, Activity } from 'lucide-react';
 import { useModalStore } from '@/state/modalStore';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -23,8 +23,6 @@ import { triggerHaptic } from '@/utils/haptics';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -39,18 +37,9 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const [_insightsOpen, _setInsightsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'discovery' | 'insights'>('discovery');
   
-  useEffect(() => {
-    const handleOpenFilters = () => setShowFilters(true);
-    window.addEventListener('open-owner-filters', handleOpenFilters);
-    return () => window.removeEventListener('open-owner-filters', handleOpenFilters);
-  }, []);
-  
   const activeCategory = useFilterStore(s => s.activeCategory);
-  // Default landing = map (replaces the legacy "ENGAGE DISCOVERY" intro).
-  // 'cards' is still reachable when activeCategory clears (bottom-nav re-tap).
-  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'map');
-  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>('property');
-  const [showFilters, setShowFilters] = useState(false);
+  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
+  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
 
   const modalStore = useModalStore();
   const { user, loading: isAuthLoading } = useAuth();
@@ -70,13 +59,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }))
   );
   const hydratedRef = useRef(false);
-
-  // 🛰️ DISCOVERY SYNC: If active category is cleared elsewhere, revert phase to 'cards'
-  useEffect(() => {
-    if (!activeCategory && phase === 'swipe') {
-      setPhase('cards');
-    }
-  }, [activeCategory, phase]);
 
   useEffect(() => {
     if (!ownerPrefs || hydratedRef.current) return;
@@ -129,33 +111,25 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const handleCardSelect = useCallback((card: OwnerIntentCard) => {
     triggerHaptic('medium');
     const cat = (card.category || 'property') as QuickFilterCategory;
-    
-    // Set map context first instead of jumping to swipe deck
-    setMapCategory(cat);
-    setPhase('map');
     setActiveCategory(null);
-    
+    setMapCategory(cat);
     if (card.clientType) setClientType(card.clientType as any);
     if (card.listingType) setListingType(card.listingType as any);
+    setPhase('map');
   }, [setClientType, setListingType, setActiveCategory]);
 
-  const handleExhaustedMap = useCallback(() => {
-    setPhase('map');
-  }, []);
-
   const handleMapBack = useCallback(() => {
+    setMapCategory(null);
+    setPhase('cards');
     setActiveCategory(null);
-    setPhase('map');
-    setMapCategory((prev) => prev || 'property');
   }, [setActiveCategory]);
 
   const handleStartSwiping = useCallback(() => {
     if (mapCategory) {
       setCategories([mapCategory]);
-      setActiveCategory(mapCategory);
       setPhase('swipe');
     }
-  }, [mapCategory, setCategories, setActiveCategory]);
+  }, [mapCategory, setCategories]);
 
   const showCards = phase === 'cards' && !activeCategory;
   const showMap = phase === 'map' && mapCategory && !activeCategory;
@@ -182,7 +156,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           </div>
           <div className="space-y-4">
             <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>Connection Lost</h2>
-            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting network re-sync.</p>
+            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting matrix re-sync.</p>
           </div>
           <Button 
             onClick={() => { triggerHaptic('medium'); window.location.reload(); }}
@@ -196,10 +170,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   }
 
   return (
-    <div className={cn(
-      "flex flex-col h-full w-full relative transition-colors duration-500",
-      (showMap || showSwipe) ? "bg-black" : (isLight ? "bg-white" : "bg-black")
-    )}>
+    <div className={cn("flex flex-col h-full w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
       
       {/* 🛸 CINEMATIC ATMOSPHERE */}
       <div className="absolute inset-x-0 top-0 h-96 pointer-events-none opacity-20">
@@ -234,39 +205,23 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         ) : showMap && mapCategory ? (
           <motion.div
             key="owner-dash-map"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="flex-1 w-full min-h-0 relative z-10 flex flex-col items-stretch overflow-hidden"
+            initial={{ opacity: 0, y: 40, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -30, scale: 0.98 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full h-full z-10"
+            style={{ willChange: 'transform, opacity' }}
           >
             <DiscoveryMapView
               category={mapCategory}
               onBack={handleMapBack}
               onStartSwiping={handleStartSwiping}
-              isEmbedded={true}
-              mode="owner"
-            />
-          </motion.div>
-        ) : showSwipe && !isLoading && clientProfiles.length === 0 ? (
-          <motion.div
-            key="owner-dash-map-empty"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="w-full h-full z-10 flex flex-col"
-          >
-            <DiscoveryMapView
-              category={mapCategory || (filterCategory as any) || 'property'}
-              onBack={handleMapBack}
-              onStartSwiping={handleStartSwiping}
-              isEmbedded={true}
+              onCategoryChange={(cat) => setMapCategory(cat)}
               mode="owner"
             />
           </motion.div>
         ) : showSwipe ? (
-          <motion.div
+          <motion.div 
             key="owner-dash-swipe"
             initial={{ opacity: 0, y: 40, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -279,7 +234,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               onClientTap={handleClientTap}
               onInsights={handleInsights}
               onMessageClick={onMessageClick}
-              onExhaustedMap={handleExhaustedMap}
               profiles={clientProfiles}
               isLoading={isLoading}
               error={error}
@@ -291,28 +245,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         ) : null}
       </AnimatePresence>
 
-      {/* SENTINEL RADAR: FLOATING TRIGGER REMOVED PER USER REQUEST */}
-
-      <Sheet open={showFilters} onOpenChange={setShowFilters}>
-         <SheetContent side="bottom" className="h-[92vh] p-0 border-none bg-transparent overflow-hidden">
-            <div className="w-full h-full glass-morphism rounded-t-[3.5rem] border-t border-white/10 overflow-y-auto">
-               <div className="sticky top-0 z-[60] flex items-center justify-center pt-4 pb-2">
-                  <div className="w-12 h-1.5 bg-white/20 rounded-full" />
-               </div>
-               <div className="px-6 pb-20 pt-4">
-                  <h2 className="text-xl font-black uppercase tracking-widest italic mb-6">Advanced Target Radar</h2>
-                  <DiscoveryFilters
-                    category={(mapCategory as any) || 'property'}
-                    initialFilters={mergedFilters}
-                    onApply={(newFilters) => {
-                      setShowFilters(false);
-                    }}
-                    activeCount={0}
-                  />
-               </div>
-            </div>
-         </SheetContent>
-      </Sheet>
+      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Nexus Admin Dashboard</p>
     </div>
   );
 };

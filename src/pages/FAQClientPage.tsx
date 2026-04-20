@@ -1,13 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { CardContent } from "@/components/ui/card";
-import { ChevronDown, MessageCircle, Sparkles, HelpCircle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/PageHeader";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useTheme } from "@/hooks/useTheme";
-import { triggerHaptic } from "@/utils/haptics";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 
@@ -17,114 +15,135 @@ interface FAQItem {
 }
 
 const faqItems: FAQItem[] = [
-  { question: "How do I find properties to rent?", answer: "Sync with property listings by swiping. Swipe right to authorize interest, or swipe left to pass. When a mutual sync occurs, a Direct Transmission link opens." },
-  { question: "What happens when I authorize interest?", answer: "The property authority is notified. If they verify your profile and sync back, a Match is established, enabling direct messaging." },
-  { question: "How do I message property owners?", answer: "Once synced, access the Messaging Dashboard. Decrypted transmissions are available via your active credits." },
-  { question: "What are message credits?", answer: "Direct transmissions require energy credits. Standard entities receive a set quota; Premium Operators receive unlimited priority syncs." },
-  { question: "How do I upgrade my status?", answer: "Navigate to Settings > Identity Upgrades. Elite status grants priority discovery and expanded transmission capacity." },
-  { question: "What is a Super Sync?", answer: "A high-energy signal that highlights your interest, bypassing standard notification filters for immediate owner review." },
+  {
+    question: "How do I find properties to rent?",
+    answer: "Simply browse through property listings by swiping. Swipe right to like a property you're interested in, or swipe left to pass. When you match with a property owner, you can start chatting to arrange viewings and discuss details."
+  },
+  {
+    question: "What happens when I like a property?",
+    answer: "When you like a property by swiping right, the property owner is notified. If they're interested in you as a potential tenant, they can like your profile back, creating a match. Once matched, you can message each other directly."
+  },
+  {
+    question: "How do I message property owners?",
+    answer: "You can message property owners once you have a match. Go to your matches or messages section to start a conversation. Note that messaging may require message credits depending on your subscription plan."
+  },
+  {
+    question: "What are message credits?",
+    answer: "Message credits are required to initiate conversations with property owners. You receive a certain number of credits based on your subscription plan. Premium plans offer more credits and better visibility."
+  },
+  {
+    question: "How do I upgrade my subscription?",
+    answer: "Go to Settings > Premium Packages to view available subscription plans. Premium plans give you more message credits, better visibility in search results, and additional features like super likes."
+  },
+  {
+    question: "What is a Super Like?",
+    answer: "A Super Like is a way to show extra interest in a property. Property owners see Super Likes highlighted, making you stand out from other potential tenants. Super Likes are available with premium subscriptions."
+  },
+  {
+    question: "How do I view properties I've liked?",
+    answer: "Go to your Liked Properties section from the main menu. There you can see all properties you've shown interest in and track your matches."
+  },
+  {
+    question: "Can I filter property searches?",
+    answer: "Yes! Use the filters to narrow down properties by location, price range, property type (apartment, house, room), number of bedrooms, pet policy, and other amenities you need."
+  },
+  {
+    question: "How do contracts work?",
+    answer: "Once you and a property owner agree on terms, you can create and sign contracts through the app. Go to Settings > Contracts to view and manage your rental agreements."
+  },
+  {
+    question: "How do I report a problem or inappropriate content?",
+    answer: "If you encounter any issues, you can report users or listings directly from their profile or listing page. You can also contact support through Settings > FAQ & Help for assistance."
+  },
+  {
+    question: "How do I delete my account?",
+    answer: "Go to Settings > Security, scroll to the bottom to find the Danger Zone section where you can delete your account. Note that this action is permanent and cannot be undone."
+  },
+  {
+    question: "Is my information secure?",
+    answer: "Yes, we take your privacy seriously. We use industry-standard encryption and security measures to protect your data. Read our Privacy Policy for more details on how we handle your information."
+  }
 ];
 
 export default function FAQClientPage() {
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const _navigate = useNavigate();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const toggleExpand = (index: number) => {
-    triggerHaptic('light');
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
   return (
-    <div className={cn("min-h-screen transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
-      
-      {/* 🛸 CINEMATIC ATMOSPHERE */}
-      <div className="fixed inset-0 pointer-events-none opacity-20">
-         <div className="absolute top-[5%] left-[-10%] w-[60%] h-[40%] bg-indigo-500/30 blur-[130px] rounded-full" />
-         <div className="absolute bottom-[20%] right-[-10%] w-[50%] h-[40%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
-      </div>
-
-      <div className="max-w-3xl mx-auto px-6 pt-24 pb-48 relative z-10 space-y-12">
-        <div className="space-y-3">
-           <PageHeader title="FAQ & KNOWLEDGE" showBack={true} backTo="/client/settings" />
-           <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed max-w-sm", isLight ? "text-black" : "text-white")}> Client Assistance Hub v14.0 </p>
-        </div>
+    <div className="min-h-screen bg-background">
+      <div className="max-w-3xl mx-auto px-4 pt-4 pb-24">
+        <PageHeader
+          title="FAQ & Help"
+          subtitle="Common questions for renters"
+          showBack={true}
+          backTo="/client/settings"
+        />
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={fastSpring}
-          className="space-y-4"
+          className="space-y-3"
         >
           {faqItems.map((item, index) => (
-            <div
+            <Card
               key={index}
-              className={cn(
-                "rounded-[2.2rem] border overflow-hidden transition-all shadow-3xl cursor-pointer group",
-                expandedIndex === index 
-                    ? (isLight ? "bg-black/5 border-black/10" : "bg-white/[0.08] border-[#EB4898]/40 shadow-xl shadow-[#EB4898]/10")
-                    : (isLight ? "bg-black/[0.03] border-black/5 hover:bg-black/[0.05]" : "bg-white/[0.03] border-white/5 hover:bg-white/[0.05]")
-              )}
+              className="bg-card border-border overflow-hidden cursor-pointer"
               onClick={() => toggleExpand(index)}
             >
-              <div className="flex items-center justify-between p-7">
-                <span className={cn("text-[15px] font-black uppercase italic tracking-tighter transition-all group-hover:translate-x-1", isLight ? "text-black" : "text-white")}>{item.question}</span>
-                <ChevronDown
-                  className={cn(
-                    "w-6 h-6 transition-transform duration-500",
-                    isLight ? "text-black/30" : "text-white/20",
-                    expandedIndex === index && (isLight ? "rotate-180 text-black" : "rotate-180 text-[#EB4898]")
+              <CardContent className="p-0">
+                <div className="flex items-center justify-between p-4">
+                  <span className="font-medium text-foreground pr-4">{item.question}</span>
+                  <ChevronDown
+                    className={cn(
+                      "w-5 h-5 text-muted-foreground transition-transform flex-shrink-0",
+                      expandedIndex === index && "rotate-180"
+                    )}
+                  />
+                </div>
+                <AnimatePresence>
+                  {expandedIndex === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="px-4 pb-4 text-muted-foreground text-sm border-t border-border pt-3">
+                        {item.answer}
+                      </div>
+                    </motion.div>
                   )}
-                />
-              </div>
-              <AnimatePresence>
-                {expandedIndex === index && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    <div className={cn(
-                        "px-8 pb-8 text-[13px] font-black uppercase tracking-widest mt-2 leading-relaxed italic opacity-40 border-t",
-                        isLight ? "text-black border-black/5" : "text-white border-white/5 pt-6"
-                    )}>
-                      {item.answer}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                </AnimatePresence>
+              </CardContent>
+            </Card>
           ))}
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration:0.6, delay: 0.2 }}
-          className={cn(
-            "p-10 rounded-[3.5rem] border shadow-3xl text-center relative overflow-hidden group",
-            isLight ? "bg-black/5 border-black/5" : "bg-gradient-to-br from-[#EB4898]/20 to-black border-[#EB4898]/20"
-          )}
+          transition={{ ...fastSpring, delay: 0.1 }}
+          className="mt-8"
         >
-          <HelpCircle className="absolute -top-10 -right-10 w-48 h-48 opacity-5 -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
-          
-          <div className="relative z-10 flex flex-col items-center">
-             <div className="w-20 h-20 bg-[#EB4898] rounded-[1.8rem] flex items-center justify-center mb-10 shadow-3xl shadow-[#EB4898]/40">
-                <MessageCircle className="w-10 h-10 text-white" />
-             </div>
-             <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter mb-4", isLight ? "text-black" : "text-white")}>Still Need Assistance?</h3>
-             <p className={cn("text-[11px] font-black uppercase tracking-[0.25em] mb-10 opacity-40 max-w-[240px] leading-relaxed italic", isLight ? "text-black" : "text-white")}>
-               Contact our elite support team for direct manual assistance.
-             </p>
-             <Button
+          <Card className="bg-muted/30 border-border">
+            <CardContent className="p-6 text-center">
+              <h3 className="font-semibold text-foreground mb-2">Still need help?</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Contact our support team for personalized assistance
+              </p>
+              <Button
                 variant="outline"
                 onClick={() => window.location.href = 'mailto:support@swipess.com'}
-                className="h-16 px-12 rounded-[2rem] bg-white text-black font-black uppercase italic tracking-widest border-none hover:bg-white/90 transition-all shadow-2xl"
-             >
-                DISPATCH SUPPORT
-             </Button>
-          </div>
+              >
+                Contact Support
+              </Button>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
     </div>

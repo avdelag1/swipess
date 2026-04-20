@@ -7,12 +7,8 @@ import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
-import { DiscoveryMapView } from './swipe/DiscoveryMapView';
-import type { QuickFilterCategory } from '@/types/filters';
 import {
   getActiveCategoryInfo,
-  POKER_CARDS,
-  OWNER_INTENT_CARDS,
 } from './swipe/SwipeConstants';
 import { CategorySwipeStack } from './CategorySwipeStack';
 import { MatchCelebrateModal } from './swipe/MatchCelebrateModal';
@@ -38,11 +34,11 @@ import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { useSwipePrefetch, usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
-import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { Home, Bike, Briefcase, ChevronLeft } from 'lucide-react';
+import { Home, Bike, Briefcase } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 
 const CATEGORY_ICON_MAP: Record<string, any> = {
@@ -100,7 +96,6 @@ interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
   onInsights?: (listingId: string) => void;
   onMessageClick?: () => void;
-  onExhaustedMap?: () => void;
   locationFilter?: {
     latitude: number;
     longitude: number;
@@ -110,7 +105,7 @@ interface SwipessSwipeContainerProps {
   filters?: ListingFilters;
 }
 
-const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, onExhaustedMap, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
+const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
@@ -133,7 +128,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   const userLatitude = useFilterStore((s) => s.userLatitude);
   const userLongitude = useFilterStore((s) => s.userLongitude);
   const setActiveCategory = useFilterStore((s) => s.setActiveCategory);
-  const { setCategories } = useFilterActions();
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
 
@@ -970,48 +964,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
 
       {/* Top Controls — IN FLOW, not absolute. Hidden when the exhausted state is showing because that view has its own large map. */}
       {(!isLoading || deckQueue.length > 0) && !(storeActiveCategory && deckQueue.length === 0 && !isLoading) && (
-        <div className="relative z-[60] w-full flex flex-col items-center shrink-0 px-6 pt-4">
-           <div className="w-full flex items-center justify-between gap-4">
-              {/* Back / Reset Category */}
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setActiveCategory(null)}
-                className="w-10 h-10 rounded-xl bg-black/40 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white/40 hover:text-white"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </motion.button>
-
-              {/* Quick Filters */}
-              <div className="flex-1 flex justify-center gap-2">
-                {(userRole === 'owner' ? OWNER_INTENT_CARDS : POKER_CARDS).filter((c: any) => 
-                  userRole === 'owner' 
-                    ? ['all-clients', 'buyers', 'renters', 'hire'].includes(c.id) 
-                    : ['property', 'motorcycle', 'services'].includes(c.id)
-                ).map((cat: any) => {
-                  const Icon = cat.icon;
-                  const isActive = storeActiveCategory === cat.id || (userRole === 'owner' && (filters as any).clientType === (cat as any).clientType);
-                  return (
-                    <motion.button
-                      key={cat.id}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        triggerHaptic('light');
-                        setActiveCategory(cat.id);
-                      }}
-                      className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center border transition-all relative overflow-hidden",
-                        isActive 
-                          ? "bg-white border-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)]" 
-                          : "bg-black/40 backdrop-blur-3xl border-white/10 text-white/20"
-                      )}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              {/* Radar Context */}
+        <div className="relative z-[60] w-full flex flex-col items-center shrink-0">
+          <div className="w-full pt-1 pb-1 px-2">
+            <div className="w-full flex justify-between items-center">
               <LocationRadiusSelector
                 radiusKm={radiusKm}
                 onRadiusChange={setRadiusKm}
@@ -1022,7 +977,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 lng={userLongitude}
                 variant="minimal"
               />
-           </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -1107,12 +1063,19 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 exit={{ opacity: 0 }}
                 className="w-full h-full z-50 overflow-hidden"
               >
-                <DiscoveryMapView
-                  category={(storeActiveCategory as QuickFilterCategory) || 'property'}
-                  onBack={() => onExhaustedMap?.()}
-                  onStartSwiping={handleRefresh}
-                  onCategoryChange={(cat) => setCategories([cat as any])}
-                  isEmbedded={false}
+                <SwipeExhaustedState 
+                 onRefresh={handleRefresh}
+                 isRefreshing={isRefreshing}
+                 categoryLabel={storeActiveCategory || 'Listings'}
+                 CategoryIcon={Home}
+                 radiusKm={radiusKm}
+                 onRadiusChange={setRadiusKm}
+                 onDetectLocation={detectLocation}
+                 detected={locationDetected}
+                 error={error}
+                 role={userRole === 'owner' ? 'owner' : 'client'}
+                 lat={userLatitude}
+                 lng={userLongitude}
                 />
               </motion.div>
             )}

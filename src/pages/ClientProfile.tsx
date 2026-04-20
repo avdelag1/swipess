@@ -114,7 +114,7 @@ const ClientProfile = () => {
           
           <div className="space-y-2">
             <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
-              {profile?.name || 'Profile'}
+              {profile?.name || 'Nexus ID'}
             </h1>
             <div className="bg-[#EB4898]/10 px-4 py-1.5 rounded-full border border-[#EB4898]/20 inline-block">
                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#EB4898] italic">{user?.email}</span>
@@ -178,7 +178,7 @@ const ClientProfile = () => {
            whileHover={{ scale: 1.02 }}
            whileTap={{ scale: 0.98 }}
            className="p-[2px] rounded-[2.8rem] bg-gradient-to-r from-[#EB4898] via-indigo-500 to-orange-500 shadow-3xl transition-all cursor-pointer"
-           onClick={() => { triggerHaptic('light'); setIsVapModalOpen(true); }}
+           onClick={() => { triggerHaptic('selection'); setIsVapModalOpen(true); }}
         >
           <div className={cn(
              "backdrop-blur-3xl rounded-[2.7rem] p-7 flex items-center gap-6 border",
@@ -224,7 +224,7 @@ const ClientProfile = () => {
           <div className="flex items-center justify-between px-2">
              <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-[#EB4898] animate-pulse" />
-                <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Global Activity</h3>
+                <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Global Nexus Pulse</h3>
              </div>
              <Sparkles className="w-4 h-4 text-[#EB4898]/40" />
           </div>

@@ -1,15 +1,12 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { QuickFilterCategory } from '@/types/filters';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import ClientFilters from './ClientFilters';
-import { Filter } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
+import { cn } from '@/lib/utils';
+import type { QuickFilterCategory } from '@/types/filters';
 
 interface ClientDashboardProps {
   onPropertyInsights?: (listingId: string) => void;
@@ -27,48 +24,26 @@ interface ClientDashboardProps {
  */
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { theme } = useTheme();
-  // Phase state: 'cards' | 'map' | 'swipe'.
-  // Default landing = map (replaces the legacy "ENGAGE DISCOVERY" intro).
-  // 'cards' remains reachable when the user re-taps Dashboard in the bottom nav,
-  // which clears activeCategory and triggers the cards fallback via useEffect.
-  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>('map');
-  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>('property');
-  const [showFilters, setShowFilters] = useState(false);
+  const isLight = theme === 'light';
+  
+  // Phase state: 'cards' | 'map' | 'swipe'
+  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>('cards');
+  const [mapCategory, setMapCategory] = useState<QuickFilterCategory | null>(null);
 
   const activeCategory = useFilterStore(s => s.activeCategory);
-  const { setActiveCategory, setCategories } = useFilterActions();
+  const { setActiveCategory } = useFilterActions();
 
   // ─── Actions ─────────────────────────────────────────────────────────────
-  
-  useEffect(() => {
-    const handleOpenFilters = () => setShowFilters(true);
-    window.addEventListener('open-client-filters', handleOpenFilters);
-    return () => window.removeEventListener('open-client-filters', handleOpenFilters);
-  }, []);
-
-  // 🛰️ DISCOVERY SYNC: If active category is cleared elsewhere (e.g. via 'Back' button in container), 
-  // revert phase to 'cards' to show the Poker Fan.
-  useEffect(() => {
-    if (!activeCategory && phase === 'swipe') {
-      setPhase('cards');
-    }
-  }, [activeCategory, phase]);
   
   const handleLaunch = useCallback((category: QuickFilterCategory) => {
     setMapCategory(category);
     setPhase('map');
-    setActiveCategory(null);
-  }, [setActiveCategory]);
-
-  const handleExhaustedMap = useCallback(() => {
-    setPhase('map');
-  }, [setActiveCategory]);
+  }, []);
 
   const handleMapBack = useCallback(() => {
-    setActiveCategory(null);
-    setPhase('map');
-    setMapCategory((prev) => prev || 'property');
-  }, [setActiveCategory]);
+    setPhase('cards');
+    setMapCategory(null);
+  }, []);
 
   const handleStartSwiping = useCallback(() => {
     if (mapCategory) {
@@ -97,7 +72,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const showSwipe = isSwiping;
 
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden relative">
+    <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">
       <AnimatePresence mode="popLayout">
         {showCards && (
           <motion.div
@@ -109,25 +84,26 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             className="relative flex flex-col items-center justify-center h-full w-full overflow-hidden"
             style={{ willChange: 'transform, opacity' }}
           >
-            <SwipeAllDashboard setCategories={(ids: any) => handleLaunch((Array.isArray(ids) ? ids[0] : ids) as QuickFilterCategory)} />
+            <SwipeAllDashboard setCategories={handleLaunch} />
           </motion.div>
         )}
 
         {showMap && mapCategory && (
           <motion.div
             key="dash-map"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="flex-1 w-full relative overflow-hidden"
+            initial={{ opacity: 0, y: 30, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.98 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full h-full"
+            style={{ willChange: 'transform, opacity' }}
           >
             <DiscoveryMapView
               category={mapCategory}
               onBack={handleMapBack}
               onStartSwiping={handleStartSwiping}
-              isEmbedded={true}
-              mode="client"
+              onCategoryChange={(cat) => setMapCategory(cat)}
+              isEmbedded={false}
             />
           </motion.div>
         )}
@@ -144,30 +120,12 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
           >
             <SwipessSwipeContainer
               onListingTap={handleListingTap}
-              onExhaustedMap={handleExhaustedMap}
               onInsights={handleListingTap}
               onMessageClick={onMessageClick}
             />
           </motion.div>
         )}
       </AnimatePresence>
-
-      <Sheet open={showFilters} onOpenChange={setShowFilters}>
-          <SheetContent side="bottom" className="h-[92vh] p-0 border-none bg-transparent overflow-hidden">
-            <div className={cn(
-              "w-full h-full transition-all duration-500 rounded-t-[3.5rem] border-t overflow-y-auto",
-              theme === 'nexus-style' ? "bg-black/90 border-white/10" : 
-              (theme === 'ivanna-style' ? "bg-card border-foreground/30 shadow-artisan" : "glass-morphism border-white/10")
-            )}>
-               <div className="sticky top-0 z-[60] flex items-center justify-center pt-4 pb-2">
-                  <div className="w-12 h-1.5 bg-white/20 rounded-full" />
-               </div>
-               <div className="px-1 pb-20">
-                  <ClientFilters isEmbedded={true} onClose={() => setShowFilters(false)} />
-               </div>
-            </div>
-         </SheetContent>
-      </Sheet>
     </div>
   );
 }

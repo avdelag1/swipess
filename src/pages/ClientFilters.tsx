@@ -12,12 +12,7 @@ import { useSaveClientFilterPreferences, useClientFilterPreferences } from '@/ho
 import { haptics } from '@/utils/microPolish';
 import type { QuickFilterCategory, QuickFilterListingType } from '@/types/filters';
 
-export interface ClientFiltersProps {
-  isEmbedded?: boolean;
-  onClose?: () => void;
-}
-
-export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProps) {
+export default function ClientFilters() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -86,9 +81,8 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
       preferred_listing_types: selectedListingType === 'both' ? ['rent', 'sale'] : [selectedListingType],
     });
 
-    if (onClose) onClose();
-    else navigate('/client/dashboard');
-  }, [selectedCategories, selectedListingType, selectedBedrooms, selectedBathrooms, setCategories, setListingType, setBedrooms, setBathrooms, queryClient, navigate, savePrefs, onClose]);
+    navigate('/client/dashboard');
+  }, [selectedCategories, selectedListingType, selectedBedrooms, selectedBathrooms, setCategories, setListingType, setBedrooms, setBathrooms, queryClient, navigate, savePrefs]);
 
   const handleReset = useCallback(() => {
     haptics.tap();
@@ -103,18 +97,13 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
 
   return (
     <div className={cn(
-        "transition-colors duration-500 pb-32 lg:pb-0",
-        !isEmbedded && "min-h-screen",
-        theme === 'nexus-style' ? "bg-black text-white" : 
-        (theme === 'ivanna-style' ? "bg-transparent text-foreground ivanna-style" : (isDark ? "bg-background text-foreground" : "bg-[#F8FAFC] text-slate-900")),
-        isEmbedded && "bg-transparent text-white"
+        "min-h-screen transition-colors duration-500 pb-32 lg:pb-0",
+        isDark ? "bg-background text-foreground" : "bg-[#F8FAFC] text-slate-900"
     )}>
       {/* Target Acquisition Header Style */}
-      {!isEmbedded && (
-        <div className={cn(
-          "sticky top-0 z-50 backdrop-blur-3xl border-b transition-all duration-300 safe-top-padding",
-          theme === 'nexus-style' ? "bg-black/60 border-white/10 shadow-2xl" :
-          (theme === 'ivanna-style' ? "bg-white/20 border-foreground shadow-artisan" : (isDark ? "bg-background/80 border-white/5 shadow-2xl" : "bg-white/80 border-slate-200 shadow-sm"))
+      <div className={cn(
+          "sticky top-0 z-50 bg-background/80 backdrop-blur-3xl border-b transition-all duration-300 safe-top-padding",
+          isDark ? "border-white/5 shadow-2xl" : "bg-white/80 border-slate-200 shadow-sm"
       )}>
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between mb-4">
@@ -180,9 +169,8 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
           </div>
         </div>
       </div>
-      )}
 
-      <div className={cn("container mx-auto px-6 pt-4 pb-10", isEmbedded && "pt-10")}>
+      <div className="container mx-auto px-6 pt-4 pb-10">
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
           <aside className="w-full lg:w-80 shrink-0">
              <div className="space-y-8 sticky top-48">

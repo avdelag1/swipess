@@ -29,7 +29,7 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { theme } = useTheme();
+  useTheme();
   const location = useLocation();
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
@@ -81,18 +81,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     return isCameraRoute || isRadioRoute || showAIChat;
   }, [isCameraRoute, isRadioRoute, showAIChat]);
 
-  const isIvanna = theme === 'ivanna-style';
-
   const handleFilterClick = () => {
-    if (location.pathname === '/client/dashboard') {
-      window.dispatchEvent(new CustomEvent('open-client-filters'));
-      return;
-    }
-    if (location.pathname === '/owner/dashboard') {
-      window.dispatchEvent(new CustomEvent('open-owner-filters'));
-      return;
-    }
-
     if (userRole === 'owner') navigate('/owner/filters');
     else navigate('/client/filters');
   };
@@ -105,11 +94,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const handleMessageActivationsClick = () => navigate('/subscription/packages');
 
   return (
-    <div className={cn(
-      "w-full min-h-screen flex flex-col relative selection:bg-brand-primary/30", 
-      theme === 'ivanna-style' ? "bg-transparent ivanna-style" : "bg-background",
-      theme === 'nexus-style' && "nexus-style"
-    )}>
+    <div className="w-full flex flex-col relative bg-background selection:bg-brand-primary/30">
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />
       
@@ -133,8 +118,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <main
         id="main-content"
         className={cn(
-          "w-full flex-1 relative z-0",
-          isIvanna ? "bg-transparent" : "bg-background",
+          "w-full relative z-0",
           isFullScreen && "h-screen overflow-hidden fixed inset-0"
         )}
       >
