@@ -207,10 +207,8 @@ export default function PublicProfilePreview() {
           <div className="w-9" />
         )}
 
-        {/* Swipess logo pill */}
-        <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full shadow-lg h-9">
-          <SwipessLogo size="xs" />
-        </div>
+        {/* Profile identity pill removed for Nexus aesthetic */}
+        <div className="w-12" />
 
         {!user ? (
           <motion.button
@@ -400,8 +398,8 @@ export default function PublicProfilePreview() {
               )}
             </div>
 
-            <p className="text-center text-[11px] text-muted-foreground/60 pb-1">
-              Swipess · Find Your Perfect Match
+            <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] italic opacity-20 pb-1">
+              Nexus Discovery · Find Your Perfect Match
             </p>
           </div>
         </motion.div>

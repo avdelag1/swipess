@@ -167,7 +167,7 @@ export function MessagingDashboard() {
             exit={{ opacity: 0, scale: 0.98 }}
             className={cn(
               "w-full max-w-4xl mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
-              isIvanna ? "bg-sky-50/80 backdrop-blur-3xl border-sky-100/50" : (isLight ? "bg-white border-black/5" : "bg-[#0d0d0f] border-white/5")
+              isIvanna ? "bg-white/90 backdrop-blur-2xl border-sky-100/50" : (isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5")
             )}
           >
             {otherUser ? (

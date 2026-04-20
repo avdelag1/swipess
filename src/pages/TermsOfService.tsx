@@ -54,7 +54,7 @@ export default function TermsOfService() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className={cn("p-12 rounded-[3.5rem] border shadow-3xl backdrop-blur-3xl", isLight ? "bg-black/5 border-black/10" : "bg-white/[0.03] border-white/5")}>
              <div className="space-y-16">
                 {[
-                  { id: '01', title: 'Acceptance of Matrix Terms', content: 'By initializing the Swipess nexus, you agree to be bound by these Legal Protocols. Access is denied to non-compliant entities.' },
+                  { id: '01', title: 'Acceptance of Matrix Terms', content: 'By initializing the Nexus nexus, you agree to be bound by these Legal Protocols. Access is denied to non-compliant entities.' },
                   { id: '02', title: 'Entity Eligibility', content: 'Minimum age of 18 orbits required. You must possess the legal authority to enter binding digital agreements within the matrix.' },
                   { id: '03', title: 'Identity Security', content: 'You are solely responsible for the encryption integrity of your access credentials. Notify the Registry immediately upon unauthorized sync.' },
                   { id: '04', title: 'Prohibited Transmissions', content: 'Entities shall not transmit fraudulent logs, harass other users, or bypass platform security firewalls. Violations result in immediate identity purging.' },
@@ -83,7 +83,7 @@ export default function TermsOfService() {
             >
                RETURN TO HUB
             </Button>
-            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Swipess • 2025-2026 </p>
+            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Nexus • 2025-2026 </p>
         </div>
 
       </div>

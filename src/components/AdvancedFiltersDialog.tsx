@@ -130,18 +130,14 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
         className={cn(
           "flex flex-col p-0 gap-0 overflow-hidden",
           isMobile
-            ? "w-full h-full max-w-full max-h-full inset-0 top-0 translate-x-0 translate-y-0 rounded-none border-0"
-            : cn(
-                "max-w-2xl h-[70vh] sm:h-[75vh] max-h-[600px] top-[50%]",
-                theme === 'ivanna-style' ? "bg-sky-50/95 backdrop-blur-3xl border-sky-200/50" : "bg-background"
-              )
+            ? "w-full h-full max-w-full max-h-full inset-0 top-0 translate-x-0 translate-y-0 rounded-none border-0 bg-[#0A0A0C]"
+            : "max-w-2xl h-[70vh] sm:h-[75vh] max-h-[600px] top-[50%] bg-[#0A0A0C]/95 backdrop-blur-3xl border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)]"
         )}
       >
-        {/* Header - Larger on mobile */}
+        {/* Header - Nexus High-Contrast */}
         <DialogHeader className={cn(
-          "shrink-0 border-b transition-all",
-          theme === 'ivanna-style' ? "bg-sky-100/30" : "bg-gradient-to-r from-primary/5 via-background to-background",
-          isMobile ? "px-6 pt-6 pb-4" : "px-4 sm:px-6 pt-4 sm:pt-6 pb-3"
+          "shrink-0 border-b border-white/5 transition-all text-white",
+          "bg-black/60 pt-8 pb-4 px-8"
         )}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -186,17 +182,14 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
           </div>
         </DialogHeader>
 
-        {/* Category Tabs - Larger touch targets on mobile */}
+        {/* Category Tabs - Nexus Glass */}
         <div className={cn(
-          "shrink-0 border-b",
-          theme === 'ivanna-style' ? "bg-sky-100/20" : "bg-background/50",
-          isMobile ? "px-6 py-4" : "px-4 sm:px-6 py-3"
+          "shrink-0 border-b border-white/5 bg-black/40 px-8 py-4"
         )}>
           <Tabs value={activeCategory} onValueChange={(value) => setActiveCategory(value as CategoryType)} className="w-full">
             <TabsList className={cn(
-              "w-full grid grid-cols-4 p-1 rounded-xl",
-              theme === 'ivanna-style' ? "bg-sky-200/20" : "bg-muted/50",
-              isMobile ? "h-16 gap-1" : "h-12"
+              "w-full grid grid-cols-4 p-1.5 rounded-[1.4rem] bg-white/[0.03] border border-white/5",
+              isMobile ? "h-16 gap-1" : "h-14"
             )}>
               {categoryBase.map((cat) => {
                 const Icon = cat.icon;
@@ -329,17 +322,16 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
           </div>
         </ScrollArea>
 
-        {/* Footer - Larger buttons on mobile */}
+        {/* Footer - Nexus High-Contrast */}
         <DialogFooter className={cn(
-          "shrink-0 flex gap-2 border-t bg-gradient-to-t from-background to-background/80",
-          isMobile ? "p-6" : "p-4 sm:p-6"
+          "shrink-0 flex gap-4 border-t border-white/5 bg-black px-8 py-6"
         )}>
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={onClose}
             className={cn(
-              "flex-1",
-              isMobile && "h-12 text-base"
+              "flex-1 h-12 rounded-[1.2rem] border border-white/10 text-white/60 hover:bg-white/5",
+              isMobile && "text-base"
             )}
           >
             Cancel
@@ -347,12 +339,12 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
           <Button
             onClick={handleApply}
             className={cn(
-              "flex-1 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold",
-              isMobile && "h-12 text-base"
+              "flex-1 h-12 rounded-[1.2rem] bg-white text-black font-black uppercase italic tracking-widest hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.2)]",
+              isMobile && "text-base"
             )}
           >
-            <Sparkles className={cn(isMobile ? "w-5 h-5 mr-2" : "w-4 h-4 mr-2")} />
-            Apply {totalActiveFilters > 0 && `(${totalActiveFilters})`}
+            <Sparkles className="w-5 h-5 mr-3" />
+            Engage Filters {totalActiveFilters > 0 && `(${totalActiveFilters})`}
           </Button>
         </DialogFooter>
       </DialogContent>

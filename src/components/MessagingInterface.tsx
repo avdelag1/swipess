@@ -113,7 +113,10 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     <>
       <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={currentUserRole} variant="activation-required" />
 
-      <div className="flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500 bg-background">
+      <div className={cn(
+        "flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500",
+        theme === 'ivanna-style' ? "bg-white/95" : "bg-background"
+      )}>
         
         {/* 🛸 NEXUS HUD HEADER (v14) */}
         <div className={cn(

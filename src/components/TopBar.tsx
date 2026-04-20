@@ -12,7 +12,6 @@ import { haptics } from '@/utils/microPolish';
 import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
-import { SwipessLogo } from './SwipessLogo';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -85,14 +84,14 @@ function TopBarComponent({
     >
       <div className="h-full w-full max-w-screen-xl mx-auto px-4 flex items-center justify-between relative">
         
-        {/* LEFT CLUSTER: Profile & Back (Unified Pill) */}
+        {/* LEFT CLUSTER: Profile, Back & Mode Switching (Unified Pill) */}
         <div className="flex-shrink-0 flex items-center pointer-events-none">
           {(!minimal || onBack) && (
             <div 
               className={cn("flex items-center gap-1.5 pointer-events-auto px-1.5 py-1.5 shadow-2xl transition-all duration-300")} 
               style={{
                 ...glassSurfaceStyle,
-                background: isIvanna ? 'rgba(255, 252, 240, 0.65)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(15,15,20,0.12)'),
+                background: isIvanna ? 'rgba(255, 252, 240, 0.65)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(10,10,12,0.15)'),
                 borderRadius: '2rem',
                 border: isIvanna ? '1px solid rgba(140, 180, 230, 0.4)' : '1px solid rgba(255,255,255,0.15)',
               }}
@@ -121,7 +120,7 @@ function TopBarComponent({
                     haptics.tap();
                     navigate(isOwner ? '/owner/profile' : '/client/profile');
                   }}
-                  className="flex items-center gap-2 pr-4 transition-all duration-200"
+                  className="flex items-center gap-2 pr-2 transition-all duration-200"
                 >
                   <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-brand-primary/60 shadow-lg ml-0.5">
                     {profile?.avatar_url ? (
@@ -138,7 +137,7 @@ function TopBarComponent({
                   </div>
                   {profile?.full_name && (
                     <span className={cn(
-                      "text-[12px] font-black uppercase italic tracking-tight whitespace-nowrap flex-shrink-0 max-w-[11ch] truncate",
+                      "text-[11px] font-black uppercase italic tracking-tight whitespace-nowrap flex-shrink-0 max-w-[9ch] truncate",
                       isLight ? "text-foreground" : "text-white/90"
                     )}>
                       {profile.full_name.split(' ')[0]}
@@ -147,32 +146,16 @@ function TopBarComponent({
                 </motion.button>
               )}
 
-              {!minimal && isOwner && (
-                <div className="flex items-center px-1">
-                  <ModeSwitcher variant="icon" size="sm" />
-                </div>
-              )}
+              {/* Mode Switcher Integrated into Left Unified Pill */}
+              <div className="flex items-center px-1 border-l border-white/10 h-6 ml-1">
+                <ModeSwitcher variant="icon" size="sm" />
+              </div>
             </div>
           )}
         </div>
 
-        {/* LOGO: Center Tap Target (Dashboard Home) */}
-        <motion.div
-           whileTap={{ scale: 0.95 }}
-           onClick={() => {
-             haptics.tap();
-             navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
-           }}
-           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-12 px-6 z-10 pointer-events-auto touch-manipulation cursor-pointer flex items-center justify-center group"
-        >
-          <SwipessLogo 
-            size="md" 
-            variant={isLight ? "gradient" : "white"} 
-            className="group-hover:scale-105 transition-transform duration-500" 
-          />
-        </motion.div>
-
-        <div className="flex-1 min-w-0" />
+        {/* CENTER: PURGED PER USER REQUEST */}
+        <div className="flex-1" />
 
         {/* RIGHT CLUSTER: Actions (Unified Pill) */}
         <div className="flex-shrink-0 flex items-center pointer-events-none">
