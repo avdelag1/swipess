@@ -44,10 +44,9 @@ export default function OwnerFilters() {
             </motion.button>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Target className="w-3.5 h-3.5 text-[#EB4898]" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#EB4898] italic">Radar Intelligence</span>
+                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#3B82F6]">Prospect Shield</span>
               </div>
-              <h1 className="text-2xl font-black italic tracking-tighter uppercase leading-none">Target Radar</h1>
+              <h1 className="text-2xl font-black italic tracking-tighter uppercase leading-none mt-1">Discovery</h1>
             </div>
           </div>
         </div>

@@ -182,29 +182,39 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
     <div className="space-y-4">
       {/* Category Header */}
       <div className="flex items-center justify-between px-2 mb-2">
-        <h3 className={cn(
-          "text-[10px] font-black uppercase tracking-[0.2em] italic",
-          isLight ? "text-foreground/60" : "text-muted-foreground"
-        )}>Discovery Scope: {category}</h3>
+        <div className="flex flex-col">
+          <h3 className={cn(
+            "text-[10px] font-black uppercase tracking-[0.3em] italic",
+            isLight ? "text-[#3B82F6]" : "text-primary"
+          )}>
+            {category === 'service' ? 'Prospect Shield' : 'Target Scope'}
+          </h3>
+          <span className="text-xs font-black uppercase tracking-widest opacity-40">Discovery Radar</span>
+        </div>
         <Badge variant="outline" className="text-[9px] font-bold border-primary/20 text-primary uppercase">{category}</Badge>
       </div>
 
       {/* Interest Type */}
       <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
         <CardContent className="pt-6">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="flex items-center gap-2 mb-4">
+             <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Filters</h2>
+             <div className="h-[1px] flex-1 bg-[#3B82F6]/10" />
+             <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{category}</span>
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
             {['rent', 'buy', 'both'].map((type) => (
               <motion.button
                 key={type}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setInterestType(type)}
                 className={cn(
-                   "flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 inline-flex items-center justify-center gap-2 rounded-2xl px-3.5 py-3 border transition-all duration-300 w-full text-[10px] font-black uppercase tracking-widest",
+                   "flex-shrink-0 focus:outline-none z-10 relative pointer-events-auto cursor-pointer touch-manipulation px-8 py-4 border transition-all duration-300 rounded-full text-[10px] font-black uppercase tracking-widest",
                    interestType === type
-                    ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+                    ? "bg-white text-slate-900 border-white shadow-xl scale-105"
                     : isLight 
-                      ? "bg-white/80 border-black/10 shadow-sm text-muted-foreground" 
-                      : "bg-black/60 border-white/20 shadow-xl text-muted-foreground"
+                      ? "bg-muted/10 border-slate-200/50 text-muted-foreground hover:bg-white/10" 
+                      : "bg-black/40 border-white/10 text-muted-foreground hover:bg-white/5"
                  )}
               >
                 {type}
@@ -218,11 +228,11 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
       <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
         <Collapsible>
           <CollapsibleTrigger className="w-full p-6 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-primary" />
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
+                <Sparkles className="w-3 h-3 text-[#3B82F6]" />
               </div>
-              <span className="text-sm font-black uppercase tracking-widest">Client DNA</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Details</span>
             </div>
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
           </CollapsibleTrigger>
@@ -277,8 +287,10 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
       <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
-             <DollarSign className="w-4 h-4 text-primary" />
-             <span className="text-xs font-black uppercase tracking-widest">Budget Radar</span>
+             <div className="w-5 h-5 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
+               <DollarSign className="w-3 h-3 text-[#3B82F6]" />
+             </div>
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Budget Radar</span>
           </div>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
@@ -302,16 +314,36 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
         <>
           <Card className="bg-card/30 backdrop-blur-md border-white/5 overflow-hidden rounded-[2rem]">
             <CardHeader className="pb-2">
-              <span className="text-xs font-black uppercase tracking-widest">Rooms & Space</span>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
+                  <Bed className="w-3 h-3 text-[#3B82F6]" />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Rooms & Space</span>
+              </div>
             </CardHeader>
             <CardContent className="space-y-6 pt-2">
-               <div className="space-y-3">
-                 <div className="flex justify-between text-[10px] font-black uppercase text-muted-foreground">
-                   <Label>Bedrooms</Label>
-                   <span>{bedrooms}+</span>
-                 </div>
-                 <Slider value={[bedrooms]} onValueChange={(v) => setBedrooms(v[0])} min={1} max={6} step={1} />
-               </div>
+                <div className="space-y-4">
+                  <div className="flex justify-between text-[10px] font-black uppercase text-muted-foreground tracking-widest px-1">
+                    <Label>Bedrooms</Label>
+                    <span>{bedrooms}+</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2.5">
+                    {[1, 2, 3, 4, 5, 6].map(n => (
+                      <button 
+                        key={n} 
+                        onClick={() => setBedrooms(n)}
+                        className={cn(
+                          "w-12 h-12 rounded-full text-[10px] font-black transition-all border flex items-center justify-center",
+                          bedrooms === n 
+                            ? "bg-white text-slate-900 border-white shadow-lg scale-110" 
+                            : "bg-muted/10 border-slate-200/50 text-muted-foreground"
+                        )}
+                      >
+                        {n}+
+                      </button>
+                    ))}
+                  </div>
+                </div>
             </CardContent>
           </Card>
         </>

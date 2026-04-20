@@ -134,8 +134,8 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 <ChevronLeft className="w-5 h-5" />
               </motion.button>
               <div>
-                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Discovery Intelligence</span>
-                <h1 className="text-xl md:text-2xl font-bold leading-snug">Discovery</h1>
+                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#3B82F6]">Target Scope</span>
+                <h1 className="text-2xl font-black italic tracking-tighter uppercase leading-none mt-1">Discovery</h1>
               </div>
             </div>
             {hasChanges && (
@@ -149,20 +149,24 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
           </div>
 
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex bg-muted/20 p-1 rounded-2xl border border-white/5">
+            <div className="flex items-center gap-3 w-full">
+              <div className={cn(
+                "flex p-1.5 rounded-[2rem] border transition-all duration-300",
+                isDark ? "bg-black border-white/10" : "bg-white border-slate-200 shadow-sm"
+              )}>
                 {[
                   { id: 'property', icon: Home, label: 'Properties' },
-                  { id: 'motorcycle', icon: Package, label: 'Motos' },
-                  { id: 'bicycle', icon: Sparkles, label: 'Bicycles' },
+                  { id: 'motorcycle', icon: Sparkles, label: 'Motos' },
                   { id: 'services', icon: Users, label: 'Workers' }
                 ].map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => toggleCategory(cat.id as QuickFilterCategory)}
                     className={cn(
-                      "w-11 h-11 flex items-center justify-center rounded-xl transition-all",
-                      activeCategory === cat.id ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:bg-muted/40"
+                      "w-12 h-12 flex items-center justify-center rounded-2xl transition-all",
+                      activeCategory === cat.id 
+                        ? "bg-[#3B82F6] text-white shadow-lg" 
+                        : "text-muted-foreground hover:bg-muted/40"
                     )}
                   >
                     <cat.icon className="w-5 h-5" />
@@ -171,13 +175,16 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               </div>
 
               <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Search discovery sector..."
+                  placeholder="Search target sector..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 h-13 rounded-2xl bg-muted/20 border border-white/5 focus:bg-muted/40 transition-all font-black italic text-sm placeholder:text-muted-foreground/40 outline-none"
+                  className={cn(
+                    "w-full pl-12 pr-6 h-15 rounded-[2rem] border focus:ring-2 focus:ring-[#3B82F6]/50 transition-all font-black italic text-sm outline-none px-4",
+                    isDark ? "bg-black border-white/10 text-white placeholder:text-muted-foreground/30" : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-300 shadow-sm"
+                  )}
                 />
               </div>
             </div>
@@ -191,55 +198,56 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
           <aside className="w-full lg:w-80 shrink-0">
              <div className="space-y-8 sticky top-48">
                <section className="space-y-3">
-                 <div className="flex items-center justify-between px-1">
-                    <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Filters</h2>
-                    <span className="text-[10px] font-medium uppercase opacity-40">{activeCategory}</span>
-                 </div>
+                <div className="flex items-center justify-between px-1">
+                  <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Filters</h2>
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{activeCategory}</span>
+                </div>
 
-                 <div className={cn(
-                     "grid grid-cols-3 gap-2 p-1.5 rounded-3xl border",
-                     isDark ? "bg-muted/10 border-white/5" : "bg-white border-slate-200"
-                 )}>
-                   {(['rent', 'sale', 'both'] as const).map((type) => {
-                     const isActive = selectedListingType === type;
-                     return (
-                       <button
-                         key={type}
-                         onClick={() => { haptics.tap(); setSelectedListingType(type); }}
-                         className={cn(
-                           "py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
-                           isActive 
-                               ? "bg-primary text-white shadow-xl shadow-primary/20 scale-[1.02]" 
-                               : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
-                         )}
-                       >
-                         {type}
-                       </button>
-                     );
-                   })}
-                 </div>
+                <div className={cn(
+                  "flex items-center gap-2 overflow-x-auto no-scrollbar py-1"
+                )}>
+                  {(['rent', 'sale', 'both'] as const).map((type) => {
+                    const isActive = selectedListingType === type;
+                    return (
+                      <button
+                        key={type}
+                        onClick={() => { haptics.tap(); setSelectedListingType(type); }}
+                        className={cn(
+                          "px-10 py-5 rounded-full text-xs font-black uppercase tracking-widest transition-all border",
+                          isActive 
+                            ? "bg-white text-slate-900 border-white shadow-[0_15px_40px_rgba(0,0,0,0.1)] scale-[1.05]" 
+                            : "bg-transparent text-muted-foreground border-slate-200/50 hover:bg-white/10"
+                        )}
+                      >
+                        {type}
+                      </button>
+                    );
+                  })}
+                </div>
                </section>
 
                <section className="space-y-5">
-                 <div className="flex items-center gap-2 opacity-70">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Details</span>
-                 </div>
+                 <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
+                    <Sparkles className="w-3 h-3 text-[#3B82F6]" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Details</span>
+                </div>
                  
                  {activeCategory === 'property' && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 pl-1">
                         <div className="space-y-4">
                             <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Bedrooms</label>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2.5">
                                 {[1, 2, 3, 4, 5].map(n => (
                                     <button 
                                         key={n} 
                                         onClick={() => toggleBedroom(n)}
                                         className={cn(
-                                          "h-11 px-5 rounded-2xl text-[10px] font-black transition-all border",
+                                          "w-14 h-14 rounded-full text-[11px] font-black transition-all border flex items-center justify-center",
                                           selectedBedrooms.includes(n) 
-                                            ? "bg-primary/20 border-primary text-primary shadow-inner" 
-                                            : "bg-muted/10 border-white/5 text-muted-foreground"
+                                            ? "bg-white text-slate-900 border-white shadow-lg scale-110" 
+                                            : "bg-muted/10 border-slate-200/50 text-muted-foreground"
                                         )}
                                     >
                                         {n}+
