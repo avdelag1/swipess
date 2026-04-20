@@ -979,12 +979,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
   // of the vertical snap-scrolling reel.
   return (
     <div className={cn(
-      "relative w-full h-full overflow-hidden flex flex-col",
-      theme === 'ivanna-style' ? "bg-transparent" : "bg-black"
+      "relative w-full h-full overflow-hidden flex flex-col transition-colors duration-500",
+      isLight ? "bg-transparent" : "bg-black"
     )}>
       <div className={cn(
-        "absolute inset-0 pointer-events-none -z-10",
-        theme === 'ivanna-style' ? "bg-transparent" : "bg-black"
+        "absolute inset-0 pointer-events-none -z-10 transition-colors duration-500",
+        isLight ? "bg-transparent" : "bg-black"
       )} />
 
       {/* Top Controls — IN FLOW, not absolute. Hidden when the exhausted state is showing because that view has its own large map. */}
@@ -995,7 +995,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setActiveCategory(null)}
-                className="w-10 h-10 flex items-center justify-center text-white/40 hover:text-white transition-colors"
+                className={cn(
+                  "w-10 h-10 flex items-center justify-center transition-colors",
+                  isLight ? "text-black/40 hover:text-black" : "text-white/40 hover:text-white"
+                )}
               >
                 <ChevronLeft className="w-5 h-5" />
               </motion.button>
@@ -1021,7 +1024,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                         "w-10 h-10 rounded-full flex items-center justify-center transition-all relative overflow-hidden",
                         isActive 
                           ? "text-primary drop-shadow-[0_0_10px_rgba(255,107,53,0.5)] scale-110" 
-                          : "text-white/20 hover:text-white/60"
+                          : (isLight ? "text-black/30 hover:text-black/60" : "text-white/30 hover:text-white/60")
                       )}
                     >
                       <Icon className="w-4 h-4" />
