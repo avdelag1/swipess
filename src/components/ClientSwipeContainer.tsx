@@ -40,7 +40,9 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/prodLogger';
 import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
-import { Home } from 'lucide-react';
+import { Home, RefreshCw } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
@@ -83,6 +85,7 @@ const ClientSwipeContainerComponent = ({
 }: ClientSwipeContainerProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { theme } = useTheme();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
 
