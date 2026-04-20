@@ -169,7 +169,7 @@ export const DiscoveryMapView = ({
     <motion.div
       className={cn(
         'w-full h-full relative overflow-hidden flex flex-col',
-        isLight ? 'bg-white' : (isEmbedded ? 'bg-[#0a0a0b]' : 'bg-black'),
+        theme === 'ivanna-style' ? 'bg-transparent' : (isLight ? 'bg-white' : (isEmbedded ? 'bg-[#0a0a0b]' : 'bg-black')),
       )}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

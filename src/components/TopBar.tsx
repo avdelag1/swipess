@@ -85,7 +85,7 @@ function TopBarComponent({
     <>
       <header
         className={cn(
-          'app-header pointer-events-none opacity-100 translate-y-0 transform-gpu will-change-transform bg-transparent',
+          'app-header pointer-events-none opacity-100 translate-y-0 transform-gpu will-change-transform bg-transparent top-bar-glass',
           className
         )}
       >

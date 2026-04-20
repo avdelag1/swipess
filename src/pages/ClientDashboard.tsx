@@ -12,6 +12,8 @@ import ClientFilters from './ClientFilters';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { useModalStore } from '@/state/modalStore';
+import { useSmartListingMatching } from '@/hooks/useSmartMatching';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ClientDashboardProps {
   onPropertyInsights?: (listingId: string) => void;
@@ -38,7 +40,20 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const [showFilters, setShowFilters] = useState(false);
 
   const activeCategory = useFilterStore(s => s.activeCategory);
+  const getListingFilters = useFilterStore(s => s.getListingFilters);
+  const { user } = useAuth();
   const { setActiveCategory } = useFilterActions();
+
+  // 🚀 PERFORMANCE HYDRATION: Pre-fetch listing data while user is on map phase
+  // so the swipe deck is ready instantly when they tap "Start Swiping".
+  useSmartListingMatching(
+    user?.id,
+    [],
+    getListingFilters(),
+    0,
+    20,
+    phase !== 'map' && phase !== 'swipe' // Disabled in cards phase
+  );
 
   // ─── Actions ─────────────────────────────────────────────────────────────
   
