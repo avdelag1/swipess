@@ -6,7 +6,7 @@ import {
 import { triggerHaptic } from '@/utils/haptics';
 import { playRandomZen } from '@/utils/sounds';
 import {
-  Mail, Lock, User, ArrowLeft, Sparkles, ChevronRight, Check, LogIn
+  Mail, Lock, User, ArrowLeft, Sparkles, ChevronRight, Check, LogIn, X
 } from 'lucide-react';
 import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects, { type EffectMode } from './LandingBackgroundEffects';
@@ -495,12 +495,84 @@ function LegendaryLandingPage() {
       {/* 🛸 LEGAL FOOTER */}
       <div className="absolute bottom-8 left-0 right-0 z-20 flex flex-col items-center gap-1.5 opacity-30 hover:opacity-80 transition-opacity">
         <div className="flex items-center gap-5 text-[9px] font-black uppercase tracking-[0.3em] text-white italic">
-          <button onClick={() => navigate('/privacy-policy')} className="hover:text-[#EB4898] transition-colors">Privacy</button>
+          <button onClick={() => setLegalModal('privacy')} className="hover:text-[#EB4898] transition-colors">Privacy</button>
           <div className="w-1 h-1 rounded-full bg-white/20" />
-          <button onClick={() => navigate('/terms-of-service')} className="hover:text-[#EB4898] transition-colors">Terms</button>
+          <button onClick={() => setLegalModal('terms')} className="hover:text-[#EB4898] transition-colors">Terms</button>
         </div>
         <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 Swipess</p>
       </div>
+
+      {/* 🛸 LEGAL POPUP MODAL */}
+      <AnimatePresence>
+        {legalModal && (
+          <motion.div
+            initial={{ opacity: 0, y: '100%' }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="absolute inset-x-0 bottom-0 top-10 z-[100] bg-black/95 backdrop-blur-3xl rounded-t-[2.5rem] border-t border-white/10 flex flex-col pt-10 px-6 pb-8 shadow-[0_-20px_50px_rgba(0,0,0,0.8)]"
+          >
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-white/20 rounded-full" />
+            
+            <div className="flex justify-between items-center mb-6 shrink-0 mt-4">
+              <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter">
+                {legalModal === 'terms' ? 'Terms of Service' : 'Privacy Policy'}
+              </h2>
+              <button 
+                onClick={() => setLegalModal(null)} 
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                title="Close"
+              >
+                 <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-white/80 scrollbar-none pb-12">
+               {legalModal === 'terms' ? (
+                 <div className="space-y-5">
+                    <p className="text-sm font-bold leading-relaxed text-white">By initializing the Swipess nexus, you agree to be bound by these Legal Protocols. Access is denied to non-compliant entities.</p>
+                    <div className="h-px bg-white/10 my-6" />
+                    
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mb-2">01 — Entity Eligibility</h3>
+                    <p className="text-sm opacity-80 leading-relaxed">Minimum age of 18 required. You must possess the legal authority to enter binding digital agreements.</p>
+                    
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">02 — Identity Security</h3>
+                    <p className="text-sm opacity-80 leading-relaxed">You are solely responsible for the encryption integrity of your access credentials. Notify the Registry immediately upon unauthorized sync.</p>
+                    
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">03 — Prohibited Acts</h3>
+                    <p className="text-sm opacity-80 leading-relaxed">Entities shall not transmit fraudulent logs, harass other users, or bypass platform security. Violations result in immediate ban.</p>
+                 </div>
+               ) : (
+                 <div className="space-y-5">
+                    <p className="text-sm font-bold leading-relaxed text-white">We value your privacy and security. Swipess uses advanced end-to-end encryption for sensitive data.</p>
+                    <div className="h-px bg-white/10 my-6" />
+                    
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mb-2">01 — Data Collection</h3>
+                    <p className="text-sm opacity-80 leading-relaxed">We collect email, authentication tokens, and basic interaction data necessary to operate the matching engine.</p>
+                    
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">02 — Data Sharing</h3>
+                    <p className="text-sm opacity-80 leading-relaxed">Your personal identity is strictly shielded. We do not sell your data to external data brokers.</p>
+                    
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">03 — Asset Privacy</h3>
+                    <p className="text-sm opacity-80 leading-relaxed">Location and discovery history is kept private and only utilized for matchmaking algorithms.</p>
+                 </div>
+               )}
+            </div>
+
+            <div className="shrink-0 pt-4 flex flex-col gap-3">
+               <button 
+                 onClick={() => {
+                   triggerHaptic('medium');
+                   setLegalModal(null);
+                 }} 
+                 className="w-full h-14 bg-[#EB4898] text-white font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(235,72,152,0.3)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+               >
+                 <Check className="w-5 h-5" /> I Accept & Acknowledge
+               </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
