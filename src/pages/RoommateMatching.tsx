@@ -293,7 +293,7 @@ export default function RoommateMatching() {
                  exit={{ opacity: 0 }}
                  className="absolute inset-0 flex flex-col items-center justify-center p-8"
                >
-                 <div className="w-full max-w-[340px] aspect-[3/4] rounded-[2.5rem] bg-muted/20 animate-shimmer overflow-hidden relative border border-white/5">
+                 <div className="w-full max-w-xl aspect-[3/4] rounded-[2.5rem] bg-muted/20 animate-shimmer overflow-hidden relative border border-white/5">
                     <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent animate-sweep" />
                  </div>
                  <div className="mt-8 space-y-4 w-full max-w-[200px]">
@@ -317,7 +317,7 @@ export default function RoommateMatching() {
                     <Users className="w-14 h-14 text-primary" strokeWidth={1} />
                   </div>
                 </div>
-                <div className="space-y-3 max-w-xs">
+                <div className="space-y-3 max-w-lg">
                   <h2 className={cn("text-xl md:text-2xl font-bold leading-snug", isLight ? "text-slate-900" : "text-white")}>
                     {t('roommates.noMoreMatches')}
                   </h2>
@@ -497,7 +497,7 @@ export default function RoommateMatching() {
 
             {/* STICKY BOTTOM ACTIONS */}
             <div className="fixed bottom-0 left-0 right-0 p-8 pt-12 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B] to-transparent z-[210] pointer-events-none">
-               <div className="max-w-md mx-auto flex gap-4 pointer-events-auto">
+               <div className="max-w-7xl mx-auto flex gap-4 pointer-events-auto">
                   <motion.button 
                     whileTap={{ scale: 0.95 }}
                     onClick={() => { handleSwipe('left'); setShowDetails(false); }}

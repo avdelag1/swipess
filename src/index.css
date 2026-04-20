@@ -76,7 +76,7 @@ body::-webkit-scrollbar {
 
 /* ─── Fluid Card Dimensions ─── */
 :root {
-  --card-width: min(420px, calc(100vw - 40px));
+  --card-width: min(800px, calc(100vw - 40px));
   --card-height: min(85vh, calc(100vh - 120px));
 }
 @supports (height: 100svh) {

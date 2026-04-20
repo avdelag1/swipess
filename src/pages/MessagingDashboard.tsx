@@ -166,7 +166,7 @@ export function MessagingDashboard() {
             animate={{ opacity: 1, scale: 1 }} 
             exit={{ opacity: 0, scale: 0.98 }}
             className={cn(
-              "w-full max-w-4xl mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
+              "w-full max-w-7xl mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
               isIvanna ? "bg-white/90 backdrop-blur-2xl border-sky-100/50" : (isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5")
             )}
           >
@@ -200,7 +200,7 @@ export function MessagingDashboard() {
 
       <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={userRole} variant="conversation-limit" />
       
-      <div className="w-full max-w-4xl mx-auto px-6 pt-20 pb-48 relative z-10 space-y-12">
+      <div className="w-full max-w-7xl mx-auto px-6 pt-20 pb-48 relative z-10 space-y-12">
         
         {/* 🛸 HEADER: MEGA NEXUS SYNC */}
         <div className="flex items-center gap-6">
@@ -351,7 +351,7 @@ export function MessagingDashboard() {
                  <MessageCircle className="w-10 h-10 text-indigo-500 animate-pulse" />
               </div>
               <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-4">No Transmissions</h3>
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-xs leading-relaxed">No messages yet. Connect with someone on the radar to start chatting.</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed">No messages yet. Connect with someone on the radar to start chatting.</p>
             </motion.div>
           )}
         </div>

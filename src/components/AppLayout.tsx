@@ -124,7 +124,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           isFullScreen && "h-screen overflow-hidden fixed inset-0"
         )}
       >
-        <div className="w-full max-w-xl mx-auto flex-1 flex flex-col">
+        <div className="w-full flex-1 flex flex-col">
           {children}
         </div>
       </main>
