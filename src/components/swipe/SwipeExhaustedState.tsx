@@ -199,7 +199,7 @@ export const SwipeExhaustedState = ({
             <div
               className={cn(
                 "relative w-full overflow-hidden shadow-xl",
-                theme === 'ivanna-style' ? "bg-white/60 backdrop-blur-md rounded-[24px_32px_28px_36px_/_36px_28px_32px_24px]" : "rounded-[2rem] border border-white/10"
+                theme === 'ivanna-style' ? "bg-white/60 backdrop-blur-md rounded-[24px_32px_28px_36px_/_36px_28px_32px_24px]" : "rounded-[2rem]"
               )}
               style={{ aspectRatio: '1 / 1', maxHeight: '42svh' }}
             >
@@ -227,7 +227,7 @@ export const SwipeExhaustedState = ({
             transition={{ delay: 0.3 }}
             className="flex w-full justify-center"
           >
-            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/5 backdrop-blur-3xl border border-white/10 shadow-2xl">
+            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/5 backdrop-blur-3xl shadow-2xl">
               {Object.entries(CATEGORY_ICONS).filter(([k]) => k !== 'worker').map(([catId, info]) => {
                 const Icon = info.icon;
                 const isActive = activeCategory === catId;
@@ -270,7 +270,7 @@ export const SwipeExhaustedState = ({
               disabled={isRefreshing}
               className={cn(
                 "flex-1 relative h-14 overflow-hidden shadow-2xl transition-all active:scale-95 group",
-                theme === 'ivanna-style' ? "bg-white border-[3px] border-[#111111] text-[#111111]" : "rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                theme === 'ivanna-style' ? "bg-white border-[3px] border-[#111111] text-[#111111]" : "rounded-2xl bg-white/5 hover:bg-white/10 text-white"
               )}
             >
               {isRefreshing && <div className="absolute inset-0 bg-primary/10 animate-pulse" />}
@@ -281,7 +281,7 @@ export const SwipeExhaustedState = ({
             <Button
               variant="outline"
               onClick={() => setCategories(['property'])}
-              className="h-14 w-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95"
+              className="h-14 w-14 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95"
             >
               <Zap className="h-5 w-5 text-primary" />
             </Button>

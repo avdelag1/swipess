@@ -54,11 +54,11 @@ export const LocationRadiusSelector = ({
       <div className="w-full flex flex-col gap-2 relative">
         <div 
           className={cn(
-            "w-full h-16 rounded-[2rem] overflow-hidden relative border glass-nano-texture shadow-lg group hover:h-24 transition-all duration-500 cursor-pointer pointer-events-auto",
-            isLight ? "bg-white/80 border-black/10 shadow-[0_10px_30px_rgba(0,0,0,0.05)]" : "bg-black/40 border-white/10"
+            "w-full h-16 rounded-[2rem] overflow-hidden relative glass-nano-texture group hover:h-24 transition-all duration-500 cursor-pointer pointer-events-auto",
+            isLight ? "bg-black/[0.03]" : "bg-white/[0.03] backdrop-blur-3xl"
           )}
         >
-          <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-20" />
           
           <div className="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
             <div className="flex items-center gap-3 pointer-events-auto">
@@ -66,18 +66,15 @@ export const LocationRadiusSelector = ({
                 onClick={(e) => { e.stopPropagation(); triggerHaptic('medium'); onDetectLocation(); }}
                 disabled={detecting}
                 className={cn(
-                  "w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-95 backdrop-blur-xl border shadow-2xl",
+                  "w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95",
                   detected 
-                    ? "text-primary border-primary/50" 
-                    : (isLight ? "text-black/40 border-black/10 bg-white/60" : "text-white/40 border-white/10 bg-black/60")
+                    ? "bg-primary text-white" 
+                    : (isLight ? "text-black/40 hover:text-black" : "text-white/40 hover:text-white")
                 )}
               >
                 <Navigation className={cn("w-4 h-4", detecting && "animate-spin")} />
               </button>
-              <div className={cn(
-                "backdrop-blur-xl px-4 py-1.5 rounded-[1rem] border shadow-2xl",
-                isLight ? "bg-white/60 border-black/10" : "bg-black/60 border-white/10"
-              )}>
+              <div className="px-1 py-1.5 transition-all">
                 <span className={cn(
                   "text-[10px] font-black uppercase tracking-widest",
                   isLight ? "text-black/80" : "text-white"
@@ -93,10 +90,10 @@ export const LocationRadiusSelector = ({
                     key={km}
                     onClick={() => handleKmSelect(km)}
                     className={cn(
-                      "h-8 px-3 rounded-full text-[10px] font-black transition-all border",
+                      "h-8 px-3 rounded-full text-[10px] font-black transition-all",
                       localKm === km 
-                        ? (isLight ? "bg-black text-white border-black shadow-md" : "bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.4)]") 
-                        : (isLight ? "bg-white/40 backdrop-blur-xl border-black/10 text-black/50 hover:bg-white/80" : "bg-black/40 backdrop-blur-xl border-white/10 text-white/30 hover:bg-white/10")
+                        ? (isLight ? "bg-black text-white shadow-lg" : "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)]") 
+                        : (isLight ? "text-black/30 hover:text-black" : "text-white/30 hover:text-white")
                     )}
                   >
                     {km}k
@@ -111,7 +108,7 @@ export const LocationRadiusSelector = ({
 
   return (
     <motion.div
-      className={cn("w-full h-full flex flex-col relative rounded-[2.5rem] overflow-hidden", isLight ? "bg-white/80 border border-black/5" : "bg-black")}
+      className={cn("w-full h-full flex flex-col relative rounded-[2.5rem] overflow-hidden", isLight ? "bg-black/[0.03]" : "bg-black")}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
@@ -128,14 +125,14 @@ export const LocationRadiusSelector = ({
                 onClick={(e) => { e.stopPropagation(); triggerHaptic('heavy'); onDetectLocation(); }}
                 disabled={detecting}
                 className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all active:scale-90 shadow-2xl backdrop-blur-3xl",
-                  detected ? "bg-primary border-primary text-white" : (isLight ? "bg-white border-black/10 text-black/40 shadow-sm" : "bg-black/60 border-white/10 text-white/40")
+                  "w-12 h-12 rounded-2xl flex items-center justify-center transition-all active:scale-90 shadow-2xl backdrop-blur-3xl",
+                  detected ? "bg-primary text-white" : (isLight ? "bg-black/[0.05] text-black/40 shadow-sm" : "bg-black/60 text-white/40")
                 )}
               >
                 <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} />
               </button>
               
-              <div className={cn("backdrop-blur-3xl px-5 py-2.5 rounded-2xl shadow-2xl", isLight ? "bg-white/90 border border-black/10" : "bg-black/80 border border-white/10")}>
+              <div className={cn("backdrop-blur-3xl px-5 py-2.5 rounded-2xl shadow-2xl", isLight ? "bg-black/[0.03]" : "bg-black/80")}>
                  <span className={cn("text-[11px] font-black uppercase tracking-[0.25em]", isLight ? "text-black" : "text-white")}>
                     Detection Radius: <span className="text-primary italic">{localKm}KM</span>
                  </span>
