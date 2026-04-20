@@ -232,7 +232,7 @@ export const BottomNavigation = memo(({
     return location.pathname === item.path || location.pathname.startsWith(item.path + '/');
   };
 
-  const iconColorInactive = isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.65)';
+  const iconColorInactive = isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.65)';
   const activeColor = 'var(--color-brand-primary)';
 
   const barShadow = 'none';
@@ -416,7 +416,7 @@ export const BottomNavigation = memo(({
                       style={{
                         color: active
                           ? 'var(--color-brand-primary)'
-                          : (isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.65)'),
+                          : (isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.65)'),
                         opacity: 1,
                         zIndex: 1,
                       }}

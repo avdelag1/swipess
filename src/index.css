@@ -186,14 +186,22 @@ button:active, [role="button"]:active {
 
 /* 🎨 IVANNA GLOBAL TRANSPARENCY */
 .ivanna-style #root, 
+.ivanna-style body,
 .ivanna-style main, 
 .ivanna-style .min-h-screen,
 .ivanna-style .bg-background {
-    background-color: transparent !important;
+    background-color: #F8F9FA !important;
 }
 
 .ivanna-style .bg-card {
-    background-image: linear-gradient(135deg, hsla(35, 56%, 91%, 0.85), hsla(167, 47%, 91%, 0.75)) !important;
+    background-image: linear-gradient(135deg, hsla(0, 0%, 100%, 0.95), hsla(0, 0%, 97%, 0.85)) !important;
+}
+
+/* Fix light mode bottom nav harsh border */
+.light .app-bottom-bar,
+.white-matte .app-bottom-bar,
+.ivanna-style .app-bottom-bar {
+    border-top: 1px solid rgba(0,0,0,0.05) !important;
 }
 
 .nexus-style .text-muted-foreground {

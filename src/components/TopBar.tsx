@@ -189,7 +189,7 @@ function TopBarComponent({
                   navigate('/radio');
                 }}
               >
-                <div className="w-11 h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center touch-manipulation pointer-events-auto bg-brand-primary/10 border border-brand-primary/30" style={glassSurfaceStyle}>
+                <div className={cn("w-11 h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center touch-manipulation pointer-events-auto", isLight ? "bg-white/80 border border-black/10 shadow-sm" : "bg-brand-primary/10 border border-brand-primary/30")} style={glassSurfaceStyle}>
                   <Radio className={cn("w-5 h-5", isLight ? "text-brand-primary" : "text-brand-primary")} strokeWidth={2} />
                 </div>
               </motion.button>
