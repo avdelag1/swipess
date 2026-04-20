@@ -198,7 +198,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
       <div className="space-y-3 px-1 mt-6">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Filters</h2>
-            <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{activeCategory}</span>
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{category}</span>
           </div>
 
           <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-2">

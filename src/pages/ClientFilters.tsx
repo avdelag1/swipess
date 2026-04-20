@@ -22,7 +22,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
   const location = useLocation();
   const queryClient = useQueryClient();
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isDark = theme === 'dark' || theme === 'nexus-style';
 
   const urlParams = new URLSearchParams(location.search);
   const aiCategory = urlParams.get('category');
@@ -107,16 +107,16 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
 
   return (
     <div className={cn(
-        "transition-colors duration-500 pb-32 lg:pb-0",
+        "transition-colors duration-500 pb-32 pt-safe-top",
         !isEmbedded && "min-h-screen",
         theme === 'nexus-style' ? "bg-black text-white" : 
         (theme === 'ivanna-style' ? "bg-transparent text-foreground ivanna-style" : (isDark ? "bg-background text-foreground" : "bg-[#F8FAFC] text-slate-900")),
-        isEmbedded && "bg-transparent text-white"
+        isEmbedded && "bg-transparent"
     )}>
       {/* Target Acquisition Header Style */}
       {!isEmbedded && (
         <div className={cn(
-          "sticky top-0 z-50 backdrop-blur-3xl border-b transition-all duration-300 safe-top-padding",
+          "sticky top-0 z-50 backdrop-blur-3xl border-b transition-all duration-300",
           theme === 'nexus-style' ? "bg-black/60 border-white/10 shadow-2xl" :
           (theme === 'ivanna-style' ? "bg-white/20 border-foreground shadow-artisan" : (isDark ? "bg-background/80 border-white/5 shadow-2xl" : "bg-white/80 border-slate-200 shadow-sm"))
       )}>
@@ -135,7 +135,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               </motion.button>
               <div>
                 <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#3B82F6]">Target Scope</span>
-                <h1 className="text-2xl font-black italic tracking-tighter uppercase leading-none mt-1">Discovery</h1>
+                <h1 className="text-2xl font-black italic tracking-tighter uppercase leading-none mt-1">Discovery Radar</h1>
               </div>
             </div>
             {hasChanges && (
@@ -193,124 +193,131 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
       </div>
       )}
 
-      <div className={cn("container mx-auto px-6 pt-4 pb-10", isEmbedded && "pt-10")}>
-        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
-          <aside className="w-full lg:w-80 shrink-0">
-             <div className="space-y-8 sticky top-48">
-               <section className="space-y-3">
-                <div className="flex items-center justify-between px-1">
-                  <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Filters</h2>
-                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{activeCategory}</span>
-                </div>
+      <div className={cn("container mx-auto px-6 pt-12 pb-24 relative z-10", isEmbedded && "pt-10")}>
+        <div className="max-w-4xl mx-auto space-y-16">
+            {/* RENT/SALE/BOTH PILLS */}
+            <motion.section 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-5"
+            >
+              <div className="flex items-center justify-between px-1">
+                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Selection Matrix</h2>
+                <div className="h-[1px] flex-1 mx-6 bg-[#3B82F6]/10" />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{activeCategory}</span>
+              </div>
 
-                <div className={cn(
-                  "flex items-center gap-2 overflow-x-auto no-scrollbar py-1"
-                )}>
-                  {(['rent', 'sale', 'both'] as const).map((type) => {
-                    const isActive = selectedListingType === type;
-                    return (
-                      <button
-                        key={type}
-                        onClick={() => { haptics.tap(); setSelectedListingType(type); }}
+              <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-2">
+                {(['rent', 'sale', 'both'] as const).map((type) => {
+                  const isActive = selectedListingType === type;
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => { haptics.tap(); setSelectedListingType(type); }}
+                      className={cn(
+                        "px-14 py-6 rounded-full text-[12px] font-black uppercase tracking-[0.2em] transition-all border",
+                        isActive 
+                          ? "bg-white text-slate-950 border-white shadow-[0_30px_70px_rgba(0,0,0,0.25)] scale-[1.08]" 
+                          : isDark
+                             ? "bg-white/5 border-white/10 text-white/40 hover:bg-white/10"
+                             : "bg-black/[0.03] border-slate-200/50 text-slate-400 hover:bg-black/[0.06]"
+                      )}
+                    >
+                      {type}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.section>
+
+            {/* DETAILS SECTION */}
+            <motion.section 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="space-y-12"
+            >
+                <div className="flex items-center gap-4">
+                  <div className="w-7 h-7 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-[#3B82F6]" />
+                  </div>
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Detail Acquisition</span>
+                  <div className="h-[1px] flex-1 bg-[#3B82F6]/10" />
+                </div>
+                
+                {activeCategory === 'property' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-16 pl-1">
+                      <div className="space-y-6">
+                          <div className="flex justify-between items-center px-1">
+                            <label className="text-[11px] font-black uppercase tracking-[0.2em] text-[#3B82F6] opacity-60">Bedrooms</label>
+                            <span className="text-[11px] font-black text-[#3B82F6]">{selectedBedrooms.length > 0 ? `${selectedBedrooms.join(', ')}` : 'Any'}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-4">
+                              {[1, 2, 3, 4, 5].map(n => (
+                                  <button 
+                                      key={n} 
+                                      onClick={() => toggleBedroom(n)}
+                                      className={cn(
+                                        "w-16 h-16 rounded-full text-[13px] font-black transition-all border flex items-center justify-center shadow-sm",
+                                        selectedBedrooms.includes(n) 
+                                          ? "bg-white text-slate-900 border-white shadow-2xl scale-115" 
+                                          : isDark
+                                             ? "bg-white/5 border-white/10 text-white/30"
+                                             : "bg-black/[0.03] border-slate-200/50 text-slate-400"
+                                      )}
+                                  >
+                                      {n}+
+                                  </button>
+                              ))}
+                          </div>
+                      </div>
+
+                      <div className="space-y-6">
+                          <div className="flex justify-between items-center px-1">
+                            <label className="text-[11px] font-black uppercase tracking-[0.2em] text-[#3B82F6] opacity-60">Bathrooms</label>
+                            <span className="text-[11px] font-black text-[#3B82F6]">{selectedBathrooms.length > 0 ? `${selectedBathrooms.join(', ')}` : 'Any'}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-4">
+                              {[1, 2, 3, 4].map(n => (
+                                  <button 
+                                      key={n} 
+                                      onClick={() => toggleBathroom(n)}
+                                      className={cn(
+                                        "w-14 h-14 rounded-full text-[13px] font-black transition-all border flex items-center justify-center shadow-sm",
+                                        selectedBathrooms.includes(n) 
+                                          ? "bg-white text-slate-900 border-white shadow-2xl scale-115" 
+                                          : isDark
+                                             ? "bg-white/5 border-white/10 text-white/30"
+                                             : "bg-black/[0.03] border-slate-200/50 text-slate-400"
+                                      )}
+                                  >
+                                      {n}+
+                                  </button>
+                              ))}
+                          </div>
+                      </div>
+                  </div>
+                )}
+
+                <div className="space-y-6 pl-1">
+                  <label className="text-[11px] font-black uppercase tracking-[0.2em] text-[#3B82F6] opacity-60">Identity & Lifestyle</label>
+                  <div className="flex flex-wrap gap-3">
+                    {['Pet Friendly', 'Furnished', 'City Center', 'Gym', 'Parking', 'Pool'].map(tag => (
+                      <button 
+                        key={tag}
                         className={cn(
-                          "px-10 py-5 rounded-full text-xs font-black uppercase tracking-widest transition-all border",
-                          isActive 
-                            ? "bg-white text-slate-900 border-white shadow-[0_15px_40px_rgba(0,0,0,0.1)] scale-[1.05]" 
-                            : "bg-transparent text-muted-foreground border-slate-200/50 hover:bg-white/10"
+                          "h-14 px-8 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.1em] transition-all border",
+                          isDark 
+                            ? "bg-white/5 border-white/5 text-white/40 hover:text-white"
+                            : "bg-black/[0.03] border-slate-200/50 text-slate-400 hover:text-slate-900"
                         )}
                       >
-                        {type}
+                        {tag}
                       </button>
-                    );
-                  })}
-                </div>
-               </section>
-
-               <section className="space-y-5">
-                 <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
-                    <Sparkles className="w-3 h-3 text-[#3B82F6]" />
+                    ))}
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Details</span>
                 </div>
-                 
-                 {activeCategory === 'property' && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 pl-1">
-                        <div className="space-y-4">
-                            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Bedrooms</label>
-                            <div className="flex flex-wrap gap-2.5">
-                                {[1, 2, 3, 4, 5].map(n => (
-                                    <button 
-                                        key={n} 
-                                        onClick={() => toggleBedroom(n)}
-                                        className={cn(
-                                          "w-14 h-14 rounded-full text-[11px] font-black transition-all border flex items-center justify-center",
-                                          selectedBedrooms.includes(n) 
-                                            ? "bg-white text-slate-900 border-white shadow-lg scale-110" 
-                                            : "bg-muted/10 border-slate-200/50 text-muted-foreground"
-                                        )}
-                                    >
-                                        {n}+
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <label className="text-[11px] font-black uppercase tracking-[0.2em] text-[#3B82F6] px-1 opacity-60">Bathrooms</label>
-                            <div className="flex flex-wrap gap-3">
-                                {[1, 2, 3, 4].map(n => (
-                                    <button 
-                                        key={n} 
-                                        onClick={() => toggleBathroom(n)}
-                                        className={cn(
-                                          "w-12 h-12 rounded-full text-[11px] font-black transition-all border flex items-center justify-center",
-                                          selectedBathrooms.includes(n) 
-                                            ? "bg-white text-slate-900 border-white shadow-xl scale-110" 
-                                            : "bg-muted/10 border-slate-200/50 text-muted-foreground"
-                                        )}
-                                    >
-                                        {n}+
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </motion.div>
-                 )}
-
-                 <div className="space-y-4 pl-1">
-                    <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Lifestyle Tags</label>
-                    <div className="flex flex-wrap gap-2">
-                      {['Pet Friendly', 'Furnished', 'City Center', 'Gym'].map(tag => (
-                        <button 
-                          key={tag}
-                          className="h-10 px-4 rounded-xl text-[9px] font-black uppercase tracking-tight bg-muted/10 border border-white/5 text-muted-foreground/60 hover:text-foreground transition-all"
-                        >
-                          {tag}
-                        </button>
-                      ))}
-                    </div>
-                 </div>
-               </section>
-             </div>
-          </aside>
-
-          <main className="flex-1">
-            <div className="flex flex-col items-center justify-center py-32 bg-muted/5 rounded-[3.5rem] border border-white/5 text-center px-6">
-               <motion.div
-                 initial={{ scale: 0.9, opacity: 0 }}
-                 animate={{ scale: 1, opacity: 1 }}
-                 className="relative mb-8"
-               >
-                 <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full scale-150" />
-                 <Users className="h-20 w-20 text-muted-foreground/20 relative z-10" strokeWidth={1} />
-               </motion.div>
-               <h3 className="text-xl md:text-2xl font-bold leading-snug mb-2">No candidates yet</h3>
-               <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                 Refine your filters to surface active matches.
-               </p>
-            </div>
-          </main>
+            </motion.section>
         </div>
       </div>
 
