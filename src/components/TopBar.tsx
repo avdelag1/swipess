@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ArrowLeft, Radio } from 'lucide-react';
+import { ChevronLeft, SlidersHorizontal, Radio, Ghost } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -18,6 +18,7 @@ interface TopBarProps {
   onMessageActivationsClick?: () => void;
   onAISearchClick?: () => void;
   onFilterClick?: (e?: React.PointerEvent | React.MouseEvent) => void;
+  onBack?: () => void;
   className?: string;
   showFilters?: boolean;
   userRole?: 'client' | 'owner' | 'admin';
@@ -29,30 +30,27 @@ interface TopBarProps {
 }
 
 function TopBarComponent({
-  onNotificationsClick: _onNotificationsClick,
-  onMessageActivationsClick: _onMessageActivationsClick,
   onFilterClick: _onFilterClick,
+  onBack,
   className,
-  showFilters: _showFilters,
   userRole,
   transparent: _transparent = false,
-  hideOnScroll: _hideOnScroll = false,
-  title: _title,
-  showBack = false,
   minimal = false,
 }: TopBarProps) {
-  const { navigate, prefetch: _prefetch } = useAppNavigate();
+  const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { theme, isLight } = useTheme();
 
   const isIvanna = theme === 'ivanna-style';
+  const isOwner = userRole === 'owner';
+
   const glassSurfaceStyle: React.CSSProperties = {
     background: _transparent ? 'transparent' : (isIvanna ? 'rgba(255,255,255,0.7)' : (isLight ? 'rgba(255,255,255,0.3)' : 'rgba(15,15,20,0.12)')),
     backdropFilter: _transparent ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
     WebkitBackdropFilter: _transparent ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
     border: _transparent ? 'none' : (isIvanna ? '3px solid #111111' : `1px solid ${isLight ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.12)'}`),
     borderRadius: isIvanna ? '2rem' : '1.8rem',
-    boxShadow: _transparent ? 'none' : (isIvanna ? 'shadow-artisan' : (isLight
+    boxShadow: _transparent ? 'none' : (isIvanna ? '0 10px 30px rgba(0,0,0,0.1)' : (isLight
       ? '0 10px 25px rgba(0,0,0,0.04), inset 0 0 15px rgba(255,255,255,0.2)'
       : '0 20px 40px rgba(0,0,0,0.45), inset 0 0 15px rgba(255,255,255,0.05)')),
   };
@@ -72,68 +70,7 @@ function TopBarComponent({
     },
   });
 
-  const handleBack = useCallback((e: React.MouseEvent | React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    haptics.tap();
-    if (window.history.length > 2) {
-      window.history.back();
-    } else {
-      navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
-    }
-  }, [navigate, userRole]);
-
   return (
-    <>
-      <header
-        className={cn(
-          'app-header pointer-events-none opacity-100 translate-y-0 transform-gpu will-change-transform bg-transparent top-bar-glass',
-          className
-        )}
-      >
-        <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 px-3 pointer-events-none">
-          <div className="flex-shrink-0 flex items-center gap-1.5 relative z-20 pointer-events-none">
-            {showBack && (
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onPointerDown={handleBack}
-                className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center z-50 pointer-events-auto touch-manipulation transition-all hover:scale-105 active:scale-95"
-                style={{
-                  ...glassSurfaceStyle,
-                  background: isIvanna ? '#ffffff' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.12)'),
-                  borderColor: isIvanna ? '#111111' : (isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.15)'),
-                  borderWidth: isIvanna ? '3px' : '1px',
-                  borderRadius: '1.5rem',
-                }}
-                aria-label="Go back"
-              >
-                <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground" : "text-white")} strokeWidth={2.5} />
-              </motion.button>
-            )}
-
-            {user && !minimal && (
-                <motion.button
-                whileTap={{ scale: 0.92 }}
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  haptics.select();
-                  navigate(userRole === 'owner' ? '/owner/profile' : '/client/profile');
-                }}
-                className={cn(
-                  "flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0 inline-flex items-center gap-2 rounded-[2rem] pl-1.5 pr-4 py-1.5 border transition-all duration-300 w-auto",
-                  _transparent 
-                    ? "bg-white/10 border-white/10" 
-                    : isLight 
-                      ? "bg-white/30 border-white/40 shadow-sm backdrop-blur-3xl" 
-                      : "bg-black/20 border-white/15 shadow-xl backdrop-blur-3xl"
-                )}
-                style={{ WebkitTapHighlightColor: 'transparent' }}
-                aria-label="Go to profile"
-              >
-                <Avatar className="h-[32px] w-[32px] md:h-[38px] md:w-[38px] rounded-xl overflow-hidden cursor-pointer border-none ring-0 shadow-lg flex-shrink-0">
-                  <AvatarImage
-                    src={profile?.avatar_url || ''}
     <header 
       className={cn(
         "fixed top-0 left-0 right-0 z-[100] transition-all duration-700 pointer-events-none",
@@ -174,23 +111,29 @@ function TopBarComponent({
                 </motion.button>
               )}
               
-              {user && !isOwner && profile?.avatar_url && (
+              {user && (
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onPointerDown={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     haptics.tap();
-                    navigate('/client/profile');
+                    navigate(isOwner ? '/owner/profile' : '/client/profile');
                   }}
                   className="flex items-center gap-2 pr-4 transition-all duration-200"
                 >
-                  <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-brand-primary/60 shadow-lg">
-                    <img
-                      src={profile?.avatar_url}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-brand-primary/60 shadow-lg ml-0.5">
+                    {profile?.avatar_url ? (
+                      <img
+                        src={profile.avatar_url}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <Ghost className="w-5 h-5 opacity-40" />
+                      </div>
+                    )}
                   </div>
                   {profile?.full_name && (
                     <span className={cn(
