@@ -531,17 +531,17 @@ function LegendaryLandingPage() {
             <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-white/80 scrollbar-none pb-12">
                {legalModal === 'terms' ? (
                  <div className="space-y-5">
-                    <p className="text-sm font-bold leading-relaxed text-white">By initializing the Swipess nexus, you agree to be bound by these Legal Protocols. Access is denied to non-compliant entities.</p>
+                    <p className="text-sm font-bold leading-relaxed text-white">By accessing the Swipess application, you agree to be bound by these professional Terms of Service. Access is granted to users who comply with our community standard protocols.</p>
                     <div className="h-px bg-white/10 my-6" />
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mb-2">01 — Entity Eligibility</h3>
-                    <p className="text-sm opacity-80 leading-relaxed">Minimum age of 18 required. You must possess the legal authority to enter binding digital agreements.</p>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mb-2">01 — User Eligibility</h3>
+                    <p className="text-sm opacity-80 leading-relaxed">Minimum age of 18 required. You must possess the legal authority to enter into a binding agreement.</p>
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">02 — Identity Security</h3>
-                    <p className="text-sm opacity-80 leading-relaxed">You are solely responsible for the encryption integrity of your access credentials. Notify the Registry immediately upon unauthorized sync.</p>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">02 — Account Security</h3>
+                    <p className="text-sm opacity-80 leading-relaxed">You are solely responsible for maintaining the confidentiality of your login credentials. Notify us immediately if you suspect any unauthorized access.</p>
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">03 — Prohibited Acts</h3>
-                    <p className="text-sm opacity-80 leading-relaxed">Entities shall not transmit fraudulent logs, harass other users, or bypass platform security. Violations result in immediate ban.</p>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">03 — Prohibited Conduct</h3>
+                    <p className="text-sm opacity-80 leading-relaxed">Users shall not provide fraudulent information, harass others, or attempt to compromise platform security. Violation results in immediate suspension.</p>
                  </div>
                ) : (
                  <div className="space-y-5">

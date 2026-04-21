@@ -50,6 +50,13 @@ const ConciergePrivacyPortal = ({ onAccept, isNexus, isIvanna }: { onAccept: () 
     )}>
       The interface is secured. Your inquiries are handled with absolute confidentiality and processed by advanced luxury-grade AI.
     </p>
+    <div className={cn(
+      "p-4 rounded-xl border mb-4 text-[9px] leading-tight text-center",
+      isNexus ? "bg-cyan-500/5 border-cyan-500/10 text-cyan-400/60" : "bg-muted border-border text-muted-foreground"
+    )}>
+      <p className="font-bold uppercase tracking-widest mb-1">AI Disclaimer</p>
+      Swipess AI provides automated recommendations for informational purposes only. It is not a substitute for professional real estate, legal, or financial advice. Accuracy is not guaranteed.
+    </div>
     
     <div className="w-full max-w-xs pt-4">
       <Button 

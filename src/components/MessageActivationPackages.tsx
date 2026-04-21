@@ -11,6 +11,8 @@ import { motion } from "framer-motion";
 import { STORAGE } from "@/constants/app";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
+import { useIAP } from "@/hooks/useIAP";
+import { Capacitor } from "@capacitor/core";
 
 type TokenPackage = {
   id: number;
@@ -45,6 +47,8 @@ export function MessageActivationPackages({
   const { user } = useAuth();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const { purchaseProduct, restorePurchases } = useIAP();
+  const isNative = Capacitor.isNativePlatform();
 
   const { data: userProfile } = useQuery({
     queryKey: ['user-profile', user?.id],
@@ -138,6 +142,16 @@ export function MessageActivationPackages({
       package_category: pkg.package_category,
     }));
     sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${currentUserRole}/dashboard`);
+
+    if (isNative) {
+      // 🍎 APPLE IAP COMPLIANCE PATH
+      const success = await purchaseProduct(pkg.name.toLowerCase().replace(/\s+/g, '_'));
+      if (success) {
+        toast.success("Purchase Complete", { description: `${pkg.tokens} tokens have been added to your vault.` });
+        if (onClose) onClose();
+      }
+      return;
+    }
 
     if (pkg.paypalUrl) {
       window.open(pkg.paypalUrl, '_blank');
@@ -378,6 +392,19 @@ export function MessageActivationPackages({
           </div>
           <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Elite Support 24/7</span>
         </div>
+
+        {/* 🚔 APPLE MANDATORY COMPLIANCE BUTTON */}
+        {isNative && (
+          <button
+            onClick={() => restorePurchases()}
+            className={cn(
+              "text-[10px] font-black uppercase tracking-[0.2em] px-6 py-2 rounded-xl border transition-all",
+              isDark ? "bg-white/5 border-white/10 text-white/40 hover:text-white" : "bg-gray-50 border-gray-200 text-gray-400 hover:text-gray-900"
+            )}
+          >
+            Restore Previous Purchases
+          </button>
+        )}
       </motion.div>
     </div>
   );
