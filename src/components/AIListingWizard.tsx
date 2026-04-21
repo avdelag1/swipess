@@ -181,7 +181,7 @@ export function AIListingWizard() {
             exit={{ scale: 0.95, opacity: 0, y: 30 }}
             className={cn(
               "w-full max-w-2xl h-[100dvh] sm:h-[85vh] overflow-hidden sm:rounded-[3rem] border flex flex-col shadow-[0_40px_100px_rgba(0,0,0,1)] relative",
-              "bg-[#050505] border-white/10"
+              "bg-black border-white/20"
             )}
           >
             {/* Ambient Background */}

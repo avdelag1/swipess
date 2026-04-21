@@ -67,43 +67,38 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         'relative flex items-center bg-white/5 border border-white/10 rounded-full p-1',
         className
       )}
-      style={{ height: btnH, minWidth: iconW * 2 + 8 }}
+      style={{ height: btnH, minWidth: iconW * 2.8 + 8 }}
     >
       <button
         onClick={() => handleModeSwitch('client')}
         disabled={!canSwitchMode || isSwitching}
         className={cn(
-          "flex-1 h-full flex items-center justify-center rounded-full transition-all duration-300 relative z-10",
+          "flex-[1.2] h-full flex items-center justify-center gap-2 rounded-full transition-all duration-300 relative z-10 px-2",
           activeMode === 'client' ? "bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "opacity-40 hover:opacity-100"
         )}
       >
-        <User
-          className="h-[16px] w-[16px]"
-          style={{ color: activeMode === 'client' ? '#f43f5e' : (isLight ? '#000' : '#fff') }}
-        />
+        <User className="h-[14px] w-[14px]" style={{ color: '#f43f5e' }} />
+        <span className="text-[9px] font-black uppercase italic tracking-tighter text-white/90">Explore</span>
       </button>
 
       <button
         onClick={() => handleModeSwitch('owner')}
         disabled={!canSwitchMode || isSwitching}
         className={cn(
-          "flex-1 h-full flex items-center justify-center rounded-full transition-all duration-300 relative z-10",
+          "flex-1 h-full flex items-center justify-center gap-2 rounded-full transition-all duration-300 relative z-10 px-2",
           activeMode === 'owner' ? "bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "opacity-40 hover:opacity-100"
         )}
       >
-        <UserCheck
-          className="h-[16px] w-[16px]"
-          style={{ color: activeMode === 'owner' ? '#f97316' : (isLight ? '#000' : '#fff') }}
-        />
+        <UserCheck className="h-[14px] w-[14px]" style={{ color: '#f97316' }} />
+        <span className="text-[9px] font-black uppercase italic tracking-tighter text-white/90">Manage</span>
       </button>
       
-      {/* Dynamic Slide Background */}
       <motion.div
         className="absolute h-[calc(100%-8px)] rounded-full bg-white/5 border border-white/5 pointer-events-none"
         initial={false}
         animate={{ 
-          left: activeMode === 'client' ? '4px' : '50%',
-          width: 'calc(50% - 4px)'
+          left: activeMode === 'client' ? '4px' : '55%',
+          width: activeMode === 'client' ? '50%' : '41%'
         }}
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       />

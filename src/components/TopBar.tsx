@@ -156,18 +156,28 @@ function TopBarComponent({
         {/* RIGHT CLUSTER: Actions (Unified Pill) */}
         <div className="flex-shrink-0 flex items-center pointer-events-none">
           {!minimal && (
-            <div 
-              className={cn("flex items-center gap-2 pointer-events-auto transition-all duration-300")} 
-            >
                <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                  e.preventDefault(); e.stopPropagation();
+                  haptics.tap();
+                  onFilterClick?.();
+                }}
+                className="w-10 h-10 flex items-center justify-center p-0 group relative"
+                title="Filters"
+              >
+                <SlidersHorizontal className="w-5 h-5 text-white/70 group-hover:text-white transition-colors" />
+              </motion.button>
+
+               <motion.button
+                whileTap={{ scale: 0.9 }}
+                onPointerDown={(e) => {
+                  e.preventDefault(); e.stopPropagation();
                   haptics.tap();
                   navigate('/radio');
                 }}
                 className="w-10 h-10 flex items-center justify-center p-0"
+                title="Radio"
               >
                 <Radio 
                   className={cn("w-5 h-5", isLight ? "text-brand-primary" : "text-brand-primary")} 
@@ -184,6 +194,7 @@ function TopBarComponent({
                     useModalStore.getState().openAIListing();
                   }}
                   className="w-10 h-10 flex items-center justify-center p-0 relative"
+                  title="AI Listing Wizard"
                 >
                   <div className="absolute inset-0 bg-cyan-500/10 blur-xl rounded-full opacity-0 hover:opacity-100 transition-opacity" />
                   <Sparkles className="w-5 h-5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
@@ -191,11 +202,11 @@ function TopBarComponent({
               )}
 
 
-              <div className="flex items-center px-1">
+              <div className="flex items-center px-0.5">
                 <ThemeToggle />
               </div>
               
-              <div className="flex items-center px-1">
+              <div className="flex items-center px-0.5">
                 <NotificationPopover />
               </div>
             </div>
