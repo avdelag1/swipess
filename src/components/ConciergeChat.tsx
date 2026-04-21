@@ -547,6 +547,24 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
   const stopListening = useCallback(() => {
     clearCountdown();
+    // Fallback path (MediaRecorder + edge transcription)
+    if (usingFallbackRef.current) {
+      usingFallbackRef.current = false;
+      uiSounds.playMicOff();
+      setIsListening(false);
+      voiceTranscribe.stop().then((text) => {
+        if (text) {
+          const combined = [originalInputRef.current.trim(), text].filter(Boolean).join(' ');
+          setInput(combined);
+          if (autoSendRef.current) {
+            sendMessage(combined);
+            setInput('');
+          }
+        }
+      });
+      return;
+    }
+
     if (recognitionRef.current) {
       (recognitionRef.current as any)._userStop?.();
       recognitionRef.current.stop();
@@ -554,10 +572,30 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     }
     uiSounds.playMicOff();
     setIsListening(false);
-  }, [clearCountdown]);
+  }, [clearCountdown, voiceTranscribe, sendMessage]);
+
+  const startFallbackListening = useCallback(async () => {
+    clearCountdown();
+    originalInputRef.current = input;
+    const ok = await voiceTranscribe.start();
+    if (!ok) {
+      toast.error('Microphone access blocked', {
+        description: 'Please allow microphone access in your browser settings to talk to Swipess AI.',
+      });
+      return;
+    }
+    usingFallbackRef.current = true;
+    triggerHaptic('medium');
+    uiSounds.playMicOn();
+    setIsListening(true);
+  }, [clearCountdown, input, voiceTranscribe]);
 
   const startListening = useCallback(() => {
-    if (!speechSupported) return;
+    if (!speechSupported) {
+      // No Web Speech API (iOS Safari, etc.) → use MediaRecorder fallback
+      startFallbackListening();
+      return;
+    }
     clearCountdown();
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
