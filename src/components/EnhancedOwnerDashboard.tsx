@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, memo, useMemo, lazy, useCallback } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, lazy, useCallback, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 const _ClientInsightsDialog = lazy(() =>
@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { OwnerInsightsDashboard } from '@/components/OwnerInsightsDashboard';
 import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
-const DiscoveryMapView = lazy(() => import('@/components/swipe/DiscoveryMapView').then(res => ({ default: res.DiscoveryMapView })));
+const DiscoveryMapView = lazy(() => import('@/components/swipe/DiscoveryMapView'));
 import { useFilterActions } from '@/state/filterStore';
 import { triggerHaptic } from '@/utils/haptics';
 import type { QuickFilterCategory } from '@/types/filters';
@@ -190,15 +190,17 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.04 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[50] flex flex-col overflow-hidden bg-background"
+            className="fixed inset-0 z-[80] flex flex-col overflow-hidden bg-black"
             style={{ willChange: 'transform, opacity' }}
           >
-            <DiscoveryMapView 
-              category={activeCategory} 
-              onBack={handleDiscoveryBack}
-              onStartSwiping={handleStartSwiping}
-              mode="owner"
-            />
+            <Suspense fallback={<div className="flex-1 bg-black/10 animate-pulse" />}>
+              <DiscoveryMapView 
+                category={activeCategory} 
+                onBack={handleDiscoveryBack}
+                onStartSwiping={handleStartSwiping}
+                mode="owner"
+              />
+            </Suspense>
           </motion.div>
         ) : showSwipe ? (
           <motion.div
