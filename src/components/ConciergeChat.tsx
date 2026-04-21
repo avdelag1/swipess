@@ -703,13 +703,23 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       if (isCountingDownRef.current) return; 
 
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-        toast.error('Microphone access blocked', {
-          description: 'Please check your browser settings and allow microphone access to talk to Swipess AI.',
-          action: {
-            label: 'Fix settings',
-            onClick: () => window.open('https://support.google.com/chrome/answer/2693767', '_blank')
-          }
-        });
+        // Web Speech denied → transparently switch to MediaRecorder fallback (works on iOS).
+        userStopped = true;
+        recognitionRef.current = null;
+        setIsListening(false);
+        clearCountdown();
+        startFallbackListening();
+        return;
+      }
+
+      if (e.error === 'network' || e.error === 'audio-capture') {
+        // Web Speech network/audio failure → fall back to MediaRecorder
+        userStopped = true;
+        recognitionRef.current = null;
+        setIsListening(false);
+        clearCountdown();
+        startFallbackListening();
+        return;
       }
       
       userStopped = true;
@@ -724,7 +734,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     lastFinalTranscriptRef.current = '';
     recognition.start();
     setIsListening(true);
-  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown, voicePulse]);
+  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown, voicePulse, startFallbackListening, isLoading, stopGeneration, input]);
 
   const toggleListening = useCallback(() => {
     if (isListening || countdown !== null) {
