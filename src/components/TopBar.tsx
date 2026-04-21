@@ -28,6 +28,8 @@ interface TopBarProps {
   title?: string;
   showBack?: boolean;
   minimal?: boolean;
+  activeTab?: 'explore' | 'manage';
+  onTabChange?: (tab: 'explore' | 'manage') => void;
 }
 
 function TopBarComponent({
@@ -37,6 +39,8 @@ function TopBarComponent({
   userRole,
   transparent: _transparent = false,
   minimal = false,
+  activeTab,
+  onTabChange,
 }: TopBarProps) {
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
