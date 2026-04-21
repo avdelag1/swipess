@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, lazy } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
@@ -11,7 +11,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useModalStore } from '@/state/modalStore';
 import { useSmartListingMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
-import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
+const DiscoveryMapView = lazy(() => import('@/components/swipe/DiscoveryMapView').then(res => ({ default: res.DiscoveryMapView })));
 
 interface ClientDashboardProps {
   onMessageClick?: () => void;
@@ -115,7 +115,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex flex-col items-center justify-center min-h-[calc(100svh-160px)] w-full py-24 overflow-hidden z-10"
+            className="relative flex flex-col items-center justify-center min-h-[calc(100svh-160px)] w-full pt-24 pb-[160px] overflow-hidden z-10"
             style={{ willChange: 'transform, opacity' }}
           >
             <SwipeAllDashboard setCategories={(ids: any) => handleLaunch((Array.isArray(ids) ? ids[0] : ids) as QuickFilterCategory)} />

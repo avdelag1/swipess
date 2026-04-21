@@ -75,7 +75,15 @@
     "redirectingPaypal": "Redirigiendo a PayPal",
     "processingPackage": "Procesando paquete {{tier}} ({{price}})",
     "paymentUnavailable": "Enlace de pago no disponible",
-    "contactSupport": "Contacta a soporte para completar esta compra."
+    "contactSupport": "Contacta a soporte para completar esta compra.",
+    "intelligence": "inteligencia",
+    "autonomousLayer": "capa de creación autónoma",
+    "targetPlatform": "plataforma destino",
+    "deployProtocol": "protocolo de despliegue",
+    "visualProof": "prueba visual",
+    "intelligenceMetrics": "métricas de inteligencia",
+    "manifestingIntel": "manifestando intel",
+    "neuralSynthesis": "síntesis neural activa"
   },
   "settings": {
     "title": "Ajustes",

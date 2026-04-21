@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { OwnerInsightsDashboard } from '@/components/OwnerInsightsDashboard';
 import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
-import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
+const DiscoveryMapView = lazy(() => import('@/components/swipe/DiscoveryMapView').then(res => ({ default: res.DiscoveryMapView })));
 import { useFilterActions } from '@/state/filterStore';
 import { triggerHaptic } from '@/utils/haptics';
 import type { QuickFilterCategory } from '@/types/filters';
@@ -180,7 +180,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex flex-col items-center justify-center min-h-[calc(100svh-160px)] w-full py-24 overflow-hidden z-10"
+            className="relative flex flex-col items-center justify-center min-h-[calc(100svh-160px)] w-full pt-24 pb-[160px] overflow-hidden z-10"
             style={{ willChange: 'transform, opacity' }}
           >
             <OwnerAllDashboard onCardSelect={handleCardSelect} />
