@@ -152,15 +152,13 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const showMap = !!activeCategory && phase === 'map';
   const showSwipe = !!activeCategory && phase === 'swipe';
   return (
-    <div className={cn("flex flex-col h-full w-full overflow-hidden relative", isLight ? "bg-background" : "bg-[#020202]")}>
-      {/* 🛸 Swipess ATMOSPHERIC LAYER */}
-      {!isLight && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-          <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-900/20 blur-[120px] rounded-full" />
-          <div className="absolute bottom-[-5%] right-[-5%] w-[50%] h-[50%] bg-cyan-900/10 blur-[100px] rounded-full" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)]" />
-        </div>
-      )}
+    <div className={cn("flex flex-col h-full w-full overflow-hidden relative bg-[#020202]")}>
+      {/* 🛸 Swipess ATMOSPHERIC LAYER (Forced for Discovery Phase) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-900/20 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-5%] right-[-5%] w-[50%] h-[50%] bg-cyan-900/10 blur-[100px] rounded-full" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)]" />
+      </div>
       <AnimatePresence mode="wait">
         {viewMode === 'insights' ? (
           <motion.div
@@ -180,7 +178,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex flex-col items-center justify-center min-h-[calc(100svh-160px)] w-full pt-24 pb-[160px] overflow-hidden z-10"
+            className="relative flex flex-col items-center justify-start min-h-[calc(100svh-160px)] w-full pt-[12svh] pb-[160px] overflow-hidden z-10"
             style={{ willChange: 'transform, opacity' }}
           >
             <OwnerAllDashboard onCardSelect={handleCardSelect} />
