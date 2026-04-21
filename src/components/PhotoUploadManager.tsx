@@ -283,3 +283,4 @@ export function PhotoUploadManager({
     setDragOver(false);
   }
 }
+

@@ -131,3 +131,4 @@ export const ModeSwitcherCompact = memo(function ModeSwitcherCompact({ className
 export const ModeSwitcherToggle = memo(function ModeSwitcherToggle({ className }: { className?: string }) {
   return <ModeSwitcher size="md" className={className} />;
 });
+

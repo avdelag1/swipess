@@ -438,3 +438,4 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
 }
 
 export const QuickFilterBar = memo(QuickFilterBarComponent);
+

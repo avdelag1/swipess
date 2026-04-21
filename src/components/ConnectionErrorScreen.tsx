@@ -31,7 +31,7 @@ export function ConnectionErrorScreen({ status, retryCount, onRetry }: Connectio
   const isLight = theme === 'light';
 
   const statusConfig = isChecking
-    ? { icon: Wifi, color: '#60a5fa', label: 'Connecting…', sub: 'Establishing a secure tunnel to Swipess servers.' }
+    ? { icon: Wifi, color: '#60a5fa', label: 'Connecting…', sub: 'Establishing a secure tunnel to NEXUS DISCOVERY servers.' }
     : isDegraded
     ? { icon: Zap, color: '#fbbf24', label: 'Reconnecting…', sub: 'Signal is weak. Attempting to restore full connection.' }
     : { icon: WifiOff, color: '#f87171', label: "Can't Connect", sub: 'Unable to reach the server. Check your connection.' };
@@ -91,10 +91,11 @@ export function ConnectionErrorScreen({ status, retryCount, onRetry }: Connectio
 
         {/* Branding watermark */}
         <div className={cn("flex items-center gap-2 pt-4", isLight ? "opacity-20" : "opacity-10")}>
-          <img src="/icons/swipess-logo.png" alt="" className="w-5 h-5" draggable={false} />
-          <span className="text-[10px] font-black uppercase tracking-[0.3em]">Swipess</span>
+          <img src="/icons/NEXUS DISCOVERY-logo.png" alt="" className="w-5 h-5" draggable={false} />
+          <span className="text-[10px] font-black uppercase tracking-[0.3em]">NEXUS DISCOVERY</span>
         </div>
       </motion.div>
     </div>
   );
 }
+

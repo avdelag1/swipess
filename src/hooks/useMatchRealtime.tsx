@@ -89,3 +89,4 @@ export function useMatchRealtime(enabled = true) {
     closeCelebration: () => setMatchCelebration(prev => ({ ...prev, isOpen: false })),
   };
 }
+

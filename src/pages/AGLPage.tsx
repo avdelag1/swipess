@@ -33,7 +33,7 @@ export default function AGLPage() {
               <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
               <p className="mb-4">
                 These Acceptable Use Guidelines (AGL) outline the standards of conduct expected from all
-                users of Swipess. By using our platform, you agree to follow these guidelines to ensure
+                users of NEXUS DISCOVERY. By using our platform, you agree to follow these guidelines to ensure
                 a safe, respectful, and productive experience for everyone.
               </p>
             </section>
@@ -168,7 +168,7 @@ export default function AGLPage() {
               </p>
               <ul className="list-disc pl-6 mb-4 space-y-2">
                 <li>Use the Report function on user profiles or listings</li>
-                <li>Contact our support team at support@swipess.com</li>
+                <li>Contact our support team at support@NEXUS DISCOVERY.com</li>
                 <li>Provide as much detail as possible about the violation</li>
                 <li>Include screenshots or evidence when available</li>
               </ul>
@@ -210,8 +210,8 @@ export default function AGLPage() {
                 For questions about these Acceptable Use Guidelines, contact us at:
               </p>
               <ul className="list-none pl-0 mb-4 space-y-2">
-                <li><strong>Email:</strong> support@swipess.com</li>
-                <li><strong>Legal:</strong> legal@swipess.com</li>
+                <li><strong>Email:</strong> support@NEXUS DISCOVERY.com</li>
+                <li><strong>Legal:</strong> legal@NEXUS DISCOVERY.com</li>
               </ul>
             </section>
           </div>
@@ -233,3 +233,4 @@ export default function AGLPage() {
     </div>
   );
 }
+

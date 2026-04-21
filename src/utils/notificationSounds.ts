@@ -134,3 +134,4 @@ export function canPlayNotificationSounds(): boolean {
     return false;
   }
 }
+

@@ -292,3 +292,4 @@ export interface ListingFilters {
   clientGender?: ClientGender;
   clientType?: ClientType;
 }
+

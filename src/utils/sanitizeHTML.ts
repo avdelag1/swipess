@@ -37,3 +37,4 @@ export function sanitizeHTML(html: string): string {
     ALLOW_DATA_ATTR: false,
   });
 }
+

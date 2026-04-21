@@ -14,7 +14,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { STORAGE } from '@/constants/app';
 import { cn } from '@/lib/utils';
-import { SwipessLogo } from '@/components/SwipessLogo';
+import { NexusLogo } from '@/components/NexusLogo';
 
 export default function PublicProfilePreview() {
   const { id } = useParams<{ id: string }>();
@@ -407,3 +407,4 @@ export default function PublicProfilePreview() {
     </div>
   );
 }
+

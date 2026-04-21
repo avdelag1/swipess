@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { MarketingSlide } from './MarketingSlide';
-import { SwipessLogo } from './SwipessLogo';
+import { NexusLogo } from './NexusLogo';
 import { motion } from 'framer-motion';
 
 function isBrowser() {
@@ -154,7 +154,7 @@ const CardImage = memo(({
 
           {/* Branded Pulse */}
           <div className="relative z-10 flex flex-col items-center gap-4 opacity-20 scale-75 lg:scale-100">
-            <SwipessLogo variant="icon" className="w-12 h-12 grayscale" />
+            <NexusLogo variant="icon" className="w-12 h-12 grayscale" />
             <div className="flex gap-1">
               {[0, 1, 2].map(i => (
                 <motion.div 
@@ -232,3 +232,4 @@ const CardImage = memo(({
 });
 
 export default CardImage;
+

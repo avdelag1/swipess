@@ -163,3 +163,4 @@ export function isStorageAvailable(): boolean {
     return false;
   }
 }
+

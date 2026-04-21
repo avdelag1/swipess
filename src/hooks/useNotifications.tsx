@@ -118,3 +118,4 @@ export function useNotifications() {
     permission: typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'denied'
   };
 }
+

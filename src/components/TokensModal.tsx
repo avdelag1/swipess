@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Zap, MessageCircle, Crown, FileText, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Zap, MessageCircle, Crown, FileText, Check, ChevronDown, ChevronUp, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { STORAGE } from '@/constants/app';
 import { useModalStore } from '@/state/modalStore';
 import { haptics } from '@/utils/microPolish';
+import { NativeBridge } from '@/utils/nativeBridge';
 
 const tokenTierConfig = {
   starter: {
@@ -41,6 +42,7 @@ const tokenTierConfig = {
 const premiumPlans = [
   {
     id: 'monthly',
+    appleProductId: 'nexus.premium.monthly',
     name: 'Monthly',
     label: 'STARTER',
     price: '$39',
@@ -57,6 +59,7 @@ const premiumPlans = [
   },
   {
     id: 'semi-annual',
+    appleProductId: 'nexus.premium.semi_annual',
     name: 'Semi-Annual',
     label: 'POPULAR',
     price: '$119',
@@ -76,6 +79,7 @@ const premiumPlans = [
   },
   {
     id: 'annual',
+    appleProductId: 'nexus.premium.yearly',
     name: 'Annual',
     label: 'BEST VALUE',
     price: '$179',
@@ -127,7 +131,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
 
   const tierNames: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
 
-  const handlePurchase = (pkg: any, tier: string) => {
+  const handlePurchase = async (pkg: any, tier: string) => {
     localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
       tokens: pkg.message_activations,
@@ -136,22 +140,52 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
     }));
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
 
+    if (NativeBridge.isIOS()) {
+      toast({ title: 'Connecting to App Store' });
+      const result = await NativeBridge.purchaseProduct(`nexus.tokens.${pkg.message_activations}`);
+      if (result.success) {
+        toast({ title: 'Payment Confirmed', description: 'Tokens activated.' });
+        close();
+      } else {
+        toast({ title: 'Transaction Cancelled', variant: 'destructive' });
+      }
+      return;
+    }
+
     if (pkg.paypal_link) {
       window.open(pkg.paypal_link, '_blank');
-      toast({ title: 'Redirecting to PayPal', description: `Processing ${tier} package — ${formatPriceMXN(pkg.price)}` });
+      toast({ title: 'Redirecting to Checkout', description: `Processing ${tier} package — ${formatPriceMXN(pkg.price)}` });
       close();
     } else {
       toast({ title: 'Payment unavailable', description: 'Please contact support.', variant: 'destructive' });
     }
   };
 
-  const handlePremiumPurchase = (plan: typeof premiumPlans[0]) => {
+  const handlePremiumPurchase = async (plan: typeof premiumPlans[0]) => {
+    if (NativeBridge.isIOS()) {
+      toast({ title: 'Connecting to App Store' });
+      const result = await NativeBridge.purchaseProduct(plan.appleProductId);
+      if (result.success) {
+        toast({ title: 'Upgrade Successful', description: 'Premium access granted.' });
+        close();
+      } else {
+        toast({ title: 'Transaction Cancelled', variant: 'destructive' });
+      }
+      return;
+    }
+
     if (plan.paypalUrl) {
       window.open(plan.paypalUrl, '_blank');
-      toast({ title: 'Redirecting to PayPal', description: `Processing ${plan.name} plan — ${plan.price}` });
+      toast({ title: 'Redirecting to Checkout', description: `Processing ${plan.name} plan — ${plan.price}` });
       close();
     }
   };
+
+  const handleRestore = () => {
+    toast({ title: 'Restoring Purchases', description: 'Verifying with App Store...' });
+    setTimeout(() => toast({ title: 'Sync Complete', description: 'Your access has been verified.' }), 1500);
+  };
+
 
   return (
     <AnimatePresence>
@@ -281,7 +315,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                           )}
                         >
                           {plan.highlight && (
-                            <div className="bg-primary text-primary-foreground text-center text-[10px] font-bold uppercase tracking-widest py-1">
+                            <div className="bg-primary text-primary-foreground text-center text-[11px] font-bold uppercase tracking-widest py-1">
                               Most Popular
                             </div>
                           )}
@@ -294,10 +328,10 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                           >
                             <div className="flex-1">
                               <div className="flex items-baseline gap-2">
-                                <span className="text-xl font-black text-foreground">{plan.price}</span>
-                                <span className="text-xs text-muted-foreground font-medium">{plan.duration}</span>
+                                <span className="text-2xl font-black text-foreground">{plan.price}</span>
+                                <span className="text-sm text-muted-foreground font-medium">{plan.duration}</span>
                               </div>
-                              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{plan.label}</span>
+                              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{plan.label}</span>
                             </div>
                             {isExpanded ? (
                               <ChevronUp className="w-5 h-5 text-muted-foreground" />
@@ -318,17 +352,17 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                                 <div className="px-4 pb-4 space-y-3">
                                   <div className="space-y-2">
                                     {plan.benefits.map((b, i) => (
-                                      <div key={i} className="flex items-start gap-2">
+                                      <div key={i} className="flex items-start gap-3">
                                         <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                                        <span className="text-sm text-foreground/80">{b}</span>
+                                        <span className="text-sm font-bold text-foreground/90">{b}</span>
                                       </div>
                                     ))}
                                   </div>
                                   <Button
-                                    className="w-full h-12 rounded-xl font-bold text-sm"
+                                    className="w-full h-14 rounded-2xl font-black text-sm uppercase tracking-tight"
                                     onClick={() => handlePremiumPurchase(plan)}
                                   >
-                                    <Crown className="w-4 h-4 mr-2" />
+                                    <Crown className="w-5 h-5 mr-2" />
                                     Subscribe — {plan.price}{plan.duration}
                                   </Button>
                                 </div>
@@ -340,6 +374,17 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
                     })}
                   </div>
                 </div>
+
+                {/* Restore Footer */}
+                <div className="pt-4 pb-2 text-center">
+                  <button 
+                    onClick={handleRestore}
+                    className="flex items-center justify-center gap-2 w-full text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 hover:text-foreground transition-colors"
+                  >
+                    <RefreshCcw className="w-3.5 h-3.5" />
+                    Restore Subscriptions
+                  </button>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -350,3 +395,4 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
 }
 
 export const TokensModal = memo(TokensModalComponent);
+

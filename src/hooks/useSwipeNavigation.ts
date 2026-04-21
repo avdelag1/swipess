@@ -131,3 +131,4 @@ export function useSwipeNavigation({
     };
   }, [enabled, containerSelector, handleTouchStart, handleTouchEnd]);
 }
+

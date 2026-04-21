@@ -70,3 +70,4 @@ export function AvailabilityCalendar({ availableFrom, availableTo, onDateChange,
     </div>
   );
 }
+

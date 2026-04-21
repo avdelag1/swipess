@@ -691,3 +691,4 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 });
 
 export const SimpleSwipeCard = memo(SimpleSwipeCardComponent);
+

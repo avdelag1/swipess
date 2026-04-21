@@ -61,3 +61,4 @@ export function addKeyboardNavigation(element: HTMLElement, onSelect: () => void
     element.removeEventListener('keydown', handleKeyDown);
   };
 }
+

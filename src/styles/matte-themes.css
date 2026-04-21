@@ -109,52 +109,53 @@
     --overlay: rgba(0, 0, 0, 0.85);
 }
 
-/* THEME: LIGHT — Clean, normal white */
+/* THEME: LIGHT — Clean, high-contrast white */
 .light {
     --background: 0 0% 100%;
-    --foreground: 0 0% 5%; /* Sharp charcoal/black */
+    --foreground: 0 0% 0%; /* Absolute black for max contrast */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 5%;
-    --primary: 221 83% 53%; /* RAM Blue for Light Theme */
+    --card-foreground: 0 0% 0%;
+    --primary: 221 83% 50%; /* Deep RAM Blue */
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 96%;
+    --secondary: 0 0% 94%;
     --secondary-foreground: 0 0% 5%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 30%;
-    --accent: 221 83% 53%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 20%; /* Darker muted text for legibility */
+    --accent: 221 83% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 92%;
-    --input: 0 0% 92%;
-    --ring: 221 83% 53%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 221 83% 50%;
 
     /* Semantic UI Tokens */
     --btn-primary-bg: #FF4D00;
     --btn-primary-text: #FFFFFF;
-    --btn-secondary-bg: rgba(0, 0, 0, 0.05);
-    --btn-secondary-text: #111111;
+    --btn-secondary-bg: rgba(0, 0, 0, 0.08); /* Slightly darker for clear visibility */
+    --btn-secondary-text: #000000;
     --icon-active: #FF4D00;
-    --icon-inactive: rgba(0, 0, 0, 0.6);
+    --icon-inactive: rgba(0, 0, 0, 0.7); /* Darker inactive state for clear vision */
 
     --bg-primary: 0 0% 100%;
-    --bg-secondary: 0 0% 98%;
-    --bg-tertiary: 0 0% 96%;
-    --text-primary: 0 0% 5%; /* Pure charcoal */
-    --text-secondary: 0 0% 25%;
-    --text-tertiary: 0 0% 40%;
-    --border-primary: 0 0% 92%;
-    --border-secondary: 0 0% 88%;
-    --accent-primary: 221 83% 53%;
-    --accent-secondary: 221 83% 63%;
+    --bg-secondary: 0 0% 97%;
+    --bg-tertiary: 0 0% 94%;
+    --text-primary: 0 0% 0%; /* Absolute black */
+    --text-secondary: 0 0% 15%; /* Very deep grey */
+    --text-tertiary: 0 0% 30%;
+    --border-primary: 0 0% 88%;
+    --border-secondary: 0 0% 80%;
+    --accent-primary: 221 83% 50%;
+    --accent-secondary: 221 83% 60%;
 
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.07);
-    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.08);
-    --shadow-card: var(--shadow-ram-card);
-    --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.1);
-    --overlay: rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.12);
+    --shadow-card: 0 24px 60px rgba(0, 0, 0, 0.15);
+    --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
+    --overlay: rgba(0, 0, 0, 0.65);
 }
+
 
 /* THEME 4: RED MATTE (Bold Mexican spirit) */
 .red-matte {

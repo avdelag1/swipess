@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
-import { SwipessLogo } from "./SwipessLogo";
+import { NexusLogo } from "./NexusLogo";
 
 interface PageHeaderProps {
   title: string;
@@ -81,3 +81,4 @@ export function PageHeader({
     </div>
   );
 }
+

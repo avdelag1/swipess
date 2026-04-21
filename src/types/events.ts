@@ -17,3 +17,4 @@ export interface EventItem {
   is_free: boolean;
   price_text: string | null;
 }
+

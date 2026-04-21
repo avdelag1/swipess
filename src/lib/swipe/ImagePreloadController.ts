@@ -258,3 +258,4 @@ export const imagePreloadController = new ImagePreloadController();
 
 // Export class for custom instances
 export { ImagePreloadController };
+

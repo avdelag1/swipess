@@ -211,3 +211,4 @@ export function useRecycledProfiles(viewType: 'profile' | 'listing' = 'profile')
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 }
+

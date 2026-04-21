@@ -32,3 +32,4 @@ describe('sanitizeHTML', () => {
         expect(sanitizeHTML(input)).toBe(input);
     });
 });
+

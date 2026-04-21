@@ -58,3 +58,4 @@ export const VerifiedOwnerBadge = memo(({
 });
 
 VerifiedOwnerBadge.displayName = 'VerifiedOwnerBadge';
+

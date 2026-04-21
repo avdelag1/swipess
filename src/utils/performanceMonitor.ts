@@ -102,3 +102,4 @@ export function debounceAnimation<T extends (...args: any[]) => any>(
     }, wait);
   }) as T;
 }
+

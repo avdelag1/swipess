@@ -107,3 +107,4 @@ export function hasMockImages(images: string[] | null | undefined): boolean {
         return mockPatterns.some(pattern => lowerUrl.includes(pattern));
     });
 }
+

@@ -85,3 +85,4 @@ export function initWebVitalsMonitoring(callback?: MetricCallback) {
     // Browser doesn't support layout shift observer
   }
 }
+

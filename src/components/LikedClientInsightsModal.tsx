@@ -724,3 +724,4 @@ export const LikedClientInsightsModal = memo(LikedClientInsightsModalComponent, 
     prevProps.open === nextProps.open
   );
 });
+

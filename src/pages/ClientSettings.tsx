@@ -16,7 +16,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { ClientVerificationFlow } from "@/components/ClientVerificationFlow";
 import { useTranslation } from "react-i18next";
 import { PWAInstallButton } from "@/components/PWAInstallButton";
-import { SwipessLogo } from "@/components/SwipessLogo";
+import { NexusLogo } from "@/components/NexusLogo";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";
@@ -162,11 +162,11 @@ const ClientSettings = () => {
         {/* 🛸 NEXUS FOOTER */}
         <div className="flex flex-col items-center gap-6 pt-16">
             <div className="w-16 h-16 rounded-[1.6rem] bg-black flex items-center justify-center shadow-2xl border border-white/10">
-               <SwipessLogo size="sm" />
+               <NexusLogo size="sm" />
             </div>
             <div className="text-center space-y-2">
                <div className="flex items-center justify-center gap-3">
-                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>Swipess</span>
+                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>NEXUS DISCOVERY</span>
                   <div className="bg-[#EB4898]/10 px-3 py-1 rounded-full border border-[#EB4898]/20">
                      <span className="text-[9px] font-black text-[#EB4898] uppercase tracking-widest font-mono">V3.3.1</span>
                   </div>
@@ -181,3 +181,4 @@ const ClientSettings = () => {
 };
 
 export default ClientSettings;
+

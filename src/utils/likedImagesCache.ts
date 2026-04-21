@@ -345,3 +345,4 @@ export async function preloadGalleryFullImages(images: string[]): Promise<void> 
 
   await Promise.all(loads);
 }
+

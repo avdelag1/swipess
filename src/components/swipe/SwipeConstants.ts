@@ -82,7 +82,7 @@ export interface PokerCardData {
 }
 
 // ─── Photo Registry ──────────────────────────────────────────────────────────
-// High-fidelity lifestyle photos that represent the Swipess demographic.
+// High-fidelity lifestyle photos that represent the NEXUS DISCOVERY demographic.
 // These are chosen to be premium, diverse, and human-centric.
 
 // Gradient fallbacks shown when an image fails to load (no broken/black cards).
@@ -127,7 +127,7 @@ export const PK_VEL_THRESHOLD  = 260;
 export const PK_SPRING = { type: 'spring' as const, stiffness: 260, damping: 22, mass: 0.9 };
 
 // ─── Photo Registry ──────────────────────────────────────────────────────────
-// Primary: Curated high-fidelity lifestyle photos that represent the Swipess demographic.
+// Primary: Curated high-fidelity lifestyle photos that represent the NEXUS DISCOVERY demographic.
 // These are chosen to be premium, diverse, and human-centric (Tulum/European/American).
 // UPDATED: Standardizing on Flagship Human-Centric Aesthetic.
 export const POKER_CARD_PHOTOS: Record<string, string> = {
@@ -211,3 +211,4 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
     icon: Megaphone,
   },
 ];
+

@@ -163,3 +163,4 @@ export const DiscoverySidebar = memo(({
     </motion.div>
   );
 });
+

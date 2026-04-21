@@ -44,17 +44,6 @@ const themeOptions: ThemeOption[] = [
     }
   },
   {
-    id: 'ivanna-style',
-    name: 'Ivana Sky',
-    description: 'Painterly sunset sky',
-    icon: '🌅',
-    colors: {
-      primary: '#bbd4e8',
-      secondary: '#f3e8d8',
-      accent: '#6fa8dc'
-    }
-  },
-  {
     id: 'cheers',
     name: 'Cheers',
     description: 'Animal print & gold',

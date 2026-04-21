@@ -295,3 +295,4 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
     </Dialog>
   );
 }
+

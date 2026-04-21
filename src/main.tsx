@@ -42,7 +42,7 @@ const isPreviewHost = import.meta.env.DEV
   || hostname === '127.0.0.1'
   || hostname.includes('lovableproject.com')
   || hostname.includes('id-preview--');
-const PREVIEW_CACHE_RESET_KEY = 'swipess-preview-cache-reset-v1';
+const PREVIEW_CACHE_RESET_KEY = 'NEXUS DISCOVERY-preview-cache-reset-v1';
 
 // 1. START AUTH CHECK BEFORE RENDERING (Parallel process)
 const authPromise = supabase.auth.getSession()
@@ -68,14 +68,14 @@ async function resetPreviewRuntimeState() {
     ? await navigator.serviceWorker.getRegistrations()
     : [];
   const cacheKeys = 'caches' in window ? await caches.keys() : [];
-  const swipessCaches = cacheKeys.filter((key) => key.startsWith('swipess-'));
+  const NEXUS DISCOVERYCaches = cacheKeys.filter((key) => key.startsWith('NEXUS DISCOVERY-'));
 
-  if (registrations.length === 0 && swipessCaches.length === 0) {
+  if (registrations.length === 0 && NEXUS DISCOVERYCaches.length === 0) {
     return false;
   }
 
   await Promise.allSettled(registrations.map((registration) => registration.unregister()));
-  await Promise.allSettled(swipessCaches.map((key) => caches.delete(key)));
+  await Promise.allSettled(NEXUS DISCOVERYCaches.map((key) => caches.delete(key)));
 
   const alreadyReset = sessionStorage.getItem(PREVIEW_CACHE_RESET_KEY) === 'true';
   if (!alreadyReset) {
@@ -169,3 +169,4 @@ setTimeout(async () => {
     }
   } catch { /* intentional */ }
 }, 500);
+

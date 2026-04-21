@@ -340,3 +340,4 @@ export function releasePredictor(predictor: GesturePredictor): void {
     predictorPool.push(predictor);
   }
 }
+

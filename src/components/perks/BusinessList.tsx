@@ -100,3 +100,4 @@ export function BusinessList({ partners, onShowQR }: BusinessListProps) {
     </div>
   );
 }
+

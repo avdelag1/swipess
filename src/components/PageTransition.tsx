@@ -249,3 +249,4 @@ export function StaggerSection({ children, className = '' }: StaggerSectionProps
     </div>
   );
 }
+

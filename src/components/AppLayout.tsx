@@ -94,7 +94,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className={cn(
       "w-full min-h-screen flex flex-col relative selection:bg-brand-primary/30", 
-      theme === 'ivanna-style' ? "bg-transparent ivanna-style" : "bg-background",
+      "bg-background",
       theme === 'nexus-style' && "nexus-style"
     )}>
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
@@ -103,7 +103,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <Suspense fallback={null}>
         <NotificationSystem />
       </Suspense>
- 
+  
       {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
         <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[9999]">
           <TopBar
@@ -116,12 +116,12 @@ export function AppLayout({ children }: AppLayoutProps) {
         </SentientHud>
       )}
 
+
       {/* 🛸 NO-LOCK MAIN CONTAINER: Allows children to expand the body natively */}
       <main
         id="main-content"
         className={cn(
           "w-full flex-1 relative z-0 flex flex-col items-center",
-          !isFullScreen && "pt-[60px] pb-[80px]", // Safe area for fixed bars
           isFullScreen && "h-screen overflow-hidden fixed inset-0"
         )}
       >
@@ -147,3 +147,4 @@ export function AppLayout({ children }: AppLayoutProps) {
     </div>
   );
 }
+

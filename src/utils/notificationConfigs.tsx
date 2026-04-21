@@ -51,3 +51,4 @@ export const notificationTypeConfigs: Record<string, { icon: any; bg: string; ac
     label: 'Activation'
   },
 };
+

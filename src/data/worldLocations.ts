@@ -2371,3 +2371,4 @@ export function getFeaturedDestinations(): {
     middleEastAfrica: middleEastAfricaCities,
   };
 }
+

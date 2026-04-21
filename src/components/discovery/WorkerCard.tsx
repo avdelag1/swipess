@@ -140,3 +140,4 @@ export const WorkerCard = memo(({ worker, onContact, priority = false }: WorkerC
     </Card>
   );
 });
+

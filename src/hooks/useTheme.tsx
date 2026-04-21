@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
-export type Theme = 'dark' | 'light' | 'cheers' | 'ivanna-style' | 'nexus-style';
+export type Theme = 'dark' | 'light' | 'cheers' | 'nexus-style';
 
 export interface ThemeToggleCoords {
   x: number;
@@ -15,30 +15,29 @@ interface ThemeContextType {
   theme: Theme;
   isLight: boolean;
   isDark: boolean;
-  isIvanna: boolean;
   setTheme: (theme: Theme, coords?: ThemeToggleCoords) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers', 'ivanna-style', 'nexus-style'];
+const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers', 'nexus-style'];
 const DEFAULT_THEME: Theme = 'dark';
-const STORAGE_KEY = 'swipess_theme_preference';
+const STORAGE_KEY = 'NEXUS DISCOVERY_theme_preference';
 
 /** Map legacy DB values to new theme names */
 function normalizeTheme(raw: string | null | undefined): Theme {
   if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte' || raw === 'pure-black') return 'dark';
   if (raw === 'white-matte' || raw === 'light') return 'light';
   if (raw === 'cheers') return 'cheers';
-  if (raw === 'ivanna-style' || raw === 'ivana') return 'ivanna-style';
   if (raw === 'nexus-style' || raw === 'cyber' || raw === 'nexus') return 'nexus-style';
+  // Default to dark for any removed themes (like ivana)
   return 'dark';
 }
 
 const ALL_THEME_CLASSES = [
   'grey-matte', 'black-matte', 'white-matte', 'red-matte',
   'amber-matte', 'pure-black', 'cheers', 'dark', 'light',
-  'amber', 'red', 'ivanna-style', 'nexus-style', 'ivana'
+  'amber', 'red', 'nexus-style'
 ];
 
 /** 
@@ -54,10 +53,10 @@ function applyThemeToDOM(theme: Theme) {
   }
 
   // Mark transition start for smooth color shift
-  root.style.colorScheme = (theme === 'cheers' || theme === 'nexus-style') ? 'dark' : (theme === 'ivanna-style' ? 'light' : theme);
+  root.style.colorScheme = (theme === 'cheers' || theme === 'nexus-style') ? 'dark' : theme;
   
   // PERFORMANCE: Only remove if we're actually changing
-  root.classList.remove(...ALL_THEME_CLASSES);
+  root.classList.remove(...ALL_THEME_CLASSES, 'ivanna-style', 'ivana');
 
   // Add the theme class
   root.classList.add(theme);
@@ -86,7 +85,6 @@ function applyThemeToDOM(theme: Theme) {
   if (theme === 'dark') targetColor = '#000000';
   else if (theme === 'cheers') targetColor = '#180800';
   else if (theme === 'nexus-style') targetColor = '#000000';
-  else if (theme === 'ivanna-style') targetColor = '#bbd4e8';
   else targetColor = '#ffffff';
   meta.setAttribute('content', targetColor);
 }
@@ -179,11 +177,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const isLight = theme === 'light' || theme === 'ivanna-style';
+  const isLight = theme === 'light';
   const isDark = theme === 'dark' || theme === 'cheers' || theme === 'nexus-style';
-  const isIvanna = theme === 'ivanna-style';
 
-  const value = useMemo(() => ({ theme, isLight, isDark, isIvanna, setTheme }), [theme, isLight, isDark, isIvanna]);
+  const value = useMemo(() => ({ theme, isLight, isDark, setTheme }), [theme, isLight, isDark]);
+
 
   return (
     <ThemeContext.Provider value={value}>
@@ -199,3 +197,4 @@ export function useTheme() {
   }
   return context;
 }
+

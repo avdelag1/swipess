@@ -98,3 +98,4 @@ function Badge({ children, className, variant }: any) {
     </div>
   );
 }
+

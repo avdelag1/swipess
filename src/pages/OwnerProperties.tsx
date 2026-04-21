@@ -47,3 +47,4 @@ const OwnerProperties = () => {
 };
 
 export default OwnerProperties;
+

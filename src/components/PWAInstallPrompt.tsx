@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, Download, Share, Sparkles } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
-import { SwipessLogo } from '@/components/SwipessLogo';
+import { NexusLogo } from '@/components/NexusLogo';
 import { cn } from '@/lib/utils';
 
 // BeforeInstallPromptEvent is not in the standard TS lib
@@ -10,8 +10,8 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-const DISMISSED_KEY = 'swipess-pwa-install-dismissed';
-const DISMISSED_FOREVER_KEY = 'swipess-pwa-install-dismissed-forever';
+const DISMISSED_KEY = 'NEXUS DISCOVERY-pwa-install-dismissed';
+const DISMISSED_FOREVER_KEY = 'NEXUS DISCOVERY-pwa-install-dismissed-forever';
 const SHOW_DELAY_MS = 5000; // Show after 5s of use for immediate accessibility
 
 function isIOS() {
@@ -104,7 +104,7 @@ export function PWAInstallPrompt() {
   return (
     <div
       role="dialog"
-      aria-label="Install Swipess app"
+      aria-label="Install NEXUS DISCOVERY app"
       className="fixed bottom-0 left-0 right-0 z-[10000] px-4 pb-safe-bottom"
       style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)' }}
     >
@@ -121,10 +121,10 @@ export function PWAInstallPrompt() {
                "w-12 h-12 rounded-2x overflow-hidden flex items-center justify-center",
                isDark ? "bg-zinc-900 border border-white/10" : "bg-gray-50 border border-black/5"
             )}>
-               <SwipessLogo size="xs" />
+               <NexusLogo size="xs" />
             </div>
             <div>
-              <p className={cn("font-black text-base tracking-tight leading-tight", isDark ? "text-white" : "text-black")}>SWIPESS</p>
+              <p className={cn("font-black text-base tracking-tight leading-tight", isDark ? "text-white" : "text-black")}>NEXUS DISCOVERY</p>
               <div className="flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 text-orange-500" />
                 <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/40" : "text-black/40")}>Elite Discovery</p>
@@ -143,7 +143,7 @@ export function PWAInstallPrompt() {
         {/* Body */}
         <p className={cn("text-sm mt-4 font-bold leading-relaxed", isDark ? "text-white/70" : "text-black/60")}>
           {iosMode
-            ? 'Install Swipess for a premium, edge-to-edge native experience.'
+            ? 'Install NEXUS DISCOVERY for a premium, edge-to-edge native experience.'
             : 'Get the app for faster navigation and real-time elite discovery.'}
         </p>
  
@@ -185,3 +185,4 @@ export function PWAInstallPrompt() {
     </div>
   );
 }
+

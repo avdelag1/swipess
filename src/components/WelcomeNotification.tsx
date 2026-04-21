@@ -46,7 +46,7 @@ export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProp
               {/* Text */}
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-[13px] leading-tight text-foreground">
-                  Welcome to Swipess
+                  Welcome to Nexus Discovery
                 </h3>
                 <p className="text-xs font-normal mt-0.5 truncate text-muted-foreground">
                   Swipe to find your perfect match
@@ -79,3 +79,4 @@ export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProp
 }
 
 export default WelcomeNotification;
+

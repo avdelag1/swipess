@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
-import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
+import { NexusSwipeContainer } from '@/components/NexusSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -122,7 +122,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             className="w-full h-full flex flex-col"
             style={{ willChange: 'transform, opacity' }}
           >
-            <SwipessSwipeContainer
+            <NexusSwipeContainer
               onListingTap={handleListingTap}
               onInsights={handleListingTap}
               onMessageClick={onMessageClick}
@@ -135,9 +135,9 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
           <SheetContent side="bottom" className="h-[92vh] p-0 border-none bg-transparent overflow-hidden">
             <div className={cn(
               "w-full h-full transition-all duration-500 rounded-t-[3.5rem] border-t overflow-y-auto",
-              theme === 'nexus-style' ? "bg-black/90 border-white/10" : 
-              (theme === 'ivanna-style' ? "bg-card border-foreground/30 shadow-artisan" : "glass-morphism border-white/10")
+              theme === 'nexus-style' ? "bg-black/90 border-white/10" : "glass-morphism border-white/20 shadow-2xl"
             )}>
+
                <div className="sticky top-0 z-[60] flex items-center justify-center pt-4 pb-2">
                   <div className="w-12 h-1.5 bg-white/20 rounded-full" />
                </div>
@@ -150,3 +150,4 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
     </div>
   );
 }
+

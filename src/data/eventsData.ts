@@ -127,8 +127,9 @@ export const MOCK_EVENTS: EventItem[] = [
   {
     id: 'm17', title: 'Luxury Villa Weekend Promo', category: 'promo',
     image_url: '/images/filters/property.png',
-    description: 'Unwind in a private jungle villa with a plunge pool, terrace, and lush garden views. Special weekly rates for Swipess members.',
+    description: 'Unwind in a private jungle villa with a plunge pool, terrace, and lush garden views. Special weekly rates for NEXUS DISCOVERY members.',
     event_date: '2026-04-19T12:00:00', location: 'Aldea Zamá, Tulum', location_detail: 'Jungle Villa',
     organizer_name: 'Tulum Stays', organizer_whatsapp: '+529847770099', promo_text: 'Members-only rate', discount_tag: '15% OFF', is_free: false, price_text: 'From $2,800 MXN/night',
   },
 ];
+

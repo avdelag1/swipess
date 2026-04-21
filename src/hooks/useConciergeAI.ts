@@ -23,9 +23,9 @@ export interface Conversation {
 
 export type AiCharacter = 'default' | 'kyle' | 'beaugosse' | 'donajkiin' | 'botbetter' | 'lunashanti' | 'ezriyah';
 
-const STORAGE_KEY = 'swipess-ai-conversations';
-const CHARACTER_KEY = 'swipess-ai-character';
-const EGO_KEY = 'swipess-ai-ego';
+const STORAGE_KEY = 'NEXUS DISCOVERY-ai-conversations';
+const CHARACTER_KEY = 'NEXUS DISCOVERY-ai-character';
+const EGO_KEY = 'NEXUS DISCOVERY-ai-ego';
 const MAX_CONVERSATIONS = 20;
 const MAX_MESSAGES = 50;
 
@@ -385,7 +385,7 @@ export function useConciergeAI() {
     if (!content.trim() || isLoading || isSendingRef.current) return;
     isSendingRef.current = true; // Lock immediately to prevent double calls
     if (!canUseAI) {
-      toast.error('Upgrade to Premium to use Swipess AI', { description: 'Subscribe or purchase tokens to unlock the AI concierge.' });
+      toast.error('Upgrade to Premium to use NEXUS DISCOVERY AI', { description: 'Subscribe or purchase tokens to unlock the AI concierge.' });
       return;
     }
 
@@ -726,3 +726,4 @@ export function useConciergeAI() {
     isPremium,
   };
 }
+

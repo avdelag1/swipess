@@ -46,14 +46,15 @@ function TopBarComponent({
 
   const glassSurfaceStyle: React.CSSProperties = {
     background: _transparent ? 'transparent' : 'var(--nav-bg)',
-    backdropFilter: (_transparent || isIvanna) ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
-    WebkitBackdropFilter: (_transparent || isIvanna) ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
-    border: _transparent ? 'none' : '1px solid var(--nav-border)',
+    backdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(64px) saturate(280%) contrast(1.1)',
+    WebkitBackdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(64px) saturate(280%) contrast(1.1)',
     borderRadius: isIvanna ? '2rem' : '1.8rem',
-    boxShadow: _transparent ? 'none' : (isIvanna ? '0 10px 30px rgba(0,0,0,0.1)' : (isLight
-      ? '0 10px 25px rgba(0,0,0,0.04), inset 0 0 15px rgba(255,255,255,0.2)'
-      : '0 20px 40px rgba(0,0,0,0.45), inset 0 0 20px rgba(255,255,255,0.1)')),
-    border: _transparent ? 'none' : (isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.25)'),
+    boxShadow: theme === 'ivanna-style' 
+      ? '0 20px 50px -10px rgba(100,160,230,0.25), inset 0 0 20px rgba(255,255,255,0.4)'
+      : (isLight 
+         ? '0 20px 50px -10px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.4)' 
+         : '0 30px 80px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.2)'),
+    border: _transparent ? 'none' : (isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.15)'),
   };
 
   const { data: profile } = useQuery({
@@ -74,7 +75,7 @@ function TopBarComponent({
   return (
     <header 
       className={cn(
-        "fixed top-0 left-0 right-0 z-[100] transition-all duration-700 pointer-events-none",
+        "absolute top-0 left-0 right-0 z-[100] transition-all duration-700 pointer-events-none",
         _transparent ? "h-20" : "h-16",
         className
       )}
@@ -89,13 +90,7 @@ function TopBarComponent({
         <div className="flex-shrink-0 flex items-center pointer-events-none">
           {(!minimal || onBack) && (
             <div 
-              className={cn("flex items-center gap-1.5 pointer-events-auto px-1.5 py-1.5 shadow-2xl transition-all duration-300")} 
-              style={{
-                ...glassSurfaceStyle,
-                background: isIvanna ? 'rgba(255, 252, 240, 0.65)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(10,10,12,0.15)'),
-                borderRadius: '2rem',
-                border: isIvanna ? '1px solid rgba(140, 180, 230, 0.4)' : '1px solid rgba(255,255,255,0.15)',
-              }}
+              className={cn("flex items-center gap-1.5 pointer-events-auto transition-all duration-300")} 
             >
               {onBack && (
                 <motion.button
@@ -123,7 +118,7 @@ function TopBarComponent({
                   }}
                   className="flex items-center gap-2 pr-2 transition-all duration-200"
                 >
-                  <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-brand-primary/60 shadow-lg ml-0.5">
+                  <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-brand-primary/40 ml-0.5">
                     {profile?.avatar_url ? (
                       <img
                         src={profile.avatar_url}
@@ -148,7 +143,7 @@ function TopBarComponent({
               )}
 
               {/* Mode Switcher Integrated into Left Unified Pill */}
-              <div className="flex items-center px-1 border-l border-white/10 h-6 ml-1">
+              <div className="flex items-center h-6 ml-0.5">
                 <ModeSwitcher variant="icon" size="sm" />
               </div>
             </div>
@@ -162,13 +157,7 @@ function TopBarComponent({
         <div className="flex-shrink-0 flex items-center pointer-events-none">
           {!minimal && (
             <div 
-              className={cn("flex items-center gap-1.5 pointer-events-auto px-1.5 py-1.5 shadow-2xl transition-all duration-300")} 
-              style={{
-                ...glassSurfaceStyle,
-                background: isIvanna ? 'rgba(255, 252, 240, 0.65)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(15,15,20,0.12)'),
-                borderRadius: '2rem',
-                border: isIvanna ? '1px solid rgba(140, 180, 230, 0.4)' : '1px solid rgba(255,255,255,0.15)',
-              }}
+              className={cn("flex items-center gap-2 pointer-events-auto transition-all duration-300")} 
             >
               <motion.button
                 whileTap={{ scale: 0.9 }}
@@ -181,10 +170,11 @@ function TopBarComponent({
                 className="w-10 h-10 flex items-center justify-center p-0"
               >
                 <Radio 
-                  className={cn("w-5 h-5", isIvanna ? "text-black" : (isLight ? "text-brand-primary" : "text-brand-primary"))} 
+                  className={cn("w-5 h-5", isLight ? "text-brand-primary" : "text-brand-primary")} 
                   strokeWidth={2.5} 
                 />
               </motion.button>
+
 
               <div className="flex items-center px-1">
                 <ThemeToggle />
@@ -211,3 +201,4 @@ function TopBarComponent({
 }
 
 export const TopBar = memo(TopBarComponent);
+

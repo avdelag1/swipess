@@ -18,3 +18,4 @@ export function runIdleTask(task: () => void) {
     setTimeout(task, 0);
   }
 }
+

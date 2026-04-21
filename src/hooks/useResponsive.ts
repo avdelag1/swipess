@@ -208,3 +208,4 @@ export function useMediaQuery(breakpoint: BreakpointKey): boolean {
   const { up } = useResponsive();
   return up(breakpoint);
 }
+

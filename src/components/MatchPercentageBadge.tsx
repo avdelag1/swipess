@@ -47,3 +47,4 @@ export function MatchPercentageBadge({ percentage, reasons, className }: MatchPe
     </Badge>
   );
 }
+

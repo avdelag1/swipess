@@ -828,3 +828,4 @@ export const PropertyInsightsDialog = memo(PropertyInsightsDialogComponent, (pre
     prevProps.open === nextProps.open
   );
 });
+

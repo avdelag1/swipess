@@ -25,9 +25,9 @@ const BUILD_TIMESTAMP = import.meta.env.VITE_BUILD_TIME || 'v1.0.0';
 export const APP_VERSION = `1.0.${BUILD_TIMESTAMP === 'v1.0.0' ? '999' : BUILD_TIMESTAMP.slice(-8)}`;
 
 // Storage key for version tracking
-const VERSION_STORAGE_KEY = 'Swipess_app_version';
-const RELOAD_GUARD_KEY = 'swipess_reload_triggered';
-const _SW_REGISTRATION_KEY = 'Swipess_sw_registration';
+const VERSION_STORAGE_KEY = 'NEXUS DISCOVERY_app_version';
+const RELOAD_GUARD_KEY = 'NEXUS DISCOVERY_reload_triggered';
+const _SW_REGISTRATION_KEY = 'NEXUS DISCOVERY_sw_registration';
 
 interface UpdateInfo {
   available: boolean;
@@ -166,7 +166,7 @@ export function useAutomaticUpdates() {
 
     setIsUpdating(true);
     // Mark as seen in session immediately
-    sessionStorage.setItem('swipess_update_seen', 'true');
+    sessionStorage.setItem('NEXUS DISCOVERY_update_seen', 'true');
     sessionStorage.setItem(RELOAD_GUARD_KEY, (reloadCount + 1).toString());
 
     try {
@@ -221,7 +221,7 @@ export function useAutomaticUpdates() {
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                if (sessionStorage.getItem('swipess_update_seen') !== 'true') {
+                if (sessionStorage.getItem('NEXUS DISCOVERY_update_seen') !== 'true') {
                   performUpdate();
                 }
               }
@@ -244,7 +244,7 @@ export function useAutomaticUpdates() {
 
 /**
  * Component that shows update notification when available
- * UPGRADED: Liquid Glass Design with Swipess Rose highlights
+ * UPGRADED: Liquid Glass Design with NEXUS DISCOVERY Rose highlights
  */
 export function UpdateNotification() {
   const { updateInfo, performUpdate, isUpdating } = useAutomaticUpdates();
@@ -254,7 +254,7 @@ export function UpdateNotification() {
   const handleUpdateClick = useCallback(async () => {
     // Immediate local dismissal and session suppression
     setDismissed(true);
-    sessionStorage.setItem('swipess_update_seen', 'true');
+    sessionStorage.setItem('NEXUS DISCOVERY_update_seen', 'true');
     await performUpdate();
   }, [performUpdate]);
 
@@ -297,7 +297,7 @@ export function UpdateNotification() {
                 {/* Text Content */}
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-black text-lg tracking-tight leading-tight uppercase italic italic-brand">
-                    New Swipess Update
+                    New NEXUS DISCOVERY Update
                   </p>
                   <p className="text-white/50 text-[10px] font-bold mt-1 uppercase tracking-widest leading-snug">
                     New platform version ready
@@ -305,7 +305,7 @@ export function UpdateNotification() {
                 </div>
               </div>
 
-              {/* Action Button: Swipess Core Rose */}
+              {/* Action Button: NEXUS DISCOVERY Core Rose */}
               <motion.button
                 whileTap={{ scale: 0.96 }}
                 disabled={isUpdating}
@@ -461,3 +461,4 @@ export default {
   UpdateNotification,
   VersionInfo,
 };
+

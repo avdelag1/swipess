@@ -584,3 +584,4 @@ export function EmbeddedLocationFilter({
     </Collapsible>
   );
 }
+

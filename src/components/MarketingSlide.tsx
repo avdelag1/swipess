@@ -139,7 +139,7 @@ const slideData: Record<string, {
 
 const MarketingSlideComponent = ({ slideId }: MarketingSlideProps) => {
     const data = slideData[slideId] || {
-        title: 'Welcome to Swipess',
+        title: 'Welcome to Nexus Discovery',
         subtitle: 'Swipe right to discover your next match.',
         icon: Star,
         gradient: 'from-brand-primary/90 to-brand-accent/90',
@@ -196,3 +196,4 @@ const MarketingSlideComponent = ({ slideId }: MarketingSlideProps) => {
 };
 
 export const MarketingSlide = memo(MarketingSlideComponent);
+

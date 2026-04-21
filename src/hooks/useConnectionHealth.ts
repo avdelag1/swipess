@@ -142,3 +142,4 @@ export function useConnectionHealth(): ConnectionHealth {
 
   return { status, lastChecked, retryCount, retry };
 }
+

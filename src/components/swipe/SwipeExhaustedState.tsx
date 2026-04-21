@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { RefreshCw, RotateCcw, Zap, Home, Bike, Briefcase, Sparkles, ChevronLeft } from 'lucide-react';
+import { RotateCcw, Zap, RefreshCw, ChevronLeft, Home, Bike, Briefcase, SlidersHorizontal } from 'lucide-react';
+import { useSmartListingMatching } from '@/hooks/useSmartMatching';
+import { RadarNode, LocationRadiusSelector } from './LocationRadiusSelector';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Button } from '@/components/ui/button';
-import { RadarSearchEffect } from '@/components/ui/RadarSearchEffect';
-import { LocationRadiusSelector } from './LocationRadiusSelector';
-import { deckFadeVariants } from '@/utils/modernAnimations';
-import { cn } from '@/lib/utils';
-import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { triggerHaptic } from '@/utils/haptics';
 import { useTheme } from '@/hooks/useTheme';
+import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { useState, useEffect, useMemo } from 'react';
+import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
+import { deckFadeVariants } from '@/visual/springConfigs';
 
 interface SwipeExhaustedStateProps {
   categoryLabel: string;
@@ -40,9 +40,8 @@ const CATEGORY_ICONS: Record<string, { icon: any; label: string; color: string }
 };
 
 export const SwipeExhaustedState = ({
-  categoryLabel,
+  categoryLabel: _categoryLabel,
   CategoryIcon: _CategoryIcon,
-  iconColor: _iconColor,
   isRefreshing,
   onRefresh,
   radiusKm,
@@ -52,10 +51,8 @@ export const SwipeExhaustedState = ({
   detected,
   error,
   isInitialLoad = false,
-  role = 'client',
   lat,
   lng,
-  onGoToMap
 }: SwipeExhaustedStateProps) => {
   const { theme } = useTheme();
   const { setCategories } = useFilterActions();
@@ -63,6 +60,25 @@ export const SwipeExhaustedState = ({
   const setActiveCategory = useFilterStore(s => s.setActiveCategory);
   const [scanIteration, setScanIteration] = useState(0);
   const [isScanBurstActive, setIsScanBurstActive] = useState(false);
+
+  // FETCH DATA FOR THE RADAR NODES
+  const { smartListings } = useSmartListingMatching({
+    categories: activeCategory ? [activeCategory as any] : undefined,
+    radiusKm: radiusKm,
+    latitude: lat || undefined,
+    longitude: lng || undefined,
+    limit: 40
+  });
+
+  const radarNodes: RadarNode[] = useMemo(() => {
+    return (smartListings || []).map(l => ({
+      id: l.id,
+      lat: l.latitude || 0,
+      lng: l.longitude || 0,
+      label: l.title || 'Discovery',
+      price: l.price ? `$${l.price.toLocaleString()}` : undefined
+    }));
+  }, [smartListings]);
 
   useEffect(() => {
     if (scanIteration === 0) return;
@@ -87,7 +103,6 @@ export const SwipeExhaustedState = ({
   };
 
   const activeCatInfo = activeCategory ? CATEGORY_ICONS[activeCategory] : null;
-  const ActiveIcon = activeCatInfo?.icon || Home;
 
   if (error && isInitialLoad) {
     return (
@@ -130,8 +145,7 @@ export const SwipeExhaustedState = ({
         animate="animate" 
         exit="exit" 
         className={cn(
-          "relative z-50 h-full w-full overflow-hidden flex flex-col pt-2",
-          theme === 'ivanna-style' ? "bg-transparent" : "bg-black"
+          "relative z-50 h-full w-full overflow-hidden flex flex-col pt-2 bg-transparent"
         )}
       >
         <div className="absolute inset-0 pointer-events-none z-0">
@@ -161,60 +175,48 @@ export const SwipeExhaustedState = ({
            </button>
         </div>
 
-        {/* 1. COMPACT RADAR — centered square matches DiscoveryMapView */}
-        <div className="flex-1 min-h-0 px-4 relative flex flex-col items-center justify-start pt-4 gap-3">
-          <div className="flex flex-col items-center gap-2 pointer-events-none">
-            <RadarSearchEffect
-              key={scanIteration === 0 ? 'idle' : `scan-${scanIteration}`}
-              size={56}
-              color={activeCatInfo?.color || '#ec4899'}
-              isActive={isScanBurstActive}
-              autoStopMs={6000}
-              icon={<ActiveIcon className="h-4 w-4 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" strokeWidth={1.5} />}
-            />
+        {/* 🚀 BOUNDLESS NEXUS RADAR — Edge-to-edge immersive technical design */}
+        <div className="flex-1 min-h-0 relative flex flex-col items-center justify-center">
+          {/* Centered Status Overlay */}
+          <div className="absolute top-[12%] flex flex-col items-center gap-2 pointer-events-none z-[100]">
             <motion.div
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
               className={cn(
-                "px-3 py-1 rounded-full shadow-xl",
-                theme === 'ivanna-style' ? "bg-white/50" : "bg-black/40 backdrop-blur-xl border border-white/10"
+                "px-5 py-2 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/5",
+                theme === 'ivanna-style' ? "bg-white/90" : "bg-black/80 backdrop-blur-3xl"
               )}
             >
-              <span className={cn(
-                "text-[10px] font-black uppercase tracking-wider",
-                theme === 'ivanna-style' ? "text-[#111111]" : "text-white/90"
-              )}>
-                {isRefreshing || isScanBurstActive ? 'Calibrating Discovery Intelligence…' : 'Market Resonance Exhausted'}
-              </span>
+              <div className="flex flex-col items-center gap-1">
+                 <span className={cn(
+                  "text-[10px] font-black uppercase tracking-[0.30em]",
+                  theme === 'ivanna-style' ? "text-[#111111]" : "text-primary animate-pulse"
+                )}>
+                  {isRefreshing || isScanBurstActive ? 'Recalibrating Array' : 'Nexus Radar Initialized'}
+                </span>
+                <span className={cn(
+                  "text-[8px] font-bold uppercase tracking-[0.1em]",
+                  theme === 'ivanna-style' ? "text-[#111111]/40" : "text-white/40"
+                )}>
+                  {radarNodes.length > 0 ? `Tracking ${radarNodes.length} Nodes in Vicinity` : 'No signals detected. Increase range.'}
+                </span>
+              </div>
             </motion.div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="relative w-full flex justify-center"
-            style={{ maxWidth: 'min(92vw, 360px)' }}
-          >
-            <div
-              className={cn(
-                "relative w-full overflow-hidden shadow-xl",
-                theme === 'ivanna-style' ? "bg-white/60 backdrop-blur-md rounded-[24px_32px_28px_36px_/_36px_28px_32px_24px]" : "rounded-[2rem]"
-              )}
-              style={{ aspectRatio: '1 / 1', maxHeight: '42svh' }}
-            >
-              <LocationRadiusSelector
-                radiusKm={radiusKm}
-                onRadiusChange={onRadiusChange}
-                onDetectLocation={onDetectLocation || (() => {})}
-                detecting={detecting ?? false}
-                detected={detected ?? false}
-                lat={lat}
-                lng={lng}
-                onCategorySelect={(category) => setCategories([category])}
-              />
-            </div>
-          </motion.div>
+          <div className="w-full h-full relative overflow-hidden">
+            <LocationRadiusSelector
+              radiusKm={radiusKm}
+              onRadiusChange={onRadiusChange}
+              onDetectLocation={onDetectLocation || (() => {})}
+              detecting={detecting ?? false}
+              detected={detected ?? false}
+              lat={lat}
+              lng={lng}
+              nodes={radarNodes}
+              onCategorySelect={(category) => setCategories([category])}
+            />
+          </div>
         </div>
 
         <div className={cn(
@@ -269,21 +271,36 @@ export const SwipeExhaustedState = ({
               onClick={handleRefreshClick}
               disabled={isRefreshing}
               className={cn(
-                "flex-1 relative h-14 overflow-hidden shadow-2xl transition-all active:scale-95 group",
-                theme === 'ivanna-style' ? "bg-white border-[3px] border-[#111111] text-[#111111]" : "rounded-2xl bg-white/5 hover:bg-white/10 text-white"
+                "flex-1 relative h-14 overflow-hidden shadow-2xl transition-all active:scale-95 group rounded-2xl",
+                theme === 'ivanna-style' ? "bg-white border-[3px] border-[#111111] text-[#111111]" : "bg-white/5 hover:bg-white/10 text-white border border-white/5"
               )}
             >
               {isRefreshing && <div className="absolute inset-0 bg-primary/10 animate-pulse" />}
               <RefreshCw className={cn("mr-2 h-4 w-4 transition-transform group-hover:rotate-180 duration-700", isRefreshing && "animate-spin", theme === 'ivanna-style' ? "text-[#111111]" : "text-primary")} />
-              {isRefreshing ? 'Tuning Intelligence...' : 'Refresh Market Resonance'}
+              {isRefreshing ? 'Tuning Intelligence...' : 'Relaunch Scan'}
             </Button>
             
             <Button
               variant="outline"
-              onClick={() => setCategories(['property'])}
-              className="h-14 w-14 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95"
+              onClick={() => {
+                triggerHaptic('medium');
+                // Open Advanced Filters toggle
+                (window as any).dispatchEvent(new CustomEvent('open-filters'));
+              }}
+              className="h-14 w-14 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95 border border-white/5"
             >
-              <Zap className="h-5 w-5 text-primary" />
+              <SlidersHorizontal className="h-5 w-5 text-primary" />
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => {
+                triggerHaptic('medium');
+                setActiveCategory(null);
+              }}
+              className="h-14 w-14 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95 border border-white/5"
+            >
+              <Zap className="h-5 w-5 text-emerald-400" />
             </Button>
           </div>
 
@@ -292,3 +309,5 @@ export const SwipeExhaustedState = ({
     </AnimatePresence>
   );
 };
+
+

@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { cn } from '@/lib/utils';
 
-interface SwipessLogoProps {
+interface NexusLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
   className?: string;
   variant?: 'white' | 'black' | 'outline' | 'gradient' | 'icon';
@@ -18,11 +18,11 @@ const sizeMap = {
   '4xl': 'h-44',
 };
 
-function SwipessLogoComponent({
+function NexusLogoComponent({
   size = 'md',
   className,
   variant = 'gradient',
-}: SwipessLogoProps) {
+}: NexusLogoProps) {
   const isIcon = variant === 'icon';
   // White variant: invert the orange wordmark to pure white
   const isWhite = variant === 'white';
@@ -33,8 +33,8 @@ function SwipessLogoComponent({
       className
     )}>
       <img
-        src={isIcon ? "/icons/swipess-logo-transparent.png" : "/icons/swipess-wordmark-transparent-v2.png"}
-        alt="Swipess"
+        src={isIcon ? "/icons/nexus-logo-transparent.png" : "/icons/nexus-wordmark-transparent-v2.png"}
+        alt="Nexus"
         draggable={false}
         fetchPriority="high"
         decoding={isIcon ? "async" : "sync"}
@@ -50,4 +50,5 @@ function SwipessLogoComponent({
   );
 }
 
-export const SwipessLogo = memo(SwipessLogoComponent);
+export const NexusLogo = memo(NexusLogoComponent);
+

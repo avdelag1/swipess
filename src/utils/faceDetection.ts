@@ -31,3 +31,4 @@ export const detectFaceCenter = async (image: HTMLImageElement): Promise<FaceCen
 
   return null;
 };
+

@@ -28,7 +28,7 @@ export const WelcomeBonusModal = () => {
     }
 
     // Check if we've already shown this to this user
-    const hasSeen = localStorage.getItem(`swipess_welcome_bonus_${user.id}`);
+    const hasSeen = localStorage.getItem(`NEXUS DISCOVERY_welcome_bonus_${user.id}`);
     
     if (!hasSeen) {
       // Small delay for better UX
@@ -43,7 +43,7 @@ export const WelcomeBonusModal = () => {
   const handleClose = () => {
     setIsOpen(false);
     if (user) {
-      localStorage.setItem(`swipess_welcome_bonus_${user.id}`, 'true');
+      localStorage.setItem(`NEXUS DISCOVERY_welcome_bonus_${user.id}`, 'true');
     }
     triggerHaptic('light');
   };
@@ -104,7 +104,7 @@ export const WelcomeBonusModal = () => {
                   Congratulations!
                 </h2>
                 <p className="text-white/60 text-sm leading-relaxed mb-8">
-                  Welcome to SwipesS. You are one of our first users! To honor your early support, we've granted you <span className="text-white font-bold">6 MONTHS of SwipesS God-Mode</span> for absolutely free.
+                  Welcome to Nexus Discovery. You are one of our first users! To honor your early support, we've granted you <span className="text-white font-bold">6 MONTHS of NEXUS DISCOVERY God-Mode</span> for absolutely free.
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 mb-8">
@@ -145,3 +145,4 @@ export const WelcomeBonusModal = () => {
   );
 };
 export default WelcomeBonusModal;
+

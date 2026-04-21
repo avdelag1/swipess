@@ -83,3 +83,4 @@ export const getActiveCategoryInfo = (filters?: any, storeCategory?: string | nu
     return categoryConfig.property;
   }
 };
+

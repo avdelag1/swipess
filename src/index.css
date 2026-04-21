@@ -1,5 +1,4 @@
 @import './styles/tokens.css';
-@import './styles/ivanna-theme.css';
 @import './styles/nexus-theme.css';
 
 
@@ -26,6 +25,7 @@ html, body, #root {
 .dark #root, .dark body, .black-matte #root, .black-matte body, .nexus-style #root, .nexus-style body {
   background-color: #000000;
 }
+
 
 html::-webkit-scrollbar, 
 body::-webkit-scrollbar {
@@ -93,9 +93,12 @@ body::-webkit-scrollbar {
 }
 
 .liquid-glass-card {
-  @apply bg-card backdrop-blur-xl transition-all duration-300 overflow-hidden relative;
-  border: none !important;
-  box-shadow: var(--shadow-cinematic-md);
+  @apply backdrop-blur-[64px] transition-all duration-500 overflow-hidden relative;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 
+    var(--shadow-cinematic-md),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
   contain: layout style paint;
 }
 
@@ -184,8 +187,8 @@ button:active, [role="button"]:active {
     --btn-secondary-text: #111111;
     --icon-active: #FF4D00;
     --icon-inactive: rgba(0, 0, 0, 0.6);
-    --nav-bg: rgba(255, 255, 255, 0.8);
-    --nav-border: rgba(0, 0, 0, 0.08);
+    --nav-bg: rgba(255, 255, 255, 0.12);
+    --nav-border: rgba(0, 0, 0, 0.04);
   }
   .dark {
     --background: 216 15% 9%;
@@ -209,8 +212,8 @@ button:active, [role="button"]:active {
     --btn-secondary-text: #FFFFFF;
     --icon-active: #FF6B35;
     --icon-inactive: rgba(255, 255, 255, 0.6);
-    --nav-bg: rgba(10, 10, 12, 0.8);
-    --nav-border: rgba(255, 255, 255, 0.1);
+    --nav-bg: rgba(10, 10, 12, 0.15);
+    --nav-border: rgba(255, 255, 255, 0.08);
   }
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */

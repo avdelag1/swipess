@@ -68,3 +68,4 @@ export interface RadioPlayerState {
   deadStationIds: string[]; // IDs of stations that are permanently broken
   miniPlayerMode: 'expanded' | 'minimized' | 'closed';
 }
+

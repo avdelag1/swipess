@@ -26,18 +26,13 @@ const THEMES: { id: Theme; name: string; description: string; colors: string[] }
     colors: ['#180800', '#C8A96B'] 
   },
   { 
-    id: 'ivanna-style', 
-    name: 'Ivanna Style ✨', 
-    description: 'Artistic hand-painted luxury boutique vibe',
-    colors: ['#DDF4EF', '#C8A96B', '#F6D8C7'] 
-  },
-  { 
     id: 'nexus-style', 
     name: 'Zenith Liquid', 
     description: 'AI-Native high efficiency interface',
     colors: ['#000000', '#00E5FF', '#121212'] 
   },
 ];
+
 
 export function GlobalThemeSettings() {
   const { theme: currentTheme, setTheme } = useTheme();
@@ -84,9 +79,6 @@ export function GlobalThemeSettings() {
                 <div className="text-left">
                   <div className="font-bold text-foreground text-sm flex items-center gap-2">
                     {theme.name}
-                    {theme.id === 'ivanna-style' && (
-                       <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full uppercase tracking-tighter">Premium</span>
-                    )}
                   </div>
                   <div className="text-xs text-muted-foreground">{theme.description}</div>
                 </div>
@@ -99,9 +91,7 @@ export function GlobalThemeSettings() {
               )}
               
               {/* Background preview subtle effect */}
-              {theme.id === 'ivanna-style' && (
-                <div className="absolute inset-0 opacity-10 pointer-events-none ivanna-preview-noise mix-blend-overlay" />
-              )}
+
             </button>
           ))}
         </div>
@@ -109,3 +99,4 @@ export function GlobalThemeSettings() {
     </Card>
   );
 }
+

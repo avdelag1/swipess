@@ -225,3 +225,4 @@ export const RadarSearchIcon = memo(function RadarSearchIcon({
     </div>
   );
 });
+

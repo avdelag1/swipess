@@ -440,3 +440,4 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 }
 
 export const ClientProfileDialog = memo(ClientProfileDialogComponent);
+

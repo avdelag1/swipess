@@ -30,3 +30,4 @@ export const toast = ({ title, description, variant }: any) => {
     message: description || ''
   });
 };
+

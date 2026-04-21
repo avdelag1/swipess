@@ -8,7 +8,7 @@ interface VisualThemeContextType {
 
 const VisualThemeContext = createContext<VisualThemeContextType | undefined>(undefined);
 
-const DEFAULT_COLOR = '#f97316'; // Swipess Orange
+const DEFAULT_COLOR = '#f97316'; // NEXUS DISCOVERY Orange
 
 /**
  * 🎨 VISUAL THEME PROVIDER
@@ -35,3 +35,4 @@ export function useVisualTheme() {
   }
   return context;
 }
+

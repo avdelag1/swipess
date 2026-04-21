@@ -119,7 +119,7 @@ export default function FAQClientPage() {
              </p>
              <Button
                 variant="outline"
-                onClick={() => window.location.href = 'mailto:support@swipess.com'}
+                onClick={() => window.location.href = 'mailto:support@NEXUS DISCOVERY.com'}
                 className="h-16 px-12 rounded-[2rem] bg-white text-black font-black uppercase italic tracking-widest border-none hover:bg-white/90 transition-all shadow-2xl"
              >
                 DISPATCH SUPPORT
@@ -130,3 +130,4 @@ export default function FAQClientPage() {
     </div>
   );
 }
+

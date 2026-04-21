@@ -158,3 +158,4 @@ export function getStatusColor(
   const semanticType = statusColorMap[status.toLowerCase()] || 'info';
   return getSemanticColor(semanticType, variant, isDarkTheme);
 }
+

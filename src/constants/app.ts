@@ -108,3 +108,4 @@ export const VALIDATION = {
   PHONE_REGEX: /^[\d\s\-+()]+$/,
   URL_REGEX: /^https?:\/\/.+/,
 } as const;
+

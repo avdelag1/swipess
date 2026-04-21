@@ -2,7 +2,7 @@
  * PrefetchScheduler - Throttles prefetch operations to prevent competition with image decoding
  * Uses requestIdleCallback to defer prefetch until browser is idle
  *
- * Shared utility used by both SwipessSwipeContainer and ClientSwipeContainer
+ * Shared utility used by both NexusSwipeContainer and ClientSwipeContainer
  */
 export class PrefetchScheduler {
   private scheduled = false;
@@ -39,3 +39,4 @@ export class PrefetchScheduler {
     }
   }
 }
+

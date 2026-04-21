@@ -245,22 +245,20 @@ export const BottomNavigation = memo(({
           through, reinforcing the "floating above" feeling. */}
       <div
         className={cn(
-          "pointer-events-auto w-full max-w-[440px] mx-auto glass-pill-nav px-1.5 shadow-[0_30px_80px_rgba(0,0,0,0.5)]",
-          theme === 'ivanna-style' ? "" : ""
+          "pointer-events-auto w-full max-w-[440px] mx-auto glass-pill-nav px-1.5 shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
         )}
         style={{
-          background: theme === 'ivanna-style' ? 'rgba(235, 245, 255, 0.95)' : 'var(--nav-bg)',
-          backdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(40px) saturate(180%) contrast(1.1)',
-          WebkitBackdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(40px) saturate(180%) contrast(1.1)',
+          background: 'var(--nav-bg)',
+          backdropFilter: 'blur(64px) saturate(280%) contrast(1.1)',
+          WebkitBackdropFilter: 'blur(64px) saturate(280%) contrast(1.1)',
           borderRadius: '3rem',
           padding: '4px',
-          boxShadow: theme === 'ivanna-style' 
-            ? '0 20px 50px -10px rgba(100,160,230,0.25), inset 0 0 20px rgba(255,255,255,0.4)'
-            : (isLight 
-               ? '0 20px 50px -10px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.2)' 
-               : '0 30px 80px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.05)'),
-          border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1.5px solid rgba(255,255,255,0.2)',
+          boxShadow: isLight 
+            ? '0 20px 50px -10px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.4)' 
+            : '0 30px 80px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.2)',
+          border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.15)',
         }}
+
       >
         {/* LAYER 3: Animated liquid highlight — the bar "shines" like glass */}
         {/* Atmospheric rim removed per user request for pure floating look */}
@@ -435,3 +433,4 @@ export const BottomNavigation = memo(({
 });
 
 BottomNavigation.displayName = 'BottomNavigation';
+

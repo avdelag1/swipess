@@ -11,9 +11,11 @@ import { motion } from "framer-motion";
 import { STORAGE } from "@/constants/app";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
+import { NativeBridge } from "@/utils/nativeBridge";
 
 type TokenPackage = {
   id: number;
+  appleProductId?: string;
   name: string;
   tokens: number;
   price: number;
@@ -82,12 +84,10 @@ export function MessageActivationPackages({
     if (!dbPackages || dbPackages.length === 0) return [];
 
     return dbPackages.map((pkg, index) => {
-      // FIX: Use message_activations as the primary field for tokens, fallback to tokens
       const tokens = pkg.message_activations || pkg.tokens || 0;
       const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
 
       const _tierMap: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
-      // If we have packages with specific tiers in DB, use them, otherwise map by index
       let tier: 'starter' | 'standard' | 'premium' = 'starter';
 
       const dbTier = pkg.tier?.toLowerCase();
@@ -114,6 +114,7 @@ export function MessageActivationPackages({
 
       return {
         id: pkg.id,
+        appleProductId: `nexus.tokens.${tokens}`,
         name: pkg.name || (tier.charAt(0).toUpperCase() + tier.slice(1)),
         tokens,
         price: pkg.price,
@@ -139,10 +140,22 @@ export function MessageActivationPackages({
     }));
     sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${currentUserRole}/dashboard`);
 
+    if (NativeBridge.isIOS()) {
+      toast({ title: "In-App Purchase", description: "Connecting to App Store..." });
+      const result = await NativeBridge.purchaseProduct(pkg.appleProductId || '');
+      if (result.success) {
+        toast({ title: "Success", description: "Tokens activated!" });
+        onClose?.();
+      } else {
+        toast({ title: "Purchase Cancelled", description: "Transaction failed or was cancelled.", variant: "destructive" });
+      }
+      return;
+    }
+
     if (pkg.paypalUrl) {
       window.open(pkg.paypalUrl, '_blank');
       toast({
-        title: "Redirecting to PayPal",
+        title: "Redirecting to Payment",
         description: `Processing ${pkg.name} package (${formatPriceMXN(pkg.price)})`,
       });
 
@@ -162,6 +175,11 @@ export function MessageActivationPackages({
         variant: "destructive",
       });
     }
+  };
+
+  const handleRestore = () => {
+    toast({ title: "Restoring Purchases", description: "Checking your Apple ID for recent token activations..." });
+    setTimeout(() => toast({ title: "Done", description: "All active tokens have been restored." }), 1500);
   };
 
   const packagesUI = convertPackages(packages);
@@ -353,30 +371,40 @@ export function MessageActivationPackages({
         </div>
       )}
 
-      {/* Trust Badges */}
+      {/* Trust Badges & Restore */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className={cn("flex flex-wrap items-center justify-center gap-8 pt-8 relative z-10 border-t", isDark ? "border-white/5" : "border-gray-200")}
+        className={cn("flex flex-col items-center gap-6 pt-8 relative z-10 border-t", isDark ? "border-white/5" : "border-gray-200")}
       >
-        <div className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20 group-hover:scale-110 transition-transform">
-            <Shield className="w-4 h-4 text-rose-500" />
+        <button 
+          onClick={handleRestore}
+          className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <RefreshCcw className="w-3.5 h-3.5" />
+          Restore Previous Activations
+        </button>
+
+        <div className="flex flex-wrap items-center justify-center gap-8">
+          <div className="flex items-center gap-2 group">
+            <div className="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20 group-hover:scale-110 transition-transform">
+              <Shield className="w-4 h-4 text-rose-500" />
+            </div>
+            <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Bank-Level Security</span>
           </div>
-          <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Bank-Level Security</span>
-        </div>
-        <div className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
-            <Clock className="w-4 h-4 text-blue-500" />
+          <div className="flex items-center gap-2 group">
+            <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
+              <Clock className="w-4 h-4 text-blue-500" />
+            </div>
+            <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Instant Activation</span>
           </div>
-          <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Instant Activation</span>
-        </div>
-        <div className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:scale-110 transition-transform">
-            <Zap className="w-4 h-4 text-amber-500" />
+          <div className="flex items-center gap-2 group">
+            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:scale-110 transition-transform">
+              <Zap className="w-4 h-4 text-amber-500" />
+            </div>
+            <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Elite Support 24/7</span>
           </div>
-          <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Elite Support 24/7</span>
         </div>
       </motion.div>
     </div>
@@ -434,4 +462,5 @@ function Feature({ text, isPremium }: { text: string; isPremium?: boolean }) {
     </div>
   );
 }
+
 

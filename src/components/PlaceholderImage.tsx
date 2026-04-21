@@ -49,8 +49,8 @@ const PlaceholderImage: React.FC<PlaceholderImageProps> = ({ name }) => {
       {/* Logo */}
       <div style={{ position: 'relative', marginBottom: 20 }}>
         <img
-          src="/icons/swipess-logo.png"
-          alt="Swipess"
+          src="/icons/NEXUS DISCOVERY-logo.png"
+          alt="NEXUS DISCOVERY"
           style={{
             width: 88,
             height: 88,
@@ -98,3 +98,4 @@ const PlaceholderImage: React.FC<PlaceholderImageProps> = ({ name }) => {
 };
 
 export default PlaceholderImage;
+

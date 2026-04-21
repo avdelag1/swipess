@@ -35,3 +35,4 @@ export const SwipeCardPeek = memo(({ listing }: SwipeCardPeekProps) => {
     </div>
   );
 });
+

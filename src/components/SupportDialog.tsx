@@ -289,3 +289,4 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
     </motion.div>
   );
 }
+

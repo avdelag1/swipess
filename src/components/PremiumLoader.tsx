@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { SwipessLogo } from './SwipessLogo';
+import { NexusLogo } from './NexusLogo';
 import { cn } from '@/lib/utils';
 
 interface PremiumLoaderProps {
@@ -9,7 +9,7 @@ interface PremiumLoaderProps {
 }
 
 /**
- * Clean loader — just the SwipesS wordmark, breathing.
+ * Clean loader — just the NEXUS DISCOVERY wordmark, breathing.
  * Matches the landing page and splash screen feel.
  */
 export function PremiumLoader({ className, size = 'md', full = false }: PremiumLoaderProps) {
@@ -29,8 +29,9 @@ export function PremiumLoader({ className, size = 'md', full = false }: PremiumL
           ease: "easeInOut",
         }}
       >
-        <SwipessLogo size={logoSize} variant="white" />
+        <NexusLogo size={logoSize} variant="white" />
       </motion.div>
     </div>
   );
 }
+

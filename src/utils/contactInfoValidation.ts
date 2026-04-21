@@ -116,3 +116,4 @@ export function validateContent(text: string): ValidationResult {
 
   return clean;
 }
+

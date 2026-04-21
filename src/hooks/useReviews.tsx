@@ -542,3 +542,4 @@ export const useUserReviewStats = (userId: string) => {
 export const usePropertyReviewStats = (listingId: string) => {
   return useListingRatingAggregate(listingId);
 };
+

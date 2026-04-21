@@ -20,7 +20,7 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
     if (!src) return;
     
     // Check if already cached by SpeedOfLightPreloader
-    if ((window as any).__swipess_cache?.[src]) {
+    if ((window as any).__NEXUS DISCOVERY_cache?.[src]) {
       setIsReady(true);
       return;
     }
@@ -30,8 +30,8 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
     img.decode()
       .then(() => {
         setIsReady(true);
-        (window as any).__swipess_cache = (window as any).__swipess_cache || {};
-        (window as any).__swipess_cache[src] = true;
+        (window as any).__NEXUS DISCOVERY_cache = (window as any).__NEXUS DISCOVERY_cache || {};
+        (window as any).__NEXUS DISCOVERY_cache[src] = true;
       })
       .catch(() => {
         setIsReady(true);
@@ -68,3 +68,4 @@ export function QuickFilterImage({ src, alt, className }: QuickFilterImageProps)
     </>
   );
 }
+

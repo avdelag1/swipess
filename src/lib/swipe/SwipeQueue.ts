@@ -388,3 +388,4 @@ export function useSwipeQueue() {
     getQueueLength: swipeQueue.getQueueLength.bind(swipeQueue),
   };
 }
+

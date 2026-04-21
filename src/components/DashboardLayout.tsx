@@ -20,9 +20,9 @@ import { TopBar } from '@/components/TopBar'
 import { BottomNavigation } from '@/components/BottomNavigation'
 import { AdvancedFilters } from '@/components/AdvancedFilters'
 import { RadioMiniPlayer } from '@/components/RadioMiniPlayer'
-import { IvanaSkyBackground } from '@/components/IvanaSkyBackground'
 
-// Note: TopBar, SwipessLogo, BottomNavigation are now rendered by AppLayout.tsx (global HUD)
+
+// Note: TopBar, NexusLogo, BottomNavigation are now rendered by AppLayout.tsx (global HUD)
 
 // SPEED OF LIGHT HOOKS
 import { useWelcomeState } from "@/hooks/useWelcomeState"
@@ -92,8 +92,9 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
-  const { theme, isDark, isIvanna } = useTheme()
+  const { isDark } = useTheme()
   const [onboardingChecked, setOnboardingChecked] = useState(false)
+
   const [showOnboarding, setShowOnboarding] = useState(false)
   
   const modalStore = useModalStore()
@@ -337,14 +338,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   });
 
   return (
+  return (
     <div className={cn(
       "dashboard-root w-full h-full min-h-0 relative flex flex-col overflow-hidden",
-      isIvanna ? "bg-transparent" : ((isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background"),
-      isIvanna ? "ivanna-style" : (isDark ? "dark dark-matte" : "light white-matte")
+      (isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background",
+      isDark ? "dark dark-matte" : "light white-matte"
     )}>
-      {/* Ivana painted sky — renders only when Ivana theme is active */}
-      {isIvanna && <IvanaSkyBackground />}
-
       {/* Main Content */}
       <main
         ref={scrollContainerRef}
@@ -358,11 +357,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             : (isZeroScrollDashboard || isImmersiveDashboard) ? "overflow-hidden"
             : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
-          isIvanna ? "bg-transparent" : ((location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background")
+          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background"
         )}
         style={{
-          paddingTop: isFullScreenRoute || isImmersiveDashboard ? '0px' : 'calc(var(--top-bar-height) + var(--safe-top))',
-          paddingBottom: isFullScreenRoute || isZeroScrollDashboard ? '0px' : 'calc(80px + env(safe-area-inset-bottom, 20px))',
+          paddingTop: '0px',
+          paddingBottom: '0px',
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
         }}
@@ -372,8 +371,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         </div>
       </main>
 
+
       {/* ZENITH GLOBAL DIALOGS */}
       <GlobalDialogs userRole={userRole} />
     </div>
   )
 }
+

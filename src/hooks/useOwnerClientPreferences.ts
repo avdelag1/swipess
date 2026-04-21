@@ -113,3 +113,4 @@ export function useOwnerClientPreferences() {
     isUpdating: updatePreferences.isPending,
   };
 }
+

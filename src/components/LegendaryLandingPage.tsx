@@ -6,9 +6,9 @@ import {
 import { triggerHaptic } from '@/utils/haptics';
 import { playRandomZen } from '@/utils/sounds';
 import {
-  Mail, Lock, User, ArrowLeft, Sparkles, ChevronRight, Check, LogIn, X
+  Mail, Lock, User, ArrowLeft, Sparkles, ChevronRight, Check, LogIn, X, Eye, EyeOff, ShieldCheck
 } from 'lucide-react';
-import { SwipessLogo } from './SwipessLogo';
+import { NexusLogo } from './NexusLogo';
 import LandingBackgroundEffects, { type EffectMode } from './LandingBackgroundEffects';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -16,6 +16,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { cn } from '@/lib/utils';
+import { TERMS_PROTOCOL, PRIVACY_PROTOCOL } from './legal/LegalProtocols';
+import { ShieldAlert, FileText, BadgeCheck } from 'lucide-react';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
@@ -90,7 +92,7 @@ const LandingView = memo(({
         className="cursor-grab active:cursor-grabbing touch-none select-none relative"
       >
         <div className="relative">
-          <SwipessLogo 
+          <NexusLogo 
             size="3xl" 
             variant="white"
             className="w-[65vw] max-w-[280px] sm:max-w-[340px] md:max-w-[420px]" 
@@ -108,29 +110,29 @@ const LandingView = memo(({
 
       {/* ─── Fix #4: Clear CTA buttons ─── */}
       <motion.div
-        className="mt-12 flex flex-col items-center gap-3 w-full max-w-[280px]"
+        className="mt-12 flex flex-col items-center gap-4 w-full max-w-[320px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.6 }}
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-[2rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(255,255,255,0.15)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/50"
+          className="w-full h-16 rounded-[2rem] bg-gradient-to-tr from-white to-white/90 text-black font-black uppercase tracking-[0.2em] text-[17px] shadow-[0_20px_50px_rgba(255,255,255,0.2)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/50"
         >
-          <LogIn className="w-4 h-4" />
+          <LogIn className="w-5 h-5" />
           Sign In
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          className="w-full h-14 rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/20 text-white font-black uppercase tracking-[0.25em] text-[12px] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:bg-white/10 shadow-xl"
+          className="w-full h-16 rounded-[2rem] bg-white/5 backdrop-blur-2xl border border-white/20 text-white font-black uppercase tracking-[0.2em] text-[17px] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:bg-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
         >
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-5 h-5 text-[#EB4898]" />
           Create Account
         </button>
         <motion.p
           animate={{ opacity: [0.15, 0.4, 0.15] }}
           transition={{ duration: 3, repeat: Infinity }}
-          className="mt-2 text-[9px] uppercase tracking-[0.35em] font-bold text-white/30 italic"
+          className="mt-2 text-[11px] uppercase tracking-[0.35em] font-bold text-white/30 italic"
         >
           or swipe logo to enter →
         </motion.p>
@@ -143,10 +145,10 @@ const LandingView = memo(({
 const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="group flex h-[56px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white text-black active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.2)] border border-white/50"
+    className="group flex h-[64px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white text-black active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.2)] border border-white/50"
   >
     <AppleIcon />
-    <span className="text-[14px] font-black uppercase tracking-widest leading-none pt-0.5">
+    <span className="text-[17px] font-black uppercase tracking-widest leading-none pt-0.5">
       Sign in with Apple
     </span>
   </button>
@@ -155,14 +157,15 @@ const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
 const GoogleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="group flex h-[56px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-black/40 backdrop-blur-xl border border-white/15 hover:border-white/30 active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.3)]"
+    className="group flex h-[64px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-black/40 backdrop-blur-xl border border-white/15 hover:border-white/30 active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.3)]"
   >
     <GoogleIcon />
-    <span className="text-[14px] font-black uppercase tracking-widest text-white leading-none pt-0.5">
+    <span className="text-[17px] font-black uppercase tracking-widest text-white leading-none pt-0.5">
       Continue with Google
     </span>
   </button>
 );
+
 
 /* ─── Auth view ──────────────────────────────────────────── */
 const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, initialMode?: 'login' | 'signup' }) => {
@@ -175,6 +178,8 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [selectedRole, setSelectedRole] = useState<'client' | 'owner'>('client');
+  const [showPassword, setShowPassword] = useState(false);
   const { signIn, signUp, signInWithOAuth } = useAuth();
 
   /* Clear field errors when switching modes */
@@ -244,7 +249,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           return;
         }
         const validated = signupSchema.parse({ name, email, password });
-        await signUp(validated.email, validated.password, 'client', validated.name);
+        await signUp(validated.email, validated.password, selectedRole, validated.name);
       }
     } catch (error: any) {
       if (error.errors) {
@@ -261,7 +266,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
   const handleSocialLogin = async (provider: 'apple' | 'google') => {
     triggerHaptic('light');
-    await signInWithOAuth(provider, 'client');
+    await signInWithOAuth(provider, selectedRole);
   };
 
   return (
@@ -285,7 +290,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
         <div className="text-center mb-5 pt-4">
           <div className="flex justify-center mb-4">
-            <SwipessLogo size="md" variant="white" />
+            <NexusLogo size="md" variant="white" />
           </div>
 
           {isForgotPassword ? (
@@ -300,15 +305,13 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           ) : (
             <>
               {/* ─── Fix #1: Prominent Login / Sign Up tab toggle ─── */}
-              <div className="flex items-center justify-center gap-1.5 bg-black/40 backdrop-blur-md rounded-[1.8rem] p-1.5 mb-4 border border-white/5">
+              <div className="flex items-center justify-center gap-1.5 bg-black/40 backdrop-blur-md rounded-[1.8rem] p-1.5 mb-4 border border-white/5 relative">
                 <button
                   type="button"
                   onClick={() => { triggerHaptic('light'); setIsLogin(true); setFieldErrors({}); }}
                   className={cn(
-                    "flex-1 py-3 rounded-[1.4rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300",
-                    isLogin
-                      ? "bg-white text-black shadow-[0_5px_15px_rgba(255,255,255,0.2)] scale-[1.02]"
-                      : "text-white/30 hover:text-white/50"
+                    "flex-1 py-3 rounded-[1.4rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 z-10",
+                    isLogin ? "text-black" : "text-white/30 hover:text-white/50"
                   )}
                 >
                   Sign In
@@ -317,14 +320,22 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                   type="button"
                   onClick={() => { triggerHaptic('light'); setIsLogin(false); setFieldErrors({}); }}
                   className={cn(
-                    "flex-1 py-3 rounded-[1.4rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300",
-                    !isLogin
-                      ? "bg-white text-black shadow-[0_5px_15px_rgba(255,255,255,0.2)] scale-[1.02]"
-                      : "text-white/30 hover:text-white/50"
+                    "flex-1 py-3 rounded-[1.4rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 z-10",
+                    !isLogin ? "text-black" : "text-white/30 hover:text-white/50"
                   )}
                 >
                   Sign Up
                 </button>
+                {/* 🛸 FLOATING ACTIVE PILL */}
+                <motion.div 
+                  className="absolute top-1.5 bottom-1.5 rounded-[1.3rem] bg-white shadow-[0_5px_15px_rgba(255,255,255,0.3)]"
+                  initial={false}
+                  animate={{ 
+                    left: isLogin ? '1.5%' : '50.5%',
+                    right: isLogin ? '50.5%' : '1.5%'
+                  }}
+                  transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                />
               </div>
               <p className="text-[10px] font-bold tracking-[0.2em] text-white/35 uppercase">
                 {isLogin ? 'Welcome back' : 'Create your account'}
@@ -336,84 +347,118 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         {/* ─── Fix #5 & #7: Standard labels + inline validation ─── */}
         <form onSubmit={handleSubmit} className="space-y-3" noValidate>
           {!isLogin && !isForgotPassword && (
-            <div>
-              <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                <Input
-                  value={name}
-                  onChange={(e) => { setName(e.target.value); setFieldErrors(prev => ({ ...prev, name: '' })); }}
-                  placeholder="Your Name"
-                  autoComplete="name"
-                  className={cn(
-                    "pl-11 h-[52px] bg-black/60 border-white/10 text-white placeholder:text-white/30 rounded-2xl focus:border-[#FF4D00]/50 transition-all font-semibold text-sm",
-                    fieldErrors.name && "border-red-500/70 focus:border-red-500"
-                  )}
-                />
-              </div>
-              {fieldErrors.name && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3 animate-in fade-in slide-in-from-top-1">{fieldErrors.name}</p>}
+            <div className="flex flex-col gap-2 mb-2">
+               <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20 ml-1">Identity Protocol</p>
+               <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { triggerHaptic('light'); setSelectedRole('client'); }}
+                    className={cn(
+                      "py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border",
+                      selectedRole === 'client' ? "bg-white text-black border-white shadow-lg" : "bg-white/5 text-white/40 border-white/5 hover:bg-white/10"
+                    )}
+                  >
+                    Seeker
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { triggerHaptic('light'); setSelectedRole('owner'); }}
+                    className={cn(
+                      "py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border",
+                      selectedRole === 'owner' ? "bg-[#EB4898] text-white border-[#EB4898] shadow-[0_0_15px_rgba(235,72,152,0.3)]" : "bg-white/5 text-white/40 border-white/5 hover:bg-white/10"
+                    )}
+                  >
+                    Authority
+                  </button>
+               </div>
             </div>
           )}
 
-          <div>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-              <Input
+          <div className="space-y-4">
+            {!isLogin && !isForgotPassword && (
+              <div className="relative group">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-white transition-colors">
+                  <User className="w-5 h-5" />
+                </div>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Full Name"
+                  className={cn(
+                    "w-full h-[64px] bg-white/[0.03] border border-white/10 rounded-[1.25rem] pl-14 pr-6 text-[15px] font-bold text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:bg-white/[0.06] transition-all",
+                    fieldErrors.name && "border-red-500/50 bg-red-500/5"
+                  )}
+                />
+                {fieldErrors.name && <p className="absolute -bottom-5 left-4 text-[11px] font-bold text-red-400 uppercase tracking-tight">{fieldErrors.name}</p>}
+              </div>
+            )}
+
+            <div className="relative group">
+              <div className="absolute left-5 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-white transition-colors">
+                <Mail className="w-5 h-5" />
+              </div>
+              <input
                 type="email"
                 value={email}
-                onChange={(e) => { setEmail(e.target.value); setFieldErrors(prev => ({ ...prev, email: '' })); }}
-                placeholder="Email"
-                autoComplete="email"
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email Protocol"
                 className={cn(
-                  "pl-11 h-[52px] bg-black/60 border-white/10 text-white placeholder:text-white/30 rounded-2xl focus:border-[#FF4D00]/50 transition-all font-semibold text-sm",
-                  fieldErrors.email && "border-red-500/70 focus:border-red-500"
+                  "w-full h-[64px] bg-white/[0.03] border border-white/10 rounded-[1.25rem] pl-14 pr-6 text-[15px] font-bold text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:bg-white/[0.06] transition-all",
+                  fieldErrors.email && "border-red-500/50 bg-red-500/5"
                 )}
               />
+              {fieldErrors.email && <p className="absolute -bottom-5 left-4 text-[11px] font-bold text-red-400 uppercase tracking-tight">{fieldErrors.email}</p>}
             </div>
-            {fieldErrors.email && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3 animate-in fade-in slide-in-from-top-1">{fieldErrors.email}</p>}
-          </div>
 
-          {!isForgotPassword && (
-            <div>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                <Input
-                  type="password"
+            {!isForgotPassword && (
+              <div className="relative group">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-white transition-colors">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => { setPassword(e.target.value); setFieldErrors(prev => ({ ...prev, password: '' })); }}
-                  placeholder="Password"
-                  autoComplete={isLogin ? "current-password" : "new-password"}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Alpha-Numeric Key"
                   className={cn(
-                    "pl-11 h-[52px] bg-black/60 border-white/10 text-white placeholder:text-white/30 rounded-2xl focus:border-[#FF4D00]/50 transition-all font-semibold text-sm",
-                    fieldErrors.password && "border-red-500/70 focus:border-red-500"
+                    "w-full h-[64px] bg-white/[0.03] border border-white/10 rounded-[1.25rem] pl-14 pr-6 text-[15px] font-bold text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:bg-white/[0.06] transition-all",
+                    fieldErrors.password && "border-red-500/50 bg-red-500/5"
                   )}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+                {fieldErrors.password && <p className="absolute -bottom-5 left-4 text-[11px] font-bold text-red-400 uppercase tracking-tight">{fieldErrors.password}</p>}
               </div>
-              {fieldErrors.password && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3 animate-in fade-in slide-in-from-top-1">{fieldErrors.password}</p>}
-            </div>
-          )}
+            )}
 
-          {!isLogin && !isForgotPassword && (
-            <div>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                <Input
+            {!isLogin && !isForgotPassword && (
+              <div className="relative group">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-white transition-colors">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <input
                   type="password"
                   value={confirmPassword}
-                  onChange={(e) => { setConfirmPassword(e.target.value); setFieldErrors(prev => ({ ...prev, confirmPassword: '' })); }}
-                  placeholder="Confirm Password"
-                  autoComplete="new-password"
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Verify Security Key"
                   className={cn(
-                    "pl-11 h-[52px] bg-black/60 border-white/10 text-white placeholder:text-white/30 rounded-2xl focus:border-[#FF4D00]/50 transition-all font-semibold text-sm",
-                    fieldErrors.confirmPassword && "border-red-500/70 focus:border-red-500"
+                    "w-full h-[64px] bg-white/[0.03] border border-white/10 rounded-[1.25rem] pl-14 pr-6 text-[15px] font-bold text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 focus:bg-white/[0.06] transition-all",
+                    fieldErrors.confirmPassword && "border-red-500/50 bg-red-500/5"
                   )}
                 />
+                {fieldErrors.confirmPassword && <p className="absolute -bottom-5 left-4 text-[11px] font-bold text-red-400 uppercase tracking-tight">{fieldErrors.confirmPassword}</p>}
               </div>
-              {fieldErrors.confirmPassword && <p className="text-red-400 text-[10px] font-semibold mt-1 ml-3 animate-in fade-in slide-in-from-top-1">{fieldErrors.confirmPassword}</p>}
-            </div>
-          )}
+            )}
+          </div>
 
           {isLogin && !isForgotPassword && (
-            <div className="flex items-center justify-between px-1 pt-1">
+            <div className="flex items-center justify-between px-2 pt-2">
                <button 
                  type="button" 
                  onClick={() => { triggerHaptic('light'); setRememberMe(!rememberMe); }}
@@ -436,6 +481,27 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                >
                  Forgot Password?
                </button>
+            </div>
+          )}
+
+          {!isLogin && !isForgotPassword && (
+            <div className="text-[9px] font-bold uppercase tracking-widest text-white/30 text-center px-4 leading-relaxed mt-2">
+              By creating an account, you agree to our{' '}
+              <button 
+                type="button" 
+                onClick={() => { triggerHaptic('light'); (window as any).dispatchEvent(new CustomEvent('open-legal', { detail: 'terms' })); }}
+                className="text-white hover:text-[#FF4D00] transition-colors underline underline-offset-2"
+              >
+                Terms of Protocol
+              </button>
+              {' '}and{' '}
+              <button 
+                type="button" 
+                onClick={() => { triggerHaptic('light'); (window as any).dispatchEvent(new CustomEvent('open-legal', { detail: 'privacy' })); }}
+                className="text-white hover:text-[#FF4D00] transition-colors underline underline-offset-2"
+              >
+                Privacy Logs
+              </button>
             </div>
           )}
 
@@ -477,6 +543,12 @@ function LegendaryLandingPage() {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | null>(null);
 
+  useEffect(() => {
+    const handleOpenLegal = (e: any) => setLegalModal(e.detail);
+    window.addEventListener('open-legal', handleOpenLegal);
+    return () => window.removeEventListener('open-legal', handleOpenLegal);
+  }, []);
+
   return (
     <div className="h-screen h-dvh relative overflow-hidden bg-black text-white">
       {/* 🛸 ATMOSPHERIC BACKGROUND */}
@@ -500,7 +572,7 @@ function LegendaryLandingPage() {
           <div className="w-1 h-1 rounded-full bg-white/20" />
           <button onClick={() => setLegalModal('terms')} className="hover:text-[#EB4898] transition-colors">Terms</button>
         </div>
-        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 Swipess</p>
+        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 Nexus Discovery</p>
       </div>
 
       {/* 🛸 LEGAL POPUP MODAL */}
@@ -529,35 +601,46 @@ function LegendaryLandingPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-white/80 scrollbar-none pb-12">
-               {legalModal === 'terms' ? (
-                 <div className="space-y-5">
-                    <p className="text-sm font-bold leading-relaxed text-white">By initializing the Swipess nexus, you agree to be bound by these Legal Protocols. Access is denied to non-compliant entities.</p>
-                    <div className="h-px bg-white/10 my-6" />
-                    
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mb-2">01 — Entity Eligibility</h3>
-                    <p className="text-sm opacity-80 leading-relaxed">Minimum age of 18 required. You must possess the legal authority to enter binding digital agreements.</p>
-                    
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">02 — Identity Security</h3>
-                    <p className="text-sm opacity-80 leading-relaxed">You are solely responsible for the encryption integrity of your access credentials. Notify the Registry immediately upon unauthorized sync.</p>
-                    
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">03 — Prohibited Acts</h3>
-                    <p className="text-sm opacity-80 leading-relaxed">Entities shall not transmit fraudulent logs, harass other users, or bypass platform security. Violations result in immediate ban.</p>
-                 </div>
-               ) : (
-                 <div className="space-y-5">
-                    <p className="text-sm font-bold leading-relaxed text-white">We value your privacy and security. Swipess uses advanced end-to-end encryption for sensitive data.</p>
-                    <div className="h-px bg-white/10 my-6" />
-                    
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mb-2">01 — Data Collection</h3>
-                    <p className="text-sm opacity-80 leading-relaxed">We collect email, authentication tokens, and basic interaction data necessary to operate the matching engine.</p>
-                    
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">02 — Data Sharing</h3>
-                    <p className="text-sm opacity-80 leading-relaxed">Your personal identity is strictly shielded. We do not sell your data to external data brokers.</p>
-                    
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">03 — Asset Privacy</h3>
-                    <p className="text-sm opacity-80 leading-relaxed">Location and discovery history is kept private and only utilized for matchmaking algorithms.</p>
-                 </div>
-               )}
+               {(() => {
+                 const protocol = legalModal === 'terms' ? TERMS_PROTOCOL : PRIVACY_PROTOCOL;
+                 return (
+                   <div className="space-y-8">
+                     <div className="flex items-center gap-4 p-5 rounded-2xl bg-white/5 border border-white/5">
+                        <div className="w-12 h-12 rounded-xl bg-[#EB4898]/20 flex items-center justify-center">
+                           <ShieldAlert className="w-6 h-6 text-[#EB4898]" />
+                        </div>
+                        <div>
+                           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#EB4898] mb-0.5">Integrity Sync</p>
+                           <p className="text-[12px] font-bold text-white/90 leading-tight">{protocol.introduction}</p>
+                        </div>
+                     </div>
+
+                     <div className="h-px bg-white/5 mx-2" />
+
+                     {protocol.sections.map((section) => (
+                       <div key={section.id} className="group transition-all">
+                         <div className="flex items-center gap-3 mb-3">
+                           <div className="px-2.5 py-1 rounded-md bg-white/10 text-[9px] font-black tracking-widest text-white/50 group-hover:text-white group-hover:bg-[#EB4898]/40 transition-colors">
+                             SEC-{section.id}
+                           </div>
+                           <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-white/90 group-hover:text-[#EB4898] transition-colors">{section.title}</h3>
+                         </div>
+                         <p className="text-[13px] font-medium opacity-60 leading-relaxed group-hover:opacity-100 transition-opacity">
+                           {section.content}
+                         </p>
+                       </div>
+                     ))}
+
+                     <div className="pt-6 border-t border-white/5 flex items-center justify-between opacity-30">
+                        <div className="flex items-center gap-2">
+                           <BadgeCheck className="w-3 h-3" />
+                           <span className="text-[8px] font-black uppercase tracking-widest">Protocol Verified</span>
+                        </div>
+                        <span className="text-[8px] font-black uppercase tracking-widest">Updated: {protocol.lastUpdated}</span>
+                     </div>
+                   </div>
+                 );
+               })()}
             </div>
 
             <div className="shrink-0 pt-4 flex flex-col gap-3">
@@ -579,3 +662,4 @@ function LegendaryLandingPage() {
 }
 
 export default memo(LegendaryLandingPage);
+

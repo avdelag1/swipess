@@ -180,3 +180,4 @@ export function useFilterPersistence() {
     isRestoring: isRestoringRef.current,
   };
 }
+

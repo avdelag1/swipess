@@ -175,3 +175,4 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
     </motion.div>
   );
 }
+

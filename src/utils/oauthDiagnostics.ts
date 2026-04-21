@@ -176,3 +176,4 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
   (window as Window & { runOAuthDiagnostics?: typeof runOAuthDiagnostics }).runOAuthDiagnostics = runOAuthDiagnostics;
   (window as Window & { diagnoseOAuthSetup?: typeof diagnoseOAuthSetup }).diagnoseOAuthSetup = diagnoseOAuthSetup;
 }
+
