@@ -171,11 +171,11 @@ const ClientProfile = () => {
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
             className={cn(
               "w-full h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-[16px] hover:scale-[1.03] active:scale-95 transition-all shadow-2xl border-none shadow-[#EB4898]/20",
-              isLight ? "bg-black text-white" : "bg-white text-black"
+              isLight ? "bg-black text-white" : "bg-white !text-black"
             )}
           >
-            <User className="w-7 h-7 mr-4" />
-            Control Identity
+            <User className={cn("w-7 h-7 mr-4", isLight ? "text-white" : "!text-black")} />
+            <span className={isLight ? "text-white" : "!text-black"}>Control Identity</span>
           </Button>
 
           <Button

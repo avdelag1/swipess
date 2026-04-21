@@ -93,7 +93,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
-      <DialogContent className="sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 border-none bg-black/95 backdrop-blur-3xl overflow-hidden rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,1)]">
+      <DialogContent className="sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 border border-white/5 bg-[#0a0a0c] overflow-hidden rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,1)]">
         
         {/* 🛸 BRAND TERMINAL HEADER */}
         <div className="relative px-8 pt-8 pb-6 border-b border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent">
@@ -239,10 +239,10 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
            <Button 
               onClick={handleSave}
               disabled={saveMutation.isPending}
-              className="h-14 pl-8 pr-10 rounded-2xl bg-white text-black font-black italic uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95 transition-all group"
+              className="h-14 pl-8 pr-10 rounded-2xl bg-white text-black font-black italic uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95 transition-all group border-none"
            >
-              <Save className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
-              {saveMutation.isPending ? 'Syncing...' : 'Save Brand Identity'}
+              <Save className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform !text-black" />
+              <span className="!text-black">{saveMutation.isPending ? 'Syncing...' : 'Save Brand Identity'}</span>
            </Button>
         </div>
       </DialogContent>

@@ -146,7 +146,7 @@ const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
     className="group flex h-[56px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white text-black active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.2)] border border-white/50"
   >
     <AppleIcon />
-    <span className="text-[14px] font-black uppercase tracking-widest leading-none pt-0.5">
+    <span className="text-[14px] font-black uppercase tracking-widest leading-none pt-0.5 !text-black">
       Sign in with Apple
     </span>
   </button>
@@ -158,7 +158,7 @@ const GoogleAuthButton = ({ onClick }: { onClick: () => void }) => (
     className="group flex h-[56px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-black/40 backdrop-blur-xl border border-white/15 hover:border-white/30 active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.3)]"
   >
     <GoogleIcon />
-    <span className="text-[14px] font-black uppercase tracking-widest text-white leading-none pt-0.5">
+    <span className="text-[14px] font-black uppercase tracking-widest text-white leading-none pt-0.5 !text-white">
       Continue with Google
     </span>
   </button>
@@ -442,10 +442,10 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-[58px] rounded-[1.5rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[13px] shadow-[0_15px_35px_rgba(255,255,255,0.15)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 border border-white/50 mt-4 disabled:opacity-60 disabled:pointer-events-none"
+            className="w-full h-[58px] rounded-[1.5rem] bg-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[13px] shadow-[0_15px_35px_rgba(255,77,0,0.35)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 border-none mt-4 disabled:opacity-60 disabled:pointer-events-none"
           >
-            <Sparkles className="w-4 h-4" />
-            <span className="drop-shadow-sm">
+            <Sparkles className="w-4 h-4 !text-white" />
+            <span className="drop-shadow-md !text-white">
               {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Create Account'}
             </span>
           </button>

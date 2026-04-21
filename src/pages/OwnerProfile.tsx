@@ -177,11 +177,11 @@ const OwnerProfile = () => {
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
             className={cn(
               "w-full h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-[16px] hover:scale-[1.03] active:scale-95 transition-all shadow-2xl border-none shadow-[#EB4898]/20",
-              isLight ? "bg-slate-950 text-white" : "bg-white text-slate-950"
+              isLight ? "bg-slate-950 text-white" : "bg-white !text-slate-950"
             )}
           >
-            <User className="w-7 h-7 mr-4 text-inherit" />
-            <span className="text-inherit">Control Brand ID</span>
+            <User className={cn("w-7 h-7 mr-4", isLight ? "text-white" : "!text-slate-950")} />
+            <span className={isLight ? "text-white" : "!text-slate-950"}>Control Brand ID</span>
           </Button>
 
           <Button
