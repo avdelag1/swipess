@@ -186,18 +186,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               willChange: 'transform, opacity' 
             }}
           >
-            <div className="flex-1 flex flex-col items-center justify-center w-full min-h-0 pt-8">
-               <QuickFilterBar 
-                 filters={{
-                   categories: activeCategory ? [activeCategory] : [],
-                   listingType: useFilterStore.getState().listingType as any || 'both',
-                   clientType: useFilterStore.getState().clientType as any || 'all',
-                   clientGender: useFilterStore.getState().clientGender as any || 'any'
-                 }}
-                 onChange={() => {}}
-                 onSelect={(id) => handleCardSelect({ id, category: id })}
-                 userRole="owner"
-               />
+            <div className="flex-1 flex items-center justify-center w-full min-h-0">
+              <OwnerAllDashboard onCardSelect={handleCardSelect} />
             </div>
           </motion.div>
         ) : showMap && activeCategory ? (

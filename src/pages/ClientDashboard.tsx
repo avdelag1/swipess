@@ -124,16 +124,8 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
               willChange: 'transform, opacity' 
             }}
           >
-            <div className="flex-1 flex flex-col items-center justify-center w-full min-h-0 pt-8">
-               <QuickFilterBar 
-                 filters={{
-                   categories: activeCategory ? [activeCategory] : [],
-                   listingType: useFilterStore.getState().listingType as any || 'both'
-                 }}
-                 onChange={() => {}}
-                 onSelect={(id) => handleLaunch(id)}
-                 userRole="client"
-               />
+            <div className="flex-1 flex items-center justify-center w-full min-h-0">
+              <SwipeAllDashboard setCategories={(ids: any) => handleLaunch((Array.isArray(ids) ? ids[0] : ids) as QuickFilterCategory)} />
             </div>
           </motion.div>
         )}
