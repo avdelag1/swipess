@@ -107,13 +107,14 @@ export const DiscoveryMapView = memo(({
         const centerIcon = L.divIcon({
             className: 'radar-center',
             html: `
-              <div class="relative w-8 h-8 flex items-center justify-center">
-                <div class="absolute inset-0 bg-[#3B82F6] opacity-40 rounded-full animate-ping"></div>
-                <div class="w-3.5 h-3.5 bg-white border-[3px] border-[#EB4898] rounded-full shadow-2xl relative z-10"></div>
+              <div class="relative w-12 h-12 flex items-center justify-center">
+                <div class="absolute inset-0 bg-[#3B82F6] opacity-50 rounded-full animate-ping"></div>
+                <div class="absolute inset-2 bg-[#3B82F6]/30 rounded-full"></div>
+                <div class="w-5 h-5 bg-white border-[3px] border-[#3B82F6] rounded-full shadow-[0_0_20px_rgba(59,130,246,0.8)] relative z-10"></div>
               </div>
             `,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
+            iconSize: [48, 48],
+            iconAnchor: [24, 24]
         });
         centerMarker.current = L.marker(currentCenter, { icon: centerIcon }).addTo(map);
         markersRef.current = L.layerGroup().addTo(map);
