@@ -1041,9 +1041,17 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.05 }}
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full h-full flex flex-col items-center justify-center max-w-xl mx-auto"
+                className="w-full h-full flex flex-col items-center justify-center max-w-xl mx-auto pt-8"
               >
-                <SwipeAllDashboard setCategories={(ids) => setActiveCategory(Array.isArray(ids) ? ids[0] : ids)} />
+                <QuickFilterBar 
+                  filters={{
+                    categories: storeActiveCategory ? [storeActiveCategory] : [],
+                    listingType: useFilterStore.getState().listingType as any || 'both'
+                  }}
+                  onChange={() => {}}
+                  onSelect={(id) => setActiveCategory(id)}
+                  userRole={userRole === 'owner' ? 'owner' : 'client'}
+                />
               </motion.div>
             ) : deckQueue.length > 0 && currentIndex < deckQueue.length ? (
               <motion.div 

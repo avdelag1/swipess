@@ -29,6 +29,7 @@ export type OwnerClientType = ClientType;
 interface QuickFilterBarProps {
   filters: QuickFilters;
   onChange: (filters: QuickFilters) => void;
+  onSelect?: (categoryId: QuickFilterCategory) => void;
   className?: string;
   userRole?: 'client' | 'owner';
 }
@@ -172,7 +173,7 @@ function FilterDropdown({
   );
 }
 
-function QuickFilterBarComponent({ filters, onChange, className, userRole = 'client' }: QuickFilterBarProps) {
+function QuickFilterBarComponent({ filters, onChange, onSelect, className, userRole = 'client' }: QuickFilterBarProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
@@ -190,8 +191,12 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
   const handleCategorySelect = useCallback((categoryId: QuickFilterCategory) => {
     const newCategories: QuickFilterCategory[] = [categoryId];
     saveQuickFilter(newCategories);
-    onChange({ ...filters, categories: newCategories, listingType: 'both' });
-  }, [filters, onChange]);
+    if (onSelect) {
+      onSelect(categoryId);
+    } else {
+      onChange({ ...filters, categories: newCategories, listingType: 'both' });
+    }
+  }, [filters, onChange, onSelect]);
 
   const _handleListingTypeChange = useCallback((type: QuickFilterListingType) => {
     onChange({
@@ -267,10 +272,14 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 <button
                   key={option.id}
                   onClick={() => {
-                    if (option.id === 'all') {
-                      onChange({ ...filters, clientType: 'all', clientGender: 'any' });
+                    if (onSelect) {
+                      onSelect(option.id as any);
                     } else {
-                      onChange({ ...filters, clientType: option.id as any });
+                      if (option.id === 'all') {
+                        onChange({ ...filters, clientType: 'all', clientGender: 'any' });
+                      } else {
+                        onChange({ ...filters, clientType: option.id as any });
+                      }
                     }
                   }}
                   className={cn(
@@ -302,18 +311,6 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 </button>
               );
             })}
-          </div>
-          
-          <div className="px-1 pt-1 text-center sm:text-left">
-            <p className={cn(
-                'font-black transition-all duration-150 bg-clip-text text-transparent bg-gradient-to-r',
-                'from-orange-500 via-pink-500 to-rose-500 text-[10px] uppercase tracking-widest'
-              )}
-            >
-              {currentClientType === 'all' 
-                ? '✨ Filtering ALL Active Client Intents ✨' 
-                : `Showing clients looking to ${currentClientType} ✨`}
-            </p>
           </div>
         </div>
       </div>
@@ -418,19 +415,6 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
           })}
         </div>
 
-        {/* Status indicator */}
-        <div className="px-1 pt-1">
-          <p className={cn(
-              'font-black transition-all duration-150 bg-clip-text text-transparent bg-gradient-to-r',
-              clientIsAllSelected 
-                ? 'from-orange-500 via-pink-500 to-rose-500 text-[10px] uppercase tracking-widest' 
-                : 'from-muted-foreground/60 to-foreground text-[10px] uppercase tracking-widest opacity-90'
-            )}
-          >
-            {clientIsAllSelected
-              ? '✨ Filtering ALL Active Client Intents ✨'
-              : `✨ Showing ${activeCategoryLabel} Near You ✨`}
-          </p>
         </div>
       </div>
     </div>
