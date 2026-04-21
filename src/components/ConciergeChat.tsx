@@ -459,6 +459,12 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const autoSendRef = useRef(autoSend);
   const countdownTranscriptRef = useRef<string>('');
   const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+  const mediaRecorderSupported = typeof window !== 'undefined'
+    && typeof navigator !== 'undefined'
+    && !!navigator.mediaDevices?.getUserMedia
+    && typeof (window as any).MediaRecorder !== 'undefined';
+  // Mic is available if EITHER browser STT or recording fallback works.
+  const micSupported = speechSupported || mediaRecorderSupported;
 
   // 🎙️ Universal fallback: works on iOS Safari, in-app browsers, native shells.
   // Records via MediaRecorder and transcribes via the `voice-transcribe` edge function.
@@ -1159,7 +1165,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 </button>
               )}
               {/* Mic button */}
-              {speechSupported && (
+              {micSupported && (
                 <div className="relative shrink-0">
                   {(isListening || countdown !== null) && (
                     <motion.div
