@@ -6,6 +6,7 @@ import { SwipessLogo } from '@/components/SwipessLogo';
 import { Button } from '@/components/ui/button';
 import { useConciergeAI, ChatMessage, Conversation, AiCharacter } from '@/hooks/useConciergeAI';
 import { useAudioVisualizer } from '@/hooks/useAudioVisualizer';
+import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { uiSounds } from '@/utils/uiSounds';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -458,6 +459,17 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const autoSendRef = useRef(autoSend);
   const countdownTranscriptRef = useRef<string>('');
   const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+  const mediaRecorderSupported = typeof window !== 'undefined'
+    && typeof navigator !== 'undefined'
+    && !!navigator.mediaDevices?.getUserMedia
+    && typeof (window as any).MediaRecorder !== 'undefined';
+  // Mic is available if EITHER browser STT or recording fallback works.
+  const micSupported = speechSupported || mediaRecorderSupported;
+
+  // 🎙️ Universal fallback: works on iOS Safari, in-app browsers, native shells.
+  // Records via MediaRecorder and transcribes via the `voice-transcribe` edge function.
+  const voiceTranscribe = useVoiceTranscribe();
+  const usingFallbackRef = useRef(false);
 
   const COUNTDOWN_SECONDS = 2;
   const SILENCE_DELAY_MS = 1200;
@@ -541,6 +553,24 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
 
   const stopListening = useCallback(() => {
     clearCountdown();
+    // Fallback path (MediaRecorder + edge transcription)
+    if (usingFallbackRef.current) {
+      usingFallbackRef.current = false;
+      uiSounds.playMicOff();
+      setIsListening(false);
+      voiceTranscribe.stop().then((text) => {
+        if (text) {
+          const combined = [originalInputRef.current.trim(), text].filter(Boolean).join(' ');
+          setInput(combined);
+          if (autoSendRef.current) {
+            sendMessage(combined);
+            setInput('');
+          }
+        }
+      });
+      return;
+    }
+
     if (recognitionRef.current) {
       (recognitionRef.current as any)._userStop?.();
       recognitionRef.current.stop();
@@ -548,10 +578,30 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     }
     uiSounds.playMicOff();
     setIsListening(false);
-  }, [clearCountdown]);
+  }, [clearCountdown, voiceTranscribe, sendMessage]);
+
+  const startFallbackListening = useCallback(async () => {
+    clearCountdown();
+    originalInputRef.current = input;
+    const ok = await voiceTranscribe.start();
+    if (!ok) {
+      toast.error('Microphone access blocked', {
+        description: 'Please allow microphone access in your browser settings to talk to Swipess AI.',
+      });
+      return;
+    }
+    usingFallbackRef.current = true;
+    triggerHaptic('medium');
+    uiSounds.playMicOn();
+    setIsListening(true);
+  }, [clearCountdown, input, voiceTranscribe]);
 
   const startListening = useCallback(() => {
-    if (!speechSupported) return;
+    if (!speechSupported) {
+      // No Web Speech API (iOS Safari, etc.) → use MediaRecorder fallback
+      startFallbackListening();
+      return;
+    }
     clearCountdown();
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
@@ -659,13 +709,23 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
       if (isCountingDownRef.current) return; 
 
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-        toast.error('Microphone access blocked', {
-          description: 'Please check your browser settings and allow microphone access to talk to Swipess AI.',
-          action: {
-            label: 'Fix settings',
-            onClick: () => window.open('https://support.google.com/chrome/answer/2693767', '_blank')
-          }
-        });
+        // Web Speech denied → transparently switch to MediaRecorder fallback (works on iOS).
+        userStopped = true;
+        recognitionRef.current = null;
+        setIsListening(false);
+        clearCountdown();
+        startFallbackListening();
+        return;
+      }
+
+      if (e.error === 'network' || e.error === 'audio-capture') {
+        // Web Speech network/audio failure → fall back to MediaRecorder
+        userStopped = true;
+        recognitionRef.current = null;
+        setIsListening(false);
+        clearCountdown();
+        startFallbackListening();
+        return;
       }
       
       userStopped = true;
@@ -680,7 +740,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
     lastFinalTranscriptRef.current = '';
     recognition.start();
     setIsListening(true);
-  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown, voicePulse]);
+  }, [speechSupported, autoSend, sendMessage, clearCountdown, startCountdown, voicePulse, startFallbackListening, isLoading, stopGeneration, input]);
 
   const toggleListening = useCallback(() => {
     if (isListening || countdown !== null) {
@@ -1105,7 +1165,7 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
                 </button>
               )}
               {/* Mic button */}
-              {speechSupported && (
+              {micSupported && (
                 <div className="relative shrink-0">
                   {(isListening || countdown !== null) && (
                     <motion.div
