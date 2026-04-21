@@ -48,7 +48,6 @@ function TopBarComponent({
     background: _transparent ? 'transparent' : 'var(--nav-bg)',
     backdropFilter: (_transparent || isIvanna) ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
     WebkitBackdropFilter: (_transparent || isIvanna) ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
-    border: _transparent ? 'none' : '1px solid var(--nav-border)',
     borderRadius: isIvanna ? '2rem' : '1.8rem',
     boxShadow: _transparent ? 'none' : (isIvanna ? '0 10px 30px rgba(0,0,0,0.1)' : (isLight
       ? '0 10px 25px rgba(0,0,0,0.04), inset 0 0 15px rgba(255,255,255,0.2)'
