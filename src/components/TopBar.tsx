@@ -102,7 +102,7 @@ function TopBarComponent({
                   }}
                   className="w-12 h-12 flex items-center justify-center p-0"
                 >
-                  <ChevronLeft className={cn("w-7 h-7", isLight ? "text-foreground" : "text-white")} />
+                  <ChevronLeft className="w-7 h-7 text-black" />
                 </motion.button>
               )}
               
@@ -126,15 +126,12 @@ function TopBarComponent({
                       />
                     ) : (
                       <div className="w-full h-full bg-muted flex items-center justify-center">
-                        <Ghost className="w-5 h-5 opacity-40" />
+                        <Ghost className="w-5 h-5 opacity-40 text-black" />
                       </div>
                     )}
                   </div>
                   {profile?.full_name && (
-                    <span className={cn(
-                      "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 relative z-10",
-                      isLight ? "text-black/90" : "text-white/90"
-                    )}>
+                    <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 relative z-10 text-black/90">
                       {profile.full_name.split(' ')[0]}
                     </span>
                   )}

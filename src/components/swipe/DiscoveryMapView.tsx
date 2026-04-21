@@ -62,7 +62,7 @@ const pixelToLatLng = (dx: number, dy: number, lat: number, zoom: number) => {
 };
 
 const tileUrl = (x: number, y: number, z: number) =>
-  `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
+  `https://basemaps.cartocdn.com/light_all/${z}/${x}/${y}.png`;
 
 // ÔöÇÔöÇÔöÇ Haversine distance ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 const haversineKm = (lat1: number, lng1: number, lat2: number, lng2: number) => {
@@ -335,7 +335,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
       ctx.stroke();
     };
 
-    ctx.fillStyle = isLight ? '#f1f5f9' : '#0a0a0a';
+    ctx.fillStyle = '#f8fafc'; // Force light background for map tiles always
     ctx.fillRect(0, 0, w, h);
     drawDotsAndOverlay();
 
@@ -412,13 +412,11 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         className={cn(
           "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[10001] flex items-center gap-1.5 px-4 py-2.5 rounded-2xl",
           "transition-transform active:scale-95",
-          isLight
-            ? "bg-white/90 backdrop-blur-[50px] saturate-[210%] border-none text-black/90 shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
-            : "bg-black/85 backdrop-blur-[50px] saturate-[210%] border-none text-white/95 shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
+          "bg-white/95 backdrop-blur-[50px] saturate-[210%] border-none text-black/90 shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
         )}
       >
-        <ChevronLeft className="w-5 h-5" />
-        <span className="text-[12px] font-black uppercase tracking-[0.2em]">Back</span>
+        <ChevronLeft className="w-5 h-5 text-black" />
+        <span className="text-[12px] font-black uppercase tracking-[0.2em] text-black">Back</span>
       </motion.button>
 
       <motion.div
@@ -429,9 +427,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         <div
           className={cn(
             "px-6 py-2.5 rounded-2xl flex items-center gap-2.5",
-            isLight
-              ? "bg-white/90 backdrop-blur-[50px] saturate-[210%] shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
-              : "bg-black/85 backdrop-blur-[50px] saturate-[210%] shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
+            "bg-white/95 backdrop-blur-[50px] saturate-[210%] shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
           )}
         >
           <div
@@ -441,7 +437,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           <span className="text-[12px] font-black uppercase tracking-[0.25em]" style={{ color: meta.accent }}>
             {meta.label}
           </span>
-          <span className={cn("text-[11px] font-bold", isLight ? "text-black/40" : "text-white/40")}>
+          <span className="text-[11px] font-bold text-black/50">
             {dotCount} nearby
           </span>
         </div>
@@ -454,12 +450,10 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         disabled={detecting}
         className={cn(
           "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all",
-          isLight
-            ? "bg-white/90 backdrop-blur-[50px] saturate-[210%] text-black/90 shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
-            : "bg-black/85 backdrop-blur-[50px] saturate-[210%] text-white/95 shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
+          "bg-white/95 backdrop-blur-[50px] saturate-[210%] text-black shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
         )}
       >
-        <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} style={detected ? { color: meta.accent } : {}} />
+        <Navigation className={cn("w-5 h-5 text-black", detecting && "animate-spin")} style={detected ? { color: meta.accent } : {}} />
       </motion.button>
 
       <div
@@ -480,20 +474,18 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className={cn(
           "relative z-[10001] px-5 pt-6 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] flex flex-col gap-6",
-          isLight
-            ? "bg-white/95 border-t border-white"
-            : "bg-black/85 backdrop-blur-3xl border-t border-white/10"
+          "bg-white/95 backdrop-blur-[50px] border-t border-white"
         )}
       >
         <div className="flex items-center justify-between">
-          <span className={cn("text-[10px] font-black uppercase tracking-[0.3em]", isLight ? "text-black/40" : "text-white/40")}>
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/50">
             Distance
           </span>
           <div className="flex items-center gap-1">
             <span className="text-2xl font-black tabular-nums" style={{ color: meta.accent }}>
               {localKm}
             </span>
-            <span className={cn("text-xs font-bold mt-1", isLight ? "text-black/30" : "text-white/30")}>km</span>
+            <span className={cn("text-xs font-bold mt-1 text-black/40")}>km</span>
           </div>
         </div>
 

@@ -382,11 +382,11 @@ export const BottomNavigation = memo(({
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE),
                       color: active 
-                        ? (isLight ? '#000000' : activeColor) 
-                        : iconColorInactive,
+                        ? '#000000' 
+                        : 'rgba(0,0,0,0.45)',
                       fill: active ? activeColor : 'none',
                       strokeWidth: active ? 1.8 : 1.5,
-                      filter: active ? (isLight ? 'drop-shadow(0 0 8px rgba(0,0,0,0.15))' : 'drop-shadow(0 0 12px rgba(255,107,53,0.6))') : 'none',
+                      filter: 'none',
                     }}
                   />
                   {active && !isLight && (
@@ -403,8 +403,8 @@ export const BottomNavigation = memo(({
                       )}
                       style={{
                         color: active
-                          ? (isLight ? '#000000' : 'var(--color-brand-primary)')
-                          : (isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.65)'),
+                          ? '#000000'
+                          : 'rgba(0,0,0,0.65)',
                         opacity: 1,
                         zIndex: 1,
                       }}

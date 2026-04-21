@@ -137,7 +137,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[1000] flex flex-col overflow-hidden bg-black/40 backdrop-blur-xl rounded-t-[3rem] shadow-[0_-20px_60px_rgba(0,0,0,0.5)]"
+            className="fixed inset-0 z-[10002] flex flex-col overflow-hidden bg-white/90 backdrop-blur-2xl rounded-t-[3rem] shadow-[0_-20px_100px_rgba(0,0,0,0.3)]"
             style={{ willChange: 'transform, opacity' }}
           >
             {/* Apple Style Grabber */}
