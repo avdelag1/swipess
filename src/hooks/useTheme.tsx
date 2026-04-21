@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
-export type Theme = 'dark' | 'light' | 'ivanna-style';
+export type Theme = 'dark' | 'light';
 
 export interface ThemeToggleCoords {
   x: number;
@@ -15,28 +15,23 @@ interface ThemeContextType {
   theme: Theme;
   isLight: boolean;
   isDark: boolean;
-  isIvanna: boolean;
   setTheme: (theme: Theme, coords?: ThemeToggleCoords) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const _VALID_THEMES: Theme[] = ['dark', 'light', 'ivanna-style'];
+const _VALID_THEMES: Theme[] = ['dark', 'light'];
 const DEFAULT_THEME: Theme = 'dark';
 const STORAGE_KEY = 'swipess_theme_preference';
 
 /** Map legacy DB values to new theme names */
 function normalizeTheme(raw: string | null | undefined): Theme {
-  if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte' || raw === 'pure-black' || raw === 'nexus-style' || raw === 'cheers') return 'dark';
-  if (raw === 'white-matte' || raw === 'light') return 'light';
-  if (raw === 'ivanna-style' || raw === 'ivana') return 'ivanna-style';
+  if (raw === 'light' || raw === 'white-matte') return 'light';
   return 'dark';
 }
 
 const ALL_THEME_CLASSES = [
-  'grey-matte', 'black-matte', 'white-matte', 'red-matte',
-  'amber-matte', 'pure-black', 'cheers', 'dark', 'light',
-  'amber', 'red', 'ivanna-style', 'nexus-style', 'ivana'
+  'dark', 'light', 'pure-black', 'white-matte', 'grey-matte', 'black-matte'
 ];
 
 /** 
@@ -57,8 +52,6 @@ function applyThemeToDOM(theme: Theme) {
   } else if (theme === 'light') {
     root.classList.add('white-matte');
     root.style.colorScheme = 'light';
-  } else if (theme === 'ivanna-style') {
-    root.style.colorScheme = 'light';
   }
 
   // Update status bar color for PWA
@@ -71,7 +64,6 @@ function applyThemeToDOM(theme: Theme) {
   
   let targetColor: string;
   if (theme === 'dark') targetColor = '#000000';
-  else if (theme === 'ivanna-style') targetColor = '#bbd4e8';
   else targetColor = '#ffffff';
   meta.setAttribute('content', targetColor);
 }
@@ -156,11 +148,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const isLight = theme === 'light' || theme === 'ivanna-style';
+  const isLight = theme === 'light';
   const isDark = theme === 'dark';
-  const isIvanna = theme === 'ivanna-style';
 
-  const value = useMemo(() => ({ theme, isLight, isDark, isIvanna, setTheme }), [theme, isLight, isDark, isIvanna]);
+  const value = useMemo(() => ({ theme, isLight, isDark, setTheme }), [theme, isLight, isDark]);
 
   return (
     <ThemeContext.Provider value={value}>

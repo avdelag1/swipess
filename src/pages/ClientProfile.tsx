@@ -59,7 +59,7 @@ const ClientProfile = () => {
   return (
     <div className={cn(
       "min-h-full w-full transition-colors duration-500",
-      theme === 'ivanna-style' ? "bg-transparent ivanna-style" : "bg-background text-foreground"
+      "bg-background text-foreground"
     )}>
       {/* 🛸 CINEMATIC BACKGROUND GLOW */}
       <AnimatePresence>
@@ -87,15 +87,13 @@ const ClientProfile = () => {
               whileTap={{ scale: 0.95 }}
               className={cn(
                  "w-44 h-44 transition-all duration-500",
-                 theme === 'ivanna-style' 
-                   ? "rounded-[2.5rem] border-6 border-black shadow-artisan p-1 bg-white" 
-                   : "rounded-[3.2rem] p-[4px] bg-gradient-to-br from-[#EB4898] via-orange-500 to-amber-400 shadow-2xl"
+                 "rounded-[3.2rem] p-[4px] bg-gradient-to-br from-[#EB4898] via-orange-500 to-amber-400 shadow-2xl"
               )}
             >
               <div
                 className={cn(
                    "w-full h-full overflow-hidden cursor-pointer flex items-center justify-center",
-                   theme === 'ivanna-style' ? "rounded-[2rem] bg-ivanna-parchment" : "rounded-[3.1rem] bg-background border border-white/10"
+                   "rounded-[3.1rem] bg-background border border-white/10"
                 )}
                 onClick={() => { haptics.tap(); if (profile?.profile_images?.length) { handlePhotoClick(0); } else { setShowEditDialog(true); } }}
               >
@@ -111,9 +109,7 @@ const ClientProfile = () => {
               onClick={() => { triggerHaptic('selection'); setShowEditDialog(true); }}
               className={cn(
                 "absolute -bottom-2 -right-2 w-14 h-14 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20",
-                theme === 'ivanna-style' 
-                  ? "bg-white border-4 border-black font-black rounded-2xl shadow-artisan text-black" 
-                  : "bg-brand-primary text-white rounded-3xl shadow-xl"
+                "bg-brand-primary text-white rounded-3xl shadow-xl"
               )}
             >
               <Camera className="w-6 h-6" />
@@ -123,17 +119,17 @@ const ClientProfile = () => {
           <div className="space-y-2">
             <h1 className={cn(
               "text-5xl font-black uppercase italic tracking-tighter leading-none transition-all",
-              theme === 'ivanna-style' ? "text-black drop-shadow-sm" : (isLight ? "text-black" : "text-white")
+              isLight ? "text-black" : "text-white"
             )}>
               {profile?.name || 'Profile'}
             </h1>
             <div className={cn(
               "px-4 py-1.5 rounded-full inline-block transition-all",
-              theme === 'ivanna-style' ? "bg-white border-2 border-black shadow-artisan" : "bg-[#EB4898]/10 border border-[#EB4898]/20"
+              "bg-[#EB4898]/10 border border-[#EB4898]/20"
             )}>
                <span className={cn(
                  "text-[10px] font-black uppercase tracking-[0.3em] italic",
-                 theme === 'ivanna-style' ? "text-black" : "text-[#EB4898]"
+                 "text-[#EB4898]"
                )}>{user?.email}</span>
             </div>
           </div>

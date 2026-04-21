@@ -176,7 +176,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
   };
 
   const { theme } = useTheme();
-  const isLight = theme === 'light' || theme === 'ivanna-style';
+  const isLight = theme === 'light';
 
   return (
     <div className="space-y-4">

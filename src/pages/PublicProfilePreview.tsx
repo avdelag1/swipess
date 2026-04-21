@@ -21,8 +21,7 @@ export default function PublicProfilePreview() {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { theme } = useTheme();
-  const isIvanna = theme === 'ivanna-style';
+  const { theme, isDark } = useTheme();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imgLoaded, setImgLoaded] = useState(false);
 
@@ -138,7 +137,7 @@ export default function PublicProfilePreview() {
   return (
     <div className={cn(
       "fixed inset-0 overflow-hidden",
-      isIvanna ? "bg-ivanna-parchment ivanna-style" : "bg-black"
+      isDark ? "bg-black" : "bg-white"
     )}>
 
       {/* ── BACKGROUND IMAGE ─────────────────────────────────────────── */}
@@ -253,9 +252,7 @@ export default function PublicProfilePreview() {
           transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
           className={cn(
              "rounded-t-[28px] border-t shadow-[0_-20px_60px_rgba(0,0,0,0.4)] transition-all duration-500",
-             isIvanna 
-               ? "bg-white border-t-6 border-black" 
-               : "bg-background/92 backdrop-blur-2xl border-white/10"
+             "bg-background/92 backdrop-blur-2xl border-white/10"
           )}
         >
           {/* Handle */}

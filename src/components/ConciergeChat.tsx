@@ -14,58 +14,27 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useTheme } from '@/hooks/useTheme';
 import { createPortal } from 'react-dom';
 
-/* ─── Character Avatars ─── */
-const CHARACTER_AVATARS: Record<string, string> = {
-  default: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&h=200&fit=crop',
-  kyle: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop',
-  beaugosse: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop',
-  donajkiin: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop',
-  botbetter: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop',
-  lunashanti: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop',
-  ezriyah: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop',
-};
-
 /* ─── Privacy Portal ─── */
-const ConciergePrivacyPortal = ({ onAccept, isNexus, isIvanna }: { onAccept: () => void, isNexus: boolean, isIvanna: boolean }) => (
-  <div className={cn(
-    "flex-1 flex flex-col items-center justify-center p-8 relative z-10 space-y-6 text-center h-full",
-    isNexus ? "nexus-style" : (isIvanna ? "ivanna-style" : "")
-  )}>
-    <div className={cn(
-      "w-20 h-20 rounded-[2rem] flex items-center justify-center mb-4 border relative",
-      isNexus ? "bg-cyan-500/10 border-cyan-500/20 shadow-[0_0_40px_rgba(34,211,238,0.2)]" : 
-      (isIvanna ? "bg-primary/20 border-primary shadow-lg" : "bg-primary/10 border-primary/20")
-    )}>
-      <Sparkles className={cn("w-10 h-10 animate-pulse", isNexus ? "text-cyan-400" : "text-primary")} />
+const ConciergePrivacyPortal = ({ onAccept }: { onAccept: () => void }) => (
+  <div className="flex-1 flex flex-col items-center justify-center p-8 relative z-10 space-y-6 text-center h-full">
+    <div className="w-20 h-20 rounded-[2rem] flex items-center justify-center mb-4 border relative bg-primary/10 border-primary/20 shadow-lg">
+      <Sparkles className="w-10 h-10 animate-pulse text-primary" />
     </div>
-    <h2 className={cn(
-      "text-2xl font-black tracking-tight uppercase",
-      isNexus ? "text-white nexus-glow-text" : "text-foreground"
-    )}>
-      {isNexus ? "Intelligence Interface" : "Swipess AI Secure"}
+    <h2 className="text-2xl font-black tracking-tight uppercase text-foreground">
+      Intelligence Interface
     </h2>
-    <p className={cn(
-      "text-xs leading-relaxed max-w-[280px]",
-      isNexus ? "text-white/50" : "text-muted-foreground"
-    )}>
+    <p className="text-xs leading-relaxed max-w-[280px] text-muted-foreground">
       The interface is secured. Your inquiries are handled with absolute confidentiality and processed by advanced luxury-grade AI.
     </p>
-    <div className={cn(
-      "p-4 rounded-xl border mb-4 text-[10px] leading-tight text-center",
-      isNexus ? "bg-cyan-500/5 border-cyan-500/10 text-cyan-400/80" : "bg-muted border-border text-muted-foreground"
-    )}>
-      <p className="font-bold uppercase tracking-widest mb-1 text-[11px] text-white">AI Disclaimer</p>
+    <div className="p-4 rounded-xl border mb-4 text-[10px] leading-tight text-center bg-muted border-border text-muted-foreground">
+      <p className="font-bold uppercase tracking-widest mb-1 text-[11px] text-foreground">AI Disclaimer</p>
       Swipess AI provides automated recommendations for informational purposes only. It is not a substitute for professional real estate, legal, or financial advice. Accuracy is not guaranteed.
     </div>
     
     <div className="w-full max-w-xs pt-4">
       <Button 
         onClick={onAccept}
-        className={cn(
-          "w-full h-14 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all",
-          isNexus ? "bg-cyan-500 hover:bg-cyan-600 text-black shadow-[0_10px_30px_rgba(34,211,238,0.3)]" : 
-          "shadow-xl"
-        )}
+        className="w-full h-14 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-xl"
       >
         Authorize Access
       </Button>
@@ -77,8 +46,6 @@ const ConciergePrivacyPortal = ({ onAccept, isNexus, isIvanna }: { onAccept: () 
 interface MessageBubbleProps {
   message: ChatMessage;
   isUser: boolean;
-  isNexus: boolean;
-  isIvanna: boolean;
   onCopy: () => void;
   onDelete: () => void;
   onTranslate?: (lang: string) => void;
@@ -86,7 +53,7 @@ interface MessageBubbleProps {
   onNavigate?: (path: string) => void;
 }
 
-const MessageBubble = ({ message, isUser, isNexus, isIvanna, onCopy, onDelete, onTranslate, onResend, onNavigate }: MessageBubbleProps) => {
+const MessageBubble = ({ message, isUser, onCopy, onDelete, onTranslate, onResend, onNavigate }: MessageBubbleProps) => {
   const [showActions, setShowActions] = useState(false);
   
   return (
@@ -99,12 +66,8 @@ const MessageBubble = ({ message, isUser, isNexus, isIvanna, onCopy, onDelete, o
       <div className={cn(
         'px-4 py-3 rounded-2xl text-sm leading-relaxed break-words transition-all duration-300 max-w-[85%]',
         isUser
-          ? (isNexus 
-              ? 'nexus-chat-bubble-user rounded-br-md border-r-2 border-white/20 ml-auto' 
-              : 'bg-primary text-primary-foreground rounded-br-md ml-auto shadow-md')
-          : (isNexus 
-              ? 'nexus-chat-bubble-ai rounded-bl-md border border-white/10 nexus-glass mr-auto' 
-              : (isIvanna ? 'bg-card border-2 border-foreground rounded-bl-md mr-auto shadow-artisan' : 'bg-muted/80 text-foreground rounded-bl-md border border-border/30 mr-auto'))
+          ? 'bg-primary text-primary-foreground rounded-br-md ml-auto shadow-md'
+          : 'bg-muted/80 text-foreground rounded-bl-md border border-border/30 mr-auto'
       )}>
         <span className="whitespace-pre-wrap">{message.content}</span>
       </div>
@@ -141,16 +104,13 @@ const MessageBubble = ({ message, isUser, isNexus, isIvanna, onCopy, onDelete, o
 };
 
 /* ─── Typing Indicator ─── */
-const TypingIndicator = ({ isNexus }: { isNexus: boolean }) => (
+const TypingIndicator = () => (
   <div className="flex justify-start mb-4">
-    <div className={cn(
-      "px-5 py-3.5 rounded-2xl rounded-bl-md flex items-center gap-[3px] border transition-all",
-      isNexus ? "nexus-glass border-cyan-500/20 shadow-glow" : "bg-muted/80 border-border/30"
-    )}>
+    <div className="px-5 py-3.5 rounded-2xl rounded-bl-md flex items-center gap-[3px] border transition-all bg-muted/80 border-border/30">
       {[0, 1, 2, 3, 4].map(i => (
         <motion.div
           key={i}
-          className={cn("w-[3px] rounded-full", isNexus ? "bg-cyan-400/70" : "bg-primary/70")}
+          className="w-[3px] rounded-full bg-primary/70"
           animate={{ scaleY: [0.35, 1, 0.35] }}
           transition={{ duration: 0.9, repeat: Infinity, ease: 'easeInOut', delay: i * 0.1 }}
           style={{ height: '14px' }}
@@ -161,19 +121,16 @@ const TypingIndicator = ({ isNexus }: { isNexus: boolean }) => (
 );
 
 /* ─── Sidebar ─── */
-const ConversationSidebar = ({ conversations, activeId, onSelect, onDelete, onNew, onClose, isNexus }: any) => (
+const ConversationSidebar = ({ conversations, activeId, onSelect, onDelete, onNew, onClose }: any) => (
   <motion.div
     initial={{ x: -280, opacity: 0 }}
     animate={{ x: 0, opacity: 1 }}
     exit={{ x: -300, opacity: 0 }}
     transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-    className={cn(
-      "absolute inset-y-0 left-0 w-72 z-50 flex flex-col shadow-2xl transition-all",
-      isNexus ? "bg-black border-r border-white/5 nexus-style" : "bg-background border-r border-border"
-    )}
+    className="absolute inset-y-0 left-0 w-72 z-50 flex flex-col shadow-2xl transition-all bg-background border-r border-border"
   >
-    <div className={cn("flex items-center justify-between px-5 py-4 border-b", isNexus ? "border-white/5" : "border-border")}>
-      <h3 className={cn("text-[11px] font-black uppercase tracking-widest", isNexus ? "text-cyan-400" : "text-foreground")}>archives</h3>
+    <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+      <h3 className="text-[11px] font-black uppercase tracking-widest text-foreground">archives</h3>
       <button onClick={onClose} className="p-1 hover:bg-white/5 rounded-full transition-colors">
         <X className="w-4 h-4 opacity-40" />
       </button>
@@ -182,12 +139,9 @@ const ConversationSidebar = ({ conversations, activeId, onSelect, onDelete, onNe
     <div className="p-3">
       <button 
         onClick={onNew}
-        className={cn(
-          "w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all group",
-          isNexus ? "bg-white/5 border-white/5 text-white/80 hover:bg-white/10" : "bg-primary/10 border-primary/20 hover:bg-primary/20"
-        )}
+        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all group bg-primary/10 border-primary/20 hover:bg-primary/20"
       >
-        <Plus className={cn("w-4 h-4 group-hover:scale-110 transition-transform", isNexus ? "text-cyan-400" : "text-primary")} />
+        <Plus className="w-4 h-4 group-hover:scale-110 transition-transform text-primary" />
         <span className="text-xs font-bold uppercase tracking-wider">New Conversation</span>
       </button>
     </div>
@@ -199,12 +153,10 @@ const ConversationSidebar = ({ conversations, activeId, onSelect, onDelete, onNe
             onClick={() => { onSelect(c.id); onClose(); }}
             className={cn(
               "w-full flex flex-col items-start px-4 py-3.5 rounded-xl transition-all duration-300 border",
-              activeId === c.id 
-                ? (isNexus ? "bg-cyan-500/10 border-cyan-500/20" : "bg-primary/10 border-primary/30") 
-                : "hover:bg-muted/50 border-transparent"
+              activeId === c.id ? "bg-primary/10 border-primary/30" : "hover:bg-muted/50 border-transparent"
             )}
           >
-            <span className={cn("text-xs font-bold truncate w-full text-left", activeId === c.id ? (isNexus ? "text-cyan-400" : "text-primary") : "opacity-60")}>
+            <span className={cn("text-xs font-bold truncate w-full text-left", activeId === c.id ? "text-primary" : "opacity-60")}>
               {c.title || 'New inquiry'}
             </span>
             <span className="text-[10px] opacity-30 mt-1">{new Date(c.updatedAt).toLocaleDateString()}</span>
@@ -224,8 +176,6 @@ const ConversationSidebar = ({ conversations, activeId, onSelect, onDelete, onNe
 /* ─── Main Component ─── */
 export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { theme } = useTheme();
-  const isNexus = theme === 'nexus-style';
-  const isIvanna = theme === 'ivanna-style';
 
   const [hasAcceptedPrivacy, setHasAcceptedPrivacy] = useState(() => {
     return localStorage.getItem('swipess_ai_privacy') === 'true';
@@ -327,8 +277,6 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
         setInput(prev => prev + finalTranscript + ' ');
       }
       
-      // We don't set the input state to interimTranscript as it would overwrite unfinished text,
-      // but we reset the silence timer so the user knows it's working.
       if (interimTranscript || finalTranscript) {
         if (isAutoFlow) {
           if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
@@ -385,7 +333,6 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
     sendMessage(`Translate your previous message to ${lang}`);
   };
 
-  // Scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -399,32 +346,16 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 100 }}
-          className={cn(
-            "fixed inset-0 z-[10000] flex flex-col overflow-hidden transition-colors duration-500",
-            isNexus ? "bg-black nexus-style" : (isIvanna ? "ivanna-style bg-sky-50/90 backdrop-blur-3xl" : "bg-background")
-          )}
+          className="fixed inset-0 z-[10000] flex flex-col overflow-hidden transition-colors duration-500 bg-background"
         >
-          {/* Background Ambient */}
-          {isNexus && (
-            <div className="absolute inset-0 pointer-events-none opacity-40">
-              <div className="absolute top-[-10%] left-[-10%] w-full h-[60%] bg-cyan-900/10 blur-[120px] rounded-full" />
-              <div className="absolute bottom-[-10%] right-[-10%] w-[80%] h-[50%] bg-blue-900/10 blur-[100px] rounded-full" />
-            </div>
-          )}
-
-          {isIvanna && (
-             <div className="absolute inset-0 pointer-events-none ivanna-ai-wash opacity-60" />
-          )}
-
           {!hasAcceptedPrivacy ? (
             <ConciergePrivacyPortal onAccept={() => {
               localStorage.setItem('swipess_ai_privacy', 'true');
               setHasAcceptedPrivacy(true);
               triggerHaptic('success');
-            }} isNexus={isNexus} isIvanna={isIvanna} />
+            }} />
           ) : (
             <div className="flex-1 flex flex-col relative z-20 overflow-hidden">
-              {/* Sidebar backdrop */}
               <AnimatePresence>
                 {sidebarOpen && (
                   <motion.div
@@ -437,7 +368,6 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                 )}
               </AnimatePresence>
 
-              {/* Sidebar */}
               <AnimatePresence>
                 {sidebarOpen && (
                   <ConversationSidebar
@@ -447,29 +377,21 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                     onDelete={deleteConversation}
                     onNew={() => { createConversation(); setSidebarOpen(false); }}
                     onClose={() => setSidebarOpen(false)}
-                    isNexus={isNexus}
                   />
                 )}
               </AnimatePresence>
 
-              {/* Header */}
-              <div className={cn(
-                "h-16 flex items-center justify-between px-5 border-b backdrop-blur-xl transition-all",
-                isNexus ? "border-white/5 bg-black/40" : (isIvanna ? "border-black/10 bg-transparent" : "border-border bg-background/80")
-              )}>
+              <div className="h-16 flex items-center justify-between px-5 border-b border-border bg-background/80 backdrop-blur-xl transition-all">
                 <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "w-9 h-9 rounded-xl flex items-center justify-center border transition-all",
-                    isNexus ? "bg-cyan-500/10 border-cyan-500/20" : "bg-primary/10 border-primary/20"
-                  )}>
-                    <Zap className={cn("w-5 h-5", isNexus ? "text-cyan-400" : "text-primary")} />
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center border bg-primary/10 border-primary/20 transition-all">
+                    <Zap className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex flex-col">
-                    <span className={cn("text-[11px] font-black tracking-[0.2em] uppercase", isNexus ? "text-cyan-400" : "text-foreground")}>
-                      {isNexus ? "Interface" : "Assistant"}
+                    <span className="text-[11px] font-black tracking-[0.2em] uppercase text-foreground">
+                      Assistant
                     </span>
                     <span className="text-[9px] font-medium opacity-30 tracking-tight">
-                      {isNexus ? "V2.9.ZENITH" : "PRO.CONCIERGE"}
+                      PRO.CONCIERGE
                     </span>
                   </div>
                 </div>
@@ -490,32 +412,25 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                 </div>
               </div>
 
-              {/* Messages Area */}
               <div 
                 ref={scrollRef}
-                className={cn(
-                  "flex-1 overflow-y-auto nexus-scroll p-4 space-y-1 relative",
-                  isIvanna && "bg-transparent"
-                )}
+                className="flex-1 overflow-y-auto nexus-scroll p-4 space-y-1 relative"
               >
                 {messages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-6">
                     <motion.div 
                       initial={{ scale: 0.8 }}
                       animate={{ scale: 1 }}
-                      className={cn(
-                        "w-16 h-16 rounded-[2rem] border flex items-center justify-center",
-                        isNexus ? "bg-cyan-500/5 border-cyan-500/10" : "bg-primary/5 border-primary/10"
-                      )}
+                      className="w-16 h-16 rounded-[2rem] border border-primary/10 flex items-center justify-center bg-primary/5"
                     >
-                      <Sparkles className={cn("w-8 h-8 opacity-40", isNexus ? "text-cyan-400" : "text-primary")} />
+                      <Sparkles className="w-8 h-8 opacity-40 text-primary" />
                     </motion.div>
                     <div className="space-y-1.5">
                       <h3 className="text-sm font-black uppercase tracking-[0.3em] opacity-80">
-                        {isNexus ? "System Neutral" : "Ready to Help"}
+                        Ready to Help
                       </h3>
                       <p className="text-[10px] opacity-20 uppercase tracking-widest">
-                        {isNexus ? "Awaiting Command Interface" : "Awaiting user inquiry"}
+                        Awaiting user inquiry
                       </p>
                     </div>
                   </div>
@@ -525,8 +440,6 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                       key={m.id}
                       message={m}
                       isUser={m.role === 'user'}
-                      isNexus={isNexus}
-                      isIvanna={isIvanna}
                       onCopy={() => handleCopy(m.content)}
                       onDelete={() => deleteMessage(m.id)}
                       onTranslate={m.role === 'assistant' ? handleTranslate : undefined}
@@ -535,24 +448,17 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                     />
                   ))
                 )}
-                {isLoading && <TypingIndicator isNexus={isNexus} />}
+                {isLoading && <TypingIndicator />}
               </div>
 
-              {/* Input Area */}
-              <div className={cn(
-                 "p-4 border-t pb-[calc(env(safe-area-inset-bottom,0px)+16px)] transition-all",
-                 isNexus ? "bg-black border-white/5" : (isIvanna ? "bg-transparent border-black/10" : "bg-background border-border")
-              )}>
-                <div className={cn(
-                  "nexus-panel p-1.5 nexus-glass relative overflow-hidden group transition-all",
-                  isNexus ? "border-white/10" : (isIvanna ? "border-foreground bg-white/40" : "border-border bg-muted/40")
-                )}>
+              <div className="p-4 border-t border-border bg-background pb-[calc(env(safe-area-inset-bottom,0px)+16px)] transition-all">
+                <div className="nexus-panel p-1.5 border-border bg-muted/40 relative overflow-hidden group transition-all">
                   <textarea
                     ref={inputRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={isNexus ? "Inquire sequence..." : "Ask me anything..."}
+                    placeholder="Ask me anything..."
                     className="w-full bg-transparent border-none focus:ring-0 text-sm px-4 py-3.5 min-h-[56px] max-h-[160px] resize-none placeholder:opacity-20 leading-relaxed"
                   />
                   
@@ -563,7 +469,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                         className={cn(
                           "w-12 h-12 rounded-xl flex items-center justify-center transition-all border relative overflow-hidden",
                           isListening 
-                            ? (isNexus ? "bg-cyan-500/20 border-cyan-400 text-cyan-400" : "bg-red-500/20 border-red-500 text-red-500")
+                            ? "bg-red-500/20 border-red-500 text-red-500"
                             : "bg-background/20 border-current opacity-40 hover:opacity-100"
                         )}
                       >
@@ -587,7 +493,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                         className={cn(
                           "w-12 h-12 rounded-xl flex items-center justify-center transition-all border",
                           isAutoFlow
-                            ? (isNexus ? "bg-cyan-500/20 border-cyan-400 text-cyan-400" : "bg-primary text-white border-primary shadow-lg")
+                            ? "bg-primary text-white border-primary shadow-lg"
                             : "bg-background/20 border-current opacity-40 hover:opacity-100"
                         )}
                       >
@@ -601,7 +507,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                       className={cn(
                         "w-11 h-11 rounded-xl flex items-center justify-center transition-all shadow-lg",
                         input.trim() && !isLoading 
-                          ? (isNexus ? "bg-cyan-500 text-black shadow-[0_0_20px_rgba(34,211,238,0.4)]" : "bg-primary text-primary-foreground") 
+                          ? "bg-primary text-primary-foreground" 
                           : "bg-muted text-muted-foreground opacity-20"
                       )}
                     >
@@ -616,6 +522,5 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
       )}
     </AnimatePresence>
   );
-
   return typeof document !== 'undefined' ? createPortal(chatContent, document.body) : null;
 }

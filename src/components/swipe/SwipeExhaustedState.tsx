@@ -119,9 +119,7 @@ export const SwipeExhaustedState = ({
         </motion.div>
       </AnimatePresence>
     );
-  }
-
-  return (
+  }  return (
     <AnimatePresence mode="wait">
       <motion.div 
         key="searching" 
@@ -129,10 +127,7 @@ export const SwipeExhaustedState = ({
         initial="initial" 
         animate="animate" 
         exit="exit" 
-        className={cn(
-          "relative z-50 h-full w-full overflow-hidden flex flex-col pt-2",
-          theme === 'ivanna-style' ? "bg-transparent" : "bg-black"
-        )}
+        className="relative z-50 h-full w-full overflow-hidden flex flex-col pt-2 bg-black"
       >
         <div className="absolute inset-0 pointer-events-none z-0">
           <div 
@@ -149,12 +144,7 @@ export const SwipeExhaustedState = ({
                setActiveCategory(null);
                setCategories([]);
              }}
-             className={cn(
-               "flex items-center gap-2 px-4 h-11 rounded-2xl shadow-2xl backdrop-blur-3xl border transition-all active:scale-95 group",
-               theme === 'ivanna-style' 
-                 ? "bg-white/90 border-[#111111]/20 text-[#111111] border-[1px]" 
-                 : "bg-black/60 border-white/10 text-white"
-             )}
+             className="flex items-center gap-2 px-4 h-11 rounded-2xl shadow-2xl backdrop-blur-3xl border transition-all active:scale-95 group bg-black/60 border-white/10 text-white"
            >
              <ChevronLeft className="w-5 h-5 -ml-1 transition-transform group-hover:-translate-x-1" />
              <span className="text-[10px] font-black uppercase tracking-[0.15em]">Back</span>
@@ -175,15 +165,9 @@ export const SwipeExhaustedState = ({
             <motion.div
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
-              className={cn(
-                "px-3 py-1 rounded-full shadow-xl",
-                theme === 'ivanna-style' ? "bg-white/50" : "bg-black/40 backdrop-blur-xl border border-white/10"
-              )}
+              className="px-3 py-1 rounded-full shadow-xl bg-black/40 backdrop-blur-xl border border-white/10"
             >
-              <span className={cn(
-                "text-[10px] font-black uppercase tracking-wider",
-                theme === 'ivanna-style' ? "text-[#111111]" : "text-white/90"
-              )}>
+              <span className="text-[10px] font-black uppercase tracking-wider text-white/90">
                 {isRefreshing || isScanBurstActive ? 'Calibrating Discovery Intelligence…' : 'Market Resonance Exhausted'}
               </span>
             </motion.div>
@@ -197,10 +181,7 @@ export const SwipeExhaustedState = ({
             style={{ maxWidth: 'min(92vw, 360px)' }}
           >
             <div
-              className={cn(
-                "relative w-full overflow-hidden shadow-xl",
-                theme === 'ivanna-style' ? "bg-white/60 backdrop-blur-md rounded-[24px_32px_28px_36px_/_36px_28px_32px_24px]" : "rounded-[2rem]"
-              )}
+              className="relative w-full overflow-hidden shadow-xl rounded-[2rem]"
               style={{ aspectRatio: '1 / 1', maxHeight: '42svh' }}
             >
               <LocationRadiusSelector
@@ -217,10 +198,7 @@ export const SwipeExhaustedState = ({
           </motion.div>
         </div>
 
-        <div className={cn(
-          "shrink-0 pb-6 pt-3 px-4 flex flex-col items-center gap-4",
-          theme === 'ivanna-style' ? "bg-transparent" : "bg-gradient-to-t from-black via-black/80 to-transparent"
-        )}>
+        <div className="shrink-0 pb-6 pt-3 px-4 flex flex-col items-center gap-4 bg-gradient-to-t from-black via-black/80 to-transparent">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -268,13 +246,10 @@ export const SwipeExhaustedState = ({
             <Button
               onClick={handleRefreshClick}
               disabled={isRefreshing}
-              className={cn(
-                "flex-1 relative h-14 overflow-hidden shadow-2xl transition-all active:scale-95 group",
-                theme === 'ivanna-style' ? "bg-white border-[3px] border-[#111111] text-[#111111]" : "rounded-2xl bg-white/5 hover:bg-white/10 text-white"
-              )}
+              className="flex-1 relative h-14 overflow-hidden shadow-2xl transition-all active:scale-95 group rounded-2xl bg-white/5 hover:bg-white/10 text-white"
             >
               {isRefreshing && <div className="absolute inset-0 bg-primary/10 animate-pulse" />}
-              <RefreshCw className={cn("mr-2 h-4 w-4 transition-transform group-hover:rotate-180 duration-700", isRefreshing && "animate-spin", theme === 'ivanna-style' ? "text-[#111111]" : "text-primary")} />
+              <RefreshCw className={cn("mr-2 h-4 w-4 transition-transform group-hover:rotate-180 duration-700", isRefreshing && "animate-spin text-primary")} />
               {isRefreshing ? 'Tuning Intelligence...' : 'Refresh Market Resonance'}
             </Button>
             
@@ -291,4 +266,5 @@ export const SwipeExhaustedState = ({
       </motion.div>
     </AnimatePresence>
   );
+}; );
 };

@@ -92,7 +92,7 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
-  const { theme, isDark, isIvanna } = useTheme()
+  const { theme, isDark } = useTheme()
   const [onboardingChecked, setOnboardingChecked] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   
@@ -339,11 +339,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   return (
     <div className={cn(
       "dashboard-root w-full h-full min-h-0 relative flex flex-col overflow-hidden",
-      isIvanna ? "bg-transparent" : ((isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background"),
-      isIvanna ? "ivanna-style" : (isDark ? "dark dark-matte" : "light white-matte")
+      (isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background",
+      isDark ? "dark dark-matte" : "light white-matte"
     )}>
-      {/* Ivana painted sky — renders only when Ivana theme is active */}
-      {isIvanna && <IvanaSkyBackground />}
 
       {/* Main Content */}
       <main
@@ -358,7 +356,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             : (isZeroScrollDashboard || isImmersiveDashboard) ? "overflow-hidden"
             : "overflow-y-auto overflow-x-hidden",
           "shadow-none",
-          isIvanna ? "bg-transparent" : ((location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background")
+          (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background"
         )}
         style={{
           paddingTop: isFullScreenRoute || isImmersiveDashboard ? '0px' : 'calc(var(--top-bar-height) + var(--safe-top))',

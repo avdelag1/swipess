@@ -19,24 +19,6 @@ const THEMES: { id: Theme; name: string; description: string; colors: string[] }
     description: 'Deep matte black for focus',
     colors: ['#000000', '#f97316'] 
   },
-  { 
-    id: 'cheers', 
-    name: 'Cheers', 
-    description: 'Warm golden safari energy',
-    colors: ['#180800', '#C8A96B'] 
-  },
-  { 
-    id: 'ivanna-style', 
-    name: 'Ivanna Style ✨', 
-    description: 'Artistic hand-painted luxury boutique vibe',
-    colors: ['#DDF4EF', '#C8A96B', '#F6D8C7'] 
-  },
-  { 
-    id: 'nexus-style', 
-    name: 'Zenith Liquid', 
-    description: 'AI-Native high efficiency interface',
-    colors: ['#000000', '#00E5FF', '#121212'] 
-  },
 ];
 
 export function GlobalThemeSettings() {
@@ -84,9 +66,6 @@ export function GlobalThemeSettings() {
                 <div className="text-left">
                   <div className="font-bold text-foreground text-sm flex items-center gap-2">
                     {theme.name}
-                    {theme.id === 'ivanna-style' && (
-                       <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full uppercase tracking-tighter">Premium</span>
-                    )}
                   </div>
                   <div className="text-xs text-muted-foreground">{theme.description}</div>
                 </div>
@@ -96,11 +75,6 @@ export function GlobalThemeSettings() {
                 <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center relative z-10">
                   <Check className="w-4 h-4 text-primary-foreground" />
                 </div>
-              )}
-              
-              {/* Background preview subtle effect */}
-              {theme.id === 'ivanna-style' && (
-                <div className="absolute inset-0 opacity-10 pointer-events-none ivanna-preview-noise mix-blend-overlay" />
               )}
             </button>
           ))}

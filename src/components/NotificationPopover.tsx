@@ -351,8 +351,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
         <DialogContent
           hideCloseButton
           className={cn(
-            "w-[min(calc(100vw-1rem),440px)] p-0 rounded-2xl",
-            theme === 'ivanna-style' ? "bg-sky-50/90 backdrop-blur-3xl border-sky-100/50" : "bg-background border border-border/60 shadow-2xl",
+            "w-[min(calc(100vw-1rem),440px)] p-0 rounded-2xl bg-background border border-border/60 shadow-2xl",
             "overflow-hidden gap-0",
             className
           )}
@@ -368,10 +367,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
             <DialogTitle className="sr-only">Notifications</DialogTitle>
 
             {/* Header */}
-            <div className={cn(
-              "px-4 pt-4 pb-3 border-b border-border/40 backdrop-blur-sm",
-              theme === 'ivanna-style' ? "bg-sky-100/30" : "bg-background/80"
-            )}>
+            <div className="px-4 pt-4 pb-3 border-b border-border/40 backdrop-blur-sm bg-background/80">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 rounded-xl bg-primary/10">
@@ -418,14 +414,8 @@ export function NotificationPopover({ className, children }: NotificationPopover
 
             {/* Tabs */}
             <Tabs value={activeFilter} onValueChange={setActiveFilter} className="w-full">
-              <div className={cn(
-                "px-2 py-2 border-b border-border/30",
-                theme === 'ivanna-style' ? "bg-sky-50/20" : ""
-              )}>
-                <TabsList className={cn(
-                  "flex w-full rounded-xl p-1 h-auto gap-0.5",
-                  theme === 'ivanna-style' ? "bg-sky-400/10" : "bg-muted/40"
-                )}>
+              <div className="px-2 py-2 border-b border-border/30">
+                <TabsList className="flex w-full rounded-xl p-1 h-auto gap-0.5 bg-muted/40">
                   <TabsTrigger
                     value="all"
                     className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-2 px-3 text-xs font-semibold transition-all"

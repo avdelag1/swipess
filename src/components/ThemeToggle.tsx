@@ -5,9 +5,9 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
 
-type Theme = 'light' | 'dark' | 'ivanna-style';
+type Theme = 'light' | 'dark';
 
-const CYCLE: Theme[] = ['light', 'dark', 'ivanna-style'];
+const CYCLE: Theme[] = ['light', 'dark'];
 
 interface ThemeToggleProps {
     className?: string;
@@ -28,8 +28,6 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
     const icon =
         theme === 'light' ? (
             <Sun strokeWidth={1.5} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
-        ) : theme === 'ivanna-style' ? (
-            <Sparkles strokeWidth={1.5} className="h-4 w-4 sm:h-5 sm:w-5 text-pink-400" />
         ) : (
             <Moon strokeWidth={1.5} className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
         );

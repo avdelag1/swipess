@@ -94,8 +94,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className={cn(
       "w-full min-h-screen flex flex-col relative selection:bg-brand-primary/30", 
-      theme === 'ivanna-style' ? "bg-transparent ivanna-style" : "bg-background",
-      theme === 'nexus-style' && "nexus-style"
+      theme === 'dark' ? "dark dark-matte bg-black" : "light white-matte bg-white"
     )}>
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />

@@ -244,10 +244,7 @@ export const BottomNavigation = memo(({
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className={cn(
-          "pointer-events-auto w-full max-w-[440px] mx-auto glass-pill-nav px-1.5 shadow-[0_30px_80px_rgba(0,0,0,0.5)]",
-          theme === 'ivanna-style' ? "" : ""
-        )}
+        className="pointer-events-auto w-full max-w-[440px] mx-auto glass-pill-nav px-1.5 shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
         style={{
           background: isLight ? 'rgba(255,255,255,0.75)' : 'rgba(10,10,12,0.65)',
           backdropFilter: 'blur(var(--glass-thick-blur)) saturate(180%) contrast(1.1)',

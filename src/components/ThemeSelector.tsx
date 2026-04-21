@@ -42,39 +42,6 @@ const themeOptions: ThemeOption[] = [
       secondary: '#f8f8f8',
       accent: '#3b82f6'
     }
-  },
-  {
-    id: 'ivanna-style',
-    name: 'Ivana Sky',
-    description: 'Painterly sunset sky',
-    icon: '🌅',
-    colors: {
-      primary: '#bbd4e8',
-      secondary: '#f3e8d8',
-      accent: '#6fa8dc'
-    }
-  },
-  {
-    id: 'cheers',
-    name: 'Cheers',
-    description: 'Animal print & gold',
-    icon: '🐆',
-    colors: {
-      primary: '#180800',
-      secondary: '#362111',
-      accent: '#d4af37'
-    }
-  },
-  {
-    id: 'nexus-style',
-    name: 'Nexus HUD',
-    description: 'Futuristic glass UI',
-    icon: '🛸',
-    colors: {
-      primary: '#000000',
-      secondary: '#111111',
-      accent: '#00d2ff'
-    }
   }
 ];
 

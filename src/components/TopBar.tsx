@@ -41,7 +41,6 @@ function TopBarComponent({
   const { user } = useAuth();
   const { theme, isLight } = useTheme();
 
-  const isIvanna = theme === 'ivanna-style';
   const isOwner = userRole === 'owner';
 
   const glassSurfaceStyle: React.CSSProperties = {
@@ -88,12 +87,12 @@ function TopBarComponent({
         <div className="flex-shrink-0 flex items-center pointer-events-none">
           {(!minimal || onBack) && (
             <div 
-              className={cn("flex items-center gap-1.5 pointer-events-auto px-1.5 py-1.5 shadow-2xl transition-all duration-300")} 
+              className="flex items-center gap-1.5 pointer-events-auto px-1.5 py-1.5 shadow-2xl transition-all duration-300"
               style={{
                 ...glassSurfaceStyle,
-                background: isIvanna ? 'rgba(255, 252, 240, 0.65)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(10,10,12,0.15)'),
+                background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(10,10,12,0.15)',
                 borderRadius: '2rem',
-                border: isIvanna ? '1px solid rgba(140, 180, 230, 0.4)' : '1px solid rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.15)',
               }}
             >
               {onBack && (
@@ -161,12 +160,12 @@ function TopBarComponent({
         <div className="flex-shrink-0 flex items-center pointer-events-none">
           {!minimal && (
             <div 
-              className={cn("flex items-center gap-1.5 pointer-events-auto px-1.5 py-1.5 shadow-2xl transition-all duration-300")} 
+              className="flex items-center gap-1.5 pointer-events-auto px-1.5 py-1.5 shadow-2xl transition-all duration-300"
               style={{
                 ...glassSurfaceStyle,
-                background: isIvanna ? 'rgba(255, 252, 240, 0.65)' : (isLight ? 'rgba(255,255,255,0.7)' : 'rgba(15,15,20,0.12)'),
+                background: isLight ? 'rgba(255,255,255,0.7)' : 'rgba(15,15,20,0.12)',
                 borderRadius: '2rem',
-                border: isIvanna ? '1px solid rgba(140, 180, 230, 0.4)' : '1px solid rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.15)',
               }}
             >
               <motion.button
@@ -180,7 +179,7 @@ function TopBarComponent({
                 className="w-10 h-10 flex items-center justify-center p-0"
               >
                 <Radio 
-                  className={cn("w-5 h-5", isIvanna ? "text-black" : (isLight ? "text-brand-primary" : "text-brand-primary"))} 
+                  className="w-5 h-5 text-brand-primary" 
                   strokeWidth={2.5} 
                 />
               </motion.button>
