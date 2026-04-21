@@ -12,6 +12,7 @@ import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { useSwipeWithMatch } from '@/hooks/useSwipeWithMatch';
 import { useCanAccessMessaging } from '@/hooks/useMessaging';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
@@ -83,6 +84,7 @@ const ClientSwipeContainerComponent = ({
   const { theme, isLight } = useTheme();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
+  const { data: userRole } = useUserRole(user?.id);
 
   // Dynamic labels based on category
   const getCategoryLabel = () => {
