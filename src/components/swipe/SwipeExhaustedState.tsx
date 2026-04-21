@@ -266,5 +266,4 @@ export const SwipeExhaustedState = ({
       </motion.div>
     </AnimatePresence>
   );
-}; );
 };
