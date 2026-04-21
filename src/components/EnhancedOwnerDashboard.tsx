@@ -178,7 +178,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex flex-col items-center justify-start min-h-[calc(100svh-160px)] w-full pt-[12svh] pb-[160px] overflow-hidden z-10"
+            className="relative flex flex-col items-center justify-center min-h-[calc(100svh-80px)] w-full overflow-hidden z-10"
             style={{ willChange: 'transform, opacity' }}
           >
             <OwnerAllDashboard onCardSelect={handleCardSelect} />

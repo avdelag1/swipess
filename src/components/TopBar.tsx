@@ -156,6 +156,9 @@ function TopBarComponent({
         {/* RIGHT CLUSTER: Actions (Unified Pill) */}
         <div className="flex-shrink-0 flex items-center pointer-events-none">
           {!minimal && (
+            <div 
+              className={cn("flex items-center gap-2 pointer-events-auto transition-all duration-300")} 
+            >
                <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={(e) => {
