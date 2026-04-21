@@ -72,3 +72,4 @@ export const PRIVACY_PROTOCOL: LegalProtocol = {
   ]
 };
 
+

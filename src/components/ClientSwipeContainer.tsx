@@ -1052,3 +1052,4 @@ export const ClientSwipeContainer = memo(ClientSwipeContainerComponent);
 // Also export default for backwards compatibility
 export default ClientSwipeContainer;
 
+

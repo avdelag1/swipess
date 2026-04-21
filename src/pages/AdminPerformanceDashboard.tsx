@@ -57,8 +57,8 @@ const AUDIT_ISSUES: AuditIssue[] = [
     category: 'image',
     severity: 'high',
     description:
-      'NEXUS DISCOVERY-logo.webp is 1536×1024 but displayed at 517×345 (–57 KiB). ' +
-      'NEXUS DISCOVERY-logo.png should be converted to modern formats (–34 KiB).',
+      'nexus-logo.webp is 1536×1024 but displayed at 517×345 (–57 KiB). ' +
+      'nexus-logo.png should be converted to modern formats (–34 KiB).',
   },
   {
     id: 'unused-js',
@@ -97,8 +97,8 @@ const AUDIT_ISSUES: AuditIssue[] = [
     category: 'network',
     severity: 'medium',
     description:
-      'NEXUS DISCOVERY-logo-video.mp4 (2,078 KiB), NEXUS DISCOVERY-brand-logo.webp (65 KiB), and ' +
-      'NEXUS DISCOVERY-logo.png (63 KiB) only have a 7-day cache TTL. Increase to ≥ 1 year.',
+      'nexus-logo-video.mp4 (2,078 KiB), nexus-brand-logo.webp (65 KiB), and ' +
+      'nexus-logo.png (63 KiB) only have a 7-day cache TTL. Increase to ≥ 1 year.',
   },
   {
     id: 'large-payloads',
@@ -107,7 +107,7 @@ const AUDIT_ISSUES: AuditIssue[] = [
     category: 'network',
     severity: 'medium',
     description:
-      'Total transfer: 2,769 KiB. NEXUS DISCOVERY-logo-video.mp4 alone is 2,078 KiB. ' +
+      'Total transfer: 2,769 KiB. nexus-logo-video.mp4 alone is 2,078 KiB. ' +
       'Compress the video or lazy-load it after interaction.',
   },
   {
@@ -526,4 +526,5 @@ export default function AdminPerformanceDashboard() {
     </div>
   );
 }
+
 

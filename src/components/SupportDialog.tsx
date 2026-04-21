@@ -290,3 +290,4 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
   );
 }
 
+

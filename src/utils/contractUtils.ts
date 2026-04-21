@@ -47,3 +47,4 @@ export const applyVariablesToContent = (content: string, values: Record<string, 
   return processed;
 };
 
+

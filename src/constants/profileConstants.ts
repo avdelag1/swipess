@@ -133,3 +133,4 @@ export const BUDGET_RANGES = [
     { value: '5000+', label: '$5K+', min: 5000, max: 50000 },
 ];
 
+

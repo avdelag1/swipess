@@ -8,3 +8,4 @@ export function AnimatedPage({ children }: { children: ReactNode }) {
   );
 }
 
+

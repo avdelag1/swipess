@@ -196,10 +196,10 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
   const isNexus = theme === 'nexus-style';
 
   const [hasAcceptedPrivacy, setHasAcceptedPrivacy] = useState(() => {
-    return localStorage.getItem('NEXUS DISCOVERY_ai_privacy') === 'true';
+    return localStorage.getItem('nexus_ai_privacy') === 'true';
   });
 
-  const LAST_ACTIVITY_KEY = 'NEXUS DISCOVERY_ai_last_activity';
+  const LAST_ACTIVITY_KEY = 'nexus_ai_last_activity';
 
   const {
     messages, conversations, activeConversationId, isLoading,
@@ -379,7 +379,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
 
           {!hasAcceptedPrivacy ? (
             <ConciergePrivacyPortal onAccept={() => {
-              localStorage.setItem('NEXUS DISCOVERY_ai_privacy', 'true');
+              localStorage.setItem('nexus_ai_privacy', 'true');
               setHasAcceptedPrivacy(true);
               triggerHaptic('success');
             }} isNexus={isNexus} />
@@ -529,4 +529,5 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
     </AnimatePresence>
   );
 }
+
 

@@ -298,3 +298,4 @@ export function VapIdCardModal({ isOpen, onClose }: VapIdProps) {
   );
 }
 
+

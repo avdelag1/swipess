@@ -25,7 +25,7 @@ interface ActiveModeContextType {
 const ActiveModeContext = createContext<ActiveModeContextType | undefined>(undefined);
 
 // Local storage key for persistent mode (survives page refresh)
-const MODE_STORAGE_KEY = 'NEXUS DISCOVERY_active_mode';
+const MODE_STORAGE_KEY = 'nexus_active_mode';
 const SWITCH_TIMEOUT_MS = 100; // Accelerated cooldown for 'Boom' feel
 
 
@@ -367,4 +367,5 @@ export function useActiveModeQuery(userId: string | undefined) {
     initialData: getCachedMode(userId) || 'client',
   });
 }
+
 

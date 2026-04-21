@@ -188,3 +188,4 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
   );
 };
 
+

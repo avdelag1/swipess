@@ -18,3 +18,4 @@ export interface EventItem {
   price_text: string | null;
 }
 
+

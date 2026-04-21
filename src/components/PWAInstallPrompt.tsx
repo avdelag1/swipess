@@ -10,8 +10,8 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-const DISMISSED_KEY = 'NEXUS DISCOVERY-pwa-install-dismissed';
-const DISMISSED_FOREVER_KEY = 'NEXUS DISCOVERY-pwa-install-dismissed-forever';
+const DISMISSED_KEY = 'nexus-pwa-install-dismissed';
+const DISMISSED_FOREVER_KEY = 'nexus-pwa-install-dismissed-forever';
 const SHOW_DELAY_MS = 5000; // Show after 5s of use for immediate accessibility
 
 function isIOS() {
@@ -185,4 +185,5 @@ export function PWAInstallPrompt() {
     </div>
   );
 }
+
 

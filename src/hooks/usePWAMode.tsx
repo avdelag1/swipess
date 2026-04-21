@@ -208,3 +208,4 @@ export function isPWAMode(): boolean {
 // Export constants for direct use
 export { BROWSER_OPTIMIZATIONS, PWA_OPTIMIZATIONS, IOS_PWA_OPTIMIZATIONS };
 
+

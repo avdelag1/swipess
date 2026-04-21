@@ -106,3 +106,4 @@ export const ClientCard = memo(({ client, onConnect, onViewProfile }: ClientCard
   );
 });
 
+

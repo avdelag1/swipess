@@ -274,3 +274,4 @@ export function ThemeSelector({ compact = false, showTitle = true }: ThemeSelect
     </Card>
   );
 }
+

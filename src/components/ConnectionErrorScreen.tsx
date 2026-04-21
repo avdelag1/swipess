@@ -91,11 +91,12 @@ export function ConnectionErrorScreen({ status, retryCount, onRetry }: Connectio
 
         {/* Branding watermark */}
         <div className={cn("flex items-center gap-2 pt-4", isLight ? "opacity-20" : "opacity-10")}>
-          <img src="/icons/NEXUS DISCOVERY-logo.png" alt="" className="w-5 h-5" draggable={false} />
+          <img src="/icons/nexus-logo.png" alt="" className="w-5 h-5" draggable={false} />
           <span className="text-[10px] font-black uppercase tracking-[0.3em]">NEXUS DISCOVERY</span>
         </div>
       </motion.div>
     </div>
   );
 }
+
 

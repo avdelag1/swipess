@@ -22,7 +22,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers', 'nexus-style'];
 const DEFAULT_THEME: Theme = 'dark';
-const STORAGE_KEY = 'NEXUS DISCOVERY_theme_preference';
+const STORAGE_KEY = 'nexus_theme_preference';
 
 /** Map legacy DB values to new theme names */
 function normalizeTheme(raw: string | null | undefined): Theme {
@@ -184,4 +184,5 @@ export function useTheme() {
   }
   return context;
 }
+
 

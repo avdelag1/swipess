@@ -104,3 +104,4 @@ export function onNetworkChange(callback: (profile: NetworkProfile) => void): ()
   return () => conn.removeEventListener?.('change', handler);
 }
 
+

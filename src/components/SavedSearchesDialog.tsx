@@ -591,3 +591,4 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
   );
 }
 
+

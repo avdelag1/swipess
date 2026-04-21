@@ -172,3 +172,4 @@ export function EventGroupChat({ eventId: _eventId, eventTitle, onClose }: Event
   );
 }
 
+

@@ -550,3 +550,4 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
 export default memo(LandingBackgroundEffects);
 
+

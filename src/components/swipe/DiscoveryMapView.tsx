@@ -579,3 +579,4 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
 });
 
 DiscoveryMapView.displayName = 'DiscoveryMapView';
+

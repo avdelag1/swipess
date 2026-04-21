@@ -42,3 +42,4 @@ export function isDirectMessagingListing(listing: { category?: string } | null |
  */
 export const DEFAULT_DIRECT_MESSAGE = "Hi! I'm interested in this listing and would like to know more.";
 
+

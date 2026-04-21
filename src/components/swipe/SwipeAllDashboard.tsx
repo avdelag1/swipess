@@ -108,3 +108,4 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
 
 export default SwipeAllDashboard;
 
+

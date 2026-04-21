@@ -156,3 +156,4 @@ export function getAllCategoryValues(): string[] {
   return SERVICE_CATEGORIES.map(c => c.value);
 }
 
+

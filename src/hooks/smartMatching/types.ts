@@ -108,3 +108,4 @@ export function hasMockImages(images: string[] | null | undefined): boolean {
     });
 }
 
+

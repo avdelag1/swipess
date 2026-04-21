@@ -123,3 +123,4 @@ function SwipeMatchMeterComponent({ percentage, reasons, compact = false }: Swip
 
 export const SwipeMatchMeter = memo(SwipeMatchMeterComponent);
 
+

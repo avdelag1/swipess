@@ -55,7 +55,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     isShuffle: false,
     favorites: [],
     deadStationIds: [], // Fresh start each session — no permanent blacklist
-    miniPlayerMode: (localStorage.getItem('NEXUS DISCOVERY_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
+    miniPlayerMode: (localStorage.getItem('nexus_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
   });
 
   const [loading, setLoading] = useState(true);
@@ -556,7 +556,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const setMiniPlayerMode = useCallback((mode: 'expanded' | 'minimized' | 'closed') => {
     setState(prev => ({ ...prev, miniPlayerMode: mode }));
-    localStorage.setItem('NEXUS DISCOVERY_radio_mini_player_mode', mode);
+    localStorage.setItem('nexus_radio_mini_player_mode', mode);
   }, []);
 
   const isStationFavorite = useCallback((stationId: string) => state.favorites.includes(stationId), [state.favorites]);
@@ -599,4 +599,5 @@ export function useRadio() {
   }
   return context;
 }
+
 

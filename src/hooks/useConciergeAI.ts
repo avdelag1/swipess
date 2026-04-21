@@ -23,9 +23,9 @@ export interface Conversation {
 
 export type AiCharacter = 'default' | 'kyle' | 'beaugosse' | 'donajkiin' | 'botbetter' | 'lunashanti' | 'ezriyah';
 
-const STORAGE_KEY = 'NEXUS DISCOVERY-ai-conversations';
-const CHARACTER_KEY = 'NEXUS DISCOVERY-ai-character';
-const EGO_KEY = 'NEXUS DISCOVERY-ai-ego';
+const STORAGE_KEY = 'nexus-ai-conversations';
+const CHARACTER_KEY = 'nexus-ai-character';
+const EGO_KEY = 'nexus-ai-ego';
 const MAX_CONVERSATIONS = 20;
 const MAX_MESSAGES = 50;
 
@@ -726,4 +726,5 @@ export function useConciergeAI() {
     isPremium,
   };
 }
+
 

@@ -114,3 +114,4 @@ export const AnimatedLottieIcon: React.FC<AnimatedLottieIconProps> = ({
   );
 };
 
+

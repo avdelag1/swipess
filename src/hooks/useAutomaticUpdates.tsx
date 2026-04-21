@@ -25,9 +25,9 @@ const BUILD_TIMESTAMP = import.meta.env.VITE_BUILD_TIME || 'v1.0.0';
 export const APP_VERSION = `1.0.${BUILD_TIMESTAMP === 'v1.0.0' ? '999' : BUILD_TIMESTAMP.slice(-8)}`;
 
 // Storage key for version tracking
-const VERSION_STORAGE_KEY = 'NEXUS DISCOVERY_app_version';
-const RELOAD_GUARD_KEY = 'NEXUS DISCOVERY_reload_triggered';
-const _SW_REGISTRATION_KEY = 'NEXUS DISCOVERY_sw_registration';
+const VERSION_STORAGE_KEY = 'nexus_app_version';
+const RELOAD_GUARD_KEY = 'nexus_reload_triggered';
+const _SW_REGISTRATION_KEY = 'nexus_sw_registration';
 
 interface UpdateInfo {
   available: boolean;
@@ -166,7 +166,7 @@ export function useAutomaticUpdates() {
 
     setIsUpdating(true);
     // Mark as seen in session immediately
-    sessionStorage.setItem('NEXUS DISCOVERY_update_seen', 'true');
+    sessionStorage.setItem('nexus_update_seen', 'true');
     sessionStorage.setItem(RELOAD_GUARD_KEY, (reloadCount + 1).toString());
 
     try {
@@ -221,7 +221,7 @@ export function useAutomaticUpdates() {
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                if (sessionStorage.getItem('NEXUS DISCOVERY_update_seen') !== 'true') {
+                if (sessionStorage.getItem('nexus_update_seen') !== 'true') {
                   performUpdate();
                 }
               }
@@ -254,7 +254,7 @@ export function UpdateNotification() {
   const handleUpdateClick = useCallback(async () => {
     // Immediate local dismissal and session suppression
     setDismissed(true);
-    sessionStorage.setItem('NEXUS DISCOVERY_update_seen', 'true');
+    sessionStorage.setItem('nexus_update_seen', 'true');
     await performUpdate();
   }, [performUpdate]);
 
@@ -461,4 +461,5 @@ export default {
   UpdateNotification,
   VersionInfo,
 };
+
 

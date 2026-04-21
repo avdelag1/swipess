@@ -54,7 +54,7 @@ export function ResidentQRModal({ isOpen, onClose }: ResidentQRModalProps) {
     return () => { supabase.removeChannel(channel); };
   }, [isOpen, user?.id]);
 
-  const qrValue = user?.id ? `NEXUS DISCOVERY-resident:${user.id}:${qrKey}` : '';
+  const qrValue = user?.id ? `nexus-resident:${user.id}:${qrKey}` : '';
 
   if (!isOpen) return null;
 
@@ -147,4 +147,5 @@ export function ResidentQRModal({ isOpen, onClose }: ResidentQRModalProps) {
     </AnimatePresence>
   );
 }
+
 

@@ -937,7 +937,7 @@ const NexusSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights:
       }
     } catch (err) {
       if (import.meta.env.DEV) {
-        logger.error('[NEXUS DISCOVERYSwipe] Error starting conversation:', err);
+        logger.error('[NexusDiscoverySwipe] Error starting conversation:', err);
       }
       appToast.error('Error', err instanceof Error ? err.message : 'Could not start conversation');
     } finally {
@@ -1256,4 +1256,5 @@ const NexusSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights:
 };
 
 export const NexusSwipeContainer = memo(NexusSwipeContainerComponent);
+
 

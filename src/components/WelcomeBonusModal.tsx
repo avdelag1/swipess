@@ -28,7 +28,7 @@ export const WelcomeBonusModal = () => {
     }
 
     // Check if we've already shown this to this user
-    const hasSeen = localStorage.getItem(`NEXUS DISCOVERY_welcome_bonus_${user.id}`);
+    const hasSeen = localStorage.getItem(`nexus_welcome_bonus_${user.id}`);
     
     if (!hasSeen) {
       // Small delay for better UX
@@ -43,7 +43,7 @@ export const WelcomeBonusModal = () => {
   const handleClose = () => {
     setIsOpen(false);
     if (user) {
-      localStorage.setItem(`NEXUS DISCOVERY_welcome_bonus_${user.id}`, 'true');
+      localStorage.setItem(`nexus_welcome_bonus_${user.id}`, 'true');
     }
     triggerHaptic('light');
   };
@@ -145,4 +145,5 @@ export const WelcomeBonusModal = () => {
   );
 };
 export default WelcomeBonusModal;
+
 

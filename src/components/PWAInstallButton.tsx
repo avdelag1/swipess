@@ -55,7 +55,7 @@ export function PWAInstallButton({ className }: { className?: string }) {
 
               <div className="flex flex-col items-center text-center gap-4">
                 <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-2xl mb-2">
-                  <img src="/icons/NEXUS DISCOVERY-logo.png" alt="NEXUS DISCOVERY" className="w-full h-full object-cover" />
+                  <img src="/icons/nexus-logo.png" alt="NEXUS DISCOVERY" className="w-full h-full object-cover" />
                 </div>
                 
                 <h3 className="text-xl font-black tracking-tight">Install NEXUS DISCOVERY</h3>
@@ -91,4 +91,5 @@ export function PWAInstallButton({ className }: { className?: string }) {
     </>
   );
 }
+
 

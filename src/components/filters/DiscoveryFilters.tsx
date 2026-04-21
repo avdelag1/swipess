@@ -443,3 +443,4 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
   );
 }
 
+

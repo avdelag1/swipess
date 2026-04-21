@@ -172,3 +172,4 @@ export const shimmerVariants: Variants = {
 export const staggerDelay = (index: number, baseDelay: number = 0.05): number => {
   return index * baseDelay;
 };
+

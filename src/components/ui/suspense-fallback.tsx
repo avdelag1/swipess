@@ -57,3 +57,4 @@ export function SuspenseFallback({ className, minimal = false }: SuspenseFallbac
 
 export default SuspenseFallback;
 
+

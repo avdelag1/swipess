@@ -315,3 +315,4 @@ function PropertyImageGalleryComponent({
 // Memoize to prevent unnecessary re-renders
 export const PropertyImageGallery = memo(PropertyImageGalleryComponent);
 
+

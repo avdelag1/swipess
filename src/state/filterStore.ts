@@ -382,7 +382,7 @@ export const useFilterStore = create<FilterState>()(
       },
     })),
     {
-      name: 'NEXUS DISCOVERY-filter-storage', // name of the item in the storage (must be unique)
+      name: 'nexus-filter-storage', // name of the item in the storage (must be unique)
       partialize: (state) => ({ 
         categories: state.categories, 
         activeCategory: state.activeCategory, 
@@ -425,4 +425,5 @@ export const useFilterActions = () => useFilterStore(useShallow((state) => ({
   resetOwnerFilters: state.resetOwnerFilters,
   resetAllFilters: state.resetAllFilters,
 })));
+
 

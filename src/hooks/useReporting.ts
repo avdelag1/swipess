@@ -163,3 +163,4 @@ export const REPORT_TYPE_DESCRIPTIONS: Record<ReportType, string> = {
   other: 'Issue not listed above',
 };
 
+

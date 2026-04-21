@@ -663,3 +663,4 @@ function LegendaryLandingPage() {
 
 export default memo(LegendaryLandingPage);
 
+
