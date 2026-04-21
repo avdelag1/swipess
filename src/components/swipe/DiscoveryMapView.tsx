@@ -426,13 +426,12 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         animate={{ opacity: 1 }}
         onClick={() => { triggerHaptic('light'); onBack(); }}
         className={cn(
-          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[10001] flex items-center gap-1.5 px-4 py-2.5 rounded-2xl",
+          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[10001] flex items-center justify-center w-10 h-10 rounded-full",
           "transition-transform active:scale-95",
-          "bg-white/95 backdrop-blur-[50px] saturate-[210%] border-none text-black shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
+          "bg-[var(--hud-bg)] backdrop-blur-[32px] saturate-[210%] border border-[var(--hud-border)] text-[var(--hud-text)] shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
         )}
       >
-        <ChevronLeft className="w-6 h-6 text-black" strokeWidth={3} />
-        <span className="text-[12px] font-black uppercase tracking-[0.2em] text-black">Back</span>
+        <ChevronLeft className="w-5 h-5" strokeWidth={3} style={{ color: 'var(--hud-text)' }} />
       </motion.button>
 
       <motion.div
@@ -442,19 +441,19 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
       >
         <div
           className={cn(
-            "px-6 py-2.5 rounded-2xl flex items-center gap-3",
-            "bg-white/95 backdrop-blur-[50px] saturate-[210%] shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
+            "px-6 h-10 rounded-full flex items-center gap-3",
+            "bg-[var(--hud-bg)] backdrop-blur-[32px] saturate-[210%] border border-[var(--hud-border)] shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
           )}
         >
           <div
-            className="w-3 h-3 rounded-full animate-pulse"
+            className="w-2.5 h-2.5 rounded-full animate-pulse"
             style={{ background: meta.accent, boxShadow: `0 0 12px ${meta.accent}` }}
           />
-          <span className="text-[12px] font-black uppercase tracking-[0.25em] text-black">
+          <span className="text-[11px] font-black uppercase tracking-[0.25em]" style={{ color: 'var(--hud-text)' }}>
             {meta.label}
           </span>
-          <div className="w-[1px] h-3 bg-black/10 mx-1" />
-          <span className="text-[11px] font-bold text-black/40">
+          <div className="w-[1px] h-3 bg-current opacity-10 mx-1" />
+          <span className="text-[11px] font-bold opacity-40 whitespace-nowrap" style={{ color: 'var(--hud-text)' }}>
             {dotCount} Nearby
           </span>
         </div>
@@ -466,11 +465,11 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         onClick={() => { detectLocation(); }}
         disabled={detecting}
         className={cn(
-          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all",
-          "bg-white/95 backdrop-blur-[50px] saturate-[210%] text-black shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
+          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] right-4 z-[10001] w-10 h-10 rounded-full flex items-center justify-center active:scale-90 transition-all",
+          "bg-[var(--hud-bg)] backdrop-blur-[32px] saturate-[210%] border border-[var(--hud-border)] text-[var(--hud-text)] shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
         )}
       >
-        <Navigation className={cn("w-6 h-6 text-black", detecting && "animate-spin")} style={detected ? { color: meta.accent } : {}} strokeWidth={2.5} />
+        <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} style={detected ? { color: meta.accent } : { color: 'var(--hud-text)' }} strokeWidth={2.5} />
       </motion.button>
 
       <div
@@ -491,18 +490,18 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className={cn(
           "relative z-[10001] px-5 pt-6 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] flex flex-col gap-6",
-          "bg-white/95 backdrop-blur-[50px] border-t border-white"
+          "bg-[var(--hud-bg)] backdrop-blur-[32px] border-t border-[var(--hud-border)] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]"
         )}
       >
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/50">
-            Distance
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 whitespace-nowrap" style={{ color: 'var(--hud-text)' }}>
+            Search Radius
           </span>
           <div className="flex items-center gap-1">
             <span className="text-2xl font-black tabular-nums" style={{ color: meta.accent }}>
               {localKm}
             </span>
-            <span className={cn("text-xs font-bold mt-1 text-black/40")}>km</span>
+            <span className={cn("text-xs font-bold mt-1 opacity-40")} style={{ color: 'var(--hud-text)' }}>km</span>
           </div>
         </div>
 

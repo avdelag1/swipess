@@ -37,9 +37,9 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
             onPointerDown={(e) => e.stopPropagation()}
             onClick={handleToggle}
             className={cn(
-                'relative flex items-center justify-center rounded-xl',
+                'relative flex items-center justify-center rounded-full',
                 'transition-all duration-100 ease-out active:scale-[0.9]',
-                'touch-manipulation h-12 w-12 flex-shrink-0',
+                'touch-manipulation h-10 w-10 flex-shrink-0',
                 className,
             )}
             style={{ backgroundColor: 'transparent', border: 'none', boxShadow: 'none' }}

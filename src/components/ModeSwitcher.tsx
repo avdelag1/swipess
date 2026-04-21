@@ -42,24 +42,24 @@ function ModeSwitcherComponent({ className, size = 'sm' }: ModeSwitcherProps) {
         onClick={() => handleModeSwitch('client')}
         disabled={!canSwitchMode || isSwitching}
         className={cn(
-          "transition-all duration-300 relative",
+          "transition-all duration-300 relative rounded-full active:bg-[var(--hud-active-bg)] p-1",
           isClient ? "opacity-100 scale-110" : "opacity-30 hover:opacity-100"
         )}
       >
-        <User className={cn("h-5 w-5", isClient ? "text-[#f43f5e]" : "text-black")} strokeWidth={isClient ? 3 : 2} />
+        <User className={cn("h-4 w-4", isClient ? "text-[#f43f5e]" : "text-[var(--hud-text)]")} strokeWidth={isClient ? 3 : 2} />
       </button>
 
-      <div className="w-[1px] h-4 bg-black/10" />
+      <div className="w-[1px] h-3 bg-[var(--hud-text)]/10" />
 
       <button
         onClick={() => handleModeSwitch('owner')}
         disabled={!canSwitchMode || isSwitching}
         className={cn(
-          "transition-all duration-300 relative",
+          "transition-all duration-300 relative rounded-full active:bg-[var(--hud-active-bg)] p-1",
           !isClient ? "opacity-100 scale-110" : "opacity-30 hover:opacity-100"
         )}
       >
-        <UserCheck className={cn("h-5 w-5", !isClient ? "text-[#f97316]" : "text-black")} strokeWidth={!isClient ? 3 : 2} />
+        <UserCheck className={cn("h-4 w-4", !isClient ? "text-[#f97316]" : "text-[var(--hud-text)]")} strokeWidth={!isClient ? 3 : 2} />
       </button>
     </div>
   );

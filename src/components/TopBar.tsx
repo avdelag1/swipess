@@ -51,16 +51,17 @@ function TopBarComponent({
   // HUD Master Back Logic: Combine prop onBack with Map Back
   const onBack = propOnBack || (activeCategory ? () => setActiveCategory(null) : undefined);
 
-  // 💎 THE "WHITE FILTER" HUD STYLE 
-  // Enforces a premium, high-opacity frosted glass look as requested.
+  // 💎 THE "MATTE FILTER" HUD STYLE 
+  // Enforces a premium, high-opacity frosted glass look that adapts to themes.
   const glassPillStyle: React.CSSProperties = {
-    background: 'rgba(255, 255, 255, 0.95)',
-    backdropFilter: 'blur(40px) saturate(210%) brightness(1.05)',
-    WebkitBackdropFilter: 'blur(40px) saturate(210%) brightness(1.05)',
-    borderRadius: '1.25rem',
-    border: '1px solid rgba(255, 255, 255, 1)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 1)',
+    background: 'var(--hud-bg)',
+    backdropFilter: 'blur(32px) saturate(210%)',
+    WebkitBackdropFilter: 'blur(32px) saturate(210%)',
+    borderRadius: '3rem',
+    border: '1px solid var(--hud-border)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
     pointerEvents: 'auto',
+    color: 'var(--hud-text)',
   };
 
   const { data: profile } = useQuery({
@@ -82,7 +83,7 @@ function TopBarComponent({
     <header 
       className={cn(
         "absolute top-0 left-0 right-0 z-[10005] transition-all duration-700 pointer-events-none",
-        _transparent ? "h-24" : "h-20",
+        _transparent ? "h-20" : "h-16",
         className
       )}
       style={{
@@ -98,10 +99,10 @@ function TopBarComponent({
             <motion.button
               whileTap={{ scale: 0.9 }}
               onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); onBack(); }}
-              className="w-12 h-12 flex items-center justify-center"
+              className="w-10 h-10 flex items-center justify-center rounded-full"
               style={glassPillStyle}
             >
-              <ChevronLeft className="w-7 h-7 text-black" />
+              <ChevronLeft className="w-5 h-5" style={{ color: 'var(--hud-text)' }} />
             </motion.button>
           ) : (
             user && (
@@ -112,14 +113,14 @@ function TopBarComponent({
                   haptics.tap();
                   navigate(isOwner ? '/owner/profile' : '/client/profile');
                 }}
-                className="flex items-center gap-2.5 px-3 py-1.5"
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-full"
                 style={glassPillStyle}
               >
-                <div className="w-8 h-8 rounded-lg overflow-hidden bg-black flex items-center justify-center shrink-0 shadow-md">
-                   <span className="text-orange-500 font-black text-lg italic">S</span>
+                <div className="w-7 h-7 rounded-full overflow-hidden bg-black flex items-center justify-center shrink-0 shadow-sm border border-white/10">
+                   <span className="text-orange-500 font-black text-sm italic">S</span>
                 </div>
                 {profile?.full_name && (
-                  <span className="text-[12px] font-black uppercase tracking-widest text-black mr-1">
+                  <span className="text-[11px] font-black uppercase tracking-widest mr-1" style={{ color: 'var(--hud-text)' }}>
                     {profile.full_name.split(' ')[0]}
                   </span>
                 )}
@@ -129,7 +130,7 @@ function TopBarComponent({
 
           {/* Mode Switcher Pill */}
           {!minimal && (
-            <div className="h-11 flex items-center px-4" style={glassPillStyle}>
+            <div className="h-10 flex items-center px-4 rounded-full" style={glassPillStyle}>
               <ModeSwitcher variant="icon" size="sm" />
             </div>
           )}
@@ -138,7 +139,7 @@ function TopBarComponent({
         <div className="flex-1" />
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {!minimal && (
             <>
                <motion.button
@@ -148,21 +149,21 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/radio');
                 }}
-                className="w-12 h-12 flex items-center justify-center p-0"
+                className="w-10 h-10 flex items-center justify-center p-0 rounded-full"
                 style={glassPillStyle}
                 title="Radio"
               >
                 <Radio 
-                  className="w-6 h-6 text-orange-500" 
+                  className="w-5 h-5 text-orange-500" 
                   strokeWidth={2.5} 
                 />
               </motion.button>
 
-              <div className="w-12 h-12 flex items-center justify-center" style={glassPillStyle}>
+              <div className="w-10 h-10 flex items-center justify-center rounded-full" style={glassPillStyle}>
                 <ThemeToggle />
               </div>
               
-              <div className="w-12 h-12 flex items-center justify-center" style={glassPillStyle}>
+              <div className="w-10 h-10 flex items-center justify-center rounded-full" style={glassPillStyle}>
                 <NotificationPopover />
               </div>
             </>

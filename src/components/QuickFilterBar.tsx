@@ -82,7 +82,8 @@ const smoothButtonClass = cn(
   'active:scale-[0.96]',
   'hover:brightness-110',
   'touch-manipulation',
-  '-webkit-tap-highlight-color-transparent'
+  'outline-none focus:outline-none',
+  '[-webkit-tap-highlight-color:transparent]'
 );
 
 // Dropdown component for compact filters - instant response, no delays
