@@ -181,8 +181,8 @@ const ClientProfile = () => {
            onClick={() => { triggerHaptic('light'); setIsVapModalOpen(true); }}
         >
           <div className={cn(
-             "backdrop-blur-3xl rounded-[2.7rem] p-7 flex items-center gap-6 border",
-             isLight ? "bg-white border-white/5" : "bg-[#0d0d0f]/95 border-white/5"
+             "rounded-[2.7rem] p-7 flex items-center gap-6 border",
+             isLight ? "bg-white border-black/10" : "bg-[#0a0a0a] border-white/12"
           )}>
             <div className="w-16 h-16 rounded-2xl bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20">
               <ShieldCheck className="w-8 h-8 text-[#EB4898]" />

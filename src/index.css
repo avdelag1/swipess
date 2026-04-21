@@ -26,6 +26,11 @@ html, body, #root {
   background-color: #000000;
 }
 
+/* Cheers theme: wrap body in cheetah-warm background */
+.cheers #root, .cheers body {
+  background-color: hsl(22 90% 6%);
+}
+
 html::-webkit-scrollbar, 
 body::-webkit-scrollbar {
   display: none;
