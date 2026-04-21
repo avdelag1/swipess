@@ -420,7 +420,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
   const sliderRatio = (localKm - MIN_KM) / (MAX_KM - MIN_KM);
 
   return (
-    <div className="relative flex-1 flex flex-col overflow-hidden bg-background">
+    <div className="relative flex-1 flex flex-col overflow-hidden bg-white">
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -428,10 +428,10 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         className={cn(
           "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[10001] flex items-center gap-1.5 px-4 py-2.5 rounded-2xl",
           "transition-transform active:scale-95",
-          "bg-white/95 backdrop-blur-[50px] saturate-[210%] border-none text-black/90 shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
+          "bg-white/95 backdrop-blur-[50px] saturate-[210%] border-none text-black shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
         )}
       >
-        <ChevronLeft className="w-5 h-5 text-black" />
+        <ChevronLeft className="w-6 h-6 text-black" strokeWidth={3} />
         <span className="text-[12px] font-black uppercase tracking-[0.2em] text-black">Back</span>
       </motion.button>
 
@@ -442,19 +442,20 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
       >
         <div
           className={cn(
-            "px-6 py-2.5 rounded-2xl flex items-center gap-2.5",
+            "px-6 py-2.5 rounded-2xl flex items-center gap-3",
             "bg-white/95 backdrop-blur-[50px] saturate-[210%] shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
           )}
         >
           <div
-            className="w-2.5 h-2.5 rounded-full animate-pulse"
-            style={{ background: meta.accent }}
+            className="w-3 h-3 rounded-full animate-pulse"
+            style={{ background: meta.accent, boxShadow: `0 0 12px ${meta.accent}` }}
           />
-          <span className="text-[12px] font-black uppercase tracking-[0.25em]" style={{ color: meta.accent }}>
+          <span className="text-[12px] font-black uppercase tracking-[0.25em] text-black">
             {meta.label}
           </span>
-          <span className="text-[11px] font-bold text-black/50">
-            {dotCount} nearby
+          <div className="w-[1px] h-3 bg-black/10 mx-1" />
+          <span className="text-[11px] font-bold text-black/40">
+            {dotCount} Nearby
           </span>
         </div>
       </motion.div>
@@ -469,7 +470,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           "bg-white/95 backdrop-blur-[50px] saturate-[210%] text-black shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
         )}
       >
-        <Navigation className={cn("w-5 h-5 text-black", detecting && "animate-spin")} style={detected ? { color: meta.accent } : {}} />
+        <Navigation className={cn("w-6 h-6 text-black", detecting && "animate-spin")} style={detected ? { color: meta.accent } : {}} strokeWidth={2.5} />
       </motion.button>
 
       <div

@@ -105,7 +105,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </Suspense>
   
       {!isAuthRoute && !isFullScreen && (!isPublicPreview || !!user) && (
-        <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[9999]">
+        <SentientHud side="top" className="fixed top-0 left-0 right-0 z-[10005]">
           <TopBar
             userRole={userRole}
             onMessageActivationsClick={handleMessageActivationsClick}

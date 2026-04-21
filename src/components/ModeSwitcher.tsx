@@ -15,107 +15,52 @@ interface ModeSwitcherProps {
   variant?: 'toggle' | 'pill' | 'icon';
 }
 
-function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: ModeSwitcherProps) {
+function ModeSwitcherComponent({ className, size = 'sm' }: ModeSwitcherProps) {
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 
   const handleModeSwitch = useCallback(async (newMode: ActiveMode) => {
     if (isSwitching || newMode === activeMode || !canSwitchMode) return;
     
-    // Immediate physical feedback
     triggerHaptic('medium');
     uiSounds.playSwitch();
     
-    // Reset filters for the side you are leaving so they never bleed across
     if (newMode === 'owner') resetClientFilters();
     else resetOwnerFilters();
     
     await switchMode(newMode);
   }, [isSwitching, activeMode, canSwitchMode, switchMode, resetClientFilters, resetOwnerFilters]);
 
-  const handleToggle = useCallback((event: React.MouseEvent | React.PointerEvent) => {
-    event.stopPropagation();
-    event.preventDefault();
-
-    const newMode = activeMode === 'client' ? 'owner' : 'client';
-    handleModeSwitch(newMode);
-  }, [activeMode, handleModeSwitch]);
-
-  const onPointerDown = useCallback(() => {
-    // Prefetch destination on first touch/hover for speed of light navigation
-    const targetMode = activeMode === 'client' ? 'owner' : 'client';
-    prefetchRoute(targetMode === 'owner' ? '/owner/dashboard' : '/client/dashboard');
-  }, [activeMode]);
-
-  // ── UNIFIED DESIGN SYSTEM ──
   const isClient = activeMode === 'client';
-  const btnH = size === 'sm' ? 32 : size === 'md' ? 36 : 40;
-  const iconW = Math.round(btnH * 1.15); // Perfectly wide enough for the icons
-
-  const pillBg = 'transparent';
-  const pillBorder = 'none';
-  
-  const clientColor = isClient ? '#f43f5e' : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.45)');
-  const ownerColor = !isClient ? '#f97316' : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.45)');
 
   return (
     <div 
-      className={cn(
-        'relative flex items-center rounded-full p-1 transition-all duration-500',
-        className
-      )}
-      style={{ 
-        height: btnH, 
-        minWidth: iconW * 2.8 + 8,
-        background: 'var(--nav-bg)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        border: '1px solid var(--nav-border)'
-      }}
+      className={cn('flex items-center gap-4', className)}
     >
       <button
         onClick={() => handleModeSwitch('client')}
         disabled={!canSwitchMode || isSwitching}
         className={cn(
-          "flex-[1.2] h-full flex items-center justify-center gap-2 rounded-full transition-all duration-300 relative z-10 px-2",
-          activeMode === 'client' 
-            ? (isLight ? "bg-black/5" : "bg-white/10") 
-            : "opacity-40 hover:opacity-100"
+          "transition-all duration-300 relative",
+          isClient ? "opacity-100 scale-110" : "opacity-30 hover:opacity-100"
         )}
       >
-        <User className="h-[14px] w-[14px]" style={{ color: '#f43f5e' }} />
-        <span className="text-[9px] font-black uppercase italic tracking-tighter text-black">Explore</span>
+        <User className={cn("h-5 w-5", isClient ? "text-[#f43f5e]" : "text-black")} strokeWidth={isClient ? 3 : 2} />
       </button>
+
+      <div className="w-[1px] h-4 bg-black/10" />
 
       <button
         onClick={() => handleModeSwitch('owner')}
         disabled={!canSwitchMode || isSwitching}
         className={cn(
-          "flex-1 h-full flex items-center justify-center gap-2 rounded-full transition-all duration-300 relative z-10 px-2",
-          activeMode === 'owner' 
-            ? (isLight ? "bg-black/5" : "bg-white/10") 
-            : "opacity-40 hover:opacity-100"
+          "transition-all duration-300 relative",
+          !isClient ? "opacity-100 scale-110" : "opacity-30 hover:opacity-100"
         )}
       >
-        <UserCheck className="h-[14px] w-[14px]" style={{ color: '#f97316' }} />
-        <span className="text-[9px] font-black uppercase italic tracking-tighter text-black">Manage</span>
+        <UserCheck className={cn("h-5 w-5", !isClient ? "text-[#f97316]" : "text-black")} strokeWidth={!isClient ? 3 : 2} />
       </button>
-      
-      <motion.div
-        className={cn(
-          "absolute h-[calc(100%-8px)] rounded-full pointer-events-none",
-          "bg-black/5 border-black/5"
-        )}
-        initial={false}
-        animate={{ 
-          left: activeMode === 'client' ? '4px' : '55%',
-          width: activeMode === 'client' ? '50%' : '41%'
-        }}
-        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      />
     </div>
   );
 }
