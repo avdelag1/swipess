@@ -413,8 +413,8 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[10001] flex items-center gap-1.5 px-4 py-2.5 rounded-2xl",
           "transition-transform active:scale-95",
           isLight
-            ? "bg-white/75 backdrop-blur-[40px] saturate-[180%] border-none text-black/80 shadow-[0_10px_40px_rgba(0,0,0,0.06),inset_0_0_0_1.5px_rgba(255,255,255,0.8)]"
-            : "bg-black/65 backdrop-blur-[40px] saturate-[180%] border-none text-white/95 shadow-[0_20px_60px_rgba(0,0,0,0.5),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
+            ? "bg-white/90 backdrop-blur-[50px] saturate-[210%] border-none text-black/90 shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
+            : "bg-black/85 backdrop-blur-[50px] saturate-[210%] border-none text-white/95 shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
         )}
       >
         <ChevronLeft className="w-5 h-5" />
@@ -430,8 +430,8 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           className={cn(
             "px-6 py-2.5 rounded-2xl flex items-center gap-2.5",
             isLight
-              ? "bg-white/75 backdrop-blur-[40px] saturate-[180%] shadow-[0_10px_40px_rgba(0,0,0,0.06),inset_0_0_0_1.5px_rgba(255,255,255,0.8)]"
-              : "bg-black/65 backdrop-blur-[40px] saturate-[180%] shadow-[0_20px_60px_rgba(0,0,0,0.5),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
+              ? "bg-white/90 backdrop-blur-[50px] saturate-[210%] shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
+              : "bg-black/85 backdrop-blur-[50px] saturate-[210%] shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
           )}
         >
           <div
@@ -455,8 +455,8 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         className={cn(
           "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all",
           isLight
-            ? "bg-white/75 backdrop-blur-[40px] saturate-[180%] text-black/80 shadow-[0_10px_40px_rgba(0,0,0,0.06),inset_0_0_0_1.5px_rgba(255,255,255,0.8)]"
-            : "bg-black/65 backdrop-blur-[40px] saturate-[180%] text-white/95 shadow-[0_20px_60px_rgba(0,0,0,0.5),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
+            ? "bg-white/90 backdrop-blur-[50px] saturate-[210%] text-black/90 shadow-[0_10px_40px_rgba(0,0,0,0.12),inset_0_0_0_1.5px_rgba(255,255,255,1)]"
+            : "bg-black/85 backdrop-blur-[50px] saturate-[210%] text-white/95 shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
         )}
       >
         <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} style={detected ? { color: meta.accent } : {}} />
@@ -481,8 +481,8 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         className={cn(
           "relative z-[10001] px-5 pt-6 pb-[calc(2rem+env(safe-area-inset-bottom,0px))] flex flex-col gap-6",
           isLight
-            ? "bg-white/95"
-            : "bg-black/95 backdrop-blur-3xl"
+            ? "bg-white/95 border-t border-white"
+            : "bg-black/85 backdrop-blur-3xl border-t border-white/10"
         )}
       >
         <div className="flex items-center justify-between">

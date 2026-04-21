@@ -133,13 +133,16 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
         {showMap && selectedCategory && (
           <motion.div
             key={`map-${selectedCategory}`}
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.04 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[1000] flex flex-col overflow-hidden bg-black/95"
+            initial={{ y: '100%', opacity: 0.5 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-0 z-[1000] flex flex-col overflow-hidden bg-black/40 backdrop-blur-xl rounded-t-[3rem] shadow-[0_-20px_60px_rgba(0,0,0,0.5)]"
             style={{ willChange: 'transform, opacity' }}
           >
+            {/* Apple Style Grabber */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-white/20 rounded-full z-[10002]" />
+            
             <Suspense fallback={<div className="flex-1 bg-black/10 animate-pulse" />}>
               <DiscoveryMapView 
                 category={selectedCategory} 
