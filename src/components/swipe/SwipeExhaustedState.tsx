@@ -9,7 +9,7 @@ import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { deckFadeVariants } from '@/visual/springConfigs';
+import { deckFadeVariants } from '@/utils/modernAnimations';
 
 interface SwipeExhaustedStateProps {
   categoryLabel: string;
