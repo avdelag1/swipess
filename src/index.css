@@ -389,6 +389,17 @@ button:active, [role="button"]:active {
     --nav-border: rgba(0, 0, 0, 0.04);
   }
 
+  /* THEME: SWIPESS STYLE (Classic Branding) */
+  .Swipess-style {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 5%;
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-border: rgba(0, 0, 0, 0.05);
+    --text-primary: 0 0% 100%;
+    --btn-primary-bg: #FF4D00;
+  }
+
   /* THEME 4: RED MATTE (Bold Mexican spirit) */
   .red-matte {
     /* Background colors - Deep red-black palette */

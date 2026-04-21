@@ -87,10 +87,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         )}
       >
         <User className="h-[14px] w-[14px]" style={{ color: '#f43f5e' }} />
-        <span className={cn(
-          "text-[9px] font-black uppercase italic tracking-tighter",
-          isLight ? "text-black" : "text-white"
-        )}>Explore</span>
+        <span className="text-[9px] font-black uppercase italic tracking-tighter text-black">Explore</span>
       </button>
 
       <button
@@ -104,16 +101,13 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         )}
       >
         <UserCheck className="h-[14px] w-[14px]" style={{ color: '#f97316' }} />
-        <span className={cn(
-          "text-[9px] font-black uppercase italic tracking-tighter",
-          isLight ? "text-black" : "text-white"
-        )}>Manage</span>
+        <span className="text-[9px] font-black uppercase italic tracking-tighter text-black">Manage</span>
       </button>
       
       <motion.div
         className={cn(
           "absolute h-[calc(100%-8px)] rounded-full pointer-events-none",
-          isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/5"
+          "bg-black/5 border-black/5"
         )}
         initial={false}
         animate={{ 

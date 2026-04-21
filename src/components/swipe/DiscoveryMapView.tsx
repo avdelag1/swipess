@@ -339,6 +339,16 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
     ctx.fillRect(0, 0, w, h);
     drawDotsAndOverlay();
 
+    // Draw simple grid fallback before tiles
+    ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    for(let x=0; x<w; x+=50) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for(let y=0; y<h; y+=50) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
     const tilesX = Math.ceil(w / 256) + 2;
     const tilesY = Math.ceil(h / 256) + 2;
     const startDx = -Math.ceil(tilesX / 2);
@@ -357,10 +367,16 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           loaded++;
           if (loaded >= total) drawDotsAndOverlay();
         };
-        img.onerror = () => { loaded++; };
+        img.onerror = (e) => { 
+          console.error('[DiscoveryMap] Tile load error:', e);
+          loaded++; 
+          if (loaded >= total) drawDotsAndOverlay();
+        };
         img.src = tileUrl(centerTileX + dx, centerTileY + dy, zoom);
       }
     }
+    // Final dots draw even if tiles fail
+    drawDotsAndOverlay();
   }, [effectiveCenter, zoom, radiusPx, isLight, mapSize, dots, localKm, baseLat, baseLng, meta]);
 
   // ÔöÇÔöÇÔöÇ Slider drag logic ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ

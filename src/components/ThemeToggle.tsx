@@ -28,7 +28,7 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
         theme === 'light' ? (
             <Sun strokeWidth={1.5} className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
         ) : (
-            <Moon strokeWidth={1.5} className="h-5 w-5 sm:h-6 sm:w-6 text-white/70" />
+            <Moon strokeWidth={1.5} className="h-5 w-5 sm:h-6 sm:w-6 text-black/70" />
         );
 
 

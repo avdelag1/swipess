@@ -141,6 +141,8 @@
     --shadow-card: 0 20px 40px rgba(139, 10, 10, 0.4);
     --shadow-glow: 0 0 30px rgba(255, 61, 61, 0.5);
     --overlay: rgba(45, 10, 10, 0.7);
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-border: rgba(0, 0, 0, 0.05);
 }
 
 /* THEME 5: PURE BLACK (AMOLED void black) */
@@ -183,6 +185,8 @@
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.9);
     --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.5);
     --overlay: rgba(0, 0, 0, 0.9);
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-border: rgba(0, 0, 0, 0.05);
 }
 
 /* THEME 6: CHEERS (Animal print - Cheetah fur) */
@@ -225,6 +229,8 @@
     --shadow-card: 0 20px 40px rgba(100, 60, 5, 0.55);
     --shadow-glow: 0 0 30px rgba(218, 158, 8, 0.60);
     --overlay: rgba(16, 6, 0, 0.80);
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-border: rgba(0, 0, 0, 0.05);
 }
 
 /* THEME 7: AMBER MATTE (Warm & inviting) */
@@ -267,4 +273,6 @@
     --shadow-card: 0 20px 40px rgba(120, 53, 15, 0.4);
     --shadow-glow: 0 0 30px rgba(245, 158, 11, 0.5);
     --overlay: rgba(26, 18, 0, 0.7);
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-border: rgba(0, 0, 0, 0.05);
 }

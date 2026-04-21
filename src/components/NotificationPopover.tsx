@@ -319,8 +319,8 @@ export function NotificationPopover({ className, children }: NotificationPopover
           strokeWidth={1.5}
           className={cn(
             "h-6 w-6 transition-colors duration-150",
-            isDark ? "text-white/70" : "text-foreground/80",
-            "group-hover:text-foreground"
+            "text-black/80",
+            "group-hover:text-black"
           )}
         />
         {/* Notification badge */}
