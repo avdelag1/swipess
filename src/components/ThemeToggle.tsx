@@ -26,9 +26,9 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
 
     const icon =
         theme === 'light' ? (
-            <Sun strokeWidth={1.5} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
+            <Sun strokeWidth={1.5} className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
         ) : (
-            <Moon strokeWidth={1.5} className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
+            <Moon strokeWidth={1.5} className="h-5 w-5 sm:h-6 sm:w-6 text-white/70" />
         );
 
 
@@ -39,7 +39,7 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
             className={cn(
                 'relative flex items-center justify-center rounded-xl',
                 'transition-all duration-100 ease-out active:scale-[0.9]',
-                'touch-manipulation h-9 w-9 flex-shrink-0',
+                'touch-manipulation h-12 w-12 flex-shrink-0',
                 className,
             )}
             style={{ backgroundColor: 'transparent', border: 'none', boxShadow: 'none' }}

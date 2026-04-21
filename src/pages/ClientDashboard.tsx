@@ -2,6 +2,7 @@ import { useCallback, useState, useEffect, lazy, Suspense } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
+import { QuickFilterBar } from '@/components/QuickFilterBar';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { QuickFilterCategory } from '@/types/filters';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -116,10 +117,34 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex flex-col items-center justify-center min-h-[calc(100svh-80px)] w-full overflow-hidden z-10"
-            style={{ willChange: 'transform, opacity' }}
+            className="relative flex flex-col items-center w-full h-full overflow-hidden z-10"
+            style={{ 
+              paddingTop: 'calc(var(--top-bar-height) + var(--safe-top) + 20px)',
+              paddingBottom: 'calc(var(--bottom-nav-height) + var(--safe-bottom))',
+              willChange: 'transform, opacity' 
+            }}
           >
-            <SwipeAllDashboard setCategories={(ids: any) => handleLaunch((Array.isArray(ids) ? ids[0] : ids) as QuickFilterCategory)} />
+            {/* 🛸 QUICK FILTERS: Between Header and Stack */}
+            <div className="w-full flex-shrink-0 animate-in fade-in slide-in-from-top-4 duration-700">
+               <QuickFilterBar 
+                 filters={{
+                   categories: activeCategory ? [activeCategory] : [],
+                   listingType: useFilterStore.getState().listingType as any || 'both'
+                 }}
+                 onChange={(f) => {
+                   if (f.categories.length > 0) {
+                     handleLaunch(f.categories[0]);
+                   } else {
+                     handleMapBack();
+                   }
+                 }}
+                 userRole="client"
+               />
+            </div>
+
+            <div className="flex-1 flex items-center justify-center w-full min-h-0">
+              <SwipeAllDashboard setCategories={(ids: any) => handleLaunch((Array.isArray(ids) ? ids[0] : ids) as QuickFilterCategory)} />
+            </div>
           </motion.div>
         )}
 

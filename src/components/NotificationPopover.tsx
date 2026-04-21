@@ -304,7 +304,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
       variant="ghost"
       size="icon"
       className={cn(
-        "relative h-9 w-9 transition-all duration-200",
+        "relative h-12 w-12 transition-all duration-200",
         "hover:scale-105 active:scale-95 group bg-transparent border-0",
         "touch-manipulation"
       )}
@@ -318,7 +318,7 @@ export function NotificationPopover({ className, children }: NotificationPopover
         <Bell
           strokeWidth={1.5}
           className={cn(
-            "h-5 w-5 transition-colors duration-150",
+            "h-6 w-6 transition-colors duration-150",
             isDark ? "text-white/70" : "text-foreground/80",
             "group-hover:text-foreground"
           )}

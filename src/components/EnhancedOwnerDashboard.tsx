@@ -23,6 +23,7 @@ import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
+import { QuickFilterBar } from '@/components/QuickFilterBar';
 import { useTranslation } from 'react-i18next';
 import type { ClientFilters } from '@/hooks/smartMatching/types';
 
@@ -178,10 +179,38 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex flex-col items-center justify-center min-h-[calc(100svh-80px)] w-full overflow-hidden z-10"
-            style={{ willChange: 'transform, opacity' }}
+            className="relative flex flex-col items-center w-full h-full overflow-hidden z-10"
+            style={{ 
+              paddingTop: 'calc(var(--top-bar-height) + var(--safe-top) + 20px)',
+              paddingBottom: 'calc(var(--bottom-nav-height) + var(--safe-bottom))',
+              willChange: 'transform, opacity' 
+            }}
           >
-            <OwnerAllDashboard onCardSelect={handleCardSelect} />
+            {/* 🛸 QUICK FILTERS: Between Header and Stack */}
+            <div className="w-full flex-shrink-0 animate-in fade-in slide-in-from-top-4 duration-700">
+               <QuickFilterBar 
+                 filters={{
+                   categories: activeCategory ? [activeCategory] : [],
+                   listingType: useFilterStore.getState().listingType as any || 'both',
+                   clientType: useFilterStore.getState().clientType as any || 'all',
+                   clientGender: useFilterStore.getState().clientGender as any || 'any'
+                 }}
+                 onChange={(f) => {
+                   if (f.clientType && f.clientType !== 'all') {
+                     handleCardSelect({ id: f.clientType, clientType: f.clientType, category: 'property' });
+                   } else if (f.categories.length > 0) {
+                     handleCardSelect({ id: f.categories[0], category: f.categories[0] });
+                   } else {
+                     handleDiscoveryBack();
+                   }
+                 }}
+                 userRole="owner"
+               />
+            </div>
+
+            <div className="flex-1 flex items-center justify-center w-full min-h-0">
+              <OwnerAllDashboard onCardSelect={handleCardSelect} />
+            </div>
           </motion.div>
         ) : showMap && activeCategory ? (
           <motion.div

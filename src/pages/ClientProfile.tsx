@@ -77,7 +77,7 @@ const ClientProfile = () => {
         </div>
       </AnimatePresence>
 
-      <div className="w-full max-w-lg mx-auto p-6 pt-16 pb-48 space-y-8 relative z-10">
+      <div className="w-full max-w-7xl mx-auto p-6 pt-16 pb-12 space-y-8 relative z-10">
         
         {/* 🛸 HERO HEADER: MEGA AVATAR CYCLE */}
         <div className="flex flex-col items-center text-center gap-6">
@@ -146,17 +146,15 @@ const ClientProfile = () => {
               key={i}
               whileTap={{ scale: 0.95 }}
               className={cn(
-                 "backdrop-blur-3xl border rounded-[2rem] p-6 text-center shadow-2xl transition-all",
-                 isLight 
-                  ? "bg-white border-black/10 shadow-lg" 
-                  : "bg-white/[0.03] border-white/[0.08]"
+                 "backdrop-blur-3xl border transition-all duration-500 flex flex-col items-center justify-center p-5 text-center shadow-xl",
+                 "bg-white/[0.03] border-white/[0.08] rounded-[2rem]"
               )}
             >
-              <stat.icon className={cn("w-6 h-6 mx-auto mb-2 opacity-80", stat.color)} />
-              <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>
+              <stat.icon className={cn("w-6 h-6 mb-3 transition-transform group-hover:scale-110", stat.color)} />
+              <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-950 font-black" : "text-white")}>
                 {stat.value}
               </div>
-              <div className={cn("text-[9px] font-black uppercase tracking-widest italic mt-2.5", isLight ? "text-black/50" : "text-white/30")}>{stat.label}</div>
+              <div className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic mt-2.5", isLight ? "text-slate-500 font-bold" : "text-white/40")}>{stat.label}</div>
             </motion.div>
           ))}
         </div>

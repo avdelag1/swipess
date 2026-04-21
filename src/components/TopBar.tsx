@@ -90,7 +90,8 @@ function TopBarComponent({
         <div className="flex-shrink-0 flex items-center pointer-events-none">
           {(!minimal || onBack) && (
             <div 
-              className={cn("flex items-center gap-1.5 pointer-events-auto transition-all duration-300")} 
+              className={cn("flex items-center gap-1.5 pointer-events-auto transition-all duration-500 px-3.5 py-2")} 
+              style={glassSurfaceStyle}
             >
               {onBack && (
                 <motion.button
@@ -101,9 +102,9 @@ function TopBarComponent({
                     haptics.tap();
                     onBack();
                   }}
-                  className="w-10 h-10 flex items-center justify-center p-0"
+                  className="w-12 h-12 flex items-center justify-center p-0"
                 >
-                  <ChevronLeft className={cn("w-6 h-6", isLight ? "text-foreground" : "text-white")} />
+                  <ChevronLeft className={cn("w-7 h-7", isLight ? "text-foreground" : "text-white")} />
                 </motion.button>
               )}
               
@@ -157,21 +158,9 @@ function TopBarComponent({
         <div className="flex-shrink-0 flex items-center pointer-events-none">
           {!minimal && (
             <div 
-              className={cn("flex items-center gap-2 pointer-events-auto transition-all duration-300")} 
+              className={cn("flex items-center gap-2 pointer-events-auto transition-all duration-500 px-3.5 py-2")} 
+              style={glassSurfaceStyle}
             >
-               <motion.button
-                whileTap={{ scale: 0.9 }}
-                onPointerDown={(e) => {
-                  e.preventDefault(); e.stopPropagation();
-                  haptics.tap();
-                  onFilterClick?.();
-                }}
-                className="w-10 h-10 flex items-center justify-center p-0 group relative"
-                title="Filters"
-              >
-                <SlidersHorizontal className="w-5 h-5 text-white/70 group-hover:text-white transition-colors" />
-              </motion.button>
-
                <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={(e) => {
@@ -179,11 +168,11 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/radio');
                 }}
-                className="w-10 h-10 flex items-center justify-center p-0"
+                className="w-12 h-12 flex items-center justify-center p-0"
                 title="Radio"
               >
                 <Radio 
-                  className={cn("w-5 h-5", isLight ? "text-brand-primary" : "text-brand-primary")} 
+                  className={cn("w-6 h-6", isLight ? "text-brand-primary" : "text-brand-primary")} 
                   strokeWidth={2.5} 
                 />
               </motion.button>
@@ -196,11 +185,11 @@ function TopBarComponent({
                     haptics.success();
                     useModalStore.getState().openAIListing();
                   }}
-                  className="w-10 h-10 flex items-center justify-center p-0 relative"
+                  className="w-12 h-12 flex items-center justify-center p-0 relative"
                   title="AI Listing Wizard"
                 >
                   <div className="absolute inset-0 bg-cyan-500/10 blur-xl rounded-full opacity-0 hover:opacity-100 transition-opacity" />
-                  <Sparkles className="w-5 h-5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+                  <Sparkles className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
                 </motion.button>
               )}
 
