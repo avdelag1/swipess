@@ -59,7 +59,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
       setPhase('cards');
     }
   }, [activeCategory, phase]);
-  
+
   const setModal = useModalStore(s => s.setModal);
 
   useEffect(() => {
@@ -128,7 +128,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.04 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-[80] flex flex-col overflow-hidden bg-black"
+            className="fixed inset-0 z-[1000] flex flex-col overflow-hidden bg-black/95"
             style={{ willChange: 'transform, opacity' }}
           >
             <Suspense fallback={<div className="flex-1 bg-black/10 animate-pulse" />}>

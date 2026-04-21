@@ -62,63 +62,52 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   const ownerColor = !isClient ? '#f97316' : (isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.45)');
 
   return (
-    <button 
-      onPointerDown={onPointerDown}
-      onClick={handleToggle}
-      disabled={!canSwitchMode}
+    <div 
       className={cn(
-        'relative flex items-center justify-center rounded-full overflow-hidden',
-        'transition-all duration-150 ease-out',
-        'active:scale-[0.92]',
-        'disabled:opacity-50 disabled:cursor-not-allowed',
-        'touch-manipulation select-none',
+        'relative flex items-center bg-white/5 border border-white/10 rounded-full p-1',
         className
       )}
-      style={{
-        height: btnH,
-        minWidth: iconW * 2,
-        background: pillBg,
-        border: pillBorder,
-        padding: '0 4px',
-      }}
-      aria-label={`Switch to ${isClient ? 'Business' : 'Client'} mode`}
+      style={{ height: btnH, minWidth: iconW * 2 + 8 }}
     >
-      <div
-        className="relative flex items-center w-full h-full"
-        style={{ width: iconW * 2 }}
+      <button
+        onClick={() => handleModeSwitch('client')}
+        disabled={!canSwitchMode || isSwitching}
+        className={cn(
+          "flex-1 h-full flex items-center justify-center rounded-full transition-all duration-300 relative z-10",
+          activeMode === 'client' ? "bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "opacity-40 hover:opacity-100"
+        )}
       >
-        <motion.div
-          layoutId="mode-highlight"
-          className="absolute rounded-full"
-          initial={false}
-          animate={{ left: isClient ? '4%' : '54%' }}
-          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-          style={{
-            width: '42%',
-            height: '80%',
-            background: 'transparent',
-            top: '50%',
-            y: '-50%',
-          }}
+        <User
+          className="h-[16px] w-[16px]"
+          style={{ color: activeMode === 'client' ? '#f43f5e' : (isLight ? '#000' : '#fff') }}
         />
+      </button>
 
-        <div className="flex-1 flex items-center justify-center relative z-10">
-          <User
-            strokeWidth={isClient ? 2 : 1.5}
-            className="h-[18px] w-[18px] transition-all duration-200"
-            style={{ color: clientColor, transform: isClient ? 'scale(1.1)' : 'scale(1)' }}
-          />
-        </div>
-
-        <div className="flex-1 flex items-center justify-center relative z-10">
-          <UserCheck
-            strokeWidth={!isClient ? 2 : 1.5}
-            className="h-[18px] w-[18px] transition-all duration-200"
-            style={{ color: ownerColor, transform: !isClient ? 'scale(1.1)' : 'scale(1)' }}
-          />
-        </div>
-      </div>
-    </button>
+      <button
+        onClick={() => handleModeSwitch('owner')}
+        disabled={!canSwitchMode || isSwitching}
+        className={cn(
+          "flex-1 h-full flex items-center justify-center rounded-full transition-all duration-300 relative z-10",
+          activeMode === 'owner' ? "bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]" : "opacity-40 hover:opacity-100"
+        )}
+      >
+        <UserCheck
+          className="h-[16px] w-[16px]"
+          style={{ color: activeMode === 'owner' ? '#f97316' : (isLight ? '#000' : '#fff') }}
+        />
+      </button>
+      
+      {/* Dynamic Slide Background */}
+      <motion.div
+        className="absolute h-[calc(100%-8px)] rounded-full bg-white/5 border border-white/5 pointer-events-none"
+        initial={false}
+        animate={{ 
+          left: activeMode === 'client' ? '4px' : '50%',
+          width: 'calc(50% - 4px)'
+        }}
+        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      />
+    </div>
   );
 }
 
