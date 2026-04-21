@@ -28,8 +28,6 @@ interface TopBarProps {
   title?: string;
   showBack?: boolean;
   minimal?: boolean;
-  activeTab?: 'explore' | 'manage';
-  onTabChange?: (tab: 'explore' | 'manage') => void;
 }
 
 function TopBarComponent({
@@ -39,8 +37,6 @@ function TopBarComponent({
   userRole,
   transparent: _transparent = false,
   minimal = false,
-  activeTab,
-  onTabChange,
 }: TopBarProps) {
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
@@ -49,12 +45,14 @@ function TopBarComponent({
   const isOwner = userRole === 'owner';
 
   const glassSurfaceStyle: React.CSSProperties = {
-    background: 'rgba(255, 255, 255, 1)',
-    backdropFilter: 'blur(60px) saturate(240%)',
-    WebkitBackdropFilter: 'blur(60px) saturate(240%)',
+    background: 'var(--nav-bg)',
+    backdropFilter: 'blur(50px) saturate(240%) contrast(1.1)',
+    WebkitBackdropFilter: 'blur(50px) saturate(240%) contrast(1.1)',
     borderRadius: '1.8rem',
-    border: '1px solid rgba(0, 0, 0, 0.04)',
-    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 1)',
+    border: '1px solid var(--nav-border)',
+    boxShadow: isLight 
+      ? '0 12px 40px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1)' 
+      : '0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
   };
 
   const { data: profile } = useQuery({
@@ -117,9 +115,9 @@ function TopBarComponent({
                     haptics.tap();
                     navigate(isOwner ? '/owner/profile' : '/client/profile');
                   }}
-                  className="flex items-center gap-2 pr-2 transition-all duration-200"
+                  className="flex items-center gap-1.5 transition-all duration-200"
                 >
-                  <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-brand-primary/40 ml-0.5">
+                  <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-brand-primary/40 ml-0.5">
                     {profile?.avatar_url ? (
                       <img
                         src={profile.avatar_url}
@@ -144,53 +142,12 @@ function TopBarComponent({
               )}
 
               {/* Mode Switcher Integrated into Left Unified Pill */}
-              <div className="flex items-center h-6 ml-0.5">
+              <div className="flex items-center h-6">
                 <ModeSwitcher variant="icon" size="sm" />
               </div>
             </div>
           )}
         </div>
-
-        {/* CENTER: Mode Tabs (EXPLORE | MANAGE) */}
-        {!minimal && (
-          <div className="flex-1 flex justify-center pointer-events-none">
-            <div 
-              className="flex rounded-full p-1.5 shadow-md pointer-events-auto stagger-enter"
-              style={glassSurfaceStyle}
-            >
-              <button
-                onPointerDown={(e) => {
-                  e.preventDefault(); e.stopPropagation();
-                  haptics.tap();
-                  if (onTabChange) onTabChange('explore');
-                }}
-                className={cn(
-                  "px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300",
-                  activeTab === 'explore' 
-                    ? "bg-black text-white shadow-lg" 
-                    : "text-black/40 hover:text-black/60"
-                )}
-              >
-                Explore
-              </button>
-              <button
-                onPointerDown={(e) => {
-                  e.preventDefault(); e.stopPropagation();
-                  haptics.tap();
-                  if (onTabChange) onTabChange('manage');
-                }}
-                className={cn(
-                  "px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300",
-                  activeTab === 'manage' 
-                    ? "bg-black text-white shadow-lg" 
-                    : "text-black/40 hover:text-black/60"
-                )}
-              >
-                Manage
-              </button>
-            </div>
-          </div>
-        )}
 
         <div className="flex-1" />
 

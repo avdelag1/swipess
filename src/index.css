@@ -281,6 +281,8 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
     --shadow-glow: 0 0 30px rgba(211, 47, 47, 0.3);
     --overlay: rgba(0, 0, 0, 0.6);
+    --nav-bg: rgba(35, 35, 40, 0.75);
+    --nav-border: rgba(255, 255, 255, 0.08);
   }
 
   /* THEME 2: BLACK MATTE (Deep dark mode - like ChatGPT) */
@@ -331,6 +333,8 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.6);
     --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.4);
     --overlay: rgba(0, 0, 0, 0.8);
+    --nav-bg: rgba(10, 10, 12, 0.65);
+    --nav-border: rgba(255, 255, 255, 0.08);
   }
 
   /* THEME 3: WHITE MATTE (Clean minimalist - like Apple/Linear) */
@@ -381,6 +385,8 @@ button:active, [role="button"]:active {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.15);
     --shadow-glow: 0 0 30px rgba(198, 40, 40, 0.2);
     --overlay: rgba(0, 0, 0, 0.4);
+    --nav-bg: rgba(255, 255, 255, 0.95);
+    --nav-border: rgba(0, 0, 0, 0.04);
   }
 
   /* THEME 4: RED MATTE (Bold Mexican spirit) */

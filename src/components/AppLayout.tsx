@@ -37,25 +37,6 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { showAIChat } = modalStore;
   const { activeMode } = useActiveMode();
   const { isRefreshing, pullDistance, triggered } = usePullToRefresh();
-  const [activeTab, setActiveTabState] = useState<'explore' | 'manage'>('explore');
-
-  // Handle tab change with navigation logic
-  const handleTabChange = (tab: 'explore' | 'manage') => {
-    setActiveTabState(tab);
-    if (tab === 'manage') {
-      if (userRole === 'owner') navigate('/owner/properties');
-      else navigate('/client/liked-properties');
-    } else {
-      if (userRole === 'owner') navigate('/owner/dashboard');
-      else navigate('/client/dashboard');
-    }
-  };
-
-  // Sync tab state with location
-  useEffect(() => {
-    if (location.pathname.includes('dashboard')) setActiveTabState('explore');
-    else if (location.pathname.includes('liked') || location.pathname.includes('properties')) setActiveTabState('manage');
-  }, [location.pathname]);
 
   const userRole = user?.user_metadata?.role === 'admin' ? 'admin' : activeMode;
 
@@ -131,8 +112,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             onFilterClick={handleFilterClick}
             transparent={isImmersive}
             showBack={location.pathname !== '/client/dashboard' && location.pathname !== '/owner/dashboard'}
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
           />
         </SentientHud>
       )}
