@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Send, Mic, Square, Sparkles, Plus, 
   Trash2, Menu, Check, Zap, Flame, Sun, Crown, Moon, 
-  ChevronRight, Copy, Languages, CornerDownRight, Search
+  ChevronRight, Copy, Languages, CornerDownRight, Search, Timer, Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -253,15 +253,93 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
 
   const [input, setInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isAutoFlow, setIsAutoFlow] = useState(false);
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const recognitionRef = useRef<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSend = () => {
-    if (!input.trim() || isLoading) return;
-    sendMessage(input);
+  // ── Voice & Auto-Flow Logic ──
+  const stopListening = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    setIsListening(false);
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+  }, []);
+
+  const handleSend = useCallback(() => {
+    const text = inputRef.current?.value || input;
+    if (!text.trim() || isLoading) return;
+    sendMessage(text);
     setInput('');
     triggerHaptic('medium');
-  };
+    stopListening();
+  }, [input, isLoading, sendMessage, stopListening]);
+
+  const startListening = useCallback(() => {
+    if (isListening) {
+      stopListening();
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Speech Recognition not supported in this browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      triggerHaptic('light');
+    };
+
+    recognition.onresult = (event: any) => {
+      let interimTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          setInput(prev => prev + event.results[i][0].transcript + ' ');
+        } else {
+          interimTranscript += event.results[i][0].transcript;
+        }
+      }
+
+      // Reset Silence Timer if Auto-Flow is active
+      if (isAutoFlow) {
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = setTimeout(() => {
+          handleSend();
+        }, 5000);
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error', event.error);
+      stopListening();
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  }, [isListening, isAutoFlow, stopListening, handleSend]);
+
+  useEffect(() => {
+    return () => {
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    };
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -457,18 +535,41 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                   />
                   
                   <div className="flex items-center justify-between px-2 pt-1 pb-2">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       <button
-                        onClick={() => { triggerHaptic('light'); }}
-                        className="w-10 h-10 rounded-xl flex items-center justify-center bg-background/20 border border-current transition-all opacity-40 hover:opacity-100"
+                        onClick={() => { triggerHaptic('light'); startListening(); }}
+                        className={cn(
+                          "w-12 h-12 rounded-xl flex items-center justify-center transition-all border relative overflow-hidden",
+                          isListening 
+                            ? (isNexus ? "bg-cyan-500/20 border-cyan-400 text-cyan-400" : "bg-red-500/20 border-red-500 text-red-500")
+                            : "bg-background/20 border-current opacity-40 hover:opacity-100"
+                        )}
                       >
-                        <Mic className="w-4.5 h-4.5" />
+                        {isListening && (
+                          <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: [1, 1.5, 1] }}
+                            transition={{ repeat: Infinity, duration: 1.5 }}
+                            className="absolute inset-0 bg-current/10 pointer-events-none"
+                          />
+                        )}
+                        <Mic className={cn("w-5 h-5", isListening && "animate-pulse")} />
                       </button>
+
                       <button
-                        onClick={() => { triggerHaptic('medium'); createConversation(); }}
-                        className="w-10 h-10 rounded-xl bg-background/20 border border-current flex items-center justify-center opacity-40 hover:opacity-100 transition-all"
+                        onClick={() => { 
+                          triggerHaptic('medium'); 
+                          setIsAutoFlow(!isAutoFlow);
+                          if (!isAutoFlow) toast.success("Auto-Flow Active", { description: "Messages will send after 5s of silence." });
+                        }}
+                        className={cn(
+                          "w-12 h-12 rounded-xl flex items-center justify-center transition-all border",
+                          isAutoFlow
+                            ? (isNexus ? "bg-cyan-500/20 border-cyan-400 text-cyan-400" : "bg-primary text-white border-primary shadow-lg")
+                            : "bg-background/20 border-current opacity-40 hover:opacity-100"
+                        )}
                       >
-                        <Plus className="w-5 h-5" />
+                        {isAutoFlow ? <Timer className="w-5 h-5 animate-pulse" /> : <Sparkles className="w-5 h-5" />}
                       </button>
                     </div>
 
