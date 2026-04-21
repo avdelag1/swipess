@@ -1,7 +1,9 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star, X } from "lucide-react";
+import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star, X, RefreshCcw } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
+import { useIAP } from "@/hooks/useIAP";
 import { useToast } from "@/hooks/use-toast";
 import { formatPriceMXN } from "@/utils/subscriptionPricing";
 import { useAuth } from "@/hooks/useAuth";
