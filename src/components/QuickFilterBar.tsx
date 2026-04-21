@@ -414,13 +414,12 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             );
           })}
         </div>
-
-        </div>
       </div>
     </div>
   );
 }
 
 export const QuickFilterBar = memo(QuickFilterBarComponent);
+
 
 
