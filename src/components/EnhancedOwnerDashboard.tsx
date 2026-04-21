@@ -23,6 +23,7 @@ import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
+import { useTranslation } from 'react-i18next';
 import type { ClientFilters } from '@/hooks/smartMatching/types';
 
 interface EnhancedOwnerDashboardProps {
@@ -32,6 +33,7 @@ interface EnhancedOwnerDashboardProps {
 }
 
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const [viewMode] = useState<'discovery' | 'insights'>('discovery');
@@ -150,7 +152,15 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const showMap = !!activeCategory && phase === 'map';
   const showSwipe = !!activeCategory && phase === 'swipe';
   return (
-    <div className="flex-1 flex flex-col min-h-0 relative">
+    <div className={cn("flex flex-col h-full w-full overflow-hidden relative", isLight ? "bg-background" : "bg-[#020202]")}>
+      {/* 🛸 Swipess ATMOSPHERIC LAYER */}
+      {!isLight && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+          <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-900/20 blur-[120px] rounded-full" />
+          <div className="absolute bottom-[-5%] right-[-5%] w-[50%] h-[50%] bg-cyan-900/10 blur-[100px] rounded-full" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)]" />
+        </div>
+      )}
       <AnimatePresence mode="wait">
         {viewMode === 'insights' ? (
           <motion.div
@@ -226,7 +236,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
                   <div className="w-12 h-1.5 bg-white/20 rounded-full" />
                </div>
                <div className="px-6 pb-20 pt-4">
-                  <h2 className="text-xl font-black uppercase tracking-widest italic mb-6">Advanced Target Radar</h2>
+                  <h2 className="text-xl font-black uppercase tracking-widest italic mb-6">{t('topbar.targetPlatform')}</h2>
                    <DiscoveryFilters
                     category={activeCategory || 'property'}
                     initialFilters={mergedFilters}

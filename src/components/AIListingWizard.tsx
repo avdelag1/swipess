@@ -27,11 +27,16 @@ const CATEGORIES = [
   { id: 'worker', label: 'Job / Service', icon: Briefcase, color: 'text-amber-400', bg: 'bg-amber-400/10' },
 ] as const;
 
+import { useTranslation } from 'react-i18next';
+
+type WizardStep = 'category' | 'photos' | 'details' | 'processing' | 'review';
+
 export function AIListingWizard() {
   const { showAIListing, aiListingCategory, setModal } = useModalStore();
   const { theme } = useTheme();
   const isSwipess = theme === 'Swipess-style';
   const { user } = useAuth();
+  const { t } = useTranslation();
   
   const [step, setStep] = useState<WizardStep>('category');
   const [category, setCategory] = useState<typeof CATEGORIES[number]['id'] | null>(null);
@@ -192,9 +197,9 @@ export function AIListingWizard() {
                   <Sparkles className="w-6 h-6 text-cyan-400" />
                 </div>
                 <div>
-                  <h2 className="text-base font-black uppercase tracking-[0.1em] text-white italic">Swipess Intelligence</h2>
+                  <h2 className="text-base font-black uppercase tracking-[0.1em] text-white italic">Swipess {t('topbar.intelligence')}</h2>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] opacity-40 font-bold uppercase tracking-widest leading-none">Autonomous Creation Layer</span>
+                    <span className="text-[10px] opacity-40 font-bold uppercase tracking-widest leading-none">{t('topbar.autonomousLayer')}</span>
                     <div className="w-1 h-1 bg-cyan-500 rounded-full animate-pulse" />
                   </div>
                 </div>
@@ -220,7 +225,7 @@ export function AIListingWizard() {
                       className="space-y-10"
                     >
                       <div className="space-y-3">
-                        <h3 className="text-3xl font-black tracking-tighter text-white uppercase italic leading-none">Target Platform</h3>
+                        <h3 className="text-3xl font-black tracking-tighter text-white uppercase italic leading-none">{t('topbar.targetPlatform')}</h3>
                         <p className="text-[11px] text-white/50 leading-relaxed uppercase tracking-[0.2em] max-w-sm">Select the deployment sector for your new Swipess artifact. flagship intelligence will optimize for the target audience.</p>
                       </div>
 
@@ -243,7 +248,7 @@ export function AIListingWizard() {
                             </div>
                             <div>
                                 <span className="text-base font-black uppercase tracking-wider text-white group-hover:text-cyan-400 transition-colors italic">{cat.label}</span>
-                                <p className="text-[10px] opacity-50 font-bold uppercase tracking-[0.1em] mt-1">Deploy Protocol</p>
+                                <p className="text-[10px] opacity-50 font-bold uppercase tracking-[0.1em] mt-1">{t('topbar.deployProtocol')}</p>
                             </div>
                           </button>
                         ))}

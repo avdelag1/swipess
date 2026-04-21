@@ -98,7 +98,15 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const showSwipe = phase === 'swipe' && !!activeCategory;
 
   return (
-    <div className={cn("flex flex-col h-full w-full overflow-hidden relative bg-transparent")}>
+    <div className={cn("flex flex-col h-full w-full overflow-hidden relative", theme === 'Swipess-style' ? "bg-[#020202]" : "bg-background")}>
+      {/* 🛸 Swipess ATMOSPHERIC LAYER */}
+      {theme === 'Swipess-style' && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+          <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-indigo-900/20 blur-[120px] rounded-full" />
+          <div className="absolute bottom-[-5%] right-[-5%] w-[50%] h-[50%] bg-cyan-900/10 blur-[100px] rounded-full" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)]" />
+        </div>
+      )}
       <AnimatePresence mode="wait">
         {showCards && (
           <motion.div
