@@ -155,8 +155,8 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
           <SheetContent side="bottom" className="h-[92vh] p-0 border-none bg-transparent overflow-hidden">
             <div className={cn(
               "w-full h-full transition-all duration-500 rounded-t-[3.5rem] border-t overflow-y-auto",
-              theme === 'nexus-style' ? "bg-black/90 border-white/10" : 
-              (theme === 'ivanna-style' ? "bg-card border-foreground/30 shadow-artisan" : "glass-morphism border-white/10")
+              isLight ? "bg-white/75 backdrop-blur-[40px] saturate-[180%] border-none shadow-[0_-20px_60px_rgba(0,0,0,0.1),inset_0_0_0_1.5px_rgba(255,255,255,0.8)]" : 
+              "bg-black/65 backdrop-blur-[40px] saturate-[180%] border-none shadow-[0_-40px_100px_rgba(0,0,0,0.8),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
             )}>
                <div className="sticky top-0 z-[60] flex items-center justify-center pt-4 pb-2">
                   <div className="w-12 h-1.5 bg-white/20 rounded-full" />

@@ -45,14 +45,14 @@ function TopBarComponent({
   const isOwner = userRole === 'owner';
 
   const glassSurfaceStyle: React.CSSProperties = {
-    background: _transparent ? 'transparent' : 'var(--nav-bg)',
-    backdropFilter: (_transparent || isIvanna) ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
-    WebkitBackdropFilter: (_transparent || isIvanna) ? 'none' : 'blur(40px) saturate(160%) contrast(1.1)',
-    borderRadius: isIvanna ? '2rem' : '1.8rem',
-    boxShadow: _transparent ? 'none' : (isIvanna ? '0 10px 30px rgba(0,0,0,0.1)' : (isLight
-      ? '0 10px 25px rgba(0,0,0,0.04), inset 0 0 15px rgba(255,255,255,0.2)'
-      : '0 20px 40px rgba(0,0,0,0.45), inset 0 0 20px rgba(255,255,255,0.1)')),
-    border: _transparent ? 'none' : (isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.25)'),
+    background: _transparent ? 'transparent' : (isLight ? 'rgba(255,255,255,0.75)' : 'rgba(10,10,12,0.65)'),
+    backdropFilter: (_transparent) ? 'none' : 'blur(var(--glass-thick-blur)) saturate(180%) contrast(1.1)',
+    WebkitBackdropFilter: (_transparent) ? 'none' : 'blur(var(--glass-thick-blur)) saturate(180%) contrast(1.1)',
+    borderRadius: '2.5rem',
+    boxShadow: _transparent ? 'none' : (isLight
+      ? '0 10px 40px rgba(0,0,0,0.06), inset 0 0 0 1.5px rgba(255,255,255,0.8)'
+      : '0 20px 60px rgba(0,0,0,0.5), inset 0 0 0 1.5px rgba(255,255,255,0.15)'),
+    border: 'none',
   };
 
   const { data: profile } = useQuery({

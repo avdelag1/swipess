@@ -411,10 +411,10 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         onClick={() => { triggerHaptic('light'); onBack(); }}
         className={cn(
           "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 z-[10001] flex items-center gap-1.5 px-4 py-2.5 rounded-2xl",
-          "backdrop-blur-xl border active:scale-95 transition-transform",
+          "transition-transform active:scale-95",
           isLight
-            ? "bg-white/70 border-black/5 text-black/80"
-            : "bg-white/10 border-white/15 text-white/95"
+            ? "bg-white/75 backdrop-blur-[40px] saturate-[180%] border-none text-black/80 shadow-[0_10px_40px_rgba(0,0,0,0.06),inset_0_0_0_1.5px_rgba(255,255,255,0.8)]"
+            : "bg-black/65 backdrop-blur-[40px] saturate-[180%] border-none text-white/95 shadow-[0_20px_60px_rgba(0,0,0,0.5),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
         )}
       >
         <ChevronLeft className="w-5 h-5" />
@@ -428,10 +428,10 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
       >
         <div
           className={cn(
-            "px-6 py-2.5 rounded-2xl border backdrop-blur-xl flex items-center gap-2.5",
+            "px-6 py-2.5 rounded-2xl flex items-center gap-2.5",
             isLight
-              ? "bg-white/70 border-black/5 shadow-sm"
-              : "bg-black/60 border-white/10 shadow-lg"
+              ? "bg-white/75 backdrop-blur-[40px] saturate-[180%] shadow-[0_10px_40px_rgba(0,0,0,0.06),inset_0_0_0_1.5px_rgba(255,255,255,0.8)]"
+              : "bg-black/65 backdrop-blur-[40px] saturate-[180%] shadow-[0_20px_60px_rgba(0,0,0,0.5),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
           )}
         >
           <div
@@ -453,12 +453,10 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
         onClick={() => { detectLocation(); }}
         disabled={detecting}
         className={cn(
-          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center border active:scale-90 transition-all backdrop-blur-xl",
-          detected
-            ? "bg-white/10 border-white/15 text-white"
-            : isLight
-              ? "bg-white/70 border-black/5 text-black/60"
-              : "bg-white/10 border-white/15 text-white/60"
+          "absolute top-[calc(env(safe-area-inset-top,0px)+12px)] right-4 z-[10001] w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition-all",
+          isLight
+            ? "bg-white/75 backdrop-blur-[40px] saturate-[180%] text-black/80 shadow-[0_10px_40px_rgba(0,0,0,0.06),inset_0_0_0_1.5px_rgba(255,255,255,0.8)]"
+            : "bg-black/65 backdrop-blur-[40px] saturate-[180%] text-white/95 shadow-[0_20px_60px_rgba(0,0,0,0.5),inset_0_0_0_1.5px_rgba(255,255,255,0.15)]"
         )}
       >
         <Navigation className={cn("w-5 h-5", detecting && "animate-spin")} style={detected ? { color: meta.accent } : {}} />
