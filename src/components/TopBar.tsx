@@ -45,16 +45,16 @@ function TopBarComponent({
   const isOwner = userRole === 'owner';
 
   const glassSurfaceStyle: React.CSSProperties = {
-    background: isLight ? 'rgba(255, 255, 255, 0.88)' : 'rgba(15, 15, 18, 0.75)',
-    backdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(40px) saturate(210%) contrast(1.1)',
-    WebkitBackdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(40px) saturate(210%) contrast(1.1)',
+    background: isLight ? 'rgba(255, 255, 255, 1)' : 'rgba(15, 15, 18, 0.75)',
+    backdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(50px) saturate(240%) contrast(1.1)',
+    WebkitBackdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(50px) saturate(240%) contrast(1.1)',
     borderRadius: '1.8rem',
     boxShadow: theme === 'ivanna-style' 
       ? '0 20px 50px -10px rgba(100,160,230,0.25), inset 0 0 20px rgba(255,255,255,0.4)'
       : (isLight 
-         ? '0 15px 35px -5px rgba(0,0,0,0.12), inset 0 1px 1px rgba(255,255,255,1)' 
+         ? '0 12px 30px -5px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,1)' 
          : '0 30px 80px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1)'),
-    border: isLight ? '1.5px solid rgba(255,255,255,0.9)' : '1px solid rgba(255,255,255,0.15)',
+    border: isLight ? '1.5px solid #ffffff' : '1px solid rgba(255,255,255,0.15)',
   };
 
   const { data: profile } = useQuery({
@@ -134,8 +134,8 @@ function TopBarComponent({
                   </div>
                   {profile?.full_name && (
                     <span className={cn(
-                      "text-[11px] font-black uppercase italic tracking-tight whitespace-nowrap flex-shrink-0 max-w-[9ch] truncate",
-                      isLight ? "text-foreground" : "text-white/90"
+                      "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 relative z-10",
+                      isLight ? "text-black/90" : "text-white/90"
                     )}>
                       {profile.full_name.split(' ')[0]}
                     </span>
@@ -151,7 +151,50 @@ function TopBarComponent({
           )}
         </div>
 
-        {/* CENTER: PURGED PER USER REQUEST */}
+        {/* CENTER: Mode Tabs (EXPLORE | MANAGE) */}
+        {!minimal && (
+          <div className="flex-1 flex justify-center pointer-events-none">
+            <div 
+              className="flex rounded-full p-1.5 shadow-md pointer-events-auto stagger-enter"
+              style={{
+                ...glassSurfaceStyle,
+                background: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 15, 18, 0.75)',
+              }}
+            >
+              <button
+                onPointerDown={(e) => {
+                  e.preventDefault(); e.stopPropagation();
+                  haptics.tap();
+                  if (onTabChange) onTabChange('explore');
+                }}
+                className={cn(
+                  "px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                  activeTab === 'explore' 
+                    ? (isLight ? "bg-black text-white shadow-lg" : "bg-white/10 text-white") 
+                    : (isLight ? "text-black/40 hover:text-black/60" : "text-white/40 hover:text-white/60")
+                )}
+              >
+                Explore
+              </button>
+              <button
+                onPointerDown={(e) => {
+                  e.preventDefault(); e.stopPropagation();
+                  haptics.tap();
+                  if (onTabChange) onTabChange('manage');
+                }}
+                className={cn(
+                  "px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                  activeTab === 'manage' 
+                    ? (isLight ? "bg-black text-white shadow-lg" : "bg-white/10 text-white") 
+                    : (isLight ? "text-black/40 hover:text-black/60" : "text-white/40 hover:text-white/60")
+                )}
+              >
+                Manage
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="flex-1" />
 
         {/* RIGHT CLUSTER: Actions (Unified Pill) */}
@@ -177,13 +220,11 @@ function TopBarComponent({
                 />
               </motion.button>
 
-
-
               <div className="flex items-center px-0.5">
                 <ThemeToggle />
               </div>
               
-              <div className="flex items-center px-0.5">
+              <div className="flex items-center gap-1.5">
                 <NotificationPopover />
               </div>
             </div>
