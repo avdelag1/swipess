@@ -296,7 +296,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'en-US';
+    recognition.lang = navigator.language || 'en-US';
 
     recognition.onstart = () => {
       setIsListening(true);
@@ -304,26 +304,41 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
     };
 
     recognition.onresult = (event: any) => {
+      let finalTranscript = '';
       let interimTranscript = '';
+      
       for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          setInput(prev => prev + event.results[i][0].transcript + ' ');
+          finalTranscript += transcript;
         } else {
-          interimTranscript += event.results[i][0].transcript;
+          interimTranscript += transcript;
         }
       }
 
-      // Reset Silence Timer if Auto-Flow is active
-      if (isAutoFlow) {
-        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-        silenceTimerRef.current = setTimeout(() => {
-          handleSend();
-        }, 5000);
+      if (finalTranscript) {
+        setInput(prev => prev + finalTranscript + ' ');
+      }
+      
+      // We don't set the input state to interimTranscript as it would overwrite unfinished text,
+      // but we reset the silence timer so the user knows it's working.
+      if (interimTranscript || finalTranscript) {
+        if (isAutoFlow) {
+          if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = setTimeout(() => {
+            handleSend();
+          }, 5000);
+        }
       }
     };
 
     recognition.onerror = (event: any) => {
       console.error('Speech recognition error', event.error);
+      if (event.error === 'not-allowed') {
+        toast.error("Microphone access denied. Please check your browser settings.");
+      } else {
+        toast.error(`Recognition error: ${event.error}`);
+      }
       stopListening();
     };
 
