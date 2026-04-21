@@ -22,7 +22,7 @@ interface ClientDashboardProps {
 // 2. Discovery Map (Radar)
 // 3. Swipe Deck (Container)
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
-  const { theme } = useTheme();
+  const { theme, isLight } = useTheme();
   const activeCategory = useFilterStore(s => s.activeCategory);
   const getListingFilters = useFilterStore(s => s.getListingFilters);
   const { user } = useAuth();
