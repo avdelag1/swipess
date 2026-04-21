@@ -26,7 +26,7 @@ export default function DJTurntableRadio() {
     setCity, setVolume, toggleShuffle, toggleFavorite, isStationFavorite,
   } = useRadio();
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'cheers';
+  const isDark = theme === 'dark';
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [showFavoritesDrawer, setShowFavoritesDrawer] = useState(false);

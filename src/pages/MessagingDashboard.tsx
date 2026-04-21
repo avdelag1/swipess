@@ -50,7 +50,8 @@ export function MessagingDashboard() {
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
   const { activeMode } = useActiveMode();
-  const { theme, isLight, isIvanna } = useTheme();
+  const { theme, isLight } = useTheme();
+  const isDark = theme === 'dark';
 
   const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
   const deleteConversation = useDeleteConversation();
@@ -157,7 +158,7 @@ export function MessagingDashboard() {
     const listing = conversation?.listing;
 
     return (
-      <div className={cn("w-full flex flex-col transition-colors duration-500", isIvanna ? "bg-transparent" : (isLight ? "bg-white" : "bg-black"))} style={{ height: 'calc(100dvh - 52px - 68px - var(--safe-top, 0px) - var(--safe-bottom, 0px))' }}>
+      <div className={cn("w-full flex flex-col transition-colors duration-500", isLight ? "bg-white" : "bg-black")} style={{ height: 'calc(100dvh - 52px - 68px - var(--safe-top, 0px) - var(--safe-bottom, 0px))' }}>
         <AnimatePresence mode="wait">
           <motion.div 
             key="interface" 
@@ -166,7 +167,7 @@ export function MessagingDashboard() {
             exit={{ opacity: 0, scale: 0.98 }}
             className={cn(
               "w-full max-w-7xl mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
-              isIvanna ? "bg-white/90 backdrop-blur-2xl border-sky-100/50" : (isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5")
+              isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5"
             )}
           >
             {otherUser ? (
@@ -180,7 +181,7 @@ export function MessagingDashboard() {
             ) : (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-[#EB4898]/40 uppercase font-black italic">
                 <div className="w-16 h-16 rounded-full border-4 border-[#EB4898]/10 border-t-[#EB4898] animate-spin" />
-                <span className="animate-pulse tracking-[0.3em] text-[10px]">Syncing...</span>
+                <span className="animate-pulse tracking-[0.3em] text-[10px]">Loading...</span>
               </div>
             )}
           </motion.div>
@@ -190,8 +191,7 @@ export function MessagingDashboard() {
   }
 
   return (
-    <div className={cn("min-h-screen w-full transition-colors duration-500", isIvanna ? "bg-transparent" : (isLight ? "bg-white" : "bg-black"))}>
-      {/* 🛸 CINEMATIC BACKGROUND GLOW */}
+    <div className={cn("min-h-screen w-full transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
       <div className="fixed inset-0 pointer-events-none opacity-10">
         <div className="absolute top-[10%] left-[-15%] w-[80%] h-[40%] bg-indigo-500/30 blur-[130px] rounded-full" />
         <div className="absolute bottom-[10%] right-[-10%] w-[60%] h-[50%] bg-[#EB4898]/30 blur-[140px] rounded-full" />
@@ -201,30 +201,24 @@ export function MessagingDashboard() {
       
       <div className="w-full max-w-7xl mx-auto px-6 pt-20 pb-48 relative z-10 space-y-12">
         
-        {/* 🛸 HEADER: MEGA NEXUS SYNC */}
         <div className="flex items-center gap-6">
-           <div className={cn(
-             "w-18 h-18 rounded-[1.8rem] flex items-center justify-center shadow-2xl",
-             isIvanna ? "bg-sky-400/20 text-sky-600 shadow-sky-400/10" : "bg-[#EB4898] text-white shadow-[#EB4898]/20"
-           )}>
+           <div className="w-18 h-18 rounded-[1.8rem] bg-[#EB4898] text-white shadow-[#EB4898]/20 flex items-center justify-center shadow-2xl">
               <MessageCircle className="w-8 h-8" />
            </div>
            <div className="flex flex-col">
-              <span className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic", isIvanna ? "text-sky-600" : "text-[#EB4898]")}>Messages</span>
-              <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isIvanna ? "text-sky-950" : (isLight ? "text-black" : "text-white"))}>Direct Transmissions</h1>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-[#EB4898]">Messages</span>
+              <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isLight ? "text-black" : "text-white")}>Direct Messages</h1>
            </div>
         </div>
 
-        {/* 🛸 SEARCH & MATRIX FILTERS */}
         <div className="space-y-6">
           <div className="relative group">
-            <Search className={cn("absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 opacity-50 z-10", isIvanna ? "text-sky-600" : "text-[#EB4898]")} />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 opacity-50 z-10 text-[#EB4898]" />
             <input 
-              placeholder="SCAN IDENTITIES..." 
+              placeholder="SEARCH NAMES..." 
               className={cn(
                 "w-full pl-14 pr-8 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border",
-                isIvanna ? "bg-sky-50/60 border-sky-100/50 text-sky-950 placeholder:text-sky-950/20 shadow-sm focus:bg-white/80" : 
-                (isLight ? "bg-black/5 border-black/5 text-black placeholder:text-black/20" : "bg-white/[0.04] border-white/5 text-white placeholder:text-white/20 focus:border-white/10")
+                isLight ? "bg-black/5 border-black/5 text-black placeholder:text-black/20" : "bg-white/[0.04] border-white/5 text-white placeholder:text-white/20 focus:border-white/10"
               )}
               value={searchQuery} 
               onChange={(e) => setSearchQuery(e.target.value)} 
@@ -235,7 +229,7 @@ export function MessagingDashboard() {
             {[
               { id: 'all', label: 'Inbox', icon: Inbox },
               { id: 'unread', label: 'Priority', icon: Sparkles },
-              { id: 'archived', label: 'Vault', icon: Archive }
+              { id: 'archived', label: 'Archive', icon: Archive }
             ].map((filter) => (
               <button 
                 key={filter.id} 
@@ -243,8 +237,8 @@ export function MessagingDashboard() {
                 className={cn(
                   "flex items-center gap-3 px-8 h-12 rounded-[1.8rem] text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border",
                   activeFilter === filter.id
-                    ? (isIvanna ? "bg-sky-500 text-white border-sky-400 shadow-xl shadow-sky-500/20" : "bg-[#EB4898] text-white border-[#EB4898] shadow-2xl shadow-[#EB4898]/30")
-                    : (isIvanna ? "bg-sky-100/40 border-sky-200/30 text-sky-700 hover:bg-sky-100/60" : (isLight ? "bg-black/5 border-black/5 text-black font-black hover:bg-black/10" : "bg-white/[0.04] border-white/5 text-white/30 hover:bg-white/10"))
+                    ? "bg-[#EB4898] text-white border-[#EB4898] shadow-2xl shadow-[#EB4898]/30"
+                    : (isLight ? "bg-black/5 border-black/5 text-black font-black hover:bg-black/10" : "bg-white/[0.04] border-white/5 text-white/30 hover:bg-white/10")
                 )}
               >
                 <filter.icon className="w-4 h-4" />
@@ -254,7 +248,6 @@ export function MessagingDashboard() {
           </div>
         </div>
 
-        {/* 🛸 STREAM GRID */}
         <div className="space-y-4">
           {isLoading ? (
             <MessageSkeleton />
@@ -274,8 +267,8 @@ export function MessagingDashboard() {
                     className={cn(
                       "w-full flex items-center gap-6 p-6 rounded-[2.8rem] text-left transition-all border group relative overflow-hidden",
                       isUnread 
-                        ? (isIvanna ? "bg-sky-50/80 border-sky-200 shadow-lg" : (isLight ? "bg-black/[0.02] border-black/10 shadow-xl" : "bg-white/[0.05] border-white/10 shadow-2xl")) 
-                        : (isIvanna ? "bg-white/30 border-transparent hover:bg-white/50" : (isLight ? "bg-transparent border-black/[0.04] hover:bg-black/[0.01]" : "bg-transparent border-white/[0.04] hover:bg-white/[0.02]"))
+                        ? (isLight ? "bg-black/[0.02] border-black/10 shadow-xl" : "bg-white/[0.05] border-white/10 shadow-2xl") 
+                        : (isLight ? "bg-transparent border-black/[0.04] hover:bg-black/[0.01]" : "bg-transparent border-white/[0.04] hover:bg-white/[0.02]")
                     )} 
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
                   >
@@ -295,7 +288,8 @@ export function MessagingDashboard() {
                       <div className="flex items-center justify-between mb-1.5">
                         <span className={cn(
                           "text-[16px] truncate uppercase italic", 
-                          isUnread ? "font-black text-white" : "font-bold opacity-60"
+                          isUnread ? "font-black" : "font-bold opacity-60",
+                          isLight ? "text-black" : "text-white"
                         )}>
                           {conversation.other_user?.full_name}
                         </span>
@@ -308,7 +302,7 @@ export function MessagingDashboard() {
                         "text-[14px] truncate italic leading-none", 
                         isUnread ? "text-[#EB4898] font-black" : "opacity-30"
                       )}>
-                         {conversation.last_message?.message_text || 'Secure Transmission Encrypted'}
+                         {conversation.last_message?.message_text || 'New Message'}
                       </p>
                     </div>
 
@@ -319,16 +313,16 @@ export function MessagingDashboard() {
                               <MoreVertical className="w-5 h-5" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-[2rem] bg-[#121214] border-white/10 p-2 shadow-2xl text-white backdrop-blur-3xl">
+                          <DropdownMenuContent align="end" className="rounded-[2rem] bg-[#121214] border-white/10 p-2 shadow-2xl text-white backdrop-blur-xl">
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-[#EB4898]/20 focus:text-white cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); markChatAsRead.mutate(conversation.id); }} disabled={!isUnread}>
-                              <Check className="w-4 h-4 mr-3" /> Mark Decrypted
+                              <Check className="w-4 h-4 mr-3" /> Mark as Read
                             </DropdownMenuItem>
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-white/10 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); updateStatus.mutate({ conversationId: conversation.id, status: conversation.status === 'archived' ? 'active' : 'archived' }); }}>
-                              <Archive className="w-4 h-4 mr-3" /> {conversation.status === 'archived' ? 'Unvault' : 'Vault'}
+                              <Archive className="w-4 h-4 mr-3" /> {conversation.status === 'archived' ? 'Unarchive' : 'Archive'}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="bg-white/5 my-2" />
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-red-500/20 text-red-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); deleteConversation.mutate(conversation.id); }}>
-                              <Trash className="w-4 h-4 mr-3" /> Purge Link
+                              <Trash className="w-4 h-4 mr-3" /> Delete Chat
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -349,8 +343,8 @@ export function MessagingDashboard() {
               <div className="w-20 h-20 rounded-[1.8rem] bg-indigo-500/10 flex items-center justify-center mb-10 border border-indigo-500/20">
                  <MessageCircle className="w-10 h-10 text-indigo-500 animate-pulse" />
               </div>
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-4">No Transmissions</h3>
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed">No messages yet. Connect with someone on the radar to start chatting.</p>
+              <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-4">No Messages</h3>
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed">No messages yet. Connect with someone to start chatting.</p>
             </motion.div>
           )}
         </div>

@@ -42,7 +42,6 @@ const ALL_THEME_CLASSES = [
 
 /** 
  * SPEED OF LIGHT: Optimized DOM theme application 
- * Skips unnecessary removals to prevent flickering in dark mode 
  */
 function applyThemeToDOM(theme: Theme) {
   const root = window.document.documentElement;
@@ -63,17 +62,13 @@ function applyThemeToDOM(theme: Theme) {
 
   if (theme === 'dark') {
     root.classList.add('black-matte');
-  }
-
-  if (theme === 'light') {
+    root.style.colorScheme = 'dark';
+  } else if (theme === 'light') {
     root.classList.add('white-matte');
+    root.style.colorScheme = 'light';
   }
 
-  if (theme === 'cheers' || theme === 'nexus-style') {
-    root.classList.add('dark');
-  }
-
-  // Update status bar color for PWA (respects safe-area)
+  // Update status bar color for PWA
   let meta = document.querySelector('meta[name="theme-color"]');
   if (!meta) {
     meta = document.createElement('meta');
@@ -90,7 +85,6 @@ function applyThemeToDOM(theme: Theme) {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // SPEED OF LIGHT: Instant initialization from localStorage
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === 'undefined') return DEFAULT_THEME;
     const cached = localStorage.getItem(STORAGE_KEY);
@@ -98,12 +92,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   });
   
   const { user, loading } = useAuth();
-
-  // Load theme from database when user is confirmed
   const hasLoadedThemeRef = useRef(false);
 
   useEffect(() => {
-    // PROTECT: Don't flip to light theme while auth is still loading
     if (loading) return;
 
     if (user?.id && !hasLoadedThemeRef.current) {
@@ -122,29 +113,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             setThemeState(dbTheme);
             localStorage.setItem(STORAGE_KEY, dbTheme);
           }
-          hasLoadedThemeRef.current = true; // Fix: Prevent theme thrashes on auth refreshes
+          hasLoadedThemeRef.current = true;
         } catch (error) {
           logger.error('Failed to load theme preference:', error);
         }
       };
       loadUserTheme();
     } else if (!user && !loading) {
-      // Not logged in: fallback to cached theme or default
       const cached = localStorage.getItem(STORAGE_KEY);
       if (!cached) setThemeState(DEFAULT_THEME);
-      hasLoadedThemeRef.current = false; // Reset for next user
+      hasLoadedThemeRef.current = false;
     }
   }, [user?.id, loading]);
 
-  // Apply theme class to document
   useEffect(() => {
     applyThemeToDOM(theme);
   }, [theme]);
 
   const setTheme = async (newTheme: Theme, coords?: ThemeToggleCoords) => {
     const root = window.document.documentElement;
-    
-    // UI Feedback: Store coordinates for reveal animation
     root.style.setProperty('--theme-reveal-x', coords ? `${coords.x}px` : '50%');
     root.style.setProperty('--theme-reveal-y', coords ? `${coords.y}px` : '50%');
 

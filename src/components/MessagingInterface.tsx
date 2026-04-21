@@ -113,12 +113,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     <>
       <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={currentUserRole} variant="activation-required" />
 
-      <div className={cn(
-        "flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500",
-        theme === 'ivanna-style' ? "bg-white/95" : "bg-background"
-      )}>
+      <div className="flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500 bg-background">
         
-        {/* 🛸 NEXUS HUD HEADER (v14) */}
+        {/* MESSAGING HEADER */}
         <div className={cn(
             "shrink-0 px-6 py-4 z-20 backdrop-blur-3xl border-b transition-all",
             isLight ? "bg-white/80 border-black/5" : "bg-black/40 border-white/5"
@@ -156,7 +153,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 <div className="flex items-center gap-1.5 mt-1">
                    <div className={cn("w-1 h-1 rounded-full", isOnline ? "bg-green-500 animate-pulse" : "bg-white/20")} />
                    <span className={cn("text-[9px] font-black uppercase tracking-[0.2em] italic", isOnline ? "text-green-500" : "opacity-30")}>
-                    {isOnline ? 'Active Sync' : 'Offline'}
+                    {isOnline ? 'Online' : 'Offline'}
                   </span>
                 </div>
               </div>
@@ -195,13 +192,13 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           )}
         </div>
 
-        {/* Transmission Feed */}
+        {/* Message Feed */}
         <div className="flex-1 relative min-h-0">
             {showConnecting && (
               <div className="absolute top-2 left-0 right-0 z-50 flex justify-center px-6">
                 <div className="bg-amber-500/10 backdrop-blur-3xl border border-amber-500/20 px-6 py-2 rounded-full flex items-center gap-3">
                   <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-amber-500">Wait: Re-Syncing Matrix...</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-amber-500">Wait: Reconnecting...</span>
                 </div>
               </div>
             )}
@@ -209,8 +206,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-10 opacity-30">
                 <Sparkles className="w-12 h-12 mb-6 animate-pulse" />
-                <h3 className="text-xl font-black uppercase italic tracking-tighter">Initial Burst</h3>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] mt-3 max-w-[200px] leading-relaxed">System ready for decrypted transmissions. Initiate sync now.</p>
+                <h3 className="text-xl font-black uppercase italic tracking-tighter">Start Chatting</h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] mt-3 max-w-[200px] leading-relaxed">System ready for messages. Send your first message now.</p>
               </div>
             ) : (
               <VirtualizedMessageList messages={messages} currentUserId={user?.id || ''} otherUserRole={otherUser.role} typingUsers={typingUsers} />
@@ -218,7 +215,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <div ref={messagesEndRef} />
         </div>
 
-        {/* 🛸 COMMAND INPUT (v14) */}
+        {/* MESSAGE INPUT */}
         <div className="p-6 backdrop-blur-3xl border-t transition-all bg-background/50">
           
           <AnimatePresence>
@@ -244,9 +241,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 <input
                   value={newMessage}
                   onChange={(e) => { setNewMessage(e.target.value); if (e.target.value.trim()) startTyping(); else stopTyping(); }}
-                  placeholder={isAtLimit ? "LIMIT REACHED" : "TRANSMIT LOGS..."}
+                  placeholder={isAtLimit ? "LIMIT REACHED" : "TYPE A MESSAGE..."}
                   className={cn(
-                      "w-full h-14 pl-6 pr-14 rounded-2xl text-[14px] font-bold outline-none transition-all border",
+                      "w-full h-14 rounded-2xl px-6 text-[14px] font-bold outline-none transition-all border",
                       isLight ? "bg-black/5 border-black/5 text-black" : "bg-white/[0.05] border-white/5 text-white placeholder:text-white/20"
                   )}
                   disabled={sendMessage.isPending || isAtLimit}
@@ -269,7 +266,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   <div className={cn("px-4 py-1.5 rounded-full border flex items-center gap-2", isAtLimit ? "bg-red-500/10 border-red-500/20" : "bg-[#EB4898]/5 border-[#EB4898]/10")}>
                       <Zap className={cn("w-3.5 h-3.5", isAtLimit ? "text-red-500" : "text-[#EB4898]")} />
                       <span className={cn("text-[9px] font-black uppercase tracking-widest italic", isAtLimit ? "text-red-500" : "text-[#EB4898]/60")}>
-                        {isAtLimit ? 'Monthly Quota Exceeded' : `${messagesRemaining} Decryptions Remaining`}
+                        {isAtLimit ? 'Monthly Quota Exceeded' : `${messagesRemaining} Messages Remaining`}
                       </span>
                   </div>
               </div>

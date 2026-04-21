@@ -1,72 +1,16 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  SWIPEMATCH MATTE COLOR SYSTEM - Premium AI App Aesthetic            */
-/*  Inspired by Claude, ChatGPT, and Grok - Modern, Sophisticated        */
+/*  THE CORE SYSTEM: BLACK & WHITE                                      */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-
-
-/* THEME 1: GREY MATTE (Default - like Claude) */
-.grey-matte {
-    /* Background colors - Sophisticated mid-grey palette */
-    --background: 0 0% 18%;
-    --foreground: 0 0% 91%;
-    --card: 0 0% 25%;
-    --card-foreground: 0 0% 91%;
-    --primary: 18 100% 50%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 30%;
-    --secondary-foreground: 0 0% 91%;
-    --muted: 0 0% 27%;
-    --muted-foreground: 0 0% 78%;
-    --accent: 18 100% 50%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 29%;
-    --input: 0 0% 29%;
-    --ring: 18 100% 50%;
-
-    /* Semantic UI Tokens */
-    --btn-primary-bg: #FF4D00;
-    --btn-primary-text: #FFFFFF;
-    --btn-secondary-bg: rgba(255, 255, 255, 0.1);
-    --btn-secondary-text: #FFFFFF;
-    --icon-active: #FF6B35;
-    --icon-inactive: rgba(255, 255, 255, 0.6);
-
-    /* Modern theme variables */
-    --bg-primary: 0 0% 18%;
-    --bg-secondary: 0 0% 23%;
-    --bg-tertiary: 0 0% 27%;
-    --text-primary: 0 0% 91%;
-    --text-secondary: 0 0% 78%;
-    --text-tertiary: 0 0% 53%;
-    --border-primary: 0 0% 29%;
-    --border-secondary: 0 0% 35%;
-    --accent-primary: 18 100% 50%;
-    --accent-secondary: 18 100% 60%;
-
-    /* Shadows - Subtle depth for floating cards */
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.16);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.24);
-    --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
-    --shadow-glow: 0 0 30px rgba(211, 47, 47, 0.3);
-    --overlay: rgba(0, 0, 0, 0.6);
-}
-
-/* THEME 2: BLACK MATTE (Deep dark mode - like ChatGPT / Tinder) */
+/* THEME: BLACK MATTE (Deep dark mode) */
 .black-matte {
     /* Background colors - Pure AMOLED Black */
     --background: 0 0% 0%;
-    /* Deep pure black */
     --foreground: 0 0% 100%;
-    /* Pure white text */
     --card: 0 0% 7%;
-    /* Subtle grey for cards */
     --card-foreground: 0 0% 100%;
     --primary: 343 99% 65%;
-    /* Tinder Signature Pink-Red */
     --primary-foreground: 0 0% 100%;
     --secondary: 212 14% 22%;
     --secondary-foreground: 0 0% 100%;
@@ -100,7 +44,7 @@
     --accent-primary: 352 83% 62%;
     --accent-secondary: 352 83% 72%;
 
-    /* Shadows - Deep shadows for maximum depth */
+    /* Shadows */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
     --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);

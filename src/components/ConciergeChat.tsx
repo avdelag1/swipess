@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Send, Mic, Square, Sparkles, Plus, 
   Trash2, Menu, Check, Zap, Flame, Sun, Crown, Moon, 
-  ChevronRight, Copy, Languages, CornerDownRight, Search
+  ChevronRight, Copy, Languages, CornerDownRight, Search, Timer, Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -12,17 +12,6 @@ import { useConciergeAI, ChatMessage, AiCharacter } from '@/hooks/useConciergeAI
 import { uiSounds } from '@/utils/uiSounds';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useTheme } from '@/hooks/useTheme';
-
-/* ─── Character Avatars ─── */
-const CHARACTER_AVATARS: Record<string, string> = {
-  default: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&h=200&fit=crop',
-  kyle: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop',
-  beaugosse: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop',
-  donajkiin: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop',
-  botbetter: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop',
-  lunashanti: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop',
-  ezriyah: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop',
-};
 
 /* ─── Privacy Portal ─── */
 const ConciergePrivacyPortal = ({ onAccept, isNexus }: { onAccept: () => void, isNexus: boolean }) => (
@@ -49,15 +38,15 @@ const ConciergePrivacyPortal = ({ onAccept, isNexus }: { onAccept: () => void, i
     )}>
       Initialize the discovery interface. Your inquiries are handled with absolute confidentiality and processed by flagship-grade intelligence.
     </p>
+    <div className="p-4 rounded-xl border mb-4 text-[10px] leading-tight text-center bg-muted border-border text-muted-foreground">
+      <p className="font-bold uppercase tracking-widest mb-1 text-[11px] text-foreground">AI Disclaimer</p>
+      Swipess AI provides automated recommendations for informational purposes only. It is not a substitute for professional real estate, legal, or financial advice. Accuracy is not guaranteed.
+    </div>
     
     <div className="w-full max-w-xs pt-4">
       <Button 
         onClick={onAccept}
-        className={cn(
-          "w-full h-14 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all",
-          isNexus ? "bg-cyan-500 hover:bg-cyan-600 text-black shadow-[0_10px_30px_rgba(34,211,238,0.3)]" : 
-          "shadow-xl"
-        )}
+        className="w-full h-14 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-xl"
       >
         Authorize Session
       </Button>
@@ -126,7 +115,7 @@ const MessageBubble = ({
 };
 
 /* ─── Typing Indicator ─── */
-const TypingIndicator = ({ isNexus }: { isNexus: boolean }) => (
+const TypingIndicator = () => (
   <div className="flex justify-start mb-4">
     <div className={cn(
       "px-5 py-3.5 rounded-2xl rounded-bl-md flex items-center gap-[3px] border transition-all",
@@ -146,7 +135,7 @@ const TypingIndicator = ({ isNexus }: { isNexus: boolean }) => (
 );
 
 /* ─── Sidebar ─── */
-const ConversationSidebar = ({ conversations, activeId, onSelect, onDelete, onNew, onClose, isNexus }: any) => (
+const ConversationSidebar = ({ conversations, activeId, onSelect, onDelete, onNew, onClose }: any) => (
   <motion.div
     initial={{ x: -280, opacity: 0 }}
     animate={{ x: 0, opacity: 1 }}
@@ -167,10 +156,7 @@ const ConversationSidebar = ({ conversations, activeId, onSelect, onDelete, onNe
     <div className="p-3">
       <button 
         onClick={onNew}
-        className={cn(
-          "w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all group",
-          isNexus ? "bg-white/5 border-white/5 text-white/80 hover:bg-white/10" : "bg-primary/10 border-primary/20 hover:bg-primary/20"
-        )}
+        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all group bg-primary/10 border-primary/20 hover:bg-primary/20"
       >
         <Plus className={cn("w-4 h-4 group-hover:scale-110 transition-transform", isNexus ? "text-cyan-400" : "text-primary")} />
         <span className="text-xs font-bold uppercase tracking-wider">New Session</span>
@@ -184,9 +170,7 @@ const ConversationSidebar = ({ conversations, activeId, onSelect, onDelete, onNe
             onClick={() => { onSelect(c.id); onClose(); }}
             className={cn(
               "w-full flex flex-col items-start px-4 py-3.5 rounded-xl transition-all duration-300 border",
-              activeId === c.id 
-                ? (isNexus ? "bg-cyan-500/10 border-cyan-500/20" : "bg-primary/10 border-primary/30") 
-                : "hover:bg-muted/50 border-transparent"
+              activeId === c.id ? "bg-primary/10 border-primary/30" : "hover:bg-muted/50 border-transparent"
             )}
           >
             <span className={cn("text-xs font-bold truncate w-full text-left", activeId === c.id ? (isNexus ? "text-cyan-400" : "text-primary") : "opacity-60")}>
@@ -244,15 +228,106 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
 
   const [input, setInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isAutoFlow, setIsAutoFlow] = useState(false);
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const recognitionRef = useRef<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleSend = () => {
-    if (!input.trim() || isLoading) return;
-    sendMessage(input);
+  // ── Voice & Auto-Flow Logic ──
+  const stopListening = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    setIsListening(false);
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+  }, []);
+
+  const handleSend = useCallback(() => {
+    const text = inputRef.current?.value || input;
+    if (!text.trim() || isLoading) return;
+    sendMessage(text);
     setInput('');
     triggerHaptic('medium');
-  };
+    stopListening();
+  }, [input, isLoading, sendMessage, stopListening]);
+
+  const startListening = useCallback(() => {
+    if (isListening) {
+      stopListening();
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Speech Recognition not supported in this browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = navigator.language || 'en-US';
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      triggerHaptic('light');
+    };
+
+    recognition.onresult = (event: any) => {
+      let finalTranscript = '';
+      let interimTranscript = '';
+      
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+
+      if (finalTranscript) {
+        setInput(prev => prev + finalTranscript + ' ');
+      }
+      
+      if (interimTranscript || finalTranscript) {
+        if (isAutoFlow) {
+          if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = setTimeout(() => {
+            handleSend();
+          }, 5000);
+        }
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error', event.error);
+      if (event.error === 'not-allowed') {
+        toast.error("Microphone access denied. Please check your browser settings.");
+      } else {
+        toast.error(`Recognition error: ${event.error}`);
+      }
+      stopListening();
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  }, [isListening, isAutoFlow, stopListening, handleSend]);
+
+  useEffect(() => {
+    return () => {
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    };
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -276,7 +351,6 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
     sendMessage(`Translate your previous message to ${lang}`);
   };
 
-  // Scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -311,7 +385,6 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
             }} isNexus={isNexus} />
           ) : (
             <div className="flex-1 flex flex-col relative z-20 overflow-hidden">
-              {/* Sidebar backdrop */}
               <AnimatePresence>
                 {sidebarOpen && (
                   <motion.div
@@ -324,7 +397,6 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                 )}
               </AnimatePresence>
 
-              {/* Sidebar */}
               <AnimatePresence>
                 {sidebarOpen && (
                   <ConversationSidebar
@@ -334,7 +406,6 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                     onDelete={deleteConversation}
                     onNew={() => { createConversation(); setSidebarOpen(false); }}
                     onClose={() => setSidebarOpen(false)}
-                    isNexus={isNexus}
                   />
                 )}
               </AnimatePresence>
@@ -345,18 +416,15 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                 isNexus ? "border-white/5 bg-black/40" : "border-border bg-background/80"
               )}>
                 <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "w-9 h-9 rounded-xl flex items-center justify-center border transition-all",
-                    isNexus ? "bg-cyan-500/10 border-cyan-500/20" : "bg-primary/10 border-primary/20"
-                  )}>
-                    <Zap className={cn("w-5 h-5", isNexus ? "text-cyan-400" : "text-primary")} />
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center border bg-primary/10 border-primary/20 transition-all">
+                    <Zap className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex flex-col">
                     <span className={cn("text-[11px] font-black uppercase tracking-[0.2em] uppercase", isNexus ? "text-cyan-400" : "text-foreground")}>
                       {isNexus ? "Interface" : "Assistant"}
                     </span>
                     <span className="text-[9px] font-medium opacity-30 tracking-tight">
-                      {isNexus ? "V2.9.ZENITH" : "PRO.CONCIERGE"}
+                      PRO.CONCIERGE
                     </span>
                   </div>
                 </div>
@@ -377,7 +445,6 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                 </div>
               </div>
 
-              {/* Messages Area */}
               <div 
                 ref={scrollRef}
                 className={cn(
@@ -389,12 +456,9 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                     <motion.div 
                       initial={{ scale: 0.8 }}
                       animate={{ scale: 1 }}
-                      className={cn(
-                        "w-16 h-16 rounded-[2rem] border flex items-center justify-center",
-                        isNexus ? "bg-cyan-500/5 border-cyan-500/10" : "bg-primary/5 border-primary/10"
-                      )}
+                      className="w-16 h-16 rounded-[2rem] border border-primary/10 flex items-center justify-center bg-primary/5"
                     >
-                      <Sparkles className={cn("w-8 h-8 opacity-40", isNexus ? "text-cyan-400" : "text-primary")} />
+                      <Sparkles className="w-8 h-8 opacity-40 text-primary" />
                     </motion.div>
                     <div className="space-y-1.5">
                       <h3 className="text-sm font-black uppercase tracking-[0.3em] opacity-80">
@@ -420,7 +484,7 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                     />
                   ))
                 )}
-                {isLoading && <TypingIndicator isNexus={isNexus} />}
+                {isLoading && <TypingIndicator />}
               </div>
 
               {/* Input Area */}

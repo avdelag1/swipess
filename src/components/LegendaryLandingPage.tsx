@@ -508,10 +508,10 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-[58px] rounded-[1.5rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[13px] shadow-[0_15px_35px_rgba(255,255,255,0.15)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 border border-white/50 mt-4 disabled:opacity-60 disabled:pointer-events-none"
+            className="w-full h-[58px] rounded-[1.5rem] bg-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[13px] shadow-[0_15px_35px_rgba(255,77,0,0.35)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 border-none mt-4 disabled:opacity-60 disabled:pointer-events-none"
           >
-            <Sparkles className="w-4 h-4" />
-            <span className="drop-shadow-sm">
+            <Sparkles className="w-4 h-4 !text-white" />
+            <span className="drop-shadow-md !text-white">
               {isLoading ? 'Processing...' : isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Create Account'}
             </span>
           </button>
@@ -583,7 +583,7 @@ function LegendaryLandingPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="absolute inset-x-0 bottom-0 top-10 z-[100] bg-black/95 backdrop-blur-3xl rounded-t-[2.5rem] border-t border-white/10 flex flex-col pt-10 px-6 pb-8 shadow-[0_-20px_50px_rgba(0,0,0,0.8)]"
+            className="absolute inset-x-0 bottom-0 top-10 z-[100] bg-black/60 backdrop-blur-[40px] saturate-[180%] rounded-t-[2.5rem] border-t border-white/20 flex flex-col pt-10 px-6 pb-8 shadow-[0_-20px_50px_rgba(0,0,0,0.8)], inset 0 0 0 1.5px rgba(255,255,255,0.1)"
           >
             <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-white/20 rounded-full" />
             

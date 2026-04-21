@@ -135,12 +135,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
       transition={{ ...PK_SPRING }}
       className="select-none touch-none"
     >
-      <div className={cn(
-        "w-full h-full relative overflow-hidden transition-colors duration-500",
-        theme === 'ivanna-style' 
-          ? "bg-card rounded-[20px_24px_22px_26px_/_26px_22px_24px_20px] shadow-artisan" 
-          : "bg-black rounded-[2.5rem] shadow-2xl"
-      )}>
+      <div className="w-full h-full relative overflow-hidden transition-colors duration-500 bg-black rounded-[2.5rem] shadow-2xl">
         {/* Photo & Gradient Base */}
         <motion.img
           src={photo}
@@ -163,20 +158,11 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
                animate={{ opacity: 1, x: 0 }}
                className="flex items-center gap-2"
             >
-              <div className={cn(
-                "w-4 h-[1px] shadow-[0_0_8px_rgba(255,255,255,0.4)]",
-                theme === 'ivanna-style' ? "bg-black/20" : "bg-white/40"
-              )} />
-              <span className={cn(
-                "text-[10px] font-black uppercase tracking-[0.4em] italic",
-                theme === 'ivanna-style' ? "text-black/80" : "text-white/80"
-              )}>{card.description}</span>
+              <div className="w-4 h-[1px] shadow-[0_0_8px_rgba(255,255,255,0.4)] bg-white/40" />
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-white/80">{card.description}</span>
             </motion.div>
             
-            <h3 className={cn(
-               "text-5xl font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic",
-               theme === 'ivanna-style' ? "text-black" : "text-white"
-            )}>
+            <h3 className="text-5xl font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white">
               {card.label}
             </h3>
           </div>
@@ -195,10 +181,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
                   triggerHaptic('medium');
                   onSelect(card.id);
                 }}
-                className={cn(
-                  "w-full h-[72px] rounded-[2.2rem] bg-white text-black font-black uppercase italic tracking-widest text-[13px] flex items-center justify-center active:scale-95 transition-all",
-                  theme === 'ivanna-style' ? "shadow-none" : "shadow-[0_25px_50px_-12px_rgba(255,255,255,0.3)]"
-                )}
+                className="w-full h-[72px] rounded-[2.2rem] bg-white text-black font-black uppercase italic tracking-widest text-[13px] flex items-center justify-center active:scale-95 transition-all shadow-[0_25px_50px_-12px_rgba(255,255,255,0.3)]"
               >
                 Engage Discovery
               </button>

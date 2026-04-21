@@ -11,13 +11,15 @@ import "./index.css";
 // premium-polish.css = heavy animations
 // matte-themes.css = alternate color themes
 // pwa-performance.css = hardware overrides
-if (typeof window !== 'undefined') {
-  // Force reload on Vite preload errors (Failed to fetch dynamically imported module)
-  window.addEventListener('vite:preloadError', (event) => {
-    console.warn('[Vite] Preload error detected, reloading...');
-    window.location.reload();
-  });
+import "./styles/responsive.css";
 
+// Force reload on Vite preload errors (Failed to fetch dynamically imported module)
+window.addEventListener('vite:preloadError', (event) => {
+  console.warn('[Vite] Preload error detected, reloading...');
+  window.location.reload();
+});
+
+if (typeof window !== 'undefined') {
   window.addEventListener('error', (event: any) => {
     if (event.message?.includes('Failed to fetch dynamically imported module') || 
         (event.target && event.target.tagName === 'SCRIPT')) {
@@ -27,7 +29,6 @@ if (typeof window !== 'undefined') {
   }, true);
 
   requestAnimationFrame(() => {
-    import("./styles/responsive.css");
     import("./styles/PremiumShine.css");
     import("./styles/premium-polish.css");
     import("./styles/matte-themes.css");

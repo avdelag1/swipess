@@ -217,7 +217,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { triggerHaptic('light'); onOpenChange(v); }}>
-      <DialogContent className="sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 border-none bg-black/90 backdrop-blur-3xl overflow-hidden rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,0.9)]">
+      <DialogContent className="sm:max-w-3xl max-h-[92vh] flex flex-col p-0 gap-0 border border-white/5 bg-[#0a0a0b] overflow-hidden rounded-[3rem] shadow-[0_0_80px_rgba(0,0,0,0.9)]">
         
         {/* 🛸 NEXUS HEADER */}
         <div className="relative px-8 pt-8 pb-6 border-b border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent">
@@ -291,7 +291,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                           <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-white font-bold italic focus:border-[#EB4898]/50 transition-all px-6">
                             <SelectValue placeholder="Gender" />
                           </SelectTrigger>
-                          <SelectContent className="bg-[#0d0d0f] border-white/10 text-white">
+                          <SelectContent className="bg-[#0a0a0b] border-white/10 text-white">
                             <SelectItem value="male">Male</SelectItem>
                             <SelectItem value="female">Female</SelectItem>
                             <SelectItem value="non-binary">Spectrum</SelectItem>
@@ -403,7 +403,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                           <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-white font-bold italic px-4 uppercase tracking-tighter">
                              <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-[#0d0d0f] border-white/10 text-white">
+                          <SelectContent className="bg-[#0a0a0b] border-white/10 text-white">
                              {group.opts.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                           </SelectContent>
                        </Select>
@@ -428,10 +428,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
            <Button 
               onClick={handleSave}
               disabled={saveMutation.isPending}
-              className="h-14 pl-8 pr-10 rounded-2xl bg-white text-black font-black italic uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95 transition-all group"
+              className="h-14 pl-8 pr-10 rounded-2xl bg-white text-black font-black italic uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95 transition-all group border-none"
            >
-              <Save className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform" />
-              {saveMutation.isPending ? 'Syncing...' : 'Commit Changes'}
+              <Save className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform !text-black" />
+              <span className="!text-black">{saveMutation.isPending ? 'Syncing...' : 'Commit Changes'}</span>
            </Button>
         </div>
       </DialogContent>

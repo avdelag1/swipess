@@ -41,7 +41,6 @@ function TopBarComponent({
   const { user } = useAuth();
   const { theme, isLight } = useTheme();
 
-  const isIvanna = theme === 'ivanna-style';
   const isOwner = userRole === 'owner';
 
   const glassSurfaceStyle: React.CSSProperties = {

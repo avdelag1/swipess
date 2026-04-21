@@ -36,7 +36,7 @@ const OwnerProfile = () => {
   return (
     <div className={cn(
       "min-h-full w-full transition-colors duration-500",
-      theme === 'ivanna-style' ? "bg-transparent ivanna-style" : (isLight ? "bg-white text-black" : "bg-[#0a0a0c] text-white")
+      "bg-background text-foreground"
     )}>
       {/* 🛸 CINEMATIC ATMOSPHERE */}
       <AnimatePresence>
@@ -64,15 +64,13 @@ const OwnerProfile = () => {
               whileTap={{ scale: 0.95 }}
               className={cn(
                  "w-44 h-44 transition-all duration-500",
-                 theme === 'ivanna-style' 
-                   ? "rounded-[2.5rem] border-6 border-black shadow-artisan p-1 bg-white" 
-                   : "rounded-[3.2rem] p-[4px] bg-gradient-to-br from-[#EB4898] via-indigo-500 to-sky-400 shadow-2xl"
+                 "rounded-[3.2rem] p-[4px] bg-gradient-to-br from-[#EB4898] via-indigo-500 to-sky-400 shadow-2xl"
               )}
             >
               <div
                 className={cn(
                    "w-full h-full overflow-hidden cursor-pointer flex items-center justify-center",
-                   theme === 'ivanna-style' ? "rounded-[2rem] bg-ivanna-parchment" : "rounded-[3.1rem] bg-[#0d0d0f] border border-white/10"
+                   "rounded-[3.1rem] bg-background border border-white/10"
                 )}
                 onClick={() => { triggerHaptic('selection'); setShowEditDialog(true); }}
               >
@@ -87,9 +85,7 @@ const OwnerProfile = () => {
               onClick={() => { triggerHaptic('selection'); setShowEditDialog(true); }}
               className={cn(
                  "absolute -bottom-2 -right-2 w-14 h-14 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20",
-                 theme === 'ivanna-style' 
-                   ? "bg-white border-4 border-black font-black rounded-2xl shadow-artisan text-black" 
-                   : "bg-black text-white rounded-3xl"
+                 "bg-black text-white rounded-3xl"
               )}
             >
               <Camera className="w-6 h-6" />
@@ -99,19 +95,19 @@ const OwnerProfile = () => {
           <div className="space-y-2">
             <h1 className={cn(
               "text-5xl font-black uppercase italic tracking-tighter leading-none transition-all",
-              theme === 'ivanna-style' ? "text-black" : (isLight ? "text-black" : "text-white")
+              isLight ? "text-black" : "text-white"
             )}>
               {ownerProfile?.business_name || 'Brand'}
             </h1>
             <div className="flex items-center justify-center gap-3">
                <div className={cn(
                  "px-4 py-1 rounded-full border transition-all",
-                 theme === 'ivanna-style' ? "bg-white border-2 border-black shadow-artisan" : "bg-[#EB4898]/10 border-[#EB4898]/20"
+                 "bg-[#EB4898]/10 border-[#EB4898]/20"
                )}>
                   <span className={cn(
                     "text-[10px] font-black uppercase tracking-[0.2em] italic",
-                    theme === 'ivanna-style' ? "text-black" : "text-[#EB4898]"
-                  )}>Authority Profile</span>
+                    "text-[#EB4898]"
+                  )}>Owner Profile</span>
                </div>
                <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
                <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic", isLight ? "text-black/30" : "text-white/30")}>{user?.email}</span>
@@ -131,16 +127,14 @@ const OwnerProfile = () => {
               whileTap={{ scale: 0.95 }}
               className={cn(
                  "backdrop-blur-3xl border transition-all duration-500 flex flex-col items-center justify-center p-5 text-center shadow-xl",
-                 theme === 'ivanna-style' 
-                   ? "bg-white border-4 border-black shadow-artisan rounded-[1.8rem]" 
-                   : "bg-white/[0.03] border-white/[0.08] rounded-[2rem]"
+                 "bg-white/[0.03] border-white/[0.08] rounded-[2rem]"
               )}
             >
               <stat.icon className={cn("w-6 h-6 mb-3 transition-transform group-hover:scale-110", stat.color)} />
-              <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", theme === 'ivanna-style' ? "text-black" : (isLight ? "text-slate-950 font-black" : "text-white"))}>
+              <div className={cn("text-3xl font-black tabular-nums tracking-tighter leading-none", isLight ? "text-slate-950 font-black" : "text-white")}>
                 {stat.value}
               </div>
-              <div className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic mt-2.5", theme === 'ivanna-style' ? "text-black opacity-60" : (isLight ? "text-slate-500 font-bold" : "text-white/40"))}>{stat.label}</div>
+              <div className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic mt-2.5", isLight ? "text-slate-500 font-bold" : "text-white/40")}>{stat.label}</div>
             </motion.div>
           ))}
         </div>
@@ -154,7 +148,7 @@ const OwnerProfile = () => {
         >
           <div className={cn(
              "backdrop-blur-3xl rounded-[2.7rem] p-7 flex items-center justify-between border",
-             isLight ? "bg-white border-white/5" : "bg-[#0d0d0f]/95 border-white/5"
+             isLight ? "bg-white border-white/5" : "bg-background/95 border-white/5"
           )}>
             <div className="flex items-center gap-5">
               <div className="w-16 h-16 rounded-2xl bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20">
@@ -177,11 +171,11 @@ const OwnerProfile = () => {
             onClick={() => { triggerHaptic('medium'); setShowEditDialog(true); }}
             className={cn(
               "w-full h-20 rounded-[2.5rem] font-black uppercase italic tracking-[0.2em] text-[16px] hover:scale-[1.03] active:scale-95 transition-all shadow-2xl border-none shadow-[#EB4898]/20",
-              isLight ? "bg-slate-950 text-white" : "bg-white text-slate-950"
+              isLight ? "bg-slate-950 text-white" : "bg-white !text-slate-950"
             )}
           >
-            <User className="w-7 h-7 mr-4 text-inherit" />
-            <span className="text-inherit">Control Brand ID</span>
+            <User className={cn("w-7 h-7 mr-4", isLight ? "text-white" : "!text-slate-950")} />
+            <span className={isLight ? "text-white" : "!text-slate-950"}>Control Brand ID</span>
           </Button>
 
           <Button
@@ -192,8 +186,8 @@ const OwnerProfile = () => {
             )}
           >
             <Megaphone className="w-7 h-7 text-[#EB4898] mr-4" />
-            <span className="bg-gradient-to-r from-[#EB4898] via-indigo-500 to-sky-500 bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[15px]">
-              Sync Marketing
+            <span className="bg-gradient-to-r from-[#EB4898] via-orange-500 to-amber-500 bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[15px]">
+              Promote Your Event
             </span>
           </Button>
         </div>
@@ -231,7 +225,7 @@ const OwnerProfile = () => {
           <div className="flex items-center justify-between px-2">
              <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-[#EB4898] animate-pulse" />
-                <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Brand Pulse Feed</h3>
+                <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Activity Feed</h3>
              </div>
              <Sparkles className="w-4 h-4 text-[#EB4898]/40" />
           </div>
@@ -255,14 +249,14 @@ const OwnerProfile = () => {
               className="w-full h-20 rounded-[2.5rem] bg-gradient-to-r from-[#EB4898] via-indigo-500 to-sky-500 flex items-center justify-center gap-4 active:scale-[0.97] transition-all shadow-[0_25px_60px_rgba(235,72,152,0.3)]"
            >
               <Crown className="w-7 h-7 text-white" />
-              <span className="text-[16px] font-black uppercase italic tracking-[0.2em] text-white">Authority Vault</span>
+              <span className="text-[16px] font-black uppercase italic tracking-[0.2em] text-white">Owner Dashboard</span>
            </motion.button>
 
            <div className="grid grid-cols-1 gap-4 text-center">
               {[
                 { label: 'Legal Center', icon: Scale, path: '/legal' },
-                { label: 'Account Authority', icon: Settings, path: '/owner/settings' },
-                { label: 'De-authorize Brand', icon: LogOut, path: 'signout', urgent: true }
+                { label: 'Account Settings', icon: Settings, path: '/owner/settings' },
+                { label: 'Sign Out', icon: LogOut, path: 'signout', urgent: true }
               ].map(btn => (
                  <motion.button
                   key={btn.label}

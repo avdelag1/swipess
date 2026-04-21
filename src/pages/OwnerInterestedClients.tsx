@@ -36,7 +36,7 @@ const clientCategories = [
 const OwnerInterestedClients = () => {
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isLight = theme === "light" || theme === "ivanna-style";
+  const isLight = theme === "light";
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");

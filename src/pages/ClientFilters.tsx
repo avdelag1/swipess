@@ -22,7 +22,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
   const location = useLocation();
   const queryClient = useQueryClient();
   const { theme } = useTheme();
-  const isDark = theme === 'dark' || theme === 'nexus-style';
+  const isDark = theme === 'dark';
 
   const urlParams = new URLSearchParams(location.search);
   const aiCategory = urlParams.get('category');
@@ -109,16 +109,14 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
     <div className={cn(
         "transition-colors duration-500 pb-32 pt-safe-top",
         !isEmbedded && "min-h-screen",
-        theme === 'nexus-style' ? "bg-black text-white" : 
-        (theme === 'ivanna-style' ? "bg-transparent text-foreground ivanna-style" : (isDark ? "bg-background text-foreground" : "bg-[#F8FAFC] text-slate-900")),
+        (isDark ? "bg-background text-foreground" : "bg-[#F8FAFC] text-slate-900"),
         isEmbedded && "bg-transparent"
     )}>
       {/* Target Acquisition Header Style */}
       {!isEmbedded && (
         <div className={cn(
           "sticky top-0 z-50 backdrop-blur-3xl border-b transition-all duration-300",
-          theme === 'nexus-style' ? "bg-black/60 border-white/10 shadow-2xl" :
-          (theme === 'ivanna-style' ? "bg-white/20 border-foreground shadow-artisan" : (isDark ? "bg-background/80 border-white/5 shadow-2xl" : "bg-white/80 border-slate-200 shadow-sm"))
+          (isDark ? "bg-background/80 border-white/5 shadow-2xl" : "bg-white/80 border-slate-200 shadow-sm")
       )}>
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between mb-4">
@@ -134,7 +132,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 <ChevronLeft className="w-5 h-5" />
               </motion.button>
               <div>
-                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#3B82F6]">Target Scope</span>
+                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#3B82F6]">Selection Spectrum</span>
                 <h1 className="text-2xl font-black italic tracking-tighter uppercase leading-none mt-1">Discovery Radar</h1>
               </div>
             </div>
@@ -202,7 +200,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               className="space-y-5"
             >
               <div className="flex items-center justify-between px-1">
-                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Selection Matrix</h2>
+                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Category Filters</h2>
                 <div className="h-[1px] flex-1 mx-6 bg-[#3B82F6]/10" />
                 <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{activeCategory}</span>
               </div>
@@ -241,7 +239,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                   <div className="w-7 h-7 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
                     <Sparkles className="w-4 h-4 text-[#3B82F6]" />
                   </div>
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Detail Acquisition</span>
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Filter Detail</span>
                   <div className="h-[1px] flex-1 bg-[#3B82F6]/10" />
                 </div>
                 

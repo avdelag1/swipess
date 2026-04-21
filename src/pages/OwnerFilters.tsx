@@ -11,7 +11,6 @@ import { haptics } from '@/utils/microPolish';
 export default function OwnerFilters() {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const isIvanna = theme === 'ivanna-style';
   const activeCategory = useFilterStore(s => s.activeCategory);
 
   const handleApply = useCallback((filters: any) => {
@@ -22,13 +21,12 @@ export default function OwnerFilters() {
 
   return (
     <div className={cn(
-      "min-h-screen pb-32 transition-colors duration-500",
-      isIvanna ? "bg-transparent ivanna-style" : "bg-background"
+      "min-h-screen pb-32 transition-colors duration-500 bg-background"
     )}>
       {/* 🛸 OWNER RADAR HEADER */}
       <div className={cn(
         "sticky top-0 z-50 backdrop-blur-3xl border-b pt-safe-top transition-all duration-300",
-        isIvanna ? "bg-white/20 border-[#111111] shadow-artisan" : "bg-background/80 border-white/5 shadow-2xl"
+        "bg-background/80 border-white/5 shadow-2xl"
       )}>
         <div className="container mx-auto px-6 py-6 max-w-lg">
           <div className="flex items-center gap-4">
@@ -37,7 +35,7 @@ export default function OwnerFilters() {
               onClick={() => navigate(-1)}
               className={cn(
                 "w-12 h-12 flex items-center justify-center rounded-2xl border transition-all",
-                isIvanna ? "bg-white border-[#111111] shadow-artisan" : "bg-white/5 border-white/10 text-white"
+                "bg-white/5 border-white/10 text-white"
               )}
             >
               <ChevronLeft className="w-6 h-6" />
