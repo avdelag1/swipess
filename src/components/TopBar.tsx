@@ -49,16 +49,12 @@ function TopBarComponent({
   const isOwner = userRole === 'owner';
 
   const glassSurfaceStyle: React.CSSProperties = {
-    background: isLight ? 'rgba(255, 255, 255, 1)' : 'rgba(15, 15, 18, 0.75)',
-    backdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(50px) saturate(240%) contrast(1.1)',
-    WebkitBackdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(50px) saturate(240%) contrast(1.1)',
+    background: 'rgba(255, 255, 255, 1)',
+    backdropFilter: 'blur(60px) saturate(240%)',
+    WebkitBackdropFilter: 'blur(60px) saturate(240%)',
     borderRadius: '1.8rem',
-    boxShadow: theme === 'ivanna-style' 
-      ? '0 20px 50px -10px rgba(100,160,230,0.25), inset 0 0 20px rgba(255,255,255,0.4)'
-      : (isLight 
-         ? '0 12px 30px -5px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,1)' 
-         : '0 30px 80px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1)'),
-    border: isLight ? '1.5px solid #ffffff' : '1px solid rgba(255,255,255,0.15)',
+    border: '1px solid rgba(0, 0, 0, 0.04)',
+    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 1)',
   };
 
   const { data: profile } = useQuery({
@@ -160,10 +156,7 @@ function TopBarComponent({
           <div className="flex-1 flex justify-center pointer-events-none">
             <div 
               className="flex rounded-full p-1.5 shadow-md pointer-events-auto stagger-enter"
-              style={{
-                ...glassSurfaceStyle,
-                background: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 15, 18, 0.75)',
-              }}
+              style={glassSurfaceStyle}
             >
               <button
                 onPointerDown={(e) => {
@@ -174,8 +167,8 @@ function TopBarComponent({
                 className={cn(
                   "px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300",
                   activeTab === 'explore' 
-                    ? (isLight ? "bg-black text-white shadow-lg" : "bg-white/10 text-white") 
-                    : (isLight ? "text-black/40 hover:text-black/60" : "text-white/40 hover:text-white/60")
+                    ? "bg-black text-white shadow-lg" 
+                    : "text-black/40 hover:text-black/60"
                 )}
               >
                 Explore
@@ -189,8 +182,8 @@ function TopBarComponent({
                 className={cn(
                   "px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300",
                   activeTab === 'manage' 
-                    ? (isLight ? "bg-black text-white shadow-lg" : "bg-white/10 text-white") 
-                    : (isLight ? "text-black/40 hover:text-black/60" : "text-white/40 hover:text-white/60")
+                    ? "bg-black text-white shadow-lg" 
+                    : "text-black/40 hover:text-black/60"
                 )}
               >
                 Manage
