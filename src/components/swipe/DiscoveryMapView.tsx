@@ -61,8 +61,8 @@ const pixelToLatLng = (dx: number, dy: number, lat: number, zoom: number) => {
   };
 };
 
-const tileUrl = (x: number, y: number, z: number) =>
-  `https://basemaps.cartocdn.com/light_all/${z}/${x}/${y}.png`;
+const tileUrl = (x: number, y: number, z: number, isLight: boolean) =>
+  `https://basemaps.cartocdn.com/${isLight ? 'light_all' : 'dark_all'}/${z}/${x}/${y}.png`;
 
 // ÔöÇÔöÇÔöÇ Haversine distance ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
 const haversineKm = (lat1: number, lng1: number, lat2: number, lng2: number) => {
@@ -335,7 +335,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
       ctx.stroke();
     };
 
-    ctx.fillStyle = '#f8fafc'; // Force light background for map tiles always
+    ctx.fillStyle = isLight ? '#f8fafc' : '#050505'; // Force theme-aware background
     ctx.fillRect(0, 0, w, h);
     drawDotsAndOverlay();
 
@@ -372,7 +372,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
           loaded++; 
           if (loaded >= total) drawDotsAndOverlay();
         };
-        img.src = tileUrl(centerTileX + dx, centerTileY + dy, zoom);
+        img.src = tileUrl(centerTileX + dx, centerTileY + dy, zoom, isLight);
       }
     }
     // Final dots draw even if tiles fail
@@ -420,7 +420,7 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
   const sliderRatio = (localKm - MIN_KM) / (MAX_KM - MIN_KM);
 
   return (
-    <div className="relative flex-1 flex flex-col overflow-hidden bg-white">
+    <div className="relative flex-1 flex flex-col overflow-hidden" style={{ background: 'var(--hud-bg)' }}>
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

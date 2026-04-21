@@ -292,12 +292,12 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                   )}
                   style={{ contain: 'paint', willChange: 'transform, opacity' }}
                 >
-                  <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
+                    <div className="absolute inset-0 bg-[var(--hud-text)]/10 z-10 group-hover:bg-[var(--hud-text)]/5 transition-colors" />
                 <QuickFilterImage 
                   src={option.image} 
                   alt={option.label}
                 />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20" style={{ color: 'var(--hud-text)' }}>
                     <div className={cn("mb-1 transition-transform duration-150", isActive && "scale-105")}>
                       {option.icon}
                     </div>
@@ -360,12 +360,12 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
             )}
             style={{ contain: 'paint', willChange: 'transform, opacity' }}
           >
-            <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
+            <div className="absolute inset-0 bg-[var(--hud-text)]/10 z-10 group-hover:bg-[var(--hud-text)]/5 transition-colors" />
             <QuickFilterImage 
               src={POKER_CARD_PHOTOS.all || '/images/filters/property.png'} 
               alt="All"
             />
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-20" style={{ color: 'var(--hud-text)' }}>
               <Globe className={cn("w-7 h-7 mb-1 transition-transform duration-150", clientIsAllSelected && "scale-105")} />
               <span className="text-[10px] font-black uppercase tracking-widest">Global</span>
               <span className="text-xl font-black">ALL</span>
@@ -394,12 +394,12 @@ function QuickFilterBarComponent({ filters, onChange, onSelect, className, userR
                 )}
                 style={{ contain: 'paint', willChange: 'transform, opacity' }}
               >
-                <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/20 transition-colors" />
+                <div className="absolute inset-0 bg-[var(--hud-text)]/10 z-10 group-hover:bg-[var(--hud-text)]/5 transition-colors" />
                 <QuickFilterImage 
                   src={photo} 
                   alt={category.label}
                 />
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white">
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-20" style={{ color: 'var(--hud-text)' }}>
                   <div className={cn("mb-1 transition-transform duration-150", isActive && "scale-105")}>
                     {category.icon}
                   </div>
