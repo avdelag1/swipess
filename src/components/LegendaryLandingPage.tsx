@@ -115,14 +115,14 @@ const LandingView = memo(({
       >
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('login'); }}
-          className="w-full h-14 rounded-[2rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[12px] shadow-[0_15px_45px_rgba(255,255,255,0.15)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/50"
+          className="w-full h-14 rounded-[2rem] bg-white text-black font-black uppercase tracking-[0.25em] text-[13px] shadow-[0_15px_45px_rgba(255,255,255,0.15)] active:scale-[0.97] transition-all flex items-center justify-center gap-3 border border-white/50"
         >
           <LogIn className="w-4 h-4" />
           Sign In
         </button>
         <button
           onClick={() => { triggerHaptic('medium'); onEnterAuth('signup'); }}
-          className="w-full h-14 rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/20 text-white font-black uppercase tracking-[0.25em] text-[12px] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:bg-white/10 shadow-xl"
+          className="w-full h-14 rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/20 text-white font-black uppercase tracking-[0.25em] text-[13px] active:scale-[0.97] transition-all flex items-center justify-center gap-3 hover:bg-white/10 shadow-xl"
         >
           <Sparkles className="w-4 h-4" />
           Create Account
@@ -130,7 +130,7 @@ const LandingView = memo(({
         <motion.p
           animate={{ opacity: [0.15, 0.4, 0.15] }}
           transition={{ duration: 3, repeat: Infinity }}
-          className="mt-2 text-[9px] uppercase tracking-[0.35em] font-bold text-white/30 italic"
+          className="mt-2 text-[10px] uppercase tracking-[0.35em] font-bold text-white/30 italic"
         >
           or swipe logo to enter →
         </motion.p>
@@ -530,7 +530,7 @@ function LegendaryLandingPage() {
 
             <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-white/80 scrollbar-none pb-12">
                {legalModal === 'terms' ? (
-                 <div className="space-y-5">
+                  <div className="space-y-5">
                     <p className="text-sm font-bold leading-relaxed text-white">By accessing the Swipess application, you agree to be bound by these professional Terms of Service. Access is granted to users who comply with our community standard protocols.</p>
                     <div className="h-px bg-white/10 my-6" />
                     
@@ -542,7 +542,7 @@ function LegendaryLandingPage() {
                     
                     <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">03 — Prohibited Conduct</h3>
                     <p className="text-sm opacity-80 leading-relaxed">Users shall not provide fraudulent information, harass others, or attempt to compromise platform security. Violation results in immediate suspension.</p>
-                 </div>
+                  </div>
                ) : (
                  <div className="space-y-5">
                     <p className="text-sm font-bold leading-relaxed text-white">We value your privacy and security. Swipess uses advanced end-to-end encryption for sensitive data.</p>
