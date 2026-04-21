@@ -39,7 +39,7 @@ function TopBarComponent({
 }: TopBarProps) {
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
-  const { theme, isLight } = useTheme();
+  const { theme, isLight, isDark } = useTheme();
 
   const isOwner = userRole === 'owner';
 
@@ -47,7 +47,7 @@ function TopBarComponent({
     background: _transparent ? 'transparent' : 'var(--nav-bg)',
     backdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(64px) saturate(280%) contrast(1.1)',
     WebkitBackdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(64px) saturate(280%) contrast(1.1)',
-    borderRadius: isIvanna ? '2rem' : '1.8rem',
+    borderRadius: '1.8rem',
     boxShadow: theme === 'ivanna-style' 
       ? '0 20px 50px -10px rgba(100,160,230,0.25), inset 0 0 20px rgba(255,255,255,0.4)'
       : (isLight 

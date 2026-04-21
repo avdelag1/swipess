@@ -14,7 +14,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 
 const NotificationsPage = () => {
   const { notifications, isLoading, markAsRead, deleteNotification, markAllAsRead } = useNotifications();
-  const { isLight, isDark, isIvanna } = useTheme();
+  const { isLight, isDark } = useTheme();
   const { navigate } = useAppNavigate();
 
   const getIcon = (type: string) => {
@@ -42,7 +42,7 @@ const NotificationsPage = () => {
   return (
     <div className={cn(
       "min-h-full w-full pb-20",
-      isIvanna ? "bg-transparent" : (isDark ? "bg-[#0a0a0c]" : "bg-white")
+      isDark ? "bg-[#0a0a0c]" : "bg-white"
     )}>
       <header className={cn(
         "sticky top-0 z-50 px-6 py-4 backdrop-blur-3xl border-b transition-all",
