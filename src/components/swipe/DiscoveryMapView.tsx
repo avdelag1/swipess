@@ -281,9 +281,9 @@ export const DiscoveryMapView = memo(({ category, onBack, onStartSwiping, mode =
     // 🚀 ULTRA-STABLE RENDERING: Draw Dots & Overlay IMMEDIATELY on bg fill 
     // to prevent clear-frame flicker while tiles load.
     const drawDotsAndOverlay = () => {
-      // Dark overlay for dark mode
+      // High-contrast awareness: Keep map clear in dark mode
       if (!isLight) {
-        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillStyle = 'rgba(0,0,0,0.15)';
         ctx.fillRect(0, 0, w, h);
       }
 

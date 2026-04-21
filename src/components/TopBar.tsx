@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, SlidersHorizontal, Radio, Ghost, Sparkles } from 'lucide-react';
+import { ChevronLeft, Radio, Ghost } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -45,7 +45,7 @@ function TopBarComponent({
   const isOwner = userRole === 'owner';
 
   const glassSurfaceStyle: React.CSSProperties = {
-    background: _transparent ? 'transparent' : 'var(--nav-bg)',
+    background: 'var(--nav-bg)',
     backdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(64px) saturate(280%) contrast(1.1)',
     WebkitBackdropFilter: theme === 'ivanna-style' ? 'none' : 'blur(64px) saturate(280%) contrast(1.1)',
     borderRadius: '1.8rem',
@@ -54,7 +54,7 @@ function TopBarComponent({
       : (isLight 
          ? '0 20px 50px -10px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.4)' 
          : '0 30px 80px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.2)'),
-    border: _transparent ? 'none' : (isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.15)'),
+    border: '1px solid ' + (isLight ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)'),
   };
 
   const { data: profile } = useQuery({
@@ -177,21 +177,6 @@ function TopBarComponent({
                 />
               </motion.button>
 
-              {isOwner && (
-                 <motion.button
-                  whileTap={{ scale: 0.85 }}
-                  onPointerDown={(e) => {
-                    e.preventDefault(); e.stopPropagation();
-                    haptics.success();
-                    useModalStore.getState().openAIListing();
-                  }}
-                  className="w-12 h-12 flex items-center justify-center p-0 relative"
-                  title="AI Listing Wizard"
-                >
-                  <div className="absolute inset-0 bg-cyan-500/10 blur-xl rounded-full opacity-0 hover:opacity-100 transition-opacity" />
-                  <Sparkles className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
-                </motion.button>
-              )}
 
 
               <div className="flex items-center px-0.5">
