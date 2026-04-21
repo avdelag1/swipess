@@ -187,9 +187,9 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
             "text-[10px] font-black uppercase tracking-[0.3em] italic",
             isLight ? "text-[#3B82F6]" : "text-primary"
           )}>
-            {category === 'service' ? 'Prospect Shield' : 'Target Scope'}
+            Discovery Filters
           </h3>
-          <span className="text-xs font-black uppercase tracking-widest opacity-40">Discovery Radar</span>
+          <span className="text-xs font-black uppercase tracking-widest opacity-40">Active Range</span>
         </div>
         <Badge variant="outline" className="text-[9px] font-bold border-primary/20 text-primary uppercase">{category}</Badge>
       </div>
@@ -254,7 +254,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
         <CardHeader className="pb-0 pt-6 px-6">
           <div className="flex items-center gap-2">
              <Globe className="w-4 h-4 text-primary" />
-             <span className="text-xs font-black uppercase tracking-widest">Geo Scope</span>
+             <span className="text-xs font-black uppercase tracking-widest">Location Reach</span>
           </div>
         </CardHeader>
         <CardContent className="pt-4 space-y-6">
@@ -288,7 +288,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
              <div className="w-5 h-5 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
                <DollarSign className="w-3 h-3 text-[#3B82F6]" />
              </div>
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Budget Radar</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Budget Range</span>
           </div>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
@@ -434,7 +434,7 @@ export function DiscoveryFilters({ category, onApply, initialFilters = {}, activ
 
       {!hideApplyButton && (
         <Button onClick={_handleApply} className="w-full h-14 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20">
-          Apply Discovery Scope
+          Apply Discovery Filters
         </Button>
       )}
     </div>

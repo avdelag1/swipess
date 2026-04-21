@@ -16,9 +16,9 @@ interface ClientVerificationFlowProps {
 }
 
 const steps = [
-  { id: 'selfie', title: 'Selfie Check', description: 'Biometric face verification', icon: Camera, color: '#EB4898' },
-  { id: 'document', title: 'Identity Hub', description: 'National ID/Passport Sync', icon: FileCheck, color: '#3b82f6' },
-  { id: 'review', title: 'Authorization', description: 'Securing identity logs', icon: ShieldCheck, color: '#10b981' },
+  { id: 'selfie', title: 'Selfie Check', description: 'Face verification', icon: Camera, color: '#EB4898' },
+  { id: 'document', title: 'Identity Verification', description: 'National ID or Passport', icon: FileCheck, color: '#3b82f6' },
+  { id: 'review', title: 'Manual Review', description: 'Final verification check', icon: ShieldCheck, color: '#10b981' },
 ];
 
 export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowProps) {
@@ -55,7 +55,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
       };
       reader.readAsDataURL(file);
     } catch (err) {
-      toast.error(`Upload failed. System error.`);
+      toast.error(`Upload failed. Please try again.`);
     } finally {
       setUploading(false);
     }
@@ -79,10 +79,10 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
       });
       if (requestError) throw requestError;
       await supabase.from('client_profiles').update({ verification_submitted_at: new Date().toISOString() }).eq('user_id', user.id);
-      toast.success('Identity Authority Transmitted! 🚀');
+      toast.success('Verification Submitted! 🚀');
       onComplete?.();
     } catch (err) {
-      toast.error('Submission protocol failure.');
+      toast.error('Submission failed. Please contact support.');
     } finally {
       setSubmitting(false);
     }
@@ -91,7 +91,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
   return (
     <div className="space-y-12">
       
-      {/* 🛸 NEXUS PROGRESS STEPS */}
+      {/* 🛸 PROGRESS STEPS */}
       <div className="flex items-center justify-between px-6">
         {steps.map((s, i) => {
           const StepIcon = s.icon;
@@ -108,7 +108,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                   isActive ? "border-primary bg-primary/10" :
                   "border-white/5 bg-white/5 opacity-40"
                 )}
-                style={isActive ? { borderColor: s.color, backgroundColor: `${s.color}20`, shadowColor: `${s.color}40` } : (isDone ? { backgroundColor: '#10b981', borderColor: '#10b981' } : {})}
+                style={isActive ? { borderColor: s.color, backgroundColor: `${s.color}20` } : (isDone ? { backgroundColor: '#10b981', borderColor: '#10b981' } : {})}
               >
                 {isDone ? (
                   <Check className="w-7 h-7 text-white" />
@@ -124,7 +124,6 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
         })}
       </div>
 
-      {/* 🛸 IMMERSIVE TERMINAL */}
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
@@ -134,7 +133,6 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
           transition={ { type: "spring", stiffness: 350, damping: 30 } }
           className="relative group"
         >
-          {/* Subtle Back Glow */}
           <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[40%] bg-indigo-500/10 blur-[130px] rounded-full" />
           
           <div className={cn(
@@ -182,10 +180,10 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                     <div className="relative h-18 rounded-[2rem] bg-[#EB4898] text-white font-black uppercase tracking-widest text-[11px] italic flex items-center justify-center gap-4 transition active:scale-95 shadow-2xl">
                       <input type="file" accept="image/*" capture="user" onChange={(e) => handleFileSelect(e, 'selfie')} className="hidden" />
                       {uploading ? <Activity className="w-5 h-5 animate-pulse" /> : <Camera className="w-5 h-5" />}
-                      {uploading ? 'Processing Matrix...' : (selfieUrl ? 'Change Protocol' : 'Execute Selfie')}
+                      {uploading ? 'Processing Image...' : (selfieUrl ? 'Change Photo' : 'Take Selfie')}
                     </div>
                   </label>
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20 italic">Biometric Scan Hub Active</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20 italic">Secure Photo Verification</p>
                 </div>
               </div>
             )}
@@ -215,10 +213,10 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                     <div className="relative h-18 rounded-[2rem] bg-indigo-500 text-white font-black uppercase tracking-widest text-[11px] italic flex items-center justify-center gap-4 transition active:scale-95 shadow-2xl">
                       <input type="file" accept="image/*" onChange={(e) => handleFileSelect(e, 'id_document')} className="hidden" />
                       {uploading ? <Activity className="w-5 h-5 animate-pulse" /> : <FileCheck className="w-5 h-5" />}
-                      {uploading ? 'Syncing Docs...' : (documentUrl ? 'Replace Protocol' : 'Scan Hub ID')}
+                      {uploading ? 'Uploading Docs...' : (documentUrl ? 'Change Document' : 'Upload ID')}
                     </div>
                   </label>
-                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20 italic">OCR Authorization Enabled</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20 italic">Identification Capture</p>
                 </div>
               </div>
             )}
@@ -228,7 +226,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                 <div className="flex items-center justify-center gap-14">
                   <div className="relative">
                     <img src={selfieUrl!} className="w-24 h-24 rounded-full object-cover border-4 border-[#EB4898] shadow-2xl" alt="Selfie" />
-                    <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center border-4 border-black">
+                    <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald- emerald-500 flex items-center justify-center border-4 border-black">
                       <Check className="w-4 h-4 text-white" />
                     </div>
                   </div>
@@ -244,8 +242,8 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                 <div className={cn("rounded-[2rem] p-8 border flex items-start gap-6 text-left", isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.03] border-white/5")}>
                    <Activity className="w-6 h-6 text-emerald-500 animate-pulse shrink-0 mt-1" />
                    <div className="space-y-2">
-                       <h4 className="text-[12px] font-black uppercase italic tracking-tighter leading-none">Authorization Protocol</h4>
-                       <p className="text-[10px] font-bold italic opacity-30 leading-relaxed uppercase tracking-widest">Manual matrix review initialized. 24h expected sync time. AES-256 Encryption active.</p>
+                       <h4 className="text-[12px] font-black uppercase italic tracking-tighter leading-none">Manual Verification Case</h4>
+                       <p className="text-[10px] font-bold italic opacity-30 leading-relaxed uppercase tracking-widest">Manual review initialized. 24h expected processing time.</p>
                    </div>
                 </div>
 
@@ -254,7 +252,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
                   disabled={submitting}
                   className="w-full h-20 rounded-[2.5rem] bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase italic tracking-[0.3em] text-[12px] shadow-3xl shadow-emerald-500/30 transition-all active:scale-[0.98]"
                 >
-                  {submitting ? 'TRANSMITTING HUB...' : 'EXECUTE AUTHORIZATION'}
+                  {submitting ? 'SUBMITTING...' : 'SUBMIT VERIFICATION'}
                 </Button>
               </div>
             )}

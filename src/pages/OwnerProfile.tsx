@@ -36,7 +36,7 @@ const OwnerProfile = () => {
   return (
     <div className={cn(
       "min-h-full w-full transition-colors duration-500",
-      theme === 'ivanna-style' ? "bg-transparent ivanna-style" : (isLight ? "bg-white text-black" : "bg-[#0a0a0c] text-white")
+      theme === 'ivanna-style' ? "bg-transparent ivanna-style" : "bg-background text-foreground"
     )}>
       {/* 🛸 CINEMATIC ATMOSPHERE */}
       <AnimatePresence>
@@ -72,7 +72,7 @@ const OwnerProfile = () => {
               <div
                 className={cn(
                    "w-full h-full overflow-hidden cursor-pointer flex items-center justify-center",
-                   theme === 'ivanna-style' ? "rounded-[2rem] bg-ivanna-parchment" : "rounded-[3.1rem] bg-[#0d0d0f] border border-white/10"
+                   theme === 'ivanna-style' ? "rounded-[2rem] bg-ivanna-parchment" : "rounded-[3.1rem] bg-background border border-white/10"
                 )}
                 onClick={() => { triggerHaptic('selection'); setShowEditDialog(true); }}
               >
@@ -111,7 +111,7 @@ const OwnerProfile = () => {
                   <span className={cn(
                     "text-[10px] font-black uppercase tracking-[0.2em] italic",
                     theme === 'ivanna-style' ? "text-black" : "text-[#EB4898]"
-                  )}>Authority Profile</span>
+                  )}>Owner Profile</span>
                </div>
                <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
                <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] italic", isLight ? "text-black/30" : "text-white/30")}>{user?.email}</span>
@@ -154,7 +154,7 @@ const OwnerProfile = () => {
         >
           <div className={cn(
              "backdrop-blur-3xl rounded-[2.7rem] p-7 flex items-center justify-between border",
-             isLight ? "bg-white border-white/5" : "bg-[#0d0d0f]/95 border-white/5"
+             isLight ? "bg-white border-white/5" : "bg-background/95 border-white/5"
           )}>
             <div className="flex items-center gap-5">
               <div className="w-16 h-16 rounded-2xl bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20">
@@ -192,8 +192,8 @@ const OwnerProfile = () => {
             )}
           >
             <Megaphone className="w-7 h-7 text-[#EB4898] mr-4" />
-            <span className="bg-gradient-to-r from-[#EB4898] via-indigo-500 to-sky-500 bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[15px]">
-              Sync Marketing
+            <span className="bg-gradient-to-r from-[#EB4898] via-orange-500 to-amber-500 bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[15px]">
+              Promote Your Event
             </span>
           </Button>
         </div>
@@ -231,7 +231,7 @@ const OwnerProfile = () => {
           <div className="flex items-center justify-between px-2">
              <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-[#EB4898] animate-pulse" />
-                <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Brand Pulse Feed</h3>
+                <h3 className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Activity Feed</h3>
              </div>
              <Sparkles className="w-4 h-4 text-[#EB4898]/40" />
           </div>
@@ -255,14 +255,14 @@ const OwnerProfile = () => {
               className="w-full h-20 rounded-[2.5rem] bg-gradient-to-r from-[#EB4898] via-indigo-500 to-sky-500 flex items-center justify-center gap-4 active:scale-[0.97] transition-all shadow-[0_25px_60px_rgba(235,72,152,0.3)]"
            >
               <Crown className="w-7 h-7 text-white" />
-              <span className="text-[16px] font-black uppercase italic tracking-[0.2em] text-white">Authority Vault</span>
+              <span className="text-[16px] font-black uppercase italic tracking-[0.2em] text-white">Owner Dashboard</span>
            </motion.button>
 
            <div className="grid grid-cols-1 gap-4 text-center">
               {[
                 { label: 'Legal Center', icon: Scale, path: '/legal' },
-                { label: 'Account Authority', icon: Settings, path: '/owner/settings' },
-                { label: 'De-authorize Brand', icon: LogOut, path: 'signout', urgent: true }
+                { label: 'Account Settings', icon: Settings, path: '/owner/settings' },
+                { label: 'Sign Out', icon: LogOut, path: 'signout', urgent: true }
               ].map(btn => (
                  <motion.button
                   key={btn.label}

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
-export type Theme = 'dark' | 'light' | 'cheers' | 'ivanna-style' | 'nexus-style';
+export type Theme = 'dark' | 'light' | 'ivanna-style';
 
 export interface ThemeToggleCoords {
   x: number;
@@ -21,17 +21,15 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers', 'ivanna-style', 'nexus-style'];
+const _VALID_THEMES: Theme[] = ['dark', 'light', 'ivanna-style'];
 const DEFAULT_THEME: Theme = 'dark';
 const STORAGE_KEY = 'swipess_theme_preference';
 
 /** Map legacy DB values to new theme names */
 function normalizeTheme(raw: string | null | undefined): Theme {
-  if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte' || raw === 'pure-black') return 'dark';
+  if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte' || raw === 'pure-black' || raw === 'nexus-style' || raw === 'cheers') return 'dark';
   if (raw === 'white-matte' || raw === 'light') return 'light';
-  if (raw === 'cheers') return 'cheers';
   if (raw === 'ivanna-style' || raw === 'ivana') return 'ivanna-style';
-  if (raw === 'nexus-style' || raw === 'cyber' || raw === 'nexus') return 'nexus-style';
   return 'dark';
 }
 
@@ -43,18 +41,9 @@ const ALL_THEME_CLASSES = [
 
 /** 
  * SPEED OF LIGHT: Optimized DOM theme application 
- * Skips unnecessary removals to prevent flickering in dark mode 
  */
 function applyThemeToDOM(theme: Theme) {
   const root = window.document.documentElement;
-  
-  // Check if theme is already applied - avoids "white flash" caused by class removal
-  if (root.classList.contains(theme) && (theme !== 'dark' || root.classList.contains('black-matte'))) {
-    return;
-  }
-
-  // Mark transition start for smooth color shift
-  root.style.colorScheme = (theme === 'cheers' || theme === 'nexus-style') ? 'dark' : (theme === 'ivanna-style' ? 'light' : theme);
   
   // PERFORMANCE: Only remove if we're actually changing
   root.classList.remove(...ALL_THEME_CLASSES);
@@ -64,17 +53,15 @@ function applyThemeToDOM(theme: Theme) {
 
   if (theme === 'dark') {
     root.classList.add('black-matte');
-  }
-
-  if (theme === 'light') {
+    root.style.colorScheme = 'dark';
+  } else if (theme === 'light') {
     root.classList.add('white-matte');
+    root.style.colorScheme = 'light';
+  } else if (theme === 'ivanna-style') {
+    root.style.colorScheme = 'light';
   }
 
-  if (theme === 'cheers' || theme === 'nexus-style') {
-    root.classList.add('dark');
-  }
-
-  // Update status bar color for PWA (respects safe-area)
+  // Update status bar color for PWA
   let meta = document.querySelector('meta[name="theme-color"]');
   if (!meta) {
     meta = document.createElement('meta');
@@ -84,15 +71,12 @@ function applyThemeToDOM(theme: Theme) {
   
   let targetColor: string;
   if (theme === 'dark') targetColor = '#000000';
-  else if (theme === 'cheers') targetColor = '#180800';
-  else if (theme === 'nexus-style') targetColor = '#000000';
   else if (theme === 'ivanna-style') targetColor = '#bbd4e8';
   else targetColor = '#ffffff';
   meta.setAttribute('content', targetColor);
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // SPEED OF LIGHT: Instant initialization from localStorage
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === 'undefined') return DEFAULT_THEME;
     const cached = localStorage.getItem(STORAGE_KEY);
@@ -100,12 +84,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   });
   
   const { user, loading } = useAuth();
-
-  // Load theme from database when user is confirmed
   const hasLoadedThemeRef = useRef(false);
 
   useEffect(() => {
-    // PROTECT: Don't flip to light theme while auth is still loading
     if (loading) return;
 
     if (user?.id && !hasLoadedThemeRef.current) {
@@ -124,29 +105,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             setThemeState(dbTheme);
             localStorage.setItem(STORAGE_KEY, dbTheme);
           }
-          hasLoadedThemeRef.current = true; // Fix: Prevent theme thrashes on auth refreshes
+          hasLoadedThemeRef.current = true;
         } catch (error) {
           logger.error('Failed to load theme preference:', error);
         }
       };
       loadUserTheme();
     } else if (!user && !loading) {
-      // Not logged in: fallback to cached theme or default
       const cached = localStorage.getItem(STORAGE_KEY);
       if (!cached) setThemeState(DEFAULT_THEME);
-      hasLoadedThemeRef.current = false; // Reset for next user
+      hasLoadedThemeRef.current = false;
     }
   }, [user?.id, loading]);
 
-  // Apply theme class to document
   useEffect(() => {
     applyThemeToDOM(theme);
   }, [theme]);
 
   const setTheme = async (newTheme: Theme, coords?: ThemeToggleCoords) => {
     const root = window.document.documentElement;
-    
-    // UI Feedback: Store coordinates for reveal animation
     root.style.setProperty('--theme-reveal-x', coords ? `${coords.x}px` : '50%');
     root.style.setProperty('--theme-reveal-y', coords ? `${coords.y}px` : '50%');
 
@@ -180,7 +157,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const isLight = theme === 'light' || theme === 'ivanna-style';
-  const isDark = theme === 'dark' || theme === 'cheers' || theme === 'nexus-style';
+  const isDark = theme === 'dark';
   const isIvanna = theme === 'ivanna-style';
 
   const value = useMemo(() => ({ theme, isLight, isDark, isIvanna, setTheme }), [theme, isLight, isDark, isIvanna]);

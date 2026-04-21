@@ -22,10 +22,12 @@ html, body, #root {
   background-color: hsl(var(--background));
 }
 
-/* Force black root in dark mode — eliminates white frame bleed */
-.dark #root, .dark body, .black-matte #root, .black-matte body, .nexus-style #root, .nexus-style body {
+/* Force background color in dark/matte themes — eliminates white frame bleed */
+.dark #root, .dark body, 
+.black-matte #root, .black-matte body {
   background-color: #000000;
 }
+
 
 html::-webkit-scrollbar, 
 body::-webkit-scrollbar {

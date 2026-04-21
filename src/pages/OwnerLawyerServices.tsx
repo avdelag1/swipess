@@ -43,9 +43,9 @@ const ownerLegalIssueCategories: LegalIssueCategory[] = [
   },
   {
     id: 'contract-legal',
-    title: 'Lease Matrix',
+    title: 'Lease Agreements',
     icon: FileText,
-    description: 'Binding agreement authority',
+    description: 'Binding legal contracts',
     subcategories: [
       { id: 'lease-creation', title: 'Strategic Lease Drafting', description: 'Elite legally binding contracts' },
       { id: 'contract-review', title: 'Asset Protection Review', description: 'Full risk assessment of terms' }
@@ -86,6 +86,12 @@ const OwnerLawyerServices = () => {
     setSelectedIssue({ category: categoryId, subcategory: subcategoryId });
   };
 
+  const handleReset = () => {
+    setSubmitted(false);
+    setSelectedIssue(null);
+    setDescription('');
+  };
+
   const handleSubmitRequest = async () => {
     if (!selectedIssue || !description.trim()) {
       toast.error('Select an issue category and describe the situation');
@@ -96,7 +102,7 @@ const OwnerLawyerServices = () => {
     await new Promise(resolve => setTimeout(resolve, 2000));
     setIsSubmitting(false);
     setSubmitted(true);
-    toast.success('Owner Dispatch Confirmed');
+    toast.success('Request Received');
   };
 
   return (
@@ -112,8 +118,8 @@ const OwnerLawyerServices = () => {
         
         {/* 🛸 OWNER MEGA-HEADER */}
         <div className="flex flex-col gap-3">
-           <PageHeader title="OWNER LAWYER HUB" showBack={true} />
-           <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed max-w-sm", isLight ? "text-black" : "text-white")}> Professional Property Authority Matrix v14.0 </p>
+           <PageHeader title="OWNER LEGAL HUB" showBack={true} />
+           <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed max-w-sm", isLight ? "text-black" : "text-white")}> Professional Real Estate Legal Support </p>
         </div>
 
         {/* 🛸 AUTHORITY STATUS */}
@@ -128,7 +134,7 @@ const OwnerLawyerServices = () => {
                 </div>
              </div>
              <div className="bg-purple-600 px-4 py-2 rounded-full shadow-lg">
-                <span className="text-[9px] font-black text-white uppercase tracking-widest italic">Matrix Verified</span>
+                <span className="text-[9px] font-black text-white uppercase tracking-widest italic">Identity Verified</span>
              </div>
         </motion.div>
 
@@ -146,16 +152,16 @@ const OwnerLawyerServices = () => {
               <Gavel className="w-10 h-10 text-white animate-pulse" />
             </div>
             <div className="flex-1 text-center md:text-left">
-              <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-4">Elite Real Estate Dispatch</h3>
+              <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter mb-4">Real Estate Legal Support</h3>
               <p className="text-white/60 text-[13px] font-bold leading-relaxed mb-8 max-w-lg italic">
-                Connect with our specialized Property Law Authority. We will transmit your asset logs for immediate priority legal review.
+                Connect with our specialized real estate legal team. We will review your case details for immediate priority legal review.
               </p>
               <Button 
-                onClick={() => { setLawyerContactRequested(true); toast.success("Dispatch Notification Transmitted"); triggerHaptic('success'); }}
+                onClick={() => { setLawyerContactRequested(true); toast.success("Request Received"); triggerHaptic('success'); }}
                 disabled={lawyerContactRequested}
                 className="h-16 px-12 rounded-[2rem] bg-white hover:bg-white/90 text-purple-900 font-black uppercase italic tracking-[0.2em] shadow-2xl transition-all"
               >
-                {lawyerContactRequested ? "Contact Requested" : "DISPATCH AUTHORITY"}
+                {lawyerContactRequested ? "Contact Requested" : "CONTACT LAWYER"}
               </Button>
             </div>
           </div>
@@ -167,8 +173,8 @@ const OwnerLawyerServices = () => {
                   <CheckCircle2 className="w-10 h-10 text-white" />
                </div>
                <div className="space-y-4">
-                  <h3 className="text-3xl font-black uppercase italic tracking-tighter">Transmission Confirmed</h3>
-                  <p className="text-[12px] font-black uppercase tracking-[0.2em] opacity-40 max-w-xs mx-auto leading-relaxed">Asset logs have been successfully synced with the Property Authority Matrix. Await contact.</p>
+                  <h3 className="text-3xl font-black uppercase italic tracking-tighter">Request Confirmed</h3>
+                  <p className="text-[12px] font-black uppercase tracking-[0.2em] opacity-40 max-w-xs mx-auto leading-relaxed">Your request has been successfully received by our legal department. Await contact.</p>
                </div>
                <Button onClick={handleReset} className="h-16 px-12 rounded-[2rem] bg-purple-600 text-white font-black uppercase tracking-widest">Back to Hub</Button>
           </motion.div>
@@ -238,7 +244,7 @@ const OwnerLawyerServices = () => {
                       <div className="space-y-6">
                         <div className="flex items-center gap-4 mb-4">
                            <MessageSquare className="w-5 h-5 text-purple-500" />
-                           <h3 className={cn("text-xl font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>Asset Incident Log</h3>
+                           <h3 className={cn("text-xl font-black uppercase italic tracking-tighter", isLight ? "text-black" : "text-white")}>Case Details</h3>
                         </div>
                         <Textarea
                           placeholder="TRANSMIT ASSET INCIDENTS (MAX 2000 CHARS)..."
@@ -256,7 +262,7 @@ const OwnerLawyerServices = () => {
                                 disabled={isSubmitting || !description.trim()}
                                 className="h-16 flex-1 rounded-[2rem] bg-purple-600 hover:bg-purple-700 text-white font-black uppercase italic tracking-widest shadow-2xl shadow-purple-500/30"
                             >
-                                {isSubmitting ? "SYNCING MATRIX..." : "TRANSMIT ASSET LOGS"}
+                                {isSubmitting ? "SENDING..." : "SEND REQUEST"}
                             </Button>
                         </div>
                       </div>

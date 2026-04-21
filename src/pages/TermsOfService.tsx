@@ -14,7 +14,7 @@ export default function TermsOfService() {
   return (
     <div className={cn("min-h-screen transition-colors duration-500 overflow-x-hidden", isLight ? "bg-white" : "bg-black")}>
       
-      {/* 🛸 CINEMATIC ATMOSPHERE */}
+      {/* ATMOSPHERE */}
       <div className="fixed inset-0 pointer-events-none opacity-20">
          <div className="absolute top-[5%] left-[-15%] w-[70%] h-[40%] bg-indigo-500/30 blur-[130px] rounded-full" />
          <div className="absolute bottom-[20%] right-[-10%] w-[50%] h-[40%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
@@ -22,19 +22,19 @@ export default function TermsOfService() {
 
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-48 relative z-10 space-y-12">
         
-        {/* 🛸 NEXUS HEADER */}
+        {/* HEADER */}
         <div className="flex flex-col gap-3">
            <button onClick={() => { triggerHaptic('medium'); navigate(-1); }} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic mb-4">
-              <ArrowLeft className="w-4 h-4" /> BACK TO IDENTITY
+              <ArrowLeft className="w-4 h-4" /> BACK TO PROFILE
            </button>
            <h1 className={cn("text-5xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Terms of Service</h1>
            <div className="flex items-center gap-4 mt-2">
-              <Badge variant="outline" className="border-[#EB4898]/30 text-[#EB4898] bg-[#EB4898]/5 text-[9px] font-black uppercase tracking-widest italic">Official Protocol</Badge>
-              <span className={cn("text-[9px] font-black uppercase tracking-widest opacity-30 italic", isLight ? "text-black" : "text-white")}>Last Sync: Nov 2025</span>
+              <Badge variant="outline" className="border-[#EB4898]/30 text-[#EB4898] bg-[#EB4898]/5 text-[9px] font-black uppercase tracking-widest italic">Official Agreement</Badge>
+              <span className={cn("text-[9px] font-black uppercase tracking-widest opacity-30 italic", isLight ? "text-black" : "text-white")}>Last Updated: Nov 2025</span>
            </div>
         </div>
 
-        {/* 🛡️ PROTOCOL STATUS */}
+        {/* STATUS */}
         <div className={cn("p-8 rounded-[2.8rem] border flex items-center justify-between backdrop-blur-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}>
              <div className="flex items-center gap-6">
                 <div className="w-16 h-16 rounded-[1.4rem] bg-indigo-500 flex items-center justify-center shadow-2xl">
@@ -42,28 +42,28 @@ export default function TermsOfService() {
                 </div>
                 <div>
                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-500 italic">Legal Integrity</p>
-                   <h4 className={cn("text-xl font-black italic tracking-tighter uppercase leading-none mt-1", isLight ? "text-black" : "text-white")}>Binding Authorization</h4>
+                   <h4 className={cn("text-xl font-black italic tracking-tighter uppercase leading-none mt-1", isLight ? "text-black" : "text-white")}>Binding Agreement</h4>
                 </div>
              </div>
              <div className="bg-[#EB4898] px-4 py-2 rounded-full shadow-lg">
-                <span className="text-[9px] font-black text-white uppercase tracking-widest italic">Sync Active</span>
+                <span className="text-[9px] font-black text-white uppercase tracking-widest italic">Active</span>
              </div>
         </div>
 
-        {/* 🛸 DECRYPTED TERMS STREAM */}
+        {/* TERMS STREAM */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className={cn("p-12 rounded-[3.5rem] border shadow-3xl backdrop-blur-3xl", isLight ? "bg-black/5 border-black/10" : "bg-white/[0.03] border-white/5")}>
              <div className="space-y-16">
-                {[
-                  { id: '01', title: 'Acceptance of Matrix Terms', content: 'By initializing the Nexus nexus, you agree to be bound by these Legal Protocols. Access is denied to non-compliant entities.' },
-                  { id: '02', title: 'Entity Eligibility', content: 'Minimum age of 18 orbits required. You must possess the legal authority to enter binding digital agreements within the matrix.' },
-                  { id: '03', title: 'Identity Security', content: 'You are solely responsible for the encryption integrity of your access credentials. Notify the Registry immediately upon unauthorized sync.' },
-                  { id: '04', title: 'Prohibited Transmissions', content: 'Entities shall not transmit fraudulent logs, harass other users, or bypass platform security firewalls. Violations result in immediate identity purging.' },
-                  { id: '05', title: 'Asset Authority (Owners)', content: 'Owners must provide certified asset logs and maintain direct authorization for all property deployments within the matrix.' },
-                  { id: '06', title: 'Client Compliance', content: 'Clients must maintain truthful identity logs and respect the operational guidelines of the property authority.' },
+                 {[
+                  { id: '01', title: 'Acceptance of Terms', content: 'By using the Swipess application, you agree to be bound by these Legal Terms. Access is restricted to compliant users.' },
+                  { id: '02', title: 'User Eligibility', content: 'Minimum age of 18 years is required. You must possess the legal capacity to enter binding digital agreements.' },
+                  { id: '03', title: 'Account Security', content: 'You are solely responsible for the security of your access credentials. Notify support immediately upon unauthorized access.' },
+                  { id: '04', title: 'Prohibited Actions', content: 'Users shall not transmit fraudulent data, harass other users, or bypass platform security. Violations result in immediate account removal.' },
+                  { id: '05', title: 'Property Owners', content: 'Owners must provide certified property details and maintain legal authorization for all listings.' },
+                  { id: '06', title: 'User Compliance', content: 'Users must maintain truthful profile information and respect the operational guidelines of the platform.' },
                 ].map((section) => (
                   <section key={section.id} className="group">
                     <div className="flex items-center gap-4 mb-6">
-                       <span className="text-[10px] font-black text-[#EB4898] font-mono tracking-widest bg-[#EB4898]/10 px-3 py-1 rounded-lg">SECTION {section.id}</span>
+                       <span className="text-[10px] font-black text-[#EB4898] font-mono tracking-widest bg-[#EB4898]/10 px-3 py-1 rounded-lg">ARTICLE {section.id}</span>
                        <div className={cn("h-[1px] flex-1 opacity-10", isLight ? "bg-black" : "bg-white")} />
                     </div>
                     <h2 className={cn("text-2xl font-black uppercase italic tracking-tighter mb-4", isLight ? "text-black" : "text-white")}>{section.title}</h2>
@@ -75,15 +75,15 @@ export default function TermsOfService() {
              </div>
         </motion.div>
 
-        {/* 🛸 ACTION BAR */}
+        {/* ACTION BAR */}
         <div className="flex flex-col items-center pt-10">
             <Button
               onClick={() => { triggerHaptic('medium'); navigate(-1); }}
               className="h-16 px-16 rounded-[2rem] bg-[#EB4898] hover:bg-[#EB4898]/90 text-white font-black uppercase italic tracking-[0.2em] shadow-2xl shadow-[#EB4898]/20"
             >
-               RETURN TO HUB
+               RETURN TO DASHBOARD
             </Button>
-            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Nexus • 2025-2026 </p>
+            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Swipess • 2025-2026 </p>
         </div>
 
       </div>

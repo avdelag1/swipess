@@ -59,7 +59,7 @@ const ClientProfile = () => {
   return (
     <div className={cn(
       "min-h-full w-full transition-colors duration-500",
-      theme === 'ivanna-style' ? "bg-transparent ivanna-style" : (isLight ? "bg-white text-black" : "bg-[#0a0a0c] text-white")
+      theme === 'ivanna-style' ? "bg-transparent ivanna-style" : "bg-background text-foreground"
     )}>
       {/* 🛸 CINEMATIC BACKGROUND GLOW */}
       <AnimatePresence>
@@ -95,7 +95,7 @@ const ClientProfile = () => {
               <div
                 className={cn(
                    "w-full h-full overflow-hidden cursor-pointer flex items-center justify-center",
-                   theme === 'ivanna-style' ? "rounded-[2rem] bg-ivanna-parchment" : "rounded-[3.1rem] bg-[#0d0d0f] border border-white/10"
+                   theme === 'ivanna-style' ? "rounded-[2rem] bg-ivanna-parchment" : "rounded-[3.1rem] bg-background border border-white/10"
                 )}
                 onClick={() => { haptics.tap(); if (profile?.profile_images?.length) { handlePhotoClick(0); } else { setShowEditDialog(true); } }}
               >
@@ -108,7 +108,7 @@ const ClientProfile = () => {
             </motion.div>
             
             <button
-              onClick={() => { haptics.tap(); setShowEditDialog(true); }}
+              onClick={() => { triggerHaptic('selection'); setShowEditDialog(true); }}
               className={cn(
                 "absolute -bottom-2 -right-2 w-14 h-14 flex items-center justify-center shadow-2xl transition-all active:scale-90 z-20",
                 theme === 'ivanna-style' 
@@ -187,7 +187,7 @@ const ClientProfile = () => {
           >
             <Megaphone className="w-7 h-7 text-[#EB4898] mr-4" />
             <span className="bg-gradient-to-r from-[#EB4898] via-orange-500 to-amber-500 bg-clip-text text-transparent font-black uppercase italic tracking-[0.2em] text-[15px]">
-              Promote Reality
+              Promote Your Event
             </span>
           </Button>
         </div>
@@ -201,13 +201,13 @@ const ClientProfile = () => {
         >
           <div className={cn(
              "backdrop-blur-3xl rounded-[2.7rem] p-7 flex items-center gap-6 border",
-             isLight ? "bg-white border-white/5" : "bg-[#0d0d0f]/95 border-white/5"
+             isLight ? "bg-white border-white/5" : "bg-background/95 border-white/5"
           )}>
             <div className="w-16 h-16 rounded-2xl bg-[#EB4898]/10 flex items-center justify-center border border-[#EB4898]/20">
               <ShieldCheck className="w-8 h-8 text-[#EB4898]" />
             </div>
             <div className="flex-1">
-              <h3 className={cn("text-[14px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-black" : "text-white")}>Resident Authority</h3>
+              <h3 className={cn("text-[14px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-black" : "text-white")}>Verified Resident</h3>
               <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-1.5", isLight ? "text-black/30" : "text-white/30")}>Status: Verified Pillar</p>
             </div>
             <ChevronRight className={cn("w-6 h-6", isLight ? "text-black/10" : "text-white/10")} />
@@ -223,7 +223,7 @@ const ClientProfile = () => {
             <div className="flex items-center justify-between px-1">
                <div className="flex items-center gap-3">
                  <Sparkles className="w-5 h-5 text-[#EB4898]" />
-                 <span className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/50")}>Identity Parity Index</span>
+                 <span className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/50")}>Profile Completion</span>
                </div>
                <span className={cn("text-2xl font-black italic tracking-tighter", isLight ? "text-black" : "text-white")}>{completionPercent}%</span>
             </div>
@@ -267,14 +267,14 @@ const ClientProfile = () => {
               className="w-full h-20 rounded-[2.5rem] bg-gradient-to-r from-[#EB4898] via-indigo-600 to-indigo-800 flex items-center justify-center gap-4 active:scale-[0.97] transition-all shadow-[0_25px_60px_rgba(235,72,152,0.3)]"
            >
               <Crown className="w-7 h-7 text-white" />
-              <span className="text-[16px] font-black uppercase italic tracking-[0.2em] text-white">Authority Vault</span>
+              <span className="text-[16px] font-black uppercase italic tracking-[0.2em] text-white">Member Dashboard</span>
            </motion.button>
 
            <div className="grid grid-cols-1 gap-4">
               {[
                 { label: 'Legal Terminal', icon: Scale, path: '/client/legal-services' },
-                { label: 'Identity Settings', icon: Settings, path: '/client/settings' },
-                { label: 'Disconnect Session', icon: LogOut, path: 'signout', urgent: true }
+                { label: 'Account Settings', icon: Settings, path: '/client/settings' },
+                { label: 'Sign Out', icon: LogOut, path: 'signout', urgent: true }
               ].map(btn => (
                  <motion.button
                   key={btn.label}

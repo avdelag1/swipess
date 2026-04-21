@@ -180,7 +180,7 @@ export function MessagingDashboard() {
             ) : (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-[#EB4898]/40 uppercase font-black italic">
                 <div className="w-16 h-16 rounded-full border-4 border-[#EB4898]/10 border-t-[#EB4898] animate-spin" />
-                <span className="animate-pulse tracking-[0.3em] text-[10px]">Syncing...</span>
+                <span className="animate-pulse tracking-[0.3em] text-[10px]">Loading...</span>
               </div>
             )}
           </motion.div>
@@ -191,7 +191,6 @@ export function MessagingDashboard() {
 
   return (
     <div className={cn("min-h-screen w-full transition-colors duration-500", isIvanna ? "bg-transparent" : (isLight ? "bg-white" : "bg-black"))}>
-      {/* 🛸 CINEMATIC BACKGROUND GLOW */}
       <div className="fixed inset-0 pointer-events-none opacity-10">
         <div className="absolute top-[10%] left-[-15%] w-[80%] h-[40%] bg-indigo-500/30 blur-[130px] rounded-full" />
         <div className="absolute bottom-[10%] right-[-10%] w-[60%] h-[50%] bg-[#EB4898]/30 blur-[140px] rounded-full" />
@@ -201,7 +200,6 @@ export function MessagingDashboard() {
       
       <div className="w-full max-w-7xl mx-auto px-6 pt-20 pb-48 relative z-10 space-y-12">
         
-        {/* 🛸 HEADER: MEGA NEXUS SYNC */}
         <div className="flex items-center gap-6">
            <div className={cn(
              "w-18 h-18 rounded-[1.8rem] flex items-center justify-center shadow-2xl",
@@ -211,16 +209,15 @@ export function MessagingDashboard() {
            </div>
            <div className="flex flex-col">
               <span className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic", isIvanna ? "text-sky-600" : "text-[#EB4898]")}>Messages</span>
-              <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isIvanna ? "text-sky-950" : (isLight ? "text-black" : "text-white"))}>Direct Transmissions</h1>
+              <h1 className={cn("text-4xl font-black uppercase italic tracking-tighter leading-none mt-1", isIvanna ? "text-sky-950" : (isLight ? "text-black" : "text-white"))}>Direct Messages</h1>
            </div>
         </div>
 
-        {/* 🛸 SEARCH & MATRIX FILTERS */}
         <div className="space-y-6">
           <div className="relative group">
             <Search className={cn("absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 opacity-50 z-10", isIvanna ? "text-sky-600" : "text-[#EB4898]")} />
             <input 
-              placeholder="SCAN IDENTITIES..." 
+              placeholder="SEARCH NAMES..." 
               className={cn(
                 "w-full pl-14 pr-8 h-16 rounded-[2.2rem] text-[14px] outline-none transition-all font-black uppercase tracking-widest border",
                 isIvanna ? "bg-sky-50/60 border-sky-100/50 text-sky-950 placeholder:text-sky-950/20 shadow-sm focus:bg-white/80" : 
@@ -235,7 +232,7 @@ export function MessagingDashboard() {
             {[
               { id: 'all', label: 'Inbox', icon: Inbox },
               { id: 'unread', label: 'Priority', icon: Sparkles },
-              { id: 'archived', label: 'Vault', icon: Archive }
+              { id: 'archived', label: 'Archive', icon: Archive }
             ].map((filter) => (
               <button 
                 key={filter.id} 
@@ -254,7 +251,6 @@ export function MessagingDashboard() {
           </div>
         </div>
 
-        {/* 🛸 STREAM GRID */}
         <div className="space-y-4">
           {isLoading ? (
             <MessageSkeleton />
@@ -308,7 +304,7 @@ export function MessagingDashboard() {
                         "text-[14px] truncate italic leading-none", 
                         isUnread ? "text-[#EB4898] font-black" : "opacity-30"
                       )}>
-                         {conversation.last_message?.message_text || 'Secure Transmission Encrypted'}
+                         {conversation.last_message?.message_text || 'New Message'}
                       </p>
                     </div>
 
@@ -319,16 +315,16 @@ export function MessagingDashboard() {
                               <MoreVertical className="w-5 h-5" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-[2rem] bg-[#121214] border-white/10 p-2 shadow-2xl text-white backdrop-blur-3xl">
+                          <DropdownMenuContent align="end" className="rounded-[2rem] bg-[#121214] border-white/10 p-2 shadow-2xl text-white backdrop-blur-xl">
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-[#EB4898]/20 focus:text-white cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); markChatAsRead.mutate(conversation.id); }} disabled={!isUnread}>
-                              <Check className="w-4 h-4 mr-3" /> Mark Decrypted
+                              <Check className="w-4 h-4 mr-3" /> Mark as Read
                             </DropdownMenuItem>
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-white/10 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); updateStatus.mutate({ conversationId: conversation.id, status: conversation.status === 'archived' ? 'active' : 'archived' }); }}>
-                              <Archive className="w-4 h-4 mr-3" /> {conversation.status === 'archived' ? 'Unvault' : 'Vault'}
+                              <Archive className="w-4 h-4 mr-3" /> {conversation.status === 'archived' ? 'Unarchive' : 'Archive'}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="bg-white/5 my-2" />
                             <DropdownMenuItem className="p-4 rounded-[1.2rem] focus:bg-red-500/20 text-red-500 cursor-pointer font-black uppercase tracking-widest text-[9px]" onClick={e => { e.stopPropagation(); deleteConversation.mutate(conversation.id); }}>
-                              <Trash className="w-4 h-4 mr-3" /> Purge Link
+                              <Trash className="w-4 h-4 mr-3" /> Delete Chat
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -349,8 +345,8 @@ export function MessagingDashboard() {
               <div className="w-20 h-20 rounded-[1.8rem] bg-indigo-500/10 flex items-center justify-center mb-10 border border-indigo-500/20">
                  <MessageCircle className="w-10 h-10 text-indigo-500 animate-pulse" />
               </div>
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-4">No Transmissions</h3>
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed">No messages yet. Connect with someone on the radar to start chatting.</p>
+              <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-4">No Messages</h3>
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed">No messages yet. Connect with someone to start chatting.</p>
             </motion.div>
           )}
         </div>

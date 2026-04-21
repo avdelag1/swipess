@@ -134,7 +134,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                 <ChevronLeft className="w-5 h-5" />
               </motion.button>
               <div>
-                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#3B82F6]">Target Scope</span>
+                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#3B82F6]">Selection Spectrum</span>
                 <h1 className="text-2xl font-black italic tracking-tighter uppercase leading-none mt-1">Discovery Radar</h1>
               </div>
             </div>
@@ -202,7 +202,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
               className="space-y-5"
             >
               <div className="flex items-center justify-between px-1">
-                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Selection Matrix</h2>
+                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Category Filters</h2>
                 <div className="h-[1px] flex-1 mx-6 bg-[#3B82F6]/10" />
                 <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{activeCategory}</span>
               </div>
@@ -241,7 +241,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
                   <div className="w-7 h-7 rounded-full bg-[#3B82F6]/10 flex items-center justify-center">
                     <Sparkles className="w-4 h-4 text-[#3B82F6]" />
                   </div>
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Detail Acquisition</span>
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#3B82F6]">Filter Detail</span>
                   <div className="h-[1px] flex-1 bg-[#3B82F6]/10" />
                 </div>
                 

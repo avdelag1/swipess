@@ -22,6 +22,7 @@ import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { DiscoveryFilters } from '@/components/filters/DiscoveryFilters';
+import type { ClientFilters } from '@/hooks/smartMatching/types';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -44,7 +45,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const { setCategories, setClientType, setListingType, setActiveCategory } = useFilterActions();
   const { setModal } = useModalStore();
 
-  const [phase, setPhase] = useState<'cards' | 'swipe'>(activeCategory ? 'swipe' : 'cards');
+  const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'map' : 'cards');
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -69,7 +70,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   // 🛰️ DISCOVERY SYNC: If active category is cleared elsewhere, revert phase to 'cards'
   useEffect(() => {
-    if (!activeCategory && phase === 'swipe') {
+    if (!activeCategory && (phase === 'swipe' || phase === 'map')) {
       setPhase('cards');
     }
   }, [activeCategory, phase]);
@@ -128,7 +129,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     
     setCategories([cat]);
     setActiveCategory(cat);
-    setPhase('swipe');
+    setPhase('map'); 
     
     if (card.clientType) setClientType(card.clientType as any);
     if (card.listingType) setListingType(card.listingType as any);
@@ -140,57 +141,15 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     setActiveCategory(null);
   }, [setActiveCategory]);
 
-  const showCards = !activeCategory;
-  const showSwipe = !!activeCategory;
+  const handleStartSwiping = useCallback(() => {
+    setPhase('swipe');
+  }, []);
 
-  if (isAuthLoading || isPrefsLoading) {
-    return (
-      <div className={cn("w-full h-full flex flex-col items-center justify-center p-8 transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
-         <div className="relative">
-            <div className="w-24 h-24 rounded-[2.5rem] border-[6px] border-[#EB4898]/10 border-t-[#EB4898] animate-spin shadow-2xl" />
-            <Cpu className="absolute inset-0 m-auto w-8 h-8 text-[#EB4898]/40 animate-pulse" />
-         </div>
-         <p className="text-[11px] font-black uppercase italic tracking-[0.4em] text-[#EB4898] mt-10 animate-pulse">Syncing Owner Logic...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={cn("w-full h-full flex items-center justify-center p-8 text-center transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
-        <div className="max-w-sm space-y-10">
-          <div className="w-24 h-24 bg-red-500/10 rounded-[2.5rem] flex items-center justify-center mx-auto border border-red-500/20 shadow-2xl">
-            <Activity className="w-10 h-10 text-red-500 animate-bounce" />
-          </div>
-          <div className="space-y-4">
-            <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>Connection Lost</h2>
-            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting network re-sync.</p>
-          </div>
-          <Button 
-            onClick={() => { triggerHaptic('medium'); window.location.reload(); }}
-            className="w-full h-18 rounded-[2rem] bg-[#EB4898] text-white font-black uppercase italic tracking-widest shadow-2xl active:scale-95"
-          >
-            Reconnect Terminal
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
+  const showCards = !activeCategory && phase === 'cards';
+  const showMap = !!activeCategory && phase === 'map';
+  const showSwipe = !!activeCategory && phase === 'swipe';
   return (
-    <div className={cn(
-      "flex flex-col h-full w-full relative transition-colors duration-500",
-      theme === 'ivanna-style' ? "bg-transparent" : (isLight ? "bg-white" : "bg-black")
-    )}>
-      
-      {/* 🛸 CINEMATIC ATMOSPHERE */}
-      {theme !== 'ivanna-style' && (
-        <div className="absolute inset-x-0 top-0 h-96 pointer-events-none opacity-20">
-           <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[100%] bg-indigo-500/30 blur-[130px] rounded-full" />
-           <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[80%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
-        </div>
-      )}
-
+    <div className="flex-1 flex flex-col min-h-0 relative">
       <AnimatePresence mode="wait">
         {viewMode === 'insights' ? (
           <motion.div
@@ -214,6 +173,23 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             style={{ willChange: 'transform, opacity' }}
           >
             <OwnerAllDashboard onCardSelect={handleCardSelect} />
+          </motion.div>
+        ) : showMap && activeCategory ? (
+          <motion.div
+            key={`owner-map-${activeCategory}`}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.04 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-0 z-[50] flex flex-col overflow-hidden bg-background"
+            style={{ willChange: 'transform, opacity' }}
+          >
+            <DiscoveryMapView 
+              category={activeCategory} 
+              onBack={handleDiscoveryBack}
+              onStartSwiping={handleStartSwiping}
+              mode="owner"
+            />
           </motion.div>
         ) : showSwipe ? (
           <motion.div
