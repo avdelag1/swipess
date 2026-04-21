@@ -146,7 +146,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
           style={{ transform: isTop && isDragging ? 'scale(1.05)' : 'scale(1)' }}
           draggable={false}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-95" />
         {/* Removed pinky/skin color overlay per user request */}
         
         {/* 🛸 Swipess METADATA CONTENT */}
@@ -162,7 +162,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
               <span className="text-[10px] font-black uppercase tracking-[0.4em] italic text-white/80">{card.description}</span>
             </motion.div>
             
-            <h3 className="text-5xl font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white">
+            <h3 className="text-5xl font-black tracking-[calc(-0.06em)] leading-[0.85] uppercase italic text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
               {card.label}
             </h3>
           </div>

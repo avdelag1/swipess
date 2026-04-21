@@ -221,7 +221,7 @@ export function AIListingWizard() {
                     >
                       <div className="space-y-3">
                         <h3 className="text-3xl font-black tracking-tighter text-white uppercase italic leading-none">Target Platform</h3>
-                        <p className="text-[11px] text-white/30 leading-relaxed uppercase tracking-[0.2em] max-w-sm">Select the deployment sector for your new Swipess artifact. flagship intelligence will optimize for the target audience.</p>
+                        <p className="text-[11px] text-white/50 leading-relaxed uppercase tracking-[0.2em] max-w-sm">Select the deployment sector for your new Swipess artifact. flagship intelligence will optimize for the target audience.</p>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -243,7 +243,7 @@ export function AIListingWizard() {
                             </div>
                             <div>
                                 <span className="text-base font-black uppercase tracking-wider text-white group-hover:text-cyan-400 transition-colors italic">{cat.label}</span>
-                                <p className="text-[10px] opacity-20 font-bold uppercase tracking-[0.1em] mt-1">Deploy Protocol</p>
+                                <p className="text-[10px] opacity-50 font-bold uppercase tracking-[0.1em] mt-1">Deploy Protocol</p>
                             </div>
                           </button>
                         ))}
@@ -426,9 +426,9 @@ export function AIListingWizard() {
                         </div>
 
                         <div className="space-y-3">
-                          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 ml-2">Deployment Narrative</label>
+                          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 ml-2">Deployment Narrative</label>
                           <div className="relative">
-                             <Search className="absolute left-5 top-5 w-4 h-4 text-cyan-400 opacity-40" />
+                             <Search className="absolute left-5 top-5 w-4 h-4 text-cyan-400 opacity-60" />
                              <textarea
                                value={prompt}
                                onChange={(e) => setPrompt(e.target.value)}
@@ -496,7 +496,7 @@ export function AIListingWizard() {
                             <span className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.3em]">Neural Synthesis Active</span>
                             <div className="flex items-center gap-4">
                                <div className="h-0.5 w-12 bg-gradient-to-r from-transparent to-white/10" />
-                               <span className="text-[9px] font-bold text-white/20 uppercase tracking-[0.4em]">Flagship Intelligence</span>
+                               <span className="text-[9px] font-bold text-white/60 uppercase tracking-[0.4em]">Flagship Intelligence</span>
                                <div className="h-0.5 w-12 bg-gradient-to-l from-transparent to-white/10" />
                             </div>
                          </div>
