@@ -6,6 +6,7 @@ import { SwipessLogo } from '@/components/SwipessLogo';
 import { Button } from '@/components/ui/button';
 import { useConciergeAI, ChatMessage, Conversation, AiCharacter } from '@/hooks/useConciergeAI';
 import { useAudioVisualizer } from '@/hooks/useAudioVisualizer';
+import { useVoiceTranscribe } from '@/hooks/useVoiceTranscribe';
 import { uiSounds } from '@/utils/uiSounds';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -458,6 +459,11 @@ export function ConciergeChat({ isOpen, onClose }: ConciergeChatProps) {
   const autoSendRef = useRef(autoSend);
   const countdownTranscriptRef = useRef<string>('');
   const speechSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+
+  // 🎙️ Universal fallback: works on iOS Safari, in-app browsers, native shells.
+  // Records via MediaRecorder and transcribes via the `voice-transcribe` edge function.
+  const voiceTranscribe = useVoiceTranscribe();
+  const usingFallbackRef = useRef(false);
 
   const COUNTDOWN_SECONDS = 2;
   const SILENCE_DELAY_MS = 1200;
