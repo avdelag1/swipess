@@ -22,6 +22,11 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useFilterStore } from '@/state/filterStore';
 import { useTheme } from '@/hooks/useTheme';
 
+// Tile layer URLs hoisted to module scope so all effects can reference them.
+const LIGHT_TILES = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const SATELLITE_TILES = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+
 export const DiscoveryMapView = memo(({ 
   category, 
   onBack, 
@@ -57,7 +62,9 @@ export const DiscoveryMapView = memo(({
   const [mapStyle, setMapStyle] = useState<'streets' | 'satellite'>(isEmbedded ? 'satellite' : 'streets');
 
   const tulumCenter: [number, number] = [20.2114, -87.4654];
-  const currentCenter: [number, number] = userLatitude ? [userLatitude, userLongitude] : tulumCenter;
+  const currentCenter: [number, number] = (userLatitude != null && userLongitude != null)
+    ? [userLatitude, userLongitude]
+    : tulumCenter;
 
   const handleRefresh = useCallback(() => {
     triggerHaptic('medium');
@@ -81,13 +88,12 @@ export const DiscoveryMapView = memo(({
             worldCopyJump: true
         }).setView(currentCenter, 15);
 
-        const lightTiles = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-        const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
         const initialTiles = mapStyle === 'satellite' 
-            ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-            : isLight ? lightTiles : darkTiles;
+            ? SATELLITE_TILES
+            : isLight ? LIGHT_TILES : DARK_TILES;
 
-        L.tileLayer(initialTiles, { maxZoom: 20, crossOrigin: true }).addTo(map);
+        const layer = L.tileLayer(initialTiles, { maxZoom: 20, crossOrigin: true }).addTo(map);
+        (map as any)._activeTileLayer = layer;
 
         radarCircle.current = L.circle(currentCenter, {
             color: '#EB4898',
@@ -102,8 +108,8 @@ export const DiscoveryMapView = memo(({
             className: 'radar-center',
             html: `
               <div class="relative w-8 h-8 flex items-center justify-center">
-                <div class="absolute inset-0 bg-[#EB4898] opacity-30 rounded-full animate-ping"></div>
-                <div class="w-2.5 h-2.5 bg-black border-[2px] border-white rounded-full shadow-2xl relative z-10"></div>
+                <div class="absolute inset-0 bg-[#3B82F6] opacity-40 rounded-full animate-ping"></div>
+                <div class="w-3.5 h-3.5 bg-white border-[3px] border-[#EB4898] rounded-full shadow-2xl relative z-10"></div>
               </div>
             `,
             iconSize: [32, 32],
@@ -139,11 +145,16 @@ export const DiscoveryMapView = memo(({
     map.flyTo(currentCenter, zoomLevel, { animate: true, duration: 1.4 });
 
     const tileUrl = mapStyle === 'satellite' 
-        ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-        : isLight 
-            ? lightTiles : darkTiles; // reused constants
-    
-    // Logic for layer refresh...
+        ? SATELLITE_TILES
+        : isLight ? LIGHT_TILES : DARK_TILES;
+
+    // Swap the active tile layer when style or theme changes
+    const prev = (map as any)._activeTileLayer as L.TileLayer | undefined;
+    if (prev && (prev as any)._url !== tileUrl) {
+        map.removeLayer(prev);
+        const next = L.tileLayer(tileUrl, { maxZoom: 20, crossOrigin: true }).addTo(map);
+        (map as any)._activeTileLayer = next;
+    }
   }, [localKm, mapStyle, currentCenter, isLight]);
 
   const detectLocation = useCallback(() => {

@@ -81,16 +81,18 @@ export default function PublicListingPreview() {
   };
 
   const nextImg = useCallback(() => {
-    if (!listing?.images) return;
+    const imgs = Array.isArray(listing?.images) ? (listing!.images as string[]) : [];
+    if (imgs.length === 0) return;
     triggerHaptic('light');
-    setCurrentImageIndex(i => (i + 1) % listing.images.length);
+    setCurrentImageIndex(i => (i + 1) % imgs.length);
     setImgLoaded(false);
   }, [listing?.images]);
 
   const prevImg = useCallback(() => {
-    if (!listing?.images) return;
+    const imgs = Array.isArray(listing?.images) ? (listing!.images as string[]) : [];
+    if (imgs.length === 0) return;
     triggerHaptic('light');
-    setCurrentImageIndex(i => (i - 1 + listing.images.length) % listing.images.length);
+    setCurrentImageIndex(i => (i - 1 + imgs.length) % imgs.length);
     setImgLoaded(false);
   }, [listing?.images]);
 
@@ -174,7 +176,7 @@ export default function PublicListingPreview() {
             <ArrowLeft className="w-6 h-6" />
          </button>
          <div className="bg-black/30 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-full h-12 flex items-center shadow-2xl">
-            <SwipessLogo size="sm" invert />
+            <SwipessLogo size="sm" variant="white" />
          </div>
          <div className="flex gap-2 pointer-events-auto">
             <button className="w-12 h-12 rounded-[1.2rem] bg-black/30 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 shadow-2xl">
