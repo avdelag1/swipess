@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
-import { NexusSwipeContainer } from '@/components/NexusSwipeContainer';
+import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
 import { SwipeAllDashboard } from '@/components/swipe/SwipeAllDashboard';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -107,7 +107,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col items-center justify-center h-full w-full overflow-hidden"
+            className="relative flex flex-col items-center justify-center min-h-[calc(100svh-160px)] w-full py-24 overflow-hidden z-10"
             style={{ willChange: 'transform, opacity' }}
           >
             <SwipeAllDashboard setCategories={(ids: any) => handleLaunch((Array.isArray(ids) ? ids[0] : ids) as QuickFilterCategory)} />
@@ -142,7 +142,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             className="w-full h-full flex flex-col"
             style={{ willChange: 'transform, opacity' }}
           >
-            <NexusSwipeContainer
+            <SwipessSwipeContainer
               onListingTap={handleListingTap}
               onInsights={handleListingTap}
               onMessageClick={onMessageClick}
@@ -155,7 +155,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
           <SheetContent side="bottom" className="h-[92vh] p-0 border-none bg-transparent overflow-hidden">
             <div className={cn(
               "w-full h-full transition-all duration-500 rounded-t-[3.5rem] border-t overflow-y-auto",
-              theme === 'nexus-style' ? "bg-black/90 border-white/10" : "glass-morphism border-white/20 shadow-2xl"
+              theme === 'Swipess-style' ? "bg-black/90 border-white/10" : "glass-morphism border-white/20 shadow-2xl"
             )}>
 
                <div className="sticky top-0 z-[60] flex items-center justify-center pt-4 pb-2">

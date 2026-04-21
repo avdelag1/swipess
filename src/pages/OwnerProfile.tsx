@@ -115,7 +115,7 @@ const OwnerProfile = () => {
           </div>
         </div>
 
-        {/* 🛸 METRIC GRID: NEXUS CARDS */}
+        {/* 🛸 METRIC GRID: Swipess CARDS */}
         <div className="grid grid-cols-3 gap-4">
           {[
             { label: 'Network', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#EB4898]' },

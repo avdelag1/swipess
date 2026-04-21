@@ -323,7 +323,7 @@ export function LegalHub() {
       {/* 🛸 HUD WATERMARK */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-20 pointer-events-none flex items-center gap-3">
         <Activity className={cn("w-3 h-3 animate-pulse", isLight ? "text-black" : "text-white")} />
-        <span className={cn("text-[9px] font-black uppercase tracking-[0.6em] italic", isLight ? "text-black" : "text-white")}>NEXUS DISCOVERY Legal Trust Matrix v14.0</span>
+        <span className={cn("text-[9px] font-black uppercase tracking-[0.6em] italic", isLight ? "text-black" : "text-white")}>Swipess Legal Trust Matrix v14.0</span>
       </div>
     </div>
   );

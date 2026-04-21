@@ -175,7 +175,7 @@ export const SwipeExhaustedState = ({
            </button>
         </div>
 
-        {/* 🚀 BOUNDLESS NEXUS RADAR — Edge-to-edge immersive technical design */}
+        {/* 🚀 BOUNDLESS Swipess RADAR — Edge-to-edge immersive technical design */}
         <div className="flex-1 min-h-0 relative flex flex-col items-center justify-center">
           {/* Centered Status Overlay */}
           <div className="absolute top-[12%] flex flex-col items-center gap-2 pointer-events-none z-[100]">
@@ -192,7 +192,7 @@ export const SwipeExhaustedState = ({
                   "text-[10px] font-black uppercase tracking-[0.30em]",
                   theme === 'ivanna-style' ? "text-[#111111]" : "text-primary animate-pulse"
                 )}>
-                  {isRefreshing || isScanBurstActive ? 'Recalibrating Array' : 'Nexus Radar Initialized'}
+                  {isRefreshing || isScanBurstActive ? 'Recalibrating Array' : 'Swipess Radar Initialized'}
                 </span>
                 <span className={cn(
                   "text-[8px] font-bold uppercase tracking-[0.1em]",

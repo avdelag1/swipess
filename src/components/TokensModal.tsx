@@ -42,7 +42,7 @@ const tokenTierConfig = {
 const premiumPlans = [
   {
     id: 'monthly',
-    appleProductId: 'nexus.premium.monthly',
+    appleProductId: 'Swipess.premium.monthly',
     name: 'Monthly',
     label: 'STARTER',
     price: '$39',
@@ -59,7 +59,7 @@ const premiumPlans = [
   },
   {
     id: 'semi-annual',
-    appleProductId: 'nexus.premium.semi_annual',
+    appleProductId: 'Swipess.premium.semi_annual',
     name: 'Semi-Annual',
     label: 'POPULAR',
     price: '$119',
@@ -79,7 +79,7 @@ const premiumPlans = [
   },
   {
     id: 'annual',
-    appleProductId: 'nexus.premium.yearly',
+    appleProductId: 'Swipess.premium.yearly',
     name: 'Annual',
     label: 'BEST VALUE',
     price: '$179',
@@ -142,7 +142,7 @@ function TokensModalComponent({ userRole = 'client' }: TokensModalProps) {
 
     if (NativeBridge.isIOS()) {
       toast({ title: 'Connecting to App Store' });
-      const result = await NativeBridge.purchaseProduct(`nexus.tokens.${pkg.message_activations}`);
+      const result = await NativeBridge.purchaseProduct(`Swipess.tokens.${pkg.message_activations}`);
       if (result.success) {
         toast({ title: 'Payment Confirmed', description: 'Tokens activated.' });
         close();

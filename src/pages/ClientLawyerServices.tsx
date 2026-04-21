@@ -112,7 +112,7 @@ const ClientLawyerServices = () => {
 
       <div className="p-6 pt-24 pb-48 max-w-4xl mx-auto space-y-12 relative z-10">
         
-        {/* 🛸 NEXUS HEADER */}
+        {/* 🛸 Swipess HEADER */}
         <div className="flex flex-col gap-3">
            <PageHeader title="LAWYER SERVICES" showBack={true} />
            <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] italic opacity-40 leading-relaxed max-w-sm", isLight ? "text-black" : "text-white")}> Professional Legal Authority Matrix v14.0 </p>

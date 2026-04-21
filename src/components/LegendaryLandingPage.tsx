@@ -8,7 +8,7 @@ import { playRandomZen } from '@/utils/sounds';
 import {
   Mail, Lock, User, ArrowLeft, Sparkles, ChevronRight, Check, LogIn, X, Eye, EyeOff, ShieldCheck
 } from 'lucide-react';
-import { NexusLogo } from './NexusLogo';
+import { SwipessLogo } from './SwipessLogo';
 import LandingBackgroundEffects, { type EffectMode } from './LandingBackgroundEffects';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -92,7 +92,7 @@ const LandingView = memo(({
         className="cursor-grab active:cursor-grabbing touch-none select-none relative"
       >
         <div className="relative">
-          <NexusLogo 
+          <SwipessLogo 
             size="3xl" 
             variant="white"
             className="w-[65vw] max-w-[280px] sm:max-w-[340px] md:max-w-[420px]" 
@@ -148,7 +148,7 @@ const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
     className="group flex h-[64px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white text-black active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.2)] border border-white/50"
   >
     <AppleIcon />
-    <span className="text-[17px] font-black uppercase tracking-widest leading-none pt-0.5">
+    <span className="text-[17px] font-semibold tracking-tight leading-none pt-0.5">
       Sign in with Apple
     </span>
   </button>
@@ -290,7 +290,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
 
         <div className="text-center mb-5 pt-4">
           <div className="flex justify-center mb-4">
-            <NexusLogo size="md" variant="white" />
+            <SwipessLogo size="md" variant="white" />
           </div>
 
           {isForgotPassword ? (
@@ -508,7 +508,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full h-[58px] rounded-[1.5rem] bg-[#FF4D00] text-white font-black uppercase tracking-[0.25em] text-[13px] shadow-[0_15px_35px_rgba(255,77,0,0.35)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 border-none mt-4 disabled:opacity-60 disabled:pointer-events-none"
+            className="w-full h-[62px] rounded-[1.5rem] bg-[#FF4D00] text-white font-bold uppercase tracking-[0.2em] text-[15px] shadow-[0_15px_35px_rgba(255,77,0,0.35)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 border-none mt-4 disabled:opacity-60 disabled:pointer-events-none"
           >
             <Sparkles className="w-4 h-4 !text-white" />
             <span className="drop-shadow-md !text-white">
@@ -572,7 +572,7 @@ function LegendaryLandingPage() {
           <div className="w-1 h-1 rounded-full bg-white/20" />
           <button onClick={() => setLegalModal('terms')} className="hover:text-[#EB4898] transition-colors">Terms</button>
         </div>
-        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 Nexus Discovery</p>
+        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 Swipess</p>
       </div>
 
       {/* 🛸 LEGAL POPUP MODAL */}

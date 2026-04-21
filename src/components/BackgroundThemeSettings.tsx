@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sparkles } from "lucide-react";
 import type { EffectMode } from "./LandingBackgroundEffects";
 
-const STORAGE_KEY = 'nexus_bg_theme';
+const STORAGE_KEY = 'Swipess_bg_theme';
 
 export const bgThemeDisplayNames: Record<EffectMode, string> = {
   off:    'Off',

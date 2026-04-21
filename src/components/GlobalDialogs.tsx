@@ -27,6 +27,7 @@ const SavedSearchesDialog = lazyWithRetry(() => import('@/components/SavedSearch
 const MessageActivationPackages = lazyWithRetry(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })));
 const PushNotificationPrompt = lazyWithRetry(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })));
 const WelcomeNotification = lazyWithRetry(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })));
+const AIListingWizard = lazyWithRetry(() => import('@/components/AIListingWizard').then(m => ({ default: m.AIListingWizard })));
 const ConciergeChat = lazyWithRetry(() => import('@/components/ConciergeChat').then(m => ({ default: m.ConciergeChat })));
 
 const ConciergeChatFallback = memo(() => (
@@ -238,6 +239,10 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
           isOpen={store.showAIChat}
           onClose={() => store.setModal('showAIChat', false)}
         />
+      </DeferredDialog>
+
+      <DeferredDialog when={store.showAIListing} threshold={0}>
+        <AIListingWizard />
       </DeferredDialog>
 
       <TokensModal userRole={userRole === 'admin' ? 'client' : userRole} />

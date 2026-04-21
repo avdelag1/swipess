@@ -350,7 +350,7 @@ export default function AdvertisePage() {
     
     if (NativeBridge.isIOS()) {
       toast({ title: "In-App Purchase", description: "Connecting to App Store..." });
-      const result = await NativeBridge.purchaseProduct(`nexus.promo.${pkg.id}`);
+      const result = await NativeBridge.purchaseProduct(`Swipess.promo.${pkg.id}`);
       if (result.success) {
         toast.success("Payment Received!", { description: "Your promotion will be live shortly." });
         return;
@@ -508,7 +508,7 @@ export default function AdvertisePage() {
             <span className="bg-gradient-to-r from-teal-400 to-indigo-400 bg-clip-text text-transparent uppercase italic">
               Your Brand
             </span>{" "}
-            on Nexus
+            on Swipess
           </motion.h1>
 
           <motion.p

@@ -1,6 +1,6 @@
 {
-  "name": "Nexus Discovery",
-  "short_name": "Nexus",
+  "name": "Swipess",
+  "short_name": "Swipess",
   "description": "Your Elite Discovery & Connection Engine.",
   "start_url": "/?pwa=true",
   "scope": "/",
@@ -42,7 +42,7 @@
     }
   },
   "protocol_handlers": [
-    { "protocol": "web+swipess", "url": "/?url=%s" }
+    { "protocol": "web+Swipess", "url": "/?url=%s" }
   ],
   "launch_handler": { "client_mode": "navigate-existing" },
   "edge_side_panel": { "preferred_width": 400 },

@@ -1157,7 +1157,7 @@ export const radioStations: RadioStation[] = [
     description: 'Santa Monica jazz'
   },
 
-  // Tulum/Beach Special — 5 NEXUS DISCOVERY Featured Stations
+  // Tulum/Beach Special — 5 Swipess Featured Stations
   {
     id: 'tulum-beach-1',
     name: 'Tulum Sunset Beats',
@@ -1196,12 +1196,12 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'tulum-beach-5',
-    name: 'NEXUS DISCOVERY Beach Radio',
+    name: 'Swipess Beach Radio',
     frequency: '105.9',
     streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
     city: 'tulum',
     genre: 'Electronic',
-    description: 'The official NEXUS DISCOVERY beach frequency'
+    description: 'The official Swipess beach frequency'
   }
 ];
 

@@ -26,7 +26,7 @@ const THEMES: { id: Theme; name: string; description: string; colors: string[] }
     colors: ['#180800', '#C8A96B'] 
   },
   { 
-    id: 'nexus-style', 
+    id: 'Swipess-style', 
     name: 'Zenith Liquid', 
     description: 'AI-Native high efficiency interface',
     colors: ['#000000', '#00E5FF', '#121212'] 

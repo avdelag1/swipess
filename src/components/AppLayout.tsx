@@ -95,7 +95,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     <div className={cn(
       "w-full min-h-screen flex flex-col relative selection:bg-brand-primary/30", 
       "bg-background",
-      theme === 'nexus-style' && "nexus-style"
+      theme === 'Swipess-style' && "Swipess-style"
     )}>
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} triggered={triggered} />
       <SkipToMainContent />

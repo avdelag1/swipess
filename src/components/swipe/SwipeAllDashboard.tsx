@@ -68,14 +68,14 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
       className="relative w-full flex-grow flex flex-col items-center justify-start bg-transparent overflow-hidden"
       style={{ minHeight: 'auto', paddingTop: '130px' }}
     >
-      {/* 🛸 NEXUS CENTERED STACK v14.0 */}
+      {/* 🛸 Swipess CENTERED STACK v14.0 */}
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         className="relative flex items-center justify-center transition-all"
-        style={{
-          height: 'min(75svh, 540px)',
-          width: `calc(min(75svh, 540px) * ${PK_ASPECT})`,
+        style={{ 
+          height: 'min(62svh, 480px)',
+          width: `calc(min(62svh, 480px) * ${PK_ASPECT})`,
           padding: '0.4rem',
         }}
       >

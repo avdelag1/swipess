@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { STORAGE } from '@/constants/app';
 import { cn } from '@/lib/utils';
-import { NexusLogo } from '@/components/NexusLogo';
+import { SwipessLogo } from '@/components/SwipessLogo';
 import { SaveButton } from '@/components/SaveButton';
 import { triggerHaptic } from '@/utils/haptics';
 import { useTheme } from '@/hooks/useTheme';
@@ -173,7 +173,7 @@ export default function PublicListingPreview() {
             <ArrowLeft className="w-6 h-6" />
          </button>
          <div className="bg-black/30 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-full h-12 flex items-center shadow-2xl">
-            <NexusLogo size="sm" invert />
+            <SwipessLogo size="sm" invert />
          </div>
          <div className="flex gap-2 pointer-events-auto">
             <button className="w-12 h-12 rounded-[1.2rem] bg-black/30 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 shadow-2xl">
@@ -183,7 +183,7 @@ export default function PublicListingPreview() {
          </div>
       </div>
 
-      {/* 🛸 NEXUS BOTTOM TERMINAL */}
+      {/* 🛸 Swipess BOTTOM TERMINAL */}
       <motion.div
         initial={{ y: '100%' }}
         animate={{ y: 0 }}

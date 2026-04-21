@@ -33,7 +33,7 @@ interface EventDetail {
 
 /**
  * BRAND ADVERTISING COMPONENT
- * Shows benefits for brands to advertise in NEXUS DISCOVERY.
+ * Shows benefits for brands to advertise in Swipess.
  */
 function BrandBenefitsSection() {
   const { navigate } = useAppNavigate();
@@ -224,7 +224,7 @@ export default function EventoDetail() {
     if (navigator.share && event) {
       await navigator.share({
         title: event.title,
-        text: `Check out ${event.title} on NEXUS DISCOVERY!`,
+        text: `Check out ${event.title} on Swipess!`,
         url: window.location.href,
       }).catch(() => {});
     } else {
@@ -237,7 +237,7 @@ export default function EventoDetail() {
     triggerHaptic('medium');
     if (!event?.organizer_whatsapp) return;
     const phone = event.organizer_whatsapp.replace(/\D/g, '');
-    const message = encodeURIComponent(`Hola, vi tu evento "${event.title}" en NEXUS DISCOVERY 🔥`);
+    const message = encodeURIComponent(`Hola, vi tu evento "${event.title}" en Swipess 🔥`);
     window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
   };
 

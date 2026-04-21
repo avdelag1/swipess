@@ -34,7 +34,7 @@ export function PWAInstallButton({ className }: { className?: string }) {
         )}
       >
         <Download className="w-5 h-5" />
-        Install NEXUS DISCOVERY App
+        Install Swipess App
       </Button>
 
       <AnimatePresence>
@@ -55,10 +55,10 @@ export function PWAInstallButton({ className }: { className?: string }) {
 
               <div className="flex flex-col items-center text-center gap-4">
                 <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-2xl mb-2">
-                  <img src="/icons/nexus-logo.png" alt="NEXUS DISCOVERY" className="w-full h-full object-cover" />
+                  <img src="/icons/Swipess-logo.png" alt="Swipess" className="w-full h-full object-cover" />
                 </div>
                 
-                <h3 className="text-xl font-black tracking-tight">Install NEXUS DISCOVERY</h3>
+                <h3 className="text-xl font-black tracking-tight">Install Swipess</h3>
                 
                 <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
                   <div className="flex items-start gap-3 text-left bg-muted/50 p-4 rounded-2xl border border-border">

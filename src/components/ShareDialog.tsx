@@ -42,7 +42,7 @@ export function ShareDialog({
 
   // Include user's ID as referral ID for tracking
   const shareUrl = generateShareUrl({ listingId, profileId, referralId: user?.id });
-  const shareText = description || `Check out ${title} on NEXUS DISCOVERY!`;
+  const shareText = description || `Check out ${title} on Swipess!`;
 
   const handleCopyLink = async () => {
     const success = await copyToClipboard(shareUrl);

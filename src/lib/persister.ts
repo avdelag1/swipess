@@ -6,7 +6,7 @@ import { Persister, PersistedClient } from '@tanstack/react-query-persist-client
  * Uses IndexedDB (idb-keyval) for high-performance, asynchronous query caching.
  * This ensures the app always starts with the last known data INSTANTLY (0ms network delay).
  */
-export function createIDBPersister(idbValidKey: string = 'nexus-query-cache') {
+export function createIDBPersister(idbValidKey: string = 'Swipess-query-cache') {
   return {
     persistClient: async (client: PersistedClient) => {
       await set(idbValidKey, client);

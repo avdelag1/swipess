@@ -54,7 +54,7 @@ export function ResidentQRModal({ isOpen, onClose }: ResidentQRModalProps) {
     return () => { supabase.removeChannel(channel); };
   }, [isOpen, user?.id]);
 
-  const qrValue = user?.id ? `nexus-resident:${user.id}:${qrKey}` : '';
+  const qrValue = user?.id ? `Swipess-resident:${user.id}:${qrKey}` : '';
 
   if (!isOpen) return null;
 

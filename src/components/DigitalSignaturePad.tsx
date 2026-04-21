@@ -110,7 +110,7 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
     <div className="w-full space-y-6">
       <div className="relative group">
         
-        {/* 🛸 NEXUS GLOW */}
+        {/* 🛸 Swipess GLOW */}
         <div className="absolute -inset-1 bg-gradient-to-r from-[#EB4898]/40 via-[#8b5cf6]/40 to-[#EB4898]/40 rounded-[3rem] blur-2xl opacity-40 group-hover:opacity-100 transition duration-1000" />
         
         {/* 🛸 SIGNATURE HUB */}

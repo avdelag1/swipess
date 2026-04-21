@@ -298,7 +298,7 @@ export const LocationRadiusSelector = ({
                  className="w-full h-1 bg-primary/20 rounded-full appearance-none cursor-pointer accent-primary border-none overflow-hidden"
                />
                <div className="flex justify-between mt-3 px-1">
-                  <span className={cn("text-[8px] font-black tracking-[0.2em] opacity-40 uppercase", isLight ? "text-black" : "text-white")}>System: Nexus-Scan-Active</span>
+                  <span className={cn("text-[8px] font-black tracking-[0.2em] opacity-40 uppercase", isLight ? "text-black" : "text-white")}>System: Swipess-Scan-Active</span>
                   <span className={cn("text-[8px] font-black tracking-[0.2em] opacity-40 uppercase", isLight ? "text-black" : "text-white")}>Scale: 1:{localKm}KM</span>
                </div>
             </div>

@@ -192,7 +192,7 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
           >
             <div className="flex justify-center mb-4">
               {/* Visual verification: Logo removed per user request */}
-              {/* <NexusLogo size="lg" /> */}
+              {/* <SwipessLogo size="lg" /> */}
             </div>
             <div>
               <h2 className="text-2xl font-bold text-white mb-3">

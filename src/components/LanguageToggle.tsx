@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { changeLanguage as i18nChangeLanguage } from '@/i18n/index';
 
 const languages = [
   { code: 'en', label: 'English',  nativeLabel: 'English',   flag: '🇺🇸' },
@@ -24,8 +25,7 @@ export function LanguageToggle() {
 
   const switchLanguage = async (code: string) => {
     setCurrent(code);
-    i18n.changeLanguage(code);
-    localStorage.setItem('language', code);
+    await i18nChangeLanguage(code);
 
     if (user) {
       await supabase

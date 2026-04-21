@@ -36,7 +36,7 @@ export function SharedProfileSection({
 
   const shareUrl = generateShareUrl({ profileId, referralId: user.id });
   const profileType = isClient ? 'client profile' : 'business profile';
-  const shareText = `Check out ${profileName}'s ${profileType} on NEXUS DISCOVERY! See their details and connect today.`;
+  const shareText = `Check out ${profileName}'s ${profileType} on Swipess! See their details and connect today.`;
 
   const handleCopyLink = async () => {
     const success = await copyToClipboard(shareUrl);

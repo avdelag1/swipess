@@ -23,7 +23,7 @@ export function DiscountHistory({ redemptions }: DiscountHistoryProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `nexus-perks-history-${Date.now()}.csv`;
+    a.download = `Swipess-perks-history-${Date.now()}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }, [redemptions]);

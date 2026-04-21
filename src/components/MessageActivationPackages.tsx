@@ -116,7 +116,7 @@ export function MessageActivationPackages({
 
       return {
         id: pkg.id,
-        appleProductId: `nexus.tokens.${tokens}`,
+        appleProductId: `Swipess.tokens.${tokens}`,
         name: pkg.name || (tier.charAt(0).toUpperCase() + tier.slice(1)),
         tokens,
         price: pkg.price,

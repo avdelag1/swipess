@@ -55,8 +55,8 @@ const themeOptions: ThemeOption[] = [
     }
   },
   {
-    id: 'nexus-style',
-    name: 'Nexus HUD',
+    id: 'Swipess-style',
+    name: 'Swipess HUD',
     description: 'Futuristic glass UI',
     icon: '🛸',
     colors: {

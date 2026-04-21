@@ -27,7 +27,7 @@ function MatchCelebrateModalComponent({ isOpen, onClose, clientProfile, ownerPro
 
   const handleMessage = () => {
     onClose();
-    // In NEXUS DISCOVERY, messages route handles active matches
+    // In Swipess, messages route handles active matches
     navigate('/messages');
   };
 

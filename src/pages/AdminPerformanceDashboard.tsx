@@ -57,8 +57,8 @@ const AUDIT_ISSUES: AuditIssue[] = [
     category: 'image',
     severity: 'high',
     description:
-      'nexus-logo.webp is 1536×1024 but displayed at 517×345 (–57 KiB). ' +
-      'nexus-logo.png should be converted to modern formats (–34 KiB).',
+      'Swipess-logo.webp is 1536×1024 but displayed at 517×345 (–57 KiB). ' +
+      'Swipess-logo.png should be converted to modern formats (–34 KiB).',
   },
   {
     id: 'unused-js',
@@ -97,8 +97,8 @@ const AUDIT_ISSUES: AuditIssue[] = [
     category: 'network',
     severity: 'medium',
     description:
-      'nexus-logo-video.mp4 (2,078 KiB), nexus-brand-logo.webp (65 KiB), and ' +
-      'nexus-logo.png (63 KiB) only have a 7-day cache TTL. Increase to ≥ 1 year.',
+      'Swipess-logo-video.mp4 (2,078 KiB), Swipess-brand-logo.webp (65 KiB), and ' +
+      'Swipess-logo.png (63 KiB) only have a 7-day cache TTL. Increase to ≥ 1 year.',
   },
   {
     id: 'large-payloads',
@@ -107,7 +107,7 @@ const AUDIT_ISSUES: AuditIssue[] = [
     category: 'network',
     severity: 'medium',
     description:
-      'Total transfer: 2,769 KiB. nexus-logo-video.mp4 alone is 2,078 KiB. ' +
+      'Total transfer: 2,769 KiB. Swipess-logo-video.mp4 alone is 2,078 KiB. ' +
       'Compress the video or lazy-load it after interaction.',
   },
   {
@@ -315,7 +315,7 @@ export default function AdminPerformanceDashboard() {
       <div className="max-w-4xl mx-auto px-4 pt-6">
         <PageHeader
           title="Performance Dashboard"
-          subtitle="Live web vitals + Lighthouse audit · NEXUS DISCOVERY.com"
+          subtitle="Live web vitals + Lighthouse audit · Swipess.com"
           backTo="/admin/eventos"
           actions={
             <div className="flex items-center gap-2 text-xs text-muted-foreground">

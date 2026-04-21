@@ -5,7 +5,7 @@
 
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  SWIPE CARD PHOTO TRANSITION                                          */
+/*  Swipess PHOTO TRANSITION                                    */
 /*  Simple slide when switching photos within a card (cached images).  */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
@@ -349,7 +349,7 @@
 /*  6. ENHANCED LOGO TREATMENT                                           */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-.swipess-logo-enhanced {
+.Swipess-logo-enhanced {
   background: linear-gradient(135deg,
       #FFFFFF 0%,
       #F0F0F0 25%,

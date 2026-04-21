@@ -81,7 +81,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
   }, [card.id, onCycle, x]);
 
   // Stack styling
-  // Stack styling — 🚀 NEXUS v14.0 Reveal Logic
+  // Stack styling — 🚀 Swipess v14.0 Reveal Logic
   const stackY = index * 12; // Deeper stack peeking from bottom
   const stackScale = 1 - (index * 0.04);
   const stackOpacity = index === 0 ? 1 : index === 1 ? 0.9 : index === 2 ? 0.65 : index === 3 ? 0.35 : 0;
@@ -149,7 +149,7 @@ export const PokerCategoryCard = memo(({ card, index, isTop, isCollapsed = false
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
         {/* Removed pinky/skin color overlay per user request */}
         
-        {/* 🛸 NEXUS METADATA CONTENT */}
+        {/* 🛸 Swipess METADATA CONTENT */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-9 md:p-11 gap-8">
           
           <div className="space-y-2">

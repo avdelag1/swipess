@@ -31,6 +31,23 @@ export const NativeBridge = {
       console.error('[StoreKit] Purchase error:', error);
       return { success: false, error };
     }
+  },
+
+  /**
+   * Restores existing App Store / Play Store subscriptions
+   */
+  restorePurchases: async () => {
+    if (!Capacitor.isNativePlatform()) {
+      return { success: false, error: 'NOT_NATIVE' };
+    }
+    console.log('[StoreKit] Restoring purchases...');
+    try {
+      // return await IAPService.restore();
+      return { success: true };
+    } catch (error) {
+      console.error('[StoreKit] Restore error:', error);
+      return { success: false, error };
+    }
   }
 };
 

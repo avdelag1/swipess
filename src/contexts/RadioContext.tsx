@@ -55,7 +55,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     isShuffle: false,
     favorites: [],
     deadStationIds: [], // Fresh start each session — no permanent blacklist
-    miniPlayerMode: (localStorage.getItem('nexus_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
+    miniPlayerMode: (localStorage.getItem('Swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
   });
 
   const [loading, setLoading] = useState(true);
@@ -401,7 +401,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
           title: targetStation.name,
-          artist: "NEXUS DISCOVERY: Find Your Direct Deal",
+          artist: "Swipess: Find Your Direct Deal",
           album: "Swipe & Save Big",
           artwork: [
             { src: targetStation.albumArt || '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -556,7 +556,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const setMiniPlayerMode = useCallback((mode: 'expanded' | 'minimized' | 'closed') => {
     setState(prev => ({ ...prev, miniPlayerMode: mode }));
-    localStorage.setItem('nexus_radio_mini_player_mode', mode);
+    localStorage.setItem('Swipess_radio_mini_player_mode', mode);
   }, []);
 
   const isStationFavorite = useCallback((stationId: string) => state.favorites.includes(stationId), [state.favorites]);

@@ -32,7 +32,7 @@ type Plan = {
 const clientPlans: Plan[] = [
   {
     id: 'client-unlimited-1-month',
-    appleProductId: 'nexus.premium.monthly',
+    appleProductId: 'Swipess.premium.monthly',
     name: 'Monthly',
     label: 'STARTER',
     price: '$39',
@@ -49,7 +49,7 @@ const clientPlans: Plan[] = [
   },
   {
     id: 'client-unlimited-6-months',
-    appleProductId: 'nexus.premium.semi_annual',
+    appleProductId: 'Swipess.premium.semi_annual',
     name: 'Semi-Annual',
     label: 'POPULAR',
     price: '$119',
@@ -68,7 +68,7 @@ const clientPlans: Plan[] = [
   },
   {
     id: 'client-unlimited-1-year',
-    appleProductId: 'nexus.premium.yearly',
+    appleProductId: 'Swipess.premium.yearly',
     name: 'Yearly',
     label: 'BEST VALUE',
     price: '$299',

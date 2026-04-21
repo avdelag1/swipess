@@ -49,7 +49,7 @@ describe('Index page navigation logic', () => {
 
   it('renders landing page when there is no authenticated user', () => {
     const { getByAltText } = render(<Index />);
-    expect(getByAltText(/NEXUS DISCOVERY/i)).toBeInTheDocument();
+    expect(getByAltText(/Swipess/i)).toBeInTheDocument();
     expect(navigateMock).not.toHaveBeenCalled();
   });
 

@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { motion } from 'framer-motion';
-import { ChevronLeft, SlidersHorizontal, Radio, Ghost } from 'lucide-react';
+import { ChevronLeft, SlidersHorizontal, Radio, Ghost, Sparkles } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import { haptics } from '@/utils/microPolish';
 import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
+import { useModalStore } from '@/state/modalStore';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -158,7 +159,7 @@ function TopBarComponent({
             <div 
               className={cn("flex items-center gap-2 pointer-events-auto transition-all duration-300")} 
             >
-              <motion.button
+               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={(e) => {
                   e.preventDefault();
@@ -173,6 +174,21 @@ function TopBarComponent({
                   strokeWidth={2.5} 
                 />
               </motion.button>
+
+              {isOwner && (
+                 <motion.button
+                  whileTap={{ scale: 0.85 }}
+                  onPointerDown={(e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    haptics.success();
+                    useModalStore.getState().openAIListing();
+                  }}
+                  className="w-10 h-10 flex items-center justify-center p-0 relative"
+                >
+                  <div className="absolute inset-0 bg-cyan-500/10 blur-xl rounded-full opacity-0 hover:opacity-100 transition-opacity" />
+                  <Sparkles className="w-5 h-5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+                </motion.button>
+              )}
 
 
               <div className="flex items-center px-1">

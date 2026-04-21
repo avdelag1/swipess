@@ -22,7 +22,7 @@ import { AdvancedFilters } from '@/components/AdvancedFilters'
 import { RadioMiniPlayer } from '@/components/RadioMiniPlayer'
 
 
-// Note: TopBar, NexusLogo, BottomNavigation are now rendered by AppLayout.tsx (global HUD)
+// Note: TopBar, SwipessLogo, BottomNavigation are now rendered by AppLayout.tsx (global HUD)
 
 // SPEED OF LIGHT HOOKS
 import { useWelcomeState } from "@/hooks/useWelcomeState"

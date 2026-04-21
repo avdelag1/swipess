@@ -34,11 +34,14 @@ interface ModalState {
   showMessageActivations: boolean;
   showFilters: boolean;
   showAIChat: boolean;
+  showAIListing: boolean;
+  aiListingCategory: 'property' | 'motorcycle' | 'bicycle' | 'worker' | null;
   showVapId: boolean;
   showTokensModal: boolean;
 
   // Actions
-  setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason'>, value: boolean) => void;
+  setModal: (key: keyof Omit<ModalState, 'setModal' | 'selectedListingId' | 'selectedProfileId' | 'subscriptionReason' | 'aiListingCategory'>, value: boolean) => void;
+  openAIListing: (category?: 'property' | 'motorcycle' | 'bicycle' | 'worker') => void;
   openPropertyDetails: (id: string) => void;
   openPropertyInsights: (id: string) => void;
   openClientInsights: (id: string) => void;
@@ -67,11 +70,14 @@ export const useModalStore = create<ModalState>((set) => ({
   showMessageActivations: false,
   showFilters: false,
   showAIChat: false,
+  showAIListing: false,
+  aiListingCategory: null,
   showVapId: false,
   showTokensModal: false,
 
   setModal: (key, value) => set({ [key]: value }),
   
+  openAIListing: (category) => set({ aiListingCategory: category || null, showAIListing: true }),
   openPropertyDetails: (id) => set({ selectedListingId: id, showPropertyDetails: true }),
   openPropertyInsights: (id) => set({ selectedListingId: id, showPropertyInsights: true }),
   openClientInsights: (id) => set({ selectedProfileId: id, showClientInsights: true }),
@@ -93,6 +99,8 @@ export const useModalStore = create<ModalState>((set) => ({
     showMessageActivations: false,
     showFilters: false,
     showAIChat: false,
+    showAIListing: false,
+    aiListingCategory: null,
     showVapId: false,
     showTokensModal: false,
   }),

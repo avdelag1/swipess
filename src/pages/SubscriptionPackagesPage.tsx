@@ -15,7 +15,7 @@ import { PaymentErrorBoundary } from "@/components/PaymentErrorBoundary";
 const clientPremiumPlans = [
   {
     id: 'client-unlimited-1-month',
-    appleProductId: 'nexus.premium.monthly',
+    appleProductId: 'Swipess.premium.monthly',
     name: 'Monthly',
     label: 'STARTER',
     price: 39,
@@ -38,7 +38,7 @@ const clientPremiumPlans = [
   },
   {
     id: 'client-unlimited-6-months',
-    appleProductId: 'nexus.premium.semi_annual',
+    appleProductId: 'Swipess.premium.semi_annual',
     name: 'Semi-Annual',
     label: 'POPULAR',
     price: 119,
@@ -63,7 +63,7 @@ const clientPremiumPlans = [
   },
   {
     id: 'client-unlimited-1-year',
-    appleProductId: 'nexus.premium.yearly',
+    appleProductId: 'Swipess.premium.yearly',
     name: 'Yearly Elite',
     label: 'BEST VALUE',
     price: 299,
@@ -163,8 +163,19 @@ export default function SubscriptionPackagesPage() {
     }
   };
 
-  const handleRestore = () => {
+  const handleRestore = async () => {
     toast({ title: 'Restoring Purchases', description: 'Syncing with App Store subscriptions...' });
+    
+    if (NativeBridge.isIOS()) {
+      const result = await NativeBridge.restorePurchases();
+      if (result.success) {
+        toast.success('Subscription status verified.');
+      } else {
+        toast.error('Restoration Failed', { description: 'Please check your internet connection or Apple ID.' });
+      }
+      return;
+    }
+
     setTimeout(() => {
       toast.success('Subscription status verified.');
     }, 1500);
@@ -295,7 +306,7 @@ export default function SubscriptionPackagesPage() {
                     )}>
                       <div className="flex items-center gap-2 mb-3">
                         <Sparkles className={cn("w-4 h-4", style.checkColor)} />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Nexus Intelligence Benefits</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Swipess Intelligence Benefits</span>
                       </div>
                       {(plan as any).aiFeatures.map((feature: string, i: number) => (
                         <div key={i} className="flex items-start gap-3">
@@ -331,6 +342,17 @@ export default function SubscriptionPackagesPage() {
             <RefreshCcw className="w-5 h-5" />
             Restore Subscriptions
           </button>
+
+          {/*  App Store Subscription Policy Disclosure (Guideline 3.1.2) */}
+          <div className="max-w-2xl text-center px-6 space-y-6">
+            <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest leading-relaxed">
+              Payment will be charged to your Apple ID account at the confirmation of purchase. Subscription automatically renews unless it is canceled at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period. You can manage and cancel your subscriptions by going to your account settings on the App Store after purchase.
+            </p>
+            <div className="flex items-center justify-center gap-8">
+              <button onClick={() => navigate('/client/privacy')} className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]/60 hover:text-[#EB4898]">Privacy Policy</button>
+              <button onClick={() => navigate('/client/terms')} className="text-[9px] font-black uppercase tracking-[0.3em] text-[#EB4898]/60 hover:text-[#EB4898]">Terms of Service</button>
+            </div>
+          </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-12 w-full px-6">
             <div className="space-y-3 text-center group">

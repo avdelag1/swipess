@@ -127,8 +127,8 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         <div
           className="relative flex items-center justify-center transition-all"
           style={{ 
-            height: 'min(75svh, 540px)',
-            width: `calc(min(75svh, 540px) * ${PK_ASPECT})`,
+            height: 'min(62svh, 480px)',
+            width: `calc(min(62svh, 480px) * ${PK_ASPECT})`,
             padding: '0.4rem',
           }}
         >

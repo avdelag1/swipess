@@ -92,7 +92,7 @@ function useNavigationGuard() {
 
 
 
-interface NexusSwipeContainerProps {
+interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
   onInsights?: (listingId: string) => void;
   onMessageClick?: () => void;
@@ -105,7 +105,7 @@ interface NexusSwipeContainerProps {
   filters?: ListingFilters;
 }
 
-const NexusSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, locationFilter: _locationFilter, filters }: NexusSwipeContainerProps) => {
+const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const navigate = useNavigate();
   const { theme, isLight } = useTheme();
   const [page, setPage] = useState(0);
@@ -354,7 +354,7 @@ const NexusSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights:
       // Reset undo state so this effect doesn't run again
       resetUndoState();
 
-      logger.info('[NexusSwipeContainer] Synced local state after undo, new index:', newIndex);
+      logger.info('[SwipessSwipeContainer] Synced local state after undo, new index:', newIndex);
     }
   }, [undoSuccess, resetUndoState]);
   const recordProfileView = useRecordProfileView();
@@ -370,7 +370,7 @@ const NexusSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights:
 
   // PERF FIX: Build filters from Zustand store directly instead of props.
   // This eliminates the cascading object recreation chain:
-  // MyHub → ClientDashboard → NexusSwipeContainer
+  // MyHub → ClientDashboard → SwipessSwipeContainer
   // Each intermediary was creating new filter objects on every filterVersion bump.
   const storeFilterVersion = useFilterStore((state) => state.filterVersion);
   const stableFilters = useMemo(() => {
@@ -874,7 +874,7 @@ const NexusSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights:
 
     if (isDirectMessaging) {
       // Direct messaging for motorcycles and bicycles - no subscription required
-      logger.info('[NexusSwipeContainer] Direct messaging category detected, opening direct message dialog');
+      logger.info('[SwipessSwipeContainer] Direct messaging category detected, opening direct message dialog');
       setSelectedListing(listing);
       setDirectMessageDialogOpen(true);
       triggerHaptic('light');
@@ -898,7 +898,7 @@ const NexusSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights:
     }
 
     // Open confirmation dialog with message quota info
-    logger.info('[NexusSwipeContainer] Message icon clicked, opening confirmation dialog');
+    logger.info('[SwipessSwipeContainer] Message icon clicked, opening confirmation dialog');
     setSelectedListing(listing);
     setMessageDialogOpen(true);
     triggerHaptic('light');
@@ -937,7 +937,7 @@ const NexusSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights:
       }
     } catch (err) {
       if (import.meta.env.DEV) {
-        logger.error('[NexusDiscoverySwipe] Error starting conversation:', err);
+        logger.error('[SwipessDiscoverySwipe] Error starting conversation:', err);
       }
       appToast.error('Error', err instanceof Error ? err.message : 'Could not start conversation');
     } finally {
@@ -1255,6 +1255,6 @@ const NexusSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsights:
   );
 };
 
-export const NexusSwipeContainer = memo(NexusSwipeContainerComponent);
+export const SwipessSwipeContainer = memo(SwipessSwipeContainerComponent);
 
 

@@ -15,7 +15,7 @@ import { BackgroundThemeSettings } from "@/components/BackgroundThemeSettings";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useTranslation } from "react-i18next";
 import { PWAInstallButton } from "@/components/PWAInstallButton";
-import { NexusLogo } from "@/components/NexusLogo";
+import { SwipessLogo } from "@/components/SwipessLogo";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";
@@ -157,14 +157,14 @@ const OwnerSettings = () => {
           ))}
         </motion.div>
 
-        {/* 🛸 NEXUS FOOTER */}
+        {/* 🛸 Swipess FOOTER */}
         <div className="flex flex-col items-center gap-6 pt-16">
             <div className="w-16 h-16 rounded-[1.6rem] bg-black flex items-center justify-center shadow-2xl border border-white/10">
-               <NexusLogo size="sm" />
+               <SwipessLogo size="sm" />
             </div>
             <div className="text-center space-y-2">
                <div className="flex items-center justify-center gap-3">
-                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>NEXUS DISCOVERY</span>
+                  <span className={cn("text-2xl font-black italic tracking-tighter uppercase", isLight ? "text-black" : "text-white")}>Swipess</span>
                   <div className="bg-purple-600/10 px-3 py-1 rounded-full border border-purple-600/20">
                      <span className="text-[9px] font-black text-purple-600 uppercase tracking-widest font-mono">V3.3.1</span>
                   </div>
