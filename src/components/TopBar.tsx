@@ -7,8 +7,7 @@ import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { ThemeContext } from '@/hooks/useAppTheme';
-import { useContext } from 'react';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { haptics } from '@/utils/microPolish';
 import { ModeSwitcher } from './ModeSwitcher';
 import { NotificationPopover } from './NotificationPopover';
@@ -43,8 +42,7 @@ function TopBarComponent({
 }: TopBarProps) {
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
-  const themeContext = useContext(ThemeContext);
-  const isLight = themeContext?.isLight ?? false;
+  const { isLight } = useAppTheme();
   
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setActiveCategory } = useFilterActions();

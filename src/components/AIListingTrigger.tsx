@@ -12,7 +12,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { MotorcycleIcon } from './icons/MotorcycleIcon';
 import { WorkersIcon } from './icons/WorkersIcon';
 import { useState } from 'react';
-import { useTheme } from '@/hooks/useTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 interface AIListingTriggerProps {
   glassPillStyle?: React.CSSProperties;
@@ -21,7 +21,7 @@ interface AIListingTriggerProps {
 export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
   const { openAIListing } = useModalStore();
   const [open, setOpen] = useState(false);
-  const { isLight } = useTheme();
+  const { isLight } = useAppTheme();
 
   const handleSelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker') => {
     triggerHaptic('medium');

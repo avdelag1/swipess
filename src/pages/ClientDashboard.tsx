@@ -29,7 +29,6 @@ interface ClientDashboardProps {
 export default function ClientDashboard({ onMessageClick }: ClientDashboardProps) {
   const { theme, isLight } = useAppTheme();
   const activeCategory = useFilterStore(s => s.activeCategory);
-  const dashboardFilters = useFilterStore(useShallow(s => s.getListingFilters()));
   const { user } = useAuth();
   const { setActiveCategory } = useFilterActions();
 
