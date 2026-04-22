@@ -99,6 +99,7 @@ export const POKER_CARD_GRADIENTS: Record<string, string> = {
   vap:        'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
   lawyer:     'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
   promote:    'linear-gradient(135deg, #4a1942 0%, #2d1b69 100%)',
+  'ai-listing': 'linear-gradient(135deg, #312e81 0%, #1e1b4b 100%)',
 };
 
 export const POKER_CARDS = [
@@ -146,6 +147,7 @@ export const POKER_CARD_PHOTOS: Record<string, string> = {
   'all-clients': '/images/filters/all.png',
   lawyer:        '/images/filters/owner_lawyer_card.png',
   promote:       '/images/filters/owner_promote_card.png',
+  'ai-listing':  '/images/filters/ai_listing_card.png',
 };
 
 // ─── Owner quick-filter intent cards ────────────────────────────────────────
@@ -201,6 +203,14 @@ export const OWNER_INTENT_CARDS: OwnerIntentCard[] = [
     accent: '#6366f1',
     accentRgb: '99,102,241',
     icon: Scale,
+  },
+  {
+    id: 'ai-listing',
+    label: 'AI Wizard',
+    description: 'Auto-Generate Listing',
+    accent: '#818cf8',
+    accentRgb: '129,140,248',
+    icon: Sparkles,
   },
   {
     id: 'promote',

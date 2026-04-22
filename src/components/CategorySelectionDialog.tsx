@@ -203,14 +203,56 @@ export function CategorySelectionDialog({
           <div className="p-4 sm:p-6 pb-6 sm:pb-8">
             <AnimatePresence mode="wait">
               {step === 'category' ? (
-                <motion.div
-                  key="category"
-                  initial={{ opacity: 0, x: -15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 15 }}
-                  transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="grid grid-cols-1 gap-3"
-                >
+                <div className="space-y-4">
+                  {/* MAGIC AI LISTING CARD */}
+                  <motion.button
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleOpenAI}
+                    className={cn(
+                      "group relative w-full flex items-center gap-4 p-5 rounded-2xl text-left transition-all duration-300",
+                      "bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-rose-500/10 border border-indigo-500/20 shadow-lg shadow-indigo-500/5",
+                      "hover:border-indigo-500/40 hover:shadow-indigo-500/10"
+                    )}
+                  >
+                    <div className="absolute top-3 right-3">
+                      <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
+                    </div>
+                    
+                    <div className="relative w-14 h-14 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg overflow-hidden">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.4),transparent_70%)] animate-pulse" />
+                      <Sparkles className="relative z-10 w-7 h-7 text-white" />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-foreground text-base">Magic AI Listing</h3>
+                        <Badge className="bg-indigo-500 text-[10px] h-4 px-1.5 font-black uppercase tracking-tighter border-none">Fastest</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        Upload photos & describe your asset. AI generates the entire listing in seconds.
+                      </p>
+                    </div>
+
+                    <ArrowRight className="w-5 h-5 text-indigo-400/40 group-hover:translate-x-1 transition-transform" />
+                  </motion.button>
+
+                  <div className="flex items-center gap-2 px-1">
+                    <div className="h-[1px] flex-1 bg-border/40" />
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Or create manually</span>
+                    <div className="h-[1px] flex-1 bg-border/40" />
+                  </div>
+
+                  <motion.div
+                    key="category"
+                    initial={{ opacity: 0, x: -15 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 15 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="grid grid-cols-1 gap-3"
+                  >
                   {categories.map((category, index) => (
                     <motion.button
                       key={category.id}
@@ -252,7 +294,8 @@ export function CategorySelectionDialog({
                     </motion.button>
                   ))}
                 </motion.div>
-              ) : (
+              </div>
+            ) : (
                 <motion.div
                   key="mode"
                   initial={{ opacity: 0, x: 15 }}

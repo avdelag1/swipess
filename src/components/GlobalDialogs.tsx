@@ -210,6 +210,7 @@ export const GlobalDialogs = memo(({ userRole }: GlobalDialogsProps) => {
                 store.setModal('showCategoryDialog', false);
                 navigate(`/owner/listings/new?category=${category}&mode=${mode}`);
               }}
+              onAIOpen={() => store.openAIListing()}
             />
           </DeferredDialog>
         </>

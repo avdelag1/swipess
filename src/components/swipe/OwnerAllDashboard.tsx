@@ -16,6 +16,7 @@ import {
 } from './SwipeConstants';
 import { deckFadeVariants } from '@/utils/modernAnimations';
 import { PokerCategoryCard } from './PokerCategoryCard';
+import { useModalStore } from '@/state/modalStore';
 
 // Preload all owner card images
 const preloadedOwnerImages = new Set<string>();
@@ -79,6 +80,11 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
     }
     if (id === 'promote') {
       navigate('/promote');
+      return;
+    }
+    if (id === 'ai-listing') {
+      const { openAIListing } = useModalStore.getState();
+      openAIListing();
       return;
     }
     const card = OWNER_INTENT_CARDS.find(c => c.id === id);
