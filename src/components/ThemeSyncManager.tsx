@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import useAppTheme from '@/hooks/useAppTheme';
+import { ThemeContext } from '@/hooks/useAppTheme';
+import { useContext } from 'react';
 import { logger } from '@/utils/prodLogger';
 
 /**
@@ -11,7 +12,9 @@ import { logger } from '@/utils/prodLogger';
  */
 export function ThemeSyncManager() {
   const { user, loading } = useAuth();
-  const { theme, setTheme } = useAppTheme();
+  const themeContext = useContext(ThemeContext);
+  const theme = themeContext?.theme;
+  const setTheme = themeContext?.setTheme ?? (() => {});
   const hasLoadedThemeRef = useRef(false);
   const STORAGE_KEY = 'Swipess_theme_preference';
 

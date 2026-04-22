@@ -25,7 +25,8 @@ import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { notificationTypeConfigs as typeConfigs } from '@/utils/notificationConfigs';
-import useAppTheme from '@/hooks/useAppTheme';
+import { ThemeContext } from '@/hooks/useAppTheme';
+import { useContext } from 'react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 
@@ -240,7 +241,8 @@ export function NotificationPopover({ className, children }: NotificationPopover
   const [isOpen, setIsOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const navigate = useNavigate();
-  const { theme } = useAppTheme();
+  const themeContext = useContext(ThemeContext);
+  const theme = themeContext?.theme ?? 'dark';
   const isDark = theme === 'dark';
   
   const { 
