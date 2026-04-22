@@ -1,20 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Database, Eye, Globe, Lock } from "lucide-react";
-import { motion } from "framer-motion";
+import { ArrowLeft, Lock, ShieldCheck, Database, Eye, Globe } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SentientHud } from "@/components/SentientHud";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/utils/haptics";
 
 export default function PrivacyPolicy() {
   const navigate = useNavigate();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useTheme();
 
   return (
     <div className={cn("min-h-screen transition-colors duration-500 overflow-x-hidden", isLight ? "bg-white" : "bg-black")}>
       
-      {/* ATMOSPHERE */}
+      {/* 🛸 ATMOSPHERE */}
       <div className="fixed inset-0 pointer-events-none opacity-20">
          <div className="absolute top-[5%] left-[-15%] w-[70%] h-[40%] bg-[#EB4898]/30 blur-[130px] rounded-full" />
          <div className="absolute bottom-[20%] right-[-10%] w-[50%] h-[40%] bg-indigo-500/30 blur-[110px] rounded-full" />
@@ -22,10 +23,10 @@ export default function PrivacyPolicy() {
 
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-48 relative z-10 space-y-12">
         
-        {/* HEADER */}
+        {/* 🛸 HEADER */}
         <div className="flex flex-col gap-3">
-           <button onClick={() => { triggerHaptic('medium'); navigate(-1); }} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic mb-4">
-              <ArrowLeft className="w-4 h-4" /> BACK TO PROFILE
+           <button onClick={() => { triggerHaptic('medium'); navigate(-1); }} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#EB4898] italic mb-4 hover:opacity-70 transition-opacity">
+              <ArrowLeft className="w-4 h-4" /> BACK
            </button>
            <h1 className={cn("text-5xl font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Privacy Policy</h1>
            <div className="flex items-center gap-4 mt-2">
@@ -36,7 +37,7 @@ export default function PrivacyPolicy() {
            </div>
         </div>
 
-        {/* DATA STATUS */}
+        {/* 🛸 DATA STATUS */}
         <div className={cn("p-8 rounded-[2.8rem] border flex items-center justify-between backdrop-blur-3xl", isLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}>
              <div className="flex items-center gap-6">
                 <div className="w-16 h-16 rounded-[1.4rem] bg-[#EB4898] flex items-center justify-center shadow-2xl">
@@ -47,20 +48,20 @@ export default function PrivacyPolicy() {
                    <h4 className={cn("text-xl font-black italic tracking-tighter uppercase leading-none mt-1", isLight ? "text-black" : "text-white")}>End-to-End Privacy</h4>
                 </div>
              </div>
-             <div className="bg-indigo-500 px-4 py-2 rounded-full shadow-lg">
+             <div className="bg-indigo-500 px-4 py-2 rounded-full shadow-lg hidden sm:block">
                 <span className="text-[9px] font-black text-white uppercase tracking-widest italic">Certified Secure</span>
              </div>
         </div>
 
-        {/* PRIVACY CONTENT */}
+        {/* 🛸 PRIVACY CONTENT */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className={cn("p-12 rounded-[3.5rem] border shadow-3xl backdrop-blur-3xl", isLight ? "bg-black/5 border-black/10" : "bg-white/[0.03] border-white/5")}>
              <div className="space-y-16">
                  {[
-                  { id: '01', icon: Database, title: 'Data Collection', content: 'We collect personal information you provide directly: Profile details, search preferences, and communications.' },
-                  { id: '02', icon: Eye, title: 'Data Usage', content: 'Information is used to optimize the discovery experience, connect property owners with potential clients, and process requests.' },
-                  { id: '03', icon: Globe, title: 'Data Sharing', content: 'Data is shared only with trusted service providers (Supabase, Google) and relevant parties to establish direct connections.' },
-                  { id: '04', icon: ShieldCheck, title: 'User Rights', content: 'You maintain control over your personal information. Access, correction, and permanent deletion are available via Profile Settings.' },
-                  { id: '05', icon: Lock, title: 'Security Protocol', content: 'We implement high-standard SSL and OAuth 2.0 encryption to maintain the integrity of your information.' },
+                  { id: '01', icon: Database, title: 'Information We Collect', content: 'We collect information you provide directly: Profile details (name, photos, bio), search criteria, messages, property listings, and secure payment data.' },
+                  { id: '02', icon: Eye, title: 'How We Use Your Information', content: 'Information is used to optimize the discovery experience, connect property owners with potential clients, process transactions, and maintain platform security.' },
+                  { id: '03', icon: Globe, title: 'Data Sharing and Disclosure', content: 'Profile data is visible to other users for matching. We share data with trusted infrastructure partners (Supabase, Google) only as required for service operation.' },
+                  { id: '04', icon: ShieldCheck, title: 'Your Rights and Choices', content: 'You maintain absolute control over your personal information. Access, correction, and permanent deletion of account and data are available via Profile Settings.' },
+                  { id: '05', icon: Lock, title: 'Security Protocol', content: 'We implement high-standard SSL, OAuth 2.0 encryption, and regular security audits to maintain the total integrity of your information.' },
                 ].map((section) => (
                   <section key={section.id} className="group">
                     <div className="flex items-center gap-4 mb-6">
@@ -76,21 +77,32 @@ export default function PrivacyPolicy() {
                     </p>
                   </section>
                 ))}
+
+                <section className="pt-10 border-t border-white/5">
+                   <h3 className={cn("text-xl font-black uppercase italic tracking-tighter mb-4", isLight ? "text-black" : "text-white")}>GDPR & CCPA Compliance</h3>
+                   <p className={cn("text-[13px] font-bold leading-relaxed italic opacity-30", isLight ? "text-black" : "text-white")}>
+                      EU and California users maintain specialized rights for data portability and opt-out. For all privacy inquiries, contact our Data Protection Officer at privacy@swipess.com.
+                   </p>
+                </section>
              </div>
         </motion.div>
 
-        {/* ACTION BAR */}
+        {/* 🛸 ACTION BAR */}
         <div className="flex flex-col items-center pt-10">
             <Button
               onClick={() => { triggerHaptic('medium'); navigate(-1); }}
-              className="h-16 px-16 rounded-[2rem] bg-indigo-500 hover:bg-indigo-600 text-white font-black uppercase italic tracking-[0.2em] shadow-2xl shadow-indigo-500/20"
+              className={cn(
+                "h-16 px-12 rounded-[2rem] font-black uppercase italic tracking-[0.2em] shadow-2xl active:scale-95 transition-all",
+                isLight ? "bg-black text-white" : "bg-white text-black"
+              )}
             >
-               RETURN TO DASHBOARD
+              <ArrowLeft className="w-5 h-5 mr-3" />
+              RETURN TO DASHBOARD
             </Button>
-            <p className={cn("text-[10px] font-black uppercase tracking-[0.4em] italic opacity-20 mt-8", isLight ? "text-black" : "text-white")}> Swipess • 2025-2026 </p>
         </div>
-
       </div>
+      
+      <p className="fixed bottom-6 left-10 text-[8px] font-black uppercase tracking-[1em] opacity-10 pointer-events-none z-0">Privacy Protocol v3.0</p>
     </div>
   );
 }

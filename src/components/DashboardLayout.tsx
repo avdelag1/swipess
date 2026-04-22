@@ -287,8 +287,23 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // IMMERSIVE MODE: Detect swipe dashboard routes for full-bleed card experience
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
-    const immersiveRoutes = ['/client/dashboard', '/owner/dashboard'];
-    return immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/'));
+    // Core routes that should go full-bleed behind the header ONLY for hero effects.
+    const immersiveRoutes = [
+      '/client/dashboard',
+      '/owner/dashboard',
+      '/client/liked-properties',
+      '/owner/properties',
+      '/owner/interested-clients',
+      '/owner/liked-clients',
+      '/client/advertise'
+    ];
+
+    const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
+      path.includes('discovery') ||
+      path.includes('view-client') ||
+      path.includes('/listing/');
+    
+    return isMatch;
   }, [location.pathname]);
 
   const { resetFocus } = useFocusMode(6000);
@@ -359,8 +374,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           (location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/' || isImmersiveDashboard || location.pathname.includes('dashboard')) ? (isDark ? "bg-black" : "bg-white") : "bg-background"
         )}
         style={{
-          paddingTop: isFullScreenRoute || isImmersiveDashboard ? '0px' : 'calc(var(--top-bar-height) + var(--safe-top))',
-          paddingBottom: isFullScreenRoute || isZeroScrollDashboard ? '0px' : 'calc(80px + env(safe-area-inset-bottom, 20px))',
+          paddingTop: (isFullScreenRoute || isImmersiveDashboard) ? '0px' : 'calc(var(--top-bar-height) + var(--safe-top))',
+          paddingBottom: (isFullScreenRoute || isZeroScrollDashboard) ? '0px' : 'calc(80px + env(safe-area-inset-bottom, 20px))',
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
         }}

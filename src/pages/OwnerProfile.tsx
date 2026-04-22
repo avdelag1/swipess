@@ -25,7 +25,8 @@ const OwnerProfile = () => {
   const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
   const { tokenBalance } = useMessagingQuota();
   const navigate = useNavigate();
-  const { theme, isLight } = useTheme();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const isLoading = statsLoading || profileLoading;
 
@@ -144,7 +145,7 @@ const OwnerProfile = () => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="bg-gradient-to-r from-[#EB4898] via-indigo-600 to-indigo-700 backdrop-blur-3xl p-[2px] rounded-[2.8rem] shadow-2xl cursor-pointer"
-          onClick={() => { triggerHaptic('selection'); navigate('/subscription/packages'); }}
+          onClick={() => { triggerHaptic('light'); navigate('/subscription/packages'); }}
         >
           <div className={cn(
              "backdrop-blur-3xl rounded-[2.7rem] p-7 flex items-center justify-between border",
@@ -156,7 +157,7 @@ const OwnerProfile = () => {
               </div>
               <div>
                 <h3 className={cn("text-[14px] font-black uppercase tracking-[0.2em] italic leading-tight", isLight ? "text-black" : "text-white")}>Global Credits</h3>
-                <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-1.5", isLight ? "text-black/30" : "text-white/30")}>Messaging Reserve</p>
+                <p className={cn("text-[10px] font-bold uppercase tracking-[0.15em] mt-1.5", isLight ? "text-black/30" : "text-white/30")}>Nexus Messaging Reserve</p>
               </div>
             </div>
             <div className={cn("text-3xl font-black italic tracking-tighter mr-3", isLight ? "text-black" : "text-white")}>

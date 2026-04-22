@@ -119,7 +119,9 @@ export const SwipeExhaustedState = ({
         </motion.div>
       </AnimatePresence>
     );
-  }  return (
+  }
+
+  return (
     <AnimatePresence mode="wait">
       <motion.div 
         key="searching" 
@@ -181,7 +183,7 @@ export const SwipeExhaustedState = ({
             style={{ maxWidth: 'min(92vw, 360px)' }}
           >
             <div
-              className="relative w-full overflow-hidden shadow-xl rounded-[2rem]"
+              className="relative w-full overflow-hidden shadow-xl rounded-[2rem] border border-white/10"
               style={{ aspectRatio: '1 / 1', maxHeight: '42svh' }}
             >
               <LocationRadiusSelector
@@ -205,7 +207,7 @@ export const SwipeExhaustedState = ({
             transition={{ delay: 0.3 }}
             className="flex w-full justify-center"
           >
-            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/5 backdrop-blur-3xl shadow-2xl">
+            <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/5 backdrop-blur-3xl border border-white/10 shadow-2xl">
               {Object.entries(CATEGORY_ICONS).filter(([k]) => k !== 'worker').map(([catId, info]) => {
                 const Icon = info.icon;
                 const isActive = activeCategory === catId;
@@ -246,22 +248,21 @@ export const SwipeExhaustedState = ({
             <Button
               onClick={handleRefreshClick}
               disabled={isRefreshing}
-              className="flex-1 relative h-14 overflow-hidden shadow-2xl transition-all active:scale-95 group rounded-2xl bg-white/5 hover:bg-white/10 text-white"
+              className="flex-1 relative h-14 overflow-hidden rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl transition-all active:scale-95 group text-white"
             >
               {isRefreshing && <div className="absolute inset-0 bg-primary/10 animate-pulse" />}
-              <RefreshCw className={cn("mr-2 h-4 w-4 transition-transform group-hover:rotate-180 duration-700", isRefreshing && "animate-spin text-primary")} />
+              <RefreshCw className={cn("mr-2 h-4 w-4 text-primary transition-transform group-hover:rotate-180 duration-700", isRefreshing && "animate-spin")} />
               {isRefreshing ? 'Tuning Intelligence...' : 'Refresh Market Resonance'}
             </Button>
             
             <Button
               variant="outline"
               onClick={() => setCategories(['property'])}
-              className="h-14 w-14 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95"
+              className="h-14 w-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 flex items-center justify-center p-0 shadow-2xl transition-all active:scale-95"
             >
               <Zap className="h-5 w-5 text-primary" />
             </Button>
           </div>
-
         </div>
       </motion.div>
     </AnimatePresence>

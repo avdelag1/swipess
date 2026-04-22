@@ -7,7 +7,6 @@ import { triggerHaptic } from '@/utils/haptics';
 import { preloadClientImageToCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
-import { POKER_CARDS, OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
@@ -43,7 +42,8 @@ import { LocationRadiusSelector } from './swipe/LocationRadiusSelector';
 // FIX: Lazy-load modals via portal 
 const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
 const MessageConfirmationDialog = lazy(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
-
+import { ChevronLeft } from 'lucide-react';
+import { POKER_CARDS, OWNER_INTENT_CARDS } from './swipe/SwipeConstants';
 
 // ── Distance Slider Component ─────────────────────────────────────────────────
 interface _DistanceSliderProps {
@@ -892,7 +892,6 @@ const ClientSwipeContainerComponent = ({
                   onCategorySelect={handleMapCategorySelect}
                   lat={userLatitude}
                   lng={userLongitude}
-                  variant="minimal"
                 />
               </div>
           </div>
@@ -957,8 +956,9 @@ const ClientSwipeContainerComponent = ({
                  className="w-full h-full z-50 overflow-hidden"
                >
                 <SwipeExhaustedState
-                  categoryLabel={category}
-                  CategoryIcon={Home}
+                  categoryLabel={labels.plural}
+                  CategoryIcon={labels.Icon}
+                  iconColor={labels.color}
                   isRefreshing={isRefreshing}
                   onRefresh={handleRefresh}
                   radiusKm={radiusKm}
@@ -968,6 +968,7 @@ const ClientSwipeContainerComponent = ({
                   detected={locationDetected}
                   lat={userLatitude}
                   lng={userLongitude}
+                  error={externalError}
                   role="owner"
                 />
                </motion.div>

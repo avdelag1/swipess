@@ -12,7 +12,7 @@ import { useSaveClientFilterPreferences, useClientFilterPreferences } from '@/ho
 import { haptics } from '@/utils/microPolish';
 import type { QuickFilterCategory, QuickFilterListingType } from '@/types/filters';
 
-export interface ClientFiltersProps {
+interface ClientFiltersProps {
   isEmbedded?: boolean;
   onClose?: () => void;
 }
@@ -21,7 +21,7 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
-  const { theme } = useTheme();
+  const { theme, isLight } = useTheme();
   const isDark = theme === 'dark';
 
   const urlParams = new URLSearchParams(location.search);
@@ -90,8 +90,11 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
       preferred_listing_types: selectedListingType === 'both' ? ['rent', 'sale'] : [selectedListingType],
     });
 
-    if (onClose) onClose();
-    else navigate('/client/dashboard');
+    if (onClose) {
+      onClose();
+    } else {
+      navigate('/client/dashboard');
+    }
   }, [selectedCategories, selectedListingType, selectedBedrooms, selectedBathrooms, setCategories, setListingType, setBedrooms, setBathrooms, queryClient, navigate, savePrefs, onClose]);
 
   const handleReset = useCallback(() => {
@@ -117,78 +120,78 @@ export default function ClientFilters({ isEmbedded, onClose }: ClientFiltersProp
         <div className={cn(
           "sticky top-0 z-50 backdrop-blur-3xl border-b transition-all duration-300",
           (isDark ? "bg-background/80 border-white/5 shadow-2xl" : "bg-white/80 border-slate-200 shadow-sm")
-      )}>
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => navigate(-1)}
-                className={cn(
-                    "w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90 border shadow-sm",
-                    isDark ? "bg-muted/40 border-white/10 text-white" : "bg-white border-slate-200 text-slate-600"
-                )}
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </motion.button>
-              <div>
-                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#3B82F6]">Selection Spectrum</span>
-                <h1 className="text-2xl font-black italic tracking-tighter uppercase leading-none mt-1">Discovery Radar</h1>
-              </div>
-            </div>
-            {hasChanges && (
-              <button
-                onClick={handleReset}
-                className="text-xs font-medium text-primary px-3.5 py-1.5 bg-primary/10 rounded-full border border-primary/20 hover:bg-primary/20 transition-colors duration-150"
-              >
-                Reset
-              </button>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3 w-full">
-              <div className={cn(
-                "flex p-1.5 rounded-[2rem] border transition-all duration-300",
-                isDark ? "bg-black border-white/10" : "bg-white border-slate-200 shadow-sm"
-              )}>
-                {[
-                  { id: 'property', icon: Home, label: 'Properties' },
-                  { id: 'motorcycle', icon: Sparkles, label: 'Motos' },
-                  { id: 'services', icon: Users, label: 'Workers' }
-                ].map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => toggleCategory(cat.id as QuickFilterCategory)}
-                    className={cn(
-                      "w-12 h-12 flex items-center justify-center rounded-2xl transition-all",
-                      activeCategory === cat.id 
-                        ? "bg-[#3B82F6] text-white shadow-lg" 
-                        : "text-muted-foreground hover:bg-muted/40"
-                    )}
-                  >
-                    <cat.icon className="w-5 h-5" />
-                  </button>
-                ))}
-              </div>
-
-              <div className="relative flex-1">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search target sector..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+        )}>
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => navigate(-1)}
                   className={cn(
-                    "w-full pl-12 pr-6 h-15 rounded-[2rem] border focus:ring-2 focus:ring-[#3B82F6]/50 transition-all font-black italic text-sm outline-none px-4",
-                    isDark ? "bg-black border-white/10 text-white placeholder:text-muted-foreground/30" : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-300 shadow-sm"
+                      "w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90 border shadow-sm",
+                      isDark ? "bg-muted/40 border-white/10 text-white" : "bg-white border-slate-200 text-slate-600"
                   )}
-                />
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </motion.button>
+                <div>
+                  <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#3B82F6]">Selection Spectrum</span>
+                  <h1 className="text-2xl font-black italic tracking-tighter uppercase leading-none mt-1">Discovery Radar</h1>
+                </div>
+              </div>
+              {hasChanges && (
+                <button
+                  onClick={handleReset}
+                  className="text-xs font-medium text-primary px-3.5 py-1.5 bg-primary/10 rounded-full border border-primary/20 hover:bg-primary/20 transition-colors duration-150"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-3 w-full">
+                <div className={cn(
+                  "flex p-1.5 rounded-[2rem] border transition-all duration-300",
+                  isDark ? "bg-black border-white/10" : "bg-white border-slate-200 shadow-sm"
+                )}>
+                  {[
+                    { id: 'property', icon: Home, label: 'Properties' },
+                    { id: 'motorcycle', icon: Sparkles, label: 'Motos' },
+                    { id: 'services', icon: Users, label: 'Workers' }
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => toggleCategory(cat.id as QuickFilterCategory)}
+                      className={cn(
+                        "w-12 h-12 flex items-center justify-center rounded-2xl transition-all",
+                        activeCategory === cat.id 
+                          ? "bg-[#3B82F6] text-white shadow-lg" 
+                          : "text-muted-foreground hover:bg-muted/40"
+                      )}
+                    >
+                      <cat.icon className="w-5 h-5" />
+                    </button>
+                  ))}
+                </div>
+
+                <div className="relative flex-1">
+                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Search target sector..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className={cn(
+                      "w-full pl-12 pr-6 h-15 rounded-[2rem] border focus:ring-2 focus:ring-[#3B82F6]/50 transition-all font-black italic text-sm outline-none px-4",
+                      isDark ? "bg-black border-white/10 text-white placeholder:text-muted-foreground/30" : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-300 shadow-sm"
+                    )}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
       )}
 
       <div className={cn("container mx-auto px-6 pt-12 pb-24 relative z-10", isEmbedded && "pt-10")}>

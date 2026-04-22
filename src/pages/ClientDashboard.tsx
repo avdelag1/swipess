@@ -8,8 +8,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import ClientFilters from './ClientFilters';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
-import { useModalStore } from '@/state/modalStore';
-import { useSmartListingMatching } from '@/hooks/useSmartMatching';
+import { useSmartListingMatching } from '@/hooks/smartMatching/useSmartListingMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 
@@ -28,9 +27,9 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const { user } = useAuth();
   const { setActiveCategory } = useFilterActions();
 
-  // If we have an active category but we're NOT in swipe phase, we're on the map.
+  // Phase state: 'cards' | 'map' | 'swipe'
   const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'map' : 'cards');
-  const [selectedCategory, setSelectedCategory] = useState<QuickFilterCategory | null>(activeCategory);
+  const [selectedCategory, setSelectedCategory] = useState<QuickFilterCategory | null>(activeCategory as QuickFilterCategory);
   const [showFilters, setShowFilters] = useState(false);
 
   // 🚀 PERFORMANCE HYDRATION: Pre-fetch listing data while user is on map phase
@@ -57,14 +56,9 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   useEffect(() => {
     if (!activeCategory && (phase === 'map' || phase === 'swipe')) {
       setPhase('cards');
+      setSelectedCategory(null);
     }
   }, [activeCategory, phase]);
-  
-  const setModal = useModalStore(s => s.setModal);
-
-  useEffect(() => {
-    // Modal cleanup on mount
-  }, []);
 
   const handleLaunch = useCallback((category: QuickFilterCategory) => {
     setSelectedCategory(category);
@@ -72,11 +66,10 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
     setPhase('map'); // Start with the radar map
   }, [setActiveCategory]);
 
-
   const handleMapBack = useCallback(() => {
-    setActiveCategory(null);
     setPhase('cards');
     setSelectedCategory(null);
+    setActiveCategory(null);
   }, [setActiveCategory]);
 
   const handleStartSwiping = useCallback(() => {
@@ -98,7 +91,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
   const showSwipe = phase === 'swipe' && !!activeCategory;
 
   return (
-    <div className={cn("flex flex-col h-full w-full overflow-hidden relative bg-transparent")}>
+    <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">
       <AnimatePresence mode="wait">
         {showCards && (
           <motion.div
@@ -110,7 +103,7 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
             className="flex flex-col items-center justify-center h-full w-full overflow-hidden"
             style={{ willChange: 'transform, opacity' }}
           >
-            <SwipeAllDashboard setCategories={(ids: any) => handleLaunch((Array.isArray(ids) ? ids[0] : ids) as QuickFilterCategory)} />
+            <SwipeAllDashboard setCategories={handleLaunch} />
           </motion.div>
         )}
 
@@ -128,6 +121,10 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
               category={selectedCategory} 
               onBack={handleMapBack}
               onStartSwiping={handleStartSwiping}
+              onCategoryChange={(cat) => {
+                setSelectedCategory(cat);
+                setActiveCategory(cat);
+              }}
             />
           </motion.div>
         )}
@@ -170,3 +167,4 @@ export default function ClientDashboard({ onMessageClick }: ClientDashboardProps
     </div>
   );
 }
+

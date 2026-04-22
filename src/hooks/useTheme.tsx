@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
-export type Theme = 'dark' | 'light';
+export type Theme = 'dark' | 'light' | 'cheers' | 'red-matte' | 'amber-matte' | 'pure-black';
 
 export interface ThemeToggleCoords {
   x: number;
@@ -20,18 +20,24 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const _VALID_THEMES: Theme[] = ['dark', 'light'];
+const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers', 'red-matte', 'amber-matte', 'pure-black'];
 const DEFAULT_THEME: Theme = 'dark';
 const STORAGE_KEY = 'swipess_theme_preference';
 
 /** Map legacy DB values to new theme names */
 function normalizeTheme(raw: string | null | undefined): Theme {
   if (raw === 'light' || raw === 'white-matte') return 'light';
+  if (raw === 'cheers') return 'cheers';
+  if (raw === 'red-matte' || raw === 'red') return 'red-matte';
+  if (raw === 'amber-matte' || raw === 'amber') return 'amber-matte';
+  if (raw === 'pure-black') return 'pure-black';
   return 'dark';
 }
 
 const ALL_THEME_CLASSES = [
-  'dark', 'light', 'pure-black', 'white-matte', 'grey-matte', 'black-matte'
+  'grey-matte', 'black-matte', 'white-matte', 'red-matte',
+  'amber-matte', 'pure-black', 'cheers', 'dark', 'light',
+  'amber', 'red',
 ];
 
 /** 
@@ -46,15 +52,18 @@ function applyThemeToDOM(theme: Theme) {
   // Add the theme class
   root.classList.add(theme);
 
+  // Mark transition start for smooth color shift
+  root.style.colorScheme = (theme === 'light' || theme === 'white-matte') ? 'light' : 'dark';
+
   if (theme === 'dark') {
     root.classList.add('black-matte');
-    root.style.colorScheme = 'dark';
   } else if (theme === 'light') {
     root.classList.add('white-matte');
-    root.style.colorScheme = 'light';
+  } else if (theme === 'cheers' || theme === 'red-matte' || theme === 'amber-matte' || theme === 'pure-black') {
+    root.classList.add('dark');
   }
 
-  // Update status bar color for PWA
+  // Update status bar color for PWA (respects safe-area)
   let meta = document.querySelector('meta[name="theme-color"]');
   if (!meta) {
     meta = document.createElement('meta');
@@ -63,8 +72,12 @@ function applyThemeToDOM(theme: Theme) {
   }
   
   let targetColor: string;
-  if (theme === 'dark') targetColor = '#000000';
+  if (theme === 'dark' || theme === 'pure-black') targetColor = '#000000';
+  else if (theme === 'cheers') targetColor = '#180800';
+  else if (theme === 'red-matte') targetColor = '#2d0a0a';
+  else if (theme === 'amber-matte') targetColor = '#1a1200';
   else targetColor = '#ffffff';
+  
   meta.setAttribute('content', targetColor);
 }
 
@@ -149,7 +162,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const isLight = theme === 'light';
-  const isDark = theme === 'dark';
+  const isDark = !isLight; // Cheers and other matte themes are essentially dark
 
   const value = useMemo(() => ({ theme, isLight, isDark, setTheme }), [theme, isLight, isDark]);
 
@@ -167,3 +180,4 @@ export function useTheme() {
   }
   return context;
 }
+

@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
-import { Cpu, Activity } from 'lucide-react';
+import { Cpu, Activity, User, Megaphone, RefreshCw } from 'lucide-react';
 import { useModalStore } from '@/state/modalStore';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,7 @@ import { OwnerInsightsDashboard } from '@/components/OwnerInsightsDashboard';
 import { OwnerAllDashboard } from '@/components/swipe/OwnerAllDashboard';
 import { useFilterActions } from '@/state/filterStore';
 import { triggerHaptic } from '@/utils/haptics';
+import { DiscoveryMapView } from '@/components/swipe/DiscoveryMapView';
 import type { QuickFilterCategory } from '@/types/filters';
 import { useTheme } from '@/hooks/useTheme';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -35,22 +36,12 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const isLight = theme === 'light';
   const [viewMode] = useState<'discovery' | 'insights'>('discovery');
   
-  useEffect(() => {
-    const handleOpenFilters = () => setShowFilters(true);
-    window.addEventListener('open-owner-filters', handleOpenFilters);
-    return () => window.removeEventListener('open-owner-filters', handleOpenFilters);
-  }, []);
-  
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setCategories, setClientType, setListingType, setActiveCategory } = useFilterActions();
   const { setModal } = useModalStore();
 
   const [phase, setPhase] = useState<'cards' | 'map' | 'swipe'>(activeCategory ? 'map' : 'cards');
   const [showFilters, setShowFilters] = useState(false);
-
-  useEffect(() => {
-    // Modal cleanup on mount
-  }, []);
 
   const { user, loading: isAuthLoading } = useAuth();
   const { navigate } = useAppNavigate();
@@ -135,7 +126,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     if (card.listingType) setListingType(card.listingType as any);
   }, [setClientType, setListingType, setActiveCategory, setCategories]);
 
-
   const handleDiscoveryBack = useCallback(() => {
     setPhase('cards');
     setActiveCategory(null);
@@ -145,11 +135,53 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     setPhase('swipe');
   }, []);
 
+  if (isAuthLoading || isPrefsLoading) {
+    return (
+      <div className={cn("w-full h-full flex flex-col items-center justify-center p-8 transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+         <div className="relative">
+            <div className="w-24 h-24 rounded-[2.5rem] border-[6px] border-[#EB4898]/10 border-t-[#EB4898] animate-spin shadow-2xl" />
+            <Cpu className="absolute inset-0 m-auto w-8 h-8 text-[#EB4898]/40 animate-pulse" />
+         </div>
+         <p className="text-[11px] font-black uppercase italic tracking-[0.4em] text-[#EB4898] mt-10 animate-pulse">Syncing Owner Logic...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={cn("w-full h-full flex items-center justify-center p-8 text-center transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+        <div className="max-w-sm space-y-10">
+          <div className="w-24 h-24 bg-red-500/10 rounded-[2.5rem] flex items-center justify-center mx-auto border border-red-500/20 shadow-2xl">
+            <Activity className="w-10 h-10 text-red-500 animate-bounce" />
+          </div>
+          <div className="space-y-4">
+            <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase leading-none", isLight ? "text-black" : "text-white")}>Connection Lost</h2>
+            <p className="text-[11px] font-black uppercase tracking-widest opacity-40 leading-relaxed">The owner matching engine is temporarily unreachable. Attempting matrix re-sync.</p>
+          </div>
+          <Button 
+            onClick={() => { triggerHaptic('medium'); window.location.reload(); }}
+            className="w-full h-18 rounded-[2rem] bg-[#EB4898] text-white font-black uppercase italic tracking-widest shadow-2xl active:scale-95"
+          >
+            Reconnect Terminal
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const showCards = !activeCategory && phase === 'cards';
   const showMap = !!activeCategory && phase === 'map';
-  const showSwipe = !!activeCategory && phase === 'swipe';
+  const showSwipe = !!activeCategory && (phase === 'swipe' || phase === 'cards'); // Fallback for swipe
+
   return (
-    <div className="flex-1 flex flex-col min-h-0 relative">
+    <div className={cn("flex flex-col h-full w-full relative transition-colors duration-500", isLight ? "bg-white" : "bg-black")}>
+      
+      {/* 🛸 CINEMATIC ATMOSPHERE */}
+      <div className="absolute inset-x-0 top-0 h-96 pointer-events-none opacity-20">
+         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[100%] bg-indigo-500/30 blur-[130px] rounded-full" />
+         <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[80%] bg-[#EB4898]/30 blur-[110px] rounded-full" />
+      </div>
+
       <AnimatePresence mode="wait">
         {viewMode === 'insights' ? (
           <motion.div
@@ -192,7 +224,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             />
           </motion.div>
         ) : showSwipe ? (
-          <motion.div
+          <motion.div 
             key="owner-dash-swipe"
             initial={{ opacity: 0, y: 40, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -209,14 +241,12 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
               isLoading={isLoading}
               error={error}
               insightsOpen={false}
-              category={filterCategory || 'default'}
+              category={activeCategory || 'default'}
               filters={mergedFilters}
             />
           </motion.div>
         ) : null}
       </AnimatePresence>
-
-      {/* SENTINEL RADAR: FLOATING TRIGGER REMOVED PER USER REQUEST */}
 
       <Sheet open={showFilters} onOpenChange={setShowFilters}>
          <SheetContent side="bottom" className="h-[92vh] p-0 border-none bg-transparent overflow-hidden">
@@ -238,6 +268,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
             </div>
          </SheetContent>
       </Sheet>
+      
+      <p className="absolute bottom-4 left-6 text-[8px] font-black uppercase tracking-[0.6em] opacity-10 pointer-events-none z-0">Nexus Admin Dashboard</p>
     </div>
   );
 };

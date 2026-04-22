@@ -1100,21 +1100,21 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 exit={{ opacity: 0 }}
                 className="w-full h-full z-50 overflow-hidden"
               >
-                <div className="flex-1 flex flex-col items-center justify-center w-full h-full p-6">
-                  <SwipeExhaustedState 
-                    categoryLabel={storeActiveCategory || 'Listings'}
-                    CategoryIcon={Home}
-                    isRefreshing={isRefreshing}
-                    onRefresh={handleRefresh}
-                    radiusKm={radiusKm}
-                    onRadiusChange={setRadiusKm}
-                    onDetectLocation={detectLocation}
-                    detecting={locationDetecting}
-                    detected={locationDetected}
-                    lat={userLatitude}
-                    lng={userLongitude}
-                  />
-                </div>
+                <SwipeExhaustedState 
+                  onRefresh={handleRefresh}
+                  isRefreshing={isRefreshing}
+                  categoryLabel={storeActiveCategory || 'Listings'}
+                  CategoryIcon={Home}
+                  radiusKm={radiusKm}
+                  onRadiusChange={setRadiusKm}
+                  onDetectLocation={detectLocation}
+                  detecting={locationDetecting}
+                  detected={locationDetected}
+                  error={error}
+                  role={userRole === 'owner' ? 'owner' : 'client'}
+                  lat={userLatitude}
+                  lng={userLongitude}
+                />
               </motion.div>
             )}
           </AnimatePresence>

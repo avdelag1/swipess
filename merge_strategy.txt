@@ -1,0 +1,27 @@
+
+import fs from 'fs';
+import path from 'path';
+
+const files = [
+  'src/components/SwipessLogo.tsx',
+  'src/pages/Auth.tsx',
+  'src/pages/ClientDashboard.tsx',
+  'src/App.tsx',
+  'src/components/ConciergeChat.tsx',
+  'src/components/SwipessSwipeContainer.tsx',
+  'src/components/swipe/DiscoveryMapView.tsx',
+  'src/hooks/useConciergeAI.ts',
+  'src/hooks/useVoiceTranscribe.ts',
+  'src/pages/OwnerDiscovery.tsx',
+  'src/pages/Landing.tsx',
+  'src/pages/TermsOfService.tsx',
+  'src/components/swipe/SwipeCard.tsx',
+];
+
+// For each file, we want to:
+// 1. Prefer Lovable's logic (Voice AI, Radar functionality)
+// 2. Prefer Head's branding (Swipess instead of Nexus)
+// 3. Prefer Head's Layout (Wide-screen improvements)
+
+// This script is a helper to see the conflict markers and decide.
+// Since I cannot interactively merge, I will resolve the most critical ones manually via replace_file_content.

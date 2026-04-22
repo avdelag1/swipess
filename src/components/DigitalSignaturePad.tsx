@@ -37,13 +37,15 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
 
+    // Initial state
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = '#EB4898'; 
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#f43f5e'; // Rose-500
     
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = 'rgba(235, 72, 152, 0.5)';
+    // Add glowing effect
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'rgba(244, 63, 94, 0.5)';
   }, []);
 
   const getPos = (e: React.MouseEvent | React.TouchEvent | any) => {
@@ -109,14 +111,13 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
   return (
     <div className="w-full space-y-6">
       <div className="relative group">
+        {/* 🛸 ANIMATED BACKGROUND GLOW */}
+        <div className="absolute -inset-2 bg-gradient-to-r from-rose-500/20 via-orange-500/20 to-rose-500/20 rounded-[2.5rem] blur-2xl opacity-40 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
         
-        {/* 🛸 NEXUS GLOW */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-[#EB4898]/40 via-[#8b5cf6]/40 to-[#EB4898]/40 rounded-[3rem] blur-2xl opacity-40 group-hover:opacity-100 transition duration-1000" />
-        
-        {/* 🛸 SIGNATURE HUB */}
+        {/* 🛸 MATTE CONTAINER */}
         <div className={cn(
-             "relative h-72 w-full backdrop-blur-3xl border rounded-[3rem] overflow-hidden shadow-3xl",
-             isLight ? "bg-black/5 border-black/10" : "bg-black/80 border-white/5"
+          "relative h-72 w-full backdrop-blur-3xl border rounded-[2.5rem] overflow-hidden shadow-2xl transition-colors duration-500",
+          isLight ? "bg-black/[0.04] border-black/5" : "bg-white/[0.04] border-white/10"
         )}>
           <canvas
             ref={canvasRef}
@@ -130,15 +131,15 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
             onTouchEnd={stopDrawing}
           />
 
-          {/* 🌊 PARTICLE TRAIL EXHIBIT */}
+          {/* 🛸 LIQUID PARTICLES TRAIL */}
           <div className="absolute inset-0 pointer-events-none">
             {points.map((p, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0.8, scale: 1.5 }}
-                animate={{ opacity: 0, scale: 0, y: 15 }}
-                transition={{ duration: 0.6 }}
-                className="absolute w-2 h-2 rounded-full bg-[#EB4898] blur-[4px]"
+                initial={{ opacity: 0.8, scale: 1 }}
+                animate={{ opacity: 0, scale: 0, y: 10 }}
+                transition={{ duration: 0.5 }}
+                className="absolute w-1.5 h-1.5 rounded-full bg-rose-400 blur-[2px]"
                 style={{ left: p.x, top: p.y }}
               />
             ))}
@@ -150,23 +151,24 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-10 text-center space-y-4"
+                className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-10 text-center"
               >
-                <div className="w-20 h-20 rounded-[1.8rem] bg-[#EB4898]/10 border border-[#EB4898]/20 flex items-center justify-center animate-pulse">
-                   <Fingerprint className="w-10 h-10 text-[#EB4898]" />
+                <div className={cn("w-20 h-20 rounded-full border flex items-center justify-center mb-6 animate-pulse", isLight ? "bg-black/5 border-black/5" : "bg-white/5 border-white/10")}>
+                  <Fingerprint className="w-10 h-10 text-rose-500/60" />
                 </div>
-                <div className="space-y-1">
-                   <h4 className={cn("text-lg font-black uppercase italic tracking-tighter leading-none", isLight ? "text-black" : "text-white")}>Execute Liquid Ink</h4>
-                   <p className={cn("text-[10px] font-black uppercase tracking-[0.3em] opacity-30 italic", isLight ? "text-black" : "text-white")}>Verification Protocol Required</p>
+                <h4 className={cn("text-base font-black uppercase tracking-[0.3em] italic", isLight ? "text-black/40" : "text-white/40")}>Hold and sign here</h4>
+                <div className="flex items-center gap-3 mt-4">
+                  <MousePointer2 className="w-4 h-4 text-rose-500/40 animate-bounce" />
+                  <span className={cn("text-[10px] font-black uppercase tracking-widest opacity-20", isLight ? "text-black" : "text-white")}>Liquid Signature Pad v2</span>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* 🛸 SECURITY METADATA */}
-          <div className="absolute bottom-6 left-10 flex items-center gap-3 opacity-20">
-            <Sparkles className="w-4 h-4 text-[#EB4898]" />
-            <span className={cn("text-[9px] font-black uppercase tracking-[0.4em] italic", isLight ? "text-black" : "text-white")}>Biometric Sync Active v14</span>
+          {/* 🛸 TELEMETRY INFO */}
+          <div className="absolute bottom-6 left-8 flex items-center gap-3 opacity-30">
+            <Sparkles className="w-4 h-4 text-rose-500" />
+            <span className={cn("text-[9px] font-black uppercase tracking-[0.5em] italic", isLight ? "text-black" : "text-white")}>Encrypted Digital Hash</span>
           </div>
         </div>
       </div>
@@ -176,8 +178,10 @@ export const DigitalSignaturePad: React.FC<LiquidSignaturePadProps> = ({
           variant="outline" 
           onClick={clearCanvas}
           className={cn(
-             "h-14 px-10 rounded-2xl border-none font-black uppercase tracking-[0.2em] text-[10px] italic transition-all shadow-2xl active:scale-95",
-             isLight ? "bg-black/5 text-black hover:bg-black/10" : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white"
+            "h-14 px-10 rounded-2xl font-black uppercase italic tracking-[0.2em] text-[11px] transition-all shadow-xl active:scale-95",
+            isLight 
+              ? "bg-black text-white hover:bg-black/80" 
+              : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
           )}
         >
           <Trash2 className="w-4 h-4 mr-3" />

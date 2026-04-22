@@ -75,21 +75,23 @@ export default function PublicListingPreview() {
       case 'motorcycle': return 'Vespa/Moto';
       case 'bicycle': return 'Beach Cruiser';
       case 'vehicle': return 'Luxe Vehicle';
-      default: return 'Property';
+      default: return 'Nexus Estate';
     }
   };
 
   const nextImg = useCallback(() => {
-    if (!listing?.images) return;
+    const imgs = Array.isArray(listing?.images) ? (listing!.images as string[]) : [];
+    if (imgs.length === 0) return;
     triggerHaptic('light');
-    setCurrentImageIndex(i => (i + 1) % listing.images.length);
+    setCurrentImageIndex(i => (i + 1) % imgs.length);
     setImgLoaded(false);
   }, [listing?.images]);
 
   const prevImg = useCallback(() => {
-    if (!listing?.images) return;
+    const imgs = Array.isArray(listing?.images) ? (listing!.images as string[]) : [];
+    if (imgs.length === 0) return;
     triggerHaptic('light');
-    setCurrentImageIndex(i => (i - 1 + listing.images.length) % listing.images.length);
+    setCurrentImageIndex(i => (i - 1 + imgs.length) % imgs.length);
     setImgLoaded(false);
   }, [listing?.images]);
 
@@ -112,7 +114,7 @@ export default function PublicListingPreview() {
         </div>
         <h1 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-4 leading-none">Asset Not Found</h1>
         <p className="text-white/40 text-sm font-medium max-w-xs mb-10 leading-relaxed uppercase tracking-widest">The requested digital twin has been de-listed or moved to another cluster.</p>
-        <Button onClick={() => navigate('/')} className="w-full max-w-[280px] h-16 rounded-[2rem] bg-white text-black font-black uppercase italic tracking-widest shadow-2xl">Return Home</Button>
+        <Button onClick={() => navigate('/')} className="w-full max-w-[280px] h-16 rounded-[2rem] bg-white text-black font-black uppercase italic tracking-widest shadow-2xl">Return to Nexus</Button>
       </div>
     );
   }
@@ -173,7 +175,7 @@ export default function PublicListingPreview() {
             <ArrowLeft className="w-6 h-6" />
          </button>
          <div className="bg-black/30 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-full h-12 flex items-center shadow-2xl">
-            <SwipessLogo size="sm" invert />
+            <SwipessLogo size="sm" variant="white" />
          </div>
          <div className="flex gap-2 pointer-events-auto">
             <button className="w-12 h-12 rounded-[1.2rem] bg-black/30 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white active:scale-90 shadow-2xl">
@@ -210,7 +212,7 @@ export default function PublicListingPreview() {
                <Badge className={cn("text-[10px] font-black uppercase italic tracking-widest px-3 py-1.5 rounded-[0.8rem] border", 
                   mode === 'sale' ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
                )}>
-                  {mode === 'sale' ? 'Liquidation' : 'Rental'}
+                  {mode === 'sale' ? 'Liquidation' : 'Nexus Residency'}
                </Badge>
                {(listing as any).verified && (
                  <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase italic tracking-widest px-3 py-1.5 rounded-[0.8rem]">
@@ -222,7 +224,7 @@ export default function PublicListingPreview() {
             {/* IDENTITY CORE */}
             <div className="flex items-start justify-between gap-6 px-1">
                <div className="space-y-3 flex-1">
-                  <h1 className="text-4xl font-black italic tracking-tighter leading-none uppercase">{listing.title || 'Listing'}</h1>
+                  <h1 className="text-4xl font-black italic tracking-tighter leading-none uppercase">{listing.title || 'Nexus Asset'}</h1>
                   <div className="flex items-center gap-2 opacity-40">
                     <MapPin className="w-4 h-4" />
                     <span className="text-[11px] font-black uppercase tracking-widest truncate max-w-[200px]">{listing.city || 'Tulum'}, {listing.neighborhood || 'Tulum Central'}</span>
@@ -279,7 +281,7 @@ export default function PublicListingPreview() {
                 )}
             </div>
 
-            <p className="text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-10 pb-4">Profile</p>
+            <p className="text-center text-[10px] font-black uppercase tracking-[0.5em] opacity-10 pb-4">Nexus Core Identity</p>
          </div>
       </motion.div>
 

@@ -92,7 +92,6 @@ img, video, canvas, svg {
     --spacing-unit: 0.75rem;
     --container-padding: 0.75rem;
     --touch-target-min: 48px;
-    --bottom-nav-height: 68px;
   }
 
   html {
@@ -120,7 +119,6 @@ img, video, canvas, svg {
     --spacing-unit: 1rem;
     --container-padding: 1.5rem;
     --content-max-width: 720px;
-    --bottom-nav-height: 76px;
   }
 
   html {

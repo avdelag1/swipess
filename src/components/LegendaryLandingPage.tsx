@@ -106,7 +106,7 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* ─── Fix #4: Clear CTA buttons ─── */}
+      {/* ─── CTA buttons ─── */}
       <motion.div
         className="mt-12 flex flex-col items-center gap-3 w-full max-w-[280px]"
         initial={{ opacity: 0, y: 20 }}
@@ -139,9 +139,10 @@ const LandingView = memo(({
   );
 });
 
-/* ─── Fix #2 & #3: Apple-HIG-compliant social auth buttons ── */
+/* ─── Social auth buttons ─── */
 const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
+    type="button"
     onClick={onClick}
     className="group flex h-[56px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-white text-black active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.2)] border border-white/50"
   >
@@ -154,6 +155,7 @@ const AppleAuthButton = ({ onClick }: { onClick: () => void }) => (
 
 const GoogleAuthButton = ({ onClick }: { onClick: () => void }) => (
   <button
+    type="button"
     onClick={onClick}
     className="group flex h-[56px] w-full items-center justify-center gap-3 rounded-[1.5rem] bg-black/40 backdrop-blur-xl border border-white/15 hover:border-white/30 active:scale-[0.97] transition-all shadow-[0_10px_25px_rgba(0,0,0,0.3)]"
   >
@@ -192,7 +194,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast({ title: 'Reset Link Sent', description: "Check your inbox for reset instructions." });
+      toast({ title: 'Nexus Link Sent', description: "Check your neural inbox for reset parameters." });
       setIsForgotPassword(false);
     } catch (error: any) {
       if (error.errors) {
@@ -207,7 +209,6 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
     }
   };
 
-  /* ─── Fix #7: Inline validation before submit ─── */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isForgotPassword) return handleForgotPassword(e);
@@ -299,7 +300,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
             </>
           ) : (
             <>
-              {/* ─── Fix #1: Prominent Login / Sign Up tab toggle ─── */}
+              {/* Login / Sign Up tab toggle */}
               <div className="flex items-center justify-center gap-1.5 bg-black/40 backdrop-blur-md rounded-[1.8rem] p-1.5 mb-4 border border-white/5">
                 <button
                   type="button"
@@ -319,7 +320,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                   className={cn(
                     "flex-1 py-3 rounded-[1.4rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300",
                     !isLogin
-                      ? "bg-white text-black shadow-[0_5px_15px_rgba(255,255,255,0.2)] scale-[1.02]"
+                      ? "bg-white text-black shadow-[0_5px_15_rgba(255,255,255,0.2)] scale-[1.02]"
                       : "text-white/30 hover:text-white/50"
                   )}
                 >
@@ -333,7 +334,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
           )}
         </div>
 
-        {/* ─── Fix #5 & #7: Standard labels + inline validation ─── */}
+        {/* Auth Form */}
         <form onSubmit={handleSubmit} className="space-y-3" noValidate>
           {!isLogin && !isForgotPassword && (
             <div>
@@ -428,7 +429,6 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                   <span className="text-[10px] font-bold uppercase tracking-widest text-white/50 group-hover:text-white transition-colors">Remember me</span>
                </button>
                
-               {/* ─── Fix #6: Single clear "Forgot Password?" link ─── */}
                <button 
                  type="button" 
                  onClick={() => { triggerHaptic('light'); setIsForgotPassword(true); }}
@@ -496,11 +496,11 @@ function LegendaryLandingPage() {
       {/* 🛸 LEGAL FOOTER */}
       <div className="absolute bottom-8 left-0 right-0 z-20 flex flex-col items-center gap-1.5 opacity-30 hover:opacity-80 transition-opacity">
         <div className="flex items-center gap-5 text-[9px] font-black uppercase tracking-[0.3em] text-white italic">
-          <button onClick={() => setLegalModal('privacy')} className="hover:text-[#EB4898] transition-colors">Privacy</button>
+          <button onClick={() => setLegalModal('privacy')} className="hover:text-[#FF4D00] transition-colors">Privacy</button>
           <div className="w-1 h-1 rounded-full bg-white/20" />
-          <button onClick={() => setLegalModal('terms')} className="hover:text-[#EB4898] transition-colors">Terms</button>
+          <button onClick={() => setLegalModal('terms')} className="hover:text-[#FF4D00] transition-colors">Terms</button>
         </div>
-        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 Swipess</p>
+        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 NEXUS PROTOCOL v12.0</p>
       </div>
 
       {/* 🛸 LEGAL POPUP MODAL */}
@@ -534,13 +534,13 @@ function LegendaryLandingPage() {
                     <p className="text-sm font-bold leading-relaxed text-white">By accessing the Swipess application, you agree to be bound by these professional Terms of Service. Access is granted to users who comply with our community standard protocols.</p>
                     <div className="h-px bg-white/10 my-6" />
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mb-2">01 — User Eligibility</h3>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#FF4D00] mb-2">01 — User Eligibility</h3>
                     <p className="text-sm opacity-80 leading-relaxed">Minimum age of 18 required. You must possess the legal authority to enter into a binding agreement.</p>
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">02 — Account Security</h3>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#FF4D00] mt-6 mb-2">02 — Account Security</h3>
                     <p className="text-sm opacity-80 leading-relaxed">You are solely responsible for maintaining the confidentiality of your login credentials. Notify us immediately if you suspect any unauthorized access.</p>
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">03 — Prohibited Conduct</h3>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#FF4D00] mt-6 mb-2">03 — Prohibited Conduct</h3>
                     <p className="text-sm opacity-80 leading-relaxed">Users shall not provide fraudulent information, harass others, or attempt to compromise platform security. Violation results in immediate suspension.</p>
                   </div>
                ) : (
@@ -548,13 +548,13 @@ function LegendaryLandingPage() {
                     <p className="text-sm font-bold leading-relaxed text-white">We value your privacy and security. Swipess uses advanced end-to-end encryption for sensitive data.</p>
                     <div className="h-px bg-white/10 my-6" />
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mb-2">01 — Data Collection</h3>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#FF4D00] mb-2">01 — Data Collection</h3>
                     <p className="text-sm opacity-80 leading-relaxed">We collect email, authentication tokens, and basic interaction data necessary to operate the matching engine.</p>
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">02 — Data Sharing</h3>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#FF4D00] mt-6 mb-2">02 — Data Sharing</h3>
                     <p className="text-sm opacity-80 leading-relaxed">Your personal identity is strictly shielded. We do not sell your data to external data brokers.</p>
                     
-                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#EB4898] mt-6 mb-2">03 — Asset Privacy</h3>
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-[#FF4D00] mt-6 mb-2">03 — Asset Privacy</h3>
                     <p className="text-sm opacity-80 leading-relaxed">Location and discovery history is kept private and only utilized for matchmaking algorithms.</p>
                  </div>
                )}
@@ -566,7 +566,7 @@ function LegendaryLandingPage() {
                    triggerHaptic('medium');
                    setLegalModal(null);
                  }} 
-                 className="w-full h-14 bg-[#EB4898] text-white font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(235,72,152,0.3)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
+                 className="w-full h-14 bg-[#FF4D00] text-white font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(255,77,0,0.3)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
                >
                  <Check className="w-5 h-5" /> I Accept & Acknowledge
                </button>

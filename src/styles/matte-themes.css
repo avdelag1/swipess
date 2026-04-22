@@ -100,3 +100,191 @@
     --overlay: rgba(0, 0, 0, 0.5);
 }
 
+
+/* THEME 4: RED MATTE (Bold Mexican spirit) */
+.red-matte {
+    /* Background colors - Deep red-black palette */
+    --background: 0 65% 8%;
+    --foreground: 0 100% 92%;
+    --card: 0 65% 12%;
+    --card-foreground: 0 100% 92%;
+    --primary: 0 100% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 65% 16%;
+    --secondary-foreground: 0 100% 92%;
+    --muted: 0 65% 16%;
+    --muted-foreground: 0 100% 73%;
+    --accent: 0 100% 61%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 50% 20%;
+    --input: 0 50% 20%;
+    --ring: 0 100% 61%;
+
+    /* Modern theme variables */
+    --bg-primary: 0 65% 8%;
+    --bg-secondary: 0 65% 12%;
+    --bg-tertiary: 0 65% 16%;
+    --text-primary: 0 100% 92%;
+    --text-secondary: 0 100% 73%;
+    --text-tertiary: 0 100% 53%;
+    --border-primary: 0 50% 20%;
+    --border-secondary: 0 50% 25%;
+    --accent-primary: 0 100% 61%;
+    --accent-secondary: 0 100% 71%;
+
+    /* Shadows - Red-tinted shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 16px rgba(139, 10, 10, 0.2);
+    --shadow-lg: 0 8px 32px rgba(139, 10, 10, 0.3);
+    --shadow-card: 0 20px 40px rgba(139, 10, 10, 0.4);
+    --shadow-glow: 0 0 30px rgba(255, 61, 61, 0.5);
+    --overlay: rgba(45, 10, 10, 0.7);
+}
+
+/* THEME 5: PURE BLACK (AMOLED void black) */
+.pure-black {
+    /* Background colors - True AMOLED black palette */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 95%;
+    --primary: 18 100% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 13%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 78%;
+    --accent: 18 100% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 18 100% 55%;
+
+    /* Modern theme variables */
+    --bg-primary: 0 0% 0%;
+    --bg-secondary: 0 0% 6%;
+    --bg-tertiary: 0 0% 10%;
+    --text-primary: 0 0% 95%;
+    --text-secondary: 0 0% 78%;
+    --text-tertiary: 0 0% 45%;
+    --border-primary: 0 0% 12%;
+    --border-secondary: 0 0% 18%;
+    --accent-primary: 18 100% 55%;
+    --accent-secondary: 18 100% 65%;
+
+    /* Shadows - Maximum depth for AMOLED */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.7);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.8);
+    --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.9);
+    --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.5);
+    --overlay: rgba(0, 0, 0, 0.9);
+}
+
+/* THEME 6: CHEERS (Animal print - Cheetah fur) */
+.cheers {
+    /* Match body background exactly so containers blend with the cheetah skin */
+    --background: 22 90% 6%;
+    --foreground: 42 88% 90%;
+    --card: 22 80% 10%;
+    --card-foreground: 42 88% 90%;
+    --primary: 38 92% 52%;
+    --primary-foreground: 22 90% 6%;
+    --secondary: 25 55% 16%;
+    --secondary-foreground: 42 88% 90%;
+    --muted: 25 55% 16%;
+    --muted-foreground: 36 58% 62%;
+    --accent: 38 92% 52%;
+    --accent-foreground: 22 90% 6%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 28 48% 18%;
+    --input: 28 48% 18%;
+    --ring: 38 92% 52%;
+
+    /* Modern theme variables */
+    --bg-primary: 22 90% 6%;
+    --bg-secondary: 22 80% 10%;
+    --bg-tertiary: 25 55% 16%;
+    --text-primary: 42 88% 90%;
+    --text-secondary: 36 58% 62%;
+    --text-tertiary: 30 42% 42%;
+    --border-primary: 28 48% 18%;
+    --border-secondary: 28 48% 24%;
+    --accent-primary: 38 92% 52%;
+    --accent-secondary: 40 88% 62%;
+
+    /* Shadows - Warm golden-brown shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.45);
+    --shadow-md: 0 4px 16px rgba(100, 60, 5, 0.35);
+    --shadow-lg: 0 8px 32px rgba(100, 60, 5, 0.45);
+    --shadow-card: 0 20px 40px rgba(100, 60, 5, 0.55);
+    --shadow-glow: 0 0 30px rgba(218, 158, 8, 0.60);
+    --overlay: rgba(16, 6, 0, 0.80);
+}
+
+/* ─── CHEERS THEME: Cover hardcoded utility classes ─── */
+/* Many components use hard-coded bg-black / bg-[#0d0d0f] / border-white/10
+   that bypass design tokens. These overrides force the cheetah palette
+   to apply consistently across the entire app. */
+.cheers .bg-black { background-color: hsl(22 90% 6%) !important; }
+.cheers .bg-\[\#0a0a0a\] { background-color: hsl(22 80% 9%) !important; }
+.cheers .bg-\[\#0a0a0c\] { background-color: hsl(22 80% 9%) !important; }
+.cheers .bg-\[\#0d0d0f\] { background-color: hsl(22 80% 10%) !important; }
+.cheers .bg-\[\#0d0d0f\]\/95 { background-color: hsla(22, 80%, 10%, 0.95) !important; }
+.cheers .bg-black\/30 { background-color: hsla(22, 90%, 6%, 0.55) !important; }
+.cheers .bg-black\/40 { background-color: hsla(22, 90%, 6%, 0.65) !important; }
+.cheers .bg-black\/50 { background-color: hsla(22, 90%, 6%, 0.7) !important; }
+.cheers .bg-black\/60 { background-color: hsla(22, 90%, 6%, 0.78) !important; }
+.cheers .bg-black\/80 { background-color: hsla(22, 90%, 6%, 0.88) !important; }
+.cheers .bg-black\/90 { background-color: hsla(22, 90%, 6%, 0.92) !important; }
+.cheers .border-white\/5 { border-color: hsla(38, 92%, 52%, 0.12) !important; }
+.cheers .border-white\/10 { border-color: hsla(38, 92%, 52%, 0.18) !important; }
+.cheers .border-white\/12 { border-color: hsla(38, 92%, 52%, 0.22) !important; }
+
+/* THEME 7: AMBER MATTE (Warm & inviting) */
+.amber-matte {
+    /* Background colors - Deep amber-black palette */
+    --background: 35 65% 7%;
+    --foreground: 40 100% 92%;
+    --card: 35 65% 11%;
+    --card-foreground: 40 100% 92%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 35 65% 15%;
+    --secondary-foreground: 40 100% 92%;
+    --muted: 35 65% 15%;
+    --muted-foreground: 40 100% 73%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 35 50% 18%;
+    --input: 35 50% 18%;
+    --ring: 38 92% 50%;
+
+    /* Modern theme variables */
+    --bg-primary: 35 65% 7%;
+    --bg-secondary: 35 65% 11%;
+    --bg-tertiary: 35 65% 15%;
+    --text-primary: 40 100% 92%;
+    --text-secondary: 40 100% 73%;
+    --text-tertiary: 40 100% 53%;
+    --border-primary: 35 50% 18%;
+    --border-secondary: 35 50% 23%;
+    --accent-primary: 38 92% 50%;
+    --accent-secondary: 38 92% 60%;
+
+    /* Shadows - Amber-tinted shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 16px rgba(120, 53, 15, 0.2);
+    --shadow-lg: 0 8px 32px rgba(120, 53, 15, 0.3);
+    --shadow-card: 0 20px 40px rgba(120, 53, 15, 0.4);
+    --shadow-glow: 0 0 30px rgba(245, 158, 11, 0.5);
+    --overlay: rgba(26, 18, 0, 0.7);
+}
+

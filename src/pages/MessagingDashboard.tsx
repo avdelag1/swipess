@@ -1,12 +1,14 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   MessageCircle, Search,
-  MoreVertical, Archive, Trash, Check, Inbox, Sparkles, ChevronLeft
+  MoreVertical, Archive, Trash, Check, Inbox, CircleDot,
+  Layers, Sparkles, Navigation, ChevronLeft, ArrowLeft
 } from 'lucide-react';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
@@ -22,6 +24,7 @@ import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { MessagingInterface } from '@/components/MessagingInterface';
 import { MessageSkeleton } from '@/components/ui/LayoutSkeletons';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
+import { supabase } from '@/integrations/supabase/client';
 import { MessageActivationPackages } from '@/components/MessageActivationPackages';
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
@@ -42,7 +45,7 @@ export function MessagingDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived' | 'listing' | 'client' | 'potential'>('all');
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showActivationBanner, setShowActivationBanner] = useState(false);
@@ -50,8 +53,8 @@ export function MessagingDashboard() {
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
   const { activeMode } = useActiveMode();
-  const { theme, isLight } = useTheme();
-  const isDark = theme === 'dark';
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
 
   const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
   const deleteConversation = useDeleteConversation();
@@ -60,18 +63,20 @@ export function MessagingDashboard() {
 
   const [directlyFetchedConversation, setDirectlyFetchedConversation] = useState<Conversation | null>(null);
   const startConversation = useStartConversation();
-  const { canSendMessage } = useMessageActivations();
+  const { totalActivations, canSendMessage } = useMessageActivations();
 
   const { prefetchTopConversations, prefetchTopConversationMessages } = usePrefetchManager();
 
   useEffect(() => {
     if (!user?.id) return;
-    prefetchTopConversations(user.id, 3);
+    setTimeout(() => prefetchTopConversations(user.id, 3), 100);
   }, [user?.id, prefetchTopConversations]);
 
   useEffect(() => {
     if (conversations.length >= 2) {
-      conversations.slice(0, 2).forEach(conv => prefetchTopConversationMessages(conv.id));
+      conversations.slice(0, 2).forEach(conv => {
+        setTimeout(() => prefetchTopConversationMessages(conv.id), 200);
+      });
     }
   }, [conversations, prefetchTopConversationMessages]);
 
@@ -84,9 +89,19 @@ export function MessagingDashboard() {
       const isUnread = conv.last_message?.sender_id !== user?.id && conv.last_message?.is_read === false;
 
       let matchesFilter = true;
-      if (activeFilter === 'unread') matchesFilter = isUnread;
-      else if (activeFilter === 'archived') matchesFilter = conv.status === 'archived';
-      else matchesFilter = conv.status !== 'archived';
+      if (activeFilter === 'unread') {
+        matchesFilter = isUnread;
+      } else if (activeFilter === 'archived') {
+        matchesFilter = conv.status === 'archived';
+      } else if (activeFilter === 'listing') {
+        matchesFilter = !!conv.listing_id && conv.status !== 'archived';
+      } else if (activeFilter === 'client') {
+        matchesFilter = !conv.listing_id && !!conv.id && conv.status !== 'archived';
+      } else if (activeFilter === 'potential') {
+        matchesFilter = !conv.listing_id && !conv.id && conv.status !== 'archived';
+      } else {
+        matchesFilter = conv.status !== 'archived';
+      }
 
       return matchesSearch && matchesMode && matchesFilter;
     });
@@ -225,7 +240,7 @@ export function MessagingDashboard() {
             />
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar px-1">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar px-1">
             {[
               { id: 'all', label: 'Inbox', icon: Inbox },
               { id: 'unread', label: 'Priority', icon: Sparkles },
@@ -235,20 +250,20 @@ export function MessagingDashboard() {
                 key={filter.id} 
                 onClick={() => { setActiveFilter(filter.id as any); triggerHaptic('light'); }}
                 className={cn(
-                  "flex items-center gap-3 px-8 h-12 rounded-[1.8rem] text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border",
+                  "flex items-center gap-2.5 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all shrink-0 border",
                   activeFilter === filter.id
                     ? "bg-[#EB4898] text-white border-[#EB4898] shadow-2xl shadow-[#EB4898]/30"
                     : (isLight ? "bg-black/5 border-black/5 text-black font-black hover:bg-black/10" : "bg-white/[0.04] border-white/5 text-white/30 hover:bg-white/10")
                 )}
               >
-                <filter.icon className="w-4 h-4" />
+                <filter.icon className="w-3.5 h-3.5" />
                 {filter.label}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 stagger-enter">
           {isLoading ? (
             <MessageSkeleton />
           ) : filteredConversations.length > 0 ? (
@@ -259,57 +274,60 @@ export function MessagingDashboard() {
               return (
                 <motion.div 
                   key={conversation.id} 
-                  initial={{ opacity: 0, y: 30 }} 
+                  initial={{ opacity: 0, y: 15 }} 
                   animate={{ opacity: 1, y: 0 }} 
-                  transition={{ delay: index * 0.05, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ delay: index * 0.05 }}
                 >
                   <button 
                     className={cn(
-                      "w-full flex items-center gap-6 p-6 rounded-[2.8rem] text-left transition-all border group relative overflow-hidden",
+                      "w-full flex items-center gap-5 p-5 rounded-[2.2rem] text-left transition-all border group relative overflow-hidden",
                       isUnread 
-                        ? (isLight ? "bg-black/[0.02] border-black/10 shadow-xl" : "bg-white/[0.05] border-white/10 shadow-2xl") 
-                        : (isLight ? "bg-transparent border-black/[0.04] hover:bg-black/[0.01]" : "bg-transparent border-white/[0.04] hover:bg-white/[0.02]")
+                        ? (isLight ? "bg-black/5 border-black/10 shadow-lg" : "bg-white/[0.04] border-white/10 shadow-2xl") 
+                        : (isLight ? "bg-transparent border-black/5 hover:bg-black/[0.02]" : "bg-transparent border-white/[0.03] hover:bg-white/[0.02] hover:border-white/5")
                     )} 
                     onClick={() => { triggerHaptic('medium'); setSelectedConversationId(conversation.id); }}
                   >
-                    {isUnread && <div className="absolute inset-y-0 left-0 w-2 bg-[#EB4898] shadow-[0_0_20px_#EB4898]" />}
+                    {/* Unread Indicator Glow */}
+                    {isUnread && <div className="absolute inset-y-0 left-0 w-1 bg-[#EB4898] shadow-[0_0_15px_#EB4898]" />}
 
                     <div className="relative shrink-0">
-                        <Avatar className="w-16 h-16 rounded-[1.6rem] border border-white/10 shadow-2xl overflow-hidden">
-                           <AvatarImage src={conversation.other_user?.avatar_url} className="object-cover" />
-                           <AvatarFallback className="bg-indigo-500 text-white font-black uppercase italic">{conversation.other_user?.full_name?.charAt(0)}</AvatarFallback>
-                         </Avatar>
-                         {isUnread && (
-                           <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#EB4898] border-4 border-black shadow-[0_0_15px_#EB4898]" />
-                         )}
+                       <Avatar className="w-15 h-15 rounded-2xl border border-white/10 shadow-xl overflow-hidden">
+                          <AvatarImage src={conversation.other_user?.avatar_url} className="object-cover" />
+                          <AvatarFallback className="bg-white/5 text-white font-black uppercase italic">{conversation.other_user?.full_name?.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        {isUnread && (
+                          <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#EB4898] border-2 border-background shadow-[0_0_10px_#EB4898] flex items-center justify-center">
+                            <div className="w-1 h-1 bg-white rounded-full" />
+                          </div>
+                        )}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center justify-between mb-1">
                         <span className={cn(
                           "text-[16px] truncate uppercase italic", 
                           isUnread ? "font-black" : "font-bold opacity-60",
                           isLight ? "text-black" : "text-white"
                         )}>
-                          {conversation.other_user?.full_name}
+                          {conversation.other_user?.full_name || 'Anonymous Entity'}
                         </span>
-                        <span className="text-[8px] font-black uppercase tracking-widest opacity-20 italic">
+                        <span className={cn("text-[9px] font-black uppercase tracking-widest italic", isLight ? "text-black/20" : "text-white/20")}>
                           {lastAt ? formatDistanceToNow(lastAt) : ''}
                         </span>
                       </div>
                       
                       <p className={cn(
-                        "text-[14px] truncate italic leading-none", 
-                        isUnread ? "text-[#EB4898] font-black" : "opacity-30"
+                        "text-[13px] truncate italic", 
+                        isUnread ? "text-[#EB4898] font-bold" : (isLight ? "text-black/30" : "text-white/30")
                       )}>
-                         {conversation.last_message?.message_text || 'New Message'}
+                         {conversation.last_message?.message_text || conversation.last_message?.content || 'New Message'}
                       </p>
                     </div>
 
-                    <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity pr-2">
                        <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="w-12 h-12 rounded-full hover:bg-white/10 text-white/30" onClick={e => e.stopPropagation()}>
+                            <Button variant="ghost" size="icon" className={cn("w-10 h-10 rounded-full hover:bg-white/10", isLight ? "text-black/30" : "text-white/30")} onClick={e => e.stopPropagation()}>
                               <MoreVertical className="w-5 h-5" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -343,13 +361,13 @@ export function MessagingDashboard() {
               <div className="w-20 h-20 rounded-[1.8rem] bg-indigo-500/10 flex items-center justify-center mb-10 border border-indigo-500/20">
                  <MessageCircle className="w-10 h-10 text-indigo-500 animate-pulse" />
               </div>
-              <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-4">No Messages</h3>
-              <p className="text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed">No messages yet. Connect with someone to start chatting.</p>
+              <h3 className={cn("text-2xl font-black uppercase italic tracking-tighter mb-4", isLight ? "text-black" : "text-white")}>No Messages</h3>
+              <p className={cn("text-[11px] font-black uppercase tracking-[0.2em] opacity-30 text-center max-w-lg leading-relaxed", isLight ? "text-black/30" : "text-white/30")}>No messages yet. Connect with someone to start chatting.</p>
             </motion.div>
           )}
         </div>
 
-        <div className="h-24" />
+        <div className="h-20" />
       </div>
       
       <MessageActivationPackages isOpen={showUpgradeDialog} onClose={() => setShowUpgradeDialog(false)} userRole={userRole} />

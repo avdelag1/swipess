@@ -9,11 +9,12 @@ import {
 import { PokerCategoryCard } from './PokerCategoryCard';
 import { VapIdCardModal } from '../VapIdCardModal';
 import { motion } from 'framer-motion';
+import type { QuickFilterCategory } from '@/types/filters';
 
 const preloadedImages = new Set<string>();
 
 export interface SwipeAllDashboardProps {
-  setCategories: (ids: any[]) => void;
+  setCategories: (category: QuickFilterCategory) => void;
 }
 
 export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps) => {
@@ -38,8 +39,8 @@ export const SwipeAllDashboard = memo(({ setCategories }: SwipeAllDashboardProps
     uiSounds.playCategorySelect();
     if (id === 'radio') navigate('/radio');
     else if (id === 'vap') setShowVapModal(true);
-    else if (id === 'all') setCategories(['property']);
-    else setCategories([id]);
+    else if (id === 'all') setCategories('property');
+    else setCategories(id as QuickFilterCategory);
   }, [setCategories, navigate]);
 
   const handleCycle = useCallback((id: string, direction: 'left' | 'right') => {
