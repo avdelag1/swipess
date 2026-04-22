@@ -96,7 +96,7 @@ function TopBarComponent({
             <motion.button
               whileTap={{ scale: 0.9 }}
               onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); onBack(); }}
-              className="w-10 h-10 flex items-center justify-center rounded-full"
+              className="w-11 h-11 flex items-center justify-center rounded-full"
               style={glassPillStyle}
             >
               <ChevronLeft className="w-5 h-5" style={{ color: 'var(--hud-text)' }} />
@@ -130,7 +130,7 @@ function TopBarComponent({
 
           {/* Mode Switcher Pill */}
           {!minimal && (
-            <div className="h-10 flex items-center px-4 rounded-full" style={glassPillStyle}>
+            <div className="h-11 flex items-center px-4 rounded-full" style={glassPillStyle}>
               <ModeSwitcher variant="icon" size="sm" />
             </div>
           )}
@@ -149,7 +149,7 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/radio');
                 }}
-                className="w-10 h-10 flex items-center justify-center p-0 rounded-full"
+                  className="w-11 h-11 rounded-full flex items-center justify-center p-0.5 relative group overflow-hidden"
                 style={glassPillStyle}
                 title="Radio"
               >
@@ -161,11 +161,11 @@ function TopBarComponent({
 
               <AIListingTrigger glassPillStyle={glassPillStyle} />
 
-              <div className="w-10 h-10 flex items-center justify-center rounded-full" style={glassPillStyle}>
+              <div className="w-11 h-11 flex items-center justify-center rounded-full" style={glassPillStyle}>
                 <ThemeToggle />
               </div>
               
-              <div className="w-10 h-10 flex items-center justify-center rounded-full" style={glassPillStyle}>
+              <div className="w-11 h-11 flex items-center justify-center rounded-full" style={glassPillStyle}>
                 <NotificationPopover />
               </div>
             </>

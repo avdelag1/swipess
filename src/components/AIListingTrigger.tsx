@@ -66,7 +66,7 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
             e.stopPropagation();
             triggerHaptic('light');
           }}
-          className="w-10 h-10 flex items-center justify-center p-0 rounded-full relative group transition-all duration-300"
+          className="w-11 h-11 flex items-center justify-center p-0 rounded-full relative group transition-all duration-300"
           style={glassPillStyle}
           title="Magic AI Listing"
         >

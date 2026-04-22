@@ -17,6 +17,7 @@ import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { UnifiedListingForm } from './UnifiedListingForm';
+import { useTranslation } from 'react-i18next';
 
 type WizardStep = 'category' | 'photos' | 'details' | 'processing' | 'review';
 
@@ -27,9 +28,6 @@ const CATEGORIES = [
   { id: 'worker', label: 'Job / Service', icon: Briefcase, color: 'text-amber-400', bg: 'bg-amber-400/10' },
 ] as const;
 
-import { useTranslation } from 'react-i18next';
-
-type WizardStep = 'category' | 'photos' | 'details' | 'processing' | 'review';
 
 export function AIListingWizard() {
   const { showAIListing, aiListingCategory, setModal } = useModalStore();
@@ -173,7 +171,10 @@ export function AIListingWizard() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-2xl flex items-center justify-center p-0 sm:p-6"
+          className={cn(
+            "fixed inset-0 z-[10000] bg-black/80 backdrop-blur-2xl flex items-center justify-center p-0 sm:p-6",
+            showFinalForm && "pointer-events-none opacity-0"
+          )}
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 30 }}
@@ -206,7 +207,7 @@ export function AIListingWizard() {
               </div>
               <button 
                 onClick={handleClose} 
-                className="w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5"
+                className="w-11 h-11 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5"
               >
                 <X className="w-5 h-5 text-white/40" />
               </button>
