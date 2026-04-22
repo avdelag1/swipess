@@ -42,25 +42,22 @@ function TopBarComponent({
 }: TopBarProps) {
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
-  const { theme, isLight } = useTheme();
+  const { isLight } = useTheme();
   
   const activeCategory = useFilterStore(s => s.activeCategory);
   const { setActiveCategory } = useFilterActions();
 
   const isOwner = userRole === 'owner';
   
-  // HUD Master Back Logic: Combine prop onBack with Map Back
   const onBack = propOnBack || (activeCategory ? () => setActiveCategory(null) : undefined);
 
-  // 💎 THE "MATTE FILTER" HUD STYLE 
-  // Enforces a premium, high-opacity frosted glass look that adapts to themes.
   const glassPillStyle: React.CSSProperties = {
     background: 'var(--hud-bg)',
     backdropFilter: 'blur(32px) saturate(210%)',
     WebkitBackdropFilter: 'blur(32px) saturate(210%)',
     borderRadius: '3rem',
-    border: '1px solid var(--hud-border)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+    border: isLight ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)',
+    boxShadow: isLight ? '0 4px 12px rgba(0,0,0,0.03)' : '0 8px 32px rgba(0, 0, 0, 0.15)',
     pointerEvents: 'auto',
     color: 'var(--hud-text)',
   };
@@ -94,7 +91,6 @@ function TopBarComponent({
     >
       <div className="h-full w-full max-w-screen-xl mx-auto px-4 flex items-center justify-between relative">
         
-        {/* LEFT CLUSTER: Profile Pill */}
         <div className="flex items-center gap-2">
           {onBack ? (
             <motion.button
@@ -117,7 +113,10 @@ function TopBarComponent({
                 className="flex items-center gap-2 px-2.5 py-1.5 rounded-full"
                 style={glassPillStyle}
               >
-                <div className="w-7 h-7 rounded-full overflow-hidden bg-black flex items-center justify-center shrink-0 shadow-sm border border-white/10">
+                <div className={cn(
+                  "w-7 h-7 rounded-full overflow-hidden flex items-center justify-center shrink-0 shadow-sm border",
+                  isLight ? "bg-black border-black/10" : "bg-black border-white/10"
+                )}>
                    <span className="text-orange-500 font-black text-sm italic">S</span>
                 </div>
                 {profile?.full_name && (

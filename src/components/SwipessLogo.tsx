@@ -24,32 +24,41 @@ function SwipessLogoComponent({
   variant = 'gradient',
 }: SwipessLogoProps) {
   const isIcon = variant === 'icon';
-  // White variant: invert the orange wordmark to pure white
-  const isWhite = variant === 'white';
 
   return (
     <div className={cn(
       'relative inline-flex items-center justify-center transition-all duration-300',
       className
     )}>
-      <img
-        src={isIcon ? "/icons/Swipess-logo-transparent.png" : "/icons/Swipess-wordmark-transparent-v2.png"}
-        alt="Swipess"
-        draggable={false}
-        fetchPriority="high"
-        decoding={isIcon ? "async" : "sync"}
-        className={cn(
-          'select-none transition-all duration-300',
-          isIcon ? 'w-full h-full object-contain' : cn('w-auto max-w-full', sizeMap[size])
-        )}
-        style={{
-          imageRendering: 'auto',
-        }}
-      />
+        <div className={cn("flex items-center select-none", isIcon ? "justify-center" : "")}>
+          {variant === 'white' || variant === 'black' ? (
+            <span className={cn(
+              "font-black tracking-[-0.05em] italic uppercase", 
+              variant === 'white' ? 'text-white' : 'text-black',
+              isIcon ? "text-xl" : size === 'xs' ? 'text-sm' : size === 'sm' ? 'text-base' : size === 'md' ? 'text-2xl' : size === 'lg' ? 'text-3xl' : 'text-5xl'
+            )}>
+              Nexus
+            </span>
+          ) : (
+            <img
+              src={isIcon ? "/icons/swipess-logo-transparent.png" : "/icons/swipess-wordmark-transparent-v2.png"}
+              alt="Nexus"
+              draggable={false}
+              fetchPriority="high"
+              decoding={isIcon ? "async" : "sync"}
+              className={cn(
+                'select-none transition-all duration-300',
+                isIcon ? 'w-full h-full object-contain' : cn('w-auto max-w-full', sizeMap[size])
+              )}
+              style={{
+                imageRendering: 'auto',
+              }}
+            />
+          )}
+        </div>
     </div>
   );
 }
 
 export const SwipessLogo = memo(SwipessLogoComponent);
-
-
+阻

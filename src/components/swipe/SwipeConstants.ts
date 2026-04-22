@@ -113,9 +113,9 @@ export const POKER_CARDS = [
 ];
 
 // Zenith Spec: Professional-grade card dimensions for flagship smartphones
-export const PK_W = 340;
-export const PK_H = 520;
-export const OWNER_PK_H = 520;
+export const PK_W = 380;
+export const PK_H = 560;
+export const OWNER_PK_H = 580;
 // Intrinsic aspect ratio so the stack can size fluidly via CSS without losing proportions.
 export const PK_ASPECT = PK_W / PK_H; // ≈ 0.6538
 

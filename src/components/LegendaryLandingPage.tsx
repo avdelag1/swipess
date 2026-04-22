@@ -94,7 +94,7 @@ const LandingView = memo(({
           <SwipessLogo 
             size="3xl" 
             variant="white"
-            className="w-[65vw] max-w-[280px] sm:max-w-[340px] md:max-w-[420px]" 
+            className="w-[85vw] max-w-[320px] sm:max-w-[400px] md:max-w-[500px]" 
           />
           <motion.div
             className="absolute inset-0 pointer-events-none"
@@ -254,10 +254,10 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
         
         <button
           onClick={() => { triggerHaptic('light'); isForgotPassword ? setIsForgotPassword(false) : onBack(); }}
-          className="absolute top-5 left-5 w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 border border-white/5 active:scale-90 transition-all z-20"
+          className="absolute top-5 left-5 w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-black border shadow-xl active:scale-90 transition-all z-20"
           aria-label="Go back"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-5 h-5" />
         </button>
 
         <div className="text-center mb-5 pt-4">
@@ -334,7 +334,7 @@ const AuthView = memo(({ onBack, initialMode = 'login' }: { onBack: () => void, 
                     onClick={() => { triggerHaptic('light'); setSelectedRole('owner'); }}
                     className={cn(
                       "py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border",
-                      selectedRole === 'owner' ? "bg-primary text-black border-primary shadow-lg" : "bg-white/5 text-white/40 border-white/5 hover:bg-white/10"
+                      selectedRole === 'owner' ? "bg-white text-black border-white shadow-lg" : "bg-white/5 text-white/40 border-white/5 hover:bg-white/10"
                     )}
                   >
                     Authority
@@ -538,7 +538,7 @@ function LegendaryLandingPage() {
           <div className="w-1 h-1 rounded-full bg-white/20" />
           <button onClick={() => setLegalModal('terms')} className="hover:text-primary transition-colors">Terms</button>
         </div>
-        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 NEXUS PROTOCOL v12.0</p>
+        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/20 italic">© 2026 NEXUS INDUSTRIES</p>
       </div>
 
       <AnimatePresence>
@@ -627,3 +627,4 @@ function LegendaryLandingPage() {
 }
 
 export default memo(LegendaryLandingPage);
+阻

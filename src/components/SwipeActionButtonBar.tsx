@@ -36,10 +36,10 @@ const _ICON_SPRING = { type: 'spring' as const, stiffness: 520, damping: 28 } as
 const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mass: 0.7 } as const;
 
 // ── DIMENSIONS ────────────────────────────────────────────────────────────────
-const LARGE_CSS = 'clamp(46px, 13vw, 56px)';
-const SMALL_CSS = 'clamp(34px, 10vw, 42px)';
-const LARGE_ICON = 26;
-const SMALL_ICON = 19;
+const LARGE_CSS = 'clamp(56px, 15vw, 68px)';
+const SMALL_CSS = 'clamp(44px, 12vw, 52px)';
+const LARGE_ICON = 32;
+const SMALL_ICON = 24;
 const GAP_CSS = 'clamp(8px, 3.5vw, 16px)';
 const TAP_SCALE = 0.94;
 

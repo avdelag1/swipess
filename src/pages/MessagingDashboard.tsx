@@ -53,8 +53,7 @@ export function MessagingDashboard() {
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'client';
   const { activeMode } = useActiveMode();
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useTheme();
 
   const { data: conversations = [], isLoading, refetch, fetchSingleConversation } = useConversations();
   const deleteConversation = useDeleteConversation();
@@ -181,7 +180,7 @@ export function MessagingDashboard() {
             animate={{ opacity: 1, scale: 1 }} 
             exit={{ opacity: 0, scale: 0.98 }}
             className={cn(
-              "w-full max-w-7xl mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
+              "w-full max-w-4xl mx-auto flex flex-col flex-1 min-h-0 relative shadow-2xl overflow-hidden border-x",
               isLight ? "bg-white border-black/5" : "bg-[#0A0A0C] border-white/5"
             )}
           >
@@ -374,5 +373,4 @@ export function MessagingDashboard() {
     </div>
   );
 }
-
-
+阻

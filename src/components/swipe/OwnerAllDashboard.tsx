@@ -129,13 +129,15 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
         className="relative w-full flex-grow flex flex-col items-center justify-center bg-transparent overflow-hidden"
         style={{ minHeight: 'auto' }}
       >
-        {/* Card stack — same responsive sizing as client */}
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 0 }}
+          animate={{ opacity: 1, y: 0 }}
           className="relative flex items-center justify-center transition-all"
           style={{ 
-            height: 'min(75svh, 600px)',
-            width: `calc(min(75svh, 600px) * ${PK_ASPECT})`,
-            padding: '0.4rem',
+            width: '100%',
+            height: 'calc(100svh - 90px)',
+            aspectRatio: `${PK_ASPECT}`,
+            maxHeight: 'none',
           }}
         >
           {[...cards].reverse().map((card, reversedIdx) => {
@@ -155,12 +157,10 @@ export const OwnerAllDashboard = memo(({ onCardSelect }: OwnerAllDashboardProps)
               />
             );
           })}
-        </div>
+        </motion.div>
       </motion.div>
     </AnimatePresence>
   );
 });
 
 OwnerAllDashboard.displayName = 'OwnerAllDashboard';
-
-

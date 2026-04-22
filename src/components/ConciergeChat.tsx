@@ -341,7 +341,7 @@ const ConversationSidebar = memo(({
 ConversationSidebar.displayName = 'ConversationSidebar';
 
 export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const { theme } = useTheme();
+  const { theme, isLight } = useTheme();
   const isSwipess = theme !== 'light';
   const LAST_ACTIVITY_KEY = 'Swipess_ai_last_activity';
 
@@ -623,9 +623,19 @@ export function ConciergeChat({ isOpen, onClose }: { isOpen: boolean; onClose: (
                          >
                            <Sparkles className="w-10 h-10 text-primary opacity-60" />
                          </motion.div>
-                         <div className="space-y-3">
-                           <h3 className="text-2xl font-black uppercase italic tracking-[0.2em] text-white">Interface Online</h3>
-                           <p className="text-xs font-medium text-white/20 uppercase tracking-[0.3em]">Awaiting Discovery Directives</p>
+                         <div className="space-y-1.5">
+                           <h3 className={cn(
+                             "text-sm font-black uppercase tracking-[0.3em] opacity-80",
+                             isLight ? "text-black" : "text-white"
+                           )}>
+                             {isNexus ? "System Neutral" : "Ready to Help"}
+                           </h3>
+                           <p className={cn(
+                             "text-[10px] uppercase tracking-widest",
+                             isLight ? "text-black/40" : "text-white/20"
+                           )}>
+                             {isNexus ? "Awaiting Command Interface" : "Awaiting user inquiry"}
+                           </p>
                          </div>
                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
                            {["Luxury Beach Villas", "Hidden Cenotes Guide", "Best Tulum Coworking", "Yacht Charters"].map(s => (

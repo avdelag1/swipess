@@ -81,7 +81,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   }, [isCameraRoute, isRadioRoute, showAIChat, modalStore.showMapFullscreen]);
 
   const handleFilterClick = () => {
-    modalStore.setModal('showFilters', true);
+    navigate(`/${userRole}/filters`);
   };
 
   const handleListingsClick = () => {
@@ -121,7 +121,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <main
         id="main-content"
         className={cn(
-          "w-full flex-1 relative z-0 flex flex-col items-center",
+          "w-full flex-1 relative z-0 flex flex-col",
           isFullScreen && "h-screen overflow-hidden fixed inset-0"
         )}
       >

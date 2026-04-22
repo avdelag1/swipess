@@ -44,7 +44,6 @@ interface MessagingInterfaceProps {
   onBack: () => void;
 }
 
-// Curated positive / friendly emojis — no angry or negative faces
 const QUICK_EMOJIS = [
   '👋', '😊', '😄', '😂', '🥰', '😍', '🤩', '😎',
   '🙏', '👍', '🔥', '❤️', '🎉', '✨', '💯', '🤝',
@@ -57,8 +56,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showActivationBanner, setShowActivationBanner] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
-  const { theme } = useTheme();
-  const isLight = theme === 'light';
+  const { theme, isLight } = useTheme();
+  const isThemeLight = isLight;
   const { user } = useAuth();
   const navigate = useNavigate();
   const { data: messages = [], isLoading } = useConversationMessages(conversationId);
@@ -70,22 +69,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const [showConnecting, setShowConnecting] = useState(false);
   const connectingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Check monthly message limits
   const { isAtLimit, hasMonthlyLimit, messagesRemaining } = useMonthlyMessageLimits();
-
-  // Real-time presence indicator
   const { isOnline } = usePresence(otherUser.id);
-
-  // Enable realtime chat for live message updates
   const { startTyping, stopTyping, typingUsers, isConnected } = useRealtimeChat(conversationId);
-
-  // Mark messages as read when viewing this conversation
   useMarkMessagesAsRead(conversationId, true);
-
-  // Prefetch manager for conversation messages
   const { prefetchTopConversationMessages } = usePrefetchManager();
 
-  // Prefetch messages on mount for faster subsequent loads
   useEffect(() => {
     if (conversationId) {
       if ('requestIdleCallback' in window) {
@@ -100,7 +89,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     }
   }, [conversationId, prefetchTopConversationMessages]);
 
-  // Debounce showing "Connecting" message to prevent flicker
   useEffect(() => {
     if (!isConnected) {
       connectingTimeoutRef.current = setTimeout(() => {
@@ -121,7 +109,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     };
   }, [isConnected]);
 
-  // Auto-scroll to bottom
   const isScrolledToBottom = useCallback(() => {
     if (!messagesContainerRef.current) return true;
     const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
@@ -177,23 +164,26 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         variant="activation-required"
       />
 
-      <div className="flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500 bg-background">
+      <div className={cn(
+        "flex-1 flex flex-col h-full overflow-hidden transition-colors duration-500",
+        isThemeLight ? "bg-white" : "bg-background"
+      )}>
         
-        {/* MESSAGING HEADER */}
+        {/* 🛸 NEXUS HUD HEADER */}
         <div className={cn(
             "shrink-0 px-6 py-4 z-20 backdrop-blur-3xl border-b transition-all",
-            isLight ? "bg-white/80 border-black/5" : "bg-black/40 border-white/5"
+            isThemeLight ? "bg-white/80 border-black/5" : "bg-black/40 border-white/5"
         )}>
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
               aria-label="Go back to conversations"
               className={cn(
-                "shrink-0 flex items-center justify-center w-9 h-9 rounded-xl transition-all active:scale-90 border",
-                isLight ? "bg-black/5 border-black/5" : "bg-white/10 border-white/10"
+                 "shrink-0 flex items-center justify-center w-11 h-11 rounded-2xl active:scale-90 transition-all border",
+                 isThemeLight ? "bg-black/5 border-black/5 text-black" : "bg-white/[0.08] border-white/10 text-white"
               )}
             >
-              <ChevronLeft className={cn("w-5 h-5", isLight ? "text-foreground" : "text-white")} />
+              <ChevronLeft className={cn("w-5 h-5", isThemeLight ? "text-black" : "text-white")} />
             </button>
 
             <div className="flex-1 flex items-center gap-3 min-w-0">
@@ -214,8 +204,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   isOnline ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-slate-500"
                 )} />
               </div>
-              <div className="flex flex-col items-start min-w-0">
-                <h3 className="font-bold text-[15px] text-foreground truncate leading-none mb-1">
+              <div className="flex flex-col min-w-0">
+                <h3 className={cn("font-black text-[15px] uppercase italic tracking-tighter truncate leading-none", isThemeLight ? "text-black" : "text-white")}>
                   {otherUser.full_name}
                 </h3>
                 <div className="flex items-center gap-1.5">
@@ -228,23 +218,36 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             </div>
 
             <div className="flex gap-2 shrink-0">
-              <Button
-                variant="ghost"
-                size="icon"
+              <button
                 onClick={() => setShowRatingDialog(true)}
-                className="w-9 h-9 rounded-xl bg-muted/50 hover:bg-muted text-amber-400"
+                className={cn("w-10 h-10 rounded-2xl flex items-center justify-center border transition-all", isThemeLight ? "bg-amber-500/10 border-amber-500/20 text-amber-600" : "bg-white/5 border-white/5 text-amber-400")}
               >
-                <Star className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-9 h-9 rounded-xl bg-muted/50 hover:bg-muted text-muted-foreground"
-              >
-                <Info className="w-4 h-4" />
-              </Button>
+                <Star className="w-5 h-5 fill-current" />
+              </button>
+              <button className={cn("w-10 h-10 rounded-2xl flex items-center justify-center border transition-all", isThemeLight ? "bg-black/5 border-black/5 text-black" : "bg-white/5 border-white/5 text-white/40")}>
+                <Info className="w-5 h-5" />
+              </button>
             </div>
           </div>
+
+          {listing && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }} 
+                animate={{ opacity: 1, y: 0 }}
+                className={cn("mt-4 p-3 rounded-2xl flex items-center gap-4 border", isThemeLight ? "bg-black/5 border-black/5" : "bg-white/[0.04] border-white/5")}
+              >
+                 <div className="w-12 h-12 rounded-xl overflow-hidden shadow-xl shrink-0">
+                    <img src={listing.images?.[0]} className="w-full h-full object-cover" />
+                 </div>
+                 <div className="flex-1 min-w-0">
+                    <h4 className={cn("text-[10px] font-black uppercase italic tracking-widest truncate leading-none", isThemeLight ? "text-black" : "text-white")}>{listing.title}</h4>
+                    <p className="text-[#EB4898] text-[12px] font-black italic mt-1">${listing.price?.toLocaleString()}</p>
+                 </div>
+                 <div className="px-3 py-1 bg-[#EB4898]/10 rounded-full border border-[#EB4898]/20">
+                    <span className="text-[8px] font-black uppercase text-[#EB4898] tracking-widest italic">{listing.category}</span>
+                 </div>
+              </motion.div>
+          )}
         </div>
 
         {/* Message Feed */}
@@ -275,8 +278,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             <div ref={messagesEndRef} />
         </div>
 
-        {/* MESSAGE INPUT AREA */}
-        <div className="p-6 backdrop-blur-3xl border-t transition-all bg-background/50">
+        {/* 🛸 COMMAND INPUT */}
+        <div className={cn("p-6 backdrop-blur-3xl border-t transition-all", isThemeLight ? "bg-white/90" : "bg-background/50")}>
           
           <AnimatePresence>
               {showEmojiPicker && (
@@ -302,53 +305,44 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
           <form onSubmit={handleSendMessage} className="flex gap-3 items-center">
             <button
-              type="button"
-              onClick={() => setShowEmojiPicker(p => !p)}
-              className={cn(
-                "shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all active:scale-90 border",
-                showEmojiPicker ? "bg-[#EB4898] border-[#EB4898] text-white" : "bg-muted/50 border-white/5 text-muted-foreground"
-              )}
+                type="button"
+                onClick={() => setShowEmojiPicker(p => !p)}
+                className={cn("shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all border", isThemeLight ? "bg-black/5 border-black/5 text-black" : "bg-white/5 border-white/10 text-white/40")}
             >
               <Smile className="w-5 h-5" />
             </button>
 
             <div className="flex-1 relative">
-              <input
-                value={newMessage}
-                onChange={(e) => { 
-                  setNewMessage(e.target.value); 
-                  if (e.target.value.trim()) startTyping(); 
-                  else stopTyping(); 
-                }}
-                placeholder={isAtLimit ? "LIMIT REACHED" : "TYPE A MESSAGE..."}
-                className={cn(
-                  "w-full h-12 rounded-2xl px-5 text-[14px] font-bold outline-none transition-all border",
-                  isLight ? "bg-black/5 border-black/5 text-black" : "bg-white/[0.05] border-white/5 text-white placeholder:text-white/20"
-                )}
-                disabled={sendMessage.isPending || isAtLimit}
-                maxLength={1000}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage(e as any);
-                  }
-                }}
-              />
-              {newMessage.length > 800 && (
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-white/30">
-                  {1000 - newMessage.length}
-                </span>
-              )}
+                <input
+                  value={newMessage}
+                  onChange={(e) => { setNewMessage(e.target.value); if (e.target.value.trim()) startTyping(); else stopTyping(); }}
+                  placeholder={isAtLimit ? "LIMIT REACHED" : "TRANSMIT LOGS..."}
+                  className={cn(
+                      "w-full h-14 pl-6 pr-14 rounded-2xl text-[14px] font-bold outline-none transition-all border",
+                      isThemeLight ? "bg-black/5 border-black/5 text-black" : "bg-white/[0.05] border-white/5 text-white placeholder:text-white/20"
+                  )}
+                  disabled={sendMessage.isPending || isAtLimit}
+                />
+                <button
+                    type="submit"
+                    disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
+                    className={cn(
+                        "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                        newMessage.trim() ? "bg-[#EB4898] text-white shadow-xl" : "bg-white/5 text-white/20"
+                    )}
+                >
+                    <Send className={cn("w-4 h-4", newMessage.trim() && "animate-pulse")} />
+                </button>
             </div>
 
             <motion.button
               type="submit"
               disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
               className={cn(
-                "shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
+                "shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
                 newMessage.trim() && !isAtLimit 
                   ? "bg-gradient-to-br from-[#EB4898] to-[#FF4D00] text-white shadow-lg shadow-[#EB4898]/20" 
-                  : "bg-muted/50 text-muted-foreground border border-white/5"
+                  : (isThemeLight ? "bg-black/5 text-black/20 border border-black/5" : "bg-white/5 text-white/20 border border-white/5")
               )}
               whileTap={{ scale: 0.9 }}
             >
@@ -393,5 +387,4 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 });
 
 MessagingInterface.displayName = 'MessagingInterface';
-
-
+阻

@@ -20,6 +20,7 @@ interface AIListingTriggerProps {
 export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
   const { openAIListing } = useModalStore();
   const [open, setOpen] = useState(false);
+  const { isLight } = useTheme();
 
   const handleSelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker') => {
     triggerHaptic('medium');
@@ -82,7 +83,12 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className="relative w-full h-full rounded-[2.5rem] border border-white/10 bg-[#050505]/95 backdrop-blur-3xl overflow-hidden flex flex-col p-6 shadow-[0_20px_80px_rgba(0,0,0,0.9)]"
+          className={cn(
+            "relative w-full h-full rounded-[2.5rem] border overflow-hidden flex flex-col p-6 shadow-[0_20px_80px_rgba(0,0,0,0.9)]",
+            isLight 
+              ? "bg-white border-black/10 text-black" 
+              : "bg-[#050505]/95 backdrop-blur-3xl border-white/10 text-white"
+          )}
         >
           {/* Subtle Top Accent */}
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
@@ -91,10 +97,16 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
           <div className="flex items-center justify-between mb-6 px-2">
              <div className="flex items-center gap-3">
                 <Sparkles className="w-4 h-4 text-indigo-500" />
-                <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 italic">Nexus AI Listing</h2>
+                <h2 className={cn(
+                  "text-[10px] font-black uppercase tracking-[0.4em] italic",
+                  isLight ? "text-black/40" : "text-white/40"
+                )}>Nexus AI Listing</h2>
              </div>
-             <DialogClose className="p-2 rounded-full hover:bg-white/5 transition-colors">
-                <X className="w-4 h-4 text-white/20" />
+             <DialogClose className={cn(
+               "p-2 rounded-full transition-colors",
+               isLight ? "hover:bg-black/5" : "hover:bg-white/5"
+             )}>
+                <X className={cn("w-4 h-4", isLight ? "text-black/20" : "text-white/20")} />
              </DialogClose>
           </div>
 
@@ -106,14 +118,20 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
                    initial={{ opacity: 0, x: -10 }}
                    animate={{ opacity: 1, x: 0 }}
                    transition={{ delay: idx * 0.04 }}
-                   whileHover={{ scale: 1.01, backgroundColor: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.15)' }}
+                   whileHover={{ scale: 1.01 }}
                    whileTap={{ scale: 0.98 }}
                    onClick={() => handleSelect(cat.id)}
-                   className="group relative flex items-center justify-between px-8 rounded-3xl border border-white/[0.04] bg-white/[0.01] transition-all duration-300"
+                   className={cn(
+                     "group relative flex items-center justify-between px-8 rounded-3xl border transition-all duration-300",
+                     isLight 
+                       ? "bg-black/[0.03] border-black/5 hover:bg-black/[0.06] hover:border-black/10" 
+                       : "bg-white/[0.01] border-white/[0.04] hover:bg-white/[0.04] hover:border-white/10"
+                   )}
                 >
                    <div className="flex items-center gap-6">
                       <div className={cn(
-                        "w-12 h-12 flex items-center justify-center rounded-2xl bg-white/[0.02] border border-white/[0.04] group-hover:scale-110 transition-transform duration-500",
+                        "w-12 h-12 flex items-center justify-center rounded-2xl border transition-transform duration-500 group-hover:scale-110",
+                        isLight ? "bg-black/[0.02] border-black/5" : "bg-white/[0.02] border-white/[0.04]",
                         cat.id === 'property' ? 'text-rose-500' :
                         cat.id === 'motorcycle' ? 'text-orange-500' :
                         cat.id === 'bicycle' ? 'text-violet-500' :
@@ -122,24 +140,36 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
                          <cat.icon className="w-6 h-6" />
                       </div>
                       <div className="flex flex-col items-start gap-0.5">
-                        <span className="text-[13px] font-black uppercase tracking-[0.15em] text-white/90 italic transition-colors">
+                        <span className={cn(
+                          "text-[13px] font-black uppercase tracking-[0.15em] italic transition-colors",
+                          isLight ? "text-black" : "text-white/90"
+                        )}>
                            {cat.label}
                         </span>
-                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/20 group-hover:text-white/40 transition-colors">
+                        <span className={cn(
+                          "text-[8px] font-black uppercase tracking-[0.2em] transition-colors",
+                          isLight ? "text-black/30 group-hover:text-black/60" : "text-white/20 group-hover:text-white/40"
+                        )}>
                           {cat.id === 'property' ? 'Residential Matrix' : 
                            cat.id === 'motorcycle' ? 'Velocity Units' : 
                            cat.id === 'bicycle' ? 'Pedal Kinetics' : 'Professional Units'}
                         </span>
                       </div>
                    </div>
-                   <ChevronRight className="w-4 h-4 text-white/10 group-hover:text-white/40 group-hover:translate-x-1 transition-all" />
+                   <ChevronRight className={cn(
+                     "w-4 h-4 transition-all group-hover:translate-x-1",
+                     isLight ? "text-black/10 group-hover:text-black/40" : "text-white/10 group-hover:text-white/40"
+                   )} />
                 </motion.button>
              ))}
           </div>
 
           {/* Footer Branding */}
           <div className="mt-6 pt-5 border-t border-white/5 flex items-center justify-center">
-             <p className="text-[8px] font-black uppercase tracking-[0.5em] text-white/10 italic">Secure Protocol Layer 4.0</p>
+             <p className={cn(
+               "text-[8px] font-black uppercase tracking-[0.5em] italic",
+               isLight ? "text-black/10" : "text-white/10"
+             )}>Secure Protocol Layer 4.0</p>
           </div>
         </motion.div>
       </DialogContent>

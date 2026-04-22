@@ -355,9 +355,9 @@ export const BottomNavigation = memo(({
                       width: isTablet ? ICON_SIZE_TABLET : (isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE),
                       height: isTablet ? ICON_SIZE_TABLET : (isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE),
                       color: active 
-                        ? 'var(--hud-text)' 
-                        : 'var(--hud-text)',
-                      opacity: active ? 1 : 0.45,
+                        ? (isLight ? 'black' : 'white') 
+                        : (isLight ? 'black' : 'white'),
+                      opacity: active ? 1 : 0.65,
                       fill: active ? activeColor : 'none',
                       strokeWidth: active ? 2 : 1.5,
                       filter: 'none',

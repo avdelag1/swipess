@@ -133,7 +133,7 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
   const unreadCount = unread.length;
 
   return (
-    <div className="fixed z-[99999] px-4 flex justify-center pointer-events-none left-0 right-0" style={{ top: 'calc(env(safe-area-inset-top, 0px) + 20px)' }}>
+    <div className="fixed z-[99999] px-4 flex justify-center pointer-events-none left-0 right-0" style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}>
       <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
         {visible && (
           <motion.div
@@ -156,7 +156,7 @@ export const NotificationBar = memo(function NotificationBar({ notifications, on
               opacity: { type: 'tween', duration: 0.15 },
             }}
             whileTap={{ scale: 0.98 }}
-            className="pointer-events-auto w-full max-w-[400px] rounded-[24px] overflow-hidden cursor-pointer touch-pan-x"
+            className="pointer-events-auto w-full max-w-[calc(100vw-32px)] sm:max-w-[420px] rounded-[28px] overflow-hidden cursor-pointer touch-pan-x"
             style={{ 
               x, 
               opacity,

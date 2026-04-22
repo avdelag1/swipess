@@ -1041,7 +1041,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1.05 }}
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full h-full flex flex-col items-center justify-center max-w-xl mx-auto"
+                className="w-full h-full flex flex-col items-center justify-center max-w-[700px] mx-auto"
               >
                 <SwipeAllDashboard setCategories={(ids) => setActiveCategory(Array.isArray(ids) ? ids[0] : ids)} />
               </motion.div>
@@ -1052,7 +1052,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap: _onListingTap, onInsight
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-full h-full max-w-xl mx-auto"
+                className="relative w-full h-full max-w-[700px] mx-auto"
               >
                 {/* Back card (Peek) */}
                 {currentIndex + 1 < deckQueue.length && (
