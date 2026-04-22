@@ -182,7 +182,7 @@ export function AIListingWizard() {
             exit={{ scale: 0.95, opacity: 0, y: 30 }}
             className={cn(
               "w-full max-w-2xl h-[100dvh] sm:h-[85vh] overflow-hidden sm:rounded-[3rem] border flex flex-col shadow-[0_40px_100px_rgba(0,0,0,1)] relative",
-              "bg-black border-white/20"
+              "bg-black border-white/10"
             )}
           >
             {/* Ambient Background */}
@@ -241,7 +241,7 @@ export function AIListingWizard() {
                             }}
                             className={cn(
                               "flex items-center gap-5 p-6 rounded-[2rem] border transition-all active:scale-[0.98] text-left group relative overflow-hidden",
-                              isSwipess ? "bg-white/5 border-white/5 hover:border-cyan-500/30 hover:bg-white/10" : "bg-muted/50 border-border"
+                              "bg-black/40 border-white/10 hover:border-cyan-500/30 hover:bg-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
                             )}
                           >
                             <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center border shadow-inner transition-all group-hover:scale-110", cat.bg, "border-white/5")}>

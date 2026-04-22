@@ -96,7 +96,7 @@ function TopBarComponent({
             <motion.button
               whileTap={{ scale: 0.9 }}
               onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); haptics.tap(); onBack(); }}
-              className="w-11 h-11 flex items-center justify-center rounded-full"
+              className="w-11 h-11 flex shrink-0 items-center justify-center rounded-full"
               style={glassPillStyle}
             >
               <ChevronLeft className="w-5 h-5" style={{ color: 'var(--hud-text)' }} />
@@ -110,7 +110,7 @@ function TopBarComponent({
                   haptics.tap();
                   navigate(isOwner ? '/owner/profile' : '/client/profile');
                 }}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-full"
+                className="flex shrink-0 items-center gap-2 px-2.5 py-1.5 rounded-full max-w-[120px]"
                 style={glassPillStyle}
               >
                 <div className={cn(
@@ -130,7 +130,7 @@ function TopBarComponent({
 
           {/* Mode Switcher Pill */}
           {!minimal && (
-            <div className="h-11 flex items-center px-4 rounded-full" style={glassPillStyle}>
+            <div className="h-11 flex shrink-0 items-center px-4 rounded-full" style={glassPillStyle}>
               <ModeSwitcher variant="icon" size="sm" />
             </div>
           )}
@@ -139,7 +139,7 @@ function TopBarComponent({
         <div className="flex-1" />
 
         {/* RIGHT CLUSTER: Individual Action Pills */}
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           {!minimal && (
             <>
                <motion.button
@@ -149,7 +149,7 @@ function TopBarComponent({
                   haptics.tap();
                   navigate('/radio');
                 }}
-                  className="w-11 h-11 rounded-full flex items-center justify-center p-0.5 relative group overflow-hidden"
+                  className="w-11 h-11 shrink-0 rounded-full flex items-center justify-center p-0.5 relative group overflow-hidden"
                 style={glassPillStyle}
                 title="Radio"
               >
@@ -161,11 +161,11 @@ function TopBarComponent({
 
               <AIListingTrigger glassPillStyle={glassPillStyle} />
 
-              <div className="w-11 h-11 flex items-center justify-center rounded-full" style={glassPillStyle}>
+              <div className="w-11 h-11 shrink-0 flex items-center justify-center rounded-full" style={glassPillStyle}>
                 <ThemeToggle />
               </div>
               
-              <div className="w-11 h-11 flex items-center justify-center rounded-full" style={glassPillStyle}>
+              <div className="w-11 h-11 shrink-0 flex items-center justify-center rounded-full" style={glassPillStyle}>
                 <NotificationPopover />
               </div>
             </>

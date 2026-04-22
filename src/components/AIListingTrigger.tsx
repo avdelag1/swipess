@@ -78,6 +78,7 @@ export function AIListingTrigger({ glassPillStyle }: AIListingTriggerProps) {
       </DialogTrigger>
       
       <DialogContent 
+        hideCloseButton
         className="!p-0 !border-none !bg-transparent !max-w-[420px] !w-[90vw] !aspect-square overflow-visible shadow-none focus:outline-none"
       >
         <motion.div
