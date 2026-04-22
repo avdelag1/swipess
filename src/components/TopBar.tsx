@@ -14,6 +14,7 @@ import { NotificationPopover } from './NotificationPopover';
 import { ThemeToggle } from './ThemeToggle';
 import { useModalStore } from '@/state/modalStore';
 import { useFilterStore, useFilterActions } from '@/state/filterStore';
+import { AIListingTrigger } from './AIListingTrigger';
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
@@ -158,6 +159,8 @@ function TopBarComponent({
                   strokeWidth={2.5} 
                 />
               </motion.button>
+
+              <AIListingTrigger glassPillStyle={glassPillStyle} />
 
               <div className="w-10 h-10 flex items-center justify-center rounded-full" style={glassPillStyle}>
                 <ThemeToggle />
