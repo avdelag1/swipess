@@ -83,12 +83,23 @@ export function useSmartListingMatching(
         staleTime: 5 * 60 * 1000, // 5 minutes cache
     });
 
+    // 📡 REAL-TIME SYNC: Invalidate listing cache when new items are added
+    // Throttle to prevent hammer-looping if multiple listings are added quickly
+    const lastInvalidateRef = useRef<number>(0);
     useEffect(() => {
         if (!userId) return;
         const channel = supabase
-            .channel('listings-realtime')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'listings' }, () => {
-                logger.info('[SmartMatching] New listing inserted, invalidating queries');
+            .channel(`smart-listings-sync-${userId}`)
+            .on('postgres_changes', { 
+                event: 'INSERT', 
+                schema: 'public', 
+                table: 'listings' 
+            }, (payload) => {
+                const now = Date.now();
+                if (now - lastInvalidateRef.current < 10000) return; // 10s cooldown
+                lastInvalidateRef.current = now;
+                
+                logger.info('[SmartMatching] New listing detected, refreshing cache...');
                 queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
             })
             .subscribe();

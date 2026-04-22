@@ -104,7 +104,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     applyThemeToDOM(theme);
   }, [theme]);
 
-  const setTheme = (newTheme: Theme, coords?: ThemeToggleCoords) => {
+  const setTheme = React.useCallback((newTheme: Theme, coords?: ThemeToggleCoords) => {
     const root = window.document.documentElement;
     root.style.setProperty('--theme-reveal-x', coords ? `${coords.x}px` : '50%');
     root.style.setProperty('--theme-reveal-y', coords ? `${coords.y}px` : '50%');
@@ -124,11 +124,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem(STORAGE_KEY, newTheme);
       });
     }
-  };
+  }, []);
 
   const isLight = theme === 'light';
   const isDark = !isLight;
-  const value = React.useMemo(() => ({ theme, isLight, isDark, setTheme }), [theme, isLight, isDark]);
+  const value = React.useMemo(() => ({ theme, isLight, isDark, setTheme }), [theme, isLight, isDark, setTheme]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

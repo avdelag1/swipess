@@ -61,6 +61,8 @@ interface FilterState {
   amenities: string[];
   propertyTypes: string[];
   serviceTypes: string[];
+  furnished: boolean;
+  petFriendly: boolean;
   
   filterVersion: number;
   lastChangedAt: number;
@@ -85,6 +87,7 @@ interface FilterState {
   setPropertyTypes: (types: string[]) => void;
   setServiceTypes: (types: string[]) => void;
   setFilters: (filters: Partial<QuickFilters>) => void;
+  updateFilters: (filters: Partial<FilterState>) => void;
   resetClientFilters: () => void;
   resetOwnerFilters: () => void;
   resetAllFilters: () => void;
@@ -132,6 +135,8 @@ export const useFilterStore = create<FilterState>()(
     amenities: [],
     propertyTypes: [],
     serviceTypes: [],
+    furnished: false,
+    petFriendly: false,
     filterVersion: 0,
     lastChangedAt: Date.now(),
 
@@ -144,10 +149,52 @@ export const useFilterStore = create<FilterState>()(
       }));
     },
     setUserLocation: (lat, lon) => {
-      set({ userLatitude: lat, userLongitude: lon });
+      set((state) => ({ 
+        userLatitude: lat, 
+        userLongitude: lon,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+    updateFilters: (filters: Record<string, any>) => {
+      set((state) => {
+        const mapped: any = {};
+        // Map snake_case from UI components to camelCase store state
+        if (filters.property_types) mapped.propertyTypes = filters.property_types;
+        if (filters.listing_types) mapped.listingType = filters.listing_types[0] || 'both';
+        if (filters.price_min !== undefined || filters.price_max !== undefined) {
+          mapped.priceRange = [filters.price_min || 0, filters.price_max || 1000000];
+        }
+        if (filters.min_bedrooms !== undefined || filters.max_bedrooms !== undefined) {
+          mapped.bedrooms = [filters.min_bedrooms || 0, filters.max_bedrooms || 10];
+        }
+        if (filters.min_bathrooms !== undefined || filters.max_bathrooms !== undefined) {
+          mapped.bathrooms = [filters.min_bathrooms || 0, filters.max_bathrooms || 5];
+        }
+        if (filters.furnished !== undefined) mapped.furnished = filters.furnished;
+        if (filters.pet_friendly !== undefined) mapped.petFriendly = filters.pet_friendly;
+        
+        // Demographic mapping
+        if (filters.gender_preference) mapped.clientGender = filters.gender_preference;
+        if (filters.nationalities) mapped.clientNationalities = filters.nationalities;
+        
+        // Service mapping
+        if (filters.service_categories) mapped.serviceTypes = filters.service_categories;
+
+        return {
+          ...mapped,
+          filterVersion: state.filterVersion + 1,
+          lastChangedAt: Date.now(),
+        };
+      });
     },
     clearUserLocation: () => {
-      set({ userLatitude: null, userLongitude: null });
+      set((state) => ({ 
+        userLatitude: null, 
+        userLongitude: null,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
     },
     setActiveCategory: (category) => {
       if (get().activeCategory === category) return;
@@ -356,6 +403,8 @@ export const useFilterStore = create<FilterState>()(
         userLatitude: state.userLatitude ?? undefined,
         userLongitude: state.userLongitude ?? undefined,
         serviceCategory: state.serviceTypes.length > 0 ? state.serviceTypes : undefined,
+        petFriendly: state.petFriendly || undefined,
+        furnished: state.furnished || undefined,
       };
     },
     getClientFilters: () => {
@@ -391,7 +440,9 @@ export const useFilterStore = create<FilterState>()(
         clientType: state.clientType,
         userLatitude: state.userLatitude,
         userLongitude: state.userLongitude,
-        radiusKm: state.radiusKm
+        radiusKm: state.radiusKm,
+        furnished: state.furnished,
+        petFriendly: state.petFriendly
       }), // only persist these fields
     }
   )
@@ -421,6 +472,7 @@ export const useFilterActions = () => useFilterStore(useShallow((state) => ({
   setClientGender: state.setClientGender,
   setClientType: state.setClientType,
   setFilters: state.setFilters,
+  updateFilters: state.updateFilters,
   resetClientFilters: state.resetClientFilters,
   resetOwnerFilters: state.resetOwnerFilters,
   resetAllFilters: state.resetAllFilters,

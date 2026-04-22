@@ -24,20 +24,27 @@ export default function ClientFilters() {
   const { theme, isLight } = useAppTheme();
   const isDark = theme === 'dark' || theme === 'swipess-style';
   const resetMutation = useCardReset();
-  
-  const [activeCategory, setActiveCategory] = useState<CategoryType>('property');
-  const [filters, setFilters] = useState<Record<string, any>>({});
+
+  const activeCategory = useFilterStore(s => s.activeCategory) || 'property';
+  const setActiveCategory = useFilterStore(s => s.setActiveCategory);
+  const getListingFilters = useFilterStore(s => s.getListingFilters);
+  const updateFilters = useFilterStore(s => s.updateFilters);
+  const clearFilters = useFilterStore(s => s.clearFilters);
+
+  const [localFilters, setLocalFilters] = useState<Record<string, any>>(getListingFilters());
 
   const handleApply = useCallback(() => {
     haptics.success();
+    updateFilters(localFilters);
     queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
     navigate('/client/dashboard');
-  }, [navigate, queryClient]);
+  }, [navigate, queryClient, updateFilters, localFilters]);
 
   const handleReset = useCallback(() => {
     haptics.tap();
-    setFilters({});
-  }, []);
+    clearFilters();
+    setLocalFilters({});
+  }, [clearFilters]);
 
   const categories = [
     { id: 'property', name: 'Properties', icon: Home },
@@ -123,7 +130,7 @@ export default function ClientFilters() {
             return (
               <button
                 key={cat.id}
-                onClick={() => { haptics.tap(); setActiveCategory(cat.id as CategoryType); }}
+                onClick={() => { haptics.tap(); setActiveCategory(cat.id as any); }}
                 className={cn(
                   "flex flex-col items-center justify-center gap-2 py-5 rounded-[2rem] transition-all duration-300 relative overflow-hidden group",
                   active 
@@ -159,10 +166,10 @@ export default function ClientFilters() {
               isLight ? "bg-white border-slate-200 shadow-xl" : "bg-white/[0.02] border-white/5"
             )}
           >
-            {activeCategory === 'property' && <PropertyClientFilters onApply={(f) => setFilters(f)} initialFilters={filters} />}
-            {activeCategory === 'motorcycle' && <MotoClientFilters onApply={(f) => setFilters(f)} initialFilters={filters} />}
-            {activeCategory === 'bicycle' && <BicycleClientFilters onApply={(f) => setFilters(f)} initialFilters={filters} />}
-            {activeCategory === 'services' && <WorkerClientFilters onApply={(f) => setFilters(f)} initialFilters={filters} />}
+            {activeCategory === 'property' && <PropertyClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} />}
+            {activeCategory === 'motorcycle' && <MotoClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} />}
+            {activeCategory === 'bicycle' && <BicycleClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} />}
+            {activeCategory === 'services' && <WorkerClientFilters onApply={(f) => setLocalFilters(f)} initialFilters={localFilters} />}
           </motion.div>
         </AnimatePresence>
       </main>
